@@ -50,8 +50,8 @@ abstract class Scala3ExampleProjectCompilationTestBase(
 
     revertible = CompilerTestUtil.withEnabledCompileServer(useCompileServer)
     revertible.applyChange()
-    ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType = incrementalityType
-    compiler = new CompilerTester(myProject, java.util.List.of(getMainModule), null, false)
+    ScalaCompilerConfiguration.instanceIn(getMyProject).incrementalityType = incrementalityType
+    compiler = new CompilerTester(getMyProject, java.util.List.of(getMainModule), null, false)
   }
 
   override def tearDown(): Unit = try {

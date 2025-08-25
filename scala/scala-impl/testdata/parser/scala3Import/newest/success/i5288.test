@@ -386,9 +386,10 @@ ScalaFile
                 PsiElement(identifier)('c')
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
-                SimpleType: C
-                  CodeReferenceElement: C
-                    PsiElement(identifier)('C')
+                ParameterType
+                  SimpleType: C
+                    CodeReferenceElement: C
+                      PsiElement(identifier)('C')
               PsiElement())(')')
             PsiWhiteSpace(' ')
             PsiElement(=>)('=>')
@@ -434,9 +435,10 @@ ScalaFile
                     PsiElement(identifier)('c')
                     PsiElement(:)(':')
                     PsiWhiteSpace(' ')
-                    SimpleType: C
-                      CodeReferenceElement: C
-                        PsiElement(identifier)('C')
+                    ParameterType
+                      SimpleType: C
+                        CodeReferenceElement: C
+                          PsiElement(identifier)('C')
                   PsiElement())(')')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
@@ -773,18 +775,20 @@ ScalaFile
                 PsiElement(identifier)('c1')
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
-                SimpleType: C
-                  CodeReferenceElement: C
-                    PsiElement(identifier)('C')
+                ParameterType
+                  SimpleType: C
+                    CodeReferenceElement: C
+                      PsiElement(identifier)('C')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
               Parameter: c2
                 PsiElement(identifier)('c2')
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
-                SimpleType: C
-                  CodeReferenceElement: C
-                    PsiElement(identifier)('C')
+                ParameterType
+                  SimpleType: C
+                    CodeReferenceElement: C
+                      PsiElement(identifier)('C')
               PsiElement())(')')
             PsiWhiteSpace(' ')
             PsiElement(=>)('=>')
@@ -841,18 +845,20 @@ ScalaFile
                     PsiElement(identifier)('c1')
                     PsiElement(:)(':')
                     PsiWhiteSpace(' ')
-                    SimpleType: C
-                      CodeReferenceElement: C
-                        PsiElement(identifier)('C')
+                    ParameterType
+                      SimpleType: C
+                        CodeReferenceElement: C
+                          PsiElement(identifier)('C')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
                   Parameter: c2
                     PsiElement(identifier)('c2')
                     PsiElement(:)(':')
                     PsiWhiteSpace(' ')
-                    SimpleType: C
-                      CodeReferenceElement: C
-                        PsiElement(identifier)('C')
+                    ParameterType
+                      SimpleType: C
+                        CodeReferenceElement: C
+                          PsiElement(identifier)('C')
                   PsiElement())(')')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
@@ -1191,9 +1197,10 @@ ScalaFile
                   PsiElement(identifier)('c')
                   PsiElement(:)(':')
                   PsiWhiteSpace(' ')
-                  SimpleType: C
-                    CodeReferenceElement: C
-                      PsiElement(identifier)('C')
+                  ParameterType
+                    SimpleType: C
+                      CodeReferenceElement: C
+                        PsiElement(identifier)('C')
                 PsiElement())(')')
               PsiWhiteSpace(' ')
               PsiElement(=>)('=>')
@@ -1246,9 +1253,10 @@ ScalaFile
                       PsiElement(identifier)('c')
                       PsiElement(:)(':')
                       PsiWhiteSpace(' ')
-                      SimpleType: C
-                        CodeReferenceElement: C
-                          PsiElement(identifier)('C')
+                      ParameterType
+                        SimpleType: C
+                          CodeReferenceElement: C
+                            PsiElement(identifier)('C')
                     PsiElement())(')')
                   PsiWhiteSpace(' ')
                   PsiElement(=>)('=>')
@@ -1349,9 +1357,10 @@ ScalaFile
                 PsiElement(identifier)('c')
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
-                SimpleType: C
-                  CodeReferenceElement: C
-                    PsiElement(identifier)('C')
+                ParameterType
+                  SimpleType: C
+                    CodeReferenceElement: C
+                      PsiElement(identifier)('C')
               PsiElement())(')')
             PsiWhiteSpace(' ')
             PsiElement(=>)('=>')
@@ -1404,9 +1413,10 @@ ScalaFile
                     PsiElement(identifier)('c')
                     PsiElement(:)(':')
                     PsiWhiteSpace(' ')
-                    SimpleType: C
-                      CodeReferenceElement: C
-                        PsiElement(identifier)('C')
+                    ParameterType
+                      SimpleType: C
+                        CodeReferenceElement: C
+                          PsiElement(identifier)('C')
                   PsiElement())(')')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
@@ -1591,9 +1601,10 @@ ScalaFile
                 PsiElement(identifier)('c1')
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
-                SimpleType: C
-                  CodeReferenceElement: C
-                    PsiElement(identifier)('C')
+                ParameterType
+                  SimpleType: C
+                    CodeReferenceElement: C
+                      PsiElement(identifier)('C')
               PsiElement())(')')
             PsiWhiteSpace(' ')
             PsiElement(=>)('=>')
@@ -1605,9 +1616,10 @@ ScalaFile
                   PsiElement(identifier)('c2')
                   PsiElement(:)(':')
                   PsiWhiteSpace(' ')
-                  SimpleType: C
-                    CodeReferenceElement: C
-                      PsiElement(identifier)('C')
+                  ParameterType
+                    SimpleType: C
+                      CodeReferenceElement: C
+                        PsiElement(identifier)('C')
                 PsiElement())(')')
               PsiWhiteSpace(' ')
               PsiElement(=>)('=>')
@@ -1664,9 +1676,10 @@ ScalaFile
                     PsiElement(identifier)('c1')
                     PsiElement(:)(':')
                     PsiWhiteSpace(' ')
-                    SimpleType: C
-                      CodeReferenceElement: C
-                        PsiElement(identifier)('C')
+                    ParameterType
+                      SimpleType: C
+                        CodeReferenceElement: C
+                          PsiElement(identifier)('C')
                   PsiElement())(')')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
@@ -1678,9 +1691,10 @@ ScalaFile
                       PsiElement(identifier)('c2')
                       PsiElement(:)(':')
                       PsiWhiteSpace(' ')
-                      SimpleType: C
-                        CodeReferenceElement: C
-                          PsiElement(identifier)('C')
+                      ParameterType
+                        SimpleType: C
+                          CodeReferenceElement: C
+                            PsiElement(identifier)('C')
                     PsiElement())(')')
                   PsiWhiteSpace(' ')
                   PsiElement(=>)('=>')

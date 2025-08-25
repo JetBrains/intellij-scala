@@ -37,4 +37,11 @@ class ScalaFileNameInspectionTest extends ScalaInspectionTestBase with Assertion
 
   def test_correct_class(): Unit =
     checkTextHasNoErrors("class Start")
+
+  def test_one_toplevel_abstract_type_different_names(): Unit =
+    checkTextHasNoErrors(
+      s"""
+         |type ${START}Bar${END}
+         |""".stripMargin
+    )
 }

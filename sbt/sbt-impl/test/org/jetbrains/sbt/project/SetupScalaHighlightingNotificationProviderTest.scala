@@ -24,11 +24,11 @@ class SetupScalaHighlightingNotificationProviderTest extends SbtExternalSystemIm
   override def setUp(): Unit = {
     super.setUp()
     SbtProjectResolver.processOutputOfLatestStructureDump = ""
-    SbtCachesSetupUtil.setupCoursierAndIvyCache(getProject)
+    SbtCachesSetupUtil.setupCoursierAndIvyCache(getMyProject)
   }
 
   def testSetupScalaHighlighting(): Unit = {
-    val notificationProvider = EditorNotificationProvider.EP_NAME.findExtensionOrFail(classOf[SetupScalaHighlightingNotificationProvider], getProject)
+    val notificationProvider = EditorNotificationProvider.EP_NAME.findExtensionOrFail(classOf[SetupScalaHighlightingNotificationProvider], getMyProject)
 
     val greeterPath = getTestProjectPath / "module1" / "src" / "main" / "java" / "Greeter.java"
     val abstractGreeterPath = getTestProjectPath / "module1" / "src" / "main" / "kotlin" / "AbstractGreeter.kt"
@@ -56,16 +56,16 @@ class SetupScalaHighlightingNotificationProviderTest extends SbtExternalSystemIm
     val shouldHighlightAbstractGreeterAfter = ProblemHighlightFilter.shouldHighlightFile(abstractGreeterPsiFileAfter)
     val shouldHighlightHelloWorldGreeterAfter = ProblemHighlightFilter.shouldHighlightFile(helloWorldGreeterPsiFileAfter)
 
-    val notificationBannerGreeterAfter = notificationProvider.collectNotificationData(getProject, greeterPsiFileBefore.getVirtualFile)
-    val notificationBannerAbstractGreeterAfter = notificationProvider.collectNotificationData(getProject, abstractGreeterPsiFileBefore.getVirtualFile)
-    val notificationBannerHelloWorldGreeterAfter = notificationProvider.collectNotificationData(getProject, helloWorldGreeterPsiFileBefore.getVirtualFile)
+    val notificationBannerGreeterAfter = notificationProvider.collectNotificationData(getMyProject, greeterPsiFileBefore.getVirtualFile)
+    val notificationBannerAbstractGreeterAfter = notificationProvider.collectNotificationData(getMyProject, abstractGreeterPsiFileBefore.getVirtualFile)
+    val notificationBannerHelloWorldGreeterAfter = notificationProvider.collectNotificationData(getMyProject, helloWorldGreeterPsiFileBefore.getVirtualFile)
 
     assertTrue("Greeter.java should be highlighted after the project has been imported", shouldHighlightGreeterAfter)
     assertTrue("AbstractGreeter.kt should be highlighted after the project has been imported", shouldHighlightAbstractGreeterAfter)
     assertTrue("HelloWorldGreeter.scala should be highlighted after the project has been imported", shouldHighlightHelloWorldGreeterAfter)
-    assertTrue("The sbt project should have been imported (Greeter.java)", SbtProjectImportStateService.instance(getProject).isImported(greeterPsiFileAfter))
-    assertTrue("The sbt project should have been imported (AbstractGreeter.kt)", SbtProjectImportStateService.instance(getProject).isImported(abstractGreeterPsiFileAfter))
-    assertTrue("The sbt project should have been imported (HelloWorldGreeter.scala)", SbtProjectImportStateService.instance(getProject).isImported(helloWorldGreeterPsiFileAfter))
+    assertTrue("The sbt project should have been imported (Greeter.java)", SbtProjectImportStateService.instance(getMyProject).isImported(greeterPsiFileAfter))
+    assertTrue("The sbt project should have been imported (AbstractGreeter.kt)", SbtProjectImportStateService.instance(getMyProject).isImported(abstractGreeterPsiFileAfter))
+    assertTrue("The sbt project should have been imported (HelloWorldGreeter.scala)", SbtProjectImportStateService.instance(getMyProject).isImported(helloWorldGreeterPsiFileAfter))
     assertNull("A notification banner should not be shown in Greeter.java after the project has been imported", notificationBannerGreeterAfter)
     assertNull("A notification banner should not be shown in AbstractGreeter.kt after the project has been imported", notificationBannerAbstractGreeterAfter)
     assertNull("A notification banner should not be shown in HelloWorldGreeter.scala after the project has been imported", notificationBannerHelloWorldGreeterAfter)
@@ -76,20 +76,20 @@ class SetupScalaHighlightingNotificationProviderTest extends SbtExternalSystemIm
     val shouldHighlightScalaListAfter = ProblemHighlightFilter.shouldHighlightFile(scalaListPsiFileAfter)
     val shouldHighlightCNodeBaseAfter = ProblemHighlightFilter.shouldHighlightFile(cNodeBasePsiFileAfter)
 
-    val notificationBannerScalaListAfter = notificationProvider.collectNotificationData(getProject, scalaListPsiFileAfter.getVirtualFile)
-    val notificationBannerCNodeBaseAfter = notificationProvider.collectNotificationData(getProject, cNodeBasePsiFileAfter.getVirtualFile)
+    val notificationBannerScalaListAfter = notificationProvider.collectNotificationData(getMyProject, scalaListPsiFileAfter.getVirtualFile)
+    val notificationBannerCNodeBaseAfter = notificationProvider.collectNotificationData(getMyProject, cNodeBasePsiFileAfter.getVirtualFile)
 
     assertTrue("List.scala should be highlighted after the project has been imported", shouldHighlightScalaListAfter)
     assertTrue("CNodeBase.java should be highlighted after the project has been imported", shouldHighlightCNodeBaseAfter)
-    assertTrue("The sbt project should have been imported (List.scala)", SbtProjectImportStateService.instance(getProject).isImported(scalaListPsiFileAfter))
-    assertTrue("The sbt project should have been imported (CNodeBase.java)", SbtProjectImportStateService.instance(getProject).isImported(cNodeBasePsiFileAfter))
+    assertTrue("The sbt project should have been imported (List.scala)", SbtProjectImportStateService.instance(getMyProject).isImported(scalaListPsiFileAfter))
+    assertTrue("The sbt project should have been imported (CNodeBase.java)", SbtProjectImportStateService.instance(getMyProject).isImported(cNodeBasePsiFileAfter))
     assertNull("A notification banner should not be shown in List.scala after the project has been imported", notificationBannerScalaListAfter)
     assertNull("A notification banner should not be shown in CNodeBase.java after the project has been imported", notificationBannerCNodeBaseAfter)
   }
 
   private def findPsiFile(path: Path): PsiFile = {
     val virtualFile = findVirtualFile(path)
-    val manager = PsiManager.getInstance(getProject)
+    val manager = PsiManager.getInstance(getMyProject)
     val psiFile = manager.findFile(virtualFile)
     assertNotNull(s"Could not find psi file for virtual file: $virtualFile", psiFile)
     psiFile
@@ -104,8 +104,8 @@ class SetupScalaHighlightingNotificationProviderTest extends SbtExternalSystemIm
   }
 
   private def findPsiFileForLibraryClass(fqn: String): PsiFile = {
-    val facade = JavaPsiFacade.getInstance(getProject)
-    val cls = facade.findClass(fqn, ProjectScope.getLibrariesScope(getProject))
+    val facade = JavaPsiFacade.getInstance(getMyProject)
+    val cls = facade.findClass(fqn, ProjectScope.getLibrariesScope(getMyProject))
     assertNotNull(s"Could not find class: $fqn", cls)
     val file = cls.getContainingFile
     assertNotNull(s"Could not find containing file for class: $fqn", file)

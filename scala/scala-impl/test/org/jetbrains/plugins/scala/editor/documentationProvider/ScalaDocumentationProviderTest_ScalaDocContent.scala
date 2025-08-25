@@ -269,7 +269,7 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
          |<tr><td valign='top' class='section'><p>Returns:</td>
          |<td valign='top'>some text</td>
          |<tr><td valign='top' class='section'><p>Throws:</td>
-         |<td valign='top'><a href="psi_element://$exceptionClass"><code>Exception</code></a> &ndash; some text</td>
+         |<td valign='top'><a href="psi_element://$exceptionClass"><code>java.lang.Exception</code></a> &ndash; some text</td>
          |<tr><td valign='top' class='section'><p>Note:</td>
          |<td valign='top'>some text</td>
          |<tr><td valign='top' class='section'><p>Example:</td>
@@ -340,7 +340,7 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
     val expectedDoc =
       s"""<tr><td valign='top' class='section'><p>Throws:</td>
          |<td valign='top'>
-         |<a href="psi_element://$exceptionClass"><code>Exception</code></a>
+         |<a href="psi_element://$exceptionClass"><code>java.lang.Exception</code></a>
          | &ndash; some condition 1
          |<p><a href="psi_element://java.lang.IllegalAccessException"><code>IllegalAccessException</code></a>
          | &ndash; some condition 2
@@ -839,9 +839,9 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
          |class ${|}A
          |""".stripMargin
     val expectedDoc =
-      s"""<a href="psi_element://java.lang.Exception"><code>${if (aliasExportsEnabled) "Exception" else "java.lang.Exception"}</code></a><br>
-         | <a href="psi_element://$exceptionClass"><code>Exception</code></a><br>
-         | <a href="psi_element://scala.Exception"><code>${if (aliasExportsEnabled) "scala.Exception" else "Exception"}</code></a><br>
+      s"""<a href="psi_element://java.lang.Exception"><code>${if (aliasExportsEnabled) "java.lang.Exception" else "java.lang.Exception"}</code></a><br>
+         | <a href="psi_element://java.lang.Exception"><code>java.lang.Exception</code></a><br>
+         | <a href="psi_element://java.lang.Exception"><code>${if (aliasExportsEnabled) "java.lang.Exception" else "java.lang.Exception"}</code></a><br>
          |""".stripMargin
     doGenerateDocContentTest(fileText, expectedDoc)
   }

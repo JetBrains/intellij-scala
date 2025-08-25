@@ -7,7 +7,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable}
 import com.intellij.openapi.roots.{LanguageLevelProjectExtension, ProjectRootManager}
 import com.intellij.testFramework.IndexingTestUtil
-import org.jetbrains.plugins.scala.{SlowTests2, SlowTests}
+import org.jetbrains.plugins.scala.SlowTests2
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.sbt.project.utils.ProjectStructureComparisonContext
 import org.junit.Assert
@@ -20,11 +20,6 @@ abstract class NewScalaProjectWizardTestBase extends NewProjectWizardTestCase
 
   protected implicit def compareContext: ProjectStructureComparisonContext =
     ProjectStructureComparisonContext.Implicit.default(getProject)
-
-  override protected def setUp(): Unit = {
-    super.setUp()
-    configureJdk()
-  }
 
   override def tearDown(): Unit = {
     inWriteAction {

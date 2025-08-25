@@ -12,7 +12,7 @@ object Versions {
   // ATTENTION: when updating `sbtVersion` also update it in `org.jetbrains.sbt.SbtVersion.Latest`
   // NOTE: sbt-launch / bloop-launcher won't be fetched on refresh.
   // run runtimeDependencies/update manually
-  val sbtVersion: String = "1.11.3"
+  val sbtVersion: String = "1.11.4"
   val bloopVersion = "1.5.6"
   val zincVersion = "1.10.8"
 
@@ -20,7 +20,7 @@ object Versions {
    * ATTENTION: check the comment in [[Common.newProjectWithKotlin]] when updating this version.
    *            update `since-build` in plugin.xml if there are binary incompatible changes after update
    */
-  val intellijVersion = "253.7181"
+  val intellijVersion = "253.15192"
 
   def isNightlyIntellijVersion: Boolean = intellijVersion.count(_ == '.') == 1
 
@@ -47,8 +47,8 @@ object Versions {
   val junitInterfaceVersion: String = "0.13.3"
 
   val bspVersion = "2.1.0-M3"
-  val sbtStructureVersion: String = "2025.3.0"
-  val sbtIdeaShellVersion: String = "2025.1.4"
+  val sbtStructureVersion: String = "2025.3.1"
+  val sbtIdeaShellVersion: String = "2025.2.0"
   val compilerIndicesVersion = "1.0.16"
 
   val java9rtExportVersion: String = "0.1.0"
@@ -61,20 +61,20 @@ object Versions {
    * However according to Peter Gromov it shouldn't be important for us and we can use maven dependencies.
    * Those custom distributions usually contain performance fixes and not the logic.
    */
-  val LanguageToolVersion = "6.5.0.12"
+  val LanguageToolVersion = "6.6.16"
 
   object Sbt {
     val binary_0_13 = "0.13"
     val binary_1_0 = "1.0" // 1.0 is the binary version of sbt 1.x series
-    val binary_2_0 = "2.0"
+    val binary_2 = "2" // 2 is the binary version of sbt 2
 
     //sbt-structure-extractor is cross-published in a non-standard way,
     //against multiple 1.x versions, so it uses an exact binary version 1.x.
-    //Versions 1.0-1.2 use 1.2, versions 1.3 and above use 1.3
+    //Versions 1.0-1.2 use 1.0, versions 1.3 and above use 1.3
     val structure_extractor_binary_0_13 = "0.13"
     val structure_extractor_binary_1_0 = "1.0"
     val structure_extractor_binary_1_3 = "1.3"
-    val structure_extractor_binary_2_0 = "2.0"
+    val structure_extractor_binary_2 = "2"
   }
 }
 
@@ -87,14 +87,14 @@ object Dependencies {
   val scalaReflect: ModuleID = "org.scala-lang" % "scala-reflect" % scalaVersion
   val scalaCompiler: ModuleID = "org.scala-lang" % "scala-compiler" % scalaVersion
   val scala3Compiler: ModuleID = "org.scala-lang" % "scala3-compiler_3" % scala3Version
-  val scalaXml: ModuleID = "org.scala-lang.modules" %% "scala-xml" % "2.3.0"
+  val scalaXml: ModuleID = "org.scala-lang.modules" %% "scala-xml" % "2.4.0"
   val tastyCore: ModuleID = "org.scala-lang" % "tasty-core_3" % Versions.scala3Version
   val scalaParallelCollections: ModuleID = "org.scala-lang.modules" %% "scala-parallel-collections" % "0.2.0"
   // this actually needs the explicit version because something in packager breaks otherwise (???)
   val sbtStructureCore: ModuleID = "org.jetbrains.scala" %% "sbt-structure-core" % sbtStructureVersion
   val evoInflector: ModuleID = "org.atteo" % "evo-inflector" % "1.3"
-  val coursierDirectoriesJni: ModuleID = "io.get-coursier.util" % "directories-jni" % "0.1.3"
-  val apacheCommonsText: ModuleID = "org.apache.commons" % "commons-text" % "1.13.0"
+  val coursierDirectoriesJni: ModuleID = "io.get-coursier.util" % "directories-jni" % "0.1.4"
+  val apacheCommonsText: ModuleID = "org.apache.commons" % "commons-text" % "1.14.0"
   // NOTE: current latest version is in https://github.com/unkarjedy/scalatest-finders.git repository
 
   val jetbrainsAnnotations: ModuleID = "org.jetbrains" % "annotations" % "26.0.2"
@@ -102,7 +102,7 @@ object Dependencies {
   val structureExtractor_0_13: Dependency = sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, Versions.Sbt.structure_extractor_binary_0_13)
   val structureExtractor_1_0: Dependency = sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, Versions.Sbt.structure_extractor_binary_1_0)
   val structureExtractor_1_3: Dependency = sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, Versions.Sbt.structure_extractor_binary_1_3)
-  val structureExtractor_2_0: Dependency = sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, Versions.Sbt.structure_extractor_binary_2_0)
+  val structureExtractor_2: Dependency = sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, Versions.Sbt.structure_extractor_binary_2)
 
   /**
    * NOTE: JUnit 4 dependency is already available via intellij main jars.
@@ -170,6 +170,7 @@ object Dependencies {
   }
 
   val intellijMavenTestFramework: ModuleID = ("com.jetbrains.intellij.maven" % "maven-test-framework" % Versions.intellijVersion_ForManagedIntellijDependencies).notTransitive()
+  val intellijEelJavaTestFramework: ModuleID = ("com.jetbrains.intellij.platform" % "test-framework-eel-java" % Versions.intellijVersion_ForManagedIntellijDependencies).notTransitive()
   val intellijExternalSystemTestFramework: ModuleID = ("com.jetbrains.intellij.platform" % "external-system-test-framework" % Versions.intellijVersion_ForManagedIntellijDependencies).notTransitive()
   val intellijIdeMetricsBenchmark: ModuleID = ("com.jetbrains.intellij.tools" % "ide-metrics-benchmark" % Versions.intellijVersion_ForManagedIntellijDependencies).notTransitive()
   val intellijIdeMetricsCollector: ModuleID = ("com.jetbrains.intellij.tools" % "ide-metrics-collector" % Versions.intellijVersion_ForManagedIntellijDependencies).notTransitive()

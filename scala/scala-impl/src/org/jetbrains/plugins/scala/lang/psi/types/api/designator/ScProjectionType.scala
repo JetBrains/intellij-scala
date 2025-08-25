@@ -293,18 +293,18 @@ object ScProjectionType {
     }
   }
 
-  def unapply(proj: ScProjectionType): Option[(ScType, PsiNamedElement)] = {
+  def unapply(proj: ScProjectionType): Some[(ScType, PsiNamedElement)] = {
     Some(proj.projected, proj.element)
   }
 
   object withActual {
     private[this] val extractor = new withActual(true)
 
-    def unapply(proj: ScProjectionType): Option[(PsiNamedElement, ScSubstitutor)] = extractor.unapply(proj)
+    def unapply(proj: ScProjectionType): Some[(PsiNamedElement, ScSubstitutor)] = extractor.unapply(proj)
   }
 
   class withActual(updateWithProjectionSubst: Boolean) {
-    def unapply(proj: ScProjectionType)(implicit context: Context): Option[(PsiNamedElement, ScSubstitutor)] =
-      Option(proj.actual(updateWithProjectionSubst))
+    def unapply(proj: ScProjectionType)(implicit context: Context): Some[(PsiNamedElement, ScSubstitutor)] =
+      Some(proj.actual(updateWithProjectionSubst))
   }
 }

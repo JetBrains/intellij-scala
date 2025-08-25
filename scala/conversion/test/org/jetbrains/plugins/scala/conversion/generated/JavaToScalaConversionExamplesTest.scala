@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.conversion.generated
 
 import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.plugins.scala.conversion.JavaToScalaConversionTestBase
+import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 class JavaToScalaConversionExamplesTest extends JavaToScalaConversionTestBase {
@@ -155,10 +156,10 @@ class JavaToScalaConversionExamplesTest extends JavaToScalaConversionTestBase {
     val projectExtension = LanguageLevelProjectExtension.getInstance(getProject)
     val oldLevel = projectExtension.getLanguageLevel
     try {
-      projectExtension.setLanguageLevel(languageLevel)
+      inWriteAction(projectExtension.setLanguageLevel(languageLevel))
       doTest()
     } finally {
-      projectExtension.setLanguageLevel(oldLevel)
+      inWriteAction(projectExtension.setLanguageLevel(oldLevel))
     }
   }
 }

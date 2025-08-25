@@ -238,6 +238,9 @@ class Scala3OpaqueTypeAliasIntegrationTest extends ScalaLightCodeInsightFixtureT
     )
   }
 
+  // We fail to resolve *
+  // See SCL-23940 for the problem
+  //
   def testScl23232(): Unit = {
     checkTextHasNoErrors(
       s"""
@@ -509,6 +512,25 @@ class Scala3OpaqueTypeAliasIntegrationTest extends ScalaLightCodeInsightFixtureT
          |object Test {
          |  val x: Option[String] = Wrapper.ReqId(None)
          |}
+         |""".stripMargin
+    )
+  }
+
+  def testScl22550(): Unit = {
+    checkTextHasNoErrors(
+      s"""
+         |object MyObject:
+         |  (??? : Scope.TypeInner).myExtension1
+         |  (??? : TypeTopLevel).myExtension2
+         |
+         |object Scope:
+         |  opaque type TypeInner = String
+         |  object TypeInner:
+         |    extension (t: TypeInner) def myExtension1: String = "42"
+         |
+         |opaque type TypeTopLevel = String
+         |object TypeTopLevel:
+         |  extension (t: TypeTopLevel) def myExtension2: String = "42"
          |""".stripMargin
     )
   }

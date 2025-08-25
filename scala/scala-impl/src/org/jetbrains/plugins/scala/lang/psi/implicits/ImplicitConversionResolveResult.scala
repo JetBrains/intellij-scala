@@ -94,9 +94,11 @@ object ImplicitConversionResolveResult {
             .withRename(srr.renamed)
             .withImportsUsed(srr.importsUsed)
             .withUnresolvedTypeParams(srr.unresolvedTypeParameters.getOrElse(Seq.empty))
+            .withExportedInfo(srr.exportedInfo)
+            .withImplicitScopeObject(srr.implicitScopeObject)
+            .withIsExtensionFromGiven(srr.isExtensionFromGiven)
 
-          val exportedInState = srr.exportedInfo.fold(state)(state.withExportedInfo)
-          processor.execute(srr.element, exportedInState)
+          processor.execute(srr.element, state)
         case conversion =>
           for {
             resultType <- ExtensionConversionHelper.specialExtractParameterType(conversion)
@@ -178,13 +180,7 @@ object ImplicitConversionResolveResult {
       case _            => checkImplicits(withoutImplicitsForArgs = true)
     }
 
-    found match {
-      case _ if forCompletion => found
-      case Seq(_)             => found
-      case multiple           =>
-        if (multiple.forall(_.isExtensionCall)) multiple
-        else                                    Seq.empty
-    }
+    found
   }
 
   private[this] def expressionType(implicit place: ScExpression) =

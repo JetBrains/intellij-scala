@@ -85,7 +85,7 @@ private object ScalaRuntimeRefRenderer {
   }
 
   object RefType {
-    def unapply(tpe: Type): Option[String] = {
+    def unapply(tpe: Type): Some[String] = {
       val name = tpe.name().replace("scala.runtime.", "").replace("Ref", "")
       if (name.startsWith("Volatile"))
         Some(s"volatile ${name.replace("Volatile", "")}")

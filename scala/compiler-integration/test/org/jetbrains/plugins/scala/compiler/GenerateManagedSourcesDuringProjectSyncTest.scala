@@ -85,13 +85,13 @@ abstract class GenerateManagedSourcesDuringProjectSyncTestBase(separateProdAndTe
 
     importProject(false)
 
-    val modules = ModuleManager.getInstance(getProject).getModules
+    val modules = ModuleManager.getInstance(getMyProject).getModules
     val moduleName =
       if (separateProdAndTestSources) "generateManagedSourcesDuringProjectSyncTest.main"
       else "generateManagedSourcesDuringProjectSyncTest"
     rootModule = modules.find(_.getName == moduleName).orNull
     assertNotNull(s"Could not find module with name '$moduleName'", rootModule)
-    compiler = new CompilerTester(getProject, java.util.Arrays.asList(modules: _*), null, false)
+    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
   }
 }
 

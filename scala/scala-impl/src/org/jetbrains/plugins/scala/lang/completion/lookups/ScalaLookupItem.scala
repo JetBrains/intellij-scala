@@ -11,13 +11,13 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.completion.{InsertionContextExt, ScalaKeyword}
 import org.jetbrains.plugins.scala.lang.completion.handlers.{ScalaImportingInsertHandler, ScalaInsertHandler}
 import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
-import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
+import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScPackage}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFun, ScFunction, ScTypeAlias, ScTypeAliasDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScTypeParametersOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportSelectors, ScImportStmt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, TypePresentationContext}
@@ -276,6 +276,10 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
           val cl = element match {
             case clazz: PsiClass                            => ClassToImport(clazz)
             case (ta: ScTypeAlias) & ContainingClass(clazz) => MemberToImport(ta, clazz)
+            case ta: ScTypeAlias if ta.isTopLevel           => ta.getContext match {
+              case p: ScPackaging => MemberToImport(ta, p)
+              case _: ScFile => return
+            }
             case pack: ScPackage                            => PrefixPackageToImport(pack)
           }
 

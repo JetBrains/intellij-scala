@@ -19,7 +19,6 @@ class CopyScalaToScala_WithAutoImportsTest_Scala2 extends CopyScalaToScala_WithA
   def testAddImportsOnPaste(): Unit = {
     doTest(
       s"""import java.util
-         |import scala.collection.immutable.IndexedSeq
          |import scala.collection.mutable.ArraySeq
          |import scala.util.Random
          |import java.util.Deque

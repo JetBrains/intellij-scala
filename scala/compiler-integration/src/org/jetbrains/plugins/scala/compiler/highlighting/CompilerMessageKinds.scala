@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.compiler.highlighting
 
-import org.apache.commons.lang3.StringUtils
+import org.apache.commons.lang3.{StringUtils, Strings}
 import org.jetbrains.jps.incremental.scala.MessageKind
 
 private object CompilerMessageKinds {
@@ -43,9 +43,9 @@ private object CompilerMessageKinds {
   }
 
   private def isErrorMessageAboutWrongRef(text: String): Boolean =
-    StringUtils.startsWithIgnoreCase(text, "value") && text.contains("is not a member of") ||
-      StringUtils.startsWithIgnoreCase(text, "not found:") ||
-      StringUtils.startsWithIgnoreCase(text, "cannot find symbol")
+    Strings.CI.startsWith(text, "value") && text.contains("is not a member of") ||
+      Strings.CI.startsWith(text, "not found:") ||
+      Strings.CI.startsWith(text, "cannot find symbol")
 
   private def isUnusedImportMessage(text: String): Boolean = {
     val description = CompilerMessages.description(text)

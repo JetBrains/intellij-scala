@@ -35,16 +35,16 @@ final class SbtNoErrorsInProjectWithProvidedAndRuntimeDependenciesTest
     val projectFixture =  factory.createFixtureBuilder(getName).getFixture
     codeInsightFixture = factory.createCodeInsightFixture(projectFixture)
     codeInsightFixture.setUp()
-    myTestFixture = codeInsightFixture
+    setMyTestFixture(codeInsightFixture)
   }
 
   override protected def tearDownFixtures(): Unit = {
     codeInsightFixture.tearDown()
     codeInsightFixture = null
-    myTestFixture = null
+    resetTestFixture()
   }
 
-  override def getProject: Project = myProject
+  override def getProject: Project = getMyProject
 
   override def getProjectFixture: CodeInsightTestFixture = codeInsightFixture
 
@@ -59,8 +59,8 @@ final class SbtNoErrorsInProjectWithProvidedAndRuntimeDependenciesTest
     doAllProjectHighlightingTest()
 
     //... and during project compilation
-    val compiler = new CompilerTester(myProject, java.util.List.of(myTestFixture.getModule), null, false)
-    ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType = IncrementalityType.SBT
+    val compiler = new CompilerTester(getMyProject, java.util.List.of(getMyTestFixture.getModule), null, false)
+    ScalaCompilerConfiguration.instanceIn(getMyProject).incrementalityType = IncrementalityType.SBT
 
     CompilerTestUtil.withEnabledCompileServer(true).run {
       try {

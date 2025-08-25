@@ -60,18 +60,22 @@ object ModuleBuilderUtil {
 
     FileDocumentManager.getInstance.saveAllDocuments()
 
-    /** similar code is also called inside [[com.intellij.openapi.externalSystem.service.ExternalSystemStartupActivity.runActivity]]
-     * In case the refresh below is not finished yet another refresh is cancelled in
-     * `com.intellij.openapi.externalSystem.util.ExternalSystemUtil`*/
-    val manager = ExternalProjectsManagerImpl.getInstance(project)
-    // Set this setting explicitly, even though it is `false` by default (see com.intellij.openapi.project.ExternalStorageConfiguration)
-    // In some rare cases default project settings `<idea_config>/options/default.project.xml`
-    // contains `true` for `ExternalStorageConfiguration.enabled`
-    // This can happen when IDEA settings were imported from previous old versions (in which the setting could be changed)
-    manager.setStoreExternally(false)
-    manager.init()
-
     StartupManager.getInstance(project).runAfterOpened { () =>
+      /** similar code is also called inside [[com.intellij.openapi.externalSystem.service.ExternalSystemStartupActivity.runActivity]]
+       * In case the refresh below is not finished yet another refresh is cancelled in
+       * `com.intellij.openapi.externalSystem.util.ExternalSystemUtil`*/
+      val manager = ExternalProjectsManagerImpl.getInstance(project)
+      // 1. Set this setting explicitly, even though it is `false` by default (see com.intellij.openapi.project.ExternalStorageConfiguration)
+      // In some rare cases default project settings `<idea_config>/options/default.project.xml`
+      // contains `true` for `ExternalStorageConfiguration.enabled`
+      // This can happen when IDEA settings were imported from previous old versions (in which the setting could be changed)
+      // 2. Even though it's false by default, it's enabled explicitly in ExternalProjectsManagerImpl.setupCreatedProject so it's crucial to disable it again
+
+      // IMPORTANT! #setStoreExternally should be called after the project is opened, because only then does WSM contain the entities that need to be migrated
+      // from external to internal storage. See com.intellij.openapi.project.ExternalStorageConfigurationManagerImpl.updateEntitySource
+      manager.setStoreExternally(false)
+      manager.init()
+
       ExternalProjectsManagerImpl.getInstance(project).runWhenInitialized { () =>
         ExternalSystemUtil.refreshProjects(
           new ImportSpecBuilder(project, projectSystemId)

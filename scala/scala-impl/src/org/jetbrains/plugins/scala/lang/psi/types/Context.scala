@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.types
 import com.intellij.psi.{PsiDirectory, PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
 import scala.annotation.tailrec
 
@@ -16,8 +17,14 @@ object Context {
       if (!opaqueTypeAlias.isOpaque)
         throw new IllegalArgumentException("Opaque type alias expected")
 
+      val p: PsiElement => Boolean = {
+        case td: ScTypeDefinition => !td.isTopLevel || td.baseCompanion.contains(opaqueTypeAlias)
+        case _: PsiDirectory => false
+        case _ => true
+      }
+
       containingFileOf(opaqueTypeAlias).getOriginalFile == containingFileOf(place).getOriginalFile &&
-        place.contexts.takeWhile(!_.is[PsiDirectory]).contains(opaqueTypeAlias.getContext)
+        place.contexts.takeWhile(p).contains(opaqueTypeAlias.getContext)
     }
 
     override def toString: String = place.toString

@@ -47,7 +47,7 @@ class CreateCompanionObjectIntention extends PsiElementBaseIntentionAction with 
 
   private def getTypeIfAvailable(psiElement: PsiElement): Option[ScTypeDefinitionLike] = {
     psiElement match {
-      case Parent(td: ScTypeDefinitionLike) if psiElement == td.nameId && !td.isObject => Some(td)
+      case Parent(td: ScTypeDefinitionLike) if psiElement == td.nameId && !td.isObject && td.canHaveCompanion => Some(td)
       case _ => None
     }
   }

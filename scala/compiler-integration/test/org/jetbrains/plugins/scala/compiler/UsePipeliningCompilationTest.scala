@@ -50,9 +50,9 @@ abstract class UsePipeliningCompilationTestBase(incrementalityType: Incrementali
     )
 
     importProject(false)
-    ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType = incrementalityType
+    ScalaCompilerConfiguration.instanceIn(getMyProject).incrementalityType = incrementalityType
 
-    val modules = ModuleManager.getInstance(myProject).getModules
+    val modules = ModuleManager.getInstance(getMyProject).getModules
     rootModule = modules.find(_.getName == "root").orNull
     assertNotNull("Could not find module with name 'root'", rootModule)
     module1 = modules.find(_.getName == "root.module1").orNull
@@ -61,7 +61,7 @@ abstract class UsePipeliningCompilationTestBase(incrementalityType: Incrementali
     assertNotNull("Could not find module with name 'root.module2'", module2)
     module3 = modules.find(_.getName == "root.module3").orNull
     assertNotNull("Could not find module with name 'root.module3'", module3)
-    compiler = new CompilerTester(myProject, java.util.Arrays.asList(modules: _*), null, false)
+    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
 
     val messages = compiler.make().asScala.toSeq
     assertNoErrorsOrWarnings(messages)

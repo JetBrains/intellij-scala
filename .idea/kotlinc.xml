@@ -8,6 +8,6 @@
         <option name="languageVersion" value="1.9"/>
     </component>
     <component name="KotlinJpsPluginSettings">
-        <option name="version" value="2.2.0"/>
+        <option name="version" value="2.2.20-RC"/>
     </component>
 </project>

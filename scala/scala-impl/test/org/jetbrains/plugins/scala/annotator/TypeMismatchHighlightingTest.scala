@@ -187,6 +187,11 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
     "object O { def apply(i: Int) = (); def apply(f: Float) = () }; O(false)",
     Error("O", "Cannot resolve overloaded method 'O'")) // TODO "apply", not "O"?
 
+  def  testInfixOverloading(): Unit = assertErrorsWithHints(
+    "object O { def +(i: Int) = (); def +(f: Float) = () }; 1 + false",
+    Error("+", "Cannot resolve overloaded method '+'")
+  )
+
   // Constructor invocation, SCL-15592
 
   def testConstructorInvocationOk(): Unit = assertErrorsWithHints(
@@ -566,4 +571,16 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
   // splitBy(children)(_.tag == )
   // if (it => it.name =|)
   // {} in case, then for Scala 3
+
+  def testDontAnnotateFollowErrors(): Unit = assertErrorsWithHints(
+    "unresolved.follow1.follow2",
+    Error("unresolved", "Cannot resolve symbol unresolved"))
+
+  def testDontAnnotateFollowErrors2(): Unit = assertErrorsWithHints(
+    "unresolved().follow1().follow2()",
+    Error("unresolved", "Cannot resolve symbol unresolved"))
+
+  def testDontAnnotateFollowErrorsInfix(): Unit = assertErrorsWithHints(
+    "unresolved + 3 + 9",
+    Error("unresolved", "Cannot resolve symbol unresolved"))
 }

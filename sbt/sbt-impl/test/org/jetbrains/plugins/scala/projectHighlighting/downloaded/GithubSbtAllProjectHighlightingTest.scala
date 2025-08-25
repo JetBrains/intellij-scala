@@ -7,7 +7,7 @@ abstract class GithubSbtAllProjectHighlightingTest
   extends SbtProjectHighlightingDownloadingFromGithubTestBase
     with AllProjectHighlightingTest {
 
-  override def getProject: Project = myProject
+  override def getProject: Project = getMyProject
 
   override def getProjectFixture = codeInsightFixture
 

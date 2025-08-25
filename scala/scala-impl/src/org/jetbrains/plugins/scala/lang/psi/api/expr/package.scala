@@ -2,9 +2,10 @@ package org.jetbrains.plugins.scala.lang.psi.api
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScFloatingPointLiteral.FloatingPointParseResult
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.{ScDoubleLiteral, ScIntegerLiteral}
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType}
+import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.ScIntegerLiteralImpl
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{StdType, StdTypes, ValType}
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScLiteralType, ScType}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 package object expr {
@@ -29,7 +30,7 @@ package object expr {
   ): ScType = {
     implicit val context: Context = Context(expr)
 
-    val narrowing = isNumericNarrowing(expr, expected)
+    val narrowing = isNumericNarrowing(expr, valType, expected)
     if (narrowing.isDefined)
       narrowing.get
     else if (isNumericWidening(valType, expected))
@@ -41,6 +42,7 @@ package object expr {
   // numeric literal narrowing
   def isNumericNarrowing(
     expr:     ScExpression,
+    valType:  ScType,
     expected: ScType
   )(implicit
     ctx: ProjectContext
@@ -68,26 +70,44 @@ package object expr {
         case _                          => None
       }
 
+
+    def doubleLitCanParseAsFloat: Boolean =
+      expr.isInScala3File &&
+        findLit(expr).exists {
+          case DoubleLit(doubleLit) => FloatingPointParseResult.parseFloat(doubleLit.getText) == FloatingPointParseResult.Ok
+          case _ => false
+        }
+
+    def longValue: Option[Long] =
+      valType.removeAbstracts.removeAliasDefinitions() match {
+        case ScLiteralType(ScIntegerLiteralImpl.Value(int), _) =>
+          Some(int.toLong)
+        // If a literal type is of type Long (even 1L),
+        // it actually never conforms to Char/Byte/Short/Int.
+        // case ScLiteralType(ScLongLiteralImpl.Value(long), _) => Some(long)
+        case _ =>
+          // If the type is not a literal type (for example, in Scala 2.12),
+          // we also search for an explicit integer literal
+          findLit(expr).collect { case IntLit(int) => int }
+      }
+
     val stdTypes = StdTypes.instance
     import stdTypes._
 
-    def unaliasedExpected = expected.removeAbstracts.removeAliasDefinitions()
-
-    findLit(expr).flatMap {
-      case IntLit(intValue) =>
-        unaliasedExpected match {
-          case Char if isChar(intValue)   => Some(Char)
-          case Byte if isByte(intValue)   => Some(Byte)
-          case Short if isShort(intValue) => Some(Short)
-          case _                          => None
-        }
-      case DoubleLit(lit) if expr.isInScala3File &&
-          unaliasedExpected == Float &&
-          FloatingPointParseResult.parseFloat(lit.getText) == FloatingPointParseResult.Ok =>
-        Some(Float)
-      case _ =>
-        None
+    val unaliasedExpected = expected.removeAbstracts.removeAliasDefinitions()
+    val fits = unaliasedExpected match {
+      case Char  => longValue.exists(isChar)
+      case Byte  => longValue.exists(isByte)
+      case Short => longValue.exists(isShort)
+      case Float => doubleLitCanParseAsFloat
+      // we don't need to check for Int,
+      // because only a Long literal would need to be checked,
+      // but Long literals never conform to Char/Byte/Short/Int.
+      case _     => false
     }
+
+    if (fits) Some(unaliasedExpected)
+    else None
   }
 
   private def getStdType(

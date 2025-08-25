@@ -190,4 +190,63 @@ class Scala3GlobalMemberCompletionTest extends ScalaCompletionTestBase {
     invocationCount = 2
   )
 
+  def testTopLevelTypeAliasTest(): Unit = doCompletionTest(
+    s"""package a {
+       |  type Foobar = Int
+       |}
+       |package b {
+       |  type T = Foob$CARET
+       |}
+       |""".stripMargin,
+    s"""package a {
+       |  type Foobar = Int
+       |}
+       |package b {
+       |
+       |  import a.Foobar
+       |
+       |  type T = Foobar
+       |}
+       |""".stripMargin,
+    item = "Foobar")
+
+  def testEnumTypeTest(): Unit = doCompletionTest(
+    s"""package a {
+       |  enum Foobar
+       |}
+       |package b {
+       |  type T = Foob$CARET
+       |}
+       |""".stripMargin,
+    s"""package a {
+       |  enum Foobar
+       |}
+       |package b {
+       |
+       |  import a.Foobar
+       |
+       |  type T = Foobar
+       |}
+       |""".stripMargin,
+    item = "Foobar")
+
+  def testEnumTermTest(): Unit = doCompletionTest(
+    s"""package a {
+       |  enum Foobar
+       |}
+       |package b {
+       |  Foob$CARET
+       |}
+       |""".stripMargin,
+    s"""package a {
+       |  enum Foobar
+       |}
+       |package b {
+       |
+       |  import a.Foobar
+       |
+       |  Foobar
+       |}
+       |""".stripMargin,
+    item = "Foobar")
 }

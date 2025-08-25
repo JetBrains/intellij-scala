@@ -1217,9 +1217,10 @@ class FewerBracesParserTest extends SimpleScala3ParserTestBase {
       |              PsiElement(identifier)('x')
       |              PsiElement(:)(':')
       |              PsiWhiteSpace(' ')
-      |              SimpleType: X
-      |                CodeReferenceElement: X
-      |                  PsiElement(identifier)('X')
+      |              ParameterType
+      |                SimpleType: X
+      |                  CodeReferenceElement: X
+      |                    PsiElement(identifier)('X')
       |            PsiElement())(')')
       |          PsiWhiteSpace(' ')
       |          PsiElement(=>)('=>')

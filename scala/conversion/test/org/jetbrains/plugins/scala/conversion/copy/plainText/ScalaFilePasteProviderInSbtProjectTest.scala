@@ -1,36 +1,30 @@
 package org.jetbrains.plugins.scala.conversion.copy.plainText
 
-import com.intellij.ide.IdeView
-import com.intellij.openapi.actionSystem.impl.SimpleDataContext
-import com.intellij.openapi.actionSystem.{LangDataKeys, PlatformCoreDataKeys}
-import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.openapi.ide.CopyPasteManager
-import com.intellij.openapi.module.ModuleUtilCore
-import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
-import com.intellij.psi.{PsiDirectory, PsiManager}
-import com.intellij.util.ui.TextTransferable
-import org.jetbrains.plugins.scala.SlowTests2
-import org.jetbrains.plugins.scala.extensions.{StringExt, inWriteAction}
-import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
-import org.jetbrains.sbt.project.SbtExternalSystemImportingTestLike
-import org.junit.Assert.{assertEquals, assertNotNull, assertTrue}
-import org.junit.experimental.categories.Category
+import com.intellij.openapi.application.WriteAction
+import com.intellij.openapi.module.Module
+import com.intellij.openapi.roots.{ModuleRootManager, ProjectRootManager}
+import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.plugins.scala.ScalaVersion
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
+import org.jetbrains.plugins.scala.project._
+import org.junit.Assert.assertTrue
 
-@Category(Array(classOf[SlowTests2]))
-class ScalaFilePasteProviderInSbtProjectTest extends SbtExternalSystemImportingTestLike {
+/**
+ * This test is a lightweight alternative of [[ScalaFilePasteProviderInSbtProjectExternalSystemIntegrationTest]].
+ * It tests behavior of [[ScalaFilePasteProvider.calculatePasteActionOutcome]] more exhaustively,
+ * without creating real, heavy-weight SBT projects.
+ */
+class ScalaFilePasteProviderInSbtProjectTest
+  extends ScalaLightCodeInsightFixtureTestCase
+    with ScalaFilePasteProviderInSbtProjectTestLike {
 
-  override protected def getTestDataProjectPath: String =
-    s"scala/conversion/testdata/sbt_projects_for_paste/${getTestName(true)}"
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
 
-  override protected def copyTestProjectToTemporaryDir: Boolean = true
+  private val PastedSimpleCodeWithAddSbtPlugin =
+    """addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.12.0")
+      |addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.13.0")""".stripMargin
 
-  override def setUp(): Unit = {
-    super.setUp()
-
-    importProject(false)
-  }
-
-  private val PastedCodeWithAddSbtPlugin =
+  private val PastedComplexCodeWithAddSbtPlugin =
     """//line comment
       |/*
       | block comment
@@ -46,8 +40,7 @@ class ScalaFilePasteProviderInSbtProjectTest extends SbtExternalSystemImportingT
       |
       |libraryDependencies ++= Seq(
       |  "org.scalatest" %% "scalatest" % "3.2.16" % Test
-      |)
-      |""".stripMargin
+      |)""".stripMargin
 
   private val PastedCodeWithoutAddSbtPlugin =
     """//line comment
@@ -64,89 +57,239 @@ class ScalaFilePasteProviderInSbtProjectTest extends SbtExternalSystemImportingT
       |
       |libraryDependencies ++= Seq(
       |  "org.scalatest" %% "scalatest" % "3.2.16" % Test
-      |)
-      |""".stripMargin
+      |)""".stripMargin
 
-  def testAutoCreatePluginSbtFile(): Unit = {
-    doPasteToDirectoryTest(PastedCodeWithAddSbtPlugin, "project", "plugins.sbt")
+  private var buildModuleSourceRoot: VirtualFile = _
 
-    val SomeOtherName = "worksheet.sc"
-    doPasteToDirectoryTest(PastedCodeWithoutAddSbtPlugin, "project", SomeOtherName)
-    doPasteToDirectoryTest(PastedCodeWithAddSbtPlugin, "project/inner", SomeOtherName)
-    doPasteToDirectoryTest(PastedCodeWithAddSbtPlugin, "src/main/scala", SomeOtherName)
-    doPasteToDirectoryTest(PastedCodeWithAddSbtPlugin, "", SomeOtherName)
+  override protected def setUp(): Unit = {
+    super.setUp()
+
+    // Need to do it to trigger
+    // org.jetbrains.plugins.scala.conversion.copy.plainText.ScalaFilePasteProvider.shouldCreateOrUpdatePluginsSbtFile
+    val module = getModule
+    markModuleAsBuildModule(module)
+
+    assertTrue("Module should be treated as a build module", module.isBuildModule)
+    assertTrue("Module should have Scala in it", module.hasScala)
+
+    buildModuleSourceRoot = ModuleRootManager.getInstance(getModule).getSourceRoots()(0)
   }
 
-  def testAutoCreatePluginSbtFileWithAlreadyExistingPluginsSbt(): Unit = {
-    doPasteToDirectoryTest(PastedCodeWithAddSbtPlugin, "project", "plugins_1.sbt")
-  }
+  private def markModuleAsBuildModule(module: Module): Unit = {
+    // Change the module name by adding "-build" suffix
+    // Currently it's the only way of marking build modules
+    // See org.jetbrains.plugins.scala.project.ModuleExt#isBuildModule
+    val newModuleName = module.getName + "-build"
 
-  private def doPasteToDirectoryTest(
-    pastedCode: String,
-    relativeDirPath: String,
-    expectedFileName: String
-  ): Unit = {
-    val psiDirectory = findPsiDirectory(relativeDirPath)
-    val module = ModuleUtilCore.findModuleForPsiElement(psiDirectory)
+    WriteAction.runAndWait { () =>
+      val project = module.getProject
 
-    // Prepare context before invoking paste action
-    val dataContext = SimpleDataContext.builder()
-      .add(PlatformCoreDataKeys.MODULE, module)
-      .add(LangDataKeys.IDE_VIEW, new IdeView {
-        override def getDirectories: Array[PsiDirectory] = Array(psiDirectory)
+      val modifiableModel = project.modifiableModel
+      modifiableModel.renameModule(module, newModuleName)
+      modifiableModel.commit()
 
-        override def getOrChooseDirectory(): PsiDirectory = psiDirectory
-      })
-      .build()
-    CopyPasteManager.getInstance.setContents(new TextTransferable(pastedCode))
+      ScalaModuleSettings.assignDummyModuleSettingsForTests(module, isBuildModule = true, ScalaLanguageLevel.Scala_2_12)
 
-    // Invoke paste action
-    val pasteProvider = new ScalaFilePasteProvider()
-    assertTrue(
-      "Paste action is not enabled in the context",
-      pasteProvider.isPasteEnabled(dataContext)
-    )
-
-    val filesBeforePaste = psiDirectory.getVirtualFile.getChildren
-    inWriteAction {
-      pasteProvider.performPaste(dataContext)
+      // Need to invalidate caches as some module settings are cached during setUp
+      // (e.g. org.jetbrains.plugins.scala.project.ModuleExt#scalaModuleSettings)
+      ProjectRootManager.getInstance(project).incModificationCount()
     }
-    val filesAfterPaste = psiDirectory.getVirtualFile.getChildren
-    val newFiles = (filesAfterPaste.toSet -- filesBeforePaste.toSet).toSeq
+  }
 
-    //We need to save documents to files to test their contents
-    inWriteAction {
-      saveDocumentContentsToDisk(newFiles)
-    }
-
-    val newFileNames = newFiles.map(_.getName)
-    assertCollectionEquals(
-      "Wrong file names are created after pasting to directory",
-      Seq(expectedFileName),
-      newFileNames
-    )
-
-    val fileContent = new String(newFiles.head.contentsToByteArray())
-    assertEquals(
-      "Newly created file content should equal to the pasted content",
-      pastedCode.withNormalizedSeparator.trim,
-      fileContent.withNormalizedSeparator.trim
+  def testCreateNewPluginSbtFile(): Unit = {
+    doPasteToDirectoryAndCreateNewFileTest(
+      directory = buildModuleSourceRoot,
+      pastedCode = PastedComplexCodeWithAddSbtPlugin,
+      expectedNewFileName = "plugins.sbt"
     )
   }
 
-  private def saveDocumentContentsToDisk(newFiles: Seq[VirtualFile]): Unit = {
-    val fileDocumentManager = FileDocumentManager.getInstance
-    val newDocuments = newFiles.map(FileDocumentManager.getInstance().getDocument)
-    newDocuments.foreach(fileDocumentManager.saveDocument)
+  def testUpdateExistingPluginsSbtFile_SimpleCode_To_EmptyFile(): Unit = {
+    doPasteToDirectoryAndUpdateExistingFileTest(
+      directory = buildModuleSourceRoot,
+      existingFileName = "plugins.sbt",
+      fileTextBefore =
+        """""",
+      pastedText = PastedSimpleCodeWithAddSbtPlugin,
+      expectedFileTextAfter =
+        s"""$Caret$PastedSimpleCodeWithAddSbtPlugin"""
+    )
   }
 
-  private def findPsiDirectory(relativeDirPath: String): PsiDirectory = {
-    val pathParts = relativeDirPath.split('/').filter(_.nonEmpty) // findRelativeFile accepts varargs
-    val directory: VirtualFile = VfsUtil.findRelativeFile(myProjectRoot, pathParts: _*)
-    assertNotNull(s"Can't find directory `$relativeDirPath` in `$myProjectRoot`", directory)
+  def testUpdateExistingPluginsSbtFile_SimpleCode_To_FileWithPlugins(): Unit =
+    doPasteToDirectoryAndUpdateExistingFileTest(
+      directory = buildModuleSourceRoot,
+      existingFileName = "plugins.sbt",
+      fileTextBefore =
+        """addSbtPlugin("com.github.sbt" % "sbt-release" % "1.1.0")
+          |addSbtPlugin("org.scala-js"   % "sbt-scalajs" % "1.12.0")
+          |""".stripMargin,
+      pastedText = PastedSimpleCodeWithAddSbtPlugin,
+      expectedFileTextAfter =
+        s"""addSbtPlugin("com.github.sbt" % "sbt-release" % "1.1.0")
+           |addSbtPlugin("org.scala-js"   % "sbt-scalajs" % "1.12.0")
+           |$Caret$PastedSimpleCodeWithAddSbtPlugin
+           |""".stripMargin
+    )
 
-    val psiDirectory = PsiManager.getInstance(getProject).findDirectory(directory)
-    assertNotNull(s"Can't find psi directory for directory ${directory.getPath}", psiDirectory)
-    psiDirectory
+  def testUpdateExistingPluginsSbtFile_SimpleCode_To_FileWithPlugins_MoreTrailingSpaces(): Unit =
+    doPasteToDirectoryAndUpdateExistingFileTest(
+      directory = buildModuleSourceRoot,
+      existingFileName = "plugins.sbt",
+      fileTextBefore =
+        """
+          |
+          |addSbtPlugin("com.github.sbt" % "sbt-release" % "1.1.0")
+          |addSbtPlugin("org.scala-js"   % "sbt-scalajs" % "1.12.0")
+          |
+          |
+          |""".stripMargin,
+      pastedText = PastedSimpleCodeWithAddSbtPlugin,
+      expectedFileTextAfter =
+        s"""
+           |
+           |addSbtPlugin("com.github.sbt" % "sbt-release" % "1.1.0")
+           |addSbtPlugin("org.scala-js"   % "sbt-scalajs" % "1.12.0")
+           |$Caret$PastedSimpleCodeWithAddSbtPlugin
+           |
+           |
+           |""".stripMargin
+    )
+
+  def testUpdateExistingPluginsSbtFile_SimpleCode_To_FileWithPlugins_WithLeadingComments(): Unit = {
+    doPasteToDirectoryAndUpdateExistingFileTest(
+      directory = buildModuleSourceRoot,
+      existingFileName = "plugins.sbt",
+      fileTextBefore =
+        """// some comment
+          |/* nothing interesting up here */
+          |
+          |addSbtPlugin("com.github.sbt" % "sbt-release" % "1.1.0")
+          |addSbtPlugin("org.scala-js"   % "sbt-scalajs" % "1.12.0")
+          |""".stripMargin,
+      pastedText = PastedSimpleCodeWithAddSbtPlugin,
+      expectedFileTextAfter =
+        s"""// some comment
+           |/* nothing interesting up here */
+           |
+           |addSbtPlugin("com.github.sbt" % "sbt-release" % "1.1.0")
+           |addSbtPlugin("org.scala-js"   % "sbt-scalajs" % "1.12.0")
+           |$Caret$PastedSimpleCodeWithAddSbtPlugin
+           |""".stripMargin
+    )
+  }
+
+  def testUpdateExistingPluginsSbtFile_SimpleCode_To_FileWithPlugins_WithLeadingDefinitions(): Unit = {
+    doPasteToDirectoryAndUpdateExistingFileTest(
+      directory = buildModuleSourceRoot,
+      existingFileName = "plugins.sbt",
+      fileTextBefore =
+        """// constants first
+          |val scalafmtVersion = "2.5.5"
+          |val scalaJsVer      = "1.12.0"
+          |
+          |addSbtPlugin("com.github.sbt" % "sbt-release" % "1.1.0")
+          |addSbtPlugin("org.scala-js"   % "sbt-scalajs" % scalaJsVer)
+          |""".stripMargin,
+      pastedText = PastedSimpleCodeWithAddSbtPlugin,
+      expectedFileTextAfter =
+        s"""// constants first
+           |val scalafmtVersion = "2.5.5"
+           |val scalaJsVer      = "1.12.0"
+           |
+           |addSbtPlugin("com.github.sbt" % "sbt-release" % "1.1.0")
+           |addSbtPlugin("org.scala-js"   % "sbt-scalajs" % scalaJsVer)
+           |$Caret$PastedSimpleCodeWithAddSbtPlugin
+           |""".stripMargin
+    )
+  }
+
+  def testUpdateExistingPluginsSbtFile_SimpleCode_To_FileWithPlugins_WithLibraryDependencies(): Unit = {
+    doPasteToDirectoryAndUpdateExistingFileTest(
+      directory = buildModuleSourceRoot,
+      existingFileName = "plugins.sbt",
+      fileTextBefore =
+        """addSbtPlugin("com.github.sbt" % "sbt-release" % "1.1.0")
+          |addSbtPlugin("org.scala-js"   % "sbt-scalajs" % "1.12.0")
+          |
+          |libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.13"
+          |""".stripMargin,
+      pastedText = PastedSimpleCodeWithAddSbtPlugin,
+      expectedFileTextAfter =
+        s"""addSbtPlugin("com.github.sbt" % "sbt-release" % "1.1.0")
+           |addSbtPlugin("org.scala-js"   % "sbt-scalajs" % "1.12.0")
+           |$Caret$PastedSimpleCodeWithAddSbtPlugin
+           |
+           |libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.13"
+           |""".stripMargin
+    )
+  }
+  
+  def testUpdateExistingPluginsSbtFile_SimpleCode_To_FileWithPlugins_WithLibraryDependenciesAndLeadingDefinitions(): Unit = {
+    doPasteToDirectoryAndUpdateExistingFileTest(
+      directory = buildModuleSourceRoot,
+      existingFileName = "plugins.sbt",
+      fileTextBefore =
+        """// vals block
+          |val scalafmt = "2.5.5"
+          |
+          |addSbtPlugin("com.github.sbt" % "sbt-release" % "1.1.0")
+          |addSbtPlugin("org.scala-js"   % "sbt-scalajs" % "1.12.0")
+          |
+          |// other settings
+          |libraryDependencies += "org.typelevel" %% "cats-core" % "2.10.0"
+          |""".stripMargin,
+      pastedText = PastedSimpleCodeWithAddSbtPlugin,
+      expectedFileTextAfter =
+        s"""// vals block
+           |val scalafmt = "2.5.5"
+           |
+           |addSbtPlugin("com.github.sbt" % "sbt-release" % "1.1.0")
+           |addSbtPlugin("org.scala-js"   % "sbt-scalajs" % "1.12.0")
+           |$Caret$PastedSimpleCodeWithAddSbtPlugin
+           |
+           |// other settings
+           |libraryDependencies += "org.typelevel" %% "cats-core" % "2.10.0"
+           |""".stripMargin
+    )
+  }
+  
+  // ---------------------------------------------------------------------------
+  // Pattern D: Resolvers before plugins tests
+  // ---------------------------------------------------------------------------
+  
+  def testUpdateExistingPluginsSbtFile_SimpleCode_To_FileWithPlugins_WithResolvers(): Unit = {
+    doPasteToDirectoryAndUpdateExistingFileTest(
+      directory = buildModuleSourceRoot,
+      existingFileName = "plugins.sbt",
+      fileTextBefore =
+        """// custom repositories first
+          |resolvers ++= Seq(
+          |  "Sonatype Releases"  at "https://oss.sonatype.org/content/repositories/releases",
+          |  "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
+          |)
+          |
+          |// plugin block
+          |addSbtPlugin("com.github.sbt" % "sbt-release" % "1.1.0")
+          |addSbtPlugin("org.scala-js"   % "sbt-scalajs" % "1.12.0")
+          |
+          |// and maybe more below …
+          |""".stripMargin,
+      pastedText = PastedSimpleCodeWithAddSbtPlugin,
+      expectedFileTextAfter =
+        s"""// custom repositories first
+           |resolvers ++= Seq(
+           |  "Sonatype Releases"  at "https://oss.sonatype.org/content/repositories/releases",
+           |  "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
+           |)
+           |
+           |// plugin block
+           |addSbtPlugin("com.github.sbt" % "sbt-release" % "1.1.0")
+           |addSbtPlugin("org.scala-js"   % "sbt-scalajs" % "1.12.0")
+           |$Caret$PastedSimpleCodeWithAddSbtPlugin
+           |
+           |// and maybe more below …
+           |""".stripMargin
+    )
   }
 }

@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ScalaTypePresentation.Infix
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
@@ -71,7 +72,7 @@ private [documentationProvider] class ScalaDocTypeRenderer(
     case nt@NamedTupleType(comps) if NamedTupleType.isUnaliasedNamedTupleType(nt) =>
       comps.map { case (name, compTy) => s"${NamedTupleType.NameType.from(name).getOrElse(render(name))}: ${render(compTy)}" }.commaSeparated(Model.Parentheses)
     case ScDesignatorType(element) =>
-      nameRenderer.renderName(element)
+      nameRenderer.renderName(ScNamedElement.adjusted(element))
     case p: ParameterizedType =>
       parameterizedTypeText(p)(render)
     case ScAndType(lhs, rhs) =>
@@ -85,7 +86,9 @@ private [documentationProvider] class ScalaDocTypeRenderer(
     case ScMatchType(scrutinee, cases) =>
       scrutineeText(scrutinee, cases)
     case p: ScProjectionType =>
-      projectionTypeText(p)
+      val adjusted = ScNamedElement.adjusted(p.actualElement)
+      if (!adjusted.eq(p.actualElement)) nameRenderer.renderName(adjusted)
+      else projectionTypeText(p)
     case ex: ScExistentialType =>
       existentialTypeText(ex, checkWildcard = true)
     case pt@ScTypePolymorphicType(internalType, typeParameters) =>

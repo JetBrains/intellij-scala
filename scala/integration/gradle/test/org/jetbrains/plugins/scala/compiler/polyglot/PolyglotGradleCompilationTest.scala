@@ -5,6 +5,7 @@ import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.ModuleRootModificationUtil
 import com.intellij.platform.externalSystem.testFramework.ExternalSystemImportingTestCase
+import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.{CompilerTester, IndexingTestUtil}
 import junit.framework.TestCase.{assertEquals, assertNotNull}
 import org.jetbrains.plugins.gradle.settings.GradleProjectSettings
@@ -22,6 +23,8 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[CompilationTests_Zinc]))
 class PolyglotGradleCompilationTest extends ExternalSystemImportingTestCase {
 
+  private var gradleSdk: Sdk = _
+
   private var sdk: Sdk = _
 
   private var compiler: CompilerTester = _
@@ -32,7 +35,7 @@ class PolyglotGradleCompilationTest extends ExternalSystemImportingTestCase {
 
   override lazy val getCurrentExternalProjectSettings: GradleProjectSettings = {
     val settings = new GradleProjectSettings().withQualifiedModuleNames()
-    settings.setGradleJvm(sdk.getName)
+    settings.setGradleJvm(gradleSdk.getName)
     settings.setDelegatedBuild(false)
     settings
   }
@@ -46,7 +49,9 @@ class PolyglotGradleCompilationTest extends ExternalSystemImportingTestCase {
   override def setUp(): Unit = {
     super.setUp()
 
-    GradleTestUtil.setupGradleHome(getProject)
+    GradleTestUtil.setupGradleHome(getMyProject)
+
+    gradleSdk = SmartJDKLoader.getOrCreateJDK(LanguageLevel.JDK_17)
 
     sdk = {
       val jdkVersion = JdkVersionDiscovery.discoveredJdk
@@ -115,18 +120,18 @@ class PolyglotGradleCompilationTest extends ExternalSystemImportingTestCase {
 
     importProject()
 
-    KotlinDaemonUtil.disableKotlinDaemon(getProject)
+    KotlinDaemonUtil.disableKotlinDaemon(getMyProject)
 
-    val modules = ModuleManager.getInstance(getProject).getModules
+    val modules = ModuleManager.getInstance(getMyProject).getModules
     modules.foreach(ModuleRootModificationUtil.setModuleSdk(_, sdk))
 
-    IndexingTestUtil.waitUntilIndexesAreReady(getProject)
+    IndexingTestUtil.waitUntilIndexesAreReady(getMyProject)
 
     module1 = modules.find(_.getName == "polyglot-gradle.module1.main").orNull
     assertNotNull("Could not find module with name 'polyglot-gradle.module1.main'", module1)
     module2 = modules.find(_.getName == "polyglot-gradle.module2.main").orNull
     assertNotNull("Could not find module with name 'polyglot-gradle.module2.main'", module2)
-    compiler = new CompilerTester(getProject, java.util.Arrays.asList(modules: _*), null, false)
+    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
   }
 
   override def tearDown(): Unit = try {
@@ -136,7 +141,7 @@ class PolyglotGradleCompilationTest extends ExternalSystemImportingTestCase {
     settings.COMPILE_SERVER_SDK = null
     inWriteAction {
       val jdkTable = ProjectJdkTable.getInstance()
-      jdkTable.removeJdk(sdk)
+      Seq(sdk, gradleSdk).foreach(jdkTable.removeJdk)
       val kotlinSdk = jdkTable.getAllJdks.find(_.getName.contains("Kotlin SDK"))
       kotlinSdk.foreach(jdkTable.removeJdk)
     }
@@ -145,7 +150,7 @@ class PolyglotGradleCompilationTest extends ExternalSystemImportingTestCase {
   }
 
   def testPolyglotCompilation(): Unit = {
-    assertEquals(IncrementalityType.SBT, ScalaCompilerConfiguration.instanceIn(getProject).incrementalityType)
+    assertEquals(IncrementalityType.SBT, ScalaCompilerConfiguration.instanceIn(getMyProject).incrementalityType)
     compiler.make()
     assertClassExists("Greeter", module1)
     assertClassExists("AbstractGreeter", module1)

@@ -50,25 +50,37 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
   }
 
   def qualifierPart(element: ScReference, typeAware: Boolean)
-                   (implicit holder: ScalaAnnotationHolder): Unit =
+                   (implicit holder: ScalaAnnotationHolder): Unit = {
+    def precursorAlreadyHasProblem(precursor: ScExpression): Boolean = {
+      !precursor.is[ScThisReference, ScSuperReference] &&
+        !precursor.is[ScUnderscoreSection] && // TODO Highlight underscore rather than remainder, SCL-22148
+        !precursor.asOptionOf[ScReferenceExpression].exists(_.resolve() != null) && // TODO Highlight expressions of non-inferred type? SCL-22150
+        precursor.`type`().isLeft
+    }
+
     if (!element.getUserData(ReferenceExpressionResolver.ConstructorProxyHolderKey)) {
       val qualifier = element.qualifier
       qualifier match {
         case None =>
-          checkNotQualifiedReferenceElement(element, typeAware)
-        case Some(q) => q match {
-          case _: ScDocResolvableCodeReference => // TODO Uniform, fine-grained highlighting, SCL-22154
-            checkQualifiedReferenceElement(element, typeAware)
-          case e: ScExpression
-            if !e.isInstanceOf[ScThisReference] && !e.isInstanceOf[ScSuperReference] &&
-              !e.isInstanceOf[ScUnderscoreSection] && // TODO Highlight underscore rather than remainder, SCL-22148
-              !e.asOptionOf[ScReferenceExpression].exists(_.resolve() != null) && // TODO Highlight expressions of non-inferred type? SCL-22150
-              e.`type`().isLeft => // Don't highlight the remainder if the type of the qualifier is unknown (see SCL-15138, SCL-20431, SCL-22138)
-          case _ =>
-            checkQualifiedReferenceElement(element, typeAware)
-        }
+          val precursorHasProblem = element.getParent.asOptionOf[MethodInvocation].exists(
+            invoc => invoc.getInvokedExpr == element && invoc.thisExpr.exists(precursorAlreadyHasProblem)
+          )
+
+          if (!precursorHasProblem) {
+            checkNotQualifiedReferenceElement(element, typeAware)
+          }
+        case Some(q) =>
+          q match {
+            case _: ScDocResolvableCodeReference => // TODO Uniform, fine-grained highlighting, SCL-22154
+              checkQualifiedReferenceElement(element, typeAware)
+            case e: ScExpression if precursorAlreadyHasProblem(e) =>
+              // Don't highlight the remainder if the type of the qualifier is unknown (see SCL-15138, SCL-20431, SCL-22138)
+            case _ =>
+              checkQualifiedReferenceElement(element, typeAware)
+          }
       }
     }
+  }
 
   def annotateReference(reference: ScReference)
                        (implicit holder: ScalaAnnotationHolder): Unit = {
@@ -298,10 +310,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
 
       parent match {
         case _: ScImportSelector if resolve.length > 0 => return
-        case _: ScMethodCall if resolve.length > 1 =>
-          val error = ScalaBundle.message("cannot.resolve.overloaded", refElement.refName)
-          holder.createErrorAnnotation(refElement.nameId, error)
-        case _: ScMethodCall if resolve.length > 1 =>
+        case _: MethodInvocation if resolve.length > 1 =>
           val error = ScalaBundle.message("cannot.resolve.overloaded", refElement.refName)
           holder.createErrorAnnotation(refElement.nameId, error)
         case mc: ScMethodCall if addCreateApplyOrUnapplyFix(

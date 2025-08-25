@@ -304,8 +304,6 @@ ScalaFile
           ScNewTemplateDefinition: <anonymous>
             PsiElement(new)('new')
             ExtendsBlock
-              TemplateParents
-                <empty list>
               ScTemplateBody
                 PsiElement(:)(':')
                 PsiWhiteSpace('\n    ')
@@ -1050,8 +1048,6 @@ ScalaFile
           ScNewTemplateDefinition: <anonymous>
             PsiElement(new)('new')
             ExtendsBlock
-              TemplateParents
-                <empty list>
               ScTemplateBody
                 PsiElement(:)(':')
                 PsiWhiteSpace('\n\n    ')

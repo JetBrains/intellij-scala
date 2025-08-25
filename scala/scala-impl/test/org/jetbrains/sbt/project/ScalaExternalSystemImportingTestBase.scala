@@ -3,7 +3,7 @@ package org.jetbrains.sbt.project
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.LocalFileSystem
-import com.intellij.platform.externalSystem.testFramework.ExternalSystemImportingTestCase
+import com.intellij.platform.externalSystem.testFramework.{ExternalSystemImportingTestCase, NioExternalSystemTestCase}
 import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.extensions.inWriteAction
@@ -66,17 +66,25 @@ abstract class ScalaExternalSystemImportingTestBase extends ExternalSystemImport
     }
   }
 
-  override protected def setUpProjectRoot(): Unit = {
+  override protected def setUpInWriteAction(): Unit = {
     val originalTestDataProjectDir = new File(getTestDataProjectPath)
-    val testProjectPath = getTestProjectDir
+    val testProjectPath = getTestProjectPath
 
     if (copyTestProjectToTemporaryDir) {
       println(s"Test project copied to the temporary directory: $testProjectPath")
-      FileUtil.copyDir(originalTestDataProjectDir, testProjectPath)
+      FileUtil.copyDir(originalTestDataProjectDir, testProjectPath.toFile)
     }
 
-    myProjectRoot = LocalFileSystem.getInstance.refreshAndFindFileByIoFile(testProjectPath)
-    assertNotNull(s"test project root was not found: $testProjectPath", myProjectRoot)
+    setProjectRootViaReflection(testProjectPath)
+  }
+
+  final protected def setProjectRootViaReflection(projectRoot: Path): Unit = {
+    // TODO: Rewrite without reflection.
+    val myCustomProjectRoot = LocalFileSystem.getInstance().refreshAndFindFileByNioFile(projectRoot)
+    assertNotNull(s"test project root was not found: $projectRoot", myCustomProjectRoot)
+    val myProjectRootField = classOf[NioExternalSystemTestCase].getDeclaredField("projectRoot")
+    myProjectRootField.setAccessible(true)
+    myProjectRootField.set(this, myCustomProjectRoot)
   }
 
   override def tearDown(): Unit = {

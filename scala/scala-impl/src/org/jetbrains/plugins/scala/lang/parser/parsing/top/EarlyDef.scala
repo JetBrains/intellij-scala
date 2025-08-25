@@ -26,7 +26,7 @@ object EarlyDef extends ParsingRule {
         earlyMarker.drop()
         return false
     }
-    //this metod parse recursively PatVarDef {semi PatVarDef}
+    //this method parse recursively PatVarDef {semi PatVarDef}
     @tailrec
     def parseSub(): Boolean = {
       builder.getTokenType match {

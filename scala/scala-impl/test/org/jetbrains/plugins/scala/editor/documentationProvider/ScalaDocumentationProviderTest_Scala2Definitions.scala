@@ -458,7 +458,7 @@ final class ScalaDocumentationProviderTest_Scala2Definitions extends ScalaDocume
          |""".stripMargin
 
     val expectedContent =
-      s"""<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">x</span>: <span style="color:#20999d;"><a href="psi_element://scala.Predef.String"><code>String</code></a></span>
+      s"""<span style="color:#000080;font-weight:bold;">val</span> <span style="color:#660e7a;font-style:italic;">x</span>: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>
          |""".stripMargin
 
     doGenerateDocDefinitionTest(fileContent, expectedContent)

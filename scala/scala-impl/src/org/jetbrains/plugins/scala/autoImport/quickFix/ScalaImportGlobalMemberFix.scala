@@ -3,8 +3,8 @@ package org.jetbrains.plugins.scala.autoImport.quickFix
 import com.intellij.codeInsight.intention.{IntentionAction, PriorityAction}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiMethod
 import com.intellij.psi.impl.java.stubs.index.JavaStaticMemberNameIndex
+import com.intellij.psi.{PsiEnumConstant, PsiMethod}
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.UnresolvedReferenceFixProvider
@@ -13,8 +13,7 @@ import org.jetbrains.plugins.scala.autoImport.GlobalMember.findGlobalMembers
 import org.jetbrains.plugins.scala.autoImport.ImportOrderings.defaultImportOrdering
 import org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportElementFix.isExcluded
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{hasImplicitModifier, inNameContext}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{hasImplicitModifier, hasStablePath, inNameContext}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
@@ -111,7 +110,8 @@ private class MemberToImportComputation(ref: ScReferenceExpression) {
       .asScala
       .toSeq
       .flatMap {
-        case m: PsiMethod if isStable(m) && isAccessible(m, ref) => Some(MemberToImport(m, m.containingClass))
+        case m: PsiMethod if hasStablePath(m) && isAccessible(m, ref) => Some(MemberToImport(m, m.containingClass))
+        case c: PsiEnumConstant if hasStablePath(c) && isAccessible(c, ref) => Some(MemberToImport(c, c.getContainingClass))
         case _ => None
       }
 
@@ -130,9 +130,6 @@ private class MemberToImportComputation(ref: ScReferenceExpression) {
         case _ => None
       }
   }
-
-  private def isStable(m: PsiMethod) =
-    ScalaPsiUtil.hasStablePath(m)
 
   private def isCompatible(originalRef: ScReferenceExpression, candidate: MemberToImport): Boolean = {
     val fixedQualifiedName = ScalaNamesUtil.escapeKeywordsFqn(candidate.qualifiedName)

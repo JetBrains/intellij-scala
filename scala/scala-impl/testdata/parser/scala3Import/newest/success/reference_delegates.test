@@ -2724,18 +2724,20 @@ ScalaFile
                 PsiElement(identifier)('x')
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
-                SimpleType: A
-                  CodeReferenceElement: A
-                    PsiElement(identifier)('A')
+                ParameterType
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
               Parameter: y
                 PsiElement(identifier)('y')
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
-                SimpleType: B
-                  CodeReferenceElement: B
-                    PsiElement(identifier)('B')
+                ParameterType
+                  SimpleType: B
+                    CodeReferenceElement: B
+                      PsiElement(identifier)('B')
               PsiElement())(')')
             PsiWhiteSpace(' ')
             PsiElement(?=>)('?=>')

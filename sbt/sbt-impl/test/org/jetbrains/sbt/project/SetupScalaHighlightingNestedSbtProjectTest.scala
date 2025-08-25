@@ -22,14 +22,17 @@ class SetupScalaHighlightingNestedSbtProjectTest extends SbtExternalSystemImport
   override protected def getTestDataProjectPath: String =
     s"${TestUtils.getTestDataPath}/sbt/projects/setupScalaHighlightingNestedSbtProject"
 
-  override def getProjectPath: String = Path.of(getTestDataProjectPath, "nestedSbtProject").toString
-
   override protected def projectJdkLanguageLevel: LanguageLevel = LanguageLevel.JDK_17
 
   override def setUp(): Unit = {
     super.setUp()
     SbtProjectResolver.processOutputOfLatestStructureDump = ""
-    SbtCachesSetupUtil.setupCoursierAndIvyCache(getProject)
+    SbtCachesSetupUtil.setupCoursierAndIvyCache(getMyProject)
+  }
+
+  override protected def setUpInWriteAction(): Unit = {
+    super.setUpInWriteAction()
+    setProjectRootViaReflection(Path.of(getTestDataProjectPath, "nestedSbtProject"))
   }
 
   @Test
@@ -42,7 +45,7 @@ class SetupScalaHighlightingNestedSbtProjectTest extends SbtExternalSystemImport
     // The HelloJava.java file then doesn't even belong to the project instance.
     // But it is still somewhat useful to assert that no notification banner is shown in that file.
 
-    val notificationProvider = EditorNotificationProvider.EP_NAME.findExtensionOrFail(classOf[SetupScalaHighlightingNotificationProvider], getProject)
+    val notificationProvider = EditorNotificationProvider.EP_NAME.findExtensionOrFail(classOf[SetupScalaHighlightingNotificationProvider], getMyProject)
 
     val helloJavaPath = getTestProjectPath / "src" / "HelloJava.java"
     val helloScalaPath = getTestProjectPath / "nestedSbtProject" / "src" / "main" / "scala" / "HelloScala.scala"
@@ -60,8 +63,8 @@ class SetupScalaHighlightingNestedSbtProjectTest extends SbtExternalSystemImport
 
     val shouldHighlightHelloScalaAfter = ProblemHighlightFilter.shouldHighlightFile(helloScalaPsiFileAfter)
 
-    val notificationBannerHelloJavaAfter = notificationProvider.collectNotificationData(getProject, helloJavaPsiFileAfter.getVirtualFile)
-    val notificationBannerHelloScalaAfter = notificationProvider.collectNotificationData(getProject, helloScalaPsiFileAfter.getVirtualFile)
+    val notificationBannerHelloJavaAfter = notificationProvider.collectNotificationData(getMyProject, helloJavaPsiFileAfter.getVirtualFile)
+    val notificationBannerHelloScalaAfter = notificationProvider.collectNotificationData(getMyProject, helloScalaPsiFileAfter.getVirtualFile)
 
     assertTrue("HelloScala.scala should be highlighted after the project has been imported", shouldHighlightHelloScalaAfter)
     assertNull("A notification banner should not be shown in HelloJava.java after the project has been imported", notificationBannerHelloJavaAfter)
@@ -70,7 +73,7 @@ class SetupScalaHighlightingNestedSbtProjectTest extends SbtExternalSystemImport
 
   private def findPsiFile(path: Path): PsiFile = {
     val virtualFile = findVirtualFile(path)
-    val manager = PsiManager.getInstance(getProject)
+    val manager = PsiManager.getInstance(getMyProject)
     val psiFile = manager.findFile(virtualFile)
     assertNotNull(s"Could not find psi file for virtual file: $virtualFile", psiFile)
     psiFile

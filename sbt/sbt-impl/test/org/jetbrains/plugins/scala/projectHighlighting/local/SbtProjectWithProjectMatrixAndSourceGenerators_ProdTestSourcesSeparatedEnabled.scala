@@ -511,6 +511,6 @@ class SbtProjectWithProjectMatrixAndSourceGenerators_ProdTestSourcesSeparatedEna
 
     matcher.assertProjectsEqual(expectedProject, getProject, singleContentRootModules = false)(compareContext)
 
-    matcher.assertNoNotificationsShown(myProject, notificationsCollector.getNotifications)
+    matcher.assertNoNotificationsShown(getMyProject, notificationsCollector.getNotifications)
   }
 }

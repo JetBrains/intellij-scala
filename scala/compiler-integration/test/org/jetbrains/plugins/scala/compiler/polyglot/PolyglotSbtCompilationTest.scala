@@ -62,12 +62,12 @@ abstract class PolyglotSbtCompilationTestBase(separateModules: Boolean)
 
     importProject(false)
 
-    KotlinDaemonUtil.disableKotlinDaemon(getProject)
+    KotlinDaemonUtil.disableKotlinDaemon(getMyProject)
 
-    val modules = ModuleManager.getInstance(getProject).getModules
+    val modules = ModuleManager.getInstance(getMyProject).getModules
     modules.foreach(ModuleRootModificationUtil.setModuleSdk(_, sdk))
 
-    IndexingTestUtil.waitUntilIndexesAreReady(getProject)
+    IndexingTestUtil.waitUntilIndexesAreReady(getMyProject)
 
     val module1Name = if (separateModules) "polyglot-sbt.module1.main" else "polyglot-sbt.module1"
     val module2Name = if (separateModules) "polyglot-sbt.module2.main" else "polyglot-sbt.module2"
@@ -76,7 +76,7 @@ abstract class PolyglotSbtCompilationTestBase(separateModules: Boolean)
     assertNotNull(s"Could not find module with name '$module1Name'", module1)
     module2 = modules.find(_.getName == module2Name).orNull
     assertNotNull(s"Could not find module with name '$module2Name'", module2)
-    compiler = new CompilerTester(getProject, java.util.Arrays.asList(modules: _*), null, false)
+    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
   }
 
   override def tearDown(): Unit = try {
@@ -90,7 +90,7 @@ abstract class PolyglotSbtCompilationTestBase(separateModules: Boolean)
   }
 
   def testPolyglotCompilation(): Unit = {
-    assertEquals(IncrementalityType.SBT, ScalaCompilerConfiguration.instanceIn(getProject).incrementalityType)
+    assertEquals(IncrementalityType.SBT, ScalaCompilerConfiguration.instanceIn(getMyProject).incrementalityType)
     compiler.make()
     assertClassExists("Greeter", module1)
     assertClassExists("AbstractGreeter", module1)

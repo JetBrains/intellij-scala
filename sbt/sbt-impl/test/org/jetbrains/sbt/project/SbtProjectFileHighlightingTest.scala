@@ -26,7 +26,7 @@ sealed abstract class SbtProjectFileHighlightingTestBase(sbtVersion: String) ext
   override def setUp(): Unit = {
     super.setUp()
     SbtProjectResolver.processOutputOfLatestStructureDump = ""
-    SbtCachesSetupUtil.setupCoursierAndIvyCache(getProject)
+    SbtCachesSetupUtil.setupCoursierAndIvyCache(getMyProject)
   }
 
   def testSbtProjectFileHighlighting(): Unit = {
@@ -50,7 +50,7 @@ sealed abstract class SbtProjectFileHighlightingTestBase(sbtVersion: String) ext
 
     assertTrue("plugins.sbt should be highlighted after the project has been imported", shouldHighlightPluginsSbtAfter)
     assertTrue("build.sbt should be highlighted after the project has been imported", shouldHighlightBuildSbtAfter)
-    assertTrue("The sbt project should have been imported", SbtProjectImportStateService.instance(getProject).isImported(findPsiFile(buildSbtPath)))
+    assertTrue("The sbt project should have been imported", SbtProjectImportStateService.instance(getMyProject).isImported(findPsiFile(buildSbtPath)))
     assertTrue("Dependencies.scala should be highlighted after the project has been imported", shouldHighlightScalaFileAfter)
   }
 
@@ -60,7 +60,7 @@ sealed abstract class SbtProjectFileHighlightingTestBase(sbtVersion: String) ext
     val virtualFile = VfsUtil.findFile(path, true)
     assertNotNull(s"Could not find virtual file for path: $path", virtualFile)
 
-    val manager = PsiManager.getInstance(getProject)
+    val manager = PsiManager.getInstance(getMyProject)
     val psiFile = manager.findFile(virtualFile)
     assertNotNull(s"Could not find psi file for virtual file: $virtualFile", psiFile)
     psiFile

@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package collections
 
-import org.jetbrains.plugins.scala.util.AliasExports
-
 class RangeToIndicesTest extends OperationsOnCollectionInspectionTest {
 
   override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
@@ -12,13 +10,14 @@ class RangeToIndicesTest extends OperationsOnCollectionInspectionTest {
   override protected val hint: String =
     "Replace with seq.indices"
 
-  def testRange(): Unit = if (!AliasExports.aliasExportsEnabled(getProject)) { // TODO SCL-19972
-    doTest(
-      s"val seq = Seq(1); ${START}Range(0, seq.size)$END",
-      "val seq = Seq(1); Range(0, seq.size)",
-      "val seq = Seq(1); seq.indices"
-    )
-  }
+  // TODO Enable, SCL-19972
+//  def testRange(): Unit = {
+//    doTest(
+//      s"val seq = Seq(1); ${START}Range(0, seq.size)$END",
+//      "val seq = Seq(1); Range(0, seq.size)",
+//      "val seq = Seq(1); seq.indices"
+//    )
+//  }
 
   def testUntil(): Unit = {
     doTest(
@@ -44,13 +43,14 @@ class RangeToIndicesTest extends OperationsOnCollectionInspectionTest {
     )
   }
 
-  def testArray(): Unit = if (!AliasExports.aliasExportsEnabled(getProject)) { // TODO SCL-19972
-    doTest(
-      s"val seq = Array(1); ${START}Range(0, seq.length)$END",
-      "val seq = Array(1); Range(0, seq.length)",
-      "val seq = Array(1); seq.indices"
-    )
-  }
+  // TODO Enable, SCL-19972
+//  def testArray(): Unit = {
+//    doTest(
+//      s"val seq = Array(1); ${START}Range(0, seq.length)$END",
+//      "val seq = Array(1); Range(0, seq.length)",
+//      "val seq = Array(1); seq.indices"
+//    )
+//  }
 
   def testSet(): Unit = {
     checkTextHasNoErrors("val seq = Set(1); Range(0, seq.size)")

@@ -32,6 +32,9 @@ object ConstraintsResult {
       case ConstraintSystem(subst) => subst.toOption
       case _                       => None
     }
+
+    def substOrEmpty(implicit ctx: ProjectContext): ScSubstitutor =
+      toSubst.getOrElse(ScSubstitutor.empty)
   }
 
   case object Left extends ConstraintsResult

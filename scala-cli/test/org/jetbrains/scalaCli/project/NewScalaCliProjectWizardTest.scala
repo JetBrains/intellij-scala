@@ -1,5 +1,6 @@
 package org.jetbrains.scalaCli.project
 
+import com.intellij.execution.process.ProcessOutputType
 import com.intellij.ide.projectWizard.NewProjectWizardConstants
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListener, ExternalSystemTaskType}
 import com.intellij.openapi.project.Project
@@ -60,7 +61,11 @@ class NewScalaCliProjectWizardTest extends NewScalaProjectWizardTestBase with Ex
     // The bsp server should be initialized - BSP sessions are closed after the reload,
     // so the endpoint to download all targets has already been triggered, and the response has been received.
     val closeAllBspInstancesAfterReload = new ExternalSystemTaskNotificationListener {
-      override def onEnd(id: ExternalSystemTaskId): Unit = {
+      // Required override, otherwise the default implementation throws a StackOverflowError
+      // because of mutual calling of two `onTaskOutput` methods.
+      override def onTaskOutput(id: ExternalSystemTaskId, text: String, outputType: ProcessOutputType): Unit = {}
+
+      override def onEnd(projectPath: String, id: ExternalSystemTaskId): Unit = {
         val isProjectResolveTask = id.getType == ExternalSystemTaskType.RESOLVE_PROJECT
         if (isProjectResolveTask) {
           BspCommunicationService.getInstance.closeAll
@@ -68,14 +73,6 @@ class NewScalaCliProjectWizardTest extends NewScalaProjectWizardTestBase with Ex
       }
     }
     ExternalSystemTaskNotificationListener.EP_NAME.getPoint.registerExtension(closeAllBspInstancesAfterReload, getTestRootDisposable)
-  }
-
-  override def tearDown(): Unit = {
-    inWriteAction {
-      val projectJdkTable = ProjectJdkTable.getInstance()
-      projectJdkTable.getAllJdks.foreach(projectJdkTable.removeJdk)
-    }
-    super.tearDown()
   }
 
   def testCreateSimpleProjectScala2(): Unit = {

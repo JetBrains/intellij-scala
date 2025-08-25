@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala.project
 
-import org.jetbrains.plugins.scala.util.TestUtils
-import org.jetbrains.sbt.project.{SbtCachesSetupUtil, SbtExternalSystemImportingTestLike}
-import org.junit.Assert.{assertNotNull, assertTrue}
 import com.intellij.openapi.module.Module
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.SlowTests
+import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.sbt.project.{SbtCachesSetupUtil, SbtExternalSystemImportingTestLike}
+import org.junit.Assert.{assertNotNull, assertTrue}
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[SlowTests]))
@@ -18,7 +18,7 @@ class FindJVMModuleModuleExtensionTest extends SbtExternalSystemImportingTestLik
 
   override def setUp(): Unit = {
     super.setUp()
-    SbtCachesSetupUtil.setupCoursierAndIvyCache(getProject)
+    SbtCachesSetupUtil.setupCoursierAndIvyCache(getMyProject)
     importProject(false)
   }
 
@@ -50,7 +50,7 @@ class FindJVMModuleModuleExtensionTest extends SbtExternalSystemImportingTestLik
   }
 
   private def findAllSharedSourcesModules(numberOfRequiredModules: Int): Seq[Module] = {
-    val modules = this.myTestFixture.getProject.modules
+    val modules = this.getMyTestFixture.getProject.modules
     val sharedSourcesModules = modules.filter(_.getModuleTypeName == "SHARED_SOURCES_MODULE")
     assertTrue(s"There should be $numberOfRequiredModules shared sources modules", sharedSourcesModules.size == numberOfRequiredModules)
     sharedSourcesModules

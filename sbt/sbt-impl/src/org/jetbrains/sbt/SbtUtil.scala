@@ -114,7 +114,7 @@ object SbtUtil {
 
   def structurePluginBinaryVersion(sbtVersion: SbtVersion): Version = {
     if (sbtVersion.isSbt2)
-      Version("2.0")
+      Version("2")
     else if (sbtVersion >= SbtVersion("1.3.0"))
       Version("1.3")
     else if (sbtVersion.value.major(1) >= Version("1"))
@@ -186,8 +186,8 @@ object SbtUtil {
   def getSbtStructureJar(sbtVersion: SbtVersion): Option[File] = {
     val binVersion = structurePluginBinaryVersion(sbtVersion)
     val structurePath =
-      if (binVersion ~= Version("2.0"))
-        Some(BuildInfo.sbtStructurePath_2_0)
+      if (binVersion ~= Version("2"))
+        Some(BuildInfo.sbtStructurePath_2)
       else if (binVersion ~= Version("1.3"))
         Some(BuildInfo.sbtStructurePath_1_3)
       else if (binVersion ~= Version("1.0"))

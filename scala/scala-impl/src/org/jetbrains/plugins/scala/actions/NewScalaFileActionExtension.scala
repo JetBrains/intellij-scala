@@ -8,7 +8,7 @@ import org.jetbrains.annotations.ApiStatus
 trait NewScalaFileActionExtension {
   /**
    * This method is used only if the given `dataContext` contains a non-null module and if:
-   *  - The default method [[com.intellij.ide.actions.CreateTemplateInPackageAction#isAvailable]] returns false for a given context, and/or
+   *  - Either the default method [[com.intellij.ide.actions.CreateTemplateInPackageAction#isAvailable]] returns false for the given context, or
    *  - The module in the `dataContext` doesn't have Scala installed
    *
    * @see [[org.jetbrains.plugins.scala.actions.NewScalaFileAction#isAvailable]]

@@ -66,6 +66,10 @@ abstract class GrazieScalaTestBase extends ScalaLightCodeInsightFixtureTestCase:
         /*detectionContext = */ state.getDetectionContext,
         /*checkingContext = */ checkingContext,
         /*version = */ state.getVersion,
+        state.getStyleProfile,
+        state.getParameters,
+        state.getUseOxfordSpelling,
+        state.getAutoFix
       ): @nowarn("cat=deprecation")
 
     service[GrazieCheckers].awaitConfiguration()

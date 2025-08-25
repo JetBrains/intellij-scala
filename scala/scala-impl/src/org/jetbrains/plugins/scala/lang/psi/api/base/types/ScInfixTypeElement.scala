@@ -29,6 +29,6 @@ trait ScInfixTypeElement extends ScInfixLikeTypeElement
 
 object ScInfixTypeElement {
   /** Extracts the left and right type elements of the given infix type. */
-  def unapply(arg: ScInfixTypeElement): Option[(ScTypeElement, ScStableCodeReference, Option[ScTypeElement])] =
+  def unapply(arg: ScInfixTypeElement): Some[(ScTypeElement, ScStableCodeReference, Option[ScTypeElement])] =
     Some((arg.left, arg.operation, arg.rightOption))
 }

@@ -72,8 +72,15 @@ trait ScalaMethodTypeProvider[+T <: ScalaPsiElement] extends MethodTypeProvider[
       case methodType: ScMethodType => nested(methodType.result, n - 1)
       case _                        => None
     }
+}
 
-  protected final def constructMethodType(rtpe: ScType, clauses: Seq[ScParameterClause]): ScType =
+object MethodTypeProvider {
+  def constructMethodType(
+    rtpe:    ScType,
+    clauses: Seq[ScParameterClause]
+  )(implicit
+    scope: ElementScope
+  ): ScType =
     if (clauses.nonEmpty)
       clauses.foldRight[ScType](rtpe) { (clause: ScParameterClause, tp: ScType) =>
         ScMethodType(
@@ -84,9 +91,6 @@ trait ScalaMethodTypeProvider[+T <: ScalaPsiElement] extends MethodTypeProvider[
         )
       }
     else ScMethodType(rtpe, Seq.empty)
-}
-
-object MethodTypeProvider {
 
   implicit def fromScFun(f: ScFun): ScalaMethodTypeProvider[ScFun] =
     ScFunProvider(f)

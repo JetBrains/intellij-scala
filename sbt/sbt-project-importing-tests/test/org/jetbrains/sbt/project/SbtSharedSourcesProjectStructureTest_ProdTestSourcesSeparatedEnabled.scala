@@ -863,7 +863,7 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
   private def assertNoTargetDirGeneratedInSharedDirectory(sharedSourcesRoot: String): Unit = {
     ApplicationManager.getApplication.invokeAndWait(() => {
       inWriteAction {
-        myProject.save()
+        getMyProject.save()
       }
     })
 

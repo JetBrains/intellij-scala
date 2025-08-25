@@ -6,7 +6,7 @@ abstract class SbtProjectHighlightingLocalProjectsTestBase
   extends SbtProjectHighlightingTestBase
     with AllProjectHighlightingTest {
 
-  override def getProject: Project = myProject
+  override def getProject: Project = getMyProject
 
   override def rootProjectsDirPath: String = s"${ProjectHighlightingTestUtils.projectsRootPath}/local"
 

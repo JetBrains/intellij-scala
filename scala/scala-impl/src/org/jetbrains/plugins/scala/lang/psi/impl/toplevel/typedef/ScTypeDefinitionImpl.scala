@@ -50,7 +50,7 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
                                                                debugName: String)
   extends ScTemplateDefinitionImpl(stub, nodeType, node, debugName)
     with ScTypeDefinition
-    with ScCompanionOwnerImpl {
+    with ScTypeDefinitionLikeImpl {
 
   override def hasTypeParameters: Boolean = typeParameters.nonEmpty
 

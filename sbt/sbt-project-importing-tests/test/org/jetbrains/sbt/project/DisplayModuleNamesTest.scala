@@ -17,7 +17,7 @@ final class DisplayModuleNamesTest extends SbtProjectStructureImportingLike {
       "c1.root" -> "root",
       "c1.root.dummy" -> "dummy",
     )
-    checkDisplayModuleNames(myProject, expectedDisplayModuleNames)
+    checkDisplayModuleNames(getMyProject, expectedDisplayModuleNames)
   }
 
   def testMultiModule(): Unit = {
@@ -27,7 +27,7 @@ final class DisplayModuleNamesTest extends SbtProjectStructureImportingLike {
       "multiModule.bar" -> "bar",
       "multiModule.foo" -> "foo",
     )
-    checkDisplayModuleNames(myProject, expectedDisplayModuleNames)
+    checkDisplayModuleNames(getMyProject, expectedDisplayModuleNames)
   }
 
 }

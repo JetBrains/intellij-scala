@@ -6,6 +6,7 @@ import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.ModuleRootModificationUtil
 import com.intellij.platform.externalSystem.testFramework.ExternalSystemImportingTestCase
+import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.CompilerTester
 import org.jetbrains.plugins.gradle.settings.GradleProjectSettings
 import org.jetbrains.plugins.gradle.util.GradleConstants
@@ -24,13 +25,15 @@ import scala.jdk.CollectionConverters._
 
 abstract class GradleProjectWithPureJavaModuleTestBase(incrementality: IncrementalityType) extends ExternalSystemImportingTestCase {
 
+  private var gradleSdk: Sdk = _
+
   private var sdk: Sdk = _
 
   private var compiler: CompilerTester = _
 
   override lazy val getCurrentExternalProjectSettings: GradleProjectSettings = {
     val settings = new GradleProjectSettings().withQualifiedModuleNames()
-    settings.setGradleJvm(sdk.getName)
+    settings.setGradleJvm(gradleSdk.getName)
     settings.setDelegatedBuild(false)
     settings
   }
@@ -44,7 +47,9 @@ abstract class GradleProjectWithPureJavaModuleTestBase(incrementality: Increment
   override def setUp(): Unit = {
     super.setUp()
 
-    GradleTestUtil.setupGradleHome(getProject)
+    GradleTestUtil.setupGradleHome(getMyProject)
+
+    gradleSdk = SmartJDKLoader.getOrCreateJDK(LanguageLevel.JDK_17)
 
     sdk = {
       val jdkVersion = JdkVersionDiscovery.discoveredJdk
@@ -109,7 +114,10 @@ abstract class GradleProjectWithPureJavaModuleTestBase(incrementality: Increment
     val settings = ScalaCompileServerSettings.getInstance()
     settings.USE_DEFAULT_SDK = true
     settings.COMPILE_SERVER_SDK = null
-    inWriteAction(ProjectJdkTable.getInstance().removeJdk(sdk))
+    inWriteAction {
+      val table = ProjectJdkTable.getInstance()
+      Seq(sdk, gradleSdk).foreach(table.removeJdk)
+    }
   } finally {
     super.tearDown()
   }
@@ -117,11 +125,11 @@ abstract class GradleProjectWithPureJavaModuleTestBase(incrementality: Increment
   def testImportAndCompile(): Unit = {
     importProject(false)
 
-    ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType = incrementality
+    ScalaCompilerConfiguration.instanceIn(getMyProject).incrementalityType = incrementality
 
-    val modules = ModuleManager.getInstance(myProject).getModules
+    val modules = ModuleManager.getInstance(getMyProject).getModules
     modules.foreach(ModuleRootModificationUtil.setModuleSdk(_, sdk))
-    compiler = new CompilerTester(myProject, java.util.Arrays.asList(modules: _*), null, false)
+    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
 
     val messages = compiler.make()
     val errorsAndWarnings = messages.asScala.filter { message =>

@@ -41,7 +41,7 @@ final class SbtProjectStructureImportingTest extends SbtProjectStructureImportin
     Assert.assertEquals(
       "modulesWithScala should return list of non *-build modules",
       Seq("simple"),
-      myProject.modulesWithScala.map(_.getName),
+      getMyProject.modulesWithScala.map(_.getName),
     )
 
     val expectedLineInProcessOutput = "[error] Some error message which shouldn't fail the whole build, see SCL-21478 and SCL-13038"
@@ -84,7 +84,7 @@ final class SbtProjectStructureImportingTest extends SbtProjectStructureImportin
       }
     )
 
-    val projectBaseDir = myProject.baseDir
+    val projectBaseDir = getMyProject.baseDir
     assertSbtDirectoryCompletionContributorVariants(
       projectBaseDir,
       expectedSbtCompletionVariants
@@ -122,7 +122,7 @@ final class SbtProjectStructureImportingTest extends SbtProjectStructureImportin
     val linkedProjectName = "simple"
     val expectedScalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
     val linkedSbtProjectPath = generateTestProjectPath(linkedProjectName)
-    linkSbtProject(linkedSbtProjectPath, prodTestSourcesSeparated = false)
+    linkSbtProject(linkedSbtProjectPath, prodTestSourcesSeparated = false, getMyProject)
     runTest(
       new project("testTwoLinkedProjects") {
         modules := Seq(
@@ -960,9 +960,9 @@ final class SbtProjectStructureImportingTest extends SbtProjectStructureImportin
       val ManuallySetTarget = "9"
       val ManuallySetSource = LanguageLevel.JDK_1_9
 
-      setOptions(myProject, ManuallySetSource, ManuallySetTarget, Seq("-some-root-option"))
+      setOptions(getMyProject, ManuallySetSource, ManuallySetTarget, Seq("-some-root-option"))
 
-      val projectModules = myProject.modules
+      val projectModules = getMyProject.modules
       projectModules.foreach(setOptions(_, ManuallySetSource, ManuallySetTarget, Seq("-some-module-option")))
     })
 
@@ -1019,7 +1019,7 @@ final class SbtProjectStructureImportingTest extends SbtProjectStructureImportin
       }
     )
 
-    val compilerOptions = JavacConfiguration.getOptions(myProject, classOf[JavacConfiguration])
+    val compilerOptions = JavacConfiguration.getOptions(getMyProject, classOf[JavacConfiguration])
     val defaultCompilerOptions = new JpsJavaCompilerOptions
 
     assertEquals(defaultCompilerOptions.DEBUGGING_INFO, compilerOptions.DEBUGGING_INFO)
@@ -1282,7 +1282,7 @@ final class SbtProjectStructureImportingTest extends SbtProjectStructureImportin
   )
 
   /**
-   * @see [[org.jetbrains.sbt.project.SbtProjectStructureImportingTest_ProdTestSourcesSeparatedEnabled.testSimpleSbt2Latest]]
+   * @see [[org.jetbrains.sbt.project.SbtProjectStructureImportingTestBase_ProdTestSourcesSeparated.testSimpleSbt2Latest]]
    */
   def testSimpleSbt2Latest(): Unit = {
     val expectedScala_3_3 = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("3.3.3")
@@ -1343,7 +1343,7 @@ final class SbtProjectStructureImportingTest extends SbtProjectStructureImportin
     Assert.assertEquals(
       "modulesWithScala should return list of non *-build modules",
       Seq("root", "root.subProject1", "root.subProject2"),
-      myProject.modulesWithScala.map(_.getName),
+      getMyProject.modulesWithScala.map(_.getName),
     )
 
     val expectedLineInProcessOutput = "[error] Some error message which shouldn't fail the whole build, see SCL-21478 and SCL-13038"
@@ -1353,7 +1353,7 @@ final class SbtProjectStructureImportingTest extends SbtProjectStructureImportin
     )
 
     assertSbtDirectoryCompletionContributorVariants(
-      myProject.baseDir,
+      getMyProject.baseDir,
       DefaultSbtContentRootsScala3
     )
   }

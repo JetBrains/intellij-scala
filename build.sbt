@@ -146,7 +146,7 @@ lazy val sbtApi =
         "sbtStructurePath_0_13" -> relativeJarPath(Dependencies.structureExtractor_0_13),
         "sbtStructurePath_1_0" -> relativeJarPath(Dependencies.structureExtractor_1_0),
         "sbtStructurePath_1_3" -> relativeJarPath(Dependencies.structureExtractor_1_3),
-        "sbtStructurePath_2_0" -> relativeJarPath(Dependencies.structureExtractor_2_0),
+        "sbtStructurePath_2" -> relativeJarPath(Dependencies.structureExtractor_2),
       ),
       buildInfoOptions += BuildInfoOption.ConstantValue
     )
@@ -802,7 +802,6 @@ lazy val intelliLangIntegration = newProject(
 ).settings(
 //  addCompilerPlugin(Dependencies.macroParadise),
   intellijPlugins ++= Seq(
-    "org.intellij.intelliLang",
     "com.intellij.modules.json"
   ).map(_.toPlugin),
   packageMethod := PackagingMethod.PluginModule("scalaCommunity.intelliLang"),
@@ -830,7 +829,10 @@ lazy val mavenIntegration =
     .settings(
       intellijPlugins += "org.jetbrains.idea.maven".toPlugin,
       intellijPlugins += "org.jetbrains.idea.reposearch".toPlugin, // required for Maven (IJPL-35276)
-      libraryDependencies += Dependencies.intellijMavenTestFramework % Test,
+      libraryDependencies ++= Seq(
+        Dependencies.intellijMavenTestFramework % Test,
+        Dependencies.intellijEelJavaTestFramework % Test
+      ),
       resolvers += Versions.intellijRepository_ForManagedIntellijDependencies,
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.maven")
     )
@@ -889,8 +891,7 @@ lazy val textAnalysis =
       scalaVersion := Versions.scala3Version,
       Compile / scalacOptions := globalScala3ScalacOptions,
       intellijPlugins ++= Seq(
-        "tanvd.grazi".toPlugin,
-        "org.intellij.intelliLang".toPlugin //required for intelliLangIntegration
+        "tanvd.grazi".toPlugin
       ),
       //Language packs needed at runtime to run tests
       resolvers += DependencyResolvers.IntelliJDependencies,
@@ -961,11 +962,11 @@ lazy val runtimeDependencies = project.in(file("target/tools/runtime-dependencie
       Dependencies.structureExtractor_0_13,
       Dependencies.structureExtractor_1_0,
       Dependencies.structureExtractor_1_3,
-      Dependencies.structureExtractor_2_0,
+      Dependencies.structureExtractor_2,
 
       sbtDep("org.jetbrains.scala", "sbt-idea-shell", Versions.sbtIdeaShellVersion, Versions.Sbt.binary_0_13),
       sbtDep("org.jetbrains.scala", "sbt-idea-shell", Versions.sbtIdeaShellVersion, Versions.Sbt.binary_1_0),
-      sbtDep("org.jetbrains.scala", "sbt-idea-shell", Versions.sbtIdeaShellVersion, Versions.Sbt.binary_2_0),
+      sbtDep("org.jetbrains.scala", "sbt-idea-shell", Versions.sbtIdeaShellVersion, Versions.Sbt.binary_2),
 
       // SCL-22858 compiler bytecode indices are disabled in sbt shell
       // sbtDep("org.jetbrains.scala", "sbt-idea-compiler-indices", Versions.compilerIndicesVersion, Versions.Sbt.binary_0_13),
@@ -1021,7 +1022,6 @@ addCommandAlias("runCompletionTests", runTestsInTC(completionTests))
 addCommandAlias("runEditorTests", runTestsInTC(editorTests))
 addCommandAlias("runSlowTests", runTestsInTC(slowTests))
 addCommandAlias("runSlowTests2", runTestsInTC(slowTests2))
-addCommandAlias("runExtremelySlowTests", runTestsInTC(slowTests2)) // To be removed soon, not to cause disruptions to the CI.
 addCommandAlias("runDebuggerTests", runTestsInTC(debuggerTests))
 addCommandAlias("runDebuggerEvaluationTests", runTestsInTC(debuggerEvaluationTests))
 addCommandAlias("runScalacTests", runTestsInTC(scalacTests))

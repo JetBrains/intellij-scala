@@ -30,7 +30,9 @@ object FileKind {
       first.name == second.name && clean(first.name) == fileName
 
     val members = file.members
-    val typeDefinitions = members.filterByType[ScTypeDefinitionLike]
+    val typeDefinitions = members.collect {
+      case td: ScTypeDefinitionLike if td.canHaveCompanion => td
+    }
     val hasTopLevelNonTypeDefinitions = typeDefinitions.size != members.size
     if (hasTopLevelNonTypeDefinitions)
       None
@@ -38,7 +40,7 @@ object FileKind {
       typeDefinitions.toList match {
         case (definition: ScObject) :: Nil if definition.isPackageObject =>
           Some(PackageObject(definition))
-        case (definition: ScTypeDefinition) :: Nil if matchesFileName(definition) =>
+        case (definition: ScTypeDefinitionLike) :: Nil if matchesFileName(definition) && definition.canHaveCompanion =>
           Some(TypeDefinition(definition))
         case (first@(_: ScClass | _: ScTrait | _: ScEnum | _: ScTypeAlias)) :: (second: ScObject) :: Nil if bothMatchFileName(first, second) =>
           Some(CompanionsFileKind(first, second))
@@ -57,11 +59,13 @@ object FileKind {
   }
 
   private case class TypeDefinition(
-    override protected val delegate: ScTypeDefinition
+    override protected val delegate: ScTypeDefinitionLike
   ) extends FileKind {
 
-    override def node(implicit project: Project, settings: ViewSettings): Option[MyIconableNode] =
-      Some(new TypeDefinitionNode(delegate))
+    override def node(implicit project: Project, settings: ViewSettings): Option[MyIconableNode] = delegate match {
+      case td: ScTypeDefinition => Some(new TypeDefinitionNode(td))
+      case td => Some(new NamedElementNode(td))
+    }
   }
 
   private final case class CompanionsFileKind(

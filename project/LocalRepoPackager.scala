@@ -220,11 +220,12 @@ object LocalRepoPackager extends AutoPlugin {
 
   // NOTE: I couldn't find a similar utility method in sbt (at least in sbt 1.10.7)
   // There is sbt.PluginCross.scalaVersionFromSbtBinaryVersion, but it's not updated for sbt 2.0 and is private
-  private def scalaBinaryVersionForSbtVersion(sbtVersion: String): String =
-    if (sbtVersion == "0.13") "2.10"
-    else if (sbtVersion.startsWith("1.")) "2.12"
-    else if (sbtVersion.startsWith("2.")) "3"
-    else throw new IllegalArgumentException(s"unsupported sbt version: $sbtVersion")
+  private def scalaBinaryVersionForSbtVersion(sbtVersion: String): String = sbtVersion match {
+    case "0.13" => "2.10"
+    case v if v.startsWith("1.") => "2.12"
+    case "2" => "3"
+    case _ => throw new IllegalArgumentException(s"unsupported sbt version: $sbtVersion")
+  }
 
   private def sbtCrossModule(
     moduleId: ModuleID,

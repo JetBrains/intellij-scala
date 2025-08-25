@@ -23,17 +23,19 @@ class ExceptionBreakpointsTest extends ScalaLightCodeInsightFixtureTestCase {
     checkAvailable(methodBody(s"val o = new Runtime${CARET}Exception()"), "java.lang.RuntimeException")
   }
 
+  // TODO Also test the scala.RuntimeException type alias, SCL-24247
   def testType(): Unit = {
-    checkAvailable(methodBody(s"val o: ${CARET}Throwable = new RuntimeException()"), "java.lang.Throwable")
+    checkAvailable(methodBody(s"val o: java.lang.${CARET}Throwable = new RuntimeException()"), "java.lang.Throwable")
   }
 
   def testTypeUnavailable(): Unit = {
     checkUnavailable(methodBody(s"val o: ${CARET}java.lang.Object = new RuntimeException()"))
   }
 
+  // TODO Also test the scala.RuntimeException type alias, SCL-24247
   def testCatch(): Unit = {
     checkAvailable(
-      methodBody(s"try {} catch { case e: Runtime${CARET}Exception => }"),
+      methodBody(s"try {} catch { case e: java.lang.Runtime${CARET}Exception => }"),
       "java.lang.RuntimeException"
     )
   }
@@ -53,12 +55,13 @@ class ExceptionBreakpointsTest extends ScalaLightCodeInsightFixtureTestCase {
     checkUnavailable(s"class ${CARET}A")
   }
 
+  // TODO Also test the scala.NumberFormatException type alias, SCL-24247
   def testParseInt(): Unit = {
     checkAvailable(
       s"""def parseInt(s: String): Int =
          |  try s.toInt
          |  catch
-         |    case e: NumberFor${CARET}matException =>
+         |    case e: java.lang.NumberFor${CARET}matException =>
          |      e.printStackTrace()
          |      -1
          |""".stripMargin,

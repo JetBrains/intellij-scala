@@ -520,7 +520,7 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
     val expectedContent =
       s"""<span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">nameOrPwd</span>(
          |whichOne: <span style=""><a href="psi_element://scala.Boolean"><code>Boolean</code></a></span>
-         |): <span style="color:#20999d;"><a href="psi_element://.UserName"><code>UserName</code></a></span> <span style="color:#20999d;">|</span> <span style="color:#20999d;"><a href="psi_element://.Password"><code>Password</code></a></span>
+         |): <span style="color:#20999d;"><a href="psi_element://UserName"><code>UserName</code></a></span> <span style="color:#20999d;">|</span> <span style="color:#20999d;"><a href="psi_element://Password"><code>Password</code></a></span>
          |""".stripMargin.withoutNewLines
 
     doGenerateDocDefinitionTest(fileContent, expectedContent)
@@ -536,8 +536,8 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
 
     val expectedContent =
       s"""<span style="color:#000080;font-weight:bold;">type</span> <span style="color:#20999d;">NameAndPwd</span> =
-         | <span style="color:#20999d;"><a href="psi_element://.UserName"><code>UserName</code></a></span>
-         | <span style="color:#20999d;">&</span> <span style="color:#20999d;"><a href="psi_element://.Password"><code>Password</code></a></span>
+         | <span style="color:#20999d;"><a href="psi_element://UserName"><code>UserName</code></a></span>
+         | <span style="color:#20999d;">&</span> <span style="color:#20999d;"><a href="psi_element://Password"><code>Password</code></a></span>
          |""".stripMargin.withoutNewLines
 
     doGenerateDocDefinitionTest(fileContent, expectedContent)

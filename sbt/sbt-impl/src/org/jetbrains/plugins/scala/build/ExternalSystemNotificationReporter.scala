@@ -5,6 +5,7 @@ import com.intellij.build.events._
 import com.intellij.build.events.impl.{AbstractBuildEvent, BuildIssueEventImpl}
 import com.intellij.build.issue.BuildIssue
 import com.intellij.build.{FilePosition, SyncViewManager}
+import com.intellij.execution.process.ProcessOutputType
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.model.task.event.{Failure => ExternalSystemFailure, FailureResult => ExternalSystemFailureResult, SkippedResult => ExternalSystemSkippedResult, SuccessResult => ExternalSystemSuccessResult, _}
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListener}
@@ -119,7 +120,8 @@ class ExternalSystemNotificationReporter(workingDir: String,
     if (!isFinished) {
       //NOTE: new lines are also added in BspSession.BspProcessMessageHandler.call
       val messageWithNewLine = if (message.endsWith("\n")) message else message + "\n"
-      notifications.onTaskOutput(taskId, messageWithNewLine, isStdOut)
+      val outputType = if (isStdOut) ProcessOutputType.STDOUT else ProcessOutputType.STDERR
+      notifications.onTaskOutput(taskId, messageWithNewLine, outputType)
     } else {
       //NOTE: it might be not valid to log output when the task is already finished
       //(see comments of https://youtrack.jetbrains.com/issue/SCL-21794/Reload-ALL-BSP-projects-action-is-disabled)

@@ -14,10 +14,11 @@ import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.util.IncorrectOperationException
+import groovy.transform.Internal
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.conversion.ScalaConversionBundle
 import org.jetbrains.plugins.scala.conversion.copy.plainText.ScalaFilePasteProvider._
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiMemberExt, ToNullSafe, inWriteCommandAction, startCommand}
+import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt, PsiElementExt, PsiMemberExt, ToNullSafe, inWriteCommandAction, startCommand}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.MethodInvocation
 import org.jetbrains.plugins.scala.project.ModuleExt
@@ -41,6 +42,8 @@ import scala.util.control.NonFatal
  */
 final class ScalaFilePasteProvider extends PasteProvider {
 
+  import ScalaFilePasteProvider.PasteActionIntention._
+
   override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 
   override def isPastePossible(dataContext: DataContext): Boolean = true
@@ -61,46 +64,95 @@ final class ScalaFilePasteProvider extends PasteProvider {
   }
 
   override def performPaste(context: DataContext): Unit = {
+    calculatePasteActionOutcome(context) match {
+      case Some((pasteActionOutcome, project)) =>
+        executePasteActionOutcome(pasteActionOutcome)(project)
+      case _ => // Nothing to paste or invalid context
+    }
+  }
+
+  private def calculatePasteActionOutcome(context: DataContext): Option[(PasteActionIntention, Project)] = {
     for {
       copiedText <- CopyPasteManager.getInstance.copiedText
       module <- context.maybeModuleWithScala
       directory <- context.maybeIdeView.flatMap(_.getOrChooseDirectory.toOption)
-      fileName <- suggestedScalaFileNameForText(copiedText, module, Some(directory))
-    } {
-      createFileInDirectory(fileName, copiedText, directory)(module.getProject)
-    }
+      pasteActionOutcome <- calculatePasteActionOutcome(pastedText = copiedText, module, directory)
+    } yield (pasteActionOutcome, module.getProject)
   }
 
+  @Internal
   @TestOnly
-  def suggestedScalaFileNameForText(
-    copiedText: String,
+  def calculatePasteActionOutcome(
+    pastedText: String,
     module: Module,
-    directory: Option[PsiDirectory] = None
-  ): Option[FileNameWithExtension] = {
+    directory: PsiDirectory
+  ): Option[PasteActionIntention] = {
     for {
-      scalaFile <- PlainTextCopyUtil.createScalaCodeFragmentIfParsedTolerably(copiedText, module)
+      scalaFragment <- PlainTextCopyUtil.createScalaCodeFragmentIfParsedTolerably(pastedText, module)
     } yield {
-      if (directory.exists(shouldCreatePluginsSbtFile(scalaFile, module, _))) {
-        FileNameWithExtension("plugins", "sbt")
-      }
-      else {
-        // Creates a file name that equals to the first top level member file name, otherwise a worksheet file.
-        // If the file contains some package, it can't be a worksheet, so we always create a scala file
-        val members = scalaFile.members
-        val firstMemberName = members.headOption.flatMap(_.names.headOption)
-        val firstMemberFileName = firstMemberName.map(FileNameWithExtension(_, "scala"))
-        val regularScalaFileName = firstMemberFileName.orElse {
-          if (scalaFile.firstPackaging.isDefined) Some(FileNameWithExtension("definitions", "scala"))
-          else None
-        }
-        regularScalaFileName.getOrElse(FileNameWithExtension("worksheet", "sc"))
+      if (shouldCreateOrUpdatePluginsSbtFile(scalaFragment, module, directory)) {
+        val pluginsFileName = "plugins.sbt"
+        val existingPluginsFile = directory.findFile(pluginsFileName)
+
+        if (existingPluginsFile != null)
+          calculateUpdateExistingFileOutcome(existingPluginsFile, pastedText)
+        else
+          CreateNewFile(directory, FileNameWithExtension("plugins", "sbt"), pastedText)
+      } else {
+        // Handle regular Scala files - create a new file with a suggested name
+        val fileName = calculateBestFileNameFromPastedContent(scalaFragment)
+        CreateNewFile(directory, fileName, pastedText)
       }
     }
   }
 
+  private def calculateUpdateExistingFileOutcome(existingPluginsFile: PsiFile, pastedText: String): UpdateExistingFile = {
+    val lastAddSbtPluginStatement = existingPluginsFile.elements.findLast(isAddSbtPluginStatement)
+    lastAddSbtPluginStatement match {
+      case Some(element) =>
+        val elementEndOffset = element.getTextRange.getEndOffset
+        UpdateExistingFile(
+          existingPluginsFile,
+          insertedText = "\n" + pastedText,
+          insertionOffset = elementEndOffset,
+          navigationOffset = elementEndOffset + 1
+        )
+      case None =>
+        val existingContent = existingPluginsFile.getText
+        val existingContentStripped = existingContent.stripTrailing()
+        if (existingContentStripped.isEmpty)
+          UpdateExistingFile(
+            existingPluginsFile,
+            insertedText = pastedText,
+            insertionOffset = 0,
+            navigationOffset = 0
+          )
+        else {
+          val insertionOffset = existingContentStripped.length
+          UpdateExistingFile(
+            existingPluginsFile,
+            insertedText = "\n" + pastedText,
+            insertionOffset = insertionOffset,
+            navigationOffset = insertionOffset + 1
+          )
+        }
+    }
+  }
 
-  private def shouldCreatePluginsSbtFile(
-    scalaFile: ScalaFile,
+  private def calculateBestFileNameFromPastedContent(pastedScalaFragment: ScalaFile): FileNameWithExtension = {
+    val topLevelMembers = pastedScalaFragment.members
+    val firstMemberName = topLevelMembers.headOption.flatMap(_.names.headOption)
+    val firstMemberFileName = firstMemberName.map(FileNameWithExtension(_, "scala"))
+    val regularScalaFileName = firstMemberFileName.orElse {
+      if (pastedScalaFragment.firstPackaging.isDefined) Some(FileNameWithExtension("definitions", "scala"))
+      else None
+    }
+
+    regularScalaFileName.getOrElse(FileNameWithExtension("worksheet", "sc"))
+  }
+
+  private def shouldCreateOrUpdatePluginsSbtFile(
+    pastedScalaCodeFragment: ScalaFile,
     module: Module,
     directory: PsiDirectory
   ): Boolean = {
@@ -109,26 +161,54 @@ final class ScalaFilePasteProvider extends PasteProvider {
     if (!isSbtBuildModuleRoot)
       return false
 
-    val `has addSbtPlugin top-level call` = scalaFile.children.exists {
-      case MethodInvocation((ref, _)) => ref.textMatches("addSbtPlugin")
-      case _ => false
-    }
-    `has addSbtPlugin top-level call`
+    hasAddSbtPluginTopLevelStatement(pastedScalaCodeFragment)
   }
 
-  private def createFileInDirectory(
-    fileNameAndExtension: FileNameWithExtension,
-    fileText: String,
-    targetPsiDir: PsiDirectory
+  private def hasAddSbtPluginTopLevelStatement(pastedScalaCodeFragment: ScalaFile): Boolean = {
+    val addSbtPluginStatement = pastedScalaCodeFragment.children.find(isAddSbtPluginStatement)
+    addSbtPluginStatement.nonEmpty
+  }
+
+  private def isAddSbtPluginStatement(psiElement: PsiElement): Boolean = psiElement match {
+    case MethodInvocation((ref, _)) =>
+      ref.textMatches("addSbtPlugin")
+    case _ =>
+      false
+  }
+
+  private def executePasteActionOutcome(
+    pasteActionOutcome: PasteActionIntention
   )(implicit project: Project): Unit = try {
-    val FileNameWithExtension(name, extension) = fileNameAndExtension
+    pasteActionOutcome match {
+      case create: CreateNewFile =>
+        createNewFileInDirectory(create)
+
+      case update: UpdateExistingFile =>
+        updateExistingFileInDirectory(update)
+    }
+  } catch {
+    case e: IncorrectOperationException =>
+      //noinspection ReferencePassedToNls
+      showErrorDialog(
+        project,
+        e.getMessage,
+        ScalaConversionBundle.message("paste.error.title")
+      )
+    case NonFatal(ex) =>
+      throw ex
+  }
+
+  private def createNewFileInDirectory(create: CreateNewFile)(implicit project: Project): Unit =  {
+    val FileNameWithExtension(name, extension) = create.fileName
+    val targetPsiDir = create.targetDirectory
 
     val allowCreateMultipleFilesWithSameName = extension == "sc" || extension == "sbt"
     // For some file types, allow creating multiple worksheets in the same directory:
     //  - worksheet.sc, worksheet1.sc, worksheet2.sc, etc...
-    //  - plugins.sbt, plugins1.sbt
+    //  - plugins.sbt, plugins1.sbt (only when not updating existing)
     val fileName: String =
-      if (allowCreateMultipleFilesWithSameName) VfsUtil.getNextAvailableName(targetPsiDir.getVirtualFile, name, extension)
+      if (allowCreateMultipleFilesWithSameName)
+        VfsUtil.getNextAvailableName(targetPsiDir.getVirtualFile, name, extension)
       else s"$name.$extension"
 
     //If the file with same name already exists ask the user whether s/he wants to replace it
@@ -160,7 +240,7 @@ final class ScalaFilePasteProvider extends PasteProvider {
 
       val document = documentManager.getDocument(psiFile)
       if (document != null) {
-        document.setText(fileText)
+        document.setText(create.fileText)
         documentManager.commitDocument(document)
 
         CodeStyleManager.getInstance(project).adjustLineIndent(psiFile, psiFile.getTextRange)
@@ -171,16 +251,27 @@ final class ScalaFilePasteProvider extends PasteProvider {
         new OpenFileDescriptor(project, psiFile.getVirtualFile).navigate(true)
       }
     }
-  } catch {
-    case e: IncorrectOperationException =>
-      //noinspection ReferencePassedToNls
-      showErrorDialog(
-        project,
-        e.getMessage,
-        ScalaConversionBundle.message("paste.error.title")
-      )
-    case NonFatal(ex) =>
-      throw ex
+  }
+
+  private def updateExistingFileInDirectory(update: UpdateExistingFile)(implicit project: Project): Unit = {
+    inWriteCommandAction {
+      val documentManager = PsiDocumentManager.getInstance(project)
+      val psiFile = update.psiFile
+      val document = documentManager.getDocument(psiFile)
+
+      if (document != null) {
+        // Insert the new content at the specified offset
+        document.insertString(update.insertionOffset, update.insertedText)
+        documentManager.commitDocument(document)
+
+        CodeStyleManager.getInstance(project).adjustLineIndent(psiFile, update.insertionOffset)
+        documentManager.commitDocument(document)
+
+        // Navigate to the insertion point
+        val fileDescriptor = new OpenFileDescriptor(project, psiFile.getVirtualFile, update.navigationOffset)
+        fileDescriptor.navigate(true)
+      }
+    }
   }
 
   private def updatePackageStatement(file: ScalaFile, targetDir: PsiDirectory)
@@ -201,6 +292,23 @@ object ScalaFilePasteProvider {
 
   case class FileNameWithExtension(name: String, extension: String) {
     def fullName: String = s"$name.$extension"
+  }
+
+  sealed trait PasteActionIntention
+
+  object PasteActionIntention {
+    case class CreateNewFile(
+      targetDirectory: PsiDirectory,
+      fileName: FileNameWithExtension,
+      fileText: String,
+    ) extends PasteActionIntention
+
+    case class UpdateExistingFile(
+      psiFile: PsiFile,
+      insertedText: String,
+      insertionOffset: Int,
+      navigationOffset: Int,
+    ) extends PasteActionIntention
   }
 
   implicit class DataContextExt(private val context: DataContext) extends AnyVal {

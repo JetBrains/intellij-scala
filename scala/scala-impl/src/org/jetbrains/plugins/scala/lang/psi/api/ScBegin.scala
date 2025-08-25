@@ -25,5 +25,5 @@ trait ScBegin extends ScalaPsiElement {
 }
 
 object ScBegin {
-  def unapply(begin: ScBegin): Option[(ScBegin, Option[ScEnd])] = Some((begin, begin.end))
+  def unapply(begin: ScBegin): Some[(ScBegin, Option[ScEnd])] = Some((begin, begin.end))
 }

@@ -5,6 +5,7 @@ import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.ModuleRootModificationUtil
 import com.intellij.platform.externalSystem.testFramework.ExternalSystemImportingTestCase
+import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.{CompilerTester, IndexingTestUtil}
 import junit.framework.TestCase.{assertEquals, assertNotNull}
 import org.jetbrains.plugins.gradle.settings.GradleProjectSettings
@@ -25,6 +26,8 @@ import scala.jdk.CollectionConverters._
 @Category(Array(classOf[CompilationTests_Zinc]))
 class GroovyMixedGradleCompilationTest extends ExternalSystemImportingTestCase {
 
+  private var gradleSdk: Sdk = _
+
   private var sdk: Sdk = _
 
   private var compiler: CompilerTester = _
@@ -33,7 +36,7 @@ class GroovyMixedGradleCompilationTest extends ExternalSystemImportingTestCase {
 
   override lazy val getCurrentExternalProjectSettings: GradleProjectSettings = {
     val settings = new GradleProjectSettings().withQualifiedModuleNames()
-    settings.setGradleJvm(sdk.getName)
+    settings.setGradleJvm(gradleSdk.getName)
     settings.setDelegatedBuild(false)
     settings
   }
@@ -47,7 +50,9 @@ class GroovyMixedGradleCompilationTest extends ExternalSystemImportingTestCase {
   override def setUp(): Unit = {
     super.setUp()
 
-    GradleTestUtil.setupGradleHome(getProject)
+    GradleTestUtil.setupGradleHome(getMyProject)
+
+    gradleSdk = SmartJDKLoader.getOrCreateJDK(LanguageLevel.JDK_17)
 
     sdk = {
       val jdkVersion = JdkVersionDiscovery.discoveredJdk
@@ -129,16 +134,16 @@ class GroovyMixedGradleCompilationTest extends ExternalSystemImportingTestCase {
 
     importProject()
 
-    KotlinDaemonUtil.disableKotlinDaemon(getProject)
+    KotlinDaemonUtil.disableKotlinDaemon(getMyProject)
 
-    val modules = ModuleManager.getInstance(getProject).getModules
+    val modules = ModuleManager.getInstance(getMyProject).getModules
     modules.foreach(ModuleRootModificationUtil.setModuleSdk(_, sdk))
 
-    IndexingTestUtil.waitUntilIndexesAreReady(getProject)
+    IndexingTestUtil.waitUntilIndexesAreReady(getMyProject)
 
     mainModule = modules.find(_.getName == "groovy-mixed.main").orNull
     assertNotNull("Could not find module with name 'groovy-mixed.main'", mainModule)
-    compiler = new CompilerTester(getProject, java.util.Arrays.asList(modules: _*), null, false)
+    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
   }
 
   override def tearDown(): Unit = try {
@@ -148,7 +153,7 @@ class GroovyMixedGradleCompilationTest extends ExternalSystemImportingTestCase {
     settings.COMPILE_SERVER_SDK = null
     inWriteAction {
       val jdkTable = ProjectJdkTable.getInstance()
-      jdkTable.removeJdk(sdk)
+      Seq(sdk, gradleSdk).foreach(jdkTable.removeJdk)
       val kotlinSdk = jdkTable.getAllJdks.find(_.getName.contains("Kotlin SDK"))
       kotlinSdk.foreach(jdkTable.removeJdk)
     }
@@ -157,7 +162,7 @@ class GroovyMixedGradleCompilationTest extends ExternalSystemImportingTestCase {
   }
 
   def testMixedGroovyCompilation(): Unit = {
-    assertEquals(IncrementalityType.SBT, ScalaCompilerConfiguration.instanceIn(getProject).incrementalityType)
+    assertEquals(IncrementalityType.SBT, ScalaCompilerConfiguration.instanceIn(getMyProject).incrementalityType)
     val messages = compiler.make().asScala.toSeq
     assertNoErrorsOrWarnings(messages)
     for (cls <- Seq("Greeter", "GroovyGreeter", "JavaGreeter", "KotlinGreeter", "ScalaGreeter", "main$package", "main$package$")) {

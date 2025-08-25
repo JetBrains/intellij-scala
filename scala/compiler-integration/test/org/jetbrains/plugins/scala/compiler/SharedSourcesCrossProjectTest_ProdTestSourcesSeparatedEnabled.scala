@@ -28,7 +28,7 @@ class SharedSourcesCrossProjectTest_ProdTestSourcesSeparatedEnabled extends SbtE
 
     importProject(false)
 
-    ScalaCompilerConfiguration.instanceIn(myProject).incrementalityType = IncrementalityType.SBT
+    ScalaCompilerConfiguration.instanceIn(getMyProject).incrementalityType = IncrementalityType.SBT
   }
 
   override def tearDown(): Unit = {
@@ -38,7 +38,7 @@ class SharedSourcesCrossProjectTest_ProdTestSourcesSeparatedEnabled extends SbtE
   }
 
   def testSharedSourcesOnlyCompiledToOwnerModules(): Unit = {
-    val modules = ModuleManager.getInstance(myProject).getModules
+    val modules = ModuleManager.getInstance(getMyProject).getModules
 
     def findModule(name: String): Module = modules.find(_.getName == name).getOrElse {
       fail(s"Could not find module with name '$name").asInstanceOf[Nothing]
@@ -57,7 +57,7 @@ class SharedSourcesCrossProjectTest_ProdTestSourcesSeparatedEnabled extends SbtE
     findModule("root.base.base-sources.main")
     findModule("root.base.base-sources.test")
 
-    val compiler = new CompilerTester(myProject, java.util.Arrays.asList(modules: _*), null, false)
+    val compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
 
     val messages = try {
       compiler.make().asScala.toSeq

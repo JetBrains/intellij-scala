@@ -1,0 +1,120 @@
+package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
+
+import com.intellij.psi.PsiElement
+import com.intellij.psi.impl.source.PsiFileImpl
+import com.intellij.psi.stubs.StubElement
+import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScTypeDefinitionLikeFactory
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedInUserData}
+import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.lang.TokenSets.TYPE_DEFINITION_LIKES
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScTypeAlias, ScTypeAliasDeclaration, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinitionLike, ScEnum, ScObject, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
+
+trait ScTypeDefinitionLikeImpl extends ScTypeDefinitionLike {
+  //Performance critical method
+  //And it is REALLY SO!
+  final override def baseCompanion: Option[ScTypeDefinitionLike] = {
+    val isObject = this match {
+      // Enum cases always have injected companion objects
+      case _: ScEnumCase                       => return None
+      case _: ScObject                         => true
+      case _: ScTrait | _: ScClass | _: ScEnum | _: ScTypeAlias =>
+        if (!canHaveCompanion) return None
+        false
+      case _                                   => return None
+    }
+
+    val thisName: String = name
+
+    val sameElementInContext = this.getSameElementInContext
+
+    sameElementInContext match {
+      case td: ScTypeDefinition if isCompanion(td) => return Some(td)
+      case _ =>
+    }
+
+    def isCompanion(td: ScTypeDefinitionLike): Boolean = td match {
+      case td @ (_: ScClass | _: ScTrait | _: ScEnum | _: ScTypeAlias) if isObject && td.name == thisName && td.canHaveCompanion => true
+      case o: ScObject if !isObject && thisName == o.name => true
+      case _ => false
+    }
+
+    def findByStub(contextStub: StubElement[_]): Option[ScTypeDefinitionLike] = {
+      val siblings  = contextStub.getChildrenByType(TYPE_DEFINITION_LIKES, ScTypeDefinitionLikeFactory)
+      siblings.find(isCompanion)
+    }
+
+    // A fallback for when no context exists (which should basically never be the case).
+    // Finds the companion via a search of neighboring elements
+    // Because this search is done for all type definitions within a context,
+    // this search is quadratic in the number of type definitions.
+    def findByAstViaDirectSearch: Option[ScTypeDefinitionLike] = {
+      var sibling: PsiElement = sameElementInContext
+
+      while (sibling != null) {
+
+        sibling = sibling.getNextSibling
+
+        sibling match {
+          case td: ScTypeDefinitionLike if isCompanion(td) => return Some(td)
+          case _ =>
+        }
+      }
+
+      sibling = sameElementInContext
+      while (sibling != null) {
+
+        sibling = sibling.getPrevSibling
+
+        sibling match {
+          case td: ScTypeDefinitionLike if isCompanion(td) => return Some(td)
+          case _ =>
+        }
+      }
+
+      None
+    }
+
+    // find the companion via a cached map of all TypeDefinitions under the context
+    def findByAst: Option[ScTypeDefinitionLike] = {
+      val ctx = this.getContext
+      if (ctx == null)
+        return findByAstViaDirectSearch
+
+      val (types, objects) = cachedInUserData("ScTypeDefinitionImpl.baseCompanion.findByAst", ctx, BlockModificationTracker(ctx)) {
+        val types = Map.newBuilder[String, ScTypeDefinitionLike]
+        val objects = Map.newBuilder[String, ScObject]
+
+        var current = ctx.getFirstChild
+        while (current != null) {
+
+          current match {
+            case td: ScTypeDefinitionLike if td.is[ScClass, ScTrait, ScEnum, ScTypeAlias] && td.canHaveCompanion => types += td.name -> td
+            case o: ScObject => objects += o.name -> o
+            case _ =>
+          }
+
+          current = current.getNextSibling
+        }
+        (types.result(), objects.result())
+      }
+
+      if (isObject) types.get(thisName)
+      else objects.get(thisName)
+    }
+
+    val contextStub = getContext match {
+      case stub: ScalaStubBasedElementImpl[_, _] => stub.getStub
+      case file: PsiFileImpl => file.getStub
+      case _ => null
+    }
+
+    if (contextStub != null) findByStub(contextStub)
+    else findByAst
+  }
+
+  override def baseCompanionTypeDefinition: Option[ScTypeDefinition] = baseCompanion.collect {
+    case td: ScTypeDefinition => td
+  }
+}

@@ -1,9 +1,11 @@
 package org.jetbrains.sbt.project
 
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
+import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.projectHighlighting.base.ProjectHighlightingTestUtils
 import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
+import org.jetbrains.sbt.settings.SbtSettings
 
 trait SbtExternalSystemImportingTestLike extends ScalaExternalSystemImportingTestBase {
 
@@ -34,4 +36,16 @@ trait SbtExternalSystemImportingTestLike extends ScalaExternalSystemImportingTes
     new SbtProjectSettings
 
   override protected def getCurrentExternalProjectSettings: SbtProjectSettings = currentExternalProjectSettings
+
+  /**
+   * It is necessary to explicitly set all project settings that are tested/required for test, because what is set in
+   * #setUp method in each SbtProjectStructureImportingTest classes is not applied to the project settings of the linked project
+   */
+  protected def linkSbtProject(path: String, prodTestSourcesSeparated: Boolean, project: Project): Unit = {
+    val settings = new SbtProjectSettings
+    settings.jdk = getJdkConfiguredForTestCase.getName
+    settings.setExternalProjectPath(path)
+    settings.setSeparateProdAndTestSources(prodTestSourcesSeparated)
+    SbtSettings.getInstance(project).linkProject(settings)
+  }
 }

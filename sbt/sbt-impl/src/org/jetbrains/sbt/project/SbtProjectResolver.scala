@@ -342,7 +342,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val dummyRootProject = ProjectData(
       projectTmpName, projectUri, projectTmpName, s"org.$projectName", "0.0", projectRoot, None, Seq.empty,
       new File(projectRoot, "target"), Seq(dummyConfigurationData), Option(dummyJavaData), None, CompileOrder.Mixed.toString,
-      dummyDependencyData, Set.empty, None, Seq.empty, Seq.empty, Seq.empty, Seq(), Seq(), generatedManagedSources = false
+      dummyDependencyData, Set.empty, None, Seq.empty, Seq.empty, Seq.empty, mainSourceDirectories = Seq(new File(projectRoot, "src/main")),
+      Seq(), generatedManagedSources = false
     )
 
     val projects = Seq(dummyRootProject)
@@ -376,7 +377,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       getDefaultModuleFilesDirectory(projectRoot),
       None,
       projectToParentModule,
-      buildProjectsGroup
+      buildProjectsGroup,
+      isPreview = true
     )
 
     projectNode
@@ -468,7 +470,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
         defaultModuleFilesDirectory,
         data.localCachePath.map(_.getCanonicalPath),
         projectToParentModule,
-        buildProjectsGroups
+        buildProjectsGroups,
+        isPreview = false
       )
     val buildModules = data.builds.map(buildModuleForProject)
 
@@ -676,17 +679,24 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     buildToProjects
       .toSeq.sortBy(_._1)
       .map { case (buildUri, projects) =>
-        val rootProject = findRootProjectInBuild(projects)
+        val rootProject = findRootProjectInBuild(projects, buildUri)
         val projectsWithoutRootProject = projects.filterNot(_ == rootProject)
         BuildProjectsGroup(buildUri, rootProject, projectsWithoutRootProject, rootProject.name)
       }
   }
 
-  private def findRootProjectInBuild(projectInSameBuild: Seq[ProjectData]): ProjectData = {
-    //Assuming that all projects in same build are located in the same directory
-    //I checked with SBT 1.9.6 and if you try to define a module outside current build root it throws an error:
-    // `java.lang.AssertionError: assertion failed: directory ... is not contained in build root`
-    projectInSameBuild.minBy(_.base.getPath.length)
+  private def findRootProjectInBuild(projectInSameBuild: Seq[ProjectData], buildURI: URI): ProjectData = {
+    // In most cases, projects within a single sbt build cannot be declared outside the project root,
+    // whether by absolute or relative paths. The exception to this rule is when projects are declared using symlinks (SCL-24216).
+    // That's why the root project is first attempted to be found via the buildPath,
+    // and as a fallback, the shortest path is used.
+    val buildPath = Try(Path.of(buildURI)).toOption
+    val projectAtBuildPath = buildPath.flatMap { path =>
+      projectInSameBuild.find(_.base.toPath == path)
+    }
+    projectAtBuildPath.getOrElse {
+      projectInSameBuild.minBy(_.base.getPath.length)
+    }
   }
 
   private def createLibraries(data: sbtStructure.StructureData, projects: Seq[sbtStructure.ProjectData]): Seq[LibraryNode] = {
@@ -1104,7 +1114,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     defaultModuleFilesDirectory: String,
     localCachePath: Option[String],
     projectToParentModule: Map[ProjectData, ModuleDataNodeType],
-    buildProjectsGroups: Seq[BuildProjectsGroup]
+    buildProjectsGroups: Seq[BuildProjectsGroup],
+    isPreview: Boolean
   )(implicit context: ImportContext): BuildModuleNodeWithBuildBaseDir = {
     val buildBaseProject =
       projects
@@ -1143,7 +1154,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     result.setInheritProjectCompileOutputPath(false)
     result.setCompileOutputPath(ExternalSystemSourceType.SOURCE, (buildProjectDirRoot / Sbt.TargetDirectory / "idea-classes").path)
     result.setCompileOutputPath(ExternalSystemSourceType.TEST, (buildProjectDirRoot / Sbt.TargetDirectory / "idea-test-classes").path)
-    result.add(createBuildContentRoot(buildProjectDirRoot))
+    result.add(createBuildContentRoot(buildProjectDirRoot, isPreview))
 
     val library = {
       val classes = build.classes.filter(_.exists).map(_.path)
@@ -1167,11 +1178,17 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
   /**
    * @param buildProjectDirRoot `myProjectName/project`
+   * @param isPreview indicate whether it's a preview import or not. If it's a preview import and `buildProjectDirRoot` doesn't exist,
+   *                  it shouldn't be added as a source to the build module content root.
+   *                  It's a workaround for [[https://youtrack.jetbrains.com/issue/SCL-24181]]
    */
-  private def createBuildContentRoot(buildProjectDirRoot: File): ContentRootNode = {
+  private def createBuildContentRoot(buildProjectDirRoot: File, isPreview: Boolean): ContentRootNode = {
     val result = new ContentRootNode(buildProjectDirRoot.path)
 
-    val sourceDirs = Seq(buildProjectDirRoot) // , base << 1
+    // Remove this workaround when https://youtrack.jetbrains.com/issue/IJPL-201546/WorkspaceModel-storage-inconsistency is fixed
+    val sourceDirs =
+      if (!isPreview || buildProjectDirRoot.exists()) Seq(buildProjectDirRoot) // , base << 1
+      else Nil
 
     val excludedDirs = Seq(
       buildProjectDirRoot / Sbt.TargetDirectory,

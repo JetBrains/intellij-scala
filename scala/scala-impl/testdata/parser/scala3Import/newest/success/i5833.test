@@ -47,9 +47,10 @@ ScalaFile
                 PsiElement(identifier)('i')
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
-                SimpleType: Int
-                  CodeReferenceElement: Int
-                    PsiElement(identifier)('Int')
+                ParameterType
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
               PsiElement())(')')
             PsiWhiteSpace(' ')
             PsiElement(?=>)('?=>')
@@ -82,9 +83,10 @@ ScalaFile
                 PsiElement(identifier)('i')
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
-                SimpleType: Int
-                  CodeReferenceElement: Int
-                    PsiElement(identifier)('Int')
+                ParameterType
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
               PsiElement())(')')
             PsiWhiteSpace(' ')
             PsiElement(?=>)('?=>')
@@ -229,9 +231,10 @@ ScalaFile
                 PsiElement(identifier)('i')
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
-                SimpleType: Int
-                  CodeReferenceElement: Int
-                    PsiElement(identifier)('Int')
+                ParameterType
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
               PsiElement())(')')
             PsiWhiteSpace(' ')
             PsiElement(?=>)('?=>')
@@ -278,9 +281,10 @@ ScalaFile
                 PsiElement(identifier)('i')
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
-                SimpleType: Int
-                  CodeReferenceElement: Int
-                    PsiElement(identifier)('Int')
+                ParameterType
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
               PsiElement())(')')
             PsiWhiteSpace(' ')
             PsiElement(?=>)('?=>')

@@ -24,6 +24,6 @@ trait ScInfixElement extends ScalaPsiElement {
 
 
 object ScInfixElement {
-  def unapply(arg: ScInfixElement): Option[(arg.Kind, arg.Reference, Option[arg.Kind])] =
+  def unapply(arg: ScInfixElement): Some[(arg.Kind, arg.Reference, Option[arg.Kind])] =
     Some((arg.left, arg.operation, arg.rightOption))
 }
