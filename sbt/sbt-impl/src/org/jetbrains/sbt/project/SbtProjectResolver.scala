@@ -1,6 +1,7 @@
 package org.jetbrains.sbt.project
 
 import com.intellij.notification.NotificationType
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.model.project.{ProjectData => ESProjectData, _}
 import com.intellij.openapi.externalSystem.model.task.event.{Failure => ESFailure, _}
@@ -332,7 +333,10 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val projectUri = projectRoot.toURI
     val projectPath = projectRoot.getAbsolutePath
     val projectName = normalizeModuleId(projectRoot.getName)
-    val projectTmpName = projectName + "_" + Random.nextInt(10000)
+    val projectNameNumberSuffix =
+      if (ApplicationManager.getApplication.isUnitTestMode) PreviewImportNumberSuffixInTests
+      else Random.nextInt(10000)
+    val projectTmpName = projectName + "_" + projectNameNumberSuffix
     val sourceDir = new File(projectRoot, "src/main/scala")
     val classDir = new File(projectRoot, "target/dummy")
 
@@ -1323,6 +1327,11 @@ object SbtProjectResolver {
   val IntegrationTestScope = "it"
 
   private val IJ_SDK_CLASSIFIERS: Set[String] = Set("IJ-SDK", "IJ-PLUGIN")
+
+  /**
+   * The fixed numeric suffix added to the project name during the preview import in tests to ensure deterministic names.
+   */
+  val PreviewImportNumberSuffixInTests = 1234
 
   case class ImportCancelledException(cause: Throwable) extends Exception(cause)
 
