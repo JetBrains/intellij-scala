@@ -1,19 +1,20 @@
 package org.jetbrains.plugins.scala.structuralSearch
 
 import com.intellij.psi.PsiElement
+import com.intellij.psi.impl.source.tree.{LeafElement, LeafPsiElement}
 import com.intellij.structuralsearch.impl.matcher.GlobalMatchingVisitor
 import com.intellij.structuralsearch.impl.matcher.handlers.{MatchingHandler, SubstitutionHandler, TopLevelMatchingHandler}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScPattern}
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScAnnotTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScLiteral, ScPrimaryConstructor}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScBlockExpr, ScDo, ScFor, ScForBinding, ScGenerator, ScGuard, ScIf, ScInfixExpr, ScMatch, ScMethodCall, ScParenthesisedExpr, ScReferenceExpression, ScWhile}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScConstructorInvocation, ScFieldId, ScLiteral, ScPrimaryConstructor}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScBlockExpr, ScDo, ScFor, ScForBinding, ScGenerator, ScGuard, ScIf, ScInfixExpr, ScMatch, ScMethodCall, ScParenthesisedExpr, ScReferenceExpression, ScTuple, ScWhile}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScConstructorOwner, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiElement}
 import org.jetbrains.plugins.scala.util.EnumSet.{EnumSet, EnumSetOps}
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 
 
 class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaElementVisitor {
@@ -101,6 +102,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     val other = globalVisitor.getElement.asInstanceOf[ScTypeDefinition]
 
     val handler = getHandler(typedef)
+    val annotationsMatch = globalVisitor.matchInAnyOrder(typedef.annotations.toArray[PsiElement], other.annotations.toArray[PsiElement])
     val keywordMatch = typedef.keywordPrefix == other.keywordPrefix
     val modifierMatch = checkModifier(typedef.getModifierList.modifiers, other.getModifierList.modifiers)
     val nameMatch = matchTextOrVariable(typedef.getNameIdentifier, other.getNameIdentifier, handler)
@@ -117,7 +119,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
 //      typedef.allVals.map(_.namedElement).toArray[PsiElement],
 //      other.allVals.map(_.namedElement).toArray[PsiElement])
 
-    globalVisitor.setResult(keywordMatch && modifierMatch && nameMatch && functionsMatch && constructorsMatch)
+    globalVisitor.setResult(annotationsMatch && keywordMatch && modifierMatch && nameMatch && functionsMatch && constructorsMatch)
     rememberVarMatchIfResult(handler, other.getNameIdentifier)
   }
 
@@ -144,6 +146,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     val other = globalVisitor.getElement.asInstanceOf[ScFunction]
 
     val handler = getHandler(fun)
+    val annotationsMatch = globalVisitor.matchInAnyOrder(fun.annotations.toArray[PsiElement], other.annotations.toArray[PsiElement])
     val modifierMatch = checkModifier(fun.getModifierList.modifiers, other.getModifierList.modifiers)
     val nameMatch = matchTextOrVariable(fun.getNameIdentifier, other.getNameIdentifier, handler)
     val typeParamsMatch = fun.typeParameters.isEmpty ||
@@ -162,8 +165,25 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
       }
     }
 
-    globalVisitor.setResult(modifierMatch && nameMatch && typeParamsMatch && paramsMatch && rTypeMatch && bodyMatch)
+    globalVisitor.setResult(annotationsMatch && modifierMatch && nameMatch && typeParamsMatch && paramsMatch && rTypeMatch && bodyMatch)
     rememberVarMatchIfResult(handler, other.getNameIdentifier)
+  }
+
+  override def visitAnnotation(annotation: ScAnnotation): Unit = {
+    if (!globalVisitor.getElement.is[ScAnnotation]) {
+      globalVisitor.setResult(false)
+      return
+    }
+    val other = globalVisitor.getElement.asInstanceOf[ScAnnotation]
+    globalVisitor.setResult(globalVisitor.`match`(annotation.constructorInvocation, other.constructorInvocation))
+  }
+
+  override def visitConstructorInvocation(constrInvocation: ScConstructorInvocation): Unit = {
+    val other = globalVisitor.getElement.asInstanceOf[ScConstructorInvocation]
+
+    val typeMatch = globalVisitor.`match`(constrInvocation.typeElement, other.typeElement)
+    val argsMatch = constrInvocation.arguments.isEmpty || globalVisitor.matchSequentially(constrInvocation.arguments.toArray[PsiElement], other.arguments.toArray[PsiElement])
+    globalVisitor.setResult(typeMatch && argsMatch)
   }
 
   override def visitParameterClause(clause: ScParameterClause): Unit = {
@@ -191,13 +211,15 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     val other = globalVisitor.getElement.asInstanceOf[ScParameter]
 
     val handler = getHandler(parameter)
+    val annotationsMatch = globalVisitor.matchSequentially(parameter.annotations.toArray[PsiElement], other.annotations.toArray[PsiElement])
     val modifierMatch = checkModifier(parameter.getModifierList.modifiers, other.getModifierList.modifiers)
     val typeMatch = matchOptOptional(parameter.typeElement, other.typeElement)
     val identMatch = matchTextOrVariable(parameter.getIdentifyingElement, other.getIdentifyingElement, handler)
+    parameter.getDefaultExpression
 
     val valvarMatch = parameter.isVal == other.isVal && parameter.isVal == other.isVal
 
-    globalVisitor.setResult(modifierMatch && typeMatch && identMatch && valvarMatch)
+    globalVisitor.setResult(annotationsMatch && modifierMatch && typeMatch && identMatch && valvarMatch)
     rememberVarMatchIfResult(handler, other.getNameIdentifier)
   }
 
@@ -264,9 +286,6 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     globalVisitor.setResult(patternMatch && exprMatch && guardMatch)
   }
 
-  // TODO AnnotType
-  override def visitAnnotTypeElement(annot: ScAnnotTypeElement): Unit = super.visitAnnotTypeElement(annot)
-
   override def visitGenerator(gen: ScGenerator): Unit = {
     val other = globalVisitor.getElement.asInstanceOf[ScGenerator]
 
@@ -294,12 +313,6 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
         val exprMatch = matchOpt(forBinding.expr, other.expr)
         globalVisitor.setResult(patternMatch && exprMatch)
     }
-  }
-
-  // TODO how to match patterns
-  override def visitPattern(pat: ScPattern): Unit = {
-    val other = globalVisitor.getElement.asInstanceOf[ScPattern]
-    globalVisitor.setResult(true)
   }
 
   override def visitInfixExpression(infixPat: ScInfixExpr): Unit = {
@@ -353,6 +366,11 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     false
   }
 
+  override def visitTuple(tuple: ScTuple): Unit = {
+    val other = globalVisitor.getElement.asInstanceOf[ScTuple]
+    globalVisitor.setResult(globalVisitor.matchSequentially(tuple.exprs.toArray[PsiElement], other.exprs.toArray[PsiElement]))
+  }
+
   override def visitScalaElement(element: ScalaPsiElement): Unit = {
     element match {
       case fieldId: ScFieldId => globalVisitor.setResult(matchFieldId(fieldId, globalVisitor.getElement.asInstanceOf[ScFieldId]))
@@ -371,11 +389,16 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
           topLevel.getDelegate match {
             case substHandler: SubstitutionHandler =>
               substHandler.handle(other, globalVisitor.getMatchContext)
-            case _ =>
-              globalVisitor.matchText(elementPat.getText, other.getText)
+            case _ => visitNoHandler(elementPat, other)
           }
-        case _ =>
-          globalVisitor.matchText(elementPat.getText, other.getText)
+        case _ => visitNoHandler(elementPat, other)
       })
+  }
+
+  private def visitNoHandler(elementPat: PsiElement, other: PsiElement): Boolean = {
+    elementPat match {
+      case _: LeafElement => globalVisitor.matchText(elementPat.getText, other.getText)
+      case _ => globalVisitor.matchSons(elementPat, other)
+    }
   }
 }

@@ -224,4 +224,6 @@ class ScSSFunctionsTest extends ScalaStructuralSearchTestCase {
         constraints.setMaxCount(10)
     )
   }
+
+  // TODO test annotations at functions and parameters
 }

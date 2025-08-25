@@ -170,4 +170,42 @@ class ScSSTypeDefTest extends ScalaStructuralSearchTestCase {
       _.addNewVariableConstraint("p").setMaxCount(10)
     )
   }
+
+  def testMatchAnnotations(): Unit = {
+    val content =
+      """<match="AA">@Annot1 class A {}</match="AA">
+        |<match="AB">@Annot2 class B {}</match="AB">
+        |<match="AC">@Annot1 @Annot2 class C {}</match="AC">
+        |<match="AD">class C {}</match="AD">
+        |"""
+    matchAndAssert(
+      "Empty matches all",
+      content, "class $name$ {}"
+    )
+    matchAndAssert(
+      "Match annotation 1",
+      clearMarker(content, Set("AA", "AC")), "@Annot1 class $name$ {}"
+    )
+    matchAndAssert(
+      "Match annotation 2",
+      clearMarker(content, Set("AB", "AC")), "@Annot2 class $name$ {}"
+    )
+    matchAndAssert(
+      "Match both",
+      clearMarker(content, Set("AC")), "@Annot1 @Annot2 class $name$ {}"
+    )
+    matchAndAssert(
+      "Match with variable",
+      clearMarker(content, Set("AA", "AB", "AC")), "@$anno$ class $name$ {}"
+    )
+    matchAndAssert(
+      "Match with variable with count",
+      content, "@$anno$ class $name$ {}",
+      matchOpt => {
+        val constr = matchOpt.addNewVariableConstraint("anno")
+        constr.setMinCount(0)
+        constr.setMaxCount(10)
+      }
+    )
+  }
 }

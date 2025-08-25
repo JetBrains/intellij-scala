@@ -9,6 +9,7 @@ import com.intellij.structuralsearch.plugin.ui.UIUtil
 import com.intellij.structuralsearch.{StructuralSearchProfile, StructuralSearchProfileBase}
 import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaFileTemplateContextType
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterType
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
@@ -67,6 +68,8 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
           element match {
             case par: ScNamedElement =>
               par.name
+            case annot: ScAnnotation =>
+              annot.constructorInvocation.typeElement.getText
             case _ =>
               super.getTypedVarString(element)
           }

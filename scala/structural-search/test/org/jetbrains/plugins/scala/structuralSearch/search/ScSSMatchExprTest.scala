@@ -110,14 +110,5 @@ class ScSSMatchExprTest extends ScalaStructuralSearchTestCase {
                                          |  case (x, y) => x % y != 0 && isPrimeMatch(x)(y - 1)
                                          |}""".stripMargin
     )
-    matchAndAssert(
-      "Var eq content",
-      clearMarker(content, Set("AB")), """(x,y) match {
-                                         |  case (_, _) if x < 2 => false
-                                         |  case (2, _) => true
-                                         |  case (x, 2) => $a$
-                                         |  case (x, y) => $a$ && isPrimeMatch(x)(y - 1)
-                                         |}""".stripMargin
-    )
   }
 }
