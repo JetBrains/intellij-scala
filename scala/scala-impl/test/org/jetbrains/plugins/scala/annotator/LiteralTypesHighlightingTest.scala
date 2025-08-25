@@ -45,7 +45,6 @@ class LiteralTypesHighlightingTest extends LiteralTypesHighlightingTestBase {
       Error("4", "Cannot upcast Int to 4") ::
       Error("4", "Cannot upcast Int to 4") ::
       Error("5", "Expression of type 5 doesn't conform to expected type 4") ::
-      Error("5", "Type mismatch, expected: 4, actual: 5") ::
       Error("1 @unchecked", "Cannot upcast Int to 1") ::
       Nil
   )

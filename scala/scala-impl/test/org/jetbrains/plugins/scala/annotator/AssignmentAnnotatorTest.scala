@@ -18,9 +18,6 @@ class AssignmentAnnotatorTest extends AnnotatorSimpleTestCase {
     assertMatches(messages("var v = A; v = A")) {
       case Nil =>
     }
-    assertMatches(messages("var v = A; v = B")) {
-      case Error("B", TypeMismatch()) :: Nil =>
-    }
   }
 
   //todo: requires Function1 trait in scope
@@ -61,10 +58,6 @@ class AssignmentAnnotatorTest extends AnnotatorSimpleTestCase {
     assertMatches(messages("class C(var p: A) { p = A }")) {
       case Nil =>
     }
-  // TODO right expression "B" must have expected type    
-//    assertMatches(messages("class C(var p: A) { p = B }")) {
-//      case Error("B", TypeMismatch()) :: Nil =>
-//    }
   }
 
   def testClassValueParameter(): Unit = {
@@ -138,9 +131,6 @@ class AssignmentAnnotatorTest extends AnnotatorSimpleTestCase {
     assertMatches(messages("val x = { var a = A; a = A }")) {
       case Nil =>
     }
-    assertMatches(messages("val x = { var a = A; a = B }")) {
-      case Error("B", TypeMismatch()) :: Nil =>
-    }
   }
 
   def testVarInsideTemplateAssignedToVal(): Unit = {
@@ -161,9 +151,6 @@ class AssignmentAnnotatorTest extends AnnotatorSimpleTestCase {
     }
     assertMatches(messages("val a = A; def a_=(x: A) {}; a = A")) {
       case Error("a = A", ReassignmentToVal()) :: Nil =>
-    }
-    assertMatches(messages("def a = A; def a_=(x: A) {}; a = B")) {
-      case Error("B", TypeMismatch()) :: Nil =>
     }
     assertMatches(messages("def `a` = A; def a_=(x: A) {}; a = A")) {
       case Nil =>
@@ -196,7 +183,6 @@ class AssignmentAnnotatorTest extends AnnotatorSimpleTestCase {
     mock.annotations
   }
 
-  val TypeMismatch = StartWith("Type mismatch")
   val ReassignmentToVal = StartWith("Reassignment to val")
   val IllegalAssignmentTarget = StartWith(ScalaBundle.message("illegal.assignment.target"))
 

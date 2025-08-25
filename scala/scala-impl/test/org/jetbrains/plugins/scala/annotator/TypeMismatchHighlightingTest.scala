@@ -64,6 +64,14 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
     "val v: Int = \"foo\": String",
     Error("String", "Expression of type String doesn't conform to expected type Int")) // TODO unify the message in tests
 
+  def testTypeMismatchAndTypeAscriptionErrorAssignment1(): Unit = assertErrorsWithHints(
+    "var v: Int = 1; v = \"foo\": String",
+    Error("String", "Expression of type String doesn't conform to expected type Int")) // TODO unify the message in tests
+
+  def testTypeMismatchAndTypeAscriptionErrorAssignment2(): Unit = assertErrorsWithHints(
+    "def v: Int = 1; def v_=(x: Int): Unit = (); v = \"foo\": String",
+    Error("String", "Expression of type String doesn't conform to expected type Int")) // TODO unify the message in tests
+
   // Widen type when non-literal type is expected, SCL-15571
   def testTypeMismatchAndTypeAscriptionErrorWiden(): Unit = assertErrorsWithHints(
     "val v: Int = true: true",

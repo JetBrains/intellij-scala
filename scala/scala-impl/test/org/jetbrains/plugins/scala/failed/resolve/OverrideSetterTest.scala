@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package failed.resolve
 
 import org.intellij.lang.annotations.Language
-import org.jetbrains.plugins.scala.annotator.element.ScAssignmentAnnotator
+import org.jetbrains.plugins.scala.annotator.element.ScExpressionAnnotator
 import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, Message}
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
@@ -34,7 +34,7 @@ class OverrideSetterTest extends SimpleTestCase {
     val assignment = file.depthFirst().find(_.isInstanceOf[ScAssignment]).get.asInstanceOf[ScAssignment]
 
     implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
-    ScAssignmentAnnotator.annotate(assignment, typeAware = true)
+    ScExpressionAnnotator.annotate(assignment.rightExpression.get, typeAware = true)
     mock.annotations
   }
 }

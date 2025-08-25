@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.annotator.element
 
 import com.intellij.psi.{PsiClass, PsiField, PsiMethod}
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.registerTypeMismatchError
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
 import org.jetbrains.plugins.scala.codeInspection.varCouldBeValInspection.ValToVarQuickFix
 import org.jetbrains.plugins.scala.extensions._
@@ -20,9 +19,6 @@ object ScAssignmentAnnotator extends ElementAnnotator[ScAssignment] {
                        (implicit holder: ScalaAnnotationHolder): Unit = {
     implicit val ctx: ProjectContext = element
 
-    val left = element.leftExpression
-    val right = element.rightExpression
-
     element.leftExpression match {
       case _: ScMethodCall =>
       case ref: ScReferenceExpression =>
@@ -32,36 +28,16 @@ object ScAssignmentAnnotator extends ElementAnnotator[ScAssignment] {
         ref.bind() match {
           case Some(r) if r.isDynamic && r.name == DynamicResolveProcessor.UPDATE_DYNAMIC => //ignore
           case Some(r) if !r.isNamedParameter =>
-            def checkVariable(): Unit = {
-              left.`type`().foreach { lType =>
-                right.foreach { expression =>
-                  expression.getTypeAfterImplicitConversion().tr.foreach { rType =>
-                    if(!ScalaPsiUtil.isUnderscoreEq(element, rType)) {
-                      registerTypeMismatchError(rType, lType, expression)
-                    }
-                  }
-                }
-              }
-            }
             r.element.nameContext match {
               case _: ScVariable =>
-                if (!typeAware) return
-                checkVariable()
               case c: ScClassParameter if c.isVar =>
-                if (!typeAware) return
-                checkVariable()
               case f: PsiField if !f.hasModifierProperty("final") =>
-                if (!typeAware) return
-                checkVariable()
               case fun: ScFunction if ScalaPsiUtil.isViableForAssignmentFunction(fun) =>
                 if (!typeAware) return
                 element.resolveAssignment match {
                   case Some(ra) =>
                     ra.problems.foreach {
-                      case TypeMismatch(expression, expectedType) =>
-                        expression.`type`().foreach {
-                          registerTypeMismatchError(_, expectedType, expression)
-                        }
+                      case TypeMismatch(_, _) => // Handled by ScExpressionAnnotator
                       case MissedValueParameter(_) => // simultaneously handled above
                       case UnresolvedParameter(_) => // don't show function inapplicability, unresolved
                       case WrongTypeParameterInferred => //todo: ?
