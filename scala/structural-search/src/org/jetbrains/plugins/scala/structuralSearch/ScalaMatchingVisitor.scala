@@ -5,10 +5,10 @@ import com.intellij.structuralsearch.impl.matcher.GlobalMatchingVisitor
 import com.intellij.structuralsearch.impl.matcher.handlers.{MatchingHandler, SubstitutionHandler, TopLevelMatchingHandler}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScAnnotTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScLiteral, ScPrimaryConstructor}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScBlockExpr, ScFor, ScForBinding, ScGenerator, ScGuard, ScIf, ScInfixExpr, ScMethodCall, ScParenthesisedExpr, ScReferenceExpression, ScWhile}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScBlockExpr, ScFor, ScForBinding, ScGenerator, ScGuard, ScIf, ScInfixExpr, ScMatch, ScMethodCall, ScParenthesisedExpr, ScReferenceExpression, ScWhile}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScConstructorOwner, ScTypeDefinition}
@@ -31,6 +31,15 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
       case (Some(pat), Some(psi)) =>
         globalVisitor.`match`(pat, psi)
       case (None, _) => true
+      case _ => false
+    }
+  }
+
+  private def matchOptEqual(patO: Option[PsiElement], psiO: Option[PsiElement]): Boolean = {
+    (patO, psiO) match {
+      case (Some(pat), Some(psi)) =>
+        globalVisitor.`match`(pat, psi)
+      case (None, None) => true
       case _ => false
     }
   }
@@ -173,6 +182,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     )
   }
 
+  // TODO check default parameters
   override def visitParameter(parameter: ScParameter): Unit = {
     if (!globalVisitor.getElement.is[ScParameter]) {
       globalVisitor.setResult(false)
@@ -213,7 +223,6 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
 
     globalVisitor.setResult(condMatch && bodyMatch)
   }
-  // TODO Match
 
   override def visitFor(expr: ScFor): Unit = {
     val other = globalVisitor.getElement.asInstanceOf[ScFor]
@@ -229,6 +238,24 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     globalVisitor.setResult(yieldMatch && enumeratorsMatch && bodyMatch)
   }
 
+  override def visitMatch(ms: ScMatch): Unit = {
+    val other = globalVisitor.getElement.asInstanceOf[ScMatch]
+
+    val expressionMatch = matchOpt(ms.expression, other.expression)
+    val casesMatch = globalVisitor.matchSequentially(ms.clauses.toArray[PsiElement], other.clauses.toArray[PsiElement])
+    globalVisitor.setResult(expressionMatch && casesMatch)
+  }
+
+  override def visitCaseClause(cc: ScCaseClause): Unit = {
+    val other = globalVisitor.getElement.asInstanceOf[ScCaseClause]
+
+    val patternMatch = matchOpt(cc.pattern, other.pattern)
+    val exprMatch = matchOpt(cc.expr, other.expr)
+    val guardMatch = matchOptEqual(cc.guard, other.guard)
+    globalVisitor.setResult(patternMatch && exprMatch && guardMatch)
+  }
+
+  // TODO AnnotType
   override def visitAnnotTypeElement(annot: ScAnnotTypeElement): Unit = super.visitAnnotTypeElement(annot)
 
   override def visitGenerator(gen: ScGenerator): Unit = {
@@ -260,8 +287,11 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     }
   }
 
-  // TODO
-  override def visitPattern(pat: ScPattern): Unit = globalVisitor.setResult(true)
+  // TODO how to match patterns
+  override def visitPattern(pat: ScPattern): Unit = {
+    val other = globalVisitor.getElement.asInstanceOf[ScPattern]
+    globalVisitor.setResult(true)
+  }
 
   // TODO Do
 
