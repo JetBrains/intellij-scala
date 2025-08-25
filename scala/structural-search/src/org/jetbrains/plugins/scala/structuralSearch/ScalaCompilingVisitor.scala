@@ -7,7 +7,7 @@ import com.intellij.structuralsearch.impl.matcher.compiler.GlobalCompilingVisito
 import com.intellij.structuralsearch.impl.matcher.handlers.{MatchingHandler, SubstitutionHandler, TopLevelMatchingHandler}
 import com.intellij.structuralsearch.impl.matcher.strategies.MatchingStrategy
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScInfixExpr, ScMethodCall}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScForBinding, ScInfixExpr, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
@@ -84,6 +84,11 @@ class ScalaCompilingVisitor(globalVisitor: GlobalCompilingVisitor) extends Scala
   override def visitTypeDefinition(typedef: ScTypeDefinition): Unit = {
     super.visitTypeDefinition(typedef)
     placeVarHandler(typedef.name)
+  }
+
+  override def visitForBinding(forBinding: ScForBinding): Unit = {
+    super.visitForBinding(forBinding)
+    placeVarHandler(forBinding.getText)
   }
 
   private def placeVarHandler(name: String): Unit = {
