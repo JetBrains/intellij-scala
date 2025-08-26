@@ -133,8 +133,8 @@ class ScSSTypeDefTest extends ScalaStructuralSearchTestCase {
         |""",
       matchOptions => {
         val fC = matchOptions.addNewVariableConstraint("func")
-        fC.setMinCount(4)
-        fC.setMaxCount(4)
+        fC.setMinCount(5)
+        fC.setMaxCount(5)
         val pC = matchOptions.addNewVariableConstraint("par")
         pC.setMinCount(0)
         pC.setMaxCount(10)
@@ -208,4 +208,6 @@ class ScSSTypeDefTest extends ScalaStructuralSearchTestCase {
       }
     )
   }
+
+  // TODO extends types
 }

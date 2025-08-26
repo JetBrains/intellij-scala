@@ -300,4 +300,103 @@ class ScSSFunctionsTest extends ScalaStructuralSearchTestCase {
       }
     )
   }
+
+  val contentParMul =
+    """<match="AA">def test1(a: Int)(b: Int)</match="AA">
+      |<match="AB">def test2(a: String)(b: String)</match="AB">
+      |<match="AC">def test3(a: Int)(b: String)</match="AC">
+      |<match="AD">def test4(a: Int)(b: String, c: Int)</match="AD">
+      |<match="AE">def test4()</match="AE">
+      |"""
+  def testMatchParameterMultipleClausesSing(): Unit = {
+    matchAndAssert(
+      "Match Pure 1",
+      clearMarker(contentParMul, Set("AA")), "def $test$(a: Int, b: Int)"
+    )
+    matchAndAssert(
+      "Match Pure 2",
+      clearMarker(contentParMul, Set("AB")), "def $test$(a: String, b: String)"
+    )
+    matchAndAssert(
+      "Match Pure 3",
+      clearMarker(contentParMul, Set("AD")), "def $test$(a: Int, b: String, c: Int)"
+    )
+    matchAndAssert(
+      "Match Pure 4",
+      clearMarker(contentParMul, Set("AE")), "def $test$()"
+    )
+
+    matchAndAssert(
+      "Match Only Name 1",
+      clearMarker(contentParMul, Set("AA", "AB", "AC")), "def $test$(a, b)"
+    )
+    matchAndAssert(
+      "Match Only Name 1",
+      clearMarker(contentParMul, Set("AA", "AC")), "def $test$(a: Int, b)"
+    )
+    matchAndAssert(
+      "Match Only Name 3",
+      clearMarker(contentParMul, Set("AD")), "def $test$(a, b: String, c: Int)"
+    )
+  }
+
+  def testMatchParameterMultipleClauseMul(): Unit = {
+    matchAndAssert(
+      "Match Pure 1",
+      clearMarker(contentParMul, Set("AA")), "def $test$(a: Int)(b: Int)"
+    )
+    matchAndAssert(
+      "Match Pure 2",
+      clearMarker(contentParMul, Set("AB")), "def $test$(a: String)(b: String)"
+    )
+    matchAndAssert(
+      "Match Pure 3",
+      clearMarker(contentParMul, Set("AD")), "def $test$(a: Int)(b: String, c: Int)"
+    )
+    matchAndAssert(
+      "Match Pure 4",
+      clearMarker(contentParMul, Set("AE")), "def $test$()"
+    )
+
+    matchAndAssert(
+      "Match Only Name 1",
+      clearMarker(contentParMul, Set("AA", "AB", "AC")), "def $test$(a)(b)"
+    )
+    matchAndAssert(
+      "Match Only Name 1",
+      clearMarker(contentParMul, Set("AA", "AC")), "def $test$(a: Int)(b)"
+    )
+    matchAndAssert(
+      "Match Only Name 3",
+      clearMarker(contentParMul, Set("AD")), "def $test$(a)(b: String, c: Int)"
+    )
+  }
+
+  def testMatchParameterMultipleClausesMulAnti(): Unit = {
+    matchAndAssert(
+      "Match Pure 1",
+      clearMarker(contentParMul), "def $test$(a: Int, b: Int)()"
+    )
+    matchAndAssert(
+      "Match Pure 2",
+      clearMarker(contentParMul), "def $test$()(a: String, b: String)"
+    )
+    matchAndAssert(
+      "Match Pure 3",
+      clearMarker(contentParMul), "def $test$(a: Int, b: String)(c: Int)"
+    )
+
+    matchAndAssert(
+      "Match Only Name 1",
+      clearMarker(contentParMul), "def $test$(a, b)()"
+    )
+    matchAndAssert(
+      "Match Only Name 1",
+      clearMarker(contentParMul), "def $test$()(a: Int, b)"
+    )
+    matchAndAssert(
+      "Match Only Name 3",
+      clearMarker(contentParMul), "def $test$(a)(b: String)(c: Int)"
+    )
+  }
 }

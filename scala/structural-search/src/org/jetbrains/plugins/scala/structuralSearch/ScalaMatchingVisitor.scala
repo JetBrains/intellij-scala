@@ -186,19 +186,22 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     globalVisitor.setResult(typeMatch && argsMatch)
   }
 
+  override def visitParameters(parameters: ScParameters): Unit = {
+    val other = globalVisitor.getElement.asInstanceOf[ScParameters]
+
+    globalVisitor.setResult(
+      if (parameters.clauses.size == 1)
+        globalVisitor.matchSequentially(parameters.params.toArray[PsiElement], other.params.toArray[PsiElement])
+      else
+        globalVisitor.matchSequentially(parameters.clauses.toArray[PsiElement], other.clauses.toArray[PsiElement])
+    )
+  }
+
   override def visitParameterClause(clause: ScParameterClause): Unit = {
     val other = globalVisitor.getElement.asInstanceOf[ScParameterClause]
 
     globalVisitor.setResult(
       globalVisitor.matchSequentially(clause.parameters.toArray[PsiElement], other.parameters.toArray[PsiElement])
-    )
-  }
-
-  override def visitParameters(parameters: ScParameters): Unit = {
-    val other = globalVisitor.getElement.asInstanceOf[ScParameters]
-
-    globalVisitor.setResult(
-      globalVisitor.matchSequentially(parameters.clauses.toArray[PsiElement], other.clauses.toArray[PsiElement])
     )
   }
 
