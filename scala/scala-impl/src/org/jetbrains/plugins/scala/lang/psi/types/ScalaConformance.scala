@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.lang.psi.types
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -21,7 +20,8 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil._
 
 import java.util.function.Supplier
-import scala.collection.immutable.HashSet
+import scala.collection.immutable.{ArraySeq, HashSet}
+import scala.reflect.ClassTag
 
 trait ScalaConformance extends api.Conformance with TypeVariableUnification {
   typeSystem: api.TypeSystem =>
@@ -52,7 +52,6 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
                 if (rClass.qualifiedName == TupleType.TupleHList.ConsClassFqn) {
                   left match {
                     case TupleType.TupleN(leftTypes) =>
-                      implicit val elementScope: ElementScope = ElementScope(typeSystem.projectContext)
                       return conformsInner(TupleType.TupleHList(leftTypes), right)
                     case _ =>
                   }
@@ -1551,6 +1550,58 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
           result = ConstraintsResult.Left
       }
     }
+  }
+
+  object NewImpl {
+    def run(left: ScType, right: ScType, visited: HashSet[ScType], checkWeak: Boolean): ConstraintsResult = {
+      val context = Context(checkWeak)
+      val it = rules.iterator
+
+      while(it.hasNext) {
+        val rule = it.next()
+        if (rule.leftClass.isInstance(left) && rule.rightClass.isInstance(right)) {
+          rule(left.asInstanceOf, right.asInstanceOf, visited, context) match {
+            case Some(result) => return result
+            case None         => ()
+          }
+        }
+      }
+      ConstraintsResult.Left
+    }
+
+    private case class Context(checkWeak: Boolean) {
+
+    }
+
+    private abstract class Rule[L <: ScType, R <: ScType](implicit leftTag: ClassTag[L], rightTag: ClassTag[R]) {
+      final val leftClass: Class[_] = leftTag.runtimeClass
+      final val rightClass: Class[_] = rightTag.runtimeClass
+      def apply(l: L, r: R, visited: HashSet[ScType], context: Context): Option[ConstraintsResult]
+    }
+
+    object Rule {
+      def make[L <: ScType: ClassTag, R <: ScType: ClassTag](f: (L, R, , HashSet[ScType], Context) => Option[ConstraintsResult]): Rule[L, R] = new Rule[L, R] {
+        override def apply(l: L, r: R, visited: HashSet[ScType], context: Context): Option[ConstraintsResult] = f(l, r, visited, context)
+      }
+    }
+
+    // Rules when S <: T is true:
+    private val rules: ArraySeq[Rule[_ <: ScType, _ <: ScType]] = ArraySeq.apply[Rule[_ <: ScType, _ <: ScType]](
+      // S=T (i.e., conformance is reflexive by definition).
+      // S is Nothing.
+      // T is AnyKind.
+      // ^^^ all of the above are handled in conformanceInner
+
+      // S is a stable type with underlying type S1 and S1 <: T.
+      Rule.make[ScDesignatorType, ScType] { (l, r, visited, ctx) =>
+        l.getValType match {
+          case Some(v) =>
+            conformsInner(v, r, visited, ConstraintSystem.empty, ctx.checkWeak)
+
+          case _ =>
+        }
+      }
+    )
   }
 }
 
