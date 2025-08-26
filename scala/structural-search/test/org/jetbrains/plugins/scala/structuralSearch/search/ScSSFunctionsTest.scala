@@ -225,5 +225,79 @@ class ScSSFunctionsTest extends ScalaStructuralSearchTestCase {
     )
   }
 
-  // TODO test annotations at functions and parameters
+  def testMatchFunctionAnnotations(): Unit = {
+    val content =
+      """<match="AA">@Annot1 def funcA()</match="AA">
+        |<match="AB">@Annot2 def funcB()</match="AB">
+        |<match="AC">@Annot1 @Annot2 def funcC()</match="AC">
+        |<match="AD">def funcD()</match="AD">
+        |"""
+    matchAndAssert(
+      "Empty matches all",
+      content, "def $name$()"
+    )
+    matchAndAssert(
+      "Match annotation 1",
+      clearMarker(content, Set("AA", "AC")), "@Annot1 def $name$()"
+    )
+    matchAndAssert(
+      "Match annotation 2",
+      clearMarker(content, Set("AB", "AC")), "@Annot2 def $name$()"
+    )
+    matchAndAssert(
+      "Match both",
+      clearMarker(content, Set("AC")), "@Annot1 @Annot2 def $name$()"
+    )
+    matchAndAssert(
+      "Match with variable",
+      clearMarker(content, Set("AA", "AB", "AC")), "@$anno$ def $name$()"
+    )
+    matchAndAssert(
+      "Match with variable with count",
+      content, "@$anno$ def $name$()",
+      matchOpt => {
+        val constr = matchOpt.addNewVariableConstraint("anno")
+        constr.setMinCount(0)
+        constr.setMaxCount(10)
+      }
+    )
+  }
+
+  def testMatchParameterAnnotations(): Unit = {
+    val content =
+      """<match="AA">def funcA(@Annot1 par: Int)</match="AA">
+        |<match="AB">def funcB(@Annot2 par: Int)</match="AB">
+        |<match="AC">def funcC(@Annot1 @Annot2 par: Int)</match="AC">
+        |<match="AD">def funcD(par: Int)</match="AD">
+        |"""
+    matchAndAssert(
+      "Empty matches all",
+      content, "def $name$($p$)"
+    )
+    matchAndAssert(
+      "Match annotation 1",
+      clearMarker(content, Set("AA", "AC")), "def $name$(@Annot1 $p$)"
+    )
+    matchAndAssert(
+      "Match annotation 2",
+      clearMarker(content, Set("AB", "AC")), "def $name$(@Annot2 $p$)"
+    )
+    matchAndAssert(
+      "Match both",
+      clearMarker(content, Set("AC")), "def $name$(@Annot1 @Annot2 $p$)"
+    )
+    matchAndAssert(
+      "Match with variable",
+      clearMarker(content, Set("AA", "AB", "AC")), "def $name$(@$anno$ $p$)"
+    )
+    matchAndAssert(
+      "Match with variable with count",
+      content, "def $name$(@$anno$ $p$)",
+      matchOpt => {
+        val constr = matchOpt.addNewVariableConstraint("anno")
+        constr.setMinCount(0)
+        constr.setMaxCount(10)
+      }
+    )
+  }
 }

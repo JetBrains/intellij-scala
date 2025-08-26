@@ -211,7 +211,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     val other = globalVisitor.getElement.asInstanceOf[ScParameter]
 
     val handler = getHandler(parameter)
-    val annotationsMatch = globalVisitor.matchSequentially(parameter.annotations.toArray[PsiElement], other.annotations.toArray[PsiElement])
+    val annotationsMatch = globalVisitor.matchInAnyOrder(parameter.annotations.toArray[PsiElement], other.annotations.toArray[PsiElement])
     val modifierMatch = checkModifier(parameter.getModifierList.modifiers, other.getModifierList.modifiers)
     val typeMatch = matchOptOptional(parameter.typeElement, other.typeElement)
     val identMatch = matchTextOrVariable(parameter.getIdentifyingElement, other.getIdentifyingElement, handler)
