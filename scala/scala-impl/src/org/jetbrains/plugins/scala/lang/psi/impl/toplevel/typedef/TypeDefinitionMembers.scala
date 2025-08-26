@@ -485,7 +485,7 @@ object TypeDefinitionMembers {
   }
 
   def processNamedTuple(p: ScType, state: ResolveState, execute: (PsiElement, ResolveState) => Boolean)
-                       (implicit projectContext: ProjectContext, context: Context): Boolean = {
+                       (implicit context: Context): Boolean = {
     // Components of named tuples can be accessed in reference expressions via their names, even though
     // there are no physical accessor methods. Rather, the compiler rewrites these accesses to the
     // corresponding component index. We just link to the component that is referenced in its name literal
@@ -494,33 +494,43 @@ object TypeDefinitionMembers {
       case NamedTupleType(comps) =>
         comps.forall {
           case (NamedTupleType.NameType.WithLiteral(name, lit), compType) =>
+            def fallbackToSynthetic(navigationElement: Option[PsiElement]): Boolean = {
+              val property = ScalaPsiElementFactory.createMethodFromText(
+                text = s"def $name: ${compType.canonicalText}",
+                features = ScalaFeatures.defaultScala3,
+              )(p.projectContext)
+
+              navigationElement.foreach {
+                // This enables navigation to "a" in `NamedTuple[("a", "b"), (Int, Int)](???)`
+                property.syntheticNavigationElement = _
+              }
+
+              execute(property, state)
+            }
+
             lit.psiElement match {
-              case Some(named: ScNamedTupleComponent) =>
+              case navigationElement@Some(named: ScNamedTupleComponent) =>
                 // We need the correct substitutor for `named`, so calculate that
                 val result = named.`type`().toOption.flatMap {
                   rawType =>
                     val prepared = rawType.updateLeaves { case TypeParameterType(p) => UndefinedType(p) }
                     prepared.conformanceSubstitutor(compType)
                 }
-                val updatedState =
-                  result match {
-                    case Some(substr) => state.withSubstitutor(substr)
-                    case _ => state
-                  }
 
-                execute(named, updatedState)
-              case navigationElement =>
-                val property = ScalaPsiElementFactory.createMethodFromText(
-                  text = s"def $name: ${compType.canonicalText}",
-                  features = ScalaFeatures.defaultScala3,
-                )(p.projectContext)
-
-                navigationElement.foreach {
-                  // This enables navigation to "a" in `NamedTuple[("a", "b"), (Int, Int)](???)`
-                  property.syntheticNavigationElement = _
+                result match {
+                  case Some(substr) =>
+                    val updatedState = state.withSubstitutor(substr)
+                    execute(named, updatedState)
+                  case _ =>
+                    // When the tuple type was not conformant to the abstract type of the element,
+                    // we need to synthesize the property.
+                    // This might happen if the named tuple was transformed, for example, with NamedTuple.Map
+                    fallbackToSynthetic(navigationElement)
                 }
 
-                execute(property, state)
+
+              case navigationElement =>
+                fallbackToSynthetic(navigationElement)
             }
           case _ =>
             true
@@ -559,7 +569,7 @@ object TypeDefinitionMembers {
   }
 
   def processSelectable(typ: ScType, place: PsiElement, state: ResolveState, execute: (PsiElement, ResolveState) => Boolean)
-                       (implicit projectContext: ProjectContext, context: Context): Boolean = {
+                       (implicit context: Context): Boolean = {
     if (!isSelectable(typ)) {
       return true
     }
