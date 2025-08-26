@@ -106,4 +106,31 @@ class Scala3SelectableTest extends TypeInferenceTestBase {
        |}
        |""".stripMargin
   )
+
+  //SCL-24225
+  def testMappedNamedTuple(): Unit = checkTextHasNoErrors(
+    """
+      |import scala.NamedTuple.*
+      |
+      |class MappedNamedTuple[NT <: AnyNamedTuple](nt: NT) extends Selectable{
+      |  type Fields = NamedTuple.Map[NT, Option]
+      |  def selectDynamic(name: String): Any =
+      |    ???
+      |}
+      |
+      |type Example = (
+      |  name: String,
+      |  age: Int,
+      |)
+      |
+      |val example: Example = (
+      |  name = "Name",
+      |  age = 21
+      |)
+      |
+      |val mappedNamedTuple = MappedNamedTuple[Example](example)
+      |
+      |val name: Option[String] = mappedNamedTuple.name
+      |""".stripMargin
+  )
 }

@@ -259,4 +259,13 @@ class Scala3NamedTuplesTest extends TypeInferenceTestBase {
        |//Int
        |""".stripMargin
   )
+
+  // SCL-24225
+  def testAccessingMappedType(): Unit = doTest(
+    s"""
+       |val x: scala.NamedTuple.Map[(name: String), Option] = null
+       |${START}x.name$END
+       |// Option[String]
+       |""".stripMargin
+  )
 }
