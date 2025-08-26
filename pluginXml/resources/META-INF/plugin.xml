@@ -36,7 +36,7 @@
     <version>VERSION</version>
     <change-notes></change-notes>
     <vendor url="https://www.jetbrains.com">JetBrains</vendor>
-    <idea-version since-build="252.23892" until-build="252.*"/>
+    <idea-version since-build="252.25557" until-build="252.*"/>
 
     <depends optional="true" config-file="copyright.xml">com.intellij.copyright</depends>
     <depends optional="true" config-file="scala-i18n.xml">com.intellij.java-i18n</depends>
