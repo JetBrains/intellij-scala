@@ -78,10 +78,13 @@ object EnumSet {
 
     def isEmpty: Boolean = set == EnumSet.empty
 
-    def foreach(f: E => Unit)(implicit classTag: ClassTag[E]): Unit = toArray.foreach(f)
+    def foreach(f: E => Unit)(implicit classTag: ClassTag[E]): Unit = iterator.foreach(f)
 
     def toArray(implicit classTag: ClassTag[E]): Array[E] = {
       values[E].filter(set.contains)
     }
+
+    def iterator(implicit classTag: ClassTag[E]): Iterator[E] =
+      values[E].iterator.filter(set.contains)
   }
 }

@@ -29,8 +29,17 @@ class ScalaCompilerTestdataHighlightingTest_2_12 extends ScalaCompilerTestdataHi
   //NOTE: there is also one patched file scalacTests/pos/t0674.scala
   //TODO: revert the file patch after SCL-20539 is fixed
   private val filesWithProblems: Map[String, Set[TextRange]] = Map(
-    "pos/t2994a.scala" -> Set((636, 639), (641, 642)),
-    "pos/unchecked-a.scala" -> Set((107, 110))
+    "pos/t2994a.scala" -> Set(
+      (636,639), // Type constructor m#a does not conform to n[_[_], _]
+      (641,642), // Type constructor s does not conform to s[_]
+    ),
+    "pos/unchecked-a.scala" -> Set(
+      (107,110), // Type Any does not conform to upper bound Y of type parameter A
+    ),
+    "pos/userdefined_apply.scala" -> Set(
+      // This is an actual error, which the compiler gives as well
+      (1201,1202), // Type mismatch, expected: Boolean, actual: Int
+    )
   )
 
   override protected val reporter: HighlightingProgressReporter =

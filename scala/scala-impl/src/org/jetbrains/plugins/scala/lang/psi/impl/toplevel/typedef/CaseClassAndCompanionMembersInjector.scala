@@ -25,8 +25,8 @@ class CaseClassAndCompanionMembersInjector extends SyntheticMembersInjector {
         val unapply: Option[String] =
           if (cls.tooBigForUnapply) None
           else cls.constructor match {
-            case Some(x: ScPrimaryConstructor) =>
-              val clauses = x.parameterList.clauses
+            case Some(constr: ScPrimaryConstructor) =>
+              val clauses = constr.parameterList.clauses
               val params = clauses.headOption.map(_.parameters).getOrElse(Seq.empty)
               val returnTypeText =
                 if (params.isEmpty) zeroParamsReturnType
@@ -51,11 +51,11 @@ class CaseClassAndCompanionMembersInjector extends SyntheticMembersInjector {
 
         val apply: Option[String] = if (cls.hasAbstractModifier) None else {
           cls.constructor match {
-            case Some(x: ScPrimaryConstructor) =>
+            case Some(constr: ScPrimaryConstructor) =>
 
-              val paramString = asFunctionParameters(x.effectiveParameterClauses, defaultExpressionString)
+              val paramString = asFunctionParameters(constr.effectiveParameterClauses, defaultExpressionString)
 
-              Some("def " + Apply + typeParamsDefinition + paramString + ": " + className + typeArgs + " = throw new Error()")
+              Some(makeModifierText(constr) + "def " + Apply + typeParamsDefinition + paramString + ": " + className + typeArgs + " = throw new Error()")
             case None => None
           }
         }
@@ -158,8 +158,8 @@ class CaseClassAndCompanionMembersInjector extends SyntheticMembersInjector {
       return List.empty
 
     caseClass.constructor
-      .map(_.effectiveParameterClauses)
-      .map { clauses =>
+      .map { constr =>
+        val clauses = constr.effectiveParameterClauses
         val className = caseClass.name
 
         val (clauseWithDefault, restClauses) =
@@ -172,7 +172,7 @@ class CaseClassAndCompanionMembersInjector extends SyntheticMembersInjector {
 
         val typeParamsDefinition = typeParamsString(caseClass.typeParameters)
         val returnType = className + typeArgsFromTypeParams(caseClass)
-        "def copy" + typeParamsDefinition + paramString + " : " + returnType + " = throw new Error(\"\")"
+        makeModifierText(constr) + "def copy" + typeParamsDefinition + paramString + " : " + returnType + " = throw new Error(\"\")"
       }.toList
   }
 
@@ -192,5 +192,23 @@ class CaseClassAndCompanionMembersInjector extends SyntheticMembersInjector {
 
       "def " + accessorName + " : " + accessorType + " = throw new Error(\"\")"
     }
+  }
+
+  private def makeModifierText(constr: ScPrimaryConstructor): String = {
+    Option(constr.getModifierList)
+      .flatMap(_.accessModifier)
+      .fold("") { mod =>
+        val privateOrProtected =
+          if (mod.isProtected) "protected"
+          else "private"
+
+        val qualifier = mod.idText match {
+          case Some(qual) => "[" + qual + "]"
+          case _ if mod.isThis => "[this]"
+          case _ => ""
+        }
+
+        privateOrProtected + qualifier + " "
+      }
   }
 }

@@ -206,6 +206,35 @@ object Scala3CaseClassTest {
       |    val _tt: Seq[T] = tt
       |  }
       |}
+      |""".stripMargin,
+    """
+      |// testPrivateConstructor
+      |case class Wrapper private(x: String)
+      |
+      |object Wrapper {
+      |  def apply(x: Int): Wrapper = null
+      |}
+      |
+      |object Usage {
+      |  println(Wrapper(1))
+      |  println(Wrapper("Hello")) // Error
+      |}
+      |""".stripMargin,
+    """
+      |// testPrivateUnapply
+      |case class Wrapper private(x: String)
+      |
+      |def test(w: Wrapper): Unit = {
+      |  val Wrapper(s) = w // Allowed
+      |}
+      |""".stripMargin,
+    """
+      |// testPrivateCopy
+      |case class Wrapper private(x: String)
+      |
+      |def test(w: Wrapper): Unit = {
+      |  w.copy(x = "Hello") // Error
+      |}
       |""".stripMargin
   ).map(GeneratedParameterizedTestFactory.testDataFromCode)
 }

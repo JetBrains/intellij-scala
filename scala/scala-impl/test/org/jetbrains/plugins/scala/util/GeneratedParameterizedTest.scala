@@ -4,11 +4,11 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.testFramework.UsefulTestCase
 import junitparams.naming.TestCaseName
 import junitparams.{JUnitParamsRunner, Parameters}
-import org.jetbrains.plugins.scala.{ScalaFileType, ScalaVersion}
 import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken, SimpleTestCase}
 import org.jetbrains.plugins.scala.extensions.BooleanExt
 import org.jetbrains.plugins.scala.util.GeneratedParameterizedTestFactory.SingleCodeTestData
 import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers
+import org.jetbrains.plugins.scala.{ScalaFileType, ScalaVersion}
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -42,7 +42,7 @@ abstract class GeneratedHighlightingParameterizedTest(minScalaVersion: ScalaVers
   @unused("used reflectively by the @Parameters annotation")
   private def testParameters: Array[AnyRef] = testParametersImpl
   
-  override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken(GeneratedParameterizedTestFactory)
+  override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken((GeneratedParameterizedTestFactory, minScalaVersion))
   
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= minScalaVersion
 
@@ -70,12 +70,11 @@ abstract class GeneratedHighlightingParameterizedTest(minScalaVersion: ScalaVers
         if (testData.isFailing) return // let the test pass if we expect it to fail
         throw e
     }
+    assert(!testData.isFailing, "Test should fail, but it didn't")
   }
 }
 
 sealed trait GeneratedParameterizedTestFactory extends AssertionMatchers { self: UsefulTestCase =>
-
-  import GeneratedParameterizedTestFactory._
 
   type TestData = GeneratedParameterizedTestFactory.TestData
   type TD <: TestData
