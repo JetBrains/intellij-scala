@@ -583,6 +583,8 @@ object MyScaladocParsing {
     val JavaLink = "link"
     val JavaLinkPlain = "linkplain"
 
+    val Syntax = "syntax"
+
     val AllTagNames: Set[String] = Set(
       Param,
       TypeParam,
@@ -605,6 +607,7 @@ object MyScaladocParsing {
       GroupPrio,
       Constructor,
       Inheritdoc,
+      Syntax,
     )
 
     val TagNamesWithParameters: Set[String] = Set(

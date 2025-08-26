@@ -1,17 +1,13 @@
 package org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.markdown
 
-import org.intellij.markdown.IElementType
-import org.intellij.markdown.MarkdownElementTypes
-import org.intellij.markdown.MarkdownTokenTypes
-import org.intellij.markdown.flavours.MarkdownFlavourDescriptor
+import org.intellij.markdown.{IElementType, MarkdownTokenTypes}
 import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
 import org.intellij.markdown.html._
 import org.intellij.markdown.lexer.MarkdownLexer
-import org.intellij.markdown.lexer._MarkdownLexer
-import org.intellij.markdown.parser.{LinkMap, LookaheadText, MarkerProcessor, MarkerProcessorFactory, ProductionHolder}
-import org.intellij.markdown.parser.sequentialparsers.{EmphasisLikeParser, SequentialParser, SequentialParserManager}
 import org.intellij.markdown.parser.sequentialparsers.impl._
-import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.{MarkdownCompanionProxy, MyScaladocParsing}
+import org.intellij.markdown.parser.sequentialparsers.{EmphasisLikeParser, SequentialParser, SequentialParserManager}
+import org.intellij.markdown.parser.{LinkMap, LookaheadText, MarkerProcessor, MarkerProcessorFactory, ProductionHolder}
+import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
 
 import java.net.URI
 import java.util

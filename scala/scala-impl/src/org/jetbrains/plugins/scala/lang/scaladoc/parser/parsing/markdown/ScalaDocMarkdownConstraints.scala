@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.markdown
 
 import org.intellij.markdown.parser.LookaheadText
-import org.intellij.markdown.parser.constraints.CommonMarkdownConstraints
+import org.intellij.markdown.parser.constraints.{CommonMarkdownConstraints, MarkdownConstraints}
 
 /*
 We need to override the constraints of CommonMark because tags modify the constraints
@@ -21,41 +21,31 @@ This means we need to understand the internal details of:
 
 And know how they all deal with these blocks.
 
-The solution I came up with is to add `startsTag`, which is an ephemeral flag indicating whether the current line
+The solution I came up with is to add `overridesTag`, which is an ephemeral flag indicating whether the current line
 started a new tag, in which case all previous blocks are killed.
 
-We override `containsListMarkers` and cheat a little. See its note for more.
+We override `startsWith` and cheat a little. See its note for more.
  */
-class ScalaDocMarkdownConstraints(indents: Array[Int], types: Array[Char], isExplicit: Array[Boolean], charsEaten: Int, private val startsTag : Boolean) extends CommonMarkdownConstraints(indents, types, isExplicit, charsEaten) {
+class ScalaDocMarkdownConstraints(indents: Array[Int], types: Array[Char], isExplicit: Array[Boolean], charsEaten: Int, val overridesTag : Boolean) extends CommonMarkdownConstraints(indents, types, isExplicit, charsEaten) {
   override def getBase: CommonMarkdownConstraints = ScalaDocMarkdownConstraints.BASE
 
   override def createNewConstraints(indents: Array[Int], types: Array[Char], isExplicit: Array[Boolean], charsEaten: Int): CommonMarkdownConstraints = {
     // When creating new constraints, we're either:
-    // 1. Basing ourselves off of BASE, which doesn't have a startTag (applyToNextLine)
-    // 2. Modifying the current constraints, in which case we need to keep the startsTag.
-    new ScalaDocMarkdownConstraints(indents, types, isExplicit, charsEaten, this.startsTag)
+    // 1. Basing ourselves off of BASE, which doesn't have an overridesTag
+    // 2. Modifying the current constraints, in which case we need to keep the overridesTag.
+    new ScalaDocMarkdownConstraints(indents, types, isExplicit, charsEaten, this.overridesTag)
   }
 
-  /*
-  We need to say that if we start a new tag, we are *never* continuing the previous constraints, i.e. all previous blocks
-  are immediately broken.
-
-  There are two methods that are used to determine this; `startsWith` and `containsListMarkers`, which work from opposite
-  ends. The first returns whether *other* constraints can continue `this`, and the second whether `this` can continue another.
-
-  The first option would require us to perform a runtime class check to determine whether the other constraints start
-  with a tag.
-
-  The second is officially a "leaky abstraction" and is poorly named. Its documentation states:
-  "whether there are "breaking" modifiers which do not continue other constraints even if all types and indents are correct."
-
-  But decides this is equivalent to containing list markers or not. This isn't true in our case.
-   */
-  override def containsListMarkers(upToIndex: Int): Boolean = startsTag || super.containsListMarkers(upToIndex)
+  override def startsWith(other: MarkdownConstraints): Boolean = {
+    if (overridesTag && other.getTypes.nonEmpty) false
+    else super.startsWith(other)
+  }
 
   override def applyToNextLine(pos: LookaheadText#Position): CommonMarkdownConstraints = {
     // If there's a tag, all constraints get overridden, so we go back to base constraints for the line
-    if (ScalaDocMarkdownFlavour.getTagOnLine(pos).isDefined) ScalaDocMarkdownConstraints.BASE
+    // Plus the marker that there's an override
+    if (ScalaDocMarkdownFlavour.getTagOnLine(pos).isDefined)
+      ScalaDocMarkdownConstraints.BASE
     else super.applyToNextLine(pos)
   }
 
