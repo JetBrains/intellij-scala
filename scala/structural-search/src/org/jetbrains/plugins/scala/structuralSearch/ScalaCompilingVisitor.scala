@@ -6,14 +6,14 @@ import com.intellij.structuralsearch.impl.matcher.MatchContext
 import com.intellij.structuralsearch.impl.matcher.compiler.GlobalCompilingVisitor
 import com.intellij.structuralsearch.impl.matcher.handlers.{MatchingHandler, SubstitutionHandler, TopLevelMatchingHandler}
 import com.intellij.structuralsearch.impl.matcher.strategies.MatchingStrategy
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScReferencePattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScReference}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScForBinding, ScInfixExpr, ScMethodCall}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScForBinding, ScInfixExpr, ScMatch, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
-import org.jetbrains.plugins.scala.structuralSearch.filter.{FunctionFilter, MatchingVariableFilter, MethodInvocationFilter}
+import org.jetbrains.plugins.scala.structuralSearch.filter.{CaseClauseFilter, FunctionFilter, MatchingVariableFilter, MethodInvocationFilter, TypeDefinitionFilter}
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
 
 class ScalaCompilingVisitor(globalVisitor: GlobalCompilingVisitor) extends ScalaRecursiveElementVisitor {
@@ -77,18 +77,34 @@ class ScalaCompilingVisitor(globalVisitor: GlobalCompilingVisitor) extends Scala
     placeVarHandler(parameter.name)
   }
 
+  override def visitCaseClause(cc: ScCaseClause): Unit = {
+    super.visitCaseClause(cc)
+
+    cc.pattern match {
+      case Some(refPat: ScReferencePattern) =>
+        placeVarHandler(refPat.getText)
+      case _ =>
+    }
+    globalVisitor
+      .getContext.getPattern
+      .getHandler(cc).setFilter(new CaseClauseFilter())
+  }
+
   override def visitFunction(fun: ScFunction): Unit = {
     super.visitFunction(fun)
 
+    placeVarHandler(fun.name)
     globalVisitor
       .getContext.getPattern
       .getHandler(fun).setFilter(new FunctionFilter())
-    placeVarHandler(fun.name)
   }
 
   override def visitTypeDefinition(typedef: ScTypeDefinition): Unit = {
     super.visitTypeDefinition(typedef)
     placeVarHandler(typedef.name)
+    globalVisitor
+      .getContext.getPattern
+      .getHandler(typedef).setFilter(new TypeDefinitionFilter())
   }
 
   override def visitForBinding(forBinding: ScForBinding): Unit = {
@@ -101,12 +117,13 @@ class ScalaCompilingVisitor(globalVisitor: GlobalCompilingVisitor) extends Scala
     placeVarHandler(annotation.constructorInvocation.typeElement.getText)
   }
 
-  private def placeVarHandler(name: String): Unit = {
+  private def placeVarHandler(name: String, setFilter: Boolean = true): Unit = {
     val pattern = globalVisitor.getContext.getPattern
     if (pattern.isTypedVar(name)) {
       pattern.getHandler(name) match {
         case substHand: SubstitutionHandler =>
-          substHand.setFilter(new MatchingVariableFilter())
+          if (setFilter)
+            substHand.setFilter(new MatchingVariableFilter())
           substHand.setMatchHandler(new MatchingHandler {
             override def `match`(patternNode: PsiElement, matchedNode: PsiElement, context: MatchContext): Boolean = {
               matchedNode.accept(ScalaCompilingVisitor.this)

@@ -111,4 +111,48 @@ class ScSSMatchExprTest extends ScalaStructuralSearchTestCase {
                                          |}""".stripMargin
     )
   }
+
+  def testVariableWithCount(): Unit = {
+    val content =
+      """<match="AA">(x, y) match {
+        |  case (_, _) => true
+        |  case (2, _) => true
+        |  case (x, 2) => x % 2 != 0
+        |  case (x, y) => x % y != 0 && isPrimeMatch(x)(y - 1)
+        |}</match="AA">
+        |<match="AB">(x, y) match {
+        |  case (_, _) => false
+        |  case (2, _) => true
+        |  case (x, 2) => x % 2 != 0
+        |  case (x, y) => x % y != 0 && isPrimeMatch(x)(y - 2)
+        |}</match="AB">
+        |"""
+
+    matchAndAssert(
+      "Match all",
+      content,
+      """($x$, y) match {
+        |  case $p$ => $e$
+        |}""".stripMargin,
+      _.addNewVariableConstraint("p").setMaxCount(100)
+    )
+    matchAndAssert(
+      "Match with start",
+      clearMarker(content, Set("AA")),
+      """($x$, y) match {
+        |  case (_, _) => true
+        |  case $p$ => $e$
+        |}""".stripMargin,
+      _.addNewVariableConstraint("p").setMaxCount(100)
+    )
+    matchAndAssert(
+      "Match with end",
+      clearMarker(content, Set("AB")),
+      """($x$, y) match {
+        |  case $p$ => $e$
+        |  case (x, y) => x % y != 0 && isPrimeMatch(x)(y - 2)
+        |}""".stripMargin,
+      _.addNewVariableConstraint("p").setMaxCount(100)
+    )
+  }
 }

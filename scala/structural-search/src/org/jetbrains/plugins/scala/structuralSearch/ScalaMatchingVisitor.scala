@@ -276,6 +276,10 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
   }
 
   override def visitMatch(ms: ScMatch): Unit = {
+    if (!globalVisitor.getElement.is[ScMatch]) {
+      globalVisitor.setResult(false)
+      return
+    }
     val other = globalVisitor.getElement.asInstanceOf[ScMatch]
 
     val expressionMatch = matchOpt(ms.expression, other.expression)
@@ -286,10 +290,21 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
   override def visitCaseClause(cc: ScCaseClause): Unit = {
     val other = globalVisitor.getElement.asInstanceOf[ScCaseClause]
 
-    val patternMatch = matchOpt(cc.pattern, other.pattern)
+    val handler = getHandler(cc)
+    val patternMatch = (cc.pattern, other.pattern) match {
+      case (Some (pattern), Some (other)) =>
+        handler match {
+          case substHand: SubstitutionHandler =>
+            substHand.validate(other, globalVisitor.getMatchContext)
+          case _ =>
+            globalVisitor.`match`(pattern, other)
+        }
+      case _ => false
+    }
     val exprMatch = matchOpt(cc.expr, other.expr)
     val guardMatch = matchOptEqual(cc.guard, other.guard)
     globalVisitor.setResult(patternMatch && exprMatch && guardMatch)
+    rememberVarMatchIfResult(handler, other.pattern.get)
   }
 
   override def visitGenerator(gen: ScGenerator): Unit = {
