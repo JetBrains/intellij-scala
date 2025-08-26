@@ -235,6 +235,14 @@ object Scala3CaseClassTest {
       |def test(w: Wrapper): Unit = {
       |  w.copy(x = "Hello") // Error
       |}
+      |""".stripMargin,
+    """
+      |// testEmptyCopy
+      |case class Wrapper()
+      |
+      |def test(w: Wrapper): Wrapper = {
+      |  w.copy()
+      |}
       |""".stripMargin
   ).map(GeneratedParameterizedTestFactory.testDataFromCode)
 }

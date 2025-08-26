@@ -137,7 +137,6 @@ class CaseClassAndCompanionMembersInjector extends SyntheticMembersInjector {
 
   private[this] def shouldGenerateCopyMethod(cls: ScClass): Boolean =
     !cls.hasAbstractModifier &&
-      cls.parameters.nonEmpty &&
       (cls.constructor match {
         case Some(cons: ScPrimaryConstructor) =>
           val hasRepeatedParam = cons.parameterList.clauses.exists(cl => cl.hasRepeatedParam)
