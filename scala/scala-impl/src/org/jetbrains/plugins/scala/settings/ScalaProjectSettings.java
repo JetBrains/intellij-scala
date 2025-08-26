@@ -119,6 +119,8 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
     INTERPOLATED_INJECTION_MAPPING.put("json5", "JSON5");
     INTERPOLATED_INJECTION_MAPPING.put("sql", "SQL");
     INTERPOLATED_INJECTION_MAPPING.put("sqlu", "SQL");
+    INTERPOLATED_INJECTION_MAPPING.put("fr", "SQL");
+    INTERPOLATED_INJECTION_MAPPING.put("fr0", "SQL");
     INTERPOLATED_INJECTION_MAPPING.put("xml", "XML");
     INTERPOLATED_INJECTION_MAPPING.put("scala", ScalaLanguage.INSTANCE.getID());
     INTERPOLATED_INJECTION_MAPPING.put("java", JavaLanguage.INSTANCE.getID());
