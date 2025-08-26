@@ -399,4 +399,24 @@ class ScSSFunctionsTest extends ScalaStructuralSearchTestCase {
       clearMarker(contentParMul), "def $test$(a)(b: String)(c: Int)"
     )
   }
+
+  def testMatchParameterDefaults(): Unit = {
+    val content =
+      """<match="AA">def test1(a: Int)</match="AA">
+        |<match="AB">def test2(a: Int = 3)</match="AB">
+        |<match="AC">def test2(a: Int = 4)</match="AC">
+        |"""
+    matchAndAssert(
+      "No match all",
+      content, "def $test$(a: Int)"
+    )
+    matchAndAssert(
+      "Match correct 1",
+      clearMarker(content, Set("AB")), "def $test$(a: Int = 3)"
+    )
+    matchAndAssert(
+      "Match correct 2",
+      clearMarker(content, Set("AC")), "def $test$(a: Int = 4)"
+    )
+  }
 }

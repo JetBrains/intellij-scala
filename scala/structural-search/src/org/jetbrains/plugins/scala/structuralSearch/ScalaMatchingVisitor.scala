@@ -221,15 +221,13 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     val modifierMatch = checkModifier(parameter.getModifierList.modifiers, other.getModifierList.modifiers)
     val typeMatch = matchOptOptional(parameter.typeElement, other.typeElement)
     val identMatch = matchTextOrVariable(parameter.getIdentifyingElement, other.getIdentifyingElement, handler)
-    parameter.getDefaultExpression
+    val defaultMatch = matchOptOptional(parameter.getDefaultExpression, other.getDefaultExpression)
 
     val valvarMatch = parameter.isVal == other.isVal && parameter.isVal == other.isVal
 
-    globalVisitor.setResult(annotationsMatch && modifierMatch && typeMatch && identMatch && valvarMatch)
+    globalVisitor.setResult(annotationsMatch && modifierMatch && typeMatch && identMatch && valvarMatch && defaultMatch)
     rememberVarMatchIfResult(handler, other.getNameIdentifier)
   }
-
-  // TODO annotation
 
   override def visitIf(ifPat: ScIf): Unit = {
     val other = globalVisitor.getElement.asInstanceOf[ScIf]
