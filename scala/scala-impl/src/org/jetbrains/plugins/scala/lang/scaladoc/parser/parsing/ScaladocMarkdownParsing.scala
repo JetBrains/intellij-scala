@@ -64,6 +64,9 @@ class ScaladocMarkdownParsing(private val builder: PsiBuilder,
 
   def parse(root: IElementType): Unit = {
     val rootMarker = builder.mark()
+    while (!builder.eof()) builder.advanceLexer()
+    rootMarker.done(root)
+    return
 
     val (content, map) = splitContext(builder.getOriginalText)
 

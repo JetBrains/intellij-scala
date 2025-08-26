@@ -49,7 +49,7 @@ object ScalaSyntaxHighlighterFactory {
     )
     new ScalaSyntaxHighlighter(
       customScalaLexer,
-      findByLanguage(ScalaDocLanguage.INSTANCE, project, file),
+      findByLanguage(ScalaDocLanguage.INSTANCE, project, file), // TODO: Switch highlighting lexer depending on markdown/wikidoc
       findByLanguage(ScalaDirectiveLanguage.INSTANCE, project, file),
       findByLanguage(HTMLLanguage.INSTANCE, project, file)
     )

@@ -55,6 +55,15 @@ public interface ScalaDocTokenType {
   ScalaDocSyntaxElementType VALID_DOC_HEADER = new ScalaDocSyntaxElementType("VALID_DOC_HEADER", 1 << 8);
   ScalaDocSyntaxElementType DOC_HEADER = new ScalaDocSyntaxElementType("DOC_HEADER", 1 << 8);
 
+  // Markdown-specific element types
+  IElementType DOC_BLOCKQUOTE = new ScalaDocElementType("DOC_BLOCKQUOTE");
+  IElementType DOC_AUTOLINK = new ScalaDocElementType("DOC_AUTOLINK");
+  IElementType DOC_HORIZONTAL_RULE = new ScalaDocElementType("DOC_HORIZONTAL_RULE");
+  IElementType DOC_HTML_TAG = new ScalaDocElementType("DOC_HTML_TAG");
+  IElementType DOC_LEFT_BRACKET = new ScalaDocElementType("[");
+  IElementType DOC_RIGHT_BRACKET = new ScalaDocElementType("]");
+  IElementType DOC_MD_ASTERISKS = new ScalaDocElementType("*");
+
   IElementType DOC_COMMENT_BAD_CHARACTER = new ScalaDocElementType("DOC_COMMENT_BAD_CHARACTER");
 
   TokenSet ALL_SCALADOC_SYNTAX_ELEMENTS = TokenSet.create(
@@ -71,7 +80,14 @@ public interface ScalaDocTokenType {
           ScalaDocTokenType.DOC_INNER_CLOSE_CODE_TAG,
           ScalaDocTokenType.VALID_DOC_HEADER,
           ScalaDocTokenType.DOC_HEADER,
-          ScalaDocTokenType.DOC_COMMON_CLOSE_WIKI_TAG
+          ScalaDocTokenType.DOC_COMMON_CLOSE_WIKI_TAG,
+          ScalaDocTokenType.DOC_BLOCKQUOTE,
+          ScalaDocTokenType.DOC_AUTOLINK,
+          ScalaDocTokenType.DOC_HORIZONTAL_RULE,
+          ScalaDocTokenType.DOC_HTML_TAG,
+          ScalaDocTokenType.DOC_LEFT_BRACKET,
+          ScalaDocTokenType.DOC_RIGHT_BRACKET,
+          ScalaDocTokenType.DOC_MD_ASTERISKS
   );
 
   TokenSet ALL_SCALADOC_TOKENS = TokenSet.orSet(ALL_SCALADOC_SYNTAX_ELEMENTS, TokenSet.create(
