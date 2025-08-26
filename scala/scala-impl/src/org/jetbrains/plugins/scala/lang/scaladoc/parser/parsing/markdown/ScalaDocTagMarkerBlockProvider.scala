@@ -1,13 +1,11 @@
 package org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.markdown
 
 import org.intellij.markdown.MarkdownTokenTypes
-import org.intellij.markdown.parser.LookaheadText
-import org.intellij.markdown.parser.ProductionHolder
-import org.intellij.markdown.parser.MarkerProcessor
+import org.intellij.markdown.parser.{LookaheadText, MarkerProcessor, ProductionHolder}
 import org.intellij.markdown.parser.constraints.MarkdownConstraints
 import org.intellij.markdown.parser.markerblocks.{MarkerBlock, MarkerBlockProvider}
 import org.intellij.markdown.parser.sequentialparsers.SequentialParser
-import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.{MarkdownCompanionProxy, MyScaladocParsing}
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 
 import java.util
 import kotlin.ranges.IntRange
@@ -33,7 +31,6 @@ class ScalaDocTagMarkerBlockProvider extends MarkerBlockProvider[MarkerProcessor
   }
 
   override def interruptsParagraph(position: LookaheadText#Position, markdownConstraints: MarkdownConstraints): Boolean = {
-    // If there is another tag right here, paragraphs are interrupted
-    ScalaDocMarkdownFlavour.getTagOnLine(position).isDefined
+    markdownConstraints.is[ScalaDocMarkdownConstraints] && markdownConstraints.asInstanceOf[ScalaDocMarkdownConstraints].overridesTag
   }
 }
