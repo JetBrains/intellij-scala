@@ -7,7 +7,7 @@ import com.intellij.structuralsearch.impl.matcher.compiler.GlobalCompilingVisito
 import com.intellij.structuralsearch.impl.matcher.handlers.{MatchingHandler, SubstitutionHandler, TopLevelMatchingHandler}
 import com.intellij.structuralsearch.impl.matcher.strategies.MatchingStrategy
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScReferencePattern}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScConstructorInvocation, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScForBinding, ScInfixExpr, ScMatch, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatternDefinition, ScValueDeclaration, ScVariableDeclaration, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
@@ -115,6 +115,11 @@ class ScalaCompilingVisitor(globalVisitor: GlobalCompilingVisitor) extends Scala
   override def visitAnnotation(annotation: ScAnnotation): Unit = {
     super.visitAnnotation(annotation)
     placeVarHandler(annotation.constructorInvocation.typeElement.getText)
+  }
+
+  override def visitConstructorInvocation(constrInvocation: ScConstructorInvocation): Unit = {
+    super.visitConstructorInvocation(constrInvocation)
+    placeVarHandler(constrInvocation.typeElement.getText)
   }
 
   override def visitPatternDefinition(pat: ScPatternDefinition): Unit = {

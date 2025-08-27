@@ -9,7 +9,7 @@ import com.intellij.structuralsearch.plugin.ui.UIUtil
 import com.intellij.structuralsearch.{StructuralSearchProfile, StructuralSearchProfileBase}
 import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaFileTemplateContextType
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScConstructorInvocation}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
@@ -75,6 +75,8 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
             case valvar: ScValueOrVariable =>
               if (valvar.declaredNames.size == 1) valvar.declaredNames.head
               else super.getTypedVarString(valvar)
+            case constrInv: ScConstructorInvocation =>
+              constrInv.typeElement.getText
             case _ =>
               super.getTypedVarString(element)
           }

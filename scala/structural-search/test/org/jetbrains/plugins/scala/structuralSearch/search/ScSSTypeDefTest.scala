@@ -367,5 +367,75 @@ class ScSSTypeDefTest extends ScalaStructuralSearchTestCase {
         |"""
     )
   }
-  // TODO extends types
+
+  def testMatchParents(): Unit = {
+    val content =
+      """<match="AA">class A extends B with C {
+        |}</match="AA">
+        |<match="AB">class B extends B with C, D {
+        |}</match="AB">
+        |<match="AC">class C {
+        |}</match="AC">
+        |<match="AD">class D extends B {
+        |}</match="AD">
+        |"""
+
+    matchAndAssert(
+      "Empty matches all",
+      content,
+      """class $name$ {
+        |}
+        |"""
+    )
+    matchAndAssert(
+      "Match one",
+      clearMarker(content, Set("AA", "AB")),
+      """class $name$ extends C {
+        |}
+        |"""
+    )
+    matchAndAssert(
+      "Match any order",
+      clearMarker(content, Set("AB")),
+      """class $name$ extends C with D, B {
+        |}
+        |"""
+    )
+    matchAndAssert(
+      "Match var",
+      clearMarker(content, Set("AA", "AB", "AD")),
+      """class $name$ extends $A$ {
+        |}
+        |"""
+    )
+    matchAndAssert(
+      "Match var",
+      clearMarker(content, Set("AB")),
+      """class $name$ extends $A$ {
+        |}
+        |""",
+      mo => {
+        val constr = mo.addNewVariableConstraint("A")
+        constr.setMinCount(3)
+        constr.setMaxCount(3)
+      }
+    )
+
+    val contentConstr =
+      """<match="AA">class A(var a: Int, b: Int) extends B(b, a) with A {}</match="AA">
+        |<match="AB">class B(var a: Int, b: Int) extends B with A(a, b) {}</match="AB">
+        |"""
+    matchAndAssert(
+      "Match invocation 1",
+      clearMarker(contentConstr, Set("AA")),
+      """class $name$ extends A with $A$(b, a) {}
+        |"""
+    )
+    matchAndAssert(
+      "Match invocation 2",
+      clearMarker(contentConstr, Set("AB")),
+      """class $name$ extends $A$(a, b) {}
+        |"""
+    )
+  }
 }
