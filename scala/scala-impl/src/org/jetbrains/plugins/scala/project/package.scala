@@ -390,8 +390,14 @@ package object project {
     def YKindProjectorOptionEnabled: Boolean =
       scalaModuleSettings.exists(_.YKindProjectorOptionEnabled)
 
+    def XKindProjectorOptionEnabled: Boolean =
+      scalaModuleSettings.exists(_.XKindProjectorOptionEnabled)
+
     def YKindProjectorUnderscoresOptionEnabled: Boolean =
       scalaModuleSettings.exists(_.YKindProjectorUnderscoresOptionEnabled)
+
+    def XKindProjectorUnderscoresOptionEnabled: Boolean =
+      scalaModuleSettings.exists(_.XKindProjectorUnderscoresOptionEnabled)
 
     def betterMonadicForPluginEnabled: Boolean =
       scalaModuleSettings.exists(_.betterMonadicForPluginEnabled)
@@ -694,10 +700,16 @@ package object project {
     def scalaMinorVersionOrDefault: ScalaVersion = scalaMinorVersion.getOrElse(ScalaVersion.default)
 
     /**
-     * Is kind-projector plugin enabled or is -Ykind-projector scala 3 compiler option set.
+     * Is kind-projector plugin enabled or
+     *   is -Ykind-projector scala 3 compiler option set or
+     *   is -Xkind-projector scala 3 compiler option set.
      */
     def kindProjectorEnabled: Boolean =
-      kindProjectorPluginEnabled || YKindProjectorOptionEnabled || YKindProjectorUnderscoresOptionEnabled
+      kindProjectorPluginEnabled ||
+        YKindProjectorOptionEnabled ||
+        YKindProjectorUnderscoresOptionEnabled ||
+        XKindProjectorOptionEnabled ||
+        XKindProjectorUnderscoresOptionEnabled
 
     def underscoreWildcardsDisabled: Boolean =
       kindProjectorUnderscorePlaceholdersEnabled || YKindProjectorUnderscoresOptionEnabled
@@ -706,11 +718,16 @@ package object project {
 
     def kindProjectorPlugin: Option[String] = inThisModuleOrProject(_.kindProjectorPlugin).flatten
 
-    def kindProjectorUnderscorePlaceholdersEnabled: Boolean = isDefinedInModuleOrProject(_.kindProjectorUnderscorePlaceholdersEnabled)
+    def kindProjectorUnderscorePlaceholdersEnabled: Boolean =
+      isDefinedInModuleOrProject(_.kindProjectorUnderscorePlaceholdersEnabled)
 
     def YKindProjectorOptionEnabled: Boolean =
       compilerOptionsFor(element).exists(_.kindProjector) ||
         isDefinedInModuleOrProject(_.YKindProjectorOptionEnabled)
+
+    /** https://youtrack.jetbrains.com/issue/SCL-24252 */
+    def XKindProjectorOptionEnabled: Boolean =
+      isDefinedInModuleOrProject(_.XKindProjectorOptionEnabled)
 
     private def compilerOptionsFor(element: PsiElement): Option[CompilerOptions] = containingFileOf(element) match {
       case Some(file: ScClsFileImpl) =>
@@ -731,7 +748,11 @@ package object project {
     private def containingFileOf(element: PsiElement): Option[PsiFile] =
       element.containingFile.map(file => Option(file.getContext).flatMap(containingFileOf).getOrElse(file))
 
-    def YKindProjectorUnderscoresOptionEnabled: Boolean = isDefinedInModuleOrProject(_.YKindProjectorUnderscoresOptionEnabled)
+    def YKindProjectorUnderscoresOptionEnabled: Boolean =
+      isDefinedInModuleOrProject(_.YKindProjectorUnderscoresOptionEnabled)
+
+    def XKindProjectorUnderscoresOptionEnabled: Boolean =
+      isDefinedInModuleOrProject(_.XKindProjectorUnderscoresOptionEnabled)
 
     def betterMonadicForEnabled: Boolean = isDefinedInModuleOrProject(_.betterMonadicForPluginEnabled)
 

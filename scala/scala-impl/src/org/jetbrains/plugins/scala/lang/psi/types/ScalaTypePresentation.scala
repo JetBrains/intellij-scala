@@ -245,7 +245,8 @@ trait ScalaTypePresentation extends TypePresentation {
     object TypeLambda {
       def unapply(proj: ScProjectionType): Option[String] = proj match {
         case ScProjectionType.withActual(alias: ScTypeAliasDefinition, _)
-          if alias.kindProjectorPluginEnabled || (alias.YKindProjectorOptionEnabled && alias.typeParameters.forall(_.typeParameters.isEmpty)) =>
+          if alias.kindProjectorPluginEnabled ||
+            (alias.kindProjectorEnabled && alias.typeParameters.forall(_.typeParameters.isEmpty)) =>
 
           proj.projected match {
             case ScCompoundType(comps, sigs, aliases) if
