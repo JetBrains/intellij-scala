@@ -81,6 +81,7 @@ public interface ScalaDocTokenType {
           ScalaDocTokenType.DOC_INNER_CLOSE_CODE_TAG,
           ScalaDocTokenType.VALID_DOC_HEADER,
           ScalaDocTokenType.DOC_HEADER,
+          ScalaDocTokenType.DOC_MARKDOWN_HEADER,
           ScalaDocTokenType.DOC_COMMON_CLOSE_WIKI_TAG,
           ScalaDocTokenType.DOC_BLOCKQUOTE,
           ScalaDocTokenType.DOC_AUTOLINK,

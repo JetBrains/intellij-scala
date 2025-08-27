@@ -35,9 +35,6 @@ class _ScalaDocMarkdownLexer extends LexerBase {
   override def getState: Int =
     (delegate.getState << STATE_WIDTH) | myState
 
-  // A weird hack to adapt the tokeState: ntypes without copy-pasting the full list and mapping from one to the other
-  // We need the collection to not accidentally register the same token several times
-  // This is kinda awful but it'll do for now.
   private def platformType(@Nullable tokenType: org.intellij.markdown.IElementType): IElementType = {
     if (tokenType == null) return null
     _ScalaDocMarkdownLexer.DELEGATE_MAP.getOrElse(tokenType, ScalaDocTokenType.DOC_COMMENT_DATA)
@@ -194,9 +191,10 @@ object _ScalaDocMarkdownLexer {
   private val AT_DIRECTIVE_WS_START = 5
   private val AT_DIRECTIVE = 6
   // TODO
-  private val AT_DIRECTIVE_VALUE = 7
-  private val AT_DIRECTIVE_WS = 8
+  private val AT_DIRECTIVE_WS_VALUE = 7
+  private val AT_DIRECTIVE_VALUE = 8
 
+  // Note that some of these will never be produced by the lexer, but might as well still add them.
   private val DELEGATE_MAP = Map(
     MarkdownTokenTypes.TEXT -> ScalaDocTokenType.DOC_COMMENT_DATA,
     MarkdownTokenTypes.CODE_LINE -> ScalaDocTokenType.DOC_INNER_CODE,
@@ -226,7 +224,6 @@ object _ScalaDocMarkdownLexer {
     MarkdownTokenTypes.LIST_BULLET -> ScalaDocTokenType.DOC_LIST_ITEM_HEAD,
     MarkdownTokenTypes.URL -> ScalaDocTokenType.DOC_HTTP_LINK_VALUE,
     MarkdownTokenTypes.HORIZONTAL_RULE -> ScalaDocTokenType.DOC_HORIZONTAL_RULE,
-    // TODO: Doesn't work; unsure why.
     MarkdownTokenTypes.LIST_NUMBER -> ScalaDocTokenType.DOC_LIST_ITEM_HEAD,
     MarkdownTokenTypes.FENCE_LANG -> ScalaDocTokenType.DOC_COMMENT_DATA,
     MarkdownTokenTypes.CODE_FENCE_START -> ScalaDocTokenType.DOC_INNER_CODE_TAG,
