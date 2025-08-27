@@ -9,6 +9,7 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.EdtTestUtil
+import com.intellij.testFramework.fixtures.IdeaTestFixtureFactory
 import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.compiler.data.CompileOrder
@@ -66,11 +67,19 @@ abstract class ScalaMavenImporterTest
     super.tearDown()
   }
 
+  override protected def setUpFixtures(): Unit = {
+    val fixture = IdeaTestFixtureFactory.getFixtureFactory().createFixtureBuilder(projectName, useDirectoryBasedProjectFormat()).getFixture
+    setTestFixture(fixture)
+    fixture.setUp()
+  }
+
+  private def projectName: String = getTestName(true)
+
   private def getTestProjectDir: Path = {
     val testDataPath = Path.of(TestUtils.getTestDataPath)
       .getParent.getParent
       .resolve("integration").resolve("maven").resolve("testdata").resolve("maven").resolve("projects")
-      .resolve(getTestName(true))
+      .resolve(projectName)
     assert(Files.exists(testDataPath), s"testdata directory not found: $testDataPath")
     testDataPath
   }
@@ -112,9 +121,9 @@ abstract class ScalaMavenImporterTest
     })
 
   @Test
-  def testWithScala2(): Unit =
+  def withScala2(): Unit =
     runImportingTest_Common(
-      "testWithScala2",
+      "withScala2",
       "projectWithScala2",
       Seq("src/main/scala", "src/main/java"),
       Seq("src/test/scala", "src/test/java"),
@@ -122,8 +131,8 @@ abstract class ScalaMavenImporterTest
     )
 
   @Test
-  def testWithTwoModulesWithScala2And3(): Unit = {
-    runImportingTest(new project("testWithTwoModulesWithScala2And3") {
+  def withTwoModulesWithScala2And3(): Unit = {
+    runImportingTest(new project("withTwoModulesWithScala2And3") {
       val mavenSdkScala2_13: library = MavenScalaSdk(Scala_2_13_6)
       val mavenLibraryScala2_13: library = MavenScalaLibrary(Scala_2_13_6)
       val mavenScalaSdkScala3_1: library = MavenScalaSdk(Scala_3_1_0)
@@ -156,9 +165,9 @@ abstract class ScalaMavenImporterTest
   }
 
   @Test
-  def testWithScala2_WithExplicitSourceDirectoriesSet(): Unit =
+  def withScala2_WithExplicitSourceDirectoriesSet(): Unit =
     runImportingTest_Common(
-      "testWithScala2_WithExplicitSourceDirectoriesSet",
+      "withScala2_WithExplicitSourceDirectoriesSet",
       "projectWithScala2",
       //When Maven build has explicit source dirs (sourceDirectory, testSourceDirectory),
       //default java source dirs are replaced
@@ -168,9 +177,9 @@ abstract class ScalaMavenImporterTest
     )
 
   @Test
-  def testWithScala2_WithoutScalaMavenPlugin(): Unit =
+  def withScala2_WithoutScalaMavenPlugin(): Unit =
     runImportingTest_Common(
-      "testWithScala2_WithoutScalaMavenPlugin",
+      "withScala2_WithoutScalaMavenPlugin",
       "projectWithScala2",
       Seq("src/main/java"),
       Seq("src/test/java"),
@@ -178,9 +187,9 @@ abstract class ScalaMavenImporterTest
     )
 
   @Test
-  def testWithScala3_0(): Unit = {
+  def withScala3_0(): Unit = {
     runImportingTest_Common(
-      "testWithScala3_0",
+      "withScala3_0",
       "projectWithScala3_0",
 
       Seq("src/main/scala", "src/main/java"),
@@ -194,9 +203,9 @@ abstract class ScalaMavenImporterTest
   }
 
   @Test
-  def testWithScala3_1(): Unit = {
+  def withScala3_1(): Unit = {
     runImportingTest_Common(
-      "testWithScala3_1",
+      "withScala3_1",
       "projectWithScala3_1",
       Seq("src/main/scala", "src/main/java"),
       Seq("src/test/scala", "src/test/java"),
@@ -222,13 +231,13 @@ abstract class ScalaMavenImporterTest
   )
 
   @Test
-  def testWithImplicitScalaLibraryDependency_compilerVersionLargest(): Unit = {
+  def withImplicitScalaLibraryDependency_compilerVersionLargest(): Unit = {
     val expectedLibraries = Seq(
       MavenScalaLibrary(Scala_2_13_6),
       MavenScalaSdk(Scala_2_13_14)
     ) ++ CommonLibrariesForImplicitScalaLibraryDependencyTests
 
-    runImportingTest(new project("testWithImplicitScalaLibraryDependency_compilerVersionLargest") {
+    runImportingTest(new project("withImplicitScalaLibraryDependency_compilerVersionLargest") {
       libraries := expectedLibraries
       modules := Seq(new module("dummy-artifact-id") {
         libraryDependencies := expectedLibraries.map(library2libraryDependency)
@@ -237,13 +246,13 @@ abstract class ScalaMavenImporterTest
   }
 
   @Test
-  def testWithImplicitScalaLibraryDependency_compilerVersionInTheMiddle(): Unit = {
+  def withImplicitScalaLibraryDependency_compilerVersionInTheMiddle(): Unit = {
     val expectedLibraries = Seq(
       MavenScalaLibrary(Scala_2_13_6),
       MavenScalaSdk(Scala_2_13_5)
     ) ++ CommonLibrariesForImplicitScalaLibraryDependencyTests
 
-    runImportingTest(new project("testWithImplicitScalaLibraryDependency_compilerVersionInTheMiddle") {
+    runImportingTest(new project("withImplicitScalaLibraryDependency_compilerVersionInTheMiddle") {
       libraries := expectedLibraries
       modules := Seq(new module("dummy-artifact-id") {
         libraryDependencies := expectedLibraries.map(library2libraryDependency)
@@ -252,13 +261,13 @@ abstract class ScalaMavenImporterTest
   }
 
   @Test
-  def testWithImplicitScalaLibraryDependency_compilerVersionSmallest(): Unit = {
+  def withImplicitScalaLibraryDependency_compilerVersionSmallest(): Unit = {
     val expectedLibraries = Seq(
       MavenScalaLibrary(Scala_2_13_6),
       MavenScalaSdk(Scala_2_13_0)
     ) ++ CommonLibrariesForImplicitScalaLibraryDependencyTests
 
-    runImportingTest(new project("testWithImplicitScalaLibraryDependency_compilerVersionSmallest") {
+    runImportingTest(new project("withImplicitScalaLibraryDependency_compilerVersionSmallest") {
       libraries := expectedLibraries
       modules := Seq(new module("dummy-artifact-id") {
         libraryDependencies := expectedLibraries.map(library2libraryDependency)
@@ -267,7 +276,7 @@ abstract class ScalaMavenImporterTest
   }
 
   @Test
-  def testWithImplicitScalaLibraryDependency_compilerVersionSmallest_LibraryDependenciesHaveTestScope(): Unit = {
+  def withImplicitScalaLibraryDependency_compilerVersionSmallest_LibraryDependenciesHaveTestScope(): Unit = {
     val expectedCompileLibraries = Seq(
       MavenScalaLibrary(Scala_2_13_0),
       MavenScalaSdk(Scala_2_13_0)
@@ -277,7 +286,7 @@ abstract class ScalaMavenImporterTest
       MavenScalaLibrary(Scala_2_13_6)
     ) ++ CommonLibrariesForImplicitScalaLibraryDependencyTests
 
-    runImportingTest(new project("testWithImplicitScalaLibraryDependency_compilerVersionSmallest_LibraryDependenciesHaveTestScope") {
+    runImportingTest(new project("withImplicitScalaLibraryDependency_compilerVersionSmallest_LibraryDependenciesHaveTestScope") {
       libraries := expectedCompileLibraries ++ expectedTestLibraries
       modules := Seq(new module("dummy-artifact-id") {
         libraryDependencies := expectedCompileLibraries.map(library2libraryDependency(_, Some(DependencyScope.COMPILE))) ++
@@ -287,11 +296,11 @@ abstract class ScalaMavenImporterTest
   }
 
   @Test
-  def testWithoutExplicitScalaVersion_LibraryDependenciesHaveTestScope(): Unit = {
+  def withoutExplicitScalaVersion_LibraryDependenciesHaveTestScope(): Unit = {
     val expectedTestLibraries = CommonLibrariesForImplicitScalaLibraryDependencyTests
     val scalaLibraries = Seq(MavenScalaLibrary(Scala_2_13_6), MavenScalaSdk(Scala_2_13_6))
 
-    runImportingTest(new project("testWithoutExplicitScalaVersion_LibraryDependenciesHaveTestScope") {
+    runImportingTest(new project("withoutExplicitScalaVersion_LibraryDependenciesHaveTestScope") {
       libraries := scalaLibraries ++ expectedTestLibraries
       modules := Seq(new module("dummy-artifact-id") {
         libraryDependencies := expectedTestLibraries.map(library2libraryDependency(_, Some(DependencyScope.TEST))) ++
@@ -301,8 +310,8 @@ abstract class ScalaMavenImporterTest
   }
 
   @Test
-  def testWithCompileOrder(): Unit = {
-    runImportingTest(new project("testWithCompileOrder") {
+  def withCompileOrder(): Unit = {
+    runImportingTest(new project("withCompileOrder") {
       modules := Seq(new module("dummy-artifact-id") {
         compileOrder := CompileOrder.ScalaThenJava
       })
@@ -310,8 +319,8 @@ abstract class ScalaMavenImporterTest
   }
 
   @Test
-  def testResolveCompilerBridge_Scala3(): Unit = {
-    runImportingTest(new project("testResolveCompilerBridge_Scala3"))
+  def resolveCompilerBridge_Scala3(): Unit = {
+    runImportingTest(new project("resolveCompilerBridge_Scala3"))
 
     // defined in the test project `resolveCompilerBridge_Scala3/pom.xml`
     val scalaVersion = "3.4.2-RC1-bin-20240226-e0cb1e7-NIGHTLY"
@@ -330,8 +339,8 @@ abstract class ScalaMavenImporterTest
   }
 
   @Test
-  def testResolveCompilerBridge_Scala2(): Unit = {
-    runImportingTest(new project("testResolveCompilerBridge_Scala2"))
+  def resolveCompilerBridge_Scala2(): Unit = {
+    runImportingTest(new project("resolveCompilerBridge_Scala2"))
 
     // defined in the test project `resolveCompilerBridge_Scala2/pom.xml`
     val scalaVersion = "2.13.13"
