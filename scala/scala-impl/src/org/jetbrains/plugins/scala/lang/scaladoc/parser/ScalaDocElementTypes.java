@@ -3,11 +3,14 @@ package org.jetbrains.plugins.scala.lang.scaladoc.parser;
 import com.intellij.lang.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.JavaPsiFacade;
+import com.intellij.psi.ParsingDiagnostics;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.tree.ILazyParseableElementType;
 import com.intellij.psi.tree.TokenSet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.Scala3Language;
+import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableId;
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocElementType;
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType;
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.ScaladocMarkdownParsing;
@@ -16,6 +19,21 @@ import org.jetbrains.plugins.scalaDoc.ScalaDocLanguage;
 import org.jetbrains.plugins.scalaDoc.lang.parser.ScalaDocParserDefinition;
 
 public interface ScalaDocElementTypes {
+  @NotNull
+  ILazyParseableElementType SCALA_DOC_REFERENCE_LINK = new ILazyParseableElementType("SCALA_DOC_REFERENCE_LINK", Scala3Language.INSTANCE) {
+      @Override
+      @Nullable
+      public ASTNode parseContents(@NotNull ASTNode lazyNode) {
+          PsiElement psi = lazyNode.getTreeParent().getPsi();
+
+          Project project = psi.getProject();
+          Language languageForParser = getLanguageForParser(psi);
+          PsiBuilder builder = PsiBuilderFactory.getInstance().createBuilder(project, lazyNode, null, languageForParser, lazyNode.getChars());
+
+          // NOTE: this is a simplified version of the formal definition in ScalaDoc
+          return ScaladocMarkdownParsing.parseCodeReference(builder).getFirstChildNode();
+      }
+  };
 
   /**
    * ScalaDoc comment

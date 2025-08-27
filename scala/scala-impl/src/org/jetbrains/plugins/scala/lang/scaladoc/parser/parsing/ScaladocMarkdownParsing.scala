@@ -1,10 +1,9 @@
 package org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing
 
-import com.intellij.lang.{PsiBuilder, WhitespacesAndCommentsBinder}
+import com.intellij.lang.PsiBuilder
 import com.intellij.openapi.util.Key
 import com.intellij.psi.tree.IElementType
 import org.intellij.markdown.ast.ASTNode
-import org.intellij.markdown.lexer.MarkdownLexer
 import org.intellij.markdown.parser.MarkdownParser
 import org.intellij.markdown.{MarkdownElementTypes, MarkdownTokenTypes}
 import org.jetbrains.annotations.Nullable
@@ -13,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableId
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.ScaladocMarkdownParsing.MARKDOWN_DATA
-import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.markdown.{ScalaDocMarkdownFlavour, ScalaDocTagMarkerBlock}
+import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.markdown.{ScalaDocMarkdownFlavour, ScalaDocTagMarkerBlock, WikiLinkParser}
 
 import scala.collection.immutable.ArraySeq
 import scala.jdk.CollectionConverters._
@@ -139,8 +138,9 @@ class ScaladocMarkdownParsing(private val builder: PsiBuilder,
         case MarkdownElementTypes.PARAGRAPH => ScalaDocElementTypes.DOC_PARAGRAPH
         case MarkdownElementTypes.CODE_FENCE => ScalaDocElementTypes.DOC_CODEBLOCK
         case MarkdownElementTypes.BLOCK_QUOTE => ScalaDocElementTypes.DOC_BLOCKQUOTE
+        case MarkdownTokenTypes.LIST_NUMBER => ScalaDocTokenType.DOC_LIST_ITEM_HEAD
+        case MarkdownTokenTypes.LIST_BULLET => ScalaDocTokenType.DOC_LIST_ITEM_HEAD
         case MarkdownElementTypes.LIST_ITEM => ScalaDocElementTypes.DOC_LIST_ITEM
-        // TODO: Unsure if it's iffy to use the same element type for both.
         case MarkdownElementTypes.UNORDERED_LIST => ScalaDocElementTypes.DOC_LIST
         case MarkdownElementTypes.ORDERED_LIST => ScalaDocElementTypes.DOC_LIST
 
@@ -148,6 +148,7 @@ class ScaladocMarkdownParsing(private val builder: PsiBuilder,
         case MarkdownElementTypes.EMPH => ScalaDocTokenType.DOC_ITALIC_TAG // NOTE: Distinct from MarkdownTokenTypes.EMPH, which is for the * character.
         case MarkdownElementTypes.STRONG => ScalaDocTokenType.DOC_BOLD_TAG
         case MarkdownElementTypes.CODE_SPAN => ScalaDocTokenType.DOC_MONOSPACE_TAG
+        case WikiLinkParser.WIKI_LINK => ScalaDocTokenType.DOC_LINK_TAG
         case MarkdownElementTypes.AUTOLINK => ScalaDocTokenType.DOC_LINK_TAG
         case MarkdownElementTypes.LINK_DEFINITION => ScalaDocTokenType.DOC_LINK_TAG
 
@@ -240,6 +241,22 @@ class ScaladocMarkdownParsing(private val builder: PsiBuilder,
         ensureBuilderInPosition(node.getEndOffset, ScalaDocTokenType.DOC_BOLD_TAG)
 
         marker.done(element)
+      } else if (node.getType == WikiLinkParser.WIKI_LINK) {
+        // Special casing for bold to merge boundary tokens
+        val children = node.getChildren.asScala
+
+        ensureBuilderInPosition(node.getStartOffset)
+        val marker = builder.mark()
+        // We *know* there are at least 4 children here
+        // Force the first 2 children to be a DOC_LINK_TAG
+        ensureBuilderInPosition(children(1).getEndOffset, ScalaDocTokenType.DOC_LINK_TAG)
+
+        ensureBuilderInPosition(children(children.length-2).getStartOffset, ScalaDocElementTypes.SCALA_DOC_REFERENCE_LINK)
+
+        // Force the last 2 children to be a DOC_LINK_CLOSE_TAG
+        ensureBuilderInPosition(node.getEndOffset, ScalaDocTokenType.DOC_LINK_CLOSE_TAG)
+
+        marker.done(element)
       } else if (node.getType == MarkdownElementTypes.PARAGRAPH) {
         ensureBuilderInPosition(node.getStartOffset)
 
@@ -276,11 +293,16 @@ class ScaladocMarkdownParsing(private val builder: PsiBuilder,
 
     rootMarker.done(root)
   }
-
-  def mkScalaPsiBuilder(delegate: PsiBuilder, isScala3: Boolean) =
-    new ScalaPsiBuilderImpl(delegate, isScala3)
 }
 
 object ScaladocMarkdownParsing {
   val MARKDOWN_DATA: Key[(String, ASTNode)] = Key.create("scaladoc.markdown")
+
+  def parseCodeReference(psiBuilder: PsiBuilder): com.intellij.lang.ASTNode = {
+    val marker = psiBuilder.mark()
+    val scPsiBuilder = new ScalaPsiBuilderImpl(psiBuilder, true)
+    StableId(ScalaDocTokenType.DOC_CODE_LINK_VALUE, forImport = true)(scPsiBuilder)
+    marker.done(ScalaDocElementTypes.SCALA_DOC_REFERENCE_LINK)
+    psiBuilder.getTreeBuilt
+  }
 }
