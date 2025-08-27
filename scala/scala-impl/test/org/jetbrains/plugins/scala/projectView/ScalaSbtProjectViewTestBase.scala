@@ -30,9 +30,11 @@ abstract class ScalaSbtProjectViewTestBase extends SbtExternalSystemImportingTes
     val projectDirectoryFile = getMyProjectRoot.findChild(projectDirectory)
     assert(projectDirectoryFile != null, "The project directory is not found")
 
-    setProjectRootViaReflection(projectDirectoryFile.toNioPath)
+    setProjectRoot(projectDirectoryFile.toNioPath)
     runTest(expectedStructure)
   }
+
+
 
   protected def runtTestWithTwoLinkedProjects(rootProjectDirectory: String, linkedProjectDirectory: String, expectedStructure: String): Unit = {
     val rootProjectFile = getMyProjectRoot.findChild(rootProjectDirectory)
@@ -41,7 +43,7 @@ abstract class ScalaSbtProjectViewTestBase extends SbtExternalSystemImportingTes
     val linkedProjectFile = getMyProjectRoot.findChild(linkedProjectDirectory)
     assert(linkedProjectFile != null, "The linked project directory is not found")
 
-    setProjectRootViaReflection(rootProjectFile.toNioPath)
+    setProjectRoot(rootProjectFile.toNioPath)
     importProject(false)
 
     linkSbtProject(linkedProjectFile.getPath, prodTestSourcesSeparated = true, getMyProject)
