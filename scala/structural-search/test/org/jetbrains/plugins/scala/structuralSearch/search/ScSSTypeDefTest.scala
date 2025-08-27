@@ -209,5 +209,163 @@ class ScSSTypeDefTest extends ScalaStructuralSearchTestCase {
     )
   }
 
+  def testMatchSubclasses(): Unit = {
+    val content =
+      """<match="AA">class A {
+        | <match="AE">class SubA {}</match="AE">
+        |}</match="AA">
+        |<match="AB">class B {}</match="AB">
+        |<match="AC">class C {
+        | <match="AF">class SubC1 {}</match="AF">
+        | <match="AG">class SubC2 {}</match="AG">
+        |}</match="AC">
+        |"""
+    matchAndAssert(
+      "Empty matches all",
+      content, "class $name$ {}"
+    )
+    matchAndAssert(
+      "Match with subclass",
+      clearMarker(content, Set("AA", "AC")),
+      """class $name$ {
+        |  class $A$ {}
+        |}
+        |"""
+    )
+    matchAndAssert(
+      "Match with subclass any order",
+      clearMarker(content, Set("AC")),
+      """class $name$ {
+        |  class SubC2 {}
+        |  class SubC1 {}
+        |}
+        |"""
+    )
+    matchAndAssert(
+      "Match with subclass and count",
+      clearMarker(content, Set("AA", "AC")),
+      """class $name$ {
+        |  class $sub$ {}
+        |}
+        |""",
+      _.addNewVariableConstraint("sub").setMaxCount(10)
+    )
+  }
+
+  def testMatchProperties(): Unit = {
+    val content =
+      """<match="AA">class A {
+        | val a: Int
+        |}</match="AA">
+        |<match="AB">class B {
+        | var a: Int
+        |}</match="AB">
+        |<match="AC">class C {
+        | val a: Int = 2
+        |}</match="AC">
+        |<match="AD">class D {
+        | var a: Int = 2
+        |}</match="AD">
+        |"""
+    matchAndAssert(
+      "Empty matches all",
+      content, "class $name$ {}"
+    )
+    matchAndAssert(
+      "Match with val declaration matches definition",
+      clearMarker(content, Set("AA", "AC")), "class $name$ { val a: Int }"
+    )
+    matchAndAssert(
+      "Match with var declaration matches definition",
+      clearMarker(content, Set("AB", "AD")), "class $name$ { var a: Int }"
+    )
+    matchAndAssert(
+      "Match with val definition",
+      clearMarker(content, Set("AC")), "class $name$ { val a: Int = 2 }"
+    )
+    matchAndAssert(
+      "Match with var definition",
+      clearMarker(content, Set("AD")), "class $name$ { var a: Int = 2 }"
+    )
+
+
+    val content2 =
+      """<match="AA">class A {
+        | val a: String
+        | var b: Int = 2
+        |}</match="AA">
+        |<match="AB">class B {
+        | val a: String = "2"
+        | var b: Int
+        |}</match="AB">
+        |<match="AC">class B {
+        | val a: Int = 2
+        | var b: Int
+        | var c: Int
+        |}</match="AC">
+        |"""
+    matchAndAssert(
+      "Match any order",
+      content2,
+      """class $name$ {
+        | val a: $ty$
+        | var b: $ty2$
+        |}
+        |"""
+    )
+    matchAndAssert(
+      "Match vars",
+      clearMarker(content2, Set("AB", "AC")),
+      """class $name$ {
+        | val $c$: $b$ = $a$
+        | var $d$: Int
+        |}
+        |"""
+    )
+    matchAndAssert(
+      "Match vars with count",
+      clearMarker(content2, Set("AC")),
+      """class $name$ {
+        | var $c$
+        |}
+        |""",
+      mO => {
+        val constr = mO.addNewVariableConstraint("c")
+        constr.setMinCount(2)
+        constr.setMaxCount(10)
+      }
+    )
+  }
+
+  def testMatchPrimaryConstrBody(): Unit = {
+    val content =
+      """class A {
+        | val a: Int = 2
+        | var b: Int = 2
+        | println("Hello world!)
+        |}
+        |"""
+
+    matchAndAssert(
+      "Match sequential as soon as theres a statement",
+      content,
+      """class $name$ {
+         |  val a: Int = 2
+         |  val b: Int = 2
+         |  println("Hello world!")
+         |}
+        |"""
+    )
+    matchAndAssert(
+      "Match sequential as soon as theres a statement anti",
+      content,
+      """class $name$ {
+        |  val b: Int = 2
+        |  val a: Int = 2
+        |  println("Hello world!")
+        |}
+        |"""
+    )
+  }
   // TODO extends types
 }

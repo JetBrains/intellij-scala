@@ -117,9 +117,9 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
       case _ => true
     }
 
-    // match in any order if the body contains only declarations
+    // match in any order if the body contains only declarations & definitions
     // otherwise fall back to a sequential match
-    val propertiesMatch = {
+    val primaryConstrBodyMatch = {
       def extractValVar(typedef: ScTypeDefinition): Array[PsiElement] =
         typedef.extendsBlock.templateBody.map(_.getChildren.filter(_.is[ScBlockStatement]).filterNot(_.is[ScFunction, ScTypeDefinition])).getOrElse(PsiElement.EMPTY_ARRAY)
       val bodyPattern = extractValVar(typedef)
@@ -130,9 +130,11 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
         matchSequentially(bodyPattern, bodyOther)
     }
 
+    val classesMatch = globalVisitor.matchInAnyOrder(typedef.typeDefinitions.toArray[PsiElement], other.typeDefinitions.toArray[PsiElement])
     // TODO parse enum cases
 
-    globalVisitor.setResult(annotationsMatch && keywordMatch && modifierMatch && nameMatch && functionsMatch && constructorsMatch && propertiesMatch)
+    globalVisitor.setResult(annotationsMatch && keywordMatch && modifierMatch && nameMatch
+      && functionsMatch && constructorsMatch && primaryConstrBodyMatch && classesMatch)
     rememberVarMatchIfResult(handler, other.getNameIdentifier)
   }
 
@@ -160,7 +162,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
   }
 
   override def visitValueDeclaration(pat: ScValueDeclaration): Unit = {
-    if (!globalVisitor.getElement.is[ScValueOrVariable]) {
+    if (!globalVisitor.getElement.is[ScValueDeclaration, ScPatternDefinition]) {
       globalVisitor.setResult(false)
       return
     }
@@ -180,7 +182,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
   }
 
   override def visitVariableDeclaration(pat: ScVariableDeclaration): Unit = {
-    if (!globalVisitor.getElement.is[ScValueOrVariable]) {
+    if (!globalVisitor.getElement.is[ScVariableDeclaration, ScVariableDefinition]) {
       globalVisitor.setResult(false)
       return
     }
@@ -410,7 +412,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
           substHand.addResult(other, context)
       case _ =>
         other match {
-          case refExpr: ScReferenceExpression => globalVisitor.setResult(globalVisitor.`match`(refPat.getFirstChild, globalVisitor.getElement.getFirstChild))
+          case refExpr: ScReferenceExpression => globalVisitor.setResult(globalVisitor.`match`(refPat.getFirstChild, refExpr.getFirstChild))
           case _ => visitElement(refPat)
         }
     }

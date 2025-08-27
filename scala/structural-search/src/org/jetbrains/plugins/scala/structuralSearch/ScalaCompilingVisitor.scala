@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
-import org.jetbrains.plugins.scala.structuralSearch.filter.{CaseClauseFilter, FunctionFilter, MatchingVariableFilter, MethodInvocationFilter, TypeDefinitionFilter, ValueDeclarationFilter}
+import org.jetbrains.plugins.scala.structuralSearch.filter.{CaseClauseFilter, FunctionFilter, MatchingVariableFilter, MethodInvocationFilter, TypeDefinitionFilter, ValueDeclarationFilter, VariableDeclarationFilter}
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
 
 class ScalaCompilingVisitor(globalVisitor: GlobalCompilingVisitor) extends ScalaRecursiveElementVisitor {
@@ -144,7 +144,7 @@ class ScalaCompilingVisitor(globalVisitor: GlobalCompilingVisitor) extends Scala
       placeVarHandler(varr.declaredNames.head)
     globalVisitor
       .getContext.getPattern
-      .getHandler(varr).setFilter(new ValueDeclarationFilter())
+      .getHandler(varr).setFilter(new VariableDeclarationFilter())
   }
 
   private def placeVarHandler(name: String, setFilter: Boolean = true): Unit = {

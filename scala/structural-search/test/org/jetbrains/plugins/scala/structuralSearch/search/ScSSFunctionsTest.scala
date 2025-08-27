@@ -200,7 +200,7 @@ class ScSSFunctionsTest extends ScalaStructuralSearchTestCase {
     )
     matchAndAssert(
       "Match specific 1",
-      clearMarker(content, Set("AA")), "def $test$[T]()",
+      clearMarker(content, Set("AA", "AB")), "def $test$[T]()",
     )
     matchAndAssert(
       "Match specific 2",

@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
 
 final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
-  override protected def getVarPrefixes: Array[String] = Array[String]("__$_")
+  override protected def getVarPrefixes: Array[String] = Array("__$_")
 
   override def isMyLanguage(@NotNull language: Language): Boolean =
     language == ScalaLanguage.INSTANCE || language == Scala3Language.INSTANCE
@@ -36,7 +36,8 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
   }
 
   // use this to configure which modifier should be shown
-  override def isApplicableConstraint(constraintName: String, variableNode: PsiElement, completePattern: Boolean, target: Boolean): Boolean = constraintName match {
+  override def isApplicableConstraint(constraintName: String, variableNode: PsiElement, completePattern: Boolean, target: Boolean): Boolean =
+    constraintName match {
       case UIUtil.MINIMUM_ZERO =>
         isMinMaxApplicable(constraintName, variableNode, completePattern, target)
       case UIUtil.MAXIMUM_UNLIMITED =>
@@ -47,16 +48,13 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
 
   private def isMinMaxApplicable(constraintName: String, variableNode: PsiElement, completePattern: Boolean, target: Boolean): Boolean =
     if (completePattern || target || variableNode == null) return false
-    variableNode.getParent match {
-      case parent =>
-        parent.getParent match {
-          case grandParent: ScSimpleTypeElement =>
-            grandParent.getParent match {
-              case _: ScParameterType => false
-              case _ => true
-            }
+    variableNode.getParent.getParent match {
+      case grandParent: ScSimpleTypeElement =>
+        grandParent.getParent match {
+          case _: ScParameterType => false
           case _ => true
         }
+      case _ => true
     }
 
   // if a variable is set inside the template, normally getText is used to extract the name
