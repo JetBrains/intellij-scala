@@ -631,7 +631,8 @@ object CompileServerLauncher {
     Seq(
       "java.base/java.nio",
       "java.base/java.util",
-      "java.base/sun.nio.ch"
+      "java.base/sun.nio.ch",
+      "java.base/jdk.internal.ref"
     ).flatMap { modulePackage =>
       Seq("--add-opens", s"$modulePackage=ALL-UNNAMED")
     }
