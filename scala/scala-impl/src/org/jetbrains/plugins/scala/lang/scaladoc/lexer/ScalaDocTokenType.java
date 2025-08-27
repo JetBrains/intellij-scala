@@ -56,6 +56,7 @@ public interface ScalaDocTokenType {
   ScalaDocSyntaxElementType DOC_HEADER = new ScalaDocSyntaxElementType("DOC_HEADER", 1 << 8);
 
   // Markdown-specific element types
+  IElementType DOC_MARKDOWN_HEADER = new ScalaDocElementType("DOC_MARKDOWN_HEADER");
   IElementType DOC_BLOCKQUOTE = new ScalaDocElementType("DOC_BLOCKQUOTE");
   IElementType DOC_AUTOLINK = new ScalaDocElementType("DOC_AUTOLINK");
   IElementType DOC_HORIZONTAL_RULE = new ScalaDocElementType("DOC_HORIZONTAL_RULE");

@@ -64,9 +64,6 @@ class ScaladocMarkdownParsing(private val builder: PsiBuilder,
 
   def parse(root: IElementType): Unit = {
     val rootMarker = builder.mark()
-    while (!builder.eof()) builder.advanceLexer()
-    rootMarker.done(root)
-    return
 
     val (content, map) = splitContext(builder.getOriginalText)
 
@@ -163,14 +160,15 @@ class ScaladocMarkdownParsing(private val builder: PsiBuilder,
         // Remains
         // Not needed: it is parsed as regular text by the parser!
         // case MarkdownElementTypes.HTML_BLOCK => ???
-        case MarkdownElementTypes.ATX_1 => ScalaDocTokenType.VALID_DOC_HEADER
-        case MarkdownElementTypes.ATX_2 => ScalaDocTokenType.VALID_DOC_HEADER
-        case MarkdownElementTypes.ATX_3 => ScalaDocTokenType.VALID_DOC_HEADER
-        case MarkdownElementTypes.ATX_4 => ScalaDocTokenType.VALID_DOC_HEADER
-        case MarkdownElementTypes.ATX_5 => ScalaDocTokenType.VALID_DOC_HEADER
-        case MarkdownElementTypes.ATX_6 => ScalaDocTokenType.VALID_DOC_HEADER
-        case MarkdownElementTypes.SETEXT_1 => ScalaDocTokenType.VALID_DOC_HEADER
-        case MarkdownElementTypes.SETEXT_2 => ScalaDocTokenType.VALID_DOC_HEADER
+        case MarkdownElementTypes.ATX_1 => ScalaDocTokenType.DOC_MARKDOWN_HEADER
+        case MarkdownElementTypes.ATX_2 => ScalaDocTokenType.DOC_MARKDOWN_HEADER
+        case MarkdownElementTypes.ATX_3 => ScalaDocTokenType.DOC_MARKDOWN_HEADER
+        case MarkdownElementTypes.ATX_4 => ScalaDocTokenType.DOC_MARKDOWN_HEADER
+        case MarkdownElementTypes.ATX_5 => ScalaDocTokenType.DOC_MARKDOWN_HEADER
+        case MarkdownElementTypes.ATX_6 => ScalaDocTokenType.DOC_MARKDOWN_HEADER
+        case MarkdownElementTypes.SETEXT_1 => ScalaDocTokenType.DOC_MARKDOWN_HEADER
+        case MarkdownElementTypes.SETEXT_2 => ScalaDocTokenType.DOC_MARKDOWN_HEADER
+
         case _ =>
           node.getChildren.forEach(visitNode)
           return
@@ -257,9 +255,8 @@ class ScaladocMarkdownParsing(private val builder: PsiBuilder,
         }
 
         ensureBuilderInPosition(node.getEndOffset)
-        // TODO maybe: absorb whitespace/leading asterisks here too? Unsure.
         marker.done(element)
-      } else { // TODO: Process wiki links separately as well.
+      } else {
         ensureBuilderInPosition(node.getStartOffset)
 
         val marker = builder.mark()
