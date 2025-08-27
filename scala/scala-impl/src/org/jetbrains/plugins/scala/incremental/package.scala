@@ -44,5 +44,5 @@ package object incremental {
   }
 
   private[incremental] def isScalaIn(file: VirtualFile): Boolean =
-    file != null && (file.getExtension == "scala" || file.getExtension == "sc" || file.getExtension == "sbt")
+    file != null && (file.getExtension == "scala" || file.getExtension == "sc" || file.getExtension == "sbt" || file.getExtension == "mill")
 }

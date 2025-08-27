@@ -167,7 +167,7 @@ private final class MouseHandler extends ProjectActivity {
 
     def isScalaFile = {
       val file = e.getEditor.getVirtualFile
-      file != null && (file.getExtension == "scala" || file.getExtension == "sc" || file.getExtension == "sbt")
+      file != null && (file.getExtension == "scala" || file.getExtension == "sc" || file.getExtension == "sbt" || file.getExtension == "mill")
     }
 
     def checkSettings = {
