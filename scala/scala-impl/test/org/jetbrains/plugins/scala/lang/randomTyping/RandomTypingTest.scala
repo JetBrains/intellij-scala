@@ -6,6 +6,7 @@ import com.intellij.util.lang.CompoundRuntimeException
 import com.intellij.util.ui.EDT
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.parser.scala3.imported.Scala3ImportedParserTestConfig
 import org.jetbrains.plugins.scala.lang.randomTyping.RandomTypingTest._
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.{RandomTypingTests, ScalaVersion}
@@ -30,8 +31,8 @@ class RandomTypingTest_in_Scala3 extends RandomTypingTestBase(TestUtils.getTestD
 }
 
 @Category(Array(classOf[RandomTypingTests]))
-class RandomTypingTest_in_Scala3_ImportedData extends RandomTypingTestBase(TestUtils.getTestDataPath + "/parser/scala3Import/success") {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_3_0
+class RandomTypingTest_in_Scala3_ImportedData extends RandomTypingTestBase(TestUtils.getTestDataPath + "/" + Scala3ImportedParserTestConfig.Newest.successDataDirectory) {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == Scala3ImportedParserTestConfig.Newest.scalaTargetVersion
 
   //def test_specific(): Unit = {
   //  typeRandomly(
