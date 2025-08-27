@@ -39,6 +39,7 @@ public class EditorSettingsSectionPanel extends SettingsSectionPanel {
     private JComboBox<ScalaProjectSettings.ScalaCollectionHighlightingLevel> collectionHighlightingChooser;
     private JCheckBox showAmbiguousImplicitArgumentsCheckBox;
     private JComboBox<ScalaProjectSettings.AliasExportSemantics> aliasSemantics;
+    private JPanel aliasSemanticsHelp;
     private JCheckBox incrementalHighlighting;
     private JPanel incrementalHighlightingHelp;
     private JPanel useCompilerRangesHelp;
@@ -89,6 +90,8 @@ public class EditorSettingsSectionPanel extends SettingsSectionPanel {
                 Pair.create(ScalaProjectSettings.AliasExportSemantics.Definition, ScalaBundle.message("scala.project.settings.form.alias.definition")),
                 Pair.create(ScalaProjectSettings.AliasExportSemantics.Export, ScalaBundle.message("scala.project.settings.form.alias.export"))
         ));
+
+        aliasSemanticsHelp.add(ContextHelpLabel.create(ScalaBundle.message("scala.project.settings.form.alias.export.semantics.help")));
 
         collectionHighlightingChooser.setModel(new DefaultComboBoxModel<>(ScalaProjectSettings.ScalaCollectionHighlightingLevel.values()));
         collectionHighlightingChooser.setRenderer(SimpleMappingListCellRenderer.create(
@@ -341,13 +344,16 @@ public class EditorSettingsSectionPanel extends SettingsSectionPanel {
         this.$$$loadButtonText$$$(showAmbiguousImplicitArgumentsCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.show.hints.if.ambiguous.implicit.arguments.found"));
         rootPanel.add(showAmbiguousImplicitArgumentsCheckBox, new GridConstraints(5, 0, 1, 5, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel2 = new JPanel();
-        panel2.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
-        rootPanel.add(panel2, new GridConstraints(10, 0, 1, 4, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        panel2.setLayout(new GridLayoutManager(1, 3, new Insets(0, 0, 0, 0), -1, -1));
+        rootPanel.add(panel2, new GridConstraints(10, 0, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_VERTICAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         final JLabel label2 = new JLabel();
         this.$$$loadLabelText$$$(label2, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.alias.export.semantics"));
         panel2.add(label2, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         aliasSemantics = new JComboBox();
-        panel2.add(aliasSemantics, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel2.add(aliasSemantics, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        aliasSemanticsHelp = new JPanel();
+        aliasSemanticsHelp.setLayout(new BorderLayout(0, 0));
+        panel2.add(aliasSemanticsHelp, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         showTypeMismatchHintsCheckBox = new JCheckBox();
         showTypeMismatchHintsCheckBox.setSelected(true);
         this.$$$loadButtonText$$$(showTypeMismatchHintsCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.show.type.mismatch.hints"));
