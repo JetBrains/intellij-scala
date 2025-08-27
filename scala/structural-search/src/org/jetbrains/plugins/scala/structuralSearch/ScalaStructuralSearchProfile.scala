@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaFileTemplateCo
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterType
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
@@ -28,7 +29,7 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
   override def getTemplateContextTypeClass: Class[_ <: TemplateContextType] = classOf[ScalaFileTemplateContextType]
 
   override def createMatchingVisitor(globalVisitor: GlobalMatchingVisitor): PsiElementVisitor =
-    new ScalaMatchingVisitor(globalVisitor)
+    ScalaMatchingVisitor(globalVisitor)
 
   override def compile(elements: Array[PsiElement], globalVisitor: GlobalCompilingVisitor): Unit = {
     new ScalaCompilingVisitor(globalVisitor).compile(elements)
@@ -73,6 +74,9 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
               annot.constructorInvocation.typeElement.getText
             case caseClause: ScCaseClause =>
               caseClause.pattern.map(_.getText).getOrElse("")
+            case valvar: ScValueOrVariable =>
+              if (valvar.declaredNames.size == 1) valvar.declaredNames.head
+              else super.getTypedVarString(valvar)
             case _ =>
               super.getTypedVarString(element)
           }

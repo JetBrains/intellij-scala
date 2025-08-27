@@ -9,11 +9,11 @@ import com.intellij.structuralsearch.impl.matcher.strategies.MatchingStrategy
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScReferencePattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScForBinding, ScInfixExpr, ScMatch, ScMethodCall}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatternDefinition, ScValueDeclaration, ScVariableDeclaration, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
-import org.jetbrains.plugins.scala.structuralSearch.filter.{CaseClauseFilter, FunctionFilter, MatchingVariableFilter, MethodInvocationFilter, TypeDefinitionFilter}
+import org.jetbrains.plugins.scala.structuralSearch.filter.{CaseClauseFilter, FunctionFilter, MatchingVariableFilter, MethodInvocationFilter, TypeDefinitionFilter, ValueDeclarationFilter}
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
 
 class ScalaCompilingVisitor(globalVisitor: GlobalCompilingVisitor) extends ScalaRecursiveElementVisitor {
@@ -115,6 +115,36 @@ class ScalaCompilingVisitor(globalVisitor: GlobalCompilingVisitor) extends Scala
   override def visitAnnotation(annotation: ScAnnotation): Unit = {
     super.visitAnnotation(annotation)
     placeVarHandler(annotation.constructorInvocation.typeElement.getText)
+  }
+
+  override def visitPatternDefinition(pat: ScPatternDefinition): Unit = {
+    super.visitPatternDefinition(pat)
+    if (pat.declaredNames.size == 1)
+      placeVarHandler(pat.declaredNames.head)
+  }
+
+  override def visitValueDeclaration(v: ScValueDeclaration): Unit = {
+    super.visitValueDeclaration(v)
+    if (v.declaredNames.size == 1)
+      placeVarHandler(v.declaredNames.head)
+    globalVisitor
+      .getContext.getPattern
+      .getHandler(v).setFilter(new ValueDeclarationFilter())
+  }
+
+  override def visitVariableDefinition(varr: ScVariableDefinition): Unit = {
+    super.visitVariableDefinition(varr)
+    if (varr.declaredNames.size == 1)
+      placeVarHandler(varr.declaredNames.head)
+  }
+
+  override def visitVariableDeclaration(varr: ScVariableDeclaration): Unit = {
+    super.visitVariableDeclaration(varr)
+    if (varr.declaredNames.size == 1)
+      placeVarHandler(varr.declaredNames.head)
+    globalVisitor
+      .getContext.getPattern
+      .getHandler(varr).setFilter(new ValueDeclarationFilter())
   }
 
   private def placeVarHandler(name: String, setFilter: Boolean = true): Unit = {
