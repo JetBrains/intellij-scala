@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter.CustomScal
 import org.jetbrains.plugins.scala.highlighter.lexer.{ScalaInterpolatedStringLiteralLexer, ScalaMultilineStringLiteralLexer, ScalaStringLiteralLexer}
 import org.jetbrains.plugins.scala.lang.TokenSets.TokenSetExt
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaKeywordTokenType, ScalaLexer, ScalaTokenType, ScalaTokenTypes, ScalaXmlLexer, ScalaXmlTokenTypes}
-import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.{ScalaDocElementType, ScalaDocTokenType}
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scalaDirective.lang.lexer.ScalaDirectiveTokenTypes
 import org.jetbrains.plugins.scalaDirective.lang.parser.ScalaDirectiveElementTypes
@@ -58,6 +58,10 @@ final class ScalaSyntaxHighlighter(
     case VALUE_IDENTIFIER => Array(DefaultHighlighter.LOCAL_VARIABLES)
     case VARIABLE_IDENTIFIER => Array(DefaultHighlighter.LOCAL_VARIABLES)
     case TYPE_IDENTIFIER => Array(DefaultHighlighter.TYPE_ALIAS)
+    case _: ScalaDocElementType if scalaLexer.isScala3 =>
+      // Do not highlight any special syntax in Scala 3
+      // Instead [[ScalaSyntaxHighlightingAnnotator]] will highlight it based on the psi tree
+      SyntaxHighlighterBase.pack(DefaultHighlighter.DOC_COMMENT)
     case _ =>
       SyntaxHighlighterBase.pack(
         Attributes0.get(elementType).orNull,
@@ -201,7 +205,7 @@ object ScalaSyntaxHighlighter {
     )
   }
 
-  private val Attributes: Map[IElementType, TextAttributesKey] = {
+  val Attributes: Map[IElementType, TextAttributesKey] = {
     import DefaultHighlighter._
     attributesMap(
       tLINE_COMMENTS -> LINE_COMMENT,
