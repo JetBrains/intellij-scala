@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.scaladoc.parser
 
-import com.intellij.psi.impl.DebugUtil.psiToString
 import org.jetbrains.plugins.scala.lang.parser.scala3.SimpleScala3ParserTestBase
 
 class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
@@ -758,6 +757,201 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |    ScDocParagraph
       |      ScPsiDocToken(DOC_COMMENT_DATA)('object Blub')
       |    ScPsiDocToken(DOC_WHITESPACE)('\n')
+      |""".stripMargin
+  )
+
+  def test_incomplete_spans(): Unit = checkTree(
+    """
+      |/**
+      | * **italic*
+      | *
+      | *  *italic**
+      | *
+      | * __italic_
+      | *
+      | *  _italic__
+      | *
+      | * ***bold**
+      | *
+      | *  **bold***
+      | *
+      | * ___bold__
+      | *
+      | *  __bold___
+      | *
+      | *   `code`
+      | *
+      | *  ``code`
+      | *
+      | *   `code``
+      | *
+      | *  ``code``
+      | *
+      | * ```code```
+      | *
+      | * _*italic_*
+      | *
+      | * *_italic*_
+      | */
+      |""".stripMargin,
+    """ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  DocComment
+      |    ScPsiDocToken(DOC_COMMENT_START)('/**')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    ScDocParagraph
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      ScPsiDocToken(DOC_COMMENT_DATA)('*')
+      |      DocSyntaxElement 2
+      |        ScPsiDocToken(DOC_ITALIC_TAG 2)('*')
+      |        ScPsiDocToken(DOC_COMMENT_DATA)('italic')
+      |        ScPsiDocToken(DOC_ITALIC_TAG 2)('*')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    ScDocParagraph
+      |      ScPsiDocToken(DOC_WHITESPACE)('  ')
+      |      DocSyntaxElement 2
+      |        ScPsiDocToken(DOC_ITALIC_TAG 2)('*')
+      |        ScPsiDocToken(DOC_COMMENT_DATA)('italic')
+      |        ScPsiDocToken(DOC_ITALIC_TAG 2)('*')
+      |      ScPsiDocToken(DOC_COMMENT_DATA)('*')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    ScDocParagraph
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      ScPsiDocToken(DOC_COMMENT_DATA)('_')
+      |      DocSyntaxElement 2
+      |        ScPsiDocToken(DOC_ITALIC_TAG 2)('_')
+      |        ScPsiDocToken(DOC_COMMENT_DATA)('italic')
+      |        ScPsiDocToken(DOC_ITALIC_TAG 2)('_')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    ScDocParagraph
+      |      ScPsiDocToken(DOC_WHITESPACE)('  ')
+      |      DocSyntaxElement 1
+      |        ScPsiDocToken(DOC_BOLD_TAG 1)('__')
+      |        ScPsiDocToken(DOC_COMMENT_DATA)('italic')
+      |        ScPsiDocToken(DOC_BOLD_TAG 1)('__')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    ScDocParagraph
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      ScPsiDocToken(DOC_COMMENT_DATA)('*')
+      |      DocSyntaxElement 1
+      |        ScPsiDocToken(DOC_BOLD_TAG 1)('**')
+      |        ScPsiDocToken(DOC_COMMENT_DATA)('bold')
+      |        ScPsiDocToken(DOC_BOLD_TAG 1)('**')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    ScDocParagraph
+      |      ScPsiDocToken(DOC_WHITESPACE)('  ')
+      |      DocSyntaxElement 1
+      |        ScPsiDocToken(DOC_BOLD_TAG 1)('**')
+      |        ScPsiDocToken(DOC_COMMENT_DATA)('bold')
+      |        ScPsiDocToken(DOC_BOLD_TAG 1)('**')
+      |      ScPsiDocToken(DOC_COMMENT_DATA)('*')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    ScDocParagraph
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      ScPsiDocToken(DOC_COMMENT_DATA)('_')
+      |      DocSyntaxElement 1
+      |        ScPsiDocToken(DOC_BOLD_TAG 1)('__')
+      |        ScPsiDocToken(DOC_COMMENT_DATA)('bold')
+      |        ScPsiDocToken(DOC_BOLD_TAG 1)('__')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    ScDocParagraph
+      |      ScPsiDocToken(DOC_WHITESPACE)('  ')
+      |      DocSyntaxElement 1
+      |        ScPsiDocToken(DOC_BOLD_TAG 1)('__')
+      |        ScPsiDocToken(DOC_COMMENT_DATA)('bold')
+      |        ScPsiDocToken(DOC_BOLD_TAG 1)('__')
+      |      ScPsiDocToken(DOC_COMMENT_DATA)('_')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    ScDocParagraph
+      |      ScPsiDocToken(DOC_WHITESPACE)('   ')
+      |      DocSyntaxElement 8
+      |        ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+      |        ScPsiDocToken(DOC_COMMENT_DATA)('code')
+      |        ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    ScDocParagraph
+      |      ScPsiDocToken(DOC_WHITESPACE)('  ')
+      |      ScPsiDocToken(DOC_COMMENT_DATA)('``code`')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    ScDocParagraph
+      |      ScPsiDocToken(DOC_WHITESPACE)('   ')
+      |      ScPsiDocToken(DOC_COMMENT_DATA)('`code``')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    ScDocParagraph
+      |      ScPsiDocToken(DOC_WHITESPACE)('  ')
+      |      DocSyntaxElement 8
+      |        ScPsiDocToken(DOC_MONOSPACE_TAG 8)('``')
+      |        ScPsiDocToken(DOC_COMMENT_DATA)('code')
+      |        ScPsiDocToken(DOC_MONOSPACE_TAG 8)('``')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    ScDocParagraph
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      DocSyntaxElement 8
+      |        ScPsiDocToken(DOC_MONOSPACE_TAG 8)('```')
+      |        ScPsiDocToken(DOC_COMMENT_DATA)('code')
+      |        ScPsiDocToken(DOC_MONOSPACE_TAG 8)('```')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    ScDocParagraph
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      DocSyntaxElement 2
+      |        ScPsiDocToken(DOC_ITALIC_TAG 2)('_')
+      |        ScPsiDocToken(DOC_COMMENT_DATA)('*italic')
+      |        ScPsiDocToken(DOC_ITALIC_TAG 2)('_')
+      |      ScPsiDocToken(DOC_COMMENT_DATA)('*')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    ScDocParagraph
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      DocSyntaxElement 2
+      |        ScPsiDocToken(DOC_ITALIC_TAG 2)('*')
+      |        ScPsiDocToken(DOC_COMMENT_DATA)('_italic')
+      |        ScPsiDocToken(DOC_ITALIC_TAG 2)('*')
+      |      ScPsiDocToken(DOC_COMMENT_DATA)('_')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_END)('*/')
+      |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
 }
