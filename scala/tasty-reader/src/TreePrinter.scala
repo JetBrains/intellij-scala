@@ -730,8 +730,10 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
   }
 
   // TODO Complete
-  private def escape(s: String): String =
-    s.replace("\r", "\\r").replace("\n", "\\n")
+  private def escape(s: String): String = s
+    .replace("\r", "\\r")
+    .replace("\n", "\\n")
+    .replace("\"", "\\\"")
 
   private def textOfArray(node: Node): String = node match {
     case Node3(APPLY, _, Seq(

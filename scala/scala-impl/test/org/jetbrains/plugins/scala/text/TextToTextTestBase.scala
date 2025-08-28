@@ -174,7 +174,10 @@ abstract class TextToTextTestBase(dependencies: Seq[DependencyDescription],
 }
 
 private object TextToTextTestBase {
-  private val ArtifactsWithoutSources = Set(("com.google.guava", "listenablefuture"))
+  private val ArtifactsWithoutSources = Set(
+    ("com.google.guava", "listenablefuture"),
+    ("guru.nidi", "graphviz-java-min-deps")
+  )
 
   private val ClassesWithoutSource = Set("BuildInfo")
 }
