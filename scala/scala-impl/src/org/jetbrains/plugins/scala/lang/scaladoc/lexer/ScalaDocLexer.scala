@@ -21,7 +21,7 @@ object ScalaDocLexer {
 final class ScalaDocMarkdownLexer extends MergingLexerAdapter(new _ScalaDocMarkdownLexer, ScalaDocMarkdownLexer.TokensToMerge)
 
 object ScalaDocMarkdownLexer {
-  private val TokensToMerge = TokenSet.create(DOC_WHITESPACE)
+  private val TokensToMerge = TokenSet.EMPTY
 }
 
 private final class ScalaDocAsteriskStripperLexer private[lexer](
