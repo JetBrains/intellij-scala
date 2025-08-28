@@ -7,6 +7,7 @@ import org.intellij.markdown.ast.ASTNode
 import org.intellij.markdown.parser.MarkdownParser
 import org.intellij.markdown.{MarkdownElementTypes, MarkdownTokenTypes}
 import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilderImpl
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableIdForImport
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
@@ -301,7 +302,7 @@ object ScaladocMarkdownParsing {
   def parseCodeReference(psiBuilder: PsiBuilder): com.intellij.lang.ASTNode = {
     val marker = psiBuilder.mark()
     val scPsiBuilder = new ScalaPsiBuilderImpl(psiBuilder, true)
-    StableIdForImport(ScalaDocTokenType.DOC_CODE_LINK_VALUE)(scPsiBuilder)
+    StableId(ScalaDocTokenType.DOC_CODE_LINK_VALUE, forImport = true)(scPsiBuilder)
     marker.done(ScalaDocElementTypes.SCALA_DOC_REFERENCE_LINK)
     psiBuilder.getTreeBuilt
   }
