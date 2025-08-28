@@ -10,9 +10,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScConstructorInvocation, ScLiteral, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.*
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScParameters}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScPatternDefinition, ScValueDeclaration, ScValueOrVariable, ScValueOrVariableDeclaration, ScValueOrVariableDefinition, ScVariableDeclaration, ScVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFunction, ScFunctionDefinition, ScPatternDefinition, ScValueDeclaration, ScValueOrVariable, ScValueOrVariableDeclaration, ScValueOrVariableDefinition, ScVariableDeclaration, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScConstructorOwner, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScConstructorOwner, ScEnum, ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiElement}
 import org.jetbrains.plugins.scala.util.EnumSet.{EnumSet, EnumSetOps}
 
@@ -43,6 +43,16 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
       case (None, None) => true
       case _ => false
     }
+  }
+
+  private def optionalInstanceOf[S, T, U](element: T, f: S => U): Option[U] = {
+    // cannot use is here as it cries about generic type variables
+    if (element.isInstanceOf[S]) Some(f(element.asInstanceOf[S]))
+    else None
+  }
+
+  private def extractConstructorInvocations(templateDefinition: ScTemplateDefinition): Seq[PsiElement] = {
+    templateDefinition.extendsBlock.templateParents.map(_.parentClauses).getOrElse(PsiElement.EMPTY_ARRAY)
   }
 
   private def matchBody(patternO: Option[PsiElement], otherO: Option[PsiElement]): Boolean = {
@@ -103,10 +113,17 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
 
   // class, trait, enum, ...
   override def visitTypeDefinition(typedef: ScTypeDefinition): Unit = {
-    if (!globalVisitor.getElement.is[ScTypeDefinition]) {
-      globalVisitor.setResult(false)
-      return
+    (typedef, globalVisitor.getElement) match {
+      case (enumCase: ScEnumCase, other: ScEnumCase) =>
+        matchEnumCase(enumCase, other)
+      case (classlike: (ScClass | ScTrait | ScObject), other: (ScClass | ScTrait | ScObject)) =>
+        matchClassLike(classlike, other)
+      case _ =>
+        globalVisitor.setResult(false)
     }
+  }
+
+  private def matchClassLike(typedef: ScTypeDefinition, other: ScTypeDefinition): Unit = {
     val other = globalVisitor.getElement.asInstanceOf[ScTypeDefinition]
 
     val handler = getHandler(typedef)
@@ -136,15 +153,31 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
 
     val classesMatch = matchInAnyOrder(typedef.typeDefinitions, other.typeDefinitions)
 
-    val parentsMatch = {
-      def extractParents(typedef: ScTypeDefinition): Seq[PsiElement] =
-        typedef.extendsBlock.templateParents.map(_.parentClauses).getOrElse(PsiElement.EMPTY_ARRAY)
-      matchInAnyOrder(extractParents(typedef), extractParents(other))
+    val parentsMatch = matchInAnyOrder(extractConstructorInvocations(typedef), extractConstructorInvocations(other))
+    val casesMatch = (typedef, other) match {
+      case (en: ScEnum, other: ScEnum) => matchInAnyOrder(en.cases, other.cases)
+      case _ => true
     }
-    // TODO parse enum cases
 
-    globalVisitor.setResult(annotationsMatch && keywordMatch && modifierMatch && nameMatch
-      && functionsMatch && constructorsMatch && primaryConstrBodyMatch && classesMatch && parentsMatch)
+    globalVisitor.setResult(annotationsMatch && keywordMatch && modifierMatch && nameMatch && parentsMatch
+      && primaryConstrBodyMatch && constructorsMatch
+      && functionsMatch && classesMatch && casesMatch)
+    rememberVarMatchIfResult(handler, other.getNameIdentifier)
+  }
+
+  private def matchEnumCase(enCase: ScEnumCase, other: ScEnumCase): Unit = {
+    val handler = getHandler(enCase)
+    val annotationsMatch = matchInAnyOrder(enCase.annotations, other.annotations)
+    val modifierMatch = checkModifier(enCase.getModifierList.modifiers, other.getModifierList.modifiers)
+    val nameMatch = matchTextOrVariable(enCase.getNameIdentifier, other.getNameIdentifier, handler)
+
+    val constrMatch = {
+      val patternConstr = optionalInstanceOf(enCase, extractConstructorInvocations).getOrElse(Seq())
+      val matchConstr = optionalInstanceOf(other, extractConstructorInvocations).getOrElse(Seq())
+      matchInAnyOrder(patternConstr, matchConstr)
+    }
+
+    globalVisitor.setResult(annotationsMatch && modifierMatch && nameMatch && constrMatch)
     rememberVarMatchIfResult(handler, other.getNameIdentifier)
   }
 
