@@ -7,13 +7,14 @@ import com.intellij.structuralsearch.impl.matcher.compiler.GlobalCompilingVisito
 import com.intellij.structuralsearch.impl.matcher.handlers.{MatchingHandler, SubstitutionHandler, TopLevelMatchingHandler}
 import com.intellij.structuralsearch.impl.matcher.strategies.MatchingStrategy
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScReferencePattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScConstructorInvocation, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScForBinding, ScInfixExpr, ScMatch, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatternDefinition, ScValueDeclaration, ScVariableDeclaration, ScVariableDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam, ScTypeParamClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
-import org.jetbrains.plugins.scala.structuralSearch.filter.{CaseClauseFilter, FunctionFilter, MatchingVariableFilter, MethodInvocationFilter, TypeDefinitionFilter, ValueDeclarationFilter, VariableDeclarationFilter}
+import org.jetbrains.plugins.scala.structuralSearch.filter.{CaseClauseFilter, FunctionFilter, MatchingVariableFilter, MethodInvocationFilter, TypeDefinitionFilter, TypeElementFilter, TypeParamFilter, ValueDeclarationFilter, VariableDeclarationFilter}
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
 
 class ScalaCompilingVisitor(globalVisitor: GlobalCompilingVisitor) extends ScalaRecursiveElementVisitor {
@@ -66,6 +67,7 @@ class ScalaCompilingVisitor(globalVisitor: GlobalCompilingVisitor) extends Scala
     globalVisitor.handle(element)
     element match {
       case _: ScReferencePattern => placeVarHandler(element.getText)
+      case typeParam: ScTypeParam => visitTypeParam(typeParam)
       case _ =>
     }
     super.visitScalaElement(element)
@@ -97,6 +99,21 @@ class ScalaCompilingVisitor(globalVisitor: GlobalCompilingVisitor) extends Scala
     globalVisitor
       .getContext.getPattern
       .getHandler(fun).setFilter(new FunctionFilter())
+  }
+
+  override def visitTypeElement(te: ScTypeElement): Unit = {
+    super.visitTypeElement(te)
+    placeVarHandler(te.getText)
+    globalVisitor
+      .getContext.getPattern
+      .getHandler(te).setFilter(new TypeElementFilter())
+  }
+
+  def visitTypeParam(typeParam: ScTypeParam): Unit = {
+    placeVarHandler(typeParam.getText)
+    globalVisitor
+      .getContext.getPattern
+      .getHandler(typeParam).setFilter(new TypeParamFilter())
   }
 
   override def visitTypeDefinition(typedef: ScTypeDefinition): Unit = {
