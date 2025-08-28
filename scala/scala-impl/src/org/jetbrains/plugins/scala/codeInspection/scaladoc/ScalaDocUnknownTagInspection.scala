@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, Scal
 import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
+import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocTag
 
@@ -31,8 +32,11 @@ final class ScalaDocUnknownTagInspection extends LocalInspectionTool with DumbAw
             ProblemHighlightType.GENERIC_ERROR_OR_WARNING, isOnTheFly, new ScalaDocDeleteUnknownTagInspection(tag)))
         } else {
           val condition = MyScaladocParsing.TagNames.TagNamesWithParameters.contains(tagName) &&
-            (tagNameElement.getNextSibling.getNextSibling == null ||
-              tagNameElement.getNextSibling.getNextSibling.getNode.getElementType != ScalaDocTokenType.DOC_TAG_VALUE_TOKEN)
+            (tagNameElement.getNextSibling == null ||
+              tagNameElement.getNextSibling.getNextSibling == null ||
+              (tagNameElement.getNextSibling.getNextSibling.getNode.getElementType != ScalaDocTokenType.DOC_TAG_VALUE_TOKEN &&
+                tagNameElement.getNextSibling.getNextSibling.getNode.getElementType != ScalaDocElementTypes.SCALA_DOC_REFERENCE_LINK
+                ))
           if (condition) {
             holder.registerProblem(holder.getManager.createProblemDescriptor(
               tagNameElement,

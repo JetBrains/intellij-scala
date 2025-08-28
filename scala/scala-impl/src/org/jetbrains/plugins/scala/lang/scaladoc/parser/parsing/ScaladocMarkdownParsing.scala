@@ -7,6 +7,7 @@ import org.intellij.markdown.ast.ASTNode
 import org.intellij.markdown.parser.MarkdownParser
 import org.intellij.markdown.{MarkdownElementTypes, MarkdownTokenTypes}
 import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilderImpl
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableId
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
@@ -87,21 +88,15 @@ class ScaladocMarkdownParsing(private val builder: PsiBuilder,
     }
 
     def advanceToNextLine(): Unit = {
-      def isTokenStructural(@Nullable iElementType: IElementType): Boolean =
-        iElementType == ScalaDocTokenType.DOC_COMMENT_END ||
-          iElementType == ScalaDocTokenType.DOC_COMMENT_START ||
-          iElementType == ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS
-
-      if (!isTokenStructural(builder.getTokenType) &&
-        !builder.eof()) {
-        val whitespaceMarker = builder.mark()
-        while (
-          !isTokenStructural(builder.getTokenType) &&
-            !builder.eof()
-        ) builder.advanceLexer()
-
-        whitespaceMarker.collapse(ScalaDocTokenType.DOC_WHITESPACE)
+      val whitespaceMarker = builder.mark()
+      var gotOne = false
+      while(builder.getTokenType == ScalaDocTokenType.DOC_WHITESPACE) {
+        gotOne = true
+        currLine += builder.getTokenText.count(_ == '\n')
+        builder.advanceLexer()
       }
+      if (gotOne) whitespaceMarker.collapse(ScalaDocTokenType.DOC_WHITESPACE)
+      else whitespaceMarker.drop()
 
       // Skip the leading asterisk
       if (builder.getTokenType == ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS) {
@@ -114,10 +109,7 @@ class ScaladocMarkdownParsing(private val builder: PsiBuilder,
 
       if (tpe == MarkdownTokenTypes.EOL) {
         ensureBuilderInPosition(node.getStartOffset)
-
-        currLine += 1
         advanceToNextLine()
-
         return
       }
 
@@ -203,18 +195,14 @@ class ScaladocMarkdownParsing(private val builder: PsiBuilder,
           ensureBuilderInPosition(children(argument).getStartOffset, ScalaDocTokenType.DOC_WHITESPACE)
 
           // Disabled because `builder` is not the right thing to pass here, but I'm not sure how to do it nicely.
-          /*if (
+          if (
             content.substring(children(name).getStartOffset + 1, children(name).getEndOffset)
-              == MyScaladocParsing.TagNames.Throws) {
-            val psiBuilder = mkScalaPsiBuilder(builder, isScala3 = false)
-            // Taken from MyScaladocParsing.
-            // I don't actually know how this works, and I'll probably forget to remove this comment
-            StableId(ScalaDocTokenType.DOC_TAG_VALUE_TOKEN, forImport = true)(psiBuilder)
-            // Skip forward in the builder
-            skipTo(children(argument).getEndOffset)
-          } else { */
+              == MyScaladocParsing.TagNames.Throws
+          ) {
+            ensureBuilderInPosition(children(argument).getEndOffset, ScalaDocElementTypes.SCALA_DOC_REFERENCE_LINK)
+          } else {
             visitNode(children(argument))
-          // }
+          }
 
           argument
         } else { name }
@@ -287,10 +275,11 @@ class ScaladocMarkdownParsing(private val builder: PsiBuilder,
     ensureBuilderInPosition(out.getStartOffset, ScalaDocTokenType.DOC_COMMENT_START)
     visitNode(out)
 
-    val marker = builder.mark()
-    while (!builder.eof()) builder.advanceLexer()
-    marker.collapse(ScalaDocTokenType.DOC_COMMENT_END)
-
+    if (!builder.eof()) {
+      val marker = builder.mark()
+      while (!builder.eof()) builder.advanceLexer()
+      marker.collapse(ScalaDocTokenType.DOC_COMMENT_END)
+    }
     rootMarker.done(root)
   }
 }
@@ -302,6 +291,7 @@ object ScaladocMarkdownParsing {
     val marker = psiBuilder.mark()
     val scPsiBuilder = new ScalaPsiBuilderImpl(psiBuilder, true)
     StableId(ScalaDocTokenType.DOC_CODE_LINK_VALUE, forImport = true)(scPsiBuilder)
+    while (!scPsiBuilder.eof()) scPsiBuilder.advanceLexer()
     marker.done(ScalaDocElementTypes.SCALA_DOC_REFERENCE_LINK)
     psiBuilder.getTreeBuilt
   }
