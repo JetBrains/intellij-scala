@@ -46,9 +46,10 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
   }
 
   private def optionalInstanceOf[S, T, U](element: T, f: S => U): Option[U] = {
-    // cannot use is here as it cries about generic type variables
-    if (element.isInstanceOf[S]) Some(f(element.asInstanceOf[S]))
-    else None
+    element match {
+      case element: S => Some(f(element))
+      case _ => None
+    }
   }
 
   private def extractConstructorInvocations(templateDefinition: ScTemplateDefinition): Seq[PsiElement] = {
