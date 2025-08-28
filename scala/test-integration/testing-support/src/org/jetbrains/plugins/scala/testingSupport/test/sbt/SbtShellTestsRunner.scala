@@ -19,9 +19,10 @@ object SbtShellTestsRunner {
     useSbtUi: Boolean // TODO: fix "sbt Test framework quits unexpectedly" when using UI SCL-16240
   ): Future[Boolean] = {
     val testRunCommands: Seq[String] = {
-      val projectId = SettingQueryHandler.getProjectIdPrefix(SbtUtil.getSbtProjectIdSeparated(module))
+      val projectUriWithId = SbtUtil.getSbtProjectUriAndId(module)
+      val projectIdPrefix = projectUriWithId.map(SettingQueryHandler.getProjectIdPrefix).getOrElse("")
       val commandsRaw  = sbtSupport.commandsBuilder.buildTestOnly(suitesToTestsMap)
-      commandsRaw.map(command => s"$projectId testOnly $command")
+      commandsRaw.map(command => s"$projectIdPrefix testOnly $command")
     }
 
     val communication = SbtShellCommunication.forProject(module.getProject)

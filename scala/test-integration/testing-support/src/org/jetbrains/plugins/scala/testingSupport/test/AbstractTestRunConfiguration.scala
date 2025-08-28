@@ -28,6 +28,7 @@ import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfigurat
 import org.jetbrains.plugins.scala.testingSupport.test.munit.DelegateCommonJavaRunConfigurationParameters
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.{ClassTestData, TestConfigurationData}
 import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
+import org.jetbrains.sbt.SbtUtil.SbtProjectUriAndId
 
 import java.{util => ju}
 import scala.beans.BeanProperty
@@ -242,7 +243,10 @@ object AbstractTestRunConfiguration {
 
   private val Log = Logger.getInstance(getClass)
 
-  case class SettingEntry(settingName: String, task: Option[String], sbtProjectUri: Option[String], sbtProjectId: Option[String])
+  case class SettingEntry(
+    settingName: String,
+    sbtProjectUriAndId: Option[SbtProjectUriAndId],
+  )
 
   type SettingMap = Map[SettingEntry, String]
 

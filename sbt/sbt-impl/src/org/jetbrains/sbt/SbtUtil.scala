@@ -19,10 +19,10 @@ import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.util.ExternalSystemUtil
 import org.jetbrains.sbt.Sbt.SbtModuleChildKeyInstance
 import org.jetbrains.sbt.buildinfo.BuildInfo
-import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.data.{SbtBuildModuleData, SbtModuleData, SbtProjectData}
 import org.jetbrains.sbt.project.settings.SbtExecutionSettings
 import org.jetbrains.sbt.project.structure.{JvmOpts, SbtOption, SbtOpts}
+import org.jetbrains.sbt.project.{SbtExternalSystemManager, SbtProjectSystem}
 import org.jetbrains.sbt.settings.SbtSettings
 
 import java.io.File
@@ -123,6 +123,14 @@ object SbtUtil {
       sbtVersion.value.major(2) //effectively ~ 0.13
   }
 
+  def detectSbtVersion(project: Project): SbtVersion = {
+    val workingDirPath = getWorkingDirPath(project)
+    val workingDir = new File(workingDirPath)
+    val sbtSettings = SbtExternalSystemManager.executionSettingsFor(project, workingDirPath)
+    val launcher = SbtUtil.getLauncherJar(sbtSettings)
+    SbtUtil.detectSbtVersion(workingDir.toPath, launcher)
+  }
+
   def detectSbtVersion(projectRoot: Path, sbtLauncher: => Path): SbtVersion =
     SbtVersionDetector.detectSbtVersion(projectRoot, sbtLauncher)
 
@@ -167,11 +175,14 @@ object SbtUtil {
     dataEither.getOrElse(Nil)
   }
 
-  def getSbtProjectIdSeparated(module: Module): (Option[String], Option[String]) =
-    getSbtModuleData(module) match {
-      case Some(data) => (Some(data.buildURI.toString), Some(data.id))
-      case _ => (None, None)
+  case class SbtProjectUriAndId(uri: String, id: String)
+
+  def getSbtProjectUriAndId(module: Module): Option[SbtProjectUriAndId] = {
+    val moduleData = getSbtModuleData(module)
+    moduleData.map { data =>
+      SbtProjectUriAndId(data.buildURI.toString, data.id)
     }
+  }
 
   def makeSbtProjectId(data: SbtModuleData): String = {
     val uri = data.buildURI
