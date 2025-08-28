@@ -31,6 +31,8 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <lang.parserDefinition language="sbt" implementationClass="org.jetbrains.sbt.language.SbtParserDefinition"/>
+        <lang.parserDefinition language="sbt Scala 3" implementationClass="org.jetbrains.sbt.language.SbtParserDefinitionScala3"/>
+        <lang.substitutor language="sbt" implementationClass="org.jetbrains.sbt.language.SbtLanguageSubstitutor"/>
         <lang.fileViewProviderFactory language="sbt"
                                       implementationClass="org.jetbrains.sbt.language.SbtFileViewProviderFactory"/>
         <fileType name="sbt" language="sbt" extensions="sbt"

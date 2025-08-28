@@ -7,6 +7,8 @@ import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.settings.SbtSettings
 
+import java.nio.file.{Files, Path}
+
 trait SbtExternalSystemImportingTestLike extends ScalaExternalSystemImportingTestBase {
 
   override protected def getExternalSystemConfigFileName: String = Sbt.BuildFile
@@ -47,5 +49,11 @@ trait SbtExternalSystemImportingTestLike extends ScalaExternalSystemImportingTes
     settings.setExternalProjectPath(path)
     settings.setSeparateProdAndTestSources(prodTestSourcesSeparated)
     SbtSettings.getInstance(project).linkProject(settings)
+  }
+
+  protected def injectVariable(file: Path, variableName: String, value: String): Unit = {
+    val fileContent = Files.readString(file)
+    val updatedContent = fileContent.replace(variableName, value)
+    Files.writeString(file, updatedContent)
   }
 }
