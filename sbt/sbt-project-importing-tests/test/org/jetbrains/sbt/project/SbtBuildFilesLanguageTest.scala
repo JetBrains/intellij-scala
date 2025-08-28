@@ -44,7 +44,7 @@ class SbtBuildFilesLanguageTest extends SbtExternalSystemImportingTestLike {
   private def findPsiFile(path: Path): PsiFile = {
     val virtualFile = VfsUtil.findFile(path, true)
     assertNotNull(s"Could not find a virtual file for: $path", virtualFile)
-    val psiFile = PsiManager.getInstance(getProject).findFile(virtualFile)
+    val psiFile = PsiManager.getInstance(getMyProject).findFile(virtualFile)
     assertNotNull(s"Could not find a PSI file for: $path", psiFile)
     psiFile
   }
