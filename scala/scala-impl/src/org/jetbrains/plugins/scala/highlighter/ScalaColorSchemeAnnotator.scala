@@ -6,7 +6,7 @@ import com.intellij.lang.annotation.{AnnotationHolder, Annotator}
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
-import org.jetbrains.annotations.Nls
+import org.jetbrains.annotations.{Nls, Nullable}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
 import org.jetbrains.plugins.scala.annotator.annotationHolder.ScalaAnnotationHolderAdapter
@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.statistics.ScalaAnnotatorUsagesCollector
 
 /**
  * @see [[org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter]]
- * @see [[org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlightingVisitor]]
+ * @see [[org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlightingAnnotator]]
  * @see [[org.jetbrains.plugins.scala.codeInsight.daemon.ScalaRainbowVisitor]]
  */
 final class ScalaColorSchemeAnnotator extends Annotator {
@@ -188,7 +188,9 @@ object ScalaColorSchemeAnnotator {
   private def createInfoAnnotation(
     psiElement: PsiElement,
     attributes: TextAttributesKey,
-    @InspectionMessage message: String = null
+    @Nullable
+    @InspectionMessage
+    message: String = null
   )(implicit holder: ScalaAnnotationHolder): Unit = {
     val builder =
       if (message == null)

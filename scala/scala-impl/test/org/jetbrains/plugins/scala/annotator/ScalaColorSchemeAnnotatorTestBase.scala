@@ -1,12 +1,14 @@
 package org.jetbrains.plugins.scala.annotator
 
+import com.intellij.codeInsight.daemon.impl.{AnnotationHolderImpl, AnnotationSessionImpl}
 import com.intellij.codeInsight.daemon.impl.analysis.HighlightInfoHolder
+import com.intellij.lang.annotation.{Annotation, AnnotationHolder, AnnotationSession, Annotator, HighlightSeverity}
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.TypecheckerTests
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, StringExt, ToNullSafe}
-import org.jetbrains.plugins.scala.highlighter.{ScalaColorSchemeAnnotator, ScalaSyntaxHighlightingVisitor}
+import org.jetbrains.plugins.scala.highlighter.{ScalaColorSchemeAnnotator, ScalaSyntaxHighlightingAnnotator}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.Assert.assertEquals
@@ -14,6 +16,7 @@ import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 
 import scala.collection.immutable.ListSet
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 /**
  * NOTE: This class only tests [[org.jetbrains.plugins.scala.highlighter.ScalaColorSchemeAnnotator]]<br>
@@ -40,32 +43,33 @@ abstract class ScalaColorSchemeAnnotatorTestBase[T] extends ScalaLightCodeInsigh
 
     val scalaFile = getFile.asInstanceOf[ScalaFile]
 
-    val infoHolder = new HighlightInfoHolder(scalaFile)
-    val annotationHolder = new AnnotatorHolderExtendedMock(scalaFile)
+    val fromSyntaxHighlightingAnnotator = runAnnotator(scalaFile, new ScalaSyntaxHighlightingAnnotator)
+    val fromColorSchemeAnnotator = runAnnotator(scalaFile, new ScalaColorSchemeAnnotator)
 
-    val highlightingVisitor = new ScalaSyntaxHighlightingVisitor()
-
-    highlightingVisitor.analyze(scalaFile, updateWholeFile = true, infoHolder, () => {
-      scalaFile.breadthFirst().foreach { element =>
-        if (needToAnnotateElement(element)) {
-          highlightingVisitor.visit(element)
-          ScalaColorSchemeAnnotator.highlightElement(element)(annotationHolder)
-        }
-      }
-    })
-
-    val infoHolderAnnotations = (0 until infoHolder.size).map(infoHolder.get).map(it =>
+    val infoHolderAnnotations = (fromSyntaxHighlightingAnnotator ++ fromColorSchemeAnnotator).map(a =>
       Message2.Info(
-        TextRange.create(it.getStartOffset, it.getEndOffset),
-        text.substring(it.getStartOffset, it.getEndOffset),
-        "",
-        it.forcedTextAttributesKey.nullSafe.getOrElse(it.`type`.getAttributesKey),
+        TextRange.create(a.getStartOffset, a.getEndOffset),
+        text.substring(a.getStartOffset, a.getEndOffset),
+        a.getMessage,
+        a.getTextAttributes,
         Seq.empty
       )
     )
 
-    (infoHolderAnnotations ++ annotationHolder.annotations).sortBy(_.range.getStartOffset)
+    infoHolderAnnotations.sortBy(_.range.getStartOffset)
   }
+
+  private def runAnnotator(scalaFile: ScalaFile, annotator: Annotator): Seq[Annotation] =
+    AnnotationSessionImpl.computeWithSession(scalaFile, true, annotator, (holderBase: AnnotationHolder) => {
+      val holder = holderBase.asInstanceOf[AnnotationHolderImpl]
+      scalaFile.breadthFirst().foreach { element =>
+        if (needToAnnotateElement(element)) {
+          holder.runAnnotatorWithContext(element)
+        }
+      }
+
+      holder.asScala.toSeq
+    })
 
   protected def testHasNoAnnotations(
     text: String,

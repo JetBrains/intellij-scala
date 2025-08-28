@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.{AliasExportSemantics, ScalaCollectionHighlightingLevel}
@@ -512,7 +513,7 @@ abstract class ScalaColorSchemeAnnotatorCollectionByTypeTestBase
 
   override protected def needToAnnotateElement(element: PsiElement): Boolean = {
     //collection-by-type annotations is only run for references, so optimise it
-    element.isInstanceOf[ScReference]
+    element.is[ScReference]
   }
 
   override protected def buildAnnotationsTestText(annotations: Seq[Message2]): String = {
