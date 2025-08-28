@@ -54,7 +54,7 @@ class ScalaDocMarkdownConstraints(indents: Array[Int], types: Array[Char], isExp
 
   private def tryAddTag(pos: LookaheadText#Position): ScalaDocMarkdownConstraints = {
     // Tags need to be the first modifier of the line.
-    if (pos == null) return null
+    if (pos == null || pos.getOffsetInCurrentLine != 0) return null
 
     ScalaDocMarkdownFlavour.getTagOnLine(pos) match {
       case Some(tag) =>

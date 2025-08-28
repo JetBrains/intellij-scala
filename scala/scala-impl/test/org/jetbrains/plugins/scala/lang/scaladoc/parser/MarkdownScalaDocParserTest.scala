@@ -743,4 +743,21 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |    ScPsiDocToken(DOC_COMMENT_END)('*/')
       |  PsiWhiteSpace('\n')""".stripMargin
   )
+
+  def test_incomplete(): Unit = checkTree(
+    """
+      |/**
+      |object Blub
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  DocComment
+      |    ScPsiDocToken(DOC_COMMENT_START)('/**')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n')
+      |    ScDocParagraph
+      |      ScPsiDocToken(DOC_COMMENT_DATA)('object Blub')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n')
+      |""".stripMargin
+  )
 }

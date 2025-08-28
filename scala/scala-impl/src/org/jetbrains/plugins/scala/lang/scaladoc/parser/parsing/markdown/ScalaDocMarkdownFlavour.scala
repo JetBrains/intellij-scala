@@ -92,15 +92,32 @@ object ScalaDocMarkdownFlavour {
       // Argument processing
       val tag = currentLine.substring(start + 1, tagEnd)
       val argument = Option.when(MyScaladocParsing.TagNames.TagNamesWithParameters.contains(tag)) {
-        // Find the argument (simplified version without delimiters)
-        // TODO: Tag arguments can be delimited by ` and include spaces then
         nextMatchingChar(currentLine, tagEnd, c => !Character.isWhitespace(c)).map(argStart => {
-          val argEnd = nextMatchingChar(currentLine, argStart, Character.isWhitespace).getOrElse(currentLine.length)
-          (argStart, argEnd)
+          if (tag == MyScaladocParsing.TagNames.Define) {
+            if (currentLine.charAt(argStart) == '{') {
+              val argEnd = nextMatchingChar(currentLine, argStart, _ == '}')
+                .map(_ + 1)
+                .getOrElse(currentLine.length)
+              (argStart, argEnd)
+            } else {
+              val argEnd = nextMatchingChar(currentLine, argStart, !Character.isLetterOrDigit(_)).getOrElse(currentLine.length)
+              (argStart, argEnd)
+            }
+          } else {
+            if (currentLine.charAt(argStart) == '`') {
+              val argEnd = nextMatchingChar(currentLine, argStart+1, _ == '`')
+                .map(_ + 1)
+                .getOrElse(currentLine.length)
+              (argStart, argEnd)
+            } else {
+              val argEnd = nextMatchingChar(currentLine, argStart, Character.isWhitespace).getOrElse(currentLine.length)
+              (argStart, argEnd)
+            }
+          }
         })
       }.flatten
 
-      Some(new TagInfo(start, tagEnd, argument))
+      Some(TagInfo(start, tagEnd, argument))
     } else None
   }
 
