@@ -16,6 +16,7 @@ class ScalaDocContentGeneratorMarkdown(comment: ScDocComment) extends ScalaDocCo
       .zip(markdownTree.getChildren.asScala.filter(_.getType == ScalaDocTagMarkerBlock.TAG_BLOCK))
       .toMap
   }
+  private val markdownFlavour = ScalaDocMarkdownFlavour.withLanguageSyntaxHighlighting(comment.getProject)
 
   override def appendTagDescriptionText(buffer: StringBuilder, tag: ScDocTag): Unit = {
     lookupTag.get(tag) match {
@@ -23,7 +24,7 @@ class ScalaDocContentGeneratorMarkdown(comment: ScDocComment) extends ScalaDocCo
         val html = new HtmlGenerator(
           markdown,
           markdownNode,
-          new ScalaDocMarkdownFlavour,
+          markdownFlavour,
           false
         ).generateHtml(new HtmlGenerator.DefaultTagRenderer(HtmlGeneratorKt.getDUMMY_ATTRIBUTES_CUSTOMIZER, false))
         buffer.append(html)
@@ -47,7 +48,7 @@ class ScalaDocContentGeneratorMarkdown(comment: ScDocComment) extends ScalaDocCo
     val html = new HtmlGenerator(
       markdown,
       descriptionNode,
-      new ScalaDocMarkdownFlavour,
+      markdownFlavour,
       false
     ).generateHtml(new HtmlGenerator.DefaultTagRenderer(HtmlGeneratorKt.getDUMMY_ATTRIBUTES_CUSTOMIZER, false))
     buffer.append(html.subSequence(6, html.length-7))

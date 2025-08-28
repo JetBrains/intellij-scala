@@ -1,12 +1,18 @@
 package org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.markdown
 
-import org.intellij.markdown.{IElementType, MarkdownTokenTypes}
+import com.intellij.lang.Language
+import com.intellij.markdown.utils.CodeFenceSyntaxHighlighterGeneratingProvider
+import com.intellij.markdown.utils.lang.HtmlSyntaxHighlighter
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.text.HtmlChunk
 import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
 import org.intellij.markdown.html._
 import org.intellij.markdown.lexer.MarkdownLexer
 import org.intellij.markdown.parser.sequentialparsers.impl._
 import org.intellij.markdown.parser.sequentialparsers.{EmphasisLikeParser, SequentialParser, SequentialParserManager}
 import org.intellij.markdown.parser.{LinkMap, LookaheadText, MarkerProcessor, MarkerProcessorFactory, ProductionHolder}
+import org.intellij.markdown.{IElementType, MarkdownElementTypes, MarkdownTokenTypes}
+import org.jetbrains.plugins.scala.Scala3Language
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
 
 import java.net.URI
@@ -14,11 +20,10 @@ import java.util
 import scala.jdk.CollectionConverters._
 
 class ScalaDocMarkdownFlavour extends CommonMarkFlavourDescriptor {
-  override def getMarkerProcessorFactory: MarkerProcessorFactory = new MarkerProcessorFactory {
-    override def createMarkerProcessor(productionHolder: ProductionHolder): MarkerProcessor[_] = {
+  override def getMarkerProcessorFactory: MarkerProcessorFactory =
+    (productionHolder: ProductionHolder) => {
       new ScalaDocMarkerProcessor(productionHolder, ScalaDocMarkdownConstraints.BASE)
     }
-  }
 
   private val sequentialParserManager = new SequentialParserManager {
     override def getParserSequence: util.List[SequentialParser] = util.List.of(
@@ -31,6 +36,7 @@ class ScalaDocMarkdownFlavour extends CommonMarkFlavourDescriptor {
       new EmphasisLikeParser(new EmphStrongDelimiterParser())
     )
   }
+
   override def getSequentialParserManager: SequentialParserManager = sequentialParserManager
 
   override def createHtmlGeneratingProviders(linkMap: LinkMap, uri: URI): java.util.Map[IElementType, GeneratingProvider] = {
@@ -52,6 +58,27 @@ class ScalaDocMarkdownFlavour extends CommonMarkFlavourDescriptor {
 }
 
 object ScalaDocMarkdownFlavour {
+  def withLanguageSyntaxHighlighting(project: Project): ScalaDocMarkdownFlavour = {
+    val htmlSyntaxHighlighter = new HtmlSyntaxHighlighter {
+      override def color(language: String, rawContent: String): HtmlChunk =
+        HtmlSyntaxHighlighterCompanionProxy.colorHtmlChunk(project, selectLanguage(language), rawContent)
+
+      private def selectLanguage(language: String): Language = {
+        Language.getRegisteredLanguages.asScala
+          .find(registeredLanguage => Option(language).exists(_.toLowerCase == registeredLanguage.getID.toLowerCase))
+          .getOrElse(Scala3Language.INSTANCE)
+      }
+    }
+
+    new ScalaDocMarkdownFlavour {
+      override def createHtmlGeneratingProviders(linkMap: LinkMap, uri: URI): java.util.Map[IElementType, GeneratingProvider] = {
+        val parent = super.createHtmlGeneratingProviders(linkMap, uri)
+        parent.put(MarkdownElementTypes.CODE_FENCE, new CodeFenceSyntaxHighlighterGeneratingProvider(htmlSyntaxHighlighter))
+        parent
+      }
+    }
+  }
+
   /**
    * Information about a tag on a line. All positions are relative to the start of the line.
    *
@@ -59,7 +86,7 @@ object ScalaDocMarkdownFlavour {
    * @param end the end of the tag itself
    * @param argument if it exists, the start and end of the argument
    */
-  case class TagInfo(val start: Int, val end: Int, val argument: Option[(Int, Int)]) {
+  case class TagInfo(start: Int, end: Int, argument: Option[(Int, Int)]) {
     def bodyStart: Int = argument.map(_._2).getOrElse(end)
   }
 
