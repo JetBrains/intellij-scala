@@ -4,7 +4,8 @@ package parser
 
 import com.intellij.application.options.CodeStyle
 import com.intellij.extapi.psi.ASTWrapperPsiElement
-import com.intellij.lang.{ASTNode, ParserDefinition}
+import com.intellij.lang.{ASTNode, ParserDefinition, PsiParser}
+import com.intellij.lexer.Lexer
 import com.intellij.openapi.project.Project
 import com.intellij.psi.tree.{IFileElementType, TokenSet}
 import com.intellij.psi.{FileViewProvider, PsiElement, PsiFile}
@@ -32,16 +33,16 @@ class ScalaDocParserDefinition extends ParserDefinition {
   //noinspection TypeAnnotation
   override val getStringLiteralElements = TokenSet.create()
 
-  def createLexerWithFlavour(project: Project, isMarkdown: Boolean) = if (isMarkdown) new ScalaDocMarkdownLexer else new ScalaDocLexer
+  def createLexerWithFlavour(project: Project, isMarkdown: Boolean): Lexer = if (isMarkdown) new ScalaDocMarkdownLexer else new ScalaDocLexer
 
-  override def createLexer(project: Project) = createLexerWithFlavour(project, isMarkdown = true /* fallback is no Markdown */)
+  override def createLexer(project: Project): Lexer = createLexerWithFlavour(project, isMarkdown = true /* fallback is no Markdown */)
 
-  def createParserWithFlavour(project: Project, isMarkdown: Boolean) = {
+  def createParserWithFlavour(project: Project, isMarkdown: Boolean): PsiParser = {
     val tabSize = CodeStyle.getSettings(project).getLanguageIndentOptions(ScalaLanguage.INSTANCE).TAB_SIZE
     new ScalaDocParser(tabSize, isMarkdown)
   }
 
-  override def createParser(project: Project) = createParserWithFlavour(project, isMarkdown = true /* fallback is no Markdown */)
+  override def createParser(project: Project): PsiParser = createParserWithFlavour(project, isMarkdown = true /* fallback is no Markdown */)
 
   /**
    * see also [[org.jetbrains.plugins.scala.lang.parser.ScalaASTFactory.createLeaf]]
