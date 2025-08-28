@@ -23,7 +23,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
   private final val CompiledCode = "???"
 
   // TODO use parameters
-  private val sharedTypes = mutable.Map[(Addr, Boolean), String]()
+  private val sharedTypes = mutable.Map[Addr, String]()
   private val sourceFiles = mutable.Buffer[String]()
   private var compilerOptions = CompilerOptions.Default
   private var currentExtension = Option.empty[String]
@@ -526,30 +526,42 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
   }
 
   private def textOfType(node: Node, parens: Int = 0)(using parent: Option[Node] = None): String = {
-    val addTypeSuffix = parent.nonEmpty && node.is(TERMREF)
+    val withDotTypeSuffix =
+      parent.forall(_.is(SINGLETONtpt, APPLIEDtype))
+        && node.is(TERMREF, TERMREFsymbol, TERMREFdirect, SELECT)
 
     if (node.isSharedType) {
-      sharedTypes.get((node.addr, addTypeSuffix)) match {
-        case Some(tpe) => return tpe
-        case None =>
+      val fromCache = sharedTypes.get(node.addr)
+      fromCache.foreach { cached =>
+        val res =
+          if (withDotTypeSuffix) cached + ".type"
+          else                   cached
+
+        return res
       }
     }
-    
+
     // TODO extract method
     given Option[Node] = Some(node)
     val text = node match { // TODO proper settings
       case Node3(IDENTtpt, _, Seq(tail)) => textOfType(tail)
       case Node3(SINGLETONtpt, _, Seq(tail)) =>
         val literal = textOfConstant(tail)
-        if (literal.nonEmpty) literal else textOfType(tail) + (if (tail.is(TERMREF)) "" else ".type")
+        if (literal.nonEmpty) literal
+        else {
+          val tailText = textOfType(tail)
+          tailText + (if (tail.is(THIS, QUALTHIS)) ".type" else "")
+        }
       case Node3(TYPEREF, Seq(name), Seq(tail)) => textOfType(tail) + "." + id(name)
       case Node3(TERMREF, Seq(name), Seq(tail)) =>
         // TODO why there's "package" in some cases?
-        if (name == ScalaBytecodeConstants.PackageObjectClassName || name.endsWith(ScalaBytecodeConstants.TopLevelDefinitionsClassNameSuffix))
-          textOfType(tail)
+        val tailText = textOfType(tail)
+        if (name == ScalaBytecodeConstants.PackageObjectClassName ||
+          name.endsWith(ScalaBytecodeConstants.TopLevelDefinitionsClassNameSuffix))
+          tailText
         else {
-          textOfType(tail) + "." + id(name) +
-            (if (parent.forall(it => it.is(SINGLETONtpt) || it.is(APPLIEDtype))) ".type" else "") // TODO Why there is sometimes no SINGLETONtpt? (add RHS?)
+          tailText + "." + id(name) +
+            (if (withDotTypeSuffix) ".type" else "") // TODO Why there is sometimes no SINGLETONtpt? (add RHS?)
         }
       case Node3(THIS, _, Seq(tail)) =>
         val qualifier = textOfType(tail)
@@ -581,14 +593,20 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
         else {
           // TODO rely on name kind
           val part1 = if (prefix.isEmpty) id(name) else prefix + "." + id(name)
-          val part2 = if (parent.isEmpty && node.is(TERMREFsymbol, TERMREFdirect)) ".type" else ""
+          val part2 = if (withDotTypeSuffix) ".type" else ""
           part1 + part2
         }
       case Node3(SELECTtpt | SELECT, Seq(name), Seq(tail)) =>
         val selector = if (node.tag == SELECTtpt && node.children.headOption.exists(it => isTypeTreeTag(it.tag))) "#" else "."
         val qualifier = textOfType(tail)
         val qualifierInParens = if (selector == "#" && tail.is(REFINEDtpt)) "(" + qualifier + ")" else qualifier
-        if (qualifier.nonEmpty) qualifierInParens + selector + id(name) else id(name)
+
+        val res =
+          if (qualifier.nonEmpty) qualifierInParens + selector + id(name)
+          else                    id(name)
+
+        if (withDotTypeSuffix) res + ".type"
+        else                   res
       case Node2(TERMREFpkg | TYPEREFpkg, Seq(name)) => if (name == "_root_") name else "_root_." + name.split('.').map(id(_)).mkString(".")
       case Node3(APPLIEDtpt | APPLIEDtype, _, Seq(constructor, arguments: _*)) =>
         val base = textOfType(constructor)
@@ -686,8 +704,8 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
       case _ => // TODO exhaustive match
         textOfConstant(node)
     }
-    
-    sharedTypes.put((node.addr, addTypeSuffix), text)
+
+    sharedTypes.put(node.addr, text.stripSuffix(".type"))
     text
   }
 
