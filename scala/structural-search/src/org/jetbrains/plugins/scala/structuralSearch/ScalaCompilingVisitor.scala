@@ -10,11 +10,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScR
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScConstructorInvocation, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScForBinding, ScInfixExpr, ScMatch, ScMethodCall}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatternDefinition, ScValueDeclaration, ScVariableDeclaration, ScVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatternDefinition, ScTypeAlias, ScValueDeclaration, ScVariableDeclaration, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam, ScTypeParamClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
-import org.jetbrains.plugins.scala.structuralSearch.filter.{CaseClauseFilter, FunctionFilter, MatchingVariableFilter, MethodInvocationFilter, TypeDefinitionFilter, TypeElementFilter, TypeParamFilter, ValueDeclarationFilter, VariableDeclarationFilter}
+import org.jetbrains.plugins.scala.structuralSearch.filter.{AcceptAllFilter, CaseClauseFilter, FunctionFilter, MethodInvocationFilter, TypeAliasFilter, TypeDefinitionFilter, TypeElementFilter, TypeParamFilter, ValueDeclarationFilter, VariableDeclarationFilter}
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
 
 class ScalaCompilingVisitor(globalVisitor: GlobalCompilingVisitor) extends ScalaRecursiveElementVisitor {
@@ -45,6 +45,15 @@ class ScalaCompilingVisitor(globalVisitor: GlobalCompilingVisitor) extends Scala
   override def visitReference(ref: ScReference): Unit = {
     super.visitReference(ref)
     placeVarHandler(ref.refName)
+    globalVisitor.getContext.getPattern
+      .getHandler(ref).setFilter(new AcceptAllFilter())
+  }
+
+  override def visitTypeAlias(alias: ScTypeAlias): Unit = {
+    super.visitTypeAlias(alias)
+    placeVarHandler(alias.name)
+    globalVisitor.getContext.getPattern
+      .getHandler(alias).setFilter(new TypeAliasFilter())
   }
 
   private class SymbolHandler(handler: SubstitutionHandler) extends MatchingHandler {
@@ -103,7 +112,7 @@ class ScalaCompilingVisitor(globalVisitor: GlobalCompilingVisitor) extends Scala
 
   override def visitTypeElement(te: ScTypeElement): Unit = {
     super.visitTypeElement(te)
-    placeVarHandler(te.getText)
+    placeVarHandler(te.getFirstChild.getText)
     globalVisitor
       .getContext.getPattern
       .getHandler(te).setFilter(new TypeElementFilter())
@@ -175,7 +184,7 @@ class ScalaCompilingVisitor(globalVisitor: GlobalCompilingVisitor) extends Scala
       pattern.getHandler(name) match {
         case substHand: SubstitutionHandler =>
           if (setFilter)
-            substHand.setFilter(new MatchingVariableFilter())
+            substHand.setFilter(new AcceptAllFilter())
           substHand.setMatchHandler(new MatchingHandler {
             override def `match`(patternNode: PsiElement, matchedNode: PsiElement, context: MatchContext): Boolean = {
               matchedNode.accept(ScalaCompilingVisitor.this)

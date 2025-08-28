@@ -11,7 +11,7 @@ import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaFileTemplateContextType
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScConstructorInvocation}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterType
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
@@ -77,6 +77,8 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
               else super.getTypedVarString(valvar)
             case constrInv: ScConstructorInvocation =>
               constrInv.typeElement.getText
+            case typeElement: ScTypeElement =>
+              typeElement.getFirstChild.getText
             case _ =>
               super.getTypedVarString(element)
           }
