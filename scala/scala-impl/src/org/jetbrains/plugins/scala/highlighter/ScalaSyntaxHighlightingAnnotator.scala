@@ -38,6 +38,16 @@ class ScalaSyntaxHighlightingAnnotator extends Annotator with DumbAware {
     case typeAlias: ScTypeAlias  =>
       addInfo(typeAlias.nameId, ScalaHighlightInfoTypes.TYPE_ALIAS, holder)
 
+    case doc: ScPsiDocToken =>
+      ScalaSyntaxHighlighter.Attributes.get(doc.tokenType) match {
+        case Some(attr) if attr != DefaultHighlighter.DOC_COMMENT =>
+          holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
+            .textAttributes(attr)
+            .range(doc)
+            .create()
+        case _ =>
+      }
+
     case e if isSoftKeyword(e) =>
       addInfo(e, ScalaHighlightInfoTypes.KEYWORD, holder)
 

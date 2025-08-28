@@ -145,8 +145,8 @@ class ScaladocMarkdownParsing(private val builder: PsiBuilder,
         case MarkdownElementTypes.LINK_DEFINITION => ScalaDocTokenType.DOC_LINK_TAG
 
         // Tokens
-        case MarkdownTokenTypes.EMPH => ScalaDocTokenType.DOC_ITALIC_TAG
-        case MarkdownTokenTypes.BACKTICK => ScalaDocTokenType.DOC_MONOSPACE_TAG
+        //case MarkdownTokenTypes.EMPH => ScalaDocTokenType.DOC_ITALIC_TAG
+        //case MarkdownTokenTypes.BACKTICK => ScalaDocTokenType.DOC_MONOSPACE_TAG
         case MarkdownTokenTypes.WHITE_SPACE if builder.rawLookup(-1) == ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS
           => ScalaDocTokenType.DOC_WHITESPACE
 
@@ -211,6 +211,24 @@ class ScaladocMarkdownParsing(private val builder: PsiBuilder,
 
         ensureBuilderInPosition(node.getEndOffset)
         marker.done(element)
+      } else if (node.getType == MarkdownElementTypes.EMPH) {
+        // Special casing for italic to set emph tokens
+        val children = node.getChildren.asScala
+
+        ensureBuilderInPosition(node.getStartOffset)
+        val marker = builder.mark()
+        // We *know* there are at least 2 children here
+        // Force the first child to be a DOC_ITALIC_TAG
+        ensureBuilderInPosition(children.head.getEndOffset, ScalaDocTokenType.DOC_ITALIC_TAG)
+
+        children.slice(1, children.length - 1).foreach(visitNode)
+
+        ensureBuilderInPosition(children.last.getStartOffset)
+
+        // Force the last child to be a DOC_ITALIC_TAG
+        ensureBuilderInPosition(node.getEndOffset, ScalaDocTokenType.DOC_ITALIC_TAG)
+
+        marker.done(element)
       } else if (node.getType == MarkdownElementTypes.STRONG) {
         // Special casing for bold to merge boundary tokens
         val children = node.getChildren.asScala
@@ -221,12 +239,31 @@ class ScaladocMarkdownParsing(private val builder: PsiBuilder,
         // Force the first 2 children to be a DOC_BOLD_TAG
         ensureBuilderInPosition(children(1).getEndOffset, ScalaDocTokenType.DOC_BOLD_TAG)
 
-        children.drop(2).dropRight(2).foreach(visitNode)
+        children.slice(2, children.length - 2).foreach(visitNode)
 
-        ensureBuilderInPosition(children(children.length-2).getStartOffset)
+        ensureBuilderInPosition(children(children.length - 2).getStartOffset)
 
         // Force the last 2 children to be a DOC_BOLD_TAG
         ensureBuilderInPosition(node.getEndOffset, ScalaDocTokenType.DOC_BOLD_TAG)
+
+        marker.done(element)
+      } else if (node.getType == MarkdownElementTypes.CODE_SPAN) {
+        // Special case for code spans
+        // Even multiple backticks will occur as one MarkdownTokenTypes.BACKTICK token
+        val children = node.getChildren.asScala
+
+        ensureBuilderInPosition(node.getStartOffset)
+        val marker = builder.mark()
+        // We *know* there are at least 2 children here
+        // Force the first child to be a DOC_MONOSPACE_TAG
+        ensureBuilderInPosition(children.head.getEndOffset, ScalaDocTokenType.DOC_MONOSPACE_TAG)
+
+        children.slice(1, children.length - 1).foreach(visitNode)
+
+        ensureBuilderInPosition(children.last.getStartOffset)
+
+        // Force the last child to be a DOC_MONOSPACE_TAG
+        ensureBuilderInPosition(node.getEndOffset, ScalaDocTokenType.DOC_MONOSPACE_TAG)
 
         marker.done(element)
       } else if (node.getType == WikiLinkParser.WIKI_LINK) {
