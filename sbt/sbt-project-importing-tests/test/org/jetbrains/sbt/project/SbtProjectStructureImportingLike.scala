@@ -16,13 +16,12 @@ import org.jetbrains.jps.model.module.JpsModuleSourceRootType
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
 import org.jetbrains.sbt.actions.SbtDirectoryCompletionContributor
-import org.jetbrains.sbt.project.utils.{ProjectComparisonOptions, ProjectStructureComparisonContext}
-import org.jetbrains.sbt.project.utils.CompilerUtils
+import org.jetbrains.sbt.project.utils.{CompilerUtils, ProjectComparisonOptions, ProjectStructureComparisonContext}
 import org.jetbrains.sbt.settings.SbtSettings
 import org.junit.Assert
 import org.junit.Assert.fail
 
-import java.nio.file.{Files, Path}
+import java.nio.file.Path
 import scala.jdk.CollectionConverters.{CollectionHasAsScala, SeqHasAsJava}
 
 abstract class SbtProjectStructureImportingLike extends SbtExternalSystemImportingTestLike
@@ -247,12 +246,6 @@ abstract class SbtProjectStructureImportingLike extends SbtExternalSystemImporti
     import module._
     ProjectStructureDsl.testSources := Nil
     ProjectStructureDsl.testResources := Nil
-  }
-
-  protected def injectVariable(file: Path, variableName: String, value: String): Unit = {
-    val fileContent = Files.readString(file)
-    val updatedContent = fileContent.replace(variableName, value)
-    Files.writeString(file, updatedContent)
   }
 
   protected def buildCrossProjectAndAssertNoWarningsOrErrors(): Unit = {

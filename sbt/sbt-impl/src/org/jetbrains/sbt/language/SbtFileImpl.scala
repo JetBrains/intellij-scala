@@ -1,8 +1,7 @@
 package org.jetbrains.sbt
 package language
 
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.module.{Module, ModuleManager, ModuleUtilCore}
+import com.intellij.openapi.module.{Module, ModuleUtilCore}
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.psi._
 import com.intellij.psi.search.{GlobalSearchScope, searches}
@@ -12,9 +11,7 @@ import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.ScDeclarationSequenceHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl._
-import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaFeatures}
-import org.jetbrains.sbt.project.SbtBuildModuleUriProvider
-import org.jetbrains.sbt.project.module.SbtModule.{Build, Imports}
+import org.jetbrains.sbt.project.module.SbtModule.Imports
 
 import scala.jdk.CollectionConverters._
 
@@ -88,26 +85,7 @@ final class SbtFileImpl private[language](provider: FileViewProvider)
   }
 
   override def findBuildModule(module: Module): Option[Module] =
-    if (module.hasBuildModuleType)
-      Some(module)
-    else {
-      val manager = ModuleManager.getInstance(getProject)
-      val modules = manager.getModules
-      val sbtBuildModuleUri = SbtBuildModuleUriProvider.getBuildModuleUri(module)
-      val result = for {
-        buildModuleUri <- sbtBuildModuleUri
-        module <- modules.find(Build(_) == buildModuleUri)
-      } yield module
-
-      if (result.isEmpty && ApplicationManager.getApplication.isUnitTestMode) {
-        //NOTE: right now this legacy way of determining build module is left for tests only
-        //It simplifies setup logic for tests which work with sbt files.
-        //In theory we could remove this extra branch, but we would need to improve setup for tests
-        val buildModuleName = module.getName + Sbt.BuildModuleSuffix
-        modules.find(_.getName == buildModuleName)
-      }
-      else result
-    }
+    SbtBuildModuleSupport.findBuildModule(module, getProject)
 }
 
 object SbtFileImpl {
