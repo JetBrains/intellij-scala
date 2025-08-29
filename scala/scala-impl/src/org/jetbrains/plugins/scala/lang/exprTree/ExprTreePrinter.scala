@@ -6,17 +6,27 @@ class ExprTreePrinter(val withOrigin: Boolean = true) {
 
   def print(tree: ExprTree): Unit = tree match {
     case ErrorExprTree(typeFailure, origin) =>
-      printDirect(typeFailure.toString)
+      printDirect(s"err:${typeFailure.toString}")
       printOrigin(origin)
     case LiteralExprTree(literalType, origin) =>
-      printDirect(literalType.toString)
+      printDirect(s"lit:${literalType.toString}")
       printOrigin(origin)
     case FunctionLiteralExprTree(params, body, origin) =>
       printDirect(s"fun(${params.map(paramString).mkString(", ")})")
+      printOrigin(origin)
       inIndent {
-        printOrigin(origin)
         printProp("body")
         print(body)
+      }
+    case UnqualifiedRefExprTree(refName, origin) =>
+      printDirect(s"ref:$refName")
+      printOrigin(origin)
+    case QualifiedRefExprTree(refName, qualifier, origin) =>
+      printDirect(s"ref:$refName")
+      printOrigin(origin)
+      inIndent {
+        printProp("qual")
+        print(qualifier)
       }
     case underscore: UnderscoreReferenceExprTree =>
       printDirect(underscoreString(underscore.origin))

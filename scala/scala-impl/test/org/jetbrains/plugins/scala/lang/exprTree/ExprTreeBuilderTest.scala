@@ -16,7 +16,7 @@ class ExprTreeBuilderTest extends SimpleScalaParserTestBase {
     treeText.trim shouldBe expectedTreeText.trim
   }
 
-  def testLiteral(): Unit = checkExprTree(
+  def testLiteralInFunc(): Unit = checkExprTree(
     """
       |() => 1
       |""".stripMargin,
@@ -31,6 +31,30 @@ class ExprTreeBuilderTest extends SimpleScalaParserTestBase {
       |_
       |""".stripMargin,
     """
+      |fun($_0)
+      |  •body: $_0
+      |""".stripMargin
+  )
+
+  def testRef(): Unit = checkExprTree(
+    """
+      |a.b
+      |""".stripMargin,
+    """
+      |ref:b
+      |  •qual: ref:a
+      |""".stripMargin
+  )
+
+  def testUnderscoreInRef(): Unit = checkExprTree(
+    """
+      |_.a.b
+      |""".stripMargin,
+    """
+      |fun($_0)
+      |  •body: ref:b
+      |    •qual: ref:a
+      |      •qual: $_0
       |""".stripMargin
   )
 }

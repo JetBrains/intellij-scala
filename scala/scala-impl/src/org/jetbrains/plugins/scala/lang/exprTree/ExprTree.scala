@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.exprTree
 
 import com.intellij.psi.{PsiElement, PsiErrorElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScFunctionExpr, ScUnderscoreSection}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScFunctionExpr, ScReferenceExpression, ScUnderscoreSection}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
@@ -107,7 +107,33 @@ object LiteralExprTree {
   sealed abstract class Origin extends ExprTreeOrigin
   object Origin {
     final case class Psi(override val psiElement: ScLiteral) extends Origin with PsiElementExprTreeOrigin {
-      type Psi = ScLiteral
+      override type Psi = ScLiteral
+    }
+  }
+}
+
+final case class QualifiedRefExprTree(refName: String, qualifier: ExprTree, override val origin: QualifiedRefExprTree.Origin) extends ExprTree {
+  override type Origin = QualifiedRefExprTree.Origin
+}
+
+object QualifiedRefExprTree {
+  sealed abstract class Origin extends PsiElementExprTreeOrigin
+  object Origin {
+    final case class Psi(override val psiElement: ScReferenceExpression) extends Origin {
+      override type Psi = ScReferenceExpression
+    }
+  }
+}
+
+final case class UnqualifiedRefExprTree(refName: String, override val origin: UnqualifiedRefExprTree.Origin) extends ExprTree {
+  override type Origin = UnqualifiedRefExprTree.Origin
+}
+
+object UnqualifiedRefExprTree {
+  sealed abstract class Origin extends PsiElementExprTreeOrigin
+  object Origin {
+    final case class Psi(override val psiElement: ScReferenceExpression) extends Origin {
+      override type Psi = ScReferenceExpression
     }
   }
 }
@@ -122,10 +148,10 @@ object ErrorExprTree {
   sealed trait Origin extends PsiElementExprTreeOrigin
   object Origin {
     final case class ParentElement(override val psiElement: PsiElement) extends Origin {
-      type Psi = PsiElement
+      override type Psi = PsiElement
     }
     final case class ErrorPsi(override val psiElement: PsiErrorElement) extends Origin {
-      type Psi = PsiErrorElement
+      override type Psi = PsiErrorElement
     }
   }
 }

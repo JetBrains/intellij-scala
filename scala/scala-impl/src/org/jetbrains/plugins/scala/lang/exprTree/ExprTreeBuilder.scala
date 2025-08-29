@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.NlsString
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFunctionExpr, ScUnderscoreSection}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFunctionExpr, ScReferenceExpression, ScUnderscoreSection}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Failure
 
 import scala.collection.mutable
@@ -16,10 +16,6 @@ class ExprTreeBuilder(rootExpr: PsiElement) {
   private var currentUnderscoresReversed = List.empty[UnderscoreInfo]
 
   private def newUnderscoreInfo(underscore: ScUnderscoreSection): UnderscoreInfo = {
-    def test(i: Int): Int = 3
-    val f = a => test(a)
-
-
     val i = currentUnderscoresReversed.size
     val info = UnderscoreInfo(underscore, i)
     currentUnderscoresReversed ::= info
@@ -27,7 +23,7 @@ class ExprTreeBuilder(rootExpr: PsiElement) {
   }
 
   private def buildWithUnderscoreBounds(expr: ScExpression, hasParent: Boolean = true): ExprTree = expr match {
-    case underscore: ScUnderscoreSection if hasParent => build(expr)
+    case _: ScUnderscoreSection if hasParent => build(expr)
     case _ =>
       val oldUnderscores = currentUnderscoresReversed
       currentUnderscoresReversed = Nil
@@ -53,6 +49,15 @@ class ExprTreeBuilder(rootExpr: PsiElement) {
     case fun: ScFunctionExpr =>
       val bodyTree = useOrError(fun.result, expr)(buildWithUnderscoreBounds(_))
       FunctionLiteralExprTree.fromPsi(fun, bodyTree)
+    case ref: ScReferenceExpression =>
+      val refName = ref.refName
+      ref.qualifier match {
+        case Some(qualifier) =>
+          val qualifierTree = build(qualifier)
+          QualifiedRefExprTree(refName, qualifierTree, QualifiedRefExprTree.Origin.Psi(ref))
+        case None =>
+          UnqualifiedRefExprTree(refName, UnqualifiedRefExprTree.Origin.Psi(ref))
+      }
     case _ =>
       ???
   }
