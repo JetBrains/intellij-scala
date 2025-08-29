@@ -84,7 +84,8 @@ final class ScalaTextExtractor extends TextExtractor:
         case string: ScStringLiteral =>
           val content = TextContentBuilder.FromPsi.build(string, TextDomain.LITERALS)
           if (content != null) {
-            // This offset might not be equal to content start in string literal. This is because content trims whitespaces
+            // NOTE: `content` has trimmed whitespace, so the text inside can be not equal to the original string inner content.
+            // Thus, `offsetFromLiteralStart` might not be equal to content start in string literal.
             val offsetFromLiteralStart = content.getRangesInFile.get(0).getStartOffset - string.getTextOffset
             val contentText = content.toString
 
@@ -93,9 +94,10 @@ final class ScalaTextExtractor extends TextExtractor:
             val injectionInfos = ScalaInjectionInfosCollector.collectInjectionInfos(Seq(string), PlainTextLanguage.INSTANCE, "", "")
             val contentRangesInLiteral = injectionInfos.ranges
             val excludedRanges = contentRangesInLiteral.zip(contentRangesInLiteral.tail).flatMap { case (prev, next) =>
-              // We need to use `max(0)` because `TextContentBuilder.build` returns content with spaces trimmed
-              val start = (prev.range.getEndOffset - offsetFromLiteralStart).max(0)
-              val end = (next.range.getStartOffset - offsetFromLiteralStart).max(0)
+              // We need to use `max` and `max`
+              // because `TextContentBuilder.build` returns content with spaces trimmed from both sides
+              val start = (prev.range.getEndOffset - offsetFromLiteralStart).max(0).min(contentText.length)
+              val end = (next.range.getStartOffset - offsetFromLiteralStart).max(0).min(contentText.length)
 
               // Multiline string literals without margin can empty ranges for every blank line
               // We need to filter such empty ranges because `Exclusion` constructor will fail otherwise

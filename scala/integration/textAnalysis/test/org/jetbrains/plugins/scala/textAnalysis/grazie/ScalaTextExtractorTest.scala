@@ -259,6 +259,25 @@ class ScalaTextExtractorTest extends BasePlatformTestCase {
     assertEquals("first line\n   second line\n   third line", extractTextWithUnknownFragments(text, text.indexOf("first line")))
   }
 
+  def testStringLiteral_Multiline_Plain2(): Unit = {
+    val text =
+      s"""val _ =
+         |  \"\"\"hello
+         |world
+         |\"\"\"""".stripMargin
+    assertEquals("hello\nworld", extractTextWithUnknownFragments(text, text.indexOf("hello")))
+  }
+
+
+  def testStringLiteral_Multiline_Plain3(): Unit = {
+    val text =
+      s"""val _ =
+         |  \"\"\"   hello
+         |world
+         |\"\"\"""".stripMargin
+    assertEquals("hello\nworld", extractTextWithUnknownFragments(text, text.indexOf("hello")))
+  }
+
   def testStringLiteral_Multiline_Plain_WithStripMargin(): Unit = {
     val text =
       s"""${TripleQuote}first line
