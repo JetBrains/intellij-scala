@@ -1,10 +1,12 @@
 package org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.markdown
 
+import com.intellij.codeInsight.documentation.DocumentationManagerUtil
 import com.intellij.lang.Language
 import com.intellij.markdown.utils.CodeFenceSyntaxHighlighterGeneratingProvider
 import com.intellij.markdown.utils.lang.HtmlSyntaxHighlighter
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.HtmlChunk
+import org.intellij.markdown.ast.ASTNode
 import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
 import org.intellij.markdown.html._
 import org.intellij.markdown.lexer.MarkdownLexer
@@ -40,7 +42,6 @@ class ScalaDocMarkdownFlavour extends CommonMarkFlavourDescriptor {
   override def getSequentialParserManager: SequentialParserManager = sequentialParserManager
 
   override def createHtmlGeneratingProviders(linkMap: LinkMap, uri: URI): java.util.Map[IElementType, GeneratingProvider] = {
-    // TODO: Some are unimplemented.
     val parent = super.createHtmlGeneratingProviders(linkMap, uri)
     parent.putAll(
       Map(
@@ -48,6 +49,21 @@ class ScalaDocMarkdownFlavour extends CommonMarkFlavourDescriptor {
         ScalaDocTagMarkerBlock.TAG_BLOCK -> new SimpleTagProvider("div"),
         ScalaDocTagMarkerBlock.TAG_NAME -> new SimpleTagProvider("span"),
         ScalaDocTagMarkerBlock.TAG_ARGUMENT -> new SimpleTagProvider("span"),
+
+        WikiLinkParser.WIKI_LINK -> new OpenCloseGeneratingProvider {
+          override def openTag(visitor: HtmlGenerator#HtmlGeneratingVisitor, s: String, astNode: ASTNode): Unit = {
+            val linkText = s.substring(astNode.getStartOffset+2, astNode.getEndOffset-2)
+            // TODO: label selection is kind of iffy.
+            val labelStart = linkText.lastIndexOf('.')
+            val label = if (labelStart > 0) linkText.substring(labelStart + 1) else linkText
+            val buffer = new java.lang.StringBuilder
+            DocumentationManagerUtil.createHyperlink(buffer, linkText, label, false)
+            val html = buffer.toString
+            visitor.consumeHtml(html)
+          }
+
+          override def closeTag(visitor: HtmlGenerator#HtmlGeneratingVisitor, s: String, astNode: ASTNode): Unit = {}
+        },
       ).asJava
     )
 
@@ -61,7 +77,7 @@ object ScalaDocMarkdownFlavour {
   def withLanguageSyntaxHighlighting(project: Project): ScalaDocMarkdownFlavour = {
     val htmlSyntaxHighlighter = new HtmlSyntaxHighlighter {
       override def color(language: String, rawContent: String): HtmlChunk =
-        HtmlSyntaxHighlighterCompanionProxy.colorHtmlChunk(project, selectLanguage(language), rawContent)
+        HtmlSyntaxHighlighterCompanionProxy.colorHtmlChunk(project, selectLanguage(language), rawContent.stripLineEnd)
 
       private def selectLanguage(language: String): Language = {
         Language.getRegisteredLanguages.asScala

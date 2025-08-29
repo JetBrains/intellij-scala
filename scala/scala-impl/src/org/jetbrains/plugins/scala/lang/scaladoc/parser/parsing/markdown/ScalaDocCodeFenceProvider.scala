@@ -23,7 +23,7 @@ class ScalaDocCodeFenceProvider extends MarkerBlockProvider[MarkerProcessor.Stat
           MarkdownTokenTypes.CODE_FENCE_START
         )))
 
-        // TODO: This is kind of a trick: the last argument is officially the "fence" but it's really only used in a regex
+        // HACK: This is kind of a trick: the last argument is officially the "fence" but it's really only used in a regex
         //       That's why we have to escape it, and that's why it's the *closing* fence
         util.List.of(new CodeFenceMarkerBlock(t.getCurrentConstraints, productionHolder, "\\}\\}\\}"))
       case None => util.List.of()
