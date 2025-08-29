@@ -10,14 +10,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScParenthesisedTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScConstructorInvocation, ScLiteral, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.*
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScParameters, ScTypeParam, ScTypeParamClause}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScCatchBlock.unapply
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScParameters, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFunction, ScFunctionDefinition, ScPatternDefinition, ScTypeAlias, ScTypeAliasDefinition, ScValueDeclaration, ScValueOrVariable, ScValueOrVariableDeclaration, ScValueOrVariableDefinition, ScVariableDeclaration, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScConstructorOwner, ScEnum, ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiElement}
 import org.jetbrains.plugins.scala.util.EnumSet.{EnumSet, EnumSetOps}
-
-import scala.annotation.tailrec
 
 
 class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaElementVisitor {
@@ -451,6 +450,29 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     globalVisitor.setResult(yieldMatch && enumeratorsMatch && bodyMatch)
   }
 
+  override def visitTry(tryStmt: ScTry): Unit = {
+    val other = globalVisitor.getElement.asInstanceOf[ScTry]
+
+    val exprMatch = matchOpt(tryStmt.expression, other.expression)
+    val catchMatch = matchOptOptional(tryStmt.catchBlock, other.catchBlock)
+    val finallyMatch = matchOptOptional(tryStmt.finallyBlock, other.finallyBlock)
+    globalVisitor.setResult(exprMatch && catchMatch && finallyMatch)
+  }
+
+  override def visitCatchBlock(c: ScCatchBlock): Unit = {
+    val other = globalVisitor.getElement.asInstanceOf[ScCatchBlock]
+    globalVisitor.setResult((unapply(c), unapply(other)) match {
+      case (Some (cc), Some (otherCC)) => matchInAnyOrder(cc.caseClauses, otherCC.caseClauses)
+      case (None, _) => true
+      case _ => false
+    })
+  }
+
+  def visitFinally(finallyBlock: ScFinallyBlock): Unit = {
+    val other = globalVisitor.getElement.asInstanceOf[ScFinallyBlock]
+    globalVisitor.setResult(matchOpt(finallyBlock.expression, other.expression))
+  }
+
   override def visitMatch(ms: ScMatch): Unit = {
     if (!globalVisitor.getElement.is[ScMatch]) {
       globalVisitor.setResult(false)
@@ -592,6 +614,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
   override def visitScalaElement(element: ScalaPsiElement): Unit = {
     element match {
       case typeParam: ScTypeParam => visitTypeParam(typeParam)
+      case finallyBlock: ScFinallyBlock => visitFinally(finallyBlock)
       case _ => visitElement(element)
     }
   }

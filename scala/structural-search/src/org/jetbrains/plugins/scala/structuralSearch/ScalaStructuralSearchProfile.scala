@@ -9,9 +9,9 @@ import com.intellij.structuralsearch.plugin.ui.UIUtil
 import com.intellij.structuralsearch.{StructuralSearchProfile, StructuralSearchProfileBase}
 import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaFileTemplateContextType
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScConstructorInvocation}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScConstructorInvocation}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterType
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
@@ -71,7 +71,7 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
             case annot: ScAnnotation =>
               annot.constructorInvocation.typeElement.getText
             case caseClause: ScCaseClause =>
-              caseClause.pattern.map(_.getText).getOrElse("")
+              caseClause.pattern.map(pat => if pat.bindings.size == 1 then pat.bindings.head.getText else pat.getText).getOrElse("")
             case valvar: ScValueOrVariable =>
               if (valvar.declaredNames.size == 1) valvar.declaredNames.head
               else super.getTypedVarString(valvar)
