@@ -55,6 +55,7 @@ public interface ScalaDocTokenType {
   ScalaDocSyntaxElementType VALID_DOC_HEADER = new ScalaDocSyntaxElementType("VALID_DOC_HEADER", 1 << 8);
   ScalaDocSyntaxElementType DOC_HEADER = new ScalaDocSyntaxElementType("DOC_HEADER", 1 << 8);
 
+  // TODO-md-emi: add PSI elements correspond to these element types.
   // Markdown-specific element types
   IElementType DOC_MARKDOWN_HEADER = new ScalaDocElementType("DOC_MARKDOWN_HEADER");
   IElementType DOC_BLOCKQUOTE = new ScalaDocElementType("DOC_BLOCKQUOTE");
