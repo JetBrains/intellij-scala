@@ -81,4 +81,9 @@ object ScInfixExpr {
       else                         Some(left, op, right)
     }
   }
+
+  object raw {
+    def unapply(expression: ScInfixExpr): Some[(ScExpression, ScExpression, ScExpression)] =
+      Some(expression.unapply)
+  }
 }

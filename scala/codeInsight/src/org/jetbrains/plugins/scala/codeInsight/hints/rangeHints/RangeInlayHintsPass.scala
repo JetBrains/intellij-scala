@@ -23,6 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
 
+import scala.annotation.tailrec
 import scala.jdk.CollectionConverters.IteratorHasAsScala
 
 trait RangeInlayHintsPass {
@@ -152,8 +153,9 @@ object RangeInlayHintsPass {
 
 
   private object InfixArgs {
+    @tailrec
     def unapply(e: PsiElement): Some[Seq[PsiElement]] = e match {
-      case ScParenthesisedExpr(expr) => Some(Seq(expr))
+      case ScParenthesisedExpr(expr) => unapply(expr)
       case ScTuple(args) => Some(args)
       case _ => Some(Seq(e))
     }

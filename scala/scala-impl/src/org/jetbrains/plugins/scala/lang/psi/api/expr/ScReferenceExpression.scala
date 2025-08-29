@@ -67,4 +67,9 @@ object ScReferenceExpression {
   object refName {
     def unapply(ref: ScReferenceExpression): Some[String] = Some(ref.refName)
   }
+
+  object qualified {
+    def unapply(ref: ScReferenceExpression): Option[(ScExpression, String)] =
+      ref.qualifier.map(_ -> ref.refName)
+  }
 }
