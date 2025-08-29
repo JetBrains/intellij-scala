@@ -75,6 +75,11 @@ public interface ScalaTokenTypes {
     IElementType tINTERPOLATED_MULTILINE_RAW_STRING = new ScalaTokenType("interpolated multiline raw string");
     IElementType tINTERPOLATED_RAW_STRING = new ScalaTokenType("interpolated raw string");
 
+    // Dedented string literals (Scala 3)
+    IElementType tDEDENTED_STRING = new ScalaTokenType("dedented string");
+    IElementType tINTERPOLATED_DEDENTED_STRING = new ScalaTokenType("interpolated dedented string");
+    IElementType tINTERPOLATED_DEDENTED_RAW_STRING = new ScalaTokenType("interpolated dedented raw string");
+
     IElementType tCHAR = new ScalaTokenType("Character");
     IElementType tSYMBOL = new ScalaTokenType("Symbol");
 
@@ -267,7 +272,9 @@ public interface ScalaTokenTypes {
             tMULTILINE_STRING,
             tINTERPOLATED_STRING,
             tINTERPOLATED_MULTILINE_STRING,
-            tINTERPOLATED_STRING_END
+            tINTERPOLATED_STRING_END,
+            tDEDENTED_STRING,
+            tINTERPOLATED_DEDENTED_STRING
     );
 
     TokenSet VAL_VAR_TOKEN_SET = TokenSet.create(kVAL, kVAR);

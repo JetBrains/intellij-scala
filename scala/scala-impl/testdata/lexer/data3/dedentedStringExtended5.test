@@ -1,0 +1,7 @@
+'''''
+content with '''' embedded
+'''''
+-------
+dedented string {'''''
+content with '''' embedded
+'''''}

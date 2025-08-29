@@ -1,0 +1,13 @@
+s''''
+Hello $name with ''' embedded
+''''
+-------
+identifier ('s')
+interpolated dedented string (''''
+Hello ')
+string injection ('$name')
+interpolated dedented string (' with ')
+interpolated dedented string (''''') -> IDENTIFIER
+interpolated dedented string (' embedded
+')
+string end ('''')}

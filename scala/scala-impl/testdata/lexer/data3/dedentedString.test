@@ -1,0 +1,26 @@
+object a{
+  val x = '''
+  multi-line
+  dedented string
+  '''
+}
+-----
+object {object}
+white space in line { }
+identifier {a}
+{ {{}
+white space in line {
+  }
+val {val}
+white space in line { }
+identifier {x}
+white space in line { }
+= {=}
+white space in line { }
+dedented string {'''
+  multi-line
+  dedented string
+  '''}
+white space in line {
+}
+} {}}

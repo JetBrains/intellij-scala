@@ -86,6 +86,17 @@ import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.*;
       }
     }
 
+    private static class DedentedLevel extends InterpolatedStringLevel {
+      public final int delimiterLength;
+      public DedentedLevel(CharSequence interpolator, int delimiterLength) {
+        super(interpolator);
+        this.delimiterLength = delimiterLength;
+      }
+      public int getState() {
+        return INSIDE_DEDENTED_INTERPOLATED_STRING;
+      }
+    }
+
     private boolean isScala3;
 
     //
@@ -94,6 +105,7 @@ import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.*;
     //to get id after $ in interpolated String
     private boolean haveIdInString = false;
     private boolean haveIdInMultilineString = false;
+    private boolean haveIdInDedentedString = false;
     // Currently opened interpolated Strings. Each int represents the number of the opened left structural braces in the String
     private Stack<InterpolatedStringLevel> nestedString = new Stack<>();
     private CharSequence lastSeenInterpolator = null;
@@ -105,16 +117,49 @@ import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.*;
     public void resetCustom() {
       haveIdInString = false;
       haveIdInMultilineString = false;
+      haveIdInDedentedString = false;
       nestedString.clear();
       lastSeenInterpolator = null;
+    }
+
+    private int countLeadingQuotes(CharSequence text) {
+      int count = 0;
+      for (int i = 0; i < text.length() && text.charAt(i) == '\''; i++) {
+        count++;
+      }
+      return count;
+    }
+
+    private boolean endsWithQuotes(CharSequence text, int expectedCount) {
+      if (text.length() < expectedCount) return false;
+      int count = 0;
+      for (int i = text.length() - 1; i >= 0 && text.charAt(i) == '\''; i--) {
+        count++;
+      }
+      return count >= expectedCount;
+    }
+
+    private boolean isValidDedentedString(CharSequence text) {
+      int leadingQuotes = countLeadingQuotes(text);
+      if (leadingQuotes < 3) return false; // Must have at least 3 quotes
+      
+      // Find the ending quotes
+      int trailingQuotes = 0;
+      for (int i = text.length() - 1; i >= 0 && text.charAt(i) == '\''; i--) {
+        trailingQuotes++;
+      }
+      
+      return leadingQuotes == trailingQuotes;
     }
 
     public boolean isInterpolatedStringState() {
         return isInsideInterpolatedString() ||
                haveIdInString ||
                haveIdInMultilineString ||
+               haveIdInDedentedString ||
                yystate() == INSIDE_INTERPOLATED_STRING ||
-               yystate() == INSIDE_MULTI_LINE_INTERPOLATED_STRING;
+               yystate() == INSIDE_MULTI_LINE_INTERPOLATED_STRING ||
+               yystate() == INSIDE_DEDENTED_INTERPOLATED_STRING;
     }
 
     private boolean shouldProcessBracesForInterpolated() {
@@ -145,6 +190,9 @@ import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.*;
         } else if (haveIdInMultilineString) {
           haveIdInMultilineString = false;
           yybegin(INSIDE_MULTI_LINE_INTERPOLATED_STRING);
+        } else if (haveIdInDedentedString) {
+          haveIdInDedentedString = false;
+          yybegin(INSIDE_DEDENTED_INTERPOLATED_STRING);
         }
       }
 
@@ -158,6 +206,8 @@ import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.*;
         typeAdjusted =  tINTERPOLATED_RAW_STRING;
       else if (type == tINTERPOLATED_MULTILINE_STRING && isInsideRawInterpolator())
         typeAdjusted = tINTERPOLATED_MULTILINE_RAW_STRING;
+      else if (type == tINTERPOLATED_DEDENTED_STRING && isInsideRawInterpolator())
+        typeAdjusted = tINTERPOLATED_DEDENTED_RAW_STRING;
       else
         typeAdjusted = type;
 
@@ -166,6 +216,11 @@ import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.*;
 
     @NotNull
     private IElementType processDollarInsideString(boolean isInsideMultiline) {
+        return processDollarInsideString(isInsideMultiline, false);
+    }
+
+    @NotNull
+    private IElementType processDollarInsideString(boolean isInsideMultiline, boolean isInsideDedented) {
         final IElementType token;
 
         // TODO: remove this chech, this should always be false, cause $$ is handled by INTERPOLATED_STRING_ESCAPE pattern earlier
@@ -175,7 +230,9 @@ import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.*;
             token = tINTERPOLATED_STRING_ESCAPE;
         }
         else {
-            if (isInsideMultiline) {
+            if (isInsideDedented) {
+                haveIdInDedentedString = true;
+            } else if (isInsideMultiline) {
                 haveIdInMultilineString = true;
             } else {
                 haveIdInString = true;
@@ -271,11 +328,18 @@ hexDigit             = [0-9A-Fa-f]
 CHAR_ESCAPE_SEQUENCE = \\[^\r\n]
 UNICODE_ESCAPE       = \\u+ {hexDigit}{hexDigit}{hexDigit}{hexDigit} // Scala supports 1. multiple `u` chars after `\` 2. even \u000A ('\n') and \u000D (unlike Java)
 ESCAPE_SEQUENCE      = {UNICODE_ESCAPE} | {CHAR_ESCAPE_SEQUENCE}
-CHARACTER_LITERAL    = "'"([^\\\'\r\n]|{ESCAPE_SEQUENCE}|{OCTAL_ESCAPE_LITERAL})("'"|\\) | \'\\u000A\' | "'''" // TODO: \'\\u000A\' is redundunt, remove
+CHARACTER_LITERAL    = "'"([^\\\'\r\n]|{ESCAPE_SEQUENCE}|{OCTAL_ESCAPE_LITERAL})("'"|\\) | \'\\u000A\' // TODO: \'\\u000A\' is redundunt, remove
 
 STRING_BEGIN = \"([^\\\"\r\n]|{CHAR_ESCAPE_SEQUENCE})*
 STRING_LITERAL={STRING_BEGIN} \"
 MULTI_LINE_STRING = \"\"\" ( (\"(\")?)? [^\"] )* \"\"\" (\")* // Multi-line string
+
+// Dedented string literals (Scala 3) - modeled after MULTI_LINE_STRING pattern
+DEDENTED_STRING_3 = \'\'\' ( (\'(\')?)? [^\'] )* \'\'\' (\')* 
+DEDENTED_STRING_4 = \'\'\'\' ( (\'(\'\'?)?)? [^\'] )* \'\'\'\' (\')* 
+DEDENTED_STRING_5 = \'\'\'\'\' ( (\'(\'\'\'?)?)? [^\'] )* \'\'\'\'\' (\')* 
+DEDENTED_STRING_6 = \'\'\'\'\'\' ( (\'(\'\'\'\'?)?)? [^\'] )* \'\'\'\'\'\' (\')* 
+DEDENTED_STRING = {DEDENTED_STRING_6} | {DEDENTED_STRING_5} | {DEDENTED_STRING_4} | {DEDENTED_STRING_3}
 
 ////////String Interpolation////////
 INTERPOLATED_STRING_ID = {varid}
@@ -286,6 +350,9 @@ INTERPOLATED_STRING_PART_NOT_ESCAPED = [^\\\"\r\n\$]
 
 INTERPOLATED_MULTI_LINE_STRING_BEGIN = \"\"\"{INTERPOLATED_MULTI_LINE_STRING_PART}*
 INTERPOLATED_MULTI_LINE_STRING_PART = ((\"(\")?)? [^\"\$])
+
+INTERPOLATED_DEDENTED_STRING_BEGIN = \'\'\'+ {INTERPOLATED_DEDENTED_STRING_PART}*
+INTERPOLATED_DEDENTED_STRING_PART = [^\'\$] | \$ [^{] | \'[^\']+
 
 // TODO: rename, it's missleading
 INTERPOLATED_STRING_ESCAPE = "$$"
@@ -324,6 +391,7 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 %xstate WAIT_FOR_INTERPOLATED_STRING
 %xstate INSIDE_INTERPOLATED_STRING
 %xstate INSIDE_MULTI_LINE_INTERPOLATED_STRING
+%xstate INSIDE_DEDENTED_INTERPOLATED_STRING
 %xstate INJ_COMMON_STATE
 
 %%
@@ -344,7 +412,7 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 {END_OF_LINE_COMMENT} { return process(tLINE_COMMENT); }
 
 
-{INTERPOLATED_STRING_ID} / ({INTERPOLATED_STRING_BEGIN} | {INTERPOLATED_MULTI_LINE_STRING_BEGIN}) {
+{INTERPOLATED_STRING_ID} / ({INTERPOLATED_STRING_BEGIN} | {INTERPOLATED_MULTI_LINE_STRING_BEGIN} | {INTERPOLATED_DEDENTED_STRING_BEGIN}) {
   yybegin(WAIT_FOR_INTERPOLATED_STRING);
   // TODO: remove this check: looks like it's a dead code,
   //  yytext() should only return text that is matched by INTERPOLATED_STRING_ID, which can't end with \"\"
@@ -366,6 +434,13 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
     yybegin(INSIDE_MULTI_LINE_INTERPOLATED_STRING);
     nestedString.push(new MultilineLevel(lastSeenInterpolator));
     return process(tINTERPOLATED_MULTILINE_STRING);
+  }
+
+  {INTERPOLATED_DEDENTED_STRING_BEGIN} {
+    yybegin(INSIDE_DEDENTED_INTERPOLATED_STRING);
+    int delimiterLength = countLeadingQuotes(yytext());
+    nestedString.push(new DedentedLevel(lastSeenInterpolator, delimiterLength));
+    return process(tINTERPOLATED_DEDENTED_STRING);
   }
 }
 
@@ -470,6 +545,61 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
   }
 }
 
+<INSIDE_DEDENTED_INTERPOLATED_STRING> {
+  {INTERPOLATED_STRING_ESCAPE} {
+    return process(tINTERPOLATED_STRING_ESCAPE);
+  }
+
+  (\'\') / "$" {
+    return process(tINTERPOLATED_DEDENTED_STRING);
+  }
+
+  {INTERPOLATED_DEDENTED_STRING_PART}+ {
+    return process(tINTERPOLATED_DEDENTED_STRING);
+  }
+
+  "$"{identifier} {
+    return processDollarInsideString(false, true);
+  }
+
+  \'\'\'+ (\')+ {
+    yypushback(yylength() - 1);
+    return process(tINTERPOLATED_DEDENTED_STRING);
+  }
+
+  \'\'\'+ {
+    // Check if this ends the dedented string with matching delimiter length
+    if (!nestedString.isEmpty() && nestedString.peek() instanceof DedentedLevel) {
+      DedentedLevel level = (DedentedLevel) nestedString.peek();
+      int quoteCount = yylength();
+      if (quoteCount == level.delimiterLength) {
+        return processOutsideString();
+      } else if (quoteCount < level.delimiterLength) {
+        // Not enough quotes to close, treat as content
+        return process(tINTERPOLATED_DEDENTED_STRING);
+      } else {
+        // Too many quotes, pushback the excess
+        yypushback(quoteCount - level.delimiterLength);
+        return processOutsideString();
+      }
+    }
+    return processOutsideString();
+  }
+
+  "$" / "{" {
+      yybegin(COMMON_STATE);
+      return process(tINTERPOLATED_STRING_INJECTION);
+  }
+
+  \' / [^\'] {
+    return process(tINTERPOLATED_DEDENTED_STRING);
+  }
+
+  [^] {
+    return process(tWRONG_STRING);
+  }
+}
+
 
 "/**" ("*"? [^\/])* "*/" { //for comments in interpolated strings
     return process(ScalaDocElementTypes.SCALA_DOC_COMMENT);
@@ -486,6 +616,8 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 // TODO: incomplete strings should be handled the same way with interpolated strings
 //  what can be parsed should be parsed as tSTRING,
 //  tWRONG_LINE_BREAK_IN_STRING error token should be added at unexpected new line should
+{DEDENTED_STRING}                       {   if (isScala3) return process(tDEDENTED_STRING); else return process(tIDENTIFIER);  }
+
 {WRONG_STRING}                          {   return process(tWRONG_STRING);  }
 
 
