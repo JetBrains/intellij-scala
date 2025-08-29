@@ -6,7 +6,7 @@ import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
 import com.intellij.psi.tree.IElementType
-import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaDocTypedHandler._
 import org.jetbrains.plugins.scala.editor.{DocumentExt, ScalaEditorUtils}
@@ -19,6 +19,8 @@ import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScalaDocSyntaxE
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 
 final class ScalaDocTypedHandler extends TypedHandlerDelegate {
+  private val SingleQuote = '\''
+  private val MarkdownCompletionChars: Set[Char] = Set('*', '_', '`')
 
   override def charTyped(charTyped: Char, project: Project, editor: Editor, file: PsiFile): Result = {
     if (!file.is[ScalaFile])
@@ -38,11 +40,12 @@ final class ScalaDocTypedHandler extends TypedHandlerDelegate {
     if (offset < 3 || documentText.length <= offset)
       return Result.CONTINUE
 
-    val SingleQuote = '\''
+    val isInsideMarkdown = isInMarkdown(element)
 
     val chatAtOffset = documentText.charAt(offset)
     chatAtOffset match {
       case ' ' | '\n' | '\t' | '\r' | SingleQuote =>
+      case char if MarkdownCompletionChars.contains(char) =>
       case _ =>
         return Result.CONTINUE
     }
@@ -58,54 +61,68 @@ final class ScalaDocTypedHandler extends TypedHandlerDelegate {
       return Result.STOP
     }
 
-    def completeScalaDocWikiSyntax(tagToInsert: String): Unit = {
+    def completeSyntax(tagToInsert: String): Unit = {
       insertAndCommit(offset, tagToInsert, document, project)
     }
 
-    //Special handling of Italic & Bold syntax: ''italic text'', '''bold text'''
-    //Examples:
-    //type:   'CARET      result: 'CARET      (do nothing)
-    //type:   ''CARET     result: ''CARET''   (close "italic" tag)
-    //type:   '''CARET    result: '''CARET''' (extend "italic" tag to "bold" tag)
-    if (charTyped == SingleQuote) {
-      //reminder: the document text already has the typed `'` symbol
-      val singleQuoteCountLeft = countChars(SingleQuote, documentText, offset - 1, -1)
-      val singleQuoteCountRight = countChars(SingleQuote, documentText, offset, +1)
-      val lackingClosingSingleQuotesCount =
-        if (singleQuoteCountLeft == 2 || singleQuoteCountLeft == 3)
-          singleQuoteCountLeft - singleQuoteCountRight
-        else
-          0
-
-      if (lackingClosingSingleQuotesCount > 0) {
-        val closingChars = SingleQuote.toString * lackingClosingSingleQuotesCount
-        completeScalaDocWikiSyntax(closingChars)
+    if (isInsideMarkdown) {
+      if (charTyped == '*' && hasNewlineBeforeOffset(documentText, offset - 1)) {
+        // do nothing when it's the first * of the doc comment
+      } else if (MarkdownCompletionChars.contains(charTyped)) {
+        val before = countChars(charTyped, documentText, offset - 2, -1)
+        val after = countChars(charTyped, documentText, offset, +1)
+        if (before == after) {
+          completeSyntax(charTyped.toString)
+          return Result.STOP
+        }
       }
-      return Result.STOP
-    }
 
-    val prevText1 = documentText.substring(offset - 1, offset)
-    wikiOpenTagToCloseTag1.get(prevText1) match {
-      case Some(closingTag) =>
-        completeScalaDocWikiSyntax(closingTag)
-        return Result.STOP
-      case _ =>
-    }
+    } else {
+      //Special handling of Italic & Bold syntax: ''italic text'', '''bold text'''
+      //Examples:
+      //type:   'CARET      result: 'CARET      (do nothing)
+      //type:   ''CARET     result: ''CARET''   (close "italic" tag)
+      //type:   '''CARET    result: '''CARET''' (extend "italic" tag to "bold" tag)
+      if (charTyped == SingleQuote) {
+        //reminder: the document text already has the typed `'` symbol
+        val singleQuoteCountLeft = countChars(SingleQuote, documentText, offset - 1, -1)
+        val singleQuoteCountRight = countChars(SingleQuote, documentText, offset, +1)
+        val lackingClosingSingleQuotesCount =
+          if (singleQuoteCountLeft == 2 || singleQuoteCountLeft == 3)
+            singleQuoteCountLeft - singleQuoteCountRight
+          else
+            0
 
-    val prevText2 = documentText.substring(offset - 2, offset)
-    wikiOpenTagToCloseTag2.get(prevText2) match {
-      case Some(closingTag) =>
-        completeScalaDocWikiSyntax(closingTag)
+        if (lackingClosingSingleQuotesCount > 0) {
+          val closingChars = SingleQuote.toString * lackingClosingSingleQuotesCount
+          completeSyntax(closingChars)
+        }
         return Result.STOP
-      case _ =>
-    }
+      }
 
-    val prevText3 = documentText.substring(offset - 3, offset)
-    wikiOpenTagToCloseTag3.get(prevText3) match {
-      case Some(closingTag) =>
-        completeScalaDocWikiSyntax(closingTag)
-        return Result.STOP
-      case _ =>
+      val prevText1 = documentText.substring(offset - 1, offset)
+      wikiOpenTagToCloseTag1.get(prevText1) match {
+        case Some(closingTag) =>
+          completeSyntax(closingTag)
+          return Result.STOP
+        case _ =>
+      }
+
+      val prevText2 = documentText.substring(offset - 2, offset)
+      wikiOpenTagToCloseTag2.get(prevText2) match {
+        case Some(closingTag) =>
+          completeSyntax(closingTag)
+          return Result.STOP
+        case _ =>
+      }
+
+      val prevText3 = documentText.substring(offset - 3, offset)
+      wikiOpenTagToCloseTag3.get(prevText3) match {
+        case Some(closingTag) =>
+          completeSyntax(closingTag)
+          return Result.STOP
+        case _ =>
+      }
     }
 
     Result.CONTINUE
@@ -221,6 +238,8 @@ object ScalaDocTypedHandler {
     ScalaDocTokenType.ALL_SCALADOC_TOKENS.contains(element.getNode.getElementType)
   }
 
+  def isInMarkdown(element: PsiElement): Boolean = PsiUtil.isInMarkdownDocComment(element)
+
   /**
    * @return number of chars in a row equal to `charToCount` in given `text` moving index left or right depending on step (e.g. -1 or +1)
    */
@@ -240,5 +259,20 @@ object ScalaDocTypedHandler {
     }
 
     result
+  }
+
+  private def hasNewlineBeforeOffset(text: CharSequence, offset: Int): Boolean = {
+    var idx = offset - 1
+    while (idx >= 0) {
+      val char = text.charAt(idx)
+      if (char == '\n') {
+        return true
+      } else if (!char.isWhitespace) {
+        return false
+      }
+
+      idx -= 1
+    }
+    true
   }
 }
