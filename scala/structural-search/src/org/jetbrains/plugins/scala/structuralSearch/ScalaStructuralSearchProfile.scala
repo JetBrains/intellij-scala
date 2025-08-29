@@ -8,13 +8,14 @@ import com.intellij.structuralsearch.impl.matcher.{CompiledPattern, GlobalMatchi
 import com.intellij.structuralsearch.plugin.ui.UIUtil
 import com.intellij.structuralsearch.{StructuralSearchProfile, StructuralSearchProfileBase}
 import org.jetbrains.annotations.{NotNull, Nullable}
-import org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaFileTemplateContextType
+import org.jetbrains.plugins.scala.codeInsight.template.impl.{ScalaCodeContextType, ScalaFileTemplateContextType}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScConstructorInvocation}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterType
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
 
 final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
@@ -48,13 +49,16 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
 
   private def isMinMaxApplicable(constraintName: String, variableNode: PsiElement, completePattern: Boolean, target: Boolean): Boolean =
     if (completePattern || target || variableNode == null) return false
-    variableNode.getParent.getParent match {
-      case grandParent: ScSimpleTypeElement =>
-        grandParent.getParent match {
-          case _: ScParameterType => false
-          case _ => true
-        }
-      case _ => true
+    variableNode.getParent match {
+      case parent => parent.getParent match {
+        case _: ScImportExpr => false
+        case grandParent: ScSimpleTypeElement =>
+          grandParent.getParent match {
+            case _: ScParameterType => false
+            case _ => true
+          }
+        case _ => true
+      }
     }
 
   // if a variable is set inside the template, normally getText is used to extract the name

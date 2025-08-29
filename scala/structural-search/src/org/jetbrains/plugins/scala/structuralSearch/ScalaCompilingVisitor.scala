@@ -7,14 +7,15 @@ import com.intellij.structuralsearch.impl.matcher.compiler.GlobalCompilingVisito
 import com.intellij.structuralsearch.impl.matcher.handlers.{MatchingHandler, SubstitutionHandler, TopLevelMatchingHandler}
 import com.intellij.structuralsearch.impl.matcher.strategies.MatchingStrategy
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScReferencePattern}
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScNamedTupleTypeComponent, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScConstructorInvocation, ScReference}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScForBinding, ScInfixExpr, ScMatch, ScMethodCall}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScForBinding, ScInfixExpr, ScMatch, ScMethodCall, ScNamedTupleExprComponent}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatternDefinition, ScTypeAlias, ScValueDeclaration, ScVariableDeclaration, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam, ScTypeParamClause}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
-import org.jetbrains.plugins.scala.structuralSearch.filter.{AcceptAllFilter, CaseClauseFilter, FunctionFilter, MethodInvocationFilter, TypeAliasFilter, TypeDefinitionFilter, TypeElementFilter, TypeParamFilter, ValueDeclarationFilter, VariableDeclarationFilter}
+import org.jetbrains.plugins.scala.structuralSearch.filter.{AcceptAllFilter, CaseClauseFilter, FunctionFilter, MethodInvocationFilter, NamedTupleExprComponentFilter, TypeAliasFilter, TypeDefinitionFilter, TypeElementFilter, TypeParamFilter, ValueDeclarationFilter, VariableDeclarationFilter}
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
 
 class ScalaCompilingVisitor(globalVisitor: GlobalCompilingVisitor) extends ScalaRecursiveElementVisitor {
@@ -118,11 +119,19 @@ class ScalaCompilingVisitor(globalVisitor: GlobalCompilingVisitor) extends Scala
       .getHandler(te).setFilter(new TypeElementFilter())
   }
 
-  def visitTypeParam(typeParam: ScTypeParam): Unit = {
+  private def visitTypeParam(typeParam: ScTypeParam): Unit = {
     placeVarHandler(typeParam.getText)
     globalVisitor
       .getContext.getPattern
       .getHandler(typeParam).setFilter(new TypeParamFilter())
+  }
+
+  def visitNamedTupleExprComponent(namedTupleComp: ScNamedTupleExprComponent): Unit = {
+    placeVarHandler(namedTupleComp.name, false)
+  }
+
+  def visitNamedTupleTypeComponent(namedTupleComp: ScNamedTupleTypeComponent): Unit = {
+    placeVarHandler(namedTupleComp.name, false)
   }
 
   override def visitTypeDefinition(typedef: ScTypeDefinition): Unit = {
@@ -176,6 +185,10 @@ class ScalaCompilingVisitor(globalVisitor: GlobalCompilingVisitor) extends Scala
     globalVisitor
       .getContext.getPattern
       .getHandler(varr).setFilter(new VariableDeclarationFilter())
+  }
+
+  override def visitImportExpr(expr: ScImportExpr): Unit = {
+    super.visitImportExpr(expr)
   }
 
   private def placeVarHandler(name: String, setFilter: Boolean = true): Unit = {

@@ -7,14 +7,14 @@ import com.intellij.structuralsearch.impl.matcher.handlers.{MatchingHandler, Sub
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScParenthesisedTypeElement, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScNamedTupleTypeComponent, ScNamedTupleTypeElement, ScParameterizedTypeElement, ScParenthesisedTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScConstructorInvocation, ScLiteral, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.*
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScCatchBlock.unapply
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScParameters, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFunction, ScFunctionDefinition, ScPatternDefinition, ScTypeAlias, ScTypeAliasDefinition, ScValueDeclaration, ScValueOrVariable, ScValueOrVariableDeclaration, ScValueOrVariableDefinition, ScVariableDeclaration, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScConstructorOwner, ScEnum, ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScConstructorOwner, ScDerivesClauseOwner, ScEnum, ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiElement}
 import org.jetbrains.plugins.scala.util.EnumSet.{EnumSet, EnumSetOps}
 
@@ -120,8 +120,6 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
   }
 
   private def matchClassLike(typedef: ScTypeDefinition, other: ScTypeDefinition): Unit = {
-    val other = globalVisitor.getElement.asInstanceOf[ScTypeDefinition]
-
     val handler = getHandler(typedef)
     val annotationsMatch = matchInAnyOrder(typedef.annotations, other.annotations)
     val keywordMatch = typedef.keywordPrefix == other.keywordPrefix
@@ -152,13 +150,26 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
 
     val parentsMatch = matchInAnyOrder(extractConstructorInvocations(typedef), extractConstructorInvocations(other))
     val casesMatch = (typedef, other) match {
-      case (en: ScEnum, other: ScEnum) => matchInAnyOrder(en.cases, other.cases)
+      case (en: ScEnum, other: ScEnum) => {
+        matchInAnyOrder(en.cases, other.cases)
+      }
+      case _ => true
+    }
+    val derivesMatch = (typedef, other) match {
+      case (en: ScDerivesClauseOwner, other: ScDerivesClauseOwner) => {
+        (en.derivesClause, other.derivesClause) match {
+          case (Some(der), Some(derOther)) =>
+            matchInAnyOrder(der.derivedReferences, derOther.derivedReferences)
+          case (None, _) => true
+          case _ => false
+        }
+      }
       case _ => true
     }
 
     globalVisitor.setResult(annotationsMatch && keywordMatch && modifierMatch && nameMatch && parentsMatch && typeParamsMatch
       && primaryConstrBodyMatch && constructorsMatch
-      && functionsMatch && classesMatch && casesMatch)
+      && functionsMatch && classesMatch && casesMatch && derivesMatch)
     rememberVarMatchIfResult(handler, other.getNameIdentifier)
   }
 
@@ -188,8 +199,9 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     val modifierMatch = checkModifier(pat.getModifierList.modifiers, other.getModifierList.modifiers)
     val annotationsMatch = matchInAnyOrder(pat.getAnnotations, other.getAnnotations)
     val namesMatch = pat.declaredElements.size == other.declaredElements.size
-      && (if (pat.declaredElements.size == 1) matchTextOrVariable(pat.declaredElements.head, other.declaredElements.head, getHandler(pat))
-    else pat.declaredElements.zip(other.declaredElements).forall((pa, ot) => matchTextOrVariable(pa, ot, getHandler(pa)))
+      && (if (pat.declaredElements.size == 1)
+          matchTextOrVariable(pat.declaredElements.head, other.declaredElements.head, getHandler(pat))
+        else pat.declaredElements.zip(other.declaredElements).forall((pa, ot) => matchTextOrVariable(pa, ot, getHandler(pa)))
       )
     val typesMatch = matchOptOptional(pat.typeElement, other.typeElement)
 
@@ -282,7 +294,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     rememberVarMatchIfResult(handler, other.getNameIdentifier)
   }
 
-  def visitTypeParam(typeParam: ScTypeParam): Unit = {
+  private def visitTypeParam(typeParam: ScTypeParam): Unit = {
     val other = globalVisitor.getElement.asInstanceOf[ScTypeParam]
 
     val handler = getHandler(typeParam)
@@ -345,6 +357,21 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
 
     globalVisitor.setResult(nameMatch && parameterizedMatch)
     rememberVarMatchIfResult(handler, identOther)
+  }
+
+  // lambdas
+  override def visitFunctionExpression(stmt: ScFunctionExpr): Unit = {
+    val other = globalVisitor.getElement.asInstanceOf[ScFunctionExpr]
+    val paramsMatch = matchSequentially(stmt.parameters, other.parameters)
+    val resMatch = matchOpt(stmt.result, other.result)
+    globalVisitor.setResult(paramsMatch && resMatch)
+  }
+
+  override def visitPolyFunctionExpression(fun: ScPolyFunctionExpr): Unit = {
+    val other = globalVisitor.getElement.asInstanceOf[ScPolyFunctionExpr]
+    val paramsMatch = matchSequentially(fun.typeParameters, other.typeParameters)
+    val resMatch = matchOpt(fun.result, other.result)
+    globalVisitor.setResult(paramsMatch && resMatch)
   }
 
   override def visitAnnotation(annotation: ScAnnotation): Unit = {
@@ -534,8 +561,18 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     }
   }
 
-  override def visitInfixExpression(infixPat: ScInfixExpr): Unit = {
-    visitMethodInvocation(infixPat)
+  override def visitInfixExpression(infixPat: ScInfixExpr): Unit = visitMethodInvocation(infixPat)
+
+  override def visitPrefixExpression(p: ScPrefixExpr): Unit = visitMethodInvocation(p)
+
+  override def visitPostfixExpression(p: ScPostfixExpr): Unit = visitMethodInvocation(p)
+
+  override def visitAssignment(stmt: ScAssignment): Unit = {
+    val other = globalVisitor.getElement.asInstanceOf[ScAssignment]
+    globalVisitor.setResult(
+      globalVisitor.`match`(stmt.leftExpression, other.leftExpression)
+      && matchOpt(stmt.rightExpression, other.rightExpression)
+    )
   }
 
   override def visitTypeAlias(alias: ScTypeAlias): Unit = {
@@ -586,6 +623,41 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     }
   }
 
+  override def visitNamedTuple(tuple: ScNamedTuple): Unit = {
+    val other = globalVisitor.getElement.asInstanceOf[ScNamedTuple]
+    globalVisitor.setResult(matchInAnyOrder(tuple.components, other.components))
+  }
+
+  private def visitNamedTupleExprComponent(tupleComp: ScNamedTupleExprComponent): Unit = {
+    val other = globalVisitor.getElement.asInstanceOf[ScNamedTupleExprComponent]
+
+    val handler = getHandler(tupleComp)
+    val nameMatch = matchTextOrVariable(tupleComp.getNameIdentifier, other.getNameIdentifier, handler)
+    val valMatch = matchOpt(tupleComp.expr, other.expr)
+    globalVisitor.setResult(nameMatch && valMatch)
+    rememberVarMatchIfResult(handler, other.getNameIdentifier)
+  }
+
+  override def visitNamedTupleTypeElement(tuple: ScNamedTupleTypeElement): Unit = {
+    val other = globalVisitor.getElement.asInstanceOf[ScNamedTupleTypeElement]
+    globalVisitor.setResult(matchInAnyOrder(tuple.components, other.components))
+  }
+
+  private def visitNamedTupleTypeComponent(tupleComp: ScNamedTupleTypeComponent): Unit = {
+    val other = globalVisitor.getElement.asInstanceOf[ScNamedTupleTypeComponent]
+
+    val handler = getHandler(tupleComp)
+    val nameMatch = matchTextOrVariable(tupleComp.getNameIdentifier, other.getNameIdentifier, handler)
+    val typeMatch = matchOpt(tupleComp.typeElement, other.typeElement)
+    globalVisitor.setResult(nameMatch && typeMatch)
+    rememberVarMatchIfResult(handler, other.getNameIdentifier)
+  }
+
+  override def visitBlockExpression(block: ScBlockExpr): Unit = {
+    val other = globalVisitor.getElement.asInstanceOf[ScBlockExpr]
+    globalVisitor.setResult(matchSequentially(block.exprs, other.exprs))
+  }
+
   override def visitMethodCallExpression(call: ScMethodCall): Unit = visitMethodInvocation(call)
 
   override def visitParenthesisedExpr(expr: ScParenthesisedExpr): Unit = {
@@ -593,13 +665,41 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     globalVisitor.setResult(matchOpt(expr.innerElement, other.innerElement))
   }
 
+  override def visitGenericCallExpression(call: ScGenericCall): Unit = {
+    val other = globalVisitor.getElement.asInstanceOf[ScGenericCall]
+
+    val refMatch = globalVisitor.`match`(call.referencedExpr, other.referencedExpr)
+    val argsMatch = if call.arguments.isEmpty then true else matchSequentially(call.arguments, other.arguments)
+    globalVisitor.setResult(refMatch && argsMatch)
+  }
+
   def visitMethodInvocation(call: MethodInvocation): Unit = {
     val other = globalVisitor.getElement.asInstanceOf[MethodInvocation]
 
+    val unwrapMethodName: ScExpression => PsiElement = {
+      case ref: ScReferenceExpression => ref.nameId
+      case expr => expr
+    }
+
     val thisMatch = matchOptOptional(call.thisExpr, other.thisExpr)
-    val methodMatch = globalVisitor.`match`(call.getInvokedExpr.getLastChild, other.getInvokedExpr.getLastChild)
+    val methodMatch = globalVisitor.`match`(unwrapMethodName(call.getInvokedExpr), unwrapMethodName(other.getInvokedExpr))
     val parsMatch = matchSequentially(call.argumentExpressions, other.argumentExpressions)
     globalVisitor.setResult(thisMatch && methodMatch && parsMatch)
+  }
+
+  override def visitNewTemplateDefinition(templ: ScNewTemplateDefinition): Unit = {
+    val other = globalVisitor.getElement.asInstanceOf[ScNewTemplateDefinition]
+    globalVisitor.setResult(matchOpt(templ.firstConstructorInvocation, other.firstConstructorInvocation))
+  }
+
+  override def visitReturn(ret: ScReturn): Unit = {
+    val other = globalVisitor.getElement.asInstanceOf[ScReturn]
+    globalVisitor.setResult(matchOpt(ret.expr, other.expr))
+  }
+
+  override def visitThrow(throwStmt: ScThrow): Unit = {
+    val other = globalVisitor.getElement.asInstanceOf[ScThrow]
+    globalVisitor.setResult(matchOpt(throwStmt.expression, other.expression))
   }
 
   def matchValVar(typedDefPat: ScTypedDefinition, typedDefMatch: ScTypedDefinition): Boolean = {
@@ -615,6 +715,8 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     element match {
       case typeParam: ScTypeParam => visitTypeParam(typeParam)
       case finallyBlock: ScFinallyBlock => visitFinally(finallyBlock)
+      case tuple: ScNamedTupleExprComponent => visitNamedTupleExprComponent(tuple)
+      case tuple: ScNamedTupleTypeComponent => visitNamedTupleTypeComponent(tuple)
       case _ => visitElement(element)
     }
   }
