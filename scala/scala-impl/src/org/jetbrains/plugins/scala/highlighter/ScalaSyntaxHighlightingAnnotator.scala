@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.highlighter
 
 import com.intellij.codeInsight.daemon.impl.HighlightInfoType
+import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.lang.annotation.{AnnotationHolder, Annotator, HighlightSeverity}
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.util.TextRange
@@ -13,6 +14,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAssignment
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
+import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScPsiDocToken
 
 class ScalaSyntaxHighlightingAnnotator extends Annotator with DumbAware {
@@ -47,6 +50,12 @@ class ScalaSyntaxHighlightingAnnotator extends Annotator with DumbAware {
             .create()
         case _ =>
       }
+
+    case e: ASTWrapperPsiElement if e.getNode.getElementType == ScalaDocTokenType.DOC_MARKDOWN_HEADER =>
+      holder.newSilentAnnotation(HighlightSeverity.TEXT_ATTRIBUTES)
+        .textAttributes(DefaultHighlighter.SCALA_DOC_WIKI_SYNTAX)
+        .range(e)
+        .create()
 
     case e if isSoftKeyword(e) =>
       addInfo(e, ScalaHighlightInfoTypes.KEYWORD, holder)

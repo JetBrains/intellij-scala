@@ -69,6 +69,7 @@ final class ScalaDocTypedHandler extends TypedHandlerDelegate {
       if (charTyped == '*' && hasNewlineBeforeOffset(documentText, offset - 1)) {
         // do nothing when it's the first * of the doc comment
       } else if (MarkdownCompletionChars.contains(charTyped)) {
+        // TODO-md-emi: link completion like [[ -> adds ]]
         val before = countChars(charTyped, documentText, offset - 2, -1)
         val after = countChars(charTyped, documentText, offset, +1)
         if (before == after) {

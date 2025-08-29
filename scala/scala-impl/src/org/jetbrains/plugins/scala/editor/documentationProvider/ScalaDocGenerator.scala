@@ -54,7 +54,6 @@ object ScalaDocGenerator {
     // for library classes, get class from sources jar
     appendHeader(builder, elementWithDoc)
 
-    // TODO-md-emi: Examine this?
     ScalaDocDefinitionGenerator.generate(builder, elementWithDoc, originalElement)
     generateDocContent(builder, elementWithDoc)
 

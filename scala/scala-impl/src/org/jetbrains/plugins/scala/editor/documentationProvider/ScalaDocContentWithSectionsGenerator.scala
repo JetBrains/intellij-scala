@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider
 
+import com.intellij.codeInsight.documentation.DocumentationManagerUtil
+import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.lang.documentation.DocumentationMarkup
 import com.intellij.openapi.project.IndexNotReadyException
 import com.intellij.psi.{PsiDocCommentOwner, PsiElement}
@@ -11,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOwner, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api._
 
@@ -218,7 +221,21 @@ private class ScalaDocContentWithSectionsGenerator(
 
   private def prepareThrowsSection(tags: Seq[ScDocTag]): Option[Section] = {
     val throwTags      = tags.filter(_.name == MyScaladocParsing.TagNames.Throws)
-    val throwTagsInfos = throwTags.flatMap(throwsInfo)
+    val throwTagsInfos =
+      if (comment.isMarkdownComment)
+        throwTags.flatMap(tag => {
+          // TODO-md-emi: Should not be an ASTWrapperPsiElement
+          val exceptionRef = tag.children.findByType[ASTWrapperPsiElement]
+            .filter(_.getNode.getElementType == ScalaDocElementTypes.SCALA_DOC_REFERENCE_LINK)
+          exceptionRef.map { ref =>
+            val buffer = new java.lang.StringBuilder
+            DocumentationManagerUtil.createHyperlink(buffer, ref.getText, ref.getText, false)
+            val value = buffer.toString
+            val description = newContentGenerator.tagDescriptionText(tag)
+            ParamInfo(value, description)
+          }
+        })
+      else throwTags.flatMap(throwsInfo)
     if (throwTagsInfos.nonEmpty) {
       val content = parameterInfosText(throwTagsInfos)
       Some(Section(ScalaEditorBundle.message("section.title.throws"), content))
