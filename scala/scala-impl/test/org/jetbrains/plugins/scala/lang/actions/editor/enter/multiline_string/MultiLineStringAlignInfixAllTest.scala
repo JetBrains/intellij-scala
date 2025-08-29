@@ -1,10 +1,8 @@
 package org.jetbrains.plugins.scala.lang.actions.editor.enter.multiline_string
 
-import org.jetbrains.plugins.scala.lang.actions.editor.enter.AbstractEnterActionTestBase
-
 import java.nio.file.Path
 
-class MultiLineStringAlignInfixAllTest extends AbstractEnterActionTestBase {
+class MultiLineStringAlignInfixAllTest extends MultiLineStringEnterHandlerTestBase {
   override protected def relativeTestDataPath: Path = Path.of("actions", "editor", "enter", "multiLineStringData", "alignInfix", "indentAndMargin")
 
   override protected def setUp(): Unit = {
