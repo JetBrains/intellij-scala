@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.actions.editor.enter
+package org.jetbrains.plugins.scala.lang.actions.editor.enter.withScalafmt
 
 import org.jetbrains.plugins.scala.lang.actions.editor.enter.scala3.DoEditorStateTestOps
 import org.jetbrains.plugins.scala.lang.formatter.scalafmt.ScalaFmtForTestsSetupOps
