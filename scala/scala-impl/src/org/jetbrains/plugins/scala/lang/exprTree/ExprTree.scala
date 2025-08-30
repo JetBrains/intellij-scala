@@ -2,8 +2,8 @@ package org.jetbrains.plugins.scala.lang.exprTree
 
 import com.intellij.psi.{PsiElement, PsiErrorElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScFunctionExpr, ScReferenceExpression, ScUnderscoreSection}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScArgumentExprList, ScAssignment, ScFunctionExpr, ScGenericCall, ScInfixExpr, ScMethodCall, ScPostfixExpr, ScPrefixExpr, ScReferenceExpression, ScUnderscoreSection}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScArguments, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -119,8 +119,17 @@ final case class QualifiedRefExprTree(refName: String, qualifier: ExprTree, over
 object QualifiedRefExprTree {
   sealed abstract class Origin extends PsiElementExprTreeOrigin
   object Origin {
-    final case class Psi(override val psiElement: ScReferenceExpression) extends Origin {
+    final case class PsiRefExpr(override val psiElement: ScReferenceExpression) extends Origin {
       override type Psi = ScReferenceExpression
+    }
+    final case class PsiInfixTarget(override val psiElement: ScInfixExpr) extends Origin {
+      override type Psi = ScInfixExpr
+    }
+    final case class PsiPrefixTarget(override val psiElement: ScPrefixExpr) extends Origin {
+      override type Psi = ScPrefixExpr
+    }
+    final case class PsiPostfixTarget(override val psiElement: ScPostfixExpr) extends Origin {
+      override type Psi = ScPostfixExpr
     }
   }
 }
@@ -130,10 +139,69 @@ final case class UnqualifiedRefExprTree(refName: String, override val origin: Un
 }
 
 object UnqualifiedRefExprTree {
-  sealed abstract class Origin extends PsiElementExprTreeOrigin
+  sealed abstract class Origin extends ExprTreeOrigin
   object Origin {
-    final case class Psi(override val psiElement: ScReferenceExpression) extends Origin {
+    final case class Psi(override val psiElement: ScReferenceExpression) extends Origin with PsiElementExprTreeOrigin {
       override type Psi = ScReferenceExpression
+    }
+  }
+}
+
+final case class CallExprTree(target: ExprTree, argsLists: Seq[CallExprTree.ArgList], override val origin: CallExprTree.Origin) extends ExprTree {
+  assert(argsLists.nonEmpty)
+  override type Origin = CallExprTree.Origin
+}
+
+object CallExprTree {
+  sealed abstract class ArgList {
+    def origin: ArgList.Origin
+  }
+  object ArgList {
+    sealed abstract class Origin
+
+    final case class Types(types: Seq[TypeResult], override val origin: Types.Origin) extends ArgList
+    object Types {
+      sealed abstract class Origin extends ArgList.Origin
+      object Origin {
+        final case class Psi(genericCall: ScGenericCall) extends Origin
+      }
+    }
+
+    final case class Values(args: Seq[Arg], isUsing: Boolean, override val origin: Values.Origin) extends ArgList
+    object Values {
+      sealed abstract class Origin extends ArgList.Origin
+      object Origin {
+        final case class PsiArgList(argList: ScArgumentExprList) extends Origin
+        final case class RightOfInfix(infix: ScInfixExpr) extends Origin
+      }
+    }
+  }
+
+  sealed abstract class Arg
+  object Arg {
+    final case class Positional(expr: ExprTree) extends Arg
+    final case class Named(name: String, expr: ExprTree, origin: ScAssignment) extends Arg
+  }
+
+  sealed abstract class Origin extends ExprTreeOrigin
+  object Origin {
+    final case class PsiMethodCall(override val psiElement: ScMethodCall) extends Origin with PsiElementExprTreeOrigin {
+      override type Psi = ScMethodCall
+    }
+    final case class PsiReferenceApply(override val psiElement: ScReferenceExpression) extends Origin with PsiElementExprTreeOrigin {
+      override type Psi = ScReferenceExpression
+    }
+    final case class PsiInfix(override val psiElement: ScInfixExpr) extends Origin with PsiElementExprTreeOrigin {
+      override type Psi = ScInfixExpr
+    }
+    final case class PsiInfixApply(override val psiElement: ScInfixExpr) extends Origin with PsiElementExprTreeOrigin {
+      override type Psi = ScInfixExpr
+    }
+    final case class PsiPostfixApply(override val psiElement: ScPostfixExpr) extends Origin with PsiElementExprTreeOrigin {
+      override type Psi = ScPostfixExpr
+    }
+    final case class PsiGenericCall(override val psiElement: ScGenericCall) extends Origin with PsiElementExprTreeOrigin {
+      override type Psi = ScGenericCall
     }
   }
 }

@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.exprTree
 class ExprTreePrinter(val withOrigin: Boolean = true) {
   private val builder = new StringBuilder
   private var curIndent = 0
+  private var lastWasProp = false
 
   def print(tree: ExprTree): Unit = tree match {
     case ErrorExprTree(typeFailure, origin) =>
@@ -30,9 +31,52 @@ class ExprTreePrinter(val withOrigin: Boolean = true) {
       }
     case underscore: UnderscoreReferenceExprTree =>
       printDirect(underscoreString(underscore.origin))
+    case CallExprTree(target, argLists, origin) =>
+      printDirect("call")
+      printOrigin(origin)
+      inIndent {
+        printProp("target")
+        print(target)
+        printProp("args")
+        inIndent {
+          import CallExprTree.ArgList
+          argLists.foreach {
+            case ArgList.Types(types, origin) =>
+              printProp("typeArgs")
+              printOrigin(origin)
+              inIndent {
+                types.foreach {
+                  case Right(tpe) =>
+                    printPropRaw(s"type:${tpe.toString}")
+                  case Left(failure) =>
+                    printPropRaw(s"err:${failure.toString}")
+                }
+              }
+            case ArgList.Values(args, isUsing, origin) =>
+              val usingText = if (isUsing) " (using)" else ""
+              printProp("valueArgs" + usingText)
+              if (args.isEmpty) {
+                printDirect("(empty)")
+              }
+              printOrigin(origin)
+              inIndent {
+                import CallExprTree.Arg
+                args.zipWithIndex.foreach {
+                  case (Arg.Positional(arg), i) =>
+                    printProp(i.toString)
+                    print(arg)
+                  case (Arg.Named(name, arg, origin), _) =>
+                    printProp(name)
+                    printOrigin(origin)
+                    print(arg)
+                }
+              }
+          }
+        }
+      }
   }
 
-  private def printOrigin(origin: ExprTreeOrigin): Unit =
+  private def printOrigin(origin: Any): Unit =
     if (withOrigin) {
       printDirect(" [")
       printDirect(origin.toString)
@@ -52,17 +96,27 @@ class ExprTreePrinter(val withOrigin: Boolean = true) {
     s"$$_${underscoreInfo.i}"
 
   private def printDirect(s: String): Unit = {
+    if (lastWasProp) {
+      builder.append(' ')
+      lastWasProp = false
+    }
     builder.append(s)
   }
 
   private def printProp(prop: String): Unit = {
+    printPropRaw(prop)
+    builder.append(":")
+    lastWasProp = true
+  }
+
+  private def printPropRaw(prop: String): Unit = {
     printIndent()
     builder.append('•')
     builder.append(prop)
-    builder.append(": ")
   }
 
   private def printIndent(indent: Int = curIndent): Unit = {
+    lastWasProp = false
     builder.append('\n')
     builder.append("  " * indent)
   }
