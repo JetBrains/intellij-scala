@@ -5,7 +5,7 @@ import com.intellij.lang.Language
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import com.intellij.structuralsearch.impl.matcher.compiler.GlobalCompilingVisitor
 import com.intellij.structuralsearch.impl.matcher.{CompiledPattern, GlobalMatchingVisitor}
-import com.intellij.structuralsearch.plugin.ui.UIUtil
+import com.intellij.structuralsearch.plugin.ui.{Configuration, UIUtil}
 import com.intellij.structuralsearch.{StructuralSearchProfile, StructuralSearchProfileBase}
 import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaFileTemplateContextType
@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScTypeAliasDeclaration, ScTypeAliasDefinition, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypeBoundsOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
+import org.jetbrains.plugins.scala.structuralSearchimport.ScalaPredefinedConfigurations
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
 
 final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
@@ -119,4 +120,6 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
         !str.contains(' ') && getVarPrefixes.exists(str.startsWith)
       }
     }
+
+  override def getPredefinedTemplates: Array[Configuration] = ScalaPredefinedConfigurations.createPredefinedTemplated()
 }
