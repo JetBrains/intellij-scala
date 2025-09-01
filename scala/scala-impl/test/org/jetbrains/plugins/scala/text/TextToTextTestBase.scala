@@ -31,7 +31,8 @@ abstract class TextToTextTestBase(dependencies: Seq[DependencyDescription],
                                   sourceExceptions: Set[String] = Set.empty,
                                   includeScalaReflect: Boolean = false,
                                   includeScalaCompiler: Boolean = false,
-                                  astLoadingFilter: Boolean = true)(implicit scalaVersion: ScalaVersion) extends ScalaFixtureTestCase {
+                                  astLoadingFilter: Boolean = true,
+                                  transformed: (Content, String) => String = (_, s) => s)(implicit scalaVersion: ScalaVersion) extends ScalaFixtureTestCase {
 
   override protected val includeCompilerAsLibrary = includeScalaCompiler
 
@@ -101,35 +102,43 @@ abstract class TextToTextTestBase(dependencies: Seq[DependencyDescription],
 
       Assert.assertTrue("Must be in a compiled file: ${cls.qualifiedName}", cls.isInCompiledFile)
 
-      val actual = {
+      val stub = {
         val text = withAstLoadingFilter(textOfCompilationUnit(cls, withPrivate = true, normalize = false))
         val errors = TestLoggerKt.getErrorLog.takeLoggedErrors()
-        if (errors.isEmpty) text else errors.asScala.map(_.toString).mkString("\n")
+        val s = if (errors.isEmpty) text else errors.asScala.map(_.toString).mkString("\n")
+        transformed(Content.Stub, s)
       }
 
-      val expected = {
+      val decompiled = {
         val s1 = cls.getContainingFile.getText
         // TODO Function type by-name parameters, SCL-21149
         val s2 = if (cls.qualifiedName.startsWith("scalaz.")) s1.replace("(=> ", "(").replace(", => ", ", ").replaceAll("\\((\\S+)\\) => ", "$1 => ") else s1
         s2.replaceAll("\\.super\\[.*?\\*/\\]\\.", ".this.")
       }
 
+      val decompiledVsStub = transformed(Content.DecompiledVsStub, decompiled)
+
       if (classExceptions(cls.qualifiedName)) {
-        Assert.assertNotEquals(expected, actual, s"Expected to contain errors: ${cls.qualifiedName}")
+        Assert.assertNotEquals(decompiledVsStub, stub, s"Expected to contain errors: ${cls.qualifiedName}")
       } else {
-        Assert.assertEquals(s"${cls.qualifiedName} [decompiled | outlines]", expected, actual)
+        Assert.assertEquals(s"${cls.qualifiedName} [decompiled | stub]", decompiledVsStub, stub)
 
         if (withSources && !ClassesWithoutSource(cls.name)) {
           val sourceCls = cls.getSourceMirrorClass.asInstanceOf[ScTypeDefinition]
           Assert.assertTrue(s"Must have a source: ${cls.qualifiedName}", sourceCls != cls)
           Assert.assertFalse(s"Must be in a source file: ${cls.qualifiedName}", sourceCls.isInCompiledFile)
 
-          val actualSource = textOfCompilationUnit(sourceCls, withPrivate = false, normalize = true)
+          val decompiledVsSourceOutline = transformed(Content.DecompiledVsSourceOutline, decompiled)
+
+          val sourceOutline = {
+            val s = textOfCompilationUnit(sourceCls, withPrivate = false, normalize = true)
+            transformed(Content.SourceOutline, s)
+          }
 
           if (sourceExceptions(cls.qualifiedName)) {
-            Assert.assertNotEquals(s"Expected to contain errors: ${cls.qualifiedName}", expected, actualSource)
+            Assert.assertNotEquals(s"Expected to contain errors: ${cls.qualifiedName}", decompiledVsSourceOutline, sourceOutline)
           } else {
-            Assert.assertEquals(s"${cls.qualifiedName} [decompiled | source outlines]", expected, actualSource)
+            Assert.assertEquals(s"${cls.qualifiedName} [decompiled | sourceOutline]", decompiledVsSourceOutline, sourceOutline)
           }
         }
       }
@@ -180,4 +189,12 @@ private object TextToTextTestBase {
   )
 
   private val ClassesWithoutSource = Set("BuildInfo")
+
+  sealed abstract class Content extends Product with Serializable
+  object Content {
+    final case object DecompiledVsStub extends Content
+    final case object Stub extends Content
+    final case object DecompiledVsSourceOutline extends Content
+    final case object SourceOutline extends Content
+  }
 }
