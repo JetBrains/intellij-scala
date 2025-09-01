@@ -5,10 +5,9 @@ import com.intellij.debugger.engine.evaluation.expression.{DisableGC, Evaluator}
 import com.intellij.debugger.engine.{DebugProcess, DebugProcessImpl, DebuggerUtils, JVMName}
 import com.intellij.debugger.{JavaDebuggerBundle, SourcePosition}
 import com.sun.jdi._
-import com.sun.tools.jdi.{ConcreteMethodImpl, TypeComponentImpl}
-import org.jetbrains.plugins.scala.debugger.{DebuggerBundle, ScalaPositionManager}
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
+import org.jetbrains.plugins.scala.debugger.{DebuggerBundle, ScalaPositionManager}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.util.ScalaBytecodeConstants.TraitImplementationClassSuffix_211
 
@@ -88,7 +87,16 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator,
             case classType: ClassType =>
               Option(classType.concreteMethodByName(mName, sgn))
             case it: InterfaceType =>
-              it.methodsByName(mName, sgn).asScala.find(_.is[ConcreteMethodImpl])
+              // This is a dangerous way of querying if a method is concrete (i.e. has an implementation).
+              // The `ConcreteMethodImpl` class does not exist in all JDK distributions, particularly modern ones
+              // like JDK 21. In fact, the Amazon Corretto JDK distribution does not have this class.
+              // Luckily, this code runs in the JBR, so this class exist, but we still are not allowed to link
+              // against it during compilation.
+              // TODO: Rewrite using proper APIs.
+              Try {
+                val concreteMethodImplClass = Class.forName("com.sun.tools.jdi.ConcreteMethodImpl")
+                it.methodsByName(mName, sgn).asScala.find(concreteMethodImplClass.isInstance)
+              }.toOption.flatten
           }
         }
         def findWithSignature(): Option[Method] = {
@@ -179,9 +187,16 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator,
       def invokeInterfaceMethod(objRef: ObjectReference, jdiMethod: Method): AnyRef = {
         def togglePrivate(method: Method): Unit = {
           try {
+            // This is a dangerous way of making a private trait method callable.
+            // The `TypeComponentImpl` class does not exist in all JDK distributions, particularly modern ones
+            // like JDK 21. In fact, the Amazon Corretto JDK distribution does not have this class.
+            // Luckily, this code runs in the JBR, so this class exist, but we still are not allowed to link
+            // against it during compilation.
+            // TODO: Rewrite using proper APIs.
+            val typeComponentImplClass = Class.forName("com.sun.tools.jdi.TypeComponentImpl")
             method match {
-              case mImpl: TypeComponentImpl =>
-                val field = classOf[TypeComponentImpl].getDeclaredField("modifiers")
+              case mImpl if typeComponentImplClass.isInstance(mImpl) =>
+                val field = typeComponentImplClass.getDeclaredField("modifiers")
                 field.setAccessible(true)
                 val value = field.get(mImpl).asInstanceOf[Integer].toInt
                 val privateModifierMask = 2
