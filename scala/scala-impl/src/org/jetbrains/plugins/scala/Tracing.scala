@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 import java.util
+import scala.annotation.nowarn
 import scala.collection.mutable.ListBuffer
 
 @ApiStatus.Internal
@@ -143,7 +144,7 @@ object Tracing {
     } finally {
       this.parameters = Parameters.Empty
 
-      psiManager.removePsiTreeChangeListener(psiTreeChangeListener)
+      psiManager.removePsiTreeChangeListener(psiTreeChangeListener): @nowarn("cat=deprecation")
       eventMulticaster.removeDocumentListener(documentListener)
       connection.disconnect()
     }

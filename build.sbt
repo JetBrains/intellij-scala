@@ -214,9 +214,9 @@ lazy val worksheetReplInterfaceImpls: Project =
       crossPaths := false,
       packageMethod := PackagingMethod.Standalone("worksheet-repl-interface/impls.jar", static = true),
       packageAdditionalProjects := Seq(
-        worksheetReplInterfaceImpl_2_12,
+//        worksheetReplInterfaceImpl_2_12,
         worksheetReplInterfaceImpl_2_12_13,
-        worksheetReplInterfaceImpl_2_13_0,
+//        worksheetReplInterfaceImpl_2_13_0,
         worksheetReplInterfaceImpl_2_13,
         worksheetReplInterfaceImpl_2_13_12,
         worksheetReplInterfaceImpl_3_0_0,
@@ -250,27 +250,27 @@ def worksheetReplInterfaceImplCommonSettings(scalaVer: String): Seq[Setting[?]] 
   intellijPlugins := Seq.empty
 )
 
-lazy val worksheetReplInterfaceImpl_2_12: Project =
-  newProject("worksheet-repl-interface-impl_2_12", file("scala/worksheet-repl-interface-impls/impl_2_12"))
-    .dependsOn(worksheetReplInterface)
-    .settings(
-      worksheetReplInterfaceImplCommonSettings("2.12.12"),
-      (Compile / scalacOptions) := Seq("-target:jvm-1.8") // Old version of Scala 2.12 does not have the modern compiler flags
-    )
-    .settings(
-      libraryDependencies ++= Seq(
-        compilerPlugin("com.github.ghik" % "silencer-plugin" % "1.7.1" cross CrossVersion.full),
-        "com.github.ghik" % "silencer-lib" % "1.7.1" % Provided cross CrossVersion.full
-      ),
-      (Compile / scalacOptions) += "-deprecation",
-      // This is a workaround for manually enabling the `silencer-plugin` scalac compiler plugin. For some reason,
-      // automatic enabling doesn't work (the scalacOption "-Xplugin:" was not added).
-      // The silencer plugin is needed because this subproject is compiled using Scala 2.12.12 which did not have
-      // support for `@scala.annotation.nowarn`.
-      autoCompilerPlugins := false,
-      ivyConfigurations += Configurations.CompilerPlugin,
-      (Compile / scalacOptions) ++= Classpaths.autoPlugins(update.value, Seq.empty, isDotty = false)
-    )
+//lazy val worksheetReplInterfaceImpl_2_12: Project =
+//  newProject("worksheet-repl-interface-impl_2_12", file("scala/worksheet-repl-interface-impls/impl_2_12"))
+//    .dependsOn(worksheetReplInterface)
+//    .settings(
+//      worksheetReplInterfaceImplCommonSettings("2.12.12"),
+//      (Compile / scalacOptions) := Seq("-target:jvm-1.8") // Old version of Scala 2.12 does not have the modern compiler flags
+//    )
+//    .settings(
+//      libraryDependencies ++= Seq(
+//        compilerPlugin("com.github.ghik" % "silencer-plugin" % "1.7.1" cross CrossVersion.full),
+//        "com.github.ghik" % "silencer-lib" % "1.7.1" % Provided cross CrossVersion.full
+//      ),
+//      (Compile / scalacOptions) += "-deprecation",
+//      // This is a workaround for manually enabling the `silencer-plugin` scalac compiler plugin. For some reason,
+//      // automatic enabling doesn't work (the scalacOption "-Xplugin:" was not added).
+//      // The silencer plugin is needed because this subproject is compiled using Scala 2.12.12 which did not have
+//      // support for `@scala.annotation.nowarn`.
+//      autoCompilerPlugins := false,
+//      ivyConfigurations += Configurations.CompilerPlugin,
+//      (Compile / scalacOptions) ++= Classpaths.autoPlugins(update.value, Seq.empty, isDotty = false)
+//    )
 
 lazy val worksheetReplInterfaceImpl_2_12_13: Project =
   newProject("worksheet-repl-interface-impl_2_12_13", file("scala/worksheet-repl-interface-impls/impl_2_12_13"))
@@ -280,10 +280,10 @@ lazy val worksheetReplInterfaceImpl_2_12_13: Project =
       (Compile / scalacOptions) += "-deprecation"
     )
 
-lazy val worksheetReplInterfaceImpl_2_13_0: Project =
-  newProject("worksheet-repl-interface-impl_2_13_0", file("scala/worksheet-repl-interface-impls/impl_2_13_0"))
-    .dependsOn(worksheetReplInterface)
-    .settings(worksheetReplInterfaceImplCommonSettings("2.13.0"))
+//lazy val worksheetReplInterfaceImpl_2_13_0: Project =
+//  newProject("worksheet-repl-interface-impl_2_13_0", file("scala/worksheet-repl-interface-impls/impl_2_13_0"))
+//    .dependsOn(worksheetReplInterface)
+//    .settings(worksheetReplInterfaceImplCommonSettings("2.13.0"))
 
 lazy val worksheetReplInterfaceImpl_2_13: Project =
   newProject("worksheet-repl-interface-impl_2_13", file("scala/worksheet-repl-interface-impls/impl_2_13"))
@@ -671,7 +671,7 @@ lazy val scalatestFindersTests_3_0 = Project("scalatest-finders-tests-3_0", scal
     name := "scalatest-finders-tests-3_0",
     organization := "JetBrains",
     scalatestFindersTestSettings,
-    scalaVersion := "2.12.17",
+    scalaVersion := "2.12.20",
     libraryDependencies := Seq("org.scalatest" %% "scalatest" % scalatestLatest_3_0 % Test),
     intellijMainJars := Nil,
     intellijTestJars := Nil,

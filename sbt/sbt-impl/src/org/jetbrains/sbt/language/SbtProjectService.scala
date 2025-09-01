@@ -23,7 +23,7 @@ final class SbtProjectService(project: Project) extends Disposable {
   private def analyzer = DaemonCodeAnalyzer.getInstance(project)
 
   override def dispose(): Unit = {
-    manager.removePsiTreeChangeListener(TreeListener)
+    manager.removePsiTreeChangeListener(TreeListener): @nowarn("cat=deprecation")
   }
 
   object TreeListener extends PsiTreeChangeAdapter {
