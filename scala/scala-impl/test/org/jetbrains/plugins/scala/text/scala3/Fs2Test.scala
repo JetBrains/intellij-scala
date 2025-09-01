@@ -16,7 +16,6 @@ class Fs2Test extends TextToTextTestBase(
   ),
   withSources = true,
   Set(
-    "fs2.PullMonadErrorInstance", // Cannot resolve F[_]
     "fs2.Stream", // private type ZipWithLeft
   )
 )

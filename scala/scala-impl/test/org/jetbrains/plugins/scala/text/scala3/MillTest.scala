@@ -33,7 +33,6 @@ class MillTest extends TextToTextTestBase(
     "mill.main.SelectiveExecutionModule", // extends BaseClass, Module
     "mill.main.VcsVersion", // extends BaseClass, Module
     "mill.main.VisualizeModule", // private type, scala.Seq
-    "mill.util.Tasks", // Predef.String
   ),
   transformed = {
     case (Content.DecompiledVsSourceOutline, s) => ScaladocAnnotation.replaceAllIn(s, "")

@@ -20,42 +20,21 @@ class ScalatestTest extends TextToTextTestBase(
   Set(
     "org.scalatest.Assertions", // Multiple `extension`
     "org.scalatest.AsyncSuperEngine", // Predef.Set
-    "org.scalatest.CompileMacro", // with Product & Serializable
     "org.scalatest.FixtureTestSuite", // Predef.Set
     "org.scalatest.PathEngine", // scala.List
     "org.scalatest.Suite", // Predef.String
     "org.scalatest.SuperEngine", // Predef.Set
     "org.scalatest.concurrent.PimpedThreadGroup", // scala.List
+    "org.scalatest.diagrams.DiagrammedApplyExpr", // scala.List
+    "org.scalatest.diagrams.DiagrammedSelectExpr", // scala.List
+    "org.scalatest.diagrams.DiagrammedSimpleExpr", // scala.List
     "org.scalatest.diagrams.DiagramsMacro", // Cannot resolve x$1.reflect.Term
-    "org.scalatest.events.AlertProvided", // Event vs AlertProvided
-    "org.scalatest.events.DiscoveryCompleted", // Event vs DiscoveryCompleted
-    "org.scalatest.events.DiscoveryStarting", // Event vs DiscoveryStarting
     "org.scalatest.events.Event", // Object vs Any
-    "org.scalatest.events.InfoProvided", // Event vs InfoProvided
-    "org.scalatest.events.MarkupProvided", // Event vs MarkupProvided
     "org.scalatest.events.MotionToSuppress", // final case object
-    "org.scalatest.events.NoteProvided", // Event vs NoteProvided
-    "org.scalatest.events.RunAborted", // Event vs RunAborted
-    "org.scalatest.events.RunCompleted", // Event vs RunCompleted
-    "org.scalatest.events.RunStarting", // Event vs RunStarting
-    "org.scalatest.events.RunStopped", // Event vs RunStopped
-    "org.scalatest.events.ScopeClosed", // Event vs ScopeClosed
-    "org.scalatest.events.ScopeOpened", // Event vs ScopeOpened
-    "org.scalatest.events.ScopePending", // Event vs ScopePending
     "org.scalatest.events.SeeStackDepthException", // final case object
-    "org.scalatest.events.SuiteAborted", // Event vs SuiteAborted
-    "org.scalatest.events.SuiteCompleted", // Event vs SuiteCompleted
-    "org.scalatest.events.SuiteStarting", // Event vs SuiteStarting
-    "org.scalatest.events.TestCanceled", // Event vs TestCanceled
-    "org.scalatest.events.TestFailed", // Event vs TestFailed
-    "org.scalatest.events.TestIgnored", // Event vs TestIgnored
-    "org.scalatest.events.TestPending", // Event vs TestPending
-    "org.scalatest.events.TestStarting", // Event vs TestStarting
-    "org.scalatest.events.TestSucceeded", // Event vs TestSucceeded
     "org.scalatest.exceptions.NotSerializableWrapperException", // case class with Serializable
     "org.scalatest.matchers.AMatcher", // with Object { toString }
     "org.scalatest.matchers.AnMatcher", // with Object { toString }
-    "org.scalatest.matchers.CompileMacro", // with Product & Serializable
     "org.scalatest.matchers.Matcher", // T with T, T with Any, Expr[...]
     "org.scalatest.matchers.TypeMatcherMacro", // Cannot resolve x$1.reflect.Term
     "org.scalatest.matchers.dsl.EndWithWord", // with Object { toString }

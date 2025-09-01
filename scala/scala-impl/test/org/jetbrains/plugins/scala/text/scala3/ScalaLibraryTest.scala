@@ -19,7 +19,6 @@ class ScalaLibraryTest extends TextToTextTestBase(
     "scala.annotation.RefiningAnnotation", // no extends Annotation
     "scala.quoted.FromExpr", // T is Nothing
     "scala.quoted.Quotes", // Cannot resolve java.nio.file.Path
-    "scala.quoted.ToExpr", // Expr vs Any
     "scala.quoted.runtime.QuoteMatching", // no <: _root_.scala.AnyKind
     "scala.quoted.runtime.QuoteUnpickler", // no <: _root_.scala.AnyKind
     "scala.runtime.coverage.Invoker", // no annotation

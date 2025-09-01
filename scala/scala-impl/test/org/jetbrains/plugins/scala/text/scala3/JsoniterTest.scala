@@ -10,7 +10,5 @@ class JsoniterTest extends TextToTextTestBase(
   Seq("com.github.plokhotnyuk.jsoniter_scala"), Set.empty, 22,
   Set.empty,
   withSources = true,
-  Set(
-    "com.github.plokhotnyuk.jsoniter_scala.macros.NameMapper" // Suitable method not found
-  )
+  Set.empty
 )
