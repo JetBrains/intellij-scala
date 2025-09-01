@@ -8,13 +8,14 @@ import com.intellij.structuralsearch.impl.matcher.{CompiledPattern, GlobalMatchi
 import com.intellij.structuralsearch.plugin.ui.UIUtil
 import com.intellij.structuralsearch.{StructuralSearchProfile, StructuralSearchProfileBase}
 import org.jetbrains.annotations.{NotNull, Nullable}
-import org.jetbrains.plugins.scala.codeInsight.template.impl.{ScalaCodeContextType, ScalaFileTemplateContextType}
+import org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaFileTemplateContextType
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScConstructorInvocation}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterType
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScConstructorInvocation, ScStableCodeReference}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterType, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScTypeAliasDeclaration, ScTypeAliasDefinition, ScValueOrVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypeBoundsOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
 
@@ -43,6 +44,7 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
         isMinMaxApplicable(constraintName, variableNode, completePattern, target)
       case UIUtil.MAXIMUM_UNLIMITED =>
         isMinMaxApplicable(constraintName, variableNode, completePattern, target)
+        && isMaxApplicable(constraintName, variableNode, completePattern, target)
       case _ =>
         super.isApplicableConstraint(constraintName, variableNode, completePattern, target)
     }
@@ -60,6 +62,32 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
         case _ => true
       }
     }
+
+  private def checkLowerUpperMaxApplicable(boundsOwner: ScTypeBoundsOwner, simpType: ScSimpleTypeElement): Boolean = {
+    !(boundsOwner.lowerTypeElement.contains(simpType) || boundsOwner.upperTypeElement.contains(simpType))
+  }
+
+  private def isMaxApplicable(constraintName: String, variableNode: PsiElement, completePattern: Boolean, target: Boolean): Boolean = {
+    variableNode.getParent match {
+      case codeRef: ScStableCodeReference => codeRef.getParent match {
+        case simpType: ScSimpleTypeElement => simpType.getParent match {
+          case fun: ScFunction => !fun.returnTypeElement.contains(simpType)
+          case valvar: ScValueOrVariable => !valvar.typeElement.contains(simpType)
+          case typeParam: (ScTypeParam | ScTypeAliasDeclaration) => checkLowerUpperMaxApplicable(typeParam, simpType)
+          case typeAlias: ScTypeAliasDeclaration => checkLowerUpperMaxApplicable(typeAlias, simpType)
+          case typeAlias: ScTypeAliasDefinition => checkLowerUpperMaxApplicable(typeAlias, simpType) && !typeAlias.aliasedTypeElement.contains(simpType)
+          case _ => true
+        }
+        case _ => true
+      }
+      case refExp: ScReferenceExpression => refExp.getParent match {
+        case param: ScParameter => !param.getDefaultExpression.contains(refExp)
+        case _: ScReferenceExpression => false
+        case _ => true
+      }
+      case _ => true
+    }
+  }
 
   // if a variable is set inside the template, normally getText is used to extract the name
   // we can also use getTypedVarString to extract the name (e.g. special for an annotation

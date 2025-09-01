@@ -30,12 +30,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
   }
 
   private def matchOptOptional(patternO: Option[PsiElement], otherO: Option[PsiElement]): Boolean = {
-    (patternO, otherO) match {
-      case (Some(pattern), Some(other)) =>
-        globalVisitor.`match`(pattern, other)
-      case (None, _) => true
-      case _ => false
-    }
+    matchInAnyOrder(patternO.toSeq, otherO.toSeq)
   }
 
   private def matchOptEqual(patternO: Option[PsiElement], otherO: Option[PsiElement]): Boolean = {
@@ -150,20 +145,17 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
 
     val parentsMatch = matchInAnyOrder(extractConstructorInvocations(typedef), extractConstructorInvocations(other))
     val casesMatch = (typedef, other) match {
-      case (en: ScEnum, other: ScEnum) => {
-        matchInAnyOrder(en.cases, other.cases)
-      }
+      case (en: ScEnum, other: ScEnum) => matchInAnyOrder(en.cases, other.cases)
       case _ => true
     }
     val derivesMatch = (typedef, other) match {
-      case (en: ScDerivesClauseOwner, other: ScDerivesClauseOwner) => {
+      case (en: ScDerivesClauseOwner, other: ScDerivesClauseOwner) =>
         (en.derivesClause, other.derivesClause) match {
           case (Some(der), Some(derOther)) =>
             matchInAnyOrder(der.derivedReferences, derOther.derivedReferences)
           case (None, _) => true
           case _ => false
         }
-      }
       case _ => true
     }
 
@@ -215,7 +207,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     }
     val other = globalVisitor.getElement.asInstanceOf[ScPatternDefinition]
     val declMatch = matchDeclaration(pat, other)
-    val exprMatch = matchOptOptional(pat.expr, other.expr)
+    val exprMatch = matchOpt(pat.expr, other.expr)
     globalVisitor.setResult(declMatch && exprMatch)
   }
 
@@ -235,7 +227,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     }
     val other = globalVisitor.getElement.asInstanceOf[ScVariableDefinition]
     val declMatch = matchDeclaration(pat, other)
-    val exprMatch = matchOptOptional(pat.expr, other.expr)
+    val exprMatch = matchOpt(pat.expr, other.expr)
     globalVisitor.setResult(declMatch && exprMatch)
   }
 
@@ -296,7 +288,6 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
 
   private def visitTypeParam(typeParam: ScTypeParam): Unit = {
     val other = globalVisitor.getElement.asInstanceOf[ScTypeParam]
-
     val handler = getHandler(typeParam)
     val nameMatch = matchTextOrVariable(typeParam.getNameIdentifier, other.getNameIdentifier, handler)
     val flagsMatch = (!typeParam.isCovariant || other.isCovariant) && (!typeParam.isContravariant || other.isContravariant)
@@ -315,18 +306,26 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
   }
 
   override def visitTypeElement(teI: ScTypeElement): Unit = {
-    val te = unwrapTypeParenthesis(teI) match {
+    val te = (unwrapTypeParenthesis(teI) match {
       case None =>
         globalVisitor.setResult(true)
         return
       case Some(c) => c
-    }
-    val other = unwrapTypeParenthesis(globalVisitor.getElement.asInstanceOf[ScTypeElement]) match {
-      case None =>
-        globalVisitor.setResult(false)
-        return
-      case Some(c) => c
-    }
+    }).asInstanceOf[ScalaPsiElement] // Can also be ScTypeElement
+    val other =
+      (globalVisitor.getElement match {
+        case typeElement: ScTypeElement =>
+          unwrapTypeParenthesis(globalVisitor.getElement.asInstanceOf[ScTypeElement]) match {
+            case None =>
+              globalVisitor.setResult(false)
+              return
+            case Some(c) => c
+          }
+        case typeParam: ScTypeParam => Some(typeParam)
+        case _ =>
+          globalVisitor.setResult(false)
+          return
+      }).asInstanceOf[ScalaPsiElement]
 
     val identPat = te.getFirstChild match {
       case leaf: LeafPsiElement => leaf
@@ -448,7 +447,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
   override def visitWhile(ws: ScWhile): Unit = {
     val other = globalVisitor.getElement.asInstanceOf[ScWhile]
 
-    val condMatch = matchOptOptional(ws.condition, other.condition)
+    val condMatch = matchOpt(ws.condition, other.condition)
     val bodyMatch = matchBody(ws.expression, other.expression)
 
     globalVisitor.setResult(condMatch && bodyMatch)
@@ -457,7 +456,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
   override def visitDo(doStmt: ScDo): Unit = {
     val other = globalVisitor.getElement.asInstanceOf[ScDo]
 
-    val condMatch = matchOptOptional(doStmt.condition, other.condition)
+    val condMatch = matchOpt(doStmt.condition, other.condition)
     val bodyMatch = matchBody(doStmt.body, other.body)
 
     globalVisitor.setResult(condMatch && bodyMatch)
@@ -611,6 +610,14 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
         if (globalVisitor.setResult(substHand.validate(otherV, context)))
           substHand.addResult(otherV, context)
         return
+      case topLevel: TopLevelMatchingHandler =>
+        topLevel.getDelegate match {
+          case substHand: SubstitutionHandler =>
+            if (globalVisitor.setResult(substHand.validate(otherV, context)))
+              substHand.addResult(otherV, context)
+            return
+          case _ =>
+        }
       case _ =>
     }
 
