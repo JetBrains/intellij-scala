@@ -2193,7 +2193,7 @@ class ReferenceComparisonTest_Scala3_Newest extends ReferenceComparisonTestBase(
   def test_override(): Unit = doTest("override", true)
   def test_override_via_self(): Unit = doTest("override-via-self", true)
   def test_overrideDataRace(): Unit = doTest("overrideDataRace", true)
-  def test_overrides(): Unit = doTest("overrides", false)
+  def test_overrides(): Unit = doTest("overrides", true)
   def test_overzealous_assert_genbcode(): Unit = doTest("overzealous-assert-genbcode", true)
   def test_p11210_multiowner(): Unit = doTest("p11210-multiowner", true) // #unionType
   def test_p11210_refinement(): Unit = doTest("p11210-refinement", true)
