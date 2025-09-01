@@ -55,11 +55,11 @@ class ExprTreeBuilderTest extends SimpleScalaParserTestBase {
 
   def testPrefix(): Unit = checkExprTree(
     """
-      |a.!
+      |a.unary_!
       |!a
       |""".stripMargin,
     """
-      |ref:!
+      |ref:unary_!
       |  •qual: ref:a
       |""".stripMargin
   )
@@ -157,15 +157,15 @@ class ExprTreeBuilderTest extends SimpleScalaParserTestBase {
 
   def testUnderscoreInCall(): Unit = checkExprTree(
     """
-      |fun(_.!)
+      |fun(_.unary_!)
       |fun(!_)
-      |fun(_ !)
-      |fun((_.!))
+      |fun(_ unary_!)
+      |fun((_.unary_!))
       |fun((!_))
-      |fun((_ !))
-      |fun((_).!)
+      |fun((_ unary_!))
+      |fun((_).unary_!)
       |fun(!(_))
-      |fun((_) !)
+      |fun((_) unary_!)
       |""".stripMargin,
     """
       |call
@@ -173,7 +173,7 @@ class ExprTreeBuilderTest extends SimpleScalaParserTestBase {
       |  •args:
       |    •valueArgs:
       |      •0: fun($_0)
-      |        •body: ref:!
+      |        •body: ref:unary_!
       |          •qual: $_0
       |""".stripMargin
   )

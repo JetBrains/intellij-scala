@@ -5,7 +5,8 @@ import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.NlsString
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScArgumentExprList, ScAssignment, ScExpression, ScFunctionExpr, ScGenericCall, ScInfixExpr, ScMethodCall, ScParenthesisedExpr, ScPostfixExpr, ScPrefixExpr, ScReferenceExpression, ScTuple, ScUnderscoreSection}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScArgumentExprList, ScAssignment, ScBlock, ScExpression, ScFunctionExpr, ScGenericCall, ScInfixExpr, ScMethodCall, ScParenthesisedExpr, ScPostfixExpr, ScPrefixExpr, ScReferenceExpression, ScTuple, ScUnderscoreSection}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.result.Failure
 
 import scala.annotation.tailrec
@@ -63,12 +64,14 @@ class ExprTreeBuilder(rootExpr: PsiElement) {
       }
     case prefix@ScPrefixExpr(op, operand) =>
       val qualifier = build(operand)
-      QualifiedRefExprTree(op.refName, qualifier, QualifiedRefExprTree.Origin.PsiPrefixTarget(prefix))
+      QualifiedRefExprTree(s"unary_${op.refName}", qualifier, QualifiedRefExprTree.Origin.PsiPrefixTarget(prefix))
     case postfix@ScPostfixExpr(operand, op) =>
       val qualifier = build(operand)
       QualifiedRefExprTree(op.refName, qualifier, QualifiedRefExprTree.Origin.PsiPostfixTarget(postfix))
     case invocation@(_: MethodInvocation | _: ScGenericCall) =>
       buildInvocation(invocation, null, Nil)
+    case block: ScBlock =>
+      buildBlock(block)
   }
 
   private def useOrError[T <: PsiElement](psi: Option[T], parent: PsiElement)(f: T => ExprTree): ExprTree = {
@@ -172,6 +175,31 @@ class ExprTreeBuilder(rootExpr: PsiElement) {
     CallExprTree.ArgList.Types(types, origin)
   }
 
+  private def buildBlock(block: ScBlock): BlockExprTree = {
+    if (block.hasRBrace) {
+      ???
+    }
+
+    block.getFirstChild
+  }
+
+  private def buildBlock(firstChild: PsiElement, origin: BlockExprTree.Origin): BlockExprTree = {
+    val exprs = Seq.newBuilder[ExprTree]
+    val symbols = Seq.newBuilder[Symbol]
+
+    var cur = firstChild
+    while (cur != null) {
+      cur match {
+        case expr: ScExpression =>
+          exprs += build(expr)
+        case pattern: ScPatternDefinition =>
+          symbols += symbol
+        case _ =>
+      }
+      cur = cur.getNextSibling
+    }
+    BlockExprTree(exprs.result(), symbols.result(), origin)
+  }
 }
 
 object ExprTreeBuilder {
