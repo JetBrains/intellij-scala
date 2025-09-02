@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAssignment
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 
+// HighlightVisitor is faster than Annotator in complex code (see SCL-23603)
 class ScalaSyntaxHighlightingVisitor extends HighlightVisitor with DumbAware {
   private var holder: HighlightInfoHolder = _
 
