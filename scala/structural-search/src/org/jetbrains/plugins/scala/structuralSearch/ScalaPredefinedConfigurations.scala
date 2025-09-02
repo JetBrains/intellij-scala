@@ -18,8 +18,8 @@ object ScalaPredefinedConfigurations {
         classFolder, ScalaFileType.INSTANCE),
       createConfiguration("Class with property", "classprop",
         """class '_class {
-          | var '_a\\: '_tya
-          | var '_b\\: '_tyb
+          | var '_a\: '_tya
+          | var '_b\: '_tyb
           |}""".stripMargin,
         classFolder, ScalaFileType.INSTANCE),
       createConfiguration("Class with function(s)", "classprop",
