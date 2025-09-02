@@ -1,8 +1,9 @@
 package org.jetbrains.bsp.protocol.session
 
-import ch.epfl.scala.bsp4j.BspConnectionDetails
-import com.intellij.execution.configurations.JavaParameters
-import com.intellij.openapi.projectRoots.Sdk
+import bloop.rifle.{BloopRifleConfig, BloopRifleLogger, BloopThreads, BloopVersion}
+import com.intellij.openapi.application.PathManager
+import com.intellij.openapi.projectRoots.{JavaSdk, Sdk}
+import org.apache.commons.io.input.ClosedInputStream
 import org.jetbrains.bsp.buildinfo.BuildInfo
 import org.jetbrains.bsp.protocol.session.BspServerConnector.BspCapabilities
 import org.jetbrains.bsp.protocol.session.BspSession.Builder
@@ -12,56 +13,72 @@ import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.build.BuildReporter
 import org.jetbrains.plugins.scala.extensions.PathExt
 
-import java.nio.file.Path
-import scala.jdk.CollectionConverters._
+import java.nio.file.{Files, Path}
+import scala.concurrent.duration._
+import scala.util.Try
+import scala.util.control.NonFatal
 
 class BloopLauncherConnector(base: Path, compilerOutput: Path, capabilities: BspCapabilities, jdk: Sdk) extends BspServerConnector {
 
   val bloopVersion: String = BuildInfo.bloopVersion
-  val bspVersion = "2.0.0"
 
   override def connect(reporter: BuildReporter): Either[BspError, Builder] = {
+    def bloopClasspath(version: String) = {
+      val dependencies = Seq(
+        ("ch.epfl.scala" % "bloop-frontend_2.12" % version).transitive()
+      )
 
-    val dependencies = Seq(
-      ("ch.epfl.scala" % "bloop-launcher_2.12" % bloopVersion).transitive()
-    )
-    val launcherClasspath = DependencyManager.resolve(dependencies: _*)
-      .map(_.file.toCanonicalPath.toString)
-      .asJava
+      val launcherClasspath = DependencyManager.resolve(dependencies: _*).map(_.file.toFile)
+      Right(launcherClasspath)
+    }
 
-    val javaParameters: JavaParameters = new JavaParameters
-    javaParameters.setJdk(jdk)
-    javaParameters.setWorkingDirectory(base.toFile)
-    javaParameters.getClassPath.addAll(launcherClasspath)
-    javaParameters.setMainClass("bloop.launcher.Launcher")
+    val bloopDataStore = PathManager.getCommonDataPath.resolve("bloop")
 
-    val cmdLine = javaParameters.toCommandLine
-    cmdLine.addParameter(bloopVersion)
-
-    val argv = cmdLine.getCommandLineList(null)
+    val java = JavaSdk.getInstance().getVMExecutablePath(jdk)
+    val retainedBloopVersion = BloopRifleConfig.AtLeast(BloopVersion(bloopVersion))
+    val details = BloopRifleConfig.default(
+      BloopRifleConfig.Address.DomainSocket(bloopDataStore),
+      bloopClasspath,
+      workingDir = base.toFile
+    ).copy(javaPath = java, retainedBloopVersion = retainedBloopVersion)
 
     reporter.log(BspBundle.message("bsp.protocol.starting.bloop"))
-    //noinspection ReferencePassedToNls
-    reporter.log(cmdLine.getCommandLineString)
+    val detailsStringRepresentation =
+      s"""BloopRifleConfig:
+         |  domainSocketPath = $bloopDataStore
+         |  workingDir = $base
+         |  javaPath = $java
+         |  retainedBloopVersion = $retainedBloopVersion
+         |""".stripMargin
+    reporter.log(BspBundle.message("bsp.protocol.rifle.details", detailsStringRepresentation))
 
-    val details = new BspConnectionDetails("Bloop", argv, bloopVersion, bspVersion, List("java","scala").asJava)
-    Right(prepareBspSession(details))
+    Right(prepareBspSession(details, bloopDataStore))
   }
 
-  private def prepareBspSession(details: BspConnectionDetails): Builder = {
+  private def prepareBspSession(details: BloopRifleConfig, bloopDataDir: Path): Builder = {
 
-    val processBuilder = new java.lang.ProcessBuilder(details.getArgv).directory(base.toFile)
-    val process = processBuilder.start()
+    val threads = BloopThreads.create()
+    val (connection, socket, _) = bloop.rifle.BloopServer.bsp(details, base, threads, BloopRifleLogger.nop, 10.seconds, 30.seconds)
+
+    def safeClose(close: => Unit): Unit =
+      try {
+        close
+      } catch {
+        case NonFatal(_) => ()
+      }
 
     val cleanup = () => {
-      process.destroy()
+      safeClose(connection.stop())
+      safeClose(socket.close())
+      safeClose(threads.shutdown())
     }
+    val pid = Try(Files.readString(bloopDataDir.resolve("pid"))).toOption.flatMap(_.toIntOption).getOrElse(-1)
 
     val rootUri = base.toCanonicalPath.toUri
     val compilerOutputUri = compilerOutput.toCanonicalPath.toUri
     val initializeBuildParams = BspServerConnector.createInitializeBuildParams(rootUri, compilerOutputUri, capabilities)
 
-    BspSession.builder(process.pid(), process.getInputStream, process.getErrorStream, process.getOutputStream, initializeBuildParams, cleanup)
+    BspSession.builder(pid, socket.getInputStream, ClosedInputStream.INSTANCE, socket.getOutputStream, initializeBuildParams, cleanup)
   }
 
 }
