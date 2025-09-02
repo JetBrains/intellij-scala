@@ -525,6 +525,17 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
     if (s4.nonEmpty) s4 else "Unknown" // TODO Remove when all types are supported
   }
 
+  private def withNonEmptyPrefixWithDot(prefixText: String, name: String): String = {
+    val nameId = id(name)
+    // The prefix be empty if it's an empty package.
+    // For example if the type is located in the root package.
+    // tail ~ `THIS\n  TYPEREFpkg <empty>`
+    if (prefixText.isEmpty)
+      nameId
+    else
+      s"$prefixText.$nameId"
+  }
+
   private def textOfType(node: Node, parens: Int = 0)(using parent: Option[Node] = None): String = {
     val withDotTypeSuffix =
       parent.forall(_.is(SINGLETONtpt, APPLIEDtype))
@@ -554,16 +565,21 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
           val tailText = textOfType(tail)
           tailText + (if (tail.is(THIS, QUALTHIS)) ".type" else "")
         }
-      case Node3(TYPEREF, Seq(name), Seq(tail)) => textOfType(tail) + "." + id(name)
-      case Node3(TERMREF, Seq(name), Seq(tail)) =>
+      case Node3(TYPEREF, Seq(name), Seq(prefix)) =>
+        val prefixText = textOfType(prefix)
+        withNonEmptyPrefixWithDot(prefixText, name)
+      case Node3(TERMREF, Seq(name), Seq(prefix)) =>
         // TODO why there's "package" in some cases?
-        val tailText = textOfType(tail)
+        val prefixText = textOfType(prefix)
         if (name == ScalaBytecodeConstants.PackageObjectClassName ||
           name.endsWith(ScalaBytecodeConstants.TopLevelDefinitionsClassNameSuffix))
-          tailText
+          prefixText
         else {
-          tailText + "." + id(name) +
-            (if (withDotTypeSuffix) ".type" else "") // TODO Why there is sometimes no SINGLETONtpt? (add RHS?)
+          val prefixWithName = withNonEmptyPrefixWithDot(prefixText, name)
+
+          // TODO Why there is sometimes no SINGLETONtpt? (add RHS?)
+          val typeSuffix = if (withDotTypeSuffix) ".type" else ""
+          prefixWithName + typeSuffix
         }
       case Node3(THIS, _, Seq(tail)) =>
         val qualifier = textOfType(tail)
@@ -594,7 +610,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
           prefix
         else {
           // TODO rely on name kind
-          val part1 = if (prefix.isEmpty) id(name) else prefix + "." + id(name)
+          val part1 = withNonEmptyPrefixWithDot(prefix, name)
           val part2 = if (withDotTypeSuffix) ".type" else ""
           part1 + part2
         }
