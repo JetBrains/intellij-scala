@@ -7,7 +7,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.importing.{AbstractOpenProjectProvider, ImportSpecBuilder}
 import com.intellij.openapi.externalSystem.model.internal.InternalExternalProjectInfo
 import com.intellij.openapi.externalSystem.model.project.ProjectData
-import com.intellij.openapi.externalSystem.model.{DataNode, ProjectSystemId}
+import com.intellij.openapi.externalSystem.model.{DataNode, ExternalSystemDataKeys, ProjectSystemId}
 import com.intellij.openapi.externalSystem.service.execution.ProgressExecutionMode
 import com.intellij.openapi.externalSystem.service.project.manage.ExternalProjectsManagerImpl
 import com.intellij.openapi.externalSystem.service.project.wizard.{AbstractExternalProjectImportBuilder, AbstractExternalProjectImportProvider}
@@ -105,6 +105,8 @@ class BspProjectImportBuilder
                       model: ModifiableModuleModel,
                       modulesProvider: ModulesProvider,
                       artifactModel: ModifiableArtifactModel): util.List[Module] = {
+    project.putUserData(ExternalSystemDataKeys.NEWLY_IMPORTED_PROJECT, java.lang.Boolean.TRUE)
+
     linkAndRefreshProject(getBspWorkspace.toString, project)
     applyBspSetupSettings(project)
     Collections.emptyList()
