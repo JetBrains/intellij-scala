@@ -1,17 +1,58 @@
-package org.jetbrains.plugins.scala.structuralSearchimport
+package org.jetbrains.plugins.scala.structuralSearch
 
+import com.intellij.structuralsearch.PredefinedConfigurationUtil.createConfiguration
 import com.intellij.structuralsearch.plugin.ui.Configuration
 import org.jetbrains.plugins.scala.ScalaFileType
-import com.intellij.structuralsearch.PredefinedConfigurationUtil.createConfiguration
 
 object ScalaPredefinedConfigurations {
   def createPredefinedTemplated(): Array[Configuration] = {
     Seq(
-      createConfiguration("Simple", "another simple",
-        "'_Instance?.'MethodCall('_Parameter*)",
-        getExpressionType, ScalaFileType.INSTANCE)
+      createConfiguration("Any class", "classany",
+        "class '_name { }",
+        classFolder, ScalaFileType.INSTANCE),
+      createConfiguration("Class with selected primary constructor", "classprimary",
+        "class '_name(var '_arg1\\: '_ty, val '_arg2\\: '_ty2) { }",
+        classFolder, ScalaFileType.INSTANCE),
+      createConfiguration("Class with parent classes", "classparent",
+        "class '_name extends '_parent1, '_parent2 { }",
+        classFolder, ScalaFileType.INSTANCE),
+      createConfiguration("Class with property", "classprop",
+        """class '_name {
+          | var '_a\\: '_tya
+          | var '_b\\: '_tyb
+          |}""".stripMargin,
+        classFolder, ScalaFileType.INSTANCE),
+      createConfiguration("Class with function(s)", "classprop",
+        """class '_name {
+          | def '_func('_arg*\: '_ty): '_ret = { '_b* }
+          |}""".stripMargin,
+        classFolder, ScalaFileType.INSTANCE),
+      createConfiguration("Any function", "functionany",
+        "def '_name('_arg*\\: '_ty): '_ret { '_b* }",
+        funcFolder, ScalaFileType.INSTANCE),
+      createConfiguration("Functions without return type", "functionnotret",
+        "def '_name('_arg*\\: '_ty): '_ret{0,0} { '_b* }",
+        funcFolder, ScalaFileType.INSTANCE),
+      createConfiguration("Functions with annotation", "functionannot",
+        "@'_anno\ndef '_name('_arg*\\: '_ty): '_ret{0,0} { '_b* }",
+        funcFolder, ScalaFileType.INSTANCE),
+      createConfiguration("Any if-else expression", "ifany",
+        "if ('_cond) '_then*\nelse '_else*",
+        exprFolder, ScalaFileType.INSTANCE),
+      createConfiguration("Any match expression", "matchany",
+        """'_expr match {
+          |  case '_pattern* => '_res
+          |}""".stripMargin,
+        exprFolder, ScalaFileType.INSTANCE),
+      createConfiguration("All matches without guard", "matchwithoutguard",
+        """'_expr match {
+          |  case '_pattern* if '_guard{0,0} => '_res
+          |}""".stripMargin,
+        exprFolder, ScalaFileType.INSTANCE),
     ).toArray
   }
 
-  val getExpressionType = "Scala/Expressions"
+  val classFolder = "Scala/Classes"
+  val funcFolder = "Scala/Functions"
+  val exprFolder = "Scala/Expressions"
 }

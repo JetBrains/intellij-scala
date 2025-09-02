@@ -526,7 +526,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
       case _ => false
     }
     val exprMatch = matchOpt(cc.expr, other.expr)
-    val guardMatch = matchOptEqual(cc.guard, other.guard)
+    val guardMatch = matchOptOptional(cc.guard, other.guard)
     globalVisitor.setResult(patternMatch && exprMatch && guardMatch)
     rememberVarMatchIfResult(handler, other.pattern.get)
   }

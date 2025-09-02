@@ -9,7 +9,7 @@ import com.intellij.structuralsearch.impl.matcher.strategies.MatchingStrategy
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScReferencePattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScNamedTupleTypeComponent, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScConstructorInvocation, ScReference}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScForBinding, ScInfixExpr, ScMatch, ScMethodCall, ScNamedTupleExprComponent}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScForBinding, ScGuard, ScInfixExpr, ScMatch, ScMethodCall, ScNamedTupleExprComponent}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatternDefinition, ScTypeAlias, ScValueDeclaration, ScVariableDeclaration, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam, ScTypeParamClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
@@ -37,7 +37,6 @@ class ScalaCompilingVisitor(globalVisitor: GlobalCompilingVisitor) extends Scala
     val context = globalVisitor.getContext
     val pattern = context.getPattern
     for (element <- topLevelElements) {
-      // activate this if we want to use the visitor
       element.accept(this)
       pattern.setHandler(element, new TopLevelMatchingHandler(pattern.getHandler(element)))
     }
@@ -150,6 +149,11 @@ class ScalaCompilingVisitor(globalVisitor: GlobalCompilingVisitor) extends Scala
   override def visitAnnotation(annotation: ScAnnotation): Unit = {
     super.visitAnnotation(annotation)
     placeVarHandler(annotation.constructorInvocation.typeElement.getText)
+  }
+
+  override def visitGuard(guard: ScGuard): Unit = {
+    super.visitGuard(guard)
+    placeVarHandler(guard.expr.map(_.getText).getOrElse(""), false)
   }
 
   override def visitConstructorInvocation(constrInvocation: ScConstructorInvocation): Unit = {

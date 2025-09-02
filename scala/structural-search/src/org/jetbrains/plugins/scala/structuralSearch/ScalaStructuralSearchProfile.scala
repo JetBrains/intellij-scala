@@ -12,12 +12,11 @@ import org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaFileTemplateCo
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScConstructorInvocation, ScStableCodeReference}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScGuard, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterType, ScTypeParam}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScTypeAliasDeclaration, ScTypeAliasDefinition, ScValueOrVariable}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypeBoundsOwner}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAliasDeclaration, ScTypeAliasDefinition, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
-import org.jetbrains.plugins.scala.structuralSearchimport.ScalaPredefinedConfigurations
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypeBoundsOwner}
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
 
 final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
@@ -83,6 +82,7 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
       }
       case refExp: ScReferenceExpression => refExp.getParent match {
         case param: ScParameter => !param.getDefaultExpression.contains(refExp)
+        case _: ScGuard => false
         case _: ScReferenceExpression => false
         case _ => true
       }
@@ -112,6 +112,8 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
               constrInv.typeElement.getText
             case typeElement: ScTypeElement =>
               typeElement.getFirstChild.getText
+            case guard: ScGuard =>
+              guard.expr.map(_.getText).getOrElse("")
             case _ =>
               super.getTypedVarString(element)
           }
