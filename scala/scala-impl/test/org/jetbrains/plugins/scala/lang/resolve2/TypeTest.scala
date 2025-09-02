@@ -17,4 +17,6 @@ class TypeTest extends ResolveTestBase {
   def testVariable(): Unit = doTest()
   def testThis(): Unit = doTest()
   def testTypeProjection(): Unit = doTest()
+
+  def testFail(): Unit = ???
 }
