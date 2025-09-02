@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
-import org.jetbrains.plugins.scala.structuralSearch.filter.{AcceptAllFilter, CaseClauseFilter, FunctionFilter, MethodInvocationFilter, NamedTupleExprComponentFilter, TypeAliasFilter, TypeDefinitionFilter, TypeElementFilter, TypeParamFilter, ValueDeclarationFilter, VariableDeclarationFilter}
+import org.jetbrains.plugins.scala.structuralSearch.filter.{AcceptAllFilter, CaseClauseFilter, FunctionFilter, MethodInvocationFilter, NamedTupleExprComponentFilter, TypeAliasFilter, TypeDefinitionFilter, TypeElementFilter, TypeParamFilter, ValVarFilter}
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
 
 class ScalaCompilingVisitor(globalVisitor: GlobalCompilingVisitor) extends ScalaRecursiveElementVisitor {
@@ -165,6 +165,9 @@ class ScalaCompilingVisitor(globalVisitor: GlobalCompilingVisitor) extends Scala
     super.visitPatternDefinition(pat)
     if (pat.declaredNames.size == 1)
       placeVarHandler(pat.declaredNames.head)
+    globalVisitor
+      .getContext.getPattern
+      .getHandler(pat).setFilter(new ValVarFilter())
   }
 
   override def visitValueDeclaration(v: ScValueDeclaration): Unit = {
@@ -173,13 +176,16 @@ class ScalaCompilingVisitor(globalVisitor: GlobalCompilingVisitor) extends Scala
       placeVarHandler(v.declaredNames.head)
     globalVisitor
       .getContext.getPattern
-      .getHandler(v).setFilter(new ValueDeclarationFilter())
+      .getHandler(v).setFilter(new ValVarFilter())
   }
 
   override def visitVariableDefinition(varr: ScVariableDefinition): Unit = {
     super.visitVariableDefinition(varr)
     if (varr.declaredNames.size == 1)
       placeVarHandler(varr.declaredNames.head)
+    globalVisitor
+      .getContext.getPattern
+      .getHandler(varr).setFilter(new ValVarFilter())
   }
 
   override def visitVariableDeclaration(varr: ScVariableDeclaration): Unit = {
@@ -188,7 +194,7 @@ class ScalaCompilingVisitor(globalVisitor: GlobalCompilingVisitor) extends Scala
       placeVarHandler(varr.declaredNames.head)
     globalVisitor
       .getContext.getPattern
-      .getHandler(varr).setFilter(new VariableDeclarationFilter())
+      .getHandler(varr).setFilter(new ValVarFilter())
   }
 
   override def visitImportExpr(expr: ScImportExpr): Unit = {

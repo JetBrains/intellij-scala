@@ -12,9 +12,9 @@ import org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaFileTemplateCo
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScConstructorInvocation, ScStableCodeReference}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScGuard, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScGuard, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterType, ScTypeParam}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAliasDeclaration, ScTypeAliasDefinition, ScValueOrVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAliasDeclaration, ScTypeAliasDefinition, ScValueOrVariable, ScValueOrVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypeBoundsOwner}
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
@@ -82,6 +82,7 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
       }
       case refExp: ScReferenceExpression => refExp.getParent match {
         case param: ScParameter => !param.getDefaultExpression.contains(refExp)
+        case param: ScValueOrVariableDefinition => !param.expr.contains(refExp)
         case _: ScGuard => false
         case _: ScReferenceExpression => false
         case _ => true
@@ -90,13 +91,12 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
     }
   }
 
-  // if a variable is set inside the template, normally getText is used to extract the name
-  // we can also use getTypedVarString to extract the name (e.g. special for an annotation
-
   override def createCompiledPattern(): CompiledPattern =
     new CompiledPattern {
       override def getTypedVarPrefixes: Array[String] = getVarPrefixes
 
+      // if a variable is set inside the template, normally getText is used to extract the name
+      // we can also use getTypedVarString to extract the name (e.g. special for an annotation
       override def getTypedVarString(element: PsiElement): String =
           element match {
             case par: ScNamedElement =>
@@ -104,7 +104,7 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
             case annot: ScAnnotation =>
               annot.constructorInvocation.typeElement.getText
             case caseClause: ScCaseClause =>
-              caseClause.pattern.map(pat => if pat.bindings.size == 1 then pat.bindings.head.getText else pat.getText).getOrElse("")
+              caseClause.pattern.map(pat => if pat.bindings.size == 1 then pat.bindings.head.name else pat.getText).getOrElse("")
             case valvar: ScValueOrVariable =>
               if (valvar.declaredNames.size == 1) valvar.declaredNames.head
               else super.getTypedVarString(valvar)
@@ -114,6 +114,12 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
               typeElement.getFirstChild.getText
             case guard: ScGuard =>
               guard.expr.map(_.getText).getOrElse("")
+            case methodInv: MethodInvocation =>
+              val unwrapMethodName: ScExpression => PsiElement = {
+                case ref: ScReferenceExpression => ref.nameId
+                case expr => expr
+              }
+              unwrapMethodName(methodInv.getInvokedExpr).getText
             case _ =>
               super.getTypedVarString(element)
           }
