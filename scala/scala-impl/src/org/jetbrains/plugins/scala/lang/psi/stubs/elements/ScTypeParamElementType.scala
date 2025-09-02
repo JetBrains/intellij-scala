@@ -8,6 +8,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScTypeParamIm
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeParamStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTypeParamStubImpl
 
+import scala.collection.immutable.ArraySeq
+
 class ScTypeParamElementType extends ScStubElementType[ScTypeParamStub, ScTypeParam]("type parameter") {
 
   override def serialize(stub: ScTypeParamStub, dataStream: StubOutputStream): Unit = {
@@ -16,7 +18,6 @@ class ScTypeParamElementType extends ScStubElementType[ScTypeParamStub, ScTypePa
     dataStream.writeOptionName(stub.lowerBoundText)
     dataStream.writeOptionName(stub.upperBoundText)
     dataStream.writeNames(stub.viewBoundsTexts)
-    dataStream.writeNames(stub.contextBoundsTexts)
     dataStream.writeBoolean(stub.isCovariant)
     dataStream.writeBoolean(stub.isContravariant)
     dataStream.writeName(stub.containingFileName)
@@ -30,8 +31,7 @@ class ScTypeParamElementType extends ScStubElementType[ScTypeParamStub, ScTypePa
     text = dataStream.readNameString,
     lowerBoundText = dataStream.readOptionName,
     upperBoundText = dataStream.readOptionName,
-    viewBoundsTexts = dataStream.readNames,
-    contextBoundsTexts = dataStream.readNames,
+    viewBoundsTexts = ArraySeq.unsafeWrapArray(dataStream.readNames),
     isCovariant = dataStream.readBoolean,
     isContravariant = dataStream.readBoolean,
     containingFileName = dataStream.readNameString(),
@@ -50,8 +50,7 @@ class ScTypeParamElementType extends ScStubElementType[ScTypeParamStub, ScTypePa
       text = typeParam.getText,
       lowerBoundText = lowerBoundText,
       upperBoundText = upperBoundText,
-      viewBoundsTexts = typeParam.viewTypeElement.asStrings(),
-      contextBoundsTexts = typeParam.contextBounds.asStrings(),
+      viewBoundsTexts = ArraySeq.unsafeWrapArray(typeParam.viewTypeElement.asStrings()),
       isCovariant = typeParam.isCovariant,
       isContravariant = typeParam.isContravariant,
       containingFileName = typeParam.getContainingFileName,

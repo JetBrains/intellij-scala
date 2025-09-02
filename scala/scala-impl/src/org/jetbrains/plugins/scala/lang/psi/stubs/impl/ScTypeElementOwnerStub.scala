@@ -12,7 +12,7 @@ trait ScTypeElementOwnerStub[E <: PsiElement] extends PsiOwner[E] {
 
   private[impl] var typeElementReference: SofterReference[Option[ScTypeElement]] = _
 
-  def typeElement: Option[ScTypeElement] = {
+  final def typeElement: Option[ScTypeElement] = {
     getFromOptionalReference(typeElementReference) {
       case (context, child) =>
         typeText.map {

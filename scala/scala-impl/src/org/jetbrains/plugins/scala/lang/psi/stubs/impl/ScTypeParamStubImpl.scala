@@ -5,6 +5,8 @@ import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeParamStub
 
+import scala.collection.immutable.ArraySeq
+
 class ScTypeParamStubImpl(
   parent: StubElement[_ <: PsiElement],
   elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
@@ -12,8 +14,7 @@ class ScTypeParamStubImpl(
   override val text: String,
   override val lowerBoundText: Option[String],
   override val upperBoundText: Option[String],
-  override val viewBoundsTexts: Array[String],
-  override val contextBoundsTexts: Array[String],
+  override val viewBoundsTexts: ArraySeq[String],
   override val isCovariant: Boolean,
   override val isContravariant: Boolean,
   override val containingFileName: String

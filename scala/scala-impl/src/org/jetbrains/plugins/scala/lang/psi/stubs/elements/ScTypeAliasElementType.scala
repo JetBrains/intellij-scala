@@ -18,7 +18,6 @@ abstract class ScTypeAliasElementType[Func <: ScTypeAlias](debugName: String)
     dataStream.writeOptionName(stub.typeText)
     dataStream.writeOptionName(stub.lowerBoundText)
     dataStream.writeOptionName(stub.upperBoundText)
-    dataStream.writeNames(stub.contextBoundsTexts)
     dataStream.writeBoolean(stub.isLocal)
     dataStream.writeBoolean(stub.isDeclaration)
     dataStream.writeBoolean(stub.isStableQualifier)
@@ -36,7 +35,6 @@ abstract class ScTypeAliasElementType[Func <: ScTypeAlias](debugName: String)
       typeText           = dataStream.readOptionName,
       lowerBoundText     = dataStream.readOptionName,
       upperBoundText     = dataStream.readOptionName,
-      contextBoundsTexts = dataStream.readNames,
       isLocal            = dataStream.readBoolean,
       isDeclaration      = dataStream.readBoolean,
       isStableQualifier  = dataStream.readBoolean,
@@ -88,7 +86,6 @@ abstract class ScTypeAliasElementType[Func <: ScTypeAlias](debugName: String)
       typeText           = aliasedTypeText,
       lowerBoundText     = lowerBoundText,
       upperBoundText     = upperBoundText,
-      contextBoundsTexts = alias.contextBounds.asStrings(),
       isLocal            = maybeContainingClass.isEmpty,
       isDeclaration      = maybeDeclaration.isDefined,
       isStableQualifier  = stableQualifier.isDefined,

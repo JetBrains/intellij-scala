@@ -5,6 +5,8 @@ import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeAliasStub
 
+import scala.collection.immutable.ArraySeq
+
 class ScTypeAliasStubImpl(
   parent:                          StubElement[_ <: PsiElement],
   elementType:                     IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
@@ -12,7 +14,6 @@ class ScTypeAliasStubImpl(
   override val typeText:           Option[String],
   override val lowerBoundText:     Option[String],
   override val upperBoundText:     Option[String],
-  override val contextBoundsTexts: Array[String],
   override val isLocal:            Boolean,
   override val isDeclaration:      Boolean,
   override val isStableQualifier:  Boolean,
@@ -22,5 +23,5 @@ class ScTypeAliasStubImpl(
   override val classType:          Option[String]
 ) extends ScNamedStubBase[ScTypeAlias](parent, elementType, name)
     with ScTypeAliasStub {
-  override def viewBoundsTexts: Array[String] = Array.empty
+  override def viewBoundsTexts: ArraySeq[String] = ArraySeq.empty
 }

@@ -67,7 +67,6 @@ object ASTNodeToPsiElement {
       case TYPES => new ScTypesImpl(node)
       case TYPE_CASE_CLAUSES => new ScMatchTypeCasesImpl(node)
       case TYPE_CASE_CLAUSE => new ScMatchTypeCaseImpl(node)
-      case CONTEXT_BOUND    => new ScContextBoundImpl(node)
       case NAMED_TUPLE_TYPE_COMPONENT => new ScNamedTupleTypeComponentImpl(node)
 
       /* Expressions */

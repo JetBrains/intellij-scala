@@ -5,6 +5,7 @@ import com.intellij.util.ArrayFactory;
 import org.jetbrains.plugins.scala.lang.psi.api.base.*;
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern;
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern;
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScContextBound;
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement;
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.*;
@@ -105,4 +106,6 @@ public class JavaArrayFactoryUtil {
   public static ArrayFactory<ScBindingPattern> ScBindingPatternFactory = ScBindingPattern[]::new;
 
   public static ArrayFactory<ScExtension> ScExtensionFactory = ScExtension[]::new;
+
+  public static ArrayFactory<ScContextBound> ScContextBoundFactory = ScContextBound[]::new;
 }
