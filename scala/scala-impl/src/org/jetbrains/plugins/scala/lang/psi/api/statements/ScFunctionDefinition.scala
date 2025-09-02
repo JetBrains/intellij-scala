@@ -9,6 +9,8 @@ trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner with ScDef
 
   def body: Option[ScExpression]
 
+  private[psi] def superMethodCall: ScExpression
+
   override def hasAssign: Boolean
 
   def returnUsages: Set[ScExpression] = ScFunctionDefinitionExt(this).returnUsages
