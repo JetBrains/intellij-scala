@@ -95,8 +95,8 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
       val typeElements = typeArgList.typeArgs.map {
         case w: ScWildcardTypeElement =>
           forSomeBuilder.append("type _" + "$" + count +
-            w.lowerTypeElement.fold("")(te => s" >: ${te.getText}") +
-            w.upperTypeElement.fold("")(te => s" <: ${te.getText}"))
+            w.lowerTypeTreeHolder.fold("")(te => s" >: ${te.toScalaCode}") +
+            w.upperTypeTreeHolder.fold("")(te => s" <: ${te.toScalaCode}"))
           forSomeBuilder.append("; ")
           val res = s"_$$$count"
           count += 1

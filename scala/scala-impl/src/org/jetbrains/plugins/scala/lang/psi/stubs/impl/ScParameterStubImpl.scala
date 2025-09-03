@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.stubs.impl
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
+import org.jetbrains.plugins.scala.lang.ir.typeTree.TypeTreeHolder
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScParameterStub
 
@@ -9,7 +10,7 @@ class ScParameterStubImpl(
   parent: StubElement[_ <: PsiElement],
   elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
   name: String,
-  override val typeText: Option[String],
+  override val typeTreeHolder: Option[TypeTreeHolder],
   override val isStable: Boolean,
   override val isDefaultParameter: Boolean,
   override val isRepeated: Boolean,

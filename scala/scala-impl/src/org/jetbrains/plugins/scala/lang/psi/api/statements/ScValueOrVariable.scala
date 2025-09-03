@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.api.statements
 
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiElement, PsiNamedElement}
+import org.jetbrains.plugins.scala.lang.ir.typeTree.TypeTreeHolder
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotations
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
@@ -28,17 +29,18 @@ trait ScValueOrVariable extends ScBlockStatement
 
   override def declaredElements: Seq[ScTypedDefinition]
 
-  def typeElement: Option[ScTypeElement]
+  def typePsiElement: Option[ScTypeElement]
+  def typeTreeHolder: Option[TypeTreeHolder]
 
   // makes sense for definitions only, not declarations, but convenient to have here not to complicate hierarchy
   def annotationAscription: Option[ScAnnotations] = None
 
   def declaredType: Option[ScType] =
-    typeElement.flatMap {
+    typeTreeHolder.flatMap {
       _.`type`().toOption
     }
 
-  final def hasExplicitType: Boolean = typeElement.isDefined
+  final def hasExplicitType: Boolean = typeTreeHolder.isDefined
 
   /**
    * Returns the offset in the file to which the caret should be placed

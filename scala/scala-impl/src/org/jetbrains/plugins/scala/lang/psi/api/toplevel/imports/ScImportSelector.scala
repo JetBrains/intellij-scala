@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.api.toplevel
 package imports
 
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.lang.ir.typeTree.TypeTreeHolder
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
@@ -81,5 +82,6 @@ trait ScImportSelector extends ScalaPsiElement {
 
   def isGivenSelector: Boolean
 
-  def givenTypeElement: Option[ScTypeElement]
+  def givenTypePsiElement: Option[ScTypeElement]
+  def givenTypeTreeHolder: Option[TypeTreeHolder]
 }

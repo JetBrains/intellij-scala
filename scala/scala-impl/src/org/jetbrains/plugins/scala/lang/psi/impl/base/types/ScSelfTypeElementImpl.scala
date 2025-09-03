@@ -6,6 +6,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.TokenSets
+import org.jetbrains.plugins.scala.lang.ir.typeTree.{TypeTree, TypeTreeHolder}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
@@ -31,11 +32,11 @@ class ScSelfTypeElementImpl private(stub: ScSelfTypeElementStub, node: ASTNode)
     val parent = PsiTreeUtil.getParentOfType(this, classOf[ScTemplateDefinition])
     assert(parent != null)
 
-    typeElement match {
-      case Some(ste) =>
+    typeTreeHolder match {
+      case Some(tt) =>
         for {
           templateType <- parent.`type`()
-          selfType     <- ste.`type`()
+          selfType     <- tt.`type`()
         } yield
           if (this.isInScala3File) ScAndType(templateType, selfType)
           else                     ScCompoundType(Seq(templateType, selfType))
@@ -43,25 +44,22 @@ class ScSelfTypeElementImpl private(stub: ScSelfTypeElementStub, node: ASTNode)
     }
   }
 
-  override def typeElement: Option[ScTypeElement] = byPsiOrStub(findChild[ScTypeElement])(_.typeElement)
+  override def typePsiElement: Option[ScTypeElement] = findChild[ScTypeElement]
+  override def typeTreeHolder: Option[TypeTreeHolder] = byPsiOrStub[Option[TypeTreeHolder]](typePsiElement)(_.typeTreeHolder)
 
   override def classNames: Array[String] = byStubOrPsi(_.classNames) {
     val names = mutable.ArrayBuffer.empty[String]
 
-    def fillNames(typeElement: ScTypeElement): Unit = {
-      typeElement match {
-        case s: ScSimpleTypeElement => s.reference match {
-          case Some(ref) => names += ref.refName
-          case _ =>
-        }
-        case p: ScParameterizedTypeElement => fillNames(p.typeElement)
-        case c: ScCompoundTypeElement =>
-          c.components.foreach(fillNames)
+    def fillNames(typeTree: TypeTree): Unit = {
+      typeTree match {
+        case TypeTree.SimpleType(name) => names += name
+        case TypeTree.ParenthesizedType(inner) => fillNames(inner)
+        case TypeTree.CompoundType(components, _) => components.foreach(fillNames)
         case _ => //do nothing
       }
     }
 
-    typeElement.foreach(fillNames)
+    typeTreeHolder.foreach(tth => fillNames(tth.typeTree))
     names.toArray
   }
 }

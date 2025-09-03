@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.stubs.impl
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubBase, StubElement}
 import com.intellij.util.SofterReference
+import org.jetbrains.plugins.scala.lang.ir.typeTree.TypeTreeHolder
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelector
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createReferenceFromText
@@ -16,7 +17,7 @@ class ScImportSelectorStubImpl(parent: StubElement[_ <: PsiElement],
                                override val isAliasedImport: Boolean,
                                override val isWildcardSelector: Boolean,
                                override val isGivenSelector: Boolean,
-                               override val typeText: Option[String])
+                               override val typeTreeHolder: Option[TypeTreeHolder])
   extends StubBase[ScImportSelector](parent, elementType) with ScImportSelectorStub with PsiOwner[ScImportSelector] {
 
   private var referenceReference: SofterReference[Option[ScStableCodeReference]] = _

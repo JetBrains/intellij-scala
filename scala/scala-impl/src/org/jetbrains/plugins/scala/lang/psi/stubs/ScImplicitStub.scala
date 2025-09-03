@@ -4,6 +4,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IndexSink, StubElement}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.ArrayUtil.EMPTY_STRING_ARRAY
+import org.jetbrains.plugins.scala.lang.ir.typeTree.{TypeTree, TypeTreeHolder}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScParameterOwner
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
@@ -32,7 +33,7 @@ trait ScImplicitStub[T <: PsiElement] extends StubElement[T] {
 }
 
 object ScImplicitStub {
-  def implicitClassNames(psi: ScModifierListOwner, typeElement: => Option[ScTypeElement]): Array[String] = {
+  def implicitClassNames(psi: ScModifierListOwner, typeElement: => Option[TypeTree]): Array[String] = {
     if (psi.getModifierList.isImplicit)
       typeElement.toArray.flatMap(classNames)
     else EMPTY_STRING_ARRAY
@@ -42,7 +43,7 @@ object ScImplicitStub {
     for {
       templateParent <- obj.extendsBlock.templateParents.toArray
       typeElement    <- templateParent.typeElements
-      className      <- classNames(typeElement)
+      className      <- classNames(typeElement.typeTree)
     } yield {
       className
     }
@@ -51,14 +52,14 @@ object ScImplicitStub {
   def conversionParamClass(f: ScParameterOwner with ScTypeParametersOwner): Option[String] =
     for {
       param         <- f.parameters.headOption
-      paramTypeElem <- param.typeElement
-      className     <- classOrUpperBoundClass(paramTypeElem, f)
+      paramTypeElem <- param.typeTreeHolder
+      className     <- classOrUpperBoundClass(paramTypeElem.typeTree, f)
     } yield {
       className
     }
 
-  private def classOrUpperBoundClass(typeElem: ScTypeElement, owner: ScTypeParametersOwner): Option[String] = {
-    def className(te: ScTypeElement) = classNames(te).headOption
+  private def classOrUpperBoundClass(typeTree: TypeTree, owner: ScTypeParametersOwner): Option[String] = {
+    def className(tt: TypeTree) = classNames(tt).headOption
 
     //it is very common to have implicit conversion defined for a type parameter
     //we cannot do a real resolve during indexing, but this heuristic works good enough
@@ -74,23 +75,23 @@ object ScImplicitStub {
     }
 
     @tailrec
-    def simpleName(te: ScTypeElement): Option[String] = te match {
-      case ScSimpleTypeElement(ref) if ref.qualifier.isEmpty => Some(ref.refName)
-      case ScParameterizedTypeElement(te, _) => simpleName(te)
+    def simpleName(te: TypeTree): Option[String] = te match {
+      case TypeTree.SimpleType(None, refName) => Some(refName)
+      case TypeTree.ParenthesizedType(inner) => simpleName(inner)
       case _ => None
     }
 
-    simpleName(typeElem) match {
+    simpleName(typeTree) match {
       case Some(name) =>
         findTypeParam(owner, name) match {
           case Some(typeParam) =>
-            typeParam.upperTypeElement match {
+            typeParam.upperTypeTreeHolder match {
               case None        => Some(AnyFqn)
-              case Some(upper) => className(upper)
+              case Some(upper) => className(upper.typeTree)
             }
-          case None => className(typeElem)
+          case None => className(typeTree)
         }
-      case None => className(typeElem)
+      case None => className(typeTree)
     }
   }
 }

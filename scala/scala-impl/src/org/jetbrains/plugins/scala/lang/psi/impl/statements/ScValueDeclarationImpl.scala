@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.statements
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.ifReadAllowed
+import org.jetbrains.plugins.scala.lang.ir.typeTree.TypeTreeHolder
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base._
@@ -25,12 +26,13 @@ final class ScValueDeclarationImpl private[psi](stub: ScPropertyStub[ScValueDecl
 
   override def declaredElements: Seq[ScFieldId] = getIdList.fieldIds
 
-  override def `type`(): TypeResult = typeElement match {
+  override def `type`(): TypeResult = typeTreeHolder match {
     case Some(te) => te.`type`()
     case None => Failure(ScalaBundle.message("no.type.element.found", getText))
   }
 
-  override def typeElement: Option[ScTypeElement] = byPsiOrStub(findChild[ScTypeElement])(_.typeElement)
+  override def typePsiElement: Option[ScTypeElement] = findChild[ScTypeElement]
+  override def typeTreeHolder: Option[TypeTreeHolder] = byStubOrPsi(_.typeTreeHolder)(typePsiElement)
 
   override def getIdList: ScIdList = getStubOrPsiChild(ScalaElementType.IDENTIFIER_LIST): @nowarn("cat=deprecation") // IJPL-562
 

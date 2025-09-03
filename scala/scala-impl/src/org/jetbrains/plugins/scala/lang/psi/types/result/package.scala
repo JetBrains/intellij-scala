@@ -41,7 +41,7 @@ package object result {
       maybeElement.map(function)
         .getOrElse(Failure(ScalaBundle.message("no.element.found")))
 
-    def flatMapType[E <: ScalaPsiElement with Typeable](maybeElement: Option[E]): TypeResult =
+    def flatMapType[E <: Typeable](maybeElement: Option[E]): TypeResult =
       flatMap(maybeElement)(_.`type`())
 
     private implicit def context: ProjectContext = typeable

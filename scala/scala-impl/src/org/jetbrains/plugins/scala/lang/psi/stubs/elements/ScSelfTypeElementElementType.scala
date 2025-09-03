@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.stubs.elements
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
+import org.jetbrains.plugins.scala.lang.ir.{StubInputStreamForIRExt, StubOutputStreamForIRExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScSelfTypeElementImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScSelfTypeElementStub
@@ -13,7 +14,7 @@ class ScSelfTypeElementElementType extends ScStubElementType[ScSelfTypeElementSt
 
   override def serialize(stub: ScSelfTypeElementStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.getName)
-    dataStream.writeOptionName(stub.typeText)
+    dataStream.writeTypeTreeHolderOption(stub.typeTreeHolder)
     dataStream.writeNames(stub.classNames)
   }
 
@@ -22,19 +23,17 @@ class ScSelfTypeElementElementType extends ScStubElementType[ScSelfTypeElementSt
     parentStub,
     this,
     name = dataStream.readNameString,
-    typeText = dataStream.readOptionName,
+    typeTreeHolder = dataStream.readTypeTreeHolderOption(),
     classNames = dataStream.readNames
   )
 
   override def createStubImpl(typeElement: ScSelfTypeElement,
                               parentStub: StubElement[_ <: PsiElement]): ScSelfTypeElementStub = {
-    val typeElementText = typeElement.typeElement.map(_.getText)
-
     new ScSelfTypeElementStubImpl(
       parentStub,
       this,
       name = typeElement.name,
-      typeText = typeElementText,
+      typeTreeHolder = typeElement.typeTreeHolder,
       classNames = typeElement.classNames
     )
   }

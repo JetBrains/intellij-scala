@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef
 
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.lang.ir.typeTree.TypeTreeHolder
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
@@ -29,7 +30,8 @@ trait ScGivenAlias extends ScGiven with ScFunction {
    *
    * Returns `None` for given structural instance definition<br>
    */
-  def typeElement: Option[ScTypeElement]
+  def typePsiElement: Option[ScTypeElement]
+  def typeTreeHolder: Option[TypeTreeHolder]
 
   override def getNavigationElement: PsiElement =
     if (nameElement.isDefined) super.getNavigationElement else typeElement.getOrElse(getFirstChild)

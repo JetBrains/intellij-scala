@@ -5,6 +5,7 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cached}
 import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.lang.ir.typeTree.TypeTreeHolder
 import org.jetbrains.plugins.scala.lang.psi.adapters.PsiParameterAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -40,7 +41,8 @@ trait ScParameter extends ScTypedDefinition
 
   override def getInitializer: PsiExpression = null
 
-  def typeElement: Option[ScTypeElement]
+  def typePsiElement: Option[ScTypeElement]
+  def typeTreeHolder: Option[TypeTreeHolder]
 
   def paramType: Option[ScParameterType] = findChild[ScParameterType]
 

@@ -91,7 +91,7 @@ object ScalaHighlightImplicitUsagesHandler {
     }
 
     implicit val contextBoundKind: TargetKind[(ScTypeParam, ScContextBound)] = {
-      case (typeParam, cb) => contextBoundImplicitTarget(typeParam, cb.typeElement)
+      case (typeParam, cb) => contextBoundImplicitTarget(typeParam, cb.typePsiElement)
     }
 
     private def target(named: PsiNamedElement): Option[PsiNamedElement] = named match {

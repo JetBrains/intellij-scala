@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.codeInspection.targetNameAnnotation.addTarget
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiFileExt, PsiModifierListOwnerExt}
 import org.jetbrains.plugins.scala.lang.completion.filters.modifiers.ModifiersFilter
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.TypeTreeHolderExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
@@ -313,7 +314,7 @@ object ScalaOverrideContributor {
     def typeText: String = {
       val maybeType = member match {
         case member: ScalaTypedMember if !member.is[JavaFieldMember] => Some(member.scType)
-        case ScAliasMember(definition: ScTypeAliasDefinition, _, _) => definition.aliasedTypeElement.map(_.calcType)
+        case ScAliasMember(definition: ScTypeAliasDefinition, _, _) => definition.aliasedTypeTreeHolder.map(_.calcType)
         case _ => None
       }
 

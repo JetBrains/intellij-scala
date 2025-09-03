@@ -98,7 +98,7 @@ object ScalaGenerationInfo {
     //For example when we implement some method foo we place a selection on the body placeholder ???:
     // override def foo: String = <selection>???</selection>
     val bodyOpt: Option[ScalaPsiElement] = member match {
-      case ta: ScTypeAliasDefinition => ta.aliasedTypeElement
+      case ta: ScTypeAliasDefinition => ta.aliasedTypePsiElement
       case ScPatternDefinition.expr(expr) => Some(expr)
       case ScVariableDefinition.expr(expr) => Some(expr)
       case method: ScFunctionDefinition => method.body

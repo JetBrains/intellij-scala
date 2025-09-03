@@ -28,6 +28,7 @@ import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt, _}
 import org.jetbrains.plugins.scala.externalLibraries.bm4.Implicit0Binding
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.ir.typeTree.{TypeTree, TypeTreeHolder}
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.Associativity
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
@@ -104,16 +105,22 @@ object ScalaPsiUtil {
     }
 
     if (withLowerUpperBounds) {
-      param.lowerTypeElement.foreach(tp => paramText = paramText + " >: " + tp.getText)
-      param.upperTypeElement.foreach(tp => paramText = paramText + " <: " + tp.getText)
+      param.lowerTypeTreeHolder.foreach(tp => paramText = paramText + " >: " + tp.toScalaCode)
+      param.upperTypeTreeHolder.foreach(tp => paramText = paramText + " <: " + tp.toScalaCode)
     }
 
     if (withViewBounds) {
-      param.viewTypeElement.foreach(tp => paramText = paramText + " <% " + tp.getText)
+      param.viewTypeTreeHolders.foreach(tp => paramText = paramText + " <% " + tp.toScalaCode)
     }
 
     if (withContextBounds) {
-      param.contextBounds.foreach(cb => paramText = paramText + " : " + cb.getText)
+      param.contextBounds.foreach { cb =>
+        paramText = paramText + " : " + cb.typeTreeHolder.toScalaCode
+        cb.nameOpt match {
+          case Some(name) => paramText = paramText + " as " + name
+          case _ =>
+        }
+      }
     }
 
     paramText
@@ -1348,26 +1355,30 @@ object ScalaPsiUtil {
   def isExtensionMethodSignature(signature: Signature): Boolean =
     signature.isExtensionMethod
 
-  @annotation.tailrec
-  private def simpleBoundName(bound: ScTypeElement): Option[String] = bound match {
-    case ScSimpleTypeElement(ref) => NameTransformer.encode(ref.refName).toOption
-    case proj: ScTypeProjection => NameTransformer.encode(proj.refName).toOption
-    case ScInfixTypeElement(_, op, _) => NameTransformer.encode(op.refName).toOption
-    case ScParameterizedTypeElement(ref, _) => simpleBoundName(ref)
-    case _ => None
+//  @annotation.tailrec
+  private def simpleBoundName(bound: TypeTree): Option[String] = {
+    // TODO: TypeTree impl
+    ???
+//    bound match {
+//      case ScSimpleTypeElement(ref) => NameTransformer.encode(ref.refName).toOption
+//      case proj: ScTypeProjection => NameTransformer.encode(proj.refName).toOption
+//      case ScInfixTypeElement(_, op, _) => NameTransformer.encode(op.refName).toOption
+//      case ScParameterizedTypeElement(ref, _) => simpleBoundName(ref)
+//      case _ => None
+//    }
   }
 
   private def contextBoundParameterName(
     typeParameter: ScTypeParam,
-    typeElement: ScTypeElement,
+    typeElement: TypeTreeHolder,
     index: Int
   ): String = {
-    val boundName = simpleBoundName(typeElement)
+    val boundName = simpleBoundName(typeElement.typeTree)
     val tpName = NameTransformer.encode(typeParameter.name)
 
     def addIdSuffix(name: String): String = name + "$" + tpName + "$" + index
 
-    lazy val fallbackName = "`" + addIdSuffix(typeElement.getText.replaceAll("\\s+", "")) + "`"
+    lazy val fallbackName = "`" + addIdSuffix(typeElement.toScalaCode.replaceAll("\\s+", "")) + "`"
 
     boundName.fold(fallbackName)(sname =>
       StringUtil.decapitalize(sname + "$" + tpName + "$" + index)
@@ -1437,34 +1448,27 @@ object ScalaPsiUtil {
 
     case class ParameterDescriptor(
       typeParameter: ScTypeParam,
-      typeElement: ScTypeElement,
+      typeElement: TypeTreeHolder,
       index: Int,
       name: Option[String]
     )
 
     val views = tparams.flatMap {
-      tparam => tparam.viewTypeElement.map((tparam, _))
+      tparam => tparam.viewTypeTreeHolders.map((tparam, _))
     }.zipWithIndex.map {
       case ((typeParameter, typeElement), index) => ParameterDescriptor(typeParameter, typeElement, index + 1, None)
     }
 
     val viewsTexts = views.map {
       case ParameterDescriptor(tparam, typeElement, index, _) =>
-        val needParenthesis = typeElement match {
-          case _: ScCompoundTypeElement |
-               _: ScInfixTypeElement |
-               _: ScFunctionalTypeElement |
-               _: ScExistentialTypeElement => true
-          case _ => false
-        }
-        import typeElement.projectContext
-        s"ev$$$index: ${tparam.name} $functionArrow ${typeElement.getText.parenthesize(needParenthesis)}"
+        import tparam.projectContext
+        s"ev$$$index: ${tparam.name} $functionArrow ${typeElement.toScalaCode.parenthesize()}"
     }
 
     val bounds = for {
       typeParameter <- tparams
       (cb, index) <- typeParameter.contextBounds.zipWithIndex
-    } yield ParameterDescriptor(typeParameter, cb.typeElement, index, cb.nameOpt)
+    } yield ParameterDescriptor(typeParameter, cb.typeTreeHolder, index, cb.nameOpt)
 
     val boundsTexts = bounds.map {
       case ParameterDescriptor(typeParameter, typeElement, index, name) =>
@@ -1757,50 +1761,52 @@ object ScalaPsiUtil {
     parentNode.removeChild(elementNode)
   }
 
-  def generateGivenName(tes: ScTypeElement*): String = {
+  def generateGivenName(tes: TypeTree*): String = {
     // refercne: https://docs.scala-lang.org/scala3/reference/contextual/relationship-implicits.html#
 
-    def fallback(te: ScTypeElement): String =
-      te.getText
-        .replaceAll("=>", "_to_")
-        .replaceAll("[^a-zA-Z_0-9]+", "_")
-        .replaceAll("(^_+)|(_+$)", "")
-
-    def transformInner(te: ScTypeElement): String = transform(isRoot = false)(te)
-    def transform(isRoot: Boolean)(te: ScTypeElement): String = te match {
-      case _: ScLiteralTypeElement | _: ScWildcardTypeElement => ""
-      case tt: ScTupleTypeElement => tt.components.map(transformInner).mkString("_")
-      case tt: ScNamedTupleTypeElement => tt.components.flatMap(_.typeElement).map(transformInner).mkString("_")
-      case te: ScParenthesisedTypeElement => te.innerElement.fold("")(transform(isRoot))
-      case ScSimpleTypeElement(ref) if te.isSingleton => s"${ref.refName}_type"
-      case ScSimpleTypeElement(ref) => ref.refName
-      case ScInfixTypeElement(lhs, op, rhs) if isRoot => s"${op.refName}_${transformInner(lhs)}_${rhs.fold("")(transformInner)}"
-      case ScInfixTypeElement(_, op, _) => op.refName
-      case ScParameterizedTypeElement(base, args) if isRoot => (transform(isRoot)(base) +: args.map(transformInner)).mkString("_")
-      case ScParameterizedTypeElement(base, _) => transformInner(base)
-      case e: ScTypeVariableTypeElement => e.name
-      case e: ScAnnotTypeElement => transform(isRoot)(e.typeElement)
-      case ScCompoundTypeElement(tes, _) if isRoot =>
-        tes
-          .take(2) // we take two elements at most, (A with B with C) means (A with (B with C)), so C is too deep
-          .map(transformInner)
-          .mkString("_" /* this is stupid, no idea why this is added */, "_", "")
-      case ScCompoundTypeElement(tes, _) => tes.headOption.fold("")(transformInner)
-      case ScMatchTypeElement(te, _) => transform(isRoot)(te)
-      case ScFunctionalTypeElement(pte: ScParenthesisedTypeElement, retTe) if pte.innerElement.isEmpty => retTe.fold("")(transform(isRoot))
-      case ScFunctionalTypeElement(argTe, retTe) => transformInner(argTe) + "_to_" + retTe.fold("")(transform(isRoot))
-      case proj: ScTypeProjection => proj.refName
-      case func: ScPolyFunctionTypeElement => func.typeParameters.headOption.fold("")(_.typeParameterText)
-      case func: ScTypeLambdaTypeElement => func.resultTypeElement.fold("")(transform(isRoot))
-      case _: ScSplicedBlock =>
-        // TODO: Evaluate?
-        ""
-      case unknown =>
-        Log.error(s"Unknown type Element in generateGivenOrExtensionName: $unknown")
-        fallback(unknown)
-    }
-
-    "given_" + tes.map(transform(isRoot = true)).mkString("_")
+////    def fallback(te: ScTypeElement): String =
+////      te.getText
+////        .replaceAll("=>", "_to_")
+////        .replaceAll("[^a-zA-Z_0-9]+", "_")
+////        .replaceAll("(^_+)|(_+$)", "")
+////
+////    def transformInner(te: ScTypeElement): String = transform(isRoot = false)(te)
+////    def transform(isRoot: Boolean)(te: ScTypeElement): String = te match {
+////      case _: ScLiteralTypeElement | _: ScWildcardTypeElement => ""
+////      case tt: ScTupleTypeElement => tt.components.map(transformInner).mkString("_")
+////      case tt: ScNamedTupleTypeElement => tt.components.flatMap(_.typeElement).map(transformInner).mkString("_")
+////      case te: ScParenthesisedTypeElement => te.innerElement.fold("")(transform(isRoot))
+////      case ScSimpleTypeElement(ref) if te.isSingleton => s"${ref.refName}_type"
+////      case ScSimpleTypeElement(ref) => ref.refName
+////      case ScInfixTypeElement(lhs, op, rhs) if isRoot => s"${op.refName}_${transformInner(lhs)}_${rhs.fold("")(transformInner)}"
+////      case ScInfixTypeElement(_, op, _) => op.refName
+////      case ScParameterizedTypeElement(base, args) if isRoot => (transform(isRoot)(base) +: args.map(transformInner)).mkString("_")
+////      case ScParameterizedTypeElement(base, _) => transformInner(base)
+////      case e: ScTypeVariableTypeElement => e.name
+////      case e: ScAnnotTypeElement => transform(isRoot)(e.typeElement)
+////      case ScCompoundTypeElement(tes, _) if isRoot =>
+////        tes
+////          .take(2) // we take two elements at most, (A with B with C) means (A with (B with C)), so C is too deep
+////          .map(transformInner)
+////          .mkString("_" /* this is stupid, no idea why this is added */, "_", "")
+////      case ScCompoundTypeElement(tes, _) => tes.headOption.fold("")(transformInner)
+////      case ScMatchTypeElement(te, _) => transform(isRoot)(te)
+////      case ScFunctionalTypeElement(pte: ScParenthesisedTypeElement, retTe) if pte.innerElement.isEmpty => retTe.fold("")(transform(isRoot))
+////      case ScFunctionalTypeElement(argTe, retTe) => transformInner(argTe) + "_to_" + retTe.fold("")(transform(isRoot))
+////      case proj: ScTypeProjection => proj.refName
+////      case func: ScPolyFunctionTypeElement => func.typeParameters.headOption.fold("")(_.typeParameterText)
+////      case func: ScTypeLambdaTypeElement => func.resultTypeElement.fold("")(transform(isRoot))
+////      case _: ScSplicedBlock =>
+////        // TODO: Evaluate?
+////        ""
+////      case unknown =>
+////        Log.error(s"Unknown type Element in generateGivenOrExtensionName: $unknown")
+////        fallback(unknown)
+////    }
+//
+//    "given_" + tes.map(transform(isRoot = true)).mkString("_")
+    // todo: type tree
+    ???
   }
 
   def constructTypeForPsiClass(

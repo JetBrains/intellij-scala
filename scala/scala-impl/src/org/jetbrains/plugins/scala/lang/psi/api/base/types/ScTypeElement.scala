@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.api.base.types
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedWithRecursionGuard}
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ifReadAllowed}
+import org.jetbrains.plugins.scala.lang.ir.typeTree.TypeTreeHolder
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
@@ -11,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
-trait ScTypeElement extends ScalaPsiElement with Typeable {
+trait ScTypeElement extends ScalaPsiElement with TypeTreeHolder {
   protected val typeName: String
 
   override def toString: String = {

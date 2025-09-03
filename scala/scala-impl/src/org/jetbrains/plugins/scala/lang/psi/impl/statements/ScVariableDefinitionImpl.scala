@@ -4,6 +4,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ifReadAllowed}
+import org.jetbrains.plugins.scala.lang.ir.typeTree.TypeTreeHolder
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScBegin
@@ -34,13 +35,16 @@ final class ScVariableDefinitionImpl private[psi] (
 
   override def isSimple: Boolean = pList.simplePatterns && bindings.size == 1
 
-  override def `type`(): TypeResult = typeElement match {
+  override def `type`(): TypeResult = typeTreeHolder match {
     case Some(te) => te.`type`()
     case None => expr.map(_.`type`().map(ScLiteralType.widenRecursive)).
       getOrElse(Failure(ScalaBundle.message("cannot.infer.type.without.an.expression")))
   }
 
-  override def typeElement: Option[ScTypeElement] = byPsiOrStub(findChild[ScTypeElement])(_.typeElement)
+  override def typePsiElement: Option[ScTypeElement] =
+    findChild[ScTypeElement]
+  override def typeTreeHolder: Option[TypeTreeHolder] =
+    byPsiOrStub[Option[TypeTreeHolder]](typePsiElement)(_.typeTreeHolder)
 
   override def annotationAscription: Option[ScAnnotations] =
     assignment.flatMap(_.getPrevSiblingNotWhitespaceComment match {

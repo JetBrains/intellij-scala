@@ -241,11 +241,11 @@ private class ScalaDocDefinitionGenerator private(
     appendContainerInfoSection(tpe)
     appendDefinitionSection {
       appendDeclMainSection(tpe)
-      builder.append(tpe.lowerTypeElement.flatMap(_.`type`().toOption).map(boundsRenderer.lowerBoundText).getOrElse(""))
-      builder.append(tpe.upperTypeElement.flatMap(_.`type`().toOption).map(boundsRenderer.upperBoundText).getOrElse(""))
+      builder.append(tpe.lowerTypeTreeHolder.flatMap(_.`type`().toOption).map(boundsRenderer.lowerBoundText).getOrElse(""))
+      builder.append(tpe.upperTypeTreeHolder.flatMap(_.`type`().toOption).map(boundsRenderer.upperBoundText).getOrElse(""))
       tpe match {
         case definition: ScTypeAliasDefinition if !definition.isEffectivelyOpaque =>
-          val tp = definition.aliasedTypeElement.flatMap(_.`type`().toOption).getOrElse(psi.types.api.Any)
+          val tp = definition.aliasedTypeTreeHolder.flatMap(_.`type`().toOption).getOrElse(psi.types.api.Any)
           builder.append(s" = ${typeRenderer(tp)}")
         case _ =>
       }

@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.externalLibraries.contextApplied
 
 import com.intellij.psi.PsiClass
+import org.jetbrains.plugins.scala.lang.ir.typeTree.{TypeTree, TypeTreeHolder}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
@@ -14,10 +15,10 @@ import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType
 object ContextAppliedUtil {
   private[this] def createSyntheticContextAppliedDef(
     name:              String,
-    boundTypeElements: Seq[ScTypeElement],
+    boundTypeElements: Seq[TypeTree],
     context:           ScalaPsiElement
   ): ScalaPsiElement = {
-    val tpeText = boundTypeElements.reverse.map(_.getText + s"[$name]").mkString(" with ")
+    val tpeText = boundTypeElements.reverse.map(_.toScalaCode + s"[$name]").mkString(" with ")
     ScalaPsiElementFactory.createMethodWithContext(s"def $name: $tpeText = ???", context, null)
   }
 
@@ -37,7 +38,7 @@ object ContextAppliedUtil {
 
       val paramsWithContextBounds = typeParameters.collect {
         case tp if !parameterNames.contains(tp.name) && tp.contextBounds.nonEmpty =>
-          tp.name -> tp.contextBounds.map(_.typeElement)
+          tp.name -> tp.contextBounds.map(_.typeTreeHolder)
       }
 
       paramsWithContextBounds.map {

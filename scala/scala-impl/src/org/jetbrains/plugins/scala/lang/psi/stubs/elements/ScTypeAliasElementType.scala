@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala.lang.psi.stubs.elements
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
+import org.jetbrains.plugins.scala.lang.ir.typeTree.TypeTree
+import org.jetbrains.plugins.scala.lang.ir.{StubInputStreamForIRExt, StubOutputStreamForIRExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScParameterizedTypeElement, ScSimpleTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDeclaration, ScTypeAliasDefinition}
@@ -15,9 +17,9 @@ abstract class ScTypeAliasElementType[Func <: ScTypeAlias](debugName: String)
   extends ScStubElementType[ScTypeAliasStub, ScTypeAlias](debugName) {
   override def serialize(stub: ScTypeAliasStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.getName)
-    dataStream.writeOptionName(stub.typeText)
-    dataStream.writeOptionName(stub.lowerBoundText)
-    dataStream.writeOptionName(stub.upperBoundText)
+    dataStream.writeTypeTreeHolderOption(stub.typeTreeHolder)
+    dataStream.writeTypeTreeHolderOption(stub.lowerBoundTypeTree)
+    dataStream.writeTypeTreeHolderOption(stub.upperBoundTypeTree)
     dataStream.writeBoolean(stub.isLocal)
     dataStream.writeBoolean(stub.isDeclaration)
     dataStream.writeBoolean(stub.isStableQualifier)
@@ -32,9 +34,9 @@ abstract class ScTypeAliasElementType[Func <: ScTypeAlias](debugName: String)
       parentStub.asInstanceOf[StubElement[PsiElement]],
       this,
       name               = dataStream.readNameString,
-      typeText           = dataStream.readOptionName,
-      lowerBoundText     = dataStream.readOptionName,
-      upperBoundText     = dataStream.readOptionName,
+      typeTreeHolder     = dataStream.readTypeTreeHolderOption(),
+      lowerBoundTypeTree = dataStream.readTypeTreeHolderOption(),
+      upperBoundTypeTree = dataStream.readTypeTreeHolderOption(),
       isLocal            = dataStream.readBoolean,
       isDeclaration      = dataStream.readBoolean,
       isStableQualifier  = dataStream.readBoolean,
@@ -47,26 +49,20 @@ abstract class ScTypeAliasElementType[Func <: ScTypeAlias](debugName: String)
   override def createStubImpl(alias: ScTypeAlias, parentStub: StubElement[_ <: PsiElement]): ScTypeAliasStub = {
     val maybeAlias = Option(alias)
 
-    val aliasedTypeText = maybeAlias.collect {
+    val aliasedTypeTree = maybeAlias.collect {
       case definition: ScTypeAliasDefinition => definition
     }.flatMap {
-      _.aliasedTypeElement
-    }.map {
-      _.getText
+      _.aliasedTypeTreeHolder
     }
 
     val maybeDeclaration = maybeAlias.collect {
       case declaration: ScTypeAliasDeclaration => declaration
     }
-    val lowerBoundText = maybeAlias.flatMap {
-      _.lowerTypeElement
-    }.map {
-      _.getText
+    val lowerBoundTypeTree = maybeAlias.flatMap {
+      _.lowerTypeTreeHolder
     }
-    val upperBoundText = maybeAlias.flatMap {
-      _.upperTypeElement
-    }.map {
-      _.getText
+    val upperBoundTypeTree = maybeAlias.flatMap {
+      _.upperTypeTreeHolder
     }
 
     val maybeContainingClass = maybeAlias.map(_.containingClass)
@@ -83,9 +79,9 @@ abstract class ScTypeAliasElementType[Func <: ScTypeAlias](debugName: String)
       parentStub,
       this,
       name               = alias.name,
-      typeText           = aliasedTypeText,
-      lowerBoundText     = lowerBoundText,
-      upperBoundText     = upperBoundText,
+      typeTreeHolder     = aliasedTypeTree,
+      lowerBoundTypeTree = lowerBoundTypeTree,
+      upperBoundTypeTree = upperBoundTypeTree,
       isLocal            = maybeContainingClass.isEmpty,
       isDeclaration      = maybeDeclaration.isDefined,
       isStableQualifier  = stableQualifier.isDefined,
@@ -127,11 +123,11 @@ abstract class ScTypeAliasElementType[Func <: ScTypeAlias](debugName: String)
 
   private def getClassType(ta: ScTypeAlias): Option[String] = ta match {
     case td: ScTypeAliasDefinition =>
-      td.aliasedTypeElement match {
+      td.aliasedTypeTreeHolder.map(_.typeTree) match {
         case None     => None
-        case Some(te @ (_: ScSimpleTypeElement |
-                        _: ScParameterizedTypeElement |
-                        _: ScInfixTypeElement)) => classNames(te).headOption
+        case Some(tt@(_: TypeTree.SimpleType |
+                        _: TypeTree.ParameterizedType |
+                        _: TypeTree.InfixType)) => classNames(tt).headOption
         case _ => None
       }
     case _ => None

@@ -154,7 +154,7 @@ final class ScalaPullUpProcessor(project: Project,
           copy.findFirstChildByType(ScalaTokenTypes.tASSIGN),
           copy.findFirstChildByType(ScalaTokenTypes.tUPPER_BOUND),
           copy.findFirstChildByType(ScalaTokenTypes.tLOWER_BOUND),
-          copy.aliasedTypeElement
+          copy.aliasedTypePsiElement
         ).flatten.foreach(_.delete())
         Seq(copy.getText)
       case _ => throw new IllegalArgumentException(s"Cannot create declaration text from member ${m.getText}")

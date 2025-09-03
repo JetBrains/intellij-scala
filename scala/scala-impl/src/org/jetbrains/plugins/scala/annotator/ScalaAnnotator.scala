@@ -234,8 +234,8 @@ class ScalaAnnotator extends Annotator
                          (implicit holder: ScalaAnnotationHolder): Unit = {
     toCheck match {
       case boundOwner: ScTypeBoundsOwner =>
-        checkAndHighlightBounds(boundOwner.upperTypeElement, upperV)
-        checkAndHighlightBounds(boundOwner.lowerTypeElement, -upperV)
+        checkAndHighlightBounds(boundOwner.upperTypePsiElement, upperV)
+        checkAndHighlightBounds(boundOwner.lowerTypePsiElement, -upperV)
       case _ =>
     }
     toCheck match {

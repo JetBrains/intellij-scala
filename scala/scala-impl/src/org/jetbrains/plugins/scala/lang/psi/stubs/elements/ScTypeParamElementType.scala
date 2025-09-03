@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.stubs.elements
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{StubElement, StubInputStream, StubOutputStream}
+import org.jetbrains.plugins.scala.lang.ir.{StubInputStreamForIRExt, StubOutputStreamForIRExt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScTypeParamImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeParamStub
@@ -15,9 +16,9 @@ class ScTypeParamElementType extends ScStubElementType[ScTypeParamStub, ScTypePa
   override def serialize(stub: ScTypeParamStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.getName)
     dataStream.writeName(stub.text)
-    dataStream.writeOptionName(stub.lowerBoundText)
-    dataStream.writeOptionName(stub.upperBoundText)
-    dataStream.writeNames(stub.viewBoundsTexts)
+    dataStream.writeTypeTreeHolderOption(stub.lowerBoundTypeTree)
+    dataStream.writeTypeTreeHolderOption(stub.upperBoundTypeTree)
+    dataStream.writeTypeTreeHolders(stub.viewBoundsTypeTrees)
     dataStream.writeBoolean(stub.isCovariant)
     dataStream.writeBoolean(stub.isContravariant)
     dataStream.writeName(stub.containingFileName)
@@ -29,28 +30,23 @@ class ScTypeParamElementType extends ScStubElementType[ScTypeParamStub, ScTypePa
     this,
     name = dataStream.readNameString,
     text = dataStream.readNameString,
-    lowerBoundText = dataStream.readOptionName,
-    upperBoundText = dataStream.readOptionName,
-    viewBoundsTexts = ArraySeq.unsafeWrapArray(dataStream.readNames),
+    lowerBoundTypeTree = dataStream.readTypeTreeHolderOption(),
+    upperBoundTypeTree = dataStream.readTypeTreeHolderOption(),
+    viewBoundsTypeTrees = dataStream.readTypeTreeHolders(),
     isCovariant = dataStream.readBoolean,
     isContravariant = dataStream.readBoolean,
     containingFileName = dataStream.readNameString(),
   )
 
   override def createStubImpl(typeParam: ScTypeParam, parentStub: StubElement[_ <: PsiElement]): ScTypeParamStub = {
-    val lowerBoundText = typeParam.lowerTypeElement
-      .map(_.getText)
-    val upperBoundText = typeParam.upperTypeElement
-      .map(_.getText)
-
     new ScTypeParamStubImpl(
       parentStub,
       this,
       name = typeParam.name,
       text = typeParam.getText,
-      lowerBoundText = lowerBoundText,
-      upperBoundText = upperBoundText,
-      viewBoundsTexts = ArraySeq.unsafeWrapArray(typeParam.viewTypeElement.asStrings()),
+      lowerBoundTypeTree = typeParam.lowerTypeTreeHolder,
+      upperBoundTypeTree = typeParam.upperTypeTreeHolder,
+      viewBoundsTypeTrees = typeParam.viewTypeTreeHolders,
       isCovariant = typeParam.isCovariant,
       isContravariant = typeParam.isContravariant,
       containingFileName = typeParam.getContainingFileName,

@@ -4,6 +4,7 @@ import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.lang.ir.typeTree.{TypeTree, TypeTreeHolder}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScMatchTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
@@ -20,22 +21,23 @@ trait ScTypeAliasDefinition extends ScTypeAlias {
 
   override def canHaveCompanion: Boolean = isOpaque
 
-  def aliasedTypeElement: Option[ScTypeElement]
+  def aliasedTypePsiElement: Option[ScTypeElement]
+  def aliasedTypeTreeHolder: Option[TypeTreeHolder]
 
   def aliasedType: TypeResult = cachedInUserData("aliasedType", this, BlockModificationTracker(this)) {
-    aliasedTypeElement.map {
+    aliasedTypeTreeHolder.map {
       _.`type`()
     }.getOrElse(Failure(ScalaBundle.message("no.alias.type")))
   }
 
   override def lowerBound(implicit context: Context): TypeResult =
-    if (!isEffectivelyOpaque(context)) aliasedType else lowerTypeElement match {
+    if (!isEffectivelyOpaque(context)) aliasedType else lowerTypeTreeHolder match {
       case Some(te) => te.`type`()
       case _ => Right(Nothing)
     }
 
   override def upperBound(implicit context: Context): TypeResult =
-    if (!isEffectivelyOpaque(context) && !aliasedTypeElement.exists(_.is[ScMatchTypeElement])) aliasedType else upperTypeElement match {
+    if (!isEffectivelyOpaque(context) && !aliasedTypeTreeHolder.exists(_.typeTree.is[TypeTree.MatchType])) aliasedType else upperTypeTreeHolder match {
       case Some(te) => te.`type`()
       case _ => Right(Any)
     }
@@ -79,8 +81,8 @@ private object ScTypeAliasDefinition {
           }
         case _ => // Java class
           (typeParameters corresponds cls.getTypeParameters) {
-            case (tp1, tp2) => tp1.variance == Invariant && tp1.upperTypeElement.isEmpty && tp2.getExtendsListTypes.isEmpty &&
-                    tp1.lowerTypeElement.isEmpty && tp1.contextBound.isEmpty && tp1.viewBound.isEmpty
+            case (tp1, tp2) => tp1.variance == Invariant && tp1.upperTypeTreeHolder.isEmpty && tp2.getExtendsListTypes.isEmpty &&
+                    tp1.lowerTypeTreeHolder.isEmpty && tp1.contextBound.isEmpty && tp1.viewBound.isEmpty
           }
       }
       typeParamsAreAppliedInOrderToCorrectClass && varianceAndBoundsMatch

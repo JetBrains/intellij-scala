@@ -2,19 +2,18 @@ package org.jetbrains.plugins.scala.lang.psi.stubs.impl
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
+import org.jetbrains.plugins.scala.lang.ir.typeTree.TypeTreeHolder
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeParamStub
-
-import scala.collection.immutable.ArraySeq
 
 class ScTypeParamStubImpl(
   parent: StubElement[_ <: PsiElement],
   elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
   name: String,
   override val text: String,
-  override val lowerBoundText: Option[String],
-  override val upperBoundText: Option[String],
-  override val viewBoundsTexts: ArraySeq[String],
+  override val lowerBoundTypeTree: Option[TypeTreeHolder],
+  override val upperBoundTypeTree: Option[TypeTreeHolder],
+  override val viewBoundsTypeTrees: Seq[TypeTreeHolder],
   override val isCovariant: Boolean,
   override val isContravariant: Boolean,
   override val containingFileName: String

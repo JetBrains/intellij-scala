@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.stubs.elements
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
+import org.jetbrains.plugins.scala.lang.ir.StubOutputStreamForIRExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.impl.statements._
@@ -17,7 +18,7 @@ sealed abstract class ScPropertyElementType[P <: ScValueOrVariable](debugName: S
     dataStream.writeBoolean(stub.isDeclaration)
     dataStream.writeBoolean(stub.isImplicit)
     dataStream.writeNames(stub.names)
-    dataStream.writeOptionName(stub.typeText)
+    dataStream.writeTypeTreeHolderOption(stub.typeTreeHolder)
     dataStream.writeOptionName(stub.bodyText)
     dataStream.writeBoolean(stub.isLocal)
     dataStream.writeNames(stub.classNames)
@@ -47,10 +48,10 @@ sealed abstract class ScPropertyElementType[P <: ScValueOrVariable](debugName: S
       isDeclaration     = property.isInstanceOf[ScVariableDeclaration],
       isImplicit        = property.hasModifierProperty("implicit"),
       names             = property.declaredNames.toArray,
-      typeText          = property.typeElement.map(_.getText),
+      typeText          = property.typeTreeHolder,
       bodyText          = body(property).map(_.getText),
       isLocal           = property.containingClass == null,
-      classNames        = property.typeElement.toArray.flatMap(classNames),
+      classNames        = property.typeTreeHolder.toArray.flatMap(classNames),
       isTopLevel        = property.isTopLevel,
       topLevelQualifier = property.topLevelQualifier
     )

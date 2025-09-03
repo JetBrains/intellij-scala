@@ -14,7 +14,7 @@ trait ScGivenStub {
 
 object ScGivenStub {
   def givenAliasClassNames(alias: ScGivenAlias): Array[String] =
-    alias.returnTypeElement.toArray.flatMap(classNames)
+    alias.typeTreeHolder.toArray.flatMap(classNames)
 
   def givenDefinitionClassNames(givenDef: ScGivenDefinition): Array[String] = for {
     templateParent <- givenDef.extendsBlock.templateParents.toArray

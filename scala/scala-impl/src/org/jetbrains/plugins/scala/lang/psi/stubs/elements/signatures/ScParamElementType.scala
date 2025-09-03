@@ -4,6 +4,7 @@ package signatures
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{StubElement, StubInputStream, StubOutputStream}
 import com.intellij.util.ArrayUtil.EMPTY_STRING_ARRAY
+import org.jetbrains.plugins.scala.lang.ir.{StubInputStreamForIRExt, StubOutputStreamForIRExt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.stubs.{ScImplicitStub, ScParameterStub}
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScParameterStubImpl
@@ -12,7 +13,7 @@ abstract class ScParamElementType[P <: ScParameter](debugName: String) extends S
 
   override def serialize(stub: ScParameterStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.getName)
-    dataStream.writeOptionName(stub.typeText)
+    dataStream.writeTypeTreeHolderOption(stub.typeTreeHolder)
     dataStream.writeBoolean(stub.isStable)
     dataStream.writeBoolean(stub.isDefaultParameter)
     dataStream.writeBoolean(stub.isRepeated)
@@ -28,7 +29,7 @@ abstract class ScParamElementType[P <: ScParameter](debugName: String) extends S
   override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScParameterStub =
     new ScParameterStubImpl(parentStub, this,
       name = dataStream.readNameString,
-      typeText = dataStream.readOptionName,
+      typeTreeHolder = dataStream.readTypeTreeHolderOption,
       isStable = dataStream.readBoolean,
       isDefaultParameter = dataStream.readBoolean,
       isRepeated = dataStream.readBoolean,
@@ -42,12 +43,9 @@ abstract class ScParamElementType[P <: ScParameter](debugName: String) extends S
     )
 
   override def createStubImpl(parameter: ScParameter, parentStub: StubElement[_ <: PsiElement]): ScParameterStub = {
-    val typeText = parameter.typeElement.map {
-      _.getText
-    }
     val (isVal, isVar, implicitClassNames) = parameter match {
       case parameter: ScClassParameter =>
-        (parameter.isVal, parameter.isVar, ScImplicitStub.implicitClassNames(parameter, parameter.typeElement))
+        (parameter.isVal, parameter.isVar, ScImplicitStub.implicitClassNames(parameter, parameter.typeTreeHolder))
       case _ => (false, false, EMPTY_STRING_ARRAY)
     }
     val defaultExprText = parameter.getActualDefaultExpression.map {

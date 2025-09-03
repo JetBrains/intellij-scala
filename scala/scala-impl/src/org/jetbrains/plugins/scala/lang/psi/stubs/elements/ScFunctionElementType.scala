@@ -7,6 +7,7 @@ import com.intellij.util.ArrayUtil.EMPTY_STRING_ARRAY
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt}
+import org.jetbrains.plugins.scala.lang.ir.StubOutputStreamForIRExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDeclaration, ScFunctionDefinition, ScMacroDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGivenAlias, ScGivenAliasDeclaration, ScGivenAliasDefinition}
@@ -23,7 +24,7 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
     dataStream.writeName(stub.getName)
     dataStream.writeBoolean(stub.isDeclaration)
     dataStream.writeNames(stub.annotations)
-    dataStream.writeOptionName(stub.typeText)
+    dataStream.writeTypeTreeHolderOption(stub.typeTreeHolder)
     dataStream.writeOptionName(stub.bodyText)
     dataStream.writeBoolean(stub.hasAssign)
     dataStream.writeOptionName(stub.implicitConversionParameterClass)

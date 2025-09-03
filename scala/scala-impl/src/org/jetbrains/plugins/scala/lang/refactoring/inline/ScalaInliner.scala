@@ -232,7 +232,7 @@ final class ScalaInliner {
   ): Option[PsiElement] = {
     referenced match {
       case ta: ScTypeAliasDefinition =>
-        val aliasedTypeElement = ta.aliasedTypeElement
+        val aliasedTypeElement = ta.aliasedTypePsiElement
         aliasedTypeElement.map(usageTypeElement.replace)
       case _ =>
         None

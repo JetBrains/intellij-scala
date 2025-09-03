@@ -9,6 +9,7 @@ import com.intellij.psi.util.PsiTreeUtil.getNextSiblingOfType
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.lang.ir.typeTree.TypeTreeHolder
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.{tLOWER_BOUND, tUPPER_BOUND}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
@@ -52,26 +53,29 @@ final class ScTypeAliasDeclarationImpl private(stub: ScTypeAliasStub, node: ASTN
 
   override def toString: String = "ScTypeAliasDeclaration: " + ifReadAllowed(name)("")
 
-  override def lowerBound(implicit context: Context): TypeResult = lowerTypeElement match {
+  override def lowerBound(implicit context: Context): TypeResult = lowerTypeTreeHolder match {
     case Some(te) => te.`type`()
     case None => Right(Nothing)
   }
 
-  override def upperBound(implicit context: Context): TypeResult = upperTypeElement match {
+  override def upperBound(implicit context: Context): TypeResult = upperTypeTreeHolder match {
     case Some(te) => te.`type`()
     case None => Right(Any)
   }
+
+  override def lowerTypePsiElement: Option[ScTypeElement] = boundElement(tLOWER_BOUND)
+  override def upperTypePsiElement: Option[ScTypeElement] = boundElement(tUPPER_BOUND)
 
   override def contextBounds: Seq[ScContextBound] =
     ArraySeq.unsafeWrapArray(
       getStubOrPsiChildren(ScalaElementType.CONTEXT_BOUND: IElementType, JavaArrayFactoryUtil.ScContextBoundFactory)
     )
 
-  override def upperTypeElement: Option[ScTypeElement] =
-    byPsiOrStub(boundElement(tUPPER_BOUND))(_.upperBoundTypeElement)
+  override def upperTypeTreeHolder: Option[TypeTreeHolder] =
+    byPsiOrStub[Option[TypeTreeHolder]](upperTypePsiElement)(_.upperBoundTypeTree)
 
-  override def lowerTypeElement: Option[ScTypeElement] =
-    byPsiOrStub(boundElement(tLOWER_BOUND))(_.lowerBoundTypeElement)
+  override def lowerTypeTreeHolder: Option[TypeTreeHolder] =
+    byPsiOrStub[Option[TypeTreeHolder]](lowerTypePsiElement)(_.lowerBoundTypeTree)
 
   private def boundElement(elementType: IElementType): Option[ScTypeElement] = {
     findLastChildByTypeScala[PsiElement](elementType).flatMap { element =>

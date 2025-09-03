@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.TokenSets
+import org.jetbrains.plugins.scala.lang.ir.typeTree.TypeTreeHolder
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -120,14 +121,15 @@ class ScParameterImpl protected(
 
   override def getTypeElement: PsiTypeElement = null
 
-  override def typeElement: Option[ScTypeElement] = byPsiOrStub(paramType.flatMap(_.typeElement.toOption))(_.typeElement)
+  override def typePsiElement: Option[ScTypeElement] = paramType.flatMap(_.typeElement.toOption)
+  override def typeTreeHolder: Option[TypeTreeHolder] = byStubOrPsi(_.typeTreeHolder)(typePsiElement)
 
   override def `type`(): TypeResult = {
     def success(t: ScType): TypeResult = Right(t)
     //todo: this is very error prone way to calc type, when usually we need real parameter type
     getStub match {
       case null =>
-        typeElement match {
+        typeTreeHolder match {
           case None if baseDefaultParam =>
             getActualDefaultExpression match {
               case Some(t) => success(t.`type`().getOrNothing)
@@ -140,15 +142,12 @@ class ScParameterImpl protected(
           case Some(e) => e.`type`()
         }
       case paramStub =>
-        paramStub.typeText match {
+        paramStub.typeTreeHolder match {
           case None if paramStub.getParentStub != null && paramStub.getParentStub.getParentStub != null &&
-            paramStub.getParentStub.getParentStub.getParentStub.isInstanceOf[ScFunctionStub[_]] =>
+            paramStub.getParentStub.getParentStub.getParentStub.is[ScFunctionStub[_]] =>
             Failure(ScalaBundle.message("cannot.infer.type"))
           case None => Failure(ScalaBundle.message("wrong.stub.problem")) //shouldn't be
-          case Some(_: String) => paramStub.typeElement match {
-            case Some(te) => te.`type`()
-            case None => Failure(ScalaBundle.message("wrong.type.element"))
-          }
+          case Some(tt) => tt.`type`()
         }
     }
   }

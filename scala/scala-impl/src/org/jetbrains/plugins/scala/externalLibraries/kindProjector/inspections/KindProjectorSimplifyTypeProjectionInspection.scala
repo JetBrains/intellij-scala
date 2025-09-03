@@ -74,20 +74,20 @@ object KindProjectorSimplifyTypeProjectionInspection {
 
 
   private[this] def boundsDefined(param: ScTypeParam): Boolean =
-    param.lowerTypeElement.isDefined || param.upperTypeElement.isDefined
+    param.lowerTypePsiElement.isDefined || param.upperTypePsiElement.isDefined
 
   /**
     * Kind projector currently supports only very basic type bounds
     * @see https://github.com/non/kind-projector/pull/6
     */
   private[kindProjector] def canConvertBounds(param: ScTypeParam): Boolean =
-    hasNoBounds(param) || ((param.lowerTypeElement, param.upperTypeElement) match {
+    hasNoBounds(param) || ((param.lowerTypePsiElement, param.upperTypePsiElement) match {
       case (Some(_: ScSimpleTypeElement) | None, Some(_: ScSimpleTypeElement) | None) => true
       case _                                                                          => false
     })
 
   private[this] def hasNoBounds(p: ScTypeParam): Boolean = {
-    (p.lowerTypeElement, p.upperTypeElement) match {
+    (p.lowerTypePsiElement, p.upperTypePsiElement) match {
       case (None, None) => true
       case _            => false
     }

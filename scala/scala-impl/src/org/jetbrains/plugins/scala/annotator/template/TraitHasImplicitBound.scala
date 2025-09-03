@@ -15,7 +15,7 @@ object TraitHasImplicitBound extends AnnotatorPart[ScTrait] with DumbAware {
         val message = ScalaBundle.message("traits.cannot.have.type.parameters.with.context.bounds")
         holder.createErrorAnnotation(cb, message)
       }
-      val viewBoundElements = definition.typeParameters.flatMap(p => p.viewTypeElement)
+      val viewBoundElements = definition.typeParameters.flatMap(p => p.viewTypePsiElements)
       for (te <- viewBoundElements) {
         val message = ScalaBundle.message("traits.cannot.have.type.parameters.with.view.bounds")
         holder.createErrorAnnotation(te, message)

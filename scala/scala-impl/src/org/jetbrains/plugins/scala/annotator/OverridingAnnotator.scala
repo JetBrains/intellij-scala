@@ -324,7 +324,7 @@ trait OverridingAnnotator {
           case _ =>
             e.nameContext match {
               case v: ScValueOrVariable =>
-                v.typeElement.isDefined || PropertyMethods.isBeanProperty(v)
+                v.typeTreeHolder.isDefined || PropertyMethods.isBeanProperty(v)
               case _ => false
             }
         }

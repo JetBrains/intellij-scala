@@ -10,9 +10,10 @@ import org.jetbrains.plugins.scala.caches.{ModTracker, cached}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.TokenSets
+import org.jetbrains.plugins.scala.lang.ir.typeTree.TypeTreeHolder
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScContextBound, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScContextBound
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScEnumCases, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
@@ -136,19 +137,19 @@ class ScTypeParamImpl private (stub: ScTypeParamStub, node: ASTNode)
 
   override def getNameIdentifier: PsiIdentifier = new JavaIdentifier(nameId)
 
-  override def viewTypeElement: Seq[ScTypeElement] =
-    byPsiOrStub(super.viewTypeElement)(_.viewBounds)
+  override def viewTypeTreeHolders: Seq[TypeTreeHolder] =
+    byPsiOrStub(super.viewTypeTreeHolders)(_.viewBoundsTypeTrees)
 
   override def contextBounds: Seq[ScContextBound] =
     ArraySeq.unsafeWrapArray(
       getStubOrPsiChildren(ScalaElementType.CONTEXT_BOUND: IElementType,  JavaArrayFactoryUtil.ScContextBoundFactory)
     )
 
-  override def lowerTypeElement: Option[ScTypeElement] =
-    byPsiOrStub(super.lowerTypeElement)(_.lowerBoundTypeElement)
+  override def lowerTypeTreeHolder: Option[TypeTreeHolder] =
+    byPsiOrStub(super.lowerTypeTreeHolder)(_.lowerBoundTypeTree)
 
-  override def upperTypeElement: Option[ScTypeElement] =
-    byPsiOrStub(super.upperTypeElement)(_.upperBoundTypeElement)
+  override def upperTypeTreeHolder: Option[TypeTreeHolder] =
+    byPsiOrStub(super.upperTypeTreeHolder)(_.upperBoundTypeTree)
 
   override def getIcon(flags: Int): Icon = {
     Icons.TYPE_ALIAS

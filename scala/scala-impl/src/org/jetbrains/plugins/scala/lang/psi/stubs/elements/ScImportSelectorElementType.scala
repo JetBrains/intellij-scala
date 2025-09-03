@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.stubs.elements
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
+import org.jetbrains.plugins.scala.lang.ir.{StubInputStreamForIRExt, StubOutputStreamForIRExt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelector
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports.ScImportSelectorImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScImportSelectorStub
@@ -17,7 +18,7 @@ class ScImportSelectorElementType extends ScStubElementType[ScImportSelectorStub
     dataStream.writeBoolean(stub.isAliasedImport)
     dataStream.writeBoolean(stub.isWildcardSelector)
     dataStream.writeBoolean(stub.isGivenSelector)
-    dataStream.writeOptionName(stub.typeText)
+    dataStream.writeTypeTreeHolderOption(stub.typeTreeHolder)
   }
 
   override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScImportSelectorStub =
@@ -28,7 +29,7 @@ class ScImportSelectorElementType extends ScStubElementType[ScImportSelectorStub
       isAliasedImport = dataStream.readBoolean(),
       isWildcardSelector = dataStream.readBoolean(),
       isGivenSelector = dataStream.readBoolean(),
-      typeText = dataStream.readOptionName
+      typeTreeHolder = dataStream.readTypeTreeHolderOption()
     )
 
   override def createStubImpl(selector: ScImportSelector, parentStub: StubElement[_ <: PsiElement]): ScImportSelectorStub = {
@@ -43,7 +44,7 @@ class ScImportSelectorElementType extends ScStubElementType[ScImportSelectorStub
       isAliasedImport = selector.isAliasedImport,
       isWildcardSelector = selector.isWildcardSelector,
       isGivenSelector = selector.isGivenSelector,
-      typeText = selector.givenTypeElement.map(_.getText)
+      typeTreeHolder = selector.givenTypeTreeHolder
     )
   }
 

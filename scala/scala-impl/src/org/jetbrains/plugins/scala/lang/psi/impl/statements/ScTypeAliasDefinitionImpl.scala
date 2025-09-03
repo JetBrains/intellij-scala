@@ -8,6 +8,7 @@ import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil.getNextSiblingOfType
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiNamedElementExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.lang.ir.typeTree.TypeTreeHolder
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.{tLOWER_BOUND, tUPPER_BOUND}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
@@ -46,11 +47,14 @@ final class ScTypeAliasDefinitionImpl private(stub: ScTypeAliasStub, node: ASTNo
     case n => n
   }
 
-  override def lowerTypeElement: Option[ScTypeElement] =
-    byPsiOrStub(boundElement(tLOWER_BOUND))(_.lowerBoundTypeElement)
+  override def lowerTypePsiElement: Option[ScTypeElement] = boundElement(tLOWER_BOUND)
+  override def upperTypePsiElement: Option[ScTypeElement] = boundElement(tUPPER_BOUND)
 
-  override def upperTypeElement: Option[ScTypeElement] =
-    byPsiOrStub(boundElement(tUPPER_BOUND))(_.upperBoundTypeElement)
+  override def lowerTypeTreeHolder: Option[TypeTreeHolder] =
+    byStubOrPsi(_.lowerBoundTypeTree)(lowerTypePsiElement)
+
+  override def upperTypeTreeHolder: Option[TypeTreeHolder] =
+    byStubOrPsi(_.lowerBoundTypeTree)(upperTypePsiElement)
 
   private def boundElement(elementType: IElementType): Option[ScTypeElement] = {
     findLastChildByTypeScala[PsiElement](elementType).flatMap { element =>
@@ -58,8 +62,10 @@ final class ScTypeAliasDefinitionImpl private(stub: ScTypeAliasStub, node: ASTNo
     }
   }
 
-  override def aliasedTypeElement: Option[ScTypeElement] =
-    byPsiOrStub(findLastChild[ScTypeElement])(_.typeElement)
+  override def aliasedTypePsiElement: Option[ScTypeElement] =
+    findLastChild[ScTypeElement]
+  override def aliasedTypeTreeHolder: Option[TypeTreeHolder] =
+    byPsiOrStub[Option[TypeTreeHolder]](aliasedTypePsiElement)(_.typeTreeHolder)
 
   override def navigate(requestFocus: Boolean): Unit = {
     val descriptor =  EditSourceUtil.getDescriptor(this)

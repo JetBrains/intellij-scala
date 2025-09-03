@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.lang.ir.typeTree.TypeTreeHolder
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -18,25 +19,26 @@ trait ScGivenAliasDeclarationOrDefinitionImpl extends ScFunction
   self: ScalaStubBasedElementImpl[_, _ <: ScTypeElementOwnerStub[_]] =>
 
   override def returnType: TypeResult =
-    typeElement match {
+    typeTreeHolder match {
       case Some(te) => te.`type`()
       case None => Failure(ScalaBundle.message("no.type.element.found", getText))
     }
 
-  override def typeElement: Option[ScTypeElement] =
-    byPsiOrStub(findChildByClassScala(classOf[ScTypeElement]).toOption)(_.typeElement)
+  override def typePsiElement: Option[ScTypeElement] = findChild[ScTypeElement]
+  override def typeTreeHolder: Option[TypeTreeHolder] =
+    byStubOrPsi(_.typeTreeHolder)(typePsiElement)
 
   override protected def nameInner: String = {
     val explicitName = nameElement.map(_.getText)
 
     explicitName
-      .getOrElse(ScalaPsiUtil.generateGivenName(typeElement.toSeq: _*))
+      .getOrElse(ScalaPsiUtil.generateGivenName(typeTreeHolder.toSeq: _*))
   }
 
 
   override def nameId: PsiElement = {
     // TODO: returning this is a hack to not return null and has to be improved later
     //       see SCL-21867 for further details
-    nameElement.orElse(typeElement).getOrElse(this)
+    nameElement.orElse(typePsiElement).getOrElse(this)
   }
 }

@@ -4,6 +4,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.ir.typeTree.TypeTreeHolder
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -84,11 +85,12 @@ trait ScFunction
    * Optional Type Element, denoting function's return type
    * May be omitted for non-recursive functions
    */
-  def returnTypeElement: Option[ScTypeElement]
+  def returnTypePsiElement: Option[ScTypeElement]
+  def returnTypeTreeHolder: Option[TypeTreeHolder]
 
   def returnType: TypeResult
 
-  def hasExplicitType: Boolean = returnTypeElement.isDefined
+  def hasExplicitType: Boolean = returnTypeTreeHolder.isDefined
 
   def paramClauses: ScParameters
 

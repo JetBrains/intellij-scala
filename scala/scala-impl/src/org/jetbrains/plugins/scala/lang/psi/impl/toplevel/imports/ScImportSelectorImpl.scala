@@ -7,6 +7,7 @@ import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.TokenSets
 import org.jetbrains.plugins.scala.lang.TokenSets.{ID_SET, IMPORT_WILDCARDS}
+import org.jetbrains.plugins.scala.lang.ir.typeTree.TypeTreeHolder
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.tIDENTIFIER
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.IMPORT_SELECTOR
@@ -111,5 +112,6 @@ class ScImportSelectorImpl private(stub: ScImportSelectorStub, node: ASTNode)
     findChildByType(ScalaTokenType.GivenKeyword) != null
   }
 
-  override def givenTypeElement: Option[ScTypeElement] = byPsiOrStub(findChild[ScTypeElement])(_.typeElement)
+  override def givenTypePsiElement: Option[ScTypeElement] = findChild[ScTypeElement]
+  override def givenTypeTreeHolder: Option[TypeTreeHolder] = byStubOrPsi(_.typeTreeHolder)(givenTypePsiElement)
 }

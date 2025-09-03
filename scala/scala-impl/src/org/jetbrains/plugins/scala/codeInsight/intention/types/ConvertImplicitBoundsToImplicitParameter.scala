@@ -75,7 +75,7 @@ object ConvertImplicitBoundsToImplicitParameter {
     val candidates = for {
       tp       <- typeParameters
       cb       <- tp.contextBounds
-      cbTe     = cb.typeElement
+      cbTe     = cb.typePsiElement
       teText   = cbTe.getText
       cbName   = cb.nameOpt.getOrElse(teText.lowercased)
       typeText = teText.parenthesize(!ScalaNamesValidator.isIdentifier(teText))

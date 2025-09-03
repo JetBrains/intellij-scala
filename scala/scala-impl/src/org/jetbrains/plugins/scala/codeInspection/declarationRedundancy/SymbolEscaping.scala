@@ -112,15 +112,15 @@ private[declarationRedundancy] object SymbolEscaping {
 
   private def getTypeParameterTypes(owner: ScTypeParametersOwner): Seq[ScType] =
     owner.typeParameters.flatMap { typeParam =>
-      typeParam.viewTypeElement ++
-        typeParam.upperTypeElement ++
-        typeParam.lowerTypeElement ++
-        typeParam.contextBounds.map(_.typeElement)
+      typeParam.viewTypeTreeHolders ++
+        typeParam.upperTypeTreeHolder ++
+        typeParam.lowerTypeTreeHolder ++
+        typeParam.contextBounds.map(_.typeTreeHolder)
     }.flatMap(_.`type`().toSeq)
 
   final class EscapeInfo(val member: ScMember, val types: Seq[ScType])
 
-  private final object EscapeInfo {
+  private object EscapeInfo {
     def apply(member: ScMember, types: Seq[ScType]) = new EscapeInfo(member, types)
   }
 

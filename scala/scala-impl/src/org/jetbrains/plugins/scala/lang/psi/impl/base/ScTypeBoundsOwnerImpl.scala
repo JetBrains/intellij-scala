@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.base
 
 import com.intellij.psi.{PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.lang.ir.typeTree.TypeTreeHolder
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScContextBound, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
@@ -11,26 +12,26 @@ import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstanc
 
 trait ScTypeBoundsOwnerImpl extends ScTypeBoundsOwner {
 
-  override def lowerBound(implicit context: Context): TypeResult = typeOf(lowerTypeElement, isLower = true)
+  override def lowerBound(implicit context: Context): TypeResult = typeOf(lowerTypeTreeHolder, isLower = true)
 
-  override def upperBound(implicit context: Context): TypeResult = typeOf(upperTypeElement, isLower = false)
+  override def upperBound(implicit context: Context): TypeResult = typeOf(upperTypeTreeHolder, isLower = false)
 
   protected def extractBound(in: ScType, isLower: Boolean): ScType = in
 
-  override def viewBound: Seq[ScType] = viewTypeElement.flatMap(_.`type`().toOption)
+  override def viewBound: Seq[ScType] = viewTypeTreeHolders.flatMap(_.`type`().toOption)
 
-  override def contextBound: Seq[ScType] = contextBounds.flatMap(_.typeElement.`type`().toOption)
+  override def contextBound: Seq[ScType] = contextBounds.flatMap(_.typeTreeHolder.`type`().toOption)
 
-  override def upperTypeElement: Option[ScTypeElement] =
+  override def upperTypeTreeHolder: Option[TypeTreeHolder] =
     findLastChildByTypeScala[PsiElement](ScalaTokenTypes.tUPPER_BOUND)
       .flatMap(_.nextSiblingOfType[ScTypeElement])
 
-  override def lowerTypeElement: Option[ScTypeElement] =
+  override def lowerTypeTreeHolder: Option[TypeTreeHolder] =
     findLastChildByTypeScala[PsiElement](ScalaTokenTypes.tLOWER_BOUND)
       .flatMap(_.nextSiblingOfType[ScTypeElement])
 
 
-  override def viewTypeElement: Seq[ScTypeElement] = {
+  override def viewTypeTreeHolders: Seq[TypeTreeHolder] = {
     for {
       v <- findChildrenByType(ScalaTokenTypes.tVIEW)
       t <- v.nextSiblingOfType[ScTypeElement]
@@ -52,7 +53,7 @@ trait ScTypeBoundsOwnerImpl extends ScTypeBoundsOwner {
     node.getTreeParent.removeRange(node, null)
   }
 
-  private def typeOf(typeElement: Option[ScTypeElement], isLower: Boolean): TypeResult =
+  private def typeOf(typeElement: Option[TypeTreeHolder], isLower: Boolean): TypeResult =
     typeElement match {
       case Some(elem) =>
         if (ScalaApplicationSettings.PRECISE_TEXT) elem.`type`() // SCL-21151

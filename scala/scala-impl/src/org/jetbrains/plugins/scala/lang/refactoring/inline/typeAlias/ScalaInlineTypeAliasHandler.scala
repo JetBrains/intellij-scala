@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeElement, TypeTreeHolderExt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
@@ -46,15 +46,13 @@ object ScalaInlineTypeAliasHandler {
   val RefactoringName: String = ScalaBundle.message("inline.type.alias.title")
 
   private def isSimpleTypeAlias(typeAlias: ScTypeAliasDefinition): Boolean =
-    typeAlias.aliasedTypeElement.toSeq.flatMap(_.depthFirst()).forall {
-      case t: ScTypeElement =>
-        t.calcType match {
-          case _: TypeParameterType => false
-          case part: ScProjectionType if !ScalaPsiUtil.hasStablePath(part.element) =>
-            false
-          case _ => true
-        }
-      case _ => true
+    typeAlias.aliasedTypeTreeHolder.forall { tt =>
+      tt.calcType match {
+        case _: TypeParameterType => false
+        case part: ScProjectionType if !ScalaPsiUtil.hasStablePath(part.element) =>
+          false
+        case _ => true
+      }
     }
 
   private def isParametrizedTypeAlias(typeAlias: ScTypeAliasDefinition) = typeAlias.typeParameters.nonEmpty

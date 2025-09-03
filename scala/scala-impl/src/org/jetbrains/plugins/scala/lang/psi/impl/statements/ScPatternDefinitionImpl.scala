@@ -4,6 +4,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiModifierListOwnerExt, ifReadAllowed}
+import org.jetbrains.plugins.scala.lang.ir.typeTree.TypeTreeHolder
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaModifier, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScBegin
@@ -36,7 +37,7 @@ final class ScPatternDefinitionImpl private[psi](stub: ScPropertyStub[ScPatternD
     if (this.hasModifierPropertyScala(ScalaModifier.LAZY))
       this.hasFinalModifier || this.isTopLevel || // top level `lazy val x = 1` is effectively final
         !this.isInScala3File || // in scala2 lazy val can be referenced with `.type` even without explicit type
-        typeElement.exists(_.isSingleton)
+        typeTreeHolder.exists(_.typeTree.isSingleton)
     else
       true
 
@@ -44,7 +45,7 @@ final class ScPatternDefinitionImpl private[psi](stub: ScPropertyStub[ScPatternD
 
   override def declaredElements: Seq[ScBindingPattern] = bindings
 
-  override def `type`(): TypeResult = typeElement match {
+  override def `type`(): TypeResult = typeTreeHolder match {
     case Some(te) => te.`type`()
     case _ =>
       expr.toRight {
@@ -59,7 +60,8 @@ final class ScPatternDefinitionImpl private[psi](stub: ScPropertyStub[ScPatternD
 
   override def expr: Option[ScExpression] = byPsiOrStub(findChild[ScExpression])(_.bodyExpression)
 
-  override def typeElement: Option[ScTypeElement] = byPsiOrStub(findChild[ScTypeElement])(_.typeElement)
+  override def typePsiElement: Option[ScTypeElement] = findChild[ScTypeElement]
+  override def typeTreeHolder: Option[TypeTreeHolder] = byStubOrPsi(_.typeTreeHolder)(findChild[ScTypeElement])
 
   override def annotationAscription: Option[ScAnnotations] =
     assignment.flatMap(_.getPrevSiblingNotWhitespaceComment match {
