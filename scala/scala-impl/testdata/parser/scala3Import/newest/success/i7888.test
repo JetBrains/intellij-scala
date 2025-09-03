@@ -33,7 +33,7 @@ ScalaFile
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
           ParameterType
-            PolymorhicFunctionType: [A] => Seq[A] => B
+            PolymorphicFunctionType: [A] => Seq[A] => B
               TypeParameterClause
                 PsiElement([)('[')
                 TypeParameter: A

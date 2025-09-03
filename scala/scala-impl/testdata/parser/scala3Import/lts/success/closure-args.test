@@ -565,7 +565,7 @@ ScalaFile
                     PsiElement(:)(':')
                     PsiWhiteSpace(' ')
                     ParameterType
-                      PolymorhicFunctionType: [X] => X => X
+                      PolymorphicFunctionType: [X] => X => X
                         TypeParameterClause
                           PsiElement([)('[')
                           TypeParameter: X

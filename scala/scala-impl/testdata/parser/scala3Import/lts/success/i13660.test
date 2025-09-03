@@ -74,7 +74,7 @@ ScalaFile
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
     PsiWhiteSpace(' ')
-    PolymorhicFunctionType: [Z] => A[Z] => B[Z]
+    PolymorphicFunctionType: [Z] => A[Z] => B[Z]
       TypeParameterClause
         PsiElement([)('[')
         TypeParameter: Z

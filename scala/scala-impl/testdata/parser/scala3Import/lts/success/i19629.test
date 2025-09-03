@@ -151,7 +151,7 @@ ScalaFile
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
                 ParameterType
-                  PolymorhicFunctionType: [F1[_], Y] => (k: Knit[CP, F1]) => (ev: TypeEqK[F, [x] =>> CP[F1[x], Y]]) => R
+                  PolymorphicFunctionType: [F1[_], Y] => (k: Knit[CP, F1]) => (ev: TypeEqK[F, [x] =>> CP[F1[x], Y]]) => R
                     TypeParameterClause
                       PsiElement([)('[')
                       TypeParameter: F1
