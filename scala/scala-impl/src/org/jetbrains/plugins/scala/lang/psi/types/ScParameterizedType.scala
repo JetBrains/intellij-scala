@@ -94,13 +94,9 @@ final class ScParameterizedType private (override val designator: ScType, overri
     designator match {
       case tpt: TypeParameterType =>
         ScSubstitutor.bind(tpt.typeParameters, typeArguments)
-      case _ => designator.extractDesignatedType(expandAliases = false) match {
-        case Some((owner: ScTypeParametersOwner, s)) =>
-          s.followed(ScSubstitutor.bind(owner.typeParameters, typeArguments))
-        case Some((owner: PsiTypeParameterListOwner, s)) =>
-          s.followed(ScSubstitutor.bind(owner.getTypeParameters, typeArguments))
-        case _ => ScSubstitutor.empty
-      }
+      case other =>
+        val typeParams = extractTypeParameters(other)
+        ScSubstitutor.bind(typeParams, typeArguments)
     }
   }
 

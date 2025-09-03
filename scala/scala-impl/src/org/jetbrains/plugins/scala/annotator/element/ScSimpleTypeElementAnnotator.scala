@@ -6,12 +6,10 @@ import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScContextBound, ScInfixTypeElement, ScParameterizedTypeElement, ScParenthesisedTypeElement, ScSimpleTypeElement, ScTypeArgs}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotationsHolder, ScPrimaryConstructor}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScGenericCall
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.types.TypeIsNotStable
 
 object ScSimpleTypeElementAnnotator extends ElementAnnotator[ScSimpleTypeElement] {
@@ -76,6 +74,8 @@ object ScSimpleTypeElementAnnotator extends ElementAnnotator[ScSimpleTypeElement
             case owner: ScTypeParametersOwner => noHigherKinds(owner)
             case _                            => false
           }
+        //Allow unapplied type constructors as a rhs of type alias in Scala 3
+        case ta: ScTypeAlias if ta.isInScala3File => false
         case _ =>
           //SCL-19477, this code is OK, no need in type argument
           //def f[T]: "42" = ???
