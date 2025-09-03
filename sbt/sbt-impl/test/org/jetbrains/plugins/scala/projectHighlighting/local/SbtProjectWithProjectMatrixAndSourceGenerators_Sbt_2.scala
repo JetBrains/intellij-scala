@@ -290,6 +290,6 @@ class SbtProjectWithProjectMatrixAndSourceGenerators_Sbt_2
       .copy(assertionFailStrategy = new CollectErrors())
 
     matcher.assertProjectsEqual(expectedProject, getProject, singleContentRootModules = false)(compareContext)
-    matcher.assertNoNotificationsShown(myProject, notificationsCollector.getNotifications)
+    matcher.assertNoNotificationsShown(getProject, notificationsCollector.getNotifications)
   }
 }
