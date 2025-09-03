@@ -1,20 +1,21 @@
 package org.jetbrains.plugins.scala.structuralSearch
 
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiComment, PsiElement}
 import com.intellij.psi.impl.source.tree.{LeafElement, LeafPsiElement}
 import com.intellij.structuralsearch.impl.matcher.GlobalMatchingVisitor
 import com.intellij.structuralsearch.impl.matcher.handlers.{MatchingHandler, SubstitutionHandler, TopLevelMatchingHandler}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScNamedTupleTypeComponent, ScNamedTupleTypeElement, ScParameterizedTypeElement, ScParenthesisedTypeElement, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScNamedTupleTypeComponent, ScNamedTupleTypeElement, ScParameterizedTypeElement, ScParenthesisedTypeElement, ScTypeElement, ScTypeProjection}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScConstructorInvocation, ScLiteral, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.*
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScCatchBlock.unapply
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScParameters, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFunction, ScFunctionDefinition, ScPatternDefinition, ScTypeAlias, ScTypeAliasDefinition, ScValue, ScValueDeclaration, ScValueOrVariable, ScValueOrVariableDeclaration, ScValueOrVariableDefinition, ScVariable, ScVariableDeclaration, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScConstructorOwner, ScDerivesClauseOwner, ScEnum, ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScConstructorOwner, ScDerivesClauseOwner, ScEnum, ScGivenDefinition, ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.JavaIdentifier
 import org.jetbrains.plugins.scala.util.EnumSet.{EnumSet, EnumSetOps}
@@ -42,8 +43,8 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     }
   }
 
-  private def extractConstructorInvocations(templateDefinition: ScTemplateDefinition): Seq[PsiElement] = {
-    templateDefinition.extendsBlock.templateParents.map(_.parentClauses).getOrElse(PsiElement.EMPTY_ARRAY)
+  private def extractConstructorInvocations(extBlock: ScExtendsBlock): Seq[PsiElement] = {
+    extBlock.templateParents.map(_.parentClauses).getOrElse(PsiElement.EMPTY_ARRAY)
   }
 
   private def matchBody(patternO: Option[PsiElement], otherO: Option[PsiElement]): Boolean = {
@@ -110,7 +111,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
       case (classlike: (ScClass | ScTrait | ScObject), other: (ScClass | ScTrait | ScObject)) =>
         matchClassLike(classlike, other)
       case _ =>
-        globalVisitor.setResult(false)
+        super.visitTypeDefinition(typedef)
     }
   }
 
@@ -126,30 +127,12 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
       def modifierMatch = checkModifier(typedef.getModifierList.modifiers, other.getModifierList.modifiers)
       def nameMatch = matchTextOrVariable(typedef.getNameIdentifier, other.getNameIdentifier, handler)
       def typeParamsMatch = matchInAnyOrder(typedef.getTypeParameters, other.getTypeParameters)
-      def functionsMatch = matchInAnyOrder(typedef.functions, other.functions)
       def constructorsMatch = (typedef, other) match {
         case (typedef: ScConstructorOwner, other: ScConstructorOwner) =>
           matchPrimaryConstructor(typedef.constructor, other.constructor)
         case _ => true
       }
 
-      // match in any order if the body contains only declarations & definitions
-      // otherwise fall back to a sequential match
-      def primaryConstrBodyMatch = {
-        def extractValVar(typedef: ScTypeDefinition): Array[PsiElement] =
-          typedef.extendsBlock.templateBody.map(_.getChildren.filter(_.is[ScBlockStatement]).filterNot(_.is[ScFunction, ScTypeDefinition])).getOrElse(PsiElement.EMPTY_ARRAY)
-
-        val bodyPattern = extractValVar(typedef)
-        val bodyOther = extractValVar(other)
-        if (bodyPattern.forall(_.is[ScValueOrVariableDeclaration, ScValueOrVariableDefinition]))
-          matchInAnyOrder(typedef.properties, other.properties)
-        else
-          matchSequentially(bodyPattern, bodyOther)
-      }
-
-      def classesMatch = matchInAnyOrder(typedef.typeDefinitions, other.typeDefinitions)
-
-      def parentsMatch = matchInAnyOrder(extractConstructorInvocations(typedef), extractConstructorInvocations(other))
       def casesMatch = (typedef, other) match {
         case (en: ScEnum, other: ScEnum) => matchInAnyOrder(en.cases, other.cases)
         case _ => true
@@ -165,12 +148,36 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
         case _ => true
       }
 
-      globalVisitor.setResult(annotationsMatch && keywordMatch && modifierMatch && nameMatch && parentsMatch && typeParamsMatch
-        && primaryConstrBodyMatch && constructorsMatch
-        && functionsMatch && classesMatch && casesMatch && derivesMatch)
+      def extendsBlockMatch = globalVisitor.`match`(typedef.extendsBlock, other.extendsBlock)
+
+      globalVisitor.setResult(annotationsMatch && keywordMatch && modifierMatch && nameMatch && typeParamsMatch
+        && constructorsMatch && casesMatch && derivesMatch && extendsBlockMatch)
     } finally {
       scopeMatch(typedef, isTypedVar, other)
     }
+  }
+
+  private def visitExtendsBlock(extBlock: ScExtendsBlock): Unit = {
+    val other = globalVisitor.getElement.asInstanceOf[ScExtendsBlock]
+
+    def functionsMatch = matchInAnyOrder(extBlock.functions, other.functions)
+
+    // match in any order if the body contains only declarations & definitions
+    // otherwise fall back to a sequential match
+    def primaryConstrBodyMatch = {
+      def extractValVar(extBlock: ScExtendsBlock): Array[PsiElement] =
+        extBlock.templateBody.map(_.getChildren.filter(_.is[ScBlockStatement]).filterNot(_.is[ScFunction, ScTypeDefinition])).getOrElse(PsiElement.EMPTY_ARRAY)
+
+      val bodyPattern = extractValVar(extBlock)
+      val bodyOther = extractValVar(other)
+      if (bodyPattern.forall(_.is[ScValueOrVariableDeclaration, ScValueOrVariableDefinition]))
+        matchInAnyOrder(extBlock.properties, other.properties)
+      else
+        matchSequentially(bodyPattern, bodyOther)
+    }
+    def classesMatch = matchInAnyOrder(extBlock.typeDefinitions, other.typeDefinitions)
+    def parentsMatch = matchInAnyOrder(extractConstructorInvocations(extBlock), extractConstructorInvocations(other))
+    globalVisitor.setResult(functionsMatch && primaryConstrBodyMatch && classesMatch && parentsMatch)
   }
 
   private def matchEnumCase(enCase: ScEnumCase, other: ScEnumCase): Unit = {
@@ -181,11 +188,11 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
 
     def constrMatch = {
       val patternConstr = enCase match {
-        case patternDef: ScTemplateDefinition => extractConstructorInvocations(patternDef)
+        case patternDef: ScTemplateDefinition => extractConstructorInvocations(patternDef.extendsBlock)
         case _ => Seq()
       }
       val matchConstr = other match {
-        case otherDef: ScTemplateDefinition => extractConstructorInvocations(otherDef)
+        case otherDef: ScTemplateDefinition => extractConstructorInvocations(otherDef.extendsBlock)
         case _ => Seq()
       }
       matchInAnyOrder(patternConstr, matchConstr)
@@ -630,6 +637,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
   override def visitLiteral(lPat: ScLiteral): Unit =
     globalVisitor.setResult(globalVisitor.matchText(lPat, globalVisitor.getElement))
 
+
   override def visitReferenceExpression(refPat: ScReferenceExpression): Unit = {
     val context = globalVisitor.getMatchContext
     val otherV = globalVisitor.getElement
@@ -725,12 +733,14 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
 
   override def visitNewTemplateDefinition(templ: ScNewTemplateDefinition): Unit = {
     val other = globalVisitor.getElement.asInstanceOf[ScNewTemplateDefinition]
-    globalVisitor.setResult(matchOpt(templ.firstConstructorInvocation, other.firstConstructorInvocation))
+    def constrMatch = matchOpt(templ.firstConstructorInvocation, other.firstConstructorInvocation)
+    def bodyMatch = matchOpt(templ.extendsBlock.templateBody, other.extendsBlock.templateBody)
+    globalVisitor.setResult(templ.isAnonymous == other.isAnonymous && (if (templ.isAnonymous) then bodyMatch else constrMatch))
   }
 
   override def visitReturn(ret: ScReturn): Unit = {
     val other = globalVisitor.getElement.asInstanceOf[ScReturn]
-    globalVisitor.setResult(matchOpt(ret.expr, other.expr))
+    globalVisitor.setResult(matchOptEqual(ret.expr, other.expr))
   }
 
   override def visitThrow(throwStmt: ScThrow): Unit = {
@@ -747,12 +757,21 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     globalVisitor.setResult(matchSequentially(tuple.exprs, other.exprs))
   }
 
+  override def visitTypeProjection(proj: ScTypeProjection): Unit = {
+    val other = globalVisitor.getElement.asInstanceOf[ScTypeProjection]
+
+    def typeMatch = globalVisitor.`match`(proj.typeElement, other.typeElement)
+    def refMatch = globalVisitor.`match`(proj.nameId, other.nameId)
+    globalVisitor.setResult(typeMatch && refMatch)
+  }
+
   override def visitScalaElement(element: ScalaPsiElement): Unit = {
     element match {
       case typeParam: ScTypeParam => visitTypeParam(typeParam)
       case finallyBlock: ScFinallyBlock => visitFinally(finallyBlock)
       case tuple: ScNamedTupleExprComponent => visitNamedTupleExprComponent(tuple)
       case tuple: ScNamedTupleTypeComponent => visitNamedTupleTypeComponent(tuple)
+      case extBlock: ScExtendsBlock => visitExtendsBlock(extBlock)
       case _ => visitElement(element)
     }
   }

@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.structuralSearch.ScalaStructuralSearchTestCas
 import org.jetbrains.plugins.scala.util.TestUtils
 
 import java.nio.file.Path
+import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{Await, Future, duration}
@@ -13,6 +14,44 @@ import scala.concurrent.{Await, Future, duration}
 class ScSSMatchCompleteness extends ScalaStructuralSearchTestCase {
   val path = TestUtils.getTestDataPath + "/" + Scala3ImportedParserTestConfig.Newest.successDataDirectory
   private val separatorRegex = raw"\n-{5,}".r
+
+  def eliminateBlockComments(oText: String): String = {
+    var text = oText
+    var counter = 0
+    var pos = 0
+    var start = 0
+    while (text.indexOf("/*", pos) >= 0) {
+      val indexStart = text.indexOf("/*", pos)
+      val indexEnd = text.indexOf("*/", pos)
+
+      if (indexStart < indexEnd) {
+        if (counter == 0)
+          start = indexStart
+
+        counter += 1
+        pos = indexStart + 2
+      } else {
+        counter -= 1
+        pos = indexEnd + 2
+
+        if (counter == 0) {
+          text = text.substring(0, start) + text.substring(indexEnd + 2)
+          pos = start
+        }
+      }
+    }
+    while (text.indexOf("*/", pos) >= 0) {
+      val indexEnd = text.indexOf("*/", pos)
+      counter -= 1
+      pos = indexEnd + 2
+
+      if (counter == 0) {
+        text = text.substring(0, start) + text.substring(indexEnd + 2)
+        pos = start
+      }
+    }
+    text
+  }
 
   def testCompleteness(): Unit = {
     val files = Path.of(path)
@@ -27,10 +66,13 @@ class ScSSMatchCompleteness extends ScalaStructuralSearchTestCase {
     for ((file, i) <- files.zipWithIndex) {
       val text = {
         val text = file.readAllBytesToString().withNormalizedSeparator
-        separatorRegex.findFirstMatchIn(text)
+        val strippedLineComments = separatorRegex.findFirstMatchIn(text)
           .fold(text)(m => text.substring(0, m.start))
           // get rid of all the comments
-          .split("\n").filterNot(_.strip().startsWith("//")).mkString("\n")
+          .split("\n").filterNot(_.strip().startsWith("//"))
+          .map(line => if line.contains("//") then line.substring(0, line.indexOf("//")) else line)
+          .mkString("\n")
+        eliminateBlockComments(strippedLineComments)
           .strip()
       }
 
@@ -47,7 +89,7 @@ class ScSSMatchCompleteness extends ScalaStructuralSearchTestCase {
       } catch {
         case throwable: Throwable =>
           error += 1
-          println(s"Failed file $i - $file:")
+          println(s"Failed file $i - $file")
       } finally {
         counter += 1
       }
