@@ -6,13 +6,13 @@ import com.intellij.psi.{PsiElement, ResolveState}
 import org.jetbrains.plugins.scala.caches.{ModTracker, cached}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScPolyFunctionExpr}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScParenthesizedElement.InnermostElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFunctionExpr, ScPolyFunctionExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
-import org.jetbrains.plugins.scala.lang.psi.types.ScParameterizedType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, TypeParameterType}
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.result.{OptionTypeExt, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType}
 
 class ScPolyFunctionExprImpl(node: ASTNode)
   extends ScExpressionImplBase(node)
@@ -57,26 +57,32 @@ class ScPolyFunctionExprImpl(node: ASTNode)
       }
     )
 
-  protected override def innerType: TypeResult = {
-    val contextBounds =
-      typeParameters.flatMap {
-        typeParam =>
-          typeParam.contextBound.map(
-            boundType => ScParameterizedType(boundType, Seq(TypeParameterType(typeParam)))
-          )
+  private val cachedDesugaredType: () => Option[ScType] =
+    cached(
+      "ScPolyFunctionExpr#cachedDesugaredType",
+      ModTracker.anyScalaPsiChange,
+      () => {
+        val typeParamsText = typeParametersClause.fold("")(_.getTextByStub)
+
+        val (paramsText, resultTypeText) = result match {
+          case Some(InnermostElement(fn: ScFunctionExpr)) =>
+            fn.params.getText ->
+              this.flatMapType(fn.result).getOrAny.presentableText(this, Context.Empty)
+          case _ => "()" -> "scala.Any"
+        }
+
+        ScalaPsiElementFactory.createTypeFromText(
+          s"""
+             |scala.PolyFunction {
+             |  def apply$typeParamsText$paramsText: $resultTypeText
+             |}
+             |""".stripMargin, getContext, null
+        )
       }
+    )
 
-    val resultType = {
-      val inner = this.flatMapType(result).getOrAny
-
-      if (contextBounds.isEmpty)
-        inner
-      else
-        ScPolyFunctionExpr.propagateContextBounds(inner, contextBounds)
-    }
-
-    Right(ScTypePolymorphicType(resultType, typeParameters.map(TypeParameter(_))))
-  }
+  protected override def innerType: TypeResult =
+    cachedDesugaredType().asTypeResult
 
   override def controlFlowScope: Option[ScalaPsiElement] = result
 

@@ -2,24 +2,37 @@ package org.jetbrains.plugins.scala.codeInspection.feature
 
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiElement, PsiReference}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.{ClassQualifiedName, ReferenceTarget, _}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScExistentialClause, ScRefinement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScCompoundTypeElement, ScExistentialClause, ScRefinement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScPostfixExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParamClause
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScMacroDefinition, ScTypeAlias, ScTypeAliasDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.ScCompoundType
+import org.jetbrains.plugins.scala.lang.psi.types.api.ExtractClass
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings.scalaVersionSinceWhichHigherKindsAreAlwaysEnabled
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerSettings, ScalaCompilerSettingsProfile}
 
 class LanguageFeatureInspection extends LocalInspectionTool {
+  private def isPolyFunctionRefinement(ref: ScRefinement): Boolean = {
+    ref.getContext match {
+      case ScCompoundTypeElement(Seq(tpe), _) =>
+        tpe.`type`().exists {
+          case ExtractClass(cls) => cls.qualifiedName == "scala.PolyFunction"
+          case _                 => false
+        }
+      case _ => false
+    }
+  }
 
   private val Features = Seq(
     Feature(ScalaInspectionBundle.message("language.feature.postfix.operator.notation"), "scala.language", "postfixOps", _.postfixOps, _.copy(postfixOps = true),
@@ -28,7 +41,8 @@ class LanguageFeatureInspection extends LocalInspectionTool {
       case e: ScPostfixExpr => e.operation
     },
     Feature(ScalaInspectionBundle.message("language.feature.reflective.call"), "scala.language", "reflectiveCalls", _.reflectiveCalls, _.copy(reflectiveCalls = true)) {
-      case e@ReferenceTarget(decl@Parent(_: ScRefinement)) if !decl.is[ScTypeAlias] => e.getLastChild match {
+      case e@ReferenceTarget(decl@Parent(ref: ScRefinement)) if !decl.is[ScTypeAlias] && !isPolyFunctionRefinement(ref)
+      => e.getLastChild match {
         case id@ElementType(ScalaTokenTypes.tIDENTIFIER) => id
         case _ => e
       }
