@@ -165,11 +165,11 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     // match in any order if the body contains only declarations & definitions
     // otherwise fall back to a sequential match
     def primaryConstrBodyMatch = {
-      def extractValVar(extBlock: ScExtendsBlock): Array[PsiElement] =
+      def extractStatements(extBlock: ScExtendsBlock): Array[PsiElement] =
         extBlock.templateBody.map(_.getChildren.filter(_.is[ScBlockStatement]).filterNot(_.is[ScFunction, ScTypeDefinition])).getOrElse(PsiElement.EMPTY_ARRAY)
 
-      val bodyPattern = extractValVar(extBlock)
-      val bodyOther = extractValVar(other)
+      val bodyPattern = extractStatements(extBlock)
+      val bodyOther = extractStatements(other)
       if (bodyPattern.forall(_.is[ScValueOrVariableDeclaration, ScValueOrVariableDefinition]))
         matchInAnyOrder(extBlock.properties, other.properties)
       else

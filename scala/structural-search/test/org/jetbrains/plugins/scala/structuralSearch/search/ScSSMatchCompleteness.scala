@@ -79,7 +79,8 @@ class ScSSMatchCompleteness extends ScalaStructuralSearchTestCase {
       try {
         if (text.length < 50000) {
           matchAndAssert(s"Test all parsing tests. Testcase $i",
-            s"""<match="AA">$text</match="AA">""", text
+            s"""<match="AA">$text</match="AA">""", "",
+            _.setSearchPattern(text)
           )
           success += 1
         } else {
