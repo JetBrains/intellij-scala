@@ -735,7 +735,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     val other = globalVisitor.getElement.asInstanceOf[ScNewTemplateDefinition]
     def constrMatch = matchOpt(templ.firstConstructorInvocation, other.firstConstructorInvocation)
     def bodyMatch = matchOpt(templ.extendsBlock.templateBody, other.extendsBlock.templateBody)
-    globalVisitor.setResult(templ.isAnonymous == other.isAnonymous && (if (templ.isAnonymous) then bodyMatch else constrMatch))
+    globalVisitor.setResult(templ.isAnonymous == other.isAnonymous && (if templ.isAnonymous then bodyMatch else constrMatch))
   }
 
   override def visitReturn(ret: ScReturn): Unit = {

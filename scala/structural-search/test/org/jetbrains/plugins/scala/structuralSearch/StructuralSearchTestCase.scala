@@ -10,7 +10,6 @@ import com.intellij.structuralsearch.{MatchOptions, MatchResult, Matcher, Struct
 import com.intellij.testFramework.LightPlatformCodeInsightTestCase
 import com.intellij.util.SmartList
 
-import scala.jdk.CollectionConverters
 import scala.jdk.CollectionConverters.*
 
 abstract class StructuralSearchTestCase extends LightPlatformCodeInsightTestCase {
@@ -33,7 +32,7 @@ abstract class StructuralSearchTestCase extends LightPlatformCodeInsightTestCase
                             patternLanguage: Language,
                             sourceFileType: LanguageFileType,
                             physicalSourceFile: Boolean,
-                            modifyOptions: MatchOptions => Unit
+                            modifyOptions: MatchOptions => Unit,
                            ): Seq[MatchResult] = {
     options.fillSearchCriteria(pattern)
     options.setFileType(patternFileType)

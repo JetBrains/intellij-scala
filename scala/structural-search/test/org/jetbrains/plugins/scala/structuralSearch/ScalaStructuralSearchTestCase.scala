@@ -22,11 +22,12 @@ class ScalaStructuralSearchTestCase extends StructuralSearchTestCase {
     @Language("Scala 3") pattern: String,
     modifyOptions: MatchOptions => Unit = _ => (),
     inScala3: Boolean = true,
-    patternScala3: Boolean = true
+    patternScala3: Boolean = true,
+    stripMargin: Boolean = true
   ): Unit = {
-    val (plainCode, marker) = extractMarker(code.stripMargin.trim)
+    val (plainCode, marker) = extractMarker((if stripMargin then code.stripMargin else code).trim)
     val results = findMatches(plainCode,
-      pattern.stripMargin.trim,
+      (if stripMargin then pattern.stripMargin else pattern).trim,
       if inScala3 then Scala3FileType else ScalaFileType.INSTANCE,
       if inScala3 then Scala3Language.INSTANCE else ScalaLanguage.INSTANCE,
       if patternScala3 then Scala3FileType else ScalaFileType.INSTANCE,
