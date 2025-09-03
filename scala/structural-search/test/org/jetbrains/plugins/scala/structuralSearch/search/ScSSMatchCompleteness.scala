@@ -18,7 +18,7 @@ class ScSSMatchCompleteness extends ScalaStructuralSearchTestCase {
     val files = Path.of(path)
       .allFiles()
       .to(ArraySeq)
-    print(s"Found ${files.size} files. Starting to test them all...")
+    println(s"Found ${files.size} files. Starting to test them all...")
 
     var counter = 0
     var success = 0
@@ -29,12 +29,15 @@ class ScSSMatchCompleteness extends ScalaStructuralSearchTestCase {
         val text = file.readAllBytesToString().withNormalizedSeparator
         separatorRegex.findFirstMatchIn(text)
           .fold(text)(m => text.substring(0, m.start))
+          // get rid of all the comments
+          .split("\n").filterNot(_.strip().startsWith("//")).mkString("\n")
+          .strip()
       }
 
       try {
         if (text.length < 50000) {
           matchAndAssert(s"Test all parsing tests. Testcase $i",
-            text, s"""<match="AA">$text</match="AA">"""
+            s"""<match="AA">$text</match="AA">""", text
           )
           success += 1
         } else {
@@ -42,9 +45,9 @@ class ScSSMatchCompleteness extends ScalaStructuralSearchTestCase {
           println(s"Skipped file $i due to large size - $file")
         }
       } catch {
-        case _: Throwable =>
+        case throwable: Throwable =>
           error += 1
-          println(s"Failed file $i - $file")
+          println(s"Failed file $i - $file:")
       } finally {
         counter += 1
       }

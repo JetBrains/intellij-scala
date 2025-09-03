@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.structuralSearch
 
-import com.intellij.structuralsearch.MatchOptions
+import com.intellij.dupLocator.iterators.SiblingNodeIterator
+import com.intellij.structuralsearch.{MatchOptions, MatchResult}
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.{LanguageFileTypeBase, Scala3Language, ScalaFileType, ScalaLanguage}
@@ -35,13 +36,35 @@ class ScalaStructuralSearchTestCase extends StructuralSearchTestCase {
 
     assert(results.size == marker.size, s"[StructuralSearch - $name] The number of results does not match (${results.size} instead of ${marker.size})")
 
+    // need to deal with multiple children
     for (result <- results) {
-      val begin = result.getMatch.getTextRange.getStartOffset
+      val multi = MatchResult.MULTI_LINE_MATCH.equals(result.getName)
+      val children = result.getChildren.stream().filter(r => MatchResult.LINE_MATCH.equals(r.getName)).toList
+      val begin = (if (multi) children.get(0) else result).getMatch.getTextRange.getStartOffset
+
+      val (length, text) = if (multi) {
+        assert(!children.isEmpty)
+        val sb = new StringBuilder()
+        val it = SiblingNodeIterator.create(children.get(0).getMatch)
+        val last = children.get(children.size() - 1).getMatch
+        var length = 0
+        while (it.current() != null && it.current() != last) {
+          sb.append(it.current().getText)
+          length += it.current().getTextRange.getLength
+          it.advance()
+        }
+        sb.append(last.getText)
+        length += last.getTextLength
+        (length, sb.mkString)
+      } else {
+        (result.getMatch.getTextRange.getLength, result.getMatchImage)
+      }
+
       assert(marker.contains(begin), s"[StructuralSearch - $name] Found match at position $begin where should be no match:\n${result.getMatchImage}")
-      val end = marker(begin)
-      val expected = plainCode.substring(begin, end)
-      assert(end - begin == result.getMatch.getTextRange.getLength, s"[StructuralSearch - $name] Match at position $begin has wrong length\n${result.getMatchImage}\n  instead of\n$expected")
-      assert(expected == result.getMatchImage, s"[StructuralSearch - $name] Match at position $begin has wrong content\n${result.getMatchImage}\n  instead of\n$expected")
+      val exEnd = marker(begin)
+      val expected = plainCode.substring(begin, exEnd)
+      assert(exEnd - begin == length, s"[StructuralSearch - $name] Match at position $begin has wrong length\n${result.getMatchImage}\n  instead of\n$expected")
+      assert(expected == text, s"[StructuralSearch - $name] Match at position $begin has wrong content\n${result.getMatchImage}\n  instead of\n$expected")
     }
   }
 

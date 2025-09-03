@@ -6,14 +6,14 @@ class ScSSTypeAlias extends ScalaStructuralSearchTestCase {
 
   def testTypeAlias(): Unit = {
     val content =
-      """<match="AA">type IntSeq = Seq[Int]</match="AA">
+      """<match="AE"><match="AA">type IntSeq = Seq[Int]</match="AA">
         |<match="AB">type StringSeq = Seq[String]</match="AB">
-        |<match="AC">type StringList = List[String]</match="AC">
+        |<match="AC">type StringList = List[String]</match="AC"></match="AE">
         |<match="AD">type PureDecl</match="AD">
         |"""
     matchAndAssert(
       "Empty matches all",
-      content, "type $name$"
+      clearMarker(content, Set("AA", "AB", "AC", "AD")), "type $name$"
     )
     matchAndAssert(
       "Match one type",
@@ -37,7 +37,7 @@ class ScSSTypeAlias extends ScalaStructuralSearchTestCase {
     )
     matchAndAssert(
       "Match vars with count",
-      clearMarker(content, Set("AA")),
+      clearMarker(content, Set("AE")),
       "type $name$ = $b$[$a$]",
       mO => {
         val constr = mO.addNewVariableConstraint("name")
