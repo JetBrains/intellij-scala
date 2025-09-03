@@ -102,7 +102,7 @@ class SbtUtilTest {
     assertEquals(SbtVersion.Latest.Sbt_LatestIncludingUnreleased, upgradeSbtVersionToTheLatestCompatible(SbtVersion.Latest.Sbt_LatestIncludingUnreleased))
 
     assertEquals(SbtVersion("1.9001.1"), upgradeSbtVersionToTheLatestCompatible(SbtVersion("1.9001.1")))
-    assertEquals(SbtVersion("2.0.0-RC3"), upgradeSbtVersionToTheLatestCompatible(SbtVersion("2.0.0-M3")))
+    assertEquals(SbtVersion("2.0.0-RC4"), upgradeSbtVersionToTheLatestCompatible(SbtVersion("2.0.0-M3")))
     assertEquals(SbtVersion("2.0.0"), upgradeSbtVersionToTheLatestCompatible(SbtVersion("2.0.0")))
   }
 
