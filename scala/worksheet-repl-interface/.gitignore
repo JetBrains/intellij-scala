@@ -1,0 +1,4 @@
+.bsp
+.idea/*
+
+!.idea/misc.xml
