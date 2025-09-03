@@ -6,6 +6,7 @@ import com.intellij.util.net.HttpConnectionUtils
 import com.intellij.util.xmlb.XmlSerializer
 
 import java.net.URL
+import scala.annotation.nowarn
 import scala.util.Try
 
 private object CompilerPluginsWhiteList {
@@ -24,7 +25,7 @@ private object CompilerPluginsWhiteList {
     val url = s"$serviceUrl/statistics/scalac-plugins-statistics.xml"
     Try {
       HttpConnectionUtils.prepareUrl(url)
-      new URL(url)
+      new URL(url): @nowarn("cat=deprecation")
     }.toOption
   }
 

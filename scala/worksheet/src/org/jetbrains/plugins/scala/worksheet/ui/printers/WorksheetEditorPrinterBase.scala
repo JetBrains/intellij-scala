@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.worksheet.ui.WorksheetDiffSplitters.SimpleWor
 import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetDiffSplitters, WorksheetFoldGroup}
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterBase.InputOutputFoldingInfo
 
-import scala.annotation.unused
+import scala.annotation.{nowarn, unused}
 
 abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
                                           protected val worksheetViewer: Editor)
@@ -31,7 +31,7 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
   private var inited = false
 
   protected def debug(obj: Any): Unit =
-    println(s"[${Thread.currentThread.getId}] $obj")
+    println(s"[${Thread.currentThread.getId: @nowarn("cat=deprecation")}] $obj")
 
   override def internalError(ex: Throwable): Unit =
     invokeLater {

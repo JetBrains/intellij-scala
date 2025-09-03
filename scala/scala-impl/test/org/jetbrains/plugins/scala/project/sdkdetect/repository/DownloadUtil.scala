@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.project.sdkdetect.repository
 
 import java.net.{HttpURLConnection, URL}
 import java.nio.file.{Files, Path}
+import scala.annotation.nowarn
 import scala.util.Using
 
 private object DownloadUtil {
@@ -48,7 +49,7 @@ private object DownloadUtil {
   ): Unit = {
     println(s"Downloading file from $urlString to $targetFilePath")
 
-    val url = new URL(urlString)
+    val url = new URL(urlString): @nowarn("cat=deprecation")
     val connection = url.openConnection().asInstanceOf[HttpURLConnection]
     connection.setRequestMethod("GET")
     if (state.bytesDownloaded > 0) {

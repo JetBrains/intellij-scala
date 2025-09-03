@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion, SlowTests
 import org.junit.experimental.categories.Category
 
 import java.net.{URL, URLClassLoader}
+import scala.annotation.nowarn
 
 /**
  * This test:
@@ -91,7 +92,7 @@ abstract class Scala3ExampleProjectCompilationTestBase(
     getMainModule.libraries.flatMap(_.jarUrls)
 
   private def targetUrl: URL =
-    new URL(CompilerModuleExtension.getInstance(getMainModule).getCompilerOutputUrl + "/")
+    new URL(CompilerModuleExtension.getInstance(getMainModule).getCompilerOutputUrl + "/"): @nowarn("cat=deprecation")
 
   private def getMainModule: Module =
     getModule(projectName)
