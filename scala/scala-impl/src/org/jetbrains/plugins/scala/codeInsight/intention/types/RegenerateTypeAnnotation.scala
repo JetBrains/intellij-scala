@@ -81,8 +81,8 @@ object RegenerateTypeAnnotation {
   private def getTypeAnnotation(element: PsiElement): Boolean = {
     import AbstractTypeAnnotationIntention._
 
-    def parents = functionParent(element).flatMap(_.returnTypeElement) ++
-      (valueParent(element) ++ variableParent(element)).flatMap(_.typeElement)
+    def parents = functionParent(element).flatMap(_.returnTypePsiElement) ++
+      (valueParent(element) ++ variableParent(element)).flatMap(_.typePsiElement)
 
     element != null && parents.nonEmpty
   }

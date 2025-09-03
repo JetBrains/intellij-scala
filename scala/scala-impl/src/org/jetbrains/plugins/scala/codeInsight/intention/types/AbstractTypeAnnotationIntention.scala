@@ -89,7 +89,7 @@ object AbstractTypeAnnotationIntention {
     implicit val context: Context = Context(element)
 
     functionParent(element).foreach { function =>
-      return function.returnTypeElement match {
+      return function.returnTypePsiElement match {
         case Some(typeElement) =>
           strategy.functionWithType(function, typeElement)
         case _ =>
@@ -98,7 +98,7 @@ object AbstractTypeAnnotationIntention {
     }
 
     valueParent(element).foreach { value =>
-      return value.typeElement match {
+      return value.typePsiElement match {
         case Some(typeElement) =>
           strategy.valueWithType(value, typeElement)
         case _ =>
@@ -107,7 +107,7 @@ object AbstractTypeAnnotationIntention {
     }
 
     variableParent(element).foreach { variable =>
-      return variable.typeElement match {
+      return variable.typePsiElement match {
         case Some(typeElement) =>
           strategy.variableWithType(variable, typeElement)
         case _ =>
@@ -128,7 +128,7 @@ object AbstractTypeAnnotationIntention {
     } {
       param.parentsInFile.findByType[ScFunctionExpr] match {
         case Some(func) =>
-          if (param.typeElement.isDefined) {
+          if (param.typePsiElement.isDefined) {
             return strategy.parameterWithType(param)
           } else {
             val index = func.parameters.indexOf(param)

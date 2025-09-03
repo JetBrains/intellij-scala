@@ -114,7 +114,7 @@ object ConvertParameterToUnderscoreIntention {
         for (p <- expr.parameters.reverse) {
           val newParam =
             if (withoutParameterTypes) "_"
-            else p.typeElement match {
+            else p.typePsiElement match {
               case Some(tpe) => s"(_: ${tpe.getText})"
               case None => "_"
             }

@@ -11,6 +11,6 @@ private[annotator] object ScMacroDefAnnotator extends ElementAnnotator[ScMacroDe
   )(implicit
     holder: ScalaAnnotationHolder
   ): Unit =
-    if (element.returnTypeElement.isEmpty)
+    if (element.returnTypePsiElement.isEmpty)
       errorIf2_13(element.nameId, ScalaBundle.message("macro.defs.must.have.explicit.return.type"))
 }

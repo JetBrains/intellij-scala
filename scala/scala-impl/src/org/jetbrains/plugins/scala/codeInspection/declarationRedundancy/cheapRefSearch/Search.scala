@@ -356,7 +356,7 @@ private[declarationRedundancy] object Search {
                 case Some(f: ScFunctionDefinition) if ScalaOverridingMemberSearcher.search(f).nonEmpty ||
                   isOverridingFunction(f) || ScalaMainMethodUtil.isMainMethod(f) => false
                 case _ => !ScalaPsiUtil.isImplicit(n) || (onlyVisibleInLocalFile &&
-                  p.typeElement.forall(!_.getText.contains("DummyImplicit")))
+                  p.typePsiElement.forall(!_.getText.contains("DummyImplicit")))
               }
             case _ => !ScalaPsiUtil.isImplicit(n) || onlyVisibleInLocalFile
           }

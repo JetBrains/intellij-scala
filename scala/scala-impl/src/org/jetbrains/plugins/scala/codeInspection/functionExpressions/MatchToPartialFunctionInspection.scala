@@ -48,7 +48,7 @@ object MatchToPartialFunctionInspection {
   private def isValid(function: ScFunctionExpr): Boolean = {
     implicit val context: Context = Context(function)
 
-    (function.parameters.head.typeElement.isEmpty ||
+    (function.parameters.head.typePsiElement.isEmpty ||
       function.`type`().toOption.zip(function.expectedType()).exists {
         case (actual, expected) => actual.equiv(expected)
       }) && checkSameResolve(function)

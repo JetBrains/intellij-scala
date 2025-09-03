@@ -132,7 +132,7 @@ private[annotator] object ModifierChecker {
                     checkIllegalCombinations(modifierPsi, Final)
                   case e: ScMember if e.getParent.is[ScTemplateBody, ScEarlyDefinitions] =>
                     val redundant = (e.containingClass, e) match {
-                      case (_, valMember: ScPatternDefinition) if valMember.typeElement.isEmpty &&
+                      case (_, valMember: ScPatternDefinition) if valMember.typeTreeHolder.isEmpty &&
                         valMember.pList.simplePatterns => false // constant value definition, see SCL-11500
                       case (cls, _) if cls.hasFinalModifier => true
                       case _ => false

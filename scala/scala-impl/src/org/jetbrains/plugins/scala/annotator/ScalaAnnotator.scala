@@ -165,11 +165,11 @@ class ScalaAnnotator extends Annotator
       override def visitVariable(variable: ScVariable): Unit = {
         if (typeAware && !compiled) checkOverrideVariables(variable, isInSources)
 
-        variable.typeElement match {
+        variable.typePsiElement match {
           case Some(typ) => checkBoundsVariance(variable, typ, variable, checkTypeDeclaredSameBracket = false)
           case _ =>
         }
-        if (!childHasAnnotation(variable.typeElement, "uncheckedVariance")) {
+        if (!childHasAnnotation(variable.typePsiElement, "uncheckedVariance")) {
           checkValueAndVariableVariance(variable, Covariant, variable.declaredElements)
           checkValueAndVariableVariance(variable, Contravariant, variable.declaredElements)
         }
@@ -184,11 +184,11 @@ class ScalaAnnotator extends Annotator
       override def visitValue(value: ScValue): Unit = {
         if (typeAware && !compiled) checkOverrideValues(value, isInSources)
 
-        value.typeElement match {
+        value.typePsiElement match {
           case Some(typ) => checkBoundsVariance(value, typ, value, checkTypeDeclaredSameBracket = false)
           case _ =>
         }
-        if (!childHasAnnotation(value.typeElement, "uncheckedVariance")) {
+        if (!childHasAnnotation(value.typePsiElement, "uncheckedVariance")) {
           checkValueAndVariableVariance(value, Covariant, value.declaredElements)
         }
         super.visitValue(value)
@@ -276,7 +276,7 @@ class ScalaAnnotator extends Annotator
 
     if (!modifierIsThis(fun) && !compoundType(fun)) { //if modifier contains [this] or if it is a compound type we do not highlight it
       checkBoundsVariance(fun, fun.nameId, fun.getParent)
-      if (!childHasAnnotation(fun.returnTypeElement, "uncheckedVariance")) {
+      if (!childHasAnnotation(fun.returnTypePsiElement, "uncheckedVariance")) {
         fun.returnType match {
           case Right(returnType) =>
             checkVariance(ScalaType.expandAliases(returnType).getOrElse(returnType), Covariant, fun.nameId,
@@ -285,7 +285,7 @@ class ScalaAnnotator extends Annotator
         }
       }
       for (parameter <- fun.parameters) {
-        parameter.typeElement match {
+        parameter.typePsiElement match {
           case Some(te) if !childHasAnnotation(Some(te), "uncheckedVariance") =>
             checkVariance(ScalaType.expandAliases(te.calcType).getOrElse(te.calcType), Contravariant,
               parameter.nameId, fun.getParent)

@@ -94,7 +94,7 @@ class ConvertExpressionToSAMInspection extends LocalInspectionTool {
     val parameters = paramClause.parameters
     val namesWithTypes = parameters.map { p =>
       val name = p.name
-      val typeText = p.typeElement.map(_.getText).getOrElse("")
+      val typeText = p.typePsiElement.map(_.getText).getOrElse("")
       s"$name: $typeText"
     }
     namesWithTypes.mkString("(", ", ", ")")

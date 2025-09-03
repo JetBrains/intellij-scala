@@ -133,7 +133,7 @@ private[element] final class NameAnonymousAbstractGivenFix(declaration: ScGivenA
     new NameAnonymousAbstractGivenFix(PsiTreeUtil.findSameElementInCopy(declaration, target))
 
   override protected def doInvoke(implicit editor: Editor, project: Project): Unit = {
-    val typeElement = declaration.typeElement match {
+    val typeElement = declaration.typePsiElement match {
       case Some(te) => te
       case None =>
         return

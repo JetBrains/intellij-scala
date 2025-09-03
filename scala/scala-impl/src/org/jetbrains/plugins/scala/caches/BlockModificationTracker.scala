@@ -89,8 +89,8 @@ object BlockModificationTracker {
 
 
   private def hasUnstableType(expr: ScExpression): Boolean = expr.getContext match {
-    case f: ScFunction => f.returnTypeElement.isEmpty && f.hasAssign
-    case v: ScValueOrVariable => v.typeElement.isEmpty
+    case f: ScFunction => f.returnTypeTreeHolder.isEmpty && f.hasAssign
+    case v: ScValueOrVariable => v.typeTreeHolder.isEmpty
     case _: ScTypedExpression |
          _: ScThrow |
          _: ScReturn |
@@ -100,7 +100,7 @@ object BlockModificationTracker {
          _: ScDo => false
 // TODO enable (SmartIfCondition test needs to be fixed)
 //    case `if`: ScIf if `if`.condition.contains(expr) => false
-    case guard: ScGuard if guard.getContext.isInstanceOf[ScCaseClause] && guard.expr.contains(expr) => false
+    case guard: ScGuard if guard.getContext.is[ScCaseClause] && guard.expr.contains(expr) => false
     case block: ScBlock =>
       //if an expression is not the last one in a block and is not assigned to anything,
       //it cannot affect type inference outside, unless block's expected type is a context function

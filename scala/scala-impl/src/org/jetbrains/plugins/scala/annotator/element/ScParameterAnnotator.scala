@@ -36,7 +36,7 @@ object ScParameterAnnotator extends ElementAnnotator[ScParameter] with DumbAware
         val message = ScalaBundle.message("annotator.error.parameter.without.an.owner.name", element.name)
         holder.createErrorAnnotation(element, message)
       case _: ScGivenDefinition =>
-        if (element.typeElement.isEmpty) {
+        if (element.typePsiElement.isEmpty) {
           val message = ScalaBundle.message("annotator.error.missing.type.annotation.for.parameter", element.name)
           holder.createErrorAnnotation(element, message)
         }
@@ -46,7 +46,7 @@ object ScParameterAnnotator extends ElementAnnotator[ScParameter] with DumbAware
         if (element.isCallByNameParameter)
           annotateCallByNameParameter(element)
       case _: ScFunctionExpr if !isDumbMode(element.getProject) =>
-        if (element.typeElement.isEmpty && element.expectedParamType.isEmpty) {
+        if (element.typePsiElement.isEmpty && element.expectedParamType.isEmpty) {
           val inFunctionLiteral = element.parents.drop(2).nextOption().exists(_.is[ScFunctionExpr])
           if (!inFunctionLiteral) { // ScFunctionExprAnnotator does that more gracefully
             holder.createErrorAnnotation(element, ScalaBundle.message("missing.parameter.type.name", element.name))

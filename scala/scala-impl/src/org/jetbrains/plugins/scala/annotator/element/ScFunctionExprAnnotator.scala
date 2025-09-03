@@ -146,14 +146,14 @@ object ScFunctionExprAnnotator extends ElementAnnotator[ScFunctionExpr] {
 
     parameters.zip(expectedTypesAfterUntupling).iterator.takeWhile(_ => !typeMismatch).foreach {
       case (parameter, expectedType) =>
-        parameter.typeElement.flatMap(_.`type`().toOption).filter(!expectedType.conforms(_)).foreach { _ =>
+        for (typeElement <- parameter.typePsiElement if typeElement.`type`().exists(!expectedType.conforms(_))) {
           val message = ScalaBundle.message(
             "type.mismatch.expected",
             expectedType.presentableText,
-            parameter.typeElement.get.getText
+            typeElement.getText
           )
 
-          val ranges = mismatchRangesIn(parameter.typeElement.get, expectedType)(parameter)
+          val ranges = mismatchRangesIn(typeElement, expectedType)(parameter)
           ranges.foreach(holder.createErrorAnnotation(_, message, ReportHighlightingErrorQuickFix))
           typeMismatch = true
         }
@@ -165,7 +165,7 @@ object ScFunctionExprAnnotator extends ElementAnnotator[ScFunctionExpr] {
                                     (implicit holder: ScalaAnnotationHolder): Boolean = {
     var missing = false
     parameters.iterator.takeWhile(_ => !missing).foreach { parameter =>
-      if (parameter.typeElement.isEmpty && parameter.expectedParamType.isEmpty) {
+      if (parameter.typePsiElement.isEmpty && parameter.expectedParamType.isEmpty) {
         holder.createErrorAnnotation(parameter, ScalaBundle.message("annotator.error.missing.parameter.type"))
         missing = true
       }

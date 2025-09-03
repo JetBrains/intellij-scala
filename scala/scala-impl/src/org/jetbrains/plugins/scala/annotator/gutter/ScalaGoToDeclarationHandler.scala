@@ -141,7 +141,7 @@ object ScalaGoToDeclarationHandler {
         val maybeTypeDef = resolved.flatMap(extractTypeDef(_))
 
         maybeTypeDef.map { templateDefinition =>
-          selector.givenTypeElement match {
+          selector.givenTypeTreeHolder match {
             case Some(Typeable(expectedType)) =>
               getImplicitMembers(templateDefinition) {
                 case Typeable(actualType) =>

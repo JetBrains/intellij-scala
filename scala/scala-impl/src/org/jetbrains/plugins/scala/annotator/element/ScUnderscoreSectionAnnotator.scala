@@ -24,11 +24,11 @@ object ScUnderscoreSectionAnnotator extends ElementAnnotator[ScUnderscoreSection
           if (varDef.containingClass == null) {
             val error = ScalaBundle.message("local.variables.must.be.initialized")
             holder.createErrorAnnotation(under, error)
-          } else if (varDef.typeElement.isEmpty) {
+          } else if (varDef.typePsiElement.isEmpty) {
             val error = ScalaBundle.message("unbound.placeholder.parameter")
             holder.createErrorAnnotation(under, error)
-          } else if (varDef.typeElement.exists(_.is[ScLiteralTypeElement])) {
-            holder.createErrorAnnotation(varDef.typeElement.get, ScalaBundle.message("default.init.prohibited.literal.types"))
+          } else if (varDef.typePsiElement.exists(_.is[ScLiteralTypeElement])) {
+            holder.createErrorAnnotation(varDef.typePsiElement.get, ScalaBundle.message("default.init.prohibited.literal.types"))
           }
         case valDef @ ScPatternDefinition.expr(_) if valDef.expr.contains(under) =>
           holder.createErrorAnnotation(under, ScalaBundle.message("unbound.placeholder.parameter"))
