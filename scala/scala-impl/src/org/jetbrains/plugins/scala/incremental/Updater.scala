@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.extensions.inReadAction
 
 import java.awt.Color
 import javax.swing.Timer
+import scala.collection.mutable.ArrayBuffer
 
 private class Updater(editor: Editor) extends Disposable {
   private val updateTimer = {
@@ -66,10 +67,14 @@ private object Updater {
   private val ERROR_STRIPE_MARK_COLOR_KEY = Key.create[Color]("error_stripe_mark_color")
 
   private def concealErrorStripeMarksOutside(visibleRange: TextRange, markupModel: MarkupModelEx, colorScheme: EditorColorsScheme): Unit = {
-    markupModel.processRangeHighlightersOutside(visibleRange.getStartOffset, visibleRange.getEndOffset, highlighter => {
+    val outsideHighlighters = {
+      val buffer = ArrayBuffer.empty[RangeHighlighter]
+      markupModel.processRangeHighlightersOutside(visibleRange.getStartOffset, visibleRange.getEndOffset, highlighter => { buffer += highlighter; true })
+      buffer
+    }
+    outsideHighlighters.foreach { highlighter =>
       concealErrorStripeMark(highlighter, colorScheme)
-      true
-    })
+    }
   }
 
   def concealErrorStripeMark(highlighter: RangeHighlighter, colorScheme: EditorColorsScheme): Unit = {
@@ -82,13 +87,17 @@ private object Updater {
   }
 
   private def revealErrorStripeMarksInside(visibleRange: TextRange, markupModel: MarkupModelEx): Unit = {
-    markupModel.processRangeHighlightersOverlappingWith(visibleRange.getStartOffset, visibleRange.getEndOffset, highlighter => {
+    val insideHighlighters = {
+      val buffer = ArrayBuffer.empty[RangeHighlighter]
+      markupModel.processRangeHighlightersOverlappingWith(visibleRange.getStartOffset, visibleRange.getEndOffset, highlighter => { buffer += highlighter; true })
+      buffer
+    }
+    insideHighlighters.foreach { highlighter =>
       val savedColor = highlighter.getUserData(ERROR_STRIPE_MARK_COLOR_KEY)
       if (savedColor != null) {
         highlighter.setErrorStripeMarkColor(savedColor)
         highlighter.putUserData(ERROR_STRIPE_MARK_COLOR_KEY, null)
       }
-      true
-    })
+    }
   }
 }
