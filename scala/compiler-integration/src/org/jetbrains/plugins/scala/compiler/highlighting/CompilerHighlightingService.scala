@@ -426,10 +426,27 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
       if (DumbService.isDumb(project)) return RequestState.NotReady
       request match {
         case CompilationRequest.WorksheetRequest(_, _, document, _, _, _) => canDocumentBeCompiled(document)
-        case CompilationRequest.IncrementalRequest(_, _, _) => RequestState.Ready
+        case req @ CompilationRequest.IncrementalRequest(_, _, _) => canIncrementalRequestBeExecuted(req)
         case CompilationRequest.DocumentRequest(FileCompilationScope(_, _, _, document, _), _, _) => canDocumentBeCompiled(document)
       }
     } else RequestState.NotReady
+  }
+
+  private def canIncrementalRequestBeExecuted(request: CompilationRequest.IncrementalRequest): RequestState = {
+    val documents = request.originFiles.valuesIterator
+    var result: RequestState = RequestState.Ready
+    while (documents.hasNext) {
+      val document = documents.next()
+      val state = canDocumentBeCompiled(document)
+      state match {
+        case RequestState.Expired =>
+          return RequestState.Expired
+        case RequestState.NotReady =>
+          result = RequestState.NotReady
+        case _ =>
+      }
+    }
+    result
   }
 
   private def canDocumentBeCompiled(document: Document): RequestState = {
