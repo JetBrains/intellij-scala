@@ -45,13 +45,20 @@ object ScalaPredefinedConfigurations {
           |}""".stripMargin,
         classFolder, ScalaFileType.INSTANCE),
       createConfiguration("Any function", "functionany",
-        "def '_func('_arg*\\: '_ty): '_ret { '_b* }",
+        """def '_func('_arg*\: '_ty): '_ret = {
+          | '_b*
+          |}""".stripMargin,
         funcFolder, ScalaFileType.INSTANCE),
       createConfiguration("Functions without return type", "functionnotret",
-        "def '_func('_arg*\\: '_ty): '_ret{0,0} { '_b* }",
+        """def '_func('_arg*\: '_ty): '_ret{0,0} = {
+          | '_b*
+          |}""".stripMargin,
         funcFolder, ScalaFileType.INSTANCE),
       createConfiguration("Functions with annotation", "functionannot",
-        "@'_anno\ndef '_name('_arg*\\: '_ty): '_ret{0,0} { '_b* }",
+        """@'_anno
+          |def '_func('_arg*\: '_ty): '_ret = {
+          | '_b*
+          |}""".stripMargin,
         funcFolder, ScalaFileType.INSTANCE),
       createConfiguration("Any if-else expression", "ifany",
         "if ('_cond) '_then*\nelse '_else*\n",

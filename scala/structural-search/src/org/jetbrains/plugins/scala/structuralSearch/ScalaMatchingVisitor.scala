@@ -2,7 +2,8 @@ package org.jetbrains.plugins.scala.structuralSearch
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.source.tree.{LeafElement, LeafPsiElement}
-import com.intellij.structuralsearch.impl.matcher.GlobalMatchingVisitor
+import com.intellij.structuralsearch.MatchResult
+import com.intellij.structuralsearch.impl.matcher.{GlobalMatchingVisitor, MatchResultImpl}
 import com.intellij.structuralsearch.impl.matcher.handlers.{MatchingHandler, SubstitutionHandler, TopLevelMatchingHandler}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
@@ -473,7 +474,9 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
 
       globalVisitor.setResult(annotationsMatch && modifierMatch && typeMatch && identMatch && valvarMatch && defaultMatch)
     } finally {
-      globalVisitor.scopeMatch(parameter, isTypedVar, other.getNameIdentifier)
+      if (isTypedVar)
+        context.getResult.addChild(new MatchResultImpl("__parameter__pattern", parameter.getText, parameter, 0, 0, false))
+      globalVisitor.scopeMatch(parameter, isTypedVar, other)
     }
   }
 
