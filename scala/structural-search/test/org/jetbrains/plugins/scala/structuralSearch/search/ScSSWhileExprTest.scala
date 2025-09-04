@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.structuralSearch.search
 
-import org.jetbrains.plugins.scala.structuralSearch.ScalaStructuralSearchTestCase
+import org.jetbrains.plugins.scala.structuralSearch.{ScalaMatchingVisitor, ScalaStructuralSearchTestCase}
 
 class ScSSWhileExprTest extends ScalaStructuralSearchTestCase {
 
@@ -51,5 +51,7 @@ class ScSSWhileExprTest extends ScalaStructuralSearchTestCase {
         |""",
       _.addNewVariableConstraint("b").setMaxCount(10)
     )
+
+    ScalaMatchingVisitor.notHandled.map((c, e) => c.toString + ": " + e).foreach(println)
   }
 }
