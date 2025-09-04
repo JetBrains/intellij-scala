@@ -6,23 +6,20 @@ import com.intellij.structuralsearch.impl.matcher.GlobalMatchingVisitor
 import com.intellij.structuralsearch.impl.matcher.handlers.{MatchingHandler, SubstitutionHandler, TopLevelMatchingHandler}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses, ScInterpolationPattern, ScPattern, ScPatternArgumentList, ScPatterns, ScTypePattern}
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScNamedTupleTypeComponent, ScNamedTupleTypeElement, ScParameterizedTypeElement, ScParenthesisedTypeElement, ScTypeElement, ScTypeProjection}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScConstructorInvocation, ScLiteral, ScPrimaryConstructor, ScStableCodeReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses, ScPattern, ScPatternArgumentList, ScPatterns, ScTypePattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScDependentFunctionTypeElement, ScLiteralTypeElement, ScMatchTypeCase, ScMatchTypeCases, ScMatchTypeElement, ScNamedTupleTypeComponent, ScNamedTupleTypeElement, ScParameterizedTypeElement, ScParenthesisedTypeElement, ScPolyFunctionTypeElement, ScTypeElement, ScTypeProjection}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScConstructorInvocation, ScEnd, ScLiteral, ScPrimaryConstructor, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.*
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScCatchBlock.unapply
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScParameters, ScTypeParam, ScTypeParamClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScExtension, ScFunction, ScFunctionDefinition, ScPatternDefinition, ScTypeAlias, ScTypeAliasDefinition, ScValue, ScValueDeclaration, ScValueOrVariable, ScValueOrVariableDeclaration, ScValueOrVariableDefinition, ScVariable, ScVariableDeclaration, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportOrExportStmt}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportOrExportStmt, ScImportSelector, ScImportSelectors}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScConstructorOwner, ScDerivesClauseOwner, ScEnum, ScGiven, ScGivenDefinition, ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackageLike, ScalaElementVisitor, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.JavaIdentifier
-import org.jetbrains.plugins.scala.structuralSearch.ScalaMatchingVisitor.notHandled
 import org.jetbrains.plugins.scala.util.EnumSet.{EnumSet, EnumSetOps}
-
-import scala.collection.mutable
 
 class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaElementVisitor {
 
@@ -597,6 +594,49 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     }
   }
 
+  private def visitMatchTypeElement(matchTypeElement: ScMatchTypeElement): Unit = {
+    if (!globalVisitor.getElement.is[ScMatchTypeElement]) {
+      globalVisitor.setResult(false)
+      return
+    }
+    val other = globalVisitor.getElement.asInstanceOf[ScMatchTypeElement]
+
+    def expressionMatch = globalVisitor.`match`(matchTypeElement.scrutineeTypeElement, other.scrutineeTypeElement)
+    def casesMatch = matchOpt(matchTypeElement.cases, other.cases)
+    globalVisitor.setResult(expressionMatch && casesMatch)
+  }
+
+  private def visitMatchTypeCases(matchTypeCases: ScMatchTypeCases): Unit = {
+    val other = globalVisitor.getElement.asInstanceOf[ScMatchTypeCases]
+    globalVisitor.setResult(matchSequentially(matchTypeCases.cases, other.cases))
+  }
+
+  private def visitMatchTypeCase(cc: ScMatchTypeCase): Unit = {
+    val other = globalVisitor.getElement.asInstanceOf[ScMatchTypeCase]
+
+    val handler = getHandler(cc)
+    val context = globalVisitor.getMatchContext
+    val isTypedVar = context.getPattern.isTypedVar(cc.pattern.map(_.getText).getOrElse(""))
+
+    context.pushResult()
+    try {
+      val patternMatch = (cc.pattern, other.pattern) match {
+        case (Some(pattern), Some(other)) =>
+          handler match {
+            case substHand: SubstitutionHandler =>
+              substHand.validate(other, globalVisitor.getMatchContext)
+            case _ =>
+              globalVisitor.`match`(pattern, other)
+          }
+        case _ => false
+      }
+      val resultMatch = matchOpt(cc.result, other.result)
+      globalVisitor.setResult(patternMatch && resultMatch)
+    } finally {
+      scopeMatch(cc, isTypedVar, other)
+    }
+  }
+
   override def visitGenerator(gen: ScGenerator): Unit = {
     val other = globalVisitor.getElement.asInstanceOf[ScGenerator]
 
@@ -823,6 +863,38 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     globalVisitor.setResult(targetParMatch && targetTypeMatch && methodsMatch)
   }
 
+  private def visitDependantFunctionTypeElement(dependantFunctionType: ScDependentFunctionTypeElement): Unit = {
+    val other = globalVisitor.getElement.asInstanceOf[ScDependentFunctionTypeElement]
+    def parMatch = globalVisitor.`match`(dependantFunctionType.parameterClause, other.parameterClause)
+    def retTypeMatch = matchOpt(dependantFunctionType.returnTypeElement, other.returnTypeElement)
+    globalVisitor.setResult(parMatch && retTypeMatch)
+  }
+
+  private def visitPolyFunctionTypeElement(polyFunctionTypeElement: ScPolyFunctionTypeElement): Unit = {
+    val other = globalVisitor.getElement.asInstanceOf[ScPolyFunctionTypeElement]
+
+    def parMatch = matchSequentially(polyFunctionTypeElement.typeParameters, other.typeParameters)
+
+    def retTypeMatch = matchOpt(polyFunctionTypeElement.resultTypeElement, other.resultTypeElement)
+
+    globalVisitor.setResult(parMatch && retTypeMatch)
+  }
+
+  private def visitBlock(block: ScBlock): Unit = {
+    val other = globalVisitor.getElement.asInstanceOf[ScBlock]
+    globalVisitor.setResult(matchSequentially(block.statements, other.statements))
+  }
+
+  override def visitSelfInvocation(self: ScSelfInvocation): Unit = {
+    val other = globalVisitor.getElement.asInstanceOf[ScSelfInvocation]
+    globalVisitor.setResult(matchSequentially(self.arguments, other.arguments))
+  }
+
+  override def visitPatternArgumentList(args: ScPatternArgumentList): Unit = {
+    val other = globalVisitor.getElement.asInstanceOf[ScPatternArgumentList]
+    globalVisitor.setResult(matchSequentially(args.patterns, other.patterns))
+  }
+
   override def visitScalaElement(element: ScalaPsiElement): Unit = {
     element match {
       case typeParam: ScTypeParam => visitTypeParam(typeParam)
@@ -832,6 +904,13 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
       case extBlock: ScExtendsBlock => visitExtendsBlock(extBlock)
       case templBody: ScTemplateBody => visitTemplateBody(templBody)
       case extension: ScExtension => visitExtension(extension)
+      case dependantFunctionType: ScDependentFunctionTypeElement => visitDependantFunctionTypeElement(dependantFunctionType)
+      case polyFunctionType: ScPolyFunctionTypeElement => visitPolyFunctionTypeElement(polyFunctionType)
+      case matchTypeElement: ScMatchTypeElement => visitMatchTypeElement(matchTypeElement)
+      case matchTypeCases: ScMatchTypeCases => visitMatchTypeCases(matchTypeCases)
+      case matchTypeCase: ScMatchTypeCase => visitMatchTypeCase(matchTypeCase)
+      case block: ScBlock => visitBlock(block)
+      case self: ScSelfInvocation => visitSelfInvocation(self)
       case _ => visitElement(element)
     }
   }
@@ -856,14 +935,12 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
   private def visitNoHandler(elementPat: PsiElement, other: PsiElement): Boolean = {
     elementPat match {
       case _: LeafElement => globalVisitor.matchText(elementPat.getText, other.getText)
-      case _: (ScPattern | ScPatterns | ScTypePattern | ScPatternArgumentList
-         | ScThisReference | ScStableCodeReference | ScUnitExpr
-         | ScImportExpr | ScPackageLike | ScBlock | ScImportOrExportStmt | ScUnderscoreSection) =>
-        globalVisitor.matchSons(elementPat, other)
-      case _: (ScTemplateBody | ScClass | ScObject) =>
+      case _: (ScPattern | ScPatterns | ScTypePattern
+         | ScThisReference | ScStableCodeReference | ScUnitExpr | ScSuperReference | ScLiteralTypeElement | ScEnd
+         | ScImportExpr | ScImportSelector | ScImportSelectors | ScPackageLike | ScImportOrExportStmt | ScUnderscoreSection) =>
         globalVisitor.matchSons(elementPat, other)
       case _ =>
-        notHandled.put(elementPat.getClass, elementPat.getText)
+        // fallback that should not happen
         globalVisitor.matchSons(elementPat, other)
     }
   }
@@ -877,8 +954,4 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
       case _ => globalVisitor.scopeMatch(patternNode, typedVar, matchNode)
     }
   }
-}
-
-object ScalaMatchingVisitor {
-  val notHandled: mutable.Map[Class[_], String] = mutable.Map()
 }

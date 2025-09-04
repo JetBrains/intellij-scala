@@ -51,7 +51,5 @@ class ScSSWhileExprTest extends ScalaStructuralSearchTestCase {
         |""",
       _.addNewVariableConstraint("b").setMaxCount(10)
     )
-
-    ScalaMatchingVisitor.notHandled.map((c, e) => c.toString + ": " + e).foreach(println)
   }
 }
