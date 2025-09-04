@@ -26,6 +26,13 @@ final class ScalaVersion(
    */
   def minor: String = major + "." + minorSuffix
 
+  /**
+   * @return true - for a version that doesn't have any suffixes and only contains from digits (2.13.15, 3.3.3, 3.7.2, 3.99.99)<br>
+   *         false - for a version that contains any kind of suffixes (2.12.15-RC1, 3.3.3-M1, 3.7.2-bin-SNAPSHOT)
+   */
+  lazy val isStable: Boolean =
+    minorSuffix.forall(_.isDigit)
+
   @inline def isScala2: Boolean = languageLevel.isScala2
   @inline def isScala3: Boolean = languageLevel.isScala3
   @inline def language: Language = languageLevel.getLanguage
