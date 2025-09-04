@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScExtens
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportOrExportStmt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScConstructorOwner, ScDerivesClauseOwner, ScEnum, ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScConstructorOwner, ScDerivesClauseOwner, ScEnum, ScGiven, ScGivenDefinition, ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackageLike, ScalaElementVisitor, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.JavaIdentifier
 import org.jetbrains.plugins.scala.structuralSearch.ScalaMatchingVisitor.notHandled
@@ -112,23 +112,29 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     (typedef, globalVisitor.getElement) match {
       case (enumCase: ScEnumCase, other: ScEnumCase) =>
         matchEnumCase(enumCase, other)
-      case (classlike: (ScClass | ScTrait | ScObject), other: (ScClass | ScTrait | ScObject)) =>
+      case (classlike: (ScClass | ScTrait | ScObject | ScGivenDefinition), other: (ScClass | ScTrait | ScObject | ScGivenDefinition)) =>
         matchClassLike(classlike, other)
       case _ =>
         super.visitTypeDefinition(typedef)
     }
   }
 
-  private def matchClassLike(typedef: ScTypeDefinition, other: ScTypeDefinition): Unit = {
+  private def matchClassLike(typedef: ScTemplateDefinition, other: ScTemplateDefinition): Unit = {
     val handler = getHandler(typedef)
     val context = globalVisitor.getMatchContext
     val isTypedVar = context.getPattern.isTypedVar(typedef.getNameIdentifier)
 
     context.pushResult()
     try {
-      def annotationsMatch = matchInAnyOrder(typedef.annotations, other.annotations)
-      def keywordMatch = typedef.keywordPrefix == other.keywordPrefix
-      def modifierMatch = checkModifier(typedef.getModifierList.modifiers, other.getModifierList.modifiers)
+      def typeDefMatch = (typedef, other) match {
+        case (td: ScTypeDefinition, ot: ScTypeDefinition) =>
+          def annotationsMatch = matchInAnyOrder(td.annotations, ot.annotations)
+          def keywordMatch = td.keywordPrefix == ot.keywordPrefix
+          def modifierMatch = checkModifier(td.getModifierList.modifiers, ot.getModifierList.modifiers)
+          annotationsMatch && keywordMatch && modifierMatch
+        case (_: ScGiven, _: ScGiven) => true
+        case _ => false
+      }
       def nameMatch = matchTextOrVariable(typedef.getNameIdentifier, other.getNameIdentifier, handler)
       def typeParamsMatch = matchInAnyOrder(typedef.getTypeParameters, other.getTypeParameters)
       def constructorsMatch = (typedef, other) match {
@@ -154,7 +160,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
 
       def extendsBlockMatch = globalVisitor.`match`(typedef.extendsBlock, other.extendsBlock)
 
-      globalVisitor.setResult(annotationsMatch && keywordMatch && modifierMatch && nameMatch && typeParamsMatch
+      globalVisitor.setResult(typeDefMatch && nameMatch && typeParamsMatch
         && constructorsMatch && casesMatch && derivesMatch && extendsBlockMatch)
     } finally {
       scopeMatch(typedef, isTypedVar, other)
