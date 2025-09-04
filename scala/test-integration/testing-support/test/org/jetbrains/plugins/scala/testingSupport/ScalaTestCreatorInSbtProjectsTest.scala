@@ -27,8 +27,6 @@ class ScalaTestCreatorInSbtProjectsTest extends SbtExternalSystemImportingTestLi
 
   override protected def copyTestProjectToTemporaryDir: Boolean = true
 
-  override protected def enableSeparateModulesForProdTest = true
-
   override def setUp(): Unit = {
     super.setUp()
 

@@ -17,8 +17,6 @@ import scala.jdk.CollectionConverters._
 @Category(Array(classOf[CompilationTests_Zinc]))
 class SharedSourcesCrossProjectTest_ProdTestSourcesSeparatedEnabled extends SbtExternalSystemImportingTestLike {
 
-  override protected def enableSeparateModulesForProdTest: Boolean = true
-
   override protected def getTestDataProjectPath: String = s"${TestUtils.getTestDataPath}/../../compiler-integration/testData/sharedSourcesCrossProject"
 
   override protected def copyTestProjectToTemporaryDir: Boolean = true

@@ -34,8 +34,6 @@ abstract class Scala3ExampleProjectCompilationTestBase(
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version >= LatestScalaVersions.Scala_3_0
 
-  override protected def enableSeparateModulesForProdTest = false
-
   override protected def githubRepositoryWithRevision: GithubRepositoryWithRevision =
     GithubRepositoryWithRevision("scala", "scala3-example-project", revision = "main")
 
