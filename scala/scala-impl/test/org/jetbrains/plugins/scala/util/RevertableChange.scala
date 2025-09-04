@@ -90,6 +90,9 @@ object RevertableChange {
   def withModifiedRegistryValue(key: String, newValue: Int): RevertableChange =
     withModifiedRegistryValueInternal[Int](key, newValue, _.asInteger(), _ setValue _)
 
+  def withModifiedRegistryValue(key: String, newValue: String): RevertableChange =
+    withModifiedRegistryValueInternal[String](key, newValue, _.asString(), _ setValue _)
+
   private def withModifiedRegistryValueInternal[A](
     key: String,
     newValue: A,
