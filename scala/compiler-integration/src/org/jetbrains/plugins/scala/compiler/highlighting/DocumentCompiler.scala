@@ -74,7 +74,8 @@ private final class DocumentCompiler(project: Project) {
                                   module: Module,
                                   sourceScope: SourceScope,
                                   client: Client): Unit = {
-    val tempSourceFile = workingDirectory().resolve("tempSourceFile")
+    val sourceName = originalSourceFile.getFileName.toString
+    val tempSourceFile = workingDirectory().resolve(sourceName)
     val connector =
       try {
         Files.writeString(tempSourceFile, content)
