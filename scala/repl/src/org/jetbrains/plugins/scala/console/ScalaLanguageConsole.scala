@@ -27,7 +27,6 @@ import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
 
 import java.awt.Font
-import scala.annotation.nowarn
 import scala.collection.mutable
 
 class ScalaLanguageConsole(module: Module, language: Language)
@@ -71,7 +70,7 @@ class ScalaLanguageConsole(module: Module, language: Language)
     val newState = stateFor(text, contentType)
 
     if (Log.isDebugEnabled) {
-      val tid = Thread.currentThread().getId: @nowarn("cat=deprecation")
+      val tid = Thread.currentThread().threadId()
       val stateTransferMessage = f"${state.getClass.getSimpleName}%23s -> ${newState.getClass.getSimpleName}%-23s"
       Log.debug(f"# $tid%5s $stateTransferMessage content type: $contentType%-25s text: $text".stripTrailing())
     }

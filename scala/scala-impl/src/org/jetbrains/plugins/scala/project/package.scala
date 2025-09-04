@@ -43,10 +43,10 @@ import org.jetbrains.sbt.language.SbtFile
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.{Sbt, WorkspaceModelUtil}
 
-import java.net.URL
+import java.net.{URI, URL}
 import java.nio.file.Path
 import kotlin.Unit.{INSTANCE => KUnit}
-import scala.annotation.{nowarn, unused}
+import scala.annotation.unused
 import scala.jdk.CollectionConverters._
 import scala.language.implicitConversions
 import scala.ref.Reference
@@ -84,7 +84,7 @@ package object project {
       library
         .getFiles(OrderRootType.CLASSES)
         .map(_.getPath)
-        .map(path => new URL(s"jar:file://$path"): @nowarn("cat=deprecation"))
+        .map(path => new URI(s"jar:file://$path").toURL)
         .toSet
   }
 

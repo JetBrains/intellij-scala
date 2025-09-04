@@ -25,7 +25,6 @@ import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.util._
 
 import java.util.concurrent.ConcurrentHashMap
-import scala.annotation.nowarn
 import scala.concurrent.duration._
 import scala.io.Source
 
@@ -547,7 +546,7 @@ object CompileServerLauncher {
     // initialize the compile server manager service instance for the project which holds the widget state
     CompileServerManager.init(project)
     serverStartLock.synchronized {
-      LOG.traceWithDebugInDev(s"ensureServerRunning [thread:${Thread.currentThread.getId: @nowarn("cat=deprecation")}]")
+      LOG.traceWithDebugInDev(s"ensureServerRunning [thread:${Thread.currentThread.threadId()}]")
       if (project.isDisposed) {
         LOG.warn(s"ensureServerRunning is invoked for a disposed project: $project")
         return false

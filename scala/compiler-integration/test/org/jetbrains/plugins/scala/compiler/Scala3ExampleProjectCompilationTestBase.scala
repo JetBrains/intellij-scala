@@ -6,8 +6,8 @@ import com.intellij.openapi.roots.CompilerModuleExtension
 import com.intellij.testFramework.CompilerTester
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader
-import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.compiler.ScalaCompilerTestBase.ListCompilerMessageExt
+import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.project.{LibraryExt, ModuleExt}
@@ -16,8 +16,7 @@ import org.jetbrains.plugins.scala.util.{CompilerTestUtil, RevertableChange}
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion, SlowTests}
 import org.junit.experimental.categories.Category
 
-import java.net.{URL, URLClassLoader}
-import scala.annotation.nowarn
+import java.net.{URI, URL, URLClassLoader}
 
 /**
  * This test:
@@ -92,7 +91,7 @@ abstract class Scala3ExampleProjectCompilationTestBase(
     getMainModule.libraries.flatMap(_.jarUrls)
 
   private def targetUrl: URL =
-    new URL(CompilerModuleExtension.getInstance(getMainModule).getCompilerOutputUrl + "/"): @nowarn("cat=deprecation")
+    new URI(CompilerModuleExtension.getInstance(getMainModule).getCompilerOutputUrl + "/").toURL
 
   private def getMainModule: Module =
     getModule(projectName)

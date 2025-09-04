@@ -20,10 +20,9 @@ import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDyna
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamicDownloader._
 import org.scalafmt.dynamic.{ScalafmtReflect, ScalafmtVersion}
 
-import java.net.URL
+import java.net.{URI, URL}
 import java.nio.file.{Files, Paths}
 import java.util.concurrent.ConcurrentHashMap
-import scala.annotation.nowarn
 import scala.beans.BeanProperty
 import scala.collection.concurrent
 import scala.jdk.CollectionConverters._
@@ -267,7 +266,7 @@ object ScalafmtDynamicServiceImpl {
     //We could rely default serialization, but we would need to migrate old states,
     //which has a text representation of scalafmt version
     def getUrlsForVersion(version: ScalafmtVersion): Seq[URL] =
-      resolvedVersions.get(key(version)).toSeq.map(new URL(_): @nowarn("cat=deprecation"))
+      resolvedVersions.get(key(version)).toSeq.map(new URI(_).toURL)
 
     def containsResolvedVersion(version: ScalafmtVersion): Boolean =
       resolvedVersions.containsKey(key(version))
