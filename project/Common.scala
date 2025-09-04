@@ -48,7 +48,13 @@ object Common {
   //  - in JPS process (JDK is calculated based on project & module JDK)
   //  - in Compile server (by default used project JDK version, can be explicitly changed by user)
   private val globalExternalProcessReleaseOptions: Seq[String] = Seq("--release", "8")
-  val outOfIDEAProcessJavacOptions: Seq[String] = globalJavacOptionsCommon ++ globalExternalProcessReleaseOptions
+
+  // JDK 21 warns when we compile Java sources using "--release 8" that targeting JDK 8 will not be possible in the
+  // future. I also checked JDK 25, which is the next LTS, "--release 8" is still available with the same warning,
+  // so we should be fine for now.
+  private val suppressObsoleteSourceTarget8: String = "-Xlint:-options"
+
+  val outOfIDEAProcessJavacOptions: Seq[String] = globalJavacOptionsCommon ++ globalExternalProcessReleaseOptions :+ suppressObsoleteSourceTarget8
   val outOfIDEAProcessScalacOptions: Seq[String] = globalScalacOptionsCommon ++ globalExternalProcessReleaseOptions
 
   val projectDirectoriesSettings: Seq[Setting[?]] = Seq(
