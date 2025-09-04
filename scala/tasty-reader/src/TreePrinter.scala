@@ -532,12 +532,14 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
 
     if (node.isSharedType) {
       val fromCache = sharedTypes.get(node.addr)
-      fromCache.foreach { cached =>
-        val res =
-          if (withDotTypeSuffix) cached + ".type"
-          else                   cached
+      fromCache match {
+        case Some(cached) =>
+          val res =
+            if (withDotTypeSuffix) cached + ".type"
+            else                   cached
 
-        return res
+          return res
+        case None =>
       }
     }
 
