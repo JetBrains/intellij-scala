@@ -63,6 +63,43 @@ class ScalaOverrideImplementTest_3_Latest extends ScalaOverrideImplementTestBase
     runTest(methodName, fileText, expectedText, isImplement, settingsWithIndentationBasedSyntax)
   }
 
+  // SCL-24302
+  def testImplementUsingIndentationBasedSyntaxWhenSettingIsOnWithDocComments(): Unit = {
+    val fileText =
+      s"""
+         |package test
+         |
+         |trait Foo:
+         |  /**
+         |   * Some DocComment
+         |   */
+         |  def foo(x: Int): String
+         |
+         |class B${CARET_TAG}ar extends Foo
+         |
+         |""".stripMargin
+    val expectedText =
+      s"""
+         |package test
+         |
+         |trait Foo:
+         |  /**
+         |   * Some DocComment
+         |   */
+         |  def foo(x: Int): String
+         |
+         |class Bar extends Foo:
+         |  /**
+         |   * Some DocComment
+         |   */
+         |  override def foo(x: Int): String = $SELECTION_START_TAG???$SELECTION_END_TAG
+         |
+         |""".stripMargin
+    val methodName: String = "foo"
+    val isImplement = true
+    runTest(methodName, fileText, expectedText, isImplement, settingsWithIndentationBasedSyntax, copyScalaDoc = true)
+  }
+
   def test_SCL_19753_ImplementUsingIndentationBasedSyntaxWhenSettingIsOn(): Unit = {
     val fileText =
       s"""

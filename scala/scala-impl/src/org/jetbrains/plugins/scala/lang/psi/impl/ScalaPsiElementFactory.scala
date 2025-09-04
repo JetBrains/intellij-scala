@@ -848,7 +848,7 @@ object ScalaPsiElementFactory {
       .append(" ")
       .append(body)
 
-    createClassWithBody(builder.toString, scalaFeatures).functions.head
+    createClassWithBody(builder.toString, scalaFeatures, forceBraces = true).functions.head
   }
 
   private def appendCommentText(builder: StringBuilder, method: PsiMethod): Boolean = {
@@ -1005,7 +1005,7 @@ object ScalaPsiElementFactory {
     }
 
     val text = builder.toString.trimRight
-    val classBody = createClassWithBody(text, scalaFeatures)
+    val classBody = createClassWithBody(text, scalaFeatures, forceBraces = true)
     classBody.extensions.head
   }
 
@@ -1046,7 +1046,7 @@ object ScalaPsiElementFactory {
     context: Context
   ): ScTypeAlias = {
     val typeSign = getOverrideImplementTypeSign(alias, substitutor, needsOverrideModifier)
-    createClassWithBody(s"$comment $typeSign", features).aliases.head
+    createClassWithBody(s"$comment $typeSign", features, forceBraces = true).aliases.head
   }
 
   def createOverrideImplementVariable(
@@ -1746,11 +1746,16 @@ object ScalaPsiElementFactory {
   private[this] def createClassWithBody(
     @NonNls body:  String,
     scalaFeatures: ScalaFeatures,
+    forceBraces: Boolean = false,
   )(implicit ctx: ProjectContext
   ): ScTypeDefinition = {
     // ATTENTION!  Do not use `stripMargin` here!
     // If the injected `body` contains multiline string with margins '|' they will be whipped out (see SCL-14585)
-    TemplateDefinitionBuilder(kind = TemplateDefKind.Class, body = s"\n  $body\n")
+    TemplateDefinitionBuilder(
+      kind = TemplateDefKind.Class,
+      body = s"\n  ${body.replace("\n", "\n  ")}\n",
+      forceBraces = forceBraces
+    )
       .withScalaFeatures(scalaFeatures)
       .withProjectContext(ctx)
       .createTemplateDefinition()
