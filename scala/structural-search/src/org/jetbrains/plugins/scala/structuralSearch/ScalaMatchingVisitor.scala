@@ -6,12 +6,12 @@ import com.intellij.structuralsearch.impl.matcher.GlobalMatchingVisitor
 import com.intellij.structuralsearch.impl.matcher.handlers.{MatchingHandler, SubstitutionHandler, TopLevelMatchingHandler}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScPattern, ScPatternArgumentList, ScPatterns, ScTypePattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses, ScInterpolationPattern, ScPattern, ScPatternArgumentList, ScPatterns, ScTypePattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScNamedTupleTypeComponent, ScNamedTupleTypeElement, ScParameterizedTypeElement, ScParenthesisedTypeElement, ScTypeElement, ScTypeProjection}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScConstructorInvocation, ScLiteral, ScPrimaryConstructor}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScConstructorInvocation, ScLiteral, ScPrimaryConstructor, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.*
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScCatchBlock.unapply
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScParameters, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScParameters, ScTypeParam, ScTypeParamClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScExtension, ScFunction, ScFunctionDefinition, ScPatternDefinition, ScTypeAlias, ScTypeAliasDefinition, ScValue, ScValueDeclaration, ScValueOrVariable, ScValueOrVariableDeclaration, ScValueOrVariableDefinition, ScVariable, ScVariableDeclaration, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportOrExportStmt}
@@ -451,6 +451,14 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     )
   }
 
+  override def visitTypeParameterClause(clause: ScTypeParamClause): Unit = {
+    val other = globalVisitor.getElement.asInstanceOf[ScTypeParamClause]
+
+    globalVisitor.setResult(
+      matchSequentially(clause.typeParameters, other.typeParameters)
+    )
+  }
+
   override def visitParameter(parameter: ScParameter): Unit = {
     if (!globalVisitor.getElement.is[ScParameter]) {
       globalVisitor.setResult(false)
@@ -553,6 +561,13 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     def expressionMatch = matchOpt(ms.expression, other.expression)
     def casesMatch = matchSequentially(ms.clauses, other.clauses)
     globalVisitor.setResult(expressionMatch && casesMatch)
+  }
+
+  override def visitCaseClauses(ccs: ScCaseClauses): Unit = {
+    val other = globalVisitor.getElement.asInstanceOf[ScCaseClauses]
+    globalVisitor.setResult(
+      matchSequentially(ccs.caseClauses, other.caseClauses)
+    )
   }
 
   override def visitCaseClause(cc: ScCaseClause): Unit = {
@@ -842,6 +857,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     elementPat match {
       case _: LeafElement => globalVisitor.matchText(elementPat.getText, other.getText)
       case _: (ScPattern | ScPatterns | ScTypePattern | ScPatternArgumentList
+         | ScThisReference | ScStableCodeReference | ScUnitExpr
          | ScImportExpr | ScPackageLike | ScBlock | ScImportOrExportStmt | ScUnderscoreSection) =>
         globalVisitor.matchSons(elementPat, other)
       case _: (ScTemplateBody | ScClass | ScObject) =>
