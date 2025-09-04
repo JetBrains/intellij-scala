@@ -462,10 +462,10 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
 
   def testFold_simple(): Unit =
     assertTypeIs(
-      """type F = [X, Y] => List[Y]
+      """type F = [X, Y] =>> List[Y]
         |type T = Tuple.Fold[(Int, String), Boolean, F]
         |""".stripMargin,
-      "F[Int, F[String, Boolean]]" // todo: should be List[List[Boolean]]
+      "F[Int, F[String, Boolean]]"
     )
 
   //

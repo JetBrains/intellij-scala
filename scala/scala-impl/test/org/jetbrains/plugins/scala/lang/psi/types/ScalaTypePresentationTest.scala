@@ -106,7 +106,7 @@ class ScalaTypePresentationTest_Scala3 extends ScalaTypePresentationTestBase {
   def testMatchMultipleCases(): Unit = assertPresentationIs(
     "A match { case Int => Char; case Long => String }")
 
-  def testMatchrParenthesesInner(): Unit = {
+  def testMatchParenthesesInner(): Unit = {
     assertPresentationIs(
       "(A match { case Int => Char }) match { case Long => String }")
 
@@ -114,7 +114,7 @@ class ScalaTypePresentationTest_Scala3 extends ScalaTypePresentationTestBase {
       "(A => Any) match { case Int => Char }")
   }
 
-  def testMatchrParenthesesOuter(): Unit = {
+  def testMatchParenthesesOuter(): Unit = {
     assertPresentationIs(
       "(A match { case Int => Char }) => Any")
 

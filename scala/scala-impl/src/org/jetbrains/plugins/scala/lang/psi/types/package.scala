@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.caches.cachedInUserData
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
@@ -23,6 +24,17 @@ import scala.annotation.tailrec
 import scala.util.control.NoStackTrace
 
 package object types {
+  object PolyFunctionType {
+    def unapply(tpe: ScCompoundType): Option[(TermSignature, ScType)] = tpe match {
+      case ScCompoundType(Seq(ExtractClass(polyFun)), defs, _)
+        if polyFun.getQualifiedName == CommonQualifiedNames.PolyFunctionFqn =>
+        defs.find {
+          case (sig, _) => sig.name == CommonNames.Apply
+        }
+      case _ => None
+    }
+  }
+
 
   implicit class ScTypeExt(private val scType: ScType) extends AnyVal {
     private def typeSystem = scType.typeSystem

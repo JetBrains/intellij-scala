@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.feature
 
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiElement, PsiReference}
+import com.intellij.psi.PsiElement
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.{ClassQualifiedName, ReferenceTarget, _}
@@ -14,20 +14,19 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScPostfixExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParamClause
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScMacroDefinition, ScTypeAlias, ScTypeAliasDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.ScCompoundType
 import org.jetbrains.plugins.scala.lang.psi.types.api.ExtractClass
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings.scalaVersionSinceWhichHigherKindsAreAlwaysEnabled
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerSettings, ScalaCompilerSettingsProfile}
+import org.jetbrains.plugins.scala.util.CommonQualifiedNames
 
 class LanguageFeatureInspection extends LocalInspectionTool {
   private def isPolyFunctionRefinement(ref: ScRefinement): Boolean = {
     ref.getContext match {
       case ScCompoundTypeElement(Seq(tpe), _) =>
         tpe.`type`().exists {
-          case ExtractClass(cls) => cls.qualifiedName == "scala.PolyFunction"
+          case ExtractClass(cls) => cls.qualifiedName == CommonQualifiedNames.PolyFunctionFqn
           case _                 => false
         }
       case _ => false

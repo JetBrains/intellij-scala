@@ -48,6 +48,9 @@ object CommonQualifiedNames {
   final val FunctionFqn = "scala.Function"
   final val FunctionCanonical = Root + FunctionFqn
 
+  final val PolyFunctionFqn = "scala.PolyFunction"
+  final val PolyFunctionCanonical = Root + FunctionFqn
+
   //TODO: rename to StringContextFqn
   final val StringContext = "scala.StringContext"
   final val StringContextCanonical = Root + StringContext

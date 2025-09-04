@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterCla
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.result.{OptionTypeExt, TypeResult}
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, TypePresentationContext}
 
 class ScPolyFunctionExprImpl(node: ASTNode)
   extends ScExpressionImplBase(node)
@@ -62,11 +62,31 @@ class ScPolyFunctionExprImpl(node: ASTNode)
       "ScPolyFunctionExpr#cachedDesugaredType",
       ModTracker.anyScalaPsiChange,
       () => {
-        val typeParamsText = typeParametersClause.fold("")(_.getTextByStub)
+        implicit val tpc: TypePresentationContext = this
+
+        val typeParamsText = typeParametersClause.fold("") { tParamClause =>
+          val tParams = tParamClause.typeParameters
+
+          tParams.zipWithIndex.map { case (tParam, idx) =>
+            val text = tParam.typeParameterText
+            if (text == "_") s"$text$$$idx"
+            else             text
+          }.mkString("[", ", ", "]")
+        }
 
         val (paramsText, resultTypeText) = result match {
           case Some(InnermostElement(fn: ScFunctionExpr)) =>
-            fn.params.getText ->
+            val text = fn.parameters.map { p =>
+              val typeText = {
+                val text = p.`type`().getOrAny.presentableText
+                if (text == "_") "_$0"
+                else             text
+              }
+
+              s"${p.name}: $typeText"
+            }.mkString("(", ", ", ")")
+
+            text ->
               this.flatMapType(fn.result).getOrAny.presentableText(this, Context.Empty)
           case _ => "()" -> "scala.Any"
         }
