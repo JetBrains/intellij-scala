@@ -563,6 +563,7 @@ lazy val structuralSearch =
     )
     .settings(
       scalaVersion := Versions.scala3Version,
+      // TODO remove filter
       Compile / scalacOptions := globalScala3ScalacOptions.filterNot(_ == "-Werror"),
       intellijPlugins += "JUnit".toPlugin,
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.structural-search")

@@ -21,6 +21,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScPackageLike, ScalaElementVisi
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.JavaIdentifier
 import org.jetbrains.plugins.scala.util.EnumSet.{EnumSet, EnumSetOps}
 
+import scala.collection.immutable.ArraySeq
+
 class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaElementVisitor {
 
   private def matchOpt(patternO: Option[PsiElement], otherO: Option[PsiElement]): Boolean = {
@@ -45,7 +47,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
   }
 
   private def extractConstructorInvocations(extBlock: ScExtendsBlock): Seq[PsiElement] = {
-    extBlock.templateParents.map(_.parentClauses).getOrElse(PsiElement.EMPTY_ARRAY)
+    extBlock.templateParents.map(_.parentClauses).getOrElse(Seq())
   }
 
   private def matchBody(patternO: Option[PsiElement], otherO: Option[PsiElement]): Boolean = {
@@ -133,7 +135,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
         case _ => false
       }
       def nameMatch = matchTextOrVariable(typedef.getNameIdentifier, other.getNameIdentifier, handler)
-      def typeParamsMatch = matchInAnyOrder(typedef.getTypeParameters, other.getTypeParameters)
+      def typeParamsMatch = matchInAnyOrder(ArraySeq.unsafeWrapArray(typedef.getTypeParameters), ArraySeq.unsafeWrapArray(other.getTypeParameters))
       def constructorsMatch = (typedef, other) match {
         case (typedef: ScConstructorOwner, other: ScConstructorOwner) =>
           matchPrimaryConstructor(typedef.constructor, other.constructor)
@@ -175,13 +177,13 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
   private def primaryConstrBodyMatch(templBody: Option[ScTemplateBody], other: Option[ScTemplateBody]) = {
     // match in any order if the body contains only declarations & definitions
     // otherwise fall back to a sequential match
-    def extractStatements(body: Option[ScTemplateBody]): Array[PsiElement] =
-      body.map(_.getChildren.filter(_.is[ScBlockStatement]).filterNot(_.is[ScFunction, ScTypeDefinition])).getOrElse(PsiElement.EMPTY_ARRAY)
+    def extractStatements(body: Option[ScTemplateBody]): Seq[PsiElement] =
+      body.map(_.getChildren.toSeq.filter(_.is[ScBlockStatement]).filterNot(_.is[ScFunction, ScTypeDefinition])).getOrElse(Seq())
 
     val bodyPattern = extractStatements(templBody)
     val bodyOther = extractStatements(other)
     if (bodyPattern.forall(_.is[ScValueOrVariableDeclaration, ScValueOrVariableDefinition]))
-      matchInAnyOrder(templBody.map(_.properties).getOrElse(PsiElement.EMPTY_ARRAY), other.map(_.properties).getOrElse(PsiElement.EMPTY_ARRAY))
+      matchInAnyOrder(templBody.map(_.properties).getOrElse(Seq()), other.map(_.properties).getOrElse(Seq()))
     else
       matchSequentially(bodyPattern, bodyOther)
   }
@@ -200,14 +202,8 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     def nameMatch = matchTextOrVariable(enCase.getNameIdentifier, other.getNameIdentifier, handler)
 
     def constrMatch = {
-      val patternConstr = enCase match {
-        case patternDef: ScTemplateDefinition => extractConstructorInvocations(patternDef.extendsBlock)
-        case _ => Seq()
-      }
-      val matchConstr = other match {
-        case otherDef: ScTemplateDefinition => extractConstructorInvocations(otherDef.extendsBlock)
-        case _ => Seq()
-      }
+      val patternConstr = extractConstructorInvocations(enCase.extendsBlock)
+      val matchConstr = extractConstructorInvocations(other.extendsBlock)
       matchInAnyOrder(patternConstr, matchConstr)
     }
 
@@ -228,7 +224,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     try {
       def valvarMatch = (pat.is[ScVariable] && other.is[ScVariable]) || (pat.is[ScValue] && other.is[ScValue])
       def modifierMatch = checkModifier(pat.getModifierList.modifiers, other.getModifierList.modifiers)
-      def annotationsMatch = matchInAnyOrder(pat.getAnnotations, other.getAnnotations)
+      def annotationsMatch = matchInAnyOrder(ArraySeq.unsafeWrapArray(pat.getAnnotations), ArraySeq.unsafeWrapArray(other.getAnnotations))
       def namesMatch = pat.declaredElements.size == other.declaredElements.size
         && (if (pat.declaredElements.size == 1)
         matchTextOrVariable(pat.declaredElements.head, other.declaredElements.head, getHandler(pat))

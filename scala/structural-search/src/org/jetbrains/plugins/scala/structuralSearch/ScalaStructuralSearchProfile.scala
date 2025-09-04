@@ -74,7 +74,6 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
           case fun: ScFunction => !fun.returnTypeElement.contains(simpType)
           case valvar: ScValueOrVariable => !valvar.typeElement.contains(simpType)
           case typeParam: (ScTypeParam | ScTypeAliasDeclaration) => checkLowerUpperMaxApplicable(typeParam, simpType)
-          case typeAlias: ScTypeAliasDeclaration => checkLowerUpperMaxApplicable(typeAlias, simpType)
           case typeAlias: ScTypeAliasDefinition => checkLowerUpperMaxApplicable(typeAlias, simpType) && !typeAlias.aliasedTypeElement.contains(simpType)
           case _ => true
         }

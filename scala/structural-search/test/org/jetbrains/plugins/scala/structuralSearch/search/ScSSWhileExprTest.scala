@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.structuralSearch.search
 
-import org.jetbrains.plugins.scala.structuralSearch.{ScalaMatchingVisitor, ScalaStructuralSearchTestCase}
+import org.jetbrains.plugins.scala.structuralSearch.ScalaStructuralSearchTestCase
 
 class ScSSWhileExprTest extends ScalaStructuralSearchTestCase {
 
