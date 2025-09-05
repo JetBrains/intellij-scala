@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.formatting
 import com.intellij.formatting.{Alignment, Indent, Wrap}
 import com.intellij.lang.ASTNode
 import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings}
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.formatting.processors.ScalaIndentProcessor
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
@@ -20,6 +21,7 @@ abstract class ScalaBlockBuilderBase(
   protected final def subBlock(
     node: ASTNode,
     lastNode: ASTNode = null,
+    @Nullable
     alignment: Alignment = null,
     indent: Option[Indent] = None,
     wrap: Option[Wrap] = None,

@@ -62,7 +62,13 @@ class ScTypeParamImpl private (stub: ScTypeParamStub, node: ASTNode)
 
   override def getOwner: PsiTypeParameterListOwner = getContext.getContext match {
     case c: PsiTypeParameterListOwner => c
-    case _                            => null
+    case p: ScParameters =>
+      // for additional type parameters after normal parameter clauses
+      p.getContext match {
+        case c: PsiTypeParameterListOwner => c
+        case _ => null
+      }
+    case _ => null
   }
 
   override def getContainingClass: ScTemplateDefinition = null
@@ -91,7 +97,15 @@ class ScTypeParamImpl private (stub: ScTypeParamStub, node: ASTNode)
     val result = getContext.getContext
     // To see more info about EA-239302
     try {
-      result.asInstanceOf[ScTypeParametersOwner]
+      val candidate = result match {
+        case owner: ScTypeParametersOwner => return owner
+        case params: ScParameters =>
+          // for additional type parameters after normal parameter clauses
+          params.getContext
+        case _ => result
+      }
+
+      candidate.asInstanceOf[ScTypeParametersOwner]
     } catch {
       case exception: ClassCastException =>
         val errorDescription = result.asOptionOf[PsiErrorElement].map(_.getErrorDescription).getOrElse("")

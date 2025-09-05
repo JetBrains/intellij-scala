@@ -1222,7 +1222,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         return WITH_SPACING
       case _ =>
     }
-    if (leftPsi.isInstanceOf[ScParameterClause] && rightPsi.isInstanceOf[ScParameterClause]) {
+    if (leftPsi.is[ScParameterClause, ScTypeParamClause] && rightPsi.is[ScParameterClause, ScTypeParamClause]) {
       return WITHOUT_SPACING
     }
     if (rightPsi.isInstanceOf[ScPatternArgumentList] &&
