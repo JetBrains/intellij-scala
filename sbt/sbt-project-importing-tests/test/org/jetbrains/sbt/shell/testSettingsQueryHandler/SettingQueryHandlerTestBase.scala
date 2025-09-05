@@ -41,8 +41,10 @@ abstract class SettingQueryHandlerTestBase extends SbtProjectStructureImportingL
   )
 
   override protected def setUpFixtures(): Unit = {
-    myTestFixture = IdeaTestFixtureFactory.getFixtureFactory.createFixtureBuilder(getName, getTestProjectPath, useDirectoryBasedStorageFormat()).getFixture
+    val myTestFixture = IdeaTestFixtureFactory.getFixtureFactory.createFixtureBuilder(getName, getTestProjectPath, useDirectoryBasedStorageFormat()).getFixture
     myTestFixture.setUp()
+
+    setMyTestFixture(myTestFixture)
   }
 
   override def setUp(): Unit = {
@@ -52,10 +54,12 @@ abstract class SettingQueryHandlerTestBase extends SbtProjectStructureImportingL
 
     importProject()
 
-    myComm = SbtShellCommunication.forProject(getProject)
+    val project = getMyProject
+
+    myComm = SbtShellCommunication.forProject(project)
     assertNotNull(myComm)
 
-    myRunner = SbtProcessManager.forProject(getProject).acquireShellRunner()
+    myRunner = SbtProcessManager.forProject(project).acquireShellRunner()
     assertNotNull(myRunner)
 
     logger = new ProcessLogger
