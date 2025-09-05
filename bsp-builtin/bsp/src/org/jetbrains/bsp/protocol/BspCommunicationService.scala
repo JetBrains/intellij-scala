@@ -133,7 +133,7 @@ object BspCommunicationService {
   private def updateWidget(): Unit = {
     val application = ApplicationManager.getApplication
     if (!application.isDisposed) {
-      application.getMessageBus.syncPublisher(BspServerWidgetProvider.Topic).updateWidget()
+      application.getMessageBus.syncPublisher(BspServerWidgetFactory.Topic).updateWidget()
     }
   }
 }
