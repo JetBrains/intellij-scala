@@ -80,7 +80,7 @@
                    implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaColorSchemeAnnotator"/>
         <annotator language="Scala"
                    implementationClass="org.jetbrains.plugins.scala.annotator.ScalaAnnotator"/>
-        <statusBarWidgetFactory id="TypeAwareHighlighting" implementation="org.jetbrains.plugins.scala.components.TypeAwareWidgetFactory"/>
+        <statusBarWidgetFactory id="TypeAwareHighlighting" implementation="org.jetbrains.plugins.scala.components.TypeAwareWidgetFactory" order="before Position"/>
 
         <defaultHighlightingSettingProvider implementation="org.jetbrains.plugins.scala.annotator.ScalaDefaultHighlightingSettingProvider"/>
 
