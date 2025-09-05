@@ -2,7 +2,7 @@ package org.jetbrains.bsp
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.{Disposer, IconLoader}
+import com.intellij.openapi.util.IconLoader
 import com.intellij.openapi.wm.{StatusBar, StatusBarWidget, StatusBarWidgetFactory}
 import com.intellij.util.messages.Topic
 
@@ -16,10 +16,6 @@ private final class BspServerWidgetFactory extends StatusBarWidgetFactory {
   override def isAvailable(project: Project): Boolean = BspUtil.isBspProject(project)
 
   override def createWidget(project: Project): StatusBarWidget = new BspServerWidget()
-
-  override def disposeWidget(widget: StatusBarWidget): Unit = {
-    Disposer.dispose(widget)
-  }
 
   override def canBeEnabledOn(statusBar: StatusBar): Boolean = {
     val project = statusBar.getProject
