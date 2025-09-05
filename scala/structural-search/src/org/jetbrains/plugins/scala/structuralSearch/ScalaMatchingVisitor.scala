@@ -51,17 +51,17 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
   }
 
   private def matchBody(patternO: Option[PsiElement], otherO: Option[PsiElement]): Boolean = {
-    (patternO, otherO) match {
-      case (Some(pattern: ScBlockExpr), Some(other: ScBlockExpr)) =>
-        globalVisitor.matchSequentially(pattern.getFirstChild, other.getFirstChild)
-      case (Some(pattern: ScBlockExpr), Some(other)) =>
-        globalVisitor.matchSequentially(pattern.statements.toArray[PsiElement], Array(other))
-      case (Some(pattern), Some(other: ScBlockExpr)) =>
-        globalVisitor.matchSequentially(Array(pattern), other.statements.toArray[PsiElement])
-      case (Some(pattern), Some(other)) =>
-        globalVisitor.`match`(pattern, other)
-      case _ => false
+    val patternStatements = patternO match {
+      case Some(pattern: ScBlockExpr) => pattern.statements
+      case Some(stmt) => Seq(stmt)
+      case None => Seq()
     }
+    val otherStatements = otherO match {
+      case Some(body: ScBlockExpr) => body.statements
+      case Some(stmt) => Seq(stmt)
+      case None => Seq()
+    }
+    matchSequentially(patternStatements, otherStatements)
   }
 
   private def matchSequentially(pattern: Seq[PsiElement], other: Seq[PsiElement]): Boolean = {
@@ -300,15 +300,15 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
       def paramsMatch = globalVisitor.`match`(fun.paramClauses, other.paramClauses)
       def rTypeMatch = matchOptOptional(fun.returnTypeElement, other.returnTypeElement)
       def bodyMatch = {
-        fun match {
-          case declPat: ScFunctionDefinition =>
-            other match {
-              case declOther: ScFunctionDefinition =>
-                matchBody(declPat.body, declOther.body)
-              case _ => false
-            }
-          case _ => true
+        val patBody = fun match {
+          case declPat: ScFunctionDefinition => declPat.body
+          case _ => None
         }
+        val otherBody = other match {
+          case declOther: ScFunctionDefinition => declOther.body
+          case _ => None
+        }
+        if patBody.isEmpty then true else matchBody(patBody, otherBody)
       }
 
       globalVisitor.setResult(annotationsMatch && modifierMatch && nameMatch && typeParamsMatch && paramsMatch && rTypeMatch && bodyMatch)
