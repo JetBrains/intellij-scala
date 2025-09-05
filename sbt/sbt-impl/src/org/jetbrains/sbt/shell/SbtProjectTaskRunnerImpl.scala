@@ -11,6 +11,7 @@ import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
 import com.intellij.openapi.externalSystem.model.execution.ExternalSystemTaskExecutionSettings
 import com.intellij.openapi.externalSystem.util.{ExternalSystemUtil, ExternalSystemApiUtil => ES}
 import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.module.ModuleType
 import com.intellij.openapi.progress.{PerformInBackgroundOption, ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
@@ -38,17 +39,21 @@ final class SbtProjectTaskRunnerImpl
   // will override the usual jps build thingies
   override def canRun(projectTask: ProjectTask): Boolean = projectTask match {
     case task: ModuleBuildTask =>
-      val module = task.getModule
-      val project = task.getModule.getProject
-      val projectSettings = SbtSettings.getInstance(project).getLinkedProjectSettings(module)
-
-      projectSettings.exists(_.useSbtShellForBuild) &&
-      ES.isExternalSystemAwareModule(SbtProjectSystem.Id, module)
-
+      isUseSbtShellForBuildEnabled(task.getModule)
     case _: ExecuteRunConfigurationTask =>
       // TODO this includes tests (and what else?). sbt should handle it and test output should be parsed
       false
-    case _ => false
+    case _ =>
+      false
+  }
+
+  private def isUseSbtShellForBuildEnabled(module: Module): Boolean = {
+    val project = module.getProject
+
+    val sbtProjectSettings = SbtSettings.getInstance(project).getLinkedProjectSettings(module)
+
+    sbtProjectSettings.exists(_.useSbtShellForBuild) &&
+      ES.isExternalSystemAwareModule(SbtProjectSystem.Id, module)
   }
 
   override def run(

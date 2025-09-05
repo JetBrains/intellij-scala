@@ -36,8 +36,10 @@ private[jetbrains] object SbtProjectImportStateProblemHighlightFilter {
     case ft => trackedFileExtensions.contains(ft.getDefaultExtension)
   }
 
-  private[sbt] def isWritableSourceFile(psiFile: PsiFile): Boolean =
-    psiFile.getVirtualFile.isWritable && !JavaProjectRootsUtil.isOutsideJavaSourceRoot(psiFile)
+  private[sbt] def isWritableSourceFile(psiFile: PsiFile): Boolean = {
+    val virtualFile = psiFile.getVirtualFile
+    virtualFile != null && virtualFile.isWritable && !JavaProjectRootsUtil.isOutsideJavaSourceRoot(psiFile)
+  }
 
   // Ideally, this would hold references to each of the file types, but we're trying to avoid dependencies on
   // other plugins.

@@ -1,4 +1,4 @@
-package org.jetbrains.sbt.shell
+package org.jetbrains.sbt.shell.testSettingsQueryHandler
 
 import com.intellij.execution.process.{ProcessEvent, ProcessListener}
 import com.intellij.ide.impl.ProjectUtil
@@ -12,15 +12,20 @@ import com.intellij.openapi.util.Key
 import com.intellij.testFramework.HeavyPlatformTestCase
 import com.intellij.testFramework.common.ThreadLeakTracker
 import com.intellij.util.ui.UIUtil
+import org.jetbrains.plugins.scala.SlowTests2
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.project.SbtProjectSystem
+import org.jetbrains.sbt.shell.testSettingsQueryHandler.SbtProjectPlatformTestCase.ProcessLogger
+import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication, SbtShellRunner}
+import org.junit.experimental.categories.Category
 
 import java.nio.file.Path
 import scala.concurrent.{Future, Promise}
 
+@Category(Array(classOf[SlowTests2]))
 abstract class SbtProjectPlatformTestCase extends HeavyPlatformTestCase {
 
   override def setUpProject(): Unit = {
@@ -94,24 +99,24 @@ abstract class SbtProjectPlatformTestCase extends HeavyPlatformTestCase {
 
 object SbtProjectPlatformTestCase {
   val errorPrefix = "[error]"
-}
 
-class ProcessLogger extends ProcessListener {
-  private val logBuilder: StringBuilder = new StringBuilder()
-  private val termination = Promise.apply[Int]()
+  class ProcessLogger extends ProcessListener {
+    private val logBuilder: StringBuilder = new StringBuilder()
+    private val termination = Promise.apply[Int]()
 
-  def getLog: String = logBuilder.mkString
-  def terminated: Future[Int] = termination.future
+    def getLog: String = logBuilder.mkString
+    def terminated: Future[Int] = termination.future
 
-  override def processWillTerminate(event: ProcessEvent, willBeDestroyed: Boolean): Unit = {}
+    override def processWillTerminate(event: ProcessEvent, willBeDestroyed: Boolean): Unit = {}
 
-  override def startNotified(event: ProcessEvent): Unit = {}
+    override def startNotified(event: ProcessEvent): Unit = {}
 
-  override def processTerminated(event: ProcessEvent): Unit =
-    termination.success(event.getExitCode)
+    override def processTerminated(event: ProcessEvent): Unit =
+      termination.success(event.getExitCode)
 
-  override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {
-    synchronized { logBuilder.append(event.getText) }
-    print(event.getText)
+    override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {
+      synchronized { logBuilder.append(event.getText) }
+      print(event.getText)
+    }
   }
 }

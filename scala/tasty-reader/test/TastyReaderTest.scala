@@ -119,7 +119,7 @@ class TastyReaderTest extends TestCase {
   def testTypeDefinitionTrait(): Unit = doTest("typeDefinition/Trait")
   def testTypeDefinitionScl24154(): Unit = doTest("typeDefinition/DerivationApi")
   def testTypesAnd(): Unit = doTest("types/And")
-//  def testTypesAnnotated(): Unit = doTest("types/Annotated") // SCL-21207
+  //  def testTypesAnnotated(): Unit = doTest("types/Annotated") // SCL-21207
   def testTypesCompound(): Unit = doTest("types/Compound")
   def testTypesConstant(): Unit = doTest("types/Constant")
   def testTypesFunction(): Unit = doTest("types/Function")
@@ -128,7 +128,7 @@ class TastyReaderTest extends TestCase {
   def testTypesIdent(): Unit = doTest("types/Ident")
   def testTypesInfix(): Unit = doTest("types/Infix")
   def testTypesInlined(): Unit = doTest("types/Inlined")
-  def testTypesKindProjector(): Unit = doTest("types/KindProjector", CompilerOptions(kindProjector = true))
+  def testTypesKindProjector(): Unit = doTest("types/KindProjector", expectedCompilerOptions = CompilerOptions(kindProjector = true))
   def testTypesLambda(): Unit = doTest("types/Lambda")
   def testTypesLiteral(): Unit = doTest("types/Literal")
   def testTypesMatch(): Unit = doTest("types/Match")
@@ -144,29 +144,89 @@ class TastyReaderTest extends TestCase {
   def testTypesWildcard(): Unit = doTest("types/Wildcard")
   def testAliases(): Unit = doTest("Aliases")
   def testEmptyPackage(): Unit = doTest("EmptyPackage")
+  def testEmptyPackage2(): Unit = doTest("EmptyPackage2", expectedFilesContents = Seq(
+    "ClassInEmptyPackage.tasty" -> "class ClassInEmptyPackage",
+    "ObjectInEmptyPackage.tasty" -> "object ObjectInEmptyPackage",
+    "EmptyPackage2$package.tasty" ->
+      """type TypeAliasToClassInEmptyPackage = ClassInEmptyPackage
+        |
+        |type TypeAliasToObjectInEmptyPackage = ObjectInEmptyPackage.type""".stripMargin
+  ))
   def testNesting(): Unit = doTest("Nesting")
 
-  private def doTest(path: String, options: CompilerOptions = CompilerOptions.Default, simpleTypes: Boolean = true): Unit = {
+
+  private def findTestScalaSourceFile(testFileRelativePath: String): Path = {
     val testDataPath = {
       val path = Path.of("scala/tasty-reader/testdata")
       if (Files.exists(path)) path else Path.of("community", path.toString)
     }
     assert(Files.exists(testDataPath), testDataPath.toAbsolutePath)
 
-    val scalaFile = testDataPath.resolve(path + ".scala")
+    val scalaFile = testDataPath.resolve(testFileRelativePath + ".scala").toAbsolutePath
     assertTrue(s"File $scalaFile does not exist", Files.exists(scalaFile))
+    scalaFile
+  }
 
-    val tastyFile: Path = {
-      val scalaFileStr = scalaFile.toString
-      val packageFile = Path.of(scalaFileStr.replaceFirst("\\.scala$", "\\$package.tasty"))
-      if (Files.exists(packageFile)) packageFile
-      else Path.of(scalaFileStr.replaceFirst("\\.scala$", ".tasty"))
+  /**
+   * @param expectedFilesContents if this collection is empty, check the corresponding file
+   *                              with the standard tasty file name mapping (MyClass.scala -> MyClass.tasty)<br>
+   *                              if this collection is NOT empty, check the files from this collection
+   *
+   */
+  private def doTest(
+    testFileRelativePath: String,
+    expectedFilesContents: Seq[(String, String)] = Nil,
+    expectedCompilerOptions: CompilerOptions = CompilerOptions.Default,
+    simpleTypes: Boolean = true
+  ): Unit = {
+    val testScalaFile = findTestScalaSourceFile(testFileRelativePath)
+
+    val expectedFilesContents2: Seq[(Path, String)] = if (expectedFilesContents.nonEmpty) {
+      expectedFilesContents.map { case (tastyFileName, expectedTastyContent) =>
+        val tastyFile: Path = testScalaFile.getParent.resolve(tastyFileName)
+        tastyFile -> expectedTastyContent
+      }
+    } else {
+      val scalaFilePathStr = testScalaFile.toString
+      val sameNameTastyFile = Path.of(scalaFilePathStr.replaceFirst("\\.scala$", ".tasty"))
+      val sameNamePackageTastyFile = Path.of(scalaFilePathStr.replaceFirst("\\.scala$", "\\$package.tasty"))
+
+      val tastyFile: Path =
+        if (Files.exists(sameNameTastyFile))
+          sameNameTastyFile
+        else if (Files.exists(sameNamePackageTastyFile))
+          sameNamePackageTastyFile
+        else
+          fail(s"File $sameNameTastyFile or $sameNamePackageTastyFile does not exist").asInstanceOf[Nothing]
+
+      val scalaSourceContent = Files.readString(testScalaFile, StandardCharsets.UTF_8)
+      val expectedTastyContent = scalaSourceFileToExpectedTastyContent(scalaSourceContent)
+      Seq(tastyFile -> expectedTastyContent)
     }
-    assertTrue(s"File $tastyFile doest not exist", Files.exists(tastyFile))
 
-    val tree = TreeReader.treeFrom(readBytes(tastyFile))
+    expectedFilesContents2.foreach { case (tastyFilePath, expectedTastyContent) =>
+      doTest(
+        testFileRelativePath,
+        testScalaFile,
+        tastyFilePath,
+        simpleTypes,
+        expectedTastyContent,
+        expectedCompilerOptions,
+      )
+    }
+  }
 
-    val (sourceFile, actual, actualOptions) = try {
+  private def doTest(
+    testFileRelativePath: String,
+    scalaFile: Path,
+    tastyFile: Path,
+    simpleTypes: Boolean,
+    expectedTastyContent: String,
+    expectedCompilerOptions: CompilerOptions
+  ): Unit = {
+    val tree = TreeReader.treeFrom(Files.readAllBytes(tastyFile))
+
+    val (actualSourceFile, actualTastyContent, actualCompilerOptions) = try {
       val treePrinter = new TreePrinter(infixTypes = true) // TODO disable
       treePrinter.fileAndTextOf(tree)
     } catch {
@@ -175,24 +235,30 @@ class TastyReaderTest extends TestCase {
         throw e
     }
 
-    assertEquals("Scala file name", scalaFile.toFile.getName, sourceFile)
+    val expectedSourceFile = scalaFile.toFile.getName
+    assertEquals("Scala file name", expectedSourceFile, actualSourceFile)
 
-    val expected = new String(readBytes(scalaFile), StandardCharsets.UTF_8)
+    val actualTastyContentNormalised = if (simpleTypes)
+      normaliseTastyContent(actualTastyContent)
+    else
+      actualTastyContent
+
+    assertEquals(s"Content for $testFileRelativePath (${tastyFile.getFileName})", expectedTastyContent, actualTastyContentNormalised)
+
+    assertEquals(expectedCompilerOptions, actualCompilerOptions)
+  }
+
+  private def scalaSourceFileToExpectedTastyContent(scalaFileContent: String): String =
+    scalaFileContent
       .replaceAll(raw"(?s)/\*\*/.*?/\*(.*?)\*/", "$1")
       .replace("\r", "")
 
-    val adjusted = if (!simpleTypes) actual else actual
+  private def normaliseTastyContent(tastyContent: String): String =
+    tastyContent
       .replace("_root_.", "")
       .replace("java.lang.", "")
       .replace("scala.Predef.", "")
       .replaceAll("scala\\.(?!\\w+\\.(?!type))", "")
       .replaceAll("\\w+\\.this\\.(?!type)", "")
       .replaceAll("\\w+\\.(?=this.type)", "")
-
-    assertEquals(s"Content for $path", expected, adjusted)
-
-    assertEquals(options, actualOptions)
-  }
-
-  private def readBytes(file: Path): Array[Byte] = Files.readAllBytes(file)
 }

@@ -89,6 +89,17 @@ class Scala3IndentationBasedSyntaxEnterHandler extends EnterHandlerDelegateAdapt
       if (elementAtCaret == null)
         return Result.Continue
 
+      val isInsideStringLiteral = ScalaTokenTypes.STRING_LITERAL_TOKEN_SET.contains(elementAtCaret.elementType)
+      if (isInsideStringLiteral) {
+        /** Multiline string literals will be processed by [[MultilineStringEnterHandler]] */
+        return Result.Continue
+      }
+
+      if (isIncompleteBlockComment(elementAtCaret, editor)) {
+        /** Incomplete block comments will be processed by [[com.intellij.codeInsight.editorActions.enter.EnterInBlockCommentHandler]] (SCL-21351) */
+        return Result.Continue
+      }
+
       val indentOptions = CodeStyle.getIndentOptions(file)
       val documentText = document.getCharsSequence
       val caretIndent = EnterHandlerUtils.calcCaretIndent(caretOffset, documentText, indentOptions.TAB_SIZE)
@@ -104,8 +115,7 @@ class Scala3IndentationBasedSyntaxEnterHandler extends EnterHandlerDelegateAdapt
         case _ =>
           val indentedElementOpt = ScalaIndentationSyntaxUtils.previousElementInIndentationContext(elementAtCaret, caretIndentSize, indentOptions)
           indentedElementOpt match {
-            /** Incomplete block comments will be processed by [[com.intellij.codeInsight.editorActions.enter.EnterInBlockCommentHandler]] (SCL-21351) */
-            case Some((indentedElement, _)) if !isIncompleteBlockComment(indentedElement, editor) =>
+            case Some((indentedElement, _)) =>
               insertNewLineWithSpacesAtCaret(editor, document, indentedElement, indentOptions, needRemoveTrailingSpaces = true)
               Result.Stop
             case _ =>

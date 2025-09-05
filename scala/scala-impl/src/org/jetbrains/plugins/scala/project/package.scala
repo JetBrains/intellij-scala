@@ -771,14 +771,23 @@ package object project {
     private def featuresOpt: Option[SerializableScalaFeatures] = {
       val file = Option(element.getContainingFile)
       val featuresFromFile = file.flatMap(ScalaFeatures.getAttachedScalaFeatures)
+      val featuresFromFileSerializable = featuresFromFile match {
+        case Some(s: SerializableScalaFeatures) => Some(s)
+        case _ => None
+      }
 
-      val orFeaturesFromModule = (featuresFromFile match {
-          case Some(s: SerializableScalaFeatures) => Some(s)
-          case _ => None
-        })
+      val featuresFromFileOrModule = featuresFromFileSerializable
         .orElse(inThisModuleOrProject(_.features))
 
-      orFeaturesFromModule
+      // As a final fallback, if there are no attached features and no Scala module, use the file language.
+      // It can be used in some lightweight tests that don't create any Scala SDK and just specify the language,
+      // for example, MultiLineStringEnterHandlerTestBase
+      val featuresFromFileOrModuleOrFileLanguage = featuresFromFileOrModule.orElse {
+        val fileLanguage = file.map(_.getLanguage)
+        fileLanguage.map(ScalaFeatures.defaultForLanguage)
+      }
+
+      featuresFromFileOrModuleOrFileLanguage
     }
 
     def features: SerializableScalaFeatures =
@@ -807,9 +816,14 @@ package object project {
 
     // TODO Predicates are not applicable to library files, because they have neither module nor project, SCL-20935
     // TODO Library source files are not compiled, SCL-20935
-    private def inThisModuleOrProject[T](predicate: Module => T): Option[T] =
-      if (element.getContainingFile.asOptionOf[ScalaFile].exists(_.isCompiled)) None
-      else module.orElse(element.getProject.anyScalaModule).map(predicate)
+    private def inThisModuleOrProject[T](predicate: Module => T): Option[T] = {
+      // Handle classes from libraries
+      val isDecompiledScalaFile = element.getContainingFile.asOptionOf[ScalaFile].exists(_.isCompiled)
+      if (isDecompiledScalaFile)
+        None
+      else
+        module.orElse(element.getProject.anyScalaModule).map(predicate)
+    }
   }
 
   implicit class PathsListExt(private val list: PathsList) extends AnyVal {

@@ -61,9 +61,9 @@ class ScalaDocumentationProviderTest_RenderInEditor extends ScalaDocumentationPr
          |<tr><td valign='top' class='section'><p>Deprecated</td>
          |<td valign='top'>some text</td>
          |<tr><td valign='top' class='section'><p>Params:</td>
-         |<td valign='top'>p &ndash; some text</td>
+         |<td valign='top'><code>p</code> &ndash; some text</td>
          |<tr><td valign='top' class='section'><p>Type parameters:</td>
-         |<td valign='top'>T &ndash; some text</td>
+         |<td valign='top'><code>T</code> &ndash; some text</td>
          |<tr><td valign='top' class='section'><p>Returns:</td>
          |<td valign='top'>some text</td>
          |<tr><td valign='top' class='section'><p>Throws:</td>

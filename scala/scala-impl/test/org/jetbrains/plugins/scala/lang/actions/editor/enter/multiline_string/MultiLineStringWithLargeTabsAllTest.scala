@@ -1,10 +1,8 @@
 package org.jetbrains.plugins.scala.lang.actions.editor.enter.multiline_string
 
-import org.jetbrains.plugins.scala.lang.actions.editor.enter.AbstractEnterActionTestBase
-
 import java.nio.file.Path
 
-class MultiLineStringWithLargeTabsAllTest extends AbstractEnterActionTestBase {
+class MultiLineStringWithLargeTabsAllTest extends MultiLineStringEnterHandlerTestBase {
   override protected def relativeTestDataPath: Path = Path.of("actions", "editor", "enter", "multiLineStringData", "withTabs", "indentAndMargin", "4tabs")
 
   override protected def setUp(): Unit = {

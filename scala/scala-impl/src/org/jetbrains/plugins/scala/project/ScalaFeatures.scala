@@ -1,9 +1,10 @@
 package org.jetbrains.plugins.scala.project
 
+import com.intellij.lang.Language
 import com.intellij.openapi.util.{Key, Ref}
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.ScalaVersion
+import org.jetbrains.plugins.scala.{Scala3Language, ScalaVersion}
 import org.jetbrains.plugins.scala.extensions.PsiFileExt
 import org.jetbrains.plugins.scala.util.BitMaskStorage
 
@@ -252,6 +253,12 @@ object ScalaFeatures {
 
   val default: SerializableScalaFeatures = onlyByVersion(ScalaVersion.Latest.Scala_2_13)
   val defaultScala3: SerializableScalaFeatures = onlyByVersion(ScalaVersion.Latest.Scala_3)
+
+  def defaultForLanguage(scalaLanguage: Language): SerializableScalaFeatures =
+    if (scalaLanguage == Scala3Language.INSTANCE)
+      defaultScala3
+    else
+      default
 
   val `-Xsource:3 in 2.12.14 or 2.13.6`: SerializableScalaFeatures = default.copy(
     version = ScalaVersion.Latest.Scala_2_13.withMinor(6),

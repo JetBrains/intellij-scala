@@ -27,8 +27,6 @@ trait SbtTestRunningSupport {
     module: Module,
     settings: SettingMap,
     setting: String,
-    showTaskName: String,
-    setTaskName: String,
     value: String,
     modificationCondition: String => Boolean,
     shouldSet: Boolean = false,
