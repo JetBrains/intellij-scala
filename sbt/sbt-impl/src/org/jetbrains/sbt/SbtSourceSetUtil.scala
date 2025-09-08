@@ -21,9 +21,12 @@ object SbtSourceSetUtil {
      */
     def isMain: Boolean = is(SourceSetType.MAIN)
 
-    private def is(sourceSetType: SourceSetType): Boolean = {
+    def isSbtSourceSetModule: Boolean = {
       val externalModuleType = ExternalSystemApiUtil.getExternalModuleType(module)
-      val isSbtSourceSetModule = externalModuleType == SbtModuleType.sbtSourceSetModuleType
+      externalModuleType == SbtModuleType.sbtSourceSetModuleType
+    }
+
+    private def is(sourceSetType: SourceSetType): Boolean =
       isSbtSourceSetModule && {
         // NOTE!!
         // In some edge cases, the source set module name may also end with a number e.g., .main~<number>,
@@ -31,6 +34,5 @@ object SbtSourceSetUtil {
         val pattern = s"^.*\\.$sourceSetType(~\\d+)?$$".r
         pattern.matches(module.getName)
       }
-    }
   }
 }
