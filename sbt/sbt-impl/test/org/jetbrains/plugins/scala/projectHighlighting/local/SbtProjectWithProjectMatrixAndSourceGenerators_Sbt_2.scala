@@ -26,8 +26,6 @@ class SbtProjectWithProjectMatrixAndSourceGenerators_Sbt_2
 
   override protected val projectFileName = projectName
 
-  override protected def enableSeparateModulesForProdTest = true
-
   override protected def copyTestProjectToTemporaryDir = true
 
   override def setUp(): Unit = {

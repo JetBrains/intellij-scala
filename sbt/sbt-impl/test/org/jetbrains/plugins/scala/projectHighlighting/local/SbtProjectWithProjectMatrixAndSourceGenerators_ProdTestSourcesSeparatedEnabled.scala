@@ -20,8 +20,6 @@ class SbtProjectWithProjectMatrixAndSourceGenerators_ProdTestSourcesSeparatedEna
 
   override protected val projectFileName = projectName
 
-  override protected def enableSeparateModulesForProdTest = true
-
   override def testHighlighting(): Unit = {
     importProject(false)
     super.testHighlighting()

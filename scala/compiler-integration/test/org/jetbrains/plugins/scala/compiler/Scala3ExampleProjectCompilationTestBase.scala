@@ -92,7 +92,7 @@ abstract class Scala3ExampleProjectCompilationTestBase(
     new URI(CompilerModuleExtension.getInstance(getMainModule).getCompilerOutputUrl + "/").toURL
 
   private def getMainModule: Module =
-    getModule(projectName)
+    getModule(s"$projectName.main")
 }
 
 class Scala3ExampleProjectCompilationTest_IdeaIncrementalityType
