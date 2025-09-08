@@ -1,6 +1,7 @@
 package org.jetbrains.sbt.project
 
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.roots.DependencyScope
 import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.extensions.inWriteAction
@@ -1143,11 +1144,11 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
               isExported := false
               scope := DependencyScope.COMPILE
             },
-            new dependency(module2JVMMain) {
+            new dependency(module2JVMTest) {
               isExported := false
               scope := DependencyScope.COMPILE
             },
-            new dependency(module2JVMTest) {
+            new dependency(module2JVMMain) {
               isExported := false
               scope := DependencyScope.COMPILE
             },
@@ -1644,8 +1645,8 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
           moduleDependencies := Seq(
             new dependency(sharedModuleTest) { isExported := true },
             new dependency(rootMain) { isExported := false },
-            new dependency(buzzMain) { isExported := false },
             new dependency(buzzTest) { isExported := false },
+            new dependency(buzzMain) { isExported := false }
           )
           contentRoots := standardRoots("", "test", "3.0.2")
           testSources += "%PROJECT_ROOT%/src/test/scala"
@@ -1755,8 +1756,8 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
             new dependency(sharedModuleMain) { isExported := true },
             new dependency(sharedModuleTest) { isExported := true },
             new dependency(rootMain) { isExported := false },
-            new dependency(buzzMain) { isExported := false },
-            new dependency(buzzTest) { isExported := false }
+            new dependency(buzzTest) { isExported := false },
+            new dependency(buzzMain) { isExported := false }
           )
           contentRoots := standardRoots("", "test", "3.0.2")
           testSources += "%PROJECT_ROOT%/src/test/scala"
