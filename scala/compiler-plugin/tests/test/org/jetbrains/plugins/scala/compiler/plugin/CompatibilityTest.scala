@@ -74,7 +74,9 @@ object CompatibilityTest {
     "3.4.0", "3.4.1", "3.4.2", "3.4.3",
     "3.5.0", "3.5.1", "3.5.2",
     "3.6.2", "3.6.3", "3.6.4",
-    "3.7.0",
+    "3.7.0", "3.7.1", "3.7.2",
+    ScalaVersion.Latest.Scala_3_LTS_RC.minor,
+    ScalaVersion.Latest.Scala_3_Next_RC.minor
   )
 
   private val Definition =
