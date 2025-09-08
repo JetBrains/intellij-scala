@@ -52,7 +52,7 @@ ScalaFile
             <empty list>
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          PolymorhicFunctionType: [U] => T => T
+          PolymorphicFunctionType: [U] => T => T
             TypeParameterClause
               PsiElement([)('[')
               TypeParameter: U
@@ -338,7 +338,7 @@ ScalaFile
               PsiElement(])(']')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          PolymorhicFunctionType: [X <: Unit] => X => X
+          PolymorphicFunctionType: [X <: Unit] => X => X
             TypeParameterClause
               PsiElement([)('[')
               TypeParameter: X
@@ -415,7 +415,7 @@ ScalaFile
               PsiElement())(')')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          PolymorhicFunctionType: [X <: Unit] => X => X
+          PolymorphicFunctionType: [X <: Unit] => X => X
             TypeParameterClause
               PsiElement([)('[')
               TypeParameter: X
