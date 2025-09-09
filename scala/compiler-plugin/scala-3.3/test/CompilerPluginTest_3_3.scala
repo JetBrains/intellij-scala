@@ -8,6 +8,19 @@ import dotty.tools.dotc.util.SourceFile
 import dotty.tools.io.VirtualFile
 import org.junit.{Assert, Test}
 
+/**
+ * If you wish to run this test in the IDE, right-click on the class name `CompilerPluginTest_3_3`.
+ * Select `More Run/Debug > Modify Run Configuration...`.
+ * In the form which opens make the following changes:
+ *   1. Remove "Build 'scalaCommunity/scalaUltimate' artifact" from the "Before launch" section.
+ *   1. In the "Build and run" section, make sure the module `scalaCommunity.compiler-plugin-3_3.test` module
+ *      is selected as the module to provide the classpath.
+ *   1. In the "Build and run" section, click on the "Modify options" dropdown and uncheck the "Add VM options" option.
+ *
+ * Otherwise, running the test suite will fail with the "No tests were found" message. This is normal. This indicates
+ * that this test suite was not found on the classpath. This is correct. These tests are separate from all other tests
+ * and have to be run manually.
+ */
 class CompilerPluginTest_3_3 {
   private final val Id =
     "transparent inline def id(x: Any): Any = x"
