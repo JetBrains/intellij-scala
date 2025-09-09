@@ -3,15 +3,19 @@ package org.jetbrains.plugins.scala.structuralSearch
 import com.intellij.codeInsight.template.TemplateContextType
 import com.intellij.lang.Language
 import com.intellij.openapi.util.Key
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import com.intellij.structuralsearch.impl.matcher.compiler.GlobalCompilingVisitor
+import com.intellij.structuralsearch.impl.matcher.predicates.{ExprTypePredicate, MatchPredicate, NotPredicate}
 import com.intellij.structuralsearch.impl.matcher.{CompiledPattern, GlobalMatchingVisitor}
 import com.intellij.structuralsearch.plugin.replace.impl.{ParameterInfo, ReplacementBuilder, Replacer}
 import com.intellij.structuralsearch.plugin.replace.{ReplaceOptions, ReplacementInfo}
 import com.intellij.structuralsearch.plugin.ui.{Configuration, UIUtil}
-import com.intellij.structuralsearch.{MatchResult, StructuralSearchProfile, StructuralSearchProfileBase}
+import com.intellij.structuralsearch.{MatchOptions, MatchResult, MatchVariableConstraint, StructuralSearchProfile, StructuralSearchProfileBase}
+import com.intellij.util.SmartList
 import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaFileTemplateContextType
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
@@ -22,10 +26,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAl
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypeBoundsOwner}
 import org.jetbrains.plugins.scala.structuralSearch.ScalaStructuralSearchProfile.PARAMETER_CONTEXT
+import org.jetbrains.plugins.scala.structuralSearch.predicates.ScExprTypePredicate
 import org.jetbrains.plugins.scala.structuralSearch.replace.ScalaSubstitutor
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
 
-import java.lang
+import java.{lang, util}
 import scala.collection.mutable
 
 final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
@@ -54,6 +59,8 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
       case UIUtil.MAXIMUM_UNLIMITED =>
         isMinMaxApplicable(constraintName, variableNode, completePattern, target)
         && isMaxApplicable(constraintName, variableNode, completePattern, target)
+      case UIUtil.TYPE | UIUtil.TYPE_REGEX =>
+        variableNode.getParent.is[ScReferenceExpression]
       case _ =>
         super.isApplicableConstraint(constraintName, variableNode, completePattern, target)
     }
@@ -97,6 +104,16 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
       }
       case _ => true
     }
+  }
+
+  override def getCustomPredicates(constraint: MatchVariableConstraint, name: String, options: MatchOptions): util.List[MatchPredicate] = {
+    val result = new SmartList[MatchPredicate]()
+
+    if (!StringUtil.isEmptyOrSpaces(constraint.getNameOfExprType)) {
+      result.add(new ScExprTypePredicate(constraint.getNameOfExprType, name, constraint.isExprTypeWithinHierarchy, constraint.isInvertExprType, options.isCaseSensitiveMatch, constraint.isRegexExprType))
+    }
+
+    result
   }
 
   override def createCompiledPattern(): CompiledPattern =

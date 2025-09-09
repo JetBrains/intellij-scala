@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.types.PhysicalMethodSignature
 
-trait ScTypeDefinition extends ScTemplateDefinition
+trait  ScTypeDefinition extends ScTemplateDefinition
   with ScMember
   with ScMember.WithBaseIconProvider
   with NavigationItem
