@@ -24,6 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScBlockE
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterType, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAliasDeclaration, ScTypeAliasDefinition, ScValueOrVariable, ScValueOrVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypeBoundsOwner}
 import org.jetbrains.plugins.scala.structuralSearch.ScalaStructuralSearchProfile.PARAMETER_CONTEXT
 import org.jetbrains.plugins.scala.structuralSearch.predicates.ScExprTypePredicate
@@ -60,7 +61,7 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
         isMinMaxApplicable(constraintName, variableNode, completePattern, target)
         && isMaxApplicable(constraintName, variableNode, completePattern, target)
       case UIUtil.TYPE | UIUtil.TYPE_REGEX =>
-        variableNode.getParent.is[ScReferenceExpression]
+        variableNode.getParent.is[ScReferenceExpression, ScTypeDefinition]
       case _ =>
         super.isApplicableConstraint(constraintName, variableNode, completePattern, target)
     }

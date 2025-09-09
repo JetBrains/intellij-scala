@@ -135,7 +135,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
         case (_: ScGiven, _: ScGiven) => true
         case _ => false
       }
-      def nameMatch = matchTextOrVariable(typedef.getNameIdentifier, other.getNameIdentifier, handler)
+      def nameMatch = matchTextOrVariable(typedef.nameId, other.nameId, handler)
       def typeParamsMatch = matchInAnyOrder(ArraySeq.unsafeWrapArray(typedef.getTypeParameters), ArraySeq.unsafeWrapArray(other.getTypeParameters))
       def constructorsMatch = (typedef, other) match {
         case (typedef: ScConstructorOwner, other: ScConstructorOwner) =>

@@ -1,10 +1,12 @@
 package org.jetbrains.plugins.scala.structuralSearch.predicates
 
+import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.{PsiClass, PsiElement}
 import com.intellij.structuralsearch.impl.matcher.MatchContext
 import com.intellij.structuralsearch.impl.matcher.predicates.MatchPredicate
 import com.intellij.structuralsearch.{MalformedPatternException, SSRBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResultExt
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScTypeExt}
 
@@ -38,8 +40,22 @@ class ScExprTypePredicate(val ty: String, baseName: String, val withinHierarchy:
               matchClass(cl)
             }
         }
-      case _ =>
-        false
+      case _: LeafPsiElement => matchedNode.getParent match {
+        case td: ScTypeDefinition =>
+          if (withinHierarchy) {
+            matchSupers(td, matchClass)
+          } else {
+            matchClass(td)
+          }
+        case _ => false
+      }
+      case td: ScTypeDefinition =>
+        if (withinHierarchy) {
+          matchSupers(td, matchClass)
+        } else {
+          matchClass(td)
+        }
+      case _ => false
     }
   }
 
