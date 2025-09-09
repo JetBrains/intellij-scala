@@ -190,6 +190,7 @@ lazy val worksheetReplInterface =
   Project("worksheet-repl-interface", file("scala/worksheet/repl-interface"))
     .settings(NoSourceDirectories)
     .settings(
+      organization := "JetBrains",
       crossPaths := false,
       autoScalaLibrary := false,
       ideSkipProject := true,
@@ -210,6 +211,7 @@ lazy val worksheetReplInterfaceImpls =
   Project("worksheet-repl-interface-impls", file("scala/worksheet/repl-interface/impls"))
     .settings(NoSourceDirectories)
     .settings(
+      organization := "JetBrains",
       crossPaths := false,
       autoScalaLibrary := false,
       ideSkipProject := true,
