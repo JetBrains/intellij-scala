@@ -1024,7 +1024,7 @@ addCommandAlias("runFastTestsOrgJetbrains", runFastTestsInTC("org.jetbrains.*"))
 addCommandAlias("runFastTestsScala", runFastTestsInTC("scala.*"))
 
 // Compiler plugin tests command definitions.
-addCommandAlias("runCompilerPluginTests2_12", "compiler-plugin-2_12/testOnly -- -v -s -a +c +q")
-addCommandAlias("runCompilerPluginTests2_13", "compiler-plugin-2_13/testOnly -- -v -s -a +c +q")
-addCommandAlias("runCompilerPluginTests3_3", "compiler-plugin-3_3/testOnly -- -v -s -a +c +q")
-addCommandAlias("runCompilerPluginTests", "runCompilerPluginTests2_12; runCompilerPluginTests2_13; runCompilerPluginTests3_3")
+addCommandAlias("runCompilerPluginTests-2_12", "compiler-plugin-2_12/testOnly -- -v -s -a +c +q")
+addCommandAlias("runCompilerPluginTests-2_13", "compiler-plugin-2_13/testOnly -- -v -s -a +c +q")
+addCommandAlias("runCompilerPluginTests-3_3", "compiler-plugin-3_3/testOnly -- -v -s -a +c +q")
+addCommandAlias("runCompilerPluginTests", "runCompilerPluginTests-2_12; runCompilerPluginTests-2_13; runCompilerPluginTests-3_3")
