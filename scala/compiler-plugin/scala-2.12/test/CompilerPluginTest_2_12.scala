@@ -1,4 +1,4 @@
-import CompilerPluginTest._
+import CompilerPluginTest_2_12._
 import org.junit.{Assert, Test}
 
 import java.nio.file.Files
@@ -8,7 +8,7 @@ import scala.reflect.io.VirtualFile
 import scala.tools.nsc.reporters.StoreReporter
 import scala.tools.nsc.{Global, Settings}
 
-class CompilerPluginTest {
+class CompilerPluginTest_2_12 {
   private final val Id =
     """object Macros {
       |  def id_impl(c: scala.reflect.macros.whitebox.Context)(x: c.Expr[Any]): c.Expr[Any] = x
@@ -147,7 +147,7 @@ class CompilerPluginTest {
     error("unknown", "not found: value unknown"))
 }
 
-private object CompilerPluginTest {
+private object CompilerPluginTest_2_12 {
   def tpe(s: String): String = "<type>" + s + "</type>"
 
   def info(position: String, text: String): String = message(INFO, position, text)

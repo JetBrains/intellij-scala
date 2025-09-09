@@ -1,4 +1,4 @@
-import CompilerPluginTest.*
+import CompilerPluginTest_3_3.*
 import dotty.tools.dotc.Compiler
 import dotty.tools.dotc.core.Contexts.ContextBase
 import dotty.tools.dotc.core.{Contexts, Phases}
@@ -8,7 +8,7 @@ import dotty.tools.dotc.util.SourceFile
 import dotty.tools.io.VirtualFile
 import org.junit.{Assert, Test}
 
-class CompilerPluginTest {
+class CompilerPluginTest_3_3 {
   private final val Id =
     "transparent inline def id(x: Any): Any = x"
 
@@ -116,7 +116,7 @@ class CompilerPluginTest {
     error("unknown", "Not found: unknown"))
 }
 
-private object CompilerPluginTest {
+private object CompilerPluginTest_3_3 {
   def tpe(s: String): String = "<type>" + s + "</type>"
 
   def info(position: String, text: String): String = message(0, position, text)
