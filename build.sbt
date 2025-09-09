@@ -43,7 +43,7 @@ ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" 
 Global / intellijAttachSources := true
 
 // Muted lint warnings for keys used by the IDE, but not by sbt (coming from sbt-ide-settings)
-Global / excludeLintKeys ++= Set(idePackagePrefix, ideSkipProject, ideExcludedDirectories, ideaConfigOptions)
+Global / excludeLintKeys ++= Set(idePackagePrefix, ideSkipProject, ideExcludedDirectories, ideaConfigOptions, intellijPlugins)
 
 val definedTestsScopeFilter: ScopeFilter =
   ScopeFilter(inDependencies(scalaCommunity, includeRoot = false), inConfigurations(Test))
@@ -422,24 +422,67 @@ lazy val compileServer =
       packageLibraryMappings += Dependencies.nailgun -> Some("lib/jps/nailgun.jar")
     )
 
+// Compiler plugins
+
+def compilerPluginProject(
+  projectName: String,
+  projectPath: File,
+  scalaCompilerVersion: String,
+  extraScalacOptions: Seq[String],
+  packagingOutputPath: String
+): sbt.Project =
+  Project(projectName, projectPath)
+    .disablePlugins(SbtIdeaPluginExtension)
+    .settings(
+      name := projectName,
+      organization := "JetBrains",
+      intellijPlugins := Seq.empty,
+      scalaVersion := scalaCompilerVersion,
+      libraryDependencies += {
+        val artifact = scalaCompilerVersion match {
+          case scala3 if scala3.startsWith("3.") => "org.scala-lang" %% "scala3-compiler" % scala3
+          case scala2 => "org.scala-lang" % "scala-compiler" % scala2
+        }
+        artifact % Provided
+      },
+      libraryDependencies ++= Seq(
+        Dependencies.jetbrainsAnnotations % Provided,
+        Dependencies.junit % Test,
+        Dependencies.junitInterface % Test,
+        Dependencies.opentest4j % Test
+      ),
+      Compile / scalacOptions := Seq("--release", "8") ++ extraScalacOptions,
+      packageMethod := PackagingMethod.Standalone(packagingOutputPath),
+      Test / fork := true
+    )
+    .settings(projectDirectoriesSettings)
+    .settings(compilationCacheSettings)
+
 lazy val scalaCompilerPlugin_2_12: sbt.Project =
-  newPlainScalaProject("compiler-plugin-2_12", file("scala/compiler-plugin/scala-2.12")).settings(
-    scalaVersion := "2.12.20", libraryDependencies += "org.scala-lang" % "scala-compiler" % "2.12.20",
-    Compile / scalacOptions := Seq("-deprecation", "--release", "8"),
-    packageMethod := PackagingMethod.Standalone("lib/jps/compiler-plugin-2.12.jar"),
+  compilerPluginProject(
+    projectName = "compiler-plugin-2_12",
+    projectPath = file("scala/compiler-plugin/scala-2.12"),
+    scalaCompilerVersion = "2.12.20",
+    extraScalacOptions = Seq("-deprecation"),
+    packagingOutputPath = "lib/jps/compiler-plugin-2.12.jar"
   )
 
 lazy val scalaCompilerPlugin_2_13: sbt.Project =
-  newPlainScalaProject("compiler-plugin-2_13", file("scala/compiler-plugin/scala-2.13")).settings(
-    scalaVersion := "2.13.15", libraryDependencies += "org.scala-lang" % "scala-compiler" % "2.13.15",
-    Compile / scalacOptions := Seq("-deprecation", "--release", "8"),
-    packageMethod := PackagingMethod.Standalone("lib/jps/compiler-plugin-2.13.jar"),
+  compilerPluginProject(
+    projectName = "compiler-plugin-2_13",
+    projectPath = file("scala/compiler-plugin/scala-2.13"),
+    scalaCompilerVersion = "2.13.15",
+    extraScalacOptions = Seq("-deprecation"),
+    packagingOutputPath = "lib/jps/compiler-plugin-2.13.jar"
   )
 
 lazy val scalaCompilerPlugin_3_3: sbt.Project =
-  newPlainScalaProject("compiler-plugin-3_3", file("scala/compiler-plugin/scala-3.3")).settings(
-    scalaVersion := "3.3.6", libraryDependencies += "org.scala-lang" %% "scala3-compiler" % "3.3.6", Compile / scalacOptions := Seq("--release", "8"),
-    packageMethod := PackagingMethod.Standalone("lib/jps/compiler-plugin-3.3.jar"),
+  compilerPluginProject(
+    projectName = "compiler-plugin-3_3",
+    projectPath = file("scala/compiler-plugin/scala-3.3"),
+    scalaCompilerVersion = "3.3.6",
+    extraScalacOptions = Seq.empty,
+    packagingOutputPath = "lib/jps/compiler-plugin-3.3.jar"
   )
 
 lazy val scalaCompilerPluginTests: sbt.Project =
