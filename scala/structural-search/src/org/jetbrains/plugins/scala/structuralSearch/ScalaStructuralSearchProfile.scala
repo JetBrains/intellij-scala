@@ -26,10 +26,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAl
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypeBoundsOwner}
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.structuralSearch.ScalaStructuralSearchProfile.PARAMETER_CONTEXT
 import org.jetbrains.plugins.scala.structuralSearch.predicates.ScExprTypePredicate
 import org.jetbrains.plugins.scala.structuralSearch.replace.ScalaSubstitutor
-import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
+import org.jetbrains.plugins.scala.{NotImplementedError, Scala3Language, ScalaLanguage}
 
 import java.{lang, util}
 import scala.collection.mutable
@@ -61,10 +62,14 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
         isMinMaxApplicable(constraintName, variableNode, completePattern, target)
         && isMaxApplicable(constraintName, variableNode, completePattern, target)
       case UIUtil.TYPE | UIUtil.TYPE_REGEX =>
-        variableNode.getParent.is[ScReferenceExpression, ScTypeDefinition]
+        isTypeRegexApplicable(variableNode)
       case _ =>
         super.isApplicableConstraint(constraintName, variableNode, completePattern, target)
     }
+
+  private def isTypeRegexApplicable(variableNode: PsiElement): Boolean =
+    variableNode.getParent.is[ScTypeDefinition] || variableNode.getParent.isInstanceOf[Typeable]
+      || (variableNode.getParent.is[ScStableCodeReference] && variableNode.getParent.getParent.isInstanceOf[Typeable])
 
   private def isMinMaxApplicable(constraintName: String, variableNode: PsiElement, completePattern: Boolean, target: Boolean): Boolean =
     if (completePattern || target || variableNode == null) return false
@@ -230,7 +235,7 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
         case anno: ScAnnotation => if (info.getUserData(PARAMETER_CONTEXT) == null) ScalaSubstitutor.appendAnnotation(sb, res, anno, this)
         case el => el.getParent match {
           case _: ScBlockExpr => ScalaSubstitutor.handleBlock(sb, info, res, result, replacementInfo)
-          case _ => ???
+          case _ => throw new NotImplementedError(s"Replacing is not yet implemented for ${el.getParent.getClass}")
         }
       }
     } else element match {

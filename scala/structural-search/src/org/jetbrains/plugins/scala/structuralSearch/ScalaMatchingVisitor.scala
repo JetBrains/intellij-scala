@@ -135,7 +135,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
         case (_: ScGiven, _: ScGiven) => true
         case _ => false
       }
-      def nameMatch = matchTextOrVariable(typedef.nameId, other.nameId, handler)
+      def nameMatch = matchTextOrVariable(Option(typedef.nameId).getOrElse(typedef.getIdentifyingElement), Option(other.nameId).getOrElse(other.getIdentifyingElement), handler)
       def typeParamsMatch = matchInAnyOrder(ArraySeq.unsafeWrapArray(typedef.getTypeParameters), ArraySeq.unsafeWrapArray(other.getTypeParameters))
       def constructorsMatch = (typedef, other) match {
         case (typedef: ScConstructorOwner, other: ScConstructorOwner) =>
@@ -295,7 +295,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     try {
       def annotationsMatch = matchInAnyOrder(fun.annotations, other.annotations)
       def modifierMatch = checkModifier(fun.getModifierList.modifiers, other.getModifierList.modifiers)
-      def nameMatch = matchTextOrVariable(fun.getNameIdentifier, other.getNameIdentifier, handler)
+      def nameMatch = matchTextOrVariable(Option(fun.nameId).getOrElse(fun.getIdentifyingElement), Option(other.nameId).getOrElse(other.getIdentifyingElement), handler)
       def typeParamsMatch = fun.typeParameters.isEmpty ||
         matchInAnyOrder(fun.typeParameters, other.typeParameters)
       def paramsMatch = globalVisitor.`match`(fun.paramClauses, other.paramClauses)
