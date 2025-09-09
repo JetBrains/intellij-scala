@@ -208,6 +208,25 @@ class ScalaWorksheetCompilerHighlightingTest_3_6 extends ScalaWorksheetCompilerH
 
 class ScalaWorksheetCompilerHighlightingTest_3_7 extends ScalaWorksheetCompilerHighlightingTest_3_6 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_7
+
+  override def testOnlyErrorsAreExpectedInWorksheet(): Unit = runTestCase(
+    fileName = "worksheet.sc",
+    content = worksheetContent.stripMargin,
+    expectedResult = expectedResult(
+      ExpectedHighlighting(
+        severity = HighlightSeverity.ERROR,
+        range = Some(new TextRange(72, 87)),
+        quickFixDescriptions = Seq.empty,
+        msgPrefix = "Not found: unknownFunction"
+      ),
+      ExpectedHighlighting(
+        severity = HighlightSeverity.ERROR,
+        range = Some(new TextRange(208, 209)),
+        quickFixDescriptions = Seq.empty,
+        msgPrefix = "Conflicting definitions:\nval x: Int in worksheet.sc at line 8 and\nval x: Int in worksheet.sc at line 9"
+      )
+    )
+  )
 }
 
 class ScalaWorksheetCompilerHighlightingTest_3_RC extends ScalaWorksheetCompilerHighlightingTest_3 {
@@ -233,25 +252,6 @@ class ScalaWorksheetCompilerHighlightingTest_3_RC extends ScalaWorksheetCompiler
   )
 }
 
-class ScalaWorksheetCompilerHighlightingTest_3_Next_RC extends ScalaWorksheetCompilerHighlightingTest_3 {
+class ScalaWorksheetCompilerHighlightingTest_3_Next_RC extends ScalaWorksheetCompilerHighlightingTest_3_7 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_Next_RC
-
-  override def testOnlyErrorsAreExpectedInWorksheet(): Unit = runTestCase(
-    fileName = "worksheet.sc",
-    content = worksheetContent.stripMargin,
-    expectedResult = expectedResult(
-      ExpectedHighlighting(
-        severity = HighlightSeverity.ERROR,
-        range = Some(new TextRange(72, 87)),
-        quickFixDescriptions = Seq.empty,
-        msgPrefix = "Not found: unknownFunction"
-      ),
-      ExpectedHighlighting(
-        severity = HighlightSeverity.ERROR,
-        range = Some(new TextRange(208, 209)),
-        quickFixDescriptions = Seq.empty,
-        msgPrefix = "Conflicting definitions:\nval x: Int in worksheet.sc at line 8 and\nval x: Int in worksheet.sc at line 9"
-      )
-    )
-  )
 }
