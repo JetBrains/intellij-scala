@@ -11,6 +11,8 @@ import kotlin.Keys.{kotlinRuntimeProvided, kotlinVersion, kotlincJvmTarget}
 import kotlin.KotlinPlugin
 
 object Common {
+  final val JetBrains = "JetBrains"
+
   private val globalJavacOptionsCommon = Seq(
     "-Xlint:unchecked",
     "-Xlint:deprecation"
@@ -125,7 +127,7 @@ object Common {
   }
 
   private val NewProjectBaseSettings: Seq[Setting[?]] = Seq(
-    organization := "JetBrains",
+    organization := JetBrains,
     scalaVersion := Versions.scalaVersion,
     (Compile / javacOptions) := globalJavacOptions,
     (Compile / scalacOptions) := globalScalacOptions,
