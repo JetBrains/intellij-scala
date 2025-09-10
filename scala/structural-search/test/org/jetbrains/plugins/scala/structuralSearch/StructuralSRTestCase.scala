@@ -9,10 +9,14 @@ import com.intellij.structuralsearch.plugin.ui.UIUtil
 import com.intellij.structuralsearch.{MatchOptions, MatchResult, Matcher, StructuralSearchUtil}
 import com.intellij.testFramework.LightPlatformCodeInsightTestCase
 import com.intellij.util.SmartList
+import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.{LanguageFileTypeBase, Scala3Language}
 
+import javax.swing.Icon
+import scala.annotation.static
 import scala.jdk.CollectionConverters.*
 
-abstract class StructuralSearchTestCase extends LightPlatformCodeInsightTestCase {
+abstract class StructuralSRTestCase extends LightPlatformCodeInsightTestCase {
   protected var options: MatchOptions = null
 
   override protected def setUp(): Unit = {
@@ -24,25 +28,6 @@ abstract class StructuralSearchTestCase extends LightPlatformCodeInsightTestCase
   override protected def tearDown(): Unit = {
     options = null
     super.tearDown()
-  }
-
-  protected def findMatches(in: String,
-                            pattern: String,
-                            patternFileType: LanguageFileType,
-                            patternLanguage: Language,
-                            sourceFileType: LanguageFileType,
-                            physicalSourceFile: Boolean,
-                            modifyOptions: MatchOptions => Unit,
-                           ): Seq[MatchResult] = {
-    options.fillSearchCriteria(pattern)
-    options.setFileType(patternFileType)
-    options.setDialect(patternLanguage)
-    modifyOptions(options)
-    val compiledPattern: CompiledPattern = PatternCompiler.compilePattern(getProject, options, true, false)
-    val message: String = checkApplicableConstraints(options, compiledPattern)
-    assert(message == null)
-    val matcher: Matcher = new Matcher(getProject, options, compiledPattern)
-    matcher.testFindMatches(in, true, sourceFileType, physicalSourceFile).asScala.toSeq
   }
 
   def checkApplicableConstraints(options: MatchOptions, compiledPattern: CompiledPattern): String = {

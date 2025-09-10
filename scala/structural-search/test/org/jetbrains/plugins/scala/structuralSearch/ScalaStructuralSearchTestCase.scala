@@ -1,25 +1,23 @@
 package org.jetbrains.plugins.scala.structuralSearch
 
 import com.intellij.dupLocator.iterators.SiblingNodeIterator
-import com.intellij.structuralsearch.{MatchOptions, MatchResult}
-import org.intellij.lang.annotations.Language
-import org.jetbrains.plugins.scala.icons.Icons
-import org.jetbrains.plugins.scala.{LanguageFileTypeBase, Scala3Language, ScalaFileType, ScalaLanguage}
+import com.intellij.lang.Language
+import com.intellij.openapi.fileTypes.LanguageFileType
+import com.intellij.structuralsearch.impl.matcher.CompiledPattern
+import com.intellij.structuralsearch.impl.matcher.compiler.PatternCompiler
+import com.intellij.structuralsearch.{MatchOptions, MatchResult, Matcher}
+import org.intellij.lang
+import org.jetbrains.plugins.scala.{Scala3Language, ScalaFileType, ScalaLanguage}
 
-import javax.swing.Icon
 import scala.annotation.tailrec
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 
-class ScalaStructuralSearchTestCase extends StructuralSearchTestCase {
-
-  object Scala3FileType extends LanguageFileTypeBase(Scala3Language.INSTANCE) {
-    def getExtensionWithDot: String = "." + getDefaultExtension
-    override def getIcon: Icon = Icons.SCALA_FILE
-  }
+class ScalaStructuralSearchTestCase extends StructuralSRTestCase {
 
   protected def matchAndAssert(
     name: String,
-    @Language("Scala 3") code: String,
-    @Language("Scala 3") pattern: String,
+    @lang.annotations.Language("Scala 3") code: String,
+    @lang.annotations.Language("Scala 3") pattern: String,
     modifyOptions: MatchOptions => Unit = _ => (),
     inScala3: Boolean = true,
     patternScala3: Boolean = true,
@@ -107,5 +105,24 @@ class ScalaStructuralSearchTestCase extends StructuralSearchTestCase {
       }
     }
     clearMarker(code.stripMargin.trim, except, 0)
+  }
+
+  protected def findMatches(in: String,
+                            pattern: String,
+                            patternFileType: LanguageFileType,
+                            patternLanguage: Language,
+                            sourceFileType: LanguageFileType,
+                            physicalSourceFile: Boolean,
+                            modifyOptions: MatchOptions => Unit,
+                           ): Seq[MatchResult] = {
+    options.fillSearchCriteria(pattern)
+    options.setFileType(patternFileType)
+    options.setDialect(patternLanguage)
+    modifyOptions(options)
+    val compiledPattern: CompiledPattern = PatternCompiler.compilePattern(getProject, options, true, false)
+    val message: String = checkApplicableConstraints(options, compiledPattern)
+    assert(message == null)
+    val matcher: Matcher = new Matcher(getProject, options, compiledPattern)
+    matcher.testFindMatches(in, true, sourceFileType, physicalSourceFile).asScala.toSeq
   }
 }

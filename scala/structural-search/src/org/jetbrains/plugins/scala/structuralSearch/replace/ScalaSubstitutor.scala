@@ -30,19 +30,7 @@ object ScalaSubstitutor {
   def handleParameter(sb: StringBuilder, info: ParameterInfo, res: MatchResult, result: lang.StringBuilder,
                       replaceParameter: ScParameter,
                       paraContext: mutable.Map[String, ParameterInfo], profile: StructuralSearchProfile): Int = {
-    // calculate end of parameter replacement pattern
-    var max = info.getStartIndex
-    // create template to get length of parameter pattern
-    val template = TemplateManager.getInstance(replaceParameter.getProject).createTemplate("", "", replaceParameter.getText)
-    val replacement = template.getTemplateText
-    for (i <- 0 until template.getSegmentsCount) {
-      if (template.getSegmentName(i) == profile.stripReplacementTypedVariableDecorations(replaceParameter.name)) {
-        max = info.getStartIndex + (replacement.length - template.getSegmentOffset(i))
-      }
-    }
-    val min = max - replacement.length
-    // cut out pattern to get a blank field
-    result.delete(min, max)
+    val offset = eraseParameter(info, replaceParameter, result, profile)
 
     // now insert the correct version
     if res.isMultipleMatch then {
@@ -57,6 +45,29 @@ object ScalaSubstitutor {
     } else {
       appendParameter(sb, res, replaceParameter, profile)
     }
+    offset
+  }
+
+  def handleNoSubParameter(info: ParameterInfo, parameter: ScParameter, result: lang.StringBuilder,
+                           profile: StructuralSearchProfile): Int = {
+    eraseParameter(info, parameter, result, profile)
+  }
+
+  private def eraseParameter(info: ParameterInfo, replaceParameter: ScParameter, result: lang.StringBuilder, profile: StructuralSearchProfile): Int = {
+    // calculate end of parameter replacement pattern
+    var max = info.getStartIndex
+    // create template to get length of parameter pattern
+    val template = TemplateManager.getInstance(replaceParameter.getProject).createTemplate("", "", replaceParameter.getText)
+    val replacement = template.getTemplateText
+    for (i <- 0 until template.getSegmentsCount) {
+      if (template.getSegmentName(i) == profile.stripReplacementTypedVariableDecorations(replaceParameter.name)) {
+        max = info.getStartIndex + (replacement.length - template.getSegmentOffset(i))
+      }
+    }
+    val min = max - replacement.length
+    // cut out pattern to get a blank field
+    result.delete(min, max)
+
     min - info.getStartIndex
   }
 
@@ -77,8 +88,8 @@ object ScalaSubstitutor {
       }
     } else {
       for (replAnno <- replaceParameter.annotations) {
-        appendAnnotation(sb, mR, replAnno, profile)
-        sb.append(" ")
+        if (appendAnnotation(sb, mR, replAnno, profile))
+          sb.append(" ")
       }
     }
 
@@ -123,11 +134,11 @@ object ScalaSubstitutor {
     }
   }
 
-  def appendAnnotation(sb: StringBuilder, mR: MatchResult, replAnno: ScAnnotation, profile: StructuralSearchProfile): Unit = {
+  def appendAnnotation(sb: StringBuilder, mR: MatchResult, replAnno: ScAnnotation, profile: StructuralSearchProfile): Boolean = {
     val annoName = replAnno.constructorInvocation.typeElement.getText
     if profile.isReplacementTypedVariable(annoName) then {
       mR.getChildren.asScala.find(_.getName == profile.stripReplacementTypedVariableDecorations(annoName)) match {
-        case None => throw MalformedPatternException(s"$annoName is not included in match results")
+        case None => false
         case Some(subR) =>
           if (subR.isMultipleMatch) {
             val it = subR.getChildren.iterator()
@@ -143,10 +154,12 @@ object ScalaSubstitutor {
             sb.append("@")
             sb.append(subR.getMatchImage)
           }
+          true
       }
     } else {
       sb.append("@")
       sb.append(annoName)
+      true
     }
   }
 }

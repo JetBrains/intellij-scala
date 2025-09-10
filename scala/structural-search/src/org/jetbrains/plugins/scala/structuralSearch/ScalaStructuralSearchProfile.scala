@@ -64,6 +64,7 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
         && isMaxApplicable(constraintName, variableNode, completePattern, target)
       case UIUtil.TYPE | UIUtil.TYPE_REGEX =>
         isTypeRegexApplicable(variableNode)
+      case UIUtil.TEXT_HIERARCHY => false
       case _ =>
         super.isApplicableConstraint(constraintName, variableNode, completePattern, target)
     }
@@ -193,14 +194,15 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
               }
             }
         }
-        if (parameter.hasInitializer) {
-          val initializer = parameter.getInitializer
-          if (profile.isReplacementTypedVariable(initializer.getText)) {
-            builder.findParameterization(initializer) match {
-              case null =>
-              case initInfo => putInformation(initInfo, initializer)
+        parameter.getDefaultExpression match {
+          case None =>
+          case Some(default) =>
+            if (profile.isReplacementTypedVariable(default.getText)) {
+              builder.findParameterization(default) match {
+                case null =>
+                case initInfo => putInformation(initInfo, default)
+              }
             }
-          }
         }
         for (anno <- parameter.annotations) {
           if (profile.isReplacementTypedVariable(anno.constructorInvocation.typeElement.getText)) {
@@ -249,6 +251,22 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
       }
     }
 
+    offset = Replacer.insertSubstitution(result, offset, info, sb.result())
+  }
+
+  override def handleNoSubstitution(info: ParameterInfo, result: lang.StringBuilder): Unit = {
+    val element: PsiElement = info.getElement
+    if (element == null) {
+      super.handleNoSubstitution(info, result)
+      return
+    }
+
+    var offset = 0
+    val sb = new StringBuilder()
+    element match {
+      case para: ScParameter => offset = ScalaSubstitutor.handleNoSubParameter(info, para, result, this)
+      case _ =>
+    }
     offset = Replacer.insertSubstitution(result, offset, info, sb.result())
   }
 }
