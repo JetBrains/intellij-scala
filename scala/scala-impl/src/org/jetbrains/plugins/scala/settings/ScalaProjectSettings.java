@@ -183,7 +183,7 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
   private boolean COMPILER_HIGHLIGHTING_SCALA3 = true;
   private boolean INCREMENTAL_HIGHLIGHTING = false;
   private boolean USE_COMPILER_RANGES = true;
-  private boolean USE_COMPILER_TYPES = false;
+  private boolean USE_COMPILER_TYPES = true;
 
   public static ScalaProjectSettings in(@NotNull Project project) {
     return getInstance(project);
