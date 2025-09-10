@@ -71,7 +71,7 @@
 
         <configurationType implementation="org.jetbrains.bsp.project.test.BspTestRunType"/>
 
-        <statusBarWidgetProvider implementation="org.jetbrains.bsp.BspServerWidgetProvider"/>
+        <statusBarWidgetFactory id="BSP" implementation="org.jetbrains.bsp.BspServerWidgetFactory" order="before ScalaCompileServer"/>
 
         <java.programPatcher implementation="org.jetbrains.bsp.project.test.environment.BspJvmEnvironmentProgramPatcher"/>
         <stepsBeforeRunProvider implementation="org.jetbrains.bsp.project.test.environment.BspFetchEnvironmentTaskProvider"/>

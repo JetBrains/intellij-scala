@@ -34,10 +34,10 @@ object SbtVersion {
     // NOTE: when updating the latest sbt version,
     // also update `Versions.sbtVersion` in `project/dependencies.scala` in project definition
     // (but let's keep it sbt 1.x for some time)
-    private val Sbt_1_11 = SbtVersion("1.11.5")
+    private val Sbt_1_11 = SbtVersion("1.11.6")
 
     val Sbt_1: SbtVersion = Sbt_1_11
-    val Sbt_2: SbtVersion = SbtVersion("2.0.0-RC3")
+    val Sbt_2: SbtVersion = SbtVersion("2.0.0-RC4")
     val Sbt_LatestIncludingUnreleased: SbtVersion = Sbt_2
 
     /**

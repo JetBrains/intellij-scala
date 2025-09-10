@@ -24,16 +24,16 @@ import scala.jdk.CollectionConverters._
 private final class BspServerWidget extends StatusBarWidget
   with StatusBarWidget.IconPresentation
   with Consumer[MouseEvent]
-  with BspServerWidgetProvider.UpdateWidgetListener {
+  with BspServerWidgetFactory.UpdateWidgetListener {
 
   private val connection: MessageBusConnection = ApplicationManager.getApplication.getMessageBus.connect()
   private var statusBar: StatusBar = _
 
-  override def ID(): String = BspServerWidgetProvider.ID
+  override def ID(): String = BspServerWidgetFactory.ID
 
   override def install(statusBar: StatusBar): Unit = {
     this.statusBar = statusBar
-    connection.subscribe(BspServerWidgetProvider.Topic, this)
+    connection.subscribe(BspServerWidgetFactory.Topic, this)
   }
 
   override def dispose(): Unit = {
@@ -43,8 +43,8 @@ private final class BspServerWidget extends StatusBarWidget
   override def getPresentation: StatusBarWidget.WidgetPresentation = this
 
   override def getIcon: Icon =
-    if (connectionsActive) BspServerWidgetProvider.IconRunning
-    else BspServerWidgetProvider.IconStopped
+    if (connectionsActive) BspServerWidgetFactory.IconRunning
+    else BspServerWidgetFactory.IconStopped
 
   override def getTooltipText: String = BspBundle.message("bsp.widget.bsp.connection")
 
@@ -121,13 +121,13 @@ private final class BspServerWidget extends StatusBarWidget
         new Runnable {
           override def run(): Unit = {
             if (commands.isEmpty) {
-              BspServerWidgetProvider.logger.info(s"BSP server exit command not set in '${BspCommunication.argvExit}' field")
+              BspServerWidgetFactory.logger.info(s"BSP server exit command not set in '${BspCommunication.argvExit}' field")
             } else {
-              BspServerWidgetProvider.logger.info(s"Running BSP server restart")
+              BspServerWidgetFactory.logger.info(s"Running BSP server restart")
             }
             val timeoutLength = 30
             commands.foreach { command =>
-              BspServerWidgetProvider.logger.info(s"Running comand: '${command.mkString(" ")}'")
+              BspServerWidgetFactory.logger.info(s"Running comand: '${command.mkString(" ")}'")
               val process = new ProcessBuilder(command.asJava).start()
               val timedOut = !process.waitFor(timeoutLength, TimeUnit.SECONDS)
               if (timedOut) {
@@ -136,14 +136,14 @@ private final class BspServerWidget extends StatusBarWidget
                 val title = s"Timeout when terminating BSP server after ${timeoutLength} seconds"
                 val stderr = s"[STDERR]\n${IOUtils.toString(process.getErrorStream, "UTF-8")}\n"
                 val stdout = s"[STDOUT]\n${IOUtils.toString(process.getInputStream, "UTF-8")}\n"
-                BspServerWidgetProvider.logger.error(s"$title\n $stderr\n $stdout")
+                BspServerWidgetFactory.logger.error(s"$title\n $stderr\n $stdout")
               }
             }
           }
         }
       )
     } catch {
-      case e: Throwable => BspServerWidgetProvider.logger.error(e)
+      case e: Throwable => BspServerWidgetFactory.logger.error(e)
     }
 
     override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT

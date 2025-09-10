@@ -1573,7 +1573,7 @@ class ReferenceComparisonTest_Scala3_Newest extends ReferenceComparisonTestBase(
   def test_i16105(): Unit = doTest("i16105", true)
   def test_i16119(): Unit = doTest("i16119", false)
   def test_i16123(): Unit = doTest("i16123", true)
-  def test_i16174(): Unit = doTest("i16174", false)
+  def test_i16174(): Unit = doTest("i16174", true)
   def test_i16183(): Unit = doTest("i16183", true)
   def test_i16186(): Unit = doTest("i16186", true)
   def test_i16208(): Unit = doTest("i16208", true)
@@ -1820,7 +1820,7 @@ class ReferenceComparisonTest_Scala3_Newest extends ReferenceComparisonTestBase(
   def test_i20136b(): Unit = doTest("i20136b", true) // #matchType
   def test_i20154(): Unit = doTest("i20154", true) // #opaque, #intersectionType, #unionType
   def test_i20166(): Unit = doTest("i20166", true) // #matchType
-  def test_i20176(): Unit = doTest("i20176", false)
+  def test_i20176(): Unit = doTest("i20176", true)
   def test_i20184(): Unit = doTest("i20184", true)
   def test_i20187(): Unit = doTest("i20187", true) // #enum
   def test_i20206(): Unit = doTest("i20206", false)
@@ -2193,7 +2193,7 @@ class ReferenceComparisonTest_Scala3_Newest extends ReferenceComparisonTestBase(
   def test_override(): Unit = doTest("override", true)
   def test_override_via_self(): Unit = doTest("override-via-self", true)
   def test_overrideDataRace(): Unit = doTest("overrideDataRace", true)
-  def test_overrides(): Unit = doTest("overrides", false)
+  def test_overrides(): Unit = doTest("overrides", true)
   def test_overzealous_assert_genbcode(): Unit = doTest("overzealous-assert-genbcode", true)
   def test_p11210_multiowner(): Unit = doTest("p11210-multiowner", true) // #unionType
   def test_p11210_refinement(): Unit = doTest("p11210-refinement", true)

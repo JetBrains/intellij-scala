@@ -1201,7 +1201,7 @@ class FewerBracesParserTest extends SimpleScala3ParserTestBase {
       |        PsiElement(identifier)('foo')
       |      PsiElement(:)(':')
       |      PsiWhiteSpace(' ')
-      |      PolymorhicFunctionType: [X] => (x: X) => x
+      |      PolymorphicFunctionType: [X] => (x: X) => x
       |        TypeParameterClause
       |          PsiElement([)('[')
       |          TypeParameter: X

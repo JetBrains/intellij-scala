@@ -220,11 +220,15 @@ private class ScalaDocContentWithSectionsGenerator(
     } else None
   }
 
-  private def parameterInfo(tag: ScDocTag): Option[ParamInfo] = {
-    val tagValue = Option(tag.getValueElement)
-    tagValue.map { tagValue =>
-      val tagDescription = newContentGenerator.tagDescriptionText(tag)
-      ParamInfo(tagValue.getText, tagDescription)
+  /**
+   * Handles @param and @tparam tags
+   */
+  private def parameterInfo(paramTag: ScDocTag): Option[ParamInfo] = {
+    val paramName = Option(paramTag.getValueElement)
+    paramName.map { paramName =>
+      val paramNameRendered = s"<code>${paramName.getText}</code>"
+      val tagDescription = newContentGenerator.tagDescriptionText(paramTag)
+      ParamInfo(paramNameRendered, tagDescription)
     }
   }
 
@@ -238,7 +242,7 @@ private class ScalaDocContentWithSectionsGenerator(
   }
 
   private def parameterInfosText(infos: Seq[ParamInfo]): String =
-    infos.map(p => s"${p.value} &ndash; ${p.description.trim}").mkString("<p>")
+    infos.map(p => s"${p.displayedValue} &ndash; ${p.description.trim}").mkString("<p>")
 
   /** @return true - if some content was added from inherited doc<br>
    *          false - otherwise */
@@ -286,6 +290,14 @@ private class ScalaDocContentWithSectionsGenerator(
 
 object ScalaDocContentWithSectionsGenerator {
   private case class Section(@Nls title: String, content: String)
-  // e.g. @throws Exception(value) condition(description)
-  private case class ParamInfo(value: String, @Nls description: String)
+
+  /**
+   * Describes @param, @tparam and @throws tag
+   *
+   * @param displayedValue the displayed value of the parameter name or exception link (it can be wrapped with extra html tags)
+   * @param description    parameter description
+   * @example `@throws Exception some condition`<br>
+   *          Here name ~ "Exception" and description ~ "some condition"
+   */
+  private case class ParamInfo(displayedValue: String, @Nls description: String)
 }

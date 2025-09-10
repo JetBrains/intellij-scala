@@ -308,6 +308,18 @@ trait ScalaTypePresentation extends TypePresentation {
       case namedType: NamedType => namedType.name
       case _: WildcardType => "?"
       case ScAbstractType(tpt, _, _) => tpt.name.capitalize + api.presentation.TypePresentation.ABSTRACT_TYPE_POSTFIX
+      case PolyFunctionType(sig, retType) =>
+        val typeParamsClause = sig.typeParams.map(_.name).mkString("[", ", ", "]")
+        val paramTypes       = sig.substitutedTypes.head.map(_.apply())
+
+        val paramClauseText =
+          if (paramTypes.size == 1) {
+            val param = paramTypes.head
+            if (param.is[ScMatchType]) s"(${innerTypeText(param)})"
+            else                       innerTypeText(param)
+          } else  paramTypes.map(innerTypeText(_)).mkString("(", ", ", ")")
+
+        s"$typeParamsClause => $paramClauseText => ${innerTypeText(retType)}"
       case TypeLambda(text)          => text
       case FunctionType(ret, params) if !t.isAliasType =>
         val paramsText = textOf(params)

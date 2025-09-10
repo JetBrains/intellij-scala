@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.compiler.ScalaCompilerTestBase.ListCompilerMe
 import org.jetbrains.plugins.scala.extensions.{PathExt, inWriteAction}
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.util.{CompilerTestUtil, RevertableChange, TestUtils}
+import org.jetbrains.sbt.SbtSourceSetUtil.SbtSourceSetModuleExt
 import org.jetbrains.sbt.project.{SbtCachesSetupUtil, SbtExternalSystemImportingTestLike}
 import org.junit.Assert.{assertTrue, fail}
 import org.junit.experimental.categories.Category
@@ -20,8 +21,6 @@ class CompileSimpleProjectWithSemanticDbTest extends SbtExternalSystemImportingT
 
   override protected lazy val getTestDataProjectPath: String =
     s"${TestUtils.getTestDataPath}/sbt/compilation/projects/${getTestName(true)}"
-
-  override protected def enableSeparateModulesForProdTest: Boolean = false
 
   override def setUp(): Unit = {
     super.setUp()
@@ -46,7 +45,7 @@ class CompileSimpleProjectWithSemanticDbTest extends SbtExternalSystemImportingT
   def testWithSemanticDb_Scala3(): Unit = {
     buildProjectAndCheckThatNoSemanticDbIsGeneratedInSrcFolder()
     import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt}
-    val module = this.getMyTestFixture.getProject.modules.find(m => !m.isBuildModule).get
+    val module = this.getMyTestFixture.getProject.modules.find(m => !m.isBuildModule && m.isMain).get
     assertTrue(
       "Custom compiler bridge is expected to be non empty for Scala 3 language in SBT projects (see SCL-21741)",
       module.customScalaCompilerBridgeJar.nonEmpty

@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.util.HashBuilder._
 /**
  * @param forceRefinement One would think `T` is completely equivalent to `T {}`, which is almost true,
  *                        except the compiler does not widen literal types inside compound types.
- *                        That means we cannot unconditionaly discard empty refinements.
+ *                        That means we cannot unconditionally discard empty refinements.
  */
 final case class ScCompoundType private (
   components:      Seq[ScType],

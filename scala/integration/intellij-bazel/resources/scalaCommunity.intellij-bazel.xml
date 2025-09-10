@@ -8,6 +8,9 @@
         <projectPostSyncHook implementation="org.jetbrains.plugins.scala.bazel.ScalaProjectSettingsConfigurePostSyncHook"/>
         <projectPostSyncHook implementation="org.jetbrains.plugins.scala.bazel.BazelScalaModuleConfiguratorPostSyncHook"/>
     </extensions>
+    <extensions defaultExtensionNs="org.jetbrains.sbt">
+        <buildToolModuleHandler implementation="org.jetbrains.plugins.scala.bazel.BazelModuleHandler"/>
+    </extensions>
     <extensions defaultExtensionNs="org.intellij.scala">
         <newScalaFileActionExtension implementation="org.jetbrains.plugins.scala.bazel.BazelNewScalaFileActionExtension"/>
     </extensions>

@@ -158,7 +158,7 @@ ScalaFile
               PsiElement(identifier)('polyFn')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          PolymorhicFunctionType: [C <: DependentPoly.this.Col[?]] => (x: C) => x.Wrapper
+          PolymorphicFunctionType: [C <: DependentPoly.this.Col[?]] => (x: C) => x.Wrapper
             TypeParameterClause
               PsiElement([)('[')
               TypeParameter: C

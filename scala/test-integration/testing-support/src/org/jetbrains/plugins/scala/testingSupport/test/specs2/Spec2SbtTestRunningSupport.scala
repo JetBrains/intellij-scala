@@ -18,8 +18,12 @@ private class Spec2SbtTestRunningSupport(testData: TestConfigurationData) extend
   override def modifySbtSettingsForUi(module: Module, comm: SbtShellCommunication): Future[SettingMap] = {
     val value = "Attributed(new File(\"" + ScalaPluginJars.runnersJar.toAbsolutePath.toString.replace("\\", "\\\\") + "\"))(AttributeMap.empty)"
     modifySbtSetting(
-      comm, module, SettingMap(), "fullClasspath", "test", "Test", value,
-      !_.contains(ScalaPluginJars.runnersJarName),
+      comm = comm,
+      module = module,
+      settings = SettingMap(),
+      setting = "fullClasspath",
+      value = value,
+      modificationCondition = !_.contains(ScalaPluginJars.runnersJarName),
       shouldRevert = false
     )
   }

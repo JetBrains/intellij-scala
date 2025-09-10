@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
@@ -322,7 +323,19 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
       case ta: ScTypeAlias =>
         if (recState.visitedProjections.contains(ta)) return true
         val newState = state.withSubstitutor(ScSubstitutor.empty)
-        processTypeImpl(s(ta.upperBound.getOrAny), place, newState)(recState.add(ta))
+
+        //Scala 3 allows rhs of a type alias to be both:
+        val upperBound = ta.upperBound.getOrAny match {
+          //Type lambda
+          //type X[A] = [A] =>> Foo[A]
+          case ScTypePolymorphicType(internal, _) => s(internal)
+          //Unapplied type constructor
+          //type X = MyTraitWithTypeParameters
+          case TypeConstructor(cons)              => s(cons.internalType)
+          case other                              => s(other)
+        }
+
+        processTypeImpl(upperBound, place, newState)(recState.add(ta))
       //need to process scala way
       case clazz: PsiClass =>
         processClassDeclarations(clazz, BaseProcessor.this, state.withSubstitutor(newSubst), null, place)

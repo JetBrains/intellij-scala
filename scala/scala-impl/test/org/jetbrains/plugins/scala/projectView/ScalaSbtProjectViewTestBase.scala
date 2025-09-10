@@ -13,8 +13,6 @@ import scala.jdk.CollectionConverters.ListHasAsScala
 
 abstract class ScalaSbtProjectViewTestBase extends SbtExternalSystemImportingTestLike {
 
-  override protected def enableSeparateModulesForProdTest = true
-
   override protected def copyTestProjectToTemporaryDir = true
 
   override protected def getTestDataProjectPath: String =

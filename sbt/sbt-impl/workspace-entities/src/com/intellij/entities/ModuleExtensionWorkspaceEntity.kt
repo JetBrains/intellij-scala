@@ -6,13 +6,14 @@ import com.intellij.platform.workspace.storage.EntityType
 import com.intellij.platform.workspace.storage.GeneratedCodeApiVersion
 import com.intellij.platform.workspace.storage.WorkspaceEntity
 import com.intellij.platform.workspace.storage.annotations.Abstract
-import com.intellij.platform.workspace.storage.annotations.Child
+import com.intellij.platform.workspace.storage.annotations.Parent
 
 /**
  * Abstract entity that other entities that need to have extension property to ModuleEntity can inherit from.
  */
 @Abstract
 interface ModuleExtensionWorkspaceEntity : WorkspaceEntity {
+  @Parent
   val module: ModuleEntity
 
   //region generated code
@@ -44,5 +45,5 @@ var ModuleEntity.Builder.moduleExtensionWorkspaceEntity: ModuleExtensionWorkspac
   by WorkspaceEntity.extensionBuilder(ModuleExtensionWorkspaceEntity::class.java)
 //endregion
 
-val ModuleEntity.moduleExtensionWorkspaceEntity: @Child ModuleExtensionWorkspaceEntity
+val ModuleEntity.moduleExtensionWorkspaceEntity: ModuleExtensionWorkspaceEntity
   by WorkspaceEntity.extension()

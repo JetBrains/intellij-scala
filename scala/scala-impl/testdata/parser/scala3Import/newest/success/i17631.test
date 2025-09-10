@@ -696,7 +696,7 @@ ScalaFile
               PsiElement(:)(':')
               PsiWhiteSpace(' ')
               ParameterType
-                PolymorhicFunctionType: [A] => A => Boolean
+                PolymorphicFunctionType: [A] => A => Boolean
                   TypeParameterClause
                     PsiElement([)('[')
                     TypeParameter: A
@@ -819,7 +819,7 @@ ScalaFile
         PsiWhiteSpace(' ')
         PsiElement(=)('=')
         PsiWhiteSpace(' ')
-        PolymorhicFunctionType: [T] => (l: L[T]) => T => l.E
+        PolymorphicFunctionType: [T] => (l: L[T]) => T => l.E
           TypeParameterClause
             PsiElement([)('[')
             TypeParameter: T
@@ -875,7 +875,7 @@ ScalaFile
         PsiWhiteSpace(' ')
         PsiElement(=)('=')
         PsiWhiteSpace(' ')
-        PolymorhicFunctionType: [T] => L[T] => T
+        PolymorphicFunctionType: [T] => L[T] => T
           TypeParameterClause
             PsiElement([)('[')
             TypeParameter: T
@@ -913,7 +913,7 @@ ScalaFile
         PsiWhiteSpace(' ')
         PsiElement(=)('=')
         PsiWhiteSpace(' ')
-        PolymorhicFunctionType: [T] => T => T
+        PolymorphicFunctionType: [T] => T => T
           TypeParameterClause
             PsiElement([)('[')
             TypeParameter: T
@@ -991,7 +991,7 @@ ScalaFile
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
     PsiWhiteSpace(' ')
-    PolymorhicFunctionType: [T] => (l: L[T]) => T => l.E
+    PolymorphicFunctionType: [T] => (l: L[T]) => T => l.E
       TypeParameterClause
         PsiElement([)('[')
         TypeParameter: T
@@ -1047,7 +1047,7 @@ ScalaFile
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
     PsiWhiteSpace(' ')
-    PolymorhicFunctionType: [T] => L[T] => T
+    PolymorphicFunctionType: [T] => L[T] => T
       TypeParameterClause
         PsiElement([)('[')
         TypeParameter: T
@@ -1085,7 +1085,7 @@ ScalaFile
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
     PsiWhiteSpace(' ')
-    PolymorhicFunctionType: [T] => T => T
+    PolymorphicFunctionType: [T] => T => T
       TypeParameterClause
         PsiElement([)('[')
         TypeParameter: T

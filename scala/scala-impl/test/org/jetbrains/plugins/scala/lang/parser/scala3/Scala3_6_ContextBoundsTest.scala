@@ -459,7 +459,7 @@ class Scala3_6_ContextBoundsTest extends SimpleScala3ParserTestBase {
       |    PsiWhiteSpace(' ')
       |    PsiElement(=)('=')
       |    PsiWhiteSpace(' ')
-      |    PolymorhicFunctionType: [X: Ord as o] => (X, X) => Int
+      |    PolymorphicFunctionType: [X: Ord as o] => (X, X) => Int
       |      TypeParameterClause
       |        PsiElement([)('[')
       |        TypeParameter: X

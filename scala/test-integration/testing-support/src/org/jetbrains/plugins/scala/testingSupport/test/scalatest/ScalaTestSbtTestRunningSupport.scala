@@ -20,7 +20,22 @@ private class ScalaTestSbtTestRunningSupport extends SbtTestRunningSupportBase {
 
   override def modifySbtSettingsForUi(module: Module, comm: SbtShellCommunication): Future[SettingMap] =
     for {
-      x <- modifySbtSetting(comm, module, SettingMap(), "testOptions", "test", "Test", """Tests.Argument(TestFrameworks.ScalaTest, "-oDU")""", !_.contains("-oDU"))
-      y <- modifySbtSetting(comm, module, x, "parallelExecution", "test", "Test", "false", !_.contains("false"), shouldSet = true)
+      x <- modifySbtSetting(
+        comm = comm,
+        module = module,
+        settings = SettingMap(),
+        setting = "testOptions",
+        value = """Tests.Argument(TestFrameworks.ScalaTest, "-oDU")""",
+        modificationCondition = !_.contains("-oDU")
+      )
+      y <- modifySbtSetting(
+        comm = comm,
+        module = module,
+        settings = x,
+        setting = "parallelExecution",
+        value = "false",
+        modificationCondition = !_.contains("false"),
+        shouldSet = true
+      )
     } yield y
 }

@@ -43,7 +43,7 @@ ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" 
 Global / intellijAttachSources := true
 
 // Muted lint warnings for keys used by the IDE, but not by sbt (coming from sbt-ide-settings)
-Global / excludeLintKeys ++= Set(idePackagePrefix, ideSkipProject, ideExcludedDirectories, ideaConfigOptions)
+Global / excludeLintKeys ++= Set(idePackagePrefix, ideSkipProject, ideExcludedDirectories, ideaConfigOptions, intellijPlugins)
 
 val definedTestsScopeFilter: ScopeFilter =
   ScopeFilter(inDependencies(scalaCommunity, includeRoot = false), inConfigurations(Test))
@@ -179,136 +179,53 @@ lazy val worksheet =
     .dependsOn(
       bsp,
       compilerIntegration % "test->test;compile->compile",
-      worksheetReplInterface % "test->test;compile->compile",
+      worksheetReplInterface,
       repl % "test->test;compile->compile", //do we indeed need this dependency on Scala REPL? can we get rid of it?
     ).settings(
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.worksheet")
     )
 
+// A subproject which exists only to hold a precompiled jar in its `lib` directory.
 lazy val worksheetReplInterface =
-  Project("worksheet-repl-interface", file("scala/worksheet-repl-interface"))
-    .settings(projectDirectoriesSettings)
-    .settings(
-      name := "worksheet-repl-interface",
-      organization := "JetBrains",
-      // NOTE: we might continue NOT using Scala in scalatestFinders just in case
-      // in some future we will decide again to extract the library, so as it can be used even without scala jar
-      scalaVersion := Versions.scalaVersion,
-      crossPaths := false, // disable using the Scala version in output paths and artifacts
-      autoScalaLibrary := false, // removes Scala dependency
-      (Compile / javacOptions) := outOfIDEAProcessJavacOptions, // can run in the compile server
-      (Compile / scalacOptions) := Seq.empty, // scala is disabled anyway, set empty options to move to a separate compiler profile (in IntelliJ model)
-      packageMethod :=  PackagingMethod.Standalone("lib/repl-interface.jar", static = true),
-      intellijMainJars := Seq.empty,
-      intellijTestJars := Seq.empty,
-      intellijPlugins := Seq.empty
-    )
-    .settings(compilationCacheSettings)
-
-lazy val worksheetReplInterfaceImpls: Project =
-  newProject("worksheet-repl-interface-impls", file("scala/worksheet-repl-interface-impls"))
+  Project("worksheet-repl-interface", file("scala/worksheet/repl-interface"))
     .settings(NoSourceDirectories)
     .settings(
-      (Compile / javacOptions) := outOfIDEAProcessJavacOptions,
-      (Compile / scalacOptions) := outOfIDEAProcessScalacOptions,
+      organization := JetBrains,
       crossPaths := false,
-      packageMethod := PackagingMethod.Standalone("worksheet-repl-interface/impls.jar", static = true),
-      packageAdditionalProjects := Seq(
-//        worksheetReplInterfaceImpl_2_12,
-        worksheetReplInterfaceImpl_2_12_13,
-//        worksheetReplInterfaceImpl_2_13_0,
-        worksheetReplInterfaceImpl_2_13,
-        worksheetReplInterfaceImpl_2_13_12,
-        worksheetReplInterfaceImpl_3_0_0,
-        worksheetReplInterfaceImpl_3_1_2,
-        worksheetReplInterfaceImpl_3_3_0
-      )
+      autoScalaLibrary := false,
+      ideSkipProject := true,
+      intellijMainJars := Seq.empty,
+      intellijTestJars := Seq.empty,
+      intellijPlugins := Seq.empty,
+      // Settings for packaging unmanaged jar dependencies in the plugin (jar files in the `lib` project directory).
+      // Without this definition of `packageFileMappings`, the unmanaged jar dependencies are ignored.
+      packageMethod := PackagingMethod.DepsOnly(),
+      packageFileMappings := {
+        val unmanagedJars = ((Compile / unmanagedBase).value ** "*.jar").get()
+        unmanagedJars.map(f => (f, s"lib/${f.getName}"))
+      }
     )
 
-def worksheetReplInterfaceImplCommonSettings(scalaVer: String): Seq[Setting[?]] = Seq(
-  scalaVersion := scalaVer,
-  crossPaths := false,
-  // protobuf-java is excluded to avoid showing outdated vulnerable dependencies, and it is also not necessary for
-  // compiling the worksheet repl interfaces
-  libraryDependencies += {
-    if (scalaVer.startsWith("3."))
-      "org.scala-lang" %% "scala3-compiler" % scalaVer % Provided exclude("com.google.protobuf", "protobuf-java")
-    else
-      "org.scala-lang" % "scala-compiler" % scalaVer % Provided
-  },
-  // override the Scala 2.13 library dependency in the Scala 3 worksheet repl interfaces
-  // this avoids showing outdated vulnerable dependencies
-  dependencyOverrides := {
-    if (scalaVer.startsWith("3.")) Seq("org.scala-lang" % "scala-library" % Versions.scalaVersion)
-    else Seq.empty
-  },
-  (Compile / javacOptions) := outOfIDEAProcessJavacOptions,
-  (Compile / scalacOptions) := Seq("-release", "8"),
-  packageMethod := PackagingMethod.MergeIntoOther(worksheetReplInterfaceImpls),
-  intellijMainJars := Seq.empty,
-  intellijTestJars := Seq.empty,
-  intellijPlugins := Seq.empty
-)
-
-//lazy val worksheetReplInterfaceImpl_2_12: Project =
-//  newProject("worksheet-repl-interface-impl_2_12", file("scala/worksheet-repl-interface-impls/impl_2_12"))
-//    .dependsOn(worksheetReplInterface)
-//    .settings(
-//      worksheetReplInterfaceImplCommonSettings("2.12.12"),
-//      (Compile / scalacOptions) := Seq("-target:jvm-1.8") // Old version of Scala 2.12 does not have the modern compiler flags
-//    )
-//    .settings(
-//      libraryDependencies ++= Seq(
-//        compilerPlugin("com.github.ghik" % "silencer-plugin" % "1.7.1" cross CrossVersion.full),
-//        "com.github.ghik" % "silencer-lib" % "1.7.1" % Provided cross CrossVersion.full
-//      ),
-//      (Compile / scalacOptions) += "-deprecation",
-//      // This is a workaround for manually enabling the `silencer-plugin` scalac compiler plugin. For some reason,
-//      // automatic enabling doesn't work (the scalacOption "-Xplugin:" was not added).
-//      // The silencer plugin is needed because this subproject is compiled using Scala 2.12.12 which did not have
-//      // support for `@scala.annotation.nowarn`.
-//      autoCompilerPlugins := false,
-//      ivyConfigurations += Configurations.CompilerPlugin,
-//      (Compile / scalacOptions) ++= Classpaths.autoPlugins(update.value, Seq.empty, isDotty = false)
-//    )
-
-lazy val worksheetReplInterfaceImpl_2_12_13: Project =
-  newProject("worksheet-repl-interface-impl_2_12_13", file("scala/worksheet-repl-interface-impls/impl_2_12_13"))
-    .dependsOn(worksheetReplInterface)
+// A subproject which exists only to hold a precompiled jar in its `lib` directory.
+lazy val worksheetReplInterfaceImpls =
+  Project("worksheet-repl-interface-impls", file("scala/worksheet/repl-interface/impls"))
+    .settings(NoSourceDirectories)
     .settings(
-      worksheetReplInterfaceImplCommonSettings("2.12.18"),
-      (Compile / scalacOptions) += "-deprecation"
+      organization := JetBrains,
+      crossPaths := false,
+      autoScalaLibrary := false,
+      ideSkipProject := true,
+      intellijMainJars := Seq.empty,
+      intellijTestJars := Seq.empty,
+      intellijPlugins := Seq.empty,
+      // Settings for packaging unmanaged jar dependencies in the plugin (jar files in the `lib` project directory).
+      // Without this definition of `packageFileMappings`, the unmanaged jar dependencies are ignored.
+      packageMethod := PackagingMethod.DepsOnly(),
+      packageFileMappings := {
+        val unmanagedJars = ((Compile / unmanagedBase).value ** "*.jar").get()
+        unmanagedJars.map(f => (f, s"worksheet-repl-interface/${f.getName}"))
+      }
     )
-
-//lazy val worksheetReplInterfaceImpl_2_13_0: Project =
-//  newProject("worksheet-repl-interface-impl_2_13_0", file("scala/worksheet-repl-interface-impls/impl_2_13_0"))
-//    .dependsOn(worksheetReplInterface)
-//    .settings(worksheetReplInterfaceImplCommonSettings("2.13.0"))
-
-lazy val worksheetReplInterfaceImpl_2_13: Project =
-  newProject("worksheet-repl-interface-impl_2_13", file("scala/worksheet-repl-interface-impls/impl_2_13"))
-    .dependsOn(worksheetReplInterface)
-    .settings(worksheetReplInterfaceImplCommonSettings("2.13.11"))
-
-lazy val worksheetReplInterfaceImpl_2_13_12: Project =
-  newProject("worksheet-repl-interface-impl_2_13_12", file("scala/worksheet-repl-interface-impls/impl_2_13_12"))
-    .dependsOn(worksheetReplInterface)
-    .settings(worksheetReplInterfaceImplCommonSettings("2.13.12"))
-
-lazy val worksheetReplInterfaceImpl_3_0_0: Project =
-  newProject("worksheet-repl-interface-impl_3_0_0", file("scala/worksheet-repl-interface-impls/impl_3_0_0"))
-    .dependsOn(worksheetReplInterface)
-    .settings(worksheetReplInterfaceImplCommonSettings("3.1.1"))
-
-lazy val worksheetReplInterfaceImpl_3_1_2: Project =
-  newProject("worksheet-repl-interface-impl_3_1_2", file("scala/worksheet-repl-interface-impls/impl_3_1_2"))
-    .dependsOn(worksheetReplInterface)
-    .settings(worksheetReplInterfaceImplCommonSettings("3.2.2"))
-
-lazy val worksheetReplInterfaceImpl_3_3_0: Project =
-  newProject("worksheet-repl-interface-impl_3_3_0", file("scala/worksheet-repl-interface-impls/impl_3_3_0"))
-    .dependsOn(worksheetReplInterface)
-    .settings(worksheetReplInterfaceImplCommonSettings("3.3.1"))
 
 lazy val structureView = newProject("structure-view", file("scala/structure-view"))
   .dependsOn(scalaImpl % "test->test;compile->compile")
@@ -334,7 +251,7 @@ lazy val tastyReader = Project("tasty-reader", file("scala/tasty-reader"))
   .settings(projectDirectoriesSettings)
   .settings(
     name := "tasty-reader",
-    organization := "JetBrains",
+    organization := JetBrains,
     idePackagePrefix := Some("org.jetbrains.plugins.scala.tasty.reader"),
     intellijMainJars := Seq.empty,
     intellijTestJars := Seq.empty,
@@ -507,24 +424,67 @@ lazy val compileServer =
       packageLibraryMappings += Dependencies.nailgun -> Some("lib/jps/nailgun.jar")
     )
 
+// Compiler plugins
+
+def compilerPluginProject(
+  projectName: String,
+  projectPath: File,
+  scalaCompilerVersion: String,
+  extraScalacOptions: Seq[String],
+  packagingOutputPath: String
+): sbt.Project =
+  Project(projectName, projectPath)
+    .disablePlugins(SbtIdeaPluginExtension)
+    .settings(
+      name := projectName,
+      organization := JetBrains,
+      intellijPlugins := Seq.empty,
+      scalaVersion := scalaCompilerVersion,
+      libraryDependencies += {
+        val artifact = scalaCompilerVersion match {
+          case scala3 if scala3.startsWith("3.") => "org.scala-lang" %% "scala3-compiler" % scala3
+          case scala2 => "org.scala-lang" % "scala-compiler" % scala2
+        }
+        artifact % Provided
+      },
+      libraryDependencies ++= Seq(
+        Dependencies.jetbrainsAnnotations % Provided,
+        Dependencies.junit % Test,
+        Dependencies.junitInterface % Test,
+        Dependencies.opentest4j % Test
+      ),
+      Compile / scalacOptions := Seq("--release", "8") ++ extraScalacOptions,
+      packageMethod := PackagingMethod.Standalone(packagingOutputPath),
+      Test / fork := true
+    )
+    .settings(projectDirectoriesSettings)
+    .settings(compilationCacheSettings)
+
 lazy val scalaCompilerPlugin_2_12: sbt.Project =
-  newPlainScalaProject("compiler-plugin-2_12", file("scala/compiler-plugin/scala-2.12")).settings(
-    scalaVersion := "2.12.20", libraryDependencies += "org.scala-lang" % "scala-compiler" % "2.12.20",
-    Compile / scalacOptions := Seq("-deprecation", "--release", "8"),
-    packageMethod := PackagingMethod.Standalone("lib/jps/compiler-plugin-2.12.jar"),
+  compilerPluginProject(
+    projectName = "compiler-plugin-2_12",
+    projectPath = file("scala/compiler-plugin/scala-2.12"),
+    scalaCompilerVersion = "2.12.20",
+    extraScalacOptions = Seq("-deprecation"),
+    packagingOutputPath = "lib/jps/compiler-plugin-2.12.jar"
   )
 
 lazy val scalaCompilerPlugin_2_13: sbt.Project =
-  newPlainScalaProject("compiler-plugin-2_13", file("scala/compiler-plugin/scala-2.13")).settings(
-    scalaVersion := "2.13.15", libraryDependencies += "org.scala-lang" % "scala-compiler" % "2.13.15",
-    Compile / scalacOptions := Seq("-deprecation", "--release", "8"),
-    packageMethod := PackagingMethod.Standalone("lib/jps/compiler-plugin-2.13.jar"),
+  compilerPluginProject(
+    projectName = "compiler-plugin-2_13",
+    projectPath = file("scala/compiler-plugin/scala-2.13"),
+    scalaCompilerVersion = "2.13.15",
+    extraScalacOptions = Seq("-deprecation"),
+    packagingOutputPath = "lib/jps/compiler-plugin-2.13.jar"
   )
 
 lazy val scalaCompilerPlugin_3_3: sbt.Project =
-  newPlainScalaProject("compiler-plugin-3_3", file("scala/compiler-plugin/scala-3.3")).settings(
-    scalaVersion := "3.3.6", libraryDependencies += "org.scala-lang" %% "scala3-compiler" % "3.3.6", Compile / scalacOptions := Seq("--release", "8"),
-    packageMethod := PackagingMethod.Standalone("lib/jps/compiler-plugin-3.3.jar"),
+  compilerPluginProject(
+    projectName = "compiler-plugin-3_3",
+    projectPath = file("scala/compiler-plugin/scala-3.3"),
+    scalaCompilerVersion = "3.3.6",
+    extraScalacOptions = Seq.empty,
+    packagingOutputPath = "lib/jps/compiler-plugin-3.3.jar"
   )
 
 lazy val scalaCompilerPluginTests: sbt.Project =
@@ -631,7 +591,7 @@ lazy val scalatestFindersRootDir = file("scala/test-integration/scalatest-finder
 lazy val scalatestFinders = Project("scalatest-finders", scalatestFindersRootDir)
   .settings(
     name := "scalatest-finders",
-    organization := "JetBrains",
+    organization := JetBrains,
     scalaVersion := Versions.scalaVersion,
     // NOTE: we might continue NOT using Scala in scalatestFinders just in case
     // in some future we will decide again to extract the library, so as it can be used even without scala jar
@@ -656,7 +616,7 @@ lazy val scalatestFindersTests_2 = Project("scalatest-finders-tests-2", scalates
   .dependsOn(scalatestFinders)
   .settings(
     name := "scalatest-finders-tests-2",
-    organization := "JetBrains",
+    organization := JetBrains,
     scalatestFindersTestSettings,
     scalaVersion := "2.11.12",
     libraryDependencies := Seq("org.scalatest" %% "scalatest" % scalatestLatest_2 % Test),
@@ -669,7 +629,7 @@ lazy val scalatestFindersTests_3_0 = Project("scalatest-finders-tests-3_0", scal
   .dependsOn(scalatestFinders)
   .settings(
     name := "scalatest-finders-tests-3_0",
-    organization := "JetBrains",
+    organization := JetBrains,
     scalatestFindersTestSettings,
     scalaVersion := "2.12.20",
     libraryDependencies := Seq("org.scalatest" %% "scalatest" % scalatestLatest_3_0 % Test),
@@ -682,7 +642,7 @@ lazy val scalatestFindersTests_3_2 = Project("scalatest-finders-tests-3_2", scal
   .dependsOn(scalatestFinders)
   .settings(
     name := "scalatest-finders-tests-3_2",
-    organization := "JetBrains",
+    organization := JetBrains,
     scalatestFindersTestSettings,
     scalaVersion := Versions.scalaVersion,
     libraryDependencies := Seq("org.scalatest" %% "scalatest" % scalatestLatest_3_2 % Test),
@@ -935,7 +895,7 @@ lazy val runtimeDependencies = project.in(file("target/tools/runtime-dependencie
   .settings(NoSourceDirectories)
   .settings(
     name := "runtimeDependencies",
-    organization := "JetBrains",
+    organization := JetBrains,
     scalaVersion := Versions.scalaVersion,
     autoScalaLibrary := false,
     resolvers += Classpaths.sbtPluginReleases,
@@ -1064,3 +1024,9 @@ addCommandAlias("runFastTests", runFastTestsInTC("*"))
 addCommandAlias("runFastTestsComIntelliJ", runFastTestsInTC("com.intellij.*"))
 addCommandAlias("runFastTestsOrgJetbrains", runFastTestsInTC("org.jetbrains.*"))
 addCommandAlias("runFastTestsScala", runFastTestsInTC("scala.*"))
+
+// Compiler plugin tests command definitions.
+addCommandAlias("runCompilerPluginTests-2_12", "compiler-plugin-2_12/testOnly -- -v -s -a +c +q")
+addCommandAlias("runCompilerPluginTests-2_13", "compiler-plugin-2_13/testOnly -- -v -s -a +c +q")
+addCommandAlias("runCompilerPluginTests-3_3", "compiler-plugin-3_3/testOnly -- -v -s -a +c +q")
+addCommandAlias("runCompilerPluginTests", "runCompilerPluginTests-2_12; runCompilerPluginTests-2_13; runCompilerPluginTests-3_3")

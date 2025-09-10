@@ -13,7 +13,7 @@ trait ScParenthesizedElement extends ScalaPsiElement {
     */
   def innerElement: Option[Kind]
 
-  /** Check if parent of this element is of same kind*/
+  /** Check if the parent of this element is of the same kind*/
   def sameTreeParent: Option[Kind]
 }
 

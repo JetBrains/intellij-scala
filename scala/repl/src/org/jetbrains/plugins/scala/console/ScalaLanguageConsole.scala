@@ -70,7 +70,7 @@ class ScalaLanguageConsole(module: Module, language: Language)
     val newState = stateFor(text, contentType)
 
     if (Log.isDebugEnabled) {
-      val tid = Thread.currentThread().getId
+      val tid = Thread.currentThread().threadId()
       val stateTransferMessage = f"${state.getClass.getSimpleName}%23s -> ${newState.getClass.getSimpleName}%-23s"
       Log.debug(f"# $tid%5s $stateTransferMessage content type: $contentType%-25s text: $text".stripTrailing())
     }

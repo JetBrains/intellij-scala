@@ -1,7 +1,6 @@
 package org.jetbrains.sbt.project
 
 import com.intellij.testFramework.fixtures.IdeaTestFixtureFactory
-import org.jetbrains.plugins.scala.extensions.PathExt
 
 class SbtShellProjectStructureImportingTest extends SbtProjectStructureImportingTestBase_ProdTestSourcesSeparated {
 
@@ -14,6 +13,4 @@ class SbtShellProjectStructureImportingTest extends SbtProjectStructureImporting
     setMyTestFixture(IdeaTestFixtureFactory.getFixtureFactory.createFixtureBuilder(getName, getTestProjectPath, useDirectoryBasedStorageFormat()).getFixture)
     getMyTestFixture.setUp()
   }
-
-//  override protected def getProjectPath: String = getTestProjectPath.toCanonicalPath.toString
 }

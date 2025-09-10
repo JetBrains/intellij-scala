@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiNamedElementExt, PsiTypeExt}
+import org.jetbrains.plugins.scala.extensions.{IterableExt, ObjectExt, PsiElementExt, PsiNamedElementExt, PsiTypeExt}
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.KindProjectorUtil.{Lambda, LambdaSymbolic}
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
@@ -33,7 +33,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor._
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.{Scala_2_12, Scala_2_13, Scala_3_0}
-import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
+import org.jetbrains.plugins.scala.util.{CommonQualifiedNames, ScEquivalenceUtil}
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
@@ -262,14 +262,44 @@ class ExpectedTypesImpl extends ExpectedTypes {
 
     def fromPolyFunction(tyParams: Seq[ScTypeParam])(tp: ParameterType): Array[ParameterType] = {
       tp._1 match {
-        case ScTypePolymorphicType(bodyType, pParams) =>
+        case PolyFunctionType(sig, retType) =>
           // match
           //   [pParams..] => bodyType
           //   [tyParams..] => ...
           // so
           // substitute bodyType[pParams.. -> tyParams..]
-          val substitutor = ScSubstitutor.bind(pParams, tyParams)(p => TypeParameterType(TypeParameter(p)))
-          val result = substitutor(bodyType)
+          val pParams = sig.typeParams
+
+          val bodyType = {
+            val paramTypes = sig.substitutedTypes.head.map(_.apply())
+            FunctionType((retType, paramTypes))(expr.elementScope, Context.Empty)
+          }
+
+          //val f2: [T, S] => T => S => Unit = [_, _] => x => y => ???
+          //Above is valid scala, which would naively be translated into
+          //scala.PolyFunction { def apply[_, _](x: _): Function1[_, Unit]
+          //which is not a valid scala snippet, so just introduce fresh names for
+          //type parameters named _ here.
+          val renameUnderscoreTypeParams =
+            tyParams.mapWithIndex {
+              case (tParam, idx) =>
+                val renamed =
+                  if (tParam.name == "_") {
+                    TypeParameterType(
+                      TypeParameter.light(
+                        s"_$$$idx",
+                        tParam.typeParameters.map(TypeParameter.apply),
+                        tParam.lowerBound.getOrNothing,
+                        tParam.upperBound.getOrAny
+                      )
+                    )
+                  } else TypeParameterType(tParam)
+                tParam -> renamed
+            }.to(Map)
+
+          val bindTypeParams = ScSubstitutor.bind(pParams, tyParams)(p => TypeParameterType(TypeParameter(p)))
+          val fullSubst = bindTypeParams.followed(ScSubstitutor.bind(tyParams)(renameUnderscoreTypeParams))
+          val result = fullSubst(bodyType)
           Array((result, None))
         case _ =>
           Array.empty

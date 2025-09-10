@@ -61,4 +61,14 @@ class Scala3CompletionTest extends ScalaCompletionTestBase {
     invocationCount = 2,
     completionType = CompletionType.SMART
   )("blubUsing.xxx")
+
+  def testSCL22693(): Unit = checkLookupItemsExist(
+    s"""
+       |object A {
+       |  type MapStrV = [V] =>> Map[String, V]
+       |  val map: MapStrV[Int] = Map("ok" -> 1)
+       |  map.$CARET
+       |}
+       |""".stripMargin
+  )("values")
 }

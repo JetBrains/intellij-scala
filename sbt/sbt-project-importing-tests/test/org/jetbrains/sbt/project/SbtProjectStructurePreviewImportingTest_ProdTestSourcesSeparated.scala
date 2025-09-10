@@ -9,8 +9,6 @@ class SbtProjectStructurePreviewImportingTest_ProdTestSourcesSeparated extends S
 
   import ProjectStructureDsl._
 
-  override protected def enableSeparateModulesForProdTest = true
-
   override protected def isPreview = true
 
   // https://youtrack.jetbrains.com/issue/SCL-24181

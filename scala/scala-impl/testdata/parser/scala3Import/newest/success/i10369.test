@@ -87,7 +87,7 @@ ScalaFile
         PsiElement(identifier)('upgrade2')
     PsiElement(:)(':')
     PsiWhiteSpace(' ')
-    PolymorhicFunctionType: [t] => t => Upgrade[t]
+    PolymorphicFunctionType: [t] => t => Upgrade[t]
       TypeParameterClause
         PsiElement([)('[')
         TypeParameter: t

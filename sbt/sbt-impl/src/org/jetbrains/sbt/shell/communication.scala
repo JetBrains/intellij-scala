@@ -7,12 +7,13 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import org.jetbrains.annotations.ApiStatus.Internal
-import org.jetbrains.annotations.{NonNls, TestOnly}
+import org.jetbrains.annotations.{ApiStatus, NonNls, TestOnly}
 import org.jetbrains.ide.PooledThreadExecutor
 import org.jetbrains.plugins.scala.extensions.LoggerExt
 import org.jetbrains.sbt.shell.LineListener.{LineSeparatorRegex, escapeNewLines}
 import org.jetbrains.sbt.shell.SbtProcessUtil._
 import org.jetbrains.sbt.shell.SbtShellCommunication._
+import org.jetbrains.sbt.{SbtUtil, SbtVersion}
 
 import java.util.concurrent._
 import java.util.concurrent.atomic.{AtomicBoolean, AtomicReference}
@@ -28,6 +29,7 @@ import scala.util.{Success, Try}
  * Service for connecting with an sbt shell associated with project.
  */
 @Service(Array(Service.Level.PROJECT))
+@ApiStatus.Internal()
 final class SbtShellCommunication(project: Project) {
 
   private lazy val process: SbtProcessManager = SbtProcessManager.forProject(project)
@@ -62,6 +64,15 @@ final class SbtShellCommunication(project: Project) {
    */
   private val emptyingQueueFuture = new AtomicReference[CompletableFuture[Unit]](null)
 
+  /**
+   * @return sbt version of the running sbt shell (if it's already running)<br>
+   *         OR detected sbt version from project/build.properties
+   */
+  def getRunningOrDetectedSbtVersion: SbtVersion = {
+    val sbtVersionRunning = process.sbtVersionUsedDuringProcessStart
+    sbtVersionRunning.getOrElse(SbtUtil.detectSbtVersion(project))
+  }
+
   /** Queue an sbt command for execution in the sbt shell, returning a Future[String] containing the entire shell output. */
   def command(cmd: String): Future[String] =
     command(cmd, new StringBuilder(), messageAggregator).map(_.toString())
@@ -94,9 +105,6 @@ final class SbtShellCommunication(project: Project) {
    */
   private def moveAccumulatedCommandsToStandardQueue(): Int =
     afterRestartCommands.drainTo(commands)
-
-  //TODO: delete unused
-  def sendSigInt(): Unit = process.sendSigInt()
 
   /**
     * Send string directly to the shell without regarding the shell state.

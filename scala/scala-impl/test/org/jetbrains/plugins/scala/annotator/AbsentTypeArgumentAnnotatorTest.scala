@@ -177,6 +177,24 @@ final class AbsentTypeArgumentAnnotatorTest_Scala3 extends AbsentTypeArgumentAnn
         |""".stripMargin
     ))
 
+  override def testParentheses(): Unit = {
+    assertMatches(messagesInContext("type T = (A1)[Int]")) {
+      case Nil =>
+    }
+
+    assertMatches(messagesInContext("type T = ((A1))[Int]")) {
+      case Nil =>
+    }
+
+    assertMatches(messagesInContext("type T = (A1)")) {
+      case Nil =>
+    }
+
+    assertMatches(messagesInContext("type T = ((A1))")) {
+      case Nil =>
+    }
+  }
+
 
   def test_TraitConstructor(): Unit = {
     //trait

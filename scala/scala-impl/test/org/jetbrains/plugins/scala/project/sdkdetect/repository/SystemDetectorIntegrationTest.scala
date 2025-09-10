@@ -12,7 +12,7 @@ import org.junit.Assert._
 import org.junit.Test
 import org.junit.runner.RunWith
 
-import java.net.URL
+import java.net.URI
 import java.nio.file.{Files, Path}
 import scala.annotation.unused
 import scala.collection.immutable.ListSet
@@ -125,7 +125,7 @@ class SystemDetectorIntegrationTest extends ScalaLightCodeInsightFixtureTestCase
   }
 
   private def downloadScalaDistribution(urlString: String, baseTempDir: Path): Path = {
-    val fileName = Path.of(new URL(urlString).getPath).getFileName.toString
+    val fileName = Path.of(new URI(urlString).toURL.getPath).getFileName.toString
     val targetFilePath = baseTempDir.resolve(fileName)
 
     if (Files.exists(targetFilePath) && Files.size(targetFilePath) > 0) {

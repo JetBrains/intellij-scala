@@ -30,7 +30,7 @@ package object api {
 
       for {
         tc      <- canBeEtaExpanded
-        des     <- tc.extractDesignated(false)
+        des     <- tc.extractDesignated(expandAliases = false)
         tparams <- extractTypeParams(des)
         if tparams.nonEmpty
       } yield {

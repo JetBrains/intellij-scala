@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.settings;
 
 import com.intellij.lang.java.JavaLanguage;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.components.*;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
@@ -12,14 +11,12 @@ import com.intellij.util.xmlb.Converter;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.intellij.util.xmlb.annotations.MapAnnotation;
 import com.intellij.util.xmlb.annotations.OptionTag;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaLanguage;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -186,7 +183,7 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
   private boolean COMPILER_HIGHLIGHTING_SCALA3 = true;
   private boolean INCREMENTAL_HIGHLIGHTING = false;
   private boolean USE_COMPILER_RANGES = true;
-  private boolean USE_COMPILER_TYPES = false;
+  private boolean USE_COMPILER_TYPES = true;
 
   public static ScalaProjectSettings in(@NotNull Project project) {
     return getInstance(project);
@@ -204,11 +201,6 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
   @Override
   public void loadState(@NotNull ScalaProjectSettings scalaProjectSettings) {
     XmlSerializerUtil.copyBean(scalaProjectSettings, this);
-  }
-
-  @NotNull
-  public File[] getExportFiles() {
-    return new File[]{PathManager.getOptionsFile("scala_project_settings")};
   }
 
   @NotNull

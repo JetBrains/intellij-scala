@@ -91,7 +91,7 @@ ScalaFile
         PsiElement(identifier)('pongBehavior')
     PsiElement(:)(':')
     PsiWhiteSpace(' ')
-    PolymorhicFunctionType: [O] => (Unit, PingMessage[O]) => (Unit, O)
+    PolymorphicFunctionType: [O] => (Unit, PingMessage[O]) => (Unit, O)
       TypeParameterClause
         PsiElement([)('[')
         TypeParameter: O

@@ -233,7 +233,7 @@ ScalaFile
         PsiElement(identifier)('less0')
     PsiElement(:)(':')
     PsiWhiteSpace(' ')
-    PolymorhicFunctionType: [X: Ord] => (X, X) => Boolean
+    PolymorphicFunctionType: [X: Ord] => (X, X) => Boolean
       TypeParameterClause
         PsiElement([)('[')
         TypeParameter: X
@@ -379,7 +379,7 @@ ScalaFile
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
     PsiWhiteSpace(' ')
-    PolymorhicFunctionType: [X] => X => Ord[X] ?=> Boolean
+    PolymorphicFunctionType: [X] => X => Ord[X] ?=> Boolean
       TypeParameterClause
         PsiElement([)('[')
         TypeParameter: X
@@ -425,7 +425,7 @@ ScalaFile
         PsiElement(identifier)('less1_type_test')
     PsiElement(:)(':')
     PsiWhiteSpace(' ')
-    PolymorhicFunctionType: [X: Ord] => (X, X) => Boolean
+    PolymorphicFunctionType: [X: Ord] => (X, X) => Boolean
       TypeParameterClause
         PsiElement([)('[')
         TypeParameter: X
@@ -641,7 +641,7 @@ ScalaFile
         PsiElement(identifier)('less2_type_test')
     PsiElement(:)(':')
     PsiWhiteSpace(' ')
-    PolymorhicFunctionType: [X: Ord as ord] => (X, X) => Boolean
+    PolymorphicFunctionType: [X: Ord as ord] => (X, X) => Boolean
       TypeParameterClause
         PsiElement([)('[')
         TypeParameter: X
@@ -794,7 +794,7 @@ ScalaFile
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
     PsiWhiteSpace(' ')
-    PolymorhicFunctionType: [X] => (x: X, y: X) => Ord[X] ?=> Boolean
+    PolymorphicFunctionType: [X] => (x: X, y: X) => Ord[X] ?=> Boolean
       TypeParameterClause
         PsiElement([)('[')
         TypeParameter: X
@@ -857,7 +857,7 @@ ScalaFile
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
     PsiWhiteSpace(' ')
-    PolymorhicFunctionType: [X: Ord] => (x: X, y: X) => Boolean
+    PolymorphicFunctionType: [X: Ord] => (x: X, y: X) => Boolean
       TypeParameterClause
         PsiElement([)('[')
         TypeParameter: X
@@ -1063,7 +1063,7 @@ ScalaFile
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
     PsiWhiteSpace(' ')
-    PolymorhicFunctionType: [X: Ord] => X => CmpMid[X]
+    PolymorphicFunctionType: [X: Ord] => X => CmpMid[X]
       TypeParameterClause
         PsiElement([)('[')
         TypeParameter: X
@@ -1378,7 +1378,7 @@ ScalaFile
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
     PsiWhiteSpace(' ')
-    PolymorhicFunctionType: [X: Ord] => X => CmpWeak[X]
+    PolymorphicFunctionType: [X: Ord] => X => CmpWeak[X]
       TypeParameterClause
         PsiElement([)('[')
         TypeParameter: X
@@ -1423,7 +1423,7 @@ ScalaFile
         PsiElement(identifier)('less4_0')
     PsiElement(:)(':')
     PsiWhiteSpace(' ')
-    PolymorhicFunctionType: [X: Ord] => X => X => Boolean
+    PolymorphicFunctionType: [X: Ord] => X => X => Boolean
       TypeParameterClause
         PsiElement([)('[')
         TypeParameter: X
@@ -1775,7 +1775,7 @@ ScalaFile
         PsiElement(identifier)('less5_type_test')
     PsiElement(:)(':')
     PsiWhiteSpace(' ')
-    PolymorhicFunctionType: [X: [X] =>> Ord[X]] => (X, X) => Boolean
+    PolymorphicFunctionType: [X: [X] =>> Ord[X]] => (X, X) => Boolean
       TypeParameterClause
         PsiElement([)('[')
         TypeParameter: X
@@ -2041,7 +2041,7 @@ ScalaFile
         PsiElement(identifier)('less6_type_test')
     PsiElement(:)(':')
     PsiWhiteSpace(' ')
-    PolymorhicFunctionType: [X: {Ord, Show}] => (X, X) => Boolean
+    PolymorphicFunctionType: [X: {Ord, Show}] => (X, X) => Boolean
       TypeParameterClause
         PsiElement([)('[')
         TypeParameter: X
@@ -2281,7 +2281,7 @@ ScalaFile
         PsiElement(identifier)('less7_type_test')
     PsiElement(:)(':')
     PsiWhiteSpace(' ')
-    PolymorhicFunctionType: [X: {Ord as ord, Show}] => (X, X) => Boolean
+    PolymorphicFunctionType: [X: {Ord as ord, Show}] => (X, X) => Boolean
       TypeParameterClause
         PsiElement([)('[')
         TypeParameter: X
@@ -2529,7 +2529,7 @@ ScalaFile
         PsiElement(identifier)('less8_type_test')
     PsiElement(:)(':')
     PsiWhiteSpace(' ')
-    PolymorhicFunctionType: [X: {Ord, Show as show}] => (X, X) => Boolean
+    PolymorphicFunctionType: [X: {Ord, Show as show}] => (X, X) => Boolean
       TypeParameterClause
         PsiElement([)('[')
         TypeParameter: X
@@ -2781,7 +2781,7 @@ ScalaFile
         PsiElement(identifier)('less9_type_test')
     PsiElement(:)(':')
     PsiWhiteSpace(' ')
-    PolymorhicFunctionType: [X: {Ord as ord, Show as show}] => (X, X) => Boolean
+    PolymorphicFunctionType: [X: {Ord as ord, Show as show}] => (X, X) => Boolean
       TypeParameterClause
         PsiElement([)('[')
         TypeParameter: X
@@ -2929,7 +2929,7 @@ ScalaFile
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
     PsiWhiteSpace(' ')
-    PolymorhicFunctionType: [X: Ord] => X => [Y: Ord] => Y => Boolean
+    PolymorphicFunctionType: [X: Ord] => X => [Y: Ord] => Y => Boolean
       TypeParameterClause
         PsiElement([)('[')
         TypeParameter: X
@@ -2951,7 +2951,7 @@ ScalaFile
         PsiWhiteSpace(' ')
         PsiElement(=>)('=>')
         PsiWhiteSpace(' ')
-        PolymorhicFunctionType: [Y: Ord] => Y => Boolean
+        PolymorphicFunctionType: [Y: Ord] => Y => Boolean
           TypeParameterClause
             PsiElement([)('[')
             TypeParameter: Y
@@ -3227,7 +3227,7 @@ ScalaFile
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
     PsiWhiteSpace(' ')
-    PolymorhicFunctionType: [X: Ord] => X => [Y] => Y => CmpAlias[Y]
+    PolymorphicFunctionType: [X: Ord] => X => [Y] => Y => CmpAlias[Y]
       TypeParameterClause
         PsiElement([)('[')
         TypeParameter: X
@@ -3249,7 +3249,7 @@ ScalaFile
         PsiWhiteSpace(' ')
         PsiElement(=>)('=>')
         PsiWhiteSpace(' ')
-        PolymorhicFunctionType: [Y] => Y => CmpAlias[Y]
+        PolymorphicFunctionType: [Y] => Y => CmpAlias[Y]
           TypeParameterClause
             PsiElement([)('[')
             TypeParameter: Y
@@ -3505,7 +3505,7 @@ ScalaFile
         PsiElement(identifier)('notationalExample')
     PsiElement(:)(':')
     PsiWhiteSpace(' ')
-    PolymorhicFunctionType: [X: Ord] => X => [Y: Ord] => Y => Int
+    PolymorphicFunctionType: [X: Ord] => X => [Y: Ord] => Y => Int
       TypeParameterClause
         PsiElement([)('[')
         TypeParameter: X
@@ -3527,7 +3527,7 @@ ScalaFile
         PsiWhiteSpace(' ')
         PsiElement(=>)('=>')
         PsiWhiteSpace(' ')
-        PolymorhicFunctionType: [Y: Ord] => Y => Int
+        PolymorphicFunctionType: [Y: Ord] => Y => Int
           TypeParameterClause
             PsiElement([)('[')
             TypeParameter: Y
@@ -3731,7 +3731,7 @@ ScalaFile
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
     PsiWhiteSpace(' ')
-    PolymorhicFunctionType: [X: {Ord as ord}] => ord.T => Boolean
+    PolymorphicFunctionType: [X: {Ord as ord}] => ord.T => Boolean
       TypeParameterClause
         PsiElement([)('[')
         TypeParameter: X
@@ -3777,7 +3777,7 @@ ScalaFile
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
     PsiWhiteSpace(' ')
-    PolymorhicFunctionType: [X: {Ord as ord}] => (ord.T, Int) => ord.T => Boolean
+    PolymorphicFunctionType: [X: {Ord as ord}] => (ord.T, Int) => ord.T => Boolean
       TypeParameterClause
         PsiElement([)('[')
         TypeParameter: X
@@ -3906,7 +3906,7 @@ ScalaFile
         PsiElement(identifier)('dependentCmp_1')
     PsiElement(:)(':')
     PsiWhiteSpace(' ')
-    PolymorhicFunctionType: [X: {Ord as ord}] => ord.T => Boolean
+    PolymorphicFunctionType: [X: {Ord as ord}] => ord.T => Boolean
       TypeParameterClause
         PsiElement([)('[')
         TypeParameter: X
@@ -4096,7 +4096,7 @@ ScalaFile
         PsiElement(identifier)('dependentCmp1_1')
     PsiElement(:)(':')
     PsiWhiteSpace(' ')
-    PolymorhicFunctionType: [X: {Ord as ord}] => (ord.T, Int) => ord.T => Boolean
+    PolymorphicFunctionType: [X: {Ord as ord}] => (ord.T, Int) => ord.T => Boolean
       TypeParameterClause
         PsiElement([)('[')
         TypeParameter: X

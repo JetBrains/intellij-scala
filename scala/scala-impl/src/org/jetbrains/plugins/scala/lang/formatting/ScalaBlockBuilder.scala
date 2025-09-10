@@ -9,6 +9,7 @@ import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings}
 import java.util
 import com.intellij.psi.tree._
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.ScalaBlockBuilder._
 import org.jetbrains.plugins.scala.lang.formatting.ScalaDocBlockBuilderUtils._
@@ -25,7 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScPackaging}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScPackaging, ScTypeParametersOwner}
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
 import org.jetbrains.plugins.scala.util.MultilineStringUtil.MultilineQuotes
 import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
@@ -175,12 +176,51 @@ final class ScalaBlockBuilder(
 
   private def calcChildAlignment(parent: ASTNode, child: ASTNode, sharedAlignment: Alignment): Alignment =
     parent.getPsi match {
-      case params: ScParameters                                         =>
-        val firstParameterStartsFromNewLine =
-          commonSettings.METHOD_PARAMETERS_LPAREN_ON_NEXT_LINE ||
-            params.clauses.headOption.flatMap(_.parameters.headOption).forall(_.startsFromNewLine())
-        if (firstParameterStartsFromNewLine && !scalaSettings.INDENT_FIRST_PARAMETER) null
-        else sharedAlignment
+      case params: ScParameters =>
+        child.getElementType match {
+          case ScalaElementType.TYPE_PARAM_CLAUSE =>
+            NullSafe(params.getContext.getUserData(typeParameterClauseAlignmentKey))
+              .getOrElse(sharedAlignment)
+          case _ =>
+            val firstParameterStartsFromNewLine =
+              commonSettings.METHOD_PARAMETERS_LPAREN_ON_NEXT_LINE ||
+                params.clauses.headOption.flatMap(_.parameters.headOption).forall(_.startsFromNewLine())
+            if (firstParameterStartsFromNewLine && !scalaSettings.INDENT_FIRST_PARAMETER) null
+            else {
+              @Nullable
+              def lastParamClauseAlignment = params.getUserData(parameterClauseAlignmentKey)
+              @Nullable
+              def typeParamAlignment = params.getContext.getUserData(typeParameterClauseAlignmentKey)
+              val childPsi = child.getPsi()
+              def isOnNewLine = childPsi.startsFromNewLine()
+              val prev = childPsi.getPrevSiblingNotWhitespaceComment
+              if (prev == null) {
+                params.putUserData(parameterClauseAlignmentKey, null)
+              }
+              if (prev == null || prev.is[ScTypeParamClause]) {
+                val alignment = typeParamAlignment match {
+                  case null => sharedAlignment
+                  case _ if isOnNewLine => NullSafe(lastParamClauseAlignment).getOrElse(typeParamAlignment)
+                  case _ => Alignment.createAlignment()
+                }
+                params.putUserData(parameterClauseAlignmentKey, alignment)
+                alignment
+              } else {
+                NullSafe(lastParamClauseAlignment)
+                  .orElse(NullSafe(typeParamAlignment))
+                  .getOrElse(sharedAlignment)
+              }
+            }
+        }
+      case typeParameterOwner: ScTypeParametersOwner if child.getElementType == ScalaElementType.TYPE_PARAM_CLAUSE =>
+        // if type param clauses are over multiple lines, do not align multiple param clauses
+        if (child.textContains('\n')) {
+          sharedAlignment
+        } else {
+          val alignment = Alignment.createAlignment(true)
+          typeParameterOwner.putUserData(typeParameterClauseAlignmentKey, alignment)
+          alignment
+        }
       case _: ScParameterClause =>
         child.getElementType match {
           case `tRPARENTHESIS` | `tLPARENTHESIS` => null
@@ -707,6 +747,8 @@ object ScalaBlockBuilder {
   private val interpolatedStringAlignmentsKey: Key[InterpolatedStringAlignments] = Key.create("interpolated.string.alignment")
   /** the alignment can be applied both to the colon and type annotation itself, depending on ScalaCodeStyleSettings.ALIGN_PARAMETER_TYPES_IN_MULTILINE_DECLARATIONS  */
   private val typeParameterTypeAnnotationAlignmentsKey: Key[Alignment] = Key.create("colon.in.type.annotation.alignments.key")
+  private val typeParameterClauseAlignmentKey: Key[Alignment] = Key.create("type.parameter.clause.alignment.key")
+  private val parameterClauseAlignmentKey: Key[Alignment] = Key.create("parameter.clause.alignment.key")
 
   private val fieldGroupAlignmentKey: Key[Alignment] = Key.create("field.group.alignment.key")
 

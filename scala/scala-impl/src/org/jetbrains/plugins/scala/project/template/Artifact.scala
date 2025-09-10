@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.project.template
 
 import java.io.{BufferedInputStream, IOException}
-import java.net.URL
+import java.net.URI
 import java.nio.file.Path
 import java.util.Properties
 import scala.collection.immutable.ListSet
@@ -58,7 +58,7 @@ object Artifact {
 
   private def readProperty(jarFileUri: String, resource: String, property: String) =
     try {
-      val url = new URL(s"jar:$jarFileUri!/$resource")
+      val url = new URI(s"jar:$jarFileUri!/$resource").toURL
       Option(url.openStream).flatMap { in =>
         Using.resource(new BufferedInputStream(in)) { inStream =>
           val properties = new Properties()

@@ -17,11 +17,11 @@ private final class TypeAwareWidgetFactory extends StatusBarWidgetFactory {
 
   override def createWidget(project: Project): StatusBarWidget = new TypeAwareWidget(project)
 
-  override def disposeWidget(widget: StatusBarWidget): Unit = {
-    Disposer.dispose(widget)
+  override def canBeEnabledOn(statusBar: StatusBar): Boolean = {
+    val project = statusBar.getProject
+    if (project == null) return false
+    isAvailable(project)
   }
-
-  override def canBeEnabledOn(statusBar: StatusBar): Boolean = isAvailable(statusBar.getProject)
 }
 
 private object TypeAwareWidgetFactory {

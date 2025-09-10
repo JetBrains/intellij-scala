@@ -12,15 +12,15 @@ object Versions {
   // ATTENTION: when updating `sbtVersion` also update it in `org.jetbrains.sbt.SbtVersion.Latest`
   // NOTE: sbt-launch / bloop-launcher won't be fetched on refresh.
   // run runtimeDependencies/update manually
-  val sbtVersion: String = "1.11.5"
-  val bloopVersion = "1.5.6"
+  val sbtVersion: String = "1.11.6"
+  val bloopVersion = "2.0.9"
   val zincVersion = "1.10.8"
 
   /**
    * ATTENTION: check the comment in [[Common.newProjectWithKotlin]] when updating this version.
    *            update `since-build` in plugin.xml if there are binary incompatible changes after update
    */
-  val intellijVersion = "253.17525.19"
+  val intellijVersion = "253.17525.53"
 
   def isNightlyIntellijVersion: Boolean = intellijVersion.count(_ == '.') == 1
 
@@ -233,7 +233,10 @@ object DependencyGroups {
     //ExclusionRule("org.eclipse.lsp4j", "org.eclipse.lsp4j.jsonrpc")
   )
 
+  // Exclude bsp4j from the bloop-rifle library to prevent it from evicting the currently used bsp4j specified by bspVersion
+  val bloopRifleExclusions: Seq[InclusionRule] = bspExclusions :+ ExclusionRule("ch.epfl.scala", "bsp4j")
   val bsp: Seq[ModuleID] = Seq(
+    ("ch.epfl.scala" %% "bloop-rifle" % bloopVersion).excludeAll(bloopRifleExclusions *),
     ("ch.epfl.scala" % "bsp4j" % bspVersion).excludeAll(bspExclusions *),
     ("ch.epfl.scala" %% "bsp-testkit" % bspVersion).excludeAll(bspExclusions *) % Test,
     scalaCheck

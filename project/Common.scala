@@ -11,6 +11,8 @@ import kotlin.Keys.{kotlinRuntimeProvided, kotlinVersion, kotlincJvmTarget}
 import kotlin.KotlinPlugin
 
 object Common {
+  final val JetBrains = "JetBrains"
+
   private val globalJavacOptionsCommon = Seq(
     "-Xlint:unchecked",
     "-Xlint:deprecation"
@@ -36,10 +38,10 @@ object Common {
     "-Wunused:implicits,imports",
   )
 
-  // options for modules which classes can only be used in IDEA process (uses JRE 17)
+  // options for modules which classes can only be used in IDEA process (uses JRE 21)
   // NOTE: we rely on the fact that javac & scalac use the same compiler option name,
   // though strictly speaking they have different types (they represent settings for different compilers)
-  private val globalIdeaProcessReleaseOptions: Seq[String] = Seq("--release", "17")
+  private val globalIdeaProcessReleaseOptions: Seq[String] = Seq("--release", "21")
   val globalJavacOptions: Seq[String] = globalJavacOptionsCommon ++ globalIdeaProcessReleaseOptions
   val globalScalacOptions: Seq[String] = globalScalacOptionsCommon ++ globalIdeaProcessReleaseOptions
   val globalScala3ScalacOptions: Seq[String] = globalScala3ScalacOptionsCommon ++ globalIdeaProcessReleaseOptions
@@ -48,7 +50,13 @@ object Common {
   //  - in JPS process (JDK is calculated based on project & module JDK)
   //  - in Compile server (by default used project JDK version, can be explicitly changed by user)
   private val globalExternalProcessReleaseOptions: Seq[String] = Seq("--release", "8")
-  val outOfIDEAProcessJavacOptions: Seq[String] = globalJavacOptionsCommon ++ globalExternalProcessReleaseOptions
+
+  // JDK 21 warns when we compile Java sources using "--release 8" that targeting JDK 8 will not be possible in the
+  // future. I also checked JDK 25, which is the next LTS, "--release 8" is still available with the same warning,
+  // so we should be fine for now.
+  private val suppressObsoleteSourceTarget8: String = "-Xlint:-options"
+
+  val outOfIDEAProcessJavacOptions: Seq[String] = globalJavacOptionsCommon ++ globalExternalProcessReleaseOptions :+ suppressObsoleteSourceTarget8
   val outOfIDEAProcessScalacOptions: Seq[String] = globalScalacOptionsCommon ++ globalExternalProcessReleaseOptions
 
   val projectDirectoriesSettings: Seq[Setting[?]] = Seq(
@@ -119,7 +127,7 @@ object Common {
   }
 
   private val NewProjectBaseSettings: Seq[Setting[?]] = Seq(
-    organization := "JetBrains",
+    organization := JetBrains,
     scalaVersion := Versions.scalaVersion,
     (Compile / javacOptions) := globalJavacOptions,
     (Compile / scalacOptions) := globalScalacOptions,
