@@ -27,11 +27,11 @@ class SharedSourcesOwnersDataService extends ScalaAbstractProjectDataService[Sha
     val projectIdToModuleName = getProjectIdToActualModuleNameMap(modelsProvider)
     clearOwnerModules(modelsProvider.getModules)
     toImport.asScala.foreach { sharedSourcesOwnersNode =>
-      val ownersModuleNames = sharedSourcesOwnersNode.getData.ownerModuleIds
-      val actualOwnerModuleNames = ownersModuleNames.asScala.map(projectIdToModuleName).toSeq
+      val ownersModuleIds = sharedSourcesOwnersNode.getData.ownerModuleIds
+      val actualOwnerModuleNames = ownersModuleIds.asScala.map(projectIdToModuleName).toSeq
       if (actualOwnerModuleNames.nonEmpty) {
         val parentModule = findModuleForParentOfDataNode(sharedSourcesOwnersNode)
-        parentModule.foreach(updateSharedSourcesOwnerModules(_, actualOwnerModuleNames))
+        parentModule.foreach(updateSharedSourcesOwnerModules(_, actualOwnerModuleNames, ownersModuleIds))
       }
     }
     super.importData(toImport, projectData, project, modelsProvider)
@@ -40,15 +40,14 @@ class SharedSourcesOwnersDataService extends ScalaAbstractProjectDataService[Sha
   private def clearOwnerModules(modules: Array[Module]): Unit =
     modules.foreach { module =>
       val sharedSourcesOwnerModules = SharedSourcesOwnerModules.getInstance(module)
-      val actualOwnersModuleNames = sharedSourcesOwnerModules.getState.ownersModuleNames
-      if (actualOwnersModuleNames != null) {
-        sharedSourcesOwnerModules.getState.ownersModuleNames = null
-      }
+      sharedSourcesOwnerModules.ownersModuleNames = null
+      sharedSourcesOwnerModules.ownersModuleIds = null
     }
 
-  private def updateSharedSourcesOwnerModules(module: Module, ownerModuleNames: Seq[String]): Unit = {
+  private def updateSharedSourcesOwnerModules(module: Module, ownerModuleNames: Seq[String], ownersModuleIds: java.util.List[String]): Unit = {
     val sharedSourcesOwnerModules = SharedSourcesOwnerModules.getInstance(module)
-    sharedSourcesOwnerModules.getState.ownersModuleNames = ownerModuleNames.toJavaList
+    sharedSourcesOwnerModules.ownersModuleNames = ownerModuleNames.toJavaList
+    sharedSourcesOwnerModules.ownersModuleIds = ownersModuleIds
   }
 
   private def getProjectIdToActualModuleNameMap(modelsProvider: IdeModifiableModelsProvider): Map[String, String] =

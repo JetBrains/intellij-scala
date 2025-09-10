@@ -41,7 +41,8 @@ import org.jetbrains.plugins.scala.tasty.reader.CompilerOptions
 import org.jetbrains.plugins.scala.util.{ScalaPluginJars, UnloadAwareDisposable}
 import org.jetbrains.sbt.language.SbtFile
 import org.jetbrains.sbt.project.module.SbtModuleType
-import org.jetbrains.sbt.{Sbt, WorkspaceModelUtil}
+import org.jetbrains.sbt.project.settings.SharedSourcesOwnerModules
+import org.jetbrains.sbt.Sbt
 
 import java.net.{URI, URL}
 import java.nio.file.Path
@@ -284,18 +285,21 @@ package object project {
     }
 
     private def getSharedSourcesModulesOwners(module: Module): Seq[Module] = {
-      val moduleManager = ModuleManager.getInstance(module.getProject)
-      val sharedSourcesOwnersEntity = WorkspaceModelUtil.getSharedSourcesOwnersEntity(module)
+      val owners = SharedSourcesOwnerModules.getInstance(module)
+      val ownerIds = owners.ownersModuleIds
+      val ownerNames = owners.ownersModuleNames
+      if (ownerIds == null && ownerNames == null) return Nil
 
-      sharedSourcesOwnersEntity match {
-        case Some(entity) =>
-          val ownerModuleIds = entity.getOwnerModuleIds.asScala
-          val modules = moduleManager.getModifiableModel.getModules.toSeq
-          modules.filter { module =>
-            val projectId = ExternalSystemApiUtil.getExternalProjectId(module)
-            ownerModuleIds.contains(projectId)
-          }
-        case _ => Seq.empty
+      val modules = ModuleManager.getInstance(module.getProject).getModifiableModel.getModules.toSeq
+      // Using ownersModuleIds OR ownersModuleNames to maintain backward compatibility with projects imported in plugin versions
+      // where only ownersModuleNames existed
+      if (ownerIds != null) {
+        modules.filter { module =>
+          val id = ExternalSystemApiUtil.getExternalProjectId(module)
+          id != null && ownerIds.contains(id)
+        }
+      } else  {
+        modules.filter(module => ownerNames.contains(module.getName))
       }
     }
 

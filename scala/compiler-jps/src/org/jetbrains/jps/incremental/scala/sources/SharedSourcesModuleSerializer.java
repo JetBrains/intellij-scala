@@ -7,6 +7,7 @@ import org.jetbrains.jps.model.JpsElementFactory;
 import org.jetbrains.jps.model.serialization.module.JpsModulePropertiesSerializer;
 import scala.jdk.CollectionConverters;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -20,9 +21,16 @@ public class SharedSourcesModuleSerializer extends JpsModulePropertiesSerializer
   @Override
   public JpsDummyElement loadProperties(@Nullable Element componentElement) {
 
-    Optional<Element> ownersModuleNamesList = Optional.ofNullable(componentElement)
-            .map(x -> x.getChild("option"))
-            .map(x -> x.getChild("list"));
+    List<Element> options = Optional.ofNullable(componentElement)
+            .map(element -> element.getChildren("option"))
+            .orElseGet(Collections::emptyList);
+
+    Optional<Element> ownersModuleNamesElement = options.stream().filter(element ->
+            // The attribute value name must match the name of the org.jetbrains.sbt.project.settings.SharedSourcesOwnerModules.ownersModuleNames field
+            element.getAttributes().stream().anyMatch(attr -> attr.getValue().equals("ownersModuleNames"))
+    ).findFirst();
+
+    Optional<Element> ownersModuleNamesList = ownersModuleNamesElement.map(element -> element.getChild("list"));
     Optional<List<Element>> moduleNamesOptions = ownersModuleNamesList.map(x -> x.getChildren("option"));
 
     Optional<List<String>> moduleNames = moduleNamesOptions
