@@ -95,8 +95,19 @@ class ScalaFilePasteProviderInSbtProjectExternalSystemIntegrationTest
   }
 
   @Test
-  def testAutoCreatePluginSbtFile(): Unit = {
+  def testAutoCreatePluginSbtFile_MainTestEnabled(): Unit =
+    autoCreatePluginSbtFile(isMainTestEnabled = true)
+
+  @Test
+  def testAutoCreatePluginSbtFile_MainTestDisabled(): Unit = {
+    autoCreatePluginSbtFile(isMainTestEnabled = false)
+    // This assertion cannot be run when separateProdAndTestSources are enabled due to https://youtrack.jetbrains.com/issue/SCL-24317
+    doPasteToDirectoryTest("", PastedComplexCodeWithAddSbtPlugin, expectedNewFileName = "worksheet.sc")
+  }
+
+  private def autoCreatePluginSbtFile(isMainTestEnabled: Boolean): Unit = {
     TestProjectName = "autoCreatePluginSbtFile"
+    getCurrentExternalProjectSettings.separateProdAndTestSources = isMainTestEnabled
     importProject(false)
 
     doPasteToDirectoryTest("project", PastedComplexCodeWithAddSbtPlugin, "plugins.sbt")
@@ -105,7 +116,6 @@ class ScalaFilePasteProviderInSbtProjectExternalSystemIntegrationTest
     doPasteToDirectoryTest("project", PastedCodeWithoutAddSbtPlugin, SomeOtherName)
     doPasteToDirectoryTest("project/inner", PastedComplexCodeWithAddSbtPlugin, SomeOtherName)
     doPasteToDirectoryTest("src/main/scala", PastedComplexCodeWithAddSbtPlugin, SomeOtherName)
-    doPasteToDirectoryTest("", PastedComplexCodeWithAddSbtPlugin, SomeOtherName)
   }
 
   @Test

@@ -6,7 +6,6 @@ import com.intellij.execution.configurations.{JavaRunConfigurationModule, Module
 import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent}
 import com.intellij.openapi.application.CoroutinesKt
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.externalSystem.ExternalSystemModulePropertyManager
 import com.intellij.openapi.module.{Module, ModuleManager, ModuleType, ModuleTypeManager, ModuleUtilCore}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
@@ -19,7 +18,7 @@ import org.jetbrains.plugins.scala.extensions.IterableOnceExt
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.StubIndexKeyExt
 import org.jetbrains.plugins.scala.project.ModuleExt
-import org.jetbrains.plugins.scala.util.SbtModuleType
+import org.jetbrains.sbt.SbtSourceSetUtil.SbtSourceSetModuleExt
 import org.jetbrains.sbt.{SbtBundle, SbtUtil}
 import org.jetbrains.sbt.project.SbtMigrateConfigurationsAction.updateRunConfigurations
 import org.jetbrains.sbt.project.extensionPoints.ModuleBasedConfigurationDetailsExtractor
@@ -143,11 +142,6 @@ object SbtMigrateConfigurationsAction {
     modules.filter(m => moduleTypeManager.isClasspathProvider(ModuleType.get(m)))
   }
 
-  private def isSbtSourceSet(module: Module): Boolean = {
-    val moduleType = ExternalSystemModulePropertyManager.getInstance(module).getExternalModuleType
-    moduleType == SbtModuleType.sbtSourceSetModuleType
-  }
-
   private def hasMainOrTestSuffix(moduleName: String): Boolean =
     moduleName.endsWith(".main") || moduleName.endsWith(".test")
 
@@ -167,7 +161,7 @@ object SbtMigrateConfigurationsAction {
     // the configuration is considered broken if the module exists but is not a sbt source module.
     // For instance, if the configuration initially had the module dummy.foo, after the upgrade, dummy.foo still exists
     // as a parent module but is not a main/test module, which makes the configuration invalid.
-    lazy val isBrokenByProdTestSourcesUpgrade = prodTestSourcesSeparated && configurationModule != null && !isSbtSourceSet(configurationModule)
+    lazy val isBrokenByProdTestSourcesUpgrade = prodTestSourcesSeparated && configurationModule != null && !configurationModule.isSbtSourceSetModule
 
     lazy val areUpgradingConditionsMet = isBrokenByProdTestSourcesUpgrade || isBrokenByModuleGrouping
 
@@ -219,7 +213,7 @@ object SbtMigrateConfigurationsAction {
   ): ModuleHeuristicResult  = {
     // If separate modules for prod/test are enabled, then only main/test modules should be considered
     val possibleModules =
-      if (prodTestSourcesSeparated) modules.filter(isSbtSourceSet)
+      if (prodTestSourcesSeparated) modules.filter(_.isSbtSourceSetModule)
       else modules
 
     val configDetails = ConfigDetails(config, oldModuleName)

@@ -20,8 +20,6 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
 
   import ProjectStructureDsl._
 
-  override protected def enableSeparateModulesForProdTest = true
-
   def testSharedSources(): Unit = runTest(
     new project("sharedSourcesProject") {
       lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
