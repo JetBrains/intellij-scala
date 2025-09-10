@@ -28,6 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypeBoundsOwner}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.structuralSearch.ScalaStructuralSearchProfile.PARAMETER_CONTEXT
+import org.jetbrains.plugins.scala.structuralSearch.exceptions.StructuralReplaceException
 import org.jetbrains.plugins.scala.structuralSearch.predicates.ScExprTypePredicate
 import org.jetbrains.plugins.scala.structuralSearch.replace.ScalaSubstitutor
 import org.jetbrains.plugins.scala.{NotImplementedError, Scala3Language, ScalaLanguage}
@@ -235,7 +236,7 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
         case anno: ScAnnotation => if (info.getUserData(PARAMETER_CONTEXT) == null) ScalaSubstitutor.appendAnnotation(sb, res, anno, this)
         case el => el.getParent match {
           case _: ScBlockExpr => ScalaSubstitutor.handleBlock(sb, info, res, result, replacementInfo)
-          case _ => throw new NotImplementedError(s"Replacing is not yet implemented for ${el.getParent.getClass}")
+          case _ => throw new StructuralReplaceException(s"Replacing is not implemented for ${el.getParent.getClass}")
         }
       }
     } else element match {
