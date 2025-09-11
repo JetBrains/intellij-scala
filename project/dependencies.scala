@@ -188,6 +188,7 @@ object Dependencies {
     ExclusionRule(organization = "io.ktor", name = "ktor-serialization-kotlinx-jvm"),
     ExclusionRule(organization = "org.jetbrains.kotlin"),
     ExclusionRule(organization = "org.jetbrains.kotlinx"),
+    ExclusionRule(organization = "org.slf4j")
   )
 
   // TODO(SCL-23246): remove after migration from the Package Search API
