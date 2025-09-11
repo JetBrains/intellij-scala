@@ -303,6 +303,7 @@ lazy val scalaImpl: sbt.Project =
       libraryDependencies ++= Seq(
         //for ExternalSystemTestCase and ExternalSystemImportingTestCase
         Dependencies.intellijExternalSystemTestFramework % Test,
+        Dependencies.slf4jApi % Test,
         //for PlatformTestUtil.newPerformanceTest
         Dependencies.intellijIdeMetricsBenchmark % Test,
         Dependencies.intellijIdeMetricsCollector % Test,
