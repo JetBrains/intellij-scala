@@ -83,6 +83,7 @@ private final class SbtGenerateManagedSourcesAction extends AnAction(
 
           val generateCommand = "show " + SbtUtil.sbtStructureGlobalCommand("ideaGenerateAllManagedSources", sbtVersion)
           val sbtResult = new SbtStructureDump().runSbt(
+            indicator,
             projectBasePath.toFile,
             settings.vmExecutable,
             settings.vmOptions,
@@ -93,7 +94,7 @@ private final class SbtGenerateManagedSourcesAction extends AnAction(
             generateCommand,
             SbtBundle.message("sbt.generate.managed.sources.task.progress.title"),
             settings.passParentEnvironment,
-          )(indicator)(using reporter)
+          )(using reporter)
 
           sbtResult match {
             case Success(buildMessages) if buildMessages.status == BuildMessages.Error => reportFailure(null)

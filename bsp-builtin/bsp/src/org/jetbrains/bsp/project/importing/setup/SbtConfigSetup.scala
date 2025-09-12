@@ -47,10 +47,10 @@ object SbtConfigSetup {
 
     val dumper = new SbtStructureDump()
     val runInit = (indicator: ProgressIndicator, reporter: BuildReporter) => dumper.runSbt(
-      baseDir.toFile, jdkExe.toFile, vmArgs,
+      indicator, baseDir.toFile, jdkExe.toFile, vmArgs,
       Map.empty, sbtLauncher, Seq.empty, sbtLauncherArgs, sbtCommands,
       BspBundle.message("bsp.resolver.creating.sbt.configuration"), passParentEnvironment = true
-    )(indicator)(reporter)
+    )(reporter)
     new SbtConfigSetup(dumper, runInit)
   }
 }

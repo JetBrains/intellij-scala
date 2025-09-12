@@ -55,10 +55,10 @@ object BloopPreImporter {
     try {
       val dumper = new SbtStructureDump()
       val runDump = (dumper: SbtStructureDump, indicator: ProgressIndicator) => dumper.runSbt(
-        baseDir.toFile, jdkExe.toFile, vmArgs,
+        indicator, baseDir.toFile, jdkExe.toFile, vmArgs,
         Map.empty, sbtLauncher, Seq.empty, sbtLauncherArgs, sbtCommands,
         BspBundle.message("bsp.resolver.creating.bloop.configuration.from.sbt"), passParentEnvironment = true
-      )(indicator)
+      )
       new BloopPreImporter(dumper, runDump)
     } finally {
       settingsFile.delete()
