@@ -78,10 +78,10 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
 
   private def matchTextOrVariable(pattern: PsiElement, other: PsiElement, handler: MatchingHandler): Boolean = {
     handler match {
-      case substHandler: SubstitutionHandler => substHandler.validate(other, globalVisitor.getMatchContext)
+      case substHandler: SubstitutionHandler => substHandler.handle(other, globalVisitor.getMatchContext)
       case topLevel: TopLevelMatchingHandler =>
         topLevel.getDelegate match {
-          case substHandler: SubstitutionHandler => substHandler.validate(other, globalVisitor.getMatchContext)
+          case substHandler: SubstitutionHandler => substHandler.handle(other, globalVisitor.getMatchContext)
           case _ => globalVisitor.matchText(pattern, other)
         }
       case _ => globalVisitor.matchText(pattern, other)
@@ -579,7 +579,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
         case (Some(pattern), Some(other)) =>
           handler match {
             case substHand: SubstitutionHandler =>
-              substHand.validate(other, globalVisitor.getMatchContext)
+              substHand.handle(other, globalVisitor.getMatchContext)
             case _ =>
               globalVisitor.`match`(pattern, other)
           }
@@ -589,6 +589,8 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
       val guardMatch = matchOptOptional(cc.guard, other.guard)
       globalVisitor.setResult(patternMatch && exprMatch && guardMatch)
     } finally {
+      if (isTypedVar)
+        context.getResult.addChild(new MatchResultImpl("__caseclause__pattern", cc.getText, cc, 0, 0, false))
       scopeMatch(cc, isTypedVar, other)
     }
   }
@@ -623,7 +625,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
         case (Some(pattern), Some(other)) =>
           handler match {
             case substHand: SubstitutionHandler =>
-              substHand.validate(other, globalVisitor.getMatchContext)
+              substHand.handle(other, globalVisitor.getMatchContext)
             case _ =>
               globalVisitor.`match`(pattern, other)
           }
@@ -654,7 +656,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     val context = globalVisitor.getMatchContext
     getHandler(forBinding) match {
       case substHand: SubstitutionHandler =>
-        if (globalVisitor.setResult(substHand.validate(other, context)))
+        if (globalVisitor.setResult(substHand.handle(other, context)))
           substHand.addResult(other, context)
       case _ =>
         val other = globalVisitor.getElement.asInstanceOf[ScForBinding]
@@ -713,14 +715,12 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     val otherV = globalVisitor.getElement
     getHandler(refPat) match {
       case substHand: SubstitutionHandler =>
-        if (globalVisitor.setResult(substHand.validate(otherV, context)))
-          substHand.addResult(otherV, context)
+        globalVisitor.setResult(substHand.handle(otherV, context))
         return
       case topLevel: TopLevelMatchingHandler =>
         topLevel.getDelegate match {
           case substHand: SubstitutionHandler =>
-            if (globalVisitor.setResult(substHand.validate(otherV, context)))
-              substHand.addResult(otherV, context)
+            globalVisitor.setResult(substHand.handle(otherV, context))
             return
           case _ =>
         }

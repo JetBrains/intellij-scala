@@ -6,35 +6,31 @@ import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import com.intellij.structuralsearch.impl.matcher.compiler.GlobalCompilingVisitor
-import com.intellij.structuralsearch.impl.matcher.predicates.{ExprTypePredicate, MatchPredicate, NotPredicate}
+import com.intellij.structuralsearch.impl.matcher.predicates.MatchPredicate
 import com.intellij.structuralsearch.impl.matcher.{CompiledPattern, GlobalMatchingVisitor}
-import com.intellij.structuralsearch.plugin.replace.impl.{ParameterInfo, ReplacementBuilder, Replacer}
-import com.intellij.structuralsearch.plugin.replace.{ReplaceOptions, ReplacementInfo}
+import com.intellij.structuralsearch.plugin.replace.ReplacementInfo
+import com.intellij.structuralsearch.plugin.replace.impl.ParameterInfo
 import com.intellij.structuralsearch.plugin.ui.{Configuration, UIUtil}
 import com.intellij.structuralsearch.{MatchOptions, MatchResult, MatchVariableConstraint, StructuralSearchProfile, StructuralSearchProfileBase}
 import com.intellij.util.SmartList
 import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaFileTemplateContextType
 import org.jetbrains.plugins.scala.extensions.ObjectExt
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScConstructorInvocation, ScStableCodeReference}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScBlockExpr, ScExpression, ScGuard, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScConstructorInvocation, ScStableCodeReference, patterns}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScGuard, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterType, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAliasDeclaration, ScTypeAliasDefinition, ScValueOrVariable, ScValueOrVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypeBoundsOwner}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
-import org.jetbrains.plugins.scala.structuralSearch.ScalaStructuralSearchProfile.PARAMETER_CONTEXT
-import org.jetbrains.plugins.scala.structuralSearch.exceptions.StructuralReplaceException
 import org.jetbrains.plugins.scala.structuralSearch.predicates.ScExprTypePredicate
-import org.jetbrains.plugins.scala.structuralSearch.replace.ScalaSubstitutor
-import org.jetbrains.plugins.scala.{NotImplementedError, Scala3Language, ScalaLanguage}
+import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
 
 import java.{lang, util}
-import scala.collection.mutable
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
   override protected def getVarPrefixes: Array[String] = Array("__$_")
@@ -164,113 +160,95 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
 
   override def getPredefinedTemplates: Array[Configuration] = ScalaPredefinedConfigurations.createPredefinedTemplated()
 
-  override def provideAdditionalReplaceOptions(node: PsiElement, options: ReplaceOptions, builder: ReplacementBuilder): Unit = {
-    val profile = this
-    node.accept(new ScalaRecursiveElementVisitor() {
-      override def visitParameter(parameter: ScParameter): Unit = {
-        val name = parameter.nameId
-
-        val nameInfo = builder.findParameterization(name)
-        if (nameInfo == null) return
-        val infos = mutable.Map(nameInfo.getName -> nameInfo)
-        nameInfo.putUserData(PARAMETER_CONTEXT, infos)
-        nameInfo.setElement(parameter)
-        nameInfo.setArgumentContext(false)
-
-        def putInformation(info: ParameterInfo, element: PsiElement): Unit = {
-          info.setArgumentContext(false)
-          info.putUserData(PARAMETER_CONTEXT, mutable.Map(info.getName -> info))
-          info.setElement(element)
-          infos.put(info.getName, info)
-        }
-
-        parameter.typeElement match {
-          case None =>
-          case Some(ty) =>
-            if (profile.isReplacementTypedVariable(ty.getText)) {
-              builder.findParameterization(ty.getParent) match {
-                case null =>
-                case typeInfo => putInformation(typeInfo, ty.getParent)
-              }
-            }
-        }
-        parameter.getDefaultExpression match {
-          case None =>
-          case Some(default) =>
-            if (profile.isReplacementTypedVariable(default.getText)) {
-              builder.findParameterization(default) match {
-                case null =>
-                case initInfo => putInformation(initInfo, default)
-              }
-            }
-        }
-        for (anno <- parameter.annotations) {
-          if (profile.isReplacementTypedVariable(anno.constructorInvocation.typeElement.getText)) {
-            builder.findParameterization(anno.annotationExpr) match {
-              case null => builder.findParameterization(anno.constructorInvocation.typeElement) match {
-                case null =>
-                case annoInfo => putInformation(annoInfo, anno)
-              }
-              case annoInfo => putInformation(annoInfo, anno)
-            }
-          }
-        }
-      }
-    })
-  }
+//  override def provideAdditionalReplaceOptions(node: PsiElement, options: ReplaceOptions, builder: ReplacementBuilder): Unit = {
+//    val result = ""
+//    node.accept(new ScalaRecursiveElementVisitor() {
+//      override def visitElement(element: PsiElement): Unit = {
+//        super.visitElement(element)
+//        builder.findParameterization(element) match {
+//          case null =>
+//          case typeinfo =>
+//            typeinfo.putUserData(RESULT_CONTEXT, result)
+//        }
+//      }
+//
+//      override def visitScalaElement(element: ScalaPsiElement): Unit = {
+//        super.visitScalaElement(element)
+//        visitElement(element)
+//      }
+//    })
+//  }
 
   override def handleSubstitution(info: ParameterInfo, res: MatchResult, result: lang.StringBuilder, replacementInfo: ReplacementInfo): Unit = {
-    if (info.getName != res.getName) return
+    result.delete(0, result.length())
+    val profile = this
 
-    val element: PsiElement = info.getElement
-    if (element == null) {
-      super.handleSubstitution(info, res, result, replacementInfo)
-      return
+    val repl: PsiElement = info.getElement
+    if (repl == null)
+      throw Exception("May not be null")
+    val replRoot = repl.getContainingFile
+
+    def findMatchResult(res: MatchResult, name: String): Option[MatchResult] = {
+      res.getChildren.asScala.find(_.getName == name)
+        .orElse(Option.when(res.getName == name)(res))
     }
-    var offset = 0
-    val sb = new StringBuilder()
 
-    if (res.hasChildren && !res.isScopeMatch) {
-      // compound matches
-      // TODO class, definition, function, case clause, type case
+    buildReplacement(replRoot, res.getRoot)
+
+    def buildChildren(psi: PsiElement,
+                      scopeRes: MatchResult,
+                      insertBefore: Map[PsiElement, String] = Map(),
+                      insertAfter: Map[PsiElement, String] = Map()): Unit = {
+      var cur = psi.getFirstChild
+      while ({
+        insertBefore.get(cur).foreach(result.append)
+        buildReplacement(cur, scopeRes)
+        insertAfter.get(cur).foreach(result.append)
+        cur = cur.getNextSibling
+        cur != null
+      }) {}
+    }
+
+    def ifNotMentioned(patternOpt: Option[PsiElement], replaceOpt: Option[PsiElement], refEl: PsiElement, text: Option[String]): Map[PsiElement, String] = {
+      if (patternOpt.isEmpty && replaceOpt.isEmpty) {
+        text.map(t => Map(refEl -> t)).getOrElse(Map())
+      } else Map()
+    }
+
+    def buildReplacement(element: PsiElement, scopeRes: MatchResult): Unit = {
       element match {
-        case para: ScParameter => offset = ScalaSubstitutor.handleParameter(sb, info, res, result, para, info.getUserData(PARAMETER_CONTEXT), this)
-        case anno: ScAnnotation => if (info.getUserData(PARAMETER_CONTEXT) == null) ScalaSubstitutor.appendAnnotation(sb, res, anno, this)
-        case el => el.getParent match {
-          case _: ScBlockExpr => ScalaSubstitutor.handleBlock(sb, info, res, result, replacementInfo)
-          case _ => throw new StructuralReplaceException(s"Replacing is not implemented for ${el.getParent.getClass}")
-        }
-      }
-    } else element match {
-      case para: ScParameter => offset = ScalaSubstitutor.handleParameter(sb, info, res, result, para, info.getUserData(PARAMETER_CONTEXT), this)
-      case _ => element.getParent match {
-        case _ => res.getMatch match {
-          case func: ScFunction => sb.append(func.name)
-          case _ => if (info.getUserData(PARAMETER_CONTEXT) == null) sb.append(res.getMatchImage)
-        }
+        case cc: ScCaseClause =>
+          cc.pattern
+            .filter(pattern => profile.isReplacementTypedVariable(pattern.getText))
+            .flatMap(pattern => findMatchResult(scopeRes, profile.stripReplacementTypedVariableDecorations(pattern.getText)).map(subRes => (pattern, subRes)))
+            .map((pattern, subRes) => {
+              val ccMatch = subRes.getMatch match {
+                case ccM: ScCaseClause => ccM
+                case _ => throw Exception("Invalid element")
+              }
+
+              val matchResult = findMatchResult(subRes, "__caseclause__pattern")
+              val insertAfter = ifNotMentioned(matchResult.flatMap(_.getMatch.asInstanceOf[ScCaseClause].guard), cc.guard, pattern, ccMatch.guard.map(" " + _.getText))
+              buildChildren(cc, subRes, insertAfter = insertAfter)
+            }).getOrElse(buildChildren(cc, scopeRes))
+        case _ if element.getFirstChild == null =>
+          val text = element.getText
+          if (profile.isReplacementTypedVariable(text)) {
+            findMatchResult(scopeRes, profile.stripReplacementTypedVariableDecorations(text)) match {
+              case None => result.append(text)
+              case Some(res) => result.append(res.getMatchImage)
+            }
+          } else {
+            result.append(text)
+          }
+        case _ => buildChildren(element, scopeRes)
       }
     }
-
-    offset = Replacer.insertSubstitution(result, offset, info, sb.result())
   }
 
-  override def handleNoSubstitution(info: ParameterInfo, result: lang.StringBuilder): Unit = {
-    val element: PsiElement = info.getElement
-    if (element == null) {
-      super.handleNoSubstitution(info, result)
-      return
-    }
-
-    var offset = 0
-    val sb = new StringBuilder()
-    element match {
-      case para: ScParameter => offset = ScalaSubstitutor.handleNoSubParameter(info, para, result, this)
-      case _ =>
-    }
-    offset = Replacer.insertSubstitution(result, offset, info, sb.result())
-  }
+  override def handleNoSubstitution(info: ParameterInfo, result: lang.StringBuilder): Unit = {}
 }
 
 object ScalaStructuralSearchProfile {
-  protected val PARAMETER_CONTEXT: Key[mutable.Map[String, ParameterInfo]] = Key("PARAMETER_CONTEXT")
+  protected val RESULT_CONTEXT: Key[String] = Key("RESULT_CONTEXT")
 }
