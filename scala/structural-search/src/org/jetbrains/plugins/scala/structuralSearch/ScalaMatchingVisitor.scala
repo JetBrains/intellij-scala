@@ -314,6 +314,8 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
 
       globalVisitor.setResult(annotationsMatch && modifierMatch && nameMatch && typeParamsMatch && paramsMatch && rTypeMatch && bodyMatch)
     } finally {
+      if (isTypedVar)
+        context.getResult.addChild(new MatchResultImpl("__pattern__context", fun.getText, fun, 0, 0, false))
       scopeMatch(fun, isTypedVar, other)
     }
   }
@@ -475,7 +477,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
       globalVisitor.setResult(annotationsMatch && modifierMatch && typeMatch && identMatch && valvarMatch && defaultMatch)
     } finally {
       if (isTypedVar)
-        context.getResult.addChild(new MatchResultImpl("__parameter__pattern", parameter.getText, parameter, 0, 0, false))
+        context.getResult.addChild(new MatchResultImpl("__pattern__context", parameter.getText, parameter, 0, 0, false))
       globalVisitor.scopeMatch(parameter, isTypedVar, other)
     }
   }
@@ -590,7 +592,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
       globalVisitor.setResult(patternMatch && exprMatch && guardMatch)
     } finally {
       if (isTypedVar)
-        context.getResult.addChild(new MatchResultImpl("__caseclause__pattern", cc.getText, cc, 0, 0, false))
+        context.getResult.addChild(new MatchResultImpl("__pattern__context", cc.getText, cc, 0, 0, false))
       scopeMatch(cc, isTypedVar, other)
     }
   }

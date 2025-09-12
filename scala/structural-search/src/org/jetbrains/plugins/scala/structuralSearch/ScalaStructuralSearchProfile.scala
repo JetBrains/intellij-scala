@@ -28,6 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.structuralSearch.predicates.ScExprTypePredicate
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
+import org.jetbrains.plugins.scala.extensions.implementation.iterator.ChildrenIterator
 
 import java.{lang, util}
 import scala.jdk.CollectionConverters.CollectionHasAsScala
@@ -57,7 +58,7 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
         isMinMaxApplicable(constraintName, variableNode, completePattern, target)
       case UIUtil.MAXIMUM_UNLIMITED =>
         isMinMaxApplicable(constraintName, variableNode, completePattern, target)
-        && isMaxApplicable(constraintName, variableNode, completePattern, target)
+          && isMaxApplicable(constraintName, variableNode, completePattern, target)
       case UIUtil.TYPE | UIUtil.TYPE_REGEX =>
         isTypeRegexApplicable(variableNode)
       case UIUtil.TEXT_HIERARCHY => false
@@ -66,8 +67,11 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
     }
 
   private def isTypeRegexApplicable(variableNode: PsiElement): Boolean =
-    variableNode.getParent.is[ScTypeDefinition] || variableNode.getParent.isInstanceOf[Typeable]
-      || (variableNode.getParent.is[ScStableCodeReference] && variableNode.getParent.getParent.isInstanceOf[Typeable])
+    variableNode.getParent.is[ScTypeDefinition] ||
+      (variableNode.getParent != null &&
+        variableNode.getParent.isInstanceOf[Typeable] ||
+          (variableNode.getParent.getParent != null &&
+            variableNode.getParent.is[ScStableCodeReference] && variableNode.getParent.getParent.isInstanceOf[Typeable]))
 
   private def isMinMaxApplicable(constraintName: String, variableNode: PsiElement, completePattern: Boolean, target: Boolean): Boolean =
     if (completePattern || target || variableNode == null) return false
@@ -127,31 +131,31 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
       // if a variable is set inside the template, normally getText is used to extract the name
       // we can also use getTypedVarString to extract the name (e.g. special for an annotation
       override def getTypedVarString(element: PsiElement): String =
-          element match {
-            case par: ScNamedElement =>
-              par.name
-            case annot: ScAnnotation =>
-              annot.constructorInvocation.typeElement.getText
-            case caseClause: ScCaseClause =>
-              caseClause.pattern.map(pat => if pat.bindings.size == 1 then pat.bindings.head.name else pat.getText).getOrElse("")
-            case valvar: ScValueOrVariable =>
-              if (valvar.declaredNames.size == 1) valvar.declaredNames.head
-              else super.getTypedVarString(valvar)
-            case constrInv: ScConstructorInvocation =>
-              constrInv.typeElement.getText
-            case typeElement: ScTypeElement =>
-              typeElement.getFirstChild.getText
-            case guard: ScGuard =>
-              guard.expr.map(_.getText).getOrElse("")
-            case methodInv: MethodInvocation =>
-              val unwrapMethodName: ScExpression => PsiElement = {
-                case ref: ScReferenceExpression => ref.nameId
-                case expr => expr
-              }
-              unwrapMethodName(methodInv.getInvokedExpr).getText
-            case _ =>
-              super.getTypedVarString(element)
-          }
+        element match {
+          case par: ScNamedElement =>
+            par.name
+          case annot: ScAnnotation =>
+            annot.constructorInvocation.typeElement.getText
+          case caseClause: ScCaseClause =>
+            caseClause.pattern.map(pat => if pat.bindings.size == 1 then pat.bindings.head.name else pat.getText).getOrElse("")
+          case valvar: ScValueOrVariable =>
+            if (valvar.declaredNames.size == 1) valvar.declaredNames.head
+            else super.getTypedVarString(valvar)
+          case constrInv: ScConstructorInvocation =>
+            constrInv.typeElement.getText
+          case typeElement: ScTypeElement =>
+            typeElement.getFirstChild.getText
+          case guard: ScGuard =>
+            guard.expr.map(_.getText).getOrElse("")
+          case methodInv: MethodInvocation =>
+            val unwrapMethodName: ScExpression => PsiElement = {
+              case ref: ScReferenceExpression => ref.nameId
+              case expr => expr
+            }
+            unwrapMethodName(methodInv.getInvokedExpr).getText
+          case _ =>
+            super.getTypedVarString(element)
+        }
 
       override def isTypedVar(str: String): Boolean = {
         !str.contains(' ') && getVarPrefixes.exists(str.startsWith)
@@ -160,27 +164,27 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
 
   override def getPredefinedTemplates: Array[Configuration] = ScalaPredefinedConfigurations.createPredefinedTemplated()
 
-//  override def provideAdditionalReplaceOptions(node: PsiElement, options: ReplaceOptions, builder: ReplacementBuilder): Unit = {
-//    val result = ""
-//    node.accept(new ScalaRecursiveElementVisitor() {
-//      override def visitElement(element: PsiElement): Unit = {
-//        super.visitElement(element)
-//        builder.findParameterization(element) match {
-//          case null =>
-//          case typeinfo =>
-//            typeinfo.putUserData(RESULT_CONTEXT, result)
-//        }
-//      }
-//
-//      override def visitScalaElement(element: ScalaPsiElement): Unit = {
-//        super.visitScalaElement(element)
-//        visitElement(element)
-//      }
-//    })
-//  }
+  //  override def provideAdditionalReplaceOptions(node: PsiElement, options: ReplaceOptions, builder: ReplacementBuilder): Unit = {
+  //    val result = ""
+  //    node.accept(new ScalaRecursiveElementVisitor() {
+  //      override def visitElement(element: PsiElement): Unit = {
+  //        super.visitElement(element)
+  //        builder.findParameterization(element) match {
+  //          case null =>
+  //          case typeinfo =>
+  //            typeinfo.putUserData(RESULT_CONTEXT, result)
+  //        }
+  //      }
+  //
+  //      override def visitScalaElement(element: ScalaPsiElement): Unit = {
+  //        super.visitScalaElement(element)
+  //        visitElement(element)
+  //      }
+  //    })
+  //  }
 
-  override def handleSubstitution(info: ParameterInfo, res: MatchResult, result: lang.StringBuilder, replacementInfo: ReplacementInfo): Unit = {
-    result.delete(0, result.length())
+  override def handleSubstitution(info: ParameterInfo, res: MatchResult, fullResult: lang.StringBuilder, replacementInfo: ReplacementInfo): Unit = {
+    fullResult.delete(0, fullResult.length())
     val profile = this
 
     val repl: PsiElement = info.getElement
@@ -192,21 +196,26 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
       res.getChildren.asScala.find(_.getName == name)
         .orElse(Option.when(res.getName == name)(res))
     }
-
-    buildReplacement(replRoot, res.getRoot)
+    {
+      val sb = StringBuilder()
+      buildReplacement(replRoot, res.getRoot, sb)
+      fullResult.append(sb.result())
+    }
 
     def buildChildren(psi: PsiElement,
                       scopeRes: MatchResult,
+                      result: StringBuilder,
                       insertBefore: Map[PsiElement, String] = Map(),
-                      insertAfter: Map[PsiElement, String] = Map()): Unit = {
-      var cur = psi.getFirstChild
-      while ({
+                      insertAfter: Map[PsiElement, String] = Map(),
+                      endElement: Option[PsiElement] = None): Unit = {
+      for (cur <- ChildrenIterator(psi)) {
         insertBefore.get(cur).foreach(result.append)
-        buildReplacement(cur, scopeRes)
+        buildReplacement(cur, scopeRes, result)
         insertAfter.get(cur).foreach(result.append)
-        cur = cur.getNextSibling
-        cur != null
-      }) {}
+
+        if (endElement.contains(cur))
+          return
+      }
     }
 
     def ifNotMentioned(patternOpt: Option[PsiElement], replaceOpt: Option[PsiElement], refEl: PsiElement, text: Option[String]): Map[PsiElement, String] = {
@@ -215,33 +224,130 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
       } else Map()
     }
 
-    def buildReplacement(element: PsiElement, scopeRes: MatchResult): Unit = {
-      element match {
-        case cc: ScCaseClause =>
-          cc.pattern
-            .filter(pattern => profile.isReplacementTypedVariable(pattern.getText))
-            .flatMap(pattern => findMatchResult(scopeRes, profile.stripReplacementTypedVariableDecorations(pattern.getText)).map(subRes => (pattern, subRes)))
-            .map((pattern, subRes) => {
-              val ccMatch = subRes.getMatch match {
-                case ccM: ScCaseClause => ccM
-                case _ => throw Exception("Invalid element")
+    def handleScope[T <: PsiElement](replacePattern: T, ident: Option[PsiElement], scopeRes: MatchResult, result: StringBuilder, body: ((PsiElement, MatchResult)) => Unit): Unit = {
+      ident.filter(ident => profile.isReplacementTypedVariable(ident.getText))
+        .map(ident =>
+          findMatchResult(scopeRes, profile.stripReplacementTypedVariableDecorations(ident.getText))
+            .map(subRes => {
+              if (subRes.isMultipleMatch) {
+                // TODO copy whitespaces between the matches
+                if (!subRes.getChildren.isEmpty) {
+                  val it = subRes.getChildren.iterator
+                  var last = it.next
+                  body(ident, last)
+                  while (it.hasNext) {
+                    val cur = it.next
+                    {
+                     var el = last.getMatch.getNextSibling
+                     while (el != cur.getMatch) {
+                       result.append(el.getText)
+                       el = el.getNextSibling
+                     }
+                    }
+                    body(ident, cur)
+                    last = cur
+                  }
+                }
+              } else {
+                body(ident, subRes)
               }
+            })
+            .getOrElse(Some(()))
+        )
+        .getOrElse(buildChildren(replacePattern, scopeRes, result))
+    }
 
-              val matchResult = findMatchResult(subRes, "__caseclause__pattern")
-              val insertAfter = ifNotMentioned(matchResult.flatMap(_.getMatch.asInstanceOf[ScCaseClause].guard), cc.guard, pattern, ccMatch.guard.map(" " + _.getText))
-              buildChildren(cc, subRes, insertAfter = insertAfter)
-            }).getOrElse(buildChildren(cc, scopeRes))
+    def mergeInserts(map1: Map[PsiElement, String], map2: Map[PsiElement, String]): Map[PsiElement, String] = {
+      map1 ++ map2.map {
+        case (el, text) => el -> (map1.getOrElse(el, "") + text)
+      }
+    }
+
+    def buildReplacement(element: PsiElement, scopeRes: MatchResult, result: StringBuilder): Unit = {
+      element match {
+        case replacePattern: ScFunction =>
+          handleScope(replacePattern, Option(replacePattern.nameId), scopeRes, result, (ident, subRes) => {
+            val parameterMatch = subRes.getMatch.asInstanceOf[ScFunction]
+
+            val searchPattern = findMatchResult(subRes, "__pattern__context").getOrElse(throw new Exception("Expected pattern context")).getMatch.asInstanceOf[ScFunction]
+//            val insertBefore = ifNotMentioned(searchPattern.annotations.headOption, replacePattern.annotations.headOption, ident, Some(parameterMatch.annotations.map(_.getText).mkString(" ") + " "))
+//            val typeCopy = ifNotMentioned(searchPattern.typeElement, replacePattern.typeElement, ident, parameterMatch.typeElement.map(": " + _.getText))
+//            val defCopy = ifNotMentioned(searchPattern.getDefaultExpression, replacePattern.getDefaultExpression, searchPattern.typeElement.getOrElse(ident), parameterMatch.getDefaultExpression.map(" = " + _.getText))
+//            val insertAfter = mergeInserts(typeCopy, defCopy)
+            buildChildren(replacePattern, subRes, result)
+          })
+        case replacePattern: ScParameter =>
+          handleScope(replacePattern, Option(replacePattern.nameId), scopeRes, result, body = (ident, subRes) => {
+            val parameterMatch = subRes.getMatch.asInstanceOf[ScParameter]
+
+            val searchPattern = findMatchResult(subRes, "__pattern__context").getOrElse(throw new Exception("Expected pattern context")).getMatch.asInstanceOf[ScParameter]
+
+            replacePattern.annotations.headOption match {
+              case Some(_) =>
+                replacePattern.annotations.foreach(anno => {
+                  val prevSize = result.length()
+                  buildReplacement(anno, subRes, result)
+                  if (result.length() > prevSize)
+                    result.append(" ")
+                })
+              case None =>
+                if (searchPattern.annotations.isEmpty) {
+                  result.append(parameterMatch.annotations.map(_.getText + " ").mkString)
+                }
+            }
+            buildReplacement(ident, subRes, result)
+            replacePattern.typeElement match {
+              case Some(typ) =>
+                result.append(": ")
+                buildReplacement(typ.getParent, subRes, result)
+              case None =>
+                if (searchPattern.typeElement.isEmpty && parameterMatch.typeElement.nonEmpty) {
+                  result.append(": ")
+                  result.append(parameterMatch.typeElement.map(_.getText).getOrElse(""))
+                }
+            }
+            replacePattern.getDefaultExpression match {
+              case Some(default) =>
+                val sb = StringBuilder()
+                buildReplacement(default, subRes, sb)
+                if (sb.nonEmpty) {
+                  result.append(" = ")
+                  result.append(sb.result())
+                }
+              case None =>
+                if (searchPattern.getDefaultExpression.isEmpty && parameterMatch.getDefaultExpression.nonEmpty) {
+                  result.append(" = ")
+                  result.append(parameterMatch.getDefaultExpression.map(_.getText).getOrElse(""))
+                }
+            }
+          })
+        case annotation: ScAnnotation =>
+          val text = annotation.constructorInvocation.reference.map(_.getText).getOrElse("")
+          if (profile.isReplacementTypedVariable(text) && findMatchResult(scopeRes, profile.stripReplacementTypedVariableDecorations(text)).isEmpty)
+            return
+          buildChildren(element, scopeRes, result)
+        case replacePattern: ScCaseClause =>
+          handleScope(replacePattern, replacePattern.pattern, scopeRes, result, (ident, subRes) => {
+            val ccMatch = subRes.getMatch match {
+              case ccM: ScCaseClause => ccM
+              case _ => throw Exception("Invalid element")
+            }
+
+            val searchPattern = findMatchResult(subRes, "__pattern__context").getOrElse(throw new Exception("Expected pattern context")).getMatch.asInstanceOf[ScCaseClause]
+            val insertAfter = ifNotMentioned(searchPattern.guard, replacePattern.guard, ident, ccMatch.guard.map(" " + _.getText))
+            buildChildren(replacePattern, subRes, result, insertAfter = insertAfter)
+          })
         case _ if element.getFirstChild == null =>
           val text = element.getText
           if (profile.isReplacementTypedVariable(text)) {
             findMatchResult(scopeRes, profile.stripReplacementTypedVariableDecorations(text)) match {
-              case None => result.append(text)
+              case None =>
               case Some(res) => result.append(res.getMatchImage)
             }
           } else {
             result.append(text)
           }
-        case _ => buildChildren(element, scopeRes)
+        case _ => buildChildren(element, scopeRes, result)
       }
     }
   }
