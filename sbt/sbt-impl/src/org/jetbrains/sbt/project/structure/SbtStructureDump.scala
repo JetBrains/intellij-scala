@@ -88,6 +88,7 @@ class SbtStructureDump {
   }
 
   def dumpFromProcess(
+    indicator: ProgressIndicator,
     directory: File,
     structureFilePath: String,
     options: Seq[String],
@@ -135,7 +136,7 @@ class SbtStructureDump {
       sbtCommandsString,
       SbtBundle.message("sbt.extracting.project.structure.from.sbt"),
       passParentEnvironment
-    )(indicator = null)
+    )(indicator)
   }
 
   private def buildSbtCompositeCommand(commands: Seq[String]): String =

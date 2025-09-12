@@ -9,6 +9,7 @@ import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, Ext
 import com.intellij.openapi.externalSystem.model.{DataNode, ExternalSystemException}
 import com.intellij.openapi.externalSystem.service.project.ExternalSystemProjectResolver
 import com.intellij.openapi.module.JavaModuleType
+import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager}
 import com.intellij.openapi.project.{Project, ProjectManager}
 import com.intellij.openapi.roots.DependencyScope
 import com.intellij.openapi.util.io.FileUtil
@@ -72,7 +73,15 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     implicit val context: ImportContext = ImportContext(settings)
 
     if (isPreview) dummyProject(projectRoot, settings).toDataNode
-    else importProject(taskId, settings, projectRoot, sbtLauncher.toFile, listener)
+    else {
+      // An indicator will always exist (be not null) when using the External System machinery.
+      // Gradle also relies on this.
+      val indicator = ProgressManager.getInstance().getProgressIndicator
+      if (indicator == null) {
+        throw new IllegalStateException("The External System machinery did not provide a ProgressIndicator instance")
+      }
+      importProject(taskId, settings, projectRoot, sbtLauncher.toFile, listener, indicator)
+    }
   }
 
   private def importProject(
@@ -80,7 +89,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     settings: SbtExecutionSettings,
     projectRoot: File,
     sbtLauncher: File,
-    notifications: ExternalSystemTaskNotificationListener
+    notifications: ExternalSystemTaskNotificationListener,
+    indicator: ProgressIndicator
   )(implicit context: ImportContext): DataNode[ESProjectData] = {
 
     @NonNls val importTaskId = s"import:${UUID.randomUUID()}"
@@ -96,7 +106,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     @Nullable val ideaProject: Project = taskId.findProject()
 
     val startTime = System.currentTimeMillis()
-    val structureDump = dumpStructure(projectRoot, sbtLauncher, context.sbtVersion, settings, ideaProject)
+    val structureDump = dumpStructure(projectRoot, sbtLauncher, context.sbtVersion, settings, ideaProject, indicator)
 
     // side-effecty status reporting
     structureDump.foreach { _ =>
@@ -150,7 +160,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     sbtLauncher: File,
     sbtVersion: SbtVersion,
     settings: SbtExecutionSettings,
-    @Nullable project: Project
+    @Nullable project: Project,
+    indicator: ProgressIndicator
   )(implicit reporter: BuildReporter): Try[(Elem, BuildMessages)] = {
     SbtProjectResolver.processOutputOfLatestStructureDump = ""
 
@@ -195,6 +206,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
           log.debug(s"sbtStructureJar: $sbtStructureJar")
           // TODO add error/warning messages during dump, report directly
           dumper.dumpFromProcess(
+            indicator,
             projectRoot,
             structureFilePath,
             options,
