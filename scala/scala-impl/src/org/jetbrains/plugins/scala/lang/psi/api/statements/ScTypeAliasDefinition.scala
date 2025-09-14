@@ -35,10 +35,12 @@ trait ScTypeAliasDefinition extends ScTypeAlias {
     }
 
   override def upperBound(implicit context: Context): TypeResult =
-    if (!isEffectivelyOpaque(context) && !aliasedTypeElement.exists(_.is[ScMatchTypeElement])) aliasedType else upperTypeElement match {
-      case Some(te) => te.`type`()
-      case _ => Right(Any)
-    }
+    if (!isEffectivelyOpaque(context) && !isMatchTypeAlias) aliasedType
+    else
+      upperTypeElement match {
+        case Some(te) => te.`type`()
+        case _ => Right(Any)
+      }
 
   def isExactAliasFor(cls: PsiClass): Boolean = {
     val isDefinedInObject = containingClass match {
@@ -47,6 +49,8 @@ trait ScTypeAliasDefinition extends ScTypeAlias {
     }
     isDefinedInObject && isAliasFor(cls)
   }
+
+  def isMatchTypeAlias: Boolean = aliasedTypeElement.exists(_.is[ScMatchTypeElement])
 
   def isAliasFor(cls: PsiClass)(implicit context: Context): Boolean =
     ScTypeAliasDefinition.isAliasFor(this, cls)(context)

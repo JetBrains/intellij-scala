@@ -8,9 +8,14 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.annotator.annotationHolder.DelegateAnnotationHolder
 import org.jetbrains.plugins.scala.annotator.hints.onlyErrorStripeAttributes
 import org.jetbrains.plugins.scala.annotator.quickfix.{EnableTypeMismatchHints, ReportHighlightingErrorQuickFix}
+import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScMatchTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
+import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypePresentation
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScLiteralType, ScType, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, Context, ScLiteralType, ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.{ScalaBundle, isUnitTestMode}
 
@@ -24,15 +29,21 @@ private object TypeMismatchError {
     implicit val tpc: TypePresentationContext = TypePresentationContext(annotatedElement)
     implicit val context: Context = Context(element)
 
+    val dealiasedMatchTypeInExpected = expectedType match {
+      case ParameterizedType(DesignatorOwner(ta: ScTypeAliasDefinition), _) if
+        ta.aliasedTypeElement.exists(_.is[ScMatchTypeElement]) => expectedType.removeAliasDefinitions()
+      case other => other
+    }
+
     // TODO update the test data, SCL-15483
-    val adjustedActualType = (expectedType, actualType) match {
+    val adjustedActualType = (dealiasedMatchTypeInExpected, actualType) match {
       case (_: ScLiteralType, t2: ScLiteralType) => t2
       case (_, t2: ScLiteralType) => t2.wideType
       case (_, t2) => t2
     }
 
     val message = {
-      val (actualTypeText, expectedTypeText) = TypePresentation.different(adjustedActualType, expectedType)
+      val (actualTypeText, expectedTypeText) = TypePresentation.different(adjustedActualType, dealiasedMatchTypeInExpected)
 
       if (isUnitTestMode) formatMessage(expectedTypeText, actualTypeText)
       else ScalaBundle.message("type.mismatch.message", expectedTypeText, actualTypeText)
@@ -44,7 +55,7 @@ private object TypeMismatchError {
     // TODO Can we detect a "current" color scheme in a "current" editor somehow?
     implicit val scheme: EditorColorsScheme = EditorColorsManager.getInstance().getGlobalScheme
 
-    val tooltip = TypeMismatchHints.tooltipFor(expectedType, adjustedActualType)
+    val tooltip = TypeMismatchHints.tooltipFor(dealiasedMatchTypeInExpected, adjustedActualType)
     val textRange =
       if (addHighlighting) {
         annotatedElement.getTextRange
@@ -80,7 +91,7 @@ private object TypeMismatchError {
         case _ => annotatedElement
       }
 
-      TypeMismatchHints.createFor(delegateElement, expectedType, adjustedActualType).putTo(delegateElement)
+      TypeMismatchHints.createFor(delegateElement, dealiasedMatchTypeInExpected, adjustedActualType).putTo(delegateElement)
     }
   }
 

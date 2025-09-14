@@ -30,21 +30,6 @@ import scala.collection.immutable.ArraySeq
 import scala.util.control.ControlThrowable
 
 object InferUtil {
-
-  val tagsAndManifists: Set[String] = Set(
-    "scala.reflect.ClassManifest",
-    "scala.reflect.Manifest",
-    "scala.reflect.OptManifest",
-    "scala.reflect.ClassTag",
-    "scala.reflect.api.TypeTags.TypeTag",
-    "scala.reflect.api.TypeTags.WeakTypeTag"
-  )
-
-  val ValueOf         = "scala.ValueOf"
-  val ConformsWitness = "scala.Predef.<:<"
-  val EquivWitness    = "scala.Predef.=:="
-  val Mirrors         = Seq("scala.deriving.Mirror", "scala.deriving.Mirror.Product", "scala.deriving.Mirror.Sum")
-
   private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.api.InferUtil$")
 
   private def isDebugImplicitParameters = LOG.isDebugEnabled

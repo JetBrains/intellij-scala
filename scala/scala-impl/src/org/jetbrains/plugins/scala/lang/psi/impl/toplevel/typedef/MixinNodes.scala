@@ -135,10 +135,12 @@ object MixinNodes {
           case newTd: ScNewTemplateDefinition => MixinNodes.linearization(newTd)
           case _                              => MixinNodes.linearization(thisClass).drop(1)
         }
+
         val thisType = thisClass match {
           case td: ScTemplateDefinition => ScThisType(td)
           case _                        => null
         }
+
         SuperTypesData(superTypes, thisType)
       }
 
@@ -181,6 +183,9 @@ object MixinNodes {
       ScSubstitutor.bind(typeParameters, substedTpts)
     }
   }
+
+  def allSuperClassesWithSubst(cls: PsiClass): SeqMap[PsiClass, ScSubstitutor] =
+    SuperTypesData(cls).substitutors
 
   def allSuperClasses(clazz: PsiClass): Set[PsiClass] =
     SuperTypesData(clazz).substitutors.keys.toSet

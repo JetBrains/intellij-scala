@@ -403,7 +403,7 @@ trait ScalaTypePresentation extends TypePresentation {
         innerTypeText(FunctionType(retType, params.map(_.paramType)), needDotType)
       case ScLiteralType(value, _) =>
         value.presentation
-      case ScMatchType(scrutinee, cases) =>
+      case ScMatchType(scrutinee, cases, _) =>
         val scrutineeText = innerTypeText(scrutinee)
         val caseTexts = cases.map(cs => "case " + cs._1 + " => " + cs._2)
         val parenthesesRequired = scrutinee.is[ScMatchType] || FunctionType.isFunctionType(scrutinee)
