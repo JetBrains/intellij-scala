@@ -220,29 +220,43 @@ package object types {
     def removeAliasDefinitionsIn(place: PsiElement): ScType =
       removeAliasDefinitions()(Context(place))
 
-    def removeAliasDefinitions(expandableOnly: Boolean = false)(implicit context: Context): ScType = {
-      def needExpand(ta: ScTypeAliasDefinition) = !expandableOnly || shouldExpand(ta)
+    def removeAliasDefinitions(
+      expandableOnly: Boolean = false
+    )(
+      implicit
+      context: Context
+    ): ScType = {
+      def needExpand(ta: ScTypeAliasDefinition): Boolean = !expandableOnly || shouldExpand(ta)
 
-      def innerUpdate(tp: ScType, visited: Set[ScType]): ScType = {
+      def innerUpdate(
+        tp:             ScType,
+        visitedAliases: Map[ScTypeAliasDefinition, Int],
+        visitedTypes:   Set[ScType]
+      ): ScType = {
         tp.recursiveUpdate {
-          case AliasType(_: ScTypeAliasDefinition, Right(_: ScTypePolymorphicType), _, effectivelyOpaque) if !effectivelyOpaque => ProcessSubtypes
-          case AliasType(ta: ScTypeAliasDefinition, _, Failure(_), effectivelyOpaque) if !effectivelyOpaque && needExpand(ta) =>
+          case AliasType(_: ScTypeAliasDefinition, Right(_: ScTypePolymorphicType), _, false) =>
+            ProcessSubtypes
+          case AliasType(ta: ScTypeAliasDefinition, _, Failure(_), false) if needExpand(ta) =>
             ReplaceWith(projectContext.stdTypes.Any)
-          case `type`@AliasType(ta: ScTypeAliasDefinition, _, Right(upper), effectivelyOpaque) if !effectivelyOpaque && needExpand(ta) =>
-            if (visited.contains(`type`)) throw RecursionException
+          case `type` @ AliasType(ta: ScTypeAliasDefinition, _, Right(upper), false) if needExpand(ta) =>
+            val currentDepth = visitedAliases(ta)
+
+            if (visitedTypes.contains(`type`))                      throw RecursionException
+            else if (currentDepth >= ScMatchType.maxRecursionDepth) throw RecursionException
+
             val updated =
-              try innerUpdate(upper, visited + `type`)
+              try innerUpdate(upper, visitedAliases.updated(ta, currentDepth + 1), visitedTypes + `type`)
               catch {
                 case RecursionException =>
-                  if (visited.nonEmpty) throw RecursionException
-                  else `type`
+                  if (visitedTypes.nonEmpty) throw RecursionException
+                  else                       `type`
               }
             ReplaceWith(updated)
           case _ => ProcessSubtypes
         }
       }
 
-      innerUpdate(scType, Set.empty)
+      innerUpdate(scType, Map.empty.withDefaultValue(0), Set.empty)
     }
 
     /**

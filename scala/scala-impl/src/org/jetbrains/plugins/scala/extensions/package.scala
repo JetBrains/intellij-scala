@@ -22,7 +22,8 @@ import com.intellij.psi.impl.PsiImplUtil
 import com.intellij.psi.impl.light.LightMethod
 import com.intellij.psi.impl.source.tree.{FileElement, SharedImplUtil}
 import com.intellij.psi.impl.source.{PostprocessReformattingAspect, PsiFileImpl}
-import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
+import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.psi.util.PsiTreeUtil
@@ -1080,6 +1081,14 @@ package object extensions {
   }
 
   implicit class PsiClassExt(val clazz: PsiClass) extends AnyVal {
+    def directInheritorsOfSealed: Iterable[PsiClass] =
+      if (!isSealed) Iterable.empty
+      else
+        ClassInheritorsSearch.search(
+          clazz,
+          new LocalSearchScope(clazz.getContainingFile),
+          true
+        ).findAll().asScala
 
     def isSealed: Boolean = clazz match {
       case _: ScClass | _: ScTrait =>
@@ -1088,7 +1097,7 @@ package object extensions {
     }
 
     /**
-      * Second match branch is for Java only.
+      * The second match branch is for Java only.
       */
     def qualifiedName: String = {
       clazz match {

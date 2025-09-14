@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.caches.measure
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMacroEvaluator}
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
-import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
+import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, SyntheticImplicitInstances}
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.{ImplicitArgumentsClause, SafeCheckException}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, TypeParamIdOwner}
@@ -258,8 +258,8 @@ class ImplicitCollector(
   def collect(): Seq[ScalaResolveResult] = {
     DivergenceChecker.withDivergenceStackOpt(previousDivergenceStack) {
       targetClass match {
-        case Some(c) if InferUtil.tagsAndManifists.contains(c.qualifiedName) => return Seq.empty
-        case _                                                               =>
+        case Some(c) if SyntheticImplicitInstances.tagsAndManifists.contains(c.qualifiedName) => return Seq.empty
+        case _                                                                                =>
       }
 
       ProgressManager.checkCanceled()
