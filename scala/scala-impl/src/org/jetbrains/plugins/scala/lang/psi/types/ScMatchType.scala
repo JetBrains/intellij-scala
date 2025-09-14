@@ -32,9 +32,14 @@ case class ScMatchType private (
     def matchCase(pat: ScType): MatchResult = {
       val typeVarsBuilder = ArraySeq.newBuilder[TypeParameter]
 
+      def isTypeVar(tpt: TypeParameterType): Boolean = {
+        val firstChar = tpt.name.charAt(0)
+        firstChar.isLower || firstChar == '_'
+      }
+
       pat.visitRecursively {
-        case tpt: TypeParameterType => typeVarsBuilder += tpt.typeParameter
-        case _                      => ()
+        case tpt: TypeParameterType if isTypeVar(tpt) => typeVarsBuilder += tpt.typeParameter
+        case _                                        => ()
       }
 
       val typeVars    = typeVarsBuilder.result()
@@ -224,12 +229,12 @@ object ScMatchType {
       case (DesignatorOwner(lhsCls: PsiClass), DesignatorOwner(rhsCls: PsiClass)) =>
         isProvablyDisjoint(lhsCls, rhsCls)
       case (lhs @ ExtractClass(lhsCls), rhs @ ExtractClass(rhsCls)) =>
-        val lhsSubst = lhs match {
+        val lhsSubst = lhs.removeAliasDefinitions() match {
           case ParameterizedType(_, targs) => ScSubstitutor.bind(lhsCls.getTypeParameters.instantiate, targs)
           case _                           => ScSubstitutor.empty
         }
 
-        val rhsSubst = rhs match {
+        val rhsSubst = rhs.removeAliasDefinitions() match {
           case ParameterizedType(_, targs) => ScSubstitutor.bind(rhsCls.getTypeParameters.instantiate, targs)
           case _                           => ScSubstitutor.empty
         }

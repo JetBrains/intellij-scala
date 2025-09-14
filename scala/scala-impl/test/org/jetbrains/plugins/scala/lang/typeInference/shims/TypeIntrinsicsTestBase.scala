@@ -11,6 +11,8 @@ import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[TypecheckerTests]))
 abstract class TypeIntrinsicsTestBase extends ScalaLightCodeInsightFixtureTestCase {
+  def assertDoesNotReduce(code: String, tpe: String): Unit = assertTypeIs(code, tpe)
+
   def assertTypeIs(code: String, tpe: String): Unit = {
     val file = ScalaPsiElementFactory.createScalaFileFromText(transformCode(code), ScalaFeatures.onlyByVersion(version))(getProject)
     val typeElement = file.getLastChild.getLastChild.asInstanceOf[ScTypeElement]
