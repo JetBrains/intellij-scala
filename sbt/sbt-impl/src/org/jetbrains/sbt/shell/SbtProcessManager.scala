@@ -463,12 +463,13 @@ final class SbtProcessManager(project: Project) extends Disposable {
     processData match {
       case Some(ProcessData(handler, _, _)) =>
         val shell = SbtShellCommunication.forProject(project)
-        shell.startDestroying()
+        shell.emitShellStateEvent(ShellState.ShutdownRequested)
         if (!isSoft) {
           shell.cancelEmptyingQueue()
         }
         val runnable: Runnable = () => terminateProcessGracefully(handler.getProcess)
         ProgressManager.getInstance().runProcessWithProgressSynchronously(runnable, SbtBundle.message("sbt.shell.stopping.process"), false, project)
+        shell.emitShellStateEvent(ShellState.ProcessTerminated)
         processData = None
       case None => // nothing to do
     }

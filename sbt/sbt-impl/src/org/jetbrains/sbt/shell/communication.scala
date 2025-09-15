@@ -13,10 +13,11 @@ import org.jetbrains.plugins.scala.extensions.LoggerExt
 import org.jetbrains.sbt.shell.LineListener.{LineSeparatorRegex, escapeNewLines}
 import org.jetbrains.sbt.shell.SbtProcessUtil._
 import org.jetbrains.sbt.shell.SbtShellCommunication._
+import org.jetbrains.sbt.shell.ShellState.ShellState
 import org.jetbrains.sbt.{SbtUtil, SbtVersion}
 
 import java.util.concurrent._
-import java.util.concurrent.atomic.{AtomicBoolean, AtomicReference}
+import java.util.concurrent.atomic.AtomicReference
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
 import scala.concurrent.{Future, Promise}
@@ -32,18 +33,13 @@ import scala.util.{Success, Try}
 @ApiStatus.Internal()
 final class SbtShellCommunication(project: Project) {
 
+  private val stateRef = new AtomicReference[ShellState](ShellState.Off)
+  private def currentState: ShellState = stateRef.get()
+
   private lazy val process: SbtProcessManager = SbtProcessManager.forProject(project)
 
   private val communicationActive = new Semaphore(1)
   private val shellQueueReady = new Semaphore(1)
-
-  /**
-   * An indicator to check if the sbt shell process is being destroyed.
-   * It prevents new commands from being added to the queue and processing new commands in the queue while the process is being terminated.
-   *
-   * @see [[https://youtrack.jetbrains.com/issue/SCL-24121/The-sbt-shell-destroying-method-doesnt-wait-for-the-commands-processing-loop-to-exit]]
-   */
-  private val isDestroying = new AtomicBoolean(false)
 
   //TODO: rename to commandsQueue
   private val commands = new LinkedBlockingQueue[(String, CommandListener[_])]()
@@ -61,6 +57,8 @@ final class SbtShellCommunication(project: Project) {
 
   /**
    * Contains an atomic reference to a `Future` responsible for emptying [[commands]] queue.
+   *
+   * @todo extract to a separate state SCL-24338
    */
   private val emptyingQueueFuture = new AtomicReference[CompletableFuture[Unit]](null)
 
@@ -83,8 +81,13 @@ final class SbtShellCommunication(project: Project) {
     if (isDestroyingOrEmptyingQueueInProgress) {
       afterRestartCommands.put((cmd, listener))
     } else {
-      process.acquireShellRunner()
+      // TODO it's some imperfection at this place to address in SCL-24338
+      // When the shell is in the Off state and a new command is enqueued, EnqueueCommand is emitted three times:
+      // during #initCommunication, when the shell becomes ready, and here.
+      // Introducing an explicit "Start" state would likely be a solution.
       commands.put((cmd, listener))
+      process.acquireShellRunner()
+      emitShellStateEvent(ShellState.EnqueueCommand)
     }
 
     listener.future
@@ -116,14 +119,8 @@ final class SbtShellCommunication(project: Project) {
       shell.flush()
     }
 
-  def startDestroying(): Unit = isDestroying.set(true)
-
-  private def finishDestroying(): Unit = isDestroying.set(false)
-
-  private def isDestroyingInProgress: Boolean = isDestroying.get()
-
   private def isDestroyingOrEmptyingQueueInProgress: Boolean =
-    isDestroyingInProgress || isEmptyingQueueRunning
+    currentState.isShuttingDown || isEmptyingQueueRunning
 
   private def isEmptyingQueueRunning: Boolean =
     Option(emptyingQueueFuture.get()).exists(!_.isDone)
@@ -138,10 +135,7 @@ final class SbtShellCommunication(project: Project) {
         //
         // Main loop of commands queue processing
         //
-        def stopProcessingCommandsQueue: Boolean =
-          handler.isProcessTerminating ||
-            handler.isProcessTerminated ||
-             isDestroyingOrEmptyingQueueInProgress && commands.isEmpty
+        def stopProcessingCommandsQueue: Boolean = handler.isProcessTerminating || handler.isProcessTerminated || currentState.isShuttingDown
         while (!stopProcessingCommandsQueue) {
           processNextQueuedCommand(1.second)
         }
@@ -154,7 +148,6 @@ final class SbtShellCommunication(project: Project) {
         }
         commands.clear()
 
-        finishDestroying()
         if (!afterRestartCommands.isEmpty) {
           process.acquireShellRunner()
           moveAccumulatedCommandsToStandardQueue()
@@ -178,8 +171,10 @@ final class SbtShellCommunication(project: Project) {
     }
   }
 
-  // ATTENTION: This method is called in a loop until the process is in some terminal state.
-  // We need to ensure that all its branches wait for the timeout (unless it's not in the destroying state)
+  /**
+   * ATTENTION: This method is called in a loop until the process is in some terminal state.
+   * We need to ensure that all its branches wait for the timeout (unless it's not in the destroying state)
+   */
   private def processNextQueuedCommand(timeout: FiniteDuration): Unit = {
     // TODO exception handling
     if (!shellQueueReady.tryAcquire(timeout.toMillis, TimeUnit.MILLISECONDS))
@@ -187,7 +182,7 @@ final class SbtShellCommunication(project: Project) {
 
     var isCommandProcessed = false
     try {
-      isCommandProcessed = if (isDestroyingInProgress)
+      isCommandProcessed = if (currentState.isShuttingDownOrOff)
         false // The new commands will be added to another queue `afterRestartCommands` and processed after the sbt shell is restarted
       else
         waitAndProcessNextCommand(timeout)
@@ -201,12 +196,9 @@ final class SbtShellCommunication(project: Project) {
     }
   }
 
-  private def noCommandsInQueueOrRunning:  Boolean = {
-    // Even if the command queue is empty, there might be still a command that is still being processed after being removed from the queue.
-    // If a lock is acquired, it means that the command is still running,
-    // or we are waiting for the command from the queue in waitAndProcessNextCommand
-    commands.isEmpty && shellQueueReady.availablePermits() > 0 // (> 0 ~ lock is not acquired)
-  }
+  private def shellEventBasedOnCommandsQueue(): ShellState.Event =
+    if (commands.isEmpty) ShellState.QueueDrained
+    else ShellState.EnqueueCommand
 
   /**
    * Queue an sbt command for execution in the sbt shell to be performed after a "soft" restart of the shell.
@@ -228,11 +220,10 @@ final class SbtShellCommunication(project: Project) {
 
     val emptyingQueue = new CompletableFuture[Unit]()
 
-    def waitForAllCommandsInQueueToFinish(): Unit = {
-      while (!(noCommandsInQueueOrRunning || emptyingQueue.isDone)) {
+    def waitForAllCommandsInQueueToFinish(): Unit =
+      while (currentState.isQueued && !currentState.isShuttingDownOrOff) {
         Thread.sleep(1000)
       }
-    }
 
     emptyingQueueFuture.set(emptyingQueue)
 
@@ -286,12 +277,21 @@ final class SbtShellCommunication(project: Project) {
     if (communicationActive.tryAcquire(5, TimeUnit.SECONDS)) {
       val releaseCommandQueueListener = new SbtShellReadyListener(
         "release command queue",
-        whenReady = shellQueueReady.release(),
+        whenReady = {
+          shellQueueReady.release()
+          emitShellStateEvent(shellEventBasedOnCommandsQueue())
+        },
         whenWorking = (),
       )
+      emitShellStateEvent(shellEventBasedOnCommandsQueue())
       handler.addProcessListener(releaseCommandQueueListener)
       startQueueProcessing(handler)
     }
+  }
+
+  def emitShellStateEvent(event: ShellState.Event): Unit = {
+    val next = ShellState.transition(currentState, event)
+    stateRef.set(next)
   }
 }
 
@@ -328,6 +328,69 @@ object SbtShellCommunication {
     * The final result will just be the value of the last invocation. */
   def listenerAggregator[A](listener: ShellEvent => A): EventAggregator[A] = (_,e) =>
     listener(e)
+}
+
+object ShellState {
+  private val log = Logger.getInstance(getClass)
+  /**
+   * Shell states
+   *
+   * @todo introduce more with SCL-24338 (most likely some "On" state and another one for emptying queue (before "soft restart"))
+   */
+  sealed trait ShellState
+  private case object Idle extends ShellState
+  /**
+   * The shell has commands pending in the standard command queue
+   * (see [[org.jetbrains.sbt.shell.SbtShellCommunication.commands]]) or the queue is empty, but the last command is still running.
+   */
+  private case object Queued extends ShellState
+  private case object ShuttingDown extends ShellState
+  case object Off extends ShellState
+
+  implicit class RichShellState(state: ShellState) {
+    def isIdle: Boolean = state == ShellState.Idle
+    def isQueued: Boolean = state == ShellState.Queued
+    def isShuttingDown: Boolean = state == ShellState.ShuttingDown
+    def isShuttingDownOrOff: Boolean = isShuttingDown || state == ShellState.Off
+  }
+
+  // Events that trigger transition between states
+  sealed trait Event
+  case object EnqueueCommand extends Event
+  case object QueueDrained extends Event
+  case object ShutdownRequested extends Event
+  case object ProcessTerminated extends Event
+
+  def transition(state: ShellState, event: Event): ShellState = {
+    def logProhibitedTransition(): ShellState = {
+      log.warn(s"[ShellState] The prohibited $event event from $state. Ignored")
+      state
+    }
+
+     (state, event) match {
+      case (Off, QueueDrained)            => Idle
+      case (Off, EnqueueCommand)          => Queued
+      case (Off, _)                       => logProhibitedTransition()
+
+      case (Idle, EnqueueCommand)         => Queued
+      case (Idle, ShutdownRequested)      => ShuttingDown
+      case (Idle, QueueDrained)           => Idle // The self-transition Idle -> Idle is allowed for now. It can occur because QueueDrained can be omitted in #initCommunication
+                                                  // and then again when the shell becomes ready. TODO add "Start" shell state to get rid of this
+      case (Idle, _)                      => logProhibitedTransition()
+
+      case (Queued, QueueDrained)           => Idle
+      case (Queued, ShutdownRequested)      => ShuttingDown
+      case (Queued, EnqueueCommand)         => Queued  // This occurs when the shell is in the Queued state and another command is added, triggering another EnqueueCommand event.
+                                                       // Another scenario for the Queued -> Queued transition is similar to the one described in the Idle -> Idle transition case.
+      case (Queued, _)                      => logProhibitedTransition()
+
+      case (ShuttingDown, ProcessTerminated) => Off
+      case (ShuttingDown, QueueDrained)      => ShuttingDown // QueueDrained & EnqueueCommand events may still be emitted after shutdown has started,
+                                                             // because SbtShellReadyListener#whenReady can fire even when the shell is already in the ShuttingDown state.
+      case (ShuttingDown, EnqueueCommand)    => ShuttingDown
+      case (ShuttingDown, _)                 => logProhibitedTransition()
+    }
+  }
 }
 
 private[shell] class CommandListener[A](default: A, aggregator: EventAggregator[A]) extends LineListener {
