@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.extensions.LoggerExt
 import org.jetbrains.sbt.shell.LineListener.{LineSeparatorRegex, escapeNewLines}
 import org.jetbrains.sbt.shell.SbtProcessUtil._
 import org.jetbrains.sbt.shell.SbtShellCommunication._
-import org.jetbrains.sbt.shell.ShellState.ShellState
+import org.jetbrains.sbt.shell.SbtShellLifecycle.{ShellState, ShellStateEvent}
 import org.jetbrains.sbt.{SbtUtil, SbtVersion}
 
 import java.util.concurrent._
@@ -87,7 +87,7 @@ final class SbtShellCommunication(project: Project) {
       // Introducing an explicit "Start" state would likely be a solution.
       commands.put((cmd, listener))
       process.acquireShellRunner()
-      emitShellStateEvent(ShellState.EnqueueCommand)
+      emitShellStateEvent(ShellStateEvent.EnqueueCommand)
     }
 
     listener.future
@@ -196,9 +196,9 @@ final class SbtShellCommunication(project: Project) {
     }
   }
 
-  private def shellEventBasedOnCommandsQueue(): ShellState.Event =
-    if (commands.isEmpty) ShellState.QueueDrained
-    else ShellState.EnqueueCommand
+  private def shellEventBasedOnCommandsQueue(): ShellStateEvent =
+    if (commands.isEmpty) ShellStateEvent.QueueDrained
+    else ShellStateEvent.EnqueueCommand
 
   /**
    * Queue an sbt command for execution in the sbt shell to be performed after a "soft" restart of the shell.
@@ -289,8 +289,8 @@ final class SbtShellCommunication(project: Project) {
     }
   }
 
-  def emitShellStateEvent(event: ShellState.Event): Unit = {
-    val next = ShellState.transition(currentState, event)
+  def emitShellStateEvent(event: ShellStateEvent): Unit = {
+    val next = SbtShellLifecycle.transition(currentState, event)
     stateRef.set(next)
   }
 }
@@ -330,7 +330,7 @@ object SbtShellCommunication {
     listener(e)
 }
 
-object ShellState {
+private[shell] object SbtShellLifecycle {
   private val log = Logger.getInstance(getClass)
   /**
    * Shell states
@@ -338,36 +338,45 @@ object ShellState {
    * @todo introduce more with SCL-24338 (most likely some "On" state and another one for emptying queue (before "soft restart"))
    */
   sealed trait ShellState
-  private case object Idle extends ShellState
-  /**
-   * The shell has commands pending in the standard command queue
-   * (see [[org.jetbrains.sbt.shell.SbtShellCommunication.commands]]) or the queue is empty, but the last command is still running.
-   */
-  private case object Queued extends ShellState
-  private case object ShuttingDown extends ShellState
-  case object Off extends ShellState
+  object ShellState {
+    /** The shell is alive, and no command is currently running or queued. */
+    private[SbtShellLifecycle] case object Idle extends ShellState
+    /**
+     * The shell is alive and has commands pending in the standard command queue (see [[org.jetbrains.sbt.shell.SbtShellCommunication.commands]])
+     * or the queue is empty but the last command is still running.
+     */
+    private[SbtShellLifecycle] case object Queued extends ShellState
+    /** The shell is in the process of shutting down, but the process has not terminated yet. */
+    private[SbtShellLifecycle] case object ShuttingDown extends ShellState
+    /** The shell process is not running. */
+    case object Off extends ShellState
 
-  implicit class RichShellState(state: ShellState) {
-    def isIdle: Boolean = state == ShellState.Idle
-    def isQueued: Boolean = state == ShellState.Queued
-    def isShuttingDown: Boolean = state == ShellState.ShuttingDown
-    def isShuttingDownOrOff: Boolean = isShuttingDown || state == ShellState.Off
+    implicit class RichShellState(state: ShellState) {
+      def isIdle: Boolean = state == ShellState.Idle
+      def isQueued: Boolean = state == ShellState.Queued
+      def isShuttingDown: Boolean = state == ShellState.ShuttingDown
+      def isShuttingDownOrOff: Boolean = isShuttingDown || state == ShellState.Off
+    }
   }
 
   // Events that trigger transition between states
-  sealed trait Event
-  case object EnqueueCommand extends Event
-  case object QueueDrained extends Event
-  case object ShutdownRequested extends Event
-  case object ProcessTerminated extends Event
+  sealed trait ShellStateEvent
+  object ShellStateEvent {
+    case object EnqueueCommand extends ShellStateEvent
+    case object QueueDrained extends ShellStateEvent
+    case object ShutdownRequested extends ShellStateEvent
+    case object ProcessTerminated extends ShellStateEvent
+  }
 
-  def transition(state: ShellState, event: Event): ShellState = {
+  def transition(state: ShellState, event: ShellStateEvent): ShellState = {
+    import ShellState._
+    import ShellStateEvent._
     def logProhibitedTransition(): ShellState = {
       log.warn(s"[ShellState] The prohibited $event event from $state. Ignored")
       state
     }
 
-     (state, event) match {
+    (state, event) match {
       case (Off, QueueDrained)            => Idle
       case (Off, EnqueueCommand)          => Queued
       case (Off, _)                       => logProhibitedTransition()

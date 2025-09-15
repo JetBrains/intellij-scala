@@ -35,6 +35,7 @@ import org.jetbrains.sbt.project.SbtExternalSystemManager
 import org.jetbrains.sbt.project.settings.SbtExecutionSettings
 import org.jetbrains.sbt.project.structure.SbtOption._
 import org.jetbrains.sbt.shell.SbtProcessManager._
+import org.jetbrains.sbt.shell.SbtShellLifecycle.ShellStateEvent
 import org.jetbrains.sbt.{JvmMemorySize, Sbt, SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabilities}
 
 import java.io.{File, IOException, OutputStreamWriter, PrintWriter}
@@ -463,13 +464,13 @@ final class SbtProcessManager(project: Project) extends Disposable {
     processData match {
       case Some(ProcessData(handler, _, _)) =>
         val shell = SbtShellCommunication.forProject(project)
-        shell.emitShellStateEvent(ShellState.ShutdownRequested)
+        shell.emitShellStateEvent(ShellStateEvent.ShutdownRequested)
         if (!isSoft) {
           shell.cancelEmptyingQueue()
         }
         val runnable: Runnable = () => terminateProcessGracefully(handler.getProcess)
         ProgressManager.getInstance().runProcessWithProgressSynchronously(runnable, SbtBundle.message("sbt.shell.stopping.process"), false, project)
-        shell.emitShellStateEvent(ShellState.ProcessTerminated)
+        shell.emitShellStateEvent(ShellStateEvent.ProcessTerminated)
         processData = None
       case None => // nothing to do
     }
