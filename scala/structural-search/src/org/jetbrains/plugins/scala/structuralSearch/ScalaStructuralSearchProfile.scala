@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement,
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScConstructorInvocation, ScStableCodeReference, patterns}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScGuard, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterType, ScTypeParam}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAliasDeclaration, ScTypeAliasDefinition, ScValueOrVariable, ScValueOrVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScTypeAliasDeclaration, ScTypeAliasDefinition, ScValueOrVariable, ScValueOrVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypeBoundsOwner}
@@ -29,6 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.structuralSearch.predicates.ScExprTypePredicate
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
 import org.jetbrains.plugins.scala.extensions.implementation.iterator.ChildrenIterator
+import org.jetbrains.plugins.scala.structuralSearch.ScalaStructuralSearchProfile.PATTERN_CONTEXT
 
 import java.{lang, util}
 import scala.jdk.CollectionConverters.CollectionHasAsScala
@@ -218,7 +219,7 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
       }
     }
 
-    def ifNotMentioned(patternOpt: Option[PsiElement], replaceOpt: Option[PsiElement], refEl: PsiElement, text: Option[String]): Map[PsiElement, String] = {
+    def ifNotMentioned(patternOpt: Option[_], replaceOpt: Option[_], refEl: PsiElement, text: Option[String]): Map[PsiElement, String] = {
       if (patternOpt.isEmpty && replaceOpt.isEmpty) {
         text.map(t => Map(refEl -> t)).getOrElse(Map())
       } else Map()
@@ -269,18 +270,24 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
           handleScope(replacePattern, Option(replacePattern.nameId), scopeRes, result, (ident, subRes) => {
             val parameterMatch = subRes.getMatch.asInstanceOf[ScFunction]
 
-            val searchPattern = findMatchResult(subRes, "__pattern__context").getOrElse(throw new Exception("Expected pattern context")).getMatch.asInstanceOf[ScFunction]
-//            val insertBefore = ifNotMentioned(searchPattern.annotations.headOption, replacePattern.annotations.headOption, ident, Some(parameterMatch.annotations.map(_.getText).mkString(" ") + " "))
-//            val typeCopy = ifNotMentioned(searchPattern.typeElement, replacePattern.typeElement, ident, parameterMatch.typeElement.map(": " + _.getText))
-//            val defCopy = ifNotMentioned(searchPattern.getDefaultExpression, replacePattern.getDefaultExpression, searchPattern.typeElement.getOrElse(ident), parameterMatch.getDefaultExpression.map(" = " + _.getText))
-//            val insertAfter = mergeInserts(typeCopy, defCopy)
-            buildChildren(replacePattern, subRes, result)
+            val searchPattern = findMatchResult(subRes, PATTERN_CONTEXT).getOrElse(throw new Exception("Expected pattern context")).getMatch.asInstanceOf[ScFunction]
+            val modifierCopy = ifNotMentioned(searchPattern.getModifierList.modifiersOrdered.headOption, replacePattern.getModifierList.modifiersOrdered.headOption, ident,
+              Some(parameterMatch.getModifierList.modifiersOrdered.map(_.text() + " ").mkString))
+            val annotationsCopy = ifNotMentioned(searchPattern.annotations.headOption, replacePattern.annotations.headOption, replacePattern.getModifierList,
+              Some(parameterMatch.annotations.map(_.getText + " ").mkString))
+            val typeParaCopy = ifNotMentioned(searchPattern.typeParametersClause, replacePattern.typeParametersClause, ident, parameterMatch.typeParametersClause.map(_.getText))
+            val retParaCopy = ifNotMentioned(searchPattern.returnTypeElement, replacePattern.returnTypeElement, replacePattern.paramClauses, parameterMatch.returnTypeElement.map(": " + _.getText))
+            val bodyCopy = ifNotMentioned(searchPattern.asOptionOf[ScFunctionDefinition].flatMap(_.body), replacePattern.asOptionOf[ScFunctionDefinition].flatMap(_.body), parameterMatch.returnTypeElement.map(_.getParent).getOrElse(ident),
+              parameterMatch.asOptionOf[ScFunctionDefinition].flatMap(_.body).map(" = " + _.getText))
+            val insertBefore = mergeInserts(modifierCopy, annotationsCopy)
+            val insertAfter = mergeInserts(typeParaCopy, mergeInserts(retParaCopy, bodyCopy))
+            buildChildren(replacePattern, subRes, result, insertBefore = insertBefore, insertAfter = insertAfter)
           })
         case replacePattern: ScParameter =>
           handleScope(replacePattern, Option(replacePattern.nameId), scopeRes, result, body = (ident, subRes) => {
             val parameterMatch = subRes.getMatch.asInstanceOf[ScParameter]
 
-            val searchPattern = findMatchResult(subRes, "__pattern__context").getOrElse(throw new Exception("Expected pattern context")).getMatch.asInstanceOf[ScParameter]
+            val searchPattern = findMatchResult(subRes, PATTERN_CONTEXT).getOrElse(throw new Exception("Expected pattern context")).getMatch.asInstanceOf[ScParameter]
 
             replacePattern.annotations.headOption match {
               case Some(_) =>
@@ -298,8 +305,12 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
             buildReplacement(ident, subRes, result)
             replacePattern.typeElement match {
               case Some(typ) =>
-                result.append(": ")
-                buildReplacement(typ.getParent, subRes, result)
+                val sb = StringBuilder()
+                buildReplacement(typ.getParent, subRes, sb)
+                if (sb.nonEmpty) {
+                  result.append(": ")
+                  result.append(sb.result())
+                }
               case None =>
                 if (searchPattern.typeElement.isEmpty && parameterMatch.typeElement.nonEmpty) {
                   result.append(": ")
@@ -333,7 +344,7 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
               case _ => throw Exception("Invalid element")
             }
 
-            val searchPattern = findMatchResult(subRes, "__pattern__context").getOrElse(throw new Exception("Expected pattern context")).getMatch.asInstanceOf[ScCaseClause]
+            val searchPattern = findMatchResult(subRes, PATTERN_CONTEXT).getOrElse(throw new Exception("Expected pattern context")).getMatch.asInstanceOf[ScCaseClause]
             val insertAfter = ifNotMentioned(searchPattern.guard, replacePattern.guard, ident, ccMatch.guard.map(" " + _.getText))
             buildChildren(replacePattern, subRes, result, insertAfter = insertAfter)
           })
@@ -352,9 +363,10 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
     }
   }
 
-  override def handleNoSubstitution(info: ParameterInfo, result: lang.StringBuilder): Unit = {}
+  override def handleNoSubstitution(info: ParameterInfo, result: lang.StringBuilder): Unit = {
+  }
 }
 
 object ScalaStructuralSearchProfile {
-  protected val RESULT_CONTEXT: Key[String] = Key("RESULT_CONTEXT")
+  val PATTERN_CONTEXT = "__pattern__context"
 }
