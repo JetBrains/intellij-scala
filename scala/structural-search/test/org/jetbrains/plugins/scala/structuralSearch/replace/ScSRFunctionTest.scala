@@ -5,64 +5,82 @@ import org.jetbrains.plugins.scala.structuralSearch.ScalaStructuralReplaceTestCa
 
 class ScSRFunctionTest extends ScalaStructuralReplaceTestCase {
 
-  val content =
-    """def func01()
-      |def func02(): Unit
-      |def func03() = println("Hello world!")
-      |def func04(): Unit = println("Hello world!")
-      |def func05[T]()
-      |def func06[T](): Unit
-      |def func07[T]() = println("Hello world!")
-      |def func08[T](): Unit = println("Hello world!")
-      |protected def func09()
-      |protected def func10(): Unit
-      |protected def func11() = println("Hello world!")
-      |protected def func12(): Unit = println("Hello world!")
-      |protected def func13[T]()
-      |protected def func14[T](): Unit
-      |protected def func15[T]() = println("Hello world!")
-      |protected def func16[T](): Unit = println("Hello world!")
-      |@deprecated
+  val content = Seq(
+    """def func01()""",
+    """def func02(): Unit""",
+    """def func03() = println("Hello world!")""",
+    """def func04(): Unit = println("Hello world!")""",
+    """def func05[T]()""",
+    """def func06[T](): Unit""",
+    """def func07[T]() = println("Hello world!")""",
+    """def func08[T](): Unit = println("Hello world!")""",
+    """protected def func09()""",
+    """protected def func10(): Unit""",
+    """protected def func11() = println("Hello world!")""",
+    """protected def func12(): Unit = println("Hello world!")""",
+    """protected def func13[T]()""",
+    """protected def func14[T](): Unit""",
+    """protected def func15[T]() = println("Hello world!")""",
+    """protected def func16[T](): Unit = println("Hello world!")""",
+    """@deprecated
       |def func17()
-      |@deprecated
+      |""",
+    """@deprecated
       |def func18(): Unit
-      |@deprecated
+      |""",
+    """@deprecated
       |def func19() = println("Hello world!")
-      |@deprecated
+      |""",
+    """@deprecated
       |def func20(): Unit = println("Hello world!")
-      |@deprecated
+      |""",
+    """@deprecated
       |def func21[T]()
-      |@deprecated
+      |""",
+    """@deprecated
       |def func22[T](): Unit
-      |@deprecated
+      |""",
+    """@deprecated
       |def func23[T]() = println("Hello world!")
-      |@deprecated
+      |""",
+    """@deprecated
       |def func24[T](): Unit = println("Hello world!")
-      |@deprecated
+      |""",
+    """@deprecated
       |protected def func25()
-      |@deprecated
+      |""",
+    """@deprecated
       |protected def func26(): Unit
-      |@deprecated
+      |""",
+    """@deprecated
       |protected def func27() = println("Hello world!")
-      |@deprecated
+      |""",
+    """@deprecated
       |protected def func28(): Unit = println("Hello world!")
-      |@deprecated
+      |""",
+    """@deprecated
       |protected def func29[T]()
-      |@deprecated
+      |""",
+    """@deprecated
       |protected def func30[T](): Unit
-      |@deprecated
+      |""",
+    """@deprecated
       |protected def func31[T]() = println("Hello world!")
-      |@deprecated
+      |""",
+    """@deprecated
       |protected def func32[T](): Unit = println("Hello world!")
-      |@deprecated @native
+      |""",
+    """@deprecated @native
       |protected override def func33[T](): Unit = println("Hello world!")
       |"""
+  )
 
   def testNoChange(): Unit = {
-    content.stripMargin.lines().filter(_.nonEmpty).forEach(line => {
+    content.map(_.stripMargin.strip())
+      .foreach(line => {
       replaceAndAssert(
         s"No content change no variable, line: $line",
-        content, line, line, content
+        content.mkString("\n"), line, line, content.mkString("\n")
       )
     })
   }
@@ -70,19 +88,20 @@ class ScSRFunctionTest extends ScalaStructuralReplaceTestCase {
   def testNoChangeVariables(): Unit = {
     val patterns = List(
       ("def $func$()", "def $func$(a: Int)"),
-      ("@anno\nprotected def $func$[$T$](): $ret$ = $body$", "@anno\nprotected def $func$[$T$](a: Int): $ret$ = $body$"),
+      ("@$anno$\nprotected def $func$[$T$](): $ret$ = $body$", "@$anno$\nprotected def $func$[$T$](a: Int): $ret$ = $body$"),
       ("def $func$() = $body$", "def $func$(a: Int) = $body$"),
       ("def $func$(): $ret$", "def $func$(a: Int): $ret$"),
-      ("@anno def $func$(): $ret$ = $body$", "@anno def $func$(a: Int): $ret$ = $body$"),
+      ("@$anno$\ndef $func$(): $ret$ = $body$", "@$anno$\ndef $func$(a: Int): $ret$ = $body$"),
       ("protected def $func$(): $ret$ = $body$", "protected def $func$(a: Int): $ret$ = $body$")
     )
     for ((spattern, rpattern) <- patterns) {
-      val exp = content.split("\n")
+      val exp = content
+          .map(_.stripMargin.strip())
           .map(line => if !spattern.contains("protected") || line.contains("protected") then line.replace("()", "(a: Int)") else line)
           .mkString("\n")
       replaceAndAssert(
         s"No content change with variables for pattern <$spattern>",
-        content,
+        content.map(_.stripMargin.strip()).mkString("\n"),
         spattern,
         rpattern,
         if spattern.contains("protected") then exp.replace("override ", "") else exp,
@@ -100,25 +119,26 @@ class ScSRFunctionTest extends ScalaStructuralReplaceTestCase {
     val patterns = List(
       ("def $func$()", "protected def $func$(a: Int)", (line: String) =>
         (if line.contains("def") && !line.contains("protected") then line.replace("def", "protected def") else line).replace("override ", "")),
-      ("@anno\nprotected def $func$[$T$](): $ret$ = $body$", "protected def $func$[$T$](a: Int): $ret$ = $body$", (line: String) =>
-        (if line.startsWith("@") then "" else line).replace("override ", "")),
+      ("@$anno$\nprotected def $func$[$T$](): $ret$ = $body$", "protected def $func$[$T$](a: Int): $ret$ = $body$", (line: String) =>
+        (if line.contains("protected") then line.replace("@deprecated", "").replace("@native", "").strip() else line).replace("override ", "")),
       ("def $func$() = $body$", "def $func$(a: Int)", (line: String) => line.replace(" = println(\"Hello world!\")", "")),
       ("def $func$(): $ret$", "def $func$(a: Int)", (line: String) => line.replace(": Unit", "")),
-      ("@anno def $func$(): $ret$ = $body$", "@anno def $func$(a: Int): Int = 1", (line: String) =>
+      ("@$anno$\ndef $func$(): $ret$ = $body$", "@$anno$\ndef $func$(a: Int): Int = 1", (line: String) =>
         line.replace(": Unit", "").replace(" = println(\"Hello world!\")", "").replace(")", "): Int = 1")),
       ("def $func$(): $ret$ = $body$", "protected def $func$[T](a: Int): $ret$ = $body$", (line: String) =>
-        line.replace("[T]", "[]").replace("(", "[T](")),
+        line.replace("[T]", "").replace("(a", "[T](a").replace("protected ", "").replace("override ", "").replace("def", "protected def")),
       ("def $func$()", "@deprecated\ndef $func$(a: Int)", (line: String) =>
-        if line.contains("def") then s"@deprecated\n$line" else line.replace("@deprecated", ""))
+        "@deprecated\n" + line.split("\n").last)
     )
     for ((spattern, rpattern, f) <- patterns) {
-      val exp = content.split("\n")
+      val exp = content
+        .map(_.stripMargin.strip())
         .map(line => if !spattern.contains("protected") || line.contains("protected") then line.replace("()", "(a: Int)") else line)
         .map(f)
         .mkString("\n")
       replaceAndAssert(
         s"No content change with variables for pattern <$spattern>",
-        content,
+        content.map(_.stripMargin.strip()).mkString("\n"),
         spattern,
         rpattern,
         if spattern.contains("protected") then exp.replace("override ", "") else exp,

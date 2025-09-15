@@ -209,7 +209,6 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     }
 
     globalVisitor.setResult(annotationsMatch && modifierMatch && nameMatch && constrMatch)
-    rememberVarMatchIfResult(handler, other.getNameIdentifier)
   }
 
   private def matchDefinition(pat: ScValueOrVariable): Unit = {
@@ -329,7 +328,6 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     def upperBoundMatch = matchOptOptional(typeParam.upperTypeElement, other.upperTypeElement)
 
     globalVisitor.setResult(nameMatch && flagsMatch && lowerBoundMatch && upperBoundMatch)
-    rememberVarMatchIfResult(handler, other.getNameIdentifier)
   }
 
   private def unwrapTypeParenthesis(te: ScTypeElement): Option[ScTypeElement] = {
@@ -389,7 +387,6 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     }
 
     globalVisitor.setResult(nameMatch && parameterizedMatch)
-    rememberVarMatchIfResult(handler, identOther)
   }
 
   // lambdas
@@ -750,7 +747,6 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     def nameMatch = matchTextOrVariable(tupleComp.getNameIdentifier, other.getNameIdentifier, handler)
     def valMatch = matchOpt(tupleComp.expr, other.expr)
     globalVisitor.setResult(nameMatch && valMatch)
-    rememberVarMatchIfResult(handler, other.getNameIdentifier)
   }
 
   override def visitNamedTupleTypeElement(tuple: ScNamedTupleTypeElement): Unit = {
@@ -765,7 +761,6 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     def nameMatch = matchTextOrVariable(tupleComp.getNameIdentifier, other.getNameIdentifier, handler)
     def typeMatch = matchOpt(tupleComp.typeElement, other.typeElement)
     globalVisitor.setResult(nameMatch && typeMatch)
-    rememberVarMatchIfResult(handler, other.getNameIdentifier)
   }
 
   override def visitBlockExpression(block: ScBlockExpr): Unit = {
