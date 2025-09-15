@@ -10,6 +10,7 @@ import org.jetbrains.annotations.ApiStatus.Internal
 import org.jetbrains.annotations.{ApiStatus, NonNls, TestOnly}
 import org.jetbrains.ide.PooledThreadExecutor
 import org.jetbrains.plugins.scala.extensions.LoggerExt
+import org.jetbrains.plugins.scala.isInternalMode
 import org.jetbrains.sbt.shell.LineListener.{LineSeparatorRegex, escapeNewLines}
 import org.jetbrains.sbt.shell.SbtProcessUtil._
 import org.jetbrains.sbt.shell.SbtShellCommunication._
@@ -372,7 +373,10 @@ private[shell] object SbtShellLifecycle {
     import ShellState._
     import ShellStateEvent._
     def logProhibitedTransition(): ShellState = {
-      log.warn(s"[ShellState] The prohibited $event event from $state. Ignored")
+      val msg = s"[SbtShellLifecycle] The prohibited $event event from $state. Ignored"
+      if (isInternalMode) log.error(msg)
+      else log.warn(msg)
+
       state
     }
 
