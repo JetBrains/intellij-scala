@@ -4,10 +4,9 @@ import com.intellij.psi.{PsiElement, PsiWhiteSpace}
 import com.intellij.structuralsearch.{MatchResult, StructuralSearchProfile}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.extensions.implementation.iterator.ChildrenIterator
-import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
-import org.jetbrains.plugins.scala.lang.lexer.{ScalaKeywordTokenType, ScalaTokenType}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScGuard
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.structuralSearch.ScalaStructuralSearchProfile.PATTERN_CONTEXT
@@ -232,6 +231,8 @@ class ScalaReplacementBuilder(val profile: StructuralSearchProfile) {
         } else {
           buildChildren(element, scopeRes, result)
         }
+      case guard: ScGuard =>
+        buildChildren(guard, scopeRes, result, skipBlock = mutable.Map(guard.getFirstChild -> (guard.getLastChild, guard.expr.orNull, 0)))
       case replacePattern: ScCaseClause =>
         handleScope(replacePattern, replacePattern.pattern, scopeRes, result, (ident, subRes) => {
           val ccMatch = subRes.getMatch match {
@@ -241,7 +242,8 @@ class ScalaReplacementBuilder(val profile: StructuralSearchProfile) {
 
           val searchPattern = findMatchResult(subRes, PATTERN_CONTEXT).getOrElse(throw new Exception("Expected pattern context")).getMatch.asInstanceOf[ScCaseClause]
           val insertAfter = ifNotMentioned(searchPattern.guard, replacePattern.guard, ident, ccMatch.guard.map(" " + _.getText))
-          buildChildren(replacePattern, Some(subRes), result, insertAfter = insertAfter)
+          val skippers: Skippers = replacePattern.guard.map(guard => mutable.Map(guard.getPrevSibling -> (guard.asInstanceOf[PsiElement], guard.asInstanceOf[PsiElement], 0))).getOrElse(mutable.Map())
+          buildChildren(replacePattern, Some(subRes), result, insertAfter = insertAfter, skipBlock = skippers)
         })
       case _ if element.getFirstChild == null =>
         val text = element.getText

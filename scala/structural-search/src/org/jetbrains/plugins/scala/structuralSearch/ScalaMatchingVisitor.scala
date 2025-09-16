@@ -584,8 +584,8 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
           }
         case _ => false
       }
-      val exprMatch = matchOpt(cc.expr, other.expr)
       val guardMatch = matchOptOptional(cc.guard, other.guard)
+      val exprMatch = matchOptOptional(cc.expr, other.expr)
       globalVisitor.setResult(patternMatch && exprMatch && guardMatch)
     } finally {
       if (isTypedVar)
