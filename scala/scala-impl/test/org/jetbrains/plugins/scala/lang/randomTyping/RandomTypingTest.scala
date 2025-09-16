@@ -24,7 +24,7 @@ class RandomTypingTest_in_Scala3 extends RandomTypingTestBase(TestUtils.getTestD
 
   //def test_specific(): Unit = {
   //  typeRandomly(
-  //    TestUtils.getTestDataPath + "/parser/data3/types/wildcard_question.test",
+  //    Path.of(TestUtils.getTestDataPath) / "parser/data3/types/wildcard_question.test",
   //    1224268322
   //  )
   //}
@@ -36,8 +36,8 @@ class RandomTypingTest_in_Scala3_ImportedData extends RandomTypingTestBase(TestU
 
   //def test_specific(): Unit = {
   //  typeRandomly(
-  //    TestUtils.getTestDataPath + /parser/scala3Import/success/,
-  //    <test_seed>,
+  //    Path.of(TestUtils.getTestDataPath) / "parser/scala3Import/newest/success/...",
+  //    2038114909,
   //  )
   //}
 }
@@ -49,14 +49,14 @@ class RandomTypingTest_in_Scala2 extends RandomTypingTestBase(TestUtils.getTestD
   override val ignoredFiles: Set[String] = Set("xmlPattern.test")
 //  def test_specific(): Unit = {
 //    typeRandomly(
-//      TestUtils.getTestDataPath + "/parser/data/doccomments/scaladoc/simpleMixed1.test",
+//      Path.of(TestUtils.getTestDataPath) / "parser/data/...",
 //      717565430,
 //    )
 //  }
 }
 
 abstract class RandomTypingTestBase(testFilePath: String) extends EditorActionTestBase {
-  val logging = false
+  val logging = true
 
   private def log(s: Any): Unit =
     if (logging) println(s)

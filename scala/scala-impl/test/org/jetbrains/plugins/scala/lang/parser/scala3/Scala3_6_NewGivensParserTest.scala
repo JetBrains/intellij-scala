@@ -1282,4 +1282,74 @@ class Scala3_6_NewGivensParserTest extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  // this lead to exceptions regarding the error marker stack in the parser
+  def test_given_in_weird_context(): Unit = checkTree(
+    """
+      |x match
+      |  case _ =>
+      |    orElse(
+      |
+      |inline given derive =
+      |  new ConfigMonoid
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  MatchStatement
+      |    ReferenceExpression: x
+      |      PsiElement(identifier)('x')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(match)('match')
+      |    PsiWhiteSpace('\n  ')
+      |    CaseClauses
+      |      CaseClause
+      |        PsiElement(case)('case')
+      |        PsiWhiteSpace(' ')
+      |        WildcardPattern
+      |          PsiElement(_)('_')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(=>)('=>')
+      |        PsiWhiteSpace('\n    ')
+      |        BlockOfExpressions
+      |          MethodCall
+      |            ReferenceExpression: orElse
+      |              PsiElement(identifier)('orElse')
+      |            ArgumentList
+      |              PsiElement(()('(')
+      |              PsiWhiteSpace('\n\n')
+      |              ReferenceExpression: inline
+      |                PsiElement(identifier)('inline')
+      |              PsiErrorElement:')' expected
+      |                <empty list>
+      |          PsiWhiteSpace(' ')
+      |          ScGivenAliasDefinition: given_derive
+      |            AnnotationsList
+      |              <empty list>
+      |            Modifiers
+      |              <empty list>
+      |            PsiElement(given)('given')
+      |            Parameters
+      |              <empty list>
+      |            PsiWhiteSpace(' ')
+      |            SimpleType: derive
+      |              CodeReferenceElement: derive
+      |                PsiElement(identifier)('derive')
+      |            PsiWhiteSpace(' ')
+      |            PsiElement(=)('=')
+      |            PsiErrorElement:Line is indented too far to the left
+      |              <empty list>
+      |            PsiWhiteSpace('\n  ')
+      |            ScNewTemplateDefinition: <anonymous>
+      |              PsiElement(new)('new')
+      |              PsiWhiteSpace(' ')
+      |              ExtendsBlock
+      |                TemplateParents
+      |                  ConstructorInvocation
+      |                    SimpleType: ConfigMonoid
+      |                      CodeReferenceElement: ConfigMonoid
+      |                        PsiElement(identifier)('ConfigMonoid')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
 }

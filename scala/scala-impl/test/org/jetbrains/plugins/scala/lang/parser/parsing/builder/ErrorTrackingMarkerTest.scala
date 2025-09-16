@@ -99,6 +99,19 @@ class ErrorTrackingMarkerTest extends SimpleTestCase {
     outer.done(ScalaElementType.TYPE)
   }
 
+  def testErrorOnMarkerAndNotDrop(): Unit = checkErrorCount(
+    expectedErrorCount = 1,
+    expectedPsi =
+      """
+        |BlockOfExpressions
+        |  PsiErrorElement:someError
+        |    <empty list>
+        |""".stripMargin
+  ) { builder =>
+    val marker = builder.mark()
+    marker.error(someError)  // no
+  }
+
   def testErrorOnMarkerAndThenDrop(): Unit = checkErrorCount(
     expectedErrorCount = 1,
     expectedPsi =
