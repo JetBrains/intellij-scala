@@ -29,7 +29,9 @@ abstract class StructuralSRTestCase extends LightPlatformCodeInsightTestCase {
     options = null
     super.tearDown()
   }
+}
 
+object StructuralSRTestCase {
   def checkApplicableConstraints(options: MatchOptions, compiledPattern: CompiledPattern): String = {
     val profile = StructuralSearchUtil.getProfileByFileType(options.getFileType)
     assert(profile != null, "no profile found for file type: " + options.getFileType)

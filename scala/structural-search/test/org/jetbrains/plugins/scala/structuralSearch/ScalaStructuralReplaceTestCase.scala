@@ -7,7 +7,7 @@ import com.intellij.structuralsearch.plugin.replace.impl.Replacer
 import com.intellij.testFramework.LightPlatformCodeInsightTestCase
 import org.intellij.lang.annotations.Language
 
-class ScalaStructuralReplaceTestCase extends LightPlatformCodeInsightTestCase {
+abstract class ScalaStructuralReplaceTestCase extends LightPlatformCodeInsightTestCase {
   var options: Option[ReplaceOptions] = None
 
   class MatchOptionsMock extends MatchOptions {
@@ -45,7 +45,7 @@ class ScalaStructuralReplaceTestCase extends LightPlatformCodeInsightTestCase {
     modifyOptions(matchOptions)
 
     val compiledPattern = PatternCompiler.compilePattern(getProject, matchOptions, true, false)
-    val message = ScalaStructuralSearchTestCase().checkApplicableConstraints(matchOptions, compiledPattern)
+    val message = StructuralSRTestCase.checkApplicableConstraints(matchOptions, compiledPattern)
     assert(message == null)
     Replacer.testReplace(in, what, by, opt, getProject, sourceIsFile)
   }

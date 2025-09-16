@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.{Scala3Language, ScalaFileType, ScalaLanguage
 import scala.annotation.tailrec
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
-class ScalaStructuralSearchTestCase extends StructuralSRTestCase {
+abstract class ScalaStructuralSearchTestCase extends StructuralSRTestCase {
 
   protected def matchAndAssert(
     name: String,
@@ -120,7 +120,7 @@ class ScalaStructuralSearchTestCase extends StructuralSRTestCase {
     options.setDialect(patternLanguage)
     modifyOptions(options)
     val compiledPattern: CompiledPattern = PatternCompiler.compilePattern(getProject, options, true, false)
-    val message: String = checkApplicableConstraints(options, compiledPattern)
+    val message: String = StructuralSRTestCase.checkApplicableConstraints(options, compiledPattern)
     assert(message == null)
     val matcher: Matcher = new Matcher(getProject, options, compiledPattern)
     matcher.testFindMatches(in, true, sourceFileType, physicalSourceFile).asScala.toSeq

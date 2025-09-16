@@ -11,7 +11,14 @@ import scala.collection.immutable.ArraySeq
 class ScSSMatchCompleteness extends ScalaStructuralSearchTestCase {
   val path = TestUtils.getTestDataPath + "/" + Scala3ImportedParserTestConfig.Newest.successDataDirectory
   private val separatorRegex = raw"\n-{5,}".r
-  private val skips = Set(1726, 1985, 2182, 2571, 3063)
+  // files containing some $...$ inside of a string
+  private val skips = Set(
+    "reference_main-functions.test",
+    "i14626.test",
+    "t0774_deathname.test",
+    "test-typers.test",
+    "i16954.test"
+  )
 
   def eliminateBlockComments(oText: String): String = {
     var text = oText
@@ -75,7 +82,7 @@ class ScSSMatchCompleteness extends ScalaStructuralSearchTestCase {
       }
 
       try {
-        if (text.length < 50000 && !skips.contains(i)) {
+        if (text.length < 50000 && !skips.contains(file.toFile.getName)) {
           matchAndAssert(s"Test all parsing tests. Testcase $i",
             s"""<match="AA">$text</match="AA">""", "",
             _.setSearchPattern(text),
