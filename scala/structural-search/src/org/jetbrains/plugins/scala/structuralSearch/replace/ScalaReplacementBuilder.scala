@@ -249,7 +249,11 @@ class ScalaReplacementBuilder(val profile: StructuralSearchProfile) {
         if (profile.isReplacementTypedVariable(text)) {
           findMatchResult(scopeRes, profile.stripReplacementTypedVariableDecorations(text)) match {
             case None =>
-            case Some(res) => result.append(res.getMatchImage)
+            case Some(res) =>
+              if (res.isMultipleMatch)
+                handleMultiple(res, result, subRes => result.append(subRes.getMatchImage))
+              else
+                result.append(res.getMatchImage)
           }
         } else {
           result.append(text)
