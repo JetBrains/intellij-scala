@@ -4,6 +4,7 @@ import com.intellij.codeInsight.template.{TemplateContextType, TemplateManager}
 import com.intellij.lang.Language
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.text.StringUtil
+import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.{PsiElement, PsiElementVisitor, PsiFile}
 import com.intellij.structuralsearch.impl.matcher.compiler.GlobalCompilingVisitor
 import com.intellij.structuralsearch.impl.matcher.predicates.MatchPredicate
@@ -49,6 +50,17 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
 
   override def compile(elements: Array[PsiElement], globalVisitor: GlobalCompilingVisitor): Unit = {
     new ScalaCompilingVisitor(globalVisitor).compile(elements)
+  }
+
+  override def getPresentableElement(element: PsiElement): PsiElement = {
+    element match {
+      case leaf: LeafPsiElement =>
+        leaf.getParent match {
+          case par: (ScTypeDefinition | ScFunction) => par
+          case _ => element
+        }
+      case _ => element
+    }
   }
 
   // use this to configure which modifier should be shown
