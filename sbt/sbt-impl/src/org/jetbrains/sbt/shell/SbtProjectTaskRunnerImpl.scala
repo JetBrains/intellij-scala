@@ -8,29 +8,33 @@ import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.notification.{NotificationAction, NotificationType}
 import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
+import org.jetbrains.plugins.scala.build.BuildToolWindowReporter
 import com.intellij.openapi.externalSystem.model.execution.ExternalSystemTaskExecutionSettings
 import com.intellij.openapi.externalSystem.util.{ExternalSystemUtil, ExternalSystemApiUtil => ES}
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.module.ModuleType
-import com.intellij.openapi.progress.{PerformInBackgroundOption, ProgressIndicator, ProgressManager, Task}
+import com.intellij.openapi.progress.{PerformInBackgroundOption, ProcessCanceledException, ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
 import com.intellij.task._
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.concurrency.{AsyncPromise, Promise}
-import org.jetbrains.plugins.scala.build.{BuildMessages, IndicatorReporter, TaskRunnerResult}
+import org.jetbrains.plugins.scala.build.BuildToolWindowReporter.CancelBuildAction
+import org.jetbrains.plugins.scala.build.{BuildMessages, CompositeReporter, IndicatorReporter, TaskRunnerResult}
 import org.jetbrains.plugins.scala.extensions
-import org.jetbrains.plugins.scala.util.{ExternalSystemVfsUtil, ScalaNotificationGroups}
+import org.jetbrains.plugins.scala.util.{CompilationId, ExternalSystemVfsUtil, ScalaNotificationGroups}
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.module.SbtModuleType
+import org.jetbrains.sbt.project.structure.SbtStructureDump
 import org.jetbrains.sbt.settings.SbtSettings
 import org.jetbrains.sbt.shell.SbtShellCommunication._
 import org.jetbrains.sbt.{SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabilities, SbtVersionDetector}
 
-import scala.annotation.nowarn
-import scala.concurrent.Await
-import scala.concurrent.duration.Duration
-import scala.util.{Failure, Success}
+import javax.swing.JComponent
+import scala.annotation.{nowarn, tailrec}
+import scala.concurrent.{Await, Future, TimeoutException, Promise => ScalaPromise}
+import scala.concurrent.duration.{Duration, DurationInt}
+import scala.util.{Failure, Success, Try}
 
 final class SbtProjectTaskRunnerImpl
   extends ProjectTaskRunner
@@ -155,75 +159,80 @@ final class SbtProjectTaskRunnerImpl
 }
 
 // TODO: PerformInBackgroundOption is deprecated, ProgressManager.run(Task) is obsolete. See IJPL-384
-private class CommandTask(project: Project, command: String, promise: AsyncPromise[ProjectTaskRunner.Result]) extends
+private class CommandTask(project: Project, command: String, rootPromise: AsyncPromise[ProjectTaskRunner.Result]) extends
   Task.Backgroundable(project, SbtBundle.message("sbt.shell.sbt.build"), false, PerformInBackgroundOption.ALWAYS_BACKGROUND: @nowarn("cat=deprecation")) {
-
-  import CommandTask._
 
   private val shellRunner: SbtShellRunner = SbtProcessManager.forProject(project).acquireShellRunner()
 
   private def showShell(): Unit =
     shellRunner.openShell(false)
 
+  private val resultPromise: ScalaPromise[BuildMessages] = ScalaPromise()
+
+  override def onThrowable(error: Throwable): Unit =
+    resultPromise.failure(error)
+
+  override def onCancel(): Unit =
+    resultPromise.tryFailure(new ProcessCanceledException())
+
+  val exc = new java.util.concurrent.CancellationException("cancelled")
+
+  @tailrec private def waitForJobCancelable(promise: Future[BuildMessages], cancelCheck: CancelCheck): Try[BuildMessages] =
+    try {
+      if (cancelCheck.isCancelled) {
+        SbtProcessManager.forProject(project).killRunningTask()
+        Failure(exc)
+      } else {
+        val res = Await.result(promise, 1000.millis)
+        Try(res)
+      }
+    } catch {
+      case _ : TimeoutException => waitForJobCancelable(promise, cancelCheck)
+    }
+
+  class CancelCheck(indicator: ProgressIndicator, promise: ScalaPromise[_]) {
+    def isCancelled: Boolean = {
+      // if one is canceled, cancel the other
+      if (!promise.isCompleted && indicator.isCanceled) {
+        promise.failure(exc)
+      } else if (!indicator.isCanceled && promise.isCompleted) {
+       // indicator.cancel()
+      }
+      promise.isCompleted
+    }
+  }
+
   override def run(indicator: ProgressIndicator): Unit = {
     import org.jetbrains.plugins.scala.lang.macros.expansion.ReflectExpansionsCollector
 
-    val report = new IndicatorReporter(indicator)
+    val buildId = BuildMessages.randomEventId
+    val report = new CompositeReporter(
+      new BuildToolWindowReporter(project, buildId, SbtBundle.message("sbt.shell.sbt.build"), new CancelBuildAction(resultPromise)),
+      new IndicatorReporter(indicator)
+    )
+
     val shell = SbtShellCommunication.forProject(project)
     val collector = ReflectExpansionsCollector.getInstance(project)
 
     report.start()
     collector.compilationStarted()
 
-    // TODO build events instead of indicator
-    val resultAggregator: (BuildMessages, ShellEvent) => BuildMessages = { (messages, event) =>
-      event match {
-        case TaskStart =>
-          // handled for main task
-          messages
-        case TaskComplete | ProcessTerminated =>
-          // handled for main task
-          messages
-        case ErrorWaitForInput =>
-          // can only actually happen during reload, but handle it here to be sure
-          showShell()
-          report.error(SbtBundle.message("sbt.shell.build.interrupted"), None)
-          messages.addError(SbtBundle.message("sbt.shell.error.build.interrupted"))
-          messages
-        case Output(raw) =>
-          val text = raw.trim
-
-          val messagesWithErrors = if (text startsWith ERROR_PREFIX) {
-            val msg = text.stripPrefix(ERROR_PREFIX)
-            // only report first error until we can get a good mapping message -> error
-            if (messages.errors.isEmpty) {
-              showShell()
-              report.error(SbtBundle.message("sbt.shell.errors.in.build"), None)
-            }
-            messages.addError(msg)
-          } else if (text startsWith WARN_PREFIX) {
-            val msg = text.stripPrefix(WARN_PREFIX)
-            // only report first warning
-            if (messages.warnings.isEmpty) {
-              report.warning(SbtBundle.message("sbt.shell.warnings.in.build"), None)
-            }
-            messages.addWarning(msg)
-          } else messages
-
-          collector.processCompilerMessage(text)
-
-          report.log(text)
-
-          messagesWithErrors
-      }
-    }
+    val aggr = SbtShellCommunication.messageAggregatorWithReporter(
+      shell,
+      report,
+      buildId,
+      None,
+      SbtBundle.message("sbt.shell.sbt.build"),
+      SbtBundle.message("sbt.shell.sbt.build.finished")
+    )
 
     // TODO consider running module build tasks separately
     // may require collecting results individually and aggregating
-    val commandFuture = shell.command(command, BuildMessages.empty, resultAggregator)
+    val commandFuture: Future[BuildMessages] = shell.command(command, BuildMessages.empty, aggr)
+    val cancelToken = new CancelCheck(indicator, resultPromise)
 
     // block thread to make indicator available :(
-    val buildMessages = Await.ready(commandFuture, Duration.Inf).value.get
+    val buildMessages = waitForJobCancelable(commandFuture, cancelToken)
 
     // build effects
     ExternalSystemVfsUtil.refreshRoots(project, SbtProjectSystem.Id, indicator)
@@ -231,10 +240,9 @@ private class CommandTask(project: Project, command: String, promise: AsyncPromi
     // handle callback
     buildMessages match {
       case Success(messages) =>
-        val taskResult = messages.toTaskRunnerResult
-        promise.setResult(taskResult)
+        rootPromise.setResult(messages.toTaskRunnerResult)
       case Failure(x) =>
-        promise.setError(x)
+        rootPromise.setError(x)
     }
 
     // build state reporting
@@ -255,6 +263,7 @@ private class CommandTask(project: Project, command: String, promise: AsyncPromi
     }
 
     collector.compilationFinished()
+    resultPromise.trySuccess(buildMessages.get)
   }
 }
 

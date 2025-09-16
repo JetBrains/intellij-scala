@@ -1,26 +1,32 @@
 package org.jetbrains.sbt.shell
 
+import com.intellij.build.events.impl.{FailureResultImpl, SuccessResultImpl}
 import com.intellij.execution.process.{AnsiEscapeDecoder, OSProcessHandler, ProcessEvent, ProcessListener}
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.externalSystem.model.ExternalSystemException
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
+import org.jetbrains.annotations.Nls
 import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import org.jetbrains.annotations.ApiStatus.Internal
 import org.jetbrains.annotations.{ApiStatus, NonNls, TestOnly}
 import org.jetbrains.ide.PooledThreadExecutor
+import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}
+import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.extensions.LoggerExt
 import org.jetbrains.sbt.shell.LineListener.{LineSeparatorRegex, escapeNewLines}
 import org.jetbrains.sbt.shell.SbtProcessUtil._
 import org.jetbrains.sbt.shell.SbtShellCommunication._
 import org.jetbrains.sbt.shell.ShellState.ShellState
-import org.jetbrains.sbt.{SbtUtil, SbtVersion}
+import org.jetbrains.sbt.{SbtBundle, SbtUtil, SbtVersion}
 
 import java.util.concurrent._
 import java.util.concurrent.atomic.AtomicReference
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
 import scala.concurrent.{Future, Promise}
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 import scala.util.{Success, Try}
 
 // TODO: this class has become too complicated, too much random state updates.
@@ -191,6 +197,7 @@ final class SbtShellCommunication(project: Project) {
         // NOTE: when sbt shell executes a command, the `shellQueueReady` is released asynchronously
         // in the `whenReady` callback parameter of `SbtShellReadyListener` created in `initCommunication`
       } else {
+        println("shellQueueReady  in #processNextQueuedCommand")
         shellQueueReady.release()
       }
     }
@@ -251,6 +258,7 @@ final class SbtShellCommunication(project: Project) {
     val handler = process.acquireShellProcessHandler()
     handler.addProcessListener(listener)
 
+    println("Processing command: " + cmd)
     process.usingWriter { shell =>
       shell.print(cmd)
       // note: the reason why instead of simply doing "shell.println", it was split into command execution and "\n" is Windows
@@ -279,6 +287,7 @@ final class SbtShellCommunication(project: Project) {
         "release command queue",
         whenReady = {
           shellQueueReady.release()
+          println("shellQueueReady  in when ready")
           emitShellStateEvent(shellEventBasedOnCommandsQueue())
         },
         whenWorking = (),
@@ -322,6 +331,71 @@ object SbtShellCommunication {
       builder
     case Output(text) =>
       builder.append("\n").append(text)
+  }
+
+  private val WARN_PREFIX = "[warn]"
+  private val ERROR_PREFIX = "[error]"
+
+  private[sbt] def messageAggregatorWithReporter(
+    shell: SbtShellCommunication,
+    reporter: BuildReporter,
+    dumpTaskId: EventId,
+    processOutputBuilder: Option[StringBuilder],
+    @Nls startMessage: String,
+    @Nls finishMessage: String
+  ): EventAggregator[BuildMessages] = (messages, event) => event match {
+    case TaskStart =>
+      reporter.startTask(dumpTaskId, None, startMessage)
+      messages
+
+    case TaskComplete =>
+      reporter.finishTask(dumpTaskId, finishMessage, new SuccessResultImpl())
+      val messagesUpdated =
+        if (messages.status == BuildMessages.Indeterminate) messages.status(BuildMessages.OK)
+        else messages
+      messagesUpdated
+
+    case ProcessTerminated =>
+      //TODO: it seems like in practice "process terminated" is not used at all
+      // we need to refactor the reporter API to not demand it
+      reporter.finishTask(dumpTaskId, "process terminated", new SuccessResultImpl())
+      messages
+        .addError("process terminated")
+        .status(BuildMessages.Canceled)
+
+    case ErrorWaitForInput =>
+      // TODO right now it's not working anyway when reloading (see SCL-24349).
+      //  For building in the sbt shell it shouldn't happen.
+      val msg = SbtBundle.message("sbt.import.errors.project.reload.aborted")
+      val ex = new ExternalSystemException(msg)
+
+      val result = new FailureResultImpl(msg, ex)
+      reporter.finishTask(dumpTaskId, msg, result)
+
+      shell.send("i" + System.lineSeparator)
+
+      messages.addError(msg)
+
+    case Output(raw) =>
+      val text = raw.trim
+      processOutputBuilder.foreach(_.append(text))
+
+      val isError = text startsWith ERROR_PREFIX
+      val newMessages =
+        if (isError) {
+          messages.addError(text.stripPrefix(ERROR_PREFIX))
+        } else if (text startsWith WARN_PREFIX) {
+          messages.addWarning(text.stripPrefix(WARN_PREFIX))
+        } else messages
+
+      reporter.progressTask(dumpTaskId, 1, -1, SbtBundle.message("sbt.events"), text)
+      if (isError) {
+        reporter.logErr(text)
+      } else {
+        reporter.log(text)
+      }
+
+      newMessages
   }
 
   /** Convenience aggregator wrapper that is executed for the side effects.

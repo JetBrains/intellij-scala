@@ -69,7 +69,8 @@ object ExternalSystemVfsUtil {
       LocalFileSystem.getInstance().refreshNioFiles(toRefreshFiles, true, true, null)
     } finally {
       //noinspection ScalaExtractStringToBundle
-      indicator.setText("")
+      if (!indicator.isCanceled)
+        indicator.setText("")
     }
   }
 }

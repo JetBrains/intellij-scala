@@ -330,6 +330,14 @@ final class SbtProcessManager(project: Project) extends Disposable {
     }
   }
 
+  def killRunningTask(): Unit = {
+    processData match {
+      case Some(ProcessData(handler, _, _)) =>
+        OSProcessUtil.terminateProcessGracefully(handler.getProcess)
+      case None => //
+    }
+  }
+
   /** asynchronously initializes SbtShellRunner with sbt process, console ui and opens sbt shell window */
   def initAndRunAsync(): Unit = {
     log.debug("initAndRunAsync")
