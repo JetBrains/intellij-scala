@@ -710,28 +710,27 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
 
 
   override def visitReferenceExpression(refPat: ScReferenceExpression): Unit = {
+    super.visitScalaElement(refPat)
     val context = globalVisitor.getMatchContext
     val otherV = globalVisitor.getElement
+
     getHandler(refPat) match {
       case substHand: SubstitutionHandler =>
         globalVisitor.setResult(substHand.handle(otherV, context))
-        return
       case topLevel: TopLevelMatchingHandler =>
         topLevel.getDelegate match {
           case substHand: SubstitutionHandler =>
             globalVisitor.setResult(substHand.handle(otherV, context))
-            return
           case _ =>
         }
       case _ =>
-    }
-
-    otherV match {
-      case other: ScReferenceExpression =>
-        val qualifierMatch = matchOptEqual(refPat.qualifier, other.qualifier)
-        val nameMatch = globalVisitor.`match`(refPat.nameId, other.nameId)
-        globalVisitor.setResult(qualifierMatch && nameMatch)
-      case other: PsiElement => globalVisitor.setResult(globalVisitor.matchText(refPat, other))
+        otherV match {
+          case other: ScReferenceExpression =>
+            val qualifierMatch = matchOptEqual(refPat.qualifier, other.qualifier)
+            val nameMatch = globalVisitor.`match`(refPat.nameId, other.nameId)
+            globalVisitor.setResult(qualifierMatch && nameMatch)
+          case other: PsiElement => globalVisitor.setResult(globalVisitor.matchText(refPat, other))
+        }
     }
   }
 
