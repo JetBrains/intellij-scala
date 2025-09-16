@@ -39,10 +39,9 @@ class ScalaReplacementBuilder(val profile: StructuralSearchProfile) {
       insertBefore.get(cur).foreach((if skipping then skipSb else result).append)
       skipBlock.get(cur) match {
         case None =>
-        case Some(conf) => {
+        case Some(conf) =>
           skipping = true
           curConf = Some(conf)
-        }
       }
       val sb = if (!skipping) result
       else if (curConf.exists(_._2 == cur)) checkSb
@@ -73,7 +72,7 @@ class ScalaReplacementBuilder(val profile: StructuralSearchProfile) {
     } else Map()
   }
 
-  def handleMultiple(matchResult: MatchResult, result: StringBuilder, body: (MatchResult) => Unit, div: String = ""): Unit = {
+  def handleMultiple(matchResult: MatchResult, result: StringBuilder, body: MatchResult => Unit, div: String = ""): Unit = {
     if (!matchResult.getChildren.isEmpty) {
       val it = matchResult.getChildren.iterator
       var last = it.next
@@ -100,7 +99,7 @@ class ScalaReplacementBuilder(val profile: StructuralSearchProfile) {
         findMatchResult(scopeRes, profile.stripReplacementTypedVariableDecorations(ident.getText))
           .map(subRes => {
             if (subRes.isMultipleMatch) {
-              handleMultiple(subRes, result, (mR) => body(ident, mR))
+              handleMultiple(subRes, result, mR => body(ident, mR))
             } else {
               body(ident, subRes)
             }
@@ -226,7 +225,7 @@ class ScalaReplacementBuilder(val profile: StructuralSearchProfile) {
             case None =>
             case Some(subRes) =>
               if (subRes.isMultipleMatch)
-                handleMultiple(subRes, result, (mR) => buildChildren(element, Some(mR), result), " ")
+                handleMultiple(subRes, result, mR => buildChildren(element, Some(mR), result), " ")
               else
                 buildChildren(element, scopeRes, result)
           }

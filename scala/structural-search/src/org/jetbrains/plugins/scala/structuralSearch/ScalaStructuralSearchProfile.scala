@@ -1,14 +1,16 @@
 package org.jetbrains.plugins.scala.structuralSearch
 
 import com.intellij.codeInsight.template.{TemplateContextType, TemplateManager}
+import com.intellij.dupLocator.iterators.NodeIterator
 import com.intellij.lang.Language
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.{PsiElement, PsiElementVisitor, PsiFile}
 import com.intellij.structuralsearch.impl.matcher.compiler.GlobalCompilingVisitor
+import com.intellij.structuralsearch.impl.matcher.handlers.SubstitutionHandler
 import com.intellij.structuralsearch.impl.matcher.predicates.MatchPredicate
-import com.intellij.structuralsearch.impl.matcher.{CompiledPattern, GlobalMatchingVisitor}
+import com.intellij.structuralsearch.impl.matcher.{CompiledPattern, GlobalMatchingVisitor, MatchContext}
 import com.intellij.structuralsearch.plugin.replace.impl.{ParameterInfo, ReplacementBuilder}
 import com.intellij.structuralsearch.plugin.replace.{ReplaceOptions, ReplacementInfo}
 import com.intellij.structuralsearch.plugin.ui.{Configuration, UIUtil}
@@ -141,7 +143,7 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
       override def getTypedVarPrefixes: Array[String] = getVarPrefixes
 
       // if a variable is set inside the template, normally getText is used to extract the name
-      // we can also use getTypedVarString to extract the name (e.g. special for an annotation
+      // we can also use getTypedVarString to extract the name (e.g. special for an annotations, functions, ...)
       override def getTypedVarString(element: PsiElement): String =
         element match {
           case par: ScNamedElement =>
@@ -169,8 +171,16 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
             super.getTypedVarString(element)
         }
 
-      override def isTypedVar(str: String): Boolean = {
-        !str.contains(' ') && getVarPrefixes.exists(str.startsWith)
+      override def isTypedVar(str: String): Boolean = !str.contains(' ') && getVarPrefixes.exists(str.startsWith)
+
+      override def doCreateSubstitutionHandler(name: String, target: Boolean, minOccurs: Int, maxOccurs: Int, greedy: Boolean): SubstitutionHandler = {
+        new SubstitutionHandler(name, target, minOccurs, maxOccurs, greedy) {
+          override def addResult(`match`: PsiElement, start: Int, end: Int, context: MatchContext): Unit = {
+            if (context.getResult.findChild(name) == null)
+              this.reset()
+            super.addResult(`match`, start, end, context)
+          }
+        }
       }
     }
 

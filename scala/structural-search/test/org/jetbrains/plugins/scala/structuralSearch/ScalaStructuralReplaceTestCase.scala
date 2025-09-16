@@ -28,8 +28,8 @@ abstract class ScalaStructuralReplaceTestCase extends LightPlatformCodeInsightTe
                        @Language("Scala 3") repl: String,
                        @Language("Scala 3") expected: String,
                        modifyOptions: MatchOptions => Unit = _ => ()): Unit = {
-    val result = replace(code.stripMargin, pattern.stripMargin, repl.stripMargin, false, modifyOptions)
-    assert(result == expected.stripMargin,
+    val result = replace(code.stripMargin.strip, pattern.stripMargin.strip, repl.stripMargin.strip, false, modifyOptions)
+    assert(result == expected.stripMargin.strip,
       s"Replace pattern for '$name' did not match\n$result\n  instead of\n${expected.stripMargin}")
   }
 

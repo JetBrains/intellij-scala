@@ -152,6 +152,83 @@ class ScSRFunctionTest extends ScalaStructuralReplaceTestCase {
     }
   }
 
+  def testFuncCount(): Unit = {
+    val content =
+      """def func234(): Unit = {
+        |  def func1(): Unit = {
+        |    println("Hi")
+        |    println("Welt")
+        |    println("!")
+        |  }
+        |  def func2(): Int = {
+        |    println("Hi")
+        |    2
+        |  }
+        |  def func3(): String = {
+        |    println("Hi")
+        |    "Hi"
+        |  }
+        |}
+        |"""
+    val pattern =
+      """def func234(): Unit = {
+        |  def $func$(): $ty$ = {
+        |    $expr$
+        |  }
+        |}
+        |"""
+
+    replaceAndAssert(
+      "Match functions with count no change",
+      content, pattern, pattern, content,
+      mO => {
+        constrCount(mO, "func")
+        constrCount(mO, "expr")
+      }
+    )
+
+    val rpattern =
+      """def func234(): Unit = {
+        |  def $func$(): Int = {
+        |    println("JetBrains")
+        |    $expr$
+        |    42
+        |  }
+        |}
+        |"""
+    val exp =
+      """def func234(): Unit = {
+        |  def func1(): Int = {
+        |    println("JetBrains")
+        |    println("Hi")
+        |    println("Welt")
+        |    println("!")
+        |    42
+        |  }
+        |  def func2(): Int = {
+        |    println("JetBrains")
+        |    println("Hi")
+        |    2
+        |    42
+        |  }
+        |  def func3(): Int = {
+        |    println("JetBrains")
+        |    println("Hi")
+        |    "Hi"
+        |    42
+        |  }
+        |}
+        |"""
+    replaceAndAssert(
+      "Match functions with count some change",
+      content, pattern, rpattern, exp,
+      mO => {
+        constrCount(mO, "func")
+        constrCount(mO, "expr")
+      }
+    )
+  }
+
   private def constrCount(matchOptions: MatchOptions, name: String, min: Int = 0, max: Int = 100): Unit = {
     val constrBody = matchOptions.addNewVariableConstraint(name)
     constrBody.setMinCount(min)
