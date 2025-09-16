@@ -517,7 +517,7 @@ trait ProjectStructureMatcher {
   private def assertModuleLibrariesEqual(module: Module)(expectedLibraries: Seq[library])(mt: Option[MatchType])
                                         (implicit compareContext: ProjectStructureComparisonContext): Unit = {
     val actualLibraries = roots.OrderEnumerator.orderEntries(module).libraryEntries.filter(_.isModuleLevel).map(_.getLibrary)
-    assertNamesEqualIgnoreOrder("Module library", expectedLibraries, actualLibraries)(mt)
+    assertNamesEqualIgnoreOrder(s"Module `${module.getName}` library", expectedLibraries, actualLibraries)(mt)
     pairByName(expectedLibraries, actualLibraries).foreach { case (expected, actual) =>
       assertLibraryContentsEqual(expected, actual)
       assertLibraryScalaSdk(expected, actual)
