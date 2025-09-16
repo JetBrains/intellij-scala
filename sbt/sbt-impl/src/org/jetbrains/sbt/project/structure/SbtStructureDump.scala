@@ -12,7 +12,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.SystemInfo
 import org.jetbrains.annotations.{Nls, NonNls, Nullable}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
-import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter, ExternalSystemNotificationReporter}
+import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}
 import org.jetbrains.plugins.scala.extensions.LoggerExt
 import org.jetbrains.sbt.SbtUtil.normalizePath
 import org.jetbrains.sbt.actions.GenerateManagedSourcesReporter
@@ -321,8 +321,8 @@ class SbtStructureDump {
           if (text.nonEmpty) {
             messages = reportEvent(messages, text)
             reporter.progressTask(dumpTaskId, 1, -1, "", text)
-            (typ, reporter) match {
-              case (OutputType.StdErr, reporter: ExternalSystemNotificationReporter) =>
+            typ match {
+              case OutputType.StdErr =>
                 reporter.logErr(text)
               case _ =>
                 reporter.log(text)

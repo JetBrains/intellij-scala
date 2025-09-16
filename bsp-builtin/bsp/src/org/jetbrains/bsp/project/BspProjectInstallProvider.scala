@@ -34,13 +34,9 @@ trait BspProjectInstallProvider {
     }
 
     def finishInstallTask(errorMsg: Option[String], result: EventResult, status: BuildMessages.BuildStatus): Try[BuildMessages] = {
-      val logError: String => Unit = (msg: String) => reporter match {
-        case reporter: ExternalSystemNotificationReporter => reporter.logErr(msg)
-        case _ => reporter.log(msg)
-      }
       val buildMessages = BuildMessages.empty.status(status)
       errorMsg.filter(_.nonEmpty).foreach { msg =>
-        logError(msg)
+        reporter.logErr(msg)
         buildMessages.addError(msg)
       }
       reporter.finishTask(dumpTaskId, BspBundle.message("bsp.resolver.installing.configuration", serverName), result)

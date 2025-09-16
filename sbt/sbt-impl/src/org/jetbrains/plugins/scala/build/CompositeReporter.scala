@@ -4,7 +4,6 @@ import com.intellij.build.FilePosition
 import com.intellij.build.events.EventResult
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 
-import java.io.File
 import java.nio.file.Path
 
 class CompositeReporter(reporters: BuildReporter*) extends BuildReporter {
@@ -31,6 +30,9 @@ class CompositeReporter(reporters: BuildReporter*) extends BuildReporter {
 
   override def log(message: String): Unit =
     reporters.foreach(_.log(message))
+
+  override def logErr(message: String): Unit =
+    reporters.foreach(_.logErr(message))
 
   override def startTask(eventId: EventId, parent: Option[EventId], message: String, time: Long): Unit =
     reporters.foreach(_.startTask(eventId, parent, message, time))

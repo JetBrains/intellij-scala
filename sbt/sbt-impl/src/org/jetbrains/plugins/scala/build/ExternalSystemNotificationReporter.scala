@@ -112,7 +112,7 @@ class ExternalSystemNotificationReporter(workingDir: String,
   override def log(message: String): Unit =
     log(message, isStdOut = true)
 
-  def logErr(message: String): Unit =
+  override def logErr(message: String): Unit =
     log(message, isStdOut = false)
 
   private def log(message: String, isStdOut: Boolean): Unit = synchronized {

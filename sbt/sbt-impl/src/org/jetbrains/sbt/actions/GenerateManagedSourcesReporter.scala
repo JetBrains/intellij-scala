@@ -29,6 +29,10 @@ private[sbt] final class GenerateManagedSourcesReporter extends BuildReporter {
 
   override def clear(file: Path): Unit = {}
 
+  // TODO add custom error logging logic if when necessary
+  override def logErr(message: String): Unit =
+    log(message)
+
   override def log(message: String): Unit = {
     if (splitLine && logLevelPrefixes.exists(message.startsWith)) {
       // There are lines printed by sbt after which user input is expected. These do not end with a newline. We do not

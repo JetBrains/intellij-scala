@@ -45,6 +45,10 @@ class IndicatorReporter(indicator: ProgressIndicator) extends BuildReporter {
     indicator.setText2(positionString(position))
   }
 
+  // TODO add custom error logging logic if when necessary
+  override def logErr(message: String): Unit =
+    log(message)
+
   override def log(message: String): Unit = {
     indicator.setText(SbtBundle.message("report.building"))
     myAnsiEscapeDecoder.escapeText(message, ProcessOutputTypes.STDOUT, (messageUnescaped, _) => {
