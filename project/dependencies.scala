@@ -47,7 +47,7 @@ object Versions {
   val junitInterfaceVersion: String = "0.13.3"
 
   val bspVersion = "2.1.0-M3"
-  val sbtStructureVersion: String = "2025.3.1"
+  val sbtStructureVersion: String = "2025.3.2"
   val sbtIdeaShellVersion: String = "2025.2.0"
   val compilerIndicesVersion = "1.0.16"
 
@@ -74,6 +74,7 @@ object Versions {
     val structure_extractor_binary_0_13 = "0.13"
     val structure_extractor_binary_1_0 = "1.0"
     val structure_extractor_binary_1_3 = "1.3"
+    //NOTE: try using "2.0" during local development when using `+publishLocal` in sbt-structure
     val structure_extractor_binary_2 = "2"
   }
 }
