@@ -1,20 +1,21 @@
 package org.jetbrains.plugins.scala.structuralSearch
 
-import com.intellij.codeInsight.template.TemplateContextType
+import com.intellij.codeInsight.template.{TemplateContextType, TemplateManager}
 import com.intellij.lang.Language
+import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.{PsiElement, PsiElementVisitor, PsiFile}
 import com.intellij.structuralsearch.impl.matcher.compiler.GlobalCompilingVisitor
 import com.intellij.structuralsearch.impl.matcher.predicates.MatchPredicate
 import com.intellij.structuralsearch.impl.matcher.{CompiledPattern, GlobalMatchingVisitor}
-import com.intellij.structuralsearch.plugin.replace.ReplacementInfo
-import com.intellij.structuralsearch.plugin.replace.impl.ParameterInfo
+import com.intellij.structuralsearch.plugin.replace.impl.{ParameterInfo, ReplacementBuilder}
+import com.intellij.structuralsearch.plugin.replace.{ReplaceOptions, ReplacementInfo}
 import com.intellij.structuralsearch.plugin.ui.{Configuration, UIUtil}
 import com.intellij.structuralsearch.{MatchOptions, MatchResult, MatchVariableConstraint, StructuralSearchProfile, StructuralSearchProfileBase}
 import com.intellij.util.SmartList
 import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaFileTemplateContextType
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScConstructorInvocation, ScStableCodeReference}
@@ -25,6 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypeBoundsOwner}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
+import org.jetbrains.plugins.scala.structuralSearch.ScalaStructuralSearchProfile.REPLACEMENT_CONTEXT
 import org.jetbrains.plugins.scala.structuralSearch.predicates.ScExprTypePredicate
 import org.jetbrains.plugins.scala.structuralSearch.replace.ScalaReplacementBuilder
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
@@ -162,39 +164,52 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
 
   override def getPredefinedTemplates: Array[Configuration] = ScalaPredefinedConfigurations.createPredefinedTemplated()
 
-  //  override def provideAdditionalReplaceOptions(node: PsiElement, options: ReplaceOptions, builder: ReplacementBuilder): Unit = {
-  //    val result = ""
-  //    node.accept(new ScalaRecursiveElementVisitor() {
-  //      override def visitElement(element: PsiElement): Unit = {
-  //        super.visitElement(element)
-  //        builder.findParameterization(element) match {
-  //          case null =>
-  //          case typeinfo =>
-  //            typeinfo.putUserData(RESULT_CONTEXT, result)
-  //        }
-  //      }
-  //
-  //      override def visitScalaElement(element: ScalaPsiElement): Unit = {
-  //        super.visitScalaElement(element)
-  //        visitElement(element)
-  //      }
-  //    })
-  //  }
+    override def provideAdditionalReplaceOptions(node: PsiElement, options: ReplaceOptions, builder: ReplacementBuilder): Unit = {
+      val originalReplacement = TemplateManager.getInstance(node.getProject).createTemplate("", "", options.getReplacement).getTemplateText
 
-  override def handleSubstitution(info: ParameterInfo, res: MatchResult, result: lang.StringBuilder, replacementInfo: ReplacementInfo): Unit = {
-    val repl: PsiElement = info.getElement
-    if (repl == null)
-      throw Exception("May not be null")
-    val replRoot: PsiFile = repl.getContainingFile
+      val sb = StringBuilder()
+      ScalaReplacementBuilder(this).buildReplacement(node, None, sb)
+      val emptyReplacement = sb.toString()
 
-    result.delete(0, result.length())
-    ScalaReplacementBuilder(this).buildReplacement(replRoot, res.getRoot, StringBuilder(result))
-  }
+      node.elements.foreach(el => {
+        builder.findParameterization(el) match {
+          case null =>
+          case typeinfo =>
+            typeinfo.putUserData(REPLACEMENT_CONTEXT, (originalReplacement, emptyReplacement))
+        }
+      })
+    }
 
-  override def handleNoSubstitution(info: ParameterInfo, result: lang.StringBuilder): Unit = {
-  }
-}
+      override def handleSubstitution(info: ParameterInfo, res: MatchResult, result: lang.StringBuilder, replacementInfo: ReplacementInfo): Unit = {
+        info.getUserData(REPLACEMENT_CONTEXT) match {
+          case null =>
+          case (orig, empty) =>
+            if (result.toString != orig && result.toString != empty)
+              return
+        }
+        result.delete(0, result.length())
 
-object ScalaStructuralSearchProfile {
+        val repl: PsiElement = info.getElement
+        if (repl == null)
+          throw Exception("May not be null")
+        val replRoot: PsiFile = repl.getContainingFile
+
+        ScalaReplacementBuilder(this).buildReplacement(replRoot, res.getRoot, StringBuilder(result))
+      }
+
+      override def handleNoSubstitution(info: ParameterInfo, result: lang.StringBuilder): Unit = {
+        info.getUserData(REPLACEMENT_CONTEXT) match {
+          case null =>
+          case (orig, empty) =>
+            if (result.toString == orig) {
+              result.delete(0, result.length())
+              result.append(empty)
+            }
+        }
+      }
+    }
+
+  object ScalaStructuralSearchProfile {
   val PATTERN_CONTEXT = "__pattern__context"
+  val REPLACEMENT_CONTEXT: Key[(String, String)] = Key("PARAMETER_CONTEXT")
 }
