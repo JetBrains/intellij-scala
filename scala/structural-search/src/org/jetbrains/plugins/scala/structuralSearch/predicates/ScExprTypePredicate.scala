@@ -5,8 +5,9 @@ import com.intellij.psi.{PsiClass, PsiElement}
 import com.intellij.structuralsearch.impl.matcher.MatchContext
 import com.intellij.structuralsearch.impl.matcher.predicates.MatchPredicate
 import com.intellij.structuralsearch.{MalformedPatternException, SSRBundle}
+import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResultExt, Typeable}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScTypeExt}
@@ -66,7 +67,7 @@ class ScExprTypePredicate(val ty: String, baseName: String, val withinHierarchy:
     (cl.getName match {
       case null => false
       case n => matchName(n)
-    }) || (cl.getQualifiedName match {
+    }) || (cl.qualifiedName match {
       case null => false
       case n => matchName(n)
     })
