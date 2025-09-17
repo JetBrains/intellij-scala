@@ -186,52 +186,53 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
 
   override def getPredefinedTemplates: Array[Configuration] = ScalaPredefinedConfigurations.createPredefinedTemplated()
 
-    override def provideAdditionalReplaceOptions(node: PsiElement, options: ReplaceOptions, builder: ReplacementBuilder): Unit = {
-      val originalReplacement = TemplateManager.getInstance(node.getProject).createTemplate("", "", options.getReplacement).getTemplateText
+  override def provideAdditionalReplaceOptions(node: PsiElement, options: ReplaceOptions, builder: ReplacementBuilder): Unit = {
+    val originalReplacement = TemplateManager.getInstance(node.getProject).createTemplate("", "", options.getReplacement).getTemplateText
 
-      val sb = StringBuilder()
-      ScalaReplacementBuilder(this).buildReplacement(node, None, sb)
-      val emptyReplacement = sb.toString()
+    val sb = StringBuilder()
+    ScalaReplacementBuilder(this).buildReplacement(node, None, sb)
+    val emptyReplacement = sb.toString()
 
-      node.elements.foreach(el => {
-        builder.findParameterization(el) match {
-          case null =>
-          case typeinfo =>
-            typeinfo.putUserData(REPLACEMENT_CONTEXT, (originalReplacement, emptyReplacement))
-        }
-      })
-    }
-
-      override def handleSubstitution(info: ParameterInfo, res: MatchResult, result: lang.StringBuilder, replacementInfo: ReplacementInfo): Unit = {
-        info.getUserData(REPLACEMENT_CONTEXT) match {
-          case null =>
-          case (orig, empty) =>
-            if (result.toString != orig && result.toString != empty)
-              return
-        }
-        result.delete(0, result.length())
-
-        val repl: PsiElement = info.getElement
-        if (repl == null)
-          throw Exception("May not be null")
-        val replRoot: PsiFile = repl.getContainingFile
-
-        ScalaReplacementBuilder(this).buildReplacement(replRoot, res.getRoot, StringBuilder(result))
+    node.elements.foreach(el => {
+      builder.findParameterization(el) match {
+        case null =>
+        case typeinfo =>
+          typeinfo.putUserData(REPLACEMENT_CONTEXT, (originalReplacement, emptyReplacement))
       }
+    })
+  }
 
-      override def handleNoSubstitution(info: ParameterInfo, result: lang.StringBuilder): Unit = {
-        info.getUserData(REPLACEMENT_CONTEXT) match {
-          case null =>
-          case (orig, empty) =>
-            if (result.toString == orig) {
-              result.delete(0, result.length())
-              result.append(empty)
-            }
-        }
-      }
+  override def handleSubstitution(info: ParameterInfo, res: MatchResult, result: lang.StringBuilder, replacementInfo: ReplacementInfo): Unit = {
+    info.getUserData(REPLACEMENT_CONTEXT) match {
+      case null =>
+      case (orig, empty) =>
+        if (result.toString != orig && result.toString != empty)
+          return
     }
+    result.delete(0, result.length())
+
+    val repl: PsiElement = info.getElement
+    if (repl == null)
+      throw Exception("May not be null")
+    val replRoot: PsiFile = repl.getContainingFile
+
+    ScalaReplacementBuilder(this).buildReplacement(replRoot, res.getRoot, StringBuilder(result))
+  }
+
+  override def handleNoSubstitution(info: ParameterInfo, result: lang.StringBuilder): Unit = {
+    info.getUserData(REPLACEMENT_CONTEXT) match {
+      case null =>
+      case (orig, empty) =>
+        if (result.toString == orig) {
+          result.delete(0, result.length())
+          result.append(empty)
+        }
+    }
+  }
+}
 
   object ScalaStructuralSearchProfile {
   val PATTERN_CONTEXT = "__pattern__context"
+  val SCOPE_ID = "__scopematch__id"
   val REPLACEMENT_CONTEXT: Key[(String, String)] = Key("PARAMETER_CONTEXT")
 }

@@ -76,6 +76,12 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
   private def checkModifier(pattern: EnumSet[ScalaModifier], other: EnumSet[ScalaModifier]): Boolean =
     pattern.toArray.forall(p => other.contains(p))
 
+  private def matchTextOrVariable(pattern: Option[PsiElement], other: Option[PsiElement], handler: MatchingHandler): Boolean = {
+    (pattern, other) match {
+      case (Some(pat), Some(ot)) => matchTextOrVariable(pat, ot, handler)
+      case _ => false
+    }
+  }
   private def matchTextOrVariable(pattern: PsiElement, other: PsiElement, handler: MatchingHandler): Boolean = {
     handler match {
       case substHandler: SubstitutionHandler => substHandler.handle(other, globalVisitor.getMatchContext)
@@ -135,7 +141,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
         case (_: ScGiven, _: ScGiven) => true
         case _ => false
       }
-      def nameMatch = matchTextOrVariable(Option(typedef.nameId).getOrElse(typedef.getIdentifyingElement), Option(other.nameId).getOrElse(other.getIdentifyingElement), handler)
+      def nameMatch = matchTextOrVariable(Option(typedef.nameId), Option(other.nameId), handler)
       def typeParamsMatch = matchInAnyOrder(ArraySeq.unsafeWrapArray(typedef.getTypeParameters), ArraySeq.unsafeWrapArray(other.getTypeParameters))
       def constructorsMatch = (typedef, other) match {
         case (typedef: ScConstructorOwner, other: ScConstructorOwner) =>
@@ -163,7 +169,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
       globalVisitor.setResult(typeDefMatch && nameMatch && typeParamsMatch
         && constructorsMatch && casesMatch && derivesMatch && extendsBlockMatch)
     } finally {
-      scopeMatch(typedef, isTypedVar, other)
+      scopeMatch(typedef, isTypedVar, other, Some(other.nameId), typedef)
     }
   }
 
@@ -245,7 +251,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
 
       globalVisitor.setResult(valvarMatch && modifierMatch && annotationsMatch && namesMatch && typesMatch && exprMatch)
     } finally {
-      scopeMatch(pat, isTypedVar, other)
+      scopeMatch(pat, isTypedVar, other, other.declaredElements.headOption, pat)
     }
   }
 
@@ -313,16 +319,14 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
 
       globalVisitor.setResult(annotationsMatch && modifierMatch && nameMatch && typeParamsMatch && paramsMatch && rTypeMatch && bodyMatch)
     } finally {
-      if (isTypedVar)
-        context.getResult.addChild(new MatchResultImpl(ScalaStructuralSearchProfile.PATTERN_CONTEXT, fun.getText, fun, 0, 0, false))
-      scopeMatch(fun, isTypedVar, other)
+      scopeMatch(fun, isTypedVar, other, Option(other.nameId), fun)
     }
   }
 
   private def visitTypeParam(typeParam: ScTypeParam): Unit = {
     val other = globalVisitor.getElement.asInstanceOf[ScTypeParam]
     val handler = getHandler(typeParam)
-    def nameMatch = matchTextOrVariable(typeParam.getNameIdentifier, other.getNameIdentifier, handler)
+    def nameMatch = matchTextOrVariable(Option(typeParam.nameId), Option(other.nameId), handler)
     def flagsMatch = (!typeParam.isCovariant || other.isCovariant) && (!typeParam.isContravariant || other.isContravariant)
     def lowerBoundMatch = matchOptOptional(typeParam.lowerTypeElement, other.lowerTypeElement)
     def upperBoundMatch = matchOptOptional(typeParam.upperTypeElement, other.upperTypeElement)
@@ -467,15 +471,13 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
       def annotationsMatch = matchInAnyOrder(parameter.annotations, other.annotations)
       def modifierMatch = checkModifier(parameter.getModifierList.modifiers, other.getModifierList.modifiers)
       def typeMatch = matchOptOptional(parameter.typeElement, other.typeElement)
-      def identMatch = matchTextOrVariable(parameter.getIdentifyingElement, other.getIdentifyingElement, handler)
+      def identMatch = matchTextOrVariable(Option(parameter.nameId).orElse(Some(parameter.getIdentifyingElement)), Option(other.nameId).orElse(Some(other.getIdentifyingElement)), handler)
       def defaultMatch = matchOptOptional(parameter.getDefaultExpression, other.getDefaultExpression)
       def valvarMatch = matchValVar(parameter, other)
 
       globalVisitor.setResult(annotationsMatch && modifierMatch && typeMatch && identMatch && valvarMatch && defaultMatch)
     } finally {
-      if (isTypedVar)
-        context.getResult.addChild(new MatchResultImpl(ScalaStructuralSearchProfile.PATTERN_CONTEXT, parameter.getText, parameter, 0, 0, false))
-      globalVisitor.scopeMatch(parameter, isTypedVar, other)
+      scopeMatch(parameter, isTypedVar, other, Option(other.nameId), parameter)
     }
   }
 
@@ -588,9 +590,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
       val exprMatch = matchOptOptional(cc.expr, other.expr)
       globalVisitor.setResult(patternMatch && exprMatch && guardMatch)
     } finally {
-      if (isTypedVar)
-        context.getResult.addChild(new MatchResultImpl(ScalaStructuralSearchProfile.PATTERN_CONTEXT, cc.getText, cc, 0, 0, false))
-      scopeMatch(cc, isTypedVar, other)
+      scopeMatch(cc, isTypedVar, other, other.pattern, cc)
     }
   }
 
@@ -633,7 +633,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
       val resultMatch = matchOpt(cc.result, other.result)
       globalVisitor.setResult(patternMatch && resultMatch)
     } finally {
-      scopeMatch(cc, isTypedVar, other)
+      scopeMatch(cc, isTypedVar, other, other.pattern, cc)
     }
   }
 
@@ -940,7 +940,13 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     }
   }
 
-  def scopeMatch(patternNode: PsiElement, typedVar: Boolean, matchNode: PsiElement): Unit = {
+  def scopeMatch(patternNode: PsiElement, typedVar: Boolean, matchNode: PsiElement, ident: Option[PsiElement], pattern: PsiElement): Unit = {
+    if (typedVar) {
+      ident.foreach(
+        id => globalVisitor.getMatchContext.getResult.addChild(new MatchResultImpl(ScalaStructuralSearchProfile.SCOPE_ID, id.getText, id, 0, 0, false))
+      )
+      globalVisitor.getMatchContext.getResult.addChild(new MatchResultImpl(ScalaStructuralSearchProfile.PATTERN_CONTEXT, pattern.getText, pattern, 0, 0, false))
+    }
     getHandler(patternNode) match {
       case tlh: TopLevelMatchingHandler =>
         val ident = new JavaIdentifier(patternNode)

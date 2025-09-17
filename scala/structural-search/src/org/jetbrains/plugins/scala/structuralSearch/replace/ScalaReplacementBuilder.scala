@@ -7,8 +7,10 @@ import org.jetbrains.plugins.scala.extensions.implementation.iterator.ChildrenIt
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScGuard
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParamClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScGivenDefinition, ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.structuralSearch.ScalaStructuralSearchProfile
 import org.jetbrains.plugins.scala.structuralSearch.ScalaStructuralSearchProfile.PATTERN_CONTEXT
 
 import scala.collection.mutable
@@ -118,6 +120,20 @@ class ScalaReplacementBuilder(val profile: StructuralSearchProfile) {
     buildReplacement(element, Some(scopeRes), result)
   def buildReplacement(element: PsiElement, scopeRes: Option[MatchResult], result: StringBuilder): Unit = {
     element match {
+      // Build class likes
+      case replacePat: (ScClass | ScTrait | ScObject | ScGivenDefinition) =>
+        val replacePattern: ScTemplateDefinition = replacePat
+
+        def buildClass(subRes: Option[MatchResult], insertBefore: Map[PsiElement, String] = Map(), insertAfter: Map[PsiElement, String] = Map()): Unit = {
+          buildChildren(replacePattern, subRes, result)
+        }
+        handleScope(replacePattern, Option(replacePattern.nameId), scopeRes, result, (ident, subRes) => {
+          val parameterMatch = subRes.getMatch.asInstanceOf[ScTemplateDefinition]
+          val searchPattern = findMatchResult(subRes, PATTERN_CONTEXT).getOrElse(throw new Exception("Expected pattern context")).getMatch.asInstanceOf[ScTypeDefinition]
+
+          buildClass(Some(subRes))
+        }, Some(() => buildClass(scopeRes)))
+      // Build function
       case replacePattern: ScFunction =>
         def buildFunc(subRes: Option[MatchResult], insertBefore: Map[PsiElement, String] = Map(), insertAfter: Map[PsiElement, String] = Map()): Unit = {
           val skipBlocks: Skippers = mutable.Map()
@@ -166,8 +182,9 @@ class ScalaReplacementBuilder(val profile: StructuralSearchProfile) {
           val insertBefore = mergeInserts(annotationsCopy, modifierCopy)
           val insertAfter = mergeInserts(typeParaCopy, mergeInserts(retParaCopy, bodyCopy))
 
-          buildFunc(Some(subRes), insertBefore, insertAfter)
+          buildFunc(Some(subRes), insertBefore = insertBefore, insertAfter = insertAfter)
         }, Some(() => buildFunc(scopeRes)))
+      // Build parameter
       case replacePattern: ScParameter =>
         handleScope(replacePattern, Option(replacePattern.nameId), scopeRes, result, body = (ident, subRes) => {
           val parameterMatch = subRes.getMatch.asInstanceOf[ScParameter]
@@ -186,6 +203,13 @@ class ScalaReplacementBuilder(val profile: StructuralSearchProfile) {
               if (searchPattern.annotations.isEmpty) {
                 result.append(parameterMatch.annotations.map(_.getText + " ").mkString)
               }
+          }
+          {
+            val source = if replacePattern.isVal || replacePattern.isVar then replacePattern else parameterMatch
+            if (source.isVal)
+              result.append("val ")
+            else if (source.isVar)
+              result.append("var ")
           }
           buildReplacement(ident, subRes, result)
           replacePattern.typeElement match {
@@ -217,6 +241,7 @@ class ScalaReplacementBuilder(val profile: StructuralSearchProfile) {
               }
           }
         })
+      // Build annotation
       case annotation: ScAnnotation =>
         val text = annotation.constructorInvocation.reference.map(_.getText).getOrElse("")
         if (profile.isReplacementTypedVariable(text)) {
@@ -231,8 +256,10 @@ class ScalaReplacementBuilder(val profile: StructuralSearchProfile) {
         } else {
           buildChildren(element, scopeRes, result)
         }
+      // Build case guard
       case guard: ScGuard =>
         buildChildren(guard, scopeRes, result, skipBlock = mutable.Map(guard.getFirstChild -> (guard.getLastChild, guard.expr.orNull, 0)))
+      // Build case clause
       case replacePattern: ScCaseClause =>
         handleScope(replacePattern, replacePattern.pattern, scopeRes, result, (ident, subRes) => {
           val ccMatch = subRes.getMatch match {
@@ -245,6 +272,7 @@ class ScalaReplacementBuilder(val profile: StructuralSearchProfile) {
           val skippers: Skippers = replacePattern.guard.map(guard => mutable.Map(guard.getPrevSibling -> (guard.asInstanceOf[PsiElement], guard.asInstanceOf[PsiElement], 0))).getOrElse(mutable.Map())
           buildChildren(replacePattern, Some(subRes), result, insertAfter = insertAfter, skipBlock = skippers)
         })
+      // Default case for leaf elements
       case _ if element.getFirstChild == null =>
         val text = element.getText
         if (profile.isReplacementTypedVariable(text)) {
@@ -252,14 +280,25 @@ class ScalaReplacementBuilder(val profile: StructuralSearchProfile) {
             case None =>
             case Some(res) =>
               if (res.isMultipleMatch)
-                handleMultiple(res, result, subRes => result.append(subRes.getMatchImage))
+                handleMultiple(res, result, subRes => insertImage(subRes, result))
               else
-                result.append(res.getMatchImage)
+                insertImage(res, result)
           }
         } else {
           result.append(text)
         }
+      // Default case non leaf elements
       case _ => buildChildren(element, scopeRes, result)
     }
+  }
+
+  private def insertImage(res: MatchResult, sb: StringBuilder): Unit = {
+    if (res.isScopeMatch)
+      findMatchResult(res, ScalaStructuralSearchProfile.SCOPE_ID) match {
+        case None => sb.append(res.getMatchImage)
+        case Some(mR) => sb.append(mR.getMatchImage)
+      }
+    else
+      sb.append(res.getMatchImage)
   }
 }
