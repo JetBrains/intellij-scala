@@ -21,7 +21,19 @@ class ScalaReplacementBuilder(val profile: StructuralSearchProfile) {
     findMatchResult(Some(res), name)
   def findMatchResult(res: Option[MatchResult], name: String): Option[MatchResult] = {
     res.flatMap(_.getChildren.asScala.find(_.getName == name))
-      .orElse(res.filter(_.getName == name))
+      .orElse(res.flatMap(findRecMatchResult(_, None, name)))
+      .orElse(res.flatMap(r => findRecMatchResult(r.getRoot, res, name)))
+  }
+
+  def findRecMatchResult(res: MatchResult, ignored: Option[MatchResult], name: String): Option[MatchResult] = {
+    if (res.getChildren.asScala.exists(ignored.contains)) return None
+    if (res.getName == name) return Some(res)
+    for (subRes <- res.getChildren.asScala) {
+      val found = findRecMatchResult(subRes, ignored, name)
+      if (found.nonEmpty)
+        return found
+    }
+    None
   }
 
   type SkipConf = (PsiElement, PsiElement, Int)
