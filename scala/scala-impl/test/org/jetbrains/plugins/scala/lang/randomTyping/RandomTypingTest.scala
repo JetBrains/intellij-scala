@@ -56,7 +56,7 @@ class RandomTypingTest_in_Scala2 extends RandomTypingTestBase(TestUtils.getTestD
 }
 
 abstract class RandomTypingTestBase(testFilePath: String) extends EditorActionTestBase {
-  val logging = true
+  val logging = false
 
   private def log(s: Any): Unit =
     if (logging) println(s)
