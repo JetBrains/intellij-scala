@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.structuralSearch.replace
 
 import com.intellij.structuralsearch.MatchOptions
-import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.structuralSearch.ScalaStructuralReplaceTestCase
 
 class ScSRClassTest extends ScalaStructuralReplaceTestCase {

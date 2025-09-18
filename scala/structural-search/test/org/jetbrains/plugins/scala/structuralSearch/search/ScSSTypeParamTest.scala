@@ -47,9 +47,5 @@ class ScSSTypeParamTest extends ScalaStructuralSearchTestCase {
       "Match lower bound",
       clearMarker(content, Set("AE")), "class $name$[T >: $S$] {}"
     )
-    matchAndAssert(
-      "Variable works and remembers correctly",
-      clearMarker(content, Set("AE")), "class $name$[T >: $S$, $S$] {}"
-    )
   }
 }

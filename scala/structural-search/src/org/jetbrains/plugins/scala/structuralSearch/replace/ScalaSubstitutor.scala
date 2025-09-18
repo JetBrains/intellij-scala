@@ -1,10 +1,9 @@
 package org.jetbrains.plugins.scala.structuralSearch.replace
 
 import com.intellij.codeInsight.template.TemplateManager
-import com.intellij.psi.PsiElement
 import com.intellij.structuralsearch.plugin.replace.ReplacementInfo
-import com.intellij.structuralsearch.plugin.replace.impl.{ParameterInfo, ReplacementBuilder}
-import com.intellij.structuralsearch.{MalformedPatternException, MatchResult, StructuralSearchProfile, UnsupportedPatternException}
+import com.intellij.structuralsearch.plugin.replace.impl.ParameterInfo
+import com.intellij.structuralsearch.{MatchResult, StructuralSearchProfile, UnsupportedPatternException}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 

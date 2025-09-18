@@ -28,14 +28,10 @@ class ScalaReplacementBuilder(val profile: StructuralSearchProfile) {
   }
 
   def findRecMatchResult(res: MatchResult, ignored: Option[MatchResult], name: String): Option[MatchResult] = {
-    if (res.getChildren.asScala.exists(ignored.contains)) return None
-    if (res.getName == name) return Some(res)
-    for (subRes <- res.getChildren.asScala) {
-      val found = findRecMatchResult(subRes, ignored, name)
-      if (found.nonEmpty)
-        return found
-    }
-    None
+    if (res.getChildren.asScala.exists(ignored.contains)) None
+    else if (res.getName == name) Some(res)
+    else res.getChildren.asScala.map(findRecMatchResult(_, ignored, name))
+      .find(_.nonEmpty).flatten
   }
 
   type SkipConf = (PsiElement, PsiElement, Int)
@@ -201,7 +197,7 @@ class ScalaReplacementBuilder(val profile: StructuralSearchProfile) {
             replacePattern.asOptionOf[ScConstructorOwner].flatMap(_.constructor.filter(_.getTextLength > 0)),
             replacePattern.typeParametersClause.getOrElse(ident), parameterMatch.asOptionOf[ScConstructorOwner].flatMap(_.constructor.map(_.getText))
           )
-          val parentsCopy = ifNotMentioned(searchPattern.asOptionOf[ScTemplateDefinition].flatMap((_.extendsBlock.templateParents)),
+          val parentsCopy = ifNotMentioned(searchPattern.asOptionOf[ScTemplateDefinition].flatMap(_.extendsBlock.templateParents),
             replacePattern.extendsBlock.templateParents,
             replacePattern.asOptionOf[ScConstructorOwner].flatMap(_.constructor)
               .orElse(replacePattern.typeParametersClause)

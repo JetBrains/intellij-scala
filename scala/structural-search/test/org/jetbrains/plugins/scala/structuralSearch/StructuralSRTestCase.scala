@@ -1,20 +1,11 @@
 package org.jetbrains.plugins.scala.structuralSearch
 
-import com.intellij.lang.Language
-import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.structuralsearch.impl.matcher.CompiledPattern
-import com.intellij.structuralsearch.impl.matcher.compiler.PatternCompiler
 import com.intellij.structuralsearch.plugin.ui.UIUtil
-import com.intellij.structuralsearch.{MatchOptions, MatchResult, Matcher, StructuralSearchUtil}
+import com.intellij.structuralsearch.{MatchOptions, StructuralSearchUtil}
 import com.intellij.testFramework.LightPlatformCodeInsightTestCase
 import com.intellij.util.SmartList
-import org.jetbrains.plugins.scala.icons.Icons
-import org.jetbrains.plugins.scala.{LanguageFileTypeBase, Scala3Language}
-
-import javax.swing.Icon
-import scala.annotation.static
-import scala.jdk.CollectionConverters.*
 
 abstract class StructuralSRTestCase extends LightPlatformCodeInsightTestCase {
   protected var options: MatchOptions = null

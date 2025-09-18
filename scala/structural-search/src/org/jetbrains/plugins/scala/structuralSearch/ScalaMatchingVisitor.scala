@@ -2,9 +2,8 @@ package org.jetbrains.plugins.scala.structuralSearch
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.source.tree.{LeafElement, LeafPsiElement}
-import com.intellij.structuralsearch.MatchResult
-import com.intellij.structuralsearch.impl.matcher.{GlobalMatchingVisitor, MatchResultImpl}
 import com.intellij.structuralsearch.impl.matcher.handlers.{MatchingHandler, SubstitutionHandler, TopLevelMatchingHandler}
+import com.intellij.structuralsearch.impl.matcher.{GlobalMatchingVisitor, MatchResultImpl}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses, ScPattern, ScPatternArgumentList, ScPatterns, ScTypePattern}
@@ -323,7 +322,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     }
   }
 
-  private def visitTypeParam(typeParam: ScTypeParam): Unit = {
+  private def visitTypeParameter(typeParam: ScTypeParam): Unit = {
     val other = globalVisitor.getElement.asInstanceOf[ScTypeParam]
     val context = globalVisitor.getMatchContext
     val isTypedVar = context.getPattern.isTypedVar(typeParam.name)
@@ -906,7 +905,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
 
   override def visitScalaElement(element: ScalaPsiElement): Unit = {
     element match {
-      case typeParam: ScTypeParam => visitTypeParam(typeParam)
+      case typeParam: ScTypeParam => visitTypeParameter(typeParam)
       case finallyBlock: ScFinallyBlock => visitFinally(finallyBlock)
       case tuple: ScNamedTupleExprComponent => visitNamedTupleExprComponent(tuple)
       case tuple: ScNamedTupleTypeComponent => visitNamedTupleTypeComponent(tuple)

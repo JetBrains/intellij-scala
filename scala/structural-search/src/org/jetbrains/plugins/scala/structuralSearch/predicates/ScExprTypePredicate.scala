@@ -50,7 +50,6 @@ class ScExprTypePredicate(val ty: String, baseName: String, val withinHierarchy:
         }
         case _ => false
       }
-      case td: ScTypeDefinition => matchClassOrSuper(td)
       case _ => false
     }
   }

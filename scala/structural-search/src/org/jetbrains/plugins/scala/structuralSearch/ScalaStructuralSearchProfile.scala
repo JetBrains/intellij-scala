@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.structuralSearch
 
 import com.intellij.codeInsight.template.{TemplateContextType, TemplateManager}
-import com.intellij.dupLocator.iterators.NodeIterator
 import com.intellij.lang.Language
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.text.StringUtil

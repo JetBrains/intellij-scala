@@ -32,7 +32,7 @@ abstract class ScalaStructuralReplaceTestCase extends LightPlatformCodeInsightTe
       .split("\n").map(_.strip()).filter(_.nonEmpty).mkString("\n")
     val exp = expected.stripMargin.strip.split("\n").map(_.strip()).filter(_.nonEmpty).mkString("\n")
     assert(result == exp,
-      s"Replace pattern for '$name' did not match\n$result\n  instead of\n${exp}")
+      s"Replace pattern for '$name' did not match\n$result\n  instead of\n$exp")
   }
 
   protected def replace(in: String, what: String, by: String, sourceIsFile: Boolean,
