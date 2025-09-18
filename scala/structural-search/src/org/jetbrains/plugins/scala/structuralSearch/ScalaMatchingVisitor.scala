@@ -325,13 +325,20 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
 
   private def visitTypeParam(typeParam: ScTypeParam): Unit = {
     val other = globalVisitor.getElement.asInstanceOf[ScTypeParam]
-    val handler = getHandler(typeParam)
-    def nameMatch = matchTextOrVariable(Option(typeParam.nameId), Option(other.nameId), handler)
-    def flagsMatch = (!typeParam.isCovariant || other.isCovariant) && (!typeParam.isContravariant || other.isContravariant)
-    def lowerBoundMatch = matchOptOptional(typeParam.lowerTypeElement, other.lowerTypeElement)
-    def upperBoundMatch = matchOptOptional(typeParam.upperTypeElement, other.upperTypeElement)
+    val context = globalVisitor.getMatchContext
+    val isTypedVar = context.getPattern.isTypedVar(typeParam.name)
 
-    globalVisitor.setResult(nameMatch && flagsMatch && lowerBoundMatch && upperBoundMatch)
+    context.pushResult()
+    try {
+      val handler = getHandler(typeParam)
+      def nameMatch = matchTextOrVariable(Option(typeParam.nameId), Option(other.nameId), handler)
+      def flagsMatch = (!typeParam.isCovariant || other.isCovariant) && (!typeParam.isContravariant || other.isContravariant)
+      def lowerBoundMatch = matchOptOptional(typeParam.lowerTypeElement, other.lowerTypeElement)
+      def upperBoundMatch = matchOptOptional(typeParam.upperTypeElement, other.upperTypeElement)
+      globalVisitor.setResult(nameMatch && flagsMatch && lowerBoundMatch && upperBoundMatch)
+    } finally {
+      scopeMatch(typeParam, isTypedVar, other, Option(other.nameId), typeParam)
+    }
   }
 
   private def unwrapTypeParenthesis(te: ScTypeElement): Option[ScTypeElement] = {
@@ -423,10 +430,17 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
       return
     }
     val other = globalVisitor.getElement.asInstanceOf[ScConstructorInvocation]
+    val context = globalVisitor.getMatchContext
+    val isTypedVar = context.getPattern.isTypedVar(constrInvocation.typeElement.getText)
 
-    def typeMatch = globalVisitor.`match`(constrInvocation.typeElement, other.typeElement)
-    def argsMatch = constrInvocation.arguments.isEmpty || matchSequentially(constrInvocation.arguments, other.arguments)
-    globalVisitor.setResult(typeMatch && argsMatch)
+    context.pushResult()
+    try {
+      def typeMatch = globalVisitor.`match`(constrInvocation.typeElement, other.typeElement)
+      def argsMatch = constrInvocation.arguments.isEmpty || matchSequentially(constrInvocation.arguments, other.arguments)
+      globalVisitor.setResult(typeMatch && argsMatch)
+    } finally {
+      scopeMatch(constrInvocation, isTypedVar, other, Some(other.typeElement), constrInvocation)
+    }
   }
 
   override def visitParameters(parameters: ScParameters): Unit = {

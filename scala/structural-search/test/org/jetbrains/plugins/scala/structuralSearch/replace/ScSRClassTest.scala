@@ -21,9 +21,46 @@ class ScSRClassTest extends ScalaStructuralReplaceTestCase {
     )
   }
 
+  def testCopyAll(): Unit = {
+    replaceAndAssert(
+      s"No content change with variables for copy all",
+      content.last,
+      """@$anno$
+        |private abstract class $class$[$typs$]($para$) extends $ext$ {
+        |  var $var$
+        |  def $func$()
+        |  class $subClass$
+        |}
+        |""",
+      """@$anno$
+        |private abstract trait $class$[$typs$]($para$) extends $ext$ {
+        |  var $var$
+        |  def $func$()
+        |  class $subClass$
+        |}
+        |""",
+      content.last
+        .replace("class class", "trait class"),
+      mO => {
+        constrCount(mO, "anno")
+        constrCount(mO, "typs")
+        constrCount(mO, "para")
+        constrCount(mO, "ext")
+        constrCount(mO, "var")
+        constrCount(mO, "func")
+        constrCount(mO, "subClass")
+      }
+    )
+  }
+
   def testNoChangeVariables(): Unit = {
     val patterns = List(
-      ("class $class$ {}", "trait $class$ {}"),
+      ("""class $class$ {
+         |}
+         |""",
+        """trait $class$ {
+          |}
+          |"""),
       ("""@$anno$
          |private abstract class $class$[$typs$]($para$) extends $ext$ {
          |  var $var$
@@ -41,25 +78,25 @@ class ScSRClassTest extends ScalaStructuralReplaceTestCase {
       ),
       ("""
          |private abstract class $class$($para$) {
-         |  var $var$
+         |  def $func$()
          |  class $subClass$
          |}
          |""",
         """
           |private abstract trait $class$($para$) {
-          |  var $var$
+          |  def $func$()
           |  class $subClass$
           |}
           |"""
       ),
       ("""@$anno$
          |class $class$[$typs$] extends $ext$ {
-         |  def $func$()
+         |  class $subClass$
          |}
          |""",
         """@$anno$
           |trait $class$[$typs$] extends $ext$ {
-          |  def $func$()
+          |  class $subClass$
           |}
           |"""
       ),
@@ -67,7 +104,7 @@ class ScSRClassTest extends ScalaStructuralReplaceTestCase {
     for ((spattern, rpattern) <- patterns) {
       val exp = content
           .map(_.stripMargin.strip())
-          .map(line => if spattern.contains("protected") then line.replace("class class", "trait class") else line)
+          .map(line => if !spattern.contains("private") || line.contains("private") then line.replace("class class", "trait class") else line)
           .mkString("\n")
       replaceAndAssert(
         s"No content change with variables for pattern <$spattern>",
@@ -118,7 +155,7 @@ class ScSRClassTest extends ScalaStructuralReplaceTestCase {
               .replace("private abstract ", "")
               .replace("[T, R]", "")
               .replace("(val a: Int, var b: String = \"Nee\", c: Double = 4.2)", "")
-              .replace("extends A(a, c), B", "")
+              .replace("extends A(a, c), B ", "")
               .replace("\n  var d: Int = 32", "")
               .replace("\n  def shoutMe(): Unit = println(b)", "")
               .replace("\n  class subClass extends C {\n    def test(): Unit = println(\"Testing started...\")\n  }", "")
@@ -141,7 +178,7 @@ class ScSRClassTest extends ScalaStructuralReplaceTestCase {
           .replace("@deprecated @noinline\n", "")
           .replace("[T, R]", "")
           .replace("(val a: Int, var b: String = \"Nee\", c: Double = 4.2)", "")
-          .replace("extends A(a, c), B", "")
+          .replace("extends A(a, c), B ", "")
           .replace("\n  var d: Int = 32", "")
           .replace("\n  def shoutMe(): Unit = println(b)", "")
           .replace("\n  class subClass extends C {\n    def test(): Unit = println(\"Testing started...\")\n  }", "")
@@ -161,7 +198,7 @@ class ScSRClassTest extends ScalaStructuralReplaceTestCase {
           |}
           |""",
         (line: String) => {
-          val num = line.split("class class").head.substring(0, 3)
+          val num = line.split("class class").tail.head.substring(0, 3)
           """@deprecated @noinline
             |private abstract trait class$id$[T, R](val a: Int, var b: String = "Nee", c: Double = 4.2) extends A(a, c), B {
             |  var d: Int = 32

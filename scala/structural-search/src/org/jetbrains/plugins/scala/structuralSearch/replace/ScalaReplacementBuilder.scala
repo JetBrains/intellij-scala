@@ -4,14 +4,14 @@ import com.intellij.psi.{PsiElement, PsiWhiteSpace}
 import com.intellij.structuralsearch.{MatchResult, StructuralSearchProfile}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.extensions.implementation.iterator.ChildrenIterator
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScAnnotationsHolder}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScAnnotationsHolder, ScConstructorInvocation}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScGuard
-import org.jetbrains.plugins.scala.lang.psi.api.statements
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParamClause}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScValueOrVariable, ScValueOrVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScConstructorOwner, ScGivenDefinition, ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScTypeParametersOwner}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScGivenDefinition, ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.structuralSearch.ScalaStructuralSearchProfile
 import org.jetbrains.plugins.scala.structuralSearch.ScalaStructuralSearchProfile.PATTERN_CONTEXT
 
@@ -40,11 +40,12 @@ class ScalaReplacementBuilder(val profile: StructuralSearchProfile) {
 
   type SkipConf = (PsiElement, PsiElement, Int)
   type Skippers = mutable.Map[PsiElement, SkipConf]
+  type InsertBeAf = Map[PsiElement, String]
   def buildChildren(psi: PsiElement,
                     scopeRes: Option[MatchResult],
                     result: StringBuilder,
-                    insertBefore: Map[PsiElement, String] = Map(),
-                    insertAfter: Map[PsiElement, String] = Map(),
+                    insertBefore: InsertBeAf = Map(),
+                    insertAfter: InsertBeAf = Map(),
                     skipBlock: Skippers = mutable.Map()): Unit = {
     var skipping = false
     var skipSb = StringBuilder()
@@ -62,7 +63,7 @@ class ScalaReplacementBuilder(val profile: StructuralSearchProfile) {
       else if (curConf.exists(_._2 == cur)) checkSb
       else skipSb
 
-      buildReplacement(cur, scopeRes, sb)
+      buildReplacement(cur, scopeRes, sb, insertBefore, insertAfter)
 
       if (skipping) {
         if (curConf.exists(_._2 == cur))
@@ -124,13 +125,14 @@ class ScalaReplacementBuilder(val profile: StructuralSearchProfile) {
       .getOrElse(noVarBody.map(_()).getOrElse(buildChildren(replacePattern, scopeRes, result)))
   }
 
-  def mergeInserts(map1: Map[PsiElement, String], map2: Map[PsiElement, String]): Map[PsiElement, String] = {
-    map1 ++ map2.map {
-      case (el, text) => el -> (map1.getOrElse(el, "") + text)
-    }
+  final def mergeInserts(maps: InsertBeAf*): InsertBeAf = {
+    maps.foldLeft(Map.empty[PsiElement, String])((map1: InsertBeAf, map2: InsertBeAf) =>
+      map1 ++ map2.map {
+        case (el, text) => el -> (map1.getOrElse(el, "") + text)
+      })
   }
 
-  def annotationSkipper(holder: ScAnnotationsHolder, nextEl: PsiElement, skipBlocks: Skippers): Unit = {
+  def createAnnotationSkipper(holder: ScAnnotationsHolder, nextEl: PsiElement, skipBlocks: Skippers): Unit = {
     holder.annotations.headOption.map(_.getParent) match {
       case None =>
       case Some(annos) =>
@@ -138,42 +140,102 @@ class ScalaReplacementBuilder(val profile: StructuralSearchProfile) {
     }
   }
 
-  def typeParametersSkippers(holder: ScTypeParametersOwner, skipBlocks: Skippers): Unit = {
+  def createTypeParametersSkippers(holder: ScTypeParametersOwner, skipBlocks: Skippers): Unit = {
     holder.typeParametersClause match {
       case None =>
       case Some(typpa) => skipBlocks.put(typpa, (typpa, typpa, 2))
     }
   }
 
+  def createAnnotationCopy(searchPattern: PsiElement, replacePattern: ScAnnotationsHolder, anchor: PsiElement, parameterMatch: PsiElement): InsertBeAf =
+    ifNotMentioned(searchPattern.asOptionOf[ScAnnotationsHolder].flatMap(_.annotations.headOption), replacePattern.annotations.headOption, anchor,
+      parameterMatch.asOptionOf[ScAnnotationsHolder].filter(_.annotations.nonEmpty).map(_.annotations.map(_.getText).mkString(" ") + "\n"))
+
+  def createModifierCopy(searchPattern: PsiElement, replacePattern: ScModifierListOwner, parameterMatch: PsiElement): InsertBeAf =
+    ifNotMentioned(searchPattern.asOptionOf[ScModifierListOwner].flatMap(_.getModifierList.modifiersOrdered.headOption), replacePattern.getModifierList.modifiersOrdered.headOption,
+      {
+        val modListSib = replacePattern.getModifierList.getNextSibling
+        if (modListSib.is[PsiWhiteSpace]) modListSib.getNextSibling
+        else modListSib
+      },
+      parameterMatch.asOptionOf[ScModifierListOwner].map(_.getModifierList.modifiersOrdered.map(_.text() + " ").mkString))
+
+  def createTypeParaCopy(searchPattern: PsiElement, replacePattern: ScTypeParametersOwner, anchor: PsiElement, parameterMatch: PsiElement): InsertBeAf =
+    ifNotMentioned(searchPattern.asOptionOf[ScTypeParametersOwner].flatMap(_.typeParametersClause), replacePattern.typeParametersClause,
+      anchor, parameterMatch.asOptionOf[ScTypeParametersOwner].flatMap(_.typeParametersClause.map(_.getText)))
+
   def buildReplacement(element: PsiElement, scopeRes: MatchResult, result: StringBuilder): Unit =
     buildReplacement(element, Some(scopeRes), result)
-  def buildReplacement(element: PsiElement, scopeRes: Option[MatchResult], result: StringBuilder): Unit = {
+  def buildReplacement(element: PsiElement, scopeRes: Option[MatchResult], result: StringBuilder, insertBefore: InsertBeAf = Map(), insertAfter: InsertBeAf = Map()): Unit = {
     element match {
+      case replacePattern: ScExtendsBlock if replacePattern.getParent.is[ScClass | ScTrait | ScObject | ScGivenDefinition] =>
+        val skipBlocks: Skippers = mutable.Map()
+        replacePattern.templateParents match {
+          case None =>
+          case Some(par) => skipBlocks.put(replacePattern.getFirstChild, (if (par.getNextSibling.is[PsiWhiteSpace]) par.getNextSibling else par, par, 0))
+        }
+        buildChildren(element, scopeRes, result, insertAfter = insertAfter, skipBlock = skipBlocks)
+      case replacePattern: ScTemplateBody if replacePattern.getParent.getParent.is[ScClass | ScTrait | ScObject | ScGivenDefinition] =>
+        buildChildren(element, scopeRes, result, insertAfter = insertAfter)
       // Build class likes
-      case replacePat: (ScClass | ScTrait | ScObject | ScGivenDefinition) =>
-        val replacePattern: ScTypeDefinition = replacePat
-
-        def buildClass(subRes: Option[MatchResult], insertBefore: Map[PsiElement, String] = Map(), insertAfter: Map[PsiElement, String] = Map()): Unit = {
-          var skipBlocks: Skippers = mutable.Map()
-          annotationSkipper(replacePattern, replacePattern.getModifierList, skipBlocks)
-          typeParametersSkippers(replacePattern, skipBlocks)
+      case replacePattern: ScTypeDefinition if replacePattern.is[ScClass | ScTrait | ScObject | ScGivenDefinition] =>
+        def buildClass(subRes: Option[MatchResult], insertBefore: InsertBeAf = Map(), insertAfter: InsertBeAf = Map()): Unit = {
+          val skipBlocks: Skippers = mutable.Map()
+          createAnnotationSkipper(replacePattern, replacePattern.getModifierList, skipBlocks)
+          createTypeParametersSkippers(replacePattern, skipBlocks)
+          replacePattern.asOptionOf[ScConstructorOwner].flatMap(_.constructor) match {
+            case None =>
+            case Some(constr) => skipBlocks.put(constr, (constr, constr, 2))
+          }
 
           buildChildren(replacePattern, subRes, result, insertBefore = insertBefore, insertAfter = insertAfter, skipBlock = skipBlocks)
         }
         handleScope(replacePattern, Option(replacePattern.nameId), scopeRes, result, (ident, subRes) => {
-          val parameterMatch = subRes.getMatch.asInstanceOf[ScTemplateDefinition]
+          val parameterMatch = subRes.getMatch
           val searchPattern = findMatchResult(subRes, PATTERN_CONTEXT).getOrElse(throw new Exception("Expected pattern context")).getMatch
 
+          val annotationCopy = createAnnotationCopy(searchPattern, replacePattern, replacePattern.getModifierList, parameterMatch)
+          val modifierCopy = createModifierCopy(searchPattern, replacePattern, parameterMatch)
+          val typeParaCopy = createTypeParaCopy(searchPattern, replacePattern, ident, parameterMatch)
+          val primConstrCopy = ifNotMentioned(searchPattern.asOptionOf[ScConstructorOwner].flatMap(_.constructor.filter(_.getTextLength > 0)),
+            replacePattern.asOptionOf[ScConstructorOwner].flatMap(_.constructor.filter(_.getTextLength > 0)),
+            replacePattern.typeParametersClause.getOrElse(ident), parameterMatch.asOptionOf[ScConstructorOwner].flatMap(_.constructor.map(_.getText))
+          )
+          val parentsCopy = ifNotMentioned(searchPattern.asOptionOf[ScTemplateDefinition].flatMap((_.extendsBlock.templateParents)),
+            replacePattern.extendsBlock.templateParents,
+            replacePattern.asOptionOf[ScConstructorOwner].flatMap(_.constructor)
+              .orElse(replacePattern.typeParametersClause)
+              .getOrElse(ident),
+            parameterMatch.asOptionOf[ScTemplateDefinition].flatMap(_.extendsBlock.templateParents.map(par => if (par.getTextLength > 0) " extends " + par.getText else "")))
 
+          val noBody = replacePattern.extendsBlock.templateBody.isEmpty
+          val (bodyStart, enclStartAdd: InsertBeAf) = {
+            if (noBody)
+              (replacePattern.extendsBlock, Map(replacePattern.extendsBlock.asInstanceOf[PsiElement] -> " {"))
+            else
+              (replacePattern.extendsBlock.templateBody.get.getEnclosingStartElement.getOrElse(throw Exception("Body needs to have start element")), Map[PsiElement, String]())
+          }
 
-          buildClass(Some(subRes))
+          val propCopy = ifNotMentioned(searchPattern.asOptionOf[ScTemplateDefinition].flatMap(_.properties.headOption),
+            replacePattern.properties.headOption, bodyStart,
+            parameterMatch.asOptionOf[ScTemplateDefinition].map(_.properties.map("\n  " + _.getText).mkString))
+          val functionCopy = ifNotMentioned(searchPattern.asOptionOf[ScTemplateDefinition].flatMap(_.functions.headOption),
+            replacePattern.functions.headOption, bodyStart,
+            parameterMatch.asOptionOf[ScTemplateDefinition].map(_.functions.map("\n  " + _.getText).mkString))
+          val subClassCopy = ifNotMentioned(searchPattern.asOptionOf[ScTemplateDefinition].flatMap(_.typeDefinitions.headOption),
+            replacePattern.typeDefinitions.headOption, bodyStart,
+            parameterMatch.asOptionOf[ScTemplateDefinition].map(_.typeDefinitions.map("\n  " + _.getText).mkString))
+          val insertBefore = mergeInserts(annotationCopy, modifierCopy)
+          val insertAfter = mergeInserts(typeParaCopy, primConstrCopy, parentsCopy, enclStartAdd, propCopy, functionCopy, subClassCopy)
+          buildClass(Some(subRes), insertBefore = insertBefore, insertAfter = insertAfter)
+          if (noBody) result.append("\n}")
         }, Some(() => buildClass(scopeRes)))
       // Build function
       case replacePattern: ScFunction =>
         def buildFunc(subRes: Option[MatchResult], insertBefore: Map[PsiElement, String] = Map(), insertAfter: Map[PsiElement, String] = Map()): Unit = {
           val skipBlocks: Skippers = mutable.Map()
-          annotationSkipper(replacePattern, replacePattern.getModifierList, skipBlocks)
-          typeParametersSkippers(replacePattern, skipBlocks)
+          createAnnotationSkipper(replacePattern, replacePattern.getModifierList, skipBlocks)
+          createTypeParametersSkippers(replacePattern, skipBlocks)
           replacePattern.returnTypeElement match {
             case None =>
             case Some(ret) =>
@@ -190,16 +252,9 @@ class ScalaReplacementBuilder(val profile: StructuralSearchProfile) {
           val parameterMatch = subRes.getMatch
           val searchPattern = findMatchResult(subRes, PATTERN_CONTEXT).getOrElse(throw new Exception("Expected pattern context")).getMatch
 
-          val modifierCopy = ifNotMentioned(searchPattern.asOptionOf[ScModifierListOwner].flatMap(_.getModifierList.modifiersOrdered.headOption), replacePattern.getModifierList.modifiersOrdered.headOption,
-            {
-              val modListSib = replacePattern.getModifierList.getNextSibling
-              if (modListSib.is[PsiWhiteSpace]) modListSib.getNextSibling
-              else modListSib
-            },
-            parameterMatch.asOptionOf[ScModifierListOwner].map(_.getModifierList.modifiersOrdered.map(_.text() + " ").mkString))
-          val annotationsCopy = ifNotMentioned(searchPattern.asOptionOf[ScAnnotationsHolder].flatMap(_.annotations.headOption), replacePattern.annotations.headOption, replacePattern.getModifierList,
-            parameterMatch.asOptionOf[ScAnnotationsHolder].filter(_.annotations.nonEmpty).map(_.annotations.map(_.getText).mkString(" ") + "\n"))
-          val typeParaCopy = ifNotMentioned(searchPattern.asOptionOf[ScTypeParametersOwner].flatMap(_.typeParametersClause), replacePattern.typeParametersClause, ident, parameterMatch.asOptionOf[ScTypeParametersOwner].flatMap(_.typeParametersClause.map(_.getText)))
+          val annotationsCopy = createAnnotationCopy(searchPattern, replacePattern, replacePattern.getModifierList, parameterMatch)
+          val modifierCopy = createModifierCopy(searchPattern, replacePattern, parameterMatch)
+          val typeParaCopy = createTypeParaCopy(searchPattern, replacePattern, ident, parameterMatch)
           val retParaCopy = ifNotMentioned(searchPattern.asOptionOf[ScFunction].flatMap(_.returnTypeElement), replacePattern.returnTypeElement, replacePattern.paramClauses,
             parameterMatch.asOptionOf[ScFunction].flatMap(_.returnTypeElement.map(": " + _.getText)))
           val retParaCopyValVar = ifNotMentioned(searchPattern.asOptionOf[ScValueOrVariable].flatMap(_.typeElement), replacePattern.returnTypeElement, replacePattern.paramClauses,
@@ -213,7 +268,7 @@ class ScalaReplacementBuilder(val profile: StructuralSearchProfile) {
             replacePattern.returnTypeElement.getOrElse(replacePattern.paramClauses),
             parameterMatch.asOptionOf[ScValueOrVariableDefinition].flatMap(_.expr).map(" = " + _.getText))
           val insertBefore = mergeInserts(annotationsCopy, modifierCopy)
-          val insertAfter = mergeInserts(typeParaCopy, mergeInserts(mergeInserts(retParaCopy, retParaCopyValVar), mergeInserts(bodyCopy, bodyCopyValVar)))
+          val insertAfter = mergeInserts(typeParaCopy, retParaCopy, retParaCopyValVar, bodyCopy, bodyCopyValVar)
 
           buildFunc(Some(subRes), insertBefore = insertBefore, insertAfter = insertAfter)
         }, Some(() => buildFunc(scopeRes)))
@@ -274,6 +329,30 @@ class ScalaReplacementBuilder(val profile: StructuralSearchProfile) {
               }
           }
         })
+      case replacePattern: ScValueOrVariable =>
+        handleScope(replacePattern, Option.when(replacePattern.declaredNames.size == 1)(replacePattern.declaredElements.head.getParent), scopeRes, result, body = (ident, subRes) => {
+          val parameterMatch = subRes.getMatch
+          val searchPattern = findMatchResult(subRes, PATTERN_CONTEXT).getOrElse(throw new Exception("Expected pattern context")).getMatch
+
+          val annotationsCopy = createAnnotationCopy(searchPattern, replacePattern, replacePattern.getModifierList, parameterMatch)
+          val modifierCopy = createModifierCopy(searchPattern, replacePattern, parameterMatch)
+          val retParaCopy = ifNotMentioned(searchPattern.asOptionOf[ScValueOrVariable].flatMap(_.typeElement), replacePattern.typeElement, ident,
+            parameterMatch.asOptionOf[ScValueOrVariable].flatMap(_.typeElement.map(": " + _.getText)))
+          val retParaCopyFunc = ifNotMentioned(searchPattern.asOptionOf[ScFunction].flatMap(_.returnTypeElement), replacePattern.typeElement, ident,
+          parameterMatch.asOptionOf[ScFunction].flatMap(_.returnTypeElement.map(": " + _.getText)))
+          val bodyCopy = ifNotMentioned(searchPattern.asOptionOf[ScValueOrVariableDefinition].flatMap(_.expr),
+            replacePattern.asOptionOf[ScValueOrVariableDefinition].flatMap(_.expr),
+            replacePattern.typeElement.getOrElse(ident),
+            parameterMatch.asOptionOf[ScValueOrVariableDefinition].flatMap(_.expr).map(" = " + _.getText))
+          val bodyCopyFunc = ifNotMentioned(searchPattern.asOptionOf[ScFunctionDefinition].flatMap(_.body),
+            replacePattern.asOptionOf[ScValueOrVariableDefinition].flatMap(_.expr),
+            replacePattern.typeElement.getOrElse(ident),
+            parameterMatch.asOptionOf[ScFunctionDefinition].flatMap(_.body).map(" = " + _.getText))
+          val insertBefore = mergeInserts(annotationsCopy, modifierCopy)
+          val insertAfter = mergeInserts(retParaCopy, retParaCopyFunc, bodyCopy, bodyCopyFunc)
+
+          buildChildren(replacePattern, Some(subRes), result, insertBefore = insertBefore, insertAfter = insertAfter)
+        })
       // Build annotation
       case annotation: ScAnnotation =>
         val text = annotation.constructorInvocation.reference.map(_.getText).getOrElse("")
@@ -326,7 +405,7 @@ class ScalaReplacementBuilder(val profile: StructuralSearchProfile) {
   }
 
   private def insertImage(res: MatchResult, sb: StringBuilder): Unit = {
-    if (res.isScopeMatch)
+    if (res.isScopeMatch && !res.getMatch.is[ScConstructorInvocation, ScTypeParam])
       findMatchResult(res, ScalaStructuralSearchProfile.SCOPE_ID) match {
         case None => sb.append(res.getMatchImage)
         case Some(mR) => sb.append(mR.getMatchImage)
