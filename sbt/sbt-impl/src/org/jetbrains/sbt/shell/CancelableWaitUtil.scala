@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.util
+package org.jetbrains.sbt.shell
 
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator}
 

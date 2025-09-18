@@ -17,6 +17,11 @@ import java.nio.file.Path
 import javax.swing.JComponent
 import scala.concurrent.Promise
 
+/**
+ * Reports events to the Build Tool Window.
+ *
+ * @param activateToolWindowWhenFailed If true, activates the tool window when a finish event with failure result is emitted.
+ */
 class BuildToolWindowReporter(project: Project,
                               buildId: EventId,
                               @Nls title: String,

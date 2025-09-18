@@ -23,7 +23,6 @@ import org.jetbrains.plugins.scala.build.BuildToolWindowReporter.CancelBuildActi
 import org.jetbrains.plugins.scala.build.{BuildMessages, CompositeReporter, IndicatorReporter, TaskRunnerResult}
 import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.util.{ExternalSystemVfsUtil, ScalaNotificationGroups}
-import org.jetbrains.plugins.scala.util.CancelableWaitUtil
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.settings.SbtSettings

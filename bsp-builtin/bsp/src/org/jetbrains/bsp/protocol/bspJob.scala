@@ -2,7 +2,7 @@ package org.jetbrains.bsp.protocol
 
 import com.intellij.openapi.progress.ProgressIndicator
 import org.jetbrains.bsp.{BspError, BspTaskCancelled}
-import org.jetbrains.plugins.scala.util.CancelableWaitUtil
+import org.jetbrains.sbt.shell.CancelableWaitUtil
 
 import scala.annotation.tailrec
 import scala.concurrent._
