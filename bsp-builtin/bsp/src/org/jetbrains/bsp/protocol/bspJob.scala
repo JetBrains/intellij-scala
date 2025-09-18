@@ -2,6 +2,7 @@ package org.jetbrains.bsp.protocol
 
 import com.intellij.openapi.progress.ProgressIndicator
 import org.jetbrains.bsp.{BspError, BspTaskCancelled}
+import org.jetbrains.plugins.scala.util.CancelableWaitUtil
 
 import scala.annotation.tailrec
 import scala.concurrent._
@@ -16,38 +17,12 @@ abstract class BspJob[T] {
 
 object BspJob {
 
-  /** Check both indicator and promise for canceled status to combine different ways of canceling tasks.  */
-  class CancelCheck(promise: Promise[_], indicator: ProgressIndicator) {
+  def waitForJobCancelable[R](job: BspJob[R], promise: Promise[_], indicator: ProgressIndicator): Try[R] =
+    CancelableWaitUtil.waitForCancelable(
+      future = job.future, onCancel = () => job.cancel()
+    )(promise, indicator, cancelError = BspTaskCancelled)
 
-    def cancel(): Unit = {
-      promise.failure(BspTaskCancelled)
-      indicator.cancel()
-    }
-
-    def isCancelled: Boolean = {
-      // if one is canceled, cancel the other
-      if (!promise.isCompleted && indicator.isCanceled)
-        promise.failure(BspTaskCancelled)
-      else if (!indicator.isCanceled && promise.isCompleted)
-        indicator.cancel()
-
-      promise.isCompleted
-    }
-  }
-
-  @tailrec def waitForJobCancelable[R](job: BspJob[R], cancelCheck: CancelCheck): Try[R] =
-    try {
-      if (cancelCheck.isCancelled) {
-        job.cancel()
-        Failure(BspTaskCancelled)
-      } else {
-        val res = Await.result(job.future, 300.millis)
-        Try(res)
-      }
-    } catch {
-      case _ : TimeoutException => waitForJobCancelable(job, cancelCheck)
-    }
-
+  // TODO Consider moving this to `CancelableWaitUtil`
   @tailrec def waitForJob[R](job: BspJob[R], retries: Int): Try[R] =
     try {
       if (retries <= 0) {

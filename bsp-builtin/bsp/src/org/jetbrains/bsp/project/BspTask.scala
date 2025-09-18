@@ -9,7 +9,6 @@ import com.intellij.openapi.project.Project
 import org.eclipse.lsp4j.jsonrpc.ResponseErrorException
 import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.project.BspTask.BspTarget
-import org.jetbrains.bsp.protocol.BspJob.CancelCheck
 import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, NotificationAggregator, ProcessLogger}
 import org.jetbrains.bsp.protocol.{BspCommunication, BspJob, BspNotifications}
 import org.jetbrains.bsp.{BSP, BspBundle}
@@ -109,12 +108,10 @@ class BspTask[T](project: Project,
         processLog
       )
     }
-
-    val cancelToken = new CancelCheck(resultPromise, indicator)
-
+    
     import BspTask.TryTraversableOps
     val combinedMessages = buildJobs
-      .traverse(BspJob.waitForJobCancelable(_, cancelToken))
+      .traverse(BspJob.waitForJobCancelable(_, resultPromise, indicator))
       .map { compileResults =>
         val updatedMessages = compileResults.map(r => messagesWithStatus(reporter, r._1, r._2))
         updatedMessages.fold(BuildMessages.empty) { (m1, m2) => m1.combine(m2) }
