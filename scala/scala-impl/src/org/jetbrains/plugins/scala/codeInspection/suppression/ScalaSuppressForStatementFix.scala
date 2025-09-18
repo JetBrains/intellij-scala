@@ -76,7 +76,7 @@ final class ScalaSuppressForFileFix(key: HighlightDisplayKey) extends ScalaSuppr
 
   override def getCommentsFor(container: PsiElement): util.List[_ <: PsiElement] =
     container.asOptionOf[ScalaFile]
-      .flatMap(_.firstChild.filterByType[PsiComment])
+      .flatMap(_.children.dropWhile(_.isWhitespace).nextOption().filterByType[PsiComment])
       .toList
       .asJava
 
@@ -84,9 +84,11 @@ final class ScalaSuppressForFileFix(key: HighlightDisplayKey) extends ScalaSuppr
     case file: ScalaFile =>
       val comment = createComment(project)
       val newLine = createNewLine()(element.getManager)
-      file.firstChild.foreach { anchor =>
+      file.children.dropWhile(_.isWhitespace).nextOption().foreach { anchor =>
         file.addBefore(comment, anchor)
         file.addBefore(newLine, anchor)
+        // remove empty lines if the comment is not in the very beginning of the file
+        file.firstChild.filter(_.isWhitespace).foreach(_.delete())
       }
     case _ =>
   }

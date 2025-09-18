@@ -3,8 +3,8 @@ package org.jetbrains.plugins.scala.codeInspection.suppression
 import com.intellij.codeInsight.daemon.HighlightDisplayKey
 import com.intellij.codeInspection.{SuppressQuickFix, SuppressionUtil}
 import com.intellij.psi.{PsiComment, PsiDirectory, PsiElement, PsiFile}
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
-import org.jetbrains.plugins.scala.extensions.inReadAction
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, OptionExt, PsiElementExt, inReadAction}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScCommentOwner
 
 import java.util.regex.Matcher
@@ -33,6 +33,8 @@ object ScalaSuppressableInspectionTool {
 
   def commentsFor(elem: PsiElement): Seq[PsiComment] = {
     elem match {
+      case file: ScalaFile =>
+        file.children.dropWhile(_.isWhitespace).nextOption().filterByType[PsiComment].toList
       case null | _: PsiFile | _: PsiDirectory => Seq.empty
       case co: ScCommentOwner => co.allComments
       case stmt =>
