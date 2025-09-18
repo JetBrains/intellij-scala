@@ -12,6 +12,13 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * The JPS serializer for {@link org.jetbrains.sbt.project.settings.SharedSourcesOwnerModules} persistent state component (stored in the module file)
+ * It converts it into {@link SharedSourcesProperties} that can be used by the JPS build process.
+ * <p>
+ * ATTENTION!
+ * Before making any changes in this class, read the {@link org.jetbrains.sbt.project.settings.SharedSourcesOwnerModules} documentation.
+ */
 public class SharedSourcesModuleSerializer extends JpsModulePropertiesSerializer<JpsDummyElement> {
   public SharedSourcesModuleSerializer() {
     super(SharedSourcesModuleType.INSTANCE, "SHARED_SOURCES_MODULE", "SharedSourcesOwnerModules");
