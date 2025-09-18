@@ -128,9 +128,10 @@ object ScalaPluginUpdater {
 
   private def suggestIdeaUpdate(branch: String, suggestedVersion: String): Unit = {
     val infoImpl = ApplicationInfo.getInstance()
-    val appSettings = ScalaApplicationSettings.getInstance()
 
-    if (!appSettings.ASK_PLATFORM_UPDATE)
+    // This effectively happens when "ide.no.platform.update" VM option is specified
+    val dontAskPlatformUpdate = ExternalUpdateManager.ACTUAL == ExternalUpdateManager.UNKNOWN
+    if (dontAskPlatformUpdate)
       return
 
     def createPlatformUpdateSuggestPopup(): Notification = {
