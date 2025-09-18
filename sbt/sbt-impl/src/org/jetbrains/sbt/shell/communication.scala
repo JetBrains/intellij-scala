@@ -1,23 +1,29 @@
 package org.jetbrains.sbt.shell
 
+import com.intellij.build.events.impl.{FailureResultImpl, SuccessResultImpl}
 import com.intellij.execution.process.{AnsiEscapeDecoder, OSProcessHandler, ProcessEvent, ProcessListener}
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.externalSystem.model.ExternalSystemException
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
+import org.jetbrains.annotations.Nls
 import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import org.jetbrains.annotations.ApiStatus.Internal
 import org.jetbrains.annotations.{ApiStatus, NonNls, TestOnly}
 import org.jetbrains.ide.PooledThreadExecutor
+import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}
+import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.extensions.LoggerExt
 import org.jetbrains.plugins.scala.isInternalMode
 import org.jetbrains.sbt.shell.LineListener.{LineSeparatorRegex, escapeNewLines}
 import org.jetbrains.sbt.shell.SbtProcessUtil._
 import org.jetbrains.sbt.shell.SbtShellCommunication._
 import org.jetbrains.sbt.shell.SbtShellLifecycle.{ShellState, ShellStateEvent}
-import org.jetbrains.sbt.{SbtUtil, SbtVersion}
+import org.jetbrains.sbt.{SbtBundle, SbtUtil, SbtVersion}
 
 import java.util.concurrent._
+import java.util.UUID
 import java.util.concurrent.atomic.AtomicReference
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
@@ -42,8 +48,10 @@ final class SbtShellCommunication(project: Project) {
   private val communicationActive = new Semaphore(1)
   private val shellQueueReady = new Semaphore(1)
 
+  private case class QueuedCommand(id: String, cmd: String, listener: CommandListener[_])
+
   //TODO: rename to commandsQueue
-  private val commands = new LinkedBlockingQueue[(String, CommandListener[_])]()
+  private val commands = new LinkedBlockingQueue[QueuedCommand]()
 
   /**
    * The queue for commands accumulated when the shell is in the process of emptying standard queue commands before the "soft" restart or destroying.
@@ -54,7 +62,7 @@ final class SbtShellCommunication(project: Project) {
    * all commands accumulated in this queue are moved to the standard [[commands]] queue
    * and are terminated in queue processing method ([[startQueueProcessing]]).
    */
-  private val afterRestartCommands = new LinkedBlockingQueue[(String, CommandListener[_])]()
+  private val afterRestartCommands = new LinkedBlockingQueue[QueuedCommand]()
 
   /**
    * Contains an atomic reference to a `Future` responsible for emptying [[commands]] queue.
@@ -77,16 +85,21 @@ final class SbtShellCommunication(project: Project) {
     command(cmd, new StringBuilder(), messageAggregator).map(_.toString())
 
   /** Queue an sbt command for execution in the sbt shell. */
-  def command[A](@NonNls cmd: String, default: A, eventHandler: EventAggregator[A]): Future[A] = {
+  def command[A](@NonNls cmd: String, default: A, eventHandler: EventAggregator[A]): Future[A] =
+    command(cmd, id = UUID.randomUUID().toString, default, eventHandler)
+
+  def command[A](@NonNls cmd: String, id: String, default: A, eventHandler: EventAggregator[A]): Future[A] = {
     val listener = new CommandListener(default, eventHandler)
+    val qc = QueuedCommand(id, cmd, listener)
+
     if (isDestroyingOrEmptyingQueueInProgress) {
-      afterRestartCommands.put((cmd, listener))
+      afterRestartCommands.put(qc)
     } else {
       // TODO it's some imperfection at this place to address in SCL-24338
       // When the shell is in the Off state and a new command is enqueued, EnqueueCommand is emitted three times:
       // during #initCommunication, when the shell becomes ready, and here.
       // Introducing an explicit "Start" state would likely be a solution.
-      commands.put((cmd, listener))
+      commands.put(qc)
       process.acquireShellRunner()
       emitShellStateEvent(ShellStateEvent.EnqueueCommand)
     }
@@ -120,6 +133,35 @@ final class SbtShellCommunication(project: Project) {
       shell.flush()
     }
 
+  /**
+   * Attempts to cancel a queued sbt command by its id.
+   *
+   * Behavior:
+   *  - If the command is found in either the standard commands queue or the [[afterRestartCommands]] queue, it is removed and its listener is terminated
+   *  - If the command is not found (likely already running), a cancellation request is sent to the sbt process so the running task can be interrupted.
+   */
+  def removeCommandFromQueueOrCancel(id: String): Unit = {
+    def removeFrom(q: LinkedBlockingQueue[QueuedCommand]): QueuedCommand = {
+      val it = q.iterator()
+      while (it.hasNext) {
+        val e = it.next()
+        if (e.id == id && q.remove(e)) return e
+      }
+      null
+    }
+
+    var removedElement = removeFrom(commands)
+    if (removedElement == null) {
+      removedElement = removeFrom(afterRestartCommands)
+    }
+
+    if (removedElement != null) {
+      removedElement.listener.processTerminated()
+    } else {
+      process.requestTaskCancellation()
+    }
+  }
+
   private def isDestroyingOrEmptyingQueueInProgress: Boolean =
     currentState.isShuttingDown || isEmptyingQueueRunning
 
@@ -143,8 +185,8 @@ final class SbtShellCommunication(project: Project) {
 
         // Process terminated, notify remaining commands in the queue
         // otherwise, there might be some stuck processes
-        commands.forEach { case (command, listener) =>
-          Log.warn(s"Sbt shell is terminated, skipping command: $command")
+        commands.forEach { case QueuedCommand(_, cmd, listener) =>
+          Log.warn(s"Sbt shell is terminated, skipping command: $cmd")
           listener.processTerminated()
         }
         commands.clear()
@@ -244,8 +286,8 @@ final class SbtShellCommunication(project: Project) {
     }
   }
 
-  private def processCommand(commandAndListener: (String, CommandListener[_])): Unit = {
-    val (cmd, listener) = commandAndListener
+  private def processCommand(qc: QueuedCommand): Unit = {
+    val QueuedCommand(_, cmd, listener) = qc
 
     listener.started()
 
@@ -294,10 +336,107 @@ final class SbtShellCommunication(project: Project) {
     val next = SbtShellLifecycle.transition(currentState, event)
     stateRef.set(next)
   }
+
+  private[sbt] def messageAggregatorForSync(
+    reporter: BuildReporter,
+    dumpTaskId: EventId,
+    processOutputBuilder: Option[StringBuilder],
+    @Nls startMessage: String,
+    @Nls finishMessage: String
+  ): EventAggregator[BuildMessages] =
+    messageAggregatorWithReporter(
+      reporter, dumpTaskId, processOutputBuilder, startMessage, finishMessage,
+      onOutputLine = _ => (),
+      showSbtShellOnError = false
+    )
+
+  private[sbt] def messageAggregatorForBuild(
+    reporter: BuildReporter,
+    dumpTaskId: EventId,
+    processOutputBuilder: Option[StringBuilder],
+    @Nls startMessage: String,
+    @Nls finishMessage: String,
+    onOutputLine: String => Unit
+  ): EventAggregator[BuildMessages] =
+    messageAggregatorWithReporter(
+      reporter, dumpTaskId, processOutputBuilder, startMessage, finishMessage, onOutputLine, showSbtShellOnError = true
+    )
+
+  private def messageAggregatorWithReporter(
+    reporter: BuildReporter,
+    dumpTaskId: EventId,
+    processOutputBuilder: Option[StringBuilder],
+    @Nls startMessage: String,
+    @Nls finishMessage: String,
+    onOutputLine: String => Unit,
+    showSbtShellOnError: Boolean,
+  ): EventAggregator[BuildMessages] = (messages, event) => event match {
+    case TaskStart =>
+      reporter.startTask(dumpTaskId, None, startMessage)
+      messages
+
+    case TaskComplete =>
+      reporter.finishTask(dumpTaskId, finishMessage, new SuccessResultImpl())
+      val messagesUpdated =
+        if (messages.status == BuildMessages.Indeterminate) messages.status(BuildMessages.OK)
+        else messages
+      messagesUpdated
+
+    case ProcessTerminated =>
+      //TODO: it seems like in practice "process terminated" is not used at all
+      // we need to refactor the reporter API to not demand it
+      reporter.finishTask(dumpTaskId, "process terminated", new SuccessResultImpl())
+      messages
+        .addError("process terminated")
+        .status(BuildMessages.Canceled)
+
+    case ErrorWaitForInput =>
+      // TODO right now it's not working anyway when reloading (see SCL-24349).
+      //  For building in the sbt shell it shouldn't occur.
+      val msg = SbtBundle.message("sbt.import.errors.project.reload.aborted")
+      val ex = new ExternalSystemException(msg)
+
+      val result = new FailureResultImpl(msg, ex)
+      reporter.finishTask(dumpTaskId, msg, result)
+
+      send("i" + System.lineSeparator)
+
+      messages.addError(msg)
+
+    case Output(raw) =>
+      val text = raw.trim
+      processOutputBuilder.foreach(_.append(text))
+
+      val isError = text startsWith ERROR_PREFIX
+      val newMessages =
+        if (isError) {
+          if (messages.errors.isEmpty && showSbtShellOnError) {
+            SbtShellRunner.openShell(focus = false, project)
+          }
+          messages.addError(text.stripPrefix(ERROR_PREFIX))
+        } else if (text startsWith WARN_PREFIX) {
+          messages.addWarning(text.stripPrefix(WARN_PREFIX))
+        } else messages
+
+      onOutputLine(text)
+
+      reporter.progressTask(dumpTaskId, 1, -1, SbtBundle.message("sbt.events"), text)
+
+      if (isError) {
+        reporter.logErr(text)
+      } else {
+        reporter.log(text)
+      }
+
+      newMessages
+  }
 }
 
 object SbtShellCommunication {
   protected val Log: Logger = Logger.getInstance(getClass)
+
+  private val WARN_PREFIX = "[warn]"
+  private val ERROR_PREFIX = "[error]"
 
   def forProject(project: Project): SbtShellCommunication = project.getService(classOf[SbtShellCommunication])
 

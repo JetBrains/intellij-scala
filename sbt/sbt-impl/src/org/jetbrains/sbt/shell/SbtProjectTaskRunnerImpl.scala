@@ -8,28 +8,30 @@ import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.notification.{NotificationAction, NotificationType}
 import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
+import org.jetbrains.plugins.scala.build.BuildToolWindowReporter
 import com.intellij.openapi.externalSystem.model.execution.ExternalSystemTaskExecutionSettings
 import com.intellij.openapi.externalSystem.util.{ExternalSystemUtil, ExternalSystemApiUtil => ES}
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.module.ModuleType
-import com.intellij.openapi.progress.{PerformInBackgroundOption, ProgressIndicator, ProgressManager, Task}
+import com.intellij.openapi.progress.{PerformInBackgroundOption, ProcessCanceledException, ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
 import com.intellij.task._
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.concurrency.{AsyncPromise, Promise}
-import org.jetbrains.plugins.scala.build.{BuildMessages, IndicatorReporter, TaskRunnerResult}
+import org.jetbrains.concurrency.{AsyncPromise, Promise => JPromise}
+import org.jetbrains.plugins.scala.build.BuildToolWindowReporter.CancelBuildAction
+import org.jetbrains.plugins.scala.build.{BuildMessages, CompositeReporter, IndicatorReporter, TaskRunnerResult}
 import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.util.{ExternalSystemVfsUtil, ScalaNotificationGroups}
+import org.jetbrains.plugins.scala.util.CancelableWaitUtil
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.settings.SbtSettings
-import org.jetbrains.sbt.shell.SbtShellCommunication._
 import org.jetbrains.sbt.{SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabilities, SbtVersionDetector}
 
+import java.util.UUID
 import scala.annotation.nowarn
-import scala.concurrent.Await
-import scala.concurrent.duration.Duration
+import scala.concurrent.{Future, Promise}
 import scala.util.{Failure, Success}
 
 final class SbtProjectTaskRunnerImpl
@@ -60,7 +62,7 @@ final class SbtProjectTaskRunnerImpl
     project: Project,
     context: ProjectTaskContext,
     tasks: ProjectTask*
-  ): Promise[ProjectTaskRunner.Result] = {
+  ): JPromise[ProjectTaskRunner.Result] = {
     val validTasks = tasks.collect {
       // TODO Android AARs are currently imported as modules. need a way to filter them away before building
       case task: ModuleBuildTask
@@ -155,92 +157,83 @@ final class SbtProjectTaskRunnerImpl
 }
 
 // TODO: PerformInBackgroundOption is deprecated, ProgressManager.run(Task) is obsolete. See IJPL-384
-private class CommandTask(project: Project, command: String, promise: AsyncPromise[ProjectTaskRunner.Result]) extends
+private class CommandTask(project: Project, command: String, projectTaskPromise: AsyncPromise[ProjectTaskRunner.Result]) extends
   Task.Backgroundable(project, SbtBundle.message("sbt.shell.sbt.build"), false, PerformInBackgroundOption.ALWAYS_BACKGROUND: @nowarn("cat=deprecation")) {
 
-  import CommandTask._
+  private val resultPromise: Promise[BuildMessages] = Promise()
 
-  private val shellRunner: SbtShellRunner = SbtProcessManager.forProject(project).acquireShellRunner()
+  override def onThrowable(error: Throwable): Unit =
+    resultPromise.failure(error)
 
-  private def showShell(): Unit =
-    shellRunner.openShell(false)
+  override def onCancel(): Unit =
+    resultPromise.tryFailure(new ProcessCanceledException())
 
   override def run(indicator: ProgressIndicator): Unit = {
     import org.jetbrains.plugins.scala.lang.macros.expansion.ReflectExpansionsCollector
 
-    val report = new IndicatorReporter(indicator)
+    val buildId = BuildMessages.randomEventId
+    val report = new CompositeReporter(
+      // Set `activateToolWindowWhenFailed` to false to prevent jumping to the build tool window and causing distractions when the build fails
+      new BuildToolWindowReporter(project, buildId, SbtBundle.message("sbt.shell.sbt.build"), new CancelBuildAction(resultPromise), activateToolWindowWhenFailed = false),
+      new IndicatorReporter(indicator)
+    )
+
     val shell = SbtShellCommunication.forProject(project)
     val collector = ReflectExpansionsCollector.getInstance(project)
 
     report.start()
     collector.compilationStarted()
 
-    // TODO build events instead of indicator
-    val resultAggregator: (BuildMessages, ShellEvent) => BuildMessages = { (messages, event) =>
-      event match {
-        case TaskStart =>
-          // handled for main task
-          messages
-        case TaskComplete | ProcessTerminated =>
-          // handled for main task
-          messages
-        case ErrorWaitForInput =>
-          // can only actually happen during reload, but handle it here to be sure
-          showShell()
-          report.error(SbtBundle.message("sbt.shell.build.interrupted"), None)
-          messages.addError(SbtBundle.message("sbt.shell.error.build.interrupted"))
-          messages
-        case Output(raw) =>
-          val text = raw.trim
-
-          val messagesWithErrors = if (text startsWith ERROR_PREFIX) {
-            val msg = text.stripPrefix(ERROR_PREFIX)
-            // only report first error until we can get a good mapping message -> error
-            if (messages.errors.isEmpty) {
-              showShell()
-              report.error(SbtBundle.message("sbt.shell.errors.in.build"), None)
-            }
-            messages.addError(msg)
-          } else if (text startsWith WARN_PREFIX) {
-            val msg = text.stripPrefix(WARN_PREFIX)
-            // only report first warning
-            if (messages.warnings.isEmpty) {
-              report.warning(SbtBundle.message("sbt.shell.warnings.in.build"), None)
-            }
-            messages.addWarning(msg)
-          } else messages
-
-          collector.processCompilerMessage(text)
-
-          report.log(text)
-
-          messagesWithErrors
-      }
-    }
-
+    // Currently, the entire build output is printed in the root node of the build window.
+    // As a potential improvement, this could be moved to a separate node.
+    val resultAggregator = shell.messageAggregatorForBuild(
+      report,
+      buildId,
+      processOutputBuilder = None,
+      startMessage = SbtBundle.message("sbt.shell.sbt.build"),
+      finishMessage = SbtBundle.message("sbt.shell.sbt.build.finished"),
+      onOutputLine = text => collector.processCompilerMessage(text)
+    )
+    
     // TODO consider running module build tasks separately
     // may require collecting results individually and aggregating
-    val commandFuture = shell.command(command, BuildMessages.empty, resultAggregator)
+    val id = UUID.randomUUID().toString
+    val commandFuture: Future[BuildMessages] = shell.command(command, id, BuildMessages.empty, resultAggregator)
 
     // block thread to make indicator available :(
-    val buildMessages = Await.ready(commandFuture, Duration.Inf).value.get
-
-    // build effects
-    ExternalSystemVfsUtil.refreshRoots(project, SbtProjectSystem.Id, indicator)
+    val buildMessages = CancelableWaitUtil.waitForCancelable(
+      commandFuture,
+      onCancel = () => shell.removeCommandFromQueueOrCancel(id)
+    )(resultPromise, indicator)
 
     // handle callback
     buildMessages match {
       case Success(messages) =>
         val taskResult = messages.toTaskRunnerResult
-        promise.setResult(taskResult)
+        projectTaskPromise.setResult(taskResult)
       case Failure(x) =>
-        promise.setError(x)
+        projectTaskPromise.setError(x)
     }
 
     // build state reporting
+    // TODO: Improve handling of canceled builds.
+    //  Most cancellation scenarios are currently reported as "failed".
+    //  The only exception is when the build command is still in the shell queue (not yet started) and the shell is killed.
     buildMessages match {
       case Success(messages) => report.finish(messages)
       case Failure(err) => report.finishWithFailure(err)
+    }
+
+    // build effects
+    try {
+      ExternalSystemVfsUtil.refreshRoots(project, SbtProjectSystem.Id, indicator)
+    } catch {
+      // Suppress the `ProcessCanceledException` that might be thrown by #refreshRoots to ensure the code below runs even if the build is canceled.
+      // Currently, cancellation that stops the indicator and may cause `ProcessCanceledException` can be done by clicking the "stop" button in the build tool window.
+      // Once SCL-24358 is implemented, this will also apply when the build is canceled directly from the progress indicator.
+      // TODO: investigate whether the code below is still necessary when the build is canceled.
+      //  I added this suppression because it worked like this in the past (e.g., when the build was canceled by killing the sbt shell).
+      case _: ProcessCanceledException =>
     }
 
     // reload changed classes
@@ -255,10 +248,6 @@ private class CommandTask(project: Project, command: String, promise: AsyncPromi
     }
 
     collector.compilationFinished()
+    resultPromise.trySuccess(buildMessages.get)
   }
-}
-
-object CommandTask {
-  private val WARN_PREFIX = "[warn]"
-  private val ERROR_PREFIX = "[error]"
 }

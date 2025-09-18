@@ -196,11 +196,7 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
 
   /** Shows ToolWindow on UI thread asynchronously */
   def openShell(focus: Boolean): Unit =
-    invokeLater {
-      SbtShellToolWindowFactory.instance(project).foreach { toolWindow =>
-        toolWindow.activate(null, focus)
-      }
-    }
+    SbtShellRunner.openShell(focus, project)
 
   def getDebugConnection: Option[RemoteConnection] = debugConnection
 
@@ -234,4 +230,21 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
     twContentManager.removeAllContents(true)
     twContentManager.addContent(content)
   }
+}
+
+object SbtShellRunner {
+  /**
+   * Shows ToolWindow on UI thread asynchronously.
+   * This method doesn't start the sbt shell process.
+   *
+   * ATTENTION: Use this to show the sbt shell tool window when a shell runner is not available,
+   * and acquiring a new runner would be inappropriate (it could start a new shell while one is shutting down or stopped).
+   * Prefer `SbtShellRunner#openShell` when a runner is available, as this method is less safe.
+   */
+  private[shell] def openShell(focus: Boolean, project: Project): Unit =
+    invokeLater {
+      SbtShellToolWindowFactory.instance(project).foreach { toolWindow =>
+        toolWindow.activate(null, focus)
+      }
+    }
 }

@@ -21,15 +21,16 @@ class BuildToolWindowReporter(project: Project,
                               buildId: EventId,
                               @Nls title: String,
                               viewManager: BuildViewManager,
-                              cancelAction: AnAction)
+                              cancelAction: AnAction,
+                              activateToolWindowWhenFailed: Boolean)
   extends BuildReporter {
   import MessageEvent.Kind
 
-  def this(project: Project, buildId: EventId, @Nls title: String, cancelAction: AnAction) =
+  def this(project: Project, buildId: EventId, @Nls title: String, cancelAction: AnAction, activateToolWindowWhenFailed: Boolean = true) =
     this(
       project, buildId, title,
       project.getService(classOf[BuildViewManager]),
-      cancelAction
+      cancelAction, activateToolWindowWhenFailed
     )
 
   override def start(): Unit = {
@@ -42,6 +43,8 @@ class BuildToolWindowReporter(project: Project,
           descriptor
         }
         .withRestartActions(cancelAction)
+
+    buildDescriptor.setActivateToolWindowWhenFailed(activateToolWindowWhenFailed)
     val startEvent = new StartBuildEventImpl(buildDescriptor, SbtBundle.message("report.build.toolwindow.running"))
     viewManager.onEvent(buildId, startEvent)
   }

@@ -77,7 +77,13 @@ class SbtStructureDump {
 
     val shell = SbtShellCommunication.forProject(project)
     val optProcessOutputBuilder = setUpProcessOutputCollection()
-    val aggregator = shellMessageAggregator(EventId(s"dump:${UUID.randomUUID()}"), shell, reporter, optProcessOutputBuilder)
+    val aggregator = shell.messageAggregatorForSync(
+      reporter,
+      EventId(s"dump:${UUID.randomUUID()}"),
+      optProcessOutputBuilder,
+      startMessage = SbtBundle.message("sbt.extracting.project.structure.from.sbt.shell"),
+      finishMessage = SbtBundle.message("sbt.project.structure.extracted")
+    )
 
     val isSbtVersionOutdated = SbtProcessManager.forProject(project).isSbtVersionOutdated
     if (isSbtVersionOutdated) {
@@ -445,62 +451,6 @@ object SbtStructureDump {
         .addError(SbtBundle.message("sbt.import.check.root.node.for.details"))
     } else messages
   }
-
-  private def shellMessageAggregator(
-    dumpTaskId: EventId,
-    shell: SbtShellCommunication,
-    reporter: BuildReporter,
-    processOutputBuilder: Option[StringBuilder]
-  ): EventAggregator[BuildMessages] = (messages, event) => event match {
-    case TaskStart =>
-      reporter.startTask(dumpTaskId, None, SbtBundle.message("sbt.extracting.project.structure.from.sbt.shell"))
-      messages
-
-    case TaskComplete =>
-      reporter.finishTask(dumpTaskId, SbtBundle.message("sbt.project.structure.extracted"), new SuccessResultImpl())
-      val messagesUpdated =
-        if (messages.status == BuildMessages.Indeterminate) messages.status(BuildMessages.OK)
-        else messages
-      messagesUpdated
-
-    case ProcessTerminated =>
-      //TODO: it seems like in practice "process terminated" is not used at all
-      // we need to refactor the reporter API to not demand it
-      reporter.finishTask(dumpTaskId, "process terminated", new SuccessResultImpl())
-      messages
-        .addError("process terminated")
-        .status(BuildMessages.Canceled)
-
-    case ErrorWaitForInput =>
-      val msg = SbtBundle.message("sbt.import.errors.project.reload.aborted")
-      val ex = new ExternalSystemException(msg)
-
-      val result = new FailureResultImpl(msg, ex)
-      reporter.finishTask(dumpTaskId, msg, result)
-
-      shell.send("i" + System.lineSeparator)
-
-      messages.addError(msg)
-
-    case Output(raw) =>
-      val text = raw.trim
-      processOutputBuilder.foreach(_.append(text))
-
-      val newMessages =
-        if (text startsWith ERROR_PREFIX) {
-          messages.addError(text.stripPrefix(ERROR_PREFIX))
-        } else if (text startsWith WARN_PREFIX) {
-          messages.addWarning(text.stripPrefix(WARN_PREFIX))
-        } else messages
-
-      reporter.progressTask(dumpTaskId, 1, -1, SbtBundle.message("sbt.events"), text)
-      reporter.log(text)
-
-      newMessages
-  }
-
-  private val WARN_PREFIX = "[warn]"
-  private val ERROR_PREFIX = "[error]"
 
   private def scopedSbtSetting(setting: String, scope: String, sbtVersion: SbtVersion): String = {
     val supportsSlashSyntax = SbtVersionCapabilities.isSlashSyntaxSupported(sbtVersion)

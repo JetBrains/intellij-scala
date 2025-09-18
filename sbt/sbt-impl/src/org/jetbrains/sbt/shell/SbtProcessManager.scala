@@ -331,6 +331,18 @@ final class SbtProcessManager(project: Project) extends Disposable {
     }
   }
 
+  /**
+   * Send a single CTRL+C/SIGINT signal
+   * If a task is already running, it terminates the currently running task.
+   * If no task is running, this request might result in terminating the sbt shell.
+   */
+  def requestTaskCancellation(): Unit =
+    processData match {
+      case Some(ProcessData(handler, _, _)) =>
+        OSProcessUtil.terminateProcessGracefully(handler.getProcess)
+      case None =>
+    }
+
   /** asynchronously initializes SbtShellRunner with sbt process, console ui and opens sbt shell window */
   def initAndRunAsync(): Unit = {
     log.debug("initAndRunAsync")
