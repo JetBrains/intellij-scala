@@ -66,7 +66,8 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
   }
 
   // use this to configure which modifier should be shown
-  override def isApplicableConstraint(constraintName: String, variableNode: PsiElement, completePattern: Boolean, target: Boolean): Boolean =
+  override def isApplicableConstraint(constraintName: String, variableNode: PsiElement, completePattern: Boolean, target: Boolean): Boolean = {
+    if (variableNode == null) return false
     constraintName match {
       case UIUtil.MINIMUM_ZERO =>
         isMinMaxApplicable(constraintName, variableNode, completePattern, target)
@@ -79,6 +80,7 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
       case _ =>
         super.isApplicableConstraint(constraintName, variableNode, completePattern, target)
     }
+  }
 
   private def isTypeRegexApplicable(variableNode: PsiElement): Boolean =
     variableNode.getParent.is[ScTypeDefinition] ||
