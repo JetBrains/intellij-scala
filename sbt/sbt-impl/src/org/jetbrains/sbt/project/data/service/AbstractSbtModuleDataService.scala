@@ -18,6 +18,8 @@ abstract class AbstractSbtModuleDataService[T <: ModuleData] extends AbstractMod
 
   override def setModuleOptions(module: Module, moduleDataNode: DataNode[T]): Unit = {
     super.setModuleOptions(module, moduleDataNode)
+    // TODO: Override #getExternalModuleType so the platform sets the external module type in #setModuleOptions,
+    //  making this method unnecessary.
     ExternalSystemModulePropertyManager.getInstance(module).setExternalModuleType(moduleType)
   }
 
