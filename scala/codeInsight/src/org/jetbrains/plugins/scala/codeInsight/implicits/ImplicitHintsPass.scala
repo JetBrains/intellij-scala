@@ -69,9 +69,9 @@ class ImplicitHintsPass(
       // TODO Use a dedicated pass when built-in "advanced" hint API will be available in IDEA, SCL-14502
       rootElement.elements.foreach(e => AnnotatorHints.in(e).foreach(hints ++= _.hints))
       // TODO Use a dedicated pass when built-in "advanced" hint API will be available in IDEA, SCL-14502
+      hints ++= collectApplyMethodHints(editor, rootElement)
       hints ++= collectTypeHints(editor, rootElement)
       hints ++= collectParameterHints(editor, rootElement)
-      hints ++= collectApplyMethodHints(editor, rootElement)
       collectConversionsAndArguments()
       collectMethodChainHints(editor, rootElement)
       collectRangeHints(editor, rootElement)
