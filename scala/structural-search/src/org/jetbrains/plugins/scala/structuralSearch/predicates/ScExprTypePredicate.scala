@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.MethodInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResultExt, Typeable}
 
 import java.util.regex.{Pattern, PatternSyntaxException}
@@ -30,7 +30,7 @@ class ScExprTypePredicate(val ty: String, baseName: String, val withinHierarchy:
     matchedNode match {
       case func: ScFunction => matchName(func.`type`.getOrAny.toString, true)
       case expr: Typeable =>
-        val typ = expr.`type`().getOrAny.widen
+        val typ = expr.`type`().getOrAny.widen.removeAliasDefinitions()(Context(matchedNode))
         typ.extractClass match {
           case Some(cl) => matchClassOrSuper(cl)
           case None => matchName(typ.toString)
