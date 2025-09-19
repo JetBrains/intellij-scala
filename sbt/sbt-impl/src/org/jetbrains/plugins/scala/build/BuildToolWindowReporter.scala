@@ -121,7 +121,7 @@ class BuildToolWindowReporter(project: Project,
     //noinspection ReferencePassedToNls
     val outputType =
       if (isStdout) ProcessOutputType.STDOUT
-      else ProcessOutputType.STDOUT
+      else ProcessOutputType.STDERR
     new OutputBuildEventImpl(buildId, msg.trim + System.lineSeparator(), outputType)
   }
 
