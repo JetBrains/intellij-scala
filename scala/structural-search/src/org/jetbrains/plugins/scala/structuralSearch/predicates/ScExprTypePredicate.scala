@@ -5,12 +5,12 @@ import com.intellij.psi.{PsiClass, PsiElement}
 import com.intellij.structuralsearch.impl.matcher.MatchContext
 import com.intellij.structuralsearch.impl.matcher.predicates.MatchPredicate
 import com.intellij.structuralsearch.{MalformedPatternException, SSRBundle}
-import org.jetbrains.plugins.scala.extensions.PsiClassExt
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.MethodInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResultExt, Typeable}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScTypeExt}
 
 import java.util.regex.{Pattern, PatternSyntaxException}
 
@@ -30,24 +30,21 @@ class ScExprTypePredicate(val ty: String, baseName: String, val withinHierarchy:
     matchedNode match {
       case func: ScFunction => matchName(func.`type`.getOrAny.toString, true)
       case expr: Typeable =>
-        val typ = (expr.`type`().getOrAny match {
-          case typ: ScLiteralType => typ.wideType
-          case typ => typ
-        }).unpackedType
+        val typ = expr.`type`().getOrAny.widen
         typ.extractClass match {
-          case None => matchName(typ.toString)
           case Some(cl) => matchClassOrSuper(cl)
+          case None => matchName(typ.toString)
         }
       case _: LeafPsiElement => matchedNode.getParent match {
         case td: ScTypeDefinition => matchClassOrSuper(td)
+        case scr: Typeable if scr.getParent.is[MethodInvocation] => matchName(scr.`type`().getOrAny.toString)
         case func: ScFunction => matchName(func.`type`.getOrAny.toString, true)
-        case scr: ScStableCodeReference => scr.getParent match {
-          case typ: Typeable => typ.`type`().getOrAny.extractClass match {
-            case None => matchName(typ.toString)
+        case expr: Typeable =>
+          val typ = expr.`type`().getOrAny.widen
+          typ.extractClass match {
             case Some(cl) => matchClassOrSuper(cl)
+            case None => matchName(typ.toString)
           }
-          case _ => false
-        }
         case _ => false
       }
       case _ => false
