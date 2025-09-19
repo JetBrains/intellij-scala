@@ -325,6 +325,7 @@ class ScalaReplacementBuilder(val profile: StructuralSearchProfile) {
               }
           }
         })
+      // Value and Variable
       case replacePattern: ScValueOrVariable =>
         handleScope(replacePattern, Option.when(replacePattern.declaredNames.size == 1)(replacePattern.declaredElements.head.getParent), scopeRes, result, body = (ident, subRes) => {
           val parameterMatch = subRes.getMatch
@@ -332,10 +333,12 @@ class ScalaReplacementBuilder(val profile: StructuralSearchProfile) {
 
           val annotationsCopy = createAnnotationCopy(searchPattern, replacePattern, replacePattern.getModifierList, parameterMatch)
           val modifierCopy = createModifierCopy(searchPattern, replacePattern, parameterMatch)
-          val retParaCopy = ifNotMentioned(searchPattern.asOptionOf[ScValueOrVariable].flatMap(_.typeElement), replacePattern.typeElement, ident,
+          val typeCopy = ifNotMentioned(searchPattern.asOptionOf[ScValueOrVariable].flatMap(_.typeElement), replacePattern.typeElement, ident,
             parameterMatch.asOptionOf[ScValueOrVariable].flatMap(_.typeElement.map(": " + _.getText)))
-          val retParaCopyFunc = ifNotMentioned(searchPattern.asOptionOf[ScFunction].flatMap(_.returnTypeElement), replacePattern.typeElement, ident,
+          val retCopyFunc = ifNotMentioned(searchPattern.asOptionOf[ScFunction].flatMap(_.returnTypeElement), replacePattern.typeElement, ident,
           parameterMatch.asOptionOf[ScFunction].flatMap(_.returnTypeElement.map(": " + _.getText)))
+          val typeCopyParam = ifNotMentioned(searchPattern.asOptionOf[ScParameter].flatMap(_.typeElement), replacePattern.typeElement, ident,
+            parameterMatch.asOptionOf[ScParameter].flatMap(_.typeElement.map(": " + _.getText)))
           val bodyCopy = ifNotMentioned(searchPattern.asOptionOf[ScValueOrVariableDefinition].flatMap(_.expr),
             replacePattern.asOptionOf[ScValueOrVariableDefinition].flatMap(_.expr),
             replacePattern.typeElement.getOrElse(ident),
@@ -344,8 +347,12 @@ class ScalaReplacementBuilder(val profile: StructuralSearchProfile) {
             replacePattern.asOptionOf[ScValueOrVariableDefinition].flatMap(_.expr),
             replacePattern.typeElement.getOrElse(ident),
             parameterMatch.asOptionOf[ScFunctionDefinition].flatMap(_.body).map(" = " + _.getText))
+          val bodyParameterCopy = ifNotMentioned(searchPattern.asOptionOf[ScParameter].flatMap(_.getDefaultExpression),
+            replacePattern.asOptionOf[ScValueOrVariableDefinition].flatMap(_.expr),
+            replacePattern.typeElement.getOrElse(ident),
+            parameterMatch.asOptionOf[ScParameter].flatMap(_.getDefaultExpression).map(" = " + _.getText))
           val insertBefore = mergeInserts(annotationsCopy, modifierCopy)
-          val insertAfter = mergeInserts(retParaCopy, retParaCopyFunc, bodyCopy, bodyCopyFunc)
+          val insertAfter = mergeInserts(typeCopy, retCopyFunc, typeCopyParam, bodyCopy, bodyCopyFunc, bodyParameterCopy)
 
           buildChildren(replacePattern, Some(subRes), result, insertBefore = insertBefore, insertAfter = insertAfter)
         })
