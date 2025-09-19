@@ -3,7 +3,7 @@
   <grid id="27dc6" binding="rootPanel" layout-manager="GridLayoutManager" row-count="22" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="9" left="9" bottom="9" right="9"/>
     <constraints>
-      <xy x="20" y="20" width="500" height="850"/>
+      <xy x="20" y="20" width="500" height="977"/>
     </constraints>
     <properties/>
     <border type="none"/>
@@ -108,7 +108,7 @@
           </component>
           <component id="c2735" class="javax.swing.JCheckBox" binding="myShowMethodChainHintsCheckbox">
             <constraints>
-              <grid row="13" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+              <grid row="12" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.xray.method.chain.hints"/>
@@ -227,12 +227,12 @@
               <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.xray.apply.method.hints"/>
             </properties>
           </component>
-          <component id="3a00f" class="javax.swing.JCheckBox" binding="myShowTypeParametersCheckbox">
+          <component id="3a00f" class="javax.swing.JCheckBox" binding="myShowTypeArgumentsCheckbox">
             <constraints>
-              <grid row="12" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="2" use-parent-layout="false"/>
+              <grid row="13" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.xray.type.parameter.hints"/>
+              <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.xray.type.arguments.hints"/>
             </properties>
           </component>
         </children>
