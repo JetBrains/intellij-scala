@@ -43,7 +43,7 @@ final class ScalaDirectiveAutoPopupCompletionHandler extends TypedHandlerDelegat
 object ScalaDirectiveAutoPopupCompletionHandler {
   private def scheduleAutoPopup(editor: Editor, project: Project)(condition: Int => PsiFile => Boolean): Unit = {
     val offset = editor.getCaretModel.getOffset - 1
-    AutoPopupController.getInstance(project).autoPopupMemberLookup(editor, condition(offset)(_))
+    AutoPopupController.getInstance(project).scheduleAutoPopup(editor, condition(offset)(_))
   }
 
   private[completion] def isEmptyDirectiveComment(element: PsiElement): Boolean =

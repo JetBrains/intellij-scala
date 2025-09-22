@@ -27,7 +27,7 @@ final class ScalacOptionsAutoPopupCompletionHandler extends TypedHandlerDelegate
     if (!file.is[ScalaFile, SbtFileImpl] || !(charTyped == '"' || charTyped == '-')) super.checkAutoPopup(charTyped, project, editor, file)
     else {
       val offset = editor.getCaretModel.getOffset
-      AutoPopupController.getInstance(project).autoPopupMemberLookup(editor, condition(offset)(_))
+      AutoPopupController.getInstance(project).scheduleAutoPopup(editor, condition(offset)(_))
       Result.STOP
     }
 }
