@@ -1,5 +1,6 @@
 package org.jetbrains.bsp.project.importing.setup
 
+import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable, Sdk}
 import org.jetbrains.bsp.BspBundle
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}
@@ -12,11 +13,11 @@ import org.jetbrains.sbt.{SbtUtil, SbtVersion}
 import java.nio.file.Path
 import scala.util.Try
 
-class SbtConfigSetup(dumper: SbtStructureDump, runInit: BuildReporter => Try[BuildMessages]) extends BspConfigSetup {
+class SbtConfigSetup(dumper: SbtStructureDump, runInit: (ProgressIndicator, BuildReporter) => Try[BuildMessages]) extends BspConfigSetup {
 
   override def cancel(): Unit = dumper.cancel()
-  override def run(implicit reporter: BuildReporter): Try[BuildMessages] =
-    runInit(reporter)
+  override def run(indicator: ProgressIndicator)(implicit reporter: BuildReporter): Try[BuildMessages] =
+    runInit(indicator, reporter)
 }
 
 object SbtConfigSetup {
@@ -45,11 +46,11 @@ object SbtConfigSetup {
     val vmArgs = SbtExternalSystemManager.getVmOptions(Seq.empty, jdkHome.map(_.toFile)) ++ upgradeParam
 
     val dumper = new SbtStructureDump()
-    val runInit = (reporter: BuildReporter) => dumper.runSbt(
-      baseDir.toFile, jdkExe.toFile, vmArgs,
+    val runInit = (indicator: ProgressIndicator, reporter: BuildReporter) => dumper.runSbt(
+      indicator, baseDir.toFile, jdkExe.toFile, vmArgs,
       Map.empty, sbtLauncher, Seq.empty, sbtLauncherArgs, sbtCommands,
       BspBundle.message("bsp.resolver.creating.sbt.configuration"), passParentEnvironment = true
-    )(indicator = null)(reporter)
+    )(reporter)
     new SbtConfigSetup(dumper, runInit)
   }
 }

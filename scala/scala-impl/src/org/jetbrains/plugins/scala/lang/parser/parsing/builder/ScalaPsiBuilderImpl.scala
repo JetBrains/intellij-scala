@@ -265,8 +265,7 @@ class ScalaPsiBuilderImpl(
     errorMarkerStack.push(ErrorCounter)
 
     val result = body
-    val old = errorMarkerStack.pop()
-    assert(old eq ErrorCounter)
+    dropMarkerFromStack(ErrorCounter)
 
     ErrorCounter.errors -> result
   }
@@ -294,18 +293,24 @@ class ScalaPsiBuilderImpl(
         errorMarkerStack(markerIdx).reportErrors(marker.errors)
       }
     } else {
-      var droppedErrors = marker.errors
-      errorMarkerStack.dropWhileInPlace {
-        case `marker` => false
-        case m =>
-          droppedErrors += m.dropFromStack()
-          true
-      }
-      errorMarkerStack.pop()
+      dropMarkerFromStack(marker)
       if (!isRollback) {
-        errorMarkerStack.top.reportErrors(droppedErrors)
+        errorMarkerStack.top.reportErrors(marker.errors)
       }
     }
+  }
+
+  private[this] def dropMarkerFromStack(marker: ErrorTrackingMarkerParent): Unit = {
+    var droppedErrors = 0
+    errorMarkerStack.dropWhileInPlace {
+      case `marker` => false
+      case m =>
+        droppedErrors += m.dropFromStack()
+        true
+    }
+    marker.reportErrors(droppedErrors)
+    val dropped = errorMarkerStack.pop()
+    assert(dropped eq marker, "Marker was not on the stack")
   }
 
   override def mark(): PsiBuilder.Marker = {

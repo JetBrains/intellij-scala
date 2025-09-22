@@ -35,6 +35,7 @@ import org.jetbrains.sbt.project.SbtExternalSystemManager
 import org.jetbrains.sbt.project.settings.SbtExecutionSettings
 import org.jetbrains.sbt.project.structure.SbtOption._
 import org.jetbrains.sbt.shell.SbtProcessManager._
+import org.jetbrains.sbt.shell.SbtShellLifecycle.ShellStateEvent
 import org.jetbrains.sbt.{JvmMemorySize, Sbt, SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabilities}
 
 import java.io.{File, IOException, OutputStreamWriter, PrintWriter}
@@ -330,6 +331,18 @@ final class SbtProcessManager(project: Project) extends Disposable {
     }
   }
 
+  /**
+   * Send a single CTRL+C/SIGINT signal
+   * If a task is already running, it terminates the currently running task.
+   * If no task is running, this request might result in terminating the sbt shell.
+   */
+  def requestTaskCancellation(): Unit =
+    processData match {
+      case Some(ProcessData(handler, _, _)) =>
+        OSProcessUtil.terminateProcessGracefully(handler.getProcess)
+      case None =>
+    }
+
   /** asynchronously initializes SbtShellRunner with sbt process, console ui and opens sbt shell window */
   def initAndRunAsync(): Unit = {
     log.debug("initAndRunAsync")
@@ -463,12 +476,13 @@ final class SbtProcessManager(project: Project) extends Disposable {
     processData match {
       case Some(ProcessData(handler, _, _)) =>
         val shell = SbtShellCommunication.forProject(project)
-        shell.startDestroying()
+        shell.emitShellStateEvent(ShellStateEvent.ShutdownRequested)
         if (!isSoft) {
           shell.cancelEmptyingQueue()
         }
         val runnable: Runnable = () => terminateProcessGracefully(handler.getProcess)
         ProgressManager.getInstance().runProcessWithProgressSynchronously(runnable, SbtBundle.message("sbt.shell.stopping.process"), false, project)
+        shell.emitShellStateEvent(ShellStateEvent.ProcessTerminated)
         processData = None
       case None => // nothing to do
     }

@@ -20,7 +20,7 @@ object Versions {
    * ATTENTION: check the comment in [[Common.newProjectWithKotlin]] when updating this version.
    *            update `since-build` in plugin.xml if there are binary incompatible changes after update
    */
-  val intellijVersion = "253.17525.53"
+  val intellijVersion = "253.20558.57"
 
   def isNightlyIntellijVersion: Boolean = intellijVersion.count(_ == '.') == 1
 
@@ -47,7 +47,7 @@ object Versions {
   val junitInterfaceVersion: String = "0.13.3"
 
   val bspVersion = "2.1.0-M3"
-  val sbtStructureVersion: String = "2025.3.1"
+  val sbtStructureVersion: String = "2025.3.2"
   val sbtIdeaShellVersion: String = "2025.2.0"
   val compilerIndicesVersion = "1.0.16"
 
@@ -74,6 +74,7 @@ object Versions {
     val structure_extractor_binary_0_13 = "0.13"
     val structure_extractor_binary_1_0 = "1.0"
     val structure_extractor_binary_1_3 = "1.3"
+    //NOTE: try using "2.0" during local development when using `+publishLocal` in sbt-structure
     val structure_extractor_binary_2 = "2"
   }
 }
@@ -172,6 +173,7 @@ object Dependencies {
   val intellijMavenTestFramework: ModuleID = ("com.jetbrains.intellij.maven" % "maven-test-framework" % Versions.intellijVersion_ForManagedIntellijDependencies).notTransitive()
   val intellijEelJavaTestFramework: ModuleID = ("com.jetbrains.intellij.platform" % "test-framework-eel-java" % Versions.intellijVersion_ForManagedIntellijDependencies).notTransitive()
   val intellijExternalSystemTestFramework: ModuleID = ("com.jetbrains.intellij.platform" % "external-system-test-framework" % Versions.intellijVersion_ForManagedIntellijDependencies).notTransitive()
+  val slf4jApi: ModuleID = "org.slf4j" % "slf4j-api" % "2.0.17" // Necessary as a test dependency for the "external-system-test-framework".
   val intellijIdeMetricsBenchmark: ModuleID = ("com.jetbrains.intellij.tools" % "ide-metrics-benchmark" % Versions.intellijVersion_ForManagedIntellijDependencies).notTransitive()
   val intellijIdeMetricsCollector: ModuleID = ("com.jetbrains.intellij.tools" % "ide-metrics-collector" % Versions.intellijVersion_ForManagedIntellijDependencies).notTransitive()
   val intellijIdeUtilCommon: ModuleID = ("com.jetbrains.intellij.tools" % "ide-util-common" % Versions.intellijVersion_ForManagedIntellijDependencies).notTransitive.notTransitive()
@@ -188,6 +190,7 @@ object Dependencies {
     ExclusionRule(organization = "io.ktor", name = "ktor-serialization-kotlinx-jvm"),
     ExclusionRule(organization = "org.jetbrains.kotlin"),
     ExclusionRule(organization = "org.jetbrains.kotlinx"),
+    ExclusionRule(organization = "org.slf4j")
   )
 
   // TODO(SCL-23246): remove after migration from the Package Search API

@@ -63,6 +63,7 @@
         <module name="scalaCommunity.worksheet" />
         <module name="scalaCommunity.debugger" />
         <module name="scalaCommunity.compiler-integration" />
+        <module name="scalaCommunity.structural-search" />
 
         <!-- integrations -->
         <module name="scalaCommunity.gradle" />

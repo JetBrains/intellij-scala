@@ -84,6 +84,7 @@ class CompilerEventReporter(project: Project,
     publish(MessageKind.Info, message, position)
 
   override def log(message: String): Unit = ()
+  override def logErr(message: String): Unit = ()
   override def startTask(eventId: BuildMessages.EventId, parent: Option[BuildMessages.EventId], message: String, time: Long): Unit = ()
   override def progressTask(eventId: BuildMessages.EventId, total: Long, progress: Long, unit: String, message: String, time: Long): Unit = ()
   override def finishTask(eventId: BuildMessages.EventId, message: String, result: EventResult, time: Long): Unit = ()

@@ -80,6 +80,7 @@ lazy val scalaCommunity: sbt.Project =
       featuresTrainerIntegration % "test->test;compile->compile",
       textAnalysis % "test->test;compile->compile",
       kotlinUtils % "test->test;compile->compile",
+      structuralSearch % "test->test;compile->compile",
       scalaLanguageUtils % "test->test;compile->compile",
       scalaLanguageUtilsRt % "test->test;compile->compile",
       pluginXml,
@@ -303,6 +304,7 @@ lazy val scalaImpl: sbt.Project =
       libraryDependencies ++= Seq(
         //for ExternalSystemTestCase and ExternalSystemImportingTestCase
         Dependencies.intellijExternalSystemTestFramework % Test,
+        Dependencies.slf4jApi % Test,
         //for PlatformTestUtil.newPerformanceTest
         Dependencies.intellijIdeMetricsBenchmark % Test,
         Dependencies.intellijIdeMetricsCollector % Test,
@@ -551,6 +553,19 @@ lazy val runners: Project =
       (Compile / scalacOptions) := outOfIDEAProcessScalacOptions,
       packageMethod := PackagingMethod.Standalone(static = true),
       packageAdditionalProjects ++= Seq(testRunners, testRunners_spec2_2x)
+    )
+
+lazy val structuralSearch =
+  newProject("structural-search", file("scala/structural-search"))
+    .dependsOn(
+      scalaImpl % "test->test;compile->compile",
+      codeInsight % "test->test;compile->compile"
+    )
+    .settings(
+      scalaVersion := Versions.scala3Version,
+      Compile / scalacOptions := globalScala3ScalacOptions,
+      intellijPlugins += "JUnit".toPlugin,
+      packageMethod := PackagingMethod.PluginModule("scalaCommunity.structural-search")
     )
 
 lazy val testingSupport =

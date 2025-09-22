@@ -1,5 +1,6 @@
 package org.jetbrains.bsp.project.importing.preimport
 
+import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable, Sdk}
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.bsp.BspBundle
@@ -14,11 +15,11 @@ import org.jetbrains.sbt.{Sbt, SbtUtil, SbtVersion}
 import java.nio.file.Path
 import scala.util.Try
 
-class BloopPreImporter(dumper: SbtStructureDump, runDump: SbtStructureDump => Try[BuildMessages])
+class BloopPreImporter(dumper: SbtStructureDump, runDump: (SbtStructureDump, ProgressIndicator) => Try[BuildMessages])
   extends PreImporter {
 
   override def cancel(): Unit = dumper.cancel()
-  def run(): Try[BuildMessages] = runDump(dumper)
+  def run(indicator: ProgressIndicator): Try[BuildMessages] = runDump(dumper, indicator)
 }
 object BloopPreImporter {
   def apply(baseDir: Path, jdk: Sdk)(implicit reporter: BuildReporter): BloopPreImporter = {
@@ -53,11 +54,11 @@ object BloopPreImporter {
 
     try {
       val dumper = new SbtStructureDump()
-      val runDump = (dumper: SbtStructureDump) => dumper.runSbt(
-        baseDir.toFile, jdkExe.toFile, vmArgs,
+      val runDump = (dumper: SbtStructureDump, indicator: ProgressIndicator) => dumper.runSbt(
+        indicator, baseDir.toFile, jdkExe.toFile, vmArgs,
         Map.empty, sbtLauncher, Seq.empty, sbtLauncherArgs, sbtCommands,
         BspBundle.message("bsp.resolver.creating.bloop.configuration.from.sbt"), passParentEnvironment = true
-      )(indicator = null)
+      )
       new BloopPreImporter(dumper, runDump)
     } finally {
       settingsFile.delete()

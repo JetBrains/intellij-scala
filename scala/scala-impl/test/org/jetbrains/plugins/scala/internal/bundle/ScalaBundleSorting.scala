@@ -163,6 +163,10 @@ object ScalaBundleSorting {
     ModuleWithBundleInfo(
       rootPath = communityDir / "scala-cli",
       bundleMessagesRelativePath = "ScalaCliBundle.properties",
+    ),
+    ModuleWithBundleInfo(
+      rootPath = scalaModDir / "structural-search",
+      bundleMessagesRelativePath = "ScalaStructuralSearchBundle.properties",
     )
   )
 

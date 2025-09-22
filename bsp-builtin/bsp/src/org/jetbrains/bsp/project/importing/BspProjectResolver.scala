@@ -7,10 +7,10 @@ import com.intellij.openapi.externalSystem.model.project._
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListener}
 import com.intellij.openapi.externalSystem.model.{DataNode, ExternalSystemException}
 import com.intellij.openapi.externalSystem.service.project.ExternalSystemProjectResolver
-import com.intellij.openapi.project.{Project, ProjectManager}
+import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager}
 import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.project.BspExternalSystemManager.ScalaCliAffectedProjectFiles
-import org.jetbrains.bsp.project.{BspProjectInstallProvider, BspTargetCanCompile}
+import org.jetbrains.bsp.project.BspProjectInstallProvider
 import org.jetbrains.bsp.project.importing.BspProjectResolver._
 import org.jetbrains.bsp.project.importing.BspResolverDescriptors._
 import org.jetbrains.bsp.project.importing.BspResolverLogic._
@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.extensions.PathExt
 import java.nio.file.Path
 import java.util.Collections
 import java.util.concurrent.CompletableFuture
-import scala.annotation.{nowarn, tailrec}
+import scala.annotation.tailrec
 import scala.concurrent.duration._
 import scala.concurrent.{Await, TimeoutException}
 import scala.jdk.CollectionConverters._
@@ -60,7 +60,13 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
       reporter.finish(BuildMessages.empty.status(BuildMessages.OK))
       projectNode(workspace, modules, rootExclusions(workspace), "dummy-display-name", List.empty)
     } else {
-      runImport(workspace, executionSettings)
+      // An indicator will always exist (be not null) when using the External System machinery.
+      // Gradle also relies on this.
+      val indicator = ProgressManager.getInstance().getProgressIndicator
+      if (indicator == null) {
+        throw new IllegalStateException("The External System machinery did not provide a ProgressIndicator instance")
+      }
+      runImport(workspace, executionSettings, indicator)
     }
 
     importState = Inactive
@@ -128,7 +134,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
     projectNodeFuture
   }
 
-  private def runImport(workspace: Path, executionSettings: BspExecutionSettings)
+  private def runImport(workspace: Path, executionSettings: BspExecutionSettings, indicator: ProgressIndicator)
                        (implicit reporter: BuildReporter) = {
     def notifications(implicit reporter: BuildReporter): NotificationAggregator[BuildMessages] =
     (messages, notification) => notification match {
@@ -140,7 +146,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
         messages
     }
 
-    val preImportMessages = preImport(executionSettings, workspace)
+    val preImportMessages = preImport(executionSettings, workspace, indicator)
 
     val communication = BspCommunication.forWorkspace(workspace, executionSettings.config)
     importState = BspTask(communication)
@@ -188,12 +194,13 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
   // TODO support other bloop-enabled build tools as well
   private def preImport(
     executionSettings: BspExecutionSettings,
-    workspace: Path
+    workspace: Path,
+    indicator: ProgressIndicator
   )(implicit reporter: BuildReporter): Try[BuildMessages] = {
     if (executionSettings.runPreImportTask) {
       val preImportTask = executionSettings.preImportTask
       val config = executionSettings.config
-      installBSP(workspace, preImportTask, config)
+      installBSP(workspace, indicator, preImportTask, config)
     }
     else EmptyBuildMessagesSuccess
   }
@@ -202,6 +209,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
 
   private def installBSP(
     workspace: Path,
+    indicator: ProgressIndicator,
     preImportTask: BspProjectSettings.PreImportConfig,
     bspServerConfig: BspProjectSettings.BspServerConfig
   )(implicit reporter: BuildReporter): Try[BuildMessages] = {
@@ -230,12 +238,12 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
         EmptyBuildMessagesSuccess
       case BspProjectSettings.AutoPreImport =>
         if (bspServerConfig == BspProjectSettings.AutoConfig && bloopConfigDir(workspace).isDefined && isSbtProject(workspace)) {
-          runBloopInstall(workspace)
+          runBloopInstall(workspace, indicator)
         } else {
           installWithAnyBspProjectInstaller
         }
       case BspProjectSettings.BloopSbtPreImport =>
-        runBloopInstall(workspace)
+        runBloopInstall(workspace, indicator)
       case BspProjectSettings.MillBspPreImport =>
         installForConfigSetup(MillSetup)
       case BspProjectSettings.ScalaCliBspPreImport =>
@@ -288,12 +296,12 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
     }
   }
 
-  private def runBloopInstall(baseDir: Path)(implicit reporter: BuildReporter) =
+  private def runBloopInstall(baseDir: Path, indicator: ProgressIndicator)(implicit reporter: BuildReporter) =
     BspJdkUtil.findOrCreateBestJdkForProject(None) match {
       case Some(sdk) =>
         val preImporter = BloopPreImporter(baseDir, sdk)
         importState = PreImportTask(preImporter)
-        preImporter.run()
+        preImporter.run(indicator)
       case None => Failure(BspNoJdkConfiguredError)
     }
 

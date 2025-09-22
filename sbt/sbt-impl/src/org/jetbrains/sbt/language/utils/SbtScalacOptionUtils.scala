@@ -1,5 +1,6 @@
 package org.jetbrains.sbt.language.utils
 
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.ModificationTracker
 import com.intellij.psi.PsiElement
@@ -11,7 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr,
 import org.jetbrains.plugins.scala.project.{ProjectExt, ScalaLanguageLevel}
 import org.jetbrains.sbt.language.completion.SbtScalacOptionsCompletionContributor
 import org.jetbrains.sbt.language.utils.SbtScalacOptionInfo.ArgType
-import org.slf4j.LoggerFactory
 import spray.json.DefaultJsonProtocol._
 import spray.json._
 
@@ -20,7 +20,7 @@ import scala.io.Source
 import scala.util.{Failure, Success, Using}
 
 object SbtScalacOptionUtils {
-  private val log = LoggerFactory.getLogger(getClass)
+  private val log: Logger = Logger.getInstance(classOf[SbtScalacOptionUtils.type])
 
   val SCALAC_OPTIONS = "scalacOptions"
 

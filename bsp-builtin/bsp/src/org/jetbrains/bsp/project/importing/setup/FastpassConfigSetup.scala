@@ -4,6 +4,7 @@ import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnAction
 import com.intellij.openapi.application.{ApplicationManager, ModalityState}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.ide.CopyPasteManager
+import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.vfs.LocalFileSystem
 import org.jetbrains.bsp.project.importing.FastpassProjectImportProvider
 import org.jetbrains.bsp.project.importing.setup.FastpassConfigSetup.{FastpassProcessCheckTimeout, logger}
@@ -59,7 +60,7 @@ object FastpassConfigSetup {
 class FastpassConfigSetupEmpty(bspWorkspace: Path) extends BspConfigSetup {
   override def cancel(): Unit = {  }
 
-  override def run(implicit reporter: BuildReporter): Try[BuildMessages] = {
+  override def run(indicator: ProgressIndicator)(implicit reporter: BuildReporter): Try[BuildMessages] = {
     val realPath = bspWorkspace.toRealPath().toString
     val title = BspBundle.message("bsp.fastpass.notification.reused.workspace.title")
     val message = BspBundle.message("bsp.fastpass.notification.reused.workspace.message", realPath)
@@ -113,7 +114,7 @@ class FastpassConfigSetup(processBuilder: ProcessBuilder) extends BspConfigSetup
     }
   }
 
-  override def run(implicit reporter: BuildReporter): Try[BuildMessages] = {
+  override def run(indicator: ProgressIndicator)(implicit reporter: BuildReporter): Try[BuildMessages] = {
     reporter.start()
     logger.info(s"Running '${processBuilder.command().asScala.mkString(" ")}' in ${processBuilder.directory()}")
     val process = processBuilder.start()

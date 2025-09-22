@@ -5,8 +5,8 @@ import com.intellij.openapi.roots.OrderEnumerationHandler.AddDependencyType
 import com.intellij.openapi.roots._
 import com.intellij.openapi.roots.impl.ModuleOrderEnumerator
 import com.intellij.util.CommonProcessors
+import org.jetbrains.sbt.SbtSourceSetUtil.SbtSourceSetModuleExt
 import org.jetbrains.sbt.SbtUtil
-import org.jetbrains.sbt.project.module.SbtSourceSetData
 
 import java.util
 import scala.jdk.CollectionConverters.CollectionHasAsScala
@@ -99,7 +99,7 @@ class SbtOrderEnumeratorHandlerFactory extends OrderEnumerationHandler.Factory {
   override def createHandler(module: Module): OrderEnumerationHandler = {
     val recursiveRequired = {
       val separateModulesForProdTest = SbtUtil.isBuiltWithSeparateModulesForProdTest(module.getProject)
-      separateModulesForProdTest && !isSbtSourceSetModule(module)
+      separateModulesForProdTest && !module.isSbtSourceSetModule
     }
 
     if (recursiveRequired) RecursiveDependenciesInstance
@@ -108,14 +108,4 @@ class SbtOrderEnumeratorHandlerFactory extends OrderEnumerationHandler.Factory {
 
   override def isApplicable(module: Module): Boolean =
     SbtUtil.isSbtModule(module)
-
-  private def isSbtSourceSetModule(module: Module): Boolean = {
-    val moduleDataNode = SbtUtil.getSbtModuleDataNode(module)
-    moduleDataNode match {
-      case Some(dataNode) =>
-        val dataType = dataNode.getKey.getDataType
-        dataType == classOf[SbtSourceSetData].getName
-      case _ => true
-    }
-  }
 }

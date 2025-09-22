@@ -51,6 +51,9 @@ class ConsoleReporter(
   override def log(message: String): Unit =
     myPrintln(s"[$name] $message")
 
+  // TODO add custom error logging logic if when necessary
+  override def logErr(message: String): Unit =
+    log(message)
 
   override def startTask(eventId: BuildMessages.EventId, parent: Option[BuildMessages.EventId], message: String, time: Long): Unit = {
     val underParent = parent.map(p => s" with parent: ${p.id}")

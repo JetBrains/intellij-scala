@@ -254,7 +254,7 @@ object BspSetupConfigStep {
 
     override def run(indicator: ProgressIndicator): Unit = {
       val reporter = new IndicatorReporter(indicator)
-      setup.run(reporter)
+      setup.run(indicator)(reporter)
     }
 
     override def onCancel(): Unit =

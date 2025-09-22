@@ -110,7 +110,7 @@ final class GenerateBspConfig(project: Project, workspace: Path) {
           ProgressManager.getInstance.runProcessWithProgressSynchronously((() => {
             val indicator = ProgressManager.getInstance().getProgressIndicator
             val buildReporter = new IndicatorReporter(indicator)
-            BloopPreImporter(workspace, sdk)(buildReporter).run()
+            BloopPreImporter(workspace, sdk)(buildReporter).run(indicator)
             //NOTE: I am not sure whether this is the best name for the process
           }): Runnable, BspBundle.message("installing.bloop"), false, project)
         }

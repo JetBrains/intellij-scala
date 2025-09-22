@@ -41,9 +41,11 @@ trait BuildReporter {
 
   /** Clear any messages associated with file. */
   def clear(file: Path): Unit
-
-  /** Print message to log. */
+  /** Print stdout message to log. */
   def log(@Nls message: String): Unit
+
+  /** Print stderr message to log. */
+  def logErr(@Nls message: String): Unit
 
   /** Start a subtask. */
   def startTask(eventId: EventId, parent: Option[EventId], @NotNull @Nls message: String, time: Long = System.currentTimeMillis()): Unit

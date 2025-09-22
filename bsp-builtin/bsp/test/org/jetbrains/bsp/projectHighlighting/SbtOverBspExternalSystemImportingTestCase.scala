@@ -1,6 +1,7 @@
 package org.jetbrains.bsp.projectHighlighting
 
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
+import com.intellij.openapi.progress.DumbProgressIndicator
 import org.jetbrains.bsp.BSP
 import org.jetbrains.bsp.project.importing.setup.SbtConfigSetup
 import org.jetbrains.bsp.settings.BspProjectSettings
@@ -64,7 +65,7 @@ trait SbtOverBspExternalSystemImportingTestCase extends ScalaExternalSystemImpor
         //do nothing, in tests it's enough to see the console output which is already printed by SbtStructureDump
       }
     }
-    val buildMessages: Try[BuildMessages] = sbtBspConfigSetup.run(reporter)
+    val buildMessages: Try[BuildMessages] = sbtBspConfigSetup.run(new DumbProgressIndicator())(reporter)
     val messages = buildMessages.get
     if (messages.errors.nonEmpty) {
       fail(s"$title Failed")

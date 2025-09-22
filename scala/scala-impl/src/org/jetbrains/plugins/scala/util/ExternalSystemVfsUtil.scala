@@ -7,7 +7,7 @@ import com.intellij.openapi.externalSystem.model.{ProjectKeys, ProjectSystemId}
 import com.intellij.openapi.externalSystem.service.project.ProjectDataManager
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.ModuleManager
-import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import org.jetbrains.plugins.scala.ScalaBundle
@@ -29,6 +29,8 @@ object ExternalSystemVfsUtil {
    *       functionality.
    */
   // re-evaluate this utility function when the platform changes how run configuration classpaths are constructed, IDEA-343184
+  // ProcessCanceledException might be thrown com.intellij.compiler.impl.CompilerUtil.refreshOutputRoots if the indicator is canceled
+  @throws[ProcessCanceledException]
   def refreshRoots(project: Project, id: ProjectSystemId, indicator: ProgressIndicator): Unit = {
     indicator.setText(ScalaBundle.message("refresh.roots.synchronizing.output.directories"))
     try {

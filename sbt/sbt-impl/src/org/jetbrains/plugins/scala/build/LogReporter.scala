@@ -62,6 +62,9 @@ class LogReporter extends BuildReporter {
     logger.info(message)
   }
 
+  // TODO add custom error logging logic if when necessary
+  override def logErr(message: String): Unit = log(message)
+
   /** Start a subtask. */
   override def startTask(eventId: BuildMessages.EventId, parent: Option[BuildMessages.EventId], message: String, time: Long): Unit = {
     val parentStr = parent.map(p => s" ($p)").getOrElse("")
