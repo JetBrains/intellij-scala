@@ -15,8 +15,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scalaDirective.dependencies.ScalaDirectiveDependencyPattern
 import org.jetbrains.plugins.scalaDirective.lang.completion.ScalaDirectiveAutoPopupCompletionHandler._
 
-import scala.annotation.nowarn
-
 final class EnableAutoPopupInScalaDirectiveComment extends CompletionConfidence {
   override def shouldSkipAutopopup(editor: Editor, contextElement: PsiElement, psiFile: PsiFile, offset: Int): ThreeState = contextElement match {
     case comment: PsiComment if isEmptyDirectiveComment(comment) =>
@@ -45,7 +43,7 @@ final class ScalaDirectiveAutoPopupCompletionHandler extends TypedHandlerDelegat
 object ScalaDirectiveAutoPopupCompletionHandler {
   private def scheduleAutoPopup(editor: Editor, project: Project)(condition: Int => PsiFile => Boolean): Unit = {
     val offset = editor.getCaretModel.getOffset - 1
-    AutoPopupController.getInstance(project).autoPopupMemberLookup(editor, condition(offset)(_)): @nowarn("cat=deprecation")
+    AutoPopupController.getInstance(project).scheduleAutoPopup(editor, condition(offset)(_))
   }
 
   private[completion] def isEmptyDirectiveComment(element: PsiElement): Boolean =
