@@ -6,6 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiFile
+
 import javax.swing.{JComponent, SwingConstants}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettingsProfile}
@@ -14,6 +15,8 @@ import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 import org.jetbrains.plugins.scala.worksheet.settings.persistent.WorksheetSettingsUpdater.WorksheetSettingsDelegateUpdater
 import org.jetbrains.plugins.scala.worksheet.settings.persistent.{WorksheetFilePersistentSettings, WorksheetProjectDefaultPersistentSettings, WorksheetSettingsUpdater}
+
+import scala.annotation.nowarn
 
 final class WorksheetSettingsDialog(worksheetFile: PsiFile)
   extends DialogWrapper(worksheetFile.getProject, true, true) {
@@ -42,7 +45,7 @@ final class WorksheetSettingsDialog(worksheetFile: PsiFile)
   override def doOKAction(): Unit = {
     applyFileSettings(myPanel.fileSettingsData)
     applyDefaultSettings(myPanel.defaultProjectSettingsData)
-    DaemonCodeAnalyzer.getInstance(project).restart(worksheetFile)
+    DaemonCodeAnalyzer.getInstance(project).restart(worksheetFile): @nowarn("cat=deprecation")
     super.doOKAction()
   }
 

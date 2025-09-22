@@ -29,6 +29,7 @@ import org.jetbrains.sbt.{SbtBundle, SbtVersion, SbtVersionDetector}
 
 import java.util
 import java.util.concurrent.CompletableFuture
+import scala.annotation.nowarn
 
 class SbtExecutionAware extends ExternalSystemExecutionAware {
 
@@ -158,7 +159,7 @@ class SbtExecutionAware extends ExternalSystemExecutionAware {
     eventId: ProgressIndicator
   ): Unit = {
     val message = Option(progressIndicator.getText).getOrElse(SbtBundle.message("sbt.execution.jdk.being.resolved"))
-    val buildEvent = new StartEventImpl(eventId, task.getId, System.currentTimeMillis(), message)
+    val buildEvent = new StartEventImpl(eventId, task.getId, System.currentTimeMillis(), message): @nowarn("cat=deprecation")
     val notificationEvent = new ExternalSystemBuildEvent(task.getId, buildEvent)
     taskNotificationListener.onStatusChange(notificationEvent)
   }
@@ -174,7 +175,7 @@ class SbtExecutionAware extends ExternalSystemExecutionAware {
       else new SuccessResultImpl()
 
     val message = Option(progressIndicator.getText).getOrElse(SbtBundle.message("sbt.execution.jdk.has.been.resolved"))
-    val buildEvent = new FinishEventImpl(eventId, task.getId, System.currentTimeMillis(), message, result)
+    val buildEvent = new FinishEventImpl(eventId, task.getId, System.currentTimeMillis(), message, result): @nowarn("cat=deprecation")
     val notificationEvent = new ExternalSystemBuildEvent(task.getId, buildEvent)
     taskNotificationListener.onStatusChange(notificationEvent)
   }

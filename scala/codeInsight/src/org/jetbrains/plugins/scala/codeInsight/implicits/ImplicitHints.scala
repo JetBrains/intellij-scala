@@ -6,6 +6,8 @@ import com.intellij.openapi.project.ProjectManager
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 
+import scala.annotation.nowarn
+
 object ImplicitHints {
   private val ModificationCount = new ModificationCount("IMPLICIT_HINTS_MODIFICATION_COUNT")
 
@@ -50,7 +52,7 @@ object ImplicitHints {
     EditorFactory.getInstance().getAllEditors.foreach(ModificationCount(_) = 0L)
 
     ProjectManager.getInstance().getOpenProjects
-      .foreach(project => DaemonCodeAnalyzer.getInstance(project).restart())
+      .foreach(project => DaemonCodeAnalyzer.getInstance(project).restart(): @nowarn("cat=deprecation"))
   }
 
   def expandIn(editor: Editor): Unit = {

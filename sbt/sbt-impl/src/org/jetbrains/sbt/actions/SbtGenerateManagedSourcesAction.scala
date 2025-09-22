@@ -17,6 +17,7 @@ import org.jetbrains.sbt.project.{SbtExternalSystemManager, SbtProjectSystem}
 import org.jetbrains.sbt.{SbtBundle, SbtUtil, SbtVersionCapabilities}
 
 import java.nio.file.{Files, Path}
+import scala.annotation.nowarn
 import scala.util.control.NonFatal
 import scala.util.{Failure, Success, Try}
 
@@ -41,15 +42,15 @@ private final class SbtGenerateManagedSourcesAction extends AnAction(
         val descriptor = new DefaultBuildDescriptor(taskId, SbtBundle.message("sbt.generate.managed.sources.action.title"), projectBasePath.toString, System.currentTimeMillis())
         descriptor.setActivateToolWindowWhenAdded(false)
         descriptor.setActivateToolWindowWhenFailed(true)
-        viewManager.onEvent(taskId, new StartBuildEventImpl(descriptor, SbtBundle.message("sbt.generate.managed.sources.action.title")))
+        viewManager.onEvent(taskId, new StartBuildEventImpl(descriptor, SbtBundle.message("sbt.generate.managed.sources.action.title")): @nowarn("cat=deprecation"))
 
         def reportFailure(@Nullable throwable: Throwable): Unit = {
           val sbtOutput = reporter.outputLines.mkString(start = "", sep = System.lineSeparator(), end = System.lineSeparator())
-          viewManager.onEvent(taskId, new OutputBuildEventImpl(taskId, null, sbtOutput, ProcessOutputType.STDOUT))
+          viewManager.onEvent(taskId, new OutputBuildEventImpl(taskId, null, sbtOutput, ProcessOutputType.STDOUT): @nowarn("cat=deprecation"))
           val failureWord = SbtBundle.message("sbt.generate.managed.sources.task.result.failure")
           val failureMessage = SbtBundle.message("sbt.generate.managed.sources.task.result.failure.message")
           val failureResult = new FailureResultImpl(failureMessage, throwable)
-          val finishEvent = new FinishBuildEventImpl(taskId, null, System.currentTimeMillis(), failureWord, failureResult)
+          val finishEvent = new FinishBuildEventImpl(taskId, null, System.currentTimeMillis(), failureWord, failureResult): @nowarn("cat=deprecation")
           viewManager.onEvent(taskId, finishEvent)
         }
 
@@ -64,7 +65,7 @@ private final class SbtGenerateManagedSourcesAction extends AnAction(
             val notSupportedWord = SbtBundle.message("sbt.generate.managed.sources.action.not.supported")
             val notSupportedMessage = SbtBundle.message("sbt.generate.managed.sources.action.not.supported.message", sbtVersion.minor)
             val failureResult = new FailureResultImpl(notSupportedMessage)
-            val finishEvent = new FinishBuildEventImpl(taskId, null, System.currentTimeMillis(), notSupportedWord, failureResult)
+            val finishEvent = new FinishBuildEventImpl(taskId, null, System.currentTimeMillis(), notSupportedWord, failureResult): @nowarn("cat=deprecation")
             viewManager.onEvent(taskId, finishEvent)
             return
           }
@@ -102,8 +103,8 @@ private final class SbtGenerateManagedSourcesAction extends AnAction(
             case Success(buildMessages) if buildMessages.status == BuildMessages.Canceled =>
               val canceledWord = SbtBundle.message("sbt.generate.managed.sources.task.result.canceled")
               val canceledMessage = SbtBundle.message("sbt.generate.managed.sources.task.result.canceled.message")
-              viewManager.onEvent(taskId, new OutputBuildEventImpl(taskId, null, canceledMessage, ProcessOutputType.STDOUT))
-              val finishEvent = new FinishBuildEventImpl(taskId, null, System.currentTimeMillis(), canceledWord, new SkippedResultImpl())
+              viewManager.onEvent(taskId, new OutputBuildEventImpl(taskId, null, canceledMessage, ProcessOutputType.STDOUT): @nowarn("cat=deprecation"))
+              val finishEvent = new FinishBuildEventImpl(taskId, null, System.currentTimeMillis(), canceledWord, new SkippedResultImpl()): @nowarn("cat=deprecation")
               viewManager.onEvent(taskId, finishEvent)
 
             case Success(_) =>
@@ -121,10 +122,10 @@ private final class SbtGenerateManagedSourcesAction extends AnAction(
                   val virtualFiles = generatedSources.flatMap(p => Option(fileManager.refreshAndFindFileByNioPath(p)))
                   VfsUtil.markDirtyAndRefresh(false, false, true, virtualFiles: _*)
                   val output = lines.mkString(start = "", sep = System.lineSeparator(), end = System.lineSeparator())
-                  viewManager.onEvent(taskId, new OutputBuildEventImpl(taskId, null, output, ProcessOutputType.STDOUT))
+                  viewManager.onEvent(taskId, new OutputBuildEventImpl(taskId, null, output, ProcessOutputType.STDOUT): @nowarn("cat=deprecation"))
                   val successWord = SbtBundle.message("sbt.generate.managed.sources.task.result.success")
                   val successResult = new SuccessResultImpl()
-                  val successEvent = new FinishBuildEventImpl(taskId, null, System.currentTimeMillis(), successWord, successResult)
+                  val successEvent = new FinishBuildEventImpl(taskId, null, System.currentTimeMillis(), successWord, successResult): @nowarn("cat=deprecation")
                   viewManager.onEvent(taskId, successEvent)
                 } catch {
                   case NonFatal(t) => reportFailure(t)

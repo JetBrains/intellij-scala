@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala.compiler.charts.ui
 
 import com.intellij.build.events.impl.AbstractBuildEvent
 import org.jetbrains.plugins.scala.startup.ProjectActivity
+
+import scala.annotation.nowarn
 //noinspection ApiStatus
 import com.intellij.build.events.{BuildEvent, BuildEventPresentationData, PresentableBuildEvent, StartBuildEvent}
 import com.intellij.build.{BuildProgressListener, BuildViewManager, DefaultBuildDescriptor}
@@ -51,6 +53,7 @@ private final class CompilationChartsBuildToolWindowNodeFactory extends ProjectA
 //noinspection ApiStatus,UnstableApiUsage
 private object CompilationChartsBuildToolWindowNodeFactory {
 
+  @nowarn("cat=deprecation")
   private class CompilationChartsBuildEvent(buildId: AnyRef, component: JComponent)
     extends AbstractBuildEvent(
       new Object, buildId, System.currentTimeMillis(), CompilerIntegrationBundle.message("compilation.charts.title")

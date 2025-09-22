@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.build.BuildMessages.{BuildStatus, Canceled, E
 
 import java.util.UUID
 import java.util.function.BiPredicate
+import scala.annotation.nowarn
 
 case class BuildMessages(
   warnings: Seq[events.Warning],
@@ -93,11 +94,12 @@ case object BuildMessages {
       case None =>
         new BuildEventMessage(parentId, kind, kindGroup, stripAnsiCodes(message), details, navigatable, eventTime)
       case Some(filePosition) =>
-        new FileMessageEventImpl(parentId, kind, kindGroup, stripAnsiCodes(message), message, filePosition)
+        new FileMessageEventImpl(parentId, kind, kindGroup, stripAnsiCodes(message), message, filePosition): @nowarn("cat=deprecation")
     }
   }
 }
 
+@nowarn("cat=deprecation")
 class BuildEventMessage(
   parentId: Any,
   kind: MessageEvent.Kind,
