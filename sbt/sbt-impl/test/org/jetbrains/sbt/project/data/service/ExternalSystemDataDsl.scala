@@ -128,9 +128,11 @@ object ExternalSystemDataDsl {
   abstract class module {
     val typeId: String
 
+    protected def generateModuleNode(projectId: String, name: String, moduleFileDirectoryPath: String, externalConfigPath: String): Node[_<:ModuleData] =
+      new ModuleNode(typeId, projectId, name, moduleFileDirectoryPath, externalConfigPath)
+
     def build: Node[_<:ModuleData] = {
-      val node = new ModuleNode(
-        typeId,
+      val node = generateModuleNode(
         attributes.getOrFail(projectId),
         attributes.getOrFail(name),
         attributes.getOrFail(moduleFileDirectoryPath),
