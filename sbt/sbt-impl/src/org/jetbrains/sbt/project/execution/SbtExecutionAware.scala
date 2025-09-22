@@ -1,7 +1,8 @@
 //noinspection ApiStatus,UnstableApiUsage
 package org.jetbrains.sbt.project.execution
 
-import com.intellij.build.events.impl.{FinishEventImpl, SkippedResultImpl, StartEventImpl, SuccessResultImpl}
+import com.intellij.build.events.BuildEvents
+import com.intellij.build.events.impl.{SkippedResultImpl, SuccessResultImpl}
 import com.intellij.build.issue.{BuildIssue, BuildIssueQuickFix}
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.ApplicationManager
@@ -29,7 +30,6 @@ import org.jetbrains.sbt.{SbtBundle, SbtVersion, SbtVersionDetector}
 
 import java.util
 import java.util.concurrent.CompletableFuture
-import scala.annotation.nowarn
 
 class SbtExecutionAware extends ExternalSystemExecutionAware {
 
@@ -159,7 +159,12 @@ class SbtExecutionAware extends ExternalSystemExecutionAware {
     eventId: ProgressIndicator
   ): Unit = {
     val message = Option(progressIndicator.getText).getOrElse(SbtBundle.message("sbt.execution.jdk.being.resolved"))
-    val buildEvent = new StartEventImpl(eventId, task.getId, System.currentTimeMillis(), message): @nowarn("cat=deprecation")
+    val buildEvent = BuildEvents.getInstance().start()
+      .withId(eventId)
+      .withParentId(task.getId)
+      .withTime(System.currentTimeMillis())
+      .withMessage(message)
+      .build()
     val notificationEvent = new ExternalSystemBuildEvent(task.getId, buildEvent)
     taskNotificationListener.onStatusChange(notificationEvent)
   }
@@ -175,7 +180,13 @@ class SbtExecutionAware extends ExternalSystemExecutionAware {
       else new SuccessResultImpl()
 
     val message = Option(progressIndicator.getText).getOrElse(SbtBundle.message("sbt.execution.jdk.has.been.resolved"))
-    val buildEvent = new FinishEventImpl(eventId, task.getId, System.currentTimeMillis(), message, result): @nowarn("cat=deprecation")
+    val buildEvent = BuildEvents.getInstance().finish()
+      .withStartId(eventId)
+      .withParentId(task.getId)
+      .withTime(System.currentTimeMillis())
+      .withMessage(message)
+      .withResult(result)
+      .build()
     val notificationEvent = new ExternalSystemBuildEvent(task.getId, buildEvent)
     taskNotificationListener.onStatusChange(notificationEvent)
   }

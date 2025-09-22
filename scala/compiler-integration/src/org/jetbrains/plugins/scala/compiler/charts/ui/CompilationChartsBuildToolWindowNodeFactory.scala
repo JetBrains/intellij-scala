@@ -1,15 +1,13 @@
 package org.jetbrains.plugins.scala.compiler.charts.ui
 
-import com.intellij.build.events.impl.AbstractBuildEvent
+import com.intellij.build.events.BuildEvents
 import org.jetbrains.plugins.scala.startup.ProjectActivity
-
-import scala.annotation.nowarn
 //noinspection ApiStatus
 import com.intellij.build.events.{BuildEvent, BuildEventPresentationData, PresentableBuildEvent, StartBuildEvent}
 import com.intellij.build.{BuildProgressListener, BuildViewManager, DefaultBuildDescriptor}
 import com.intellij.execution.ui.ExecutionConsole
 import com.intellij.openapi.actionSystem.ActionGroup
-import com.intellij.openapi.project.{Project, ProjectManagerListener}
+import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, CompilerIntegrationBundle}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.icons.Icons
@@ -43,7 +41,8 @@ private final class CompilationChartsBuildToolWindowNodeFactory extends ProjectA
     val listener: BuildProgressListener = { (buildId, event) =>
       if (compileServerEnabled && project.hasScala && isJpsBuild(event)) {
         val component = CompilationChartsComponentHolder.createOrGet(project)
-        buildViewManager.onEvent(buildId, new CompilationChartsBuildEvent(buildId, component))
+        val event = compilationChartsBuildEvent(buildId, component)
+        buildViewManager.onEvent(buildId, event)
       }
     }
     buildViewManager.addListener(listener, project.unloadAwareDisposable)
@@ -52,23 +51,22 @@ private final class CompilationChartsBuildToolWindowNodeFactory extends ProjectA
 
 //noinspection ApiStatus,UnstableApiUsage
 private object CompilationChartsBuildToolWindowNodeFactory {
+  def compilationChartsBuildEvent(buildId: AnyRef, component: JComponent): PresentableBuildEvent = BuildEvents.getInstance().presentable()
+    .withParentId(buildId)
+    .withTime(System.currentTimeMillis())
+    .withMessage(CompilerIntegrationBundle.message("compilation.charts.title"))
+    .withPresentationData(
+      new BuildEventPresentationData {
+        override def getNodeIcon: Icon = Icons.COMPILATION_CHARTS
 
-  @nowarn("cat=deprecation")
-  private class CompilationChartsBuildEvent(buildId: AnyRef, component: JComponent)
-    extends AbstractBuildEvent(
-      new Object, buildId, System.currentTimeMillis(), CompilerIntegrationBundle.message("compilation.charts.title")
-    ) with PresentableBuildEvent {
+        override lazy val getExecutionConsole: ExecutionConsole = new ExecutionConsole {
+          override def getComponent: JComponent = component
+          override def getPreferredFocusableComponent: JComponent = component
+          override def dispose(): Unit = ()
+        }
 
-    override lazy val getPresentationData: BuildEventPresentationData = new BuildEventPresentationData {
-      override def getNodeIcon: Icon = Icons.COMPILATION_CHARTS
-
-      override lazy val getExecutionConsole: ExecutionConsole = new ExecutionConsole {
-        override def getComponent: JComponent = component
-        override def getPreferredFocusableComponent: JComponent = component
-        override def dispose(): Unit = ()
+        override def consoleToolbarActions(): ActionGroup = null
       }
-
-      override def consoleToolbarActions(): ActionGroup = null
-    }
-  }
+    )
+    .build()
 }
