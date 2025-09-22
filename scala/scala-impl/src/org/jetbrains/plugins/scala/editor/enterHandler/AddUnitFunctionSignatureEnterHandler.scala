@@ -112,8 +112,9 @@ class AddUnitFunctionSignatureEnterHandler extends EnterHandlerDelegateAdapter {
     Result.Default
   }
 
+  // NOTE: use heuristic, don't use true type inference as this code is invoked on EDT during typing nad must be fast (SCL-24362)
   private def isUnit(typeElement: ScTypeElement): Boolean =
-    typeElement.`type`().exists(_.isUnit)
+    typeElement.textMatches("Unit")
 
   private def isApplicable(file: PsiFile, editor: Editor): Boolean =
     file.is[ScalaFile] && prevNonWhitespace(editor) == '{'
