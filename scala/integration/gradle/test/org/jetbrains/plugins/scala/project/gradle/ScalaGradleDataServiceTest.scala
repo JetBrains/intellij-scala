@@ -1,12 +1,18 @@
 package org.jetbrains.plugins.scala.project.gradle
 
-import com.intellij.openapi.externalSystem.model.project.ProjectData
+import com.intellij.openapi.externalSystem.ExternalSystemModulePropertyManager
+import com.intellij.openapi.externalSystem.model.internal.InternalExternalProjectInfo
+import com.intellij.openapi.externalSystem.model.project.{ModuleData, ProjectData}
 import com.intellij.openapi.externalSystem.model.{DataNode, Key}
+import com.intellij.openapi.externalSystem.service.project.manage.{ExternalProjectsManager, ExternalProjectsManagerImpl}
 import com.intellij.openapi.module.{ModuleManager, StdModuleTypes}
-import org.jetbrains.plugins.gradle.model.data.{ScalaCompileOptionsData, ScalaModelData}
+import org.jetbrains.plugins.gradle.model.data.{GradleSourceSetData, ScalaCompileOptionsData, ScalaModelData}
+import org.jetbrains.plugins.gradle.service.project.GradleProjectResolverUtil
+import org.jetbrains.plugins.gradle.settings.{GradleProjectSettings, GradleSettings}
 import org.jetbrains.plugins.gradle.util.GradleConstants
 import org.jetbrains.plugins.scala.compiler.data.DebuggingInfoLevel
 import org.jetbrains.plugins.scala.project._
+import com.intellij.openapi.module.Module
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings.ScalacPlugin
 import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
@@ -19,12 +25,23 @@ import org.junit.Assert._
 import java.net.URI
 import java.nio.file.Path
 import java.util
+import java.util.Collections
 import scala.jdk.CollectionConverters._
 
 class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase {
 
-  // Synthetic module type to distinguish source sets modules (main/test) from regular modules
-  private val sourceSetModuleType: String = "source_set"
+  override def setUp(): Unit = {
+    super.setUp()
+
+    val projectBasePath = getProject.getBasePath
+    assertNotNull("Project base path cannot be null", projectBasePath)
+
+    val projectSettings = new GradleProjectSettings
+    projectSettings.setExternalProjectPath(projectBasePath)
+    // Required for GradleUtil.findGradleModuleData (used by ScalaGradleDataService.findGradleSourceSetModules) to work correctly.
+    // In external-system importing tests, it's also emulated. See com.intellij.platform.externalSystem.testFramework.ExternalSystemImportingTestCase.importProject.
+    GradleSettings.getInstance(getProject).setLinkedProjectsSettings(Collections.singletonList(projectSettings))
+  }
 
   private def generateProject(
     scalaVersion: Option[String] = None,
@@ -33,11 +50,12 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase {
     compilerOptions: Option[ScalaCompileOptionsData] = None,
     separateModules: Boolean = true,
     addScalaLibrariesModuleLevel: Boolean = false
-  ): DataNode[ProjectData] =
-    new project {
+  ): DataNode[ProjectData] = {
+    val projectBasePath: String = getProject.getBasePath
+    val projectDataNode = new project {
       name := getProject.getName
-      ideDirectoryPath := getProject.getBasePath
-      linkedProjectPath := getProject.getBasePath
+      ideDirectoryPath := projectBasePath
+      linkedProjectPath := projectBasePath
 
       val scalaLibrary: Option[library] = scalaVersion.map { version =>
         new library { name := "org.scala-lang:scala-library:" + version }
@@ -47,17 +65,58 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase {
         scalaLibrary.foreach(libraries += _)
       }
 
-      val myProjectURI: URI = Path.of(getProject.getBasePath).toAbsolutePath.toUri
+      val myProjectURI: URI = Path.of(projectBasePath).toAbsolutePath.toUri
+
+      val rootModuleName = "module"
+
+      val sourceSetModules: Seq[gradleModule] =
+        if (separateModules) {
+          val productionModule: gradleModule = new gradleModule {
+            name := "module_main"
+            projectId := s"$rootModuleName:module_main"
+            projectURI := myProjectURI
+            moduleFileDirectoryPath := projectBasePath + "/module"
+            externalConfigPath := projectBasePath
+
+            // Libraries declared at the module level are added as module-level dependencies,
+            // whereas libraryDependencies are added as project-level dependencies.
+            if (addScalaLibrariesModuleLevel) {
+              scalaLibrary.foreach(libraries += _)
+            } else {
+              scalaLibrary.foreach(libraryDependencies += _)
+            }
+          }
+
+          val testModule: gradleModule = new gradleModule {
+            name := "module_test"
+            projectId := s"$rootModuleName:module_test"
+            projectURI := myProjectURI
+            moduleFileDirectoryPath := projectBasePath + "/module"
+            externalConfigPath := projectBasePath
+
+            moduleDependencies += productionModule
+            // Libraries declared at the module level are added as module-level dependencies,
+            // whereas libraryDependencies are added as project-level dependencies.
+            if (addScalaLibrariesModuleLevel) {
+              scalaLibrary.foreach(libraries += _)
+            } else {
+              scalaLibrary.foreach(libraryDependencies += _)
+            }
+          }
+
+          Seq(testModule, productionModule)
+        } else {
+          Nil
+        }
 
       modules += new javaModule {
-        val moduleName = "module"
-        name := moduleName
-        projectId := moduleName
+        name := rootModuleName
+        projectId := rootModuleName
         projectURI := myProjectURI
-        moduleFileDirectoryPath := getProject.getBasePath + "/module"
-        externalConfigPath := getProject.getBasePath + "/module"
+        moduleFileDirectoryPath := projectBasePath + "/module"
+        externalConfigPath := projectBasePath
 
-        arbitraryNodes += new Node[ScalaModelData] {
+        val scalaModuleDataNode: Node[ScalaModelData] = new Node[ScalaModelData] {
           override protected val data: ScalaModelData = new ScalaModelData(SbtProjectSystem.Id)
           override protected def key: Key[ScalaModelData] = ScalaModelData.KEY
 
@@ -72,52 +131,21 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase {
           data.setScalaCompileOptions(compilerOptions.getOrElse(new ScalaCompileOptionsData))
         }
 
+        arbitraryNodes ++= sourceSetModules.map(_.build) :+ scalaModuleDataNode
         if (!separateModules) {
           scalaLibrary.foreach(libraryDependencies += _)
         }
       }
-
-      if (separateModules) {
-        val productionModule: javaModule = new javaModule {
-          override val typeId: String = sourceSetModuleType
-          val moduleName = "module_main"
-          name := moduleName
-          projectId := moduleName
-          projectURI := myProjectURI
-          moduleFileDirectoryPath := getProject.getBasePath + "/module"
-          externalConfigPath := getProject.getBasePath + "/module"
-
-          // Libraries declared at the module level are added as module-level dependencies,
-          // whereas libraryDependencies are added as project-level dependencies.
-          if (addScalaLibrariesModuleLevel) {
-            scalaLibrary.foreach(libraries += _)
-          } else {
-            scalaLibrary.foreach(libraryDependencies += _)
-          }
-        }
-
-        modules += productionModule
-
-        modules += new javaModule {
-          override val typeId: String = sourceSetModuleType
-          val moduleName = "module_test"
-          name := moduleName
-          projectId := moduleName
-          projectURI := myProjectURI
-          moduleFileDirectoryPath := getProject.getBasePath + "/module"
-          externalConfigPath := getProject.getBasePath + "/module"
-
-          moduleDependencies += productionModule
-          // Libraries declared at the module level are added as module-level dependencies,
-          // whereas libraryDependencies are added as project-level dependencies.
-          if (addScalaLibrariesModuleLevel) {
-            scalaLibrary.foreach(libraries += _)
-          } else {
-            scalaLibrary.foreach(libraryDependencies += _)
-          }
-        }
-      }
     }.build.toDataNode
+
+    // Required for GradleUtil.findGradleModuleData (used by ScalaGradleDataService.findGradleSourceSetModules) to work correctly.
+    // If this were an external-system importing test performing a full project import (rather than importing only project data),
+    // this would be set in com.intellij.openapi.externalSystem.service.internal.ExternalSystemResolveProjectTask.setState.
+    val externalProjectData = new InternalExternalProjectInfo(GradleConstants.SYSTEM_ID, projectBasePath, projectDataNode)
+    ExternalProjectsManager.getInstance(getProject).asInstanceOf[ExternalProjectsManagerImpl].updateExternalProjectData(externalProjectData)
+
+    projectDataNode
+  }
 
   def testEmptyScalaCompilerClasspath(): Unit = {
     importProjectData(generateProject())
@@ -228,7 +256,7 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase {
     )
 
     val compilerConfiguration = {
-      val module = ModuleManager.getInstance(getProject).findModuleByName("module_main")
+      val module = ModuleManager.getInstance(getProject).findModuleByName("module.module_main")
       ScalaCompilerSettings.forModule(module)
     }
 
@@ -258,7 +286,7 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase {
     assertFalse("warnings", compilerConfiguration.warnings)
 
     val testCompilerConfiguration = {
-      val module = ModuleManager.getInstance(getProject).findModuleByName("module_test")
+      val module = ModuleManager.getInstance(getProject).findModuleByName("module.module_test")
       ScalaCompilerSettings.forModule(module)
     }
 
@@ -278,7 +306,7 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase {
     )
 
     val compilerConfiguration = {
-      val module = ModuleManager.getInstance(getProject).findModuleByName("module_main")
+      val module = ModuleManager.getInstance(getProject).findModuleByName("module.module_main")
       ScalaCompilerSettings.forModule(module)
     }
 
@@ -309,17 +337,38 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase {
     assertHasScalaSdk(separateModules = false, expectedScalaSdkModulesCount = 1)
 
   private def assertHasScalaSdk(separateModules: Boolean, expectedScalaSdkModulesCount: Int): Unit = {
-    val allModules = ModuleManager.getInstance(getProject).getModules
-    val filterType =
-      if (separateModules) sourceSetModuleType
-      else StdModuleTypes.JAVA.getId
+    val modulesFilter = (module: Module) =>
+      if (separateModules) {
+        ExternalSystemModulePropertyManager.getInstance(module).getExternalModuleType == GradleConstants.GRADLE_SOURCE_SET_MODULE_TYPE_KEY
+      } else {
+        module.getModuleTypeName == StdModuleTypes.JAVA.getId
+      }
 
-    val modules = allModules.filter(module => Option(module.getModuleTypeName).contains(filterType))
+    val modules = ModuleManager.getInstance(getProject).getModules.filter(modulesFilter)
     assertEquals(s"There should be $expectedScalaSdkModulesCount modules", expectedScalaSdkModulesCount, modules.length)
 
     modules.foreach { module =>
       val scalaSdks = module.libraries.filter(_.isScalaSdk)
       assertTrue(s"There is no single Scala SDK in ${module.getName}", scalaSdks.size == 1)
     }
+  }
+
+  private class gradleModule extends module {
+    // Not used anyway
+    override val typeId: String = GradleProjectResolverUtil.getDefaultModuleTypeId
+
+    protected override def generateModuleNode(
+      projectId: String,
+      name: String,
+      moduleFileDirectoryPath: String,
+      externalConfigPath: String
+    ): Node[_ <: ModuleData] =
+      new Node[GradleSourceSetData] {
+        override protected def key: Key[GradleSourceSetData] = GradleSourceSetData.KEY
+        override protected def data: GradleSourceSetData =
+          new GradleSourceSetData(
+            projectId, projectId, projectId.replace(':', '.'), moduleFileDirectoryPath, externalConfigPath
+          )
+      }
   }
 }
