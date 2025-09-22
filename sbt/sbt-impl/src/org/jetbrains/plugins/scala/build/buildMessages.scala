@@ -1,10 +1,8 @@
 package org.jetbrains.plugins.scala.build
 
-import com.intellij.build.events.impl.{AbstractBuildEvent, FileMessageEventImpl}
-import com.intellij.build.events.{MessageEvent, MessageEventResult, Warning}
+import com.intellij.build.events.{BuildEvent, BuildEvents, MessageEvent, Warning}
 import com.intellij.build.{FilePosition, events}
 import com.intellij.execution.process.{AnsiEscapeDecoder, ProcessOutputTypes}
-import com.intellij.openapi.project.Project
 import com.intellij.pom.Navigatable
 import com.intellij.task._
 import org.jetbrains.annotations.{Nls, Nullable}
@@ -86,44 +84,32 @@ case object BuildMessages {
     eventTime: Long,
     @Nls @Nullable details: String = null,
     navigatable: Option[Navigatable] = None,
-  ): AbstractBuildEvent with MessageEvent = {
+  ): BuildEvent = {
     val kindGroup = kind.toString
 
     position match {
       case None =>
-        new BuildEventMessage(parentId, kind, kindGroup, stripAnsiCodes(message), details, navigatable, eventTime)
+        BuildEvents.getInstance().message()
+          .withParentId(parentId)
+          .withKind(kind)
+          .withTime(eventTime)
+          .withGroup(kindGroup)
+          .withMessage(stripAnsiCodes(message))
+          .withDescription(details)
+          .withNavigatable(navigatable.orNull)
+          .build()
       case Some(filePosition) =>
-        new FileMessageEventImpl(parentId, kind, kindGroup, stripAnsiCodes(message), message, filePosition)
+        BuildEvents.getInstance().fileMessage()
+          .withParentId(parentId)
+          .withKind(kind)
+          .withTime(eventTime)
+          .withGroup(kindGroup)
+          .withMessage(stripAnsiCodes(message))
+          .withDescription(details)
+          .withFilePosition(filePosition)
+          .build()
     }
   }
-}
-
-class BuildEventMessage(
-  parentId: Any,
-  kind: MessageEvent.Kind,
-  @Nls group: String,
-  @Nls message: String,
-  @Nls @Nullable details: String,
-  navigatable: Option[Navigatable],
-  eventTime: Long,
-) extends AbstractBuildEvent(
-  new Object,
-  parentId,
-  eventTime,
-  message
-) with MessageEvent {
-
-  override def getKind: MessageEvent.Kind = kind
-
-  override def getGroup: String = group
-
-  override def getResult: MessageEventResult =
-    new MessageEventResult() {
-      override def getKind: MessageEvent.Kind = kind
-      override def getDetails: String = details
-    }
-
-  override def getNavigatable(project: Project): Navigatable = navigatable.orNull
 }
 
 case class TaskRunnerResult(
