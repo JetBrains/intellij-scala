@@ -61,52 +61,8 @@ private[codeInsight] trait ScalaTypeHintsPass {
   }
 
   private def collectXRayHints(editor: Editor, root: PsiElement) = root.elements(_.isVisible).flatMap {
-    case ci@ScConstructorInvocation.reference(Resolved(r@ScalaResolveResult(fun: ScMethodLike, _)))
-      if getTypeArguments(fun).nonEmpty && ScalaApplicationSettings.XRAY_SHOW_TYPE_ARGUMENT_HINTS =>
-      r.resultUndef.flatMap { cs =>
-        xRayTypeArgumentsHints(ci.typeElement, cs, fun, editor)
-      }.getOrElse(Seq.empty)
-    case outermostMethodCall@ScMethodCall.withDeepestInvoked((invoked: ScReferenceExpression) & Resolved(ScalaResolveResult(methodLike: ScMethodLike, _)))
-      if ScalaApplicationSettings.XRAY_SHOW_TYPE_ARGUMENT_HINTS && !outermostMethodCall.getParent.is[ScMethodCall] && getTypeArguments(methodLike).nonEmpty =>
-      val cs = collectMethodCalls(outermostMethodCall)
-        .flatMap { mc =>
-          for {
-            typePoly <- mc.getNonValueType(fromUnderscore = true).toOption.flatMap(_.asOptionOf[ScTypePolymorphicType])
-            inferRes = InferUtil.localTypeInferenceWithApplicabilityExt(
-              typePoly.internalType,
-              mc.matchedParameters.map(_._2),
-              mc.matchedParameters.map(_._1),
-              typePoly.typeParameters
-            )
-          } yield inferRes._2.constraints
-        }
-        .foldLeft(ConstraintSystem.empty)(_ + _)
-      val hints = xRayTypeArgumentsHints(invoked, cs, methodLike, editor)
-      hints.getOrElse(Seq.empty)
     case e @ Typeable(t) => xRayHintsFor(e, t)(editor.getColorsScheme, TypePresentationContext(e), Context(e), settings)
     case _ => Seq.empty
-  }
-
-  private def xRayTypeArgumentsHints(invoked: PsiElement, cs: ConstraintSystem, fun: ScMethodLike, editor: Editor) = {
-    cs.substitutionBounds(canThrowSCE = false)(invoked, Context(invoked)).map { bounds =>
-      def typeParamSubst(tp: ScTypeParam) = {
-        bounds.substitutor(ScAbstractType(TypeParameter(tp), tp.lowerBound.getOrNothing, tp.upperBound.getOrAny))
-      }
-
-      getTypeArguments(fun).map { tp =>
-        val ty = typeParamSubst(tp).removeAbstracts
-        textPartsOf(ty, settings.presentationLength, invoked)(editor.getColorsScheme, TypePresentationContext(invoked), Context(invoked))
-      }
-    }.map(texts =>
-      Seq(
-        Hint(
-          Text("[") +: texts.intersperse(Seq(Text(", "))).flatten :+ Text("]"),
-          invoked,
-          position = HintPosition.AfterElement,
-          relatesToPrecedingElement = true
-        )
-      )
-    )
   }
 
   private def xRayHintsFor(e: PsiElement, t: ScType)(implicit scheme: EditorColorsScheme, tpc: TypePresentationContext, context: Context, settings: ScalaHintsSettings): Seq[Hint] = e match {
@@ -133,27 +89,6 @@ private[codeInsight] trait ScalaTypeHintsPass {
       )
     else
       Seq(Hint(Text(": ") +: textPartsOf(t, settings.presentationLength, e), e, position = HintPosition.AfterElement, relatesToPrecedingElement = true))
-  }
-
-  private def getTypeArguments(function: ScMethodLike) = function match {
-    case fun: ScFunction if !fun.isConstructor => fun.typeParameters
-    case _: ScFunction | _: ScPrimaryConstructor =>
-      function.containingClass match {
-        case td: ScTypeDefinition => td.typeParameters
-        case _ => Seq.empty
-      }
-    case _ => Seq.empty
-  }
-
-  private def collectMethodCalls(expr: ScExpression): List[ScMethodCall] = {
-    @tailrec
-    def loop(current: ScExpression, acc: List[ScMethodCall]): List[ScMethodCall] = current match {
-      case call: ScMethodCall =>
-        loop(call.getEffectiveInvokedExpr, call :: acc)
-      case _ => acc
-    }
-
-    loop(expr, Nil)
   }
 }
 
