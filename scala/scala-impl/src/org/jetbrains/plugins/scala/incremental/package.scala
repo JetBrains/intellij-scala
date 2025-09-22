@@ -6,6 +6,7 @@ import com.intellij.codeInsight.daemon.impl.{DaemonCodeAnalyzerEx, DaemonCodeAna
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.annotations.Nullable
 
 package object incremental {
   private final val REASON = "Incremental highlighting"
@@ -43,6 +44,6 @@ package object incremental {
     }
   }
 
-  private[incremental] def isScalaIn(file: VirtualFile): Boolean =
+  private[incremental] def isScalaIn(@Nullable file: VirtualFile): Boolean =
     file != null && (file.getExtension == "scala" || file.getExtension == "sc" || file.getExtension == "sbt" || file.getExtension == "mill")
 }

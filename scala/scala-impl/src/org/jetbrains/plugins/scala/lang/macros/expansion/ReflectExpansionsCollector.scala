@@ -12,7 +12,6 @@ import org.jetbrains.plugins.scala.util.{MacroExpansion, Place}
 
 import java.io.{BufferedInputStream, BufferedOutputStream, ObjectInputStream, ObjectOutputStream}
 import java.nio.file.{Files, Paths}
-import scala.annotation.nowarn
 import scala.collection.mutable
 import scala.util.Using
 
@@ -93,7 +92,7 @@ object ReflectExpansionsCollector {
     FileEditorManager.getInstance(project).getSelectedEditors.filter(_.isValid).foreach { editor =>
       val analyzer = DaemonCodeAnalyzer.getInstance(project)
       val psiManager = PsiManager.getInstance(project)
-      Option(psiManager.findFile(editor.getFile)).map(file => analyzer.restart(file): @nowarn("cat=deprecation"))
+      Option(psiManager.findFile(editor.getFile)).map(analyzer.restart(_, "Restart after compilation finished"))
     }
   }
 
