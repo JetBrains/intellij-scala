@@ -17,22 +17,32 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import scala.collection.mutable
 
 class AddUnitFunctionSignatureEnterHandler extends EnterHandlerDelegateAdapter {
+
   override def postProcessEnter(file: PsiFile, editor: Editor, dataContext: DataContext): Result = {
-    if (!isApplicable(file, editor)) return Result.Continue
+    if (!isApplicable(file, editor))
+      return Result.Continue
 
     val document = editor.getDocument
     val project = file.getProject
-    editor.commitDocument(project)
+
+    //ATTENTION: don't commit the document in any editor typing actions - it's an expensive operation that can take another 30ms on a powerful machine
+    //editor.commitDocument(project)
 
     val element = file.findElementAt(editor.offset)
-    if (element == null) return Result.Continue
+    if (element == null)
+      return Result.Continue
 
-    @inline def checkBlock2(blockLike: ScalaPsiElement): Boolean =
-      blockLike.getNode.getChildren(null) match {
+    /** @return true if the caret is between `{` and `}` with 1 new line between them (added by current Enter action) */
+    @inline def isNewBlock(element: ScalaPsiElement): Boolean = {
+      val children = element.getNode.getChildren(null)
+      children match {
         case Array(ElementType(ScalaTokenTypes.tLBRACE), ws: PsiWhiteSpace, ElementType(ScalaTokenTypes.tRBRACE)) =>
-          ws.getText.count(_ == '\n') == 2
+          val wsText = ws.getText
+          //Assuming that this 1 extra new line character was added by the current Enter action before "postProcessEnter" was invoked
+          wsText.count(_ == '\n') == 1
         case _ => false
       }
+    }
 
     /**
      * Add empty parentheses, Unit type annotation and `=` if needed.
@@ -76,8 +86,9 @@ class AddUnitFunctionSignatureEnterHandler extends EnterHandlerDelegateAdapter {
       }
     }
 
-    element.getParent match {
-      case block: ScBlockExpr if checkBlock2(block) =>
+    val parent = element.getParent
+    parent match {
+      case block: ScBlockExpr if isNewBlock(block) =>
         block.getParent match {
           case fn: ScFunctionDefinition =>
             val hasAssign = fn.hasAssign
@@ -96,7 +107,7 @@ class AddUnitFunctionSignatureEnterHandler extends EnterHandlerDelegateAdapter {
       * When there is an explicit return type but no `=`
       * E.g.: `def foo: Unit {<caret>}`
       */
-      case refinement: ScRefinement if checkBlock2(refinement) =>
+      case refinement: ScRefinement if isNewBlock(refinement) =>
         refinement.getParent match {
           case compoundTpe@ScCompoundTypeElement(Seq(tpe: ScSimpleTypeElement), _) if isUnit(tpe) =>
             compoundTpe.getParent match {
