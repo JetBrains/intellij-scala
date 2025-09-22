@@ -104,7 +104,7 @@ final class TypeAnnotationsPanel(settings: CodeStyleSettings) extends TypeAnnota
     bindingsFor(settings).foreach(it => it.copyRightToLeft())
 
     projectOpt.foreach { project =>
-      DaemonCodeAnalyzer.getInstance(project).restart()
+      DaemonCodeAnalyzer.getInstance(project).restart("Restart after applying changes from TypeAnnotationsPanel")
     }
   }
 }

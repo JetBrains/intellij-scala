@@ -42,7 +42,7 @@ final class WorksheetSettingsDialog(worksheetFile: PsiFile)
   override def doOKAction(): Unit = {
     applyFileSettings(myPanel.fileSettingsData)
     applyDefaultSettings(myPanel.defaultProjectSettingsData)
-    DaemonCodeAnalyzer.getInstance(project).restart(worksheetFile)
+    DaemonCodeAnalyzer.getInstance(project).restart(worksheetFile, "Restart after ok in worksheet settings dialog")
     super.doOKAction()
   }
 

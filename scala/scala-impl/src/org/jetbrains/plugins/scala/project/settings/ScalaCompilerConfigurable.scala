@@ -66,7 +66,7 @@ class ScalaCompilerConfigurable(project: Project)
     configuration.defaultProfile = profilesPanel.getDefaultProfile.copy
     configuration.customProfiles = profilesPanel.getModuleProfiles.map(_.copy)
     if (!project.isDefault) {
-      DaemonCodeAnalyzer.getInstance(project).restart()
+      DaemonCodeAnalyzer.getInstance(project).restart("Restart after ScalaCompilerConfigurable was applied")
       BuildManager.getInstance().clearState(project)
     }
   }

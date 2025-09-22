@@ -92,7 +92,7 @@ object ReflectExpansionsCollector {
     FileEditorManager.getInstance(project).getSelectedEditors.filter(_.isValid).foreach { editor =>
       val analyzer = DaemonCodeAnalyzer.getInstance(project)
       val psiManager = PsiManager.getInstance(project)
-      Option(psiManager.findFile(editor.getFile)).map(analyzer.restart)
+      Option(psiManager.findFile(editor.getFile)).map(analyzer.restart(_, "Restart after compilation finished"))
     }
   }
 

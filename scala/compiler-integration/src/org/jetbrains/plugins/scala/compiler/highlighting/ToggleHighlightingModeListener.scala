@@ -45,7 +45,7 @@ abstract class ToggleHighlightingModeListener(project: Project) {
   private def forceStandardHighlighting(project: Project): Unit = inWriteAction {
     ResolveCache.getInstance(project).clearCache(true)
     PsiManager.getInstance(project).dropPsiCaches()
-    DaemonCodeAnalyzer.getInstance(project).restart()
+    DaemonCodeAnalyzer.getInstance(project).restart("Restart because highlighting was toggled")
   }
 }
 

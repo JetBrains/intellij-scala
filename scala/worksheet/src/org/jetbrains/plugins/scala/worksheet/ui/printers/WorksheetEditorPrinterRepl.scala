@@ -370,7 +370,7 @@ final class WorksheetEditorPrinterRepl private[printers](
   }
 
   private def updateLastLineMarker(): Unit = inReadAction {
-    DaemonCodeAnalyzer.getInstance(project).restart(getScalaFile)
+    DaemonCodeAnalyzer.getInstance(project).restart(getScalaFile, "WorksheetEditorPrinterRepl.updateLastLineMarker")
   }
 }
 

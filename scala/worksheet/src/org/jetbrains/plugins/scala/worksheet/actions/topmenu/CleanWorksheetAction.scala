@@ -59,7 +59,7 @@ object CleanWorksheetAction {
 
         editor.getSettings.setFoldingOutlineShown(true)
         editor.getContentComponent.requestFocus() //  properly repaints editor SCL-16073
-        DaemonCodeAnalyzer.getInstance(project).restart(psiFile)
+        DaemonCodeAnalyzer.getInstance(project).restart(psiFile, "Restart because of clean worksheets")
       }
     }
   }

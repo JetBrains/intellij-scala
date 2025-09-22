@@ -50,7 +50,7 @@ object ImplicitHints {
     EditorFactory.getInstance().getAllEditors.foreach(ModificationCount(_) = 0L)
 
     ProjectManager.getInstance().getOpenProjects
-      .foreach(project => DaemonCodeAnalyzer.getInstance(project).restart())
+      .foreach(project => DaemonCodeAnalyzer.getInstance(project).restart("Restart for implicit hints"))
   }
 
   def expandIn(editor: Editor): Unit = {

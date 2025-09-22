@@ -2,11 +2,11 @@ package org.jetbrains.plugins.scala
 package incremental
 
 import settings.ScalaProjectSettings
-
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
+import org.jetbrains.annotations.Nullable
 
 // SCL-23216
 object Highlighting {
@@ -14,7 +14,7 @@ object Highlighting {
 
   private[incremental] var suppress: Boolean = false
 
-  def enabledIn(project: Project): Boolean =
+  def enabledIn(@Nullable project: Project): Boolean =
     !suppress && project != null && ScalaProjectSettings.in(project).isIncrementalHighlighting
 
   def update(enabled: Boolean, project: Project): Unit = {
@@ -23,7 +23,7 @@ object Highlighting {
     } else {
       Listener.disconnectFrom(project)
     }
-    DaemonCodeAnalyzer.getInstance(project).restart()
+    DaemonCodeAnalyzer.getInstance(project).restart("Restart after updating Highlighting settings")
   }
 
   implicit class ElementHighlightingExt(private val e: PsiElement) extends AnyVal {

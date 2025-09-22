@@ -81,7 +81,7 @@ object WorksheetFileHook {
       }
       ScalaPsiManager.instance(project).clearAllCachesAndWait()
       PsiManager.getInstance(project).dropPsiCaches()
-      DaemonCodeAnalyzer.getInstance(project).restart(psiFile)
+      DaemonCodeAnalyzer.getInstance(project).restart(psiFile, "WorksheetFileHook.restartFileAnalyzing")
     }
   }
 

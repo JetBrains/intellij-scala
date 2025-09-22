@@ -64,7 +64,8 @@ class Listener extends EditorFactoryListener {
       if (e.getKeyCode == KeyEvent.VK_ESCAPE) {
         if (System.nanoTime() - previousKeyPressInstant < MaxDoubleKeyPressDuration) {
           Highlighting.suppress = true
-          DaemonCodeAnalyzer.getInstance(Highlighting.editor.getProject).restart()
+          DaemonCodeAnalyzer.getInstance(Highlighting.editor.getProject)
+            .restart("Restart after pressing escape")
         }
         previousKeyPressInstant = System.nanoTime()
       }
