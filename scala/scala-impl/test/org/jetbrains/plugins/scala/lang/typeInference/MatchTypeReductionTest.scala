@@ -4,14 +4,14 @@ import com.intellij.openapi.util.registry.Registry
 import junit.framework.TestCase.assertEquals
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScMatchType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.typeInference.shims.TupleIntrinsicsTest
 import org.jetbrains.plugins.scala.project.ScalaFeatures
 
 class MatchTypeReductionTest extends TupleIntrinsicsTest {
   override protected def setUp(): Unit = {
-    Registry.get("scala.enable.match.type.intrinsics").setValue(false)
     super.setUp()
+    Registry.get("scala.enable.match.type.intrinsics").setValue(false)
   }
 
   override def assertDoesNotReduce(code: String, tpe: String): Unit =
@@ -33,13 +33,18 @@ class MatchTypeReductionTest extends TupleIntrinsicsTest {
       typeElement
         .`type`()
         .toOption
-        .fold("<error>") { tpe =>
-          val dealiased =
-            if (dealias) tpe.removeAliasDefinitions()
-            else         tpe
+        .map { tpe =>
+          val res =
+            if (dealias) tpe.removeAliasDefinitions().updateRecursively {
+              case mt: ScMatchType => mt.reduce.getOrElse(mt)
+            }
+            else tpe
 
-          dealiased.presentableText(TypePresentationContext(typeElement), Context.Empty)
+          val text = res.presentableText(TypePresentationContext(typeElement), Context.Empty)
+          text
         }
+        .getOrElse("<error>")
+
 
     assertEquals(tpe, actual)
   }
@@ -84,7 +89,7 @@ class MatchTypeReductionTest extends TupleIntrinsicsTest {
   override def testElem_elem_is_in_rest(): Unit =
     assertDoesNotReduce(
       "type T = Tuple.Elem[(Int, Boolean) ++ NonEmptyTuple, 2]",
-      "Tuple.Elem[Int *: Boolean *: NonEmptyTuple, 2]"
+      "Tuple.Elem[(Int, Boolean) ++ NonEmptyTuple, 2]"
     )
 
   override def testContains_not_before_rest(): Unit =

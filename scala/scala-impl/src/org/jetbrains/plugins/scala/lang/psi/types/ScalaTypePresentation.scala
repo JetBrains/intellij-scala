@@ -405,7 +405,12 @@ trait ScalaTypePresentation extends TypePresentation {
         value.presentation
       case ScMatchType(scrutinee, cases, _) =>
         val scrutineeText = innerTypeText(scrutinee)
-        val caseTexts = cases.map(cs => "case " + cs._1 + " => " + cs._2)
+
+        val caseTexts = cases.map { cs =>
+          val (pat, res) = cs.apply()
+          "case " + pat + " => " + res
+        }
+
         val parenthesesRequired = scrutinee.is[ScMatchType] || FunctionType.isFunctionType(scrutinee)
         (if (parenthesesRequired) scrutineeText.parenthesize() else scrutineeText)  + " match " + caseTexts.mkString("{ ", "; ", " }")
       case _ => "" //todo

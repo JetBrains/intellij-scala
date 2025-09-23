@@ -274,7 +274,7 @@ ScalaFile
               ScMatchTypeCaseImpl(match type case)
                 PsiElement(case)('case')
                 PsiWhiteSpace(' ')
-                WildcardType: _
+                TypeVariable: _
                   PsiElement(_)('_')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
@@ -435,7 +435,7 @@ ScalaFile
               ScMatchTypeCaseImpl(match type case)
                 PsiElement(case)('case')
                 PsiWhiteSpace(' ')
-                WildcardType: _
+                TypeVariable: _
                   PsiElement(_)('_')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')

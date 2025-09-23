@@ -88,7 +88,7 @@ ScalaFile
             CodeReferenceElement: *:
               PsiElement(identifier)('*:')
             PsiWhiteSpace(' ')
-            WildcardType: _
+            TypeVariable: _
               PsiElement(_)('_')
           PsiWhiteSpace('  ')
           PsiElement(=>)('=>')
@@ -101,7 +101,7 @@ ScalaFile
           PsiElement(case)('case')
           PsiWhiteSpace(' ')
           InfixType: _ *: es
-            WildcardType: _
+            TypeVariable: _
               PsiElement(_)('_')
             PsiWhiteSpace(' ')
             CodeReferenceElement: *:

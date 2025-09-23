@@ -59,9 +59,8 @@ ScalaFile
           TupleType: (arg1, arg2)
             PsiElement(()('(')
             TypesList
-              SimpleType: arg1
-                CodeReferenceElement: arg1
-                  PsiElement(identifier)('arg1')
+              TypeVariable: arg1
+                PsiElement(identifier)('arg1')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
               TypeVariable: arg2

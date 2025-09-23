@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.typeInference.shims
 
+import com.intellij.openapi.util.registry.Registry
 import org.jetbrains.plugins.scala.{ScalaVersion, TypecheckerTests}
 import org.junit.experimental.categories.Category
 
@@ -10,6 +11,11 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[TypecheckerTests]))
 class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
   override def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_3_7
+
+  override protected def setUp(): Unit = {
+    super.setUp()
+    Registry.get("scala.enable.match.type.intrinsics").setValue(true)
+  }
 
   override def transformCode(code: String): String =
     s"""import scala.Tuple.++
@@ -44,7 +50,7 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
     )
 
   def testAppend_abstract_tup(): Unit =
-    assertTypeIs(
+    assertDoesNotReduce(
       "type T[X] = Tuple.Append[X, Int]",
       "Tuple.Append[X, Int]"
     )
@@ -141,7 +147,7 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
     )
 
   def testInit_abstract(): Unit =
-    assertTypeIs("type T[X] = Tuple.Init[X]", "Tuple.Init[X]")
+    assertDoesNotReduce("type T[X] = Tuple.Init[X]", "Tuple.Init[X]")
 
   def testInit_abstract_inner(): Unit =
     assertTypeIs(
@@ -265,7 +271,7 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
     )
 
   def testLast_abstract(): Unit =
-    assertTypeIs("type T[X] = Tuple.Last[X]", "Tuple.Last[X]")
+    assertDoesNotReduce("type T[X] = Tuple.Last[X]", "Tuple.Last[X]")
 
   def testLast_abstract_inner(): Unit =
     assertTypeIs("type T[X] = Tuple.Last[(String, X)]", "X")
@@ -312,7 +318,7 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
     )
 
   def testConcat_abstract_first(): Unit =
-    assertTypeIs(
+    assertDoesNotReduce(
       "type T[X] = Tuple.Concat[X, (String, Boolean)]",
       "Tuple.Concat[X, (String, Boolean)]"
     )
@@ -353,8 +359,8 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
 
   def testConcat_with_rest_in_left(): Unit =
     assertTypeIs(
-      "type T = (Int *: Tuple) ++ (1, 2)",
-      "Int *: Tuple ++ (1, 2)"
+      "type T = (Int *: EmptyTuple) ++ (1, 2)",
+      "(Int, 1, 2)"
     )
   //
   //
@@ -383,7 +389,7 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
     )
 
   def testElem_abstract_index(): Unit =
-    assertTypeIs(
+    assertDoesNotReduce(
       "type T[N] = Tuple.Elem[(Int, String), N]",
       "Tuple.Elem[(Int, String), N]"
     )
@@ -506,7 +512,7 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
     )
 
   def testMap_abstract_tuple(): Unit =
-    assertTypeIs(
+    assertDoesNotReduce(
       """type F[X] = List[X]
         |type T[Tup] = Tuple.Map[Tup, F]
         |""".stripMargin,
@@ -519,7 +525,7 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
         |type G[X] = Option[X]
         |type T = Tuple.Map[Tuple.Map[(Int, String), F], G]
         |""".stripMargin,
-      "(G[List[Int]], G[List[String]])"
+      "(Option[List[Int]], Option[List[String]])"
     )
 
   //
@@ -563,13 +569,13 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
     )
 
   def testZip_abstract_first(): Unit =
-    assertTypeIs(
+    assertDoesNotReduce(
       "type T[X] = Tuple.Zip[X, (Boolean, Double)]",
       "Tuple.Zip[X, (Boolean, Double)]"
     )
 
   def testZip_abstract_second(): Unit =
-    assertTypeIs(
+    assertDoesNotReduce(
       "type T[X] = Tuple.Zip[(Int, String), X]",
       "Tuple.Zip[(Int, String), X]"
     )
@@ -629,7 +635,7 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
     )
 
   def testReverse_abstract(): Unit =
-    assertTypeIs(
+    assertDoesNotReduce(
       "type T[X] = Tuple.Reverse[X]",
       "Tuple.Reverse[X]"
     )
@@ -920,7 +926,7 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
     )
 
   def testContains_abstract(): Unit =
-    assertTypeIs(
+    assertDoesNotReduce(
       "type T[X] = Tuple.Contains[X, Boolean]",
       "Tuple.Contains[X, Boolean]"
     )

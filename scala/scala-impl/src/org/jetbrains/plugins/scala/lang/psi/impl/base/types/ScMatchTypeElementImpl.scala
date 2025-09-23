@@ -26,7 +26,7 @@ class ScMatchTypeElementImpl(node: ASTNode)
               case (Some(patternElement), Some(resultElement)) =>
                 (patternElement.`type`(), resultElement.`type`()) match {
                   case (Right(patternType), Right(resultType)) =>
-                    (patternType, resultType)
+                    () => (patternType, resultType)
                   case _ => return Failure("")
                 }
               case _ => return Failure("")

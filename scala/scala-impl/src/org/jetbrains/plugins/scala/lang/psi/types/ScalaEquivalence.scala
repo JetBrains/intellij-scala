@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.types
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api._
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType, ScThisType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 
 import java.util.function.Supplier
@@ -90,6 +90,8 @@ trait ScalaEquivalence extends api.Equivalence {
         case (_: UndefinedType, _)  => left.equivInner(right, empty, falseUndef)
         case (_, _: ScAbstractType) => right.equivInner(left, empty, falseUndef)
         case (_: ScAbstractType, _) => left.equivInner(right, empty, falseUndef)
+        case (ScMatchType.Reduced(redex), _) => redex.equiv(right, empty, falseUndef)
+        case (_, ScMatchType.Reduced(redex)) => left.equiv(redex, empty, falseUndef)
         case (_, ParameterizedType(_: ScAbstractType, _)) =>
           right.equivInner(left, empty, falseUndef)
         case (ParameterizedType(_: ScAbstractType, _), _) =>
