@@ -58,6 +58,7 @@ object Common {
 
   val outOfIDEAProcessJavacOptions: Seq[String] = globalJavacOptionsCommon ++ globalExternalProcessReleaseOptions :+ suppressObsoleteSourceTarget8
   val outOfIDEAProcessScalacOptions: Seq[String] = globalScalacOptionsCommon ++ globalExternalProcessReleaseOptions
+  val outOfIDEAProcessScala3ScalacOptions: Seq[String] = globalScala3ScalacOptionsCommon ++ globalExternalProcessReleaseOptions
 
   val projectDirectoriesSettings: Seq[Setting[?]] = Seq(
     // production sources

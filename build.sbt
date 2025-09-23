@@ -372,8 +372,9 @@ lazy val scalaLanguageUtils: sbt.Project =
 lazy val scalaLanguageUtilsRt: sbt.Project =
   newPlainScalaProject("scala-utils-language-rt", file("scala/scala-utils-language-rt"))
     .settings(
+      scalaVersion := Versions.scala3Version,
+      Compile / scalacOptions := outOfIDEAProcessScala3ScalacOptions,
       Compile / javacOptions := outOfIDEAProcessJavacOptions,
-      Compile / scalacOptions := outOfIDEAProcessScalacOptions,
       packageMethod := PackagingMethod.Standalone("lib/utils_rt.jar", static = true),
     )
 
