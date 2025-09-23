@@ -66,8 +66,11 @@ object ScalaBundleSorting {
       bundleMessagesRelativePath = "ScalaCompileServerBundle.properties"
     ),
     ModuleWithBundleInfo(
-      rootPath = scalaModDir / "compiler-integration",
-      bundleMessagesRelativePath = "CompilerIntegrationBundle.properties"
+      rootPath = scalaModDir / "compiler-integration-server-management",
+      bundleMessagesRelativePath = "CompilerIntegrationBundle.properties",
+      extraUsageModules = Seq(
+        ModuleInfo(scalaModDir / "compiler-integration")
+      )
     ),
     ModuleWithBundleInfo(
       rootPath = scalaModDir / "compiler-jps",
