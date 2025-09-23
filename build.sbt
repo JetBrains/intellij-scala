@@ -362,6 +362,8 @@ lazy val kotlinUtils: sbt.Project =
 lazy val scalaLanguageUtils: sbt.Project =
   newPlainScalaProject("scala-utils-language", file("scala/scala-utils-language"))
     .settings(
+      scalaVersion := Versions.scala3Version,
+      Compile / scalacOptions := globalScala3ScalacOptions,
       packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity)
     )
 
