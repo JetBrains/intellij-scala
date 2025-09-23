@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportUsed, ImportWildcardSelectorUsed}
 
 import java.util
+import scala.annotation.nowarn
 
 trait ScalaUnusedImportPassBase { self: TextEditorHighlightingPass =>
   def file: PsiFile
@@ -51,7 +52,7 @@ trait ScalaUnusedImportPassBase { self: TextEditorHighlightingPass =>
 
   protected def highlightAll(highlights: util.Collection[HighlightInfo]): Unit = {
     UpdateHighlightersUtil.setHighlightersToEditor(file.getProject, document, 0,
-      file.getTextLength, highlights, getColorsScheme, getId)
+      file.getTextLength, highlights, getColorsScheme, getId): @nowarn("cat=deprecation")
   }
 
   protected def getFixes: List[IntentionAction]

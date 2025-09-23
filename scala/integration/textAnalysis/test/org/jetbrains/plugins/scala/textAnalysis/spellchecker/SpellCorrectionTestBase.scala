@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.textAnalysis.spellchecker
 import com.intellij.codeInsight.lookup.impl.LookupImpl
 import com.intellij.codeInsight.lookup.{Lookup, LookupManager}
 import com.intellij.codeInsight.template.impl.TemplateManagerImpl
-import com.intellij.spellchecker.inspections.SpellCheckingInspection
+import com.intellij.grazie.spellcheck.GrazieSpellCheckingInspection
 import com.intellij.spellchecker.quickfixes.RenameTo
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 
@@ -21,7 +21,7 @@ abstract class SpellCorrectionTestBase extends ScalaLightCodeInsightFixtureTestC
     val expected = context.replace(NAME, expectedWords.head)
 
     myFixture.configureByText("dummy." + fileExt, original)
-    myFixture.enableInspections(classOf[SpellCheckingInspection])
+    myFixture.enableInspections(classOf[GrazieSpellCheckingInspection])
     val fix = myFixture.findSingleIntention(RenameTo.getFixName);
     myFixture.launchAction(fix)
     selectAndCheckLookupElements(expectedWords)

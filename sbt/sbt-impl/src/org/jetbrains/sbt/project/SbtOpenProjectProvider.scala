@@ -12,6 +12,7 @@ import com.intellij.openapi.externalSystem.service.project.manage.ExternalProjec
 import com.intellij.openapi.externalSystem.service.project.{ExternalProjectRefreshCallback, ProjectDataManager}
 import com.intellij.openapi.externalSystem.service.ui.ExternalProjectDataSelectorDialog
 import com.intellij.openapi.externalSystem.util.ExternalSystemUtil
+import com.intellij.openapi.progress.CoroutinesKt
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.registry.Registry
@@ -21,6 +22,8 @@ import org.jetbrains.sbt.project.SbtOpenProjectProvider.Log
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.settings.SbtSettings
 
+import kotlin.coroutines.Continuation
+import kotlinx.coroutines.BuildersKt
 import scala.annotation.nowarn
 
 //noinspection UnstableApiUsage,ApiStatus
@@ -36,7 +39,9 @@ class SbtOpenProjectProvider extends AbstractOpenProjectProvider {
     Log.debug(s"Link SBT project '$projectFile' to existing project ${project.getName}")
 
     val sbtProjectSettings = SbtProjectSettings.forProject(project).getOrElse(SbtProjectSettings.default)
-    val projectDirectory = getProjectDirectory(projectFile)
+    val projectDirectory = CoroutinesKt.runBlockingMaybeCancellable { (_, cont: Continuation[_ >: VirtualFile]) =>
+      getProjectDirectory(projectFile, cont)
+    }
     sbtProjectSettings.setExternalProjectPath(projectDirectory.toNioPath.toString)
     attachSbtProjectAndRefresh(sbtProjectSettings, project)
   }
