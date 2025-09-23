@@ -2,11 +2,12 @@ package org.jetbrains.plugins.scala
 package incremental
 
 import settings.ScalaProjectSettings
-
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
+
+import scala.annotation.nowarn
 
 // SCL-23216
 object Highlighting {
@@ -23,7 +24,7 @@ object Highlighting {
     } else {
       Listener.disconnectFrom(project)
     }
-    DaemonCodeAnalyzer.getInstance(project).restart()
+    DaemonCodeAnalyzer.getInstance(project).restart(): @nowarn("cat=deprecation")
   }
 
   implicit class ElementHighlightingExt(private val e: PsiElement) extends AnyVal {

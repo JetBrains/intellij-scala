@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.help.ScalaWebHelpProvider
 import org.jetbrains.plugins.scala.statistics.ScalaActionUsagesCollector
 
 import javax.swing.JPanel
+import scala.annotation.nowarn
 
 /**
  * @see [[org.jetbrains.plugins.scala.compiler.data.ScalaCompilerSettingsState]]
@@ -66,7 +67,7 @@ class ScalaCompilerConfigurable(project: Project)
     configuration.defaultProfile = profilesPanel.getDefaultProfile.copy
     configuration.customProfiles = profilesPanel.getModuleProfiles.map(_.copy)
     if (!project.isDefault) {
-      DaemonCodeAnalyzer.getInstance(project).restart()
+      DaemonCodeAnalyzer.getInstance(project).restart(): @nowarn("cat=deprecation")
       BuildManager.getInstance().clearState(project)
     }
   }

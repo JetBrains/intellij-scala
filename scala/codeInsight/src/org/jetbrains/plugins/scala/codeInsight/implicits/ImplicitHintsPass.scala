@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.caches.{ModTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.codeInsight.hints.methodChains.ScalaMethodChainInlayHintsPass
 import org.jetbrains.plugins.scala.codeInsight.hints.rangeHints.RangeInlayHintsPass
-import org.jetbrains.plugins.scala.codeInsight.hints.{ScalaApplyMethodHintsPass, ScalaHintsSettings, ScalaInlayParameterHintsPass, ScalaTypeHintsPass}
+import org.jetbrains.plugins.scala.codeInsight.hints.{ScalaApplyMethodHintsPass, ScalaHintsSettings, ScalaInlayParameterHintsPass, ScalaTypeArgumentHintsPass, ScalaTypeHintsPass}
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHintsPass._
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocQuickInfoGenerator
 import org.jetbrains.plugins.scala.extensions.{&, _}
@@ -53,6 +53,7 @@ class ImplicitHintsPass(
   with ScalaInlayParameterHintsPass
   with ScalaApplyMethodHintsPass
   with ScalaMethodChainInlayHintsPass
+  with ScalaTypeArgumentHintsPass
   with RangeInlayHintsPass {
 
   import org.jetbrains.plugins.scala.annotator.hints._
@@ -69,9 +70,10 @@ class ImplicitHintsPass(
       // TODO Use a dedicated pass when built-in "advanced" hint API will be available in IDEA, SCL-14502
       rootElement.elements.foreach(e => AnnotatorHints.in(e).foreach(hints ++= _.hints))
       // TODO Use a dedicated pass when built-in "advanced" hint API will be available in IDEA, SCL-14502
+      hints ++= collectApplyMethodHints(editor, rootElement)
+      hints ++= collectTypeArgumentHints(editor, rootElement)
       hints ++= collectTypeHints(editor, rootElement)
       hints ++= collectParameterHints(editor, rootElement)
-      hints ++= collectApplyMethodHints(editor, rootElement)
       collectConversionsAndArguments()
       collectMethodChainHints(editor, rootElement)
       collectRangeHints(editor, rootElement)

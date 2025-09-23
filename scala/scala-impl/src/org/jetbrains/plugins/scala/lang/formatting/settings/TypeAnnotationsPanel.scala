@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.extensions.Binding
 
 import java.util
 import javax.swing._
+import scala.annotation.nowarn
 
 final class TypeAnnotationsPanel(settings: CodeStyleSettings) extends TypeAnnotationsPanelBase(settings) {
 
@@ -104,7 +105,7 @@ final class TypeAnnotationsPanel(settings: CodeStyleSettings) extends TypeAnnota
     bindingsFor(settings).foreach(it => it.copyRightToLeft())
 
     projectOpt.foreach { project =>
-      DaemonCodeAnalyzer.getInstance(project).restart()
+      DaemonCodeAnalyzer.getInstance(project).restart(): @nowarn("cat=deprecation")
     }
   }
 }

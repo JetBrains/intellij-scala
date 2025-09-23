@@ -27,6 +27,7 @@ import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterB
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterFactory.synchronizeViewerScrollWithMainEditor
 import org.jetbrains.plugins.scala.worksheet.ui.printers.repl.{PrintChunk, QueuedPsi}
 
+import scala.annotation.nowarn
 import scala.collection.mutable
 import scala.util.matching.Regex
 
@@ -370,7 +371,7 @@ final class WorksheetEditorPrinterRepl private[printers](
   }
 
   private def updateLastLineMarker(): Unit = inReadAction {
-    DaemonCodeAnalyzer.getInstance(project).restart(getScalaFile)
+    DaemonCodeAnalyzer.getInstance(project).restart(getScalaFile): @nowarn("cat=deprecation")
   }
 }
 
