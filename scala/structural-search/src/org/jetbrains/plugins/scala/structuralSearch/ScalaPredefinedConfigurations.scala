@@ -153,6 +153,20 @@ object ScalaPredefinedConfigurations {
           """val '_val""".stripMargin,
           """var $val$""",
         replaceFolder),
+      createSRConfiguration(ScalaStructuralSearchBundle.message("add.deprecated.annotation.to.function"), "addannotfunc",
+        """@'_anno*
+          |def '_func('_para*)""".stripMargin,
+        """@deprecated @$anno$
+          |def $func$($para$)""".stripMargin,
+        replaceFolder),
+      createSRConfiguration(ScalaStructuralSearchBundle.message("convert.properties.to.constructor.arguments"), "proptoconstr",
+        """class '_cl('_para*) {
+          |  val '_val*
+          |  var '_var*
+          |}""".stripMargin,
+        """class $cl$($para$, $val$, $var$) {
+          |}""".stripMargin,
+        replaceFolder),
     ).toArray
   }
 
