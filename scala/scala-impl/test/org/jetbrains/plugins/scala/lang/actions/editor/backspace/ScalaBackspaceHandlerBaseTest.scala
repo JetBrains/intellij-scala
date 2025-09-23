@@ -4,8 +4,8 @@ import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
 import org.jetbrains.plugins.scala.extensions.{StringExt => StringExt1}
 import org.jetbrains.plugins.scala.lang.actions.editor.backspace.ScalaBackspaceHandlerBaseTest.StringExt
-import org.jetbrains.plugins.scala.lang.actions.editor.enter.scala3.Scala3TestDataBracelessCode
-import org.jetbrains.plugins.scala.lang.actions.editor.enter.scala3.Scala3TestDataBracelessCode.{CodeWithDebugName, WrapperCodeContexts, injectCodeWithIndentAdjust}
+import org.jetbrains.plugins.scala.lang.actions.editor.enter_long_tests.scala3.Scala3TestDataBracelessCode
+import org.jetbrains.plugins.scala.lang.actions.editor.enter_long_tests.scala3.Scala3TestDataBracelessCode.{CodeWithDebugName, WrapperCodeContexts, injectCodeWithIndentAdjust}
 
 //marker trait for better tests discoverability of the original class
 trait ScalaBackspaceHandlerTestLike

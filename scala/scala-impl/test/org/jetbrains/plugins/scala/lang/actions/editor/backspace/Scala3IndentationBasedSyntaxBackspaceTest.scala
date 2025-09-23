@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.actions.editor.backspace
 import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.codeInsight.editorActions.SmartBackspaceMode
 import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.lang.actions.editor.enter.scala3.Scala3TestDataBracelessCode.WrapperCodeContexts
+import org.jetbrains.plugins.scala.lang.actions.editor.enter_long_tests.scala3.Scala3TestDataBracelessCode.WrapperCodeContexts
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 
 class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBaseTest {
