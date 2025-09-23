@@ -268,7 +268,7 @@ ScalaFile
                                             CodeReferenceElement: *:
                                               PsiElement(identifier)('*:')
                                             PsiWhiteSpace(' ')
-                                            WildcardType: _
+                                            TypeVariable: _
                                               PsiElement(_)('_')
                                           PsiElement())(')')
                                     PsiWhiteSpace(' ')

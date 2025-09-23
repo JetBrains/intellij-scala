@@ -535,6 +535,7 @@ class ScalaPsiManager(implicit val project: Project) extends Disposable {
   private def clearCaches(): Unit = {
     new ProjectContext(project).typeSystem.clearCache()
     if (!project.isDisposed) {
+      ScMatchType.clearReductionCache(project)
       ParameterizedType.substitutorCache(project).clear()
     }
     PropertyMethods.clearCache()

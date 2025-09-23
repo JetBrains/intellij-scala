@@ -218,9 +218,8 @@ ScalaFile
                 TupleType: (h, t)
                   PsiElement(()('(')
                   TypesList
-                    SimpleType: h
-                      CodeReferenceElement: h
-                        PsiElement(identifier)('h')
+                    TypeVariable: h
+                      PsiElement(identifier)('h')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
                     TypeVariable: t
@@ -386,7 +385,7 @@ ScalaFile
               ScMatchTypeCaseImpl(match type case)
                 PsiElement(case)('case')
                 PsiWhiteSpace(' ')
-                WildcardType: _
+                TypeVariable: _
                   PsiElement(_)('_')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
@@ -608,12 +607,11 @@ ScalaFile
                 TupleType: (h1, _)
                   PsiElement(()('(')
                   TypesList
-                    SimpleType: h1
-                      CodeReferenceElement: h1
-                        PsiElement(identifier)('h1')
+                    TypeVariable: h1
+                      PsiElement(identifier)('h1')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    WildcardType: _
+                    TypeVariable: _
                       PsiElement(_)('_')
                   PsiElement())(')')
                 PsiWhiteSpace(' ')

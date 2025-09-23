@@ -16,7 +16,7 @@ import org.junit.experimental.categories.Category
 class ReferenceComparisonTest_Scala3_LTS extends ReferenceComparisonTestBase(org.jetbrains.plugins.scala.lang.resolveSemanticDb.configurations.ReferenceComparisonTestConfig_Scala3_LTS) {
   def test_1567(): Unit = doTest("1567", true)
   def test_3190(): Unit = doTest("3190", true)
-  def test_6322(): Unit = doTest("6322", false) // #matchType
+  def test_6322(): Unit = doTest("6322", true) // #matchType
   def test_6362(): Unit = doTest("6362", true) // #matchType
   def test_6687(): Unit = doTest("6687", true) // #matchType
   def test_6697(): Unit = doTest("6697", true) // #matchType
@@ -30,12 +30,12 @@ class ReferenceComparisonTest_Scala3_LTS extends ReferenceComparisonTestBase(org
   def test_9239(): Unit = doTest("9239", true) // #matchType
   def test_9623(): Unit = doTest("9623", true) // #matchType
   def test_9675(): Unit = doTest("9675", false) // #matchType
-  def test_9871(): Unit = doTest("9871", false) // #matchType
+  def test_9871(): Unit = doTest("9871", true) // #matchType
   def test_9890(): Unit = doTest("9890", false) // #matchType, #intersectionType, #typeLambda
   def test_10077(): Unit = doTest("10077", true) // #typeLambda, #matchType
   def test_10510(): Unit = doTest("10510", true) // #matchType
   def test_10747_onnxmin(): Unit = doTest("10747-onnxmin", true) // #unionType, #matchType
-  def test_10867(): Unit = doTest("10867", false) // #matchType, #typeLambda
+  def test_10867(): Unit = doTest("10867", true) // #matchType, #typeLambda
   def test_11463(): Unit = doTest("11463", true) // #matchType
   def test_11973(): Unit = doTest("11973", true) // #enum, #intersectionType
   def test_11982_a(): Unit = doTest("11982-a", true) // #matchType
@@ -46,7 +46,7 @@ class ReferenceComparisonTest_Scala3_LTS extends ReferenceComparisonTestBase(org
   def test_13469(): Unit = doTest("13469", true) // #intersectionType, #matchType, #unionType
   def test_13491(): Unit = doTest("13491", true) // #matchType
   def test_13495(): Unit = doTest("13495", true) // #matchType, #intersectionType
-  def test_13633(): Unit = doTest("13633", false) // #matchType, #intersectionType
+  def test_13633(): Unit = doTest("13633", true) // #matchType, #intersectionType
   def test_13855(): Unit = doTest("13855", true) // #matchType
   def test_14952(): Unit = doTest("14952", true) // #matchType
   def test_17077(): Unit = doTest("17077", true) // #intersectionType
@@ -733,8 +733,8 @@ class ReferenceComparisonTest_Scala3_LTS extends ReferenceComparisonTestBase(org
   def test_i5588a(): Unit = doTest("i5588a", true) // #extension
   def test_i5588b(): Unit = doTest("i5588b", true) // #extension
   def test_i5592(): Unit = doTest("i5592", true) // #typeLambda
-  def test_i5625(): Unit = doTest("i5625", false) // #matchType
-  def test_i5625b(): Unit = doTest("i5625b", false) // #matchType
+  def test_i5625(): Unit = doTest("i5625", true) // #matchType
+  def test_i5625b(): Unit = doTest("i5625b", true) // #matchType
   def test_i5650(): Unit = doTest("i5650", true) // #matchType
   def test_i5655(): Unit = doTest("i5655", true)
   def test_i5666(): Unit = doTest("i5666", true)
@@ -1165,9 +1165,9 @@ class ReferenceComparisonTest_Scala3_LTS extends ReferenceComparisonTestBase(org
   def test_i11226b(): Unit = doTest("i11226b", true)
   def test_i11230(): Unit = doTest("i11230", true)
   def test_i11234(): Unit = doTest("i11234", true)
-  def test_i11236(): Unit = doTest("i11236", false) // #matchType
+  def test_i11236(): Unit = doTest("i11236", true) // #matchType
   def test_i11243(): Unit = doTest("i11243", false) // #extension, #typeLambda
-  def test_i11250(): Unit = doTest("i11250", false) // #matchType
+  def test_i11250(): Unit = doTest("i11250", true) // #matchType
   def test_i11255(): Unit = doTest("i11255", true) // #opaque, #extension
   def test_i11277(): Unit = doTest("i11277", true) // #opaque
   def test_i11291(): Unit = doTest("i11291", true)
@@ -1199,7 +1199,7 @@ class ReferenceComparisonTest_Scala3_LTS extends ReferenceComparisonTestBase(org
   def test_i11712(): Unit = doTest("i11712", true) // #transparentInline
   def test_i11713(): Unit = doTest("i11713", true) // #extension
   def test_i11725(): Unit = doTest("i11725", true)
-  def test_i11729(): Unit = doTest("i11729", false) // #matchType
+  def test_i11729(): Unit = doTest("i11729", true) // #matchType
   def test_i11731(): Unit = doTest("i11731", true)
   def test_i11732(): Unit = doTest("i11732", false)
   def test_i11743(): Unit = doTest("i11743", false) // #extension
@@ -1327,7 +1327,7 @@ class ReferenceComparisonTest_Scala3_LTS extends ReferenceComparisonTestBase(org
   def test_i13490(): Unit = doTest("i13490", false) // #enum, #export
   def test_i13503(): Unit = doTest("i13503", false) // #transparentInline
   def test_i13512(): Unit = doTest("i13512", true)
-  def test_i13526(): Unit = doTest("i13526", false) // #matchType
+  def test_i13526(): Unit = doTest("i13526", true) // #matchType
   def test_i13532(): Unit = doTest("i13532", false) // #spliced/quoted
   def test_i13541(): Unit = doTest("i13541", true) // #typeLambda
   def test_i13548(): Unit = doTest("i13548", true)
@@ -2973,7 +2973,7 @@ class ReferenceComparisonTest_Scala3_LTS extends ReferenceComparisonTestBase(org
   def test_typedapply(): Unit = doTest("typedapply", true)
   def test_typedIdents(): Unit = doTest("typedIdents", true)
   def test_typeinferNull(): Unit = doTest("typeinferNull", true)
-  def test_typelevel0(): Unit = doTest("typelevel0", false) // #transparentInline, #matchType
+  def test_typelevel0(): Unit = doTest("typelevel0", true) // #transparentInline, #matchType
   def test_typerep_pos(): Unit = doTest("typerep_pos", true)
   def test_typetestcast(): Unit = doTest("typetestcast", true)
   def test_unapply(): Unit = doTest("unapply", true)

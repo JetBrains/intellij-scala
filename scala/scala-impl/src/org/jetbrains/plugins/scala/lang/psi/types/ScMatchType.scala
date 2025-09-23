@@ -1,13 +1,15 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
 import com.intellij.lang.jvm.JvmModifier
+import com.intellij.openapi.components.Service
+import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
-import org.jetbrains.plugins.scala.lang.psi.types.ScMatchType.{MatchResult, isProvablyDisjoint}
+import org.jetbrains.plugins.scala.lang.psi.types.ScMatchType.MatchTypeCase
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
@@ -16,91 +18,204 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
+import java.util.concurrent.{ConcurrentHashMap, ConcurrentMap}
 import scala.annotation.tailrec
 import scala.collection.immutable.{ArraySeq, SeqMap}
+import scala.util.control.NoStackTrace
+
 
 case class ScMatchType private (
   scrutinee:  ScType,
-  cases:      Seq[(ScType, ScType)],
+  cases:      Seq[MatchTypeCase],
   upperBound: Option[ScType]
 ) extends ScalaType with ValueType {
   override def visitType(visitor: ScalaTypeVisitor): Unit = visitor.visitMatchType(this)
 
   override implicit def projectContext: ProjectContext = scrutinee.projectContext
 
-  def reduce: TypeResult = {
-    def matchCase(pat: ScType): MatchResult = {
-      val typeVarsBuilder = ArraySeq.newBuilder[TypeParameter]
+  def reduce: TypeResult = ScMatchType.reduce(this)
 
-      def isTypeVar(tpt: TypeParameterType): Boolean = {
-        val firstChar = tpt.name.charAt(0)
-        firstChar.isLower || firstChar == '_'
+  private def checkCases(
+    cases:       Seq[MatchTypeCase],
+    otherCases:  Seq[MatchTypeCase],
+    constraints: ConstraintSystem,
+    falseUndef:  Boolean
+  ): ConstraintsResult =
+    if (cases.size != otherCases.size) ConstraintsResult.Left
+    else {
+      var combinedConstraints: ConstraintsResult = constraints
+
+      val lIter = cases.iterator
+      val rIter = otherCases.iterator
+
+      while (combinedConstraints.isRight && lIter.hasNext) {
+        val (lPat, lBody) = lIter.next().apply()
+        val (rPat, rBody) = rIter.next().apply()
+
+        val patEquiv = lPat.equiv(rPat, combinedConstraints.constraints)
+
+        patEquiv match {
+          case ConstraintsResult.Left =>
+            combinedConstraints = ConstraintsResult.Left
+          case patCs: ConstraintSystem =>
+            combinedConstraints = combinedConstraints.constraints + patCs
+        }
+
+        combinedConstraints = lBody.equiv(rBody, combinedConstraints.constraints, falseUndef)
       }
 
-      pat.visitRecursively {
-        case tpt: TypeParameterType if isTypeVar(tpt) => typeVarsBuilder += tpt.typeParameter
-        case _                                        => ()
-      }
-
-      val typeVars    = typeVarsBuilder.result()
-      val undefSubst  = ScSubstitutor.undefineTypeParams(typeVars)
-      val conformance = scrutinee.conforms(undefSubst(pat), ConstraintSystem.empty)
-
-      conformance match {
-        case ConstraintSystem(subst) => MatchResult.Reduced(subst)
-        case _ =>
-          if (isProvablyDisjoint(pat, scrutinee)) MatchResult.Disjoint
-          else                                    MatchResult.Stuck
-      }
+      combinedConstraints
     }
 
-    @tailrec
-    def aux(remainingCases: Iterator[(ScType, ScType)]): TypeResult =
-      if (remainingCases.isEmpty)
-        Failure(
-          ScalaBundle.message(
-            "match.type.no.cases.match.scrutinee",
-            scrutinee.canonicalText
-          )
-        )
-      else {
-        val (casePat, caseRes) = remainingCases.next()
-        val matchResult        = matchCase(casePat)
+  override def equivInner(
+    other:       ScType,
+    constraints: ConstraintSystem,
+    falseUndef:   Boolean
+  )(implicit
+    context: Context
+  ): ConstraintsResult = other match {
+    case mt: ScMatchType =>
+      val scrutineeEquiv = scrutinee.equiv(mt.scrutinee, constraints, falseUndef = false)
 
-        matchResult match {
-          case MatchResult.Reduced(subst) =>
-            Right(subst(caseRes))
-          case MatchResult.Stuck          =>
-            Failure(
-              ScalaBundle.message(
-                "match.type.non.disjoint.case",
-                scrutinee.canonicalText,
-                casePat.canonicalText
-              )
-            )
-          case MatchResult.Disjoint => aux(remainingCases)
-        }
+      scrutineeEquiv match {
+        case ConstraintsResult.Left => ConstraintsResult.Left
+        case cs: ConstraintSystem   => checkCases(cases, mt.cases, cs, falseUndef)
       }
-
-
-    aux(cases.iterator)
+    case other =>
+      //Match type and its redex are mutual subtypes
+      reduce.fold(
+        _ => ConstraintsResult.Left,
+        _.equivInner(other, constraints, falseUndef)
+      )
   }
 }
 
 object ScMatchType {
-  val maxRecursionDepth: Int = 30
-
-  def apply(
-    scrutinee:  ScType,
-    cases:      Seq[(ScType, ScType)],
-    upperBound: Option[ScType]
-  ): ScType = {
-    val matchType = new ScMatchType(scrutinee, cases, upperBound)
-
-    matchType
-      .reduce
-      .getOrElse(matchType)
+  object Reduced {
+    def unapply(tpe: ScMatchType): Option[ScType] = tpe.reduce.toOption
   }
+
+  type MatchTypeCase = () => (ScType, ScType)
+
+  private val maxRecursionDepth = 50
+
+  private def reductionCache(project: Project): ConcurrentMap[ScType, ContextDependent[TypeResult]] =
+    project.getService(classOf[MatchTypeReductionCacheService]).reductionCache
+
+  def clearReductionCache(project: Project): Unit = reductionCache(project).clear()
+
+  @Service(Array(Service.Level.PROJECT))
+  private final class MatchTypeReductionCacheService {
+    val reductionCache: ConcurrentMap[ScType, ContextDependent[TypeResult]] = new ConcurrentHashMap()
+  }
+
+  def reduce(tpe: ScMatchType): TypeResult = {
+    val cache           = reductionCache(tpe.projectContext)
+    val resultInContext = Option(cache.get(tpe)).getOrElse(new ContextDependent())
+
+    //@TODO: smart caching of intermediate results?
+    val result = resultInContext.get.getOrElse {
+      try {
+        val (value, valueInContext) =
+          resultInContext.updatedUsing(ctx => reduce(tpe, 0)(ctx))
+
+        cache.put(tpe, valueInContext)
+        value
+      } catch {
+        case _: MaximumRecursionDepthExceeded =>
+          Failure(
+            ScalaBundle.message("match.type.recursion.depth.exceeded", tpe.canonicalText)
+          )(tpe.projectContext)
+      }
+    }
+
+    result
+  }
+
+  def reduce(
+    tpe:     ScMatchType,
+    depth:   Int
+  )(implicit
+    ctx: Context
+  ): TypeResult =
+    if (depth >= maxRecursionDepth) throw new MaximumRecursionDepthExceeded
+    else {
+      implicit val pc: ProjectContext = tpe.projectContext
+
+      val scrutinee = tpe.scrutinee
+
+      def matchCase(pat: ScType): MatchResult = {
+        val typeVarsBuilder = ArraySeq.newBuilder[TypeParameter]
+
+        def isTypeVar(tpt: TypeParameterType): Boolean = {
+          val firstChar = tpt.name.charAt(0)
+          firstChar.isLower || firstChar == '_'
+        }
+
+        pat.visitRecursively {
+          case tpt: TypeParameterType if isTypeVar(tpt) => typeVarsBuilder += tpt.typeParameter
+          case _                                        => ()
+        }
+
+        val typeVars    = typeVarsBuilder.result()
+        val undefSubst  = ScSubstitutor.undefineTypeParams(typeVars)
+        val conformance = scrutinee.conforms(undefSubst(pat), ConstraintSystem.empty)
+
+        conformance match {
+          case ConstraintSystem(subst) => MatchResult.Reduced(subst)
+          case _ =>
+            if (isProvablyDisjoint(pat, scrutinee)) MatchResult.Disjoint
+            else                                    MatchResult.Stuck
+        }
+      }
+
+      @tailrec
+      def aux(
+        remainingCases: Iterator[MatchTypeCase],
+      ): TypeResult =
+        if (remainingCases.isEmpty)
+          Failure(
+            ScalaBundle.message(
+              "match.type.no.cases.match.scrutinee",
+              scrutinee.canonicalText
+            )
+          )
+        else {
+          val (casePat, caseRes) = remainingCases.next().apply()
+          val matchResult        = matchCase(casePat)
+
+          matchResult match {
+            case MatchResult.Reduced(subst) =>
+              val substedRes = subst(caseRes)
+              //TODO: indirect aliases to match types
+              val dealiased = substedRes.removeAliasDefinitions()
+              var currentDepth = depth
+
+              val reducedRec = dealiased.updateRecursively {
+                case mt: ScMatchType =>
+                  currentDepth += 1
+                  val redex = reduce(mt, currentDepth)
+                  redex.getOrElse(mt)
+              }
+
+              Right(reducedRec)
+            case MatchResult.Stuck =>
+              Failure(
+                ScalaBundle.message(
+                  "match.type.non.disjoint.case",
+                  scrutinee.canonicalText,
+                  casePat.canonicalText
+                )
+              )
+            case MatchResult.Disjoint =>
+              aux(remainingCases)
+          }
+        }
+
+      aux(tpe.cases.iterator)
+    }
+
+  private class MaximumRecursionDepthExceeded extends NoStackTrace
 
   sealed trait MatchResult
   object MatchResult {
@@ -151,7 +266,7 @@ object ScMatchType {
    * 3. Sealed traits having a known set of direct inheritors
    * 4. Constant types/singleton paths with distinct values are disjoint
    */
-  def isProvablyDisjoint(lhs: ScType, rhs: ScType): Boolean = {
+  private def isProvablyDisjoint(lhs: ScType, rhs: ScType): Boolean = {
     @tailrec
     def disjointnessBoundary(tpe: ScType): ScType = tpe match {
       case downer: DesignatorOwner =>
@@ -159,9 +274,11 @@ object ScMatchType {
           case Some(extracted) => disjointnessBoundary(extracted)
           case None            => downer
         }
-      case TypeConstructor(etaExpansion) => etaExpansion
-      case tpt: TypeParameterType        => disjointnessBoundary(tpt.upperType)
-      case tp                            => tp
+      case TypeConstructor(etaExpansion)    => etaExpansion
+      case tpt: TypeParameterType           => disjointnessBoundary(tpt.upperType)
+      case AliasType(_, _, Right(upper), _) => disjointnessBoundary(upper)
+      case mt: ScMatchType                  => mt.reduce.toOption.orElse(mt.upperBound).getOrElse(mt)
+      case tp                               => tp
     }
 
     def isBaseClassWithDisjointArgs(

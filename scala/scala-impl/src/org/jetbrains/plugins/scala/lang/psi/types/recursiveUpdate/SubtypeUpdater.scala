@@ -161,9 +161,13 @@ private abstract class SubtypeUpdater(needVariance: Boolean, needUpdate: Boolean
 
     val scrutinee = substitutor.recursiveUpdateImpl(mt.scrutinee, variance)
 
-    val cases = mt.cases.map { case (lhs, rhs) =>
-      substitutor.recursiveUpdateImpl(lhs, variance) ->
-        substitutor.recursiveUpdateImpl(rhs, variance)
+    val cases = mt.cases.map { cse =>
+      () => {
+        val (pat, res) = cse.apply()
+
+        substitutor.recursiveUpdateImpl(pat, variance) ->
+          substitutor.recursiveUpdateImpl(res, variance)
+      }
     }
 
     ScMatchType(

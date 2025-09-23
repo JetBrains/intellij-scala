@@ -35,6 +35,9 @@ package object types {
     }
   }
 
+  object ExtractDesignated {
+    def unapply(tpe: ScType): Option[PsiNamedElement] = tpe.extractDesignated(expandAliases = false)(Context.Empty)
+  }
 
   implicit class ScTypeExt(private val scType: ScType) extends AnyVal {
     private def typeSystem = scType.typeSystem
@@ -177,6 +180,8 @@ package object types {
         .extractFrom(scType).map(_._1)
     }
 
+
+
     def extractClassType(implicit context: Context): Option[(PsiClass, ScSubstitutor)] = {
       new ClassTypeExtractor(needSubstitutor = true)
         .extractFrom(scType)
@@ -221,42 +226,36 @@ package object types {
       removeAliasDefinitions()(Context(place))
 
     def removeAliasDefinitions(
-      expandableOnly: Boolean = false
-    )(
-      implicit
+      expandableOnly: Boolean          = false,
+      doNotExpandToMatchTypes: Boolean = false
+    )(implicit
       context: Context
     ): ScType = {
-      def needExpand(ta: ScTypeAliasDefinition): Boolean = !expandableOnly || shouldExpand(ta)
+      def needExpand(ta: ScTypeAliasDefinition) = !expandableOnly || shouldExpand(ta)
 
-      def innerUpdate(
-        tp:             ScType,
-        visitedAliases: Map[ScTypeAliasDefinition, Int],
-        visitedTypes:   Set[ScType]
-      ): ScType = {
+      def innerUpdate(tp: ScType, visited: Set[ScType]): ScType = {
         tp.recursiveUpdate {
-          case AliasType(_: ScTypeAliasDefinition, Right(_: ScTypePolymorphicType), _, false) =>
-            ProcessSubtypes
-          case AliasType(ta: ScTypeAliasDefinition, _, Failure(_), false) if needExpand(ta) =>
+          case _: ScMatchType => Stop
+          case DesignatorOwner(ta: ScTypeAliasDefinition) if ta.isMatchTypeAlias && doNotExpandToMatchTypes => Stop
+          case ParameterizedType(DesignatorOwner(ta: ScTypeAliasDefinition), _) if ta.isMatchTypeAlias && doNotExpandToMatchTypes => Stop
+          case AliasType(_: ScTypeAliasDefinition, Right(_: ScTypePolymorphicType), _, effectivelyOpaque) if !effectivelyOpaque => ProcessSubtypes
+          case AliasType(ta: ScTypeAliasDefinition, _, Failure(_), effectivelyOpaque) if !effectivelyOpaque && needExpand(ta) =>
             ReplaceWith(projectContext.stdTypes.Any)
-          case `type` @ AliasType(ta: ScTypeAliasDefinition, _, Right(upper), false) if needExpand(ta) =>
-            val currentDepth = visitedAliases(ta)
-
-            if (visitedTypes.contains(`type`))                      throw RecursionException
-            else if (currentDepth >= ScMatchType.maxRecursionDepth) throw RecursionException
-
+          case `type`@AliasType(ta: ScTypeAliasDefinition, _, Right(upper), effectivelyOpaque) if !effectivelyOpaque && needExpand(ta) =>
+            if (visited.contains(`type`)) throw RecursionException
             val updated =
-              try innerUpdate(upper, visitedAliases.updated(ta, currentDepth + 1), visitedTypes + `type`)
+              try innerUpdate(upper, visited + `type`)
               catch {
                 case RecursionException =>
-                  if (visitedTypes.nonEmpty) throw RecursionException
-                  else                       `type`
+                  if (visited.nonEmpty) throw RecursionException
+                  else `type`
               }
             ReplaceWith(updated)
           case _ => ProcessSubtypes
         }
       }
 
-      innerUpdate(scType, Map.empty.withDefaultValue(0), Set.empty)
+      innerUpdate(scType, Set.empty)
     }
 
     /**

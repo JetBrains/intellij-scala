@@ -287,17 +287,8 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
     trait ParameterizedAbstractVisitor extends ScalaTypeVisitor {
       override def visitParameterizedType(p: ParameterizedType): Unit = {
         p.designator match {
-          case TypeParameterType(typeParameter) =>
-            val subst = ScSubstitutor.bind(typeParameter.typeParameters, p.typeArguments)
-            val upperBound = subst(typeParameter.upperType) match {
-              case ParameterizedType(upper, _) => ScParameterizedType(upper, p.typeArguments)
-              case upper                       => ScParameterizedType(upper, p.typeArguments)
-            }
-
-            if (!upperBound.isAny) {
-              result = conformsInner(l, upperBound, visited, constraints, checkWeak)
-            }
           case ScAbstractType(typeParameter, lowerBound, _) =>
+            //@TODO: that just looks incorrect
             val subst = ScSubstitutor.bind(typeParameter.typeParameters, p.typeArguments)
             val lower: ScType =
               subst(lowerBound) match {
@@ -445,11 +436,13 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
     }
 
     trait MatchTypeVisitor extends ScalaTypeVisitor {
-      override def visitMatchType(mt: ScMatchType): Unit =
-        mt.upperBound match {
-          case Some(upper) => conformsInner(l, upper, visited, constraints)
-          case None        => ()
+      override def visitMatchType(mt: ScMatchType): Unit = {
+        mt.reduce.toOption.orElse(mt.upperBound) match {
+          case Some(upper) =>
+            result = conformsInner(l, upper, visited, constraints)
+          case None => ()
         }
+      }
     }
 
     trait ParameterizedAliasVisitor extends ScalaTypeVisitor {
@@ -926,9 +919,15 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
     }
 
     override def visitMatchType(mt: ScMatchType): Unit = {
+      mt.reduce match {
+        case Right(reduced) =>
+          result = conformsInner(reduced, r, visited, constraints, checkWeak)
+        case _ => ()
+      }
+
       def checkCases(
-        lCases: Seq[(ScType, ScType)],
-        rCases: Seq[(ScType, ScType)],
+        lCases: Seq[() => (ScType, ScType)],
+        rCases: Seq[() => (ScType, ScType)],
         cs:     ConstraintSystem
       ): ConstraintsResult = {
         var combinedConstraints: ConstraintsResult = cs
@@ -937,11 +936,11 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
         val rIter = rCases.iterator
 
         while (combinedConstraints.isRight && lIter.hasNext) {
-          val (lPat, lBody) = lIter.next()
+          val (lPat, lBody) = lIter.next().apply()
 
           if (rIter.isEmpty) combinedConstraints = ConstraintsResult.Left
           else {
-            val (rPat, rBody) = rIter.next()
+            val (rPat, rBody) = rIter.next().apply()
 
             val patEquiv = lPat.equiv(rPat, combinedConstraints.constraints)
 

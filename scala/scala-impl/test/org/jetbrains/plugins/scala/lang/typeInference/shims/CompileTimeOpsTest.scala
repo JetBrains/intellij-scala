@@ -65,11 +65,15 @@ class CompileTimeOpsTest extends TypeIntrinsicsTestBase {
   def testAnyEqual_StringLiteral_2(): Unit = assertTypeIs(AnyOps +
     "type T = \"42\" == \"23\"", "false")
 
-  def testAnyEqual_AliasToTrue(): Unit = assertTypeIs(AnyOps +
-    "type T = true == AliasToTrue", "true")
+  //@TODO: dealisasing arguments types in the constructor of ScParameterizedTypes is
+  //       slightly problematic, when combined with match types (can easily lead to infinite recursion).
+  //       I tried to solve it with laziness, but it is kinda complicated, so for now I have disabled dealiasing
+  //       in TypeIntrinsics as I think the loss is not too big.
+//  def testAnyEqual_AliasToTrue(): Unit = assertTypeIs(AnyOps +
+//    "type T = true == AliasToTrue", "true")
 
-  def testAnyEqual_AliasToFalse(): Unit = assertTypeIs(AnyOps +
-    "type T = true == AliasToFalse", "false")
+//  def testAnyEqual_AliasToFalse(): Unit = assertTypeIs(AnyOps +
+//    "type T = true == AliasToFalse", "false")
 
   def testAnyEqual_NonLiteralTypes(): Unit = assertTypeIs(AnyOps +
     "type T = String == String", "String == String")
@@ -104,20 +108,20 @@ class CompileTimeOpsTest extends TypeIntrinsicsTestBase {
       "type T = IsConst[MyObject.type]", "false")
   }
 
-  def testAnyIsConst_AliasToLiteralType(): Unit = assertTypeIs(AnyOps +
-    """type T = IsConst[AliasTo1]""", "true")
+//  def testAnyIsConst_AliasToLiteralType(): Unit = assertTypeIs(AnyOps +
+//    """type T = IsConst[AliasTo1]""", "true")
 
   def testAnyIsConst_AliasToNonLiteralType(): Unit = assertTypeIs(AnyOps +
     """type T = IsConst[AliasToString]""", "false")
 
-  def testDeAliasTypesRecursively(): Unit = assertTypeIs(IntOps +
-    """type A1 = 1
-      |type A2 = A1
-      |
-      |type T = A2 + 2
-      |""".stripMargin, "3")
+//  def testDeAliasTypesRecursively(): Unit = assertTypeIs(IntOps +
+//    """type A1 = 1
+//      |type A2 = A1
+//      |
+//      |type T = A2 + 2
+//      |""".stripMargin, "3")
 
-  // ToString
+//   ToString
   def testToString_IntLiteral_1(): Unit = assertTypeIs(AnyOps +
     """type T = ToString[1] == "1"""", "true")
 
@@ -175,7 +179,7 @@ class CompileTimeOpsTest extends TypeIntrinsicsTestBase {
       |  case Boolean => boolean.![C]
       |  case _       => Any
     """.stripMargin,
-    "C match { case Boolean => boolean.![C]; case _$1 => Any }"
+    "C match { case Boolean => boolean.![C]; case _ => Any }"
   )
 
   //
