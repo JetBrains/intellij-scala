@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.actions.editor.backspace
 
-import org.jetbrains.plugins.scala.lang.actions.editor.enter.scala3.Scala3TestDataBracelessCode.{CodeWithDebugName, WrapperCodeContexts}
+import org.jetbrains.plugins.scala.lang.actions.editor.enter_long_tests.scala3.Scala3TestDataBracelessCode.{CodeWithDebugName, WrapperCodeContexts}
 
 abstract class ScalaBackspaceAndEnterHandlerBaseTest extends ScalaBackspaceHandlerBaseTest {
 

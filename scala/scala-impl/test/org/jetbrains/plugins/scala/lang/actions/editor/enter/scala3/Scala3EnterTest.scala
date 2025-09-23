@@ -2,12 +2,13 @@ package org.jetbrains.plugins.scala.lang.actions.editor.enter.scala3
 
 import com.intellij.application.options.CodeStyle
 import org.jetbrains.plugins.scala.lang.actions.editor.enter.Scala2AndScala3EnterActionCommonTests
+import org.jetbrains.plugins.scala.lang.actions.editor.enter_long_tests.scala3.Scala3TestDataBracelessCode
 import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 
 /** NOTE: much more tests are generated and run in [[Scala3BracelessSyntaxEnterHandlerTest_Exhaustive]] */
 class Scala3EnterTest extends DoEditorStateTestOps with Scala2AndScala3EnterActionCommonTests {
 
-  import Scala3TestDataBracelessCode._
+  import org.jetbrains.plugins.scala.lang.actions.editor.enter_long_tests.scala3.Scala3TestDataBracelessCode._
 
   override protected def setUp(): Unit = {
     super.setUp()

@@ -1,6 +1,7 @@
-package org.jetbrains.plugins.scala.lang.actions.editor.enter.scala3
+package org.jetbrains.plugins.scala.lang.actions.editor.enter_long_tests.scala3
 
 import com.intellij.testFramework.EditorTestUtil
+import org.jetbrains.plugins.scala.lang.actions.editor.enter.scala3.{EditorState, EditorStates, TypeText}
 
 private object Scala3TestDataCaseClausesEditorStates {
 
