@@ -2,7 +2,9 @@ package org.jetbrains.plugins.scala.compiler.highlighting
 
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.codeInsight.intention.IntentionAction
-import org.jetbrains.plugins.scala.extensions.{inReadAction, inWriteCommandAction}
+import com.intellij.openapi.editor.EditorFactory
+import com.intellij.psi.PsiDocumentManager
+import org.jetbrains.plugins.scala.extensions.{inReadAction, inWriteCommandAction, invokeAndWait}
 import org.jetbrains.plugins.scala.project.VirtualFileExt
 import org.jetbrains.plugins.scala.util.CompilerTestUtil.runWithErrorsFromCompiler
 import org.junit.Assert.assertEquals
@@ -17,11 +19,12 @@ trait CompilerDiagnosticsTestBase { self: ScalaCompilerHighlightingTestBase =>
   ): Unit = runWithErrorsFromCompiler(getProject) {
     val virtualFile = addFileToProjectSources(fileName, content)
 
-    waitUntilFileIsHighlighted(virtualFile)
+    compilerHighlightingFixture.openFileAndWaitUntilFileIsHighlighted(virtualFile)
 
     doAssertion(virtualFile, expectedResult)
 
-    val highlightInfos = fetchHighlightInfos(virtualFile)
+    val highlightInfos = compilerHighlightingFixture.fetchHighlightInfos(virtualFile)
+
     val quickFixes = allQuickFixes(highlightInfos)
     quickFixes.foreach { fix =>
       inWriteCommandAction {

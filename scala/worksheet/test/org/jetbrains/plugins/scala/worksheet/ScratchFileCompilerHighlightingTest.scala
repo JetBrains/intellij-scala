@@ -25,7 +25,7 @@ class ScratchFileCompilerHighlightingTest extends ScalaCompilerHighlightingTestB
       ScratchRootType.getInstance().createScratchFile(getProject, "simpleError.sc", WorksheetLanguage.INSTANCE, "val x: String = 123")
 
     try {
-      waitUntilFileIsHighlighted(scratchFile)
+      compilerHighlightingFixture.openFileAndWaitUntilFileIsHighlighted(scratchFile)
       doAssertion(scratchFile, expected)
     } finally {
       VfsTestUtil.deleteFile(scratchFile)

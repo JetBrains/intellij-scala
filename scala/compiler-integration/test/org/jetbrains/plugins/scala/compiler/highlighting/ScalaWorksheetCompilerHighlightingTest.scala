@@ -3,11 +3,25 @@ package org.jetbrains.plugins.scala.compiler.highlighting
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.io.FileUtil
-import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.compiler.CompilerEvent
 
 abstract class ScalaWorksheetCompilerHighlightingTestBase extends ScalaCompilerHighlightingTestBase {
+
+  override def setUp(): Unit = {
+    super.setUp()
+
+    this.compilerHighlightingFixture.setFinalHighlightingCompilerEventChecker((virtualFile, event) => event match {
+      // There is no explicit compile worksheet action for now, like we have in Build with JPS.
+      // To detect the end of we wait until the CompilationFinished event is generated
+      case CompilerEvent.CompilationFinished(_, _, sources) =>
+        val platformIndependentSources = sources.map(_.toPath.toString).map(FileUtil.toSystemIndependentName)
+        val source = virtualFile.getCanonicalPath
+        platformIndependentSources.contains(source)
+      case _ =>
+        false
+    })
+  }
 
   protected val worksheetContent =
     """42
@@ -19,19 +33,6 @@ abstract class ScalaWorksheetCompilerHighlightingTestBase extends ScalaCompilerH
       |val x = 23 //actually, in worksheets this should be treated as OK, but for now we just fix the behaviour in tests
       |val x = 23
       |""".stripMargin
-
-  override protected def triggerCompilationAndWaitForFinalCompilerEvent(virtualFile: VirtualFile): Unit = {
-    triggerCompilationAndWaitForEvent(virtualFile, {
-      // There is no explicit compile worksheet action for now, like we have in Build with JPS.
-      // To detect the end of we wait until the CompilationFinished event is generated
-      case CompilerEvent.CompilationFinished(_, _, sources) =>
-        val platformIndependentSources = sources.map(_.toPath.toString).map(FileUtil.toSystemIndependentName)
-        val source = virtualFile.getCanonicalPath
-        platformIndependentSources.contains(source)
-      case _ =>
-        false
-    })
-  }
 }
 
 
