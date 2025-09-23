@@ -39,7 +39,7 @@ abstract class SbtNewProjectWizardStep(parent: NewProjectWizardStep) extends Abs
 
   @inline private def propertyGraph: PropertyGraph = getPropertyGraph
 
-  protected val jdkIntentProperty: GraphProperty[ProjectWizardJdkIntent] = propertyGraph.property(null)
+  protected val jdkIntentProperty: GraphProperty[ProjectWizardJdkIntent] = propertyGraph.property(ProjectWizardJdkIntent.NoJdk.INSTANCE)
 
   protected lazy val sbtVersionProperty: GraphProperty[SbtVersion] = propertyGraph.property(defaultAvailableSbtVersions.head)
   protected val downloadSbtSourcesProperty: GraphProperty[lang.Boolean] = propertyGraph.property(java.lang.Boolean.FALSE)
