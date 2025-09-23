@@ -65,6 +65,7 @@ lazy val scalaCommunity: sbt.Project =
       sbtImpl % "test->test;compile->compile",
       sbtProjectImportingTests % "test->test",
       compilerIntegration % "test->test;compile->compile",
+      compilerIntegrationServerManagement % "test->test;compile->compile",
       scalaCompilerPluginTests % "test->test;compile->compile",
       debugger % "test->test;compile->compile",
       testingSupport % "test->test;compile->compile",
@@ -468,12 +469,13 @@ lazy val sbtProjectImportingTests =
     .dependsOn(
       sbtImpl % "compile->compile;test->test",
       // this dependency is added primarily use CompileServerLauncher from sbt importing test (to shut it down)
-      compilerIntegration
+      compilerIntegrationServerManagement % "compile->compile;test->test",
     )
 
 lazy val compilerIntegration =
   newProject("compiler-integration", file("scala/compiler-integration"))
     .dependsOn(
+      compilerIntegrationServerManagement % "test->test;compile->compile",
       scalaImpl % "test->test;compile->compile",
       codeInsight % "test->test;compile->compile",
       sbtImpl % "test->test;compile->compile",
@@ -482,6 +484,16 @@ lazy val compilerIntegration =
       bsp
     )
     .settings(
+      packageMethod := PackagingMethod.PluginModule("scalaCommunity.compiler-integration")
+    )
+
+lazy val compilerIntegrationServerManagement =
+  newProject("compiler-integration-server-management", file("scala/compiler-integration-server-management"))
+    .dependsOn(
+      scalaImpl % "test->test;compile->compile",
+    )
+    .settings(
+      // It's fine to merge it into the same module
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.compiler-integration")
     )
 
@@ -734,7 +746,8 @@ lazy val bsp =
     .enablePlugins(BuildInfoPlugin)
     .dependsOn(
       scalaImpl % "test->test;compile->compile",
-      sbtImpl % "test->test;compile->compile"
+      sbtImpl % "test->test;compile->compile",
+      compilerIntegrationServerManagement % "test->test;compile->compile",
     )
     .settings(
       libraryDependencies ++= DependencyGroups.bsp,

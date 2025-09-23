@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.compiler
 
 import com.intellij.compiler.server.BuildManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.projectRoots.{JavaSdk, JavaSdkVersion, Sdk, SdkType}
+import com.intellij.openapi.projectRoots.{JavaSdk, JavaSdkVersion, Sdk}
 import com.intellij.openapi.roots.ProjectRootManager
 import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
 

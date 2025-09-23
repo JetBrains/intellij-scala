@@ -12,8 +12,6 @@ import org.jetbrains.plugins.scala.extensions.executeOnPooledThread
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 
-import scala.concurrent.duration.DurationLong
-
 @Service(Array(Service.Level.PROJECT))
 final class CompileServerNotificationsService(project: Project) {
 
