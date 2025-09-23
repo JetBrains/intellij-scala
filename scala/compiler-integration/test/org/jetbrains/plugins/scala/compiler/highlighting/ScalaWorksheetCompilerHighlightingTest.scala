@@ -1,16 +1,11 @@
 package org.jetbrains.plugins.scala.compiler.highlighting
 
 import com.intellij.lang.annotation.HighlightSeverity
-import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener}
-import org.jetbrains.plugins.scala.extensions.invokeAndWait
-
-import scala.concurrent.duration.DurationInt
-import scala.concurrent.{Await, Promise}
+import org.jetbrains.plugins.scala.compiler.CompilerEvent
 
 abstract class ScalaWorksheetCompilerHighlightingTestBase extends ScalaCompilerHighlightingTestBase {
 
@@ -25,34 +20,17 @@ abstract class ScalaWorksheetCompilerHighlightingTestBase extends ScalaCompilerH
       |val x = 23
       |""".stripMargin
 
-  override protected def waitUntilFileIsHighlighted(virtualFile: VirtualFile): Unit = {
-    // Compilation is done on file opening (see RegisterCompilationListener.MyFileEditorManagerListener)
-    // There is no explicit compile worksheet action for now, like we have in Build with JPS.
-    // In order to detect the end of we wait until CompilationFinished event is generated
-    val promise = Promise[Unit]()
-    getProject.getMessageBus.connect().subscribe(CompilerEventListener.topic, new CompilerEventListener {
-      override def eventReceived(event: CompilerEvent): Unit = event match {
-        case CompilerEvent.CompilationFinished(_, _, sources) =>
-          val platformIndependentSources = sources.map(_.toPath.toString).map(FileUtil.toSystemIndependentName)
-          val source = virtualFile.getCanonicalPath
-          if (platformIndependentSources.contains(source)) {
-            promise.success(())
-          }
-        case _ =>
-          ()
-      }
+  override protected def triggerCompilationAndWaitForFinalCompilerEvent(virtualFile: VirtualFile): Unit = {
+    triggerCompilationAndWaitForEvent(virtualFile, {
+      // There is no explicit compile worksheet action for now, like we have in Build with JPS.
+      // To detect the end of we wait until the CompilationFinished event is generated
+      case CompilerEvent.CompilationFinished(_, _, sources) =>
+        val platformIndependentSources = sources.map(_.toPath.toString).map(FileUtil.toSystemIndependentName)
+        val source = virtualFile.getCanonicalPath
+        platformIndependentSources.contains(source)
+      case _ =>
+        false
     })
-
-    invokeAndWait {
-      val descriptor = new OpenFileDescriptor(getProject, virtualFile)
-      val editor = FileEditorManager.getInstance(getProject).openTextEditor(descriptor, true)
-      // The tests are running in a headless environment where focus events are not propagated.
-      // We need to call our listener manually.
-      new CompilerHighlightingEditorFocusListener(editor).focusGained()
-    }
-
-    val timeout = 60.seconds
-    Await.result(promise.future, timeout)
   }
 }
 

@@ -1,3 +1,4 @@
+//noinspection ApiStatus
 package org.jetbrains.plugins.scala.compiler.highlighting
 
 import com.intellij.codeInsight.daemon.impl.{DaemonCodeAnalyzerImpl, HighlightInfo}
@@ -12,8 +13,9 @@ import com.intellij.testFramework.{EdtTestUtil, IndexingTestUtil}
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.{Description, Matcher}
 import org.jetbrains.plugins.scala.CompilerHighlightingTests
-import org.jetbrains.plugins.scala.compiler.ScalaCompilerTestBase
-import org.jetbrains.plugins.scala.extensions.{HighlightInfoExt, inReadAction, invokeAndWait}
+import org.jetbrains.plugins.scala.compiler.CompilerEvent.CompilationHighlightingFinalStageFinished
+import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener, ScalaCompilerTestBase}
+import org.jetbrains.plugins.scala.extensions.{HighlightInfoExt, ObjectExt, inReadAction, invokeAndWait}
 import org.jetbrains.plugins.scala.project.VirtualFileExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
@@ -21,7 +23,8 @@ import org.jetbrains.plugins.scala.util.CompilerTestUtil.runWithErrorsFromCompil
 import org.jetbrains.plugins.scala.util.matchers.{HamcrestMatchers, ScalaBaseMatcher}
 import org.junit.experimental.categories.Category
 
-import scala.annotation.tailrec
+import scala.concurrent.duration.DurationInt
+import scala.concurrent.{Await, Promise}
 import scala.jdk.CollectionConverters._
 
 @Category(Array(classOf[CompilerHighlightingTests]))
@@ -56,12 +59,59 @@ abstract class ScalaCompilerHighlightingTestBase
 
   type ExpectedResult = Matcher[Seq[HighlightInfo]]
 
-  protected def waitUntilFileIsHighlighted(virtualFile: VirtualFile): Unit = invokeAndWait {
-    val descriptor = new OpenFileDescriptor(getProject, virtualFile)
-    val editor = FileEditorManager.getInstance(getProject).openTextEditor(descriptor, true)
-    // The tests are running in a headless environment where focus events are not propagated.
-    // We need to call our listener manually.
-    new CompilerHighlightingEditorFocusListener(editor).focusGained()
+  protected final def waitUntilFileIsHighlighted(virtualFile: VirtualFile): Unit = {
+    triggerCompilationAndWaitForFinalCompilerEvent(virtualFile)
+    waitForExternalHighlightingApplied(virtualFile)
+  }
+
+  protected def triggerCompilationAndWaitForFinalCompilerEvent(virtualFile: VirtualFile): Unit = {
+    triggerCompilationAndWaitForEvent(
+      virtualFile,
+      _.is[CompilationHighlightingFinalStageFinished],
+    )
+  }
+
+  protected def triggerCompilationAndWaitForEvent(
+    virtualFile: VirtualFile,
+    eventCondition: CompilerEvent => Boolean,
+  ): Unit = {
+    val promise = Promise[Unit]()
+    getProject.getMessageBus.connect().subscribe(CompilerEventListener.topic, new CompilerEventListener {
+      override def eventReceived(event: CompilerEvent): Unit = {
+        if (eventCondition(event)) {
+          promise.success(())
+        }
+      }
+    })
+
+    triggerCompilerBasedHighlightingByOpeningTheFile(virtualFile)
+
+    val timeout = 60.seconds
+    Await.result(promise.future, timeout)
+  }
+
+  // Compilation is done on file opening (see RegisterCompilationListener.MyFileEditorManagerListener)
+  protected def triggerCompilerBasedHighlightingByOpeningTheFile(virtualFile: VirtualFile): Unit = {
+    invokeAndWait {
+      val descriptor = new OpenFileDescriptor(getProject, virtualFile)
+      val editor = FileEditorManager.getInstance(getProject).openTextEditor(descriptor, true)
+      // The tests are running in a headless environment where focus events are not propagated.
+      // We need to call our listener manually.
+      new CompilerHighlightingEditorFocusListener(editor).focusGained()
+    }
+  }
+
+  private def waitForExternalHighlightingApplied(virtualFile: VirtualFile): Unit = {
+    val promise = Promise[Unit]()
+    getProject.getMessageBus.connect().subscribe(ExternalHighlightingAppliedListener.topic, new ExternalHighlightingAppliedListener {
+      override def highlightingApplied(virtualFiles: Set[VirtualFile]): Unit = {
+        if (virtualFiles.contains(virtualFile)) {
+          promise.success(())
+        }
+      }
+    })
+    val timeout = 60.seconds
+    Await.result(promise.future, timeout)
   }
 
   protected def runTestCase(
@@ -76,22 +126,8 @@ abstract class ScalaCompilerHighlightingTestBase
 
   protected def doAssertion(virtualFile: VirtualFile,
                             expectedResult: ExpectedResult): Unit = {
-    @tailrec
-    def rec(attemptsLeft: Int): Unit = {
-      Thread.sleep(3_000)
-      val actualResult = fetchHighlightInfos(virtualFile)
-      try {
-        assertThat(actualResult, expectedResult)
-      } catch {
-        case error: AssertionError =>
-          if (attemptsLeft > 0) {
-            rec(attemptsLeft - 1)
-          } else {
-            throw error
-          }
-      }
-    }
-    rec(20)
+    val actualResult = fetchHighlightInfos(virtualFile)
+    assertThat(actualResult, expectedResult)
   }
 
   protected def fetchHighlightInfos(virtualFile: VirtualFile): Seq[HighlightInfo] = invokeAndWait {

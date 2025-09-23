@@ -22,11 +22,13 @@ import com.intellij.psi.{PsiFile, PsiManager}
 import com.intellij.task.{ProjectTaskContext, ProjectTaskManager}
 import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.ui.UIUtil
+import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.bsp.BspUtil
 import org.jetbrains.bsp.project.{BspProjectTaskRunner, CustomTaskArguments}
 import org.jetbrains.jps.incremental.scala.remote.SourceScope
 import org.jetbrains.plugins.scala.build.CompilerEventReporter
-import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, CompilerIntegrationBundle}
+import org.jetbrains.plugins.scala.compiler.CompilerEvent.CompilationHighlightingFinalStageFinished
+import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, CompilerEventListener, CompilerIntegrationBundle}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaLanguageLevel}
@@ -45,7 +47,8 @@ import scala.math.Ordering.Implicits.infixOrderingOps
 import scala.util.control.NonFatal
 
 @Service(Array(Service.Level.PROJECT))
-private final class CompilerHighlightingService(project: Project, coroutineScope: CoroutineScope) extends Disposable {
+@ApiStatus.Internal
+final class CompilerHighlightingService(project: Project, coroutineScope: CoroutineScope) extends Disposable {
 
   import CompilerHighlightingService._
 
@@ -252,14 +255,19 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
     val promise = taskRunner.run(project, context, task)
     promise.blockingGet(1, TimeUnit.DAYS)
 
-    if (!DocumentUtil.stillValid(documentVersions)) return
+    if (!DocumentUtil.stillValid(documentVersions))
+      return
 
-    if (runDocumentCompiler && reporter.successful) {
-      triggerDocumentCompilationInAllOpenEditors(Some(client))
+    if (reporter.successful) {
+      if (runDocumentCompiler) {
+        triggerDocumentCompilationInAllOpenEditors(Some(client))
+      }
+      if (client.successful) {
+        enableDocumentCompiler(fileCompilationScopes)
+      }
     }
-    if (reporter.successful && client.successful) {
-      enableDocumentCompiler(fileCompilationScopes)
-    }
+
+    reportFinalCompilationHighlightingStageFinished(project, client)
   }
 
   private def doJpsIncrementalCompilation(
@@ -273,14 +281,18 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
     val sourceScope = mergeSourceScope(request)
     IncrementalCompiler.compile(project, modules, sourceScope, client)
 
-    if (!DocumentUtil.stillValid(documentVersions)) return
+    if (!DocumentUtil.stillValid(documentVersions))
+      return
 
-    if (runDocumentCompiler && client.successful) {
-      triggerDocumentCompilationInAllOpenEditors(Some(client))
-    }
     if (client.successful) {
+      if (runDocumentCompiler) {
+        triggerDocumentCompilationInAllOpenEditors(Some(client))
+      }
+
       enableDocumentCompiler(fileCompilationScopes)
     }
+
+    reportFinalCompilationHighlightingStageFinished(project, client)
   }
 
   private def enableDocumentCompiler(fileCompilationScopes: Map[VirtualFile, FileCompilationScope]): Unit = {
@@ -343,6 +355,14 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
           executeDocumentCompilationRequest(module, sourceScope, virtualFile, document, immutable.HashMap.empty, await = false)
       }
     }
+  }
+
+  // NOTE this, together with CompilationHighlightingFinalStageFinished, was introduced fast as it was necessary in tests now.
+  // I spent little time on coming up with the cleanest solution, so it can be replaced with anything considered better.
+  private def reportFinalCompilationHighlightingStageFinished(project: Project, client: CompilerEventGeneratingClient): Unit = {
+    val event = CompilationHighlightingFinalStageFinished(client.compilationId)
+    val listener = project.getMessageBus.syncPublisher(CompilerEventListener.topic)
+    listener.eventReceived(event)
   }
 
   private def prepareCompilation(await: Boolean)(compile: => Future[Unit]): Unit = {

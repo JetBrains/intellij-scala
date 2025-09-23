@@ -22,7 +22,7 @@ import org.jetbrains.annotations.{Nls, Nullable}
 import org.jetbrains.jps.incremental.scala.Client.PosInfo
 import org.jetbrains.plugins.scala.annotator.UnresolvedReferenceFixProvider
 import org.jetbrains.plugins.scala.annotator.element.ScTemplateDefinitionAnnotator
-import org.jetbrains.plugins.scala.autoImport.quickFix.{CBHSuggestionToImport, ImportCBHSuggestionFix, ScalaAddImportAction, ScalaImportElementFix}
+import org.jetbrains.plugins.scala.autoImport.quickFix.{CBHSuggestionToImport, ImportCBHSuggestionFix}
 import org.jetbrains.plugins.scala.caches.ModTracker.anyScalaPsiChange
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHints
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
@@ -95,6 +95,9 @@ private final class ExternalHighlightersService(project: Project) { self =>
             }
         }
       }
+
+      val listener = project.getMessageBus.syncPublisher(ExternalHighlightingAppliedListener.topic)
+      listener.highlightingApplied(virtualFiles)
 
       (data, errorFiles, elements)
     }

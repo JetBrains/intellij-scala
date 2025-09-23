@@ -11,4 +11,5 @@ object CompilerEventType
   final val MessageEmitted = Value("message-emitted")
   final val ProgressEmitted = Value("progress-emitted")
   final val CompilationFinished = Value("compilation-finished")
+  final val CompilationHighlightingFinalStageFinished = Value("compilation-highlighting-final-stage-finished")
 }
