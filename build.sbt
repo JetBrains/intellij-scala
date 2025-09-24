@@ -134,6 +134,12 @@ lazy val workspaceEntities = newProjectWithKotlin("workspace-entities", file("sb
     Compile / scalacOptions := globalScala3ScalacOptions
   )
 
+lazy val sbtKotlinUtils = newProjectWithKotlin("sbt-kotlin-utils", file("sbt/sbt-kotlin-utils"))
+  .settings(
+    crossPaths := false,
+    autoScalaLibrary := false
+  )
+
 lazy val sbtApi =
   newProject("sbt-api", file("sbt/sbt-api"))
     .dependsOn(scalaApi, compilerShared, workspaceEntities)
@@ -375,6 +381,7 @@ lazy val sbtImpl =
   newProject("sbt-impl", file("sbt/sbt-impl"))
     .dependsOn(
       sbtApi,
+      sbtKotlinUtils,
       scalaImpl % "test->test;compile->compile",
     )
     .settings(
