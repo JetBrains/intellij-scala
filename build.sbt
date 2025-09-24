@@ -64,6 +64,7 @@ lazy val scalaCommunity: sbt.Project =
       structureView % "test->test;compile->compile",
       sbtImpl % "test->test;compile->compile",
       sbtProjectImportingTests % "test->test",
+      bspIntegrationTests % "test->test",
       compilerIntegration % "test->test;compile->compile",
       compilerIntegrationServerManagement % "test->test;compile->compile",
       scalaCompilerPluginTests % "test->test;compile->compile",
@@ -401,6 +402,7 @@ lazy val sbtImpl =
 
 lazy val sbtProjectImportingTests =
   newProject("sbt-project-importing-tests", file("sbt/sbt-project-importing-tests"))
+    .projectWithTestsOnly
     .dependsOn(
       sbtImpl % "compile->compile;test->test",
       // this dependency is added primarily use CompileServerLauncher from sbt importing test (to shut it down)
@@ -747,6 +749,14 @@ lazy val bsp =
       buildInfoKeys := Seq("bloopVersion" -> Versions.bloopVersion),
       buildInfoOptions += BuildInfoOption.ConstantValue,
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.bsp"),
+    )
+
+lazy val bspIntegrationTests =
+  newProject("bsp-integration-tests", file("bsp-builtin/bsp-integration-tests"))
+    .projectWithTestsOnly
+    .dependsOn(
+      bsp % "compile->compile;test->test",
+      compilerIntegration % "compile->compile;test->test",
     )
 
 lazy val scalaCli =
