@@ -43,7 +43,7 @@ abstract class DependencyManagerBase {
 
   protected def resolvers: Seq[Resolver] = defaultResolvers
 
-  private final val defaultResolvers: Seq[Resolver] = Seq(Resolver.MavenCentral, Resolver.ScalaRcResolver)
+  private final val defaultResolvers: Seq[Resolver] = Seq(Resolver.MavenCentral, Resolver.ScalaNightlyResolver)
 
   private def mkIvyXml(deps: Seq[DependencyDescription]): String = {
     s"""
@@ -384,9 +384,9 @@ object DependencyManagerBase {
       "central",
       "https://repo1.maven.org/maven2"
     )
-    val ScalaRcResolver: MavenResolver = MavenResolver(
+    val ScalaNightlyResolver: MavenResolver = MavenResolver(
       "scala-integration",
-      "https://scala-ci.typesafe.com/artifactory/scala-integration/"
+      "https://repo.scala-lang.org/artifactory/maven-nightlies"
     )
     val TypesafeReleases: IvyResolver = IvyResolver(
       "typesafe-releases",
