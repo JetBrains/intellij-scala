@@ -125,7 +125,7 @@ object CompileServerLauncher {
           val pluginsClasspath = if (isUnitTestMode && (project eq null) || project.isDisposed) Seq() else
             new BuildProcessClasspathManager(project.unloadAwareDisposable).getBuildProcessPluginsClasspath(project).asScala.toSeq
           val applicationClasspath = ClasspathBootstrap.getBuildProcessApplicationClasspath.asScala
-          filterOutUltimateJpsBuilders(pluginsClasspath) ++ applicationClasspath
+          pluginsClasspath ++ applicationClasspath
         }
         val classpath =
           (jdk.tools ++ classpathFiles ++ compilerServerAdditionalCP())
@@ -277,12 +277,6 @@ object CompileServerLauncher {
         val paths = absentFiles.mkString(", ")
         Left(CompileServerProblem.Error(CompilerIntegrationBundle.message("required.file.not.found.paths", paths)))
     }
-  }
-
-  private def filterOutUltimateJpsBuilders(classpath: Seq[String]): Seq[String] = {
-    // These jar files are defined in the Scala Plugin Ultimate extension for the build process classpath definition.
-    val jarNames = Set("scala-play-2-jps-plugin.jar", "scala3-library_3.jar", "sbt-launch.jar")
-    classpath.collect { case s: String if !jarNames.contains(Path.of(s).getFileName.toString) => s }
   }
 
   // ensure that old tokens from old sessions do not exist on file system to avoid race conditions (see ticket from the commit)
