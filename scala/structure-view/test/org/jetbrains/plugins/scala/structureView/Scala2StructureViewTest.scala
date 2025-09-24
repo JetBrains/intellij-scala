@@ -49,7 +49,7 @@ class Scala2StructureViewTest extends ScalaStructureViewCommonTests {
     )
 
   def testTopLevelDefinitions_InRootPackage(): Unit = {
-    check(TopLevelDefinitionsText, TopLevelDefinitionsNodes: _*)
+    check(TopLevelDefinitionsText, TopLevelDefinitionsNodes*)
   }
 
   def testThatCheckMethodCorrectlyFailsOnWrongIcons(): Unit =
@@ -129,7 +129,7 @@ class Scala2StructureViewTest extends ScalaStructureViewCommonTests {
   //  We could parse top level definitions in Scala, even though it's not compilable (we already do so in root package, for "script" files)
   //  We could show the error later in annotator.
 //  def testTopLevelDefinitions_InPackage(): Unit = {
-//    check("package aaa.bbb.ccc\n" + TopLevelDefinitionsText, TopLevelDefinitionsNodes: _*)
+//    check("package aaa.bbb.ccc\n" + TopLevelDefinitionsText, TopLevelDefinitionsNodes*)
 //  }
 
   def testAnonymousClasses_InsideValAndVarBody(): Unit = {
@@ -214,12 +214,12 @@ class Scala2StructureViewTest extends ScalaStructureViewCommonTests {
    * `UsefulTestCase.assertThrows` cannot be called directly from the test methods because in Scala 3 lambdas are
    * private in the bytecode and have names starting with the methods they are defined in.<br>
    *
-   * E.g.: `def testFoo(): Unit = UsefulTestCase.assertThrows(classOf[org.junit.ComparisonFailure], () => check(code, nodes: _*))`
+   * E.g.: `def testFoo(): Unit = UsefulTestCase.assertThrows(classOf[org.junit.ComparisonFailure], () => check(code, nodes*))`
    * will produce `private static final void testFoo$$anonFun$1();` which will cause JUnit's failed assertion
    * "Test method isn't public"
    */
-  private def assertThrows(exceptionClass: Class[_ <: Throwable],
+  private def assertThrows(exceptionClass: Class[? <: Throwable],
                            @org.intellij.lang.annotations.Language("Scala") code: String,
                            nodes: Node*): Unit =
-    UsefulTestCase.assertThrows(exceptionClass, () => check(code, nodes: _*))
+    UsefulTestCase.assertThrows(exceptionClass, () => check(code, nodes*))
 }

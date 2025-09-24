@@ -44,7 +44,7 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
   override def getContext(pattern: String, @Nullable language: Language, contextId: String): String =
     StructuralSearchProfile.PATTERN_PLACEHOLDER
 
-  override def getTemplateContextTypeClass: Class[_ <: TemplateContextType] = classOf[ScalaFileTemplateContextType]
+  override def getTemplateContextTypeClass: Class[? <: TemplateContextType] = classOf[ScalaFileTemplateContextType]
 
   override def createMatchingVisitor(globalVisitor: GlobalMatchingVisitor): PsiElementVisitor =
     ScalaMatchingVisitor(globalVisitor)

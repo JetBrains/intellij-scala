@@ -42,7 +42,7 @@ abstract class GrazieScalaTestBase extends ScalaLightCodeInsightFixtureTestCase:
   override def setUp(): Unit =
     super.setUp()
 
-    myFixture.enableInspections(inspectionTools: _*)
+    myFixture.enableInspections(inspectionTools*)
 
     GrazieConfig.Companion.update: (state: GrazieConfig.State) =>
       val context = state.getCheckingContext

@@ -44,7 +44,7 @@ abstract class TextToTextTestBase(dependencies: Seq[DependencyDescription],
     super.librariesLoaders :++
       (if (includeScalaReflect) Seq(ScalaReflectLibraryLoader) else Seq.empty)
 
-  override protected def setUpLibraries(implicit module: Module): Unit = {
+  override protected def setUpLibraries(module: Module): Unit = {
     super.setUpLibraries(module)
 
     val classes = IvyManagedLoader(dependencies.map(_.transitive()): _*).resolve(scalaVersion)

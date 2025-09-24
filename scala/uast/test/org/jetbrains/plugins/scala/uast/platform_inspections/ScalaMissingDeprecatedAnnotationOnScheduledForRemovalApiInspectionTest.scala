@@ -14,8 +14,8 @@ class ScalaMissingDeprecatedAnnotationOnScheduledForRemovalApiInspectionTest ext
   override protected val classOfInspection = classOf[MissingDeprecatedAnnotationOnScheduledForRemovalApiInspection]
   override protected val description = "Scheduled for removal API must also be marked with '@Deprecated' annotation"
 
-  override def setUpLibraries(implicit module: com.intellij.openapi.module.Module): Unit = {
-    super.setUpLibraries
+  override def setUpLibraries(module: com.intellij.openapi.module.Module): Unit = {
+    super.setUpLibraries(module)
 
     ModuleRootModificationUtil.updateModel(module, (model: ModifiableRootModel) => {
       val rootPaths = asList(PathUtil.getJarPathForClass(classOf[ApiStatus.ScheduledForRemoval]))

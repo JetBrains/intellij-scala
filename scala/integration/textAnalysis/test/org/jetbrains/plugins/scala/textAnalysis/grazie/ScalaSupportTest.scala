@@ -56,7 +56,7 @@ class ScalaSupportTest extends GrazieScalaTestBase:
       }
     })
 
-  private def runPerformanceTest(runnable: ThrowableRunnable[_]): Unit =
+  private def runPerformanceTest(runnable: ThrowableRunnable[?]): Unit =
     PlatformTestUtil
       .newBenchmark("highlighting", () => runnable.run())
       .setup { () => getPsiManager.dropPsiCaches() }

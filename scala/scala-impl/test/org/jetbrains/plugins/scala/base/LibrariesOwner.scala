@@ -14,14 +14,14 @@ trait LibrariesOwner {
 
   private lazy val myLoaders = mutable.ListBuffer.empty[LibraryLoader]
 
-  protected def setUpLibraries(implicit module: Module): Unit =
+  protected def setUpLibraries(module: Module): Unit =
     librariesLoaders.foreach { loader =>
       myLoaders += loader
       loader.init(module, version)
     }
 
-  protected def disposeLibraries(implicit module: Module): Unit = {
-    myLoaders.foreach(_.clean)
+  protected def disposeLibraries(module: Module): Unit = {
+    myLoaders.foreach(_.clean(module))
     myLoaders.clear()
   }
 }

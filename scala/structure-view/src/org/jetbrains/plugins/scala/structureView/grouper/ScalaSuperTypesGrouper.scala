@@ -25,7 +25,7 @@ object ScalaSuperTypesGrouper extends Grouper {
     AllIcons.General.ImplementingMethod
   )
 
-  override def group(parent: AbstractTreeNode[_], children: util.Collection[TreeElement]): util.Collection[Group] = {
+  override def group(parent: AbstractTreeNode[?], children: util.Collection[TreeElement]): util.Collection[Group] = {
     if (isParentGrouped(parent)) return emptyList()
 
     val groups = mutable.HashMap.empty[Group, SuperTypeGroup]
@@ -43,7 +43,7 @@ object ScalaSuperTypesGrouper extends Grouper {
     groups.keySet.asJava
   }
 
-  private def isParentGrouped(parent: AbstractTreeNode[_]): Boolean =
+  private def isParentGrouped(parent: AbstractTreeNode[?]): Boolean =
     Iterator.iterate(parent)(_.getParent)
       .takeWhile(_ != null)
       .exists(_.getValue.isInstanceOf[SuperTypeGroup])

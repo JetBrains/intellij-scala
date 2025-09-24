@@ -82,7 +82,7 @@ class ScalaConsoleRunConfiguration(
     setModule(params.getModule)
   }
 
-  override def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] =
+  override def getConfigurationEditor: SettingsEditor[? <: RunConfiguration] =
     new ScalaConsoleRunConfigurationEditor(project, this)
 
   override def writeExternal(element: Element): Unit = {
@@ -109,7 +109,7 @@ class ScalaConsoleRunConfiguration(
     new ScalaCommandLineState(env)
 
   //overriding the method as a workaround for https://github.com/lampepfl/dotty/issues/19007
-  override def clone(): ModuleBasedConfiguration[_ <: RunConfigurationModule, _] = super.clone()
+  override def clone(): ModuleBasedConfiguration[? <: RunConfigurationModule, ?] = super.clone()
 
   private class ScalaCommandLineState(env: ExecutionEnvironment) extends JavaCommandLineState(env) {
     getModule match {
@@ -135,7 +135,7 @@ class ScalaConsoleRunConfiguration(
       params
     }
 
-    override def execute(executor: Executor, runner: ProgramRunner[_]): ExecutionResult = {
+    override def execute(executor: Executor, runner: ProgramRunner[?]): ExecutionResult = {
       val params: JavaParameters = getJavaParameters
       val classPath = params.getClassPath
 

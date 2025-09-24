@@ -75,7 +75,7 @@ class ScalaStructureViewModel(myRootElement: ScalaFile)
     sorters
   }
 
-  override def getNodeProviders: util.Collection[NodeProvider[_ <: TreeElement]] = (
+  override def getNodeProviders: util.Collection[NodeProvider[? <: TreeElement]] = (
     new ScalaInheritedMembersNodeProvider() +:
       ScalaStructureViewModelProvider.nodeProvidersFor(myRootElement) :+
       new ScalaAnonymousClassesNodeProvider()

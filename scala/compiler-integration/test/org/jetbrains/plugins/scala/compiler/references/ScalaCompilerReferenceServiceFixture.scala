@@ -80,7 +80,7 @@ abstract class ScalaCompilerReferenceServiceFixture extends JavaCodeInsightFixtu
       myLoaders += loader
     }
 
-  override protected def disposeLibraries(implicit module: Module): Unit = {
+  override protected def disposeLibraries(module: Module): Unit = {
     for {
       module <- getProject.modules
       loader <- myLoaders

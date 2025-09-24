@@ -7,12 +7,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 @ApiStatus.Internal
 trait ScalaStructureViewModelProvider {
-  def nodeProvidersFor(rootElement: ScalaFile): Seq[NodeProvider[_ <: TreeElement]]
+  def nodeProvidersFor(rootElement: ScalaFile): Seq[NodeProvider[? <: TreeElement]]
 }
 
 object ScalaStructureViewModelProvider extends ExtensionPointDeclaration[ScalaStructureViewModelProvider](
   "org.intellij.scala.structureViewModelProvider") {
 
-  def nodeProvidersFor(rootElement: ScalaFile): Seq[NodeProvider[_ <: TreeElement]] =
+  def nodeProvidersFor(rootElement: ScalaFile): Seq[NodeProvider[? <: TreeElement]] =
     implementations.flatMap(_.nodeProvidersFor(rootElement))
 }

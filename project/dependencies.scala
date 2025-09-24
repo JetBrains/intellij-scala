@@ -7,7 +7,7 @@ import sbt.*
 
 object Versions {
   val scalaVersion: String = "2.13.16"
-  val scala3Version: String = "3.3.6"
+  val scala3Version: String = "3.7.3"
 
   // ATTENTION: when updating `sbtVersion` also update it in `org.jetbrains.sbt.SbtVersion.Latest`
   // NOTE: sbt-launch / bloop-launcher won't be fetched on refresh.

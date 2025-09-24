@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 
 class SpellCheckingInspectionTest extends ScalaInspectionTestBase {
 
-  override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[GrazieSpellCheckingInspection]
+  override protected val classOfInspection: Class[? <: LocalInspectionTool] = classOf[GrazieSpellCheckingInspection]
 
   override protected def description: String = null
 

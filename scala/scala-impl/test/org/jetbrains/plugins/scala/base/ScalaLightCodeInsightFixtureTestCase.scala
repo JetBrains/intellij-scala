@@ -116,7 +116,7 @@ abstract class ScalaLightCodeInsightFixtureTestCase
     setUpLibraries(module)
   }
 
-  override def setUpLibraries(implicit module: Module): Unit = {
+  override def setUpLibraries(module: Module): Unit = {
     if (loadScalaLibrary) {
       super.setUpLibraries(module)
 

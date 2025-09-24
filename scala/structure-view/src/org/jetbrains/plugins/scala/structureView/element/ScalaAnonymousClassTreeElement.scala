@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 
 import javax.swing.Icon
+import scala.compiletime.uninitialized
 
 /**
  * Created by analogy with [[com.intellij.ide.structureView.impl.java.JavaAnonymousClassTreeElement]]
@@ -18,8 +19,8 @@ final class ScalaAnonymousClassTreeElement(definition: ScNewTemplateDefinition)
 
   override def getIcon(open: Boolean): Icon = IconManager.getInstance.getPlatformIcon(PlatformIcons.AnonymousClass)
 
-  private var myName: String = _
-  private var myBaseName: String = _
+  private var myName: String = uninitialized
+  private var myBaseName: String = uninitialized
 
   override def getPresentableText: String = {
     if (myName == null) {

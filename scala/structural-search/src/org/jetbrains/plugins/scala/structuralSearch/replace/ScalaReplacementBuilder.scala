@@ -78,7 +78,7 @@ class ScalaReplacementBuilder(val profile: StructuralSearchProfile) {
     }
   }
 
-  private def ifNotMentioned(patternOpt: Option[_], replaceOpt: Option[_], refEl: PsiElement, text: Option[String]): Map[PsiElement, String] = {
+  private def ifNotMentioned(patternOpt: Option[?], replaceOpt: Option[?], refEl: PsiElement, text: Option[String]): Map[PsiElement, String] = {
     if (patternOpt.isEmpty && replaceOpt.isEmpty) {
       text.map(t => Map(refEl -> t)).getOrElse(Map())
     } else Map()
