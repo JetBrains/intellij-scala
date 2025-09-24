@@ -30,7 +30,6 @@ import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterF
 import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetControlPanel, WorksheetDiffSplitters, WorksheetFoldGroup}
 
 import java.{util => ju}
-import scala.annotation.nowarn
 import scala.util.control.NonFatal
 
 object WorksheetFileHook {
@@ -82,7 +81,7 @@ object WorksheetFileHook {
       }
       ScalaPsiManager.instance(project).clearAllCachesAndWait()
       PsiManager.getInstance(project).dropPsiCaches()
-      DaemonCodeAnalyzer.getInstance(project).restart(psiFile): @nowarn("cat=deprecation")
+      DaemonCodeAnalyzer.getInstance(project).restart(psiFile, "WorksheetFileHook.restartFileAnalyzing")
     }
   }
 

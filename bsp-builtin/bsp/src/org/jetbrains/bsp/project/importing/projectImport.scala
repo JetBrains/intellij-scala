@@ -16,6 +16,7 @@ import com.intellij.openapi.externalSystem.service.settings.AbstractImportFromEx
 import com.intellij.openapi.externalSystem.service.ui.ExternalProjectDataSelectorDialog
 import com.intellij.openapi.externalSystem.util.{ExternalSystemSettingsControl, ExternalSystemUtil}
 import com.intellij.openapi.module.{ModifiableModuleModel, Module}
+import com.intellij.openapi.progress.CoroutinesKt
 import com.intellij.openapi.project.{Project, ProjectManager}
 import com.intellij.openapi.roots.ui.configuration.ModulesProvider
 import com.intellij.openapi.util.io.FileUtil
@@ -34,6 +35,7 @@ import java.nio.file.{Path, Paths}
 import java.util
 import java.util.Collections
 import javax.swing._
+import kotlin.coroutines.Continuation
 import scala.annotation.nowarn
 
 class BspProjectImportBuilder
@@ -135,7 +137,9 @@ class BspOpenProjectProvider() extends AbstractOpenProjectProvider {
 
   override def linkToExistingProject(projectFile: VirtualFile, project: Project): Unit = {
     val bspProjectSettings = new BspProjectSettings()
-    val projectDirectory = getProjectDirectory(projectFile)
+    val projectDirectory = CoroutinesKt.runBlockingMaybeCancellable { (_, cont: Continuation[_ >: VirtualFile]) =>
+      getProjectDirectory(projectFile, cont)
+    }
     bspProjectSettings.setExternalProjectPath(projectDirectory.toNioPath.toString)
     attachBspProjectAndRefresh(bspProjectSettings, project)
   }

@@ -6,6 +6,7 @@ import com.intellij.openapi.externalSystem.autolink.{ExternalSystemProjectLinkLi
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.util.JavaCoroutines
 import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.project.{SbtOpenProjectProvider, SbtProjectSystem}
@@ -35,6 +36,9 @@ class SbtUnlinkedProjectAware extends ExternalSystemUnlinkedProjectAware {
     val settings = SbtSettings.getInstance(project)
     settings.subscribe(new UnlinkedProjectAwareSettingsListener[SbtProjectSettings](listener), parentDisposable)
   }
+
+  override def unlinkProject(project: Project, s: String, continuation: Continuation[_ >: kotlin.Unit]): AnyRef =
+    JavaCoroutines.suspendJava[kotlin.Unit](cont => cont.resume(kotlin.Unit.INSTANCE), continuation)
 }
 
 trait SbtUnlinkedProjectAwareHelper {

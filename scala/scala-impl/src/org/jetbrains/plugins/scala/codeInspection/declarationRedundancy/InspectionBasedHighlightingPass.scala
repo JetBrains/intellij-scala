@@ -94,10 +94,10 @@ abstract class InspectionBasedHighlightingPass(file: ScalaFile, document: Option
   override def doApplyInformationToEditor(): Unit = {
     if (shouldHighlightFile) {
       UpdateHighlightersUtil.setHighlightersToEditor(file.getProject, getDocument, 0, file.getTextLength,
-        highlightInfos.asJavaCollection, getColorsScheme, getId)
+        highlightInfos.asJavaCollection, getColorsScheme, getId): @nowarn("cat=deprecation")
     } else {
       UpdateHighlightersUtil.setHighlightersToEditor(file.getProject, getDocument, 0, file.getTextLength,
-        Collections.emptyList(), getColorsScheme, getId)
+        Collections.emptyList(), getColorsScheme, getId): @nowarn("cat=deprecation")
     }
   }
 

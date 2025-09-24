@@ -14,8 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.sbt.language.SbtFileImpl
 import org.jetbrains.sbt.language.utils.SbtScalacOptionUtils.withScalacOption
 
-import scala.annotation.nowarn
-
 class EnableAutoPopupInScalacOptionsStrings extends CompletionConfidence {
   override def shouldSkipAutopopup(editor: Editor, contextElement: PsiElement, psiFile: PsiFile, offset: Int): ThreeState =
     withScalacOption(contextElement)(onMismatch = ThreeState.UNSURE, onMatch = _ => ThreeState.NO)
@@ -29,7 +27,7 @@ final class ScalacOptionsAutoPopupCompletionHandler extends TypedHandlerDelegate
     if (!file.is[ScalaFile, SbtFileImpl] || !(charTyped == '"' || charTyped == '-')) super.checkAutoPopup(charTyped, project, editor, file)
     else {
       val offset = editor.getCaretModel.getOffset
-      AutoPopupController.getInstance(project).autoPopupMemberLookup(editor, condition(offset)(_)): @nowarn("cat=deprecation")
+      AutoPopupController.getInstance(project).scheduleAutoPopup(editor, condition(offset)(_))
       Result.STOP
     }
 }

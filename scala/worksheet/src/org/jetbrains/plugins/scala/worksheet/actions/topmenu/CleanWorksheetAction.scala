@@ -19,7 +19,6 @@ import org.jetbrains.plugins.scala.worksheet.ui.WorksheetDiffSplitters
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterFactory
 
 import javax.swing.{DefaultBoundedRangeModel, Icon}
-import scala.annotation.nowarn
 
 class CleanWorksheetAction extends AnAction(
   WorksheetBundle.message("clean.scala.worksheet.action.text"),
@@ -60,7 +59,7 @@ object CleanWorksheetAction {
 
         editor.getSettings.setFoldingOutlineShown(true)
         editor.getContentComponent.requestFocus() //  properly repaints editor SCL-16073
-        DaemonCodeAnalyzer.getInstance(project).restart(psiFile): @nowarn("cat=deprecation")
+        DaemonCodeAnalyzer.getInstance(project).restart(psiFile, "Restart because of clean worksheets")
       }
     }
   }

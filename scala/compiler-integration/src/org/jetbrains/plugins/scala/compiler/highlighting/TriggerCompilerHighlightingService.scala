@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings.{ScalaCompileServerSettings, ScalaHighlightingMode}
 
+import scala.annotation.nowarn
 import scala.collection.concurrent.TrieMap
 import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
@@ -44,7 +45,7 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
                   UpdateHighlightersUtil.setHighlightersToEditor(
                     project, document,
                     0, document.getTextLength, Seq.empty.asJava,
-                    editor.getColorsScheme, ExternalHighlightersService.ScalaCompilerPassId)
+                    editor.getColorsScheme, ExternalHighlightersService.ScalaCompilerPassId): @nowarn("cat=deprecation")
                 }
               }
               executeOnBackgroundThreadInNotDisposed(project) {

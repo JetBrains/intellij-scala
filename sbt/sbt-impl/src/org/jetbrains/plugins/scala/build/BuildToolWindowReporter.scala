@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.build
 
 import com.intellij.build.events.impl._
-import com.intellij.build.events.{BuildEvent, EventResult, MessageEvent}
+import com.intellij.build.events.{BuildEvent, BuildEvents, EventResult, MessageEvent}
 import com.intellij.build.{BuildViewManager, DefaultBuildDescriptor, FilePosition}
 import com.intellij.execution.process.ProcessOutputType
 import com.intellij.execution.ui.RunContentDescriptor
@@ -15,7 +15,6 @@ import org.jetbrains.sbt.SbtBundle
 
 import java.nio.file.Path
 import javax.swing.JComponent
-import scala.annotation.nowarn
 import scala.concurrent.Promise
 
 /**
@@ -51,7 +50,11 @@ class BuildToolWindowReporter(project: Project,
         .withRestartActions(cancelAction)
 
     buildDescriptor.setActivateToolWindowWhenFailed(activateToolWindowWhenFailed)
-    val startEvent = new StartBuildEventImpl(buildDescriptor, SbtBundle.message("report.build.toolwindow.running")): @nowarn("cat=deprecation")
+    val startEvent =
+      BuildEvents.getInstance().startBuild()
+        .withBuildDescriptor(buildDescriptor)
+        .withMessage(SbtBundle.message("report.build.toolwindow.running"))
+        .build()
     viewManager.onEvent(buildId, startEvent)
   }
 
@@ -67,37 +70,68 @@ class BuildToolWindowReporter(project: Project,
       }
 
     val finishEvent =
-      new FinishBuildEventImpl(buildId, null, System.currentTimeMillis(), resultMessage, result): @nowarn("cat=deprecation")
+      BuildEvents.getInstance().finishBuild()
+        .withStartBuildId(buildId)
+        .withTime(System.currentTimeMillis())
+        .withMessage(resultMessage)
+        .withResult(result)
+        .build()
     viewManager.onEvent(buildId, finishEvent)
   }
 
   override def finishWithFailure(err: Throwable): Unit = {
-    val failureResult = new FailureResultImpl(err)
     val finishEvent =
-      new FinishBuildEventImpl(buildId, null, System.currentTimeMillis(), SbtBundle.message("report.build.toolwindow.failed"), failureResult): @nowarn("cat=deprecation")
+      BuildEvents.getInstance().finishBuild()
+        .withStartBuildId(buildId)
+        .withTime(System.currentTimeMillis())
+        .withMessage(SbtBundle.message("report.build.toolwindow.failed"))
+        .withResult(new FailureResultImpl(err))
+        .build()
     viewManager.onEvent(buildId, finishEvent)
   }
 
   override def finishCanceled(): Unit = {
-    val canceledResult = new SkippedResultImpl
     val finishEvent =
-      new FinishBuildEventImpl(buildId, null, System.currentTimeMillis(), SbtBundle.message("report.build.toolwindow.canceled"), canceledResult): @nowarn("cat=deprecation")
+      BuildEvents.getInstance().finishBuild()
+        .withStartBuildId(buildId)
+        .withTime(System.currentTimeMillis())
+        .withMessage(SbtBundle.message("report.build.toolwindow.canceled"))
+        .withResult(new SkippedResultImpl)
+        .build()
     viewManager.onEvent(buildId, finishEvent)
   }
 
   override def startTask(taskId: EventId, parent: Option[EventId], message: String, time: Long = System.currentTimeMillis()): Unit = {
-    val startEvent = new StartEventImpl(taskId, parent.orNull, time, message): @nowarn("cat=deprecation")
+    val startEvent =
+      BuildEvents.getInstance().start()
+        .withId(buildId)
+        .withParentId(parent.orNull)
+        .withTime(time)
+        .withMessage(SbtBundle.message("report.build.toolwindow.canceled"))
+        .build()
     viewManager.onEvent(buildId, startEvent)
   }
 
   override def progressTask(taskId: EventId, total: Long, progress: Long, unit: String, message: String, time: Long = System.currentTimeMillis()): Unit = {
-    val unitOrDefault = if (unit == null) SbtBundle.message("report.build.toolwindow.items") else unit
-    val event = new ProgressBuildEventImpl(taskId, null, time, message, total, progress, unitOrDefault): @nowarn("cat=deprecation")
+    val event =
+      BuildEvents.getInstance().progress()
+        .withStartId(buildId)
+        .withTime(time)
+        .withMessage(SbtBundle.message("report.build.toolwindow.canceled"))
+        .withTotal(total)
+        .withProgress(progress)
+        .withUnit(if (unit == null) SbtBundle.message("report.build.toolwindow.items") else unit)
+        .build()
     viewManager.onEvent(buildId, event)
   }
 
   override def finishTask(taskId: EventId, message: String, result: EventResult, time: Long = System.currentTimeMillis()): Unit = {
-    val event = new FinishEventImpl(taskId, null, time, message, result): @nowarn("cat=deprecation")
+    val event = BuildEvents.getInstance().finish()
+      .withStartId(taskId)
+      .withMessage(message)
+      .withResult(result)
+      .withTime(time)
+      .build()
     viewManager.onEvent(buildId, event)
   }
 
@@ -119,11 +153,14 @@ class BuildToolWindowReporter(project: Project,
     viewManager.onEvent(buildId, logEvent(message, isStdout = false))
 
   private def logEvent(msg: String, isStdout: Boolean): BuildEvent = {
-    //noinspection ReferencePassedToNls
     val outputType =
       if (isStdout) ProcessOutputType.STDOUT
       else ProcessOutputType.STDERR
-    new OutputBuildEventImpl(buildId, msg.trim + System.lineSeparator(), outputType): @nowarn("cat=deprecation")
+    BuildEvents.getInstance().output()
+      .withId(buildId)
+      .withMessage(msg.trim + System.lineSeparator())
+      .withOutputType(outputType)
+      .build()
   }
 
   private def event(message: String, kind: MessageEvent.Kind, position: Option[FilePosition])= {

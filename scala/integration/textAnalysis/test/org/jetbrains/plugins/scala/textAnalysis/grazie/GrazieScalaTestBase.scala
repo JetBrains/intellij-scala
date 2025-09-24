@@ -4,11 +4,10 @@ import com.intellij.grazie.GrazieConfig
 import com.intellij.grazie.grammar.LanguageToolChecker
 import com.intellij.grazie.ide.inspection.grammar.GrazieInspection
 import com.intellij.grazie.jlanguage.Lang
-import com.intellij.grazie.spellcheck.GrazieCheckers
+import com.intellij.grazie.spellcheck.{GrazieCheckers, GrazieSpellCheckingInspection}
 import com.intellij.grazie.text.TextChecker
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.extensions.ExtensionPointName
-import com.intellij.spellchecker.inspections.SpellCheckingInspection
 import com.intellij.testFramework.{ExtensionTestUtil, PlatformTestUtil}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.util.TestUtils
@@ -25,7 +24,7 @@ abstract class GrazieScalaTestBase extends ScalaLightCodeInsightFixtureTestCase:
 
   protected val additionalEnabledRules: Set[String] = Set.empty
 
-  private lazy val inspectionTools = Array(new GrazieInspection(), new SpellCheckingInspection())
+  private lazy val inspectionTools = Array(new GrazieInspection(), new GrazieSpellCheckingInspection())
   private val enabledLanguages: Set[Lang] = Set(
     Lang.AMERICAN_ENGLISH,
     Lang.GERMANY_GERMAN,

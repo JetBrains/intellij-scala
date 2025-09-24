@@ -44,6 +44,7 @@ import org.jetbrains.plugins.scala.util.CompilationId
 import java.util.Collections
 import java.util.concurrent.Callable
 import java.util.function.Consumer
+import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
 @Service(Array(Service.Level.PROJECT))
@@ -114,7 +115,7 @@ private final class ExternalHighlightersService(project: Project) { self =>
                 collection,
                 editor.getColorsScheme,
                 ScalaCompilerPassId
-              )
+              ): @nowarn("cat=deprecation")
               ErrorStripeUpdateManager.getInstance(project).launchRepaintErrorStripePanel(editor, psiFile)
             }
           }
@@ -157,7 +158,7 @@ private final class ExternalHighlightersService(project: Project) { self =>
           Collections.emptyList(),
           editor.getColorsScheme,
           ScalaCompilerPassId
-        )
+        ): @nowarn("cat=deprecation")
       }
     }
     ProblemSolverUtils.clearAllProblemsFromExternalSource(project, self)

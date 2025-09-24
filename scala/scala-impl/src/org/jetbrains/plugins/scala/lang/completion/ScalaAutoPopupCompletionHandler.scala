@@ -12,8 +12,6 @@ import org.jetbrains.plugins.scala.lang.completion.ScalaAutoPopupCompletionHandl
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 
-import scala.annotation.nowarn
-
 final class ScalaAutoPopupCompletionHandler extends TypedHandlerDelegate {
   override def charTyped(char: Char, project: Project, editor: Editor, file: PsiFile): Result =
     if (!file.is[ScalaFile] || char != ':') super.charTyped(char, project, editor, file)
@@ -28,7 +26,8 @@ final class ScalaAutoPopupCompletionHandler extends TypedHandlerDelegate {
           .isDefined
 
       if (needsAutoPopup) {
-        AutoPopupController.getInstance(project).autoPopupMemberLookup(editor, null): @nowarn("cat=deprecation")
+        AutoPopupController.getInstance(project)
+          .scheduleAutoPopup(editor, null)
         Result.STOP
       } else Result.CONTINUE
     }

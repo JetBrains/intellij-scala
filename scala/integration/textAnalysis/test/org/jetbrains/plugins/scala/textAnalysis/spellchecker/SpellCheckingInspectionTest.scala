@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala.textAnalysis.spellchecker
 
 import com.intellij.codeInspection.LocalInspectionTool
-import com.intellij.spellchecker.inspections.SpellCheckingInspection
+import com.intellij.grazie.spellcheck.GrazieSpellCheckingInspection
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 
 class SpellCheckingInspectionTest extends ScalaInspectionTestBase {
 
-  override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[SpellCheckingInspection]
+  override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[GrazieSpellCheckingInspection]
 
   override protected def description: String = null
 
