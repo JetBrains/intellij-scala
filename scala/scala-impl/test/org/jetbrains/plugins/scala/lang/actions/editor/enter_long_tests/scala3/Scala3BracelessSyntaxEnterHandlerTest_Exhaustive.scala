@@ -1,11 +1,13 @@
-package org.jetbrains.plugins.scala
-package lang.actions.editor.enter.scala3
+package org.jetbrains.plugins.scala.lang.actions.editor.enter_long_tests.scala3
 
 import com.intellij.testFramework.EditorTestUtil
 import junitparams.naming.TestCaseName
 import junitparams.{JUnitParamsRunner, Parameters}
+import org.jetbrains.plugins.scala.FileSetTests
 import org.jetbrains.plugins.scala.extensions.StringExt
-import org.jetbrains.plugins.scala.lang.actions.editor.enter.scala3.Scala3TestDataBracelessCode._
+import org.jetbrains.plugins.scala.lang.actions.editor.enter.scala3.{DoEditorStateTestOps, EditorStates}
+import org.jetbrains.plugins.scala.lang.actions.editor.enter_long_tests.scala3.Scala3TestDataBracelessCode.CodeToType._
+import org.jetbrains.plugins.scala.lang.actions.editor.enter_long_tests.scala3.Scala3TestDataBracelessCode._
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 import org.junit.Test
 import org.junit.experimental.categories.Category
@@ -204,7 +206,6 @@ object Scala3BracelessSyntaxEnterHandlerTest_Exhaustive {
     }
 
     locally {
-      import CodeToType._
       buffer ++= (BlockStatements :: DefDef :: TemplateStat :: BlankLines :: Nil).map { codeToType =>
         createTestWithName(
           s"""{

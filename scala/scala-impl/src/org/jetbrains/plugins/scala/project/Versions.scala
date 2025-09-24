@@ -71,12 +71,12 @@ object Versions {
   ) {
 
     override def initiallySelectedVersion(versions: Seq[String]): Option[String] =
-      latestLTSVersion(versions)
+      latestStableVersion(versions)
 
-    private def latestLTSVersion(versions: Seq[String]): Option[String] = {
-      // checking the language level because the list can contain multiple versions with different minor suffix (3.3.1, 3.3.2)
-      val ltsVersions = versions.flatMap(ScalaVersion.fromString).filter(_.languageLevel == ScalaVersion.Latest.Scala_3_LTS.languageLevel)
-      ltsVersions.maxOption.map(_.minor)
+    //SCL-24309
+    private def latestStableVersion(versions: Seq[String]): Option[String] = {
+      val stableVersions = versions.flatMap(ScalaVersion.fromString).filter(_.isStable)
+      stableVersions.maxOption.map(_.minor)
     }
   }
 
