@@ -72,7 +72,7 @@ object ExternalSystemDataDsl {
     new Attribute[Seq[library]]("libraryDependencies") with ModuleAttribute
 
   val arbitraryNodes =
-    new Attribute[Seq[Node[_]]]("arbitraryNodes") with ProjectAttribute with ModuleAttribute with LibraryAttribute
+    new Attribute[Seq[Node[?]]]("arbitraryNodes") with ProjectAttribute with ModuleAttribute with LibraryAttribute
 
   class project {
 
@@ -100,7 +100,7 @@ object ExternalSystemDataDsl {
       node
     }
 
-    private def createModuleDependencies(moduleToNode: Map[module, Node[_<:ModuleData]]): Unit =
+    private def createModuleDependencies(moduleToNode: Map[module, Node[? <: ModuleData]]): Unit =
       moduleToNode.foreach { case (module, moduleNode) =>
         module.getModuleDependencies.foreach { dependency =>
           moduleToNode.get(dependency).foreach { dependencyModuleNode =>
@@ -109,7 +109,7 @@ object ExternalSystemDataDsl {
         }
       }
 
-    private def createLibraryDependencies(moduleToNode: Map[module, Node[_<:ModuleData]], libraryToNode: Map[library, LibraryNode]): Unit =
+    private def createLibraryDependencies(moduleToNode: Map[module, Node[? <: ModuleData]], libraryToNode: Map[library, LibraryNode]): Unit =
       moduleToNode.foreach { case (module, moduleNode) =>
         module.getLibraryDependencies.foreach { dependency =>
           libraryToNode.get(dependency).foreach { libraryNode =>
@@ -120,19 +120,19 @@ object ExternalSystemDataDsl {
 
     private val attributes = new AttributeMap
 
-    protected implicit def defineAttribute[T : ClassTag](attribute: Attribute[T] with ProjectAttribute): AttributeDef[T] =
+    protected implicit def defineAttribute[T : ClassTag](attribute: Attribute[T] & ProjectAttribute): AttributeDef[T] =
       new AttributeDef(attribute, attributes)
-    protected implicit def defineAttributeSeq[T](attribute: Attribute[Seq[T]] with ProjectAttribute)(implicit m: ClassTag[Seq[T]]): AttributeSeqDef[T] =
+    protected implicit def defineAttributeSeq[T](attribute: Attribute[Seq[T]] & ProjectAttribute)(implicit m: ClassTag[Seq[T]]): AttributeSeqDef[T] =
       new AttributeSeqDef(attribute, attributes)
   }
 
   abstract class module {
     val typeId: String
 
-    protected def generateModuleNode(projectId: String, name: String, moduleFileDirectoryPath: String, externalConfigPath: String): Node[_<:ModuleData] =
+    protected def generateModuleNode(projectId: String, name: String, moduleFileDirectoryPath: String, externalConfigPath: String): Node[? <: ModuleData] =
       new ModuleNode(typeId, projectId, name, moduleFileDirectoryPath, externalConfigPath)
 
-    def build: Node[_<:ModuleData] = {
+    def build: Node[? <: ModuleData] = {
       val node = generateModuleNode(
         attributes.getOrFail(projectId),
         attributes.getOrFail(name),
@@ -156,9 +156,9 @@ object ExternalSystemDataDsl {
 
     private val attributes = new AttributeMap
 
-    protected implicit def defineAttribute[T : ClassTag](attribute: Attribute[T] with ModuleAttribute): AttributeDef[T] =
+    protected implicit def defineAttribute[T : ClassTag](attribute: Attribute[T] & ModuleAttribute): AttributeDef[T] =
       new AttributeDef(attribute, attributes)
-    protected implicit def defineAttributeSeq[T](attribute: Attribute[Seq[T]] with ModuleAttribute)(implicit m: ClassTag[Seq[T]]): AttributeSeqDef[T] =
+    protected implicit def defineAttributeSeq[T](attribute: Attribute[Seq[T]] & ModuleAttribute)(implicit m: ClassTag[Seq[T]]): AttributeSeqDef[T] =
       new AttributeSeqDef(attribute, attributes)
   }
 
@@ -179,9 +179,9 @@ object ExternalSystemDataDsl {
 
     private val attributes = new AttributeMap
 
-    protected implicit def defineAttribute[T : ClassTag](attribute: Attribute[T] with LibraryAttribute): AttributeDef[T] =
+    protected implicit def defineAttribute[T : ClassTag](attribute: Attribute[T] & LibraryAttribute): AttributeDef[T] =
       new AttributeDef(attribute, attributes)
-    protected implicit def defineAttributeSeq[T](attribute: Attribute[Seq[T]] with LibraryAttribute)(implicit m: ClassTag[Seq[T]]): AttributeSeqDef[T] =
+    protected implicit def defineAttributeSeq[T](attribute: Attribute[Seq[T]] & LibraryAttribute)(implicit m: ClassTag[Seq[T]]): AttributeSeqDef[T] =
       new AttributeSeqDef(attribute, attributes)
   }
 }

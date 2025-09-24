@@ -13,13 +13,13 @@ import scala.jdk.CollectionConverters.*
 
 class SbtViewContributor extends ExternalSystemViewContributor {
 
-  private val keys: List[Key[_]] = List(SbtTaskData.Key, SbtSettingData.Key, SbtCommandData.Key, SbtNestedModuleData.Key, SbtSourceSetData.Key)
+  private val keys: List[Key[?]] = List(SbtTaskData.Key, SbtSettingData.Key, SbtCommandData.Key, SbtNestedModuleData.Key, SbtSourceSetData.Key)
 
   override def getSystemId: ProjectSystemId = SbtProjectSystem.Id
 
-  override def getKeys: util.List[Key[_]] = keys.asJava
+  override def getKeys: util.List[Key[?]] = keys.asJava
 
-  override def getDisplayName(node: DataNode[_]): String =
+  override def getDisplayName(node: DataNode[?]): String =
     node.getData match {
       case moduleDependencyData: ModuleDependencyData =>
         val target = moduleDependencyData.getTarget
@@ -28,7 +28,7 @@ class SbtViewContributor extends ExternalSystemViewContributor {
     }
 
   override def createNodes(externalProjectsView: ExternalProjectsView,
-                           dataNodes: MultiMap[Key[_], DataNode[_]]): util.List[ExternalSystemNode[_]] = {
+                           dataNodes: MultiMap[Key[?], DataNode[?]]): util.List[ExternalSystemNode[?]] = {
 
     /*def getDataNodes(key: Key[_]): Iterable[DataNode[_]] =
       dataNodes.get(key).asScala
@@ -66,7 +66,7 @@ class SbtViewContributor extends ExternalSystemViewContributor {
     }
 
     val allNodes = Seq(settingsNode, tasksNode, commandsNode) ++ moduleNodes*/
-    new SmartList[ExternalSystemNode[_]](??? : _*)
+    new SmartList[ExternalSystemNode[?]](??? *)
   }
 }
 

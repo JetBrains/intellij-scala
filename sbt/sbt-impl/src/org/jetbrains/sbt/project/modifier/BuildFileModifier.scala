@@ -73,8 +73,8 @@ trait BuildFileModifier {
     val fileStatusMap = mutable.Map[VirtualFile, (BuildFileModifiedStatus, Long)]()
     val documentManager = FileDocumentManager.getInstance()
     val vcsChanges = filesToWorkingCopies.toSeq.map{case (original, copy) =>
-      val originalRevision = new SimpleContentRevision(VfsUtilCore.loadText(original), VcsUtil getFilePath original, "original")
-      val copyRevision: CurrentContentRevision = new CurrentContentRevision(VcsUtil getFilePath copy) {
+      val originalRevision = new SimpleContentRevision(VfsUtilCore.loadText(original), VcsUtil.getFilePath(original), "original")
+      val copyRevision: CurrentContentRevision = new CurrentContentRevision(VcsUtil.getFilePath(copy)) {
         override def getVirtualFile: LightVirtualFile = copy
       }
       val isModified = changes.contains(copy)

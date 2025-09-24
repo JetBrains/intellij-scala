@@ -9,8 +9,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.project.ModuleExt
+import org.jetbrains.plugins.scala.lang.psi.types.*
+import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectPsiFileExt}
 import org.jetbrains.sbt.language.SbtFileImpl
 
 // TODO: we need to review SBT 2.0 new rules and adopt SbtAnnotator logic
@@ -45,7 +45,7 @@ final class SbtAnnotator extends Annotator {
               message =
               if (expressionType.isNothing || expressionType.isNull) {
                 SbtBundle.message("sbt.annotation.expectedExpressionTypeSbt0136")
-              } else if (isTypeAllowed(expression, expressionType, allowedTypes: _*)) {
+              } else if (isTypeAllowed(expression, expressionType, allowedTypes*)) {
                 null
               } else {
                 SbtBundle.message("sbt.annotation.expressionMustConformSbt0136", expressionType)

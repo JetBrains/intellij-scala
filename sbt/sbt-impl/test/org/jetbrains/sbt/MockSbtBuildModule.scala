@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.sbt.project.module.SbtModuleType
 
 trait MockSbtBuildModule {
-  self: UsefulTestCase with ScalaSdkOwner =>
+  self: UsefulTestCase & ScalaSdkOwner =>
 
   protected final def setupSbtBuildModule(mainModule: Module): Unit = {
     setupSbtBuildModule(mainModule, None)

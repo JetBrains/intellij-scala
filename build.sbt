@@ -389,7 +389,7 @@ lazy val sbtImpl =
     )
     .settings(
       scalaVersion := Versions.scala3Version,
-      Compile / scalacOptions := globalScala3ScalacOptions :+ "-source:3.0-migration",
+      Compile / scalacOptions := globalScala3ScalacOptions,
       intellijPlugins += "org.jetbrains.idea.maven".toPlugin,
       libraryDependencies += Dependencies.sbtStructureCore.cross(CrossVersion.for3Use2_13),
     )

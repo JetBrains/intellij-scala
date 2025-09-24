@@ -21,7 +21,7 @@ class SbtNestedModuleDataService extends AbstractSbtModuleDataService[SbtNestedM
     sbtNestedModuleType
 
   override def importData(
-    toImport: util.Collection[_ <: DataNode[SbtNestedModuleData]],
+    toImport: util.Collection[? <: DataNode[SbtNestedModuleData]],
     projectData: ProjectData,
     project: Project,
     modelsProvider: IdeModifiableModelsProvider
@@ -48,7 +48,7 @@ class SbtNestedModuleDataService extends AbstractSbtModuleDataService[SbtNestedM
   private def setModulesInExternalSystemSettings(
     project: Project,
     rootProjectPath: String,
-    sbtNestedModules: List[_ <: DataNode[SbtNestedModuleData]]
+    sbtNestedModules: List[? <: DataNode[SbtNestedModuleData]]
   ): Unit = {
     val linkedProjectSettings = SbtSettings.getInstance(project).getLinkedProjectSettings(rootProjectPath)
     if (linkedProjectSettings != null) {

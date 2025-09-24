@@ -91,7 +91,7 @@ object ProjectStructureDsl {
     def get[T: ClassTag](attribute: Attribute[T]): Option[T] =
       attributes.get(attribute)
 
-     implicit def matchTypeDef(attribute: Attribute[_]): MatchTypeDef =
+     implicit def matchTypeDef(attribute: Attribute[?]): MatchTypeDef =
       new MatchTypeDef(attribute, attributes)
   }
 
@@ -100,8 +100,8 @@ object ProjectStructureDsl {
   }
 
   class project(val name: String) extends Attributed {
-    type SelfAttribute[T] = Attribute[T] with ProjectAttribute
-    type SelfSeqAttribute[T] = Attribute[Seq[T]] with ProjectAttribute
+    type SelfAttribute[T] = Attribute[T] & ProjectAttribute
+    type SelfSeqAttribute[T] = Attribute[Seq[T]] & ProjectAttribute
   }
 
   class module(val moduleName: String, var group: Array[String] = null) extends Attributed with Named {
@@ -114,8 +114,8 @@ object ProjectStructureDsl {
         moduleName
       }
 
-    type SelfAttribute[T] = Attribute[T] with ModuleAttribute
-    type SelfSeqAttribute[T] = Attribute[Seq[T]] with ModuleAttribute
+    type SelfAttribute[T] = Attribute[T] & ModuleAttribute
+    type SelfSeqAttribute[T] = Attribute[Seq[T]] & ModuleAttribute
 
     def dependsOn(modules: dependency[module]*): Unit = {
       defineAttribute(moduleDependencies) := modules
@@ -126,15 +126,15 @@ object ProjectStructureDsl {
   }
 
   class library(override val name: String) extends Attributed with Named {
-    type SelfAttribute[T] = Attribute[T] with LibraryAttribute
-    type SelfSeqAttribute[T] = Attribute[Seq[T]] with LibraryAttribute
+    type SelfAttribute[T] = Attribute[T] & LibraryAttribute
+    type SelfSeqAttribute[T] = Attribute[Seq[T]] & LibraryAttribute
   }
 
   class dependency[D <: Named](val reference: D) extends Attributed with Named {
     override val name: String = reference.name
 
-    type SelfAttribute[T] = Attribute[T] with DependencyAttribute
-    type SelfSeqAttribute[T] = Attribute[Seq[T]] with DependencyAttribute
+    type SelfAttribute[T] = Attribute[T] & DependencyAttribute
+    type SelfSeqAttribute[T] = Attribute[Seq[T]] & DependencyAttribute
   }
 
   implicit def module2moduleDependency(module: module): dependency[module] =

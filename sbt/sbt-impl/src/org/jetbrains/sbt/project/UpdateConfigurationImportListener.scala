@@ -12,13 +12,15 @@ import org.jetbrains.sbt.project.SbtMigrateConfigurationsAction.{ModuleConfigura
 import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.project.settings.ShouldUpdateRunConfigurations
 
+import scala.compiletime.uninitialized
+
 /**
  * Project import listener created to detect whether a notification with an update configuration action should be displayed.
  * The notification is displayed only once for non-new sbt projects.
  */
 class UpdateConfigurationImportListener(project: Project) extends ProjectDataImportListener {
 
-  private var separateProdTestSources: Boolean = _
+  private var separateProdTestSources: Boolean = uninitialized
 
   override def onImportStarted(projectPath: String): Unit =
     if (isListenerAllowed(projectPath)) {

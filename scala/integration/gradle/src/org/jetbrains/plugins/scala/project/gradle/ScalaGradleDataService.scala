@@ -148,7 +148,7 @@ class ScalaGradleDataService extends ScalaAbstractProjectDataService[ScalaModelD
       val additionalOptions =
         if (options.getAdditionalParameters != null) options.getAdditionalParameters.asScala else Seq.empty
 
-      presentations.flatMap((include(_, _)).tupled) ++ scalaCompilerPlugins ++ additionalOptions
+      presentations.flatMap(include.tupled) ++ scalaCompilerPlugins ++ additionalOptions
     }
 
   private def isEmpty(s: String) = s == null || s.isEmpty

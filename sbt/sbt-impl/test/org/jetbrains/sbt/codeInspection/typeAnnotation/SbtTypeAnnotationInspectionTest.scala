@@ -6,15 +6,16 @@ import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG, SELECTION_S
 import org.jetbrains.plugins.scala.codeInspection.typeAnnotation.TypeAnnotationInspectionTest
 import org.jetbrains.sbt.language.SbtFileType
 
-import java.{util => ju}
+import java.util as ju
+import scala.compiletime.uninitialized
 
 class SbtTypeAnnotationInspectionTest extends TypeAnnotationInspectionTest with MockSbt_1_0 {
 
   override protected val fileType = SbtFileType
 
-  private var excludeWhenTypeIsStable: Boolean = _
-  private var excludeInDialectSources: Boolean = _
-  private var excludeWhenTypeMatches: ju.Set[String] = _
+  private var excludeWhenTypeIsStable: Boolean = uninitialized
+  private var excludeInDialectSources: Boolean = uninitialized
+  private var excludeWhenTypeMatches: ju.Set[String] = uninitialized
 
   protected override def setUp(): Unit = {
     super.setUp()

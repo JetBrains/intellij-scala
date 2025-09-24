@@ -26,7 +26,7 @@ trait ScalaVersionStepLike extends IndentationSyntaxStepLike with AsynchronousVe
   private val isScalaVersionManuallySelected: AtomicBoolean = new AtomicBoolean(false)
 
   private val isScalaLoading = new AtomicBoolean(false)
-  protected lazy val scalaVersionComboBox: SComboBox[String] = createSComboBoxWithSearchingListRenderer(ListSet(defaultAvailableScalaVersions: _*), None, isScalaLoading)
+  protected lazy val scalaVersionComboBox: SComboBox[String] = createSComboBoxWithSearchingListRenderer(ListSet(defaultAvailableScalaVersions*), None, isScalaLoading)
 
   private def downloadScalaVersions(disposable: Disposable): Unit = {
     val scalaDownloadVersions: ProgressIndicator => Seq[Version] = indicator => {

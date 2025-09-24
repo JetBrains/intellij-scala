@@ -65,7 +65,7 @@ class SbtRunConfiguration(val project: Project, val configurationFactory: Config
   override def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState =
     new SbtCommandLineState(preprocessTasks(), this, env)
 
-  override def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = new SbtRunConfigurationEditor(project, this)
+  override def getConfigurationEditor: SettingsEditor[? <: RunConfiguration] = new SbtRunConfigurationEditor(project, this)
 
   override def writeExternal(element: Element): Unit = {
     super.writeExternal(element)
@@ -107,10 +107,10 @@ class SbtCommandLineState(val processedCommands: String, val configuration: SbtR
                           private var listener: Option[String => Unit] = None) extends JavaCommandLineState(environment) {
   def getListener: Option[String => Unit] = listener
 
-  override def execute(executor: Executor, runner: ProgramRunner[_]): ExecutionResult = {
+  override def execute(executor: Executor, runner: ProgramRunner[?]): ExecutionResult = {
     val r = super.execute(executor, runner)
     listener.foreach(_ => Option(r.getProcessHandler).foreach(_.addProcessListener(new OutputListener() {
-      override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = super.onTextAvailable(event, outputType)
+      override def onTextAvailable(event: ProcessEvent, outputType: Key[?]): Unit = super.onTextAvailable(event, outputType)
     })))
     r
   }

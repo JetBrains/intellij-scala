@@ -47,7 +47,7 @@ class CompositeReporter(reporters: BuildReporter*) extends BuildReporter {
     reporters.foreach(_.clear(file))
 
   def compose(reporter: BuildReporter) =
-  new CompositeReporter(reporters :+ reporter : _*)
+  new CompositeReporter(reporters :+ reporter*)
 
   /** Clear any messages associated with file. */
 }

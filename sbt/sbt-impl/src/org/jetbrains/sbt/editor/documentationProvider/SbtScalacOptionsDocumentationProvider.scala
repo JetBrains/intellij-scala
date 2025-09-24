@@ -36,7 +36,7 @@ class SbtScalacOptionsDocumentationProvider extends AbstractDocumentationProvide
     val options = getScalacOptionsForLiteralValue(str)
 
     if (options.isEmpty) null
-    else new SbtScalacOptionDocHolder(options)(str.getProject)
+    else new SbtScalacOptionDocHolder(options)(using str.getProject)
   }
 
   private def generateScalacOptionDoc(docHolder: SbtScalacOptionDocHolder): String = {

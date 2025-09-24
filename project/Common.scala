@@ -36,6 +36,9 @@ object Common {
     "-unchecked",
 //    "-Werror",
     "-Wunused:implicits,imports",
+    "-Wconf:msg=Non local returns are no longer supported:s", // I like local returns!!!
+    "-Wconf:msg=Alphanumeric method isInstance is not declared infix:s", // and everyone loves infix notation!
+    "-Wconf:msg=method .* is eta-expanded even though .* does not have the @FunctionalInterface annotation:s", // bullshit warning
   )
 
   // options for modules which classes can only be used in IDEA process (uses JRE 21)

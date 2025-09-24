@@ -15,7 +15,7 @@ import scala.jdk.CollectionConverters.CollectionHasAsScala
 class SbtScalaSdkDataService extends ScalaAbstractProjectDataService[SbtScalaSdkData, Library](SbtScalaSdkData.Key){
 
   override def importData(
-    toImport: util.Collection[_ <: DataNode[SbtScalaSdkData]],
+    toImport: util.Collection[? <: DataNode[SbtScalaSdkData]],
     projectData: ProjectData,
     project: Project,
     modelsProvider: IdeModifiableModelsProvider): Unit = {

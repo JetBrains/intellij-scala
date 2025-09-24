@@ -125,7 +125,7 @@ case class TaskManagerResult(
 
   override def getContext: ProjectTaskContext = context
 
-  override def anyTaskMatches(predicate: BiPredicate[_ >: ProjectTask, _ >: ProjectTaskState]): Boolean =
+  override def anyTaskMatches(predicate: BiPredicate[? >: ProjectTask, ? >: ProjectTaskState]): Boolean =
     false // TODO figure out what this is supposed to do?
 }
 

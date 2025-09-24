@@ -9,5 +9,5 @@ object OutputType {
   object StdOut extends OutputType("stdout")
   object StdErr extends OutputType("stderr")
   object MySystem extends OutputType("system")
-  final case class Other(key: Key[_]) extends OutputType(key.toString)
+  final case class Other(key: Key[?]) extends OutputType(key.toString)
 }

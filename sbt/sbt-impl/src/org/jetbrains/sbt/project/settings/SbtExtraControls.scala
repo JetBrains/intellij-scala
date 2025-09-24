@@ -84,8 +84,8 @@ final class SbtExtraControls {
     useSeparateCompilerOutputPathsWarning.setVisible(shouldOutputPathsWarningBeVisible)
     useSeparateCompilerOutputPathsWarning.setForeground(JBColor.RED)
 
-    useSeparateCompilerOutputPaths.box.addActionListener(refreshOutputPathsWarningActionListener _)
-    useSbtShellForBuildCheckBox.box.addActionListener(refreshOutputPathsWarningActionListener _)
+    useSeparateCompilerOutputPaths.box.addActionListener(refreshOutputPathsWarningActionListener(_))
+    useSbtShellForBuildCheckBox.box.addActionListener(refreshOutputPathsWarningActionListener(_))
 
     separateProdTestModulesWarning.setVisible(shouldMainTestModeWarningBeVisible)
     separateProdTestModules.box.addActionListener((_: ActionEvent) => refreshMainMainTestModeWarning())

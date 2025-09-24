@@ -142,7 +142,7 @@ class SbtProjectDataServiceTest extends ProjectDataServiceTestCase {
 
   private def doTestBasePackages(basePackages: Seq[String]): Unit = {
     importProjectData(generateProject(basePackages, None, ""))
-    UsefulTestCase.assertContainsElements(ScalaProjectSettings.getInstance(getProject).getCustomBasePackages.values(), basePackages:_*)
+    UsefulTestCase.assertContainsElements(ScalaProjectSettings.getInstance(getProject).getCustomBasePackages.values(), basePackages*)
   }
 
   private def mostRecentJdk: Sdk =

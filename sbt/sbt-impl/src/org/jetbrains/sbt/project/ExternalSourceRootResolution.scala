@@ -20,9 +20,9 @@ import scala.reflect.ClassTag
  * This trait contains utility methods responsible for handling for shared sources directories.
  * Such shared sources in the "legacy" mode (without main/test modules) are "external" relative to the project base directory, hence the name "External"
  */
-trait ExternalSourceRootResolution { self: SbtProjectResolver with ContentRootsResolution =>
+trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsResolution =>
 
-  type ModuleDataNodeType = Node[_ <: ModuleData]
+  type ModuleDataNodeType = Node[? <: ModuleData]
 
   protected sealed abstract class ModuleSourceSet(val parent: ModuleDataNodeType)
   protected case class PrentModuleSourceSet(override val parent: ModuleDataNodeType) extends ModuleSourceSet(parent)
@@ -960,7 +960,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver with ContentRootsR
      */
     lazy val standardBasePathGuessed: Option[File] = SourceRoot.DefaultPaths.collectFirst {
       //Example directory: /c/example-project/downstream/src/test/java (check if it parent ends with `src/test`)
-      case paths if directory.parent.exists(_.endsWith(paths: _*)) => directory << (paths.length + 1)
+      case paths if directory.parent.exists(_.endsWith(paths*)) => directory << (paths.length + 1)
     }
   }
 

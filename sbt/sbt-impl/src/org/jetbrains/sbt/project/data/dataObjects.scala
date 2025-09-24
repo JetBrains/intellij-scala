@@ -279,7 +279,7 @@ case class SbtPlay2ProjectData @PropertyMapping(Array("stringValues", "seqString
   seqStringsValues: JMap[String, JMap[String, SeqStringParsedValue]]
 ) extends SbtEntityData {
 
-  def projectKeys: Map[String, Map[String, ParsedValue[_]]] =
+  def projectKeys: Map[String, Map[String, ParsedValue[?]]] =
     (stringValues.asScala.toMap ++ seqStringsValues.asScala.toMap).map {
       case (k, v) => (k, v.asScala.toMap)
     }
@@ -288,7 +288,7 @@ case class SbtPlay2ProjectData @PropertyMapping(Array("stringValues", "seqString
 object SbtPlay2ProjectData {
   val Key: Key[SbtPlay2ProjectData] = datakey(classOf[SbtPlay2ProjectData], ProjectKeys.PROJECT.getProcessingWeight + 1)
 
-  def apply(projectKeys: Map[String, Map[String, ParsedValue[_]]]): SbtPlay2ProjectData = {
+  def apply(projectKeys: Map[String, Map[String, ParsedValue[?]]]): SbtPlay2ProjectData = {
     val stringValues = new JHashMap[String, JMap[String, StringParsedValue]]()
     val seqStringsValues = new JHashMap[String, JMap[String, SeqStringParsedValue]]()
     for {

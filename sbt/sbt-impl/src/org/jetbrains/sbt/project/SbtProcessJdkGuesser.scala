@@ -37,7 +37,7 @@ object SbtProcessJdkGuesser {
 
   private val jdkType: JavaSdk = JavaSdk.getInstance
   private val versionComparator: Comparator[Sdk] = jdkType.versionComparator
-  private val versionOrdering: Ordering[Sdk] = Ordering.comparatorToOrdering(versionComparator)
+  private val versionOrdering: Ordering[Sdk] = Ordering.comparatorToOrdering(using versionComparator)
 
   /**
    * This is an alternative to [[com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl#preconfigure()]] which selects most recent JDK<br>
@@ -67,7 +67,7 @@ object SbtProcessJdkGuesser {
 
   def findJdkWithSuitableVersion(jdkTable: ProjectJdkTable, sbtVersion: SbtVersion): SdkCandidate = {
     val sdksAll = jdkTable.getSdksOfType(jdkType).asScala.toSeq
-    val sdksAllSorted = sdksAll.sorted(versionOrdering)
+    val sdksAllSorted = sdksAll.sorted(using versionOrdering)
     val filteredBySbt = sdksAllSorted.filter { sdk =>
       isSbtJdkCompatible(jdkType.getVersion(sdk), sbtVersion)
     }
@@ -132,7 +132,7 @@ object SbtProcessJdkGuesser {
         return None
     }
     val allJdks = ProjectJdkTable.getInstance().getAllJdks
-    val suggestedName = SdkConfigurationUtil.createUniqueSdkName(JavaSdk.getInstance(), homePath.path, util.Arrays.asList(allJdks:_*))
+    val suggestedName = SdkConfigurationUtil.createUniqueSdkName(JavaSdk.getInstance(), homePath.path, util.Arrays.asList(allJdks*))
 
     ProgressManager.checkCanceled()
 

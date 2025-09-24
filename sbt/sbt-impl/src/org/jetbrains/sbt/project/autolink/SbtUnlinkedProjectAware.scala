@@ -27,7 +27,7 @@ class SbtUnlinkedProjectAware extends ExternalSystemUnlinkedProjectAware {
       SbtUnlinkedProjectAwareHelper.isLinkedProject(project, externalProjectPath)
   }
 
-  override def linkAndLoadProjectAsync(project: Project, externalProjectPath: String, $completion: Continuation[_ >: kotlin.Unit]): AnyRef =
+  override def linkAndLoadProjectAsync(project: Project, externalProjectPath: String, $completion: Continuation[? >: kotlin.Unit]): AnyRef =
     new SbtOpenProjectProvider().linkToExistingProjectAsync(externalProjectPath, project, $completion)
 
   override def subscribe(project: Project,
@@ -37,7 +37,7 @@ class SbtUnlinkedProjectAware extends ExternalSystemUnlinkedProjectAware {
     settings.subscribe(new UnlinkedProjectAwareSettingsListener[SbtProjectSettings](listener), parentDisposable)
   }
 
-  override def unlinkProject(project: Project, s: String, continuation: Continuation[_ >: kotlin.Unit]): AnyRef =
+  override def unlinkProject(project: Project, s: String, continuation: Continuation[? >: kotlin.Unit]): AnyRef =
     JavaCoroutines.suspendJava[kotlin.Unit](cont => cont.resume(kotlin.Unit.INSTANCE), continuation)
 }
 

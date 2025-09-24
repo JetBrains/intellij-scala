@@ -41,9 +41,9 @@ final class SbtMavenPackageSearchDependencyCompletionContributor extends Complet
 
 final class SbtMavenPackageSearchDependencyCompletionProvider extends CompletionProvider[CompletionParameters] {
   override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, resultSet: CompletionResultSet): Unit = {
-    val place = positionFromParameters(parameters)
+    val place = positionFromParameters(using parameters)
     resultSet.restartCompletionOnAnyPrefixChange()
-    doAddCompletions(place)(parameters, resultSet)
+    doAddCompletions(place)(using parameters, resultSet)
   }
 
   private def doAddCompletions(positionFromParams: PsiElement)(implicit params: CompletionParameters, resultSet: CompletionResultSet): Unit = {
@@ -211,7 +211,7 @@ final class SbtMavenPackageSearchDependencyCompletionProvider extends Completion
         val sorter = CompletionSorter.emptySorter()
           .weigh(new RealPrefixMatchingWeigher)
           .weigh(DependencyVersionWeigher)
-        addAllAndStopIfInsideString(lookupElements)(resultSet.withRelevanceSorter(sorter), place)
+        addAllAndStopIfInsideString(lookupElements)(using resultSet.withRelevanceSorter(sorter), place)
       }
     }
 }
@@ -231,9 +231,9 @@ object SbtMavenPackageSearchDependencyCompletionProvider {
     }
   }
 
-  private[this] val CrossPublishedArtifact = "^(.+)_(\\d+.*)$".r
-  private[this] val Scala2MajorVersions = LatestScalaVersions.allScala2.map(_.major)
-  private[this] val ScalaMajorVersions = Scala2MajorVersions :+ "3"
+  private val CrossPublishedArtifact = "^(.+)_(\\d+.*)$".r
+  private val Scala2MajorVersions = LatestScalaVersions.allScala2.map(_.major)
+  private val ScalaMajorVersions = Scala2MajorVersions :+ "3"
 
   private def toLookupElement(pkg: ApiMavenPackage, marker: RangeMarker, withGroupId: Boolean, addEmptyVersion: Boolean): LookupElement = {
     val groupId = pkg.getGroupId
@@ -276,10 +276,10 @@ object SbtMavenPackageSearchDependencyCompletionProvider {
   }
 
   private def hasSuitableExpectedType(expr: ScExpression, fqns: String*): Boolean =
-    isSameOrInheritor(expr, fqns: _*)(_.expectedType())
+    isSameOrInheritor(expr, fqns*)(_.expectedType())
 
-  private def hasSuitableType(e: Typeable with PsiElement, fqns: String*): Boolean =
-    isSameOrInheritor(e, fqns: _*)(_.`type`().toOption)
+  private def hasSuitableType(e: Typeable & PsiElement, fqns: String*): Boolean =
+    isSameOrInheritor(e, fqns*)(_.`type`().toOption)
 
   private def isSameOrInheritor[E <: PsiElement](element: E, fqns: String*)(getType: E => Option[ScType]): Boolean =
     getType(element).exists {

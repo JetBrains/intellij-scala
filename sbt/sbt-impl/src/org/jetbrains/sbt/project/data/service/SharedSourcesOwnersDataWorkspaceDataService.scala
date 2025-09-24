@@ -22,7 +22,7 @@ class SharedSourcesOwnersDataWorkspaceDataService extends WorkspaceDataService[S
   override def getTargetDataKey: Key[SharedSourcesOwnersData] = SharedSourcesOwnersData.Key
 
   override def importData(
-    toImport: util.Collection[_ <: DataNode[SharedSourcesOwnersData]],
+    toImport: util.Collection[? <: DataNode[SharedSourcesOwnersData]],
     projectData: ProjectData,
     project: Project,
     mutableStorage: MutableEntityStorage

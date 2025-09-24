@@ -35,7 +35,7 @@ object SbtScalacOptionsCompletionContributor {
 
   private val completionProvider = new CompletionProvider[CompletionParameters] {
     override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, resultSet: CompletionResultSet): Unit = {
-      val place = positionFromParameters(parameters)
+      val place = positionFromParameters(using parameters)
       implicit val project: Project = place.getProject
 
       val cleanPrefix = place.getText
@@ -122,7 +122,7 @@ object SbtScalacOptionsCompletionContributor {
               context.getDocument.replaceString(startOffset, startOffset + option.getText.length, s"Seq(${option.getText})")
               context.commitDocument()
               val op = expr.operation.refName
-              expr.operation.replace(ScalaPsiElementFactory.createElementFromText(op.prepended(op.head), expr)(expr.projectContext))
+              expr.operation.replace(ScalaPsiElementFactory.createElementFromText(op.prepended(op.head), expr)(using expr.projectContext))
               PsiDocumentManager.getInstance(context.getProject).doPostponedOperationsAndUnblockDocument(context.getDocument)
               startOffset + 5 // '+' or '-' in operation + 'Seq('
             case _ =>

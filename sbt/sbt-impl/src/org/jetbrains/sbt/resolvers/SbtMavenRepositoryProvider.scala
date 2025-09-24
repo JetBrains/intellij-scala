@@ -11,7 +11,7 @@ import scala.jdk.CollectionConverters._
 final class SbtMavenRepositoryProvider extends MavenRepositoryProvider {
 
   override def getRemoteRepositories(project: Project): ju.Set[MavenRemoteRepository] =
-    SbtResolverUtils.projectResolvers(project).collect {
+    SbtResolverUtils.projectResolvers(using project).collect {
       case r: SbtMavenResolver =>
         new MavenRemoteRepository(
           r.name,

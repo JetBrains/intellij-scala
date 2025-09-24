@@ -54,7 +54,7 @@ abstract class SbtAnnotatorTestBase extends HeavyPlatformTestCase
   protected def runTest(sbtVersion: SbtVersion, expectedMessages: Seq[Message]): Unit = {
     setSbtVersion(sbtVersion)
     val actualMessages = annotate().asJava
-    UsefulTestCase.assertSameElements(actualMessages, expectedMessages: _*)
+    UsefulTestCase.assertSameElements(actualMessages, expectedMessages*)
   }
 
   protected def setSbtVersion(sbtVersion: SbtVersion): Unit = {

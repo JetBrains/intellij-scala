@@ -30,7 +30,7 @@ object UpdateScalacOptionsInfo {
 
       val options = artifactsWithLanguageLevel
         .flatMap { case (scalaArtifacts, languageLevel) =>
-          getScalacOptions(createClassLoaderWithArtifacts(scalaArtifacts), languageLevel)
+          getScalacOptions(using createClassLoaderWithArtifacts(scalaArtifacts), languageLevel)
         }
         // drop options that don't start with `-` if any
         .filter(_.flag.startsWith("-"))
@@ -106,7 +106,7 @@ object UpdateScalacOptionsInfo {
         case versionPattern(version) => version
       }
 
-  private def loadClass(name: String)(implicit classLoader: ClassLoader): Class[_] =
+  private def loadClass(name: String)(implicit classLoader: ClassLoader): Class[?] =
     Class.forName(name, true, classLoader)
 
   private def accessible(field: Field): Field = {
@@ -114,10 +114,10 @@ object UpdateScalacOptionsInfo {
     field
   }
 
-  private def declaredFieldByName(cls: Class[_], name: String): Field =
+  private def declaredFieldByName(cls: Class[?], name: String): Field =
     accessible(cls.getDeclaredField(name))
 
-  private def declaredFieldByType(cls: Class[_], tpe: Class[_]): Field = {
+  private def declaredFieldByType(cls: Class[?], tpe: Class[?]): Field = {
     val fields = cls.getDeclaredFields
     accessible(fields.find(field => tpe.isAssignableFrom(field.getType)).get)
   }
@@ -156,7 +156,7 @@ object UpdateScalacOptionsInfo {
   }
 
   private def getSecondElementOfTuple2(pair: Any)(implicit classLoader: ClassLoader): Any =
-    loadClass("scala.Tuple2")(classLoader)
+    loadClass("scala.Tuple2")(using classLoader)
       .getDeclaredField("_2")
       .get(pair)
 
@@ -370,13 +370,13 @@ object UpdateScalacOptionsInfo {
     val additionalMapping =
       Option.when(langLevel.isScala2 && langLevel > ScalaLanguageLevel.Scala_2_11)(getSecondElementOfTuple2(_))
 
-    def settingsInstanceByClass(settingsClass: Class[_]): Option[Any] =
+    def settingsInstanceByClass(settingsClass: Class[?]): Option[Any] =
       settingsClass.getDeclaredConstructors
         .sortBy(_.getParameterCount)
         .headOption
-        .map(constructor => constructor.newInstance(Seq.fill(constructor.getParameterCount)(null): _*))
+        .map(constructor => constructor.newInstance(Seq.fill(constructor.getParameterCount)(null)*))
 
-    def settingsInstanceByObject(settingsClass: Class[_]): Option[Any] = {
+    def settingsInstanceByObject(settingsClass: Class[?]): Option[Any] = {
       val objectClass = loadClass(settingsClass.getName + "$")
       Option(objectClass.getDeclaredField("MODULE$").get(null))
     }
@@ -402,7 +402,7 @@ object UpdateScalacOptionsInfo {
   }
 
   private def createClassLoaderWithArtifacts(scalaArtifacts: Seq[DependencyDescription]): ClassLoader = {
-    val compilerClasspath = DependencyManager.resolve(scalaArtifacts: _*)
+    val compilerClasspath = DependencyManager.resolve(scalaArtifacts*)
       .map(_.file.toUri.toURL)
       .toArray
 

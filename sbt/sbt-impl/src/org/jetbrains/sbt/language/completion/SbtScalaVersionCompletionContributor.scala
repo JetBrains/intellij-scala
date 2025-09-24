@@ -22,7 +22,7 @@ import org.jetbrains.sbt.language.completion.SbtScalaVersionCompletionContributo
 import scala.jdk.CollectionConverters._
 
 private abstract class SbtScalaVersionCompletionContributor extends CompletionContributor {
-  protected def pattern: ElementPattern[_ <: PsiElement]
+  protected def pattern: ElementPattern[? <: PsiElement]
 
   protected def provider: SbtScalaVersionCompletionProvider
 
@@ -34,7 +34,7 @@ private object SbtScalaVersionCompletionContributor {
     protected def getVersionsByLang(lang: Language, onlyStableVersions: Boolean): Seq[ComparableVersion]
 
     override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet): Unit = {
-      val place = positionFromParameters(parameters)
+      val place = positionFromParameters(using parameters)
       val versions = getVersionsByLang(place.getLanguage, onlyStableVersions = !parameters.isExtendedCompletion)
       val sorter = CompletionSorter
         .emptySorter()
@@ -60,7 +60,7 @@ private object SbtScalaVersionCompletionContributor {
 }
 
 private class ScalaVersionCompletionContributor extends SbtScalaVersionCompletionContributor with DumbAware {
-  override protected def pattern: ElementPattern[_ <: PsiElement] =
+  override protected def pattern: ElementPattern[? <: PsiElement] =
     (SbtPsiElementPatterns.sbtFilePattern || SbtPsiElementPatterns.scalaFilePattern) &&
       psiElement().inside(SbtPsiElementPatterns.versionPattern)
 

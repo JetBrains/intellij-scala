@@ -4,15 +4,16 @@ package project.structure
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.execution.ParametersListUtil
 import com.intellij.util.text.EditDistance
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.build.BuildReporter
 import org.jetbrains.plugins.scala.extensions.RichFile
-import org.jetbrains.sbt.project.structure.SbtOption._
+import org.jetbrains.sbt.project.structure.SbtOption.*
 
 import java.io.File
 import scala.annotation.tailrec
 import scala.collection.immutable.ListMap
 import scala.collection.mutable.ListBuffer
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.util.Try
 
 /**
@@ -92,7 +93,7 @@ object SbtOpts {
     }.getOrElse(Seq.empty)
   }
 
-  def mapOptionsToSbtOptions(opts: Seq[String], projectPath: String)(implicit reporter: BuildReporter): Seq[SbtOption] = {
+  def mapOptionsToSbtOptions(opts: Seq[String], projectPath: String)(implicit @Nullable reporter: BuildReporter): Seq[SbtOption] = {
     val unrecognizedOpts = ListBuffer[(String, Option[String])]()
     val sbtOpts = opts.flatMap { opt =>
       if (sbtToLauncherOpts.contains(opt))

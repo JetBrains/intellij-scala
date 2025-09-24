@@ -3,8 +3,8 @@ package org.jetbrains.sbt.project
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.externalSystem.model.project.{ProjectData => ESProjectData, _}
-import com.intellij.openapi.externalSystem.model.task.event.{Failure => ESFailure, _}
+import com.intellij.openapi.externalSystem.model.project.{ProjectData as ESProjectData, *}
+import com.intellij.openapi.externalSystem.model.task.event.{Failure as ESFailure, *}
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListener}
 import com.intellij.openapi.externalSystem.model.{DataNode, ExternalSystemException}
 import com.intellij.openapi.externalSystem.service.project.ExternalSystemProjectResolver
@@ -16,25 +16,25 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.registry.RegistryManager
 import com.intellij.util.SystemProperties
 import org.jetbrains.annotations.{ApiStatus, NonNls, Nullable, TestOnly}
-import org.jetbrains.plugins.scala._
-import org.jetbrains.plugins.scala.build._
+import org.jetbrains.plugins.scala.*
+import org.jetbrains.plugins.scala.build.*
 import org.jetbrains.plugins.scala.compiler.data.CompileOrder
 import org.jetbrains.plugins.scala.extensions.{PathExt, RichFile}
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.project.external.{JdkByHome, JdkByName, SdkReference}
 import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
-import org.jetbrains.sbt.SbtUtil._
-import org.jetbrains.sbt.project.SbtProjectResolver._
+import org.jetbrains.sbt.SbtUtil.*
+import org.jetbrains.sbt.project.SbtProjectResolver.*
 import org.jetbrains.sbt.project.SourceSetType.SourceSetType
-import org.jetbrains.sbt.project.data._
+import org.jetbrains.sbt.project.data.*
 import org.jetbrains.sbt.project.module.SbtModuleType
-import org.jetbrains.sbt.project.settings._
+import org.jetbrains.sbt.project.settings.*
+import org.jetbrains.sbt.project.structure.*
 import org.jetbrains.sbt.project.structure.SbtStructureDump.PrintProcessOutputOnFailurePropertyName
-import org.jetbrains.sbt.project.structure._
 import org.jetbrains.sbt.resolvers.{SbtIvyResolver, SbtMavenResolver, SbtResolver}
-import org.jetbrains.sbt.structure.XmlSerializer._
-import org.jetbrains.sbt.structure.{BuildData, CompilerOptions, Configuration, ConfigurationData, Dependencies, DependencyData, DirectoryData, JarDependencyData, JavaData, ModuleDependencyData, ModuleIdentifier, ProjectData, ProjectDependencyData, ScalaData}
-import org.jetbrains.sbt.{RichBoolean, Sbt, SbtBundle, SbtUtil, SbtVersion, usingTempFile, structure => sbtStructure}
+import org.jetbrains.sbt.structure.XmlSerializer.*
+import org.jetbrains.sbt.structure.{BuildData, CompilerOptions, Configuration, ConfigurationData, Dependencies, DependencyData, DirectoryData, JarDependencyData, JavaData, ModuleDependencyData, ModuleIdentifier, ProjectData, ProjectDependencyData, ScalaData, structureDataSerializer}
+import org.jetbrains.sbt.{RichBoolean, Sbt, SbtBundle, SbtUtil, SbtVersion, usingTempFile, structure as sbtStructure}
 
 import java.io.{File, FileNotFoundException}
 import java.net.URI
@@ -886,7 +886,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val pathComponents = projectRootDirectory :+ relativePath
 
     val defaultModuleFilesDir = getDefaultModuleFilesDirectory(projectRoot)
-    Path.of(defaultModuleFilesDir, pathComponents: _*).toCanonicalPath.toString
+    Path.of(defaultModuleFilesDir, pathComponents*).toCanonicalPath.toString
   }
 
   private def createModuleWithAllRequiredDataForSeparateProdAndTestSources(
@@ -1061,7 +1061,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     moduleNode: ModuleDataNodeType,
     moduleType: ModuleType,
     displayName: String,
-    projectDependencies: Seq[_]
+    projectDependencies: Seq[?]
   )(implicit context: ImportContext): Unit = {
     moduleNode.add(new SbtDisplayModuleNameNode(displayName))
 
@@ -1241,9 +1241,9 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
    * as these are all components that should be placed before library dependencies.
    */
   protected def calculateLibraryDepsOffsetMainTestModules(
-    unmanagedDependencies: Seq[_],
-    unmanagedSourcesAndDocsLibrary: Option[_],
-    projectDependencies: Seq[_]
+    unmanagedDependencies: Seq[?],
+    unmanagedSourcesAndDocsLibrary: Option[?],
+    projectDependencies: Seq[?]
   ): Int =
     unmanagedDependencies.size + unmanagedSourcesAndDocsLibrary.size + projectDependencies.size + 1
 

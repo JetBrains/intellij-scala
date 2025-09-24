@@ -23,7 +23,7 @@ class SeparateMainTestModulesDisabledFeedbackDialog(project: Project, forTest: B
   private lazy val mySystemInfoData: CommonFeedbackSystemData =
     FeedbackAPICompanionProxy.currentData
 
-  override protected def computeSystemInfoData(cont: Continuation[_ >: CommonFeedbackSystemData]): AnyRef =
+  override protected def computeSystemInfoData(cont: Continuation[? >: CommonFeedbackSystemData]): AnyRef =
     JavaCoroutines.suspendJava[CommonFeedbackSystemData](continuation => {
       continuation.resume(mySystemInfoData)
     }, cont)

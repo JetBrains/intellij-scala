@@ -21,7 +21,7 @@ object SbtPsiElementPatterns {
     psiFile.withFileType(instanceOf(SbtFileType.getClass))
   }
 
-  def scalaFilePattern: Capture[PsiElement] = inBuildModule and psiElement.inFile {
+  def scalaFilePattern: Capture[PsiElement] = inBuildModule `and` psiElement.inFile {
     psiFile.withFileType(instanceOf(classOf[ScalaFileType]))
   }
 

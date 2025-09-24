@@ -81,7 +81,7 @@ object SbtMigrateConfigurationsAction {
     }
   }
 
-  type ModuleConfiguration = ModuleBasedConfiguration[_ <: RunConfigurationModule, _]
+  type ModuleConfiguration = ModuleBasedConfiguration[? <: RunConfigurationModule, ?]
 
   /**
    * @param module single suitable module for configuration identified using heuristic from [[org.jetbrains.sbt.project.SbtMigrateConfigurationsAction#mapConfigurationToHeuristicResult]]
@@ -96,7 +96,7 @@ object SbtMigrateConfigurationsAction {
   case class ConfigDetails(isTest: Boolean, oldModuleName: String, mainClassName: Option[String])
 
   object ConfigDetails {
-    def apply(config: ModuleBasedConfiguration[_, _], oldModuleName: String): ConfigDetails = {
+    def apply(config: ModuleBasedConfiguration[?, ?], oldModuleName: String): ConfigDetails = {
       val isTestConfig = ModuleBasedConfigurationDetailsExtractor.isTestConfiguration(config)
       val mainClass = extractMainClassName(config)
 
@@ -146,7 +146,7 @@ object SbtMigrateConfigurationsAction {
     moduleName.endsWith(".main") || moduleName.endsWith(".test")
 
   private def isConfigurationInvalid(
-    config: ModuleBasedConfiguration[_, _],
+    config: ModuleBasedConfiguration[?, ?],
     @Nullable configurationModule: Module,
     oldModuleName: String,
     project: Project,
@@ -185,7 +185,7 @@ object SbtMigrateConfigurationsAction {
    * In that case, the configuration that had a module called X will still have it, but it will no longer be the same module as the original one and
    * some main class may no longer exist inside it.
    */
-  private def isMainClassAbsentInConfigurationModule(config: ModuleBasedConfiguration[_, _], project: Project): Boolean = {
+  private def isMainClassAbsentInConfigurationModule(config: ModuleBasedConfiguration[?, ?], project: Project): Boolean = {
     val mainClassNameOpt = extractMainClassName(config)
     val javaRunConfigurationModuleOpt = extractJavaRunConfigurationModule(config)
 
@@ -204,7 +204,7 @@ object SbtMigrateConfigurationsAction {
    * @param modules include only classpath provider modules (it doesn't contain shared sources or build modules)
    */
   private def mapConfigurationToHeuristicResult(
-    config: ModuleBasedConfiguration[_, _],
+    config: ModuleBasedConfiguration[?, ?],
     oldModuleName: String,
     modules: Seq[Module],
     project: Project,
@@ -335,12 +335,12 @@ object SbtMigrateConfigurationsAction {
   private def runSmartReadAction[T](project: Project)(action: => T): T =
     BuildersKt.runBlocking(
       Dispatchers.getDefault,
-      (_, cont: Continuation[_ >: T]) => CoroutinesKt.smartReadAction(project, () => action, cont)
+      (_, cont: Continuation[? >: T]) => CoroutinesKt.smartReadAction(project, () => action, cont)
     )
 
   private def findAllPsiElementsForMainClassInScope(project: Project, mainClassName: String, scope: GlobalSearchScope): Seq[PsiElement] = {
     val javaPsiFacadeElements = JavaPsiFacade.getInstance(project).findClasses(mainClassName, scope).toSeq
-    val scala3MainElements = ScalaIndexKeys.ANNOTATED_MAIN_FUNCTION_BY_PKG_KEY.elements(mainClassName, scope)(project).toSeq
+    val scala3MainElements = ScalaIndexKeys.ANNOTATED_MAIN_FUNCTION_BY_PKG_KEY.elements(mainClassName, scope)(using project).toSeq
     javaPsiFacadeElements ++ scala3MainElements
   }
 
@@ -404,13 +404,13 @@ object SbtMigrateConfigurationsAction {
     }
   }
 
-  private def extractMainClassName(config: ModuleBasedConfiguration[_, _]): Option[String] =
+  private def extractMainClassName(config: ModuleBasedConfiguration[?, ?]): Option[String] =
     config match {
       case x: ApplicationConfiguration => Option(x.getMainClassName)
       case x: ModuleBasedConfiguration[_, _] => ModuleBasedConfigurationDetailsExtractor.getMainClass(x)
     }
 
-  private def extractJavaRunConfigurationModule(config: ModuleBasedConfiguration[_, _]): Option[JavaRunConfigurationModule] =
+  private def extractJavaRunConfigurationModule(config: ModuleBasedConfiguration[?, ?]): Option[JavaRunConfigurationModule] =
     config.getConfigurationModule match {
       case x: JavaRunConfigurationModule => Option(x)
       case _ => None

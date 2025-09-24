@@ -20,7 +20,7 @@ private final class SbtProjectImportStateNotificationProvider extends EditorNoti
   override def collectNotificationData(
     project: Project,
     file: VirtualFile
-  ): java.util.function.Function[_ >: FileEditor, _ <: JComponent] = {
+  ): java.util.function.Function[? >: FileEditor, ? <: JComponent] = {
     val psiFile = PsiManager.getInstance(project).findFile(file)
     val sbtFile = psiFile match {
       case f: SbtFile => f

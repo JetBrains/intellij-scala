@@ -15,7 +15,7 @@ import scala.jdk.CollectionConverters.CollectionHasAsScala
 class DisplayModuleNameDataService extends ScalaAbstractProjectDataService[DisplayModuleNameData, Module](DisplayModuleNameData.Key) {
 
   override def importData(
-    toImport: util.Collection[_ <: DataNode[DisplayModuleNameData]],
+    toImport: util.Collection[? <: DataNode[DisplayModuleNameData]],
     projectData: ProjectData,
     project: Project,
     modelsProvider: IdeModifiableModelsProvider

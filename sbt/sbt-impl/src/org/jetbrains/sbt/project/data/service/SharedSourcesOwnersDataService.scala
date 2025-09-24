@@ -19,7 +19,7 @@ import scala.jdk.CollectionConverters.CollectionHasAsScala
 class SharedSourcesOwnersDataService extends ScalaAbstractProjectDataService[SharedSourcesOwnersData, Module](SharedSourcesOwnersData.Key){
 
   override def importData(
-    toImport: util.Collection[_ <: DataNode[SharedSourcesOwnersData]],
+    toImport: util.Collection[? <: DataNode[SharedSourcesOwnersData]],
     projectData: ProjectData,
     project: Project,
     modelsProvider: IdeModifiableModelsProvider

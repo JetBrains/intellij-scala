@@ -34,7 +34,7 @@ class SbtExternalSystemManager
     val classpath = parameters.getClassPath
 
     classpath.add(jarWith[this.type].toFile)
-    classpath.add(jarWith[org.jetbrains.sbt.structure.XmlSerializer[_]].toFile)
+    classpath.add(jarWith[org.jetbrains.sbt.structure.XmlSerializer[?]].toFile)
     classpath.add(jarWith[scala.App].toFile)
     classpath.add(jarWith[scala.xml.Node].toFile)
 
@@ -47,9 +47,9 @@ class SbtExternalSystemManager
 
   override def getSystemId: ProjectSystemId = SbtProjectSystem.Id
 
-  override def getSettingsProvider: Function[Project, SbtSettings] = SbtSettings.getInstance _
+  override def getSettingsProvider: Function[Project, SbtSettings] = SbtSettings.getInstance
 
-  override def getLocalSettingsProvider: Function[Project, SbtLocalSettings] = SbtLocalSettings.getInstance _
+  override def getLocalSettingsProvider: Function[Project, SbtLocalSettings] = SbtLocalSettings.getInstance
 
   override def getExecutionSettingsProvider: Function[Pair[Project, String], SbtExecutionSettings] =
     tup => SbtExternalSystemManager.executionSettingsFor(tup.first, tup.second)

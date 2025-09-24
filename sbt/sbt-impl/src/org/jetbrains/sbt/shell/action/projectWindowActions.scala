@@ -18,18 +18,18 @@ abstract class SbtNodeAction[T <: SbtNamedKey](c: Class[T]) extends ExternalSyst
   @NonNls protected def buildCmd(@NonNls projectId: String, @NonNls key: String): String
 
   override def perform(project: Project, projectSystemId: ProjectSystemId, externalData: T, e: AnActionEvent): Unit = {
-     //noinspection ScalaUnusedSymbol (unused `n` is necessary for compile to succeed)
-     val projectScope = for {
-       selected <- ExternalSystemDataKeys.SELECTED_NODES.getData(e.getDataContext).asScala.headOption
-       groupNode <- Option(selected.getParent)
-       moduleNode@(_n: ModuleNode) <- Option(groupNode.getParent)
-       parentProjectNode <- Option(moduleNode.findParent(classOf[ProjectNode]))
-       rootProjectPath <- Option(parentProjectNode.getData).map(_.getLinkedExternalProjectPath)
-       esModuleData <- Option(moduleNode.getData)
-       sbtModuleData <- SbtUtil.getSbtModuleData(e.getProject, esModuleData.getId, rootProjectPath)
-     } yield {
-       SbtUtil.makeSbtProjectId(sbtModuleData)
-     }
+    //noinspection ScalaUnusedSymbol (unused `n` is necessary for compile to succeed)
+    val projectScope = for {
+      selected <- ExternalSystemDataKeys.SELECTED_NODES.getData(e.getDataContext).asScala.headOption
+      groupNode <- Option(selected.getParent)
+      case moduleNode@(_n: ModuleNode) <- Option(groupNode.getParent)
+      parentProjectNode <- Option(moduleNode.findParent(classOf[ProjectNode]))
+      rootProjectPath <- Option(parentProjectNode.getData).map(_.getLinkedExternalProjectPath)
+      esModuleData <- Option(moduleNode.getData)
+      sbtModuleData <- SbtUtil.getSbtModuleData(e.getProject, esModuleData.getId, rootProjectPath)
+    } yield {
+      SbtUtil.makeSbtProjectId(sbtModuleData)
+    }
 
     val comms = SbtShellCommunication.forProject(e.getProject)
     val projectPart = projectScope.getOrElse("")

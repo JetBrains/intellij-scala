@@ -19,10 +19,10 @@ object DslUtils {
    * Type-safe storage for attributes
    */
   class AttributeMap {
-    private var attributes = Map.empty[(Attribute[_], String), Any]
+    private var attributes = Map.empty[(Attribute[?], String), Any]
 
     // by default use ExactMatch or InexactMatch trait behaviour
-    private var matchTypeMap = Map.empty[Attribute[_], MatchType]
+    private var matchTypeMap = Map.empty[Attribute[?], MatchType]
 
     def get[T](attribute: Attribute[T])(implicit m: ClassTag[T]): Option[T] =
       attributes.get((attribute, m.toString)).map(_.asInstanceOf[T])
@@ -33,9 +33,9 @@ object DslUtils {
     def put[T](attribute: Attribute[T], value: T)(implicit m: ClassTag[T]): Unit =
       attributes = attributes + ((attribute, m.toString) -> value)
 
-    def setMatchType(attribute: Attribute[_], matchType: MatchType): Unit =
+    def setMatchType(attribute: Attribute[?], matchType: MatchType): Unit =
       matchTypeMap = matchTypeMap + ((attribute, matchType))
-    def getMatchType(attribute: Attribute[_]): Option[MatchType] =
+    def getMatchType(attribute: Attribute[?]): Option[MatchType] =
       matchTypeMap.get(attribute)
   }
 
@@ -63,7 +63,7 @@ object DslUtils {
     }
   }
 
-  class MatchTypeDef(attribute: Attribute[_], attributes: AttributeMap) {
+  class MatchTypeDef(attribute: Attribute[?], attributes: AttributeMap) {
     def exactMatch(): Unit = attributes.setMatchType(attribute, MatchType.Exact)
     def inexactMatch(): Unit = attributes.setMatchType(attribute, MatchType.Inexact)
   }

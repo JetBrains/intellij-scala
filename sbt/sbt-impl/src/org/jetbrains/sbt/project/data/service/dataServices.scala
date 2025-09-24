@@ -22,7 +22,7 @@ class SbtCommandDataService extends DefaultDataService[SbtCommandData, Module](S
  */
 abstract class DefaultDataService[E,I](key: Key[E]) extends ScalaAbstractProjectDataService[E,I](key) {
   override def importData(
-    toImport: util.Collection[_ <: DataNode[E]],
+    toImport: util.Collection[? <: DataNode[E]],
     projectData: ProjectData,
     project: Project,
     modelsProvider: IdeModifiableModelsProvider

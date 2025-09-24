@@ -4,12 +4,14 @@ import com.intellij.openapi.components.{PersistentStateComponent, State, Storage
 import com.intellij.openapi.module.Module
 import com.intellij.util.xmlb.XmlSerializerUtil
 
+import scala.compiletime.uninitialized
+
 @State(
   name = "DisplayModuleName",
   storages = Array(new Storage(StoragePathMacros.MODULE_FILE))
 )
 class DisplayModuleName extends PersistentStateComponent[DisplayModuleName] {
-  private var _name: String = _
+  private var _name: String = uninitialized
   def name: String = _name
 
   def setName(name: String): Unit =
