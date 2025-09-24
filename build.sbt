@@ -27,7 +27,7 @@ ThisBuild / resolvers := {
 //  Resolver.sonatypeOssRepos("snapshots") ++
 //  enable if you need to resolve Scala 2.12, 2.13 RC versions
   Seq(
-    "scala-integration" at "https://scala-ci.typesafe.com/artifactory/scala-integration/"
+    Resolver.scalaNightlyRepository
   ) ++
   Seq(
     "JetBrains Maven Central" at "https://cache-redirector.jetbrains.com/maven-central"
