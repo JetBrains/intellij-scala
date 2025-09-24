@@ -1,7 +1,6 @@
 package org.jetbrains.sbt.project.template.wizard
 
 import com.intellij.util.lang.JavaVersion
-import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.SbtVersion
 
 import scala.math.Ordered.orderingToOrdered

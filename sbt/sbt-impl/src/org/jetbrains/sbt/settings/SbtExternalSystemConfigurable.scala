@@ -55,7 +55,7 @@ class SbtExternalSystemConfigurable(project: Project)
   private def getSbtSettingsForDefaultProject(project: Project): SbtSettings = {
     assert(project.isDefault)
     val manager = ExternalSystemApiUtil.getManager(SbtProjectSystem.Id)
-      .asInstanceOf[ExternalSystemManager[SbtProjectSettings, _, SbtSettings, _, _]]
+      .asInstanceOf[ExternalSystemManager[SbtProjectSettings, SbtProjectSettingsListener, SbtSettings, _, _]]
     manager.getSettingsProvider.fun(project)
   }
 }

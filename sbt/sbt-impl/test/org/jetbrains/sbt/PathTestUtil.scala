@@ -12,5 +12,5 @@ private object PathTestUtil {
     Files.deleteIfExists(path)
   }
 
-  implicit val tempPathReleasable: Using.Releasable[Path] = deleteRecursively
+  implicit val tempPathReleasable: Using.Releasable[Path] = deleteRecursively _
 }

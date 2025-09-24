@@ -388,8 +388,10 @@ lazy val sbtImpl =
       scalaImpl % "test->test;compile->compile",
     )
     .settings(
+      scalaVersion := Versions.scala3Version,
+      Compile / scalacOptions := globalScala3ScalacOptions :+ "-source:3.0-migration",
       intellijPlugins += "org.jetbrains.idea.maven".toPlugin,
-      libraryDependencies += Dependencies.sbtStructureCore
+      libraryDependencies += Dependencies.sbtStructureCore.cross(CrossVersion.for3Use2_13),
     )
 
 lazy val sbtProjectImportingTests =
@@ -763,6 +765,8 @@ lazy val gradleIntegration =
       compilerIntegration % "test->test;compile->compile"
     )
     .settings(
+      scalaVersion := Versions.scala3Version,
+      Compile / scalacOptions := globalScala3ScalacOptions,
       intellijPlugins ++= Seq(
         "com.intellij.gradle",     // required by Android
         "org.intellij.groovy",     // required by Gradle

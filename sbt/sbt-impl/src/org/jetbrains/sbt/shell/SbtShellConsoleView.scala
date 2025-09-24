@@ -172,7 +172,7 @@ object SbtShellConsoleView {
         val focusManager = IdeFocusManager.getInstance(cv.getProject)
         val focusComponent = cv.getConsoleEditor.getContentComponent
         focusManager.doWhenFocusSettlesDown { () =>
-          focusManager.requestFocus(focusComponent, false)
+          focusManager.requestFocus(focusComponent, false): Unit
         }: @nowarn("cat=deprecation")
       }
     }

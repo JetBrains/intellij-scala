@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.project.external.SdkReference
 
 import java.net.URI
 import scala.language.implicitConversions
+import scala.reflect.ClassTag
 
 /**
  * See also [[org.jetbrains.sbt.project.data.service.ExternalSystemDataDsl]]
@@ -74,20 +75,20 @@ object ProjectStructureDsl {
     type SelfAttribute[T] <: Attribute[T]
     type SelfSeqAttribute[T] <: Attribute[Seq[T]]
 
-    implicit def defineAttribute[T : Manifest](attribute: SelfAttribute[T]): AttributeDef[T] =
+    implicit def defineAttribute[T : ClassTag](attribute: SelfAttribute[T]): AttributeDef[T] =
       new AttributeDef(attribute, attributes)
-    implicit def defineAttributeSeq[T](attribute: SelfSeqAttribute[T])(implicit m: Manifest[Seq[T]]): AttributeSeqDef[T] =
+    implicit def defineAttributeSeq[T](attribute: SelfSeqAttribute[T])(implicit m: ClassTag[Seq[T]]): AttributeSeqDef[T] =
       new AttributeSeqDef(attribute, attributes)
 
-    def foreach[T : Manifest](attribute: Attribute[T])(body: T => Option[MatchType] => Unit): Unit =
-      attributes.get(attribute).foreach { attributeValue: T =>
+    def foreach[T : ClassTag](attribute: Attribute[T])(body: T => Option[MatchType] => Unit): Unit =
+      attributes.get(attribute).foreach { (attributeValue: T) =>
         body(attributeValue)(attributes.getMatchType(attribute))
       }
 
-    def foreach0[T : Manifest](attribute: Attribute[T])(body: T => Unit): Unit =
+    def foreach0[T : ClassTag](attribute: Attribute[T])(body: T => Unit): Unit =
       attributes.get(attribute).foreach(body)
 
-    def get[T: Manifest](attribute: Attribute[T]): Option[T] =
+    def get[T: ClassTag](attribute: Attribute[T]): Option[T] =
       attributes.get(attribute)
 
      implicit def matchTypeDef(attribute: Attribute[_]): MatchTypeDef =

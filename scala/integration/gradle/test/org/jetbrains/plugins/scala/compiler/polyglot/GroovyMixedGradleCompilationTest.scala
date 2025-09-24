@@ -21,18 +21,19 @@ import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 import org.junit.experimental.categories.Category
 
-import scala.jdk.CollectionConverters._
+import scala.compiletime.uninitialized
+import scala.jdk.CollectionConverters.*
 
 @Category(Array(classOf[CompilationTests_Zinc]))
 class GroovyMixedGradleCompilationTest extends ExternalSystemImportingTestCase {
 
-  private var gradleSdk: Sdk = _
+  private var gradleSdk: Sdk = uninitialized
 
-  private var sdk: Sdk = _
+  private var sdk: Sdk = uninitialized
 
-  private var compiler: CompilerTester = _
+  private var compiler: CompilerTester = uninitialized
 
-  private var mainModule: Module = _
+  private var mainModule: Module = uninitialized
 
   override lazy val getCurrentExternalProjectSettings: GradleProjectSettings = {
     val settings = new GradleProjectSettings().withQualifiedModuleNames()
@@ -143,7 +144,7 @@ class GroovyMixedGradleCompilationTest extends ExternalSystemImportingTestCase {
 
     mainModule = modules.find(_.getName == "groovy-mixed.main").orNull
     assertNotNull("Could not find module with name 'groovy-mixed.main'", mainModule)
-    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
+    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules*), null, false)
   }
 
   override def tearDown(): Unit = try {

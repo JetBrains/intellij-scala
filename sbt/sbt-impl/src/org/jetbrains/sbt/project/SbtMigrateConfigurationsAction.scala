@@ -408,7 +408,6 @@ object SbtMigrateConfigurationsAction {
     config match {
       case x: ApplicationConfiguration => Option(x.getMainClassName)
       case x: ModuleBasedConfiguration[_, _] => ModuleBasedConfigurationDetailsExtractor.getMainClass(x)
-      case _ => None
     }
 
   private def extractJavaRunConfigurationModule(config: ModuleBasedConfiguration[_, _]): Option[JavaRunConfigurationModule] =

@@ -31,7 +31,7 @@ class BuildFileChangeBrowser(
                 fileChangesMap.put(changeSwapped.getVirtualFile, (newStatus, newModificationStamp))
                 BuildFileChange.swap(new BuildFileChange(changeSwapped.getBeforeRevision, changeSwapped.getAfterRevision, newStatus))
               } else myChange
-            case _ => myChange
+            case null => myChange
           }.getOrElse(myChange)
         }
       }.asJava

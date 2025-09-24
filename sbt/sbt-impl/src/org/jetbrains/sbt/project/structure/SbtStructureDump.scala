@@ -6,7 +6,6 @@ import com.intellij.execution.configurations.GeneralCommandLine.ParentEnvironmen
 import com.intellij.execution.process.OSProcessHandler
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.externalSystem.model.ExternalSystemException
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.SystemInfo
@@ -17,9 +16,8 @@ import org.jetbrains.plugins.scala.extensions.LoggerExt
 import org.jetbrains.sbt.SbtUtil.normalizePath
 import org.jetbrains.sbt.actions.GenerateManagedSourcesReporter
 import org.jetbrains.sbt.project.SbtProjectResolver.ImportCancelledException
-import org.jetbrains.sbt.project.structure.SbtOption._
-import org.jetbrains.sbt.project.structure.SbtStructureDump._
-import org.jetbrains.sbt.shell.SbtShellCommunication._
+import org.jetbrains.sbt.project.structure.SbtOption.*
+import org.jetbrains.sbt.project.structure.SbtStructureDump.*
 import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication}
 import org.jetbrains.sbt.{SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabilities}
 
@@ -31,7 +29,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import scala.collection.mutable
 import scala.concurrent.Future
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.util.{Failure, Success, Try, Using}
 
 class SbtStructureDump {

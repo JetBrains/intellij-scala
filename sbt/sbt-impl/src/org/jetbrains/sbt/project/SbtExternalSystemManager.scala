@@ -5,7 +5,7 @@ import com.intellij.execution.configurations.SimpleJavaParameters
 import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.model.{ExternalSystemException, ProjectSystemId}
-import com.intellij.openapi.externalSystem.util._
+import com.intellij.openapi.externalSystem.util.*
 import com.intellij.openapi.externalSystem.{ExternalSystemConfigurableAware, ExternalSystemManager}
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.Project
@@ -19,7 +19,7 @@ import org.jetbrains.jps.model.java.JdkVersionDetector
 import org.jetbrains.plugins.scala.extensions.{RichFile, invokeAndWait}
 import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.SbtUtil.{detectSbtVersion, getDefaultLauncher}
-import org.jetbrains.sbt.project.settings._
+import org.jetbrains.sbt.project.settings.*
 import org.jetbrains.sbt.project.structure.SbtOpts
 import org.jetbrains.sbt.settings.{SbtExternalSystemConfigurable, SbtSettings}
 
@@ -52,7 +52,7 @@ class SbtExternalSystemManager
   override def getLocalSettingsProvider: Function[Project, SbtLocalSettings] = SbtLocalSettings.getInstance _
 
   override def getExecutionSettingsProvider: Function[Pair[Project, String], SbtExecutionSettings] =
-    SbtExternalSystemManager.executionSettingsFor _
+    tup => SbtExternalSystemManager.executionSettingsFor(tup.first, tup.second)
 
   override def getProjectResolverClass: Class[SbtProjectResolver] = classOf[SbtProjectResolver]
 
@@ -73,7 +73,7 @@ object SbtExternalSystemManager {
   }
 
   def executionSettingsFor(project: Project, path: String): SbtExecutionSettings = {
-    import scala.jdk.CollectionConverters._
+    import scala.jdk.CollectionConverters.*
 
     val settings = SbtSettings.getInstance(project)
     val settingsState = settings.getState
@@ -220,7 +220,7 @@ object SbtExternalSystemManager {
   }
 
   def getVmOptions(givenOptions: Seq[String], jreHome: Option[File]): Seq[String] = {
-    import DefaultOptions._
+    import DefaultOptions.*
     val ideaProxyOptions = proxyOptions { optName => !givenOptions.exists(_.startsWith(optName)) }
 
     val allOptions = ideaProxyOptions ++ givenOptions

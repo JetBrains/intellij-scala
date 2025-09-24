@@ -21,7 +21,7 @@ trait ScalaVersionStepLike extends IndentationSyntaxStepLike with AsynchronousVe
 
   protected def selections: ScalaModuleBuilderSelections
 
-  protected val defaultAvailableScalaVersions: Seq[String]
+  protected def defaultAvailableScalaVersions: Seq[String]
 
   private val isScalaVersionManuallySelected: AtomicBoolean = new AtomicBoolean(false)
 

@@ -1101,7 +1101,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   private def addAllRequiredDataToParentModuleNode(
     projectData: ProjectData,
     moduleNode: ModuleDataNodeType,
-  )(implicit context: ImportContext): Unit = {
+  ): Unit = {
     moduleNode.add(new SbtDisplayModuleNameNode(moduleNode.getModuleName))
     moduleNode.add(new SbtModuleNode(SbtModuleData(projectData.id, projectData.buildURI, projectData.base)))
     addSbtRelatedData(projectData, moduleNode)
@@ -1439,9 +1439,9 @@ object SbtProjectResolver {
 
   private sealed trait ModuleType
   private sealed trait NewModuleType extends ModuleType
-  private final case object LegacyModuleType extends ModuleType
-  private final case object ProdModuleType extends NewModuleType
-  private final case object TestModuleType extends NewModuleType
+  private case object LegacyModuleType extends ModuleType
+  private case object ProdModuleType extends NewModuleType
+  private case object TestModuleType extends NewModuleType
 
   /**
    * Contains some options that are actual and unchanged for the whole import process, for all modules

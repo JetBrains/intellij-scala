@@ -48,7 +48,7 @@ private object SbtExternalSystemUtil {
     val extensionDisposable = createExtensionDisposable(ExternalSystemUnlinkedProjectAwareProxy.companion().getEP_NAME, extension, project)
     val scope = coroutineScope(project)
     launch(scope, extensionDisposable, EmptyCoroutineContext.INSTANCE, CoroutineStart.DEFAULT, (_, cont1) => {
-      trackActivity(project, ExternalSystemActivityKey.INSTANCE, cont2 => {
+      trackActivity[kotlin.Unit](project, ExternalSystemActivityKey.INSTANCE, cont2 => {
         extension.linkAndLoadProjectAsync(project, externalProjectPath, cont2)
       }, cont1)
     })

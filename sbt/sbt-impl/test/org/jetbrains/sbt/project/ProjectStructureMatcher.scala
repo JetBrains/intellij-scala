@@ -97,7 +97,7 @@ trait ProjectStructureMatcher {
     }
   }
 
-  private implicit def namedImplicit[T <: Named]: HasName[T] =
+  private implicit def namedImplicit: HasName[Named] =
     (named: Named) => named.name
 
   private implicit val ideaModuleNameImplicit: HasName[Module] =
@@ -394,8 +394,8 @@ trait ProjectStructureMatcher {
       validateFirstDependencyInTestModule(module, actualModuleEntries)
     }
     val assertNamesMethod : (String, Seq[Named], Seq[Module]) => Option[MatchType] => Unit =
-      if (compareContext.options.checkProjectDependenciesOrder) assertNamesEqual
-      else assertNamesEqualIgnoreOrder
+      if (compareContext.options.checkProjectDependenciesOrder) assertNamesEqual[Module]
+      else assertNamesEqualIgnoreOrder[Module]
 
     assertNamesMethod(s"Module dependency of module `${module.getName}`", expected.map(_.reference), actualModuleEntries.map(_.getModule))(mt)
     val paired = pairModules(expected, actualModuleEntries)
@@ -429,8 +429,8 @@ trait ProjectStructureMatcher {
                                             (implicit compareContext: ProjectStructureComparisonContext): Unit = {
     val actualLibraryEntries = roots.OrderEnumerator.orderEntries(module).libraryEntries
     val assertNamesMethod : (String, Seq[Named], Seq[Library]) => Option[MatchType] => Unit =
-      if (compareContext.options.checkLibraryDependenciesOrder) assertNamesEqual
-      else assertNamesEqualIgnoreOrder
+      if (compareContext.options.checkLibraryDependenciesOrder) assertNamesEqual[Library]
+      else assertNamesEqualIgnoreOrder[Library]
 
     assertNamesMethod(s"Library dependency of module `${module.getName}`", expected.map(_.reference), actualLibraryEntries.map(_.getLibrary))(mt)
 
@@ -645,7 +645,7 @@ object ProjectStructureMatcher {
       entries.collect { case e : roots.LibraryOrderEntry => e }
   }
 
-  trait HasName[T] {
+  trait HasName[-T] {
     def apply(obj: T): String
   }
 

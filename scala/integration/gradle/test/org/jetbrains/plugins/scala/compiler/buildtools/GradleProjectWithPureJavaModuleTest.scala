@@ -21,15 +21,16 @@ import org.jetbrains.plugins.scala.{CompilationTests_IDEA, CompilationTests_Zinc
 import org.junit.Assert.{assertNotNull, assertTrue}
 import org.junit.experimental.categories.Category
 
-import scala.jdk.CollectionConverters._
+import scala.compiletime.uninitialized
+import scala.jdk.CollectionConverters.*
 
 abstract class GradleProjectWithPureJavaModuleTestBase(incrementality: IncrementalityType) extends ExternalSystemImportingTestCase {
 
-  private var gradleSdk: Sdk = _
+  private var gradleSdk: Sdk = uninitialized
 
-  private var sdk: Sdk = _
+  private var sdk: Sdk = uninitialized
 
-  private var compiler: CompilerTester = _
+  private var compiler: CompilerTester = uninitialized
 
   override lazy val getCurrentExternalProjectSettings: GradleProjectSettings = {
     val settings = new GradleProjectSettings().withQualifiedModuleNames()
@@ -129,7 +130,7 @@ abstract class GradleProjectWithPureJavaModuleTestBase(incrementality: Increment
 
     val modules = ModuleManager.getInstance(getMyProject).getModules
     modules.foreach(ModuleRootModificationUtil.setModuleSdk(_, sdk))
-    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
+    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules*), null, false)
 
     val messages = compiler.make()
     val errorsAndWarnings = messages.asScala.filter { message =>

@@ -4,10 +4,9 @@ import com.intellij.openapi.fileTypes.LanguageFileType
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 import org.jetbrains.plugins.scala.packagesearch.api.PackageSearchClientTesting
 import org.jetbrains.plugins.scala.packagesearch.util.DependencyUtil
-import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.codeInspection.SbtDependencyVersionInspection
 import org.jetbrains.sbt.language.SbtFileType
-import org.jetbrains.sbt.{MockSbtBuildModule, MockSbt_1_0, Sbt, SbtBundle, SbtHighlightingUtil, SbtVersion}
+import org.jetbrains.sbt.{MockSbtBuildModule, MockSbt_1_0, SbtBundle, SbtHighlightingUtil}
 
 class SbtDependencyVersionInspectionTest
   extends ScalaInspectionTestBase

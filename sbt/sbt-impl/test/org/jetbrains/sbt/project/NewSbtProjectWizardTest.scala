@@ -42,7 +42,7 @@ class NewSbtProjectWizardTest extends NewScalaProjectWizardTestBase with ExactMa
 
       lazy val mainModule = new module(s"$projectName.main") {
         libraryDependencies := scalaLibraries
-        sources := Seq("scala")
+        ProjectStructureDsl.sources := Seq("scala")
       }
 
       lazy val testModule = new module(s"$projectName.test") {
@@ -63,7 +63,7 @@ class NewSbtProjectWizardTest extends NewScalaProjectWizardTestBase with ExactMa
         new module(s"$projectName.$projectName-build") {
           // TODO: why `-build` module contains empty string? in UI the `project` folder is marked as `sources`.
           //  Is it some implicit IntelliJ behaviour?
-          sources := Seq("")
+          ProjectStructureDsl.sources := Seq("")
           excluded := Seq("project/target", "target")
         }
       )

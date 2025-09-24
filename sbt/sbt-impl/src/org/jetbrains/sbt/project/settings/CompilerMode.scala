@@ -8,8 +8,8 @@ import com.intellij.openapi.project.Project
 sealed trait CompilerMode
 
 object CompilerMode {
-  final case object JPS extends CompilerMode
-  final case object SBT extends CompilerMode
+  case object JPS extends CompilerMode
+  case object SBT extends CompilerMode
 
   def forProject(project: Project): CompilerMode = {
     val sbtSettings  = SbtProjectSettings.forProject(project)

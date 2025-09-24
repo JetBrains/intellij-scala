@@ -22,7 +22,7 @@ final class ScalaGradleProjectResolverExtension extends AbstractProjectResolverE
     nextResolver.populateModuleExtraModels(gradleModule, ideModule)
   }
 
-  override def getExtraProjectModelClasses: util.Set[Class[_]] = Collections.singleton(classOf[ScalaModel])
+  override def getExtraProjectModelClasses: util.Set[Class[?]] = Collections.singleton(classOf[ScalaModel])
 
   private def dataOf(model: ScalaModel): ScalaModelData = {
     val data = new ScalaModelData(GradleConstants.SYSTEM_ID);
@@ -35,7 +35,7 @@ final class ScalaGradleProjectResolverExtension extends AbstractProjectResolverE
     data
   }
 
-  private[this] def dataOf(options: ScalaCompileOptions): ScalaCompileOptionsData = {
+  private def dataOf(options: ScalaCompileOptions): ScalaCompileOptionsData = {
     val data = new ScalaCompileOptionsData;
     data.setAdditionalParameters(options.getAdditionalParameters)
     data.setDaemonServer(options.getDaemonServer: @nowarn("cat=deprecation"))
@@ -57,7 +57,7 @@ final class ScalaGradleProjectResolverExtension extends AbstractProjectResolverE
     data
   }
 
-  private[this] def dataOf(options: ScalaForkOptions): ScalaCompileOptionsData.ScalaForkOptions = {
+  private def dataOf(options: ScalaForkOptions): ScalaCompileOptionsData.ScalaForkOptions = {
     val data = new ScalaCompileOptionsData.ScalaForkOptions;
     data.setJvmArgs(options.getJvmArgs)
     data.setMemoryInitialSize(options.getMemoryInitialSize)

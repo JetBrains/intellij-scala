@@ -10,16 +10,18 @@ import org.jetbrains.plugins.gradle.util.GradleConstants
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.project.{LibraryExExt, LibraryExt, ProjectExt}
-import org.jetbrains.plugins.scala.{SlowTests2, ScalaVersion}
+import org.jetbrains.plugins.scala.{ScalaVersion, SlowTests2}
 import org.junit.Assert.{assertEquals, assertNotNull}
 import org.junit.experimental.categories.Category
+
+import scala.compiletime.uninitialized
 
 @Category(Array(classOf[SlowTests2]))
 class ResolveCompilerBridgeTest extends ExternalSystemImportingTestCase {
 
   private val scalaVersion: String = ScalaVersion.Latest.Scala_3_LTS_RC.minor
 
-  private var sdk: Sdk = _
+  private var sdk: Sdk = uninitialized
 
   override lazy val getCurrentExternalProjectSettings: GradleProjectSettings = {
     val settings = new GradleProjectSettings().withQualifiedModuleNames()

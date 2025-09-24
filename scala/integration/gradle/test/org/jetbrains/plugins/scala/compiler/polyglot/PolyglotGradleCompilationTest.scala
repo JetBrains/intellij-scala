@@ -20,18 +20,20 @@ import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 import org.junit.experimental.categories.Category
 
+import scala.compiletime.uninitialized
+
 @Category(Array(classOf[CompilationTests_Zinc]))
 class PolyglotGradleCompilationTest extends ExternalSystemImportingTestCase {
 
-  private var gradleSdk: Sdk = _
+  private var gradleSdk: Sdk = uninitialized
 
-  private var sdk: Sdk = _
+  private var sdk: Sdk = uninitialized
 
-  private var compiler: CompilerTester = _
+  private var compiler: CompilerTester = uninitialized
 
-  private var module1: Module = _
+  private var module1: Module = uninitialized
 
-  private var module2: Module = _
+  private var module2: Module = uninitialized
 
   override lazy val getCurrentExternalProjectSettings: GradleProjectSettings = {
     val settings = new GradleProjectSettings().withQualifiedModuleNames()
@@ -131,7 +133,7 @@ class PolyglotGradleCompilationTest extends ExternalSystemImportingTestCase {
     assertNotNull("Could not find module with name 'polyglot-gradle.module1.main'", module1)
     module2 = modules.find(_.getName == "polyglot-gradle.module2.main").orNull
     assertNotNull("Could not find module with name 'polyglot-gradle.module2.main'", module2)
-    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
+    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules*), null, false)
   }
 
   override def tearDown(): Unit = try {

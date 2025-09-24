@@ -34,7 +34,7 @@ abstract class ScalaCompilerTestdataHighlightingTest
 
   protected def filesToHighlight: Seq[Path]
 
-  protected val reporter: HighlightingProgressReporter
+  protected def reporter: HighlightingProgressReporter
 
   protected def doTest(): Unit = {
     val allFiles = filesToHighlight

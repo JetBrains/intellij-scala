@@ -4,8 +4,8 @@ package project.settings
 import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
 import com.intellij.openapi.externalSystem.service.execution.ProgressExecutionMode
 import com.intellij.openapi.externalSystem.service.settings.AbstractExternalProjectSettingsControl
-import com.intellij.openapi.externalSystem.util.ExternalSystemUiUtil._
-import com.intellij.openapi.externalSystem.util.{ExternalSystemUiUtil, ExternalSystemUtil, PaintAwarePanel}
+import com.intellij.openapi.externalSystem.util.ExternalSystemUiUtil.*
+import com.intellij.openapi.externalSystem.util.{ExternalSystemUtil, PaintAwarePanel}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable, SdkTypeId}
 import com.intellij.openapi.roots.ui.configuration.JdkComboBox
@@ -20,7 +20,7 @@ import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.survey.SeparateMainTestModulesDisabledFeedback
 
 import java.awt.{FlowLayout, GridBagConstraints}
-import javax.swing._
+import javax.swing.*
 
 /**
  * The settings UI is used it two places with slightly different UI:

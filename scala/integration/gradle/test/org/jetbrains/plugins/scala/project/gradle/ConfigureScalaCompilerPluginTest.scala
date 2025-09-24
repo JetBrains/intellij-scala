@@ -19,16 +19,17 @@ import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 import org.junit.Assert.{assertEquals, assertTrue}
 import org.junit.experimental.categories.Category
 
-import scala.jdk.CollectionConverters._
+import scala.compiletime.uninitialized
+import scala.jdk.CollectionConverters.*
 
 @Category(Array(classOf[SlowTests2]))
 class ConfigureScalaCompilerPluginTest extends ExternalSystemImportingTestCase {
 
-  private var sdk: Sdk = _
+  private var sdk: Sdk = uninitialized
 
-  private var compiler: CompilerTester = _
+  private var compiler: CompilerTester = uninitialized
 
-  private var mainModule: Module = _
+  private var mainModule: Module = uninitialized
 
   override lazy val getCurrentExternalProjectSettings: GradleProjectSettings = {
     val settings = new GradleProjectSettings().withQualifiedModuleNames()
@@ -91,7 +92,7 @@ class ConfigureScalaCompilerPluginTest extends ExternalSystemImportingTestCase {
     modules.foreach(ModuleRootModificationUtil.setModuleSdk(_, sdk))
 
     mainModule = modules.find(_.getName == "configure-scala-compiler-plugin.main").get
-    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
+    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules*), null, false)
 
     IndexingTestUtil.waitUntilIndexesAreReady(getMyProject)
   }

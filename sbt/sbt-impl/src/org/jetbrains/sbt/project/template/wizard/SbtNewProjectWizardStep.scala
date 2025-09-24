@@ -93,7 +93,7 @@ abstract class SbtNewProjectWizardStep(parent: NewProjectWizardStep) extends Abs
         this,
         row,
         jdkIntentProperty,
-        { _: Sdk => lang.Boolean.TRUE },
+        { (_: Sdk) => lang.Boolean.TRUE },
         (javaVersion: JavaVersion, _: String) => jdkWithSbtValidation(javaVersion)
       )
       jdkComboBoxCell

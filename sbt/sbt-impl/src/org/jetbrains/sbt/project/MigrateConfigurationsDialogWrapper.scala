@@ -35,7 +35,7 @@ class MigrateConfigurationsDialogWrapper(modules: Seq[Module], configurationToMo
     createComboBoxCellEditor(heuristicResult.guesses)
   }.toMap
 
-  private val configToDisplayOptions = configurationToModule.keys.map { config =>
+  private val configToDisplayOptions: Map[ModuleConfiguration, ConfigDisplayOptions] = configurationToModule.keys.map { config =>
     config -> new ConfigDisplayOptions(isTemporary = config.isTemporary, isShared = config.isShared)
   }.toMap
 

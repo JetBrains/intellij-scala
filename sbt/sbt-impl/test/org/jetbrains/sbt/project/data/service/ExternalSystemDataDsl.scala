@@ -3,11 +3,12 @@ package project.data.service
 
 import com.intellij.openapi.externalSystem.model.project.{LibraryLevel, ModuleData}
 import com.intellij.openapi.module.JavaModuleType
-import org.jetbrains.sbt.project.data._
+import org.jetbrains.sbt.project.data.*
 import org.jetbrains.sbt.project.sources.SharedSourcesModuleType
 
 import java.net.URI
 import scala.language.implicitConversions
+import scala.reflect.ClassTag
 
 /**
  * DSL for building External System DataNodes in runtime.
@@ -119,9 +120,9 @@ object ExternalSystemDataDsl {
 
     private val attributes = new AttributeMap
 
-    protected implicit def defineAttribute[T : Manifest](attribute: Attribute[T] with ProjectAttribute): AttributeDef[T] =
+    protected implicit def defineAttribute[T : ClassTag](attribute: Attribute[T] with ProjectAttribute): AttributeDef[T] =
       new AttributeDef(attribute, attributes)
-    protected implicit def defineAttributeSeq[T](attribute: Attribute[Seq[T]] with ProjectAttribute)(implicit m: Manifest[Seq[T]]): AttributeSeqDef[T] =
+    protected implicit def defineAttributeSeq[T](attribute: Attribute[Seq[T]] with ProjectAttribute)(implicit m: ClassTag[Seq[T]]): AttributeSeqDef[T] =
       new AttributeSeqDef(attribute, attributes)
   }
 
@@ -155,9 +156,9 @@ object ExternalSystemDataDsl {
 
     private val attributes = new AttributeMap
 
-    protected implicit def defineAttribute[T : Manifest](attribute: Attribute[T] with ModuleAttribute): AttributeDef[T] =
+    protected implicit def defineAttribute[T : ClassTag](attribute: Attribute[T] with ModuleAttribute): AttributeDef[T] =
       new AttributeDef(attribute, attributes)
-    protected implicit def defineAttributeSeq[T](attribute: Attribute[Seq[T]] with ModuleAttribute)(implicit m: Manifest[Seq[T]]): AttributeSeqDef[T] =
+    protected implicit def defineAttributeSeq[T](attribute: Attribute[Seq[T]] with ModuleAttribute)(implicit m: ClassTag[Seq[T]]): AttributeSeqDef[T] =
       new AttributeSeqDef(attribute, attributes)
   }
 
@@ -178,9 +179,9 @@ object ExternalSystemDataDsl {
 
     private val attributes = new AttributeMap
 
-    protected implicit def defineAttribute[T : Manifest](attribute: Attribute[T] with LibraryAttribute): AttributeDef[T] =
+    protected implicit def defineAttribute[T : ClassTag](attribute: Attribute[T] with LibraryAttribute): AttributeDef[T] =
       new AttributeDef(attribute, attributes)
-    protected implicit def defineAttributeSeq[T](attribute: Attribute[Seq[T]] with LibraryAttribute)(implicit m: Manifest[Seq[T]]): AttributeSeqDef[T] =
+    protected implicit def defineAttributeSeq[T](attribute: Attribute[Seq[T]] with LibraryAttribute)(implicit m: ClassTag[Seq[T]]): AttributeSeqDef[T] =
       new AttributeSeqDef(attribute, attributes)
   }
 }
