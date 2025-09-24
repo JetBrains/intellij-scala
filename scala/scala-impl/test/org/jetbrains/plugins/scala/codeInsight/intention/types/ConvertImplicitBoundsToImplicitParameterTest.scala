@@ -45,7 +45,7 @@ class ConvertImplicitBoundsToImplicitParameterTest_Scala2 extends ConvertImplici
 }
 
 class ConvertImplicitBoundsToImplicitParameterTest_Scala3 extends ConvertImplicitBoundsToImplicitParameterTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version > LatestScalaVersions.Scala_2_13
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.fromString("3.0.0").get
 
   override def doCommonTest(text: String, expected: String): Unit = {
     val textWithUsing = text.replace("implicit", "using")
