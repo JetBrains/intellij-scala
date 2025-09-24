@@ -16,8 +16,6 @@ import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 import org.jetbrains.plugins.scala.worksheet.settings.persistent.WorksheetSettingsUpdater.WorksheetSettingsDelegateUpdater
 import org.jetbrains.plugins.scala.worksheet.settings.persistent.{WorksheetFilePersistentSettings, WorksheetProjectDefaultPersistentSettings, WorksheetSettingsUpdater}
 
-import scala.annotation.nowarn
-
 final class WorksheetSettingsDialog(worksheetFile: PsiFile)
   extends DialogWrapper(worksheetFile.getProject, true, true) {
 
@@ -45,7 +43,7 @@ final class WorksheetSettingsDialog(worksheetFile: PsiFile)
   override def doOKAction(): Unit = {
     applyFileSettings(myPanel.fileSettingsData)
     applyDefaultSettings(myPanel.defaultProjectSettingsData)
-    DaemonCodeAnalyzer.getInstance(project).restart(worksheetFile): @nowarn("cat=deprecation")
+    DaemonCodeAnalyzer.getInstance(project).restart(worksheetFile, "Restart after ok in worksheet settings dialog")
     super.doOKAction()
   }
 

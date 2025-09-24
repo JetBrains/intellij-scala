@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.build
 
 import com.intellij.build.events.MessageEvent.Kind
 import com.intellij.build.events._
-import com.intellij.build.events.impl.{AbstractBuildEvent, BuildIssueEventImpl}
 import com.intellij.build.issue.BuildIssue
 import com.intellij.build.{FilePosition, SyncViewManager}
 import com.intellij.execution.process.ProcessOutputType
@@ -107,7 +106,12 @@ class ExternalSystemNotificationReporter(workingDir: String,
 
   private def onEvent(issue: BuildIssue, kind: Kind): Unit =
     viewManager.foreach { manager =>
-      manager.onEvent(taskId, new BuildIssueEventImpl(taskId, issue, kind))
+      val event = BuildEvents.getInstance().buildIssue()
+        .withParentId(taskId)
+        .withIssue(issue)
+        .withKind(kind)
+        .build()
+      manager.onEvent(taskId, event)
     }
 
   override def log(message: String): Unit =
@@ -188,7 +192,7 @@ class ExternalSystemNotificationReporter(workingDir: String,
     position: Option[FilePosition],
     @Nls @Nullable details: String,
     navigatable: Option[Navigatable] = None
-  ): AbstractBuildEvent with MessageEvent =
+  ): BuildEvent =
     BuildMessages.message(taskId, message, kind, position, eventTime = System.currentTimeMillis, details, navigatable)
 }
 

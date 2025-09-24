@@ -11,7 +11,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 
 import java.awt.event.{KeyAdapter, KeyEvent}
-import scala.annotation.nowarn
 
 class Listener extends EditorFactoryListener {
   private val MaxDoubleKeyPressDuration = 500L * 1000000L // ns (0.5 s)
@@ -65,7 +64,8 @@ class Listener extends EditorFactoryListener {
       if (e.getKeyCode == KeyEvent.VK_ESCAPE) {
         if (System.nanoTime() - previousKeyPressInstant < MaxDoubleKeyPressDuration) {
           Highlighting.suppress = true
-          DaemonCodeAnalyzer.getInstance(Highlighting.editor.getProject).restart(): @nowarn("cat=deprecation")
+          DaemonCodeAnalyzer.getInstance(Highlighting.editor.getProject)
+            .restart("Restart after pressing escape")
         }
         previousKeyPressInstant = System.nanoTime()
       }

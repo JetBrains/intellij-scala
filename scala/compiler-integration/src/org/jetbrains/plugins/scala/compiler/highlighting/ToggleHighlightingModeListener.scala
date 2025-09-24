@@ -12,8 +12,6 @@ import org.jetbrains.plugins.scala.compiler.highlighting.BackgroundExecutorServi
 import org.jetbrains.plugins.scala.extensions.{inReadAction, inWriteAction, invokeLater, invokeWhenSmart}
 import org.jetbrains.plugins.scala.settings.{CompilerHighlightingListener, ScalaHighlightingMode}
 
-import scala.annotation.nowarn
-
 /**
  * Ensures correct toggling between "standard" and "compiler-based" highlighting modes.
  * Toggling means that the value of 
@@ -47,7 +45,7 @@ abstract class ToggleHighlightingModeListener(project: Project) {
   private def forceStandardHighlighting(project: Project): Unit = inWriteAction {
     ResolveCache.getInstance(project).clearCache(true)
     PsiManager.getInstance(project).dropPsiCaches()
-    DaemonCodeAnalyzer.getInstance(project).restart(): @nowarn("cat=deprecation")
+    DaemonCodeAnalyzer.getInstance(project).restart("Restart because highlighting was toggled")
   }
 }
 
