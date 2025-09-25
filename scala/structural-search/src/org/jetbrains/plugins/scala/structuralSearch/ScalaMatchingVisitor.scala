@@ -712,9 +712,14 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
 
     otherV match {
       case other: ScReferenceExpression =>
-        val qualifierMatch = matchOptEqual(refPat.qualifier, other.qualifier)
-        val nameMatch = refPat.nameId.getTextLength > 0 && substHandle(getHandler(refPat), other.nameId, () => globalVisitor.`match`(refPat.nameId, other.nameId))
-        globalVisitor.setResult(qualifierMatch && nameMatch)
+        refPat.qualifier match {
+          case None =>
+            globalVisitor.setResult(substHandle(getHandler(refPat), other, () => globalVisitor.matchText(refPat, other)))
+          case Some(_) =>
+            val qualifierMatch = matchOptEqual(refPat.qualifier, other.qualifier)
+            val nameMatch = refPat.nameId.getTextLength > 0 && substHandle(getHandler(refPat), other.nameId, () => globalVisitor.`match`(refPat.nameId, other.nameId))
+            globalVisitor.setResult(qualifierMatch && nameMatch)
+        }
       case other =>
         globalVisitor.setResult(refPat.qualifier.isEmpty && substHandle(getHandler(refPat), otherV, () => globalVisitor.matchText(refPat, other)))
     }
