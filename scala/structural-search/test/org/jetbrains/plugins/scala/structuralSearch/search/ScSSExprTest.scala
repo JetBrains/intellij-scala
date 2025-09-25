@@ -88,4 +88,36 @@ class ScSSExprTest extends ScalaStructuralSearchTestCase {
       clearMarker(functionCall), infixExpr
     )
   }
+
+  def testReferences(): Unit = {
+    val content =
+      """<match="AA">A.B.C</match="AA">
+        |<match="AB">A.D.C</match="AB">
+        |<match="AC">J.B.E</match="AC">
+        |<match="AD">J.F.E</match="AD">
+        |<match="AE">A.G.E</match="AE">
+        |<match="AF">I.D.C</match="AF">
+        |"""
+
+    matchAndAssert(
+      "FunctionCalls -> InfixExpr interoperability",
+      clearMarker(content, Set("AA")), "A.B.C"
+    )
+    matchAndAssert(
+      "FunctionCalls -> InfixExpr interoperability",
+      clearMarker(content, Set("AA", "AB")), "A.$b$.C"
+    )
+    matchAndAssert(
+      "FunctionCalls -> InfixExpr interoperability",
+      clearMarker(content, Set("AA", "AB", "AE")), "A.$b$.$c$"
+    )
+    matchAndAssert(
+      "FunctionCalls -> InfixExpr interoperability",
+      clearMarker(content, Set("AA", "AC")), "$a$.B.$c$"
+    )
+    matchAndAssert(
+      "FunctionCalls -> InfixExpr interoperability",
+      clearMarker(content, Set("AA", "AB", "AF")), "$a$.$b$.C"
+    )
+  }
 }
