@@ -13,6 +13,20 @@ abstract class FormatEmptyTemplateBodyEnterHandlerTest extends DoEditorStateTest
        |}""".stripMargin,
   )
 
+  def testEmptyOneLineBodyNoSpaces_1(): Unit = doEnterTest(
+    s"""class A{ $CARET }""".stripMargin,
+    s"""class A {
+       |  $CARET
+       |}""".stripMargin,
+  )
+
+  def testEmptyOneLineBodyNoSpaces_WithExtendsList(): Unit = doEnterTest(
+    s"""class A extends AnyRef{$CARET}""".stripMargin,
+    s"""class A extends AnyRef {
+       |  $CARET
+       |}""".stripMargin,
+  )
+
   def testEmptyOneLineBodyNoSpacesIfSmartIndentIsTurnedOff(): Unit =
     RevertableChange.withModifiedSetting(CodeInsightSettings.getInstance)(false)(_.SMART_INDENT_ON_ENTER, _.SMART_INDENT_ON_ENTER = _).run {
       doEnterTest(
@@ -47,7 +61,7 @@ abstract class FormatEmptyTemplateBodyEnterHandlerTest extends DoEditorStateTest
     s"""class A{
        |  $CARET
        |}""".stripMargin,
-    s"""class A {
+    s"""class A{
        |
        |  $CARET
        |}""".stripMargin,
