@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaFileTemplateCo
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScConstructorInvocation, ScStableCodeReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScConstructorInvocation, ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScGuard, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterType, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAliasDeclaration, ScTypeAliasDefinition, ScValueOrVariable, ScValueOrVariableDefinition}
@@ -91,6 +91,7 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
   private def isMinMaxApplicable(constraintName: String, variableNode: PsiElement, completePattern: Boolean, target: Boolean): Boolean =
     if (completePattern || target || variableNode == null) return false
     variableNode.getParent match {
+      case ref: ScReferenceExpression if ref.qualifier.nonEmpty => false
       case parent => parent.getParent match {
         case _: ScImportExpr => false
         case grandParent: ScSimpleTypeElement =>
@@ -162,6 +163,7 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
             typeElement.getFirstChild.getText
           case guard: ScGuard =>
             guard.expr.map(_.getText).getOrElse("")
+          case reference: ScReference => reference.refName
           case methodInv: MethodInvocation =>
             val unwrapMethodName: ScExpression => PsiElement = {
               case ref: ScReferenceExpression => ref.nameId

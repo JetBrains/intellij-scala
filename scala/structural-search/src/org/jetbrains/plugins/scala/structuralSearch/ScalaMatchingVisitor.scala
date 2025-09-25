@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.structuralSearch
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.source.tree.{LeafElement, LeafPsiElement}
-import com.intellij.structuralsearch.impl.matcher.handlers.{MatchingHandler, SubstitutionHandler, TopLevelMatchingHandler}
+import com.intellij.structuralsearch.impl.matcher.handlers.{DelegatingHandler, MatchingHandler, SubstitutionHandler, TopLevelMatchingHandler}
 import com.intellij.structuralsearch.impl.matcher.{GlobalMatchingVisitor, MatchResultImpl}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
@@ -82,15 +82,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     }
   }
   private def matchTextOrVariable(pattern: PsiElement, other: PsiElement, handler: MatchingHandler): Boolean = {
-    handler match {
-      case substHandler: SubstitutionHandler => substHandler.handle(other, globalVisitor.getMatchContext)
-      case topLevel: TopLevelMatchingHandler =>
-        topLevel.getDelegate match {
-          case substHandler: SubstitutionHandler => substHandler.handle(other, globalVisitor.getMatchContext)
-          case _ => globalVisitor.matchText(pattern, other)
-        }
-      case _ => globalVisitor.matchText(pattern, other)
-    }
+    substHandle(handler, other, () => globalVisitor.matchText(pattern, other))
   }
 
   private def getHandler(element: PsiElement) =
@@ -98,17 +90,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
 
   private def rememberVarMatchIfResult(handler: MatchingHandler, matchedEl: PsiElement): Unit = {
     if (globalVisitor.getResult) {
-      handler match {
-        case substHandler: SubstitutionHandler =>
-          substHandler.handle(matchedEl, globalVisitor.getMatchContext)
-        case topLevel: TopLevelMatchingHandler =>
-          topLevel.getDelegate match {
-            case substHandler: SubstitutionHandler =>
-              substHandler.handle(matchedEl, globalVisitor.getMatchContext)
-            case _ =>
-          }
-        case _ =>
-      }
+      substHandle(handler, matchedEl, () => false)
     }
   }
 
@@ -725,25 +707,16 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
   override def visitReferenceExpression(refPat: ScReferenceExpression): Unit = {
     super.visitScalaElement(refPat)
     val context = globalVisitor.getMatchContext
+    val pattern = context.getPattern
     val otherV = globalVisitor.getElement
 
-    getHandler(refPat) match {
-      case substHand: SubstitutionHandler =>
-        globalVisitor.setResult(substHand.handle(otherV, context))
-      case topLevel: TopLevelMatchingHandler =>
-        topLevel.getDelegate match {
-          case substHand: SubstitutionHandler =>
-            globalVisitor.setResult(substHand.handle(otherV, context))
-          case _ =>
-        }
-      case _ =>
-        otherV match {
-          case other: ScReferenceExpression =>
-            val qualifierMatch = matchOptEqual(refPat.qualifier, other.qualifier)
-            val nameMatch = globalVisitor.`match`(refPat.nameId, other.nameId)
-            globalVisitor.setResult(qualifierMatch && nameMatch)
-          case other: PsiElement => globalVisitor.setResult(globalVisitor.matchText(refPat, other))
-        }
+    otherV match {
+      case other: ScReferenceExpression =>
+        val qualifierMatch = matchOptEqual(refPat.qualifier, other.qualifier)
+        val nameMatch = refPat.nameId.getTextLength > 0 && substHandle(getHandler(refPat), other.nameId, () => globalVisitor.`match`(refPat.nameId, other.nameId))
+        globalVisitor.setResult(qualifierMatch && nameMatch)
+      case other =>
+        globalVisitor.setResult(refPat.qualifier.isEmpty && substHandle(getHandler(refPat), otherV, () => globalVisitor.matchText(refPat, other)))
     }
   }
 
@@ -966,6 +939,20 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
         globalVisitor.getMatchContext.getPattern.setHandler(ident, tlh.getDelegate)
         globalVisitor.scopeMatch(ident, typedVar, matchNode)
       case _ => globalVisitor.scopeMatch(patternNode, typedVar, matchNode)
+    }
+  }
+
+  private def substHandle(handler: MatchingHandler, other: PsiElement, otherwise: () => Boolean): Boolean = {
+    handler match {
+      case substHand: SubstitutionHandler =>
+        substHand.handle(other, globalVisitor.getMatchContext)
+      case delHand: DelegatingHandler =>
+        delHand.getDelegate match {
+          case substHand: SubstitutionHandler =>
+            substHand.handle(other, globalVisitor.getMatchContext)
+          case _ => otherwise()
+        }
+      case _ => otherwise()
     }
   }
 }
