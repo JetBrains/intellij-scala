@@ -41,13 +41,13 @@ ScalaFile
               TypeInParenthesis: (_ *: _)
                 PsiElement(()('(')
                 InfixType: _ *: _
-                  WildcardType: _
+                  TypeVariable: _
                     PsiElement(_)('_')
                   PsiWhiteSpace(' ')
                   CodeReferenceElement: *:
                     PsiElement(identifier)('*:')
                   PsiWhiteSpace(' ')
-                  WildcardType: _
+                  TypeVariable: _
                     PsiElement(_)('_')
                 PsiElement())(')')
           PsiWhiteSpace(' ')

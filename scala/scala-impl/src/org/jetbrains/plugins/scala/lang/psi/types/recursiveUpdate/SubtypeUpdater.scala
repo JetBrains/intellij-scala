@@ -153,14 +153,28 @@ private abstract class SubtypeUpdater(needVariance: Boolean, needUpdate: Boolean
                               substitutor: ScSubstitutor)
                              (implicit visited: Set[ScType]): ScType = {
     // TODO Temporary workaround to avoid SOE - type aliases can be recursive, SCL-23190, SCL-20263
-    mt.upperBound match {
-      case Some(t) =>
-        return substitutor.recursiveUpdateImpl(t, variance)
-      case _ =>
-    }
+    //    mt.upperBound match {
+    //      case Some(t) =>
+    //        return substitutor.recursiveUpdateImpl(t, variance)
+    //      case _ =>
+    //    }
+
     val scrutinee = substitutor.recursiveUpdateImpl(mt.scrutinee, variance)
-    val cases = mt.cases.map(cs => (substitutor.recursiveUpdateImpl(cs._1, variance), substitutor.recursiveUpdateImpl(cs._2, variance)))
-    ScMatchType(scrutinee, cases)
+
+    val cases = mt.cases.map { cse =>
+      () => {
+        val (pat, res) = cse.apply()
+
+        substitutor.recursiveUpdateImpl(pat, variance) ->
+          substitutor.recursiveUpdateImpl(res, variance)
+      }
+    }
+
+    ScMatchType(
+      scrutinee,
+      cases,
+      mt.upperBound.map(substitutor.recursiveUpdateImpl(_, variance))
+    )
   }
 
   def updateTypeParameter(tp: TypeParameter,

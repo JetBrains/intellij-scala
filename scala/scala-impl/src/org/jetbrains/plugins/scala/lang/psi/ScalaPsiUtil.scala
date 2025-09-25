@@ -156,7 +156,7 @@ object ScalaPsiUtil {
   def isInheritorDeep(clazz: PsiClass, base: PsiClass): Boolean = clazz.isInheritor(base, true)
 
   /**
-   * Checks if thisClass subsumes base, i.e if base is thisClass or a super class of it (with self type)
+   * Checks if thisClass subsumes base, i.e. if base is thisClass or a super class of it (with self type)
    */
   def thisSubsumes(thisClass: PsiClass, base: PsiClass): Boolean = {
     implicit val context: Context = Context(thisClass)

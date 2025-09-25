@@ -317,7 +317,7 @@ ScalaFile
                 PsiElement(case)('case')
                 PsiWhiteSpace(' ')
                 InfixType: _ #: xs
-                  WildcardType: _
+                  TypeVariable: _
                     PsiElement(_)('_')
                   PsiWhiteSpace(' ')
                   CodeReferenceElement: #:

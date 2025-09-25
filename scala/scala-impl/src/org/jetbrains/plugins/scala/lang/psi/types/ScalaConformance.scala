@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
+import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.ScIntegerLiteralImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.types.ScalaConformance._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
@@ -287,12 +288,14 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       override def visitParameterizedType(p: ParameterizedType): Unit = {
         p.designator match {
           case ScAbstractType(typeParameter, lowerBound, _) =>
+            //@TODO: that just looks incorrect
             val subst = ScSubstitutor.bind(typeParameter.typeParameters, p.typeArguments)
             val lower: ScType =
               subst(lowerBound) match {
                 case ParameterizedType(lower, _) => ScParameterizedType(lower, p.typeArguments)
                 case lower => ScParameterizedType(lower, p.typeArguments)
               }
+
             if (!lower.equiv(Nothing)) {
               result = conformsInner(l, lower, visited, constraints, checkWeak)
             }
@@ -428,6 +431,16 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
         result = maybeType match {
           case Right(value) => conformsInner(l, value, visited, constraints)
           case _            => ConstraintsResult.Left
+        }
+      }
+    }
+
+    trait MatchTypeVisitor extends ScalaTypeVisitor {
+      override def visitMatchType(mt: ScMatchType): Unit = {
+        mt.reduce.toOption.orElse(mt.upperBound) match {
+          case Some(upper) =>
+            result = conformsInner(l, upper, visited, constraints)
+          case None => ()
         }
       }
     }
@@ -615,7 +628,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       r.visitType(rightVisitor)
       if (result != null) return
 
-      rightVisitor = new AliasDesignatorVisitor with CompoundTypeVisitor with ExistentialVisitor
+      rightVisitor = new AliasDesignatorVisitor with MatchTypeVisitor with CompoundTypeVisitor with ExistentialVisitor
         with ProjectionVisitor with OrTypeVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
@@ -647,7 +660,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
           return
         }
         else if (!r.isInstanceOf[ScExistentialType]) {
-          rightVisitor = new AliasDesignatorVisitor with ProjectionVisitor {
+          rightVisitor = new AliasDesignatorVisitor with MatchTypeVisitor with ProjectionVisitor {
             override def stopProjectionAliasOnFailure: Boolean = true
 
             override def stopDesignatorAliasOnFailure: Boolean = true
@@ -695,7 +708,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       r.visitType(rightVisitor)
       if (result != null) return
 
-      rightVisitor = new ParameterizedAliasVisitor with AliasDesignatorVisitor {}
+      rightVisitor = new ParameterizedAliasVisitor with AliasDesignatorVisitor with MatchTypeVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
@@ -721,7 +734,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       r.visitType(rightVisitor)
       if (result != null) return
 
-      rightVisitor = new ParameterizedAliasVisitor with AliasDesignatorVisitor {}
+      rightVisitor = new ParameterizedAliasVisitor with AliasDesignatorVisitor with MatchTypeVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
     }
@@ -796,7 +809,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       if (result != null) return
 
       rightVisitor =
-        new ParameterizedAliasVisitor with AliasDesignatorVisitor with CompoundTypeVisitor
+        new ParameterizedAliasVisitor with AliasDesignatorVisitor with MatchTypeVisitor with CompoundTypeVisitor
           with ProjectionVisitor with OrTypeVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
@@ -896,13 +909,69 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
         case _ =>
       }
 
-      rightVisitor = new AliasDesignatorVisitor with CompoundTypeVisitor with ExistentialVisitor
+      rightVisitor = new AliasDesignatorVisitor with MatchTypeVisitor with CompoundTypeVisitor with ExistentialVisitor
         with ProjectionVisitor with OrTypeVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
       rightVisitor = new DesignatorVisitor {}
       r.visitType(rightVisitor)
+    }
+
+    override def visitMatchType(mt: ScMatchType): Unit = {
+      mt.reduce match {
+        case Right(reduced) =>
+          result = conformsInner(reduced, r, visited, constraints, checkWeak)
+        case _ => ()
+      }
+
+      def checkCases(
+        lCases: Seq[() => (ScType, ScType)],
+        rCases: Seq[() => (ScType, ScType)],
+        cs:     ConstraintSystem
+      ): ConstraintsResult = {
+        var combinedConstraints: ConstraintsResult = cs
+
+        val lIter = lCases.iterator
+        val rIter = rCases.iterator
+
+        while (combinedConstraints.isRight && lIter.hasNext) {
+          val (lPat, lBody) = lIter.next().apply()
+
+          if (rIter.isEmpty) combinedConstraints = ConstraintsResult.Left
+          else {
+            val (rPat, rBody) = rIter.next().apply()
+
+            val patEquiv = lPat.equiv(rPat, combinedConstraints.constraints)
+
+            patEquiv match {
+              case ConstraintsResult.Left =>
+                combinedConstraints = ConstraintsResult.Left
+              case patCs: ConstraintSystem =>
+                combinedConstraints = combinedConstraints.constraints + patCs
+            }
+
+            combinedConstraints = conformsInner(lBody, rBody, visited, combinedConstraints.constraints)
+          }
+        }
+
+        combinedConstraints
+      }
+
+      r match {
+        case ScMatchType(rScrutinee, rCases, _) =>
+          val scrutineeEquiv = mt.scrutinee.equiv(rScrutinee, constraints, falseUndef = false)
+
+          scrutineeEquiv match {
+            case ConstraintsResult.Left =>
+              result = ConstraintsResult.Left
+            case cs: ConstraintSystem =>
+              result = checkCases(mt.cases, rCases, cs)
+          }
+        case _ =>
+          val rightVisitor = new AliasDesignatorVisitor {}
+          r.visitType(rightVisitor)
+      }
     }
 
     override def visitParameterizedType(p: ParameterizedType): Unit = {
@@ -912,6 +981,19 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       if (result != null) return
 
       p.designator match {
+        case DesignatorOwner(ta: ScTypeAlias) if p.typeArguments.size == 1 =>
+          val containingClassName = Option(ta.containingClass).map(_.qualifiedName).orNull
+
+          if (containingClassName == "scala.compiletime.ops.int" && ta.name == "S") {
+            r match {
+              case ScLiteralType(ScIntegerLiteralImpl.Value(int), _) if int > 0 =>
+                val tvar = p.typeArguments.head
+                val decremented = ScIntegerLiteralImpl.Value(int - 1)
+                result = equivInner(tvar, ScLiteralType(decremented)(projectContext), constraints, falseUndef = false)
+                return
+              case _ => ()
+            }
+          }
         case a: ScAbstractType =>
           val subst = ScSubstitutor.bind(a.typeParameter.typeParameters, p.typeArguments)
           val upper: ScType =
@@ -1083,7 +1165,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
 
       if (result != null) return
 
-      rightVisitor = new AliasDesignatorVisitor with CompoundTypeVisitor with ExistentialVisitor
+      rightVisitor = new AliasDesignatorVisitor with MatchTypeVisitor with CompoundTypeVisitor with ExistentialVisitor
         with ProjectionVisitor with OrTypeVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
@@ -1124,7 +1206,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       r.visitType(rightVisitor)
       if (result != null) return
 
-      rightVisitor = new ParameterizedAliasVisitor with AliasDesignatorVisitor {}
+      rightVisitor = new ParameterizedAliasVisitor with AliasDesignatorVisitor with MatchTypeVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
@@ -1233,7 +1315,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       r.visitType(rightVisitor)
       if (result != null) return
 
-      rightVisitor = new AliasDesignatorVisitor with ProjectionVisitor {}
+      rightVisitor = new AliasDesignatorVisitor with ProjectionVisitor with MatchTypeVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
 
@@ -1316,7 +1398,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
         return
       }
 
-      rightVisitor = new ParameterizedAliasVisitor with AliasDesignatorVisitor with CompoundTypeVisitor
+      rightVisitor = new ParameterizedAliasVisitor with AliasDesignatorVisitor with MatchTypeVisitor with CompoundTypeVisitor
         with ExistentialVisitor with ProjectionVisitor with OrTypeVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
@@ -1363,7 +1445,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       r.visitType(rightVisitor)
       if (result != null) return
 
-      rightVisitor = new ParameterizedAliasVisitor with AliasDesignatorVisitor with CompoundTypeVisitor
+      rightVisitor = new ParameterizedAliasVisitor with AliasDesignatorVisitor with MatchTypeVisitor with CompoundTypeVisitor
         with ExistentialVisitor with ProjectionVisitor with OrTypeVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return

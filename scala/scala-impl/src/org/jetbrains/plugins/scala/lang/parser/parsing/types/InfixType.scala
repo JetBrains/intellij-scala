@@ -159,7 +159,7 @@ trait InfixType {
       override protected def isMatchConsideredInfix: Boolean = false
 
       override protected def parseFirstOperand()(implicit builder: ScalaPsiBuilder): Boolean =
-        if (parseInfixWildcardType()) {
+        if (parseTypeVariable() || parseInfixWildcardType()) {
           builder.getTokenText match {
             case Bounds.UPPER | Bounds.LOWER => false
             case _ => true
@@ -169,7 +169,7 @@ trait InfixType {
         }
 
       override protected def parseOperand()(implicit builder: ScalaPsiBuilder): Boolean =
-        parseInfixWildcardType() || parseTypeVariable() || parseSubType(star, isPattern, typeVariables)
+        parseTypeVariable() || parseInfixWildcardType() || parseSubType(star, isPattern, typeVariables)
 
       override protected def shouldContinue(implicit builder: ScalaPsiBuilder): Boolean =
         (!isPattern ||
@@ -178,14 +178,19 @@ trait InfixType {
           !(inContextBound && builder.features.`new context bounds and givens` && builder.getTokenText == "as") &&
           super.shouldContinue
 
-    private def parseTypeVariable(): Boolean = if (isPattern && typeVariables && builder.getTokenType == ScalaTokenTypes.tIDENTIFIER) {
+    private def parseTypeVariable(): Boolean =
+      if (isPattern &&
+        typeVariables &&
+        (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER ||
+          builder.getTokenType == ScalaTokenTypes.tUNDER)
+      ) {
         val firstChar = builder.getTokenText.charAt(0)
-        if (firstChar != '`' && firstChar.isLower) {
+        if ((firstChar != '`' && firstChar.isLower) || firstChar == '_') {
           val typeVariableMarker = builder.mark()
           val identifierMarker = builder.mark()
           builder.advanceLexer()
           builder.getTokenType match {
-            case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tRPARENTHESIS | ScalaTokenTypes.tFUNTYPE  =>
+            case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tRPARENTHESIS | ScalaTokenTypes.tFUNTYPE | ScalaTokenTypes.tCOMMA  =>
               identifierMarker.drop()
               typeVariableMarker.done(ScalaElementType.TYPE_VARIABLE)
               true
@@ -194,12 +199,8 @@ trait InfixType {
               typeVariableMarker.drop()
               false
           }
-        } else {
-          false
-        }
-      } else {
-        false
-      }
+        } else false
+      } else false
     }
 
     infixParsingRule()

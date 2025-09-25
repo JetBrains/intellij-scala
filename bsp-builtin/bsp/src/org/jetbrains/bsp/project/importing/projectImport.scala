@@ -4,7 +4,7 @@ import com.intellij.ide.impl.ProjectUtilKt.runUnderModalProgressIfIsEdt
 import com.intellij.ide.util.projectWizard.{ModuleWizardStep, WizardContext}
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.externalSystem.importing.{AbstractOpenProjectProvider, ImportSpecBuilder}
+import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
 import com.intellij.openapi.externalSystem.model.internal.InternalExternalProjectInfo
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.model.{DataNode, ExternalSystemDataKeys, ProjectSystemId}
@@ -16,7 +16,6 @@ import com.intellij.openapi.externalSystem.service.settings.AbstractImportFromEx
 import com.intellij.openapi.externalSystem.service.ui.ExternalProjectDataSelectorDialog
 import com.intellij.openapi.externalSystem.util.{ExternalSystemSettingsControl, ExternalSystemUtil}
 import com.intellij.openapi.module.{ModifiableModuleModel, Module}
-import com.intellij.openapi.progress.CoroutinesKt
 import com.intellij.openapi.project.{Project, ProjectManager}
 import com.intellij.openapi.roots.ui.configuration.ModulesProvider
 import com.intellij.openapi.util.io.FileUtil
@@ -29,13 +28,12 @@ import org.jetbrains.bsp.project.BspProjectInstallProvider
 import org.jetbrains.bsp.protocol.BspConnectionConfig
 import org.jetbrains.bsp.settings.BspProjectSettings._
 import org.jetbrains.bsp.settings._
-import org.jetbrains.sbt.project.SbtProjectImportProvider
+import org.jetbrains.sbt.project.{AbstractBuildToolOpenProjectProvider, SbtProjectImportProvider}
 
 import java.nio.file.{Path, Paths}
 import java.util
 import java.util.Collections
 import javax.swing._
-import kotlin.coroutines.Continuation
 import scala.annotation.nowarn
 
 class BspProjectImportBuilder
@@ -121,11 +119,20 @@ class BspProjectImportBuilder
       val shortPath = FileUtil.getLocationRelativeToUserHome(FileUtil.toSystemDependentName(projectFilePath), false)
       throw new IllegalArgumentException(s"project definition file $shortPath not found")
     }
-    new BspOpenProjectProvider().linkToExistingProject(projectFile, project)
+    val projectDirectory = getProjectDirectory(projectFile)
+    new BspOpenProjectProvider().doLinkProject(projectDirectory, project)
   }
+
+  /**
+   * Same as `com.intellij.openapi.externalSystem.importing.AbstractOpenProjectProvider#getProjectDirectory`
+   * but not a `suspend` function.
+   */
+  private def getProjectDirectory(file: VirtualFile): VirtualFile =
+    if (file.isDirectory) file else file.getParent
 }
 
-class BspOpenProjectProvider() extends AbstractOpenProjectProvider {
+//noinspection UnstableApiUsage
+class BspOpenProjectProvider extends AbstractBuildToolOpenProjectProvider {
 
   override def getSystemId: ProjectSystemId = BSP.ProjectSystemId
 
@@ -135,11 +142,8 @@ class BspOpenProjectProvider() extends AbstractOpenProjectProvider {
   override def canOpenProject(file: VirtualFile): Boolean =
     BspProjectOpenProcessor.canOpenProject(file)
 
-  override def linkToExistingProject(projectFile: VirtualFile, project: Project): Unit = {
+  override def doLinkProject(projectDirectory: VirtualFile, project: Project): Unit = {
     val bspProjectSettings = new BspProjectSettings()
-    val projectDirectory = CoroutinesKt.runBlockingMaybeCancellable { (_, cont: Continuation[_ >: VirtualFile]) =>
-      getProjectDirectory(projectFile, cont)
-    }
     bspProjectSettings.setExternalProjectPath(projectDirectory.toNioPath.toString)
     attachBspProjectAndRefresh(bspProjectSettings, project)
   }

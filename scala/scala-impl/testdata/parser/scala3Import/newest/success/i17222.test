@@ -300,9 +300,8 @@ ScalaFile
                       CodeReferenceElement: *:
                         PsiElement(identifier)('*:')
                       PsiWhiteSpace(' ')
-                      SimpleType: t1
-                        CodeReferenceElement: t1
-                          PsiElement(identifier)('t1')
+                      TypeVariable: t1
+                        PsiElement(identifier)('t1')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
                     InfixType: h2 *: t2

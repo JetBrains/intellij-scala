@@ -1,114 +1,129 @@
 package org.jetbrains.plugins.scala.project.settings
 
-import com.intellij.configurationStore.ProjectStoreImpl
-import com.intellij.ide.SaveAndSyncHandler
-import com.intellij.ide.SaveAndSyncHandler.SaveTask
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.project.impl.ProjectImpl
-import com.intellij.openapi.util.io.FileUtil
-import com.intellij.testFramework.{LightProjectDescriptor, TemporaryDirectory}
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
+import com.intellij.configurationStore.StoreUtil
+import com.intellij.openapi.progress.CoroutinesKt
+import com.intellij.openapi.project.{Project, ProjectUtil}
+import com.intellij.openapi.util.text.Strings
+import com.intellij.project.ProjectStoreOwner
+import com.intellij.testFramework.{FixtureRuleKt, JavaModuleTestCase}
+import org.jetbrains.plugins.scala.base.ScalaSdkOwner
+import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, ScalaSDKLoader}
 import org.jetbrains.plugins.scala.compiler.data.{CompileOrder, DebuggingInfoLevel, IncrementalityType, ScalaCompilerSettingsState}
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.junit.Assert._
-import org.junit.{Ignore, Test}
+import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-import java.nio.file.Path
+import java.nio.file.{Files, Path}
+import kotlin.coroutines.Continuation
 
-//noinspection ApiStatus,UnstableApiUsage,DfaNullableToNotNullParam
-// TODO: This test needs to be rewritten, it no longer works after the update to 253.20558.x
-//       and no longer even compiles after the update to 253.22441.x.
+//noinspection ApiStatus,UnstableApiUsage
 @RunWith(classOf[JUnit4])
-class ScalaCompilerConfigurationTest extends ScalaLightCodeInsightFixtureTestCase {
+class ScalaCompilerConfigurationTest extends JavaModuleTestCase with ScalaSdkOwner {
 
-  override protected def getProjectDescriptor: LightProjectDescriptor = new MyProjectDescriptor {
-    // This will cause the test framework to create a ".idea" directory-based project structure
-    // We want it to save component states as .xml files and check their content
-    override def generateProjectPath: Path =
-      TemporaryDirectory.generateTemporaryPath(ProjectImpl.LIGHT_PROJECT_NAME)
+  override protected def runInDispatchThread(): Boolean = false
+
+  override protected def isCreateDirectoryBasedProject: Boolean = true
+
+  override protected def librariesLoaders: Seq[LibraryLoader] = Seq(ScalaSDKLoader())
+
+  private def expectedScalaCompilerConfigXmlContent: String =
+    s"""<?xml version="1.0" encoding="UTF-8"?>
+       |<project version="4">
+       |  <component name="ScalaCompilerConfiguration">
+       |    <option name="compileOrder" value="JavaThenScala" />
+       |    <option name="nameHashing" value="false" />
+       |    <option name="recompileOnMacroDef" value="false" />
+       |    <option name="transitiveStep" value="4" />
+       |    <option name="recompileAllFraction" value="1.5" />
+       |    <option name="debuggingInfoLevel" value="Notailcalls" />
+       |    <parameters>
+       |      <parameter value="compilerOption1" />
+       |      <parameter value="compilerOption2" />
+       |    </parameters>
+       |    <plugins>
+       |      <plugin path="compilerPlugin1" />
+       |      <plugin path="compilerPlugin2" />
+       |    </plugins>
+       |    <option name="incrementalityType" value="IDEA" />
+       |    <option name="separateProdTestSources" value="true" />
+       |    <profile name="profile1" modules="${getModule.getName}">
+       |      <option name="compileOrder" value="JavaThenScala" />
+       |      <option name="nameHashing" value="false" />
+       |      <option name="recompileOnMacroDef" value="false" />
+       |      <option name="transitiveStep" value="4" />
+       |      <option name="recompileAllFraction" value="1.5" />
+       |      <option name="debuggingInfoLevel" value="Notailcalls" />
+       |      <parameters>
+       |        <parameter value="compilerOption1" />
+       |        <parameter value="compilerOption2" />
+       |      </parameters>
+       |      <plugins>
+       |        <plugin path="compilerPlugin1" />
+       |        <plugin path="compilerPlugin2" />
+       |      </plugins>
+       |    </profile>
+       |  </component>
+       |</project>
+       |""".stripMargin
+
+  @Test
+  def saveComponentStateToDisk(): Unit = {
+    FixtureRuleKt.runInLoadComponentStateMode(getProject, () => {
+      val compilerConfiguration = ScalaCompilerConfiguration.instanceIn(getProject)
+      initTestCompilerConfiguration(compilerConfiguration)
+
+      // Save component.
+      val componentStore = getProject.asInstanceOf[ProjectStoreOwner].getComponentStore
+      componentStore.saveComponent(compilerConfiguration)
+      StoreUtil.saveSettings(getProject, true)
+
+      val filePath = scalaCompilerConfigXmlPath
+      assertTrue(s"File does not exist: $filePath", filePath.exists)
+
+      val xmlContent = readFileWithConvertedLineSeparators(filePath).trim
+      assertEquals(
+        "Serialized scala compiler configuration does not match",
+        expectedScalaCompilerConfigXmlContent.trim,
+        xmlContent
+      )
+    })
   }
 
-  private val ExpectedScalaCompilerConfigXmlContent =
-    """<?xml version="1.0" encoding="UTF-8"?>
-      |<project version="4">
-      |  <component name="ScalaCompilerConfiguration">
-      |    <option name="compileOrder" value="JavaThenScala" />
-      |    <option name="nameHashing" value="false" />
-      |    <option name="recompileOnMacroDef" value="false" />
-      |    <option name="transitiveStep" value="4" />
-      |    <option name="recompileAllFraction" value="1.5" />
-      |    <option name="debuggingInfoLevel" value="Notailcalls" />
-      |    <parameters>
-      |      <parameter value="compilerOption1" />
-      |      <parameter value="compilerOption2" />
-      |    </parameters>
-      |    <plugins>
-      |      <plugin path="compilerPlugin1" />
-      |      <plugin path="compilerPlugin2" />
-      |    </plugins>
-      |    <option name="incrementalityType" value="IDEA" />
-      |    <option name="separateProdTestSources" value="true" />
-      |    <profile name="profile1" modules="light_idea_test_case">
-      |      <option name="compileOrder" value="JavaThenScala" />
-      |      <option name="nameHashing" value="false" />
-      |      <option name="recompileOnMacroDef" value="false" />
-      |      <option name="transitiveStep" value="4" />
-      |      <option name="recompileAllFraction" value="1.5" />
-      |      <option name="debuggingInfoLevel" value="Notailcalls" />
-      |      <parameters>
-      |        <parameter value="compilerOption1" />
-      |        <parameter value="compilerOption2" />
-      |      </parameters>
-      |      <plugins>
-      |        <plugin path="compilerPlugin1" />
-      |        <plugin path="compilerPlugin2" />
-      |      </plugins>
-      |    </profile>
-      |  </component>
-      |</project>
-      |""".stripMargin
-
-  @Ignore
   @Test
-  def testSaveComponentStateToDisk(): Unit = {
-    val project = getProject
-    val compilerConfiguration = ScalaCompilerConfiguration.instanceIn(project)
-    initTestCompilerConfiguration(compilerConfiguration)
+  def readComponentStateFromDisk(): Unit = {
+    FixtureRuleKt.runInLoadComponentStateMode(getProject, () => {
+      StoreUtil.saveSettings(getProject, true)
 
-    saveComponentAndFlushToDisk(project, compilerConfiguration)
+      val filePath = scalaCompilerConfigXmlPath
+      writeFileWithConvertedLineSeparators(filePath, expectedScalaCompilerConfigXmlContent)
 
-    val scalaCompilerConfigXmlFile = getScalaCompilerConfigXmlPath.toFile
-    assertTrue(s"File does not exist: $scalaCompilerConfigXmlFile", scalaCompilerConfigXmlFile.exists())
-    val scalaCompilerConfigXmlContent = FileUtil.loadFile(scalaCompilerConfigXmlFile, true)
-    assertEquals(
-      "Serialized scala compiler configuration",
-      ExpectedScalaCompilerConfigXmlContent.trim,
-      scalaCompilerConfigXmlContent.trim
-    )
+      val componentStore = getProject.asInstanceOf[ProjectStoreOwner].getComponentStore
+      CoroutinesKt.runBlockingMaybeCancellable { (_, cont: Continuation[_ >: kotlin.Unit]) =>
+        componentStore.reloadState(classOf[ScalaCompilerConfiguration], cont)
+      }
+
+      val compilerConfiguration = ScalaCompilerConfiguration.instanceIn(getProject)
+
+      val expectedCompilerConfiguration = new ScalaCompilerConfiguration(null)
+      initTestCompilerConfiguration(expectedCompilerConfiguration)
+
+      assertEquals(expectedCompilerConfiguration.incrementalityType, compilerConfiguration.incrementalityType)
+      assertScalaCompilerSettingsProfilesEquals(expectedCompilerConfiguration.customProfiles, compilerConfiguration.customProfiles)
+      assertScalaCompilerSettingsDefaultProfileEquals(expectedCompilerConfiguration.defaultProfile, compilerConfiguration.defaultProfile)
+      assertEquals(expectedCompilerConfiguration.separateProdTestSources, compilerConfiguration.separateProdTestSources)
+    })
   }
 
-  @Ignore
-  @Test
-  def testReadComponentStateFromDisk(): Unit = {
-    val project = getProject
+  private def readFileWithConvertedLineSeparators(path: Path): String = {
+    val content = Files.readString(path)
+    Strings.convertLineSeparators(content)
+  }
 
-    val scalaCompilerConfigXmlFile = getScalaCompilerConfigXmlPath.toFile
-    FileUtil.writeToFile(scalaCompilerConfigXmlFile, ExpectedScalaCompilerConfigXmlContent)
-
-    val componentStore = project.asInstanceOf[ProjectImpl].getComponentStore.asInstanceOf[ProjectStoreImpl]
-//    componentStore.reloadState(classOf[ScalaCompilerConfiguration])
-
-    val compilerConfiguration = ScalaCompilerConfiguration.instanceIn(project)
-
-    val expectedCompilerConfiguration = new ScalaCompilerConfiguration(null)
-    initTestCompilerConfiguration(expectedCompilerConfiguration)
-
-    assertEquals(expectedCompilerConfiguration.incrementalityType, compilerConfiguration.incrementalityType)
-    assertScalaCompilerSettingsProfilesEquals(expectedCompilerConfiguration.customProfiles, compilerConfiguration.customProfiles)
-    assertScalaCompilerSettingsProfileEquals(expectedCompilerConfiguration.defaultProfile, compilerConfiguration.defaultProfile)
-    assertEquals(expectedCompilerConfiguration.separateProdTestSources, compilerConfiguration.separateProdTestSources)
+  private def writeFileWithConvertedLineSeparators(path: Path, content: String): Unit = {
+    val converted = Strings.convertLineSeparators(content)
+    Files.writeString(path, converted)
   }
 
   private def assertScalaCompilerSettingsProfilesEquals(expectedSeq: Seq[ScalaCompilerSettingsProfile], actualSeq: Seq[ScalaCompilerSettingsProfile]): Unit = {
@@ -128,9 +143,16 @@ class ScalaCompilerConfigurationTest extends ScalaLightCodeInsightFixtureTestCas
   }
 
   private def assertScalaCompilerSettingsProfileEquals(expected: ScalaCompilerSettingsProfile, actual: ScalaCompilerSettingsProfile): Unit = {
-    assertEquals(s"Profile name", expected.getName, actual.getName)
-    assertEquals(s"Profile modules", expected.moduleNames.toSet, actual.moduleNames.toSet)
+    assertEquals("Profile name", expected.getName, actual.getName)
+    assertEquals("Profile modules", expected.moduleNames.toSet, actual.moduleNames.toSet)
+    assertProfileSettingsEquals(expected, actual)
+  }
 
+  private def assertScalaCompilerSettingsDefaultProfileEquals(expected: ScalaCompilerSettingsProfile, actual: ScalaCompilerSettingsProfile): Unit = {
+    assertProfileSettingsEquals(expected, actual)
+  }
+
+  private def assertProfileSettingsEquals(expected: ScalaCompilerSettingsProfile, actual: ScalaCompilerSettingsProfile): Unit = {
     val expectedSettings = expected.getSettings
     val actualSettings = actual.getSettings
 
@@ -138,15 +160,12 @@ class ScalaCompilerConfigurationTest extends ScalaLightCodeInsightFixtureTestCas
     assertEquals("Compile settings", expectedSettings, actualSettings)
   }
 
-  private def getScalaCompilerConfigXmlPath = Path.of(getProject.getBasePath) / ".idea/scala_compiler.xml"
-
-  private def saveComponentAndFlushToDisk(project: Project, compilerConfiguration: ScalaCompilerConfiguration): Unit = {
-    // save component
-    val componentStore = project.asInstanceOf[ProjectImpl].getComponentStore.asInstanceOf[ProjectStoreImpl]
-    componentStore.saveComponent(compilerConfiguration)
-
-    // flush component to disk
-    SaveAndSyncHandler.getInstance().scheduleSave(new SaveTask(project, true), true)
+  private def scalaCompilerConfigXmlPath: Path = {
+    val projectDir = ProjectUtil.guessProjectDir(getProject)
+    if (projectDir == null) {
+      throw new AssertionError(s"Could not find project directory for project: $getProject")
+    }
+    projectDir.toNioPath / Project.DIRECTORY_STORE_FOLDER / "scala_compiler.xml"
   }
 
   private def initTestCompilerConfiguration(configuration: ScalaCompilerConfiguration): Unit = {

@@ -35,6 +35,9 @@ package object types {
     }
   }
 
+  object ExtractDesignated {
+    def unapply(tpe: ScType): Option[PsiNamedElement] = tpe.extractDesignated(expandAliases = false)(Context.Empty)
+  }
 
   implicit class ScTypeExt(private val scType: ScType) extends AnyVal {
     private def typeSystem = scType.typeSystem
@@ -177,6 +180,8 @@ package object types {
         .extractFrom(scType).map(_._1)
     }
 
+
+
     def extractClassType(implicit context: Context): Option[(PsiClass, ScSubstitutor)] = {
       new ClassTypeExtractor(needSubstitutor = true)
         .extractFrom(scType)
@@ -220,11 +225,19 @@ package object types {
     def removeAliasDefinitionsIn(place: PsiElement): ScType =
       removeAliasDefinitions()(Context(place))
 
-    def removeAliasDefinitions(expandableOnly: Boolean = false)(implicit context: Context): ScType = {
+    def removeAliasDefinitions(
+      expandableOnly: Boolean          = false,
+      doNotExpandToMatchTypes: Boolean = false
+    )(implicit
+      context: Context
+    ): ScType = {
       def needExpand(ta: ScTypeAliasDefinition) = !expandableOnly || shouldExpand(ta)
 
       def innerUpdate(tp: ScType, visited: Set[ScType]): ScType = {
         tp.recursiveUpdate {
+          case _: ScMatchType => Stop
+          case DesignatorOwner(ta: ScTypeAliasDefinition) if ta.isMatchTypeAlias && doNotExpandToMatchTypes => Stop
+          case ParameterizedType(DesignatorOwner(ta: ScTypeAliasDefinition), _) if ta.isMatchTypeAlias && doNotExpandToMatchTypes => Stop
           case AliasType(_: ScTypeAliasDefinition, Right(_: ScTypePolymorphicType), _, effectivelyOpaque) if !effectivelyOpaque => ProcessSubtypes
           case AliasType(ta: ScTypeAliasDefinition, _, Failure(_), effectivelyOpaque) if !effectivelyOpaque && needExpand(ta) =>
             ReplaceWith(projectContext.stdTypes.Any)

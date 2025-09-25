@@ -83,8 +83,8 @@ private [documentationProvider] class ScalaDocTypeRenderer(
       render(FunctionType(retType, params.map(_.paramType))(mt.elementScope, Context.Empty))
     case ScLiteralType(value, _) =>
       nameRenderer.escapeName(value.presentation)
-    case ScMatchType(scrutinee, cases) =>
-      scrutineeText(scrutinee, cases)
+    case ScMatchType(scrutinee, cases, _) =>
+      scrutineeText(scrutinee, cases.map(_.apply()))
     case p: ScProjectionType =>
       val adjusted = ScNamedElement.adjusted(p.actualElement)
       if (!adjusted.eq(p.actualElement)) nameRenderer.renderName(adjusted)

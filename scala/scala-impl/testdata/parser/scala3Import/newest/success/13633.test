@@ -364,9 +364,8 @@ ScalaFile
                 TupleType: (a, b)
                   PsiElement(()('(')
                   TypesList
-                    SimpleType: a
-                      CodeReferenceElement: a
-                        PsiElement(identifier)('a')
+                    TypeVariable: a
+                      PsiElement(identifier)('a')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
                     TypeVariable: b
@@ -1341,9 +1340,8 @@ ScalaFile
                       CodeReferenceElement: *:
                         PsiElement(identifier)('*:')
                       PsiWhiteSpace(' ')
-                      SimpleType: as
-                        CodeReferenceElement: as
-                          PsiElement(identifier)('as')
+                      TypeVariable: as
+                        PsiElement(identifier)('as')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
                     InfixType: b *: bs
@@ -1391,9 +1389,8 @@ ScalaFile
                       TupleType: (x, y)
                         PsiElement(()('(')
                         TypesList
-                          SimpleType: x
-                            CodeReferenceElement: x
-                              PsiElement(identifier)('x')
+                          TypeVariable: x
+                            PsiElement(identifier)('x')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
                           TypeVariable: y

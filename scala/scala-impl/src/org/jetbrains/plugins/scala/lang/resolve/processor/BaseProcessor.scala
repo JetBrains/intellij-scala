@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeProjection
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
@@ -300,10 +300,13 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
           }
         }
         true
-      case comp: ScCompoundType => processDeclarations(comp, this, state, null, place)
-      case and: ScAndType       => processDeclarations(and, this, state, null, place)
-      case or: ScOrType         => processTypeImpl(or.join, place, state, updateWithProjectionSubst)
-      case ex: ScExistentialType =>
+      case comp: ScCompoundType   => processDeclarations(comp, this, state, null, place)
+      case and: ScAndType         => processDeclarations(and, this, state, null, place)
+      case or: ScOrType           => processTypeImpl(or.join, place, state, updateWithProjectionSubst)
+      case matchType: ScMatchType =>
+        val redex = matchType.reduce.getOrElse(matchType.upperBound.getOrElse(Any))
+        processTypeImpl(redex, place, state)
+      case ex: ScExistentialType  =>
         processTypeImpl(ex.quantified, place, state.withSubstitutor(ScSubstitutor.empty))
       case ScExistentialArgument(_, _, _, upper) =>
         processTypeImpl(upper, place, state)
@@ -321,21 +324,27 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
 
     e match {
       case ta: ScTypeAlias =>
-        if (recState.visitedProjections.contains(ta)) return true
-        val newState = state.withSubstitutor(ScSubstitutor.empty)
+        ta match {
+          case tadef: ScTypeAliasDefinition if tadef.isMatchTypeAlias =>
+            val dealiased = tadef.aliasedType.getOrAny.removeAliasDefinitions()
+            processTypeImpl(s(dealiased), place, state)(recState.add(ta))
+          case _ =>
+            if (recState.visitedProjections.contains(ta)) return true
+            val newState = state.withSubstitutor(ScSubstitutor.empty)
 
-        //Scala 3 allows rhs of a type alias to be both:
-        val upperBound = ta.upperBound.getOrAny match {
-          //Type lambda
-          //type X[A] = [A] =>> Foo[A]
-          case ScTypePolymorphicType(internal, _) => s(internal)
-          //Unapplied type constructor
-          //type X = MyTraitWithTypeParameters
-          case TypeConstructor(cons)              => s(cons.internalType)
-          case other                              => s(other)
+            //Scala 3 allows rhs of a type alias to be both:
+            val upperBound = ta.upperBound.getOrAny match {
+              //Type lambda
+              //type X[A] = [A] =>> Foo[A]
+              case ScTypePolymorphicType(internal, _) => s(internal)
+              //Unapplied type constructor
+              //type X = MyTraitWithTypeParameters
+              case TypeConstructor(cons)              => s(cons.internalType)
+              case other                              => s(other)
+            }
+
+            processTypeImpl(upperBound, place, newState)(recState.add(ta))
         }
-
-        processTypeImpl(upperBound, place, newState)(recState.add(ta))
       //need to process scala way
       case clazz: PsiClass =>
         processClassDeclarations(clazz, BaseProcessor.this, state.withSubstitutor(newSubst), null, place)

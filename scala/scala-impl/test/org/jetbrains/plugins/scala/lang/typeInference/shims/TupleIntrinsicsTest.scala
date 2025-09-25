@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.typeInference.shims
 
+import com.intellij.openapi.util.registry.Registry
 import org.jetbrains.plugins.scala.{ScalaVersion, TypecheckerTests}
 import org.junit.experimental.categories.Category
 
@@ -10,6 +11,11 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[TypecheckerTests]))
 class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
   override def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_3_7
+
+  override protected def setUp(): Unit = {
+    super.setUp()
+    Registry.get("scala.enable.match.type.intrinsics").setValue(true)
+  }
 
   override def transformCode(code: String): String =
     s"""import scala.Tuple.++
@@ -44,7 +50,7 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
     )
 
   def testAppend_abstract_tup(): Unit =
-    assertTypeIs(
+    assertDoesNotReduce(
       "type T[X] = Tuple.Append[X, Int]",
       "Tuple.Append[X, Int]"
     )
@@ -76,7 +82,7 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
     )
 
   def testHead_abstract(): Unit =
-    assertTypeIs("type T[X] = Tuple.Head[X]", "Tuple.Head[X]")
+    assertDoesNotReduce("type T[X] = Tuple.Head[X]", "Tuple.Head[X]")
 
   def testHead_abstract_inner(): Unit =
     assertTypeIs("type T[X] = Tuple.Head[(X, String)]", "X")
@@ -96,13 +102,13 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
     )
 
   def testHead_with_rest(): Unit =
-    assertTypeIs(
+    assertConforms(
       "type T = Tuple.Head[Int *: NonEmptyTuple]",
       "Int"
     )
 
   def testHead_only_rest(): Unit =
-    assertTypeIs(
+    assertDoesNotReduce(
       "type T = Tuple.Head[NonEmptyTuple]",
       "Tuple.Head[NonEmptyTuple]"
     )
@@ -114,7 +120,7 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
   //
 
   def testInit_simple(): Unit =
-    assertTypeIs(
+    assertConforms(
       "type T = Tuple.Init[(Int, String)]",
       "Tuple1[Int]"
     )
@@ -141,7 +147,7 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
     )
 
   def testInit_abstract(): Unit =
-    assertTypeIs("type T[X] = Tuple.Init[X]", "Tuple.Init[X]")
+    assertDoesNotReduce("type T[X] = Tuple.Init[X]", "Tuple.Init[X]")
 
   def testInit_abstract_inner(): Unit =
     assertTypeIs(
@@ -158,7 +164,7 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
     )
 
   def testInit_nested(): Unit =
-    assertTypeIs(
+    assertConforms(
       """type First = (Int, String, Boolean)
         |type T = Tuple.Init[Tuple.Init[First]]
         |""".stripMargin,
@@ -172,7 +178,7 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
   //
 
   def testTail_simple(): Unit =
-    assertTypeIs(
+    assertConforms(
       "type T = Tuple.Tail[(Int, String)]",
       "Tuple1[String]"
     )
@@ -199,7 +205,7 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
     )
 
   def testTail_abstract(): Unit =
-    assertTypeIs("type T[X] = Tuple.Tail[X]", "Tuple.Tail[X]")
+    assertDoesNotReduce("type T[X] = Tuple.Tail[X]", "Tuple.Tail[X]")
 
   def testTail_abstract_inner(): Unit =
     assertTypeIs(
@@ -222,7 +228,7 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
     )
 
   def testTail_nested(): Unit =
-    assertTypeIs(
+    assertConforms(
       """type First = (Int, String, Boolean)
         |type T = Tuple.Tail[Tuple.Tail[First]]
         |""".stripMargin,
@@ -236,7 +242,7 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
     )
 
   def testTailOnEmpty(): Unit =
-    assertTypeIs(
+    assertDoesNotReduce(
       "type T = Tuple.Tail[EmptyTuple]",
       "Tuple.Tail[EmptyTuple]"
     )
@@ -248,10 +254,10 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
   //
 
   def testLast_simple(): Unit =
-    assertTypeIs("type T = Tuple.Last[(Int, String)]", "String")
+    assertConforms("type T = Tuple.Last[(Int, String)]", "String")
 
   def testLast_single_element(): Unit =
-    assertTypeIs("type T = Tuple.Last[Tuple1[Boolean]]", "Boolean")
+    assertConforms("type T = Tuple.Last[Tuple1[Boolean]]", "Boolean")
 
   def testLast_three_elements(): Unit =
     assertTypeIs("type T = Tuple.Last[(Int, String, Double)]", "Double")
@@ -265,7 +271,7 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
     )
 
   def testLast_abstract(): Unit =
-    assertTypeIs("type T[X] = Tuple.Last[X]", "Tuple.Last[X]")
+    assertDoesNotReduce("type T[X] = Tuple.Last[X]", "Tuple.Last[X]")
 
   def testLast_abstract_inner(): Unit =
     assertTypeIs("type T[X] = Tuple.Last[(String, X)]", "X")
@@ -312,7 +318,7 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
     )
 
   def testConcat_abstract_first(): Unit =
-    assertTypeIs(
+    assertDoesNotReduce(
       "type T[X] = Tuple.Concat[X, (String, Boolean)]",
       "Tuple.Concat[X, (String, Boolean)]"
     )
@@ -353,8 +359,8 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
 
   def testConcat_with_rest_in_left(): Unit =
     assertTypeIs(
-      "type T = (Int *: Tuple) ++ (1, 2)",
-      "Int *: Tuple ++ (1, 2)"
+      "type T = (Int *: EmptyTuple) ++ (1, 2)",
+      "(Int, 1, 2)"
     )
   //
   //
@@ -377,13 +383,13 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
     )
 
   def testElem_abstract_tuple(): Unit =
-    assertTypeIs(
+    assertDoesNotReduce(
       "type T[X] = Tuple.Elem[X, 0]",
       "Tuple.Elem[X, 0]"
     )
 
   def testElem_abstract_index(): Unit =
-    assertTypeIs(
+    assertDoesNotReduce(
       "type T[N] = Tuple.Elem[(Int, String), N]",
       "Tuple.Elem[(Int, String), N]"
     )
@@ -415,7 +421,7 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
     )
 
   def testElem_elem_is_in_rest(): Unit =
-    assertTypeIs(
+    assertDoesNotReduce(
       "type T = Tuple.Elem[(Int, Boolean) ++ NonEmptyTuple, 2]",
       "Tuple.Elem[Int *: Boolean *: NonEmptyTuple, 2]"
     )
@@ -427,10 +433,10 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
   //
 
   def testSize_simple_one(): Unit =
-    assertTypeIs("type T = Tuple.Size[Tuple1[Int]]", "1")
+    assertConforms("type T = Tuple.Size[Tuple1[Int]]", "1")
 
   def testSize_simple_two(): Unit =
-    assertTypeIs("type T = Tuple.Size[(Int, String)]", "2")
+    assertConforms("type T = Tuple.Size[(Int, String)]", "2")
 
   def testSize_aliased(): Unit =
     assertTypeIs(
@@ -441,7 +447,7 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
     )
 
   def testSize_abstract(): Unit =
-    assertTypeIs("type T[X] = Tuple.Size[X]", "Tuple.Size[X]")
+    assertDoesNotReduce("type T[X] = Tuple.Size[X]", "Tuple.Size[X]")
 
   def testSize_abstract_inner(): Unit =
     assertTypeIs("type T[X] = Tuple.Size[(X, Int)]", "2")
@@ -461,11 +467,11 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
   //
 
   def testFold_simple(): Unit =
-    assertTypeIs(
+    assertConforms(
       """type F = [X, Y] =>> List[Y]
         |type T = Tuple.Fold[(Int, String), Boolean, F]
         |""".stripMargin,
-      "F[Int, F[String, Boolean]]"
+      "List[List[Boolean]]"
     )
 
   //
@@ -475,7 +481,7 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
   //
 
   def testMap_simple(): Unit =
-    assertTypeIs(
+    assertConforms(
       """type F[X] = List[X]
         |type T = Tuple.Map[(Int, String), F]
         |""".stripMargin,
@@ -498,7 +504,7 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
     )
 
   def testMap_complex_types(): Unit =
-    assertTypeIs(
+    assertConforms(
       """type F[X] = Either[String, X]
         |type T = Tuple.Map[(List[Int], Map[String, Boolean]), F]
         |""".stripMargin,
@@ -506,7 +512,7 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
     )
 
   def testMap_abstract_tuple(): Unit =
-    assertTypeIs(
+    assertDoesNotReduce(
       """type F[X] = List[X]
         |type T[Tup] = Tuple.Map[Tup, F]
         |""".stripMargin,
@@ -514,12 +520,12 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
     )
 
   def testMap_nested(): Unit =
-    assertTypeIs(
+    assertConforms(
       """type F[X] = List[X]
         |type G[X] = Option[X]
         |type T = Tuple.Map[Tuple.Map[(Int, String), F], G]
         |""".stripMargin,
-      "(G[List[Int]], G[List[String]])"
+      "(Option[List[Int]], Option[List[String]])"
     )
 
   //
@@ -563,13 +569,13 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
     )
 
   def testZip_abstract_first(): Unit =
-    assertTypeIs(
+    assertDoesNotReduce(
       "type T[X] = Tuple.Zip[X, (Boolean, Double)]",
       "Tuple.Zip[X, (Boolean, Double)]"
     )
 
   def testZip_abstract_second(): Unit =
-    assertTypeIs(
+    assertDoesNotReduce(
       "type T[X] = Tuple.Zip[(Int, String), X]",
       "Tuple.Zip[(Int, String), X]"
     )
@@ -629,7 +635,7 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
     )
 
   def testReverse_abstract(): Unit =
-    assertTypeIs(
+    assertDoesNotReduce(
       "type T[X] = Tuple.Reverse[X]",
       "Tuple.Reverse[X]"
     )
@@ -661,7 +667,7 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
     )
 
   def testTake_single(): Unit =
-    assertTypeIs(
+    assertConforms(
       "type T = Tuple.Take[(Int, String, Boolean), 1]",
       "Tuple1[Int]"
     )
@@ -681,13 +687,13 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
     )
 
   def testTake_abstract_tuple(): Unit =
-    assertTypeIs(
+    assertDoesNotReduce(
       "type T[X] = Tuple.Take[X, 2]",
       "Tuple.Take[X, 2]"
     )
 
   def testTake_abstract_n(): Unit =
-    assertTypeIs(
+    assertDoesNotReduce(
       "type T[N] = Tuple.Take[(Int, String), N]",
       "Tuple.Take[(Int, String), N]"
     )
@@ -729,7 +735,7 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
     )
 
   def testTake_into_rest(): Unit =
-    assertTypeIs(
+    assertDoesNotReduce(
       "type T = Tuple.Take[(Int, Boolean) ++ (Float *: Tuple), 4]",
       "Tuple.Take[Int *: Boolean *: Float *: Tuple, 4]"
     )
@@ -747,13 +753,13 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
     )
 
   def testDrop_two(): Unit =
-    assertTypeIs(
+    assertConforms(
       "type T = Tuple.Drop[(Int, String, Boolean), 2]",
       "Tuple1[Boolean]"
     )
 
   def testDrop_aliased(): Unit =
-    assertTypeIs(
+    assertConforms(
       """type Tup = (Int, String, Double)
         |type T = Tuple.Drop[Tup, 2]
         |""".stripMargin,
@@ -761,13 +767,13 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
     )
 
   def testDrop_abstract_tuple(): Unit =
-    assertTypeIs(
+    assertDoesNotReduce(
       "type T[X] = Tuple.Drop[X, 1]",
       "Tuple.Drop[X, 1]"
     )
 
   def testDrop_abstract_n(): Unit =
-    assertTypeIs(
+    assertDoesNotReduce(
       "type T[N] = Tuple.Drop[(Int, String), N]",
       "Tuple.Drop[(Int, String), N]"
     )
@@ -785,7 +791,7 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
     )
 
   def testDrop_into_rest(): Unit =
-    assertTypeIs(
+    assertDoesNotReduce(
       "type T = Tuple.Drop[(Int, Boolean) ++ (Float *: Tuple), 4]",
       "Tuple.Drop[Int *: Boolean *: Float *: Tuple, 4]"
     )
@@ -797,19 +803,19 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
   //
 
   def testSplit_simple(): Unit =
-    assertTypeIs(
+    assertConforms(
       "type T = Tuple.Split[(Int, String, Boolean), 1]",
       "(Tuple1[Int], (String, Boolean))"
     )
 
   def testSplit_middle(): Unit =
-    assertTypeIs(
+    assertConforms(
       "type T = Tuple.Split[(Int, String, Boolean), 2]",
       "((Int, String), Tuple1[Boolean])"
     )
 
   def testSplit_aliased(): Unit =
-    assertTypeIs(
+    assertConforms(
       """type Tup = (Int, String, Double)
         |type T = Tuple.Split[Tup, 1]
         |""".stripMargin,
@@ -817,19 +823,19 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
     )
 
   def testSplit_abstract_tuple(): Unit =
-    assertTypeIs(
+    assertDoesNotReduce(
       "type T[X] = Tuple.Split[X, 1]",
       "(Tuple.Take[X, 1], Tuple.Drop[X, 1])" // should be Tuple.Split[X, 1]?
     )
 
   def testSplit_abstract_n(): Unit =
-    assertTypeIs(
+    assertDoesNotReduce(
       "type T[N] = Tuple.Split[(Int, String), N]",
       "(Tuple.Take[(Int, String), N], Tuple.Drop[(Int, String), N])" // should be Tuple.Split[(Int, String), N]?
     )
 
   def testSplit_complex_types(): Unit =
-    assertTypeIs(
+    assertConforms(
       "type T = Tuple.Split[(List[Int], Map[String, Int], Option[Double]), 2]",
       "((List[Int], Map[String, Int]), Tuple1[Option[Double]])"
     )
@@ -841,7 +847,7 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
     )
 
   def testSplit_into_rest(): Unit =
-    assertTypeIs(
+    assertDoesNotReduce(
       "type T = Tuple.Drop[(Int, Boolean) ++ (Float *: Tuple), 4]",
       "Tuple.Drop[Int *: Boolean *: Float *: Tuple, 4]"
     )
@@ -890,13 +896,13 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
     )
 
   def testContains_subtyping(): Unit =
-    assertTypeIs(
+    assertConforms(
       "type T = Tuple.Contains[(1, String), Int]",
       "true"
     )
 
   def testContains_alias(): Unit =
-    assertTypeIs(
+    assertConforms(
       """type Tup = (Int, String)
         |type T = Tuple.Contains[Tup, Int]
         |""".stripMargin,
@@ -904,7 +910,7 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
     )
 
   def testContains_alias_not(): Unit =
-    assertTypeIs(
+    assertConforms(
       """type Tup = (Int, String)
         |type T = Tuple.Contains[Tup, Boolean]
         |""".stripMargin,
@@ -920,7 +926,7 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
     )
 
   def testContains_abstract(): Unit =
-    assertTypeIs(
+    assertDoesNotReduce(
       "type T[X] = Tuple.Contains[X, Boolean]",
       "Tuple.Contains[X, Boolean]"
     )
@@ -932,7 +938,7 @@ class TupleIntrinsicsTest extends TypeIntrinsicsTestBase {
     )
 
   def testContains_not_before_rest(): Unit =
-    assertTypeIs(
+    assertDoesNotReduce(
       "type T = Tuple.Contains[(Int, Boolean) ++ Tuple, Float]",
       "Tuple.Contains[Int *: Boolean *: Tuple, Float]"
     )

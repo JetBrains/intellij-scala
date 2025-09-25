@@ -1,9 +1,15 @@
 package org.jetbrains.plugins.scala.lang.typeInference
 
+import com.intellij.openapi.util.registry.Registry
 import org.jetbrains.plugins.scala.ScalaVersion
 
 class Scala3SelectableTest extends TypeInferenceTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_3_7
+
+  override protected def setUp(): Unit = {
+    super.setUp()
+    Registry.get("scala.enable.match.type.intrinsics").setValue(true)
+  }
 
   def testSimple(): Unit = doTest(
     s"""

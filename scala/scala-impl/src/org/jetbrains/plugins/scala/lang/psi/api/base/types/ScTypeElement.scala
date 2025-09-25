@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 trait ScTypeElement extends ScalaPsiElement with Typeable {
@@ -103,7 +104,27 @@ trait ScDesugarizableTypeElement extends ScTypeElement {
   }
 
   override protected def innerType: TypeResult = computeDesugarizedType match {
-    case Some(typeElement) => typeElement.getType
+    case Some(typeElement) =>
+      val typeVarsBuilder = Map.newBuilder[String, ScType]
+
+      //Imagine the following scenario:
+      //we have a desugarizable pattern with type variable in it, e.g.
+      //`case a InfixType b => ???`, if we simply calculate its type,
+      //(i.e. desugar it into `case InfixType[a, b])` it will contain two fresh type variables (`a1`, `b1`),
+      //which are not consistent with `a` and `b`.
+      //To avoid this, first save all type variables of the original type and then insert them into type result.
+      this.acceptChildren(new ScalaRecursiveElementVisitor {
+        override def visitTypeVariableTypeElement(tvar: ScTypeVariableTypeElement): Unit =
+          typeVarsBuilder += tvar.name -> tvar.`type`().get
+      })
+
+      val typeVars = typeVarsBuilder.result()
+
+      typeElement.getType.map { desugaredType =>
+        desugaredType.updateLeaves {
+          case tpt @ TypeParameterType(tparam) => typeVars.getOrElse(tparam.name, tpt)
+        }
+      }
     case _ => Failure(ScalaBundle.message("cannot.desugarize.typename", typeName))
   }
 }
