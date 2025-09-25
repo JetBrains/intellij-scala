@@ -17,7 +17,6 @@ import org.apache.commons.lang3.StringUtils
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.jps.model.java.JdkVersionDetector
 import org.jetbrains.plugins.scala.extensions.{RichFile, invokeAndWait}
-import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.SbtUtil.{detectSbtVersion, getDefaultLauncher}
 import org.jetbrains.sbt.project.settings._
@@ -226,12 +225,9 @@ object SbtExternalSystemManager {
 
     val allOptions = ideaProxyOptions ++ givenOptions
 
-    val ideaInstallRoot = PathManager.getHomePath
-
     allOptions
       .addDefaultOption(ideaManaged.key, ideaManaged.value)
       .addDefaultOption(fileEncoding.key, fileEncoding.value)
-      .addDefaultOption(ideaInstallationRootKey, ideaInstallRoot)
       .addPermSize(jreHome)
   }
 
@@ -274,8 +270,5 @@ object SbtExternalSystemManager {
 
     /** custom option to signal sbt instance is run from idea. */
     val ideaManaged: JvmOption = JvmOption("-Didea.managed", "true")
-
-    val ideaInstallationRootKey = "-Didea.installation.dir"
   }
-
 }
