@@ -234,7 +234,7 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
   }
 }
 
-  object ScalaStructuralSearchProfile {
+object ScalaStructuralSearchProfile {
   val PATTERN_CONTEXT = "__pattern__context"
   val SCOPE_ID = "__scopematch__id"
   val REPLACEMENT_CONTEXT: Key[(String, String)] = Key("PARAMETER_CONTEXT")
