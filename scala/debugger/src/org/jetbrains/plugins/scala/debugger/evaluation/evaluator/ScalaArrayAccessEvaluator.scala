@@ -15,9 +15,6 @@ import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaArrayAcces
  * This is a Scala translation of `com.intellij.debugger.engine.evaluation.expression.ArrayAccessEvaluator`.
  */
 class ScalaArrayAccessEvaluator(arrayReferenceEvaluator: Evaluator, indexEvaluator: Evaluator) extends ModifiableEvaluator {
-  // Planned to be removed in the future, see IDEA-366793
-  private var myEvaluatedArrayReference: ArrayReference = _
-  private var myEvaluatedIndex: Int = _
 
   @NotNull
   override def evaluateModifiable(context: EvaluationContextImpl): ModifiableValue = {
@@ -31,8 +28,6 @@ class ScalaArrayAccessEvaluator(arrayReferenceEvaluator: Evaluator, indexEvaluat
 
         try {
           val value = evaluatedArrayReference.getValue(evaluatedIndex)
-          myEvaluatedArrayReference = evaluatedArrayReference
-          myEvaluatedIndex = evaluatedIndex
           new ModifiableValue(value, new MyModifier(evaluatedArrayReference, evaluatedIndex))
         } catch {
           case e: Exception =>
@@ -42,15 +37,6 @@ class ScalaArrayAccessEvaluator(arrayReferenceEvaluator: Evaluator, indexEvaluat
       case _ =>
         throw EvaluateExceptionUtil.createEvaluateException(JavaDebuggerBundle.message("evaluation.error.array.reference.expected"))
     }
-  }
-
-  // This method is still overridden in `com.intellij.debugger.engine.evaluation.expression.ArrayAccessEvaluator`, so
-  // we still do too.
-  override def getModifier: Modifier = {
-    if (myEvaluatedArrayReference ne null) {
-      return new MyModifier(myEvaluatedArrayReference, myEvaluatedIndex)
-    }
-    null
   }
 }
 

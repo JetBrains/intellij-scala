@@ -18,9 +18,6 @@ import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
  */
 case class ScalaFieldEvaluator(objectEvaluator: Evaluator, _fieldName: String,
                           classPrivateThisField: Boolean = false) extends ModifiableEvaluator {
-  // Planned to be removed in the future, see IDEA-366793
-  private var myEvaluatedQualifier: AnyRef = _
-  private var myEvaluatedField: Field = _
 
   private val fieldName = DebuggerUtil.withoutBackticks(_fieldName)
 
@@ -76,8 +73,6 @@ case class ScalaFieldEvaluator(objectEvaluator: Evaluator, _fieldName: String,
 
   @NotNull
   override def evaluateModifiable(context: EvaluationContextImpl): ModifiableValue = {
-    myEvaluatedField = null
-    myEvaluatedQualifier = null
     val obj: AnyRef = DebuggerUtil.unwrapScalaRuntimeRef {
       objectEvaluator.evaluate(context)
     }
@@ -96,8 +91,6 @@ case class ScalaFieldEvaluator(objectEvaluator: Evaluator, _fieldName: String,
           throw EvaluationException(JavaDebuggerBundle.message("evaluation.error.no.static.field", fieldName))
         }
         val modifier = new MyModifier(refType, field)
-        myEvaluatedField = field
-        myEvaluatedQualifier = refType
         new ModifiableValue(refType.getValue(field), modifier)
       case objRef: ObjectReference =>
         val refType: ReferenceType = objRef.referenceType
@@ -119,26 +112,12 @@ case class ScalaFieldEvaluator(objectEvaluator: Evaluator, _fieldName: String,
         }
         val qualifier = if (field.isStatic) refType else objRef
         val modifier = new MyModifier(qualifier, field)
-        myEvaluatedQualifier = qualifier
-        myEvaluatedField = field
         val value = if (field.isStatic) refType.getValue(field) else objRef.getValue(field)
         new ModifiableValue(value, modifier)
       case null => throw EvaluationException(new NullPointerException)
       case _ =>
         throw EvaluationException(JavaDebuggerBundle.message("evaluation.error.evaluating.field", fieldName))
     }
-  }
-
-  // This method is still overridden in `com.intellij.debugger.engine.evaluation.expression.FieldEvaluator`, so
-  // we still do too.
-  override def getModifier: Modifier = {
-    if (myEvaluatedField ne null) {
-      myEvaluatedQualifier match {
-        case _: ClassType | _: ObjectReference => return new MyModifier(myEvaluatedQualifier, myEvaluatedField)
-        case _ =>
-      }
-    }
-    null
   }
 }
 
