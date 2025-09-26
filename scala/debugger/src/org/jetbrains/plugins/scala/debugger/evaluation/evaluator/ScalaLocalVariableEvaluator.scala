@@ -38,7 +38,7 @@ class ScalaLocalVariableEvaluator(
 
   override def evaluateModifiable(context: EvaluationContextImpl): ModifiableValue = {
 
-    def saveContextAndGetValue(framePr: StackFrameProxyImpl, local: LocalVariableProxyImpl) = {
+    def saveContextAndGetValue(framePr: StackFrameProxyImpl, local: LocalVariableProxyImpl): Some[Value] = {
       myEvaluatedVariable = local
       myContext = context
       Some(framePr.getValue(local))
@@ -50,61 +50,73 @@ class ScalaLocalVariableEvaluator(
     val lastIndex = threadProxy.frameCount() - 1
     val upperBound = Math.min(lastIndex, startIndex + depthOfSearch)
 
-    def evaluateWithFrames(evaluationStrategy: StackFrameProxyImpl => Option[AnyRef]): Option[AnyRef] = {
-      for (frameIndex <- startIndex to upperBound) {
+    def evaluateWithFrames(evaluationStrategy: StackFrameProxyImpl => Option[Value]): Option[Value] = {
+      var frameIndex = startIndex
+      while (frameIndex <= upperBound) {
         val frameProxy = threadProxy.frame(frameIndex)
-        if (sourceName(frameProxy) == mySourceName) {
-          try {
-            evaluationStrategy(frameProxy) match {
-              case Some(x) => return Some(x)
-              case _ =>
+        if (frameProxy != null) {
+          if (sourceName(frameProxy) == mySourceName) {
+            try {
+              val res = evaluationStrategy(frameProxy)
+              if (res.nonEmpty) {
+                return res
+              }
+            } catch {
+              case _: EvaluateException =>
+                myEvaluatedVariable = null
+                myContext = null
             }
           }
-          catch {
-            case _: EvaluateException =>
-              myEvaluatedVariable = null
-              myContext = null
-          }
+        }
+        frameIndex += 1
+      }
+      None
+    }
+
+    def withSimpleName(frameProxy: StackFrameProxyImpl): Option[Value] = {
+      val local: LocalVariableProxyImpl = frameProxy.visibleVariableByName(myName)
+      Option(local).flatMap(saveContextAndGetValue(frameProxy, _))
+    }
+
+    def withDollar(frameProxy: StackFrameProxyImpl): Option[Value] = {
+      var i = 1
+      while (i <= 2) {
+        val local = frameProxy.visibleVariableByName(myName + "$" + i)
+        if (local != null) {
+          return saveContextAndGetValue(frameProxy, local)
+        }
+        i += 1
+      }
+      val locals = frameProxy.visibleVariables().iterator()
+      while (locals.hasNext) {
+        val local = locals.next()
+        if (local.name().startsWith(myName + "$")) {
+          return saveContextAndGetValue(frameProxy, local)
         }
       }
       None
     }
 
-    def withSimpleName(frameProxy: StackFrameProxyImpl) : Option[AnyRef] = {
-      val local: LocalVariableProxyImpl = frameProxy.visibleVariableByName(myName)
-      Option(local).flatMap(saveContextAndGetValue(frameProxy, _))
-    }
+    def parameterByIndex(frameProxy: StackFrameProxyImpl): Option[Value] = {
+      parameterIndex match {
+        case Some(idx) =>
+          val frameMethodName = frameProxy.location().method().name()
+          methodName match {
+            case Some(mn) if frameMethodName.startsWith(mn) =>
+              try {
+                val values = frameProxy.getArgumentValues
+                if (values.isEmpty) return None
 
-    def withDollar(frameProxy: StackFrameProxyImpl): Option[AnyRef] = {
-      for (i <- 1 to 2) {
-        val local = frameProxy.visibleVariableByName(myName + "$" + i)
-        if (local != null) return saveContextAndGetValue(frameProxy, local)
-      }
-      val locals = frameProxy.visibleVariables()
-      locals.forEach(local =>
-        if (local.name().startsWith(myName + "$"))
-          return saveContextAndGetValue(frameProxy, local)
-      )
-      None
-    }
+                val paramIdx = if (idx < 0) values.size() + idx else idx
+                Some(values.get(paramIdx))
+              } catch {
+                case _: InternalException => None
+              }
 
-    def parameterByIndex(frameProxy: StackFrameProxyImpl) = {
-      if (frameProxy == null || parameterIndex.isEmpty) None
-      else {
-        val frameMethodName = frameProxy.location().method().name()
-        if (methodName.isEmpty || frameMethodName.startsWith(methodName.get)) {
-          try {
-            val values = frameProxy.getArgumentValues
-            if (values != null && !values.isEmpty) {
-              val idx = parameterIndex.get
-              val paramIdx = if (idx < 0) values.size() + idx else idx
-              Some(values.get(paramIdx))
-            } else {
-              None
-            }
+            case _ => None
           }
-          catch {case _: InternalException => None}
-        } else None
+
+        case None => None
       }
     }
 
