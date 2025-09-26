@@ -96,20 +96,21 @@ class ScalaLocalVariableEvaluator(
       parameterIndex match {
         case Some(idx) =>
           val frameMethodName = frameProxy.location().method().name()
+
+          def argumentValueAtIndex(): Option[EvaluationResult] =
+            try {
+              val values = frameProxy.getArgumentValues
+              if (values.isEmpty) return None
+              val paramIdx = if (idx < 0) values.size() + idx else idx
+              val value = values.get(paramIdx)
+              Some(EvaluationResult(evaluatedVariableProxy = None, value = value))
+            } catch {
+              case _: InternalException => None
+            }
+
           methodName match {
-            case Some(mn) if frameMethodName.startsWith(mn) =>
-              try {
-                val values = frameProxy.getArgumentValues
-                if (values.isEmpty) return None
-
-                val paramIdx = if (idx < 0) values.size() + idx else idx
-                val value = values.get(paramIdx)
-                val result = EvaluationResult(evaluatedVariableProxy = None, value = value)
-                Some(result)
-              } catch {
-                case _: InternalException => None
-              }
-
+            case None => argumentValueAtIndex()
+            case Some(mn) if frameMethodName.startsWith(mn) => argumentValueAtIndex()
             case _ => None
           }
 
