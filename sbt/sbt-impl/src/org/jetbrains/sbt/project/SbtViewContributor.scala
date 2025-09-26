@@ -1,15 +1,18 @@
 package org.jetbrains.sbt.project
 
-import com.intellij.openapi.externalSystem.model.project.ModuleDependencyData
+import com.intellij.ide.projectView.PresentationData
+import com.intellij.openapi.externalSystem.model.project.{ModuleData, ModuleDependencyData}
 import com.intellij.openapi.externalSystem.model.{DataNode, Key, ProjectSystemId}
-import com.intellij.openapi.externalSystem.view.{ExternalProjectsView, ExternalSystemNode, ExternalSystemViewContributor}
+import com.intellij.openapi.externalSystem.view.{ExternalProjectsView, ExternalSystemNode, ExternalSystemViewContributor, ModuleNode}
 import com.intellij.util.SmartList
 import com.intellij.util.containers.MultiMap
+import org.jetbrains.sbt.SbtBundle
+import org.jetbrains.sbt.project.SbtViewContributor._
 import org.jetbrains.sbt.project.data.{SbtCommandData, SbtSettingData, SbtTaskData}
 import org.jetbrains.sbt.project.module.{SbtNestedModuleData, SbtSourceSetData}
 
 import java.util
-import scala.jdk.CollectionConverters.*
+import scala.jdk.CollectionConverters._
 
 class SbtViewContributor extends ExternalSystemViewContributor {
 
@@ -30,7 +33,7 @@ class SbtViewContributor extends ExternalSystemViewContributor {
   override def createNodes(externalProjectsView: ExternalProjectsView,
                            dataNodes: MultiMap[Key[?], DataNode[?]]): util.List[ExternalSystemNode[?]] = {
 
-    /*def getDataNodes(key: Key[_]): Iterable[DataNode[_]] =
+    def getDataNodes(key: Key[?]): Iterable[DataNode[?]] =
       dataNodes.get(key).asScala
 
     val taskNodes = getDataNodes(SbtTaskData.Key)
@@ -65,15 +68,15 @@ class SbtViewContributor extends ExternalSystemViewContributor {
       new ModuleNode(externalProjectsView, moduleDataNode, null, false)
     }
 
-    val allNodes = Seq(settingsNode, tasksNode, commandsNode) ++ moduleNodes*/
-    new SmartList[ExternalSystemNode[?]](??? *)
+    val allNodes = Seq(settingsNode, tasksNode, commandsNode) ++ moduleNodes
+    new SmartList[ExternalSystemNode[?]](allNodes*)
   }
 }
 
 private object SbtViewContributor {
 
   // data nodes for grouping nodes. These are required for correct processing by external system
-  /*class GroupDataNode[T](data: T) extends DataNode[T](new Key[T](data.getClass.getName, 0), data, null)
+  class GroupDataNode[T](data: T) extends DataNode[T](new Key[T](data.getClass.getName, 0), data, null)
   case object SbtTasks
   case object SbtSettings
   case object SbtCommands
@@ -157,5 +160,5 @@ private object SbtViewContributor {
     override def getMenuId: String = "Scala.Sbt.CommandMenu"
     override def getActionId: String = "Scala.Sbt.RunCommand"
     override def isAlwaysLeaf: Boolean = true
-  }*/
+  }
 }
