@@ -56,20 +56,23 @@ abstract class GrazieScalaTestBase extends ScalaLightCodeInsightFixtureTestCase:
       )
       state.copy(
         /*enabledLanguages = */ enabledLanguages.asJava,
-        /*enabledGrammarStrategies = */ state.getEnabledGrammarStrategies,
-        /*disabledGrammarStrategies = */ state.getDisabledGrammarStrategies,
-        /*enabledCommitIntegration = */ state.getEnabledCommitIntegration,
+        /*enabledGrammarStrategies = */ state.getEnabledGrammarStrategies: @nowarn("cat=deprecation"),
+        /*disabledGrammarStrategies = */ state.getDisabledGrammarStrategies: @nowarn("cat=deprecation"),
+        /*enabledCommitIntegration = */ state.getEnabledCommitIntegration: @nowarn("cat=deprecation"),
         /*userDisabledRules = */ state.getUserDisabledRules,
         /*userEnabledRules = */ (enabledRules ++ additionalEnabledRules).asJava,
+        /*domainDisabledRules = */ state.getDomainDisabledRules,
+        /*domainEnabledRules = */ state.getDomainEnabledRules,
         /*suppressingContext = */ state.getSuppressingContext,
         /*detectionContext = */ state.getDetectionContext,
         /*checkingContext = */ checkingContext,
         /*version = */ state.getVersion,
-        state.getStyleProfile,
-        state.getParameters,
-        state.getUseOxfordSpelling,
-        state.getAutoFix
-      ): @nowarn("cat=deprecation")
+        /*styleProfile = */ state.getStyleProfile,
+        /*parameters = */ state.getParameters,
+        /*parametersPerDomain = */ state.getParametersPerDomain,
+        /*useOxfordSpelling = */ state.getUseOxfordSpelling,
+        /*autoFix = */ state.getAutoFix
+      )
 
     service[GrazieCheckers].awaitConfiguration()
 

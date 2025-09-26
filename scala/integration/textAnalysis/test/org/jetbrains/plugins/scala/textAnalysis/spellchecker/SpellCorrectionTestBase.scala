@@ -7,6 +7,8 @@ import com.intellij.grazie.spellcheck.GrazieSpellCheckingInspection
 import com.intellij.spellchecker.quickfixes.RenameTo
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 
+import java.util.Collections
+
 abstract class SpellCorrectionTestBase extends ScalaLightCodeInsightFixtureTestCase {
   val NAME = "/*NAME*/"
 
@@ -22,7 +24,7 @@ abstract class SpellCorrectionTestBase extends ScalaLightCodeInsightFixtureTestC
 
     myFixture.configureByText("dummy." + fileExt, original)
     myFixture.enableInspections(classOf[GrazieSpellCheckingInspection])
-    val fix = myFixture.findSingleIntention(RenameTo.getFixName);
+    val fix = myFixture.findSingleIntention(RenameTo.getFixName(Collections.emptyList()));
     myFixture.launchAction(fix)
     selectAndCheckLookupElements(expectedWords)
     myFixture.checkResult(expected)
