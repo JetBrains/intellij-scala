@@ -17,23 +17,18 @@ import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
  * Follows the implementation details of `com.intellij.debugger.engine.evaluation.expression.LocalVariableEvaluator`
  * but is adapted for Scala.
  */
-class ScalaLocalVariableEvaluator(name: String, sourceName: String) extends ModifiableEvaluator {
+class ScalaLocalVariableEvaluator(
+  name: String,
+  sourceName: String,
+  parameterIndex: Option[Int] = None,
+  methodName: Option[String] = None
+) extends ModifiableEvaluator {
   private val depthOfSearch = 20
 
   private val myName: String = DebuggerUtil.withoutBackticks(name)
   private val mySourceName: String = DebuggerUtil.withoutBackticks(sourceName)
   private var myContext: EvaluationContextImpl = _
   private var myEvaluatedVariable: LocalVariableProxyImpl = _
-  private var myParameterIndex: Option[Int] = None
-  private var myMethodName: String = _
-
-  def setParameterIndex(parameterIndex: Int): Unit = {
-    myParameterIndex = Some(parameterIndex)
-  }
-
-  def setMethodName(name: String): Unit = {
-    myMethodName = name
-  }
 
   private def sourceName(frameProxy: StackFrameProxyImpl) =
     try frameProxy.location().sourceName()
@@ -94,14 +89,14 @@ class ScalaLocalVariableEvaluator(name: String, sourceName: String) extends Modi
     }
 
     def parameterByIndex(frameProxy: StackFrameProxyImpl) = {
-      if (frameProxy == null || myParameterIndex.isEmpty) None
+      if (frameProxy == null || parameterIndex.isEmpty) None
       else {
         val frameMethodName = frameProxy.location().method().name()
-        if ((myMethodName == null) || frameMethodName.startsWith(myMethodName)) {
+        if (methodName.isEmpty || frameMethodName.startsWith(methodName.get)) {
           try {
             val values = frameProxy.getArgumentValues
             if (values != null && !values.isEmpty) {
-              val idx = myParameterIndex.get
+              val idx = parameterIndex.get
               val paramIdx = if (idx < 0) values.size() + idx else idx
               Some(values.get(paramIdx))
             } else {
