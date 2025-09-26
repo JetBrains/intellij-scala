@@ -68,7 +68,7 @@ object ScalaPredefinedConfigurations {
           |}""".stripMargin,
         funcFolder),
       createSConfiguration(ScalaStructuralSearchBundle.message("function.without.certain.modifiers"), "funcwithoutmod",
-        """def '_func:[ script( "!__context__.hasModifierPropertyScala("private")" ) ]""".stripMargin,
+        """def '_func:[ script( "!__context__.hasModifierPropertyScala("private")" ) ]('_arg*)""".stripMargin,
         funcFolder),
       createSConfiguration(ScalaStructuralSearchBundle.message("filter.functions.by.type"), "funcbytype",
         """def '_func:[ exprtype( Int => Int ) ]('_par*)""".stripMargin,
@@ -147,7 +147,7 @@ object ScalaPredefinedConfigurations {
           """var $val$""",
         replaceFolder),
       createSRConfiguration(ScalaStructuralSearchBundle.message("add.deprecated.annotation.to.function"), "addannotfunc",
-        """@'_anno*
+        """@'_depre{0,1}:[ regex( deprecated ) ] @'_anno*
           |def '_func('_para*)""".stripMargin,
         """@deprecated @$anno$
           |def $func$($para$)""".stripMargin,
