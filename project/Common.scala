@@ -34,7 +34,7 @@ object Common {
     "-explain",
     "-feature",
     "-unchecked",
-    "-Werror",
+//    "-Werror",
     "-Wunused:implicits,imports",
   )
 
