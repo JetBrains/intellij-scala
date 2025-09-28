@@ -34,7 +34,7 @@ object Common {
     "-explain",
     "-feature",
     "-unchecked",
-//    "-Werror",
+    "-Werror",
     "-Wunused:implicits,imports",
     "-Wconf:msg=Non local returns are no longer supported:s", // I like local returns!!!
     "-Wconf:msg=Alphanumeric method isInstance is not declared infix:s", // and everyone loves infix notation!
