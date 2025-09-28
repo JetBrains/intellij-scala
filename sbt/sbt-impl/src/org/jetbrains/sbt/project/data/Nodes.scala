@@ -1,11 +1,10 @@
 package org.jetbrains.sbt
 package project.data
 
-import com.intellij.openapi.externalSystem.model.project._
+import com.intellij.openapi.externalSystem.model.project.*
 import com.intellij.openapi.externalSystem.model.{DataNode, Key, ProjectKeys}
-import org.jetbrains.sbt.project.SourceSetType.SourceSetType
-import org.jetbrains.sbt.project.{SbtProjectSystem, SharedSourcesOwnersData}
 import org.jetbrains.sbt.project.module.{SbtNestedModuleData, SbtSourceSetData}
+import org.jetbrains.sbt.project.{SbtProjectSystem, SharedSourcesOwnersData, SourceSetType}
 
 import java.net.URI
 

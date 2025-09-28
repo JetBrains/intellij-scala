@@ -25,7 +25,6 @@ import org.jetbrains.plugins.scala.project.external.{JdkByHome, JdkByName, SdkRe
 import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
 import org.jetbrains.sbt.SbtUtil.*
 import org.jetbrains.sbt.project.SbtProjectResolver.*
-import org.jetbrains.sbt.project.SourceSetType.SourceSetType
 import org.jetbrains.sbt.project.data.*
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.project.settings.*
@@ -1013,7 +1012,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       moduleNode
     }
 
-    (sbtSourceSetModule(SourceSetType.MAIN), sbtSourceSetModule(SourceSetType.TEST))
+    (sbtSourceSetModule(SourceSetType.Main), sbtSourceSetModule(SourceSetType.Test))
   }
 
   private def setCompileOutputPathsForLegacyModule(
