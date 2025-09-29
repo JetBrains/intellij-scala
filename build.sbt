@@ -342,7 +342,10 @@ lazy val scalaMetaImpl: sbt.Project =
     .dependsOn(scalaImpl % "test->test;compile->compile")
     .settings(
       scalaVersion := Versions.scalaVersion,
-      libraryDependencies += Dependencies.scalaMetaCore,
+      libraryDependencies ++= Seq(
+        Dependencies.scalaMetaCore,
+        Dependencies.scalapbRuntime
+      ),
     )
 
 /**

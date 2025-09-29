@@ -4,7 +4,7 @@ import junit.framework.TestCase
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers
 
-import scala.collection.compat.immutable.ArraySeq
+import scala.collection.immutable.ArraySeq
 import scala.util.Random
 
 class BitMaskTest extends TestCase with AssertionMatchers {
