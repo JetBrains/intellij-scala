@@ -48,7 +48,7 @@ class ScalaFindUsagesHandlerBase(
   ): AbstractFindUsagesDialog = {
     config
       .getFindUsagesOptionsResolver(element)
-      .getDialog(this, getProject, toShowInNewTab, mustOpenInNewTab, isSingleFile)
+      .getDialog(this, getProject, isSingleFile, toShowInNewTab, mustOpenInNewTab)
       .getOrElse(super.getFindUsagesDialog(isSingleFile, toShowInNewTab, mustOpenInNewTab))
   }
 }
