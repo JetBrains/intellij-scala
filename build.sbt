@@ -391,7 +391,7 @@ lazy val sbtImpl =
       scalaVersion := Versions.scala3Version,
       Compile / scalacOptions := globalScala3ScalacOptions,
       intellijPlugins += "org.jetbrains.idea.maven".toPlugin,
-      libraryDependencies += Dependencies.sbtStructureCore.cross(CrossVersion.for3Use2_13),
+      libraryDependencies += Dependencies.sbtStructureCore.exclude("org.scala-lang.modules", "scala-xml_3")
     )
 
 lazy val sbtProjectImportingTests =
