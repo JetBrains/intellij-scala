@@ -13,7 +13,7 @@ abstract class ScalaCompileServerMessagesShared(bundle: AbstractBundle) {
   @Nls
   @varargs
   def message(@PropertyKey(resourceBundle = ScalaCompileServerMessagesShared.BUNDLE) key: String, params: Any*): String =
-    bundle.getMessage(key, params: _*)
+    bundle.getMessage(key, params*)
 
   @Nls
   def unknownHostErrorMessage(address: InetAddress): String =
