@@ -1,9 +1,8 @@
 package org.jetbrains.sbt.project
 
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.roots.DependencyScope
-import org.jetbrains.plugins.scala.SlowTests
+import org.jetbrains.plugins.scala.SlowTests2
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.junit.Assert.{assertFalse, assertTrue}
 import org.junit.experimental.categories.Category
@@ -15,7 +14,7 @@ import java.nio.file.{Files, Path}
 /**
  * @see [[SbtProjectStructureImportingTest]]
  */
-@Category(Array(classOf[SlowTests]))
+@Category(Array(classOf[SlowTests2]))
 final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled extends SbtProjectStructureImportingLike {
 
   import ProjectStructureDsl._
