@@ -1,6 +1,7 @@
 package org.jetbrains.sbt.shell.testSettingsQueryHandler
 
 import com.intellij.testFramework.fixtures.IdeaTestFixtureFactory
+import org.jetbrains.plugins.scala.SlowTests2
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.SbtUtil.SbtProjectUriAndId
 import org.jetbrains.sbt.project.SbtProjectStructureImportingLike
@@ -9,12 +10,14 @@ import org.jetbrains.sbt.shell.testSettingsQueryHandler.SettingQueryHandlerTestB
 import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication, SbtShellRunner, SettingQueryHandler}
 import org.jetbrains.sbt.{SbtVersion, SbtVersionCapabilities}
 import org.junit.Assert.assertNotNull
+import org.junit.experimental.categories.Category
 
 import java.nio.file.Path
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.{Duration, DurationInt, FiniteDuration}
 
+@Category(Array(classOf[SlowTests2]))
 //noinspection ApiStatus
 abstract class SettingQueryHandlerTestBase extends SbtProjectStructureImportingLike {
 

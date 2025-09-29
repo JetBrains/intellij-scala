@@ -1,10 +1,10 @@
 package org.jetbrains.sbt.project
 
-import org.jetbrains.plugins.scala.SlowTests
+import org.jetbrains.plugins.scala.SlowTests2
 import org.jetbrains.sbt.project.ProjectStructureTestUtils.checkDisplayModuleNames
 import org.junit.experimental.categories.Category
 
-@Category(Array(classOf[SlowTests]))
+@Category(Array(classOf[SlowTests2]))
 final class DisplayModuleNamesTest_ProdTestSourcesSeparated extends SbtProjectStructureImportingLike {
 
   def testMultiBuildProjectWithTheSameProjectIdsInBuilds(): Unit = {
