@@ -1,12 +1,12 @@
 package org.jetbrains.sbt.shell
 
-import junit.framework.TestCase
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.junit.Assert.assertEquals
+import org.junit.Test
 
 import scala.collection.mutable.ArrayBuffer
 
-class LineListenerTest extends TestCase {
+class LineListenerTest {
 
   private val text =
     """ab
@@ -26,23 +26,28 @@ class LineListenerTest extends TestCase {
 
   private val expectedLinesWithEmptyLines = Seq("ab", "", "cd", "")
 
-  def testSplitTextToLines_EmptyLines(): Unit = {
+  @Test
+  def splitTextToLines_EmptyLines(): Unit = {
     doSplitTextToLinesTest("\n\n\n", Seq("", "", ""))
   }
 
-  def testSplitTextToLines(): Unit = {
+  @Test
+  def splitTextToLines(): Unit = {
     doSplitTextToLinesTest(text, expectedLines)
   }
 
-  def testSplitTextToLines_WindowsLineSeparator(): Unit = {
+  @Test
+  def splitTextToLines_WindowsLineSeparator(): Unit = {
     doSplitTextToLinesTest(text.replace("\n", "\r\n"), expectedLines)
   }
 
-  def testSplitTextToLines_WithBlankLines(): Unit = {
+  @Test
+  def splitTextToLines_WithBlankLines(): Unit = {
     doSplitTextToLinesTest(textWithEmptyLines, expectedLinesWithEmptyLines)
   }
 
-  def testSplitTextToLines_WithBlankLines_WindowsLineSeparator(): Unit = {
+  @Test
+  def splitTextToLines_WithBlankLines_WindowsLineSeparator(): Unit = {
     doSplitTextToLinesTest(textWithEmptyLines.replace("\n", "\r\n"), expectedLinesWithEmptyLines)
   }
 
@@ -75,7 +80,8 @@ class LineListenerTest extends TestCase {
     }
   }
 
-  def testAllPossibleStringSplits(): Unit = {
+  @Test
+  def allPossibleStringSplits(): Unit = {
     assertEquals(
       List(
         List("abcd"),
