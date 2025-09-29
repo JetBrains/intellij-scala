@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes
 
-import org.atteo.evo.inflector.English
+import com.intellij.openapi.util.text.StringUtil
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester.namesByType
@@ -27,7 +27,7 @@ object TypePluralNamesProvider {
   private[namesSuggester] def pluralizeNames(`type`: ScType): Seq[String] =
     namesByType(`type`, withPlurals = false, shortVersion = false).map {
       case letter@IsLetter() => letter + "s"
-      case string => English.plural(string)
+      case string => StringUtil.pluralize(string)
     }
 
   private object IsLetter {

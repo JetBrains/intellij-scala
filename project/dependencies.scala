@@ -93,7 +93,6 @@ object Dependencies {
   val scalaParallelCollections: ModuleID = "org.scala-lang.modules" %% "scala-parallel-collections" % "0.2.0"
   // this actually needs the explicit version because something in packager breaks otherwise (???)
   val sbtStructureCore: ModuleID = "org.jetbrains.scala" %% "sbt-structure-core" % sbtStructureVersion
-  val evoInflector: ModuleID = "org.atteo" % "evo-inflector" % "1.3"
   val coursierDirectoriesJni: ModuleID = "io.get-coursier.util" % "directories-jni" % "0.1.4"
   val apacheCommonsText: ModuleID = "org.apache.commons" % "commons-text" % "1.14.0"
   // NOTE: current latest version is in https://github.com/unkarjedy/scalatest-finders.git repository
@@ -218,7 +217,6 @@ object DependencyGroups {
     scalaReflect,
     scalaXml,
     scalaParserCombinators,
-    evoInflector,
     coursierDirectoriesJni,
     ivy2,
     compilerIndicesProtocol,
