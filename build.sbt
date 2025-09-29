@@ -542,8 +542,9 @@ lazy val compilerShared =
     .dependsOn(scalaLanguageUtilsRt)
     .withJpsSharedClasspath
     .settings(
+      scalaVersion := Versions.scala3Version,
       (Compile / javacOptions) := outOfIDEAProcessJavacOptions,
-      (Compile / scalacOptions) := outOfIDEAProcessScalacOptions,
+      (Compile / scalacOptions) := outOfIDEAProcessScala3ScalacOptions,
       packageMethod := PackagingMethod.Standalone("lib/compiler-shared.jar", static = true)
     )
 
