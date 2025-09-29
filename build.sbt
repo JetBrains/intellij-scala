@@ -925,7 +925,7 @@ lazy val runtimeDependencies = project.in(file("target/tools/runtime-dependencie
   .settings(
     name := "runtimeDependencies",
     organization := JetBrains,
-    scalaVersion := Versions.scalaVersion,
+    crossPaths := false,
     autoScalaLibrary := false,
     resolvers += Classpaths.sbtPluginReleases,
     ideSkipProject := true,
