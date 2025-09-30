@@ -110,5 +110,8 @@ abstract class InvocationInfoTestBase extends ScalaLightCodeInsightFixtureTestCa
     thisExpression.getText shouldBe expectedExpressionInText
   }
 
-  private def convertArgsToText(args: List[Argument]): List[String] = args.map(forceExtractExpressionFromArgument).map(_.getText)
+  private def convertArgsToText(args: List[Argument]): List[String] = args.map(_.content).map {
+    case Some(expr) => expr.getText
+    case None => "<no-expr>"
+  }
 }
