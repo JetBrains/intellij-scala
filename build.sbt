@@ -69,7 +69,6 @@ lazy val scalaCommunity: sbt.Project =
       debugger % "test->test;compile->compile",
       testingSupport % "test->test;compile->compile",
       gradleIntegration % "test->test;compile->compile",
-      intellijBazelIntegration % "test->test;compile->compile",
       intelliLangIntegration % "test->test;compile->compile",
       markdownIntegration % "test->test;compile->compile",
       mavenIntegration % "test->test;compile->compile",
@@ -101,6 +100,7 @@ lazy val scalaCommunity: sbt.Project =
         copyrightIntegration,
         devKitIntegration,
         featuresTrainerIntegration,
+        intellijBazelIntegration,
         javaDecompilerIntegration,
         runtimeDependencies
       ),
@@ -790,6 +790,8 @@ lazy val intellijBazelIntegration =
   newProject("intellij-bazel", file("scala/integration/intellij-bazel"))
     .dependsOn(scalaImpl, sbtImpl)
     .settings(
+      scalaVersion := Versions.scala3Version,
+      Compile / scalacOptions := globalScala3ScalacOptions,
       intellijPlugins += "org.jetbrains.bazel::super-early-bird".toPlugin,
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.intellij-bazel")
     )
