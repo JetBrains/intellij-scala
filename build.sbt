@@ -123,10 +123,8 @@ lazy val pluginXml = newProject("pluginXml", file("pluginXml"))
     },
   )
 
-lazy val scalaApi = newProject(
-  "scala-api",
-  file("scala/scala-api")
-).settings(
+lazy val scalaApi = newProject("scala-api", file("scala/scala-api"))
+  .settings(
   idePackagePrefix := Some("org.jetbrains.plugins.scala")
 )
 
@@ -145,7 +143,12 @@ lazy val sbtKotlinUtils = newProjectWithKotlin("sbt-kotlin-utils", file("sbt/sbt
 
 lazy val sbtApi =
   newProject("sbt-api", file("sbt/sbt-api"))
-    .dependsOn(scalaApi, compilerShared, workspaceEntities)
+    .dependsOn(
+      scalaApi,
+      compilerShared,
+      workspaceEntities,
+      testUtilsCommon % "test->test"
+    )
     .enablePlugins(BuildInfoPlugin)
     .settings(
       buildInfoPackage := "org.jetbrains.sbt.buildinfo",
@@ -297,7 +300,8 @@ lazy val scalaImpl: sbt.Project =
       scalatestFinders,
       runners,
       testRunners,
-      packageSearchClient % "test->test;compile->compile"
+      packageSearchClient % "test->test;compile->compile",
+      testUtilsCommon % "test->test"
     )
     .settings(
       ideExcludedDirectories := Seq(
@@ -385,6 +389,15 @@ lazy val scalaLanguageUtilsRt: sbt.Project =
       Compile / javacOptions := outOfIDEAProcessJavacOptions,
       packageMethod := PackagingMethod.Standalone("lib/utils_rt.jar", static = true),
     )
+
+/**
+ * The modules contain common test utilities that can be used from any other module.
+ * It only has dependency on the plain Scala and on the JUnit test framework.
+ * It doesn't have any dependencies on IntelliJ SDK entities or test framework.
+ */
+lazy val testUtilsCommon: sbt.Project =
+  newPlainScalaProject("test-utils-common", file("scala/test-utils-common"))
+    .projectWithTestsOnly
 
 lazy val sbtImpl =
   newProject("sbt-impl", file("sbt/sbt-impl"))

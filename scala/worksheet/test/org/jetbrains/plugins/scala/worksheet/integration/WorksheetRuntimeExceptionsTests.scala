@@ -2,13 +2,13 @@ package org.jetbrains.plugins.scala.worksheet.integration
 
 import com.intellij.openapi.editor.Editor
 import org.jetbrains.plugins.scala.extensions.StringExt
-import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
+import org.jetbrains.plugins.scala.util.assertions.MatcherAssertionsExt
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.ViewerEditorData
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetRuntimeExceptionsTests.ExceptionFoldingType
 import org.junit.Assert.{assertEquals, assertTrue, fail}
 
-trait WorksheetRuntimeExceptionsTests extends MatcherAssertions {
+trait WorksheetRuntimeExceptionsTests extends MatcherAssertionsExt {
   self: WorksheetIntegrationBaseTest =>
 
   def testDisplayFirstRuntimeException(

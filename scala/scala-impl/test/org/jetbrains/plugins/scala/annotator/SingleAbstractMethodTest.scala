@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
-import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
+import org.jetbrains.plugins.scala.util.assertions.MatcherAssertionsExt
 import org.junit.Assert.assertEquals
 import org.junit.experimental.categories.Category
 
@@ -27,7 +27,7 @@ import org.junit.experimental.categories.Category
 //  2. "Type mismatch, expected: () => String, actual: String"
 //  in prod only 2nd variant can be observed
 @Category(Array(classOf[TypecheckerTests]))
-abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with MatcherAssertions {
+abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with MatcherAssertionsExt {
   import Message._
 
   protected def checkCodeHasNoErrors(scalaCode: String, javaCode: Option[String] = None): Unit =
@@ -1638,7 +1638,6 @@ abstract class SingleAbstractMethodTest_Since_2_13 extends SingleAbstractMethodT
 }
 
 class SingleAbstractMethodTest_2_13 extends SingleAbstractMethodTest_Since_2_13 {
-  import Message._
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
 }
