@@ -72,7 +72,6 @@ lazy val scalaCommunity: sbt.Project =
       intelliLangIntegration % "test->test;compile->compile",
       markdownIntegration % "test->test;compile->compile",
       mavenIntegration % "test->test;compile->compile",
-      junitIntegration % "test->test;compile->compile",
       propertiesIntegration % "test->test;compile->compile",
       mlCompletionIntegration % "test->test;compile->compile",
       textAnalysis % "test->test;compile->compile",
@@ -101,6 +100,7 @@ lazy val scalaCommunity: sbt.Project =
         devKitIntegration,
         featuresTrainerIntegration,
         intellijBazelIntegration,
+        junitIntegration,
         runtimeDependencies
       ),
       // all sub-project tests need to be run within main project's classpath
@@ -839,9 +839,12 @@ lazy val mavenIntegration =
 
 lazy val junitIntegration =
   newProject("junit", file("scala/integration/junit"))
-    .dependsOn(sbtImpl % "compile->compile")
+    .dependsOn(sbtImpl)
     .settings(
-      intellijPlugins += "JUnit".toPlugin
+      scalaVersion := Versions.scala3Version,
+      Compile / scalacOptions := globalScala3ScalacOptions,
+      intellijPlugins += "JUnit".toPlugin,
+      packageMethod := PackagingMethod.PluginModule("scalaCommunity.junit")
     )
 
 lazy val propertiesIntegration =
