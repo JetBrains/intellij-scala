@@ -66,6 +66,7 @@
 
         <!-- integrations -->
         <module name="scalaCommunity.copyright" />
+        <module name="scalaCommunity.devkit" />
         <module name="scalaCommunity.gradle" />
         <module name="scalaCommunity.intellij-bazel" />
         <module name="scalaCommunity.markdown" />
@@ -84,7 +85,6 @@
     <xi:include href="/META-INF/scala-meta-impl.xml"/>
     <xi:include href="/META-INF/scalastyle-integration.xml"/>
     <xi:include href="/META-INF/uast.xml"/>
-    <xi:include href="/META-INF/scala-devkit-integration.xml"/>
 
 
     <!-- Include the ultimate part of our plugin -->

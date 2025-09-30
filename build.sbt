@@ -68,7 +68,6 @@ lazy val scalaCommunity: sbt.Project =
       scalaCompilerPluginTests % "test->test;compile->compile",
       debugger % "test->test;compile->compile",
       testingSupport % "test->test;compile->compile",
-      devKitIntegration % "test->test;compile->compile",
       gradleIntegration % "test->test;compile->compile",
       intellijBazelIntegration % "test->test;compile->compile",
       intelliLangIntegration % "test->test;compile->compile",
@@ -101,6 +100,7 @@ lazy val scalaCommunity: sbt.Project =
         scalaCompilerPlugin_3_3,
         nailgunRunners,
         copyrightIntegration,
+        devKitIntegration,
         javaDecompilerIntegration,
         runtimeDependencies
       ),
@@ -752,6 +752,11 @@ lazy val scalaCli =
 lazy val devKitIntegration =
   newProject("devKit", file("scala/integration/devKit"))
     .dependsOn(scalaImpl, sbtImpl)
+    .settings(
+      scalaVersion := Versions.scala3Version,
+      Compile / scalacOptions := globalScala3ScalacOptions,
+      packageMethod := PackagingMethod.PluginModule("scalaCommunity.devkit")
+    )
 
 lazy val copyrightIntegration =
   newProject("copyright", file("scala/integration/copyright"))

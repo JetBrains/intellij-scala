@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="iso-8859-1"?>
-
-<idea-plugin>
+<?xml version="1.0" encoding="UTF-8"?>
+<idea-plugin package="org.jetbrains.idea.devkit.scala">
     <actions>
         <action class="org.jetbrains.idea.devkit.scala.AttachIntellijSourcesAction"
                 text="Attach IntelliJ Sources"
