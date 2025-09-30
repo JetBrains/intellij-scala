@@ -1,8 +1,17 @@
 package org.jetbrains.plugins.scala.projectView
 
+import org.jetbrains.plugins.scala.SlowTests2
+import org.junit.Test
+import org.junit.experimental.categories.Category
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
+
+@RunWith(classOf[JUnit4])
+@Category(Array(classOf[SlowTests2]))
 class ScalaSbtProjectViewTest extends ScalaSbtProjectViewTestBase {
 
-  def testSimple(): Unit = {
+  @Test
+  def simple(): Unit = {
     val expectedStructure = """Project: root
                               | simple *[root]*
                               |  *foo*
@@ -23,7 +32,8 @@ class ScalaSbtProjectViewTest extends ScalaSbtProjectViewTestBase {
     runTest(expectedStructure)
   }
 
-  def testSourcesOutsideOfProject(): Unit = {
+  @Test
+  def sourcesOutsideOfProject(): Unit = {
     val expectedStructure = """Project: root
                               | GroupNode: root
                               |  *main*
@@ -53,7 +63,8 @@ class ScalaSbtProjectViewTest extends ScalaSbtProjectViewTestBase {
     runTestWithOutsideSources(projectDirectory = "testProject", expectedStructure)
   }
 
-  def testTwoLinkedProjects(): Unit = {
+  @Test
+  def twoLinkedProjects(): Unit = {
     val expectedStructure = """Project: root
                               | GroupNode: simple
                               |  simple *[simple.root]*
@@ -84,7 +95,8 @@ class ScalaSbtProjectViewTest extends ScalaSbtProjectViewTestBase {
   }
 
   // It tests the functionality of org.jetbrains.plugins.scala.projectView.ScalaTreeStructureProvider.convertGroupNodeToPsiDirectoryNode
-  def testTwoLinkedProjectsWithoutGroupingNode(): Unit = {
+  @Test
+  def twoLinkedProjectsWithoutGroupingNode(): Unit = {
     val expectedStructure = """Project: root
                               | simple *[simple.root]*
                               |  *foo*
@@ -119,7 +131,8 @@ class ScalaSbtProjectViewTest extends ScalaSbtProjectViewTestBase {
     runtTestWithTwoLinkedProjects(rootProjectDirectory = "testProject", linkedProjectDirectory = "simple", expectedStructure)
   }
 
-  def testSCL23868(): Unit = {
+  @Test
+  def SCL23868(): Unit = {
     val expectedStructure = """Project: root
                               | SCL23868 *[root]*
                               |  *foo*

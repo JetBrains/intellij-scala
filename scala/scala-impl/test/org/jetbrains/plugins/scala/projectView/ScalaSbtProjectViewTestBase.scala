@@ -5,9 +5,9 @@ import com.intellij.ide.util.treeView.{AbstractTreeNode, PresentableNodeDescript
 import com.intellij.projectView.TestProjectTreeStructure
 import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.ui.SimpleTextAttributes
-import junit.framework.TestCase.assertEquals
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.project.SbtExternalSystemImportingTestLike
+import org.junit.Assert.assertEquals
 
 import scala.jdk.CollectionConverters.ListHasAsScala
 
