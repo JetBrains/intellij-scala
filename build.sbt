@@ -82,7 +82,7 @@ lazy val scalaCommunity: sbt.Project =
       scalaLanguageUtilsRt % "test->test;compile->compile",
       pluginXml,
       scalaCli % "test->test;compile->compile",
-      javaDecompilerIntegration % "test->test", //add only test dependency to run tests from this module
+      javaDecompilerIntegration % "test->test;compile->compile",
       scalastyleIntegration
     )
     .settings(MainProjectSettings)
@@ -101,7 +101,6 @@ lazy val scalaCommunity: sbt.Project =
         devKitIntegration,
         featuresTrainerIntegration,
         intellijBazelIntegration,
-        javaDecompilerIntegration,
         runtimeDependencies
       ),
       // all sub-project tests need to be run within main project's classpath
@@ -857,10 +856,12 @@ lazy val propertiesIntegration =
 
 lazy val javaDecompilerIntegration =
   newProject("java-decompiler", file("scala/integration/java-decompiler"))
-    .dependsOn(scalaImpl % "compile->compile;test->test")
+    .dependsOn(scalaImpl % "test->test;compile->compile")
     .settings(
+      scalaVersion := Versions.scala3Version,
+      Compile / scalacOptions := globalScala3ScalacOptions,
       intellijPlugins += "org.jetbrains.java.decompiler".toPlugin,
-      packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity)
+      packageMethod := PackagingMethod.PluginModule("scalaCommunity.javaDecompiler")
     )
 
 lazy val mlCompletionIntegration =

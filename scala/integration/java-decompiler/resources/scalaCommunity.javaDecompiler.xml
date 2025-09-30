@@ -1,4 +1,9 @@
-<idea-plugin>
+<?xml version="1.0" encoding="UTF-8"?>
+<idea-plugin package="org.jetbrains.plugins.scala.decompileToJava">
+    <dependencies>
+        <plugin id="org.jetbrains.java.decompiler"/>
+    </dependencies>
+
     <extensions defaultExtensionNs="com.intellij">
         <attachSourcesProvider implementation="org.jetbrains.plugins.scala.decompileToJava.DecompileScalaToJavaActionProvider"/>
         <applicationService serviceInterface="org.jetbrains.plugins.scala.decompileToJava.ScalaDecompilerService"
