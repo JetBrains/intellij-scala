@@ -369,7 +369,7 @@ abstract class SmartStepIntoTestBase extends ScalaDebuggerTestCase {
     createLocalProcess(mainClass)
 
     onBreakpoint { implicit ctx =>
-      val availableTargets = availableSmartStepIntoTargets()
+      val availableTargets = availableSmartStepIntoTargets(ctx)
       val actual = inReadAction(availableTargets.map(_.getPresentation))
       val expected = drain(expectedTargetsQueue)
       assertEquals(expected.map(_.target), actual)
@@ -393,15 +393,15 @@ abstract class SmartStepIntoTestBase extends ScalaDebuggerTestCase {
   }
 
   protected def smartStepInto(target: Target)(context: SuspendContextImpl): Unit = {
-    val availableTargets = availableSmartStepIntoTargets()(context)
+    val availableTargets = availableSmartStepIntoTargets(context)
     val smartStepIntoTarget = inReadAction(availableTargets.find(_.getPresentation == target.target))
     assertTrue(s"Cannot find smart step into target $target", smartStepIntoTarget.isDefined)
     smartStepInto(smartStepIntoTarget.get)(context)
   }
 
-  private def availableSmartStepIntoTargets()(implicit context: SuspendContextImpl): Seq[SmartStepTarget] = inReadAction {
+  private def availableSmartStepIntoTargets(context: SuspendContextImpl): Seq[SmartStepTarget] = inReadAction {
     val sourcePosition = ContextUtil.getSourcePosition(context)
-    handler.findSmartStepTargets(sourcePosition).asScala.toSeq
+    handler.findSmartStepTargetsInTests(sourcePosition).asScala.toSeq
   }
 
   private def smartStepInto(target: SmartStepTarget)(implicit context: SuspendContextImpl): Unit = {

@@ -2,14 +2,18 @@ package org.jetbrains.plugins.scala.debugger.smartStepInto
 
 import com.intellij.debugger.SourcePosition
 import com.intellij.debugger.actions.{JvmSmartStepIntoHandler, MethodSmartStepTarget, SmartStepTarget}
-import com.intellij.debugger.engine.MethodFilter
-import com.intellij.debugger.impl.DebuggerSession
+import com.intellij.debugger.engine.events.DebuggerContextCommandImpl
+import com.intellij.debugger.engine.{MethodFilter, SuspendContextImpl}
+import com.intellij.debugger.impl.PrioritizedTask.Priority
+import com.intellij.debugger.impl.{DebuggerSession, PrioritizedTask}
+import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.util.{Computable, TextRange}
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.Range
-import org.jetbrains.concurrency.{Promise, Promises}
+import org.jetbrains.annotations.TestOnly
+import org.jetbrains.concurrency.{AsyncPromise, Promise, Promises}
 import org.jetbrains.plugins.scala.codeInspection.collections.{MethodRepr, stripped}
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 import org.jetbrains.plugins.scala.extensions._
@@ -24,23 +28,50 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElemen
 import org.jetbrains.plugins.scala.statistics.ScalaDebuggerUsagesCollector
 import org.jetbrains.plugins.scala.util.AnonymousFunction
 
-import java.util.{Collections, List => JList}
+import java.util.concurrent.Callable
+import java.util.{Collections, Objects}
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 import scala.jdk.CollectionConverters._
 
 class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
 
-  override def findStepIntoTargets(position: SourcePosition, session: DebuggerSession): Promise[JList[SmartStepTarget]] = {
+  override def findSmartStepTargets(position: SourcePosition): java.util.List[SmartStepTarget] = {
+    throw new IllegalStateException("Should not be used")
+  }
+
+  override def findStepIntoTargets(position: SourcePosition, session: DebuggerSession): Promise[java.util.List[SmartStepTarget]] = {
     if (ScalaDebuggerSettings.getInstance().ALWAYS_SMART_STEP_INTO) {
       findSmartStepTargetsAsync(position, session)
     }
     else {
-      Promises.rejectedPromise[JList[SmartStepTarget]]
+      Promises.rejectedPromise[java.util.List[SmartStepTarget]]()
     }
   }
 
-  override def findSmartStepTargets(position: SourcePosition): JList[SmartStepTarget] = {
+  override def findSmartStepTargetsAsync(position: SourcePosition, session: DebuggerSession): Promise[java.util.List[SmartStepTarget]] = {
+    val res = new AsyncPromise[java.util.List[SmartStepTarget]]()
+    val context = session.getContextManager.getContext
+    Objects.requireNonNull(context.getManagerThread).schedule(new DebuggerContextCommandImpl(context) {
+      override def threadAction(suspendContext: SuspendContextImpl): Unit = {
+        val callable: Callable[java.util.List[SmartStepTarget]] = () => doFindSmartStepTargets(position)
+        Promises.compute(res, () => ReadAction.nonBlocking(callable).executeSynchronously())
+      }
+
+      override def commandCancelled(): Unit = {
+        res.setError("Cancelled")
+      }
+
+      override def getPriority: PrioritizedTask.Priority = Priority.NORMAL
+    })
+    res
+  }
+
+  @TestOnly
+  private[smartStepInto] def findSmartStepTargetsInTests(position: SourcePosition): java.util.List[SmartStepTarget] =
+    doFindSmartStepTargets(position)
+
+  private def doFindSmartStepTargets(position: SourcePosition): java.util.List[SmartStepTarget] = {
     val line: Int = position.getLine
     if (line < 0) {
       return Collections.emptyList[SmartStepTarget]()
@@ -77,6 +108,7 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
             .foreach(_.accept(collector))
     collector.result.sortBy(_.getHighlightElement.getTextOffset).asJava
   }
+
   override def isAvailable(position: SourcePosition): Boolean = {
     val file: PsiFile = position.getFile
     file.isInstanceOf[ScalaFile]
