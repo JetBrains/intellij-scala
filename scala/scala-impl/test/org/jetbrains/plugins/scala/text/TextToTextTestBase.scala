@@ -8,7 +8,7 @@ import com.intellij.psi.PsiPackage
 import com.intellij.testFramework.{PsiTestUtil, TestLoggerKt}
 import com.intellij.util.AstLoadingFilter
 import org.jetbrains.plugins.scala.DependencyManagerBase.DependencyDescription
-import org.jetbrains.plugins.scala.ScalaVersion
+import org.jetbrains.plugins.scala.{ScalaVersion, TextToTextTests}
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, ScalaReflectLibraryLoader, SmartJDKLoader}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PathExt, PsiElementExt}
@@ -17,13 +17,18 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTy
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 import org.jetbrains.plugins.scala.text.TextToTextTestBase._
-import org.junit.Assert
+import org.junit.{Assert, Test}
+import org.junit.experimental.categories.Category
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 import java.nio.file.Path
 import java.util.Collections
 import scala.jdk.CollectionConverters.{ListHasAsScala, SeqHasAsJava}
 
 // SCL-21078
+@RunWith(classOf[JUnit4])
+@Category(Array(classOf[TextToTextTests]))
 abstract class TextToTextTestBase(dependencies: Seq[DependencyDescription],
                                   packages: Seq[String], packageExceptions: Set[String], minClassCount: Int,
                                   classExceptions: Set[String],
@@ -60,7 +65,8 @@ abstract class TextToTextTestBase(dependencies: Seq[DependencyDescription],
   private def findJarFile(file: Path): VirtualFile =
     JarFileSystem.getInstance.refreshAndFindFileByPath(file.toCanonicalPath.toString + "!/")
 
-  def testTextToText(): Unit = {
+  @Test
+  def textToText(): Unit = {
     ScalaApplicationSettings.PRECISE_TEXT = true
     try {
       doTestTextToText()
@@ -192,9 +198,9 @@ private object TextToTextTestBase {
 
   sealed abstract class Content extends Product with Serializable
   object Content {
-    final case object DecompiledVsStub extends Content
-    final case object Stub extends Content
-    final case object DecompiledVsSourceOutline extends Content
-    final case object SourceOutline extends Content
+    case object DecompiledVsStub extends Content
+    case object Stub extends Content
+    case object DecompiledVsSourceOutline extends Content
+    case object SourceOutline extends Content
   }
 }

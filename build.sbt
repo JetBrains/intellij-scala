@@ -1020,6 +1020,7 @@ addCommandAlias("runDebuggerEvaluationTests", runTestsInTC(debuggerEvaluationTes
 addCommandAlias("runScalacTests", runTestsInTC(scalacTests))
 addCommandAlias("runTypeInferenceTests", runTestsInTC(typecheckerTests))
 addCommandAlias("runTestingSupportTests", runTestsInTC(testingSupportTests))
+addCommandAlias("runTextToTextTests", runTestsInTC(textToTextTests))
 addCommandAlias("runWorksheetEvaluationTests", runTestsInTC(worksheetEvaluationTests))
 addCommandAlias("runHighlightingTests", runTestsInTC(highlightingTests))
 addCommandAlias("runNightlyTests", runTestsInTC(randomTypingTests))
@@ -1043,6 +1044,7 @@ lazy val categoriesToExclude = List(
   scalacTests,
   typecheckerTests,
   testingSupportTests,
+  textToTextTests,
   highlightingTests,
   worksheetEvaluationTests,
   randomTypingTests,
