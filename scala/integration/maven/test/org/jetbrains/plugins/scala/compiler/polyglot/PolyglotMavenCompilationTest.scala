@@ -18,11 +18,13 @@ import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+import scala.compiletime.uninitialized
+
 @Category(Array(classOf[CompilationTests_Zinc]))
 @RunWith(classOf[JUnit4])
 class PolyglotMavenCompilationTest extends MavenImportingTestCase {
 
-  private var sdk: Sdk = _
+  private var sdk: Sdk = uninitialized
 
   override protected def runInDispatchThread(): Boolean = false
 
@@ -258,7 +260,7 @@ class PolyglotMavenCompilationTest extends MavenImportingTestCase {
   private def withCompiler(action: CompilerTester => Unit): Unit = {
     val project = getProject
     val modules = ModuleManager.getInstance(project).getModules
-    val compiler = new CompilerTester(project, java.util.Arrays.asList(modules: _*), null, false)
+    val compiler = new CompilerTester(project, java.util.Arrays.asList(modules*), null, false)
     try action(compiler)
     finally compiler.tearDown()
   }

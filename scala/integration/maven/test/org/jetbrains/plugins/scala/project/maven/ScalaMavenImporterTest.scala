@@ -14,10 +14,10 @@ import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.compiler.data.CompileOrder
 import org.jetbrains.plugins.scala.extensions.{PathExt, inWriteAction}
-import org.jetbrains.plugins.scala.project.maven.MavenProjectStructureTestUtils._
+import org.jetbrains.plugins.scala.project.maven.MavenProjectStructureTestUtils.*
 import org.jetbrains.plugins.scala.project.{LibraryExExt, LibraryExt, ProjectExt}
 import org.jetbrains.plugins.scala.util.TestUtils
-import org.jetbrains.sbt.project.ProjectStructureDsl._
+import org.jetbrains.sbt.project.ProjectStructureDsl.*
 import org.jetbrains.sbt.project.utils.ProjectStructureComparisonContext
 import org.jetbrains.sbt.project.{ExactMatch, ProjectStructureMatcher}
 import org.junit.Assert.assertNotNull
@@ -27,6 +27,7 @@ import org.junit.runners.JUnit4
 import org.junit.{Assert, Test}
 
 import java.nio.file.{Files, Path}
+import scala.compiletime.uninitialized
 
 //noinspection ApiStatus
 @Category(Array(classOf[SlowTests]))
@@ -41,7 +42,7 @@ abstract class ScalaMavenImporterTest
   /** None means use whatever default JDK is chosen by IDEA (most probably internal IDEA JDK) */
   protected def projectJdkVersion: Option[LanguageLevel]
 
-  private var jdk: Sdk = _
+  private var jdk: Sdk = uninitialized
 
   override protected def setUp(): Unit = {
     super.setUp()
@@ -95,8 +96,8 @@ abstract class ScalaMavenImporterTest
 
     importProjects(pomVFile)
 
-    val compareContext = ProjectStructureComparisonContext.Implicit.default(getProject)
-    assertProjectsEqual(expected, getProject)(compareContext)
+    val compareContext = ProjectStructureComparisonContext.Implicit.default(using getProject)
+    assertProjectsEqual(expected, getProject)(using compareContext)
   }
 
   private def runImportingTest_Common(

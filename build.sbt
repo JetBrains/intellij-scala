@@ -827,8 +827,12 @@ lazy val mavenIntegration =
       compilerIntegration % "test->test;compile->compile"
     )
     .settings(
-      intellijPlugins += "org.jetbrains.idea.maven".toPlugin,
-      intellijPlugins += "org.jetbrains.idea.reposearch".toPlugin, // required for Maven (IJPL-35276)
+      scalaVersion := Versions.scala3Version,
+      Compile / scalacOptions := globalScala3ScalacOptions,
+      intellijPlugins ++= Seq(
+        "org.jetbrains.idea.maven",
+        "org.jetbrains.idea.reposearch" // required for Maven (IJPL-35276)
+      ).map(_.toPlugin),
       libraryDependencies ++= Seq(
         Dependencies.intellijMavenTestFramework % Test,
         Dependencies.intellijEelJavaTestFramework % Test

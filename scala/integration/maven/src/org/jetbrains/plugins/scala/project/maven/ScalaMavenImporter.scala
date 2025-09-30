@@ -81,7 +81,7 @@ final class ScalaMavenImporter extends MavenApplicableConfigurator(PluginGroupId
       validConfigurationIn(mavenProject).foreach { configuration =>
         // TODO configuration.vmOptions
         val compilerOptions = {
-          val plugins = configuration.plugins.map(id => mavenProject.localPathTo(id))
+          val plugins = configuration.plugins.map(id => localPathTo(mavenProject, id))
           configuration.compilerOptions ++ plugins.map(path => "-Xplugin:" + path.toString)
         }
 
@@ -213,7 +213,7 @@ final class ScalaMavenImporter extends MavenApplicableConfigurator(PluginGroupId
     project: Project,
     mavenProject: MavenProject,
     mavenEmbedderWrapper: MavenEmbedderWrapper,
-    continuation: Continuation[_ >: kotlin.Unit]
+    continuation: Continuation[? >: kotlin.Unit]
   ): AnyRef = JavaCoroutines.suspendJava[kotlin.Unit](
     javaContinuation => {
       resolve(mavenProject, mavenEmbedderWrapper)
@@ -274,16 +274,14 @@ private object ScalaMavenImporter {
 
   private final val OrgScalaLang = "org.scala-lang"
 
-  implicit class RichMavenProject(private val project: MavenProject) extends AnyVal {
-    def localPathTo(id: MavenId): Path = {
-      val suffix = id.classifier.map("-" + _).getOrElse("")
-      val jarName = s"${id.artifactId}-${id.version}$suffix.jar"
-      project.getLocalRepositoryPath
-        .resolve(id.groupId.replaceAll("\\.", "/"))
-        .resolve(id.artifactId)
-        .resolve(id.version)
-        .resolve(jarName)
-    }
+  private def localPathTo(project: MavenProject, id: MavenId): Path = {
+    val suffix = id.classifier.map("-" + _).getOrElse("")
+    val jarName = s"${id.artifactId}-${id.version}$suffix.jar"
+    project.getLocalRepositoryPath
+      .resolve(id.groupId.replaceAll("\\.", "/"))
+      .resolve(id.artifactId)
+      .resolve(id.version)
+      .resolve(jarName)
   }
 
   //rename to `private val mavenProject`
