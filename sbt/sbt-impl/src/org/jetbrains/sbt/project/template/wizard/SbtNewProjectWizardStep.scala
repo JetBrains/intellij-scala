@@ -57,7 +57,7 @@ abstract class SbtNewProjectWizardStep(parent: NewProjectWizardStep) extends Abs
   protected lazy val sbtVersionComboBox: SComboBox[SbtVersion] = createSComboBoxWithSearchingListRenderer(defaultAvailableSbtVersions, None, isSbtLoading)
 
   protected def loadSbtVersions(indicator: ProgressIndicator): Seq[SbtVersion]
-  protected def setSbtVersion(versions: Seq[SbtVersion]): Unit
+  protected def setDownloadedSbtVersions(versions: Seq[SbtVersion]): Unit
 
   protected val downloadSbtSourcesCheckbox: JBCheckBox = applyTo(new JBCheckBox(SbtBundle.message("sbt.module.step.download.sources")))(
     _.setToolTipText(SbtBundle.message("sbt.download.sbt.sources"))
@@ -168,7 +168,9 @@ abstract class SbtNewProjectWizardStep(parent: NewProjectWizardStep) extends Abs
 
   protected final def downloadSbtVersions(disposable: Disposable): Unit = {
     val sbtDownloadVersions: ProgressIndicator => Seq[SbtVersion] = indicator => loadSbtVersions(indicator)
-    downloadVersionsAsynchronously(isSbtLoading, disposable, sbtDownloadVersions, Versions.SBT.toString)(setSbtVersion)
+    downloadVersionsAsynchronously(isSbtLoading, disposable, sbtDownloadVersions, Versions.SBT.toString) { versions =>
+      setDownloadedSbtVersions(versions)
+    }
 
     sbtVersionComboBox.addActionListener { _ =>
       isSbtVersionManuallySelected.set(true)
