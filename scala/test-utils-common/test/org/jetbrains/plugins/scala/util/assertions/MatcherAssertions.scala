@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.util.assertions
 
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.annotator.Message
 import org.jetbrains.plugins.scala.base.FailableTest
 import org.junit.Assert
 
@@ -35,12 +34,6 @@ trait MatcherAssertions extends FailableTest {
 
   def assertMatches[T](actual: T)(pattern: PartialFunction[T, Unit]): Unit =
     assertMatches(Some(actual))(pattern)
-
-  def assertMessages(actual: List[Message])(expected: Message*): Unit =
-    assertEqualsFailable(expected.mkString("\n"), actual.mkString("\n"))
-
-  def assertMessagesSorted(actual: List[Message])(expected: Message*): Unit =
-    assertMessages(actual.sorted)(expected.sorted: _*)
 
   def assertIsA[T](obj: Object)(implicit classTag: ClassTag[T]): T =
     if (classTag.runtimeClass.isInstance(obj)) {

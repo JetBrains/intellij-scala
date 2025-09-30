@@ -279,6 +279,8 @@ object Common {
       Compile / resourceDirectories := Nil,
       Compile / unmanagedSourceDirectories := Nil,
       Compile / unmanagedResourceDirectories := Nil,
+      // Packaging a module with tests only doesn't make sense
+      packageMethod := PackagingMethod.Skip(),
     )
   }
 

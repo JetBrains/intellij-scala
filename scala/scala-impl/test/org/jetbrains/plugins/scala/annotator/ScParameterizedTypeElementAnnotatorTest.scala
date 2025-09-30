@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, S
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
-import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
+import org.jetbrains.plugins.scala.util.assertions.MatcherAssertionsExt
 import org.jetbrains.plugins.scala.{ScalaVersion, TypecheckerTests}
 import org.junit.experimental.categories.Category
 
@@ -450,7 +450,7 @@ class ScParameterizedTypeElementAnnotatorTest_Highlighting_scala_3 extends Scala
 }
 
 @Category(Array(classOf[TypecheckerTests]))
-class ScParameterizedTypeElementAnnotatorTest_with_java extends ScalaLightCodeInsightFixtureTestCase with MatcherAssertions {
+class ScParameterizedTypeElementAnnotatorTest_with_java extends ScalaLightCodeInsightFixtureTestCase with MatcherAssertionsExt {
 
   def messages(code: String) = {
     val file = myFixture.addFileToProject("Test.scala", code)
