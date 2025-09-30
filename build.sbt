@@ -802,11 +802,10 @@ lazy val intelliLangIntegration = newProject(
 ).dependsOn(
   scalaImpl % "test->test;compile->compile"
 ).settings(
-//  addCompilerPlugin(Dependencies.macroParadise),
-  intellijPlugins ++= Seq(
-    "com.intellij.modules.json"
-  ).map(_.toPlugin),
-  packageMethod := PackagingMethod.PluginModule("scalaCommunity.intelliLang"),
+  scalaVersion := Versions.scala3Version,
+  Compile / scalacOptions := globalScala3ScalacOptions,
+  intellijPlugins += "com.intellij.modules.json".toPlugin,
+  packageMethod := PackagingMethod.PluginModule("scalaCommunity.intelliLang")
 )
 
 lazy val markdownIntegration =

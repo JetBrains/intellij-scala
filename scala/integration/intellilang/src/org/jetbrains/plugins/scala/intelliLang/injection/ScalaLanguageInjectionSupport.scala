@@ -11,7 +11,7 @@ final class ScalaLanguageInjectionSupport extends AbstractLanguageInjectionSuppo
 
   override def isApplicableTo(host: PsiLanguageInjectionHost): Boolean = host.isInstanceOf[ScLiteral] || host.isInstanceOf[ScInfixExpr]
 
-  override def getPatternClasses: Array[Class[_]] = Array(classOf[ScalaPatterns])
+  override def getPatternClasses: Array[Class[?]] = Array(classOf[ScalaPatterns])
 
   override def useDefaultInjector(host: PsiLanguageInjectionHost): Boolean = false
 

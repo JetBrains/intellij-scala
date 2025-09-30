@@ -4,15 +4,17 @@ import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
 
+import scala.compiletime.uninitialized
+
 /**
  * Tests for editing code inside a string literal with an injected file
  */
 class ScalaInjectedLanguageEditInsideOriginalLiteralTest extends EditorActionTestBase {
 
-  import EditorTestUtil.{CARET_TAG => Caret}
-  import org.jetbrains.plugins.scala.util.MultilineStringUtil.{MultilineQuotes => Quotes}
+  import EditorTestUtil.CARET_TAG as Caret
+  import org.jetbrains.plugins.scala.util.MultilineStringUtil.MultilineQuotes as Quotes
 
-  private var scalaInjectionTestFixture: ScalaInjectionTestFixture = _
+  private var scalaInjectionTestFixture: ScalaInjectionTestFixture = uninitialized
 
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version >= ScalaVersion.Latest.Scala_2_13
