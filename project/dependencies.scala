@@ -135,7 +135,6 @@ object Dependencies {
   val scalapbRuntime: ModuleID = "com.thesamet.scalapb" %% "scalapb-runtime" % "0.11.11" % Test exclude("com.google.protobuf", "protobuf-java") // A dependency of scalameta, only used in tests.
 
   val scalaTestNotSpecified: ModuleID = "org.scalatest" %% "scalatest" % "3.2.19"
-  val scalaCheck: ModuleID = "org.scalatestplus" %% "scalacheck-1-18" % "3.2.19.0" % Test
 
   // has to be in the compiler process classpath along with spray-json
   // when updating the version, do not forget to:
@@ -239,7 +238,7 @@ object DependencyGroups {
     ("ch.epfl.scala" %% "bloop-rifle" % bloopVersion).excludeAll(bloopRifleExclusions *),
     ("ch.epfl.scala" % "bsp4j" % bspVersion).excludeAll(bspExclusions *),
     ("ch.epfl.scala" %% "bsp-testkit" % bspVersion).excludeAll(bspExclusions *) % Test,
-    scalaCheck
+    "org.scalatestplus" %% "scalacheck-1-18" % "3.2.19.0" % Test
   )
 
   val decompiler: Seq[ModuleID] = Seq(
