@@ -757,8 +757,10 @@ lazy val copyrightIntegration =
   newProject("copyright", file("scala/integration/copyright"))
     .dependsOn(scalaImpl)
     .settings(
+      scalaVersion := Versions.scala3Version,
+      Compile / scalacOptions := globalScala3ScalacOptions,
       intellijPlugins += "com.intellij.copyright".toPlugin,
-      packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity)
+      packageMethod := PackagingMethod.PluginModule("scalaCommunity.copyright")
     )
 
 lazy val gradleIntegration =
