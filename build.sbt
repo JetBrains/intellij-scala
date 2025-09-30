@@ -76,7 +76,6 @@ lazy val scalaCommunity: sbt.Project =
       junitIntegration % "test->test;compile->compile",
       propertiesIntegration % "test->test;compile->compile",
       mlCompletionIntegration % "test->test;compile->compile",
-      featuresTrainerIntegration % "test->test;compile->compile",
       textAnalysis % "test->test;compile->compile",
       kotlinUtils % "test->test;compile->compile",
       structuralSearch % "test->test;compile->compile",
@@ -101,6 +100,7 @@ lazy val scalaCommunity: sbt.Project =
         nailgunRunners,
         copyrightIntegration,
         devKitIntegration,
+        featuresTrainerIntegration,
         javaDecompilerIntegration,
         runtimeDependencies
       ),
@@ -903,6 +903,7 @@ lazy val featuresTrainerIntegration =
       scalaVersion := Versions.scala3Version,
       Compile / scalacOptions := globalScala3ScalacOptions,
       intellijPlugins += "training".toPlugin,
+      packageMethod := PackagingMethod.PluginModule("scalaCommunity.featuresTrainer")
     )
 
 // SCL-20376 - The package search plugin will be replaced by a new one, requiring a rewrite of the integration code.

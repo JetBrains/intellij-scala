@@ -42,7 +42,6 @@
     <depends optional="true" config-file="scala-properties-integration.xml">com.intellij.properties</depends>
     <depends optional="true" config-file="decompile-scala-to-java.xml">org.jetbrains.java.decompiler</depends>
     <depends optional="true" config-file="scala-ml-completion-integration.xml">com.intellij.completion.ml.ranking</depends>
-    <depends optional="true" config-file="scala-features-trainer-integration.xml">training</depends>
     <depends optional="true" config-file="scala-junit-integration.xml">JUnit</depends>
     <!-- <depends optional="true" config-file="packagesearch.xml">com.jetbrains.packagesearch.intellij-plugin</depends> -->
 
@@ -67,6 +66,7 @@
         <!-- integrations -->
         <module name="scalaCommunity.copyright" />
         <module name="scalaCommunity.devkit" />
+        <module name="scalaCommunity.featuresTrainer" />
         <module name="scalaCommunity.gradle" />
         <module name="scalaCommunity.intellij-bazel" />
         <module name="scalaCommunity.markdown" />
