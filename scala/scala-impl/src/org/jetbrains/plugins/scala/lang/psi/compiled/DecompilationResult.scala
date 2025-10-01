@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.compiled
 
 import com.intellij.openapi.util.Key
+import com.intellij.openapi.vfs.newvfs.FileAttribute
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileWithId, newvfs}
 import org.jetbrains.plugins.scala.decompiler.Decompiler
 import org.jetbrains.plugins.scala.extensions.ObjectExt
@@ -57,7 +58,7 @@ private object DecompilationResult {
   private val Key = new Key[SoftReference[DecompilationResult]]("Is Scala File Key")
 
   // Underlying VFS implementation may not support attributes (e.g. Upsource's file system).
-  private[compiled] val DecompilerFileAttribute =
+  private[compiled] val DecompilerFileAttribute: Option[FileAttribute] =
     if (ScalaCompilerLoader.isDisabled) None
     else Some(new newvfs.FileAttribute("_is_scala_compiled_new_key_", getStubVersion, true))
 
@@ -79,15 +80,19 @@ private object DecompilationResult {
   private[compiled] def tryDecompile(file: VirtualFile, bytes: Array[Byte] = null): Option[ScalaDecompilationResult] = {
     val maybeContent: Option[() => Array[Byte]] = bytes match {
       case null =>
-        if (file.isDirectory || !file.isInstanceOf[VirtualFileWithId]) None
-        else Some(() => file.contentsToByteArray)
-      case content => Some(() => content)
+        if (file.isDirectory || !file.isInstanceOf[VirtualFileWithId])
+          None
+        else
+          Some(() => file.contentsToByteArray)
+      case content =>
+        Some(() => content)
     }
     try {
       maybeContent.flatMap(decompile(file, _))
     }
     catch {
-      case _: IOException => None
+      case _: IOException =>
+        None
     }
   }
 
@@ -98,8 +103,10 @@ private object DecompilationResult {
     if (fromCache != null && fromCache.timeStamp == timeStamp)
       return fromCache.asOptionOf[ScalaDecompilationResult]
 
-    val result: DecompilationResult = getFromFileAttribute(file) match {
-      case Some(nonScala: NonScala) => nonScala
+    val cachedFromFileAttributes = getFromFileAttribute(file)
+    val result: DecompilationResult = cachedFromFileAttributes match {
+      case Some(nonScala: NonScala) =>
+        nonScala
       case Some(PartialScala(sourceName, _)) =>
         Lazy(sourceName, timeStamp, () => sourceNameAndText(file, content).map(t => (t._2, t._3)).getOrElse(("", CompilerOptions.Default)))
       case None =>
@@ -108,6 +115,7 @@ private object DecompilationResult {
           case None                           => NonScala(timeStamp)
         }
 
+        // Save to file attribute as a "cache"
         writeToFileAttribute(file, recomputedResult)
 
         recomputedResult

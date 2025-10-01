@@ -1,4 +1,4 @@
-package org.jetbrains.sbt.project.utils
+package org.jetbrains.plugins.scala.compiler.testUtils
 
 import com.intellij.openapi.compiler.{CompilerMessage, CompilerMessageCategory}
 import com.intellij.openapi.module.ModuleManager

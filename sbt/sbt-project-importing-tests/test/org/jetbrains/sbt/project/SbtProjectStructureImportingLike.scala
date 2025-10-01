@@ -13,10 +13,11 @@ import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.PsiManager
 import org.jetbrains.jps.model.java.{JavaResourceRootType, JavaSourceRootType}
 import org.jetbrains.jps.model.module.JpsModuleSourceRootType
+import org.jetbrains.plugins.scala.compiler.testUtils.CompilerUtils
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
 import org.jetbrains.sbt.actions.SbtDirectoryCompletionContributor
-import org.jetbrains.sbt.project.utils.{CompilerUtils, ProjectComparisonOptions, ProjectStructureComparisonContext}
+import org.jetbrains.sbt.project.utils.{ProjectComparisonOptions, ProjectStructureComparisonContext}
 import org.jetbrains.sbt.settings.SbtSettings
 import org.junit.Assert
 import org.junit.Assert.fail

@@ -32,8 +32,8 @@ trait ScalaVersionStepLike extends IndentationSyntaxStepLike with AsynchronousVe
     val scalaDownloadVersions: ProgressIndicator => Seq[Version] = indicator => {
       Versions.Scala.loadVersionsWithProgress(indicator)
     }
-    downloadVersionsAsynchronously(isScalaLoading, disposable, scalaDownloadVersions, Versions.Scala.toString) { v =>
-      val stringRepresentation = v.map(_.presentation)
+    downloadVersionsAsynchronously(isScalaLoading, disposable, scalaDownloadVersions, Versions.Scala.toString) { versions =>
+      val stringRepresentation = versions.map(_.presentation)
       updateSelectionsAndElementsModelForScala(stringRepresentation)
     }
   }

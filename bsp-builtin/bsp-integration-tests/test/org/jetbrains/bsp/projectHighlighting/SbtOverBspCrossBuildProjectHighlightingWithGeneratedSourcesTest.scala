@@ -4,8 +4,8 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.projectHighlighting.reporter.HighlightingProgressReporter
 import org.jetbrains.sbt.project.ProjectStructureDsl.{contentRoots, module}
-import org.jetbrains.sbt.project.{ProjectStructureDsl, ProjectStructureMatcher}
 import org.jetbrains.sbt.project.utils.ProjectStructureComparisonContext
+import org.jetbrains.sbt.project.{ProjectStructureDsl, ProjectStructureMatcher}
 
 class SbtOverBspCrossBuildProjectHighlightingWithGeneratedSourcesTest extends SbtOverBspProjectHighlightingLocalProjectsTestBase {
 
@@ -71,15 +71,15 @@ class SbtOverBspCrossBuildProjectHighlightingWithGeneratedSourcesTest extends Sb
   }
 
   private def standardRootsForPureModule(m: module, moduleBaseName: String, platform: String): Unit = {
-    import m._
     import ProjectStructureDsl._
+    import m._
     contentRoots += s"%PROJECT_ROOT%/$moduleBaseName/.$platform"
     excluded += "target"
   }
 
   private def standardRootsForFullModule(m: module, moduleBaseName: String, platform: String): Unit = {
-    import m._
     import ProjectStructureDsl._
+    import m._
     contentRoots += s"%PROJECT_ROOT%/$moduleBaseName/$platform"
     excluded += "target"
   }
