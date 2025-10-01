@@ -24,7 +24,7 @@ abstract class GrazieScalaTestBase extends ScalaLightCodeInsightFixtureTestCase:
 
   protected val additionalEnabledRules: Set[String] = Set.empty
 
-  private lazy val inspectionTools = Array(new GrazieInspection(), new GrazieSpellCheckingInspection())
+  private lazy val inspectionTools = Array(GrazieInspection(), GrazieInspection.Grammar(), GrazieInspection.Style(), GrazieSpellCheckingInspection())
   private val enabledLanguages: Set[Lang] = Set(
     Lang.AMERICAN_ENGLISH,
     Lang.GERMANY_GERMAN,

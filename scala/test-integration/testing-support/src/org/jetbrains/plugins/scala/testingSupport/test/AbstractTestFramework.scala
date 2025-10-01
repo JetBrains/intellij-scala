@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 
 import javax.swing.Icon
+import scala.annotation.nowarn
 
 abstract class AbstractTestFramework extends JavaTestFrameworkBridge {
 
@@ -30,7 +31,7 @@ abstract class AbstractTestFramework extends JavaTestFrameworkBridge {
       //Workaround for SCL-20136, IDEA-292278, SCL-20154 (see comments for all tickets)
       clazz match {
         case td: ScTemplateDefinition if td.isInScala3Module =>
-          val found = ScalaPsiManager.instance(clazz.getProject).getCachedClass(clazz.getResolveScope, getMarkerClassFQName)
+          val found = ScalaPsiManager.instance(clazz.getProject).getCachedClass(clazz.getResolveScope, getMarkerClassFQName: @nowarn("cat=deprecation"))
           found.isDefined
         case _ =>
           false
@@ -55,11 +56,11 @@ abstract class AbstractTestFramework extends JavaTestFrameworkBridge {
       cachedClass.exists(ScalaPsiUtil.isInheritorDeep(definition, _))
     }
 
-    val cachedMarkerClass = elementScope.getCachedClass(getMarkerClassFQName)
+    val cachedMarkerClass = elementScope.getCachedClass(getMarkerClassFQName: @nowarn("cat=deprecation"))
     if (cachedMarkerClass.isDefined) {
       baseSuitePaths.exists(isInheritor)
     } else {
-      Log.traceSafe(s"can't find marker class $getMarkerClassFQName for class ${definition.name}")
+      Log.traceSafe(s"can't find marker class ${getMarkerClassFQName: @nowarn("cat=deprecation")} for class ${definition.name}")
       false
     }
   }

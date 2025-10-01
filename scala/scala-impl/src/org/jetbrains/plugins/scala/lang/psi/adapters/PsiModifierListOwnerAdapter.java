@@ -17,4 +17,9 @@ public interface PsiModifierListOwnerAdapter extends PsiJvmModifiersOwner, PsiAn
     default boolean hasAnnotation(@NotNull String fqn) {
         return PsiJvmModifiersOwner.super.hasAnnotation(fqn);
     }
+
+    @Override
+    default boolean hasAnnotations() {
+        return PsiJvmModifiersOwner.super.hasAnnotations();
+    }
 }
