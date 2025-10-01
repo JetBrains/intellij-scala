@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.actions.utils
 
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.{ModalityState, NonBlockingReadAction}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.impl.EditorImpl
@@ -21,6 +22,7 @@ import java.util.concurrent.atomic.AtomicReference
 import java.util.function.Consumer
 import javax.swing.{JLabel, JPanel}
 import scala.concurrent.duration.{Duration, DurationInt}
+import scala.util.chaining.scalaUtilChainingOps
 
 /**
  * This utility class is designed to be able to run a composite action that:
@@ -54,8 +56,16 @@ private[actions] object TaskRunnerWithLoadingProgress {
     editor: Editor,
     cancelOnScrolling: Boolean
   ): Unit = {
+    // Unfortunately, the Editor interface is not disposable, so we fall back to the project as disposable.
+    // Though the main implementation `EditorImpl` has the disposable.
+    val editorOrProjectDisposable = editor match {
+      case impl: EditorImpl => impl.getDisposable
+      case _ => project
+    }
+
     val cancellablePromiseRef = new AtomicReference[CancellablePromise[_]]()
-    val stopAction = startProgressAndCreateStopAction(project, progressTitle, cancellablePromiseRef, editor)
+    val (stopAction, stopActionDisposable) =
+      startProgressAndCreateStopAction(project, progressTitle, cancellablePromiseRef, editor, editorOrProjectDisposable)
 
     val visibleAreaListener = new CancelProgressOnScrolling(cancellablePromiseRef)
     if (cancelOnScrolling) {
@@ -77,18 +87,15 @@ private[actions] object TaskRunnerWithLoadingProgress {
         }
       }
     }
-    // Unfortunately, the Editor interface is not disposable
-    val disposable = editor match {
-      case impl: EditorImpl => impl.getDisposable
-      case _ => project
-    }
 
     val submittedActionPromise = backgroundAction
       .finishOnUiThread(
         ModalityState.defaultModalityState(),
         continuationConsumerPatched
       )
-      .expireWith(disposable)
+      .expireWith(editorOrProjectDisposable)
+      // If there is a progress tooltip, expire the task if we cancel it (via Escape key or on focus change)
+      .pipe(action => stopActionDisposable.fold(action)(action.expireWith))
       .submit(AppExecutorUtil.getAppExecutorService)
       .onProcessed(_ => {
         stopAction.accept(false)
@@ -105,8 +112,9 @@ private[actions] object TaskRunnerWithLoadingProgress {
     @Nullable @NlsContexts.ProgressTitle
     progressTitle: String,
     promiseRef: AtomicReference[_ <: CancellablePromise[_]],
-    editor: Editor
-  ): Consumer[Boolean] = {
+    editor: Editor,
+    editorOrProjectDisposable: Disposable
+  ): (Consumer[Boolean], Option[Disposable]) = {
     val stopActionRef = new AtomicReference[Consumer[Boolean]]
 
     val originalStopAction: Consumer[Boolean] = (cancel: Boolean) => {
@@ -122,9 +130,10 @@ private[actions] object TaskRunnerWithLoadingProgress {
 
     if (progressTitle == null) {
       stopActionRef.set(originalStopAction)
+      (stopActionRef.get(), None)
     } else {
       val disposable = Disposer.newDisposable()
-      Disposer.register(project, disposable)
+      Disposer.register(editorOrProjectDisposable, disposable)
 
       val loadingPanel = new JBLoadingPanel(null, panel =>
         new LoadingDecorator(panel, disposable, 0, false, new AsyncProcessIcon(s"ProgressUtils(title: $progressTitle)")) {
@@ -181,8 +190,8 @@ private[actions] object TaskRunnerWithLoadingProgress {
           })
         }
       })
-    }
 
-    stopActionRef.get()
+      (stopActionRef.get(), Some(disposable))
+    }
   }
 }

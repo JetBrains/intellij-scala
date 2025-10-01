@@ -21,12 +21,10 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, ScTypeExt, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getSelectedExpression
 import org.jetbrains.plugins.scala.statistics.ScalaActionUsagesCollector
-import org.jetbrains.plugins.scala.util.EmulateComputations
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
 
 import java.util.concurrent.Callable
 import java.util.function.Consumer
-import scala.concurrent.duration.DurationInt
 
 /**
  * @todo ideally we should not create our custom action
@@ -67,7 +65,7 @@ class ShowTypeInfoAction extends AnAction(
   private def invokeAction(editor: Editor, file: PsiFile, project: Project): Unit = {
     val selectionModel = editor.getSelectionModel
 
-    val calculateTypeInfo: Callable[Option[String]] = () =>
+    val calculateTypeInfo: Callable[Option[String]] = () => {
       if (selectionModel.hasSelection) {
         getTypeInfoHintForSelection(editor, file, project, selectionModel)
       } else {
@@ -76,6 +74,7 @@ class ShowTypeInfoAction extends AnAction(
         val offsetAdjusted = TargetElementUtil.adjustOffset(file, editor.getDocument, offset)
         ShowTypeInfoAction.getTypeInfoHint(file, offsetAdjusted)
       }
+    }
 
     val backgroundAction: NonBlockingReadAction[Option[String]] = ReadAction
       .nonBlocking[Option[String]](calculateTypeInfo)
@@ -208,7 +207,7 @@ object ShowTypeInfoAction {
   }
 
   private def typeTextOf(elem: PsiElement, subst: ScSubstitutor)
-                              (implicit tpc: TypePresentationContext, context: Context): Option[String] = {
+                        (implicit tpc: TypePresentationContext, context: Context): Option[String] = {
     val scType = elem.typeOfNamedElement(subst).orElse {
       elem match {
         case under: ScUnderscoreSection => under.`type`().toOption
