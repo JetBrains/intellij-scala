@@ -6,8 +6,8 @@ import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument.{P
 class DefaultAndImplicitParamsInfoTest extends InvocationInfoTestBase {
 
   def testDefaultParameters(): Unit = {
-    val sugaredSyntax = "someMethod(4, 9)"
-    val desugaredSyntax = "someMethod(4, 9, 5)"
+    val sugaredSyntax = "someMethod(4, 9)" -> List("4", "9", "<no-expr>")
+    val desugaredSyntax = "someMethod(4, 9, 5)" -> List("4", "9", "5")
 
     val code = (invocationSyntax: String) =>
       s"""
@@ -20,11 +20,10 @@ class DefaultAndImplicitParamsInfoTest extends InvocationInfoTestBase {
          |}
          |""".stripMargin
 
-    for (invocationSyntax <- List(sugaredSyntax, desugaredSyntax)) {
+    for ((invocationSyntax, expectedProperArgsInText) <- List(sugaredSyntax, desugaredSyntax)) {
       val invocationInfo = generateInvocationInfoFor(code(invocationSyntax))
 
       val expectedArgCount = 1 + 3
-      val expectedProperArgsInText = List("4", "9", "5")
       val expectedMappedParamNames = List("x", "y", "z")
       val expectedPassingMechanisms = List(PassByValue, PassByValue, PassByName, PassByValue)
       val expectedParamToArgMapping = (0 until expectedArgCount - 1).toList

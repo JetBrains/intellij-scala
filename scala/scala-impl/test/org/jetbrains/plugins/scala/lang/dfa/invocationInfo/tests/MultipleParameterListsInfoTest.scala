@@ -62,8 +62,8 @@ class MultipleParameterListsInfoTest extends InvocationInfoTestBase {
   }
 
   def testMultipleArgumentListsWithDefaultParameters(): Unit = {
-    val sugaredSyntax = "manyParamLists(4, 99)(15)(4)()"
-    val desugaredSyntax = "manyParamLists(4, 99)(15)(4, 9, true)(100)"
+    val sugaredSyntax = "manyParamLists(4, 99)(15)(4)()" -> List(List("4", "99"), List("15"), List("4", "<no-expr>", "<no-expr>"), List("<no-expr>"))
+    val desugaredSyntax = "manyParamLists(4, 99)(15)(4, 9, true)(100)" -> List(List("4", "99"), List("15"), List("4", "9", "true"), List("100"))
 
     val code = (invocationSyntax: String) =>
       s"""
@@ -76,11 +76,10 @@ class MultipleParameterListsInfoTest extends InvocationInfoTestBase {
          |}
          |""".stripMargin
 
-    for (invocationSyntax <- List(sugaredSyntax, desugaredSyntax)) {
+    for ((invocationSyntax, expectedProperArgsInText) <- List(sugaredSyntax, desugaredSyntax)) {
       val invocationInfo = generateInvocationInfoFor(code(invocationSyntax))
 
       val expectedArgCount = List(1 + 2, 1, 3, 1)
-      val expectedProperArgsInText = List(List("4", "99"), List("15"), List("4", "9", "true"), List("100"))
       val expectedMappedParamNames = List(List("a", "b"), List("c"), List("d", "e", "f"), List("g"))
       val expectedPassingMechanisms = List(List(PassByValue, PassByValue, PassByName), List(PassByValue),
         List(PassByValue, PassByName, PassByValue), List(PassByValue))

@@ -33,7 +33,8 @@ object Argument {
 
   def fromArgParamMapping(argParamMapping: (ScExpression, Parameter)): Argument = argParamMapping match {
     case (argExpression, param) =>
-      Argument(Some(argExpression), ProperArgument(param), passingMechanism(param), ScalaDfaTypeUtils.nullability(param))
+      val isDefault = param.psiParam.contains(argExpression.getParent)
+      Argument(if (isDefault) None else Some(argExpression), ProperArgument(param), passingMechanism(param), ScalaDfaTypeUtils.nullability(param))
   }
 
   private def passingMechanism(param: Parameter): PassingMechanism =
