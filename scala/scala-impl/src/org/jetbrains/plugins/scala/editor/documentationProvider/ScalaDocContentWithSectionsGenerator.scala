@@ -39,13 +39,12 @@ private class ScalaDocContentWithSectionsGenerator(
 ) {
 
   private val resolveContext: PsiElement = comment
-
-  private def newContentGenerator: ScalaDocContentGenerator = {
-    if (comment.isMarkdownComment)
+  private val isMarkdownComment = comment.isMarkdownComment
+  private lazy val contentGenerator: ScalaDocContentGenerator =
+    if (isMarkdownComment)
       new ScalaDocContentGeneratorMarkdown(comment)
     else
       new ScalaDocContentGeneratorWikidoc(comment, macroFinder)
-  }
 
   def this(
     commentOwner: ScDocCommentOwner,
@@ -75,7 +74,7 @@ private class ScalaDocContentWithSectionsGenerator(
       .find(tag => tag.name == MyScaladocParsing.TagNames.Param && tag.getValueElement.textMatches(param.name))
       .foreach { tag =>
         buffer.append(DocumentationMarkup.SECTIONS_START)
-        newContentGenerator.appendTagDescriptionText(buffer, tag)
+        contentGenerator.appendTagDescriptionText(buffer, tag)
         buffer.append(DocumentationMarkup.SECTIONS_END)
       }
 
@@ -111,7 +110,7 @@ private class ScalaDocContentWithSectionsGenerator(
     val hasOwnDescription = descriptionParts.nonEmpty
     if (hasOwnDescription) {
       ensureContentStartAdded()
-      newContentGenerator.appendDescriptionParts(buffer, comment)
+      contentGenerator.appendDescriptionParts(buffer, comment)
     }
 
     tags.find(_.name == MyScaladocParsing.TagNames.Inheritdoc) match {
@@ -120,7 +119,7 @@ private class ScalaDocContentWithSectionsGenerator(
         val added = addInheritedDocText(buffer, hasOwnDescription)
         if (added || hasOwnDescription)
           buffer.append("<p>")
-        newContentGenerator.appendTagDescriptionText(buffer, inheritDocTag)
+        contentGenerator.appendTagDescriptionText(buffer, inheritDocTag)
       case _ =>
     }
 
@@ -188,7 +187,7 @@ private class ScalaDocContentWithSectionsGenerator(
   private def prepareSimpleSections(tags: Seq[ScDocTag], tagName: String, @Nls sectionTitle: String): Seq[Section] = {
     val matchingTags = tags.filter(_.name == tagName)
     val result = matchingTags.map { (tag: ScDocTag) =>
-      val sectionContent = newContentGenerator.tagDescriptionText(tag)
+      val sectionContent = contentGenerator.tagDescriptionText(tag)
       Section(sectionTitle, sectionContent.trim)
     }
 
@@ -216,13 +215,13 @@ private class ScalaDocContentWithSectionsGenerator(
   private def prepareReturnsSection(tags: Seq[ScDocTag]): Option[Section] = {
     // TODO: if there is inherited doc, get return description from there
     val returnTag = tags.find(_.name == MyScaladocParsing.TagNames.Return)
-    returnTag.map(newContentGenerator.tagDescriptionText).map(Section(ScalaEditorBundle.message("section.title.returns"), _))
+    returnTag.map(contentGenerator.tagDescriptionText).map(Section(ScalaEditorBundle.message("section.title.returns"), _))
   }
 
   private def prepareThrowsSection(tags: Seq[ScDocTag]): Option[Section] = {
     val throwTags      = tags.filter(_.name == MyScaladocParsing.TagNames.Throws)
     val throwTagsInfos =
-      if (comment.isMarkdownComment)
+      if (isMarkdownComment)
         throwTags.flatMap(tag => {
           // TODO-md-emi: Should not be an ASTWrapperPsiElement
           val exceptionRef = tag.children.findByType[ASTWrapperPsiElement]
@@ -231,7 +230,7 @@ private class ScalaDocContentWithSectionsGenerator(
             val buffer = new java.lang.StringBuilder
             DocumentationManagerUtil.createHyperlink(buffer, ref.getText, ref.getText, false)
             val value = buffer.toString
-            val description = newContentGenerator.tagDescriptionText(tag)
+            val description = contentGenerator.tagDescriptionText(tag)
             ParamInfo(value, description)
           }
         })
@@ -249,7 +248,7 @@ private class ScalaDocContentWithSectionsGenerator(
     val paramName = Option(paramTag.getValueElement)
     paramName.map { paramName =>
       val paramNameRendered = s"<code>${paramName.getText}</code>"
-      val tagDescription = newContentGenerator.tagDescriptionText(paramTag)
+      val tagDescription = contentGenerator.tagDescriptionText(paramTag)
       ParamInfo(paramNameRendered, tagDescription)
     }
   }
@@ -258,7 +257,7 @@ private class ScalaDocContentWithSectionsGenerator(
     val exceptionRef = tag.children.findByType[ScStableCodeReference]
     exceptionRef.map { ref =>
       val value = ScalaDocContentGeneratorWikidoc.generatePsiElementLink(ref, resolveContext)
-      val description = newContentGenerator.tagDescriptionText(tag)
+      val description = contentGenerator.tagDescriptionText(tag)
       ParamInfo(value, description)
     }
   }
@@ -283,7 +282,7 @@ private class ScalaDocContentWithSectionsGenerator(
             if (hasOwnDescription)
               buffer.append("<p>")
             val oldLength = buffer.length()
-            newContentGenerator.appendDescriptionParts(buffer, superComment)
+            contentGenerator.appendDescriptionParts(buffer, superComment)
             buffer.length() != oldLength
           case _ =>
             false
