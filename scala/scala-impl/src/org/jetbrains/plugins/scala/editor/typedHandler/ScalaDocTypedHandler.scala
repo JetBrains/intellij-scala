@@ -65,7 +65,7 @@ final class ScalaDocTypedHandler extends TypedHandlerDelegate {
       insertAndCommit(offset, tagToInsert, document, project)
     }
 
-    if (isInsideMarkdown) {
+    if (isInsideMarkdown && charTyped != '[') {
       val elementType = element.elementType
       val isInvalidPosition =
         // do nothing when it's the first * of the line in the doc comment

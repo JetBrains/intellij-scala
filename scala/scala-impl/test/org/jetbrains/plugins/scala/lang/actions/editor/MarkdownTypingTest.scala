@@ -106,4 +106,9 @@ class MarkdownTypingTest extends EditorActionTestBase {
          |""".stripMargin
     )
   }
+
+  def testWikidocLink(): Unit = {
+    doTest('[')(s"$CARET", s"[$CARET")
+    doTest('[')(s"[$CARET", s"[[$CARET]]")
+  }
 }
