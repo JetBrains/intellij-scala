@@ -916,9 +916,9 @@ lazy val textAnalysis =
       resolvers += DependencyResolvers.IntelliJDependencies,
       libraryDependencies ++= Seq(
         //languagetool-core is available in the platform, exclude it to avoid some strange runtime errors in tests
-        ("org.jetbrains.intellij.deps.languagetool" % "language-ru" % Versions.LanguageToolVersion % Runtime).exclude("org.jetbrains.intellij.deps.languagetool", "languagetool-core"),
-        ("org.jetbrains.intellij.deps.languagetool" % "language-de" % Versions.LanguageToolVersion % Runtime).exclude("org.jetbrains.intellij.deps.languagetool", "languagetool-core"),
-        ("org.jetbrains.intellij.deps.languagetool" % "language-it" % Versions.LanguageToolVersion % Runtime).exclude("org.jetbrains.intellij.deps.languagetool", "languagetool-core"),
+        ("org.jetbrains.intellij.deps.languagetool" % "language-ru" % Versions.LanguageToolVersion % Test).exclude("org.jetbrains.intellij.deps.languagetool", "languagetool-core"),
+        ("org.jetbrains.intellij.deps.languagetool" % "language-de" % Versions.LanguageToolVersion % Test).exclude("org.jetbrains.intellij.deps.languagetool", "languagetool-core"),
+        ("org.jetbrains.intellij.deps.languagetool" % "language-it" % Versions.LanguageToolVersion % Test).exclude("org.jetbrains.intellij.deps.languagetool", "languagetool-core"),
       ),
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.textAnalysis"),
     )
