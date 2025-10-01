@@ -69,6 +69,7 @@ lazy val scalaCommunity: sbt.Project =
       debugger % "test->test;compile->compile",
       testingSupport % "test->test;compile->compile",
       gradleIntegration % "test->test;compile->compile",
+      i18nIntegration % "test->test;compile->compile",
       intelliLangIntegration % "test->test;compile->compile",
       markdownIntegration % "test->test;compile->compile",
       mavenIntegration % "test->test;compile->compile",
@@ -849,6 +850,13 @@ lazy val junitIntegration =
       Compile / scalacOptions := globalScala3ScalacOptions,
       intellijPlugins += "JUnit".toPlugin,
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.junit")
+    )
+
+lazy val i18nIntegration =
+  newProject("i18n", file("scala/integration/i18n"))
+    .dependsOn(scalaImpl % "test->test;compile->compile")
+    .settings(
+      intellijPlugins += "com.intellij.java-i18n".toPlugin
     )
 
 lazy val propertiesIntegration =

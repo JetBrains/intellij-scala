@@ -5,17 +5,12 @@ package i18n
 
 import com.intellij.codeInsight.AnnotationUtil
 import com.intellij.lang.properties.psi.PropertiesFile
-import com.intellij.lang.properties.{IProperty, PropertiesImplUtil, PropertiesReferenceManager}
-import com.intellij.openapi.diagnostic.ControlFlowException
-import com.intellij.openapi.module.{Module, ModuleUtilCore}
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.ProjectRootManager
-import com.intellij.openapi.util.Ref
-import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.lang.properties.{IProperty, PropertiesReferenceManager}
+import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.psi._
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.annotations.{NotNull, Nullable}
-import org.jetbrains.plugins.scala.extensions.{&, BooleanExt, NullSafe, ObjectExt, Parent, PsiMethodExt, PsiParameterExt}
+import org.jetbrains.plugins.scala.extensions.{&, NullSafe, ObjectExt, Parent, PsiMethodExt, PsiParameterExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
