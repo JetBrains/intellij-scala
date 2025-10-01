@@ -898,7 +898,7 @@ lazy val scalastyleIntegration = newProject("scalastyle", file("scala/integratio
   )
 
 //Integration with:
-// - Built-in spellchecker (see com.intellij.spellchecker package)
+// - Build-in spellchecker (see com.intellij.spellchecker package)
 // - Grazie plugin (more advanced spell + grammar checker)
 lazy val textAnalysis =
   newProject("textAnalysis", file("scala/integration/textAnalysis"))
@@ -909,8 +909,18 @@ lazy val textAnalysis =
     .settings(
       scalaVersion := Versions.scala3Version,
       Compile / scalacOptions := globalScala3ScalacOptions,
-      intellijPlugins += "tanvd.grazi".toPlugin,
-      packageMethod := PackagingMethod.PluginModule("scalaCommunity.textAnalysis")
+      intellijPlugins ++= Seq(
+        "tanvd.grazi".toPlugin
+      ),
+      //Language packs needed at runtime to run tests
+      resolvers += DependencyResolvers.IntelliJDependencies,
+      libraryDependencies ++= Seq(
+        //languagetool-core is available in the platform, exclude it to avoid some strange runtime errors in tests
+        ("org.jetbrains.intellij.deps.languagetool" % "language-ru" % Versions.LanguageToolVersion % Runtime).exclude("org.jetbrains.intellij.deps.languagetool", "languagetool-core"),
+        ("org.jetbrains.intellij.deps.languagetool" % "language-de" % Versions.LanguageToolVersion % Runtime).exclude("org.jetbrains.intellij.deps.languagetool", "languagetool-core"),
+        ("org.jetbrains.intellij.deps.languagetool" % "language-it" % Versions.LanguageToolVersion % Runtime).exclude("org.jetbrains.intellij.deps.languagetool", "languagetool-core"),
+      ),
+      packageMethod := PackagingMethod.PluginModule("scalaCommunity.textAnalysis"),
     )
 
 lazy val featuresTrainerIntegration =
