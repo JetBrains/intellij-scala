@@ -83,6 +83,7 @@ class ScalaDocParserDefinition extends ParserDefinition {
     case DOC_LIST_ITEM => new ScDocListItemImpl(node)
     case DOC_PARAGRAPH => new ScDocParagraphImpl(node)
     case DOC_CODEBLOCK => new ScDocInnerCodeElementImpl(node)
+    case DOC_MARKDOWN_HEADER => new ScDocMarkdownHeaderImpl(node)
     case _             => new ASTWrapperPsiElement(node)
   }
 

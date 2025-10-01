@@ -389,7 +389,7 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |    ScPsiDocToken(DOC_COMMENT_START)('/**')
       |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      |    ASTWrapperPsiElement(DOC_MARKDOWN_HEADER)
+      |    ScDocMarkdownHeader
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      ScPsiDocToken(DOC_COMMENT_DATA)('# Heading 1')
       |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
@@ -415,7 +415,7 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |    ScPsiDocToken(DOC_WHITESPACE)(' ')
       |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      |    ASTWrapperPsiElement(DOC_MARKDOWN_HEADER)
+      |    ScDocMarkdownHeader
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      ScPsiDocToken(DOC_COMMENT_DATA)('## Heading 2')
       |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
@@ -711,7 +711,7 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |    ScPsiDocToken(DOC_COMMENT_START)('/**')
       |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      |    ASTWrapperPsiElement(DOC_MARKDOWN_HEADER)
+      |    ScDocMarkdownHeader
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      ScPsiDocToken(DOC_COMMENT_DATA)('# Complete Documentation Example')
       |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
@@ -757,7 +757,7 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |    ScPsiDocToken(DOC_WHITESPACE)(' ')
       |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      |    ASTWrapperPsiElement(DOC_MARKDOWN_HEADER)
+      |    ScDocMarkdownHeader
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      ScPsiDocToken(DOC_COMMENT_DATA)('## Code Examples')
       |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
@@ -786,7 +786,7 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |    ScPsiDocToken(DOC_WHITESPACE)(' ')
       |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      |    ASTWrapperPsiElement(DOC_MARKDOWN_HEADER)
+      |    ScDocMarkdownHeader
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      ScPsiDocToken(DOC_COMMENT_DATA)('## Java-style Inline Tags')
       |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
@@ -806,7 +806,7 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |    ScPsiDocToken(DOC_WHITESPACE)(' ')
       |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      |    ASTWrapperPsiElement(DOC_MARKDOWN_HEADER)
+      |    ScDocMarkdownHeader
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      ScPsiDocToken(DOC_COMMENT_DATA)('## Parameters')
       |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
@@ -839,7 +839,7 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      |      ASTWrapperPsiElement(DOC_MARKDOWN_HEADER)
+      |      ScDocMarkdownHeader
       |        ScPsiDocToken(DOC_WHITESPACE)(' ')
       |        ScPsiDocToken(DOC_COMMENT_DATA)('## Return Value')
       |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
@@ -868,7 +868,7 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      |      ASTWrapperPsiElement(DOC_MARKDOWN_HEADER)
+      |      ScDocMarkdownHeader
       |        ScPsiDocToken(DOC_WHITESPACE)(' ')
       |        ScPsiDocToken(DOC_COMMENT_DATA)('## Exceptions')
       |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
