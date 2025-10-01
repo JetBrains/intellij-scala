@@ -7,11 +7,11 @@ import com.intellij.patterns.ElementPattern
 import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.completion.CaptureExt
-import org.jetbrains.sbt.language.completion.SbtPsiElementPatterns._
+import org.jetbrains.sbt.language.completion.SbtPsiElementPatterns.*
 
 // TODO: Reimplement when https://youtrack.jetbrains.com/issue/IDEA-272935 is fixed
 private abstract class SbtDependencyVersionCompletionMLPolicy extends CompletionMLPolicy {
-  protected def VERSION_PATTERN: ElementPattern[_ <: PsiElement]
+  protected def VERSION_PATTERN: ElementPattern[? <: PsiElement]
 
   override def isReRankingDisabled(params: CompletionParameters): Boolean =
     params.getCompletionType == CompletionType.BASIC && VERSION_PATTERN.accepts(params.getPosition)
@@ -19,7 +19,7 @@ private abstract class SbtDependencyVersionCompletionMLPolicy extends Completion
 
 /** Disable ML Sorting for completion in `scalaVersion`/`libraryDependencies` versions in `.scala` and `.sbt` files */
 private class SbtDependencyVersionInSbtAndScalaFilesCompletionMLPolicy extends SbtDependencyVersionCompletionMLPolicy {
-  override protected def VERSION_PATTERN: ElementPattern[_ <: PsiElement] =
+  override protected def VERSION_PATTERN: ElementPattern[? <: PsiElement] =
     (sbtFilePattern || scalaFilePattern) && psiElement.inside(versionPattern || sbtModuleIdPattern)
 }
 
@@ -30,6 +30,6 @@ private class SbtDependencyVersionInSbtAndScalaFilesCompletionMLPolicy extends S
  * Only register in config files with optional dependencies on the properties plugin
  */
 private class SbtDependencyVersionInPropertyFilesCompletionMLPolicy extends SbtDependencyVersionCompletionMLPolicy {
-  override protected def VERSION_PATTERN: ElementPattern[_ <: PsiElement] =
+  override protected def VERSION_PATTERN: ElementPattern[? <: PsiElement] =
     propertiesFilePattern && psiElement.inside(versionPropertyPattern)
 }

@@ -875,6 +875,8 @@ lazy val mlCompletionIntegration =
   newProject("ml-completion", file("scala/integration/ml-completion"))
     .dependsOn(scalaImpl, sbtImpl)
     .settings(
+      scalaVersion := Versions.scala3Version,
+      Compile / scalacOptions := globalScala3ScalacOptions,
       intellijPlugins += "com.intellij.completion.ml.ranking".toPlugin,
       resolvers += DependencyResolvers.IntelliJDependencies,
       libraryDependencies += "org.jetbrains.intellij.deps.completion" % "completion-ranking-scala" % "0.4.1"
