@@ -110,7 +110,7 @@ object ScalaBundleSorting {
 //      bundleMessagesRelativePath = "PackageSearchSbtBundle.properties",
 //    ),
     ModuleWithBundleInfo(
-      rootPath = integrationDir / "properties",
+      rootPath = integrationDir / "i18n",
       bundleMessagesRelativePath = "ScalaI18nBundle.properties",
     ),
     ModuleWithBundleInfo(
@@ -137,7 +137,7 @@ object ScalaBundleSorting {
       rootPath = scalaImplDir,
       bundleMessagesRelativePath = "ScalaInspectionBundle.properties",
       extraUsageModules = Seq(
-        ModuleInfo(integrationDir / "properties")
+        ModuleInfo(integrationDir / "i18n")
       )
     ),
     ModuleWithBundleInfo(

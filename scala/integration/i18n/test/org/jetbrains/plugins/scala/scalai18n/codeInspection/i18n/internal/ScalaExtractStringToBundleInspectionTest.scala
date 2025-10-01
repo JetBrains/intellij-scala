@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n.internal
 
 import com.intellij.codeInspection.LocalInspectionTool
-import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaInspectionTestBase}
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 
 class ScalaExtractStringToBundleInspectionTest extends ScalaInspectionTestBase{
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
