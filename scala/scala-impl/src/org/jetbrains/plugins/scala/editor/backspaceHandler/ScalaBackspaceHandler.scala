@@ -14,6 +14,7 @@ import org.apache.commons.lang3.StringUtils
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.editor.Scala3IndentationBasedSyntaxUtils._
 import org.jetbrains.plugins.scala.editor._
+import org.jetbrains.plugins.scala.editor.typedHandler.ScalaDocTypedHandler.isInMarkdown
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler.BraceWrapInfo
 import org.jetbrains.plugins.scala.extensions._
@@ -29,6 +30,8 @@ import org.jetbrains.plugins.scala.util.IndentUtil
 import org.jetbrains.plugins.scala.util.MultilineStringUtil.{MultilineQuotesLength => QuotesLength}
 
 class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
+  private val MarkdownDeletionChars: Set[Char] = Set('*', '_', '`')
+
   override def beforeCharDeleted(c: Char, file: PsiFile, editor: Editor): Unit = {
     if (!file.is[ScalaFile]) return
 
@@ -60,6 +63,30 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
           editor.getCaretModel.moveCaretRelatively(1, 0, false, false, false)
         }
 
+        PsiDocumentManager.getInstance(file.getProject).commitDocument(editor.getDocument)
+      }
+    } else if (isInMarkdown(element) && MarkdownDeletionChars.contains(c)) {
+      val text = element.getText
+      val idx = offset - element.getTextOffset
+      def countChars(offset: Int, step: Int): Int = {
+        var result = 0
+        val textLength = text.length()
+        var idx = offset
+        var continue = true
+        while (idx >= 0 && idx < textLength && continue) {
+          val charAt = text.charAt(idx)
+          if (charAt == c) result += 1
+          else continue = false
+          idx += step
+        }
+        result
+      }
+
+      val charsBefore = countChars(idx - 1, -1)
+      val charsAfter = countChars(idx, 1)
+
+      if (charsBefore == charsAfter) {
+        document.deleteString(offset, offset + 1)
         PsiDocumentManager.getInstance(file.getProject).commitDocument(editor.getDocument)
       }
     } else if (element.getNode.getElementType == ScalaXmlTokenTypes.XML_NAME && element.getParent != null && element.getParent.is[ScXmlStartTag]) {
