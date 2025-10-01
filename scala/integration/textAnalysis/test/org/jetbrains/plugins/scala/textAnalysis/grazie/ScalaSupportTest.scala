@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.textAnalysis.grazie
 
+import com.intellij.grazie.jlanguage.Lang
 import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.util.ThrowableRunnable
 
@@ -10,8 +11,6 @@ import com.intellij.util.ThrowableRunnable
  */
 class ScalaSupportTest extends GrazieScalaTestBase:
 
-  override val additionalEnabledRules: Set[String] = Set("LanguageTool.EN.UPPERCASE_SENTENCE_START")
-
   override def getTestDataPath: String =
     super.getTestDataPath() + "/ide/language/scala"
 
@@ -19,9 +18,11 @@ class ScalaSupportTest extends GrazieScalaTestBase:
     runHighlightTestForFile("Constructs.scala")
 
   def testGrammarCheckInComments(): Unit =
+    enableProofreadingFor(Set(Lang.GERMANY_GERMAN))
     runHighlightTestForFile("Comments.scala")
 
   def testGrammarCheckInDocs(): Unit =
+    enableProofreadingFor(Set(Lang.GERMANY_GERMAN, Lang.RUSSIAN))
     runHighlightTestForFile("Docs.scala")
 
   def testGrammarCheckInStringLiterals(): Unit =

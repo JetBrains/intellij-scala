@@ -913,12 +913,18 @@ lazy val textAnalysis =
         "tanvd.grazi".toPlugin
       ),
       //Language packs needed at runtime to run tests
-      resolvers += DependencyResolvers.IntelliJDependencies,
+      resolvers ++= Seq(
+        DependencyResolvers.IntelliJDependencies,
+        DependencyResolvers.Grazie
+      ),
       libraryDependencies ++= Seq(
         //languagetool-core is available in the platform, exclude it to avoid some strange runtime errors in tests
         ("org.jetbrains.intellij.deps.languagetool" % "language-ru" % Versions.LanguageToolVersion % Test).exclude("org.jetbrains.intellij.deps.languagetool", "languagetool-core"),
         ("org.jetbrains.intellij.deps.languagetool" % "language-de" % Versions.LanguageToolVersion % Test).exclude("org.jetbrains.intellij.deps.languagetool", "languagetool-core"),
         ("org.jetbrains.intellij.deps.languagetool" % "language-it" % Versions.LanguageToolVersion % Test).exclude("org.jetbrains.intellij.deps.languagetool", "languagetool-core"),
+        // notTransitive is very important, otherwise the libraries bring in an old version of kotlin-stdlib which results in missing methods at runtime
+        ("ai.grazie.spell" % "hunspell-ru" % Versions.HunspellDictionaryVersion % Test).notTransitive(),
+        ("ai.grazie.spell" % "hunspell-de" % Versions.HunspellDictionaryVersion % Test).notTransitive()
       ),
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.textAnalysis"),
     )

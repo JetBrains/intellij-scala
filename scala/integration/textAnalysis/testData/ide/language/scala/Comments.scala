@@ -1,18 +1,19 @@
 // Copyright 2000-2020 I are a incorrect comment that the developers can hardly do anything about.
-//> using test
 
 class ForMultiLanguageSupport {
-  // er überprüfte die Rechnungen noch <TYPO descr="Typo: In word 'einal'">einal</TYPO>, um ganz <GRAMMAR_ERROR descr="COMPOUND_INFINITIV_RULE">sicher zu gehen</GRAMMAR_ERROR>.
-  // das ist <GRAMMAR_ERROR descr="FUEHR_FUER">führ</GRAMMAR_ERROR> Dich!
-  // das <TYPO descr="Typo: In word 'daert'">daert</TYPO> geschätzt fünf <STYLE_WARNING descr="MANNSTUNDE">Mannstunden</STYLE_WARNING>.
+  // The finally block always executes when the try block exits.
 
-  // Cover <GRAMMAR_ERROR descr="'following' usually goes with an article">following</GRAMMAR_ERROR> cases
+  // er überprüfte die Rechnungen noch <TYPO descr="Typo: In word 'einal'">einal</TYPO>, um <GRAMMAR_ERROR descr="COMPOUND_INFINITIV_RULE">sicher zu gehen</GRAMMAR_ERROR>.
+  // das ist <GRAMMAR_ERROR descr="FUEHR_FUER">führ</GRAMMAR_ERROR> Dich!
+  // das <TYPO descr="Typo: In word 'daert'">daert</TYPO> geschätzt fünf <STYLE_SUGGESTION descr="MANNSTUNDE">Mannstunden</STYLE_SUGGESTION>.
+
+  // Cover following cases
   // a) initially missing
   // b) initially missing
 
   // My
-  // <GRAMMAR_ERROR descr="Missing commas around a non-restrictive clause?">name</GRAMMAR_ERROR>
-  //    which I <GRAMMAR_ERROR descr="Missing commas around a non-restrictive clause?">occurred</GRAMMAR_ERROR> is
+  // <GRAMMAR_ERROR descr="COMMA_WHICH">name</GRAMMAR_ERROR>
+  //    <GRAMMAR_ERROR descr="COMMA_WHICH">which</GRAMMAR_ERROR> I occurred is
   // bad
 
 
@@ -32,7 +33,11 @@ class ForMultiLanguageSupport {
 
   // The index is in the range [start, end). Tries to find a group of non-conflicting events in range [`startIndex`..`inEvents.size()`).
 
-  // <GRAMMAR_ERROR descr="Is a noun (or equivalent) missing after this article?">An </GRAMMAR_ERROR>iterable of bundle instances
+  // Move [0; value) elements to the end of the list, so this list will start from element.
+
+  // An iterable of bundle instances
+
+  // b'0' fill as usize is a mistake
 
   // Resolve '../' in paths (like real_path)
 
@@ -40,7 +45,7 @@ class ForMultiLanguageSupport {
 
   // We don't use the PHP php_strip_whitespace() function
 
-  // If Content-Type is set to text/html, or is unset -> <GRAMMAR_ERROR descr="File types are usually capitalized">html</GRAMMAR_ERROR>
+  // If Content-Type is set to text/html, or is unset -> <GRAMMAR_ERROR descr="Grazie.RuleEngine.En.Spelling.PROPER_NAMES">html</GRAMMAR_ERROR>
 
   /*
   for(;;)
@@ -67,4 +72,31 @@ class ForMultiLanguageSupport {
 
   // Returns details about the current user
   def foo(): Int = 1
+
+  // Some legitimate English comment
+  // to be checked.
+  // noinspection ConstantValue
+
+  //  EmailTemplateInstance emailTemplateInstance = localTemplateInstanceService.get(storeId, emailType, adminTemplateId);
+  //  try {
+  //    final TemplateInstance templateInstance = templateInstanceApi.createTemplateInstanceFromTemplate(
+
+  //        for (Person person : people) {
+  //            System.out.println(person);
+  //        }
+
+  // if the subject includes the
+  //    string '|6xX$\WG-C?|' or the author includes the string
+  //    '|^#=)A?mUi5|' ; this is however highly unlikely...
+
+  // if the subject includes the
+  //    string '|6xX$\WG-C?|' or the author includes the string
+  //    '|^#=(A?mUi5|' ; this is however highly unlikely...
+
+  // print(f'Hello world')
+  // print(f'
+  // print(f')
+  // print(f'      world')
+
+  // <TYPO descr="Typo: In word 'Timout'">Timout</TYPO>
 }

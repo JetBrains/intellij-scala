@@ -63,6 +63,11 @@ object Versions {
    */
   val LanguageToolVersion = "6.6.17"
 
+  /**
+   * Potentially automate the updating of this version in the future.
+   */
+  val HunspellDictionaryVersion = "0.2.315"
+
   object Sbt {
     val binary_0_13 = "0.13"
     val binary_1_0 = "1.0" // 1.0 is the binary version of sbt 1.x series
@@ -257,4 +262,5 @@ object DependencyGroups {
 object DependencyResolvers {
   val IntelliJDependencies = "IntelliJ Dependencies" at "https://cache-redirector.jetbrains.com/intellij-dependencies"
   val PackageSearch = "Package Search" at "https://cache-redirector.jetbrains.com/packages.jetbrains.team/maven/p/kpm/public"
+  val Grazie = "Grazie" at "https://cache-redirector.jetbrains.com/packages.jetbrains.team/maven/p/grazi/grazie-platform-public"
 }
