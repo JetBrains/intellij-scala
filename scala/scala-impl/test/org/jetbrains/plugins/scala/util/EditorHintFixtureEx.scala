@@ -13,7 +13,7 @@ class EditorHintFixtureEx(parentDisposable: Disposable) extends EditorHintFixtur
    */
   def getCurrentHintBodyText: String = {
     val text = super.getCurrentHintText
-    assertNotNull("Current hint text is empty", text)
+    assertNotNull("Current hint is missing", text)
 
     val BodyStartTag = "<body>"
     val BodyEndTag = "</body>"
