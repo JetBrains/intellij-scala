@@ -28,7 +28,7 @@ private final class SbtProjectImportStateProblemHighlightFilter extends ProblemH
   }
 }
 
-private[jetbrains] object SbtProjectImportStateProblemHighlightFilter {
+object SbtProjectImportStateProblemHighlightFilter {
   // Currently interested only in Scala, Java, Kotlin and Groovy sources.
   private[sbt] def isTrackedFileType(fileType: FileType): Boolean = fileType match {
     case _: ScalaFileType => true
