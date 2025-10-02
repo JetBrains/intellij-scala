@@ -17,8 +17,6 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
   override def collectTransferableData(startOffsets: Array[Int], endOffsets: Array[Int])
                                       (implicit file: PsiFile,
                                        editor: Editor): Option[Associations] = {
-    if (!RichCopySettings.getInstance().isEnabled)
-      return None //// copy as plain text
     if (DumbService.getInstance(file.getProject).isDumb)
       return None
 
