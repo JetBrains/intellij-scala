@@ -14,6 +14,8 @@ abstract class ShowTypeInfoActionTestBase extends ScalaLightCodeInsightFixtureTe
 
   private var editorHintFixture: EditorHintFixtureEx = _
 
+  override def runInDispatchThread(): Boolean = false
+
   override protected def setUp(): Unit = {
     super.setUp()
     editorHintFixture = new EditorHintFixtureEx(this.getTestRootDisposable)
@@ -24,7 +26,12 @@ abstract class ShowTypeInfoActionTestBase extends ScalaLightCodeInsightFixtureTe
     expectedTypeInfoHintBodyContent: String,
   ): Unit = {
     configureFromFileText(fileText)
-    getFixture.performEditorAction(ActionId)
+
+    ScalaAsyncActionTestUtils.invokeActionAndWaitForCompletion(
+      getProject,
+      classOf[ShowTypeInfoAction],
+      () => getFixture.performEditorAction(ActionId),
+    )
 
     assertEquals(
       expectedTypeInfoHintBodyContent.trim,
