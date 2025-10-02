@@ -9,6 +9,7 @@ import org.jetbrains.sbt.project.SbtProjectStructureImportingLike
 import org.jetbrains.sbt.shell.testSettingsQueryHandler.SbtProjectPlatformTestCase.ProcessLogger
 import org.jetbrains.sbt.shell.testSettingsQueryHandler.SettingQueryHandlerTestBase.{SbtSetCommand, SbtSetCommandSettingPath}
 import com.intellij.execution.process.OSProcessHandler
+import org.jetbrains.plugins.scala.build.BuildMessages
 import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication, SettingQueryHandler}
 import org.jetbrains.sbt.{SbtVersion, SbtVersionCapabilities}
 import org.junit.Assert.assertNotNull
@@ -22,6 +23,8 @@ import scala.concurrent.duration.{Duration, DurationInt, FiniteDuration}
 @Category(Array(classOf[SlowTests2]))
 //noinspection ApiStatus
 abstract class SettingQueryHandlerTestBase extends SbtProjectStructureImportingLike {
+
+  protected def useNewShell: Boolean = false
 
   protected def getRelativeTestProjectPath: String
 
@@ -57,6 +60,11 @@ abstract class SettingQueryHandlerTestBase extends SbtProjectStructureImportingL
 
     super.setUp()
 
+    if (useNewShell) {
+      val newShellRegistry = Registry.get("sbt.new.shell")
+      newShellRegistry.setValue(true)
+    }
+
     importProject()
 
     val project = getMyProject
@@ -74,7 +82,8 @@ abstract class SettingQueryHandlerTestBase extends SbtProjectStructureImportingL
   def testFailedCommand(): Unit = {
     Await.result(comm.command("set npSuchSetting:=42"), DefaultCommandWaitTimeout)
     flush()
-    assert(logger.getLog.contains(SbtProjectPlatformTestCase.errorPrefix))
+    val logNoAnsi = BuildMessages.stripAnsiCodes(logger.getLog)
+    assert(logNoAnsi.contains(SbtProjectPlatformTestCase.errorPrefix))
   }
 
   def testShow(): Unit =

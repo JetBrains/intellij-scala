@@ -622,10 +622,17 @@ private[shell] object SbtProcessUtil {
   // Should be the same as in `org.jetbrains.sbt.constants.IDEA_PROMPT_MARKER`
   private val IDEA_PROMPT_MARKER = "[IJ]"
 
+  // TODO adjust it to the real prompt value SCL-24401
+  private val SHELL_COMMAND_PROMPT = "sbt:"
+
   // the prompt marker is inserted by the sbt-idea-shell plugin
   def promptReady(line: String): Boolean = {
-    val lineWithNoAnsi = BuildMessages.stripAnsiCodes(line)
-    lineWithNoAnsi.trim.startsWith(IDEA_PROMPT_MARKER)
+    val prompt =
+      if (isNewShell) SHELL_COMMAND_PROMPT
+      else IDEA_PROMPT_MARKER
+
+    val lineWithNoAnsi = BuildMessages.stripAnsiCodes(line, stripDeckpnm = isNewShell)
+    lineWithNoAnsi.trim.startsWith(prompt)
   }
 
   def promptError(line: String): Boolean =

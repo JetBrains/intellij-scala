@@ -187,6 +187,7 @@
         <editorNotificationProvider implementation="org.jetbrains.sbt.project.SbtProjectImportStateNotificationProvider"/>
         <editorNotificationProvider implementation="org.jetbrains.sbt.project.SetupScalaHighlightingNotificationProvider"/>
 
+        <postStartupActivity implementation="org.jetbrains.sbt.shell.SbtNewShellRegistryListener" />
         <postStartupActivity implementation="org.jetbrains.sbt.project.SbtProjectManagerListener" />
         <postStartupActivity implementation="org.jetbrains.sbt.project.LegacySbtVersionNotifications$MyProjectActivity"/>"
     </extensions>
