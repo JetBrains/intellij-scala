@@ -15,7 +15,7 @@ import org.jetbrains.sbt.language.completion.SbtScalaVersionCompletionContributo
 import org.jetbrains.sbt.language.completion.SbtVersionCompletionContributor.{SbtGroupId, SbtLaunchArtifactId}
 
 private class SbtVersionCompletionContributor extends SbtScalaVersionCompletionContributor with DumbAware {
-  override protected def pattern: ElementPattern[_ <: PsiElement] =
+  override protected def pattern: ElementPattern[? <: PsiElement] =
     SbtPsiElementPatterns.propertiesFilePattern && psiElement().inside(SbtPsiElementPatterns.versionPropertyPattern)
 
   override protected def provider: SbtScalaVersionCompletionProvider = new SbtScalaVersionCompletionProvider {

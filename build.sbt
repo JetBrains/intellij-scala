@@ -864,12 +864,14 @@ lazy val i18nIntegration =
 
 lazy val propertiesIntegration =
   newProject("properties", file("scala/integration/properties"))
-    .dependsOn(scalaImpl % "test->test;compile->compile", sbtImpl)
-    .settings(
-      intellijPlugins ++= Seq(
-        "com.intellij.properties".toPlugin,
-        "com.intellij.java-i18n".toPlugin,
-      )
+    .dependsOn(
+      scalaImpl % "test->test;compile->compile",
+      sbtImpl
+    ).settings(
+      scalaVersion := Versions.scala3Version,
+      Compile / scalacOptions := globalScala3ScalacOptions,
+      intellijPlugins += "com.intellij.properties".toPlugin,
+      packageMethod := PackagingMethod.PluginModule("scalaCommunity.properties")
     )
 
 lazy val javaDecompilerIntegration =
