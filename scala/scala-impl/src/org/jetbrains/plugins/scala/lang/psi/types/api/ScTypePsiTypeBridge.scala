@@ -6,6 +6,7 @@ import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions.PsiTypeExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.PsiTypeBridge.ConversionOptions
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 
 import scala.collection.immutable.ArraySeq
@@ -15,22 +16,35 @@ trait PsiTypeBridge {
   typeSystem: TypeSystem =>
 
   /**
-    * @param treatJavaObjectAsAny if true, and paramTopLevel is true, java.lang.Object is treated as scala.Any
-    *                             See SCL-3036 and SCL-2375
-    */
-  def toScType(@Nullable psiType: PsiType, treatJavaObjectAsAny: Boolean, paramTopLevel: Boolean): ScType =
-    toScTypeInner(psiType, treatJavaObjectAsAny, paramTopLevel, rawExistentialArguments = None)
+   * @param treatJavaObjectAsAny if true, and paramTopLevel is true, java.lang.Object is treated as scala.Any
+   *                             See SCL-3036 and SCL-2375
+   */
+  def toScType(
+    @Nullable psiType: PsiType,
+    treatJavaObjectAsAny: Boolean,
+    paramTopLevel: Boolean
+  ): ScType = {
+    val options = ConversionOptions(treatJavaObjectAsAny, paramTopLevel)
+    toScTypeInner(psiType, options, rawExistentialArguments = None)
+  }
+
+  def toScType(
+    @Nullable psiType: PsiType,
+    options: ConversionOptions
+  ): ScType =
+    toScTypeInner(psiType, options, rawExistentialArguments = None)
 
   protected type RawExistentialArgs = Map[PsiTypeParameter, ScExistentialArgument]
 
   //Result of this method may contain not-bound existential arguments,
   //because we need to defer initialization of wildcard if it is called recursively.
-  protected def toScTypeInner(@Nullable psiType: PsiType,
-                              paramTopLevel: Boolean = false,
-                              treatJavaObjectAsAny: Boolean = true,
-                              rawExistentialArguments: Option[RawExistentialArgs] = None): ScType = psiType match {
+  protected def toScTypeInner(
+    @Nullable javaType: PsiType,
+    options: ConversionOptions = ConversionOptions.Default,
+    rawExistentialArguments: Option[RawExistentialArgs] = None
+  ): ScType = javaType match {
     case arrayType: PsiArrayType =>
-      JavaArrayType(arrayType.getComponentType.toScType())
+      JavaArrayType(arrayType.getComponentType.toScType(options.copy(paramTopLevel = false)))
     case PsiTypeConstants.Void    => Unit
     case PsiTypeConstants.Boolean => Boolean
     case PsiTypeConstants.Char    => Char
@@ -44,19 +58,19 @@ trait PsiTypeBridge {
     case null            => Any
     case diamondType: PsiDiamondType =>
       diamondType.resolveInferredTypes().getInferredTypes.asScala.toList.map {
-        toScTypeInner(_, paramTopLevel, treatJavaObjectAsAny, rawExistentialArguments)
+        toScTypeInner(_, options, rawExistentialArguments)
       } match {
-        case Nil if paramTopLevel && treatJavaObjectAsAny => Any
+        case Nil if options.paramTopLevel && options.treatJavaObjectAsAny => Any
         case Nil => AnyRef
         case head :: _ => head
       }
     case wildcardType: PsiCapturedWildcardType =>
-      toScTypeInner(wildcardType.getWildcard, paramTopLevel, treatJavaObjectAsAny, rawExistentialArguments)
+      toScTypeInner(wildcardType.getWildcard, options, rawExistentialArguments)
     case intersectionType: PsiIntersectionType =>
       typeSystem.andType(ArraySeq.unsafeWrapArray(intersectionType.getConjuncts.map {
-        toScTypeInner(_, paramTopLevel, treatJavaObjectAsAny, rawExistentialArguments)
+        toScTypeInner(_, options, rawExistentialArguments)
       }))
-    case _ => throw new IllegalArgumentException(s"psi type $psiType should not be converted to ${typeSystem.name} type")
+    case _ => throw new IllegalArgumentException(s"psi type $javaType should not be converted to ${typeSystem.name} type")
   }
 
   def toPsiType(`type`: ScType, noPrimitives: Boolean = false): PsiType
@@ -108,6 +122,26 @@ trait PsiTypeBridge {
   protected def factory: PsiElementFactory =
     JavaPsiFacade.getInstance(projectContext).getElementFactory
 
+}
+
+object PsiTypeBridge {
+  /**
+   * @param handleUnresolved false - all unresolved types will be as scala type `Nothing`<br>
+   *                         true - synthetic elements will be created for unresolved types.
+   *                         This can happen, for example, during Java to Scala conversion.
+   *                         Suppose you copy some isolated java code and paste it to a scala file (with java-scala conversion).
+   *                         Suppose this code contains some references to non-existing classes, like `new MyJavaClass()`.
+   *                         In this case we want to still convert it to the same code in Scala, not to `new Nothing`.
+   */
+  case class ConversionOptions(
+    paramTopLevel: Boolean = false,
+    treatJavaObjectAsAny: Boolean = true,
+    handleUnresolved: Boolean = false
+  )
+
+  object ConversionOptions {
+    val Default = ConversionOptions()
+  }
 }
 
 object ExtractClass {

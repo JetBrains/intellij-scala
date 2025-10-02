@@ -362,4 +362,128 @@ class CopyJavaToScalaTest extends CopyPasteTestBase {
 
     doTest(fromText, toText, expected)
   }
+
+  def testPasteJavaCodeWithNonExistingClass(): Unit = {
+    doTest(
+      s"""package org.example;
+         |
+         |$Start
+         |abstract class MyClass extends MyNonExistingClass implements java.util.function.Function<MyNonExistingClass, Integer> {
+         |    private final MyNonExistingClass field = new MyNonExistingClass();
+         |
+         |    public void foo(MyNonExistingClass param1, java.util.Optional<MyNonExistingClass> param2, MyNonExistingClass2<MyNonExistingClass> parmam3) {
+         |        MyNonExistingClass value = new MyNonExistingClass(42);
+         |        value.bar();
+         |        java.util.Optional<MyNonExistingClass> optional = java.util.Optional.of(value);
+         |    }
+         |
+         |    public MyNonExistingClass createInstance() {
+         |        return new MyNonExistingClass();
+         |    }
+         |
+         |    public java.util.List<MyNonExistingClass> getList() {
+         |        return java.util.Arrays.asList(new MyNonExistingClass());
+         |    }
+         |
+         |    public void processArray(MyNonExistingClass[] array) {
+         |        for (MyNonExistingClass item : array) {
+         |            item.bar();
+         |        }
+         |    }
+         |}
+         |$End
+         |""".stripMargin,
+      "",
+      """import java.util
+        |import java.util.{List, Optional}
+        |import java.util.function.Function
+        |
+        |abstract class MyClass extends MyNonExistingClass with Function[MyNonExistingClass, Integer] {
+        |  final private val field: MyNonExistingClass = new MyNonExistingClass
+        |
+        |  def foo(param1: MyNonExistingClass, param2: Optional[MyNonExistingClass], parmam3: MyNonExistingClass2[MyNonExistingClass]): Unit = {
+        |    val value: MyNonExistingClass = new MyNonExistingClass(42)
+        |    value.bar
+        |    val optional: Optional[MyNonExistingClass] = java.util.Optional.of(value)
+        |  }
+        |
+        |  def createInstance: MyNonExistingClass = new MyNonExistingClass
+        |
+        |  def getList: util.List[MyNonExistingClass] = java.util.Arrays.asList(new MyNonExistingClass)
+        |
+        |  def processArray(array: Array[MyNonExistingClass]): Unit = {
+        |    for (item <- array) {
+        |      item.bar
+        |    }
+        |  }
+        |}
+        |""".stripMargin
+    )
+  }
+
+  def testPasteJavaCodeWithNonAccessibleClass(): Unit = {
+    doTest(
+      s"""package org.example;
+         |
+         |$Start
+         |abstract class MyClass extends MyNonExistingClass implements java.util.function.Function<MyNonExistingClass, Integer> {
+         |    private final MyNonExistingClass field = new MyNonExistingClass();
+         |
+         |    public void foo(MyNonExistingClass param1, java.util.Optional<MyNonExistingClass> param2, MyNonExistingClass2<MyNonExistingClass> parmam3) {
+         |        MyNonExistingClass value = new MyNonExistingClass(42);
+         |        value.bar();
+         |        java.util.Optional<MyNonExistingClass> optional = java.util.Optional.of(value);
+         |    }
+         |
+         |    public MyNonExistingClass createInstance() {
+         |        return new MyNonExistingClass();
+         |    }
+         |
+         |    public java.util.List<MyNonExistingClass> getList() {
+         |        return java.util.Arrays.asList(new MyNonExistingClass());
+         |    }
+         |
+         |    public void processArray(MyNonExistingClass[] array) {
+         |        for (MyNonExistingClass item : array) {
+         |            item.bar();
+         |        }
+         |    }
+         |}
+         |$End
+         |
+         |class MyNonExistingClass {
+         |    public MyNonExistingClass() {}
+         |    public MyNonExistingClass(int i) {}
+         |    public void bar() {}
+         |}
+         |
+         |class MyNonExistingClass2<T extends MyNonExistingClass> {}
+         |""".stripMargin,
+      "",
+      """import java.util
+        |import java.util.{List, Optional}
+        |import java.util.function.Function
+        |
+        |abstract class MyClass extends MyNonExistingClass with Function[MyNonExistingClass, Integer] {
+        |  final private val field: MyNonExistingClass = new MyNonExistingClass
+        |
+        |  def foo(param1: MyNonExistingClass, param2: Optional[MyNonExistingClass], parmam3: MyNonExistingClass2[MyNonExistingClass]): Unit = {
+        |    val value: MyNonExistingClass = new MyNonExistingClass(42)
+        |    value.bar()
+        |    val optional: Optional[MyNonExistingClass] = java.util.Optional.of(value)
+        |  }
+        |
+        |  def createInstance: MyNonExistingClass = new MyNonExistingClass
+        |
+        |  def getList: util.List[MyNonExistingClass] = java.util.Arrays.asList(new MyNonExistingClass)
+        |
+        |  def processArray(array: Array[MyNonExistingClass]): Unit = {
+        |    for (item <- array) {
+        |      item.bar()
+        |    }
+        |  }
+        |}
+        |""".stripMargin
+    )
+  }
 }

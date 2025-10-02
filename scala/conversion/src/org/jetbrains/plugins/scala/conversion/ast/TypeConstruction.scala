@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.conversion.ast
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiType
 import org.jetbrains.plugins.scala.extensions.PsiTypeExt
-import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, ParameterizedType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, ParameterizedType, PsiTypeBridge}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, TypePresentationContext}
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.project.ProjectContext.fromProject
@@ -27,26 +27,32 @@ case class TypeConstruction(inType: String) extends TypeNode {
 
 object TypeConstruction {
   def createIntermediateTypePresentation(
-    inType: PsiType,
+    javaType: PsiType,
     inProject: Project,
     textMode: Boolean,
   ): TypeNode = {
     implicit val ctx: ProjectContext = inProject
 
     val buffer = mutable.ArrayBuffer.empty[(IntermediateNode, Option[String])]
-    //java Object should be treated as AnyRef, not Any
-    val scType = inType.toScType(paramTopLevel = true, treatJavaObjectAsAny = false)
-    val result = getParts(scType, buffer, textMode)
 
-    result match {
+    val conversionOptions = PsiTypeBridge.ConversionOptions(
+      paramTopLevel = true,
+      //java Object should be treated as AnyRef, not Any
+      treatJavaObjectAsAny = false,
+      // we don't want `new Nothing` for unresolved java references
+      handleUnresolved = true,
+    )
+    val scalaType = javaType.toScType(conversionOptions)
+
+    val typeNode: TypeNode = getParts(scalaType, buffer, textMode)
+    typeNode match {
       case parametrized: ParametrizedConstruction =>
         parametrized.associationMap = buffer.toSeq
       case array: ArrayConstruction =>
         array.associationMap = buffer.toSeq
       case _ =>
     }
-
-    result
+    typeNode
   }
 
   // get simple parts of type if type is array or parametrized
