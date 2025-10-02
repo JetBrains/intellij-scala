@@ -16,7 +16,7 @@ import com.intellij.ui.tree.{AsyncTreeModel, StructureTreeModel}
 import com.intellij.ui.treeStructure.Tree
 import com.intellij.ui.{ClickListener, ScrollPaneFactory}
 import com.intellij.util.ArrayUtil
-import com.intellij.util.concurrency.annotations.RequiresEdt
+import com.intellij.util.concurrency.annotations.{RequiresBackgroundThread, RequiresEdt}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.actions.ScalaActionUtil
 import org.jetbrains.plugins.scala.actions.utils.TaskRunnerWithLoadingProgress
@@ -103,6 +103,7 @@ class ShowImplicitArgumentsAction extends AnAction(
     }
   }
 
+  @RequiresBackgroundThread // Can involve heavy resolution in complex code bases
   private def findAllTargets(file: PsiFile)(implicit editor: Editor, project: Project): Seq[ImplicitArgumentsTarget] = {
     if (editor.getSelectionModel.hasSelection)
       getSelectedExpression(file).toSeq.flatMap(allTargets)

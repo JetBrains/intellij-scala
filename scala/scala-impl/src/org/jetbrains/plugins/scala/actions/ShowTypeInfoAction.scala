@@ -8,6 +8,7 @@ import com.intellij.openapi.editor.{Editor, SelectionModel}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtilBase}
+import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import org.jetbrains.plugins.scala.actions.ShowTypeInfoAction.typeTextOf
 import org.jetbrains.plugins.scala.actions.utils.TaskRunnerWithLoadingProgress
 import org.jetbrains.plugins.scala.extensions._
@@ -65,6 +66,7 @@ class ShowTypeInfoAction extends AnAction(
   private def invokeAction(editor: Editor, file: PsiFile, project: Project): Unit = {
     val selectionModel = editor.getSelectionModel
 
+    @RequiresBackgroundThread
     def calculateTypeInfo(): Option[String] = {
       if (selectionModel.hasSelection) {
         getTypeInfoHintForSelection(editor, file, project, selectionModel)

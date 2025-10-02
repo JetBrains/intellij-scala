@@ -6,6 +6,7 @@ import com.intellij.openapi.diagnostic.ControlFlowException
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiFile
 import com.intellij.ui.LightweightHint
+import com.intellij.util.concurrency.annotations.RequiresEdt
 import com.intellij.util.ui.StartupUiUtil
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions.ObjectExt
@@ -22,7 +23,8 @@ object ScalaActionUtil {
   }
 
   def getFileFrom(e: AnActionEvent): Option[PsiFile] = Option(CommonDataKeys.PSI_FILE.getData(e.getDataContext))
-  
+
+  @RequiresEdt
   def showHint(editor: Editor, @Nls text: String): Unit = {
     val label = HintUtil.createInformationLabel(text)
     label.setFont(StartupUiUtil.getLabelFont)
