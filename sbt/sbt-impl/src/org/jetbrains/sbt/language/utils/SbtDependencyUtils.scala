@@ -2,8 +2,7 @@ package org.jetbrains.sbt.language.utils
 
 import com.intellij.buildsystem.model.unified.{UnifiedDependency, UnifiedDependencyRepository}
 import com.intellij.openapi.command.WriteCommandAction
-import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
-import com.intellij.openapi.module.{ModuleManager, Module => OpenapiModule}
+import com.intellij.openapi.module.{ModuleManager, Module as OpenapiModule}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.util.text.StringUtil
@@ -12,7 +11,7 @@ import com.intellij.psi.{PsiElement, PsiFile, PsiManager}
 import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiFileExt, inReadAction}
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.*
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -480,7 +479,7 @@ object SbtDependencyUtils {
           case _ => None
         }
       case file: PsiFile =>
-        Option(addDependencyToFile(file, info)(project))
+        Option(addDependencyToFile(file, info)(using project))
       case _ => None
     }
   }
@@ -488,7 +487,7 @@ object SbtDependencyUtils {
   def addRepository(expr: PsiElement, unifiedDependencyRepository: UnifiedDependencyRepository)(implicit project: Project): Option[PsiElement] = {
     expr match {
       case file: PsiFile =>
-        Option(addRepositoryToFile(file, unifiedDependencyRepository)(project))
+        Option(addRepositoryToFile(file, unifiedDependencyRepository)(using project))
       case _ => None
     }
   }
@@ -505,7 +504,7 @@ object SbtDependencyUtils {
         doInSbtWriteCommandAction({
           seqCall.args.addExpr(dependency.copy().asInstanceOf[ScExpression])
           seqCall.args.addExpr(generateArtifactPsiExpression(info, infix))
-          infix.operation.replace(ScalaPsiElementFactory.createElementFromText("++=", infix)(project))
+          infix.operation.replace(ScalaPsiElementFactory.createElementFromText("++=", infix)(using project))
           dependency.replace(seqCall)
         }, psiFile)
 
@@ -524,7 +523,7 @@ object SbtDependencyUtils {
                 ScalaPsiElementFactory.createExpressionFromText(
                   s"${subInfix.getText} ++ Seq(${generateArtifactText(info)})",
                   infix
-                )(project)),
+                )(using project)),
               psiFile
             )
             Option(infix.right)
@@ -535,7 +534,7 @@ object SbtDependencyUtils {
     }
   }
 
-  def addDependencyToSeq(seqCall: ScMethodCall, info: SbtArtifactInfo)(implicit project: Project): Option[PsiElement] = {
+  def addDependencyToSeq(seqCall: ScMethodCall, info: SbtArtifactInfo): Option[PsiElement] = {
     val addedExpr =
       if (!seqCall.`type`().getOrAny.canonicalText.contains(SBT_SETTING_TYPE))
         generateArtifactPsiExpression(info, seqCall)
@@ -558,7 +557,7 @@ object SbtDependencyUtils {
   def addDependencyToFile(file: PsiFile, info: SbtArtifactInfo)(implicit project: Project): PsiElement = {
     var addedExpr: PsiElement = null
     doInSbtWriteCommandAction({
-      file.addAfter(generateNewLine(project), file.getLastChild)
+      file.addAfter(generateNewLine(using project), file.getLastChild)
       addedExpr = file.addAfter(generateLibraryDependency(info, file), file.getLastChild)
     }, file)
     addedExpr
@@ -575,7 +574,7 @@ object SbtDependencyUtils {
   def addRepositoryToFile(file: PsiFile, unifiedDependencyRepository: UnifiedDependencyRepository)(implicit project: Project): PsiElement = {
     var addedExpr: PsiElement = null
     doInSbtWriteCommandAction({
-      file.addAfter(generateNewLine(project), file.getLastChild)
+      file.addAfter(generateNewLine(using project), file.getLastChild)
       addedExpr = file.addAfter(generateResolverPsiExpression(unifiedDependencyRepository, file), file.getLastChild)
     }, file)
     addedExpr
@@ -593,19 +592,19 @@ object SbtDependencyUtils {
       .compute(() => f)
 
   private def generateSeqPsiMethodCall(ctx: PsiElement): ScMethodCall =
-    ScalaPsiElementFactory.createElementFromText[ScMethodCall](s"$SEQ()", ctx)(ctx)
+    ScalaPsiElementFactory.createElementFromText[ScMethodCall](s"$SEQ()", ctx)(using ctx)
 
   private def generateLibraryDependency(info: SbtArtifactInfo, ctx: PsiElement): ScInfixExpr =
     ScalaPsiElementFactory.createElementFromText[ScInfixExpr](
       s"$LIBRARY_DEPENDENCIES += ${generateArtifactText(info)}",
       ctx
-    )(ctx)
+    )(using ctx)
 
    def generateArtifactPsiExpression(info: SbtArtifactInfo, ctx: PsiElement): ScExpression =
     ScalaPsiElementFactory.createElementFromText[ScExpression](
       generateArtifactText(info),
       ctx
-    )(ctx)
+    )(using ctx)
 
   private def generateNewLine(implicit ctx: ProjectContext): PsiElement =
     ScalaPsiElementFactory.createNewLine()
@@ -630,7 +629,7 @@ object SbtDependencyUtils {
     s"""resolvers += Resolver.url("${unifiedDependencyRepository.getId}", url("${unifiedDependencyRepository.getUrl}"))"""
 
   def generateResolverPsiExpression(unifiedDependencyRepository: UnifiedDependencyRepository, ctx: PsiElement): ScExpression =
-    ScalaPsiElementFactory.createExpressionFromText(generateResolverText(unifiedDependencyRepository), ctx)(ctx)
+    ScalaPsiElementFactory.createExpressionFromText(generateResolverText(unifiedDependencyRepository), ctx)(using ctx)
 
   def getRelativePath(elem: PsiElement)(implicit project: ProjectContext): Option[String] = {
     for {

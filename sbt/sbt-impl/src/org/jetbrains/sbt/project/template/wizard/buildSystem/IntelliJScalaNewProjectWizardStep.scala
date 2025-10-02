@@ -63,7 +63,7 @@ final class IntelliJScalaNewProjectWizardStep(parent: ScalaNewProjectWizardMulti
     builder.commit(project)
   }
 
-  private def isScala3Sdk(properties: LibraryProperties[_]): Boolean = properties match {
+  private def isScala3Sdk(properties: LibraryProperties[?]): Boolean = properties match {
     case scalaProperties: ScalaLibraryProperties => scalaProperties.languageLevel.isScala3
     case _ => false
   }

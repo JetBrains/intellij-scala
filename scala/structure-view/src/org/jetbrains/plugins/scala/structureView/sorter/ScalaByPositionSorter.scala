@@ -17,7 +17,7 @@ object ScalaByPositionSorter extends Sorter() {
   override def getPresentation: ActionPresentation =
     new ActionPresentationData("Sort.actually", "Sort By Position", AllIcons.ObjectBrowser.Sorted)
 
-  override def getComparator: Comparator[_] = (o1: AnyRef, o2: AnyRef) => (o1, o2) match {
+  override def getComparator: Comparator[?] = (o1: AnyRef, o2: AnyRef) => (o1, o2) match {
     case (e1: Element, e2: Element) if !e1.inherited && !e2.inherited =>
       e1.element.getTextOffset - e2.element.getTextOffset
     case _ => 0

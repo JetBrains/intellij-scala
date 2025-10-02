@@ -376,6 +376,7 @@ object CompileServerLauncher {
     IntellijPlatformJars.fastUtilJar,
     LibraryJars.scalaParserCombinators,
     ScalaPluginJars.scalaLibraryJar,
+    ScalaPluginJars.scala3LibraryJar,
     ScalaPluginJars.scalaReflectJar,
     ScalaPluginJars.scalaNailgunRunnerJar,
     ScalaPluginJars.compilerSharedJar,

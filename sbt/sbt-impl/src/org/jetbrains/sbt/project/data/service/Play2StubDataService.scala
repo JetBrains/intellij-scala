@@ -12,7 +12,7 @@ import java.util
 class Play2StubDataService extends ScalaAbstractProjectDataService[SbtPlay2ProjectData, Project](SbtPlay2ProjectData.Key) {
 
   override def importData(
-    toImport: util.Collection[_ <: DataNode[SbtPlay2ProjectData]],
+    toImport: util.Collection[? <: DataNode[SbtPlay2ProjectData]],
     projectData: ProjectData,
     project: Project,
     modelsProvider: IdeModifiableModelsProvider

@@ -19,7 +19,7 @@ abstract class NewScalaProjectWizardTestBase extends NewProjectWizardTestCase
   with ProjectStructureMatcher {
 
   protected implicit def compareContext: ProjectStructureComparisonContext =
-    ProjectStructureComparisonContext.Implicit.default(getProject)
+    ProjectStructureComparisonContext.Implicit.default(using getProject)
 
   override def tearDown(): Unit = {
     inWriteAction {

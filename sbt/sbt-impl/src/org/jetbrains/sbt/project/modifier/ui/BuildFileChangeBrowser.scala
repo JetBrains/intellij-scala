@@ -15,7 +15,7 @@ class BuildFileChangeBrowser(
   fileChangesMap: mutable.Map[VirtualFile, (BuildFileModifiedStatus, Long)]
 ) extends SimpleAsyncChangesBrowser(project, false, false) {
 
-  override def setChangesToDisplay(changes: util.Collection[_ <: Change]): Unit = {
+  override def setChangesToDisplay(changes: util.Collection[? <: Change]): Unit = {
     val updatedChanges = new java.util.ArrayList[Change]
     updatedChanges.addAll(
       getSelectedChanges.asScala.map {
@@ -31,7 +31,7 @@ class BuildFileChangeBrowser(
                 fileChangesMap.put(changeSwapped.getVirtualFile, (newStatus, newModificationStamp))
                 BuildFileChange.swap(new BuildFileChange(changeSwapped.getBeforeRevision, changeSwapped.getAfterRevision, newStatus))
               } else myChange
-            case _ => myChange
+            case null => myChange
           }.getOrElse(myChange)
         }
       }.asJava

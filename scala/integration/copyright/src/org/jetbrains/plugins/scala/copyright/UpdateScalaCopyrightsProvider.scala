@@ -7,8 +7,8 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiElement
-import com.maddyhome.idea.copyright._
-import org.jetbrains.plugins.scala.lang.psi.api._
+import com.maddyhome.idea.copyright.*
+import org.jetbrains.plugins.scala.lang.psi.api.*
 
 import scala.annotation.tailrec
 
@@ -41,7 +41,7 @@ final class UpdateScalaCopyrightsProvider extends psi.UpdateCopyrightsProvider {
 
 object UpdateScalaCopyrightsProvider {
 
-  import toplevel._
+  import toplevel.*
   import imports.ScImportStmt
 
   private def importStatementsInHeader(element: PsiElement): List[ScImportStmt] = {

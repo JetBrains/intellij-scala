@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.projectHighlighting.downloaded
 
 import com.intellij.pom.java.LanguageLevel
-import org.jetbrains.plugins.scala.projectHighlighting.base.{GithubRepositoryWithRevision, SbtProjectHighlightingLocalProjectsTestBase}
+import org.jetbrains.plugins.scala.projectHighlighting.base.GithubRepositoryWithRevision
 
 class ScalaPetStoreProjectHighlightingTest  extends GithubSbtAllProjectHighlightingTest  {
 

@@ -33,7 +33,7 @@ class NonExtendableApiUsageInspectionTest extends ScalaInspectionTestBase {
   override def getTestDataPath =
     super.getTestDataPath + "inspections/internal/NonExtendableApiUsageInspection/"
 
-  override def setUpLibraries(implicit module: com.intellij.openapi.module.Module): Unit = {
+  override def setUpLibraries(module: com.intellij.openapi.module.Module): Unit = {
     super.setUpLibraries(module)
 
     val libraryRootPath = getTestDataPath + "library_root"

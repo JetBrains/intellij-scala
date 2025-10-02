@@ -30,7 +30,7 @@ class ScExprTypePredicate(val ty: String, baseName: String, val withinHierarchy:
     matchedNode match {
       case func: ScFunction => matchName(func.`type`.getOrAny.toString, true)
       case expr: Typeable =>
-        val typ = expr.`type`().getOrAny.widen.removeAliasDefinitions()(Context(matchedNode))
+        val typ = expr.`type`().getOrAny.widen.removeAliasDefinitions()(using Context(matchedNode))
         typ.extractClass match {
           case Some(cl) => matchClassOrSuper(cl)
           case None => matchName(typ.toString)

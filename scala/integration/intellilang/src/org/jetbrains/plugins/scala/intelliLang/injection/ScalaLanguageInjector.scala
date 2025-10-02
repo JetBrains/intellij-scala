@@ -35,7 +35,7 @@ final class ScalaLanguageInjector extends MultiHostInjector {
 
   import ScalaLanguageInjector._
 
-  override def elementsToInjectIn: ju.List[_ <: Class[_ <: PsiElement]] = ElementsToInjectIn
+  override def elementsToInjectIn: ju.List[? <: Class[? <: PsiElement]] = ElementsToInjectIn
 
   // TODO: rethink, add caching
   //  this adds significant typing performance overhead if file contains many injected literals
@@ -359,11 +359,11 @@ private object ScalaLanguageInjector {
     classOf[ScInfixExpr] //string concatenation
   )
 
-  private type AnnotationOwner = PsiAnnotationOwner with PsiElement
+  private type AnnotationOwner = PsiAnnotationOwner & PsiElement
 
-  private[this] object CachedAnnotationOwner {
+  private object CachedAnnotationOwner {
 
-    private[this] val OwnerKey = Key.create[(Option[AnnotationOwner], Long)]("scala.annotation.owner")
+    private val OwnerKey = Key.create[(Option[AnnotationOwner], Long)]("scala.annotation.owner")
 
     def apply(literal: ScStringLiteral, modCount: Long): Option[Option[AnnotationOwner]] = {
       val owner = literal.getCopyableUserData(OwnerKey)
@@ -444,11 +444,11 @@ private object ScalaLanguageInjector {
     }
   }
 
-  private[this] def parameterOf(argument: ScExpression): Option[AnnotationOwner] = {
+  private def parameterOf(argument: ScExpression): Option[AnnotationOwner] = {
     if (shouldAvoidResolve)
       return None
 
-    def getParameter(methodInv: MethodInvocation, index: Int): Option[PsiElement with PsiAnnotationOwner] = {
+    def getParameter(methodInv: MethodInvocation, index: Int): Option[PsiElement & PsiAnnotationOwner] = {
       if (index == -1) None else {
         val refOpt = methodInv.getEffectiveInvokedExpr.asOptionOf[ScReferenceExpression]
         refOpt.flatMap { ref =>
@@ -483,7 +483,7 @@ private object ScalaLanguageInjector {
     isEdt && !ApplicationManager.getApplication.isUnitTestMode
 
   // map(x) = y check
-  private[this] def assignmentTarget(leftExpression: ScExpression): Option[AnnotationOwner] = leftExpression match {
+  private def assignmentTarget(leftExpression: ScExpression): Option[AnnotationOwner] = leftExpression match {
     case _: ScMethodCall => None
     case ScReference(target) =>
       val context = target match {

@@ -35,7 +35,7 @@ class MigrateConfigurationsDialogWrapper(modules: Seq[Module], configurationToMo
     createComboBoxCellEditor(heuristicResult.guesses)
   }.toMap
 
-  private val configToDisplayOptions = configurationToModule.keys.map { config =>
+  private val configToDisplayOptions: Map[ModuleConfiguration, ConfigDisplayOptions] = configurationToModule.keys.map { config =>
     config -> new ConfigDisplayOptions(isTemporary = config.isTemporary, isShared = config.isShared)
   }.toMap
 
@@ -181,14 +181,14 @@ class MigrateConfigurationsDialogWrapper(modules: Seq[Module], configurationToMo
     columnModel.setCellRenderer(new TableCellRendererWithLeftMargin)
   }
 
-  def open(): Map[ModuleBasedConfiguration[_, _], Module] = {
+  def open(): Map[ModuleBasedConfiguration[?, ?], Module] = {
     pack()
     show()
     if (!isClosed) getCurrentTableState
     else Map.empty
   }
 
-  private def getCurrentTableState: Map[ModuleBasedConfiguration[_, _], Module] = {
+  private def getCurrentTableState: Map[ModuleBasedConfiguration[?, ?], Module] = {
     val rowsCount = myTableModel.getRowCount
     (0 until rowsCount)
       .map(createConfigModuleTuple)

@@ -8,7 +8,7 @@ import org.jetbrains.sbt.shell.SbtShellCommunication.{Output, ShellEvent}
 import scala.concurrent.Future
 
 trait SbtProgramRunnerBase {
-  protected def submitCommands(env: ExecutionEnvironment, state: SbtCommandLineState): Future[_] = {
+  protected def submitCommands(env: ExecutionEnvironment, state: SbtCommandLineState): Future[?] = {
     val sc = SbtShellCommunication.forProject(env.getProject)
     val commands = state.processedCommands
     

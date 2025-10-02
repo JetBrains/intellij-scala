@@ -4,15 +4,21 @@ import com.intellij.ide.projectView.impl.nodes.{ProjectViewProjectNode, PsiDirec
 import com.intellij.openapi.roots.{ModuleRootManager, ModuleRootModificationUtil}
 import com.intellij.projectView.BaseProjectViewTestCase
 import com.intellij.testFramework.IndexingTestUtil
-import org.jetbrains.plugins.scala.ScalaVersion
+import org.jetbrains.plugins.scala.{ScalaVersion, SlowTests2}
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, ScalaSDKLoader}
 import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, inWriteAction}
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert.fail
+import org.junit.Test
+import org.junit.experimental.categories.Category
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
+@RunWith(classOf[JUnit4])
+@Category(Array(classOf[SlowTests2]))
 //TODO: review projectView subsystem and cover it with more tests
 class ScalaProjectViewTest extends BaseProjectViewTestCase with ScalaSdkOwner {
 
@@ -43,7 +49,8 @@ class ScalaProjectViewTest extends BaseProjectViewTestCase with ScalaSdkOwner {
     IndexingTestUtil.waitUntilIndexesAreReady(getProject)
   }
 
-  def testFileIcons(): Unit = {
+  @Test
+  def fileIcons(): Unit = {
     val structure = super.getProjectTreeStructure
 
     val rootNode = structure.getRootElement.asInstanceOf[ProjectViewProjectNode]

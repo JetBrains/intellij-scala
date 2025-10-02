@@ -3,19 +3,21 @@ package org.jetbrains.sbt.project
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.{PsiFile, PsiManager}
-import org.jetbrains.plugins.scala.Scala3Language
+import org.jetbrains.plugins.scala.{Scala3Language, SlowTests2}
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.SbtVersion
 import org.jetbrains.sbt.language.SbtLanguageScala3
 import org.junit.Assert.{assertNotNull, assertTrue}
 import org.junit.Test
+import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 import java.nio.file.Path
 
 @RunWith(classOf[JUnit4])
+@Category(Array(classOf[SlowTests2]))
 class SbtBuildFilesLanguageTest extends SbtExternalSystemImportingTestLike {
   override protected def getTestDataProjectPath: String =
     s"${TestUtils.getTestDataPath}/sbt/projects/${getTestName(true)}"

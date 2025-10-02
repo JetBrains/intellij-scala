@@ -6,7 +6,7 @@ trait ArgListSerializer[A] extends Serializer {
 
   type From = A
   type To = ArgList
-  type ErrorsHolder[_] = Either[DeserializationError, _]
+  type ErrorsHolder[_] = Either[DeserializationError, ?]
 
   protected val Delimiter = "\n"
 

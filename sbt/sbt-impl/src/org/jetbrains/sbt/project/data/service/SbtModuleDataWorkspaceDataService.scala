@@ -20,7 +20,7 @@ class SbtModuleDataWorkspaceDataService extends WorkspaceDataService[SbtModuleDa
   override def getTargetDataKey: Key[SbtModuleData] = SbtModuleData.Key
 
   override def importData(
-    toImport: util.Collection[_ <: DataNode[SbtModuleData]],
+    toImport: util.Collection[? <: DataNode[SbtModuleData]],
     projectData: ProjectData,
     project: Project,
     mutableStorage: MutableEntityStorage

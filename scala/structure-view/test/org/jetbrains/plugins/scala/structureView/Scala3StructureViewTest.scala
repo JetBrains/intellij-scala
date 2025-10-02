@@ -16,10 +16,10 @@ class Scala3StructureViewTest extends ScalaStructureViewCommonTests {
   override protected def scalaLanguage: com.intellij.lang.Language = Scala3Language.INSTANCE
 
   override protected def check(@org.intellij.lang.annotations.Language("Scala 3") code: String, nodes: Node*): Unit =
-    super.check(code, nodes: _*)
+    super.check(code, nodes*)
 
   override protected def checkNavigationFromSource(@org.intellij.lang.annotations.Language("Scala 3") code: String, expectedNodes: Node*): Unit =
-    super.checkNavigationFromSource(code, expectedNodes: _*)
+    super.checkNavigationFromSource(code, expectedNodes*)
 
   private lazy val EnumCaseIcon = ENUM
 
@@ -62,15 +62,15 @@ class Scala3StructureViewTest extends ScalaStructureViewCommonTests {
       Node(FUNCTION, "myFunction: String"),
       Node(EXTENSION, "extension (MyClass)", Seq(
         Node(FUNCTION, "myExtension(String)")
-      ): _*),
+      )*),
     )
 
   def testTopLevelDefinitions_InRootPackage(): Unit = {
-    check(TopLevelDefinitionsText, TopLevelDefinitionsNodes: _*)
+    check(TopLevelDefinitionsText, TopLevelDefinitionsNodes*)
   }
 
   def testTopLevelDefinitions_InPackage(): Unit = {
-    check("package aaa.bbb.ccc\n" + TopLevelDefinitionsText, TopLevelDefinitionsNodes: _*)
+    check("package aaa.bbb.ccc\n" + TopLevelDefinitionsText, TopLevelDefinitionsNodes*)
   }
 
   def testAnonymousClasses_InsideValAndVarBody(): Unit = {

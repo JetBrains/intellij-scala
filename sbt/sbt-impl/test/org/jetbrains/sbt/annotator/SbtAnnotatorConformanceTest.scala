@@ -23,7 +23,7 @@ abstract class SbtAnnotatorConformanceTestBase extends SbtAnnotatorTestBase {
   private def doConformanceTest(text: String, expected: String): Unit = {
     // just for the context. we can probably create a context without loading the file?
     val file = loadTestFile()
-    val expression = ScalaPsiElementFactory.createExpressionFromText(text, file)(getProject)
+    val expression = ScalaPsiElementFactory.createExpressionFromText(text, file)(using getProject)
 
     val expressionType = expression.`type`() match {
       case Right(value) => value

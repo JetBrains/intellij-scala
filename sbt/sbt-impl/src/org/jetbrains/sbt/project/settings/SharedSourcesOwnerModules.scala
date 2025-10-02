@@ -1,11 +1,12 @@
 package org.jetbrains.sbt.project.settings
 
-import com.intellij.openapi.components._
+import com.intellij.openapi.components.*
 import com.intellij.openapi.module.Module
 import com.intellij.util.xmlb.XmlSerializerUtil
 
-import java.util.{List => JList}
+import java.util.List as JList
 import scala.beans.BeanProperty
+import scala.compiletime.uninitialized
 
 /**
  * Persistent state component with a module file storage.
@@ -25,7 +26,7 @@ import scala.beans.BeanProperty
 class SharedSourcesOwnerModules extends PersistentStateComponent[SharedSourcesOwnerModules] {
 
   @BeanProperty
-  var ownersModuleNames: JList[String] = _
+  var ownersModuleNames: JList[String] = uninitialized
 
   override def getState: SharedSourcesOwnerModules = this
 

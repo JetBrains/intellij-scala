@@ -31,7 +31,7 @@ abstract class SbtScalacOptionsDocumentationProviderCommonTests extends SbtScala
 
     val content = DocumentationMarkup.CONTENT_ELEMENT
       .child(HtmlChunk.text(langLevel.getVersion).bold())
-      .children(sections: _*)
+      .children(sections*)
       .child(HtmlChunk.br())
 
     content.toString
@@ -189,7 +189,7 @@ abstract class SbtScalacOptionsDocumentationProviderCommonTests extends SbtScala
     val defaultValue = Some("default test choice")
     val choices = Map(langLevel -> Set(defaultValue.get, "test choice", "another test choice"))
     val option = SbtScalacOptionInfo(flag, descriptions, choices, ArgType.No, Set(langLevel), defaultValue)
-    val docHolder = new SbtScalacOptionDocHolder(option)(getProject)
+    val docHolder = new SbtScalacOptionDocHolder(option)(using getProject)
 
     val expectedDoc = expectedDocumentation(langLevel, description, choices(langLevel), defaultValue)
     val actualDoc = generateDoc(docHolder, null)

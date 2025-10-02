@@ -20,10 +20,10 @@ object Play2OldStructureAdapter {
       case (string, triples) => (string, triples.map(t => (t._1, t._3)))
     }
 
-    SbtPlay2ProjectData(avoidSL7005Bug[String, ProjectId, ParsedValue[_]](oldData))
+    SbtPlay2ProjectData(avoidSL7005Bug[String, ProjectId, ParsedValue[?]](oldData))
   }
 
-  private def extractProjectKeyValue(id: ProjectId, baseDir: File, data: Play2Data): Seq[(ProjectId, String, ParsedValue[_])] =  {
+  private def extractProjectKeyValue(id: ProjectId, baseDir: File, data: Play2Data): Seq[(ProjectId, String, ParsedValue[?])] =  {
     val playVersion = data.playVersion.map(v => (PLAY_VERSION, new StringParsedValue(v))).toSeq
     val confDirectory = data.confDirectory.map(d => (PLAY_CONF_DIR, new StringParsedValue(d.getCanonicalPath))).toSeq
 
@@ -40,6 +40,6 @@ object Play2OldStructureAdapter {
   //SCL-7005
   @inline private def avoidSL7005Bug[K, A, B](m: Map[K, Seq[(A, B)]]): Map[K, Map[A, B]] = {
     val withMapsValues = m.view.mapValues(_.toMap).toMap
-    HashMap(withMapsValues.toSeq:_*)
+    HashMap(withMapsValues.toSeq*)
   }
 }

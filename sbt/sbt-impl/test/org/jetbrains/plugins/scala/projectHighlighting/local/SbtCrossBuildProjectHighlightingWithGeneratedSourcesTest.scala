@@ -160,8 +160,8 @@ class SbtCrossBuildProjectHighlightingWithGeneratedSourcesTest extends SbtProjec
       override protected def defaultAssertMatch: ProjectStructureMatcher.AttributeMatchType =
         ProjectStructureMatcher.AttributeMatchType.Exact
     }
-    val compareContext = ProjectStructureComparisonContext.Implicit.default(getProject)
+    val compareContext = ProjectStructureComparisonContext.Implicit.default(using getProject)
       .withOptions(_.copy(strictCheckForBuildModules = true))
-    matcher.assertProjectsEqual(expectedProject, getProject)(compareContext)
+    matcher.assertProjectsEqual(expectedProject, getProject)(using compareContext)
   }
 }

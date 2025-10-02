@@ -23,6 +23,8 @@ trait TypecheckerTests
 
 trait TestingSupportTests
 
+trait TextToTextTests
+
 trait UltimateTests
 
 trait WorksheetEvaluationTests

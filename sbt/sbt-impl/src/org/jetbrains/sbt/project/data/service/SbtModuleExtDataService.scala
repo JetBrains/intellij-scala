@@ -22,7 +22,7 @@ import scala.jdk.CollectionConverters._
 final class SbtModuleExtDataService extends ScalaAbstractProjectDataService[SbtModuleExtData, Library](SbtModuleExtData.Key) {
 
   override def importData(
-    toImport: util.Collection[_ <: DataNode[SbtModuleExtData]],
+    toImport: util.Collection[? <: DataNode[SbtModuleExtData]],
     projectData: ProjectData,
     project: Project,
     modelsProvider: IdeModifiableModelsProvider
@@ -34,8 +34,8 @@ final class SbtModuleExtDataService extends ScalaAbstractProjectDataService[SbtM
       SbtModuleExtData(_, _, _, scalacOptions, sdk, javacOptions, packagePrefix, basePackage, compileOrder) = dataNode.getData
     } {
       module.configureScalaCompilerSettingsFrom("sbt", scalacOptions.asScala, compileOrder)
-      configureOrInheritSdk(module, Option(sdk))(modelsProvider)
-      importJavacOptions(module, javacOptions.asScala.toSeq)(project, modelsProvider)
+      configureOrInheritSdk(module, Option(sdk))(using modelsProvider)
+      importJavacOptions(module, javacOptions.asScala.toSeq)(using project, modelsProvider)
 
       val contentEntries = modelsProvider.getModifiableRootModel(module).getContentEntries
       contentEntries.foreach(_.getSourceFolders.foreach(_.setPackagePrefix(Option(packagePrefix).getOrElse(""))))

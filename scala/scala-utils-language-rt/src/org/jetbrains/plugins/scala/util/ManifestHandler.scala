@@ -6,7 +6,7 @@ case class ManifestHandler(jarFile: Path) {
   private final val MainClassEntryName = "Main-Class"
   private final val ClassPathEntryName = "Class-Path"
 
-  private[this] val manifest = JarManifestUtils.readManifest(jarFile)
+  private val manifest = JarManifestUtils.readManifest(jarFile)
 
   def getMainClass: Option[String] = getArbitraryAttribute(MainClassEntryName)
 

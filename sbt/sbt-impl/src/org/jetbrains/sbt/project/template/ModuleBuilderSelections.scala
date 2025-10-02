@@ -1,6 +1,6 @@
 package org.jetbrains.sbt.project.template
 
-import org.jetbrains.plugins.scala.project.{Version, Versions}
+import org.jetbrains.plugins.scala.project.Versions
 import org.jetbrains.sbt.SbtVersion
 
 class ScalaModuleBuilderSelections(

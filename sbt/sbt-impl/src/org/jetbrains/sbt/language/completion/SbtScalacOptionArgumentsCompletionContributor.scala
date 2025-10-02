@@ -45,8 +45,7 @@ object SbtScalacOptionArgumentsCompletionContributor {
     }
 
     private def completionsFor(flag: String, chosenArgs: Set[String])
-                              (implicit parameters: CompletionParameters,
-                               context: ProcessingContext): Iterable[LookupElement] = {
+                              (implicit parameters: CompletionParameters): Iterable[LookupElement] = {
       lazy val projectScalaVersions = SbtScalacOptionUtils
         .projectVersionsSorted(parameters.getEditor.getProject, reverse = true)
 

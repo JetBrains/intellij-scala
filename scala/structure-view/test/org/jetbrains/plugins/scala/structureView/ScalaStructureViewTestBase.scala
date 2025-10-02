@@ -54,7 +54,7 @@ abstract class ScalaStructureViewTestBase extends ScalaLightCodeInsightFixtureTe
 
     val actualNode: Node = Node(model.getRoot, sorter)
 
-    val expectedNode = new Node(ScalaFileType.INSTANCE.getIcon, "foo.scala", nodes: _*)
+    val expectedNode = new Node(ScalaFileType.INSTANCE.getIcon, "foo.scala", nodes*)
 
     val expectedStr = expectedNode.presentation()
     val actualStr   = actualNode.presentation()
@@ -80,7 +80,7 @@ abstract class ScalaStructureViewTestBase extends ScalaLightCodeInsightFixtureTe
     val rootNode = model.getRoot
     val actualNode: Node = Node(rootNode, sorter)
 
-    val expectedNode = new Node(ScalaFileType.INSTANCE.getIcon, "foo.scala", expectedNodes: _*)
+    val expectedNode = new Node(ScalaFileType.INSTANCE.getIcon, "foo.scala", expectedNodes*)
 
     val expectedStr = expectedNode.presentation()
     val actualStr   = actualNode.presentation()
@@ -93,7 +93,7 @@ abstract class ScalaStructureViewTestBase extends ScalaLightCodeInsightFixtureTe
       .asInstanceOf[ScalaFile]
   }
 
-  protected def layered(icons: Icon*): Icon = IconUtils.createLayeredIcon(icons: _*)
+  protected def layered(icons: Icon*): Icon = IconUtils.createLayeredIcon(icons*)
 
   /**
    * Set a caret position ([[CARET]]) for each element you want to check.
@@ -143,9 +143,9 @@ private object ScalaStructureViewTestBase {
   private final val IconFileName = new Regex("(?<=/)[^/]+(?=\\.\\w+)") // detect any extension
 
   class Node(icon: Icon, name: String, textAttributesKey: Option[TextAttributesKey], children: Node*) {
-    def this(icon: Icon, name: String, children: Node*) = this(icon, name, None, children: _*)
+    def this(icon: Icon, name: String, children: Node*) = this(icon, name, None, children*)
     def this(icon: Icon, name: String, textAttributesKey: TextAttributesKey, children: Node*) =
-      this(icon, name, Some(textAttributesKey), children: _*)
+      this(icon, name, Some(textAttributesKey), children*)
 
     def presentation(deep: Int = 0): String = {
       val iconString = IconFileName.findAllIn(Option(icon).mkString).mkString("[", ", ", "] ")
@@ -155,7 +155,7 @@ private object ScalaStructureViewTestBase {
     }
 
     private[structureView] def withChildren(children: Seq[Node]): Node =
-      new Node(this.icon, this.name, this.textAttributesKey, children: _*)
+      new Node(this.icon, this.name, this.textAttributesKey, children*)
 
     private def withAttributes(text: String): String = textAttributesKey match {
       case Some(DeprecatedAttributesKey) => s"~~~$text~~~"
@@ -165,19 +165,19 @@ private object ScalaStructureViewTestBase {
 
   object Node {
     def apply(baseIcon: Icon, visibilityIcon: Icon, name: String, children: Node*): Node =
-      Node(baseIcon, visibilityIcon, name, None, children: _*)
+      Node(baseIcon, visibilityIcon, name, None, children*)
 
     def apply(baseIcon: Icon, visibilityIcon: Icon, name: String, textAttributesKey: Option[TextAttributesKey], children: Node*): Node =
-      new Node(ElementBase.buildRowIcon(baseIcon, visibilityIcon), name, textAttributesKey, children: _*)
+      new Node(ElementBase.buildRowIcon(baseIcon, visibilityIcon), name, textAttributesKey, children*)
 
     def apply(icon: Icon, name: String, children: Node*): Node =
-      Node(icon, name, None, children: _*)
+      Node(icon, name, None, children*)
 
     def apply(icon: Icon, name: String, textAttributesKey: TextAttributesKey, children: Node*): Node =
-      Node(icon, name, Some(textAttributesKey), children: _*)
+      Node(icon, name, Some(textAttributesKey), children*)
 
     def apply(icon: Icon, name: String, textAttributesKey: Option[TextAttributesKey], children: Node*): Node =
-      Node(icon, IconManager.getInstance.getPlatformIcon(PlatformIcons.Public), name, textAttributesKey, children: _*)
+      Node(icon, IconManager.getInstance.getPlatformIcon(PlatformIcons.Public), name, textAttributesKey, children*)
 
     def apply(element: StructureViewTreeElement, sorter: Seq[TreeElement] => Seq[TreeElement]): Node = {
       val node = Node.withoutChildren(element)

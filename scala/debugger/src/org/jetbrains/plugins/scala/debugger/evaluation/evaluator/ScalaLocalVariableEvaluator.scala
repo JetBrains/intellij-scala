@@ -10,30 +10,23 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
-import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaLocalVariableEvaluator.MyModifier
+import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaLocalVariableEvaluator.{EvaluationResult, MyModifier}
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 
 /**
  * Follows the implementation details of `com.intellij.debugger.engine.evaluation.expression.LocalVariableEvaluator`
  * but is adapted for Scala.
  */
-class ScalaLocalVariableEvaluator(name: String, sourceName: String) extends ModifiableEvaluator {
+class ScalaLocalVariableEvaluator(
+  name: String,
+  sourceName: String,
+  parameterIndex: Option[Int] = None,
+  methodName: Option[String] = None
+) extends ModifiableEvaluator {
   private val depthOfSearch = 20
 
   private val myName: String = DebuggerUtil.withoutBackticks(name)
   private val mySourceName: String = DebuggerUtil.withoutBackticks(sourceName)
-  private var myContext: EvaluationContextImpl = _
-  private var myEvaluatedVariable: LocalVariableProxyImpl = _
-  private var myParameterIndex: Option[Int] = None
-  private var myMethodName: String = _
-
-  def setParameterIndex(parameterIndex: Int): Unit = {
-    myParameterIndex = Some(parameterIndex)
-  }
-
-  def setMethodName(name: String): Unit = {
-    myMethodName = name
-  }
 
   private def sourceName(frameProxy: StackFrameProxyImpl) =
     try frameProxy.location().sourceName()
@@ -43,10 +36,9 @@ class ScalaLocalVariableEvaluator(name: String, sourceName: String) extends Modi
 
   override def evaluateModifiable(context: EvaluationContextImpl): ModifiableValue = {
 
-    def saveContextAndGetValue(framePr: StackFrameProxyImpl, local: LocalVariableProxyImpl) = {
-      myEvaluatedVariable = local
-      myContext = context
-      Some(framePr.getValue(local))
+    def proxyAndValue(framePr: StackFrameProxyImpl, local: LocalVariableProxyImpl): EvaluationResult = {
+      val value = framePr.getValue(local)
+      EvaluationResult(Some(local), value)
     }
 
     val startFrame = context.getFrameProxy
@@ -55,61 +47,74 @@ class ScalaLocalVariableEvaluator(name: String, sourceName: String) extends Modi
     val lastIndex = threadProxy.frameCount() - 1
     val upperBound = Math.min(lastIndex, startIndex + depthOfSearch)
 
-    def evaluateWithFrames(evaluationStrategy: StackFrameProxyImpl => Option[AnyRef]): Option[AnyRef] = {
-      for (frameIndex <- startIndex to upperBound) {
+    def evaluateWithFrames(evaluationStrategy: StackFrameProxyImpl => Option[EvaluationResult]): Option[EvaluationResult] = {
+      var frameIndex = startIndex
+      while (frameIndex <= upperBound) {
         val frameProxy = threadProxy.frame(frameIndex)
-        if (sourceName(frameProxy) == mySourceName) {
-          try {
-            evaluationStrategy(frameProxy) match {
-              case Some(x) => return Some(x)
-              case _ =>
+        if (frameProxy != null) {
+          if (sourceName(frameProxy) == mySourceName) {
+            try {
+              val res = evaluationStrategy(frameProxy)
+              if (res.nonEmpty) {
+                return res
+              }
+            } catch {
+              case _: EvaluateException =>
             }
           }
-          catch {
-            case _: EvaluateException =>
-              myEvaluatedVariable = null
-              myContext = null
-          }
+        }
+        frameIndex += 1
+      }
+      None
+    }
+
+    def withSimpleName(frameProxy: StackFrameProxyImpl): Option[EvaluationResult] = {
+      val local: LocalVariableProxyImpl = frameProxy.visibleVariableByName(myName)
+      Option(local).map(proxyAndValue(frameProxy, _))
+    }
+
+    def withDollar(frameProxy: StackFrameProxyImpl): Option[EvaluationResult] = {
+      var i = 1
+      while (i <= 2) {
+        val local = frameProxy.visibleVariableByName(myName + "$" + i)
+        if (local != null) {
+          return Some(proxyAndValue(frameProxy, local))
+        }
+        i += 1
+      }
+      val locals = frameProxy.visibleVariables().iterator()
+      while (locals.hasNext) {
+        val local = locals.next()
+        if (local.name().startsWith(myName + "$")) {
+          return Some(proxyAndValue(frameProxy, local))
         }
       }
       None
     }
 
-    def withSimpleName(frameProxy: StackFrameProxyImpl) : Option[AnyRef] = {
-      val local: LocalVariableProxyImpl = frameProxy.visibleVariableByName(myName)
-      Option(local).flatMap(saveContextAndGetValue(frameProxy, _))
-    }
+    def parameterByIndex(frameProxy: StackFrameProxyImpl): Option[EvaluationResult] = {
+      parameterIndex match {
+        case Some(idx) =>
+          val frameMethodName = frameProxy.location().method().name()
 
-    def withDollar(frameProxy: StackFrameProxyImpl): Option[AnyRef] = {
-      for (i <- 1 to 2) {
-        val local = frameProxy.visibleVariableByName(myName + "$" + i)
-        if (local != null) return saveContextAndGetValue(frameProxy, local)
-      }
-      val locals = frameProxy.visibleVariables()
-      locals.forEach(local =>
-        if (local.name().startsWith(myName + "$"))
-          return saveContextAndGetValue(frameProxy, local)
-      )
-      None
-    }
-
-    def parameterByIndex(frameProxy: StackFrameProxyImpl) = {
-      if (frameProxy == null || myParameterIndex.isEmpty) None
-      else {
-        val frameMethodName = frameProxy.location().method().name()
-        if ((myMethodName == null) || frameMethodName.startsWith(myMethodName)) {
-          try {
-            val values = frameProxy.getArgumentValues
-            if (values != null && !values.isEmpty) {
-              val idx = myParameterIndex.get
+          def argumentValueAtIndex(): Option[EvaluationResult] =
+            try {
+              val values = frameProxy.getArgumentValues
+              if (values.isEmpty) return None
               val paramIdx = if (idx < 0) values.size() + idx else idx
-              Some(values.get(paramIdx))
-            } else {
-              None
+              val value = values.get(paramIdx)
+              Some(EvaluationResult(evaluatedVariableProxy = None, value = value))
+            } catch {
+              case _: InternalException => None
             }
+
+          methodName match {
+            case None => argumentValueAtIndex()
+            case Some(mn) if frameMethodName.startsWith(mn) => argumentValueAtIndex()
+            case _ => None
           }
-          catch {case _: InternalException => None}
-        } else None
+
+        case None => None
       }
     }
 
@@ -122,30 +127,21 @@ class ScalaLocalVariableEvaluator(name: String, sourceName: String) extends Modi
       .orElse(evaluateWithFrames(withDollar))
 
     result match {
-      case Some(x) =>
-        val modifier =
-          if ((myEvaluatedVariable ne null) && (myContext ne null)) new MyModifier(myContext, myEvaluatedVariable)
-          else null
-        new ModifiableValue(x, modifier)
+      case Some(EvaluationResult(Some(proxy), value)) =>
+        val modifier = new MyModifier(context, proxy)
+        new ModifiableValue(value, modifier)
+      case Some(EvaluationResult(None, value)) =>
+        new ModifiableValue(value, null)
       case None =>
-        myEvaluatedVariable = null
-        myContext = null
         throw EvaluationException(JavaDebuggerBundle.message("evaluation.error.local.variable.missing", myName))
     }
-  }
-
-  // This method is still overridden in `com.intellij.debugger.engine.evaluation.expression.LocalVariableEvaluator`, so
-  // we still do too.
-  override def getModifier: Modifier = {
-    if ((myEvaluatedVariable ne null) && (myContext ne null)) {
-      return new MyModifier(myContext, myEvaluatedVariable)
-    }
-    null
   }
 }
 
 private object ScalaLocalVariableEvaluator {
   private val LOG: Logger = Logger.getInstance(classOf[ScalaLocalVariableEvaluator])
+
+  private final case class EvaluationResult(evaluatedVariableProxy: Option[LocalVariableProxyImpl], value: Value)
 
   private final class MyModifier(context: EvaluationContextImpl, evaluatedVariable: LocalVariableProxyImpl) extends Modifier {
     override def canInspect: Boolean = true

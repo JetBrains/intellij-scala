@@ -7,6 +7,6 @@ import org.jetbrains.sbt.settings.SbtSettings
 
 class SbtToolWindowFactory extends AbstractExternalSystemToolWindowFactory(SbtProjectSystem.Id) {
 
-  override def getSettings(project: Project): AbstractExternalSystemSettings[_, _, _] =
+  override def getSettings(project: Project): AbstractExternalSystemSettings[?, ?, ?] =
     SbtSettings.getInstance(project)
 }

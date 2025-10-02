@@ -23,7 +23,7 @@ class ScalaGradleDataService extends ScalaAbstractProjectDataService[ScalaModelD
   private val GradleExternalSystemReadableName = GradleConstants.SYSTEM_ID.getReadableName
 
   override def importData(
-    toImport: util.Collection[_ <: DataNode[ScalaModelData]],
+    toImport: util.Collection[? <: DataNode[ScalaModelData]],
     projectData: ProjectData,
     project: Project,
     modelsProvider: IdeModifiableModelsProvider
@@ -43,7 +43,7 @@ class ScalaGradleDataService extends ScalaAbstractProjectDataService[ScalaModelD
             gradleSourceSetModules
           }
 
-        configureModules(scalaNode, modulesForScalaSDK: _*)(project, modelsProvider)
+        configureModules(scalaNode, modulesForScalaSDK*)(using project, modelsProvider)
       }
     }
   }
@@ -148,7 +148,7 @@ class ScalaGradleDataService extends ScalaAbstractProjectDataService[ScalaModelD
       val additionalOptions =
         if (options.getAdditionalParameters != null) options.getAdditionalParameters.asScala else Seq.empty
 
-      presentations.flatMap((include _).tupled) ++ scalaCompilerPlugins ++ additionalOptions
+      presentations.flatMap(include.tupled) ++ scalaCompilerPlugins ++ additionalOptions
     }
 
   private def isEmpty(s: String) = s == null || s.isEmpty

@@ -3,17 +3,18 @@ package language
 
 import com.intellij.openapi.module.{Module, ModuleUtilCore}
 import com.intellij.openapi.roots.ProjectRootManager
-import com.intellij.psi._
+import com.intellij.psi.*
 import com.intellij.psi.search.{GlobalSearchScope, searches}
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.caches.{ModTracker, cached, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.ScDeclarationSequenceHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.impl._
+import org.jetbrains.plugins.scala.lang.psi.impl.*
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.sbt.project.module.SbtModule.Imports
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 final class SbtFileImpl private[language](provider: FileViewProvider)
   extends ScalaFileImpl(provider, SbtFileType)

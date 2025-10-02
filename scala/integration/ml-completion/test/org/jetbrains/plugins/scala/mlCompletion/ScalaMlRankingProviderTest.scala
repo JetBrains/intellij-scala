@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.mlCompletion
 
-import junit.framework.TestCase
+import org.junit.Test
 
-class ScalaMlRankingProviderTest extends TestCase {
-  def testModelMetadataConsistency(): Unit = new ScalaMlRankingProvider().assertModelMetadataConsistent()
-}
+class ScalaMlRankingProviderTest:
+  @Test
+  def modelMetadataConsistency(): Unit = ScalaMlRankingProvider().assertModelMetadataConsistent()

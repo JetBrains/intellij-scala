@@ -300,7 +300,7 @@ class BspTask[T](project: Project,
   //noinspection ReferencePassedToNls
   private def reportTaskStart(params: TaskStartParams)(implicit reporter: BuildReporter): Unit = {
     val taskId = params.getTaskId
-    val parent = Option(taskId.getParents).flatMap(_.asScala.headOption).map(EventId).orElse(Option(bspTaskId))
+    val parent = Option(taskId.getParents).flatMap(_.asScala.headOption).map(EventId(_)).orElse(Option(bspTaskId))
     val id = EventId(taskId.getId)
     val time = Option(params.getEventTime.longValue()).getOrElse(System.currentTimeMillis())
     val msg = Option(params.getMessage).getOrElse("")

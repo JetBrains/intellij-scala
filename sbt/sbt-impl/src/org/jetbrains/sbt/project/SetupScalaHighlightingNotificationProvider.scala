@@ -31,7 +31,7 @@ private final class SetupScalaHighlightingNotificationProvider extends EditorNot
 
   @RequiresReadLock
   @Nullable
-  override def collectNotificationData(project: Project, file: VirtualFile): java.util.function.Function[_ >: FileEditor, _ <: JComponent] = {
+  override def collectNotificationData(project: Project, file: VirtualFile): java.util.function.Function[? >: FileEditor, ? <: JComponent] = {
     val psiFile = PsiManager.getInstance(project).findFile(file)
     if (psiFile eq null) return null
 

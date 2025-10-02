@@ -283,11 +283,11 @@ class SbtProjectWithProjectMatrixAndSourceGenerators_Sbt_2
 
       override protected def useNewLogicForSourceFolderComparison: Boolean = true
     }
-    val compareContext = ProjectStructureComparisonContext.Implicit.default(getProject)
+    val compareContext = ProjectStructureComparisonContext.Implicit.default(using getProject)
       .withOptions(_.copy(strictCheckForBuildModules = true))
       .copy(assertionFailStrategy = new CollectErrors())
 
-    matcher.assertProjectsEqual(expectedProject, getProject, singleContentRootModules = false)(compareContext)
+    matcher.assertProjectsEqual(expectedProject, getProject, singleContentRootModules = false)(using compareContext)
     matcher.assertNoNotificationsShown(getProject, notificationsCollector.getNotifications)
   }
 }

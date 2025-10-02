@@ -2,7 +2,8 @@ package org.jetbrains.plugins.scala.project
 
 import org.jetbrains.annotations.NonNls
 
-import scala.Ordering.Implicits._
+import scala.math.Ordering.Implicits.seqOrdering
+import scala.math.Ordered.orderingToOrdered
 
 // TODO Make universal (move to a proper package)
 //  (it seems that this class is now used in lots of places outside the "project" package).
@@ -19,8 +20,7 @@ case class Version(@NonNls presentation: String) extends Ordered[Version] {
   override def compare(other: Version): Int = {
     val emptyGroup = Group(Seq.empty, VersionStatus.DEFAULT)
     val (groups1, groups2) = essentialGroups.zipAll(other.essentialGroups, emptyGroup, emptyGroup).unzip
-
-    implicitly[Ordering[Seq[Group]]].compare(groups1, groups2)
+    groups1 compare groups2
   }
 
   /** Returns whether this version is equal to or more specific than the other version.
@@ -57,9 +57,9 @@ object Version {
     private val essentialNumbers: Seq[Long] =
       numbers.reverse.dropWhile(_ == 0L).reverse
 
-    override def compare(other: Group): Int =
-      implicitly[Ordering[(VersionStatus, Seq[Long])]]
-        .compare((status, essentialNumbers), (other.status, other.essentialNumbers))
+    override def compare(other: Group): Int = {
+      (status, essentialNumbers) compare (other.status, other.essentialNumbers)
+    }
 
     def ~=(other: Group): Boolean = {
       zipLeft(numbers, other.numbers, 0).forall {

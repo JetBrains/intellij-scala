@@ -66,7 +66,7 @@ final class ShowDecompiledClassAsJavaAction extends AnAction(ScalaJavaDecompiler
     else None
   }
 
-  private[this] def filterScalaClassFile(element: PsiElement): Option[ScFile] =
+  private def filterScalaClassFile(element: PsiElement): Option[ScFile] =
     element match {
       case file: ScFile if file.isCompiled =>
         Option(file)

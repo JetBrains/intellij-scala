@@ -51,7 +51,7 @@ class SimpleBuildFileModifier(val libDependencies: Seq[String],
     elementType: BuildFileElementType,
     fileToWorkingCopy: mutable.Map[VirtualFile, LightVirtualFile]
   ): Option[VirtualFile] = {
-    def newLineElement = createNewLine()(PsiManager.getInstance(module.getProject))
+    def newLineElement = createNewLine()(using PsiManager.getInstance(module.getProject))
 
     val buildFiles = buildFileProviders.flatMap(_.findBuildFile(module, elementType, fileToWorkingCopy))
     //NOTE: using lazy collections to add elements only to the first successful file, and not touch other files
@@ -109,7 +109,7 @@ object SimpleBuildFileModifier {
       val scope = if (inScope.isEmpty) Seq("ThisBuild") else inScope
       val scopePath = scope.mkString(" / ")
       val text = s"$scopePath / $prefix ++= $valueString"
-      Some(createExpressionFromText(text, ScalaFeatures.default)(PsiManager.getInstance(project)))
+      Some(createExpressionFromText(text, ScalaFeatures.default)(using PsiManager.getInstance(project)))
     }
 
   private def buildLibraryDependenciesPsi(project: Project, inScope: Seq[String], dependencies: Seq[String]): Option[PsiElement] =

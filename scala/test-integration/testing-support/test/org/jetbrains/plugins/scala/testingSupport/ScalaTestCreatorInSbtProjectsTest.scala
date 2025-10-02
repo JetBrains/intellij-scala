@@ -9,6 +9,7 @@ import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiClass, PsiFile}
 import com.intellij.testIntegration.TestFramework
+import org.jetbrains.plugins.scala.SlowTests2
 import org.jetbrains.plugins.scala.actions.FileTemplateTestUtils
 import org.jetbrains.plugins.scala.extensions.invokeAndWait
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
@@ -17,9 +18,11 @@ import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
 import org.jetbrains.sbt.project.SbtExternalSystemImportingTestLike
 import org.junit.Assert.assertNotNull
+import org.junit.experimental.categories.Category
 
 import scala.jdk.CollectionConverters.ListHasAsScala
 
+@Category(Array(classOf[SlowTests2]))
 class ScalaTestCreatorInSbtProjectsTest extends SbtExternalSystemImportingTestLike {
 
   override protected def getTestDataProjectPath: String =

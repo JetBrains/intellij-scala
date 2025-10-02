@@ -1,6 +1,5 @@
 package org.jetbrains.sbt.editor.documentationProvider
 
-import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.editor.documentationProvider.base.DocumentationProviderTestBase
 import org.jetbrains.plugins.scala.editor.documentationProvider.util.ScalaDocumentationsScalaDocContentTesting
 import org.jetbrains.plugins.scala.extensions.StringExt

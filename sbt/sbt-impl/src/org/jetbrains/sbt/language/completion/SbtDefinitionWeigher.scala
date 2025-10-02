@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 final class SbtDefinitionWeigher extends CompletionWeigher {
 
   override def weigh(element: LookupElement,
-                     location: CompletionLocation): Comparable[_] = element match {
+                     location: CompletionLocation): Comparable[?] = element match {
     case element: ScalaLookupItem
       if element.isSbtLookupItem &&
         element.getLookupString != "???" =>

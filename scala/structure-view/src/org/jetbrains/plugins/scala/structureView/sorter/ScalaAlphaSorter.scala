@@ -16,7 +16,7 @@ object ScalaAlphaSorter extends Sorter() {
   override val isVisible: Boolean = true
 
   // TODO move to the implementation of testing support
-  override def getComparator: Comparator[_] =
+  override def getComparator: Comparator[?] =
     (o1: AnyRef, o2: AnyRef) => (o1, o2) match {
       case (_: Test, _: Test) => 0
       case (_, _: Test) => -1

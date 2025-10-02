@@ -1,5 +1,7 @@
 package org.jetbrains.sbt
 
+import scala.reflect.ClassTag
+
 object DslUtils {
 
   /**
@@ -17,23 +19,23 @@ object DslUtils {
    * Type-safe storage for attributes
    */
   class AttributeMap {
-    private var attributes = Map.empty[(Attribute[_], String), Any]
+    private var attributes = Map.empty[(Attribute[?], String), Any]
 
     // by default use ExactMatch or InexactMatch trait behaviour
-    private var matchTypeMap = Map.empty[Attribute[_], MatchType]
+    private var matchTypeMap = Map.empty[Attribute[?], MatchType]
 
-    def get[T](attribute: Attribute[T])(implicit m: Manifest[T]): Option[T] =
+    def get[T](attribute: Attribute[T])(implicit m: ClassTag[T]): Option[T] =
       attributes.get((attribute, m.toString)).map(_.asInstanceOf[T])
 
-    def getOrFail[T : Manifest](attribute: Attribute[T]): T =
+    def getOrFail[T : ClassTag](attribute: Attribute[T]): T =
       get(attribute).getOrElse(throw new Error(s"Value for '${attribute.key}' is not found"))
 
-    def put[T](attribute: Attribute[T], value: T)(implicit m: Manifest[T]): Unit =
+    def put[T](attribute: Attribute[T], value: T)(implicit m: ClassTag[T]): Unit =
       attributes = attributes + ((attribute, m.toString) -> value)
 
-    def setMatchType(attribute: Attribute[_], matchType: MatchType): Unit =
+    def setMatchType(attribute: Attribute[?], matchType: MatchType): Unit =
       matchTypeMap = matchTypeMap + ((attribute, matchType))
-    def getMatchType(attribute: Attribute[_]): Option[MatchType] =
+    def getMatchType(attribute: Attribute[?]): Option[MatchType] =
       matchTypeMap.get(attribute)
   }
 
@@ -41,7 +43,7 @@ object DslUtils {
    * Assignment to specific attribute
    * Implicit conversion to this class is used to create a fancy DSL
    */
-  class AttributeDef[T : Manifest](attribute: Attribute[T], attributes: AttributeMap) {
+  class AttributeDef[T : ClassTag](attribute: Attribute[T], attributes: AttributeMap) {
     def :=(newValue: => T): Unit =
       attributes.put(attribute, newValue)
   }
@@ -50,7 +52,7 @@ object DslUtils {
    * Appending and concatenating values of attributes that have sequential type
    * Implicit conversion to this class is used to create a fancy DSL
    */
-  class AttributeSeqDef[T](attribute: Attribute[Seq[T]], attributes: AttributeMap)(implicit m: Manifest[Seq[T]]) {
+  class AttributeSeqDef[T](attribute: Attribute[Seq[T]], attributes: AttributeMap)(implicit m: ClassTag[Seq[T]]) {
     def +=(newValue: => T): Unit = {
       val newSeq = attributes.get(attribute).getOrElse(Seq.empty) :+ newValue
       attributes.put(attribute, newSeq)
@@ -61,7 +63,7 @@ object DslUtils {
     }
   }
 
-  class MatchTypeDef(attribute: Attribute[_], attributes: AttributeMap) {
+  class MatchTypeDef(attribute: Attribute[?], attributes: AttributeMap) {
     def exactMatch(): Unit = attributes.setMatchType(attribute, MatchType.Exact)
     def inexactMatch(): Unit = attributes.setMatchType(attribute, MatchType.Inexact)
   }

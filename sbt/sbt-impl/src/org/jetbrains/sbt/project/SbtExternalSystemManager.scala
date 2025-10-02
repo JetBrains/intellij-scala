@@ -5,7 +5,7 @@ import com.intellij.execution.configurations.SimpleJavaParameters
 import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.model.{ExternalSystemException, ProjectSystemId}
-import com.intellij.openapi.externalSystem.util._
+import com.intellij.openapi.externalSystem.util.*
 import com.intellij.openapi.externalSystem.{ExternalSystemConfigurableAware, ExternalSystemManager}
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.Project
@@ -17,10 +17,9 @@ import org.apache.commons.lang3.StringUtils
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.jps.model.java.JdkVersionDetector
 import org.jetbrains.plugins.scala.extensions.{RichFile, invokeAndWait}
-import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.SbtUtil.{detectSbtVersion, getDefaultLauncher}
-import org.jetbrains.sbt.project.settings._
+import org.jetbrains.sbt.project.settings.*
 import org.jetbrains.sbt.project.structure.SbtOpts
 import org.jetbrains.sbt.settings.{SbtExternalSystemConfigurable, SbtSettings}
 
@@ -35,7 +34,7 @@ class SbtExternalSystemManager
     val classpath = parameters.getClassPath
 
     classpath.add(jarWith[this.type].toFile)
-    classpath.add(jarWith[org.jetbrains.sbt.structure.XmlSerializer[_]].toFile)
+    classpath.add(jarWith[org.jetbrains.sbt.structure.XmlSerializer[?]].toFile)
     classpath.add(jarWith[scala.App].toFile)
     classpath.add(jarWith[scala.xml.Node].toFile)
 
@@ -48,12 +47,12 @@ class SbtExternalSystemManager
 
   override def getSystemId: ProjectSystemId = SbtProjectSystem.Id
 
-  override def getSettingsProvider: Function[Project, SbtSettings] = SbtSettings.getInstance _
+  override def getSettingsProvider: Function[Project, SbtSettings] = SbtSettings.getInstance
 
-  override def getLocalSettingsProvider: Function[Project, SbtLocalSettings] = SbtLocalSettings.getInstance _
+  override def getLocalSettingsProvider: Function[Project, SbtLocalSettings] = SbtLocalSettings.getInstance
 
   override def getExecutionSettingsProvider: Function[Pair[Project, String], SbtExecutionSettings] =
-    SbtExternalSystemManager.executionSettingsFor _
+    tup => SbtExternalSystemManager.executionSettingsFor(tup.first, tup.second)
 
   override def getProjectResolverClass: Class[SbtProjectResolver] = classOf[SbtProjectResolver]
 
@@ -74,7 +73,7 @@ object SbtExternalSystemManager {
   }
 
   def executionSettingsFor(project: Project, path: String): SbtExecutionSettings = {
-    import scala.jdk.CollectionConverters._
+    import scala.jdk.CollectionConverters.*
 
     val settings = SbtSettings.getInstance(project)
     val settingsState = settings.getState
@@ -221,17 +220,14 @@ object SbtExternalSystemManager {
   }
 
   def getVmOptions(givenOptions: Seq[String], jreHome: Option[File]): Seq[String] = {
-    import DefaultOptions._
+    import DefaultOptions.*
     val ideaProxyOptions = proxyOptions { optName => !givenOptions.exists(_.startsWith(optName)) }
 
     val allOptions = ideaProxyOptions ++ givenOptions
 
-    val ideaInstallRoot = PathManager.getHomePath
-
     allOptions
       .addDefaultOption(ideaManaged.key, ideaManaged.value)
       .addDefaultOption(fileEncoding.key, fileEncoding.value)
-      .addDefaultOption(ideaInstallationRootKey, ideaInstallRoot)
       .addPermSize(jreHome)
   }
 
@@ -274,8 +270,5 @@ object SbtExternalSystemManager {
 
     /** custom option to signal sbt instance is run from idea. */
     val ideaManaged: JvmOption = JvmOption("-Didea.managed", "true")
-
-    val ideaInstallationRootKey = "-Didea.installation.dir"
   }
-
 }

@@ -32,8 +32,8 @@ final class ShowSbtShellAfterCreatingNewProject extends ExternalSystemSettingsLi
 
   override def onProjectsLinked(
     project: Project,
-    externalSystemManager: ExternalSystemManager[_, _, _, _, _],
-    collection: util.Collection[_ <: ExternalProjectSettings]
+    externalSystemManager: ExternalSystemManager[?, ?, ?, ?, ?],
+    collection: util.Collection[? <: ExternalProjectSettings]
   ): Unit = {
     // This method is also called on the "default" project instance, before the new project is created.
     // `StartupManager#runAfterOpened` throws an exception if called on the default project instance.
@@ -81,13 +81,13 @@ final class ShowSbtShellAfterCreatingNewProject extends ExternalSystemSettingsLi
 
   override def onProjectsLoaded(
     project: Project,
-    externalSystemManager: ExternalSystemManager[_, _, _, _, _],
-    collection: util.Collection[_ <: ExternalProjectSettings]
+    externalSystemManager: ExternalSystemManager[?, ?, ?, ?, ?],
+    collection: util.Collection[? <: ExternalProjectSettings]
   ): Unit = {}
 
   override def onProjectsUnlinked(
     project: Project,
-    externalSystemManager: ExternalSystemManager[_, _, _, _, _],
+    externalSystemManager: ExternalSystemManager[?, ?, ?, ?, ?],
     set: util.Set[String]
   ): Unit = {
     val sbtManager = externalSystemManager match {

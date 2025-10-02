@@ -30,7 +30,7 @@ abstract class ModuleBuilderBase[T <: ExternalProjectSettings](
   var openFileEditorAfterProjectOpened: Seq[VirtualFile] = Nil
 
   //TODO: why is it JavaModuleType and not SbtModuleType?
-  override def getModuleType: ModuleType[_] = JavaModuleType.getModuleType
+  override def getModuleType: ModuleType[?] = JavaModuleType.getModuleType
 
   /**
    * Reminder:<br>

@@ -97,7 +97,7 @@ trait ProjectStructureMatcher {
     }
   }
 
-  private implicit def namedImplicit[T <: Named]: HasName[T] =
+  private implicit def namedImplicit: HasName[Named] =
     (named: Named) => named.name
 
   private implicit val ideaModuleNameImplicit: HasName[Module] =
@@ -249,7 +249,7 @@ trait ProjectStructureMatcher {
 
   private def assertModuleContentFoldersEqual(
     module: Module,
-    folderType: JpsModuleSourceRootType[_],
+    folderType: JpsModuleSourceRootType[?],
     folderTypeDisplayName: String,
     //TODO: drop this parameter and patch test data, it seems it's not needed since we introduced code inside getActualSourceRoots
     singleContentRootModules: Boolean
@@ -273,7 +273,7 @@ trait ProjectStructureMatcher {
   }
 
   //noinspection ApiStatus,UnstableApiUsage
-  private def getSourceRootUrls(module: Module, sourceRootType: JpsModuleSourceRootType[_]): Seq[String] = {
+  private def getSourceRootUrls(module: Module, sourceRootType: JpsModuleSourceRootType[?]): Seq[String] = {
     val sourceRootsFromContentRoots = getSourceRootUrlsFromContentRotos(module, sourceRootType)
 
     if (useNewLogicForSourceFolderComparison) {
@@ -288,12 +288,12 @@ trait ProjectStructureMatcher {
     }
   }
 
-  private def getSourceRootUrlsFromContentRotos(module: Module, sourceRootType: JpsModuleSourceRootType[_]): Seq[String] = {
+  private def getSourceRootUrlsFromContentRotos(module: Module, sourceRootType: JpsModuleSourceRootType[?]): Seq[String] = {
     val contentRoots = getContentRoots(module)
     contentRoots.flatMap(_.getSourceFolders(sourceRootType).asScala.toSeq).map(_.getUrl)
   }
 
-  private def getSourceRootUrlsFromSourceFolderManager(module: Module, sourceRootType: JpsModuleSourceRootType[_]): Seq[String] = {
+  private def getSourceRootUrlsFromSourceFolderManager(module: Module, sourceRootType: JpsModuleSourceRootType[?]): Seq[String] = {
     val sourceFolderManager = SourceFolderManager.getInstance(module.getProject).asInstanceOf[SourceFolderManagerImpl]
     val sourceFolderModels: Seq[SourceFolderModelState] =
       sourceFolderManager.getState.getSourceFolders.asScala.toSeq
@@ -306,7 +306,7 @@ trait ProjectStructureMatcher {
   }
 
   //reverse of SourceFolderManagerImpl.kt/dictionary mapping
-  private val SourceTypeToString: Map[JpsModuleSourceRootType[_], String] = Map(
+  private val SourceTypeToString: Map[JpsModuleSourceRootType[?], String] = Map(
      JavaSourceRootType.SOURCE -> "SOURCE",
      JavaSourceRootType.TEST_SOURCE -> "TEST_SOURCE",
      JavaResourceRootType.RESOURCE -> "RESOURCE",
@@ -394,12 +394,12 @@ trait ProjectStructureMatcher {
       validateFirstDependencyInTestModule(module, actualModuleEntries)
     }
     val assertNamesMethod : (String, Seq[Named], Seq[Module]) => Option[MatchType] => Unit =
-      if (compareContext.options.checkProjectDependenciesOrder) assertNamesEqual
-      else assertNamesEqualIgnoreOrder
+      if (compareContext.options.checkProjectDependenciesOrder) assertNamesEqual[Module]
+      else assertNamesEqualIgnoreOrder[Module]
 
     assertNamesMethod(s"Module dependency of module `${module.getName}`", expected.map(_.reference), actualModuleEntries.map(_.getModule))(mt)
     val paired = pairModules(expected, actualModuleEntries)
-    paired.foreach((assertDependencyScopeAndExportedFlagEqual _).tupled)
+    paired.foreach(assertDependencyScopeAndExportedFlagEqual.tupled)
   }
 
   /**
@@ -429,13 +429,13 @@ trait ProjectStructureMatcher {
                                             (implicit compareContext: ProjectStructureComparisonContext): Unit = {
     val actualLibraryEntries = roots.OrderEnumerator.orderEntries(module).libraryEntries
     val assertNamesMethod : (String, Seq[Named], Seq[Library]) => Option[MatchType] => Unit =
-      if (compareContext.options.checkLibraryDependenciesOrder) assertNamesEqual
-      else assertNamesEqualIgnoreOrder
+      if (compareContext.options.checkLibraryDependenciesOrder) assertNamesEqual[Library]
+      else assertNamesEqualIgnoreOrder[Library]
 
     assertNamesMethod(s"Library dependency of module `${module.getName}`", expected.map(_.reference), actualLibraryEntries.map(_.getLibrary))(mt)
 
     assertUnmanagedLibraryIsAboveOtherLibrariesIfExists(actualLibraryEntries)
-    pairByName(expected, actualLibraryEntries).foreach((assertDependencyScopeAndExportedFlagEqual _).tupled)
+    pairByName(expected, actualLibraryEntries).foreach(assertDependencyScopeAndExportedFlagEqual.tupled)
   }
 
   private def assertUnmanagedLibraryIsAboveOtherLibrariesIfExists(actual: Seq[LibraryOrderEntry]): Unit = {
@@ -444,7 +444,7 @@ trait ProjectStructureMatcher {
     assert(index == 0 || index == -1, "Library for unmanaged jars exists, but it is not the highest in the order")
   }
 
-  private def assertDependencyScopeAndExportedFlagEqual(expected: dependency[_], actual: roots.ExportableOrderEntry)
+  private def assertDependencyScopeAndExportedFlagEqual(expected: dependency[?], actual: roots.ExportableOrderEntry)
                                                        (implicit compareContext: ProjectStructureComparisonContext): Unit = {
     expected.foreach0(isExported)(it => assertEquals("Dependency isExported flag", it, actual.isExported))
     expected.foreach0(scope)(it => assertEquals("Dependency scope", it, actual.getScope))
@@ -645,7 +645,7 @@ object ProjectStructureMatcher {
       entries.collect { case e : roots.LibraryOrderEntry => e }
   }
 
-  trait HasName[T] {
+  trait HasName[-T] {
     def apply(obj: T): String
   }
 

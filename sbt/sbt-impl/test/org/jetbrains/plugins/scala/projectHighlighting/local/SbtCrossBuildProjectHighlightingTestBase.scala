@@ -7,7 +7,7 @@ import com.intellij.testFramework.InspectionsKt
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.{ScalaAccessCanBeTightenedInspection, ScalaUnusedDeclarationInspection}
 import org.jetbrains.plugins.scala.projectHighlighting.base.SbtProjectHighlightingLocalProjectsTestBase
 import org.jetbrains.plugins.scala.projectHighlighting.reporter.HighlightingProgressReporter
-import org.jetbrains.plugins.scala.settings.{BackReferencesFromSharedSources, ScalaProjectSettings}
+import org.jetbrains.plugins.scala.settings.BackReferencesFromSharedSources
 import org.jetbrains.plugins.scala.util.RevertableChange
 
 abstract class SbtCrossBuildProjectHighlightingTestBase extends SbtProjectHighlightingLocalProjectsTestBase {

@@ -30,7 +30,7 @@ final class SbtCompletionContributor extends ScalaCompletionContributor {
       implicit val projectContext: ProjectContext = parameters.getPosition.getProject
       implicit val context: Context = Context(parameters.getPosition)
 
-      val place     = positionFromParameters(parameters)
+      val place     = positionFromParameters(using parameters)
       val infixExpr = place.getContext.getContext.asInstanceOf[ScInfixExpr]
       val operator  = infixExpr.operation
       val parentRef = infixExpr.right match {

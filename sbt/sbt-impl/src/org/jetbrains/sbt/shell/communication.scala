@@ -48,7 +48,7 @@ final class SbtShellCommunication(project: Project) {
   private val communicationActive = new Semaphore(1)
   private val shellQueueReady = new Semaphore(1)
 
-  private case class QueuedCommand(id: String, cmd: String, listener: CommandListener[_])
+  private case class QueuedCommand(id: String, cmd: String, listener: CommandListener[?])
 
   //TODO: rename to commandsQueue
   private val commands = new LinkedBlockingQueue[QueuedCommand]()
@@ -407,14 +407,14 @@ final class SbtShellCommunication(project: Project) {
       val text = raw.trim
       processOutputBuilder.foreach(_.append(text))
 
-      val isError = text startsWith ERROR_PREFIX
+      val isError = text `startsWith` ERROR_PREFIX
       val newMessages =
         if (isError) {
           if (messages.errors.isEmpty && showSbtShellOnError) {
             SbtShellRunner.openShell(focus = false, project)
           }
           messages.addError(text.stripPrefix(ERROR_PREFIX))
-        } else if (text startsWith WARN_PREFIX) {
+        } else if (text `startsWith` WARN_PREFIX) {
           messages.addWarning(text.stripPrefix(WARN_PREFIX))
         } else messages
 
@@ -640,16 +640,16 @@ abstract class LineListener extends ProcessListener with AnsiEscapeDecoder.Color
 
   def onLine(line: String): Unit
 
-  override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit =
+  override def onTextAvailable(event: ProcessEvent, outputType: Key[?]): Unit =
     processCompleteLines(event.getText)
 
-  override def coloredTextAvailable(text: String, attributes: Key[_]): Unit =
+  override def coloredTextAvailable(text: String, attributes: Key[?]): Unit =
     processCompleteLines(text)
 
   /**
    * Tracks content of the last line until new line character is processed
    */
-  private[this] var lastIncompleteLine: String = ""
+  private var lastIncompleteLine: String = ""
 
   /**
    * @param text can start from new line, end with new line, have new line in the middle and no line at all.

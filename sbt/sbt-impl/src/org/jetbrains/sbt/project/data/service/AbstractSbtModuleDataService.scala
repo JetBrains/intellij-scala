@@ -24,7 +24,7 @@ abstract class AbstractSbtModuleDataService[T <: ModuleData] extends AbstractMod
   }
 
   override def importData(
-    toImport: util.Collection[_ <: DataNode[T]],
+    toImport: util.Collection[? <: DataNode[T]],
     projectData: ProjectData,
     project: Project,
     modelsProvider: IdeModifiableModelsProvider
@@ -34,7 +34,7 @@ abstract class AbstractSbtModuleDataService[T <: ModuleData] extends AbstractMod
   }
 
   override def computeOrphanData(
-    toImport: util.Collection[_ <: DataNode[T]],
+    toImport: util.Collection[? <: DataNode[T]],
     projectData: ProjectData,
     project: Project,
     modelsProvider: IdeModifiableModelsProvider

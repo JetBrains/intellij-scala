@@ -23,7 +23,7 @@ object CancelableWaitUtil {
   def waitForCancelable[R](
     future: Future[R], 
     onCancel: () => Unit
-  )(resultPromise: Promise[_], indicator: ProgressIndicator, cancelError: Throwable = defaultCancelError): Try[R] = {
+  )(resultPromise: Promise[?], indicator: ProgressIndicator, cancelError: Throwable = defaultCancelError): Try[R] = {
     val cancelCheck = new CancelCheck(resultPromise, indicator, cancelError)
     
     @tailrec
@@ -46,7 +46,7 @@ object CancelableWaitUtil {
 
   private val defaultCancelError = new ProcessCanceledException()
 
-  private class CancelCheck(val promise: Promise[_], val indicator: ProgressIndicator, val cancelError: Throwable = defaultCancelError) {
+  private class CancelCheck(val promise: Promise[?], val indicator: ProgressIndicator, val cancelError: Throwable = defaultCancelError) {
     def isCancelled: Boolean = {
       // if one is canceled, cancel the other
       if (!promise.isCompleted && indicator.isCanceled)

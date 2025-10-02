@@ -1,4 +1,4 @@
 package org.jetbrains.plugins.scala.util
 
-final case class CompilationId(timestamp: Long, documentVersions: Map[CanonicalPath, Long] with Serializable)
+final case class CompilationId(timestamp: Long, documentVersions: Map[CanonicalPath, Long] & Serializable)
   extends Serializable

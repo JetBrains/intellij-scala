@@ -19,12 +19,13 @@ import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-import scala.jdk.CollectionConverters._
+import scala.compiletime.uninitialized
+import scala.jdk.CollectionConverters.*
 
 @RunWith(classOf[JUnit4])
 abstract class MavenProjectWithPureJavaModuleTestBase(incrementality: IncrementalityType) extends MavenImportingTestCase {
 
-  private var sdk: Sdk = _
+  private var sdk: Sdk = uninitialized
 
   override protected def runInDispatchThread(): Boolean = false
 
@@ -194,7 +195,7 @@ abstract class MavenProjectWithPureJavaModuleTestBase(incrementality: Incrementa
   private def withCompiler(action: CompilerTester => Unit): Unit = {
     val project = getProject
     val modules = ModuleManager.getInstance(project).getModules
-    val compiler = new CompilerTester(project, java.util.Arrays.asList(modules: _*), null, false)
+    val compiler = new CompilerTester(project, java.util.Arrays.asList(modules*), null, false)
     try action(compiler)
     finally compiler.tearDown()
   }

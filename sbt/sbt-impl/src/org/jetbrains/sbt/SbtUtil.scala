@@ -103,7 +103,7 @@ object SbtUtil {
     sbtProjectDataOpt.forall(_.isPreview)
   }
 
-  def getSbtModuleDataNode(module: Module): Option[DataNode[_ <: ModuleData]] = {
+  def getSbtModuleDataNode(module: Module): Option[DataNode[? <: ModuleData]] = {
     val moduleId = Option(ExternalSystemApiUtil.getExternalProjectId(module))
     moduleId.flatMap { id =>
       val project = module.getProject

@@ -9,7 +9,7 @@ class ScalaSpellcheckingStrategy extends SpellcheckingStrategy {
   private final val myLiteralExpressionTokenizer: ScLiteralExpressionTokenizer = new ScLiteralExpressionTokenizer
   private final val myDocCommentTokenizer: ScalaDocCommentTokenizer = new ScalaDocCommentTokenizer
 
-  override def getTokenizer(element: PsiElement): Tokenizer[_ <: PsiElement] = element match {
+  override def getTokenizer(element: PsiElement): Tokenizer[? <: PsiElement] = element match {
     case _: ScLiteral => myLiteralExpressionTokenizer
     case _: ScDocComment => myDocCommentTokenizer
     case _ => super.getTokenizer(element)

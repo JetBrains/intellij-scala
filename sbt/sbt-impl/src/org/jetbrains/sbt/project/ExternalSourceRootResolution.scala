@@ -6,11 +6,10 @@ import com.intellij.openapi.externalSystem.model.project.{ExternalSystemSourceTy
 import com.intellij.openapi.roots.DependencyScope
 import org.jetbrains.plugins.scala.extensions.RichFile
 import org.jetbrains.sbt.project.SbtProjectResolver.ImportContext
-import org.jetbrains.sbt.project.SourceSetType.SourceSetType
-import org.jetbrains.sbt.project.data._
+import org.jetbrains.sbt.project.data.*
 import org.jetbrains.sbt.project.sources.SharedSourcesModuleType
+import org.jetbrains.sbt.structure as sbtStructure
 import org.jetbrains.sbt.structure.{Dependencies, ProjectData, ProjectDependencyData}
-import org.jetbrains.sbt.{structure => sbtStructure}
 
 import java.io.File
 import java.net.URI
@@ -20,9 +19,9 @@ import scala.reflect.ClassTag
  * This trait contains utility methods responsible for handling for shared sources directories.
  * Such shared sources in the "legacy" mode (without main/test modules) are "external" relative to the project base directory, hence the name "External"
  */
-trait ExternalSourceRootResolution { self: SbtProjectResolver with ContentRootsResolution =>
+trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsResolution =>
 
-  type ModuleDataNodeType = Node[_ <: ModuleData]
+  type ModuleDataNodeType = Node[? <: ModuleData]
 
   protected sealed abstract class ModuleSourceSet(val parent: ModuleDataNodeType)
   protected case class PrentModuleSourceSet(override val parent: ModuleDataNodeType) extends ModuleSourceSet(parent)
@@ -205,7 +204,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver with ContentRootsR
         moduleFilesDirectory,
         representativeProject,
         libraryNodes,
-        SourceSetType.MAIN,
+        SourceSetType.Main,
         mainOwnerProjectsIds,
         sourceRootsWithType,
         allSourceModules
@@ -215,7 +214,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver with ContentRootsR
         moduleFilesDirectory,
         representativeProject,
         libraryNodes,
-        SourceSetType.TEST,
+        SourceSetType.Test,
         testOwnerProjectsIds,
         sourceRootsWithType,
         allSourceModules
@@ -303,7 +302,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver with ContentRootsR
     val node = new ModuleDependencyNode(ownerModule, module)
     node.setScope(dependencyScope)
     module match {
-      case sourceSetNode: SbtSourceSetModuleNode if sourceSetNode.sourceSetType == SourceSetType.TEST =>
+      case sourceSetNode: SbtSourceSetModuleNode if sourceSetNode.sourceSetType == SourceSetType.Test =>
         node.data.setProductionOnTestDependency(true)
       case _ =>
     }
@@ -514,7 +513,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver with ContentRootsR
     moduleNode.add(new SharedSourcesOwnersNode(SharedSourcesOwnersData(ownerProjectsIds)))
 
     def isApplicableSource(sourceType: ExternalSystemSourceType): Boolean =
-      if (sourceSetName == SourceSetType.TEST) sourceType.isTest
+      if (sourceSetName == SourceSetType.Test) sourceType.isTest
       else !sourceType.isTest
 
     // it is not needed to care about excluded because it is not possible to have excluded type see #calculateEsSourceType
@@ -533,7 +532,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver with ContentRootsR
     }
 
     val esSourceType =
-      if (sourceSetName == SourceSetType.TEST) ExternalSystemSourceType.TEST
+      if (sourceSetName == SourceSetType.Test) ExternalSystemSourceType.TEST
       else ExternalSystemSourceType.SOURCE
     setupOutputDirectories(moduleNode, groupPath, Some(esSourceType))
 
@@ -544,7 +543,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver with ContentRootsR
     val representativeProjectDependencies = representativeProject.dependencies
 
     def getScopedDependencies[T](deps: Dependencies[T]): Seq[T] =
-      if (sourceSetName == SourceSetType.TEST) deps.forTest
+      if (sourceSetName == SourceSetType.Test) deps.forTest
       else deps.forProduction
 
     // create unmanaged and module dependencies, because we need to know how many of them there are, they need to be ordered before
@@ -901,7 +900,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver with ContentRootsR
      * }}}
      */
     private def commonBase(roots: Seq[SourceRoot]): File = {
-      import scala.jdk.CollectionConverters._
+      import scala.jdk.CollectionConverters.*
       val paths = roots.map { root =>
         root.standardBasePathGuessed.getOrElse(root.directory)
           .getCanonicalFile.toPath.normalize
@@ -960,7 +959,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver with ContentRootsR
      */
     lazy val standardBasePathGuessed: Option[File] = SourceRoot.DefaultPaths.collectFirst {
       //Example directory: /c/example-project/downstream/src/test/java (check if it parent ends with `src/test`)
-      case paths if directory.parent.exists(_.endsWith(paths: _*)) => directory << (paths.length + 1)
+      case paths if directory.parent.exists(_.endsWith(paths*)) => directory << (paths.length + 1)
     }
   }
 
@@ -1040,10 +1039,4 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver with ContentRootsR
       new ModuleNode(typeId, projectId, moduleName, moduleFileDirectoryPath, externalConfigPath)
     }
   }
-}
-
-object SourceSetType extends Enumeration {
-  type SourceSetType = Value
-  final val MAIN = Value("main")
-  final val TEST = Value("test")
 }

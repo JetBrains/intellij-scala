@@ -43,7 +43,7 @@ private class ScalaDecompilerServiceImpl extends ScalaDecompilerService {
   }
   else Failure(new RuntimeException(s"Unable to decompile ${file.getName}"))
 
-  private[this] def isClassGeneratedFrom(sourceName: String, classfile: VirtualFile): Boolean =
+  private def isClassGeneratedFrom(sourceName: String, classfile: VirtualFile): Boolean =
     classfile.getFileType == JavaClassFileType.INSTANCE && {
       val name = classfile.getNameWithoutExtension
       name == sourceName || name.startsWith(sourceName + "$")
@@ -55,7 +55,7 @@ private class ScalaDecompilerServiceImpl extends ScalaDecompilerService {
    * Example:<br>
    * jar:///Users/dmitrii.naumenko/.sbt/boot/scala-2.12.20/org.scala-sbt/sbt/1.10.7/main_2.12-1.10.7.jar!/sbt/nio
    */
-  private[this] def mappingsForClassfile(file: VirtualFile): Map[String, FileContents] =
+  private def mappingsForClassfile(file: VirtualFile): Map[String, FileContents] =
     file.getParent.getChildren.iterator.collect {
       case child if isClassGeneratedFrom(file.getNameWithoutExtension, child) =>
         child.getPath -> getFileContents(child)

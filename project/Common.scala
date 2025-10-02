@@ -36,6 +36,9 @@ object Common {
     "-unchecked",
     "-Werror",
     "-Wunused:implicits,imports",
+    "-Wconf:msg=Non local returns are no longer supported:s", // I like local returns!!!
+    "-Wconf:msg=Alphanumeric method isInstance is not declared infix:s", // and everyone loves infix notation!
+    "-Wconf:msg=method .* is eta-expanded even though .* does not have the @FunctionalInterface annotation:s", // bullshit warning
   )
 
   // options for modules which classes can only be used in IDEA process (uses JRE 21)
@@ -58,6 +61,7 @@ object Common {
 
   val outOfIDEAProcessJavacOptions: Seq[String] = globalJavacOptionsCommon ++ globalExternalProcessReleaseOptions :+ suppressObsoleteSourceTarget8
   val outOfIDEAProcessScalacOptions: Seq[String] = globalScalacOptionsCommon ++ globalExternalProcessReleaseOptions
+  val outOfIDEAProcessScala3ScalacOptions: Seq[String] = globalScala3ScalacOptionsCommon ++ globalExternalProcessReleaseOptions
 
   val projectDirectoriesSettings: Seq[Setting[?]] = Seq(
     // production sources
@@ -323,6 +327,7 @@ object Common {
     val scalacTests: String = cat("ScalacTests")
     val typecheckerTests: String = cat("TypecheckerTests")
     val testingSupportTests: String = cat("TestingSupportTests")
+    val textToTextTests: String = cat("TextToTextTests")
     val worksheetEvaluationTests: String = cat("WorksheetEvaluationTests")
     val highlightingTests: String = cat("HighlightingTests")
     val randomTypingTests: String = cat("RandomTypingTests")

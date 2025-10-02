@@ -65,11 +65,11 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardMultiStep)
 
   override protected val selections: SbtModuleBuilderSelections = SbtModuleBuilderSelections.default
 
-  override protected val defaultAvailableSbtVersions: ListSet[SbtVersion] = ListSet(Versions.SBT.allHardcodedVersions.map(SbtVersion(_)): _*)
+  override protected val defaultAvailableSbtVersions: ListSet[SbtVersion] = ListSet(Versions.SBT.allHardcodedVersions.map(SbtVersion(_))*)
   private lazy val defaultAvailableSbtVersionsForScala3: Seq[SbtVersion] = Versions.SBT.sbtVersionsForScala3(defaultAvailableSbtVersions.toSeq)
 
   locally {
-    moduleNameProperty.dependsOn(parent.getNameProperty: ObservableProperty[String], (() => parent.getName): kotlin.jvm.functions.Function0[_ <: String])
+    moduleNameProperty.dependsOn(parent.getNameProperty: ObservableProperty[String], (() => parent.getName): kotlin.jvm.functions.Function0[? <: String])
 
     getData.putUserData(SbtScalaNewProjectWizardData.KEY, this)
     getData.putUserData(ScalaSampleCodeNewProjectWizardData.KEY, this)

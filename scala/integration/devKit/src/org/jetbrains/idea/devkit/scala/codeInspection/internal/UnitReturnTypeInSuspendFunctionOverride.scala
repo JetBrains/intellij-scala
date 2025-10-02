@@ -49,7 +49,7 @@ object UnitReturnTypeInSuspendFunctionOverride {
       classType.resolve() match {
         case resolvedClass: PsiClass =>
           resolvedClass.qualifiedName == "kotlin.coroutines.Continuation"
-        case _ => false
+        case null => false
       }
     case _ => false
   }

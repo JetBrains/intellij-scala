@@ -15,7 +15,7 @@ import scala.jdk.CollectionConverters._
 final class SbtBuildModuleDataService extends ScalaAbstractProjectDataService[SbtBuildModuleData, Module](SbtBuildModuleData.Key) {
 
   override def importData(
-    toImport: util.Collection[_ <: DataNode[SbtBuildModuleData]],
+    toImport: util.Collection[? <: DataNode[SbtBuildModuleData]],
     projectData: ProjectData,
     project: Project,
     modelsProvider: IdeModifiableModelsProvider

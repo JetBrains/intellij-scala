@@ -179,7 +179,7 @@ package object buildSystem {
     } else Map.empty[String, String]
   } ++ packagePrefix.map(prefix => Map("PACKAGE_NAME" -> prefix, "advancedTipsEnabled" -> advancedTipsEnabled.toString)).getOrElse(Map.empty)
 
-  private def installOnboardingTips(project: Project, fileName: String, breakpoint: Function1[_ >: CharSequence, JInt]): Unit = {
+  private def installOnboardingTips(project: Project, fileName: String, breakpoint: Function1[? >: CharSequence, JInt]): Unit = {
     val onboardingInfo = new OnboardingTipsInstallationInfo(fileName, breakpoint)
     NewProjectOnboardingTips
       .EP_NAME
@@ -237,7 +237,7 @@ package object buildSystem {
       "ProductName"               -> ApplicationNamesInfo.getInstance.getFullProductName
     )
 
-  final private case class Sample(templateName: String, fileName: String, breakpoint: Function1[_ >: CharSequence, JInt])
+  final private case class Sample(templateName: String, fileName: String, breakpoint: Function1[? >: CharSequence, JInt])
 
   private object Sample {
     def apply(templateName: String, fileName: String, breakpointLine: String): Sample =
@@ -249,16 +249,16 @@ package object buildSystem {
     def apply(templateName: String, fileName: String, index: Int): Sample =
       new Sample(templateName, fileName, createBreakpointSelector(index))
 
-    private def createBreakpointSelector(line: String): Function1[_ >: CharSequence, JInt] =
+    private def createBreakpointSelector(line: String): Function1[? >: CharSequence, JInt] =
       str => {
         val index = str.indexOf(line)
         if (index >= 0) index else null
       }
 
-    private def createBreakpointSelector(): Function1[_ >: CharSequence, JInt] =
+    private def createBreakpointSelector(): Function1[? >: CharSequence, JInt] =
       _ =>  null
 
-    private def createBreakpointSelector(index: Int): Function1[_ >: CharSequence, JInt] =
+    private def createBreakpointSelector(index: Int): Function1[? >: CharSequence, JInt] =
       _ => index
   }
 }

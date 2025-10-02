@@ -58,7 +58,7 @@ abstract class SbtNewProjectWizardStep(parent: NewProjectWizardStep) extends Abs
     _.setToolTipText(SbtBundle.message("sbt.download.sbt.sources"))
   )
 
-  private var jdkComboBox: ProjectWizardJdkComboBox = _
+  private var jdkComboBox: ProjectWizardJdkComboBox = scala.compiletime.uninitialized
 
   protected def setupSbtUI(panel: Panel): Unit =
     panel.row(SbtBundle.message("sbt.settings.sbt"), (row: Row) => {
@@ -93,7 +93,7 @@ abstract class SbtNewProjectWizardStep(parent: NewProjectWizardStep) extends Abs
         this,
         row,
         jdkIntentProperty,
-        { _: Sdk => lang.Boolean.TRUE },
+        { (_: Sdk) => lang.Boolean.TRUE },
         (javaVersion: JavaVersion, _: String) => jdkWithSbtValidation(javaVersion)
       )
       jdkComboBoxCell

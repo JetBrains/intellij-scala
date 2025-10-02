@@ -1,7 +1,7 @@
 package org.jetbrains.sbt.actions
 
 import com.intellij.build.events.BuildEvents
-import com.intellij.build.events.impl.{FailureResultImpl, FinishBuildEventImpl, OutputBuildEventImpl, SkippedResultImpl, StartBuildEventImpl, SuccessResultImpl}
+import com.intellij.build.events.impl.{FailureResultImpl, SkippedResultImpl, SuccessResultImpl}
 import com.intellij.build.{DefaultBuildDescriptor, SyncViewManager}
 import com.intellij.execution.process.ProcessOutputType
 import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent}
@@ -160,7 +160,7 @@ private final class SbtGenerateManagedSourcesAction extends AnAction(
                     .flatMap(path => Try(Path.of(path).toRealPath()).filter(realFile).toOption)
                   val fileManager = VirtualFileManager.getInstance()
                   val virtualFiles = generatedSources.flatMap(p => Option(fileManager.refreshAndFindFileByNioPath(p)))
-                  VfsUtil.markDirtyAndRefresh(false, false, true, virtualFiles: _*)
+                  VfsUtil.markDirtyAndRefresh(false, false, true, virtualFiles*)
 
                   {
                     val output = lines.mkString(start = "", sep = System.lineSeparator(), end = System.lineSeparator())

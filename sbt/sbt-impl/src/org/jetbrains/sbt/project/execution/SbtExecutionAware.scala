@@ -208,7 +208,7 @@ object SbtExecutionAware {
   private val OpenProjectJDKSettingsQuickFix = new BuildIssueQuickFix {
     override def getId: String = OpenProjectJDKSettingsQuickFixID
 
-    override def runQuickFix(project: Project, dataContext: DataContext): CompletableFuture[_] = {
+    override def runQuickFix(project: Project, dataContext: DataContext): CompletableFuture[?] = {
       ProjectSettingsService.getInstance(project).openProjectSettings()
       CompletableFuture.completedFuture(null)
     }

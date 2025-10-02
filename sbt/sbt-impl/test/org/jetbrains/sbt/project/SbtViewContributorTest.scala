@@ -7,9 +7,11 @@ import com.intellij.testFramework.LightPlatformTestCase
 import junit.framework.TestCase.{assertEquals, fail}
 import com.intellij.openapi.externalSystem.model.project.{ModuleData, ModuleDependencyData}
 
+import scala.compiletime.uninitialized
+
 class SbtViewContributorTest extends LightPlatformTestCase {
 
-  private var sbtViewContributor: SbtViewContributor = _
+  private var sbtViewContributor: SbtViewContributor = uninitialized
 
   override def setUp(): Unit = {
     super.setUp()

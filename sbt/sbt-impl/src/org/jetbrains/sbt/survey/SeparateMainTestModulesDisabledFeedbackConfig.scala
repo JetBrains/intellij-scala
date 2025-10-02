@@ -29,7 +29,7 @@ class SeparateMainTestModulesDisabledFeedbackConfig extends InIdeFeedbackSurveyC
       SbtBundle.message("separate.main.test.modules.feedback.notification.content")
     )
 
-  override def createFeedbackDialog(project: Project, b: Boolean): BlockBasedFeedbackDialog[_ <: SystemDataJsonSerializable] =
+  override def createFeedbackDialog(project: Project, b: Boolean): BlockBasedFeedbackDialog[? <: SystemDataJsonSerializable] =
     new SeparateMainTestModulesDisabledFeedbackDialog(project, b)
 
   override def updateStateAfterDialogClosedOk(project: Project): Unit = { }

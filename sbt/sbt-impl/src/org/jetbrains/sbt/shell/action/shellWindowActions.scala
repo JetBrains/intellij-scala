@@ -44,7 +44,7 @@ final class StartAction(project: Project) extends DumbAwareAction {
   templatePresentation.setText(SbtBundle.message("sbt.shell.start"))
 
   override def actionPerformed(e: AnActionEvent): Unit =
-    SbtShellToolWindowFactory.instance(project).foreach { toolWindow =>
+    SbtShellToolWindowFactory.instance(using project).foreach { toolWindow =>
       toolWindow.getContentManager.removeAllContents(true)
 
       executeOnPooledThread {

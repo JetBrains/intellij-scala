@@ -14,8 +14,6 @@ import scala.util.control.NonFatal
 
 final class LocalServer extends Server {
 
-  import LocalServer._
-
   private var cachedCompilerFactory: Option[CompilerFactory] = None
   private val lock = new Object()
 
@@ -33,10 +31,10 @@ final class LocalServer extends Server {
     compilationData: CompilationData,
     client: Client
   ): ExitCode = {
-    val collectingSourcesClient = new DelegateClient(client) with CollectingSourcesClient
+    val collectingSourcesClient = new CollectingSourcesClient(client)
     val compiler = try {
       val compilerFactory = lock.synchronized(compilerFactoryFrom(sbtData, compilerData, client))
-      collectingSourcesClient.progress(CompileServerBundle.message("instantiating.compiler"))
+      collectingSourcesClient.progress(CompileServerBundle.message("instantiating.compiler"), done = None)
       compilerFactory.createCompiler(compilerData, collectingSourcesClient, AnalysisStoreFactory.createAnalysisStore)
     } catch {
       case e: Throwable =>
@@ -88,7 +86,7 @@ final class LocalServer extends Server {
   override def compileDocument(arguments: DocumentCompilationArguments, client: Client): Unit = {
     val DocumentCompilationArguments(sbtData, compilerData, compilationData) = arguments
 
-    val collectingSourcesClient = new DelegateClient(client) with CollectingSourcesClient
+    val collectingSourcesClient = new CollectingSourcesClient(client)
 
     val compiler = (try {
       val compilerFactory = lock.synchronized(compilerFactoryFrom(sbtData, compilerData, client))
@@ -125,17 +123,5 @@ final class LocalServer extends Server {
     val factory = new CachingFactory(firstEnabledCompilerFactory.map(_.get(sbtData)).getOrElse(new CompilerFactoryImpl(sbtData)), 10, 10)
     cachedCompilerFactory = Some(factory)
     factory
-  }
-}
-
-object LocalServer {
-  private trait CollectingSourcesClient extends Client {
-
-    var sources = Set.empty[Path]
-
-    abstract override def generated(source: Path, module: Path, name: String): Unit = {
-      super.generated(source, module, name)
-      sources += source
-    }
   }
 }

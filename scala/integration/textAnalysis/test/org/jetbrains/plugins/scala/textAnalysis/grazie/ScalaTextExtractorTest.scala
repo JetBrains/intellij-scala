@@ -28,7 +28,7 @@ class ScalaTextExtractorTest extends BasePlatformTestCase {
   private def extractTextContent(fileText: String, offset: Int): TextContent =
     ScalaTextExtractorTest.extractTextContent("Dummy.scala", fileText, offset, getProject)
 
-  private def extractTextContents(fileText: String, offset: Int, psi: Class[_ <: PsiElement]): List[TextContent] =
+  private def extractTextContents(fileText: String, offset: Int, psi: Class[? <: PsiElement]): List[TextContent] =
     ScalaTextExtractorTest.extractTextContents("Dummy.scala", fileText, offset, psi, getProject).asScala.toList
 
   private def extractTextWithUnknownFragments(fileText: String, offset: Int): String = {
@@ -356,7 +356,7 @@ class ScalaTextExtractorTest extends BasePlatformTestCase {
     assertEquals("This is example \\s", TextExtractor.findTextAt(file1, offset, TextContent.TextDomain.ALL).toString)
 
     InjectedLanguageManager.getInstance(getProject).registerMultiHostInjector(new MultiHostInjector() {
-      override def elementsToInjectIn: util.List[_ <: Class[_ <: PsiElement]] = util.List.of(classOf[ScStringLiteral])
+      override def elementsToInjectIn: util.List[? <: Class[? <: PsiElement]] = util.List.of(classOf[ScStringLiteral])
 
       override def getLanguagesToInject(registrar: MultiHostRegistrar, context: PsiElement): Unit = {
         if (context.getText.contains("example")) {
@@ -427,7 +427,7 @@ class ScalaTextExtractorTest extends BasePlatformTestCase {
 
 object ScalaTextExtractorTest {
 
-  private def extractTextContents(fileName: String, text: String, offset: Int, psi: Class[_ <: PsiElement], project: Project) = {
+  private def extractTextContents(fileName: String, text: String, offset: Int, psi: Class[? <: PsiElement], project: Project) = {
     val file = createFile(fileName, text, project)
     TextExtractor.findTextsAt(PsiTreeUtil.findElementOfClassAtOffset(file, offset, psi, false), TextContent.TextDomain.ALL)
   }

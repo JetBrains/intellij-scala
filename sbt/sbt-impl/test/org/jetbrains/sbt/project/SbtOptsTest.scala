@@ -42,7 +42,7 @@ class SbtOptsTest {
     Using.resource(Files.createTempDirectory("sbtOptsTest")) { optsDir =>
       val optsFile = optsDir.resolve(SbtOpts.SbtOptsFile)
       Files.writeString(optsFile, input)
-      val opts = SbtOpts.loadFrom(optsDir.toFile)(null)
+      val opts = SbtOpts.loadFrom(optsDir.toFile)(using null)
       assertEquals(expected, opts)
     }
   }
@@ -71,15 +71,15 @@ class SbtOptsTest {
     Using.resource(Files.createTempDirectory("sbtOptsTest")) { optsDir =>
       val optsFile = optsDir.resolve(SbtOpts.SbtOptsFile)
       Files.writeString(optsFile, input)
-      val opts = SbtOpts.loadFrom(optsDir.toFile)(null)
+      val opts = SbtOpts.loadFrom(optsDir.toFile)(using null)
       assertEquals(expected, opts)
     }
   }
 
   @Test
   def mapOptionsToSbtOptions(): Unit = {
-     def doTest(providedArgs: Seq[String], expected: Seq[SbtOption]): Unit = {
-      val actual = SbtOpts.mapOptionsToSbtOptions(providedArgs, "dummy/Path")(null)
+    def doTest(providedArgs: Seq[String], expected: Seq[SbtOption]): Unit = {
+      val actual = SbtOpts.mapOptionsToSbtOptions(providedArgs, "dummy/Path")(using null)
       assertThat(actual, equalTo(expected))
     }
     doTest(Seq("-d", "-color=always", "-error"), Seq(SbtLauncherOption("--debug")(), JvmOptionShellOnly("-Dsbt.color=always")(), SbtLauncherOption("--error")()))

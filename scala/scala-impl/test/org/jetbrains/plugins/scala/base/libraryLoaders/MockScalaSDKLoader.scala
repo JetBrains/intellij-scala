@@ -16,7 +16,7 @@ import java.{util => ju}
  * (e.g. in order Scala 3 files are properly parsed)
  * and when you do not need everything else (compiler classpath, sources)
  */
-final class MockScalaSDKLoader() extends LibraryLoader {
+final class MockScalaSDKLoader extends LibraryLoader {
 
   override def init(implicit module: Module, version: ScalaVersion): Unit = {
     val libraryTable = LibraryTablesRegistrar.getInstance.getLibraryTable(module.getProject)

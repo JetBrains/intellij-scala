@@ -64,7 +64,7 @@ object MavenProjectStructureTestUtils {
     s"Maven: scala-sdk-${scalaVersion.minor}"
 
   private def getScalaLibraryName(scalaVersion: ScalaVersion): String =
-    s"Maven: ${DependencyManagerBase.scalaLibraryDescription(scalaVersion)}"
+    s"Maven: ${DependencyManagerBase.scalaLibraryDescription(using scalaVersion)}"
 
   def MavenScalaLibrary(scalaVersion: ScalaVersion): library = {
     val jars = ProjectStructureTestUtils.expectedScalaLibraryJars(scalaVersion)

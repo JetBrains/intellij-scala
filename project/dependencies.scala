@@ -6,21 +6,21 @@ import org.jetbrains.sbtidea.download.idea.IntellijVersionUtils
 import sbt.*
 
 object Versions {
-  val scalaVersion: String = "2.13.16"
-  val scala3Version: String = "3.3.6"
+  val scalaVersion: String = "2.13.17"
+  val scala3Version: String = "3.7.3"
 
   // ATTENTION: when updating `sbtVersion` also update it in `org.jetbrains.sbt.SbtVersion.Latest`
-  // NOTE: sbt-launch / bloop-launcher won't be fetched on refresh.
+  // NOTE: sbt-launch won't be fetched on refresh.
   // run runtimeDependencies/update manually
   val sbtVersion: String = "1.11.6"
-  val bloopVersion = "2.0.9"
+  val bloopVersion = "2.0.14"
   val zincVersion = "1.10.8"
 
   /**
    * ATTENTION: check the comment in [[Common.newProjectWithKotlin]] when updating this version.
    *            update `since-build` in plugin.xml if there are binary incompatible changes after update
    */
-  val intellijVersion = "253.22441.20"
+  val intellijVersion = "253.24325.23"
 
   def isNightlyIntellijVersion: Boolean = intellijVersion.count(_ == '.') == 1
 
@@ -46,8 +46,8 @@ object Versions {
   val junitParamsVersion: String = "1.1.1"
   val junitInterfaceVersion: String = "0.13.3"
 
-  val bspVersion = "2.1.0-M3"
-  val sbtStructureVersion: String = "2025.3.2"
+  val bspVersion = "2.1.0"
+  val sbtStructureVersion: String = "2025.3.3"
   val sbtIdeaShellVersion: String = "2025.2.0"
   val compilerIndicesVersion = "1.0.16"
 
@@ -61,7 +61,12 @@ object Versions {
    * However according to Peter Gromov it shouldn't be important for us and we can use maven dependencies.
    * Those custom distributions usually contain performance fixes and not the logic.
    */
-  val LanguageToolVersion = "6.6.16"
+  val LanguageToolVersion = "6.6.17"
+
+  /**
+   * Potentially automate the updating of this version in the future.
+   */
+  val HunspellDictionaryVersion = "0.2.315"
 
   object Sbt {
     val binary_0_13 = "0.13"
@@ -93,12 +98,11 @@ object Dependencies {
   val scalaParallelCollections: ModuleID = "org.scala-lang.modules" %% "scala-parallel-collections" % "0.2.0"
   // this actually needs the explicit version because something in packager breaks otherwise (???)
   val sbtStructureCore: ModuleID = "org.jetbrains.scala" %% "sbt-structure-core" % sbtStructureVersion
-  val evoInflector: ModuleID = "org.atteo" % "evo-inflector" % "1.3"
   val coursierDirectoriesJni: ModuleID = "io.get-coursier.util" % "directories-jni" % "0.1.4"
   val apacheCommonsText: ModuleID = "org.apache.commons" % "commons-text" % "1.14.0"
   // NOTE: current latest version is in https://github.com/unkarjedy/scalatest-finders.git repository
 
-  val jetbrainsAnnotations: ModuleID = "org.jetbrains" % "annotations" % "26.0.2"
+  val jetbrainsAnnotations: ModuleID = "org.jetbrains" % "annotations" % "26.0.2-1"
 
   val structureExtractor_0_13: Dependency = sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, Versions.Sbt.structure_extractor_binary_0_13)
   val structureExtractor_1_0: Dependency = sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, Versions.Sbt.structure_extractor_binary_1_0)
@@ -136,7 +140,6 @@ object Dependencies {
   val scalapbRuntime: ModuleID = "com.thesamet.scalapb" %% "scalapb-runtime" % "0.11.11" % Test exclude("com.google.protobuf", "protobuf-java") // A dependency of scalameta, only used in tests.
 
   val scalaTestNotSpecified: ModuleID = "org.scalatest" %% "scalatest" % "3.2.19"
-  val scalaCheck: ModuleID = "org.scalatestplus" %% "scalacheck-1-18" % "3.2.19.0" % Test
 
   // has to be in the compiler process classpath along with spray-json
   // when updating the version, do not forget to:
@@ -154,7 +157,7 @@ object Dependencies {
   // some part of our code is now statically dependent on lib classes, another part uses reflections for other versions
   object provided {
     val scalaTest = scalaTestNotSpecified % Provided
-    val utest = "com.lihaoyi" %% "utest" % "0.8.1" % Provided
+    val utest = "com.lihaoyi" %% "utest" % "0.9.1" % Provided
     val specs2_2x = "org.specs2" % "specs2-core_2.12" % "2.5" % Provided excludeAll ExclusionRule(organization = "org.ow2.asm")
     val specs2_4x = "org.specs2" %% "specs2-core" % "4.18.0" % Provided excludeAll ExclusionRule(organization = "org.ow2.asm")
   }
@@ -218,8 +221,6 @@ object DependencyGroups {
     scalaReflect,
     scalaXml,
     scalaParserCombinators,
-    scalapbRuntime,
-    evoInflector,
     coursierDirectoriesJni,
     ivy2,
     compilerIndicesProtocol,
@@ -242,7 +243,7 @@ object DependencyGroups {
     ("ch.epfl.scala" %% "bloop-rifle" % bloopVersion).excludeAll(bloopRifleExclusions *),
     ("ch.epfl.scala" % "bsp4j" % bspVersion).excludeAll(bspExclusions *),
     ("ch.epfl.scala" %% "bsp-testkit" % bspVersion).excludeAll(bspExclusions *) % Test,
-    scalaCheck
+    "org.scalatestplus" %% "scalacheck-1-18" % "3.2.19.0" % Test
   )
 
   val decompiler: Seq[ModuleID] = Seq(
@@ -261,4 +262,5 @@ object DependencyGroups {
 object DependencyResolvers {
   val IntelliJDependencies = "IntelliJ Dependencies" at "https://cache-redirector.jetbrains.com/intellij-dependencies"
   val PackageSearch = "Package Search" at "https://cache-redirector.jetbrains.com/packages.jetbrains.team/maven/p/kpm/public"
+  val Grazie = "Grazie" at "https://cache-redirector.jetbrains.com/packages.jetbrains.team/maven/p/grazi/grazie-platform-public"
 }

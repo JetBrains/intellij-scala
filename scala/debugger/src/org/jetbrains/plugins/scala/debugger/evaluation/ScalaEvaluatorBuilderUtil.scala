@@ -537,7 +537,6 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
   def parameterEvaluator(fun: PsiElement, resolve: PsiElement): Evaluator = {
     val name = NameTransformer.encode(resolve.asInstanceOf[PsiNamedElement].name)
-    val evaluator = new ScalaLocalVariableEvaluator(name, fileName)
     fun match {
       case funDef: ScFunctionDefinition =>
         def paramIndex(fun: ScFunctionDefinition, elem: PsiElement): Int = {
@@ -547,19 +546,25 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
           else locIndex + funParams.size
         }
         val pIndex = paramIndex(funDef, resolve)
-        evaluator.setParameterIndex(pIndex)
-        evaluator.setMethodName(funDef.name)
+        new ScalaLocalVariableEvaluator(
+          name = name,
+          sourceName = fileName,
+          parameterIndex = Some(pIndex),
+          methodName = Some(funDef.name)
+        )
       case funExpr: ScFunctionExpr if isUntupled(funExpr) =>
-        val tupleEval = new ScalaLocalVariableEvaluator("", fileName)
-        tupleEval.setParameterIndex(-1)
+        val tupleEval = new ScalaLocalVariableEvaluator(name = "", sourceName = fileName, parameterIndex = Some(-1))
         val index = funExpr.parameters.indexOf(resolve)
-        return ScalaMethodEvaluator(tupleEval, "productElement", JVMNameUtil.getJVMRawText("(I)Ljava/lang/Object;"), Seq(new IntEvaluator(index)))
+        ScalaMethodEvaluator(tupleEval, "productElement", JVMNameUtil.getJVMRawText("(I)Ljava/lang/Object;"), Seq(new IntEvaluator(index)))
       case funExpr: ScFunctionExpr =>
-        evaluator.setParameterIndex(funExpr.parameters.indexOf(resolve))
-        evaluator.setMethodName("apply")
+        new ScalaLocalVariableEvaluator(
+          name = name,
+          sourceName = fileName,
+          parameterIndex = Some(funExpr.parameters.indexOf(resolve)),
+          methodName = Some("apply")
+        )
       case _ => throw EvaluationException(DebuggerBundle.message("cannot.evaluate.parameter", name))
     }
-    evaluator
   }
 
   def javaFieldEvaluator(field: PsiField, ref: ScReferenceExpression): Evaluator = {

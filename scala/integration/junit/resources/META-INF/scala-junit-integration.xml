@@ -1,7 +1,0 @@
-<idea-plugin>
-
-    <extensions defaultExtensionNs="com.intellij.sbt">
-        <configurationDetailsExtractor implementation="org.jetbrains.plugins.scala.junit.JUnitConfigurationDetailsExtractor"/>
-    </extensions>
-
-</idea-plugin>

@@ -2,8 +2,7 @@ package org.jetbrains.sbt.codeInsight.daemon
 
 import com.intellij.codeInsight.daemon.ProblemHighlightFilter
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.{ModuleRootManager, ProjectRootManager}
+import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.vfs.NonPhysicalFileSystem
 import com.intellij.psi.{PsiCodeFragment, PsiFile}
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectPsiFileExt}

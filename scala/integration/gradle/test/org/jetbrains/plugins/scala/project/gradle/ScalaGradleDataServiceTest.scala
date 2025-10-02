@@ -122,7 +122,7 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase {
 
           def asSerializableJavaSet[T](scalaSet: Set[T]): util.Set[T] = {
             val classpath = new util.HashSet[T]()
-            util.Collections.addAll(classpath, scalaSet.toSeq:_*)
+            util.Collections.addAll(classpath, scalaSet.toSeq*)
             classpath
           }
 
@@ -362,7 +362,7 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase {
       name: String,
       moduleFileDirectoryPath: String,
       externalConfigPath: String
-    ): Node[_ <: ModuleData] =
+    ): Node[? <: ModuleData] =
       new Node[GradleSourceSetData] {
         override protected def key: Key[GradleSourceSetData] = GradleSourceSetData.KEY
         override protected def data: GradleSourceSetData =

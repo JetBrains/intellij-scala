@@ -11,7 +11,6 @@ import org.jetbrains.sbt.language.psi.SbtScalacOptionDocHolder
 import org.jetbrains.sbt.language.utils.SbtScalacOptionUtils
 import org.jetbrains.sbt.language.utils.SbtScalacOptionUtils.{getScalacOptionsForLiteralValue, withScalacOption}
 
-import scala.annotation.nowarn
 import scala.collection.mutable
 
 class SbtScalacOptionsDocumentationProvider extends AbstractDocumentationProvider {
@@ -37,7 +36,7 @@ class SbtScalacOptionsDocumentationProvider extends AbstractDocumentationProvide
     val options = getScalacOptionsForLiteralValue(str)
 
     if (options.isEmpty) null
-    else new SbtScalacOptionDocHolder(options)(str.getProject)
+    else new SbtScalacOptionDocHolder(options)(using str.getProject)
   }
 
   private def generateScalacOptionDoc(docHolder: SbtScalacOptionDocHolder): String = {
@@ -108,14 +107,14 @@ class SbtScalacOptionsDocumentationProvider extends AbstractDocumentationProvide
   }
 }
 
-@nowarn("msg=inheritance from class LinkedHashMap in package mutable is deprecated")
-private class LinkedHashMultiMap[K, V] extends mutable.LinkedHashMap[K, Vector[V]] {
-  def add(key: K, value: V): this.type = {
-    this(key) = get(key) match {
+type LinkedHashMultiMap[K, V] = mutable.LinkedHashMap[K, Vector[V]]
+extension [K, V](map: LinkedHashMultiMap[K, V]) {
+  def add(key: K, value: V): map.type = {
+    map(key) = map.get(key) match {
       case Some(values) => values :+ value
       case None => Vector(value)
     }
-    this
+    map
   }
 }
 

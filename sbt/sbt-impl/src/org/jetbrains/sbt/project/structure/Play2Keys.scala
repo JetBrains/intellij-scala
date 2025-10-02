@@ -30,19 +30,19 @@ object Play2Keys {
     case class SeqStringParsedValue @PropertyMapping(Array("parsed")) (override val parsed: util.List[String]) extends ParsedValue[util.List[String]]
 
     abstract class ParsedKey[T](val name: String) {
-      def in(allKeys: Map[String, Map[String, ParsedValue[_]]]): Option[Map[String, ParsedValue[_]]] = allKeys get name
+      def in(allKeys: Map[String, Map[String, ParsedValue[?]]]): Option[Map[String, ParsedValue[?]]] = allKeys get name
 
-      def in(projectName: String, allKeys: Map[String, Map[String, ParsedValue[_]]]): Option[T] = {
+      def in(projectName: String, allKeys: Map[String, Map[String, ParsedValue[?]]]): Option[T] = {
         allIn(allKeys).find(_._1 == projectName).map(_._2)
       }
 
-      def allIn(allKeys: Map[String, Map[String, ParsedValue[_]]]): Seq[(String, T)]
+      def allIn(allKeys: Map[String, Map[String, ParsedValue[?]]]): Seq[(String, T)]
 
       override def toString: String = name + "_KEY"
     }
 
     class StringParsedKey(name: String) extends ParsedKey[String](name) {
-      override def allIn(allKeys: Map[String, Map[String, ParsedValue[_]]]): Seq[(String, String)] = {
+      override def allIn(allKeys: Map[String, Map[String, ParsedValue[?]]]): Seq[(String, String)] = {
         in(allKeys) map { vs =>
             vs.toSeq flatMap {
               case (projectName, projectValue: StringParsedValue) => Some((projectName, projectValue.parsed))
@@ -53,7 +53,7 @@ object Play2Keys {
     }
 
     class SeqStringParsedKey(@NonNls name: String) extends ParsedKey[Seq[String]](name) {
-      override def allIn(allKeys: Map[String, Map[String, ParsedValue[_]]]): Seq[(String, Seq[String])] = {
+      override def allIn(allKeys: Map[String, Map[String, ParsedValue[?]]]): Seq[(String, Seq[String])] = {
         in(allKeys) map { vs =>
             vs.toSeq flatMap {
               case (projectName, projectValue: SeqStringParsedValue) => Some((projectName, projectValue.parsed.asScala.toSeq))

@@ -59,7 +59,7 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
   }
 
   private def showInitializingPlaceholder(): Unit = {
-    SbtShellToolWindowFactory.instance(project).foreach { toolWindow =>
+    SbtShellToolWindowFactory.instance(using project).foreach { toolWindow =>
       invokeLater {
         val label = new JLabel(SbtBundle.message("initializing.sbt.shell.message"), SwingConstants.CENTER)
         label.setOpaque(true)
@@ -138,7 +138,7 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
   }
 
   private def initSbtShellUi(consoleView: SbtShellConsoleView): Unit = {
-    SbtShellToolWindowFactory.instance(project).foreach { toolWindow =>
+    SbtShellToolWindowFactory.instance(using project).foreach { toolWindow =>
       invokeLater {
         val content = createToolWindowContent(consoleView)
         setContent(toolWindow, content)
@@ -243,7 +243,7 @@ object SbtShellRunner {
    */
   private[shell] def openShell(focus: Boolean, project: Project): Unit =
     invokeLater {
-      SbtShellToolWindowFactory.instance(project).foreach { toolWindow =>
+      SbtShellToolWindowFactory.instance(using project).foreach { toolWindow =>
         toolWindow.activate(null, focus)
       }
     }

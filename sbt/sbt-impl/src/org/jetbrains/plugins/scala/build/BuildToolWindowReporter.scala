@@ -170,7 +170,7 @@ class BuildToolWindowReporter(project: Project,
 }
 
 object BuildToolWindowReporter {
-  class CancelBuildAction(cancelToken: Promise[_])
+  class CancelBuildAction(cancelToken: Promise[?])
     extends DumbAwareAction(SbtBundle.message("report.build.toolwindow.cancel"), SbtBundle.message("report.build.toolwindow.cancel"), AllIcons.Actions.Suspend) {
 
     override def actionPerformed(e: AnActionEvent): Unit = {

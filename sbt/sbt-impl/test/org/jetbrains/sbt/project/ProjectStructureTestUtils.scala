@@ -54,7 +54,7 @@ object ProjectStructureTestUtils {
   private def createScalaLibraryName(scalaVersion: ScalaVersion, projectSystemId: ProjectSystemId): String = {
     val prefix = projectSystemId.getReadableName
     val insideValue =
-      if (projectSystemId == SbtProjectSystem.Id) s"${DependencyManagerBase.scalaLibraryDescription(scalaVersion)}:jar"
+      if (projectSystemId == SbtProjectSystem.Id) s"${DependencyManagerBase.scalaLibraryDescription(using scalaVersion)}:jar"
       else createScalaLibraryTitleBSP(scalaVersion)
 
     s"$prefix: $insideValue"
@@ -97,8 +97,8 @@ object ProjectStructureTestUtils {
   private def expectedScalaLibraryFromCoursier(useEnv: Boolean)(scalaVersion: ScalaVersion, libraryName: String): library = {
     val jars = expectedScalaLibraryJars(scalaVersion)
     new library(libraryName) {
-      libClasses := coursierCacheArtifacts(useEnv)(jars.libClasses: _*)
-      libSources := coursierCacheArtifacts(useEnv)(jars.libSources: _*)
+      libClasses := coursierCacheArtifacts(useEnv)(jars.libClasses*)
+      libSources := coursierCacheArtifacts(useEnv)(jars.libSources*)
       //SCL-8356
       //libJavadocs := coursierCacheArtifacts(s"org/scala-lang/$artifact/$version/$artifact-$version-javadoc.jar")
     }

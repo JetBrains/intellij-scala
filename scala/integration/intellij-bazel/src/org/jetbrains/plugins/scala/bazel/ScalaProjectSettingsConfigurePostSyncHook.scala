@@ -14,7 +14,7 @@ class ScalaProjectSettingsConfigurePostSyncHook extends ProjectPostSyncHook {
 
   override def isEnabled(project: Project): Boolean = BazelProjectPropertiesKt.isBazelProject(project)
 
-  override def onPostSync(projectPostSyncHookEnvironment: ProjectPostSyncHook.ProjectPostSyncHookEnvironment, continuation: Continuation[_ >: kotlin.Unit]): AnyRef = {
+  override def onPostSync(projectPostSyncHookEnvironment: ProjectPostSyncHook.ProjectPostSyncHookEnvironment, continuation: Continuation[? >: kotlin.Unit]): AnyRef = {
     val project = projectPostSyncHookEnvironment.getProject
     //noinspection ApiStatus,UnstableApiUsage
     JavaCoroutines.suspendJava[kotlin.Unit](cont => {
