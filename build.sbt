@@ -856,7 +856,10 @@ lazy val i18nIntegration =
   newProject("i18n", file("scala/integration/i18n"))
     .dependsOn(scalaImpl % "test->test;compile->compile")
     .settings(
-      intellijPlugins += "com.intellij.java-i18n".toPlugin
+      scalaVersion := Versions.scala3Version,
+      Compile / scalacOptions := globalScala3ScalacOptions,
+      intellijPlugins += "com.intellij.java-i18n".toPlugin,
+      packageMethod := PackagingMethod.PluginModule("scalaCommunity.i18n")
     )
 
 lazy val propertiesIntegration =

@@ -13,7 +13,7 @@ import com.intellij.openapi.ui.Messages
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple}
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.*
 import org.jetbrains.plugins.scala.format.AnyTopmostStringParts
 import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotationsHolder, ScLiteral}
@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n.internal.BundleExtraction.{BundleExtractionInfo, executeBundleExtraction}
-import org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n.internal.ScalaExtractStringToBundleInspection._
+import org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n.internal.ScalaExtractStringToBundleInspection.*
 
 import java.util
 import scala.annotation.unused
@@ -80,7 +80,7 @@ object ScalaExtractStringToBundleInspection {
       .exists(_.hasAnnotation(AnnotationUtil.NON_NLS))
 
   private def isTestSource(element: PsiElement): Boolean = {
-    val isInTestSourceContent = ProjectFileIndex.getInstance(element.getProject).isInTestSourceContent _
+    val isInTestSourceContent = ProjectFileIndex.getInstance(element.getProject).isInTestSourceContent(_)
     element
       .getContainingFile.nullSafe
       .map(_.getVirtualFile)

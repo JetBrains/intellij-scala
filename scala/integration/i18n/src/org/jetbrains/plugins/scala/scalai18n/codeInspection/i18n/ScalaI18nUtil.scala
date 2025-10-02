@@ -7,7 +7,7 @@ import com.intellij.codeInsight.AnnotationUtil
 import com.intellij.lang.properties.psi.PropertiesFile
 import com.intellij.lang.properties.{IProperty, PropertiesReferenceManager}
 import com.intellij.openapi.module.ModuleUtilCore
-import com.intellij.psi._
+import com.intellij.psi.*
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.plugins.scala.extensions.{&, NullSafe, ObjectExt, Parent, PsiMethodExt, PsiParameterExt}
@@ -15,9 +15,10 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScLiteral}
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.*
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScValueOrVariable}
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
@@ -178,7 +179,7 @@ object ScalaI18nUtil {
   def isAnnotatedWithNlsOrNlsSafe(element: PsiElement): Boolean = isAnnotated(element, PassedToNlsOrNlsSafeChecker)
 
   def isAnnotated(element: PsiElement, checker: AnnotationChecker): Boolean = {
-    import ScalaPsiUtil._
+    import ScalaPsiUtil.*
     def isDirectAnnotated(element: PsiElement): Boolean =
       checkAnnotationsOnElement(element, checker)
     def isSuperAnnotatedWith(element: PsiNamedElement): Boolean =
@@ -278,7 +279,7 @@ object ScalaI18nUtil {
       if (mustBePropertyKey(expression, annotationAttributeValues)) {
         annotationAttributeValues.get(AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER).flatMap {
           case bundleName: PsiElement => resolveBundleName(bundleName)
-          case _ => None
+          case null => None
         }
       } else None
     }

@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n.ScalaInvalidPro
 
 abstract class ScalaInvalidPropertyKeyInspectionTestBase extends ScalaInspectionTestBase {
 
-  override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
+  override protected val classOfInspection: Class[? <: LocalInspectionTool] =
     classOf[ScalaInvalidPropertyKeyInspection]
 
   override protected def librariesLoaders =

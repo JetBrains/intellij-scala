@@ -1,15 +1,15 @@
 package org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n
 
 import com.intellij.codeInsight.AnnotationUtil
-import com.intellij.codeInspection._
+import com.intellij.codeInspection.*
 import com.intellij.java.i18n.JavaI18nBundle
-import com.intellij.psi.{util => _, _}
+import com.intellij.psi.{util as _, *}
 import org.jetbrains.plugins.scala.annotator.element.ScMethodInvocationAnnotator
 import org.jetbrains.plugins.scala.codeInspection.PsiElementVisitorSimple
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScParenthesizedElement}
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.*
 
 //noinspection InstanceOf
 class ScalaInvalidPropertyKeyInspection extends LocalInspectionTool {
@@ -62,7 +62,7 @@ class ScalaInvalidPropertyKeyInspection extends LocalInspectionTool {
             val description = JavaI18nBundle.message("inspection.invalid.resource.bundle.reference", bundleName.getOrElse(bundleNameElement.getText))
             holder.registerProblem(bundleNameElement, description, ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
           }
-        case _ =>
+        case null =>
       }
     case _ =>
   }
