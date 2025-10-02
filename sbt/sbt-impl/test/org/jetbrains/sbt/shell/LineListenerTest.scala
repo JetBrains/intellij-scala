@@ -71,6 +71,8 @@ class LineListenerTest {
   }
 
   private class CollectingLineListener extends LineListener {
+    override protected def testPrompt: Boolean = false
+
     private val buffer = new ArrayBuffer[String]
 
     def result: Seq[String] = buffer.toSeq

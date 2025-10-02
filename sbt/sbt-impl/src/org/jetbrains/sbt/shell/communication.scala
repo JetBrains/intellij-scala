@@ -654,6 +654,9 @@ private[shell] object SbtProcessUtil {
 abstract class LineListener extends ProcessListener with AnsiEscapeDecoder.ColoredTextAcceptor {
   protected val log: Logger = Logger.getInstance(getClass)
 
+  @TestOnly
+  protected def testPrompt: Boolean = true
+
   def onLine(line: String): Unit
 
   override def onTextAvailable(event: ProcessEvent, outputType: Key[?]): Unit =
@@ -699,7 +702,7 @@ abstract class LineListener extends ProcessListener with AnsiEscapeDecoder.Color
     }
     else {
       val lastLineOption = lines.lastOption
-      val shouldFlushLastLine = lastLineOption.exists(line => promptReady(line) || promptError(line))
+      val shouldFlushLastLine = testPrompt && lastLineOption.exists(line => promptReady(line) || promptError(line))
       if (shouldFlushLastLine) {
         //NOTE: last line with IJ prompt or error might not have new line character in the end
         //But we still want it to be reported the line to detect that the console is "ready"
