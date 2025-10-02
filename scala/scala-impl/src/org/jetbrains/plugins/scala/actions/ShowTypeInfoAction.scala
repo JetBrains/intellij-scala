@@ -65,7 +65,7 @@ class ShowTypeInfoAction extends AnAction(
   private def invokeAction(editor: Editor, file: PsiFile, project: Project): Unit = {
     val selectionModel = editor.getSelectionModel
 
-    val calculateTypeInfo: Callable[Option[String]] = () => {
+    def calculateTypeInfo(): Option[String] = {
       if (selectionModel.hasSelection) {
         getTypeInfoHintForSelection(editor, file, project, selectionModel)
       } else {
@@ -76,22 +76,21 @@ class ShowTypeInfoAction extends AnAction(
       }
     }
 
-    val backgroundAction: NonBlockingReadAction[Option[String]] = ReadAction
-      .nonBlocking[Option[String]](calculateTypeInfo)
-      .coalesceBy(this) //don't show more than 1 type info hint, cancel the previous action if it's running
-    val onUiThreadConsumer: Consumer[Option[String]] = hint => {
-      hint.foreach(ScalaActionUtil.showHint(editor, _))
-    }
-    TaskRunnerWithLoadingProgress.runTask(
+    TaskRunnerWithLoadingProgress.runSingleInstanceTask[Option[String]](
       project = project,
-      backgroundAction = backgroundAction,
-      uiDataConsumer = onUiThreadConsumer,
+      backgroundDataSupplier = () => {
+        calculateTypeInfo()
+      },
+      uiDataConsumer = { hintOption =>
+        hintOption.foreach(ScalaActionUtil.showHint(editor, _))
+      },
       progressTitle = ScalaBundle.message("calculating.type.info"),
       editor = editor,
       // I decided not to cancel the tooltip on scrolling - if it takes long to compute the types in complex code bases,
       // it can be annoying that you can't even scroll the file... On the other hand, the final tooltip with the type hint
       // will be hidden once you scroll, so the behavior is not 100% consistent =/
-      cancelOnScrolling = false
+      cancelOnScrolling = false,
+      coalesceObject = this
     )
   }
 

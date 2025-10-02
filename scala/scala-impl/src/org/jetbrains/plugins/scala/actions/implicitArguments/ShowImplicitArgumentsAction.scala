@@ -56,30 +56,28 @@ class ShowImplicitArgumentsAction extends AnAction(
 
     ScalaActionUsagesCollector.logShowImplicitParameters(file.getProject)
 
-    val backgroundAction = ReadAction
-      .nonBlocking[Seq[ImplicitArgumentsTarget]](() => findAllTargets(file))
-      .coalesceBy(this) //don't show more than 1 popup/chooser for the action
-
-    val onUiThreadConsumer: Consumer[Seq[ImplicitArgumentsTarget]] = {
-      case Seq() =>
-        ScalaActionUtil.showHint(editor, ScalaBundle.message("no.implicit.arguments"))
-      case Seq(singleTarget) =>
-        showSingleTargetPopup(singleTarget)
-      case targets =>
-        ScalaRefactoringUtil.showChooserGeneric[ImplicitArgumentsTarget](
-          targets, showSingleTargetPopup, ScalaBundle.message("title.expressions"), _.presentation, _.expression
-        )
-    }
-    TaskRunnerWithLoadingProgress.runTask(
+    TaskRunnerWithLoadingProgress.runSingleInstanceTask[Seq[ImplicitArgumentsTarget]](
       project = project,
-      backgroundAction = backgroundAction,
-      uiDataConsumer = onUiThreadConsumer,
+      backgroundDataSupplier = () => {
+        findAllTargets(file)
+      },
+      uiDataConsumer = {
+        case Seq() =>
+          ScalaActionUtil.showHint(editor, ScalaBundle.message("no.implicit.arguments"))
+        case Seq(singleTarget) =>
+          showSingleTargetPopup(singleTarget)
+        case targets =>
+          ScalaRefactoringUtil.showChooserGeneric[ImplicitArgumentsTarget](
+            targets, showSingleTargetPopup, ScalaBundle.message("title.expressions"), _.presentation, _.expression
+          )
+      },
       progressTitle = ScalaBundle.message("searching.for.implicit.arguments"),
       editor = editor,
       // I decided not to cancel the tooltip on scrolling - if it takes long to compute the types in complex code bases,
       // it can be annoying that you can't even scroll the file... On the other hand, the final tooltip with the type hint
       // will be hidden once you scroll, so the behavior is not 100% consistent =/
-      cancelOnScrolling = false
+      cancelOnScrolling = false,
+      coalesceObject = this
     )
   }
 
