@@ -9,6 +9,7 @@ import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
 import com.intellij.util.concurrency.annotations.{RequiresBackgroundThread, RequiresEdt}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.actions.utils.TaskRunnerWithLoadingProgress
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, Parent, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -33,13 +34,31 @@ final class CopyTypeAction extends AnAction(ScalaBundle.message("copy.scala.type
   }
 
   override def actionPerformed(event: AnActionEvent): Unit = {
-    val typeableElement = getSelectedTypeableElement(event)
-    for {
-      element <- typeableElement
-      typeText <- getElementTypePresentation(element)
-    } {
-      updateCopyBuffer(typeText)
-    }
+    val project = event.getProject
+    if (project == null)
+      return
+
+    val editor = event.getData(CommonDataKeys.EDITOR)
+    if (editor == null)
+      return
+
+    TaskRunnerWithLoadingProgress.runSingleInstanceTask[Option[String]](
+      project = project,
+      backgroundDataSupplier = () => {
+        val typeableElement = getSelectedTypeableElement(event)
+        for {
+          element <- typeableElement
+          typeText <- getElementTypePresentation(element)
+        } yield typeText
+      },
+      uiDataConsumer = typeText => {
+        typeText.foreach(updateCopyBuffer)
+      },
+      progressTitle = ScalaBundle.message("calculating.type"),
+      editor = editor,
+      cancelOnScrolling = false,
+      coalesceObject = this
+    )
   }
 
   @RequiresEdt
@@ -73,10 +92,10 @@ final class CopyTypeAction extends AnAction(ScalaBundle.message("copy.scala.type
         element.`type`()
     }
     typeResult.toOption.map { typ =>
-      val typeProcessed = typ.removeAliasDefinitions().tryExtractDesignatorSingleton
-
       implicit val tpc: TypePresentationContext = TypePresentationContext(element)
       implicit val context: Context = Context(element)
+
+      val typeProcessed = typ.removeAliasDefinitions().tryExtractDesignatorSingleton
 
       typeProcessed.presentableText
     }
