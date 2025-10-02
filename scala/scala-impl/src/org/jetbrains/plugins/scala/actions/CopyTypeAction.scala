@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala.actions
 
 import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent, CommonDataKeys}
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiUtilBase
 import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
-import com.intellij.util.concurrency.annotations.{RequiresBackgroundThread, RequiresEdt}
+import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.actions.utils.TaskRunnerWithLoadingProgress
@@ -18,9 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, TypePresentationContext}
 
-import java.awt.Toolkit
 import java.awt.datatransfer.StringSelection
-import java.util.concurrent.ConcurrentHashMap
 import scala.annotation.tailrec
 
 final class CopyTypeAction extends AnAction(ScalaBundle.message("copy.scala.type")) {
@@ -42,7 +40,7 @@ final class CopyTypeAction extends AnAction(ScalaBundle.message("copy.scala.type
     if (editor == null)
       return
 
-    TaskRunnerWithLoadingProgress.runSingleInstanceTask[Option[String]](
+    TaskRunnerWithLoadingProgress.runSingleInstanceActionTask[Option[String]](
       project = project,
       backgroundDataSupplier = () => {
         val typeableElement = getSelectedTypeableElement(event)
@@ -51,24 +49,16 @@ final class CopyTypeAction extends AnAction(ScalaBundle.message("copy.scala.type
           typeText <- getElementTypePresentation(element)
         } yield typeText
       },
-      uiDataConsumer = typeText => {
-        typeText.foreach(updateCopyBuffer)
+      uiDataConsumer = typeTextOpt => {
+        typeTextOpt.foreach { text =>
+          CopyPasteManager.getInstance.setContents(new StringSelection(text))
+        }
       },
       progressTitle = ScalaBundle.message("calculating.type"),
       editor = editor,
       cancelOnScrolling = false,
-      coalesceObject = this
+      originalAction = this
     )
-  }
-
-  @RequiresEdt
-  private def updateCopyBuffer(typeText: String): Unit = {
-    if (ApplicationManager.getApplication.isUnitTestMode) {
-      CopyTypeAction.copyToClipboardListeners.values().forEach(_(typeText))
-    } else {
-      val clipboard = Toolkit.getDefaultToolkit.getSystemClipboard
-      clipboard.setContents(new StringSelection(typeText), null)
-    }
   }
 
   private def isInScalaFile(e: AnActionEvent): Boolean = {
@@ -170,12 +160,4 @@ final class CopyTypeAction extends AnAction(ScalaBundle.message("copy.scala.type
 
 object CopyTypeAction {
   val ActionId: String = "Scala.CopyType"
-
-  private val copyToClipboardListeners: ConcurrentHashMap[Any, String => Unit] = new ConcurrentHashMap
-  private[actions] def withUnitTestClipboardListener[T](listener: String => Unit)(body: => T): T = {
-    val token = new Object
-    copyToClipboardListeners.put(token, listener)
-    try body
-    finally copyToClipboardListeners.remove(token)
-  }
 }

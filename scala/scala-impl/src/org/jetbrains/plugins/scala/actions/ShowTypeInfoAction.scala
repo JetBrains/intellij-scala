@@ -78,7 +78,7 @@ class ShowTypeInfoAction extends AnAction(
       }
     }
 
-    TaskRunnerWithLoadingProgress.runSingleInstanceTask[Option[String]](
+    TaskRunnerWithLoadingProgress.runSingleInstanceActionTask[Option[String]](
       project = project,
       backgroundDataSupplier = () => {
         calculateTypeInfo()
@@ -92,7 +92,7 @@ class ShowTypeInfoAction extends AnAction(
       // it can be annoying that you can't even scroll the file... On the other hand, the final tooltip with the type hint
       // will be hidden once you scroll, so the behavior is not 100% consistent =/
       cancelOnScrolling = false,
-      coalesceObject = this
+      originalAction = this
     )
   }
 

@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.actions.implicitArguments
 import com.intellij.ide.util.treeView.AbstractTreeNode
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem._
-import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.ex.IdeDocumentHistory
@@ -30,7 +29,6 @@ import org.jetbrains.plugins.scala.statistics.ScalaActionUsagesCollector
 
 import java.awt.event.MouseEvent
 import java.awt.{BorderLayout, Dimension}
-import java.util.function.Consumer
 import javax.swing.tree.{DefaultMutableTreeNode, TreePath}
 import javax.swing.{JPanel, JTree}
 
@@ -56,7 +54,7 @@ class ShowImplicitArgumentsAction extends AnAction(
 
     ScalaActionUsagesCollector.logShowImplicitParameters(file.getProject)
 
-    TaskRunnerWithLoadingProgress.runSingleInstanceTask[Seq[ImplicitArgumentsTarget]](
+    TaskRunnerWithLoadingProgress.runSingleInstanceActionTask[Seq[ImplicitArgumentsTarget]](
       project = project,
       backgroundDataSupplier = () => {
         findAllTargets(file)
@@ -77,7 +75,7 @@ class ShowImplicitArgumentsAction extends AnAction(
       // it can be annoying that you can't even scroll the file... On the other hand, the final tooltip with the type hint
       // will be hidden once you scroll, so the behavior is not 100% consistent =/
       cancelOnScrolling = false,
-      coalesceObject = this
+      originalAction = this
     )
   }
 
