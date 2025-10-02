@@ -15,6 +15,7 @@ import com.intellij.util.Alarm
 import com.intellij.util.concurrency.annotations.{RequiresBackgroundThread, RequiresEdt}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.actions.utils.TaskRunnerWithLoadingProgress
 import org.jetbrains.plugins.scala.actions.{GoToImplicitConversionAction, MakeExplicitAction, Parameters, ScalaActionUtil}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -59,33 +60,64 @@ final class ShowImplicitConversionsAction(cs: CoroutineScope) extends AnAction(
 
     ScalaActionUsagesCollector.logGoToImplicitConversion(file.getProject)
 
-    def selectExpressionAndShowConversions(expr: ScExpression): Unit = {
-      val range = expr.getTextRange
-      editor.getSelectionModel.setSelection(range.getStartOffset, range.getEndOffset)
-
-      val (implicitElement, conversions) = calculateConversionsData(expr)
-      if (conversions.nonEmpty) {
-        showConversionsPopup(expr, implicitElement.orNull, conversions, editor, project)
-      }
-    }
-
-    val expressions: Seq[ScExpression] = findTargetExpressions(editor, file, project)
-    expressions match {
-      case Seq() =>
-        editor.getSelectionModel.selectLineAtCaret()
-      case Seq(expression) =>
-        selectExpressionAndShowConversions(expression)
-      case expressions =>
-        ScalaRefactoringUtil.showPsiChooser(
-          expressions,
-          (elem: ScExpression) => selectExpressionAndShowConversions(elem),
-          ScalaBundle.message("title.expressions"),
-          (expr: ScExpression) => ScalaRefactoringUtil.getShortText(expr)
-        )
-    }
+    TaskRunnerWithLoadingProgress.runSingleInstanceTask[Seq[ScExpression]](
+      project = project,
+      backgroundDataSupplier = () => {
+        findTargetExpressions(editor, file, project)
+      },
+      uiDataConsumer = {
+        case Seq() =>
+          editor.getSelectionModel.selectLineAtCaret()
+        case Seq(expression) =>
+          selectExpressionAndFindAndShowConversions(expression, editor, project)
+        case expressions =>
+          ScalaRefactoringUtil.showPsiChooser(
+            expressions,
+            (elem: ScExpression) => selectExpressionAndFindAndShowConversions(elem, editor, project),
+            ScalaBundle.message("title.expressions"),
+            (expr: ScExpression) => ScalaRefactoringUtil.getShortText(expr)
+          )
+      },
+      progressTitle = ScalaBundle.message("searching.for.action.target.expressions"),
+      editor = editor,
+      // I decided not to cancel the tooltip on scrolling - if it takes long to compute the types in complex code bases,
+      // it can be annoying that you can't even scroll the file... On the other hand, the final tooltip with the type hint
+      // will be hidden once you scroll, so the behavior is not 100% consistent =/
+      cancelOnScrolling = false,
+      coalesceObject = ShowImplicitConversionsAction.this
+    )
   }
 
-  //@RequiresBackgroundThread // Can involve heavy resolution in complex code bases
+  private def selectExpressionAndFindAndShowConversions(
+    expr: ScExpression,
+    editor: Editor,
+    project: Project,
+  ): Unit = {
+    val range = expr.getTextRange
+    editor.getSelectionModel.setSelection(range.getStartOffset, range.getEndOffset)
+
+    TaskRunnerWithLoadingProgress.runSingleInstanceTask[(Option[PsiNamedElement], Seq[PsiNamedElement])](
+      project = project,
+      backgroundDataSupplier = () => {
+        calculateConversionsData(expr)
+      },
+      uiDataConsumer = {
+        case (implicitElement, conversions) =>
+          if (conversions.nonEmpty) {
+            showConversionsPopup(expr, implicitElement.orNull, conversions, editor, project)
+          }
+      },
+      progressTitle = ScalaBundle.message("searching.for.implicit.conversions"),
+      editor = editor,
+      // I decided not to cancel the tooltip on scrolling - if it takes long to compute the types in complex code bases,
+      // it can be annoying that you can't even scroll the file... On the other hand, the final tooltip with the type hint
+      // will be hidden once you scroll, so the behavior is not 100% consistent =/
+      cancelOnScrolling = false,
+      coalesceObject = ShowImplicitConversionsAction.this
+    )
+  }
+
+  @RequiresBackgroundThread // Can involve heavy resolution in complex code bases
   private def findTargetExpressions(editor: Editor, file: PsiFile, project: Project): Seq[ScExpression] = {
     implicit val p: Project = project
     implicit val e: Editor = editor
@@ -113,7 +145,7 @@ final class ShowImplicitConversionsAction(cs: CoroutineScope) extends AnAction(
     }
   }
 
-  //@RequiresBackgroundThread // Can involve heavy resolution in complex code bases
+  @RequiresBackgroundThread // Can involve heavy resolution in complex code bases
   private def getExpressions(element: PsiElement, guard: Boolean): Seq[ScExpression] = {
     val res = Seq.newBuilder[ScExpression]
     var parent = element
@@ -139,7 +171,7 @@ final class ShowImplicitConversionsAction(cs: CoroutineScope) extends AnAction(
     res.result()
   }
 
-  //@RequiresBackgroundThread // Can involve heavy resolution in complex code bases
+  @RequiresBackgroundThread // Can involve heavy resolution in complex code bases
   private def calculateConversionsData(expr: ScExpression): (Option[PsiNamedElement], Seq[PsiNamedElement]) = {
     val (implicitElement: Option[PsiNamedElement], fromUnderscore: Boolean) = {
       def additionalImplicitElement: Option[PsiNamedElement] = expr.getAdditionalExpression.flatMap {

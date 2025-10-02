@@ -73,7 +73,7 @@ class ShowImplicitArgumentsAction extends AnAction(
     TaskRunnerWithLoadingProgress.runTask(
       project = project,
       backgroundAction = backgroundAction,
-      continuationConsumer = onUiThreadConsumer,
+      uiDataConsumer = onUiThreadConsumer,
       progressTitle = ScalaBundle.message("searching.for.implicit.arguments"),
       editor = editor,
       // I decided not to cancel the tooltip on scrolling - if it takes long to compute the types in complex code bases,
