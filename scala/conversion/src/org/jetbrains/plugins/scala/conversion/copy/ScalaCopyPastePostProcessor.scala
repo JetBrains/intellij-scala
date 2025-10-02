@@ -28,6 +28,11 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
         return None
     }
 
+    // Don't even try to collect imports information when the feature is disabled to save CPU resources
+    // (the similar thing is done in com.intellij.codeInsight.editorActions.AbstractJavaCopyPasteReferenceProcessor)
+    if (ScalaApplicationSettings.getInstance.ADD_IMPORTS_ON_PASTE == CodeInsightSettings.NO)
+      return None
+
     val ranges = startOffsets.zip(endOffsets).map {
       case (startOffset, endOffset) => TextRange.create(startOffset, endOffset)
     }
