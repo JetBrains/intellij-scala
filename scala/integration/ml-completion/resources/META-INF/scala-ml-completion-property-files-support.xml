@@ -1,6 +1,0 @@
-<idea-plugin>
-    <extensions defaultExtensionNs="com.intellij.completion.ml.ranking">
-        <policy language="Properties"
-                implementationClass="org.jetbrains.plugins.sbt.completion.ml.SbtDependencyVersionInPropertyFilesCompletionMLPolicy"/>
-    </extensions>
-</idea-plugin>

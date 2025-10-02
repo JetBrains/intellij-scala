@@ -102,6 +102,7 @@ lazy val scalaCommunity: sbt.Project =
         featuresTrainerIntegration,
         intellijBazelIntegration,
         junitIntegration,
+        mlCompletionPropertiesIntegration,
         runtimeDependencies
       ),
       // all sub-project tests need to be run within main project's classpath
@@ -892,7 +893,21 @@ lazy val mlCompletionIntegration =
       Compile / scalacOptions := globalScala3ScalacOptions,
       intellijPlugins += "com.intellij.completion.ml.ranking".toPlugin,
       resolvers += DependencyResolvers.IntelliJDependencies,
-      libraryDependencies += "org.jetbrains.intellij.deps.completion" % "completion-ranking-scala" % "0.4.1"
+      libraryDependencies += "org.jetbrains.intellij.deps.completion" % "completion-ranking-scala" % "0.4.1",
+      packageMethod := PackagingMethod.PluginModule("scalaCommunity.mlCompletion")
+    )
+
+lazy val mlCompletionPropertiesIntegration =
+  newProject("ml-completion-properties", file("scala/integration/ml-completion-properties"))
+    .dependsOn(mlCompletionIntegration)
+    .settings(
+      scalaVersion := Versions.scala3Version,
+      Compile / scalacOptions := globalScala3ScalacOptions,
+      intellijPlugins ++= Seq(
+        "com.intellij.completion.ml.ranking",
+        "com.intellij.properties"
+      ).map(_.toPlugin),
+      packageMethod := PackagingMethod.PluginModule("scalaCommunity.mlCompletion.properties")
     )
 
 lazy val scalastyleIntegration = newProject("scalastyle", file("scala/integration/scalastyle"))
