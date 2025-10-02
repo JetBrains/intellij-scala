@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.actions.utils
 
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.application.{ModalityState, NonBlockingReadAction, ReadAction}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.impl.EditorImpl
@@ -8,7 +9,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.LoadingDecorator
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.util.{Disposer, NlsContexts}
-import com.intellij.openapi.wm.IdeFocusManager
 import com.intellij.ui.components.panels.NonOpaquePanel
 import com.intellij.ui.components.{JBLabel, JBLoadingPanel}
 import com.intellij.util.concurrency.{AppExecutorUtil, EdtScheduler}
@@ -16,12 +16,12 @@ import com.intellij.util.ui.{AnimatedIcon, AsyncProcessIcon, EmptyIcon, UIUtil}
 import org.jetbrains.annotations.{ApiStatus, Nullable}
 import org.jetbrains.concurrency.CancellablePromise
 
-import java.awt.{Component, FlowLayout}
-import java.util.Objects
+import java.awt.FlowLayout
 import java.util.concurrent.atomic.AtomicReference
 import java.util.function.Consumer
 import javax.swing.{JLabel, JPanel}
 import scala.concurrent.duration.{Duration, DurationInt}
+import scala.util.Try
 import scala.util.chaining.scalaUtilChainingOps
 
 /**
@@ -41,9 +41,12 @@ import scala.util.chaining.scalaUtilChainingOps
 private[actions] object TaskRunnerWithLoadingProgress {
   private val DefaultProgressPopupDelay: Duration = 1000.millis
 
-  private def getFocusOwner(project: Project): Component = IdeFocusManager.getInstance(project).getFocusOwner
-
-  def runSingleInstanceTask[T](
+  /**
+   * @param originalAction an action within which the async task is running.
+   *                       If the action is triggered once again, the previous task will be canceled
+   *                       (via NonBlockingReadAction.coalesceBy)
+   */
+  def runSingleInstanceActionTask[T](
     project: Project,
     backgroundDataSupplier: () => T,
     uiDataConsumer: T => Unit,
@@ -51,22 +54,39 @@ private[actions] object TaskRunnerWithLoadingProgress {
     progressTitle: String,
     editor: Editor,
     cancelOnScrolling: Boolean,
-    coalesceObject: AnyRef
-  ): Unit = {
+    originalAction: AnAction
+  ): CancellablePromise[T] = {
     val backgroundAction = ReadAction
       .nonBlocking[T](() => {
         backgroundDataSupplier()
       })
-      .coalesceBy(coalesceObject)
+      .coalesceBy(originalAction)
 
     TaskRunnerWithLoadingProgress.runTask(
       project = project,
       backgroundAction = backgroundAction,
-      uiDataConsumer = result => uiDataConsumer(result),
+      uiDataConsumer = (result: T) => {
+        // Handling on UI can also throw exceptions, so handle it here as well
+        val tri = Try {
+          uiDataConsumer(result)
+        }
+
+        // Invoke the action completed only when the UI consumer is finished
+        // NOTE: we can't use org.jetbrains.concurrency.CancellablePromise.onSuccess as it's invoked before the
+        // NonBlockingReadAction.finishOnUiThread callback
+        notifyActionCompleted(project, originalAction, tri)
+      },
       progressTitle = progressTitle,
       editor = editor,
       cancelOnScrolling = cancelOnScrolling
-    )
+    ).onError(e => {
+      notifyActionCompleted(project, originalAction, scala.util.Failure(e))
+    })
+  }
+
+  private def notifyActionCompleted(project: Project, originalAction: AnAction, result: Try[Unit]): Unit = {
+    val listeners = project.getMessageBus.syncPublisher(ScalaAsyncActionListener.Topic)
+    listeners.actionCompleted(originalAction.getClass, result)
   }
 
   /**
@@ -81,7 +101,7 @@ private[actions] object TaskRunnerWithLoadingProgress {
     progressTitle: String,
     editor: Editor,
     cancelOnScrolling: Boolean
-  ): Unit = {
+  ): CancellablePromise[T] = {
     // Unfortunately, the Editor interface is not disposable, so we fall back to the project as disposable.
     // Though the main implementation `EditorImpl` has the disposable.
     val editorOrProjectDisposable = editor match {
@@ -117,6 +137,7 @@ private[actions] object TaskRunnerWithLoadingProgress {
       })
 
     cancellablePromiseRef.set(submittedActionPromise)
+    submittedActionPromise
   }
 
   /**

@@ -60,7 +60,7 @@ final class ShowImplicitConversionsAction(cs: CoroutineScope) extends AnAction(
 
     ScalaActionUsagesCollector.logGoToImplicitConversion(file.getProject)
 
-    TaskRunnerWithLoadingProgress.runSingleInstanceTask[Seq[ScExpression]](
+    TaskRunnerWithLoadingProgress.runSingleInstanceActionTask[Seq[ScExpression]](
       project = project,
       backgroundDataSupplier = () => {
         findTargetExpressions(editor, file, project)
@@ -84,7 +84,7 @@ final class ShowImplicitConversionsAction(cs: CoroutineScope) extends AnAction(
       // it can be annoying that you can't even scroll the file... On the other hand, the final tooltip with the type hint
       // will be hidden once you scroll, so the behavior is not 100% consistent =/
       cancelOnScrolling = false,
-      coalesceObject = ShowImplicitConversionsAction.this
+      originalAction = ShowImplicitConversionsAction.this
     )
   }
 
@@ -96,7 +96,7 @@ final class ShowImplicitConversionsAction(cs: CoroutineScope) extends AnAction(
     val range = expr.getTextRange
     editor.getSelectionModel.setSelection(range.getStartOffset, range.getEndOffset)
 
-    TaskRunnerWithLoadingProgress.runSingleInstanceTask[(Option[PsiNamedElement], Seq[PsiNamedElement])](
+    TaskRunnerWithLoadingProgress.runSingleInstanceActionTask[(Option[PsiNamedElement], Seq[PsiNamedElement])](
       project = project,
       backgroundDataSupplier = () => {
         calculateConversionsData(expr)
@@ -113,7 +113,7 @@ final class ShowImplicitConversionsAction(cs: CoroutineScope) extends AnAction(
       // it can be annoying that you can't even scroll the file... On the other hand, the final tooltip with the type hint
       // will be hidden once you scroll, so the behavior is not 100% consistent =/
       cancelOnScrolling = false,
-      coalesceObject = ShowImplicitConversionsAction.this
+      originalAction = ShowImplicitConversionsAction.this
     )
   }
 
