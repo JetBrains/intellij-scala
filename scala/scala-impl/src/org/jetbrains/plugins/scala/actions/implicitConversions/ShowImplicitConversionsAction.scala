@@ -12,7 +12,8 @@ import com.intellij.psi.util.PsiUtilBase
 import com.intellij.ui.JBColor
 import com.intellij.ui.components.JBList
 import com.intellij.util.Alarm
-import kotlinx.coroutines.CoroutineScope
+import com.intellij.util.concurrency.annotations.{RequiresBackgroundThread, RequiresEdt}
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.actions.{GoToImplicitConversionAction, MakeExplicitAction, Parameters, ScalaActionUtil}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
@@ -27,6 +28,7 @@ import java.awt.event.{MouseAdapter, MouseEvent}
 import javax.swing._
 import javax.swing.border.Border
 import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
+import kotlinx.coroutines.CoroutineScope
 
 final class ShowImplicitConversionsAction(cs: CoroutineScope) extends AnAction(
   ScalaBundle.message("implicit.conversions.action.text"),
@@ -48,125 +50,168 @@ final class ShowImplicitConversionsAction(cs: CoroutineScope) extends AnAction(
     val context = e.getDataContext
     implicit val project: Project = CommonDataKeys.PROJECT.getData(context)
     implicit val editor: Editor = CommonDataKeys.EDITOR.getData(context)
-    if (project == null || editor == null) return
+    if (project == null || editor == null)
+      return
 
     val file = PsiUtilBase.getPsiFileInEditor(editor, project)
-    if (!file.is[ScalaFile]) return
-
-    def forExpr(expr: ScExpression): Boolean = {
-      val (implicitElement: Option[PsiNamedElement], fromUnderscore: Boolean) = {
-        def additionalImplicitElement = expr.getAdditionalExpression.flatMap {
-          case (additional, tp) => additional.implicitElement(expectedOption = Some(tp))
-        }
-
-        if (ScUnderScoreSectionUtil.isUnderscoreFunction(expr)) {
-          expr.implicitElement(fromUnderscore = true) match {
-            case someElement@Some(_) => (someElement, true)
-            case _ => (expr.implicitElement().orElse(additionalImplicitElement), false)
-          }
-        } else (additionalImplicitElement.orElse(expr.implicitElement()), false)
-      }
-
-      val conversions = expr.implicitConversions(fromUnderscore = fromUnderscore)
-      if (conversions.isEmpty) return true
-
-      val conversionFun = implicitElement.orNull
-      val model = new DefaultListModel[Parameters]
-      var actualIndex = -1
-      //todo actualIndex should be another if conversionFun is not one
-
-      for (element <- conversions) {
-        val elem = Parameters(element, expr, project, editor, conversions)
-        model.addElement(elem)
-        if (element == conversionFun) {
-          actualIndex = model.indexOf(elem)
-        }
-      }
-
-      val list = new JBList[Parameters](model)
-      val renderer = new ScImplicitFunctionListCellRenderer(conversionFun, expr)
-      val font = editor.getColorsScheme.getFont(EditorFontType.PLAIN)
-      renderer.setFont(font)
-      list.setFont(font)
-      list.setCellRenderer(renderer)
-      list.getSelectionModel.addListSelectionListener(new ListSelectionListener {
-        override def valueChanged(e: ListSelectionEvent): Unit = {
-          hintAlarm.cancelAllRequests
-          val item = list.getSelectedValue
-          if (item == null) return
-          updateHint(item)
-        }
-      })
-
-      createPopup(list).showInBestPositionFor(editor)
-
-      if (actualIndex >= 0 && actualIndex < list.getModel.getSize) {
-        list.getSelectionModel.setSelectionInterval(actualIndex, actualIndex)
-        list.ensureIndexIsVisible(actualIndex)
-      }
-
-      hint = new LightBulbHint(editor, project, expr, conversions)
-
-      false
-    }
+    if (file == null || !file.is[ScalaFile])
+      return
 
     ScalaActionUsagesCollector.logGoToImplicitConversion(file.getProject)
 
-    if (editor.getSelectionModel.hasSelection) {
-      getSelectedExpression(file).foreach(forExpr)
-    } else {
-      val offset = editor.getCaretModel.getOffset
-      val element: PsiElement = file.findElementAt(offset) match {
-        case w: PsiWhiteSpace if w.getTextRange.getStartOffset == offset &&
-          w.getText.contains("\n") => file.findElementAt(offset - 1)
-        case p => p
-      }
-      def getExpressions(guard: Boolean): Seq[ScExpression] = {
-        val res = Seq.newBuilder[ScExpression]
-        var parent = element
-        while (parent != null) {
-          parent match {
-            case expr: ScReferenceExpression if guard =>
-              expr.getContext match {
-                case postf: ScPostfixExpr if postf.operation == expr =>
-                case pref: ScPrefixExpr if pref.operation == expr =>
-                case inf: ScInfixExpr if inf.operation == expr =>
-                case _ => res += expr
-              }
-            case expr: ScExpression if guard || expr.implicitElement().isDefined ||
-              (ScUnderScoreSectionUtil.isUnderscoreFunction(expr) &&
-                expr.implicitElement(fromUnderscore = true).isDefined) || expr.getAdditionalExpression.flatMap {
-              case (additional, tp) => additional.implicitElement(expectedOption = Some(tp))
-            }.isDefined =>
-              res += expr
-            case _ =>
-          }
-          parent = parent.getParent
-        }
-        res.result()
-      }
-      val expressions = {
-        val falseGuard = getExpressions(guard = false)
-        if (falseGuard.nonEmpty) falseGuard
-        else getExpressions(guard = true)
-      }
-      def chooseExpression(expr: ScExpression): Unit = {
-        editor.getSelectionModel.setSelection(expr.getTextRange.getStartOffset,
-          expr.getTextRange.getEndOffset)
-        forExpr(expr)
-      }
+    def selectExpressionAndShowConversions(expr: ScExpression): Unit = {
+      val range = expr.getTextRange
+      editor.getSelectionModel.setSelection(range.getStartOffset, range.getEndOffset)
 
-      expressions match {
-        case Seq() => editor.getSelectionModel.selectLineAtCaret()
-        case Seq(expression) => chooseExpression(expression)
-        case expressions =>
-          ScalaRefactoringUtil.showPsiChooser(expressions, (elem: ScExpression) =>
-            chooseExpression(elem), ScalaBundle.message("title.expressions"), (expr: ScExpression) => {
-            ScalaRefactoringUtil.getShortText(expr)
-          })
+      val (implicitElement, conversions) = calculateConversionsData(expr)
+      if (conversions.nonEmpty) {
+        showConversionsPopup(expr, implicitElement.orNull, conversions, editor, project)
       }
     }
+
+    val expressions: Seq[ScExpression] = findTargetExpressions(editor, file, project)
+    expressions match {
+      case Seq() =>
+        editor.getSelectionModel.selectLineAtCaret()
+      case Seq(expression) =>
+        selectExpressionAndShowConversions(expression)
+      case expressions =>
+        ScalaRefactoringUtil.showPsiChooser(
+          expressions,
+          (elem: ScExpression) => selectExpressionAndShowConversions(elem),
+          ScalaBundle.message("title.expressions"),
+          (expr: ScExpression) => ScalaRefactoringUtil.getShortText(expr)
+        )
+    }
   }
+
+  //@RequiresBackgroundThread // Can involve heavy resolution in complex code bases
+  private def findTargetExpressions(editor: Editor, file: PsiFile, project: Project): Seq[ScExpression] = {
+    implicit val p: Project = project
+    implicit val e: Editor = editor
+
+    if (editor.getSelectionModel.hasSelection) {
+      getSelectedExpression(file).toSeq
+    } else {
+      val offset = editor.getCaretModel.getOffset
+      //Q: what is this for? Isn't it trying to do what `com.intellij.codeInsight.TargetElementUtil.adjustOffset` is designed for?
+      // (adjustOffset is used in  used in org.jetbrains.plugins.scala.actions.ShowTypeInfoAction)
+      val elementAtCaretOriginal = file.findElementAt(offset)
+      val elementAtCaret = elementAtCaretOriginal match {
+        case w: PsiWhiteSpace if w.getTextRange.getStartOffset == offset && w.getText.contains("\n") =>
+          file.findElementAt(offset - 1)
+        case p => p
+      }
+      if (elementAtCaret == null)
+        return Nil
+
+      val expressionsWithoutGuard = getExpressions(elementAtCaret, guard = false)
+      if (expressionsWithoutGuard.nonEmpty)
+        expressionsWithoutGuard
+      else
+        getExpressions(elementAtCaret, guard = true)
+    }
+  }
+
+  //@RequiresBackgroundThread // Can involve heavy resolution in complex code bases
+  private def getExpressions(element: PsiElement, guard: Boolean): Seq[ScExpression] = {
+    val res = Seq.newBuilder[ScExpression]
+    var parent = element
+    while (parent != null) {
+      parent match {
+        case expr: ScReferenceExpression if guard =>
+          expr.getContext match {
+            case postf: ScPostfixExpr if postf.operation == expr =>
+            case pref: ScPrefixExpr if pref.operation == expr =>
+            case inf: ScInfixExpr if inf.operation == expr =>
+            case _ => res += expr
+          }
+        case expr: ScExpression if guard || expr.implicitElement().isDefined ||
+          (ScUnderScoreSectionUtil.isUnderscoreFunction(expr) &&
+            expr.implicitElement(fromUnderscore = true).isDefined) || expr.getAdditionalExpression.flatMap {
+          case (additional, tp) => additional.implicitElement(expectedOption = Some(tp))
+        }.isDefined =>
+          res += expr
+        case _ =>
+      }
+      parent = parent.getParent
+    }
+    res.result()
+  }
+
+  //@RequiresBackgroundThread // Can involve heavy resolution in complex code bases
+  private def calculateConversionsData(expr: ScExpression): (Option[PsiNamedElement], Seq[PsiNamedElement]) = {
+    val (implicitElement: Option[PsiNamedElement], fromUnderscore: Boolean) = {
+      def additionalImplicitElement: Option[PsiNamedElement] = expr.getAdditionalExpression.flatMap {
+        case (additional, tp) => additional.implicitElement(expectedOption = Some(tp))
+      }
+
+      if (ScUnderScoreSectionUtil.isUnderscoreFunction(expr)) {
+        expr.implicitElement(fromUnderscore = true) match {
+          case someElement@Some(_) =>
+            (someElement, true)
+          case _ =>
+            (expr.implicitElement().orElse(additionalImplicitElement), false)
+        }
+      } else {
+        (additionalImplicitElement.orElse(expr.implicitElement()), false)
+      }
+    }
+
+    val conversions = expr.implicitConversions(fromUnderscore = fromUnderscore)
+    (implicitElement, conversions)
+  }
+
+  @RequiresEdt
+  private def showConversionsPopup(
+    expr: ScExpression,
+    @Nullable implicitElement: PsiNamedElement,
+    conversions: Seq[PsiNamedElement],
+    editor: Editor,
+    project: Project,
+  ): Unit = {
+    val listModel = new DefaultListModel[Parameters]
+
+    //todo actualIndex should be another if conversionFun is not one
+    var actualIndex = -1
+    for (element <- conversions) {
+      val elem = Parameters(element, expr, project, editor, conversions)
+      listModel.addElement(elem)
+
+      if (element == implicitElement) {
+        actualIndex = listModel.indexOf(elem)
+      }
+    }
+
+    val list = new JBList[Parameters](listModel)
+    val renderer = new ScImplicitFunctionListCellRenderer(implicitElement, expr)
+
+    val font = editor.getColorsScheme.getFont(EditorFontType.PLAIN)
+    renderer.setFont(font)
+    list.setFont(font)
+
+    list.setCellRenderer(renderer)
+    list.getSelectionModel.addListSelectionListener(new ListSelectionListener {
+      override def valueChanged(e: ListSelectionEvent): Unit = {
+        hintAlarm.cancelAllRequests
+        val item = list.getSelectedValue
+        if (item == null) return
+        updateHint(item)
+      }
+    })
+
+    // NOTE: this creates some global static popup =/
+    val popup = MakeExplicitAction.createPopup(list)
+    popup.showInBestPositionFor(editor)
+
+    if (actualIndex >= 0 && actualIndex < list.getModel.getSize) {
+      list.getSelectionModel.setSelectionInterval(actualIndex, actualIndex)
+      list.ensureIndexIsVisible(actualIndex)
+    }
+
+    hint = new LightBulbHint(editor, project, expr, conversions)
+  }
+
 
   private def updateHint(element: Parameters): Unit = {
     if (element.newExpression == null || !element.newExpression.isValid) return
@@ -189,7 +234,7 @@ final class ShowImplicitConversionsAction(cs: CoroutineScope) extends AnAction(
     }, 500)
   }
 
-  class LightBulbHint(editor: Editor, project: Project, expr: ScExpression, elements: Seq[PsiNamedElement]) extends JLabel {
+  private class LightBulbHint(editor: Editor, project: Project, expr: ScExpression, elements: Seq[PsiNamedElement]) extends JLabel {
     private final val INACTIVE_BORDER: Border = BorderFactory.createEmptyBorder(4, 4, 4, 4)
     private final val ACTIVE_BORDER: Border =
       BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(JBColor.BLACK, 1),
