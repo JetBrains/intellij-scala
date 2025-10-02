@@ -85,7 +85,7 @@ class ShowTypeInfoAction extends AnAction(
     TaskRunnerWithLoadingProgress.runTask(
       project = project,
       backgroundAction = backgroundAction,
-      continuationConsumer = onUiThreadConsumer,
+      uiDataConsumer = onUiThreadConsumer,
       progressTitle = ScalaBundle.message("calculating.type.info"),
       editor = editor,
       // I decided not to cancel the tooltip on scrolling - if it takes long to compute the types in complex code bases,

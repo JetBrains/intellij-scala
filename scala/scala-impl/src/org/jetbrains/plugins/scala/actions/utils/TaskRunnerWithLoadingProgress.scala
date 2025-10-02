@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.actions.utils
 
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.application.{ModalityState, NonBlockingReadAction}
+import com.intellij.openapi.application.{ModalityState, NonBlockingReadAction, ReadAction}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.impl.EditorImpl
 import com.intellij.openapi.project.Project
@@ -43,6 +43,32 @@ private[actions] object TaskRunnerWithLoadingProgress {
 
   private def getFocusOwner(project: Project): Component = IdeFocusManager.getInstance(project).getFocusOwner
 
+  def runSingleInstanceTask[T](
+    project: Project,
+    backgroundDataSupplier: () => T,
+    uiDataConsumer: T => Unit,
+    @Nullable @NlsContexts.ProgressTitle
+    progressTitle: String,
+    editor: Editor,
+    cancelOnScrolling: Boolean,
+    coalesceObject: AnyRef
+  ): Unit = {
+    val backgroundAction = ReadAction
+      .nonBlocking[T](() => {
+        backgroundDataSupplier()
+      })
+      .coalesceBy(coalesceObject)
+
+    TaskRunnerWithLoadingProgress.runTask(
+      project = project,
+      backgroundAction = backgroundAction,
+      uiDataConsumer = result => uiDataConsumer(result),
+      progressTitle = progressTitle,
+      editor = editor,
+      cancelOnScrolling = cancelOnScrolling
+    )
+  }
+
   /**
    * @param progressTitle     null means no loading panel should be shown
    * @param cancelOnScrolling cancel execution on scrolling
@@ -50,7 +76,7 @@ private[actions] object TaskRunnerWithLoadingProgress {
   def runTask[T](
     project: Project,
     backgroundAction: NonBlockingReadAction[T],
-    continuationConsumer: Consumer[_ >: T],
+    uiDataConsumer: Consumer[_ >: T],
     @Nullable @NlsContexts.ProgressTitle
     progressTitle: String,
     editor: Editor,
@@ -83,7 +109,7 @@ private[actions] object TaskRunnerWithLoadingProgress {
         //TODO: same applies here?
         val focusHasNotChangedSinceActionInvocation = Objects.equals(originalFocusOwner, focusOwner)
         if (focusHasNotChangedSinceActionInvocation) {
-          continuationConsumer.accept(result)
+          uiDataConsumer.accept(result)
         }
       }
     }
