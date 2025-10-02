@@ -81,8 +81,7 @@ final class ShowImplicitConversionsAction(cs: CoroutineScope) extends AnAction(
       progressTitle = ScalaBundle.message("searching.for.action.target.expressions"),
       editor = editor,
       // I decided not to cancel the tooltip on scrolling - if it takes long to compute the types in complex code bases,
-      // it can be annoying that you can't even scroll the file... On the other hand, the final tooltip with the type hint
-      // will be hidden once you scroll, so the behavior is not 100% consistent =/
+      // it can be annoying that you can't even scroll the file...
       cancelOnScrolling = false,
       originalAction = ShowImplicitConversionsAction.this
     )
@@ -110,8 +109,7 @@ final class ShowImplicitConversionsAction(cs: CoroutineScope) extends AnAction(
       progressTitle = ScalaBundle.message("searching.for.implicit.conversions"),
       editor = editor,
       // I decided not to cancel the tooltip on scrolling - if it takes long to compute the types in complex code bases,
-      // it can be annoying that you can't even scroll the file... On the other hand, the final tooltip with the type hint
-      // will be hidden once you scroll, so the behavior is not 100% consistent =/
+      // it can be annoying that you can't even scroll the file...
       cancelOnScrolling = false,
       originalAction = ShowImplicitConversionsAction.this
     )
