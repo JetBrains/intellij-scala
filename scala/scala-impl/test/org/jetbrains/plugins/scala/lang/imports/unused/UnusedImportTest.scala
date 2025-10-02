@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.lang.imports.unused
 
 import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
-import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
+import org.jetbrains.plugins.scala.util.assertions.MatcherAssertionsExt
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
-abstract class UnusedImportTest_Common_2 extends UnusedImportTestBase with MatcherAssertions {
+abstract class UnusedImportTest_Common_2 extends UnusedImportTestBase with MatcherAssertionsExt {
 
   def testTwoUnusedSelectorsOnSameLine(): Unit = {
     val text =
@@ -823,7 +823,7 @@ class UnusedImportTest_213_XSource3 extends UnusedImportTest_Common_2 {
   }
 }
 
-final class UnusedImportTest_3 extends UnusedImportTestBase with MatcherAssertions {
+final class UnusedImportTest_3 extends UnusedImportTestBase with MatcherAssertionsExt{
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
 
   // SCL-20097

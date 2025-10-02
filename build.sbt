@@ -64,7 +64,9 @@ lazy val scalaCommunity: sbt.Project =
       structureView % "test->test;compile->compile",
       sbtImpl % "test->test;compile->compile",
       sbtProjectImportingTests % "test->test",
+      bspIntegrationTests % "test->test",
       compilerIntegration % "test->test;compile->compile",
+      compilerIntegrationServerManagement % "test->test;compile->compile",
       scalaCompilerPluginTests % "test->test;compile->compile",
       debugger % "test->test;compile->compile",
       testingSupport % "test->test;compile->compile",
@@ -121,10 +123,8 @@ lazy val pluginXml = newProject("pluginXml", file("pluginXml"))
     },
   )
 
-lazy val scalaApi = newProject(
-  "scala-api",
-  file("scala/scala-api")
-).settings(
+lazy val scalaApi = newProject("scala-api", file("scala/scala-api"))
+  .settings(
   idePackagePrefix := Some("org.jetbrains.plugins.scala")
 )
 
@@ -143,7 +143,12 @@ lazy val sbtKotlinUtils = newProjectWithKotlin("sbt-kotlin-utils", file("sbt/sbt
 
 lazy val sbtApi =
   newProject("sbt-api", file("sbt/sbt-api"))
-    .dependsOn(scalaApi, compilerShared, workspaceEntities)
+    .dependsOn(
+      scalaApi,
+      compilerShared,
+      workspaceEntities,
+      testUtilsCommon % "test->test"
+    )
     .enablePlugins(BuildInfoPlugin)
     .settings(
       buildInfoPackage := "org.jetbrains.sbt.buildinfo",
@@ -295,7 +300,8 @@ lazy val scalaImpl: sbt.Project =
       scalatestFinders,
       runners,
       testRunners,
-      packageSearchClient % "test->test;compile->compile"
+      packageSearchClient % "test->test;compile->compile",
+      testUtilsCommon % "test->test"
     )
     .settings(
       ideExcludedDirectories := Seq(
@@ -384,6 +390,15 @@ lazy val scalaLanguageUtilsRt: sbt.Project =
       packageMethod := PackagingMethod.Standalone("lib/utils_rt.jar", static = true),
     )
 
+/**
+ * The modules contain common test utilities that can be used from any other module.
+ * It only has dependency on the plain Scala and on the JUnit test framework.
+ * It doesn't have any dependencies on IntelliJ SDK entities or test framework.
+ */
+lazy val testUtilsCommon: sbt.Project =
+  newPlainScalaProject("test-utils-common", file("scala/test-utils-common"))
+    .projectWithTestsOnly
+
 lazy val sbtImpl =
   newProject("sbt-impl", file("sbt/sbt-impl"))
     .dependsOn(
@@ -400,15 +415,17 @@ lazy val sbtImpl =
 
 lazy val sbtProjectImportingTests =
   newProject("sbt-project-importing-tests", file("sbt/sbt-project-importing-tests"))
+    .projectWithTestsOnly
     .dependsOn(
       sbtImpl % "compile->compile;test->test",
       // this dependency is added primarily use CompileServerLauncher from sbt importing test (to shut it down)
-      compilerIntegration
+      compilerIntegrationServerManagement % "compile->compile;test->test",
     )
 
 lazy val compilerIntegration =
   newProject("compiler-integration", file("scala/compiler-integration"))
     .dependsOn(
+      compilerIntegrationServerManagement % "test->test;compile->compile",
       scalaImpl % "test->test;compile->compile",
       codeInsight % "test->test;compile->compile",
       sbtImpl % "test->test;compile->compile",
@@ -417,6 +434,16 @@ lazy val compilerIntegration =
       bsp
     )
     .settings(
+      packageMethod := PackagingMethod.PluginModule("scalaCommunity.compiler-integration")
+    )
+
+lazy val compilerIntegrationServerManagement =
+  newProject("compiler-integration-server-management", file("scala/compiler-integration-server-management"))
+    .dependsOn(
+      scalaImpl % "test->test;compile->compile",
+    )
+    .settings(
+      // It's fine to merge it into the same module
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.compiler-integration")
     )
 
@@ -726,7 +753,8 @@ lazy val bsp =
     .enablePlugins(BuildInfoPlugin)
     .dependsOn(
       scalaImpl % "test->test;compile->compile",
-      sbtImpl % "test->test;compile->compile"
+      sbtImpl % "test->test;compile->compile",
+      compilerIntegrationServerManagement % "test->test;compile->compile",
     )
     .settings(
       libraryDependencies ++= DependencyGroups.bsp,
@@ -734,6 +762,14 @@ lazy val bsp =
       buildInfoKeys := Seq("bloopVersion" -> Versions.bloopVersion),
       buildInfoOptions += BuildInfoOption.ConstantValue,
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.bsp"),
+    )
+
+lazy val bspIntegrationTests =
+  newProject("bsp-integration-tests", file("bsp-builtin/bsp-integration-tests"))
+    .projectWithTestsOnly
+    .dependsOn(
+      bsp % "compile->compile;test->test",
+      compilerIntegration % "compile->compile;test->test",
     )
 
 lazy val scalaCli =

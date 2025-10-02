@@ -5,9 +5,9 @@ import org.junit.Assert
 trait FailableTest {
 
   /**
-    * A hook to allow tests that are currently failing to pass when they fail and vice versa.
-    * @return
-    */
+   * A hook to allow tests that are currently failing to pass when they fail and vice versa.
+   * @return
+   */
   protected def shouldPass: Boolean = true
 
   protected def assertEqualsFailable(expected: AnyRef, actual: AnyRef): Unit = {

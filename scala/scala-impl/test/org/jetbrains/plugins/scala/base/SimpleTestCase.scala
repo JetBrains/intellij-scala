@@ -5,13 +5,12 @@ import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
 import com.intellij.testFramework.fixtures._
 import com.intellij.testFramework.{LightProjectDescriptor, UsefulTestCase}
-import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.ProjectContext
-import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
+import org.jetbrains.plugins.scala.util.assertions.MatcherAssertionsExt
 
-abstract class SimpleTestCase extends UsefulTestCase with MatcherAssertions with ScalaCodeParsing {
+abstract class SimpleTestCase extends UsefulTestCase with MatcherAssertionsExt with ScalaCodeParsing {
 
   var fixture: CodeInsightTestFixture = _
 

@@ -41,10 +41,12 @@ object ScClassFileDecompiler {
 
     override val getStubVersion = 475
 
-    override def buildFileStub(content: FileContent): stubs.PsiFileStubImpl[_ <: PsiFile] =
-      decompiledScalaFile(content)
+    override def buildFileStub(content: FileContent): stubs.PsiFileStubImpl[_ <: PsiFile] = {
+      val psiFile = decompiledScalaFile(content)
+      psiFile
         .map((if (isTasty(content.getFile)) stub3Builder else stub2Builder).buildStubTree)
         .orNull
+    }
 
     private def stub2Builder =
       LanguageParserDefinitions.INSTANCE
@@ -61,20 +63,27 @@ object ScClassFileDecompiler {
         .getBuilder
   }
 
-  private def decompiledScalaFile(content: FileContent): Option[PsiFile] = content.getFile match {
-    case original if isTasty(content.getFile) || isTopLevelScalaClass(original) =>
-      sourceNameAndText(original, content.getContent).map {
-        case (sourceName, sourceText) => PsiFileFactory.getInstance(content.getProject).createFileFromText(
+  private def decompiledScalaFile(content: FileContent): Option[PsiFile] = {
+    val file = content.getFile
+    //TODO: the `isTopLevelScalaClass` check seems to be causing SCL-24273
+    // we need to carefully fix it ensuring no performance regression reappears SCL-15202
+    if (isTasty(file) || isTopLevelScalaClass(file)) {
+      val nameAndText = sourceNameAndText(file, content.getContent)
+      nameAndText.map { case (sourceName, sourceText) =>
+        val language = if (isTasty(file)) Scala3Language.INSTANCE else ScalaLanguage.INSTANCE
+        val psiFile = PsiFileFactory.getInstance(content.getProject).createFileFromText(
           sourceName,
-          if (isTasty(content.getFile)) Scala3Language.INSTANCE else ScalaLanguage.INSTANCE,
+          language,
           sourceText,
           true,
           false,
           false,
-          original
+          file
         )
+        psiFile
       }
-    case _ => None
+    }
+    else None
   }
 
 
@@ -88,7 +97,7 @@ object ScClassFileDecompiler {
     }
 
   private final class NonScalaClassFileViewProvider(manager: PsiManager, file: VirtualFile,
-                                                          eventSystemEnabled: Boolean, language: Language)
+                                                    eventSystemEnabled: Boolean, language: Language)
     extends SingleRootFileViewProvider(manager, file, eventSystemEnabled, language) {
 
     override def createFile(project: Project,
@@ -103,6 +112,8 @@ object ScClassFileDecompiler {
 
   private def isTopLevelScalaClass(file: VirtualFile): Boolean = topLevelScalaClassFor(file).contains(file.getNameWithoutExtension)
 
+  //TODO: see comments inside, it seems like this logic is not relevant.
+  // It's perfectly fine to have 2 top-level classes named `SourceInfo` and ``SourceInfo$Impl` (Impl is NOT the inner class in this case)
   private def topLevelScalaClassFor(file: VirtualFile): Option[String] = {
     val extension = file.getExtension
     val classFileExtension = JavaClassFileType.INSTANCE.getDefaultExtension
@@ -110,21 +121,26 @@ object ScClassFileDecompiler {
     extension match {
       case "sig" => Some(file.getNameWithoutExtension)
       case `classFileExtension` =>
-        file.getParent match {
-          case null => None
-          case directory =>
-            def hasDecompilableChild(nameWithoutExtension: String) =
-              directory.findChild(nameWithoutExtension + '.' + classFileExtension) match {
-                case null => false
-                case child => tryDecompile(child).isDefined
-              }
-
-            val fileName = file.getNameWithoutExtension
-            new PrefixIterator(fileName).find { prefix =>
-              !prefix.endsWith("$") &&
-                hasDecompilableChild(prefix)
+        val containingDirectory = file.getParent
+        if (containingDirectory != null) {
+          def hasDecompilableChild(nameWithoutExtension: String) =
+            containingDirectory.findChild(nameWithoutExtension + '.' + classFileExtension) match {
+              case null => false
+              case child => tryDecompile(child).isDefined
             }
+
+          val fileName = file.getNameWithoutExtension
+          val dollarPrefixes = new DollarSeparatedFileNamePrefixesIterator(fileName)
+          val siblingPrefixClassFileName = dollarPrefixes.find { prefix =>
+            // TODO: this check seems to be incorrect
+            //  It's perfectly fine to have 2 top-level classes named `SourceInfo` and ``SourceInfo$Impl`
+            //  and `Impl` won't be the inner class in this case)
+            !prefix.endsWith("$") &&
+              hasDecompilableChild(prefix)
+          }
+          siblingPrefixClassFileName
         }
+        else None
       case _ => None
     }
   }
@@ -139,12 +155,20 @@ object ScClassFileDecompiler {
       return false
     }
 
-    new PrefixIterator(file.getNameWithoutExtension).exists { name =>
-      directory.findChild(s"$name.${TastyFileType.getDefaultExtension}") != null
+    val dollarPrefixes = new DollarSeparatedFileNamePrefixesIterator(file.getNameWithoutExtension)
+    dollarPrefixes.exists { name =>
+      val child = directory.findChild(s"$name.${TastyFileType.getDefaultExtension}")
+      child != null
     }
   }
 
-  private[this] class PrefixIterator(private val fileName: String) extends Iterator[String] {
+  //Examples:
+  //   A     -> A
+  //   A$    -> A, A$
+  //   A$B   -> A, A$B
+  //   A$B$  -> A, A$B, A$B$
+  //   A$B$C -> A, A$B, A$B$C
+  private[this] class DollarSeparatedFileNamePrefixesIterator(private val fileName: String) extends Iterator[String] {
 
     import reflect.NameTransformer._
 
