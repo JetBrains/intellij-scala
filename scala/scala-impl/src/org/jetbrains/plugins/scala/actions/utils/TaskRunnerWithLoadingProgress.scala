@@ -93,31 +93,41 @@ private[actions] object TaskRunnerWithLoadingProgress {
     val (stopAction, stopActionDisposable) =
       startProgressAndCreateStopAction(project, progressTitle, cancellablePromiseRef, editor, editorOrProjectDisposable)
 
+    val originalFocusOwner = getFocusOwner(project)
+
+    def actionNotCancelledAndFocusIsNotLost: Boolean = {
+      val cancellablePromise = cancellablePromiseRef.get()
+      val actionSucceeded = cancellablePromise != null && cancellablePromise.isSucceeded
+
+      // NOTE: this check is probably redundant, because if we cancel the action and if the progress tooltip is disposed,
+      // it should automatically cancel the ReadAction, which is achieved by NonBlockingReadAction.expireWith method
+      // It was originally in the ParameterInfoTaskRunnerUtil, but it doesn't cancel the computation on loading progress disposal
+      if (actionSucceeded) {
+        val focusOwner = getFocusOwner(project)
+
+        // NOTE: this check is probably redundant, because if we change the focus, it should cancel the loading Action
+        // (as per logic in startProgressAndCreateStopAction and JBPopupFactory.createComponentPopupBuilder)
+        // And this in its turn cancels the read action (see the above comment)
+        Objects.equals(originalFocusOwner, focusOwner)
+      }
+      else false
+    }
+
+    val uiDataConsumerWithCancellationCheck: Consumer[_ >: T] = result => {
+      if (actionNotCancelledAndFocusIsNotLost) {
+        uiDataConsumer.accept(result)
+      }
+    }
+
     val visibleAreaListener = new CancelProgressOnScrolling(cancellablePromiseRef)
     if (cancelOnScrolling) {
       editor.getScrollingModel.addVisibleAreaListener(visibleAreaListener)
     }
 
-    val originalFocusOwner = getFocusOwner(project)
-
-    val continuationConsumerPatched: Consumer[_ >: T] = result => {
-      val promise = cancellablePromiseRef.get()
-      val actionWasNotCancelled = promise != null && promise.isSucceeded
-      //TODO: this check will probably not needed if we just cancel the computation together with the progress action disposal?
-      if (actionWasNotCancelled) {
-        val focusOwner = getFocusOwner(project)
-        //TODO: same applies here?
-        val focusHasNotChangedSinceActionInvocation = Objects.equals(originalFocusOwner, focusOwner)
-        if (focusHasNotChangedSinceActionInvocation) {
-          uiDataConsumer.accept(result)
-        }
-      }
-    }
-
     val submittedActionPromise = backgroundAction
       .finishOnUiThread(
         ModalityState.defaultModalityState(),
-        continuationConsumerPatched
+        uiDataConsumerWithCancellationCheck
       )
       .expireWith(editorOrProjectDisposable)
       // If there is a progress tooltip, expire the task if we cancel it (via Escape key or on focus change)
@@ -133,6 +143,9 @@ private[actions] object TaskRunnerWithLoadingProgress {
     cancellablePromiseRef.set(submittedActionPromise)
   }
 
+  /**
+   * @note Again, the implementation is copied from `com.intellij.codeInsight.hint.ParameterInfoTaskRunnerUtil`
+   */
   private def startProgressAndCreateStopAction(
     project: Project,
     @Nullable @NlsContexts.ProgressTitle
