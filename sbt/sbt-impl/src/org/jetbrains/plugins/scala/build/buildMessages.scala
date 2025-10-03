@@ -85,7 +85,7 @@ case object BuildMessages {
       new AnsiEscapeDecoder().escapeText(message, ProcessOutputTypes.STDOUT, (text, _) => builder.append(text))
       val result = builder.result()
       if (stripDeckpnm) {
-        result.replace("\u001b>", "")
+        result.replace("\u001b>", "") // \u001b - ESC (Escape) character in Unicode
       } else {
         result
       }
