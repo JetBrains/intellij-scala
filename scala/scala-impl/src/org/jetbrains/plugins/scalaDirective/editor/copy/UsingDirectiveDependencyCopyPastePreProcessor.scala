@@ -13,12 +13,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scalaDirective.dependencies.ScalaDirectiveDependencyKeys
-import org.jetbrains.plugins.scalaDirective.editor.copy.DependencyCopyPastePreProcessor.{extractDependencyDirectivePrefix, parseSbtDependencies, scheduleCompletion}
+import org.jetbrains.plugins.scalaDirective.editor.copy.UsingDirectiveDependencyCopyPastePreProcessor.{extractDependencyDirectivePrefix, parseSbtDependencies, scheduleCompletion}
 import org.jetbrains.plugins.scalaDirective.lang.completion.{DirectivePrefix, UsingDirective}
 import org.jetbrains.plugins.scalaDirective.lang.lexer.ScalaDirectiveTokenTypes
 import org.jetbrains.plugins.scalaDirective.psi.api.ScDirective
 
-final class DependencyCopyPastePreProcessor extends CopyPastePreProcessor {
+final class UsingDirectiveDependencyCopyPastePreProcessor extends CopyPastePreProcessor {
   override def preprocessOnCopy(file: PsiFile, startOffsets: Array[Int], endOffsets: Array[Int], text: String): String = null
 
   override def preprocessOnPaste(project: Project, file: PsiFile, editor: Editor, text: String, rawText: RawText): String = {
@@ -56,7 +56,7 @@ final class DependencyCopyPastePreProcessor extends CopyPastePreProcessor {
   }
 }
 
-object DependencyCopyPastePreProcessor {
+object UsingDirectiveDependencyCopyPastePreProcessor {
   private def scheduleCompletion(project: Project, editor: Editor, file: PsiFile): Unit = invokeLater {
     AutoPopupController.getInstance(project).scheduleAutoPopup(
       editor,
