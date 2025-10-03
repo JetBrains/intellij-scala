@@ -17,8 +17,6 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
   override def collectTransferableData(startOffsets: Array[Int], endOffsets: Array[Int])
                                       (implicit file: PsiFile,
                                        editor: Editor): Option[Associations] = {
-    if (!RichCopySettings.getInstance().isEnabled)
-      return None //// copy as plain text
     if (DumbService.getInstance(file.getProject).isDumb)
       return None
 
@@ -29,6 +27,11 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
       case _ =>
         return None
     }
+
+    // Don't even try to collect imports information when the feature is disabled to save CPU resources
+    // (the similar thing is done in com.intellij.codeInsight.editorActions.AbstractJavaCopyPasteReferenceProcessor)
+    if (ScalaApplicationSettings.getInstance.ADD_IMPORTS_ON_PASTE == CodeInsightSettings.NO)
+      return None
 
     val ranges = startOffsets.zip(endOffsets).map {
       case (startOffset, endOffset) => TextRange.create(startOffset, endOffset)

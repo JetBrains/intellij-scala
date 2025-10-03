@@ -1,24 +1,24 @@
 package org.jetbrains.plugins.scala.actions
 
 import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent, CommonDataKeys}
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiUtilBase
 import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
+import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.actions.utils.TaskRunnerWithLoadingProgress
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, Parent, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, TypePresentationContext}
 
-import java.awt.Toolkit
 import java.awt.datatransfer.StringSelection
-import java.util.concurrent.ConcurrentHashMap
 import scala.annotation.tailrec
 
 final class CopyTypeAction extends AnAction(ScalaBundle.message("copy.scala.type")) {
@@ -26,23 +26,39 @@ final class CopyTypeAction extends AnAction(ScalaBundle.message("copy.scala.type
 
   override def update(e: AnActionEvent): Unit = {
     e.getPresentation.setVisible(isInScalaFile(e))
-    e.getPresentation.setEnabled(getTypeableElement(e).isDefined)
+
+    val typeableElement = getSelectedTypeableElement(e)
+    e.getPresentation.setEnabled(typeableElement.isDefined)
   }
 
   override def actionPerformed(event: AnActionEvent): Unit = {
-    val typeableElement = getTypeableElement(event)
-    typeableElement.foreach { case (e, t) =>
-      implicit val tpc: TypePresentationContext = TypePresentationContext(e)
-      implicit val context: Context = Context(e)
+    val project = event.getProject
+    if (project == null)
+      return
 
-      val text = t.presentableText
-      if (ApplicationManager.getApplication.isUnitTestMode) {
-        CopyTypeAction.copyToClipboardListeners.values().forEach(_(text))
-      } else {
-        val clipboard = Toolkit.getDefaultToolkit.getSystemClipboard
-        clipboard.setContents(new StringSelection(text), null)
-      }
-    }
+    val editor = event.getData(CommonDataKeys.EDITOR)
+    if (editor == null)
+      return
+
+    TaskRunnerWithLoadingProgress.runSingleInstanceActionTask[Option[String]](
+      project = project,
+      backgroundDataSupplier = () => {
+        val typeableElement = getSelectedTypeableElement(event)
+        for {
+          element <- typeableElement
+          typeText <- getElementTypePresentation(element)
+        } yield typeText
+      },
+      uiDataConsumer = typeTextOpt => {
+        typeTextOpt.foreach { text =>
+          CopyPasteManager.getInstance.setContents(new StringSelection(text))
+        }
+      },
+      progressTitle = ScalaBundle.message("calculating.type"),
+      editor = editor,
+      cancelOnScrolling = false,
+      originalAction = this
+    )
   }
 
   private def isInScalaFile(e: AnActionEvent): Boolean = {
@@ -57,40 +73,45 @@ final class CopyTypeAction extends AnAction(ScalaBundle.message("copy.scala.type
     }
   }
 
-  private def getTypeableElement(e: AnActionEvent): Option[(ScalaPsiElement with Typeable, ScType)] = {
+  @RequiresBackgroundThread // can involve heavy resolution in complex code bases
+  private def getElementTypePresentation(element: ScalaPsiElement with Typeable): Option[String] = {
+    val typeResult = element match {
+      case expr: ScExpression =>
+        expr.getTypeWithoutImplicits(ignoreBaseType = true)
+      case _ =>
+        element.`type`()
+    }
+    typeResult.toOption.map { typ =>
+      implicit val tpc: TypePresentationContext = TypePresentationContext(element)
+      implicit val context: Context = Context(element)
+
+      val typeProcessed = typ.removeAliasDefinitions().tryExtractDesignatorSingleton
+
+      typeProcessed.presentableText
+    }
+  }
+
+  private def getSelectedTypeableElement(e: AnActionEvent): Option[ScalaPsiElement with Typeable] = {
     val context = e.getDataContext
     implicit val project: Project = CommonDataKeys.PROJECT.getData(context)
     implicit val editor: Editor = CommonDataKeys.EDITOR.getData(context)
 
-    if (project == null || editor == null) return None
+    if (project == null || editor == null)
+      return None
 
     val file = PsiUtilBase.getPsiFileInEditor(editor, project) match {
       case file: ScalaFile => file
-      case _ => return None
+      case _ =>
+        return None
     }
     val selectionModel = editor.getSelectionModel
     val startOffset = selectionModel.getSelectionStart
     val endOffset = selectionModel.getSelectionEnd
 
-    def preprocessType(ty: ScType)(implicit context: Context): ScType =
-      ty.removeAliasDefinitions().tryExtractDesignatorSingleton
-
-    getSelectedElement(startOffset, endOffset, file)
-      .flatMap {
-        case e: ScExpression =>
-          implicit val context: Context = Context(e)
-
-          e.getTypeWithoutImplicits(ignoreBaseType = true)
-            .toOption
-            .map(e -> preprocessType(_))
-        case e =>
-          implicit val context: Context = Context(e)
-
-          e.`type`().toOption.map(e -> preprocessType(_))
-      }
+    getSelectedTypeableElement(startOffset, endOffset, file)
   }
 
-  private def getSelectedElement(start: Int, end: Int, file: ScalaFile): Option[ScalaPsiElement with Typeable] = {
+  private def getSelectedTypeableElement(start: Int, end: Int, file: ScalaFile): Option[ScalaPsiElement with Typeable] = {
     @tailrec
     @Nullable
     def skipWsAndCommend(@Nullable e: PsiElement, next: PsiElement => PsiElement): PsiElement = e match {
@@ -139,12 +160,4 @@ final class CopyTypeAction extends AnAction(ScalaBundle.message("copy.scala.type
 
 object CopyTypeAction {
   val ActionId: String = "Scala.CopyType"
-
-  private val copyToClipboardListeners: ConcurrentHashMap[Any, String => Unit] = new ConcurrentHashMap
-  private[actions] def withUnitTestClipboardListener[T](listener: String => Unit)(body: => T): T = {
-    val token = new Object
-    copyToClipboardListeners.put(token, listener)
-    try body
-    finally copyToClipboardListeners.remove(token)
-  }
 }
