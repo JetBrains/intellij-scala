@@ -2,29 +2,25 @@ package org.jetbrains.sbt.shell
 
 import com.intellij.execution.Executor
 import com.intellij.execution.configurations.RemoteConnection
-import com.intellij.execution.console._
-import com.intellij.execution.process.{ColoredProcessHandler, OSProcessHandler, ProcessHandler}
+import com.intellij.execution.console.*
+import com.intellij.execution.process.{OSProcessHandler, ProcessHandler}
 import com.intellij.execution.runners.AbstractConsoleRunnerWithHistory
 import com.intellij.execution.ui.RunContentDescriptor
-import com.intellij.openapi.actionSystem._
+import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.application.{ApplicationManager, WriteIntentReadAction}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.ex.util.EditorUtil
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.wm.ToolWindow
 import com.intellij.ui.content.impl.ContentImpl
-import com.intellij.ui.content.{Content, ContentFactory}
-import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.extensions.{executeOnPooledThread, invokeLater}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.statistics.SbtShellCommandsUsagesCollector
 import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.icons.Icons
 
-import java.awt.BorderLayout
 import java.util
-import javax.swing.{Icon, JLabel, JPanel, SwingConstants}
-import scala.jdk.CollectionConverters._
+import javax.swing.{Icon, JLabel, SwingConstants}
+import scala.jdk.CollectionConverters.*
 
 final class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Option[RemoteConnection])
   extends AbstractConsoleRunnerWithHistory[SbtShellConsoleView](project, consoleTitle, project.baseDir.getCanonicalPath) {
@@ -39,7 +35,7 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
   // SbtProcessManager is solely responsible for destroying/respawning
   // TODO: why is this lazy val? acquireShellProcessHandler can create a new process handler process data with
   //  new process handler, new data and new runner!!
-  private lazy val myProcessHandler: ColoredProcessHandler =
+  private lazy val myProcessHandler: OSProcessHandler =
     SbtProcessManager.forProject(project)
       .acquireShellProcessHandler()
 
@@ -64,7 +60,7 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
         val label = new JLabel(SbtBundle.message("initializing.sbt.shell.message"), SwingConstants.CENTER)
         label.setOpaque(true)
         //noinspection ScalaExtractStringToBundle
-        setContent(toolWindow, new ContentImpl(label, "", false))
+        SbtShellToolWindowFactory.setContent(toolWindow, new ContentImpl(label, "", false))
       }
     }
   }
@@ -112,7 +108,11 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
 
     SbtShellCommunication.forProject(project).initCommunication(myProcessHandler)
 
-    initSbtShellUi(consoleView)
+    SbtShellToolWindowFactory.initUi(
+      project,
+      actionGroup = consoleView.createActionGroup(),
+      component = consoleView.getComponent
+    )
   }
 
   // TODO update icon with ready/working state
@@ -136,42 +136,6 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
       }
     )
   }
-
-  private def initSbtShellUi(consoleView: SbtShellConsoleView): Unit = {
-    SbtShellToolWindowFactory.instance(using project).foreach { toolWindow =>
-      invokeLater {
-        val content = createToolWindowContent(consoleView)
-        setContent(toolWindow, content)
-      }
-    }
-  }
-
-  private def createToolWindowContent(consoleView: SbtShellConsoleView): Content = {
-    log.debug("createToolWindowContent")
-
-    val actionGroup = consoleView.createActionGroup()
-    val actionToolBar = ActionManager.getInstance().createActionToolbar("sbt-shell-toolbar", actionGroup, false)
-
-    val toolbarPanel = new JPanel()
-    toolbarPanel.setLayout(new BorderLayout)
-    toolbarPanel.add(actionToolBar.getComponent)
-
-    val mainPanel = new JPanel()
-    mainPanel.setLayout(new BorderLayout)
-    mainPanel.add(toolbarPanel, BorderLayout.WEST)
-    mainPanel.add(consoleView.getComponent, BorderLayout.CENTER)
-    actionToolBar.setTargetComponent(mainPanel)
-
-    //noinspection ScalaExtractStringToBundle
-    val content = ContentFactory.getInstance.createContent(mainPanel, "sbt-shell-toolwindow-content", true)
-    val toolWindowTitle = project.getName
-    content.setTabName(toolWindowTitle)
-    content.setDisplayName(toolWindowTitle)
-    content.setToolwindowTitle(toolWindowTitle)
-
-    content
-  }
-
 
   override def createExecuteActionHandler(): SbtShellExecuteActionHandler = {
     val historyController = new ConsoleHistoryController(SbtShellRootType, null, getConsoleView)
@@ -198,8 +162,6 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
   def openShell(focus: Boolean): Unit =
     SbtShellRunner.openShell(focus, project)
 
-  def getDebugConnection: Option[RemoteConnection] = debugConnection
-
   object SbtShellRootType extends ConsoleRootType("sbt.shell", getConsoleTitle)
 
   class SbtShellExecuteActionHandler(processHandler: ProcessHandler)
@@ -222,13 +184,6 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
       val trimmed = line.trim
       trimmed == "test" || trimmed.startsWith("testOnly") || trimmed.startsWith("testQuick")
     }
-  }
-
-  private def setContent(toolWindow: ToolWindow, @NotNull content: Content): Unit = {
-    log.trace("setContent")
-    val twContentManager = toolWindow.getContentManager
-    twContentManager.removeAllContents(true)
-    twContentManager.addContent(content)
   }
 }
 

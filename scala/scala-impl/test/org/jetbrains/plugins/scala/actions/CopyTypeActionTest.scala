@@ -1,17 +1,38 @@
 package org.jetbrains.plugins.scala.actions
 
+import com.intellij.openapi.ide.CopyPasteManager
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers.AssertMatchersExt
 
-class CopyTypeActionTest extends ScalaLightCodeInsightFixtureTestCase {
-  def doTest(text: String, expected: String): Unit = {
-    configureFromFileText(text)
-    var copied: String = null
-    CopyTypeAction.withUnitTestClipboardListener(copied = _) {
-      getFixture.performEditorAction(CopyTypeAction.ActionId)
-    }
+import java.awt.datatransfer.{DataFlavor, Transferable}
+import java.util.concurrent.atomic.AtomicReference
 
-    copied shouldBe expected
+class CopyTypeActionTest extends ScalaLightCodeInsightFixtureTestCase {
+
+  override def runInDispatchThread(): Boolean = false
+
+  def doTest(fileText: String, expectedCopiedText: String): Unit = {
+    configureFromFileText(fileText)
+
+    var actualCopiedText: String = null
+    CopyPasteManager.getInstance.addContentChangedListener((_: Transferable, newTransferable: Transferable) => {
+      if (actualCopiedText != null) {
+        // note: this might not fail the test, but the exception should be visible in the logs
+        throw new AssertionError("More than one content changed event was fired")
+      }
+      val copiedText = newTransferable.getTransferData(DataFlavor.stringFlavor).asInstanceOf[String]
+      actualCopiedText = copiedText
+    }, getTestRootDisposable)
+
+    ScalaAsyncActionTestUtils.invokeActionAndWaitForCompletion(
+      getProject,
+      classOf[org.jetbrains.plugins.scala.actions.CopyTypeAction],
+      () => {
+        getFixture.performEditorAction(CopyTypeAction.ActionId)
+      },
+    )
+
+    actualCopiedText shouldBe expectedCopiedText
   }
 
   def testClass(): Unit = doTest(
@@ -142,17 +163,17 @@ class CopyTypeActionTest extends ScalaLightCodeInsightFixtureTestCase {
     "Bar" // and not a.type
   )
 
-//  TODO: make this work and not give Nothing => Blub[Nothing].
-//        It's unfortunately not that easy to do and probably not tooo important :)
-//  def testGenericCall(): Unit = doTest(
-//    s"""
-//       |class Blub[T]
-//       |def foo[T](i: T): Blub[T] = ???
-//       |
-//       |fo${CARET}o(1)
-//       |""".stripMargin,
-//    "Int => Blub[Int]"
-//  )
+  //  TODO: make this work and not give Nothing => Blub[Nothing].
+  //        It's unfortunately not that easy to do and probably not tooo important :)
+  //  def testGenericCall(): Unit = doTest(
+  //    s"""
+  //       |class Blub[T]
+  //       |def foo[T](i: T): Blub[T] = ???
+  //       |
+  //       |fo${CARET}o(1)
+  //       |""".stripMargin,
+  //    "Int => Blub[Int]"
+  //  )
 
   def testInner(): Unit = doTest(
     s"""

@@ -14,8 +14,10 @@ class SbtDebugProgramRunner extends GenericDebuggerRunner with SbtProgramRunnerB
   override def createContentDescriptor(state: RunProfileState, environment: ExecutionEnvironment): RunContentDescriptor = {
     state match {
       case sbtState: SbtCommandLineState =>
-        if (sbtState.configuration.useSbtShell) SbtProcessManager.forProject(environment.getProject).acquireShellRunner().getDebugConnection.foreach {
-          connection =>
+        if (sbtState.configuration.useSbtShell) {
+          val processManager = SbtProcessManager.forProject(environment.getProject)
+          processManager.acquireShellProcessHandler()
+          processManager.debugConnection.foreach { connection =>
             import scala.concurrent.ExecutionContext.Implicits.global
 
             val state = new MyTrojanRemoteState(environment.getProject, connection)
@@ -25,6 +27,7 @@ class SbtDebugProgramRunner extends GenericDebuggerRunner with SbtProgramRunnerB
                 state.detach()
             }
             return attach
+          }
         } else super.createContentDescriptor(state, environment)
       case _ =>
     }

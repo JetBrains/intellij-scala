@@ -5,7 +5,7 @@ import com.intellij.execution.actions.ClearConsoleAction
 import com.intellij.execution.configurations.RemoteConnection
 import com.intellij.execution.console.LanguageConsoleImpl
 import com.intellij.execution.filters.UrlFilter.UrlFilterProvider
-import com.intellij.execution.filters._
+import com.intellij.execution.filters.*
 import com.intellij.openapi.actionSystem.{ActionGroup, AnAction, DefaultActionGroup}
 import com.intellij.openapi.application.{ApplicationManager, WriteIntentReadAction}
 import com.intellij.openapi.editor.actions.ToggleUseSoftWrapsToolbarAction
@@ -16,12 +16,11 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.IdeFocusManager
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.extensions.inWriteAction
-import org.jetbrains.sbt.shell.action._
+import org.jetbrains.sbt.shell.action.*
 
 import java.beans.{PropertyChangeEvent, PropertyChangeListener}
 import java.util.Collections
 import scala.annotation.nowarn
-import scala.collection.mutable
 
 final class SbtShellConsoleView private(project: Project, debugConnection: Option[RemoteConnection])
   extends LanguageConsoleImpl(project, SbtShellLanguage.getID, SbtShellLanguage) {
@@ -73,15 +72,13 @@ final class SbtShellConsoleView private(project: Project, debugConnection: Optio
 
   override def dispose(): Unit = {
     super.dispose()
-    SbtShellConsoleView.removeConsoleView(project)
+    ConsoleViewsRegistry.removeConsoleView(project)
     EditorFactory.getInstance().releaseEditor(getConsoleEditor)
   }
 
 }
 
 object SbtShellConsoleView {
-
-  private val lastConsoleViews: mutable.Map[Project, SbtShellConsoleView] = mutable.HashMap.empty
 
   def apply(project: Project, debugConnection: Option[RemoteConnection]): SbtShellConsoleView = {
     // Use write action as a workaround for SCL-23073,
@@ -117,19 +114,9 @@ object SbtShellConsoleView {
     forbidBorderFor(cv.getHistoryViewer)
     forbidBorderFor(cv.getConsoleEditor)
 
-    disposeLastConsoleView(project)
-    lastConsoleViews.put(project, cv)
+    ConsoleViewsRegistry.set(project, cv)
 
     cv
-  }
-
-  def disposeLastConsoleView(project: Project): Unit = {
-    lastConsoleViews.get(project).foreach(_.dispose())
-    lastConsoleViews.remove(project)
-  }
-
-  private def removeConsoleView(project: Project): Option[SbtShellConsoleView] = {
-    lastConsoleViews.remove(project)
   }
 
   private def filePatternFilters(project: Project) = {

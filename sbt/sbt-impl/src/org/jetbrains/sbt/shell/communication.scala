@@ -17,12 +17,13 @@ import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.extensions.LoggerExt
 import org.jetbrains.plugins.scala.isInternalMode
 import org.jetbrains.sbt.shell.LineListener.{LineSeparatorRegex, escapeNewLines}
-import org.jetbrains.sbt.shell.SbtProcessUtil._
-import org.jetbrains.sbt.shell.SbtShellCommunication._
+import org.jetbrains.sbt.shell.SbtProcessManager.isNewShell
+import org.jetbrains.sbt.shell.SbtProcessUtil.*
+import org.jetbrains.sbt.shell.SbtShellCommunication.*
 import org.jetbrains.sbt.shell.SbtShellLifecycle.{ShellState, ShellStateEvent}
 import org.jetbrains.sbt.{SbtBundle, SbtUtil, SbtVersion}
 
-import java.util.concurrent._
+import java.util.concurrent.*
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicReference
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -100,7 +101,7 @@ final class SbtShellCommunication(project: Project) {
       // during #initCommunication, when the shell becomes ready, and here.
       // Introducing an explicit "Start" state would likely be a solution.
       commands.put(qc)
-      process.acquireShellRunner()
+      process.acquireShellProcessHandler()
       emitShellStateEvent(ShellStateEvent.EnqueueCommand)
     }
 
@@ -192,7 +193,7 @@ final class SbtShellCommunication(project: Project) {
         commands.clear()
 
         if (!afterRestartCommands.isEmpty) {
-          process.acquireShellRunner()
+          process.acquireShellProcessHandler()
           moveAccumulatedCommandsToStandardQueue()
         }
         communicationActive.release()
@@ -404,7 +405,13 @@ final class SbtShellCommunication(project: Project) {
       messages.addError(msg)
 
     case Output(raw) =>
-      val text = raw.trim
+      // Stripping ansi codes in "old shell" mode is likely safe, but let's preserve the original behavior for safety
+      val text =
+        if (isNewShell)
+          BuildMessages.stripAnsiCodes(raw).trim
+        else
+          raw.trim
+
       processOutputBuilder.foreach(_.append(text))
 
       val isError = text `startsWith` ERROR_PREFIX
@@ -615,9 +622,18 @@ private[shell] object SbtProcessUtil {
   // Should be the same as in `org.jetbrains.sbt.constants.IDEA_PROMPT_MARKER`
   private val IDEA_PROMPT_MARKER = "[IJ]"
 
+  // TODO adjust it to the real prompt value SCL-24401
+  private val SHELL_COMMAND_PROMPT = "sbt:"
+
   // the prompt marker is inserted by the sbt-idea-shell plugin
-  def promptReady(line: String): Boolean =
-    line.trim.startsWith(IDEA_PROMPT_MARKER)
+  def promptReady(line: String): Boolean = {
+    val prompt =
+      if (isNewShell) SHELL_COMMAND_PROMPT
+      else IDEA_PROMPT_MARKER
+
+    val lineWithNoAnsi = BuildMessages.stripAnsiCodes(line, stripDeckpnm = isNewShell)
+    lineWithNoAnsi.trim.startsWith(prompt)
+  }
 
   def promptError(line: String): Boolean =
     line.trim.endsWith("(r)etry, (q)uit, (l)ast, or (i)gnore?")
@@ -637,6 +653,9 @@ private[shell] object SbtProcessUtil {
   */
 abstract class LineListener extends ProcessListener with AnsiEscapeDecoder.ColoredTextAcceptor {
   protected val log: Logger = Logger.getInstance(getClass)
+
+  @TestOnly
+  protected def testPrompt: Boolean = true
 
   def onLine(line: String): Unit
 
@@ -683,7 +702,7 @@ abstract class LineListener extends ProcessListener with AnsiEscapeDecoder.Color
     }
     else {
       val lastLineOption = lines.lastOption
-      val shouldFlushLastLine = lastLineOption.exists(line => promptReady(line) || promptError(line))
+      val shouldFlushLastLine = testPrompt && lastLineOption.exists(line => promptReady(line) || promptError(line))
       if (shouldFlushLastLine) {
         //NOTE: last line with IJ prompt or error might not have new line character in the end
         //But we still want it to be reported the line to detect that the console is "ready"

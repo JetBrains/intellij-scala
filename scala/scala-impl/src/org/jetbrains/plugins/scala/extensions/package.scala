@@ -49,7 +49,7 @@ import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiParameter
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
 import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, PsiTypedDefinitionWrapper, StaticPsiMethodWrapper}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, PsiTypeConstants}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, PsiTypeBridge, PsiTypeConstants}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, ScTypeExt, TermSignature}
@@ -1000,10 +1000,16 @@ package object extensions {
   }
 
   implicit class PsiTypeExt(@Nullable val `type`: PsiType) extends AnyVal {
-    def toScType(paramTopLevel: Boolean = false,
-                 treatJavaObjectAsAny: Boolean = true)
-                (implicit project: ProjectContext): ScType =
+    def toScType(
+      paramTopLevel: Boolean = false,
+      treatJavaObjectAsAny: Boolean = true
+    )(implicit project: ProjectContext): ScType =
       project.typeSystem.toScType(`type`, treatJavaObjectAsAny, paramTopLevel)
+
+    def toScType(
+      options: PsiTypeBridge.ConversionOptions
+    )(implicit project: ProjectContext): ScType =
+      project.typeSystem.toScType(`type`, options)
   }
 
   implicit class PsiMemberExt(private val member: PsiMember) extends AnyVal {

@@ -68,12 +68,27 @@ case object BuildMessages {
 
   def empty: BuildMessages = BuildMessages(Vector.empty, Vector.empty, Vector.empty, Vector.empty, BuildMessages.Indeterminate)
 
-  def stripAnsiCodes(@Nullable message: String): String =
+  /**
+   * Strips ANSI escape codes from the given message.
+   *
+   * ATTENTION! 
+   * The DECKPNM ANSI escape sequence (ESC >) is not currently handled by AnsiEscapeDecoder.
+   * This sequence is emitted when the "new" shell is running (using "shell" command instead of "idea-shell").
+   * Remove this workaround once the issue is fixed on the platform side (see IJPL-210647).
+   *
+   * @param stripDeckpnm whether to escape DECKPNM (Keypad Numeric Mode) from the message
+   */
+  def stripAnsiCodes(@Nullable message: String, stripDeckpnm: Boolean = false): String =
     if (message == null) null
     else {
       val builder = new StringBuilder()
       new AnsiEscapeDecoder().escapeText(message, ProcessOutputTypes.STDOUT, (text, _) => builder.append(text))
-      builder.result()
+      val result = builder.result()
+      if (stripDeckpnm) {
+        result.replace("\u001b>", "")
+      } else {
+        result
+      }
     }
 
   def message(

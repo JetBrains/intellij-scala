@@ -1,16 +1,20 @@
 package org.jetbrains.plugins.scala.testingSupport.test
 
 import com.intellij.execution.configurations.CommandLineState
+import com.intellij.execution.filters.HyperlinkInfo
 import com.intellij.execution.impl.ConsoleViewImpl
 import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.runners.{ExecutionEnvironment, ProgramRunner}
 import com.intellij.execution.testframework.sm.SMTestRunnerConnectionUtil
+import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.execution.{ExecutionResult, Executor}
 import org.jetbrains.annotations.ApiStatus
+import org.jetbrains.plugins.scala.build.BuildMessages
 import org.jetbrains.plugins.scala.statistics.SbtShellCommandsUsagesCollector
 import org.jetbrains.plugins.scala.testingSupport.test.sbt.{ReportingSbtTestEventHandler, SbtProcessHandlerWrapper, SbtShellTestsRunner, SbtTestRunningSupport}
 import org.jetbrains.plugins.scala.testingSupport.test.utils.RawProcessOutputDebugLogger
 import org.jetbrains.sbt.shell.SbtProcessManager
+import org.jetbrains.sbt.shell.SbtProcessManager.isNewShell
 
 @ApiStatus.Internal
 class ScalaTestFrameworkCommandLineSbtState(
@@ -25,8 +29,8 @@ class ScalaTestFrameworkCommandLineSbtState(
     //use a process running sbt
     val sbtProcessManager = SbtProcessManager.forProject(project)
     //make sure the process is initialized
-    val shellRunner = sbtProcessManager.acquireShellRunner()
-    SbtProcessHandlerWrapper(shellRunner.createProcessHandler)
+    val handler = sbtProcessManager.acquireShellProcessHandler()
+    SbtProcessHandlerWrapper(handler)
   }
 
   override def execute(executor: Executor, runner: ProgramRunner[_]): ExecutionResult = {
@@ -43,7 +47,17 @@ class ScalaTestFrameworkCommandLineSbtState(
       consoleProperties.setIdBasedTestTree(true)
       SMTestRunnerConnectionUtil.createConsole("Scala", consoleProperties)
     } else {
-      new ConsoleViewImpl(project, true)
+      def stripped(text: String): String =
+        if (isNewShell) BuildMessages.stripAnsiCodes(text, stripDeckpnm = true)
+        else text
+
+      new ConsoleViewImpl(project, true) {
+        override def print(text: String, contentType: ConsoleViewContentType): Unit =
+          super.print(stripped(text), contentType)
+
+        override def print(text: String, contentType: ConsoleViewContentType, info: HyperlinkInfo): Unit =
+          super.print(stripped(text), contentType, info)
+      }
     }
     consoleView.attachToProcess(processHandler)
 

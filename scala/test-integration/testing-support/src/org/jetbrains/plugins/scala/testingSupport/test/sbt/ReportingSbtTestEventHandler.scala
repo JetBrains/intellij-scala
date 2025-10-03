@@ -3,8 +3,10 @@ package org.jetbrains.plugins.scala.testingSupport.test.sbt
 import com.intellij.execution.process.ProcessOutputTypes
 import com.intellij.openapi.util.Key
 import org.jetbrains.annotations.ApiStatus
+import org.jetbrains.plugins.scala.build.BuildMessages
 import org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil
 import org.jetbrains.plugins.scala.testingSupport.test.sbt.ReportingSbtTestEventHandler.TeamCityTestStatusReporter
+import org.jetbrains.sbt.shell.SbtProcessManager.isNewShell
 import org.jetbrains.sbt.shell.SbtShellCommunication
 import org.jetbrains.sbt.shell.SbtShellCommunication.{ErrorWaitForInput, ProcessTerminated, ShellEvent, TaskComplete, TaskStart}
 
@@ -33,9 +35,13 @@ class ReportingSbtTestEventHandler(messageConsumer: TeamCityTestStatusReporter)
     case ErrorWaitForInput => throw new Exception("error running sbt")
     case SbtShellCommunication.Output(output) =>
       import TestRunnerUtil._
-      val infoIdx = output.indexOf(sbtInfo)
+      val outputNoAnsi =
+        if (isNewShell) BuildMessages.stripAnsiCodes(output, stripDeckpnm = true)
+        else output
+
+      val infoIdx = outputNoAnsi.indexOf(sbtInfo)
       if (infoIdx == -1) return
-      val info = output.substring(infoIdx).trim
+      val info = outputNoAnsi.substring(infoIdx).trim
       for (regex <- regexes) {
         val matcher = regex.matcher(info)
         if (matcher.matches) {

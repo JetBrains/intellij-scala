@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.types.ScalaPsiTypeBridge.{Log, RawTypeParamCollector}
+import org.jetbrains.plugins.scala.lang.psi.types.api.PsiTypeBridge.ConversionOptions
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
@@ -24,21 +25,28 @@ import scala.jdk.CollectionConverters._
 trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
   typeSystem: api.TypeSystem =>
 
-  override protected def toScTypeInner(psiType: PsiType,
-                                       paramTopLevel: Boolean,
-                                       treatJavaObjectAsAny: Boolean,
-                                       rawExistentialArguments: Option[RawExistentialArgs]): ScType = psiType match {
+  override protected def toScTypeInner(
+    javaType: PsiType,
+    options: ConversionOptions,
+    rawExistentialArguments: Option[RawExistentialArgs]
+  ): ScType = javaType match {
     case classType: PsiClassType =>
       val result = classType.resolveGenerics
 
       if (PsiClassType.isRaw(result))
-        return convertJavaRawType(result, paramTopLevel)(rawExistentialArguments)
+        return convertJavaRawType(result, options.paramTopLevel)(rawExistentialArguments)
 
-      result.getElement match {
-        case null => Nothing
-        case psiTypeParameter: PsiTypeParameter => typeParamType(psiTypeParameter, rawExistentialArguments)
+      val resolvedElement = result.getElement
+      resolvedElement match {
+        case null =>
+          if (options.handleUnresolved)
+            createScalaTypeForUnresolved(classType, options)
+          else
+            Nothing
+        case psiTypeParameter: PsiTypeParameter =>
+          typeParamType(psiTypeParameter, rawExistentialArguments)
         case clazz if clazz.qualifiedName == "java.lang.Object" =>
-          if (paramTopLevel && treatJavaObjectAsAny) Any
+          if (options.paramTopLevel && options.treatJavaObjectAsAny) Any
           else                                       AnyRef
         case c =>
           val clazz = c match {
@@ -54,7 +62,12 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
                 case null                              => typeParamType(typeParam, rawExistentialArguments)
                 case wildcardType: PsiWildcardType     => existentialArg(s"_$$${idx + 1}", wildcardType, paramTopLevel = true)
                 case captured: PsiCapturedWildcardType => existentialArg(s"_$$${idx + 1}", captured.getWildcard, paramTopLevel = true)
-                case substed                           => toScTypeInner(substed, paramTopLevel = false, treatJavaObjectAsAny = true, rawExistentialArguments)
+                case substed                           =>
+                  toScTypeInner(
+                    substed,
+                    options.copy(paramTopLevel = false), // SCL-15936
+                    rawExistentialArguments
+                  )
               }
             }
 
@@ -64,7 +77,21 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
     case wildcardType: PsiWildcardType =>
       existentialArg("_$1", wildcardType, paramTopLevel = false)
     case _: PsiDisjunctionType => Any
-    case _ => super.toScTypeInner(psiType, paramTopLevel, treatJavaObjectAsAny, rawExistentialArguments)
+    case _ =>
+      super.toScTypeInner(javaType, options, rawExistentialArguments)
+  }
+
+  private def createScalaTypeForUnresolved(classType: PsiClassType, options: ConversionOptions): ScType = {
+    // Couldn't resolve class, e.g., because we copied the code from isolated text
+    val scalaTypeArguments = classType.typeArguments.asScala
+      .filterByType[PsiType] //TODO: `typeArguments` return `JvmType`, we should handle the rest types as well...
+      .map(toScType(_, options)).toSeq
+    val syntheticJavaClass = PsiElementFactory.getInstance(projectContext.getProject).createClass(classType.getName)
+    val designatorType = ScDesignatorType(syntheticJavaClass)
+    if (scalaTypeArguments.nonEmpty)
+      ScParameterizedType(designatorType, scalaTypeArguments)
+    else
+      designatorType
   }
 
   private def convertJavaRawType(
@@ -286,7 +313,7 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
 
     private def upperForRaw(tp: PsiTypeParameter): () => ScType = {
       def convertBound(bound: PsiType) = {
-        toScTypeInner(bound, paramTopLevel, rawExistentialArguments = Some(lazyMap))
+        toScTypeInner(bound, ConversionOptions(paramTopLevel, treatJavaObjectAsAny = true), rawExistentialArguments = Some(lazyMap))
       }
 
       tp.getExtendsListTypes match {

@@ -3,15 +3,18 @@ package org.jetbrains.plugins.scala.actions
 import _root_.com.intellij.codeInsight.TargetElementUtil
 import _root_.com.intellij.psi._
 import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent, CommonDataKeys}
-import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.application.{NonBlockingReadAction, ReadAction}
+import com.intellij.openapi.editor.{Editor, SelectionModel}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtilBase}
+import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import org.jetbrains.plugins.scala.actions.ShowTypeInfoAction.typeTextOf
+import org.jetbrains.plugins.scala.actions.utils.TaskRunnerWithLoadingProgress
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScWildcardPattern}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScUnderscoreSection
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScUnderscoreSection}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypePresentation
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
@@ -20,6 +23,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, ScTypeExt, T
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getSelectedExpression
 import org.jetbrains.plugins.scala.statistics.ScalaActionUsagesCollector
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
+
+import java.util.concurrent.Callable
+import java.util.function.Consumer
 
 /**
  * @todo ideally we should not create our custom action
@@ -43,90 +49,126 @@ class ShowTypeInfoAction extends AnAction(
 
   override def actionPerformed(e: AnActionEvent): Unit = {
     val context = e.getDataContext
-    implicit val editor: Editor = CommonDataKeys.EDITOR.getData(context)
-    if (editor == null) return
-
+    val editor: Editor = CommonDataKeys.EDITOR.getData(context)
+    if (editor == null)
+      return
     val file = PsiUtilBase.getPsiFileInEditor(editor, CommonDataKeys.PROJECT.getData(context))
-    if (file == null || !file.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) return
+    if (file == null)
+      return
+    if (!file.getLanguage.isKindOf(ScalaLanguage.INSTANCE))
+      return
 
-    ScalaActionUsagesCollector.logTypeInfo(file.getProject)
+    val project = file.getProject
+    ScalaActionUsagesCollector.logTypeInfo(project)
+    invokeAction(editor, file, project)
+  }
 
+  private def invokeAction(editor: Editor, file: PsiFile, project: Project): Unit = {
     val selectionModel = editor.getSelectionModel
-    if (selectionModel.hasSelection) {
-      val start = selectionModel.getSelectionStart
-      val end = selectionModel.getSelectionEnd
 
-      def hintForPattern: Option[String] = {
-        val pattern = Option(PsiTreeUtil.findElementOfClassAtRange(file, start, end, classOf[ScBindingPattern]))
-          .orElse(Option(PsiTreeUtil.findElementOfClassAtRange(file, start, end, classOf[ScWildcardPattern])))
-        pattern.flatMap { p =>
-          implicit val tpc: TypePresentationContext = TypePresentationContext(p)
-          implicit val context: Context = Context(p)
-
-          typeTextOf(p, ScSubstitutor.empty).map("Type: " + _)
-        }
+    @RequiresBackgroundThread
+    def calculateTypeInfo(): Option[String] = {
+      if (selectionModel.hasSelection) {
+        getTypeInfoHintForSelection(editor, file, project, selectionModel)
+      } else {
+        // Not 100% sure what this offset adjusting is doing
+        val offset = editor.logicalPositionToOffset(editor.getCaretModel.getLogicalPosition)
+        val offsetAdjusted = TargetElementUtil.adjustOffset(file, editor.getDocument, offset)
+        ShowTypeInfoAction.getTypeInfoHint(file, offsetAdjusted)
       }
-
-      implicit val project: Project = file.getProject
-
-      def hintForExpression: Option[String] = {
-        getSelectedExpression(file).map {
-          case expr@Typeable(tpe) =>
-            implicit val tpc: TypePresentationContext = expr
-            implicit val context: Context = Context(expr)
-
-            val tpeText = tpe.presentableText
-            val withoutAliases = Some(TypePresentation.withoutAliases(tpe))
-            val tpeWithoutImplicits = expr.getTypeWithoutImplicits().toOption
-            val tpeWithoutImplicitsText = tpeWithoutImplicits.map(_.presentableText)
-            val expectedTypeText = expr.expectedType().map(_.presentableText)
-            val nonSingletonTypeText = tpe.extractDesignatorSingleton.map(_.presentableText)
-
-            val mainText = Seq("Type: " + tpeText)
-            def additionalTypeText(typeText: Option[String], label: String) = typeText.filter(_ != tpeText).map(s"$label: " + _)
-
-            val nonSingleton = additionalTypeText(nonSingletonTypeText, ScalaBundle.message("hint.label.non.singleton"))
-            val simplified = additionalTypeText(withoutAliases, ScalaBundle.message("hint.label.simplified"))
-            val orig = additionalTypeText(tpeWithoutImplicitsText, ScalaBundle.message("hint.label.original"))
-            val expected = additionalTypeText(expectedTypeText, ScalaBundle.message("hint.label.expected"))
-            val types = mainText ++ simplified.orElse(nonSingleton) ++ orig ++ expected
-
-            if (types.size == 1) tpeText
-            else types.mkString("\n")
-          case _ => ScalaBundle.message("could.not.find.type.for.selection")
-        }
-      }
-
-      def hintForParameter: Option[String] = {
-        val parameter = PsiTreeUtil.findElementOfClassAtRange(file, start, end, classOf[ScParameter])
-        if (parameter == null) None
-        else {
-          implicit val tpc: TypePresentationContext = parameter
-          implicit val context: Context = Context(parameter)
-
-          val scType = parameter.typeOfNamedElement(ScSubstitutor.empty)
-          scType.map(_.presentableText)
-        }
-      }
-
-      val hint = hintForPattern
-        .orElse(hintForExpression)
-        .orElse(hintForParameter)
-      val hintEscaped = hint.map(StringUtil.escapeXmlEntities)
-      hintEscaped.foreach(ScalaActionUtil.showHint(editor, _))
-    } else {
-      val offset = TargetElementUtil.adjustOffset(file, editor.getDocument,
-        editor.logicalPositionToOffset(editor.getCaretModel.getLogicalPosition))
-
-      ShowTypeInfoAction.getTypeInfoHint(file, offset).foreach(ScalaActionUtil.showHint(editor, _))
     }
+
+    TaskRunnerWithLoadingProgress.runSingleInstanceActionTask[Option[String]](
+      project = project,
+      backgroundDataSupplier = () => {
+        calculateTypeInfo()
+      },
+      uiDataConsumer = { hintOption =>
+        hintOption.foreach(ScalaActionUtil.showHint(editor, _))
+      },
+      progressTitle = ScalaBundle.message("calculating.type.info"),
+      editor = editor,
+      // I decided not to cancel the tooltip on scrolling - if it takes long to compute the types in complex code bases,
+      // it can be annoying that you can't even scroll the file... On the other hand, the final tooltip with the type hint
+      // will be hidden once you scroll, so the behavior is not 100% consistent =/
+      cancelOnScrolling = false,
+      originalAction = this
+    )
+  }
+
+  private def getTypeInfoHintForSelection(editor: Editor, file: PsiFile, project: Project, selectionModel: SelectionModel): Option[String] = {
+    val start = selectionModel.getSelectionStart
+    val end = selectionModel.getSelectionEnd
+
+    def hintForPattern: Option[String] = {
+      val pattern = Option(PsiTreeUtil.findElementOfClassAtRange(file, start, end, classOf[ScBindingPattern]))
+        .orElse(Option(PsiTreeUtil.findElementOfClassAtRange(file, start, end, classOf[ScWildcardPattern])))
+      pattern.flatMap { p =>
+        implicit val tpc: TypePresentationContext = TypePresentationContext(p)
+        implicit val context: Context = Context(p)
+
+        typeTextOf(p, ScSubstitutor.empty).map("Type: " + _)
+      }
+    }
+
+    def hintForExpression: Option[String] = {
+      val selectedExpression = getSelectedExpression(file)(project, editor)
+      selectedExpression.map {
+        case expr@Typeable(tpe) =>
+          expressionTypeHintForSelection(expr, tpe)
+        case _ =>
+          ScalaBundle.message("could.not.find.type.for.selection")
+      }
+    }
+
+    def hintForParameter: Option[String] = {
+      val parameter = PsiTreeUtil.findElementOfClassAtRange(file, start, end, classOf[ScParameter])
+      if (parameter == null) None
+      else {
+        implicit val tpc: TypePresentationContext = parameter
+        implicit val context: Context = Context(parameter)
+
+        val scType = parameter.typeOfNamedElement(ScSubstitutor.empty)
+        scType.map(_.presentableText)
+      }
+    }
+
+    val hint = hintForPattern
+      .orElse(hintForExpression)
+      .orElse(hintForParameter)
+    hint.map(StringUtil.escapeXmlEntities)
+  }
+
+  private def expressionTypeHintForSelection(expr: ScExpression, tpe: ScType): String = {
+    implicit val tpc: TypePresentationContext = expr
+    implicit val context: Context = Context(expr)
+
+    val tpeText = tpe.presentableText
+    val withoutAliases = Some(TypePresentation.withoutAliases(tpe))
+    val tpeWithoutImplicits = expr.getTypeWithoutImplicits().toOption
+    val tpeWithoutImplicitsText = tpeWithoutImplicits.map(_.presentableText)
+    val expectedTypeText = expr.expectedType().map(_.presentableText)
+    val nonSingletonTypeText = tpe.extractDesignatorSingleton.map(_.presentableText)
+
+    val mainText = Seq("Type: " + tpeText)
+
+    def additionalTypeText(typeText: Option[String], label: String) = typeText.filter(_ != tpeText).map(s"$label: " + _)
+
+    val nonSingleton = additionalTypeText(nonSingletonTypeText, ScalaBundle.message("hint.label.non.singleton"))
+    val simplified = additionalTypeText(withoutAliases, ScalaBundle.message("hint.label.simplified"))
+    val orig = additionalTypeText(tpeWithoutImplicitsText, ScalaBundle.message("hint.label.original"))
+    val expected = additionalTypeText(expectedTypeText, ScalaBundle.message("hint.label.expected"))
+    val types = mainText ++ simplified.orElse(nonSingleton) ++ orig ++ expected
+
+    if (types.size == 1) tpeText
+    else types.mkString("\n")
   }
 }
 
 object ShowTypeInfoAction {
   val ActionId: String = "Scala.TypeInfo"
 
-  def getTypeInfoHint(file: PsiFile, offset: Int): Option[String] = {
+  private def getTypeInfoHint(file: PsiFile, offset: Int): Option[String] = {
     val typeInfoFromRef = file.findReferenceAt(offset) match {
       case ref @ ResolvedWithSubst(e, subst) =>
         implicit val tpc: TypePresentationContext = TypePresentationContext(ref.getElement)
@@ -166,7 +208,7 @@ object ShowTypeInfoAction {
   }
 
   private def typeTextOf(elem: PsiElement, subst: ScSubstitutor)
-                              (implicit tpc: TypePresentationContext, context: Context): Option[String] = {
+                        (implicit tpc: TypePresentationContext, context: Context): Option[String] = {
     val scType = elem.typeOfNamedElement(subst).orElse {
       elem match {
         case under: ScUnderscoreSection => under.`type`().toOption

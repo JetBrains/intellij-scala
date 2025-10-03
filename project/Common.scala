@@ -286,6 +286,15 @@ object Common {
           s"-Xplugin:${(plugin / Compile / classDirectory).value}",
           s"-Xplugin-require:${(plugin / name).value}")
       )
+
+    def projectWithTestsOnly: Project = project.settings(
+      Compile / sourceDirectories := Nil,
+      Compile / resourceDirectories := Nil,
+      Compile / unmanagedSourceDirectories := Nil,
+      Compile / unmanagedResourceDirectories := Nil,
+      // Packaging a module with tests only doesn't make sense
+      packageMethod := PackagingMethod.Skip(),
+    )
   }
 
   private def excludePathsFromPackage(path: java.nio.file.Path): Boolean =

@@ -145,10 +145,10 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardMultiStep)
     initSelectionsAndUi(getContext.getDisposable)
   }
 
-  override def setSbtVersion(versions: Seq[SbtVersion]): Unit = {
+  override def setDownloadedSbtVersions(versions: Seq[SbtVersion]): Unit = {
     availableSbtVersions.set(versions.toOption)
     availableSbtVersionsForScala3.set(Versions.SBT.sbtVersionsForScala3(versions).toOption)
-    updateSelectionsAndElementsModelForSbt(versions)
+    updateSupportedSbtVersionsForSelectedScalaVersion(selections.scalaVersion)
   }
 
   override def loadSbtVersions(indicator: ProgressIndicator): Seq[SbtVersion] =
@@ -166,18 +166,10 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardMultiStep)
   }
 
   private lazy val _initSelectionsAndUi: Unit = {
-    selections.updateSbtVersion(defaultAvailableSbtVersions.toSeq)
+    selections.updateSelectedSbtVersion(defaultAvailableSbtVersions.toSeq)
 
     initUiElementsModel()
     initUiElementsListeners()
-  }
-
-  private def updateSelectionsAndElementsModelForSbt(sbtVersions: Seq[SbtVersion]): Unit = {
-    if (!isSbtVersionManuallySelected.get()) {
-      selections.sbtVersion = None
-      selections.updateSbtVersion(sbtVersions)
-    }
-    sbtVersionComboBox.updateComboBoxModel(sbtVersions.toArray, selections.sbtVersion)
   }
 
   private def initUiElementsModel(): Unit = {
@@ -203,7 +195,8 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardMultiStep)
       // note: the scalaVersionComboBox item must be passed on instead of simply selections.scalaVersion
       // because it may happen that the listener added to the scalaVersionComboBox in ScalaVersionStepLike will be called after this, and
       // at this stage an outdated value can be stored in selections.scalaVersion
-      updateSupportedSbtVersionsForSelectedScalaVersion(scalaVersionComboBox.getSelectedItemTyped)
+      val selectedScalaVersion = scalaVersionComboBox.getSelectedItemTyped
+      updateSupportedSbtVersionsForSelectedScalaVersion(selectedScalaVersion)
     }
 
     downloadSbtSourcesCheckbox.addChangeListener { _ =>
@@ -226,12 +219,15 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardMultiStep)
     val sbtVersionsForScala3 = availableSbtVersionsForScala3.get().getOrElse(defaultAvailableSbtVersionsForScala3)
     val isScala3Selected = scalaVersion.exists(isScala3Version)
     val supportedSbtVersions = if (isScala3Selected) sbtVersionsForScala3 else sbtVersions
-    sbtVersionComboBox.setItems(supportedSbtVersions.toArray)
 
-    // if we select Scala3 version but had Scala2 version selected before and some sbt version incompatible with Scala3,
+    if (!isSbtVersionManuallySelected.get) {
+      selections.sbtVersion = None
+    }
+    val selectedSbtVersion = selections.updateSelectedSbtVersion(supportedSbtVersions.toSeq)
+
+    // if we select a Scala3 version but had a Scala2 version selected before and some sbt version incompatible with Scala3,
     // the latest item from the list will be automatically selected
-    sbtVersionComboBox.setSelectedItemSafe(selections.sbtVersion.orNull)
-    selections.updateSbtVersion(sbtVersions.toSeq)
+    sbtVersionComboBox.updateComboBoxModel(supportedSbtVersions.toArray, selectedSbtVersion)
   }
 
   private def validateModuleName(builder: ValidationInfoBuilder, field: JBTextField): ValidationInfo = {

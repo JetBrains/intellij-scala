@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 
 class DynamicPropertyKeyInspectionTest extends ScalaInspectionTestBase {
 
-  override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
+  override protected val classOfInspection: Class[? <: LocalInspectionTool] =
     classOf[DynamicPropertyKeyInspection]
 
   override protected val description =

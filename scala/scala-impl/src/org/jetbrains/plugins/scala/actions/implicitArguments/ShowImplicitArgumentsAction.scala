@@ -15,8 +15,10 @@ import com.intellij.ui.tree.{AsyncTreeModel, StructureTreeModel}
 import com.intellij.ui.treeStructure.Tree
 import com.intellij.ui.{ClickListener, ScrollPaneFactory}
 import com.intellij.util.ArrayUtil
+import com.intellij.util.concurrency.annotations.{RequiresBackgroundThread, RequiresEdt}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.actions.ScalaActionUtil
+import org.jetbrains.plugins.scala.actions.utils.TaskRunnerWithLoadingProgress
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, ScalaFile}
@@ -52,19 +54,32 @@ class ShowImplicitArgumentsAction extends AnAction(
 
     ScalaActionUsagesCollector.logShowImplicitParameters(file.getProject)
 
-    val targets = findAllTargets(file)
-
-    targets match {
-      case Seq()       => ScalaActionUtil.showHint(editor, ScalaBundle.message("no.implicit.arguments"))
-      case Seq(target) => onChosen(target)
-      case targets     =>
-        ScalaRefactoringUtil.showChooserGeneric[ImplicitArgumentsTarget](
-          targets, onChosen, ScalaBundle.message("title.expressions"), _.presentation, _.expression
-        )
-    }
+    TaskRunnerWithLoadingProgress.runSingleInstanceActionTask[Seq[ImplicitArgumentsTarget]](
+      project = project,
+      backgroundDataSupplier = () => {
+        findAllTargets(file)
+      },
+      uiDataConsumer = {
+        case Seq() =>
+          ScalaActionUtil.showHint(editor, ScalaBundle.message("no.implicit.arguments"))
+        case Seq(singleTarget) =>
+          showSingleTargetPopup(singleTarget)
+        case targets =>
+          ScalaRefactoringUtil.showChooserGeneric[ImplicitArgumentsTarget](
+            targets, showSingleTargetPopup, ScalaBundle.message("title.expressions"), _.presentation, _.expression
+          )
+      },
+      progressTitle = ScalaBundle.message("searching.for.implicit.arguments"),
+      editor = editor,
+      // I decided not to cancel the tooltip on scrolling - if it takes long to compute the types in complex code bases,
+      // it can be annoying that you can't even scroll the file...
+      cancelOnScrolling = false,
+      originalAction = this
+    )
   }
 
-  private def onChosen(target: ImplicitArgumentsTarget)(implicit editor: Editor): Unit = {
+  @RequiresEdt
+  private def showSingleTargetPopup(target: ImplicitArgumentsTarget)(implicit editor: Editor): Unit = {
     val range = target.expression.getTextRange
 
     val hadSelection = editor.getSelectionModel.hasSelection
@@ -83,9 +98,9 @@ class ShowImplicitArgumentsAction extends AnAction(
         }
       })
     }
-
   }
 
+  @RequiresBackgroundThread // Can involve heavy resolution in complex code bases
   private def findAllTargets(file: PsiFile)(implicit editor: Editor, project: Project): Seq[ImplicitArgumentsTarget] = {
     if (editor.getSelectionModel.hasSelection)
       getSelectedExpression(file).toSeq.flatMap(allTargets)

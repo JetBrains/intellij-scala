@@ -5,7 +5,7 @@ import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.annotator.hints.AnnotatorHints
 import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, PsiElementExt, StringExt}
-import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
+import org.jetbrains.plugins.scala.util.assertions.MatcherAssertionsExt
 import org.junit.Assert.fail
 
 //TODO: use better name for the base class?
@@ -22,7 +22,7 @@ import org.junit.Assert.fail
 // (see SCL-15138, this was done in one of it's sub-tickets)
 // However if you use current base test class you will see 2 errors for "UnresolvedObject" and "unresolvedMethod"
 // For the generic highlighting test one should use `myFixture.doHighlighting()` or some base class which uses it.
-trait ScalaHighlightingTestLike extends MatcherAssertions {
+trait ScalaHighlightingTestLike extends MatcherAssertionsExt {
   protected def getFixture: CodeInsightTestFixture
 
   //////////////////////////////////////////////////

@@ -94,23 +94,26 @@ object JavaToScala {
     convertTypePsiToIntermediate(t.getType, t, t.getProject)
 
   private def convertTypePsiToIntermediate(
-    `type`: PsiType,
+    javaType: PsiType,
     psiElement: PsiElement,
     project: Project
   )(implicit conversionContext: ConversionContext): TypeNode = {
-    Option(`type`).map {
-      case _: PsiLambdaParameterType => EmptyTypeNode()
+    javaType match {
+      case null =>
+        EmptyTypeNode()
+      case _: PsiLambdaParameterType =>
+        EmptyTypeNode()
       case _: PsiDisjunctionType =>
         DisjunctionTypeConstructions(
           PsiTreeUtil.getChildrenOfType(psiElement, classOf[PsiTypeElement])
             .map(t => convertTypePsiToIntermediate(t.getType, t, project))
             .toIndexedSeq
         )
-      case t =>
-        val iNode = TypeConstruction.createIntermediateTypePresentation(t, project, conversionContext.textMode)
+      case _ =>
+        val iNode = TypeConstruction.createIntermediateTypePresentation(javaType, project, conversionContext.textMode)
         handleAssociations(psiElement, iNode)
         iNode
-    }.getOrElse(EmptyTypeNode())
+    }
   }
 
   def convertPsiToIntermediatePublic(
@@ -806,7 +809,8 @@ object JavaToScala {
         }
         val members = classMembersNodes ++ objectMembersNodes
         AnonymousClass(
-          tp, argList,
+          tp,
+          argList,
           members,
           extendList.map(el => convertTypePsiToIntermediate(el._1, el._2, clazz.getProject))
         )

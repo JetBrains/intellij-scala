@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility
-import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
+import org.jetbrains.plugins.scala.util.assertions.MatcherAssertionsExt
 
 abstract class ConstructorInvocationAnnotatorTestBase extends AnnotatorSimpleTestCase {
   import Message._
@@ -504,7 +504,7 @@ class ConstructorInvocationAnnotatorTest_3 extends ConstructorInvocationAnnotato
   }
 }
 
-class JavaConstructorInvocationAnnotatorTest extends ScalaHighlightingTestBase with MatcherAssertions {
+class JavaConstructorInvocationAnnotatorTest extends ScalaHighlightingTestBase with MatcherAssertionsExt {
   import Message._
 
   val javaCode =
