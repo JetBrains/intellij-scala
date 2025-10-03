@@ -33,7 +33,7 @@ object CompilerTestUtil {
   }
 
   def withEnabledCompileServer(enable: Boolean): RevertableChange = {
-    val settings = compileServerSettings
+    def settings = compileServerSettings
     val r1 = RevertableChange.withModifiedSetting[Boolean](
       settings.COMPILE_SERVER_ENABLED,
       settings.COMPILE_SERVER_ENABLED = _,
