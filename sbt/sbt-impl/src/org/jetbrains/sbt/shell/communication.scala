@@ -408,7 +408,7 @@ final class SbtShellCommunication(project: Project) {
       // Stripping ansi codes in "old shell" mode is likely safe, but let's preserve the original behavior for safety
       val text =
         if (isNewShell)
-          BuildMessages.stripAnsiCodes(raw).trim
+          BuildMessages.stripAnsiCodes(raw, stripDeckpnm = true).trim
         else
           raw.trim
 
