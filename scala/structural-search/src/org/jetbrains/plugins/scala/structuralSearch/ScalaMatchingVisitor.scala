@@ -707,7 +707,6 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
   override def visitReferenceExpression(refPat: ScReferenceExpression): Unit = {
     super.visitScalaElement(refPat)
     val context = globalVisitor.getMatchContext
-    val pattern = context.getPattern
     val otherV = globalVisitor.getElement
 
     otherV match {
