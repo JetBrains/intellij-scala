@@ -1,19 +1,17 @@
 package org.jetbrains.sbt.language.completion
 
-import com.intellij.codeInsight.completion._
+import com.intellij.codeInsight.completion.*
 import com.intellij.codeInsight.completion.impl.RealPrefixMatchingWeigher
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder}
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.RangeMarker
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.util.TextRange
 import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.psi.PsiElement
 import com.intellij.util.ProcessingContext
-import org.jetbrains.packagesearch.api.v3.ApiMavenPackage
 import org.jetbrains.plugins.scala.LatestScalaVersions
 import org.jetbrains.plugins.scala.extensions.{&, ObjectExt, Parent, PsiClassExt, PsiElementExt, ToNullSafe}
-import org.jetbrains.plugins.scala.lang.completion._
+import org.jetbrains.plugins.scala.lang.completion.*
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
@@ -26,9 +24,10 @@ import org.jetbrains.plugins.scala.packagesearch.codeInspection.DependencyVersio
 import org.jetbrains.plugins.scala.packagesearch.lang.completion.DependencyVersionWeigher
 import org.jetbrains.plugins.scala.packagesearch.lang.completion.DependencyVersionWeigher.DependencyVersion
 import org.jetbrains.plugins.scala.packagesearch.util.DependencyUtil
-import org.jetbrains.sbt.language.completion.SbtMavenPackageSearchDependencyCompletionProvider._
-import org.jetbrains.sbt.language.utils._
+import org.jetbrains.sbt.language.completion.SbtMavenPackageSearchDependencyCompletionProvider.*
+import org.jetbrains.sbt.language.utils.*
 
+import scala.annotation.unused
 import scala.jdk.CollectionConverters.SeqHasAsJava
 import scala.util.chaining.scalaUtilChainingOps
 
@@ -154,11 +153,12 @@ final class SbtMavenPackageSearchDependencyCompletionProvider extends Completion
     case _ => None
   }
 
-  private def getArtifacts(groupId: String, artifactId: String, exactMatchGroupId: Boolean)
-                          (implicit params: CompletionParameters): Seq[ApiMavenPackage] = {
-    val useCache = !params.isExtendedCompletion || ApplicationManager.getApplication.isUnitTestMode
-    val packages = DependencyUtil.getArtifacts(groupId, artifactId, useCache, exactMatchGroupId)
-    packages
+  private def getArtifacts(@unused groupId: String, @unused artifactId: String, @unused exactMatchGroupId: Boolean)
+                          (implicit @unused params: CompletionParameters): Seq[AnyRef /* ApiMavenPackage */] = {
+//    val useCache = !params.isExtendedCompletion || ApplicationManager.getApplication.isUnitTestMode
+//    val packages = DependencyUtil.getArtifacts(groupId, artifactId, useCache, exactMatchGroupId)
+//    packages
+    Seq.empty
   }
 
   private def needsEmptyVersion(infix: ScInfixExpr): Boolean = infix.getContext match {
@@ -169,19 +169,21 @@ final class SbtMavenPackageSearchDependencyCompletionProvider extends Completion
   private def completeGroupId(marker: RangeMarker, withVersion: Boolean = true)
                              (implicit params: CompletionParameters, resultSet: CompletionResultSet, place: ScExpression): Unit =
     extractText(place, trimDummy = true).foreach { groupIdQuery =>
+      // TODO: SCL-23246 Reimplement using new maven search api.
       val packages = getArtifacts(groupIdQuery, artifactId = "", exactMatchGroupId = false)
-      val lookupElements = packages.map(toLookupElement(_, marker, withGroupId = true, addEmptyVersion = withVersion))
-        .distinctBy(_.getLookupString)
+      val lookupElements = packages.flatMap(toLookupElement(_, marker, withGroupId = true, addEmptyVersion = withVersion))
+//        .distinctBy(_.getLookupString)
       addAllAndStopIfInsideString(lookupElements)
     }
 
   private def completeArtifactId(groupId: String, infix: ScInfixExpr, marker: RangeMarker)
                                 (implicit params: CompletionParameters, resultSet: CompletionResultSet, place: ScExpression): Unit =
     extractText(place, trimDummy = true).foreach { artifactIdQuery =>
+      // TODO: SCL-23246 Reimplement using new maven search api.
       val withVersion = needsEmptyVersion(infix)
       val lookupElements = getArtifacts(groupId, artifactIdQuery, exactMatchGroupId = true)
-        .map(toLookupElement(_, marker, withGroupId = false, addEmptyVersion = withVersion))
-        .distinctBy(_.getLookupString)
+        .flatMap(toLookupElement(_, marker, withGroupId = false, addEmptyVersion = withVersion))
+//        .distinctBy(_.getLookupString)
       addAllAndStopIfInsideString(lookupElements)
     }
 
@@ -235,34 +237,36 @@ object SbtMavenPackageSearchDependencyCompletionProvider {
   private val Scala2MajorVersions = LatestScalaVersions.allScala2.map(_.major)
   private val ScalaMajorVersions = Scala2MajorVersions :+ "3"
 
-  private def toLookupElement(pkg: ApiMavenPackage, marker: RangeMarker, withGroupId: Boolean, addEmptyVersion: Boolean): LookupElement = {
-    val groupId = pkg.getGroupId
-    val (delimiterLen, artifactId) = pkg.getArtifactId match {
-      case CrossPublishedArtifact(artifactId, version) if ScalaMajorVersions.contains(version) =>
-        (2, artifactId)
-      case id => (1, id)
-    }
-    val lookupString = s"$groupId${":" * delimiterLen}$artifactId"
-    val presentableText = {
-      val groupIdPrefix = if (withGroupId) s"\"$groupId\" ${"%" * delimiterLen} " else ""
-      val presentableArtifactText = s"\"$artifactId\""
-      val versionSuffix = if (addEmptyVersion) " % \"\"" else ""
-      groupIdPrefix + presentableArtifactText + versionSuffix
-    }
-
-    LookupElementBuilder.create(lookupString)
-      .withRenderer { (_, presentation) =>
-        presentation.setItemText(presentableText)
-        presentation.setItemTextBold(true)
-      }
-      .withInsertHandler { (context, _) =>
-        context.getDocument.replaceString(marker.getStartOffset, marker.getEndOffset, presentableText)
-        // move the caret before the closing quote in the artifactId/version string
-        context.getEditor.getCaretModel.moveToOffset(marker.getStartOffset + presentableText.length - 1)
-        if (addEmptyVersion) {
-          context.scheduleAutoPopup()
-        }
-      }
+  // TODO: SCL-23246 Reimplement using new maven search api.
+  private def toLookupElement(pkg: AnyRef /* ApiMavenPackage */, marker: RangeMarker, withGroupId: Boolean, addEmptyVersion: Boolean): None.type /* LookupElement */ = {
+//    val groupId = pkg.getGroupId
+//    val (delimiterLen, artifactId) = pkg.getArtifactId match {
+//      case CrossPublishedArtifact(artifactId, version) if ScalaMajorVersions.contains(version) =>
+//        (2, artifactId)
+//      case id => (1, id)
+//    }
+//    val lookupString = s"$groupId${":" * delimiterLen}$artifactId"
+//    val presentableText = {
+//      val groupIdPrefix = if (withGroupId) s"\"$groupId\" ${"%" * delimiterLen} " else ""
+//      val presentableArtifactText = s"\"$artifactId\""
+//      val versionSuffix = if (addEmptyVersion) " % \"\"" else ""
+//      groupIdPrefix + presentableArtifactText + versionSuffix
+//    }
+//
+//    LookupElementBuilder.create(lookupString)
+//      .withRenderer { (_, presentation) =>
+//        presentation.setItemText(presentableText)
+//        presentation.setItemTextBold(true)
+//      }
+//      .withInsertHandler { (context, _) =>
+//        context.getDocument.replaceString(marker.getStartOffset, marker.getEndOffset, presentableText)
+//        // move the caret before the closing quote in the artifactId/version string
+//        context.getEditor.getCaretModel.moveToOffset(marker.getStartOffset + presentableText.length - 1)
+//        if (addEmptyVersion) {
+//          context.scheduleAutoPopup()
+//        }
+//      }
+    None
   }
 
   private object ReferenceResolvableToValOrDef {

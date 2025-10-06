@@ -4,13 +4,11 @@ import com.intellij.codeInsight.editorActions.CompletionAutoPopupHandler
 import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
 import com.intellij.testFramework.{TestModeFlags, UsefulTestCase}
 import org.jetbrains.plugins.scala.base.ScalaCompletionAutoPopupTestCase
-import org.jetbrains.plugins.scala.packagesearch.api.{PackageSearchClient, PackageSearchClientTesting}
+import org.jetbrains.plugins.scala.packagesearch.api.PackageSearchClientTesting
 import org.jetbrains.plugins.scala.packagesearch.util.DependencyUtil
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion, WithIndexingMode}
 import org.junit.Assert.assertNull
 import org.junit.runner.RunWith
-
-import java.util.Arrays.asList
 
 @RunWith(classOf[MultipleScalaVersionsRunner])
 @RunWithScalaVersions(Array(
@@ -68,13 +66,14 @@ final class ScalaDirectiveAutoPopupTest
     s"//>$CARET"
   }
 
-  def testAutoPopupInDependencyAfterGroupId(): Unit = {
-    PackageSearchClient.instance()
-      .updateByQueryCache("foo", "", asList(apiMavenPackage("foo", "bar", emptyVersionsContainer())))
-    doTest(":", "foo:bar:" :: Nil) {
-      s"//> using dep foo$CARET"
-    }
-  }
+  // TODO: SCL-23246 Reimplement using new maven search api.
+//  def testAutoPopupInDependencyAfterGroupId(): Unit = {
+//    PackageSearchClient.instance()
+//      .updateByQueryCache("foo", "", asList(apiMavenPackage("foo", "bar", emptyVersionsContainer())))
+//    doTest(":", "foo:bar:" :: Nil) {
+//      s"//> using dep foo$CARET"
+//    }
+//  }
 
   def testAutoPopupInDependencyAfterArtifactId(): Unit = {
     DependencyUtil.updateMockVersionCompletionCache(("foo", "bar") -> Seq("1.2.3"))
@@ -83,13 +82,14 @@ final class ScalaDirectiveAutoPopupTest
     }
   }
 
-  def testNoAutoPopupInDependencyWithWrongKey(): Unit = {
-    PackageSearchClient.instance()
-      .updateByQueryCache("foo", "", asList(apiMavenPackage("foo", "bar", emptyVersionsContainer())))
-    doTestNoAutoCompletion(":") {
-      s"//> using something foo$CARET"
-    }
-  }
+  // TODO: SCL-23246 Reimplement using new maven search api.
+//  def testNoAutoPopupInDependencyWithWrongKey(): Unit = {
+//    PackageSearchClient.instance()
+//      .updateByQueryCache("foo", "", asList(apiMavenPackage("foo", "bar", emptyVersionsContainer())))
+//    doTestNoAutoCompletion(":") {
+//      s"//> using something foo$CARET"
+//    }
+//  }
 
   def testAutoPopupInDependencyKeyOnDot_test(): Unit = doTest(".", "test.dep" :: "test.deps" :: "test.dependencies" :: Nil) {
     s"//> using test$CARET"

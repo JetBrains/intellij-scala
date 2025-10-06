@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <idea-plugin>
     <dependencies>
+        <plugin id="JUnit"/>
         <module name="scalaCommunity.bsp"/>
         <module name="scalaCommunity.compiler-integration"/>
     </dependencies>

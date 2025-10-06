@@ -182,8 +182,7 @@ object Common {
       //"com.intellij.dev".toPlugin,
 
       "org.jetbrains.kotlin".toPlugin
-    ),
-    intellijVMOptions ~= { _.withOption("--add-opens=java.base/jdk.internal.ref=ALL-UNNAMED") }
+    )
   )
 
   def newPlainScalaProject(projectName: String, base: File): Project =
