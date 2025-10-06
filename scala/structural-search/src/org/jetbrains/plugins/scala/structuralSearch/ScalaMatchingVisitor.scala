@@ -34,7 +34,10 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
   }
 
   private def matchOptOptional(patternO: Option[PsiElement], otherO: Option[PsiElement]): Boolean = {
-    matchInAnyOrder(patternO.toSeq, otherO.toSeq)
+    patternO match {
+      case None => true
+      case Some(_) => matchSequentially(patternO.toSeq, otherO.toSeq)
+    }
   }
 
   private def matchOptEqual(patternO: Option[PsiElement], otherO: Option[PsiElement]): Boolean = {
@@ -703,10 +706,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
   override def visitLiteral(lPat: ScLiteral): Unit =
     globalVisitor.setResult(globalVisitor.matchText(lPat, globalVisitor.getElement))
 
-
   override def visitReferenceExpression(refPat: ScReferenceExpression): Unit = {
-    super.visitScalaElement(refPat)
-    val context = globalVisitor.getMatchContext
     val otherV = globalVisitor.getElement
 
     otherV match {
@@ -715,7 +715,10 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
           case None =>
             globalVisitor.setResult(substHandle(getHandler(refPat), other, () => globalVisitor.matchText(refPat, other)))
           case Some(_) =>
-            val qualifierMatch = matchOptEqual(refPat.qualifier, other.qualifier)
+            val qualifierMatch = other.qualifier match {
+              case None => matchOptOptional(refPat.qualifier, other.qualifier)
+              case Some(_) => matchOptEqual(refPat.qualifier, other.qualifier)
+            }
             val nameMatch = refPat.nameId.getTextLength > 0 && substHandle(getHandler(refPat), other.nameId, () => globalVisitor.`match`(refPat.nameId, other.nameId))
             globalVisitor.setResult(qualifierMatch && nameMatch)
         }
