@@ -514,7 +514,7 @@ object ScalaSyntaxHighlighter {
             checkFollowing(_.isWhitespace, _.isUnicodeIdentifierStart, default = false)
 
         case ScalaTokenType.OpenKeyword | ScalaTokenType.InfixKeyword | ScalaTokenType.InlineKeyword |
-             ScalaTokenType.OpaqueKeyword | ScalaTokenType.TransparentKeyword =>
+             ScalaTokenType.OpaqueKeyword | ScalaTokenType.TransparentKeyword | ScalaTokenType.IntoKeyword =>
           // soft modifiers
           var i = end
           var needWs = true
@@ -531,6 +531,7 @@ object ScalaSyntaxHighlighter {
                 case 'o' if checkBuffer(text, i, "open") => i += 4
                 case 'i' if checkBuffer(text, i, "infix") => i += 5
                 case 'i' if checkBuffer(text, i, "inline") => i += 6
+                case 'i' if checkBuffer(text, i, "into") => i += 4
                 case 'o' if checkBuffer(text, i, "opaque") => i += 6
                 case 't' if checkBuffer(text, i, "transparent") => i += 11
                 case 'c' if checkBuffer(text, i, "case") => i += 4
