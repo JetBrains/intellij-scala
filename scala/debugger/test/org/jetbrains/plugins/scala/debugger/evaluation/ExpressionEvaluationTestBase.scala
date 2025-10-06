@@ -10,6 +10,7 @@ import org.junit.experimental.categories.Category
 
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.stream.Collectors
+import scala.annotation.tailrec
 import scala.jdk.CollectionConverters._
 
 @Category(Array(classOf[DebuggerEvaluationTests]))
@@ -79,8 +80,16 @@ abstract class ExpressionEvaluationTestBase extends ScalaDebuggerTestCase {
       evaluateExpressionToString(expression)
       fail(s"Expression $expression was supposed to fail with an EvaluateException, but didn't")
     } catch {
-      case e: EvaluateException => assertion(message, e.getMessage)
+      case e: EvaluateException =>
+        val unwrapped = unwrapCause(e)
+        assertion(message, unwrapped.getMessage)
     }
+  }
+
+  @tailrec
+  private def unwrapCause(throwable: Throwable): Throwable = throwable.getCause match {
+    case null => throwable
+    case cause: Throwable => unwrapCause(cause)
   }
 
   private def assertStartsWith(expected: String, actual: String): Unit = {
