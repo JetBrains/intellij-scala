@@ -16,6 +16,7 @@ object SoftModifier extends ParsingRule {
     Open,
     Infix,
     Opaque,
+    Into,
   )
 
   import ScalaTokenTypes._
@@ -27,7 +28,7 @@ object SoftModifier extends ParsingRule {
       builder.remapCurrentToken(remappedTokenType)
       builder.advanceLexer() // ate soft modifier
 
-      // soft modifiers must me followed either by:
+      // soft modifiers must be followed either by:
       // * a hard modifier;
       // * a definition start;
       // * another soft modifier;
