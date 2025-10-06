@@ -18,7 +18,8 @@ public enum ScalaModifier {
     Transparent(ScalaModifier.TRANSPARENT),
     Open(ScalaModifier.OPEN),
     Opaque(ScalaModifier.OPAQUE),
-    Infix(ScalaModifier.INFIX);
+    Infix(ScalaModifier.INFIX),
+    Into(ScalaModifier.INTO);
 
     private final String text;
 
@@ -57,4 +58,5 @@ public enum ScalaModifier {
     public static final String OPEN = "open";
     public static final String OPAQUE = "opaque";
     public static final String INFIX = "infix";
+    public static final String INTO = "into";
 }

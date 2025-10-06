@@ -255,7 +255,8 @@ public interface ScalaTokenTypes {
             TransparentKeyword(),
             UsingKeyword(),
             OpenKeyword(),
-            InfixKeyword()
+            InfixKeyword(),
+            IntoKeyword()
     );
 
     TokenSet IDENTIFIER_TOKEN_SET = TokenSet.create(tIDENTIFIER, tINTERPOLATED_STRING_ID);
