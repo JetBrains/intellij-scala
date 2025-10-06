@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScModifierList}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaration, ScExtensionBody, ScPatternDefinition, ScTypeAlias, ScValueDeclaration}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaration, ScExtensionBody, ScPatternDefinition, ScTypeAlias, ScTypeAliasDefinition, ScValueDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner, ScPackaging}
@@ -304,6 +304,21 @@ private[annotator] object ModifierChecker {
                       modifierPsi,
                       owner,
                     )
+                }
+              case INTO =>
+                val allowed = owner match {
+                  case alias: ScTypeAliasDefinition if alias.isOpaque => true
+                  case _: ScObject => false
+                  case _: ScClass | _: ScTrait | _: ScEnum => true
+                  case _ => false
+                }
+
+                if (!allowed) {
+                  createErrorWithQuickFix(
+                    ScalaBundle.message("into.modifier.is.only.allowed.on"),
+                    modifierPsi,
+                    owner,
+                  )
                 }
               case other =>
                 val otherModifier = ScalaModifier.byText(other)

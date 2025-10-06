@@ -282,6 +282,7 @@ class ModifierCheckerTest_Scala_3 extends ModifierCheckerTest_Scala_2 {
   protected val OnlyClassesCanBeOpen = "Only classes can be open"
   protected val IllegalOpaqueModifier = "'opaque' modifier allowed only for type aliases"
   protected val RepeatedModifier = "repeated modifier"
+  protected val IllegalIntoModifier = ScalaBundle.message("into.modifier.is.only.allowed.on")
 
   def testOpenModifierIsRedundant(): Unit = {
     assertMessages(messages(
@@ -369,4 +370,23 @@ class ModifierCheckerTest_Scala_3 extends ModifierCheckerTest_Scala_2 {
       Error("opaque", IllegalOpaqueModifier),
     )
   }
+
+  def testIllegalIntoOnObject(): Unit =
+    assertMessages(messages("into object Test"))(
+      Error("into", IllegalIntoModifier)
+    )
+
+  def testIllegalIntoOnNonOpaqueTypeAlias(): Unit =
+    assertMessages(messages("into type AType = Int"))(
+      Error("into", IllegalIntoModifier)
+    )
+
+  def testLegalInto(): Unit = assertNothing(messages(
+    """
+      |into class AClass
+      |into trait ATrait
+      |into opaque type AnOpaqueType = Int
+      |into enum AnEnum
+      |""".stripMargin
+  ))
 }
