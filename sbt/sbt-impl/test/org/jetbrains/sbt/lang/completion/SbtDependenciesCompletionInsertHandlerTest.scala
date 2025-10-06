@@ -1,11 +1,9 @@
 package org.jetbrains.sbt.lang.completion
 
-import org.jetbrains.plugins.scala.packagesearch.api.{PackageSearchClient, PackageSearchClientTesting}
+import org.jetbrains.plugins.scala.packagesearch.api.PackageSearchClientTesting
 import org.jetbrains.plugins.scala.packagesearch.util.DependencyUtil
 import org.jetbrains.plugins.scala.util.RevertableChange
 import org.jetbrains.sbt.MockSbt_1_0
-
-import scala.jdk.CollectionConverters.SeqHasAsJava
 
 //noinspection ApiStatus
 class SbtDependenciesCompletionInsertHandlerTest
@@ -20,10 +18,12 @@ class SbtDependenciesCompletionInsertHandlerTest
   private val RESULT_DEPENDENCY = s""""$GROUP_ID" % "$ARTIFACT_ID" % "$CARET""""
 
   private def setupCaches(): Unit = {
-    val packages = java.util.Arrays.asList(apiMavenPackage(GROUP_ID, ARTIFACT_ID, versionsContainer(STABLE_VERSION, VERSIONS)))
-    PackageSearchClient.instance().updateByQueryCache("", "", packages)
-    PackageSearchClient.instance().updateByQueryCache(GROUP_ID, "", packages)
-    PackageSearchClient.instance().updateByQueryCache("sca", "", packages)
+    // TODO: SCL-23246 Reimplement using new maven search api.
+    //       Check the remaining code in <community>/scala/package-search-client.
+//    val packages = java.util.Arrays.asList(apiMavenPackage(GROUP_ID, ARTIFACT_ID, versionsContainer(STABLE_VERSION, VERSIONS)))
+//    PackageSearchClient.instance().updateByQueryCache("", "", packages)
+//    PackageSearchClient.instance().updateByQueryCache(GROUP_ID, "", packages)
+//    PackageSearchClient.instance().updateByQueryCache("sca", "", packages)
 
     DependencyUtil.updateMockVersionCompletionCache(
       (GROUP_ID, ARTIFACT_ID + "_2.13") -> VERSIONS,
@@ -1157,441 +1157,441 @@ class SbtDependenciesCompletionInsertHandlerTest
   //endregion
 
   //region SCL-22717 examples
-  private def setupCachesSCL22717(groupId: String = "org.scalatest", artifactId: String = "scalatest-"): Unit = {
-    val packages = List("2.13", "3").map { versionSuffix =>
-      apiMavenPackage("org.scalatest", s"scalatest-app_$versionSuffix", versionsContainer("3.2.18"))
-    }.asJava
-    PackageSearchClient.instance().updateByQueryCache(groupId, artifactId, packages)
-  }
+//  private def setupCachesSCL22717(groupId: String = "org.scalatest", artifactId: String = "scalatest-"): Unit = {
+//    val packages = List("2.13", "3").map { versionSuffix =>
+//      apiMavenPackage("org.scalatest", s"scalatest-app_$versionSuffix", versionsContainer("3.2.18"))
+//    }.asJava
+//    PackageSearchClient.instance().updateByQueryCache(groupId, artifactId, packages)
+//  }
 
   // TODO: version tests
   // TODO: in-between artifactId tests -- works fine
   // TODO: groupId tests -- covers `// 2. ref<caret> %% [...] // org` branch!
   // TODO: incomplete definition tests(???)
-  def testSCL22717_1(): Unit = {
-    setupCachesSCL22717()
-    doTest(
-      fileText =
-        s"""
-           |libraryDependencies ++= Seq(
-           |  "org.scalatest" %% "scalatest-$CARET" % "3.2.18" % Test,
-           |  ("org.scalatest" %% "scalatest-" % "3.2.18") % Test,
-           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test intransitive(),
-           |  ("org.scalatest" %% "scalatest-" % "3.2.18" % Test) intransitive(),
-           |  ("org.scalatest" %% "scalatest-" % "3.2.18" % Test).intransitive(),
-           |  ((("org.scalatest" %% "scalatest-app" % "3.2.18" % Test))) intransitive(),
-           |)
-           |""".stripMargin,
-      resultText =
-        s"""
-           |libraryDependencies ++= Seq(
-           |  "org.scalatest" %% "scalatest-app$CARET" % "3.2.18" % Test,
-           |  ("org.scalatest" %% "scalatest-" % "3.2.18") % Test,
-           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test intransitive(),
-           |  ("org.scalatest" %% "scalatest-" % "3.2.18" % Test) intransitive(),
-           |  ("org.scalatest" %% "scalatest-" % "3.2.18" % Test).intransitive(),
-           |  ((("org.scalatest" %% "scalatest-app" % "3.2.18" % Test))) intransitive(),
-           |)
-           |""".stripMargin,
-      item = "org.scalatest::scalatest-app"
-    )
-  }
+//  def testSCL22717_1(): Unit = {
+//    setupCachesSCL22717()
+//    doTest(
+//      fileText =
+//        s"""
+//           |libraryDependencies ++= Seq(
+//           |  "org.scalatest" %% "scalatest-$CARET" % "3.2.18" % Test,
+//           |  ("org.scalatest" %% "scalatest-" % "3.2.18") % Test,
+//           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test intransitive(),
+//           |  ("org.scalatest" %% "scalatest-" % "3.2.18" % Test) intransitive(),
+//           |  ("org.scalatest" %% "scalatest-" % "3.2.18" % Test).intransitive(),
+//           |  ((("org.scalatest" %% "scalatest-app" % "3.2.18" % Test))) intransitive(),
+//           |)
+//           |""".stripMargin,
+//      resultText =
+//        s"""
+//           |libraryDependencies ++= Seq(
+//           |  "org.scalatest" %% "scalatest-app$CARET" % "3.2.18" % Test,
+//           |  ("org.scalatest" %% "scalatest-" % "3.2.18") % Test,
+//           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test intransitive(),
+//           |  ("org.scalatest" %% "scalatest-" % "3.2.18" % Test) intransitive(),
+//           |  ("org.scalatest" %% "scalatest-" % "3.2.18" % Test).intransitive(),
+//           |  ((("org.scalatest" %% "scalatest-app" % "3.2.18" % Test))) intransitive(),
+//           |)
+//           |""".stripMargin,
+//      item = "org.scalatest::scalatest-app"
+//    )
+//  }
 
-  def testSCL22717_2(): Unit = {
-    setupCachesSCL22717()
-    doTest(
-      fileText =
-        s"""
-           |libraryDependencies ++= Seq(
-           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test,
-           |  ("org.scalatest" %% "scalatest-$CARET" % "3.2.18") % Test,
-           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test intransitive(),
-           |  ("org.scalatest" %% "scalatest-" % "3.2.18" % Test) intransitive(),
-           |  ("org.scalatest" %% "scalatest-" % "3.2.18" % Test).intransitive(),
-           |  ((("org.scalatest" %% "scalatest-app" % "3.2.18" % Test))) intransitive(),
-           |)
-           |""".stripMargin,
-      resultText =
-        s"""
-           |libraryDependencies ++= Seq(
-           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test,
-           |  ("org.scalatest" %% "scalatest-app$CARET" % "3.2.18") % Test,
-           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test intransitive(),
-           |  ("org.scalatest" %% "scalatest-" % "3.2.18" % Test) intransitive(),
-           |  ("org.scalatest" %% "scalatest-" % "3.2.18" % Test).intransitive(),
-           |  ((("org.scalatest" %% "scalatest-app" % "3.2.18" % Test))) intransitive(),
-           |)
-           |""".stripMargin,
-      item = "org.scalatest::scalatest-app"
-    )
-  }
+//  def testSCL22717_2(): Unit = {
+//    setupCachesSCL22717()
+//    doTest(
+//      fileText =
+//        s"""
+//           |libraryDependencies ++= Seq(
+//           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test,
+//           |  ("org.scalatest" %% "scalatest-$CARET" % "3.2.18") % Test,
+//           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test intransitive(),
+//           |  ("org.scalatest" %% "scalatest-" % "3.2.18" % Test) intransitive(),
+//           |  ("org.scalatest" %% "scalatest-" % "3.2.18" % Test).intransitive(),
+//           |  ((("org.scalatest" %% "scalatest-app" % "3.2.18" % Test))) intransitive(),
+//           |)
+//           |""".stripMargin,
+//      resultText =
+//        s"""
+//           |libraryDependencies ++= Seq(
+//           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test,
+//           |  ("org.scalatest" %% "scalatest-app$CARET" % "3.2.18") % Test,
+//           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test intransitive(),
+//           |  ("org.scalatest" %% "scalatest-" % "3.2.18" % Test) intransitive(),
+//           |  ("org.scalatest" %% "scalatest-" % "3.2.18" % Test).intransitive(),
+//           |  ((("org.scalatest" %% "scalatest-app" % "3.2.18" % Test))) intransitive(),
+//           |)
+//           |""".stripMargin,
+//      item = "org.scalatest::scalatest-app"
+//    )
+//  }
 
-  def testSCL22717_3(): Unit = {
-    setupCachesSCL22717()
-    doTest(
-      fileText =
-        s"""
-           |libraryDependencies ++= Seq(
-           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test,
-           |  ("org.scalatest" %% "scalatest-" % "3.2.18") % Test,
-           |  "org.scalatest" %% "scalatest-$CARET" % "3.2.18" % Test intransitive(),
-           |  ("org.scalatest" %% "scalatest-" % "3.2.18" % Test) intransitive(),
-           |  ("org.scalatest" %% "scalatest-" % "3.2.18" % Test).intransitive(),
-           |  ((("org.scalatest" %% "scalatest-app" % "3.2.18" % Test))) intransitive(),
-           |)
-           |""".stripMargin,
-      resultText =
-        s"""
-           |libraryDependencies ++= Seq(
-           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test,
-           |  ("org.scalatest" %% "scalatest-" % "3.2.18") % Test,
-           |  "org.scalatest" %% "scalatest-app$CARET" % "3.2.18" % Test intransitive(),
-           |  ("org.scalatest" %% "scalatest-" % "3.2.18" % Test) intransitive(),
-           |  ("org.scalatest" %% "scalatest-" % "3.2.18" % Test).intransitive(),
-           |  ((("org.scalatest" %% "scalatest-app" % "3.2.18" % Test))) intransitive(),
-           |)
-           |""".stripMargin,
-      item = "org.scalatest::scalatest-app"
-    )
-  }
+//  def testSCL22717_3(): Unit = {
+//    setupCachesSCL22717()
+//    doTest(
+//      fileText =
+//        s"""
+//           |libraryDependencies ++= Seq(
+//           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test,
+//           |  ("org.scalatest" %% "scalatest-" % "3.2.18") % Test,
+//           |  "org.scalatest" %% "scalatest-$CARET" % "3.2.18" % Test intransitive(),
+//           |  ("org.scalatest" %% "scalatest-" % "3.2.18" % Test) intransitive(),
+//           |  ("org.scalatest" %% "scalatest-" % "3.2.18" % Test).intransitive(),
+//           |  ((("org.scalatest" %% "scalatest-app" % "3.2.18" % Test))) intransitive(),
+//           |)
+//           |""".stripMargin,
+//      resultText =
+//        s"""
+//           |libraryDependencies ++= Seq(
+//           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test,
+//           |  ("org.scalatest" %% "scalatest-" % "3.2.18") % Test,
+//           |  "org.scalatest" %% "scalatest-app$CARET" % "3.2.18" % Test intransitive(),
+//           |  ("org.scalatest" %% "scalatest-" % "3.2.18" % Test) intransitive(),
+//           |  ("org.scalatest" %% "scalatest-" % "3.2.18" % Test).intransitive(),
+//           |  ((("org.scalatest" %% "scalatest-app" % "3.2.18" % Test))) intransitive(),
+//           |)
+//           |""".stripMargin,
+//      item = "org.scalatest::scalatest-app"
+//    )
+//  }
 
-  def testSCL22717_4(): Unit = {
-    setupCachesSCL22717()
-    doTest(
-      fileText =
-        s"""
-           |libraryDependencies ++= Seq(
-           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test,
-           |  ("org.scalatest" %% "scalatest-" % "3.2.18") % Test,
-           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test intransitive(),
-           |  ("org.scalatest" %% "scalatest-$CARET" % "3.2.18" % Test) intransitive(),
-           |  ("org.scalatest" %% "scalatest-" % "3.2.18" % Test).intransitive(),
-           |  ((("org.scalatest" %% "scalatest-app" % "3.2.18" % Test))) intransitive(),
-           |)
-           |""".stripMargin,
-      resultText =
-        s"""
-           |libraryDependencies ++= Seq(
-           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test,
-           |  ("org.scalatest" %% "scalatest-" % "3.2.18") % Test,
-           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test intransitive(),
-           |  ("org.scalatest" %% "scalatest-app$CARET" % "3.2.18" % Test) intransitive(),
-           |  ("org.scalatest" %% "scalatest-" % "3.2.18" % Test).intransitive(),
-           |  ((("org.scalatest" %% "scalatest-app" % "3.2.18" % Test))) intransitive(),
-           |)
-           |""".stripMargin,
-      item = "org.scalatest::scalatest-app"
-    )
-  }
+//  def testSCL22717_4(): Unit = {
+//    setupCachesSCL22717()
+//    doTest(
+//      fileText =
+//        s"""
+//           |libraryDependencies ++= Seq(
+//           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test,
+//           |  ("org.scalatest" %% "scalatest-" % "3.2.18") % Test,
+//           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test intransitive(),
+//           |  ("org.scalatest" %% "scalatest-$CARET" % "3.2.18" % Test) intransitive(),
+//           |  ("org.scalatest" %% "scalatest-" % "3.2.18" % Test).intransitive(),
+//           |  ((("org.scalatest" %% "scalatest-app" % "3.2.18" % Test))) intransitive(),
+//           |)
+//           |""".stripMargin,
+//      resultText =
+//        s"""
+//           |libraryDependencies ++= Seq(
+//           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test,
+//           |  ("org.scalatest" %% "scalatest-" % "3.2.18") % Test,
+//           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test intransitive(),
+//           |  ("org.scalatest" %% "scalatest-app$CARET" % "3.2.18" % Test) intransitive(),
+//           |  ("org.scalatest" %% "scalatest-" % "3.2.18" % Test).intransitive(),
+//           |  ((("org.scalatest" %% "scalatest-app" % "3.2.18" % Test))) intransitive(),
+//           |)
+//           |""".stripMargin,
+//      item = "org.scalatest::scalatest-app"
+//    )
+//  }
 
-  def testSCL22717_5(): Unit = {
-    setupCachesSCL22717()
-    doTest(
-      fileText =
-        s"""
-           |libraryDependencies ++= Seq(
-           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test,
-           |  ("org.scalatest" %% "scalatest-" % "3.2.18") % Test,
-           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test intransitive(),
-           |  ("org.scalatest" %% "scalatest-" % "3.2.18" % Test) intransitive(),
-           |  ("org.scalatest" %% "scalatest-$CARET" % "3.2.18" % Test).intransitive(),
-           |  ((("org.scalatest" %% "scalatest-app" % "3.2.18" % Test))) intransitive(),
-           |)
-           |""".stripMargin,
-      resultText =
-        s"""
-           |libraryDependencies ++= Seq(
-           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test,
-           |  ("org.scalatest" %% "scalatest-" % "3.2.18") % Test,
-           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test intransitive(),
-           |  ("org.scalatest" %% "scalatest-" % "3.2.18" % Test) intransitive(),
-           |  ("org.scalatest" %% "scalatest-app$CARET" % "3.2.18" % Test).intransitive(),
-           |  ((("org.scalatest" %% "scalatest-app" % "3.2.18" % Test))) intransitive(),
-           |)
-           |""".stripMargin,
-      item = "org.scalatest::scalatest-app"
-    )
-  }
+//  def testSCL22717_5(): Unit = {
+//    setupCachesSCL22717()
+//    doTest(
+//      fileText =
+//        s"""
+//           |libraryDependencies ++= Seq(
+//           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test,
+//           |  ("org.scalatest" %% "scalatest-" % "3.2.18") % Test,
+//           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test intransitive(),
+//           |  ("org.scalatest" %% "scalatest-" % "3.2.18" % Test) intransitive(),
+//           |  ("org.scalatest" %% "scalatest-$CARET" % "3.2.18" % Test).intransitive(),
+//           |  ((("org.scalatest" %% "scalatest-app" % "3.2.18" % Test))) intransitive(),
+//           |)
+//           |""".stripMargin,
+//      resultText =
+//        s"""
+//           |libraryDependencies ++= Seq(
+//           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test,
+//           |  ("org.scalatest" %% "scalatest-" % "3.2.18") % Test,
+//           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test intransitive(),
+//           |  ("org.scalatest" %% "scalatest-" % "3.2.18" % Test) intransitive(),
+//           |  ("org.scalatest" %% "scalatest-app$CARET" % "3.2.18" % Test).intransitive(),
+//           |  ((("org.scalatest" %% "scalatest-app" % "3.2.18" % Test))) intransitive(),
+//           |)
+//           |""".stripMargin,
+//      item = "org.scalatest::scalatest-app"
+//    )
+//  }
 
-  def testSCL22717_6(): Unit = {
-    setupCachesSCL22717(artifactId = "scalatest-app")
-    doTest(
-      fileText =
-        s"""
-           |libraryDependencies ++= Seq(
-           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test,
-           |  ("org.scalatest" %% "scalatest-" % "3.2.18") % Test,
-           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test intransitive(),
-           |  ("org.scalatest" %% "scalatest-" % "3.2.18" % Test) intransitive(),
-           |  ("org.scalatest" %% "scalatest-" % "3.2.18" % Test).intransitive(),
-           |  ((("org.scalatest" %% "scalatest-app$CARET" % "3.2.18" % Test))) intransitive(),
-           |)
-           |""".stripMargin,
-      resultText =
-        s"""
-           |libraryDependencies ++= Seq(
-           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test,
-           |  ("org.scalatest" %% "scalatest-" % "3.2.18") % Test,
-           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test intransitive(),
-           |  ("org.scalatest" %% "scalatest-" % "3.2.18" % Test) intransitive(),
-           |  ("org.scalatest" %% "scalatest-" % "3.2.18" % Test).intransitive(),
-           |  ((("org.scalatest" %% "scalatest-app$CARET" % "3.2.18" % Test))) intransitive(),
-           |)
-           |""".stripMargin,
-      item = "org.scalatest::scalatest-app"
-    )
-  }
-
-  ////////
-  def testSCL22717_1_refOrg(): Unit = {
-    setupCachesSCL22717()
-    doTest(
-      fileText =
-        s"""
-           |val org = "org.scalatest"
-           |
-           |libraryDependencies ++= Seq(
-           |  org %% "scalatest-$CARET" % "3.2.18" % Test,
-           |  (org %% "scalatest-" % "3.2.18") % Test,
-           |  org %% "scalatest-" % "3.2.18" % Test intransitive(),
-           |  (org %% "scalatest-" % "3.2.18" % Test) intransitive(),
-           |  (org %% "scalatest-" % "3.2.18" % Test).intransitive(),
-           |  (((org %% "scalatest-app" % "3.2.18" % Test))) intransitive(),
-           |)
-           |""".stripMargin,
-      resultText =
-        s"""
-           |val org = "org.scalatest"
-           |
-           |libraryDependencies ++= Seq(
-           |  org %% "scalatest-app$CARET" % "3.2.18" % Test,
-           |  (org %% "scalatest-" % "3.2.18") % Test,
-           |  org %% "scalatest-" % "3.2.18" % Test intransitive(),
-           |  (org %% "scalatest-" % "3.2.18" % Test) intransitive(),
-           |  (org %% "scalatest-" % "3.2.18" % Test).intransitive(),
-           |  (((org %% "scalatest-app" % "3.2.18" % Test))) intransitive(),
-           |)
-           |""".stripMargin,
-      item = "org.scalatest::scalatest-app"
-    )
-  }
-
-  def testSCL22717_2_refOrg(): Unit = {
-    setupCachesSCL22717()
-    doTest(
-      fileText =
-        s"""
-           |val org = "org.scalatest"
-           |
-           |libraryDependencies ++= Seq(
-           |  org %% "scalatest-" % "3.2.18" % Test,
-           |  (org %% "scalatest-$CARET" % "3.2.18") % Test,
-           |  org %% "scalatest-" % "3.2.18" % Test intransitive(),
-           |  (org %% "scalatest-" % "3.2.18" % Test) intransitive(),
-           |  (org %% "scalatest-" % "3.2.18" % Test).intransitive(),
-           |  (((org %% "scalatest-app" % "3.2.18" % Test))) intransitive(),
-           |)
-           |""".stripMargin,
-      resultText =
-        s"""
-           |val org = "org.scalatest"
-           |
-           |libraryDependencies ++= Seq(
-           |  org %% "scalatest-" % "3.2.18" % Test,
-           |  (org %% "scalatest-app$CARET" % "3.2.18") % Test,
-           |  org %% "scalatest-" % "3.2.18" % Test intransitive(),
-           |  (org %% "scalatest-" % "3.2.18" % Test) intransitive(),
-           |  (org %% "scalatest-" % "3.2.18" % Test).intransitive(),
-           |  (((org %% "scalatest-app" % "3.2.18" % Test))) intransitive(),
-           |)
-           |""".stripMargin,
-      item = "org.scalatest::scalatest-app"
-    )
-  }
-
-  def testSCL22717_3_refOrg(): Unit = {
-    setupCachesSCL22717()
-    doTest(
-      fileText =
-        s"""
-           |val org = "org.scalatest"
-           |
-           |libraryDependencies ++= Seq(
-           |  org %% "scalatest-" % "3.2.18" % Test,
-           |  (org %% "scalatest-" % "3.2.18") % Test,
-           |  org %% "scalatest-$CARET" % "3.2.18" % Test intransitive(),
-           |  (org %% "scalatest-" % "3.2.18" % Test) intransitive(),
-           |  (org %% "scalatest-" % "3.2.18" % Test).intransitive(),
-           |  (((org %% "scalatest-app" % "3.2.18" % Test))) intransitive(),
-           |)
-           |""".stripMargin,
-      resultText =
-        s"""
-           |val org = "org.scalatest"
-           |
-           |libraryDependencies ++= Seq(
-           |  org %% "scalatest-" % "3.2.18" % Test,
-           |  (org %% "scalatest-" % "3.2.18") % Test,
-           |  org %% "scalatest-app$CARET" % "3.2.18" % Test intransitive(),
-           |  (org %% "scalatest-" % "3.2.18" % Test) intransitive(),
-           |  (org %% "scalatest-" % "3.2.18" % Test).intransitive(),
-           |  (((org %% "scalatest-app" % "3.2.18" % Test))) intransitive(),
-           |)
-           |""".stripMargin,
-      item = "org.scalatest::scalatest-app"
-    )
-  }
-
-  def testSCL22717_4_refOrg(): Unit = {
-    setupCachesSCL22717()
-    doTest(
-      fileText =
-        s"""
-           |val org = "org.scalatest"
-           |
-           |libraryDependencies ++= Seq(
-           |  org %% "scalatest-" % "3.2.18" % Test,
-           |  (org %% "scalatest-" % "3.2.18") % Test,
-           |  org %% "scalatest-" % "3.2.18" % Test intransitive(),
-           |  (org %% "scalatest-$CARET" % "3.2.18" % Test) intransitive(),
-           |  (org %% "scalatest-" % "3.2.18" % Test).intransitive(),
-           |  (((org %% "scalatest-app" % "3.2.18" % Test))) intransitive(),
-           |)
-           |""".stripMargin,
-      resultText =
-        s"""
-           |val org = "org.scalatest"
-           |
-           |libraryDependencies ++= Seq(
-           |  org %% "scalatest-" % "3.2.18" % Test,
-           |  (org %% "scalatest-" % "3.2.18") % Test,
-           |  org %% "scalatest-" % "3.2.18" % Test intransitive(),
-           |  (org %% "scalatest-app$CARET" % "3.2.18" % Test) intransitive(),
-           |  (org %% "scalatest-" % "3.2.18" % Test).intransitive(),
-           |  (((org %% "scalatest-app" % "3.2.18" % Test))) intransitive(),
-           |)
-           |""".stripMargin,
-      item = "org.scalatest::scalatest-app"
-    )
-  }
-
-  def testSCL22717_5_refOrg(): Unit = {
-    setupCachesSCL22717()
-    doTest(
-      fileText =
-        s"""
-           |val org = "org.scalatest"
-           |
-           |libraryDependencies ++= Seq(
-           |  org %% "scalatest-" % "3.2.18" % Test,
-           |  (org %% "scalatest-" % "3.2.18") % Test,
-           |  org %% "scalatest-" % "3.2.18" % Test intransitive(),
-           |  (org %% "scalatest-" % "3.2.18" % Test) intransitive(),
-           |  (org %% "scalatest-$CARET" % "3.2.18" % Test).intransitive(),
-           |  (((org %% "scalatest-app" % "3.2.18" % Test))) intransitive(),
-           |)
-           |""".stripMargin,
-      resultText =
-        s"""
-           |val org = "org.scalatest"
-           |
-           |libraryDependencies ++= Seq(
-           |  org %% "scalatest-" % "3.2.18" % Test,
-           |  (org %% "scalatest-" % "3.2.18") % Test,
-           |  org %% "scalatest-" % "3.2.18" % Test intransitive(),
-           |  (org %% "scalatest-" % "3.2.18" % Test) intransitive(),
-           |  (org %% "scalatest-app$CARET" % "3.2.18" % Test).intransitive(),
-           |  (((org %% "scalatest-app" % "3.2.18" % Test))) intransitive(),
-           |)
-           |""".stripMargin,
-      item = "org.scalatest::scalatest-app"
-    )
-  }
-
-  def testSCL22717_6_refOrg(): Unit = {
-    setupCachesSCL22717(artifactId = "scalatest-app")
-    doTest(
-      fileText =
-        s"""
-           |val org = "org.scalatest"
-           |
-           |libraryDependencies ++= Seq(
-           |  org %% "scalatest-" % "3.2.18" % Test,
-           |  (org %% "scalatest-" % "3.2.18") % Test,
-           |  org %% "scalatest-" % "3.2.18" % Test intransitive(),
-           |  (org %% "scalatest-" % "3.2.18" % Test) intransitive(),
-           |  (org %% "scalatest-" % "3.2.18" % Test).intransitive(),
-           |  (((org %% "scalatest-app$CARET" % "3.2.18" % Test))) intransitive(),
-           |)
-           |""".stripMargin,
-      resultText =
-        s"""
-           |val org = "org.scalatest"
-           |
-           |libraryDependencies ++= Seq(
-           |  org %% "scalatest-" % "3.2.18" % Test,
-           |  (org %% "scalatest-" % "3.2.18") % Test,
-           |  org %% "scalatest-" % "3.2.18" % Test intransitive(),
-           |  (org %% "scalatest-" % "3.2.18" % Test) intransitive(),
-           |  (org %% "scalatest-" % "3.2.18" % Test).intransitive(),
-           |  (((org %% "scalatest-app$CARET" % "3.2.18" % Test))) intransitive(),
-           |)
-           |""".stripMargin,
-      item = "org.scalatest::scalatest-app"
-    )
-  }
+//  def testSCL22717_6(): Unit = {
+//    setupCachesSCL22717(artifactId = "scalatest-app")
+//    doTest(
+//      fileText =
+//        s"""
+//           |libraryDependencies ++= Seq(
+//           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test,
+//           |  ("org.scalatest" %% "scalatest-" % "3.2.18") % Test,
+//           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test intransitive(),
+//           |  ("org.scalatest" %% "scalatest-" % "3.2.18" % Test) intransitive(),
+//           |  ("org.scalatest" %% "scalatest-" % "3.2.18" % Test).intransitive(),
+//           |  ((("org.scalatest" %% "scalatest-app$CARET" % "3.2.18" % Test))) intransitive(),
+//           |)
+//           |""".stripMargin,
+//      resultText =
+//        s"""
+//           |libraryDependencies ++= Seq(
+//           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test,
+//           |  ("org.scalatest" %% "scalatest-" % "3.2.18") % Test,
+//           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test intransitive(),
+//           |  ("org.scalatest" %% "scalatest-" % "3.2.18" % Test) intransitive(),
+//           |  ("org.scalatest" %% "scalatest-" % "3.2.18" % Test).intransitive(),
+//           |  ((("org.scalatest" %% "scalatest-app$CARET" % "3.2.18" % Test))) intransitive(),
+//           |)
+//           |""".stripMargin,
+//      item = "org.scalatest::scalatest-app"
+//    )
+//  }
 
   ////////
+//  def testSCL22717_1_refOrg(): Unit = {
+//    setupCachesSCL22717()
+//    doTest(
+//      fileText =
+//        s"""
+//           |val org = "org.scalatest"
+//           |
+//           |libraryDependencies ++= Seq(
+//           |  org %% "scalatest-$CARET" % "3.2.18" % Test,
+//           |  (org %% "scalatest-" % "3.2.18") % Test,
+//           |  org %% "scalatest-" % "3.2.18" % Test intransitive(),
+//           |  (org %% "scalatest-" % "3.2.18" % Test) intransitive(),
+//           |  (org %% "scalatest-" % "3.2.18" % Test).intransitive(),
+//           |  (((org %% "scalatest-app" % "3.2.18" % Test))) intransitive(),
+//           |)
+//           |""".stripMargin,
+//      resultText =
+//        s"""
+//           |val org = "org.scalatest"
+//           |
+//           |libraryDependencies ++= Seq(
+//           |  org %% "scalatest-app$CARET" % "3.2.18" % Test,
+//           |  (org %% "scalatest-" % "3.2.18") % Test,
+//           |  org %% "scalatest-" % "3.2.18" % Test intransitive(),
+//           |  (org %% "scalatest-" % "3.2.18" % Test) intransitive(),
+//           |  (org %% "scalatest-" % "3.2.18" % Test).intransitive(),
+//           |  (((org %% "scalatest-app" % "3.2.18" % Test))) intransitive(),
+//           |)
+//           |""".stripMargin,
+//      item = "org.scalatest::scalatest-app"
+//    )
+//  }
 
-  def testSCL22717_2_inOrg(): Unit = {
-    setupCachesSCL22717(groupId = "org.scala", artifactId = "")
-    doTest(
-      fileText =
-        s"""
-           |libraryDependencies ++= Seq(
-           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test,
-           |  ("org.scala${CARET}test" %% "scalatest-" % "3.2.18") % Test,
-           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test intransitive(),
-           |  ("org.scalatest" %% "scalatest-" % "3.2.18" % Test) intransitive(),
-           |  ("org.scalatest" %% "scalatest-" % "3.2.18" % Test).intransitive(),
-           |  ((("org.scalatest" %% "scalatest-app" % "3.2.18" % Test))) intransitive(),
-           |)
-           |""".stripMargin,
-      resultText =
-        s"""
-           |libraryDependencies ++= Seq(
-           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test,
-           |  ("org.scalatest" %% "scalatest-app$CARET" % "3.2.18") % Test,
-           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test intransitive(),
-           |  ("org.scalatest" %% "scalatest-" % "3.2.18" % Test) intransitive(),
-           |  ("org.scalatest" %% "scalatest-" % "3.2.18" % Test).intransitive(),
-           |  ((("org.scalatest" %% "scalatest-app" % "3.2.18" % Test))) intransitive(),
-           |)
-           |""".stripMargin,
-      item = "org.scalatest::scalatest-app"
-    )
-  }
+//  def testSCL22717_2_refOrg(): Unit = {
+//    setupCachesSCL22717()
+//    doTest(
+//      fileText =
+//        s"""
+//           |val org = "org.scalatest"
+//           |
+//           |libraryDependencies ++= Seq(
+//           |  org %% "scalatest-" % "3.2.18" % Test,
+//           |  (org %% "scalatest-$CARET" % "3.2.18") % Test,
+//           |  org %% "scalatest-" % "3.2.18" % Test intransitive(),
+//           |  (org %% "scalatest-" % "3.2.18" % Test) intransitive(),
+//           |  (org %% "scalatest-" % "3.2.18" % Test).intransitive(),
+//           |  (((org %% "scalatest-app" % "3.2.18" % Test))) intransitive(),
+//           |)
+//           |""".stripMargin,
+//      resultText =
+//        s"""
+//           |val org = "org.scalatest"
+//           |
+//           |libraryDependencies ++= Seq(
+//           |  org %% "scalatest-" % "3.2.18" % Test,
+//           |  (org %% "scalatest-app$CARET" % "3.2.18") % Test,
+//           |  org %% "scalatest-" % "3.2.18" % Test intransitive(),
+//           |  (org %% "scalatest-" % "3.2.18" % Test) intransitive(),
+//           |  (org %% "scalatest-" % "3.2.18" % Test).intransitive(),
+//           |  (((org %% "scalatest-app" % "3.2.18" % Test))) intransitive(),
+//           |)
+//           |""".stripMargin,
+//      item = "org.scalatest::scalatest-app"
+//    )
+//  }
 
-  def testSCL22717_2_inArtifactRef(): Unit = {
-    setupCachesSCL22717(artifactId = "scala")
+//  def testSCL22717_3_refOrg(): Unit = {
+//    setupCachesSCL22717()
+//    doTest(
+//      fileText =
+//        s"""
+//           |val org = "org.scalatest"
+//           |
+//           |libraryDependencies ++= Seq(
+//           |  org %% "scalatest-" % "3.2.18" % Test,
+//           |  (org %% "scalatest-" % "3.2.18") % Test,
+//           |  org %% "scalatest-$CARET" % "3.2.18" % Test intransitive(),
+//           |  (org %% "scalatest-" % "3.2.18" % Test) intransitive(),
+//           |  (org %% "scalatest-" % "3.2.18" % Test).intransitive(),
+//           |  (((org %% "scalatest-app" % "3.2.18" % Test))) intransitive(),
+//           |)
+//           |""".stripMargin,
+//      resultText =
+//        s"""
+//           |val org = "org.scalatest"
+//           |
+//           |libraryDependencies ++= Seq(
+//           |  org %% "scalatest-" % "3.2.18" % Test,
+//           |  (org %% "scalatest-" % "3.2.18") % Test,
+//           |  org %% "scalatest-app$CARET" % "3.2.18" % Test intransitive(),
+//           |  (org %% "scalatest-" % "3.2.18" % Test) intransitive(),
+//           |  (org %% "scalatest-" % "3.2.18" % Test).intransitive(),
+//           |  (((org %% "scalatest-app" % "3.2.18" % Test))) intransitive(),
+//           |)
+//           |""".stripMargin,
+//      item = "org.scalatest::scalatest-app"
+//    )
+//  }
 
-    doTest(
-      fileText =
-        s"""
-           |libraryDependencies ++= Seq(
-           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test,
-           |  ("org.scalatest" %% scala${CARET}test)
-           |)
-           |""".stripMargin,
-      resultText =
-        s"""
-           |libraryDependencies ++= Seq(
-           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test,
-           |  ("org.scalatest" %% "scalatest-app" % "$CARET")
-           |)
-           |""".stripMargin,
-      item = "org.scalatest::scalatest-app"
-    )
-  }
+//  def testSCL22717_4_refOrg(): Unit = {
+//    setupCachesSCL22717()
+//    doTest(
+//      fileText =
+//        s"""
+//           |val org = "org.scalatest"
+//           |
+//           |libraryDependencies ++= Seq(
+//           |  org %% "scalatest-" % "3.2.18" % Test,
+//           |  (org %% "scalatest-" % "3.2.18") % Test,
+//           |  org %% "scalatest-" % "3.2.18" % Test intransitive(),
+//           |  (org %% "scalatest-$CARET" % "3.2.18" % Test) intransitive(),
+//           |  (org %% "scalatest-" % "3.2.18" % Test).intransitive(),
+//           |  (((org %% "scalatest-app" % "3.2.18" % Test))) intransitive(),
+//           |)
+//           |""".stripMargin,
+//      resultText =
+//        s"""
+//           |val org = "org.scalatest"
+//           |
+//           |libraryDependencies ++= Seq(
+//           |  org %% "scalatest-" % "3.2.18" % Test,
+//           |  (org %% "scalatest-" % "3.2.18") % Test,
+//           |  org %% "scalatest-" % "3.2.18" % Test intransitive(),
+//           |  (org %% "scalatest-app$CARET" % "3.2.18" % Test) intransitive(),
+//           |  (org %% "scalatest-" % "3.2.18" % Test).intransitive(),
+//           |  (((org %% "scalatest-app" % "3.2.18" % Test))) intransitive(),
+//           |)
+//           |""".stripMargin,
+//      item = "org.scalatest::scalatest-app"
+//    )
+//  }
+
+//  def testSCL22717_5_refOrg(): Unit = {
+//    setupCachesSCL22717()
+//    doTest(
+//      fileText =
+//        s"""
+//           |val org = "org.scalatest"
+//           |
+//           |libraryDependencies ++= Seq(
+//           |  org %% "scalatest-" % "3.2.18" % Test,
+//           |  (org %% "scalatest-" % "3.2.18") % Test,
+//           |  org %% "scalatest-" % "3.2.18" % Test intransitive(),
+//           |  (org %% "scalatest-" % "3.2.18" % Test) intransitive(),
+//           |  (org %% "scalatest-$CARET" % "3.2.18" % Test).intransitive(),
+//           |  (((org %% "scalatest-app" % "3.2.18" % Test))) intransitive(),
+//           |)
+//           |""".stripMargin,
+//      resultText =
+//        s"""
+//           |val org = "org.scalatest"
+//           |
+//           |libraryDependencies ++= Seq(
+//           |  org %% "scalatest-" % "3.2.18" % Test,
+//           |  (org %% "scalatest-" % "3.2.18") % Test,
+//           |  org %% "scalatest-" % "3.2.18" % Test intransitive(),
+//           |  (org %% "scalatest-" % "3.2.18" % Test) intransitive(),
+//           |  (org %% "scalatest-app$CARET" % "3.2.18" % Test).intransitive(),
+//           |  (((org %% "scalatest-app" % "3.2.18" % Test))) intransitive(),
+//           |)
+//           |""".stripMargin,
+//      item = "org.scalatest::scalatest-app"
+//    )
+//  }
+
+//  def testSCL22717_6_refOrg(): Unit = {
+//    setupCachesSCL22717(artifactId = "scalatest-app")
+//    doTest(
+//      fileText =
+//        s"""
+//           |val org = "org.scalatest"
+//           |
+//           |libraryDependencies ++= Seq(
+//           |  org %% "scalatest-" % "3.2.18" % Test,
+//           |  (org %% "scalatest-" % "3.2.18") % Test,
+//           |  org %% "scalatest-" % "3.2.18" % Test intransitive(),
+//           |  (org %% "scalatest-" % "3.2.18" % Test) intransitive(),
+//           |  (org %% "scalatest-" % "3.2.18" % Test).intransitive(),
+//           |  (((org %% "scalatest-app$CARET" % "3.2.18" % Test))) intransitive(),
+//           |)
+//           |""".stripMargin,
+//      resultText =
+//        s"""
+//           |val org = "org.scalatest"
+//           |
+//           |libraryDependencies ++= Seq(
+//           |  org %% "scalatest-" % "3.2.18" % Test,
+//           |  (org %% "scalatest-" % "3.2.18") % Test,
+//           |  org %% "scalatest-" % "3.2.18" % Test intransitive(),
+//           |  (org %% "scalatest-" % "3.2.18" % Test) intransitive(),
+//           |  (org %% "scalatest-" % "3.2.18" % Test).intransitive(),
+//           |  (((org %% "scalatest-app$CARET" % "3.2.18" % Test))) intransitive(),
+//           |)
+//           |""".stripMargin,
+//      item = "org.scalatest::scalatest-app"
+//    )
+//  }
+
+  ////////
+
+//  def testSCL22717_2_inOrg(): Unit = {
+//    setupCachesSCL22717(groupId = "org.scala", artifactId = "")
+//    doTest(
+//      fileText =
+//        s"""
+//           |libraryDependencies ++= Seq(
+//           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test,
+//           |  ("org.scala${CARET}test" %% "scalatest-" % "3.2.18") % Test,
+//           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test intransitive(),
+//           |  ("org.scalatest" %% "scalatest-" % "3.2.18" % Test) intransitive(),
+//           |  ("org.scalatest" %% "scalatest-" % "3.2.18" % Test).intransitive(),
+//           |  ((("org.scalatest" %% "scalatest-app" % "3.2.18" % Test))) intransitive(),
+//           |)
+//           |""".stripMargin,
+//      resultText =
+//        s"""
+//           |libraryDependencies ++= Seq(
+//           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test,
+//           |  ("org.scalatest" %% "scalatest-app$CARET" % "3.2.18") % Test,
+//           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test intransitive(),
+//           |  ("org.scalatest" %% "scalatest-" % "3.2.18" % Test) intransitive(),
+//           |  ("org.scalatest" %% "scalatest-" % "3.2.18" % Test).intransitive(),
+//           |  ((("org.scalatest" %% "scalatest-app" % "3.2.18" % Test))) intransitive(),
+//           |)
+//           |""".stripMargin,
+//      item = "org.scalatest::scalatest-app"
+//    )
+//  }
+
+//  def testSCL22717_2_inArtifactRef(): Unit = {
+//    setupCachesSCL22717(artifactId = "scala")
+//
+//    doTest(
+//      fileText =
+//        s"""
+//           |libraryDependencies ++= Seq(
+//           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test,
+//           |  ("org.scalatest" %% scala${CARET}test)
+//           |)
+//           |""".stripMargin,
+//      resultText =
+//        s"""
+//           |libraryDependencies ++= Seq(
+//           |  "org.scalatest" %% "scalatest-" % "3.2.18" % Test,
+//           |  ("org.scalatest" %% "scalatest-app" % "$CARET")
+//           |)
+//           |""".stripMargin,
+//      item = "org.scalatest::scalatest-app"
+//    )
+//  }
   //endregion
 }

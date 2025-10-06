@@ -6,10 +6,8 @@ import com.intellij.psi.PsiElement
 import com.intellij.util.concurrency.AppExecutorUtil
 import org.apache.maven.artifact.versioning.ComparableVersion
 import org.jetbrains.annotations.{ApiStatus, VisibleForTesting}
-import org.jetbrains.packagesearch.api.v3.ApiMavenPackage
-import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, NonNullObjectExt, SeqExt}
+import org.jetbrains.plugins.scala.extensions.{NonNullObjectExt, SeqExt}
 import org.jetbrains.plugins.scala.isUnitTestMode
-import org.jetbrains.plugins.scala.packagesearch.api.PackageSearchClient
 import org.jetbrains.plugins.scala.packagesearch.codeInspection.DependencyVersionInspection.{ArtifactIdSuffix, DependencyDescriptor}
 import org.jetbrains.plugins.scala.project.{ProjectExt, ProjectPsiElementExt}
 
@@ -119,13 +117,17 @@ object DependencyUtil {
     }
   }
 
-  def getArtifacts(groupId: String, artifactId: String, useCache: Boolean, exactMatchGroupId: Boolean): List[ApiMavenPackage] = {
-    val packagesFuture = PackageSearchClient.instance().searchByQuery(groupId, artifactId, useCache)
-    val packages = ProgressIndicatorUtils.awaitWithCheckCanceled(packagesFuture)
-      .asScala.toList
-      .filterByType[ApiMavenPackage]
-      .pipeIf(exactMatchGroupId)(_.filter(_.getGroupId == groupId))
-    packages
+  @deprecated(message = "Not implemented. Returns an empty list. Do not use this API until it has been reimplemented.")
+  @Deprecated
+  def getArtifacts(groupId: String, artifactId: String, useCache: Boolean, exactMatchGroupId: Boolean): List[AnyRef] = {
+//    val packagesFuture = PackageSearchClient.instance().searchByQuery(groupId, artifactId, useCache)
+//    val packages = ProgressIndicatorUtils.awaitWithCheckCanceled(packagesFuture)
+//      .asScala.toList
+//      .filterByType[ApiMavenPackage]
+//      .pipeIf(exactMatchGroupId)(_.filter(_.getGroupId == groupId))
+//    packages
+    // TODO: SCL-23246 Reimplement using different maven search API.
+    List.empty
   }
 
   def getArtifactVersions(groupId: String, artifactId: String, onlyStable: Boolean): Seq[ComparableVersion] = {
