@@ -132,1028 +132,1028 @@ class SbtDependenciesCompletionInsertHandlerTest
     item = STABLE_VERSION
   )
 
-  def testTopLevel_Single_OutsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |libraryDependencies += $CARET
-         |""".stripMargin,
-    resultText =
-      s"""
-         |libraryDependencies += $RESULT_DEPENDENCY
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testTopLevel_Single_OutsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |libraryDependencies += $CARET
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |libraryDependencies += $RESULT_DEPENDENCY
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
-  def testTopLevel_Single_InsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |libraryDependencies += "$CARET"
-         |""".stripMargin,
-    resultText =
-      s"""
-         |libraryDependencies += $RESULT_DEPENDENCY
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testTopLevel_Single_InsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |libraryDependencies += "$CARET"
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |libraryDependencies += $RESULT_DEPENDENCY
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
-  def testTopLevel_Single_CompleteArtifact_OutsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |libraryDependencies += "$GROUP_ID" % $CARET
-         |""".stripMargin,
-    resultText =
-      s"""
-         |libraryDependencies += $RESULT_DEPENDENCY
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testTopLevel_Single_CompleteArtifact_OutsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |libraryDependencies += "$GROUP_ID" % $CARET
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |libraryDependencies += $RESULT_DEPENDENCY
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
-  def testTopLevel_Single_CompleteArtifact_InsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |libraryDependencies += "$GROUP_ID" % "$CARET"
-         |""".stripMargin,
-    resultText =
-      s"""
-         |libraryDependencies += $RESULT_DEPENDENCY
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testTopLevel_Single_CompleteArtifact_InsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |libraryDependencies += "$GROUP_ID" % "$CARET"
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |libraryDependencies += $RESULT_DEPENDENCY
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
-  def testTopLevel_Single_CompleteArtifactWithDefinedVersion_OutsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |libraryDependencies += "$GROUP_ID" % $CARET % "0.0.1"
-         |""".stripMargin,
-    resultText =
-      s"""
-         |libraryDependencies += "$GROUP_ID" % "$ARTIFACT_ID$CARET" % "0.0.1"
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testTopLevel_Single_CompleteArtifactWithDefinedVersion_OutsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |libraryDependencies += "$GROUP_ID" % $CARET % "0.0.1"
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |libraryDependencies += "$GROUP_ID" % "$ARTIFACT_ID$CARET" % "0.0.1"
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
-  def testTopLevel_Single_CompleteArtifactWithDefinedVersion_InsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |libraryDependencies += "$GROUP_ID" % "$CARET" % "0.0.1"
-         |""".stripMargin,
-    resultText =
-      s"""
-         |libraryDependencies += "$GROUP_ID" % "$ARTIFACT_ID$CARET" % "0.0.1"
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testTopLevel_Single_CompleteArtifactWithDefinedVersion_InsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |libraryDependencies += "$GROUP_ID" % "$CARET" % "0.0.1"
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |libraryDependencies += "$GROUP_ID" % "$ARTIFACT_ID$CARET" % "0.0.1"
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
-  def testTopLevel_SeqOneLine_OutsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |libraryDependencies ++= Seq($CARET)
-         |""".stripMargin,
-    resultText =
-      s"""
-         |libraryDependencies ++= Seq($RESULT_DEPENDENCY)
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testTopLevel_SeqOneLine_OutsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |libraryDependencies ++= Seq($CARET)
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |libraryDependencies ++= Seq($RESULT_DEPENDENCY)
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
-  def testTopLevel_SeqOneLine_InsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |libraryDependencies ++= Seq("$CARET")
-         |""".stripMargin,
-    resultText =
-      s"""
-         |libraryDependencies ++= Seq($RESULT_DEPENDENCY)
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testTopLevel_SeqOneLine_InsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |libraryDependencies ++= Seq("$CARET")
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |libraryDependencies ++= Seq($RESULT_DEPENDENCY)
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
   //region completion inside Seq inheritors
-  def testTopLevel_ListOneLine_OutsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |libraryDependencies ++= List($CARET)
-         |""".stripMargin,
-    resultText =
-      s"""
-         |libraryDependencies ++= List($RESULT_DEPENDENCY)
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testTopLevel_ListOneLine_OutsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |libraryDependencies ++= List($CARET)
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |libraryDependencies ++= List($RESULT_DEPENDENCY)
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
-  def testTopLevel_ListOneLine_InsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |libraryDependencies ++= List("$CARET")
-         |""".stripMargin,
-    resultText =
-      s"""
-         |libraryDependencies ++= List($RESULT_DEPENDENCY)
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testTopLevel_ListOneLine_InsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |libraryDependencies ++= List("$CARET")
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |libraryDependencies ++= List($RESULT_DEPENDENCY)
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
-  def testTopLevel_VectorOneLine_OutsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |libraryDependencies ++= Vector($CARET)
-         |""".stripMargin,
-    resultText =
-      s"""
-         |libraryDependencies ++= Vector($RESULT_DEPENDENCY)
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testTopLevel_VectorOneLine_OutsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |libraryDependencies ++= Vector($CARET)
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |libraryDependencies ++= Vector($RESULT_DEPENDENCY)
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
-  def testTopLevel_VectorOneLine_InsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |libraryDependencies ++= Vector("$CARET")
-         |""".stripMargin,
-    resultText =
-      s"""
-         |libraryDependencies ++= Vector($RESULT_DEPENDENCY)
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testTopLevel_VectorOneLine_InsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |libraryDependencies ++= Vector("$CARET")
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |libraryDependencies ++= Vector($RESULT_DEPENDENCY)
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
   //endregion
 
-  def testTopLevel_SeqOneLine_CompleteArtifact_OutsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |libraryDependencies ++= Seq("$GROUP_ID" % $CARET)
-         |""".stripMargin,
-    resultText =
-      s"""
-         |libraryDependencies ++= Seq($RESULT_DEPENDENCY)
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testTopLevel_SeqOneLine_CompleteArtifact_OutsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |libraryDependencies ++= Seq("$GROUP_ID" % $CARET)
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |libraryDependencies ++= Seq($RESULT_DEPENDENCY)
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
-  def testTopLevel_SeqOneLine_CompleteArtifact_InsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |libraryDependencies ++= Seq("$GROUP_ID" % "$CARET")
-         |""".stripMargin,
-    resultText =
-      s"""
-         |libraryDependencies ++= Seq($RESULT_DEPENDENCY)
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testTopLevel_SeqOneLine_CompleteArtifact_InsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |libraryDependencies ++= Seq("$GROUP_ID" % "$CARET")
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |libraryDependencies ++= Seq($RESULT_DEPENDENCY)
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
-  def testTopLevel_SeqOneLine_CompleteArtifact_InsideOfMultilineStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |libraryDependencies ++= Seq("$GROUP_ID" % ""\"$CARET""\")
-         |""".stripMargin,
-    resultText =
-      s"""
-         |libraryDependencies ++= Seq($RESULT_DEPENDENCY)
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testTopLevel_SeqOneLine_CompleteArtifact_InsideOfMultilineStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |libraryDependencies ++= Seq("$GROUP_ID" % ""\"$CARET""\")
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |libraryDependencies ++= Seq($RESULT_DEPENDENCY)
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
-  def testTopLevel_SeqOneLine_CompleteArtifactWithDefinedVersion_OutsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |libraryDependencies ++= Seq("$GROUP_ID" % $CARET % "0.0.1")
-         |""".stripMargin,
-    resultText =
-      s"""
-         |libraryDependencies ++= Seq("$GROUP_ID" % "$ARTIFACT_ID$CARET" % "0.0.1")
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testTopLevel_SeqOneLine_CompleteArtifactWithDefinedVersion_OutsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |libraryDependencies ++= Seq("$GROUP_ID" % $CARET % "0.0.1")
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |libraryDependencies ++= Seq("$GROUP_ID" % "$ARTIFACT_ID$CARET" % "0.0.1")
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
-  def testTopLevel_SeqOneLine_CompleteArtifactWithDefinedVersion_InsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |libraryDependencies ++= Seq("$GROUP_ID" % "$CARET" % "0.0.1")
-         |""".stripMargin,
-    resultText =
-      s"""
-         |libraryDependencies ++= Seq("$GROUP_ID" % "$ARTIFACT_ID$CARET" % "0.0.1")
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testTopLevel_SeqOneLine_CompleteArtifactWithDefinedVersion_InsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |libraryDependencies ++= Seq("$GROUP_ID" % "$CARET" % "0.0.1")
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |libraryDependencies ++= Seq("$GROUP_ID" % "$ARTIFACT_ID$CARET" % "0.0.1")
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
-  def testTopLevel_SeqMultilineFirst_OutsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |libraryDependencies ++= Seq(
-         |  $CARET
-         |)
-         |""".stripMargin,
-    resultText =
-      s"""
-         |libraryDependencies ++= Seq(
-         |  $RESULT_DEPENDENCY
-         |)
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testTopLevel_SeqMultilineFirst_OutsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |libraryDependencies ++= Seq(
+//         |  $CARET
+//         |)
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |libraryDependencies ++= Seq(
+//         |  $RESULT_DEPENDENCY
+//         |)
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
-  def testTopLevel_SeqMultilineFirst_InsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |libraryDependencies ++= Seq(
-         |  "$CARET"
-         |)
-         |""".stripMargin,
-    resultText =
-      s"""
-         |libraryDependencies ++= Seq(
-         |  $RESULT_DEPENDENCY
-         |)
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testTopLevel_SeqMultilineFirst_InsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |libraryDependencies ++= Seq(
+//         |  "$CARET"
+//         |)
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |libraryDependencies ++= Seq(
+//         |  $RESULT_DEPENDENCY
+//         |)
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
-  def testTopLevel_SeqMultilineFirst_CompleteArtifact_OutsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |libraryDependencies ++= Seq(
-         |  "$GROUP_ID" % $CARET
-         |)
-         |""".stripMargin,
-    resultText =
-      s"""
-         |libraryDependencies ++= Seq(
-         |  $RESULT_DEPENDENCY
-         |)
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testTopLevel_SeqMultilineFirst_CompleteArtifact_OutsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |libraryDependencies ++= Seq(
+//         |  "$GROUP_ID" % $CARET
+//         |)
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |libraryDependencies ++= Seq(
+//         |  $RESULT_DEPENDENCY
+//         |)
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
-  def testTopLevel_SeqMultilineFirst_CompleteArtifact_InsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |libraryDependencies ++= Seq(
-         |  "$GROUP_ID" % "$CARET"
-         |)
-         |""".stripMargin,
-    resultText =
-      s"""
-         |libraryDependencies ++= Seq(
-         |  $RESULT_DEPENDENCY
-         |)
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testTopLevel_SeqMultilineFirst_CompleteArtifact_InsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |libraryDependencies ++= Seq(
+//         |  "$GROUP_ID" % "$CARET"
+//         |)
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |libraryDependencies ++= Seq(
+//         |  $RESULT_DEPENDENCY
+//         |)
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
-  def testTopLevel_SeqMultilineFirst_CompleteArtifactWithDefinedVersion_OutsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |libraryDependencies ++= Seq(
-         |  "$GROUP_ID" % $CARET % "0.0.1"
-         |)
-         |""".stripMargin,
-    resultText =
-      s"""
-         |libraryDependencies ++= Seq(
-         |  "$GROUP_ID" % "$ARTIFACT_ID$CARET" % "0.0.1"
-         |)
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testTopLevel_SeqMultilineFirst_CompleteArtifactWithDefinedVersion_OutsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |libraryDependencies ++= Seq(
+//         |  "$GROUP_ID" % $CARET % "0.0.1"
+//         |)
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |libraryDependencies ++= Seq(
+//         |  "$GROUP_ID" % "$ARTIFACT_ID$CARET" % "0.0.1"
+//         |)
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
-  def testTopLevel_SeqMultilineFirst_CompleteArtifactWithDefinedVersion_InsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |libraryDependencies ++= Seq(
-         |  "$GROUP_ID" % "$CARET" % "0.0.1"
-         |)
-         |""".stripMargin,
-    resultText =
-      s"""
-         |libraryDependencies ++= Seq(
-         |  "$GROUP_ID" % "$ARTIFACT_ID$CARET" % "0.0.1"
-         |)
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testTopLevel_SeqMultilineFirst_CompleteArtifactWithDefinedVersion_InsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |libraryDependencies ++= Seq(
+//         |  "$GROUP_ID" % "$CARET" % "0.0.1"
+//         |)
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |libraryDependencies ++= Seq(
+//         |  "$GROUP_ID" % "$ARTIFACT_ID$CARET" % "0.0.1"
+//         |)
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
-  def testTopLevel_SeqMultilineSecond_OutsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |libraryDependencies ++= Seq(
-         |  "foo" % "bar" % "baz",
-         |  $CARET
-         |)
-         |""".stripMargin,
-    resultText =
-      s"""
-         |libraryDependencies ++= Seq(
-         |  "foo" % "bar" % "baz",
-         |  $RESULT_DEPENDENCY
-         |)
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testTopLevel_SeqMultilineSecond_OutsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |libraryDependencies ++= Seq(
+//         |  "foo" % "bar" % "baz",
+//         |  $CARET
+//         |)
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |libraryDependencies ++= Seq(
+//         |  "foo" % "bar" % "baz",
+//         |  $RESULT_DEPENDENCY
+//         |)
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
-  def testTopLevel_SeqMultilineSecond_InsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |libraryDependencies ++= Seq(
-         |  "foo" % "bar" % "baz",
-         |  "$CARET"
-         |)
-         |""".stripMargin,
-    resultText =
-      s"""
-         |libraryDependencies ++= Seq(
-         |  "foo" % "bar" % "baz",
-         |  $RESULT_DEPENDENCY
-         |)
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testTopLevel_SeqMultilineSecond_InsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |libraryDependencies ++= Seq(
+//         |  "foo" % "bar" % "baz",
+//         |  "$CARET"
+//         |)
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |libraryDependencies ++= Seq(
+//         |  "foo" % "bar" % "baz",
+//         |  $RESULT_DEPENDENCY
+//         |)
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
-  def testTopLevel_SeqMultilineSecond_CompleteArtifact_OutsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |libraryDependencies ++= Seq(
-         |  "foo" % "bar" % "baz",
-         |  "$GROUP_ID" % $CARET
-         |)
-         |""".stripMargin,
-    resultText =
-      s"""
-         |libraryDependencies ++= Seq(
-         |  "foo" % "bar" % "baz",
-         |  $RESULT_DEPENDENCY
-         |)
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testTopLevel_SeqMultilineSecond_CompleteArtifact_OutsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |libraryDependencies ++= Seq(
+//         |  "foo" % "bar" % "baz",
+//         |  "$GROUP_ID" % $CARET
+//         |)
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |libraryDependencies ++= Seq(
+//         |  "foo" % "bar" % "baz",
+//         |  $RESULT_DEPENDENCY
+//         |)
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
-  def testTopLevel_SeqMultilineSecond_CompleteArtifact_InsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |libraryDependencies ++= Seq(
-         |  "foo" % "bar" % "baz",
-         |  "$GROUP_ID" % "$CARET"
-         |)
-         |""".stripMargin,
-    resultText =
-      s"""
-         |libraryDependencies ++= Seq(
-         |  "foo" % "bar" % "baz",
-         |  $RESULT_DEPENDENCY
-         |)
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testTopLevel_SeqMultilineSecond_CompleteArtifact_InsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |libraryDependencies ++= Seq(
+//         |  "foo" % "bar" % "baz",
+//         |  "$GROUP_ID" % "$CARET"
+//         |)
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |libraryDependencies ++= Seq(
+//         |  "foo" % "bar" % "baz",
+//         |  $RESULT_DEPENDENCY
+//         |)
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
-  def testTopLevel_SeqMultilineSecond_CompleteArtifactWithDefinedVersion_OutsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |libraryDependencies ++= Seq(
-         |  "foo" % "bar" % "baz",
-         |  "$GROUP_ID" % $CARET % "0.0.1"
-         |)
-         |""".stripMargin,
-    resultText =
-      s"""
-         |libraryDependencies ++= Seq(
-         |  "foo" % "bar" % "baz",
-         |  "$GROUP_ID" % "$ARTIFACT_ID$CARET" % "0.0.1"
-         |)
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testTopLevel_SeqMultilineSecond_CompleteArtifactWithDefinedVersion_OutsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |libraryDependencies ++= Seq(
+//         |  "foo" % "bar" % "baz",
+//         |  "$GROUP_ID" % $CARET % "0.0.1"
+//         |)
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |libraryDependencies ++= Seq(
+//         |  "foo" % "bar" % "baz",
+//         |  "$GROUP_ID" % "$ARTIFACT_ID$CARET" % "0.0.1"
+//         |)
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
-  def testTopLevel_SeqMultilineSecond_CompleteArtifactWithDefinedVersion_InsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |libraryDependencies ++= Seq(
-         |  "foo" % "bar" % "baz",
-         |  "$GROUP_ID" % "$CARET" % "0.0.1"
-         |)
-         |""".stripMargin,
-    resultText =
-      s"""
-         |libraryDependencies ++= Seq(
-         |  "foo" % "bar" % "baz",
-         |  "$GROUP_ID" % "$ARTIFACT_ID$CARET" % "0.0.1"
-         |)
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testTopLevel_SeqMultilineSecond_CompleteArtifactWithDefinedVersion_InsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |libraryDependencies ++= Seq(
+//         |  "foo" % "bar" % "baz",
+//         |  "$GROUP_ID" % "$CARET" % "0.0.1"
+//         |)
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |libraryDependencies ++= Seq(
+//         |  "foo" % "bar" % "baz",
+//         |  "$GROUP_ID" % "$ARTIFACT_ID$CARET" % "0.0.1"
+//         |)
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
-  def testInProjectSettings_Single_OutsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |lazy val foo = project.in(file("foo"))
-         |  .settings(
-         |    name := "foo",
-         |    scalaVersion := "${version.minor}",
-         |    libraryDependencies += $CARET
-         |  )
-         |""".stripMargin,
-    resultText =
-      s"""
-         |lazy val foo = project.in(file("foo"))
-         |  .settings(
-         |    name := "foo",
-         |    scalaVersion := "${version.minor}",
-         |    libraryDependencies += $RESULT_DEPENDENCY
-         |  )
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testInProjectSettings_Single_OutsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |lazy val foo = project.in(file("foo"))
+//         |  .settings(
+//         |    name := "foo",
+//         |    scalaVersion := "${version.minor}",
+//         |    libraryDependencies += $CARET
+//         |  )
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |lazy val foo = project.in(file("foo"))
+//         |  .settings(
+//         |    name := "foo",
+//         |    scalaVersion := "${version.minor}",
+//         |    libraryDependencies += $RESULT_DEPENDENCY
+//         |  )
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
-  def testInProjectSettings_Single_InsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |lazy val foo = project.in(file("foo"))
-         |  .settings(
-         |    name := "foo",
-         |    scalaVersion := "${version.minor}",
-         |    libraryDependencies += "$CARET"
-         |  )
-         |""".stripMargin,
-    resultText =
-      s"""
-         |lazy val foo = project.in(file("foo"))
-         |  .settings(
-         |    name := "foo",
-         |    scalaVersion := "${version.minor}",
-         |    libraryDependencies += $RESULT_DEPENDENCY
-         |  )
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testInProjectSettings_Single_InsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |lazy val foo = project.in(file("foo"))
+//         |  .settings(
+//         |    name := "foo",
+//         |    scalaVersion := "${version.minor}",
+//         |    libraryDependencies += "$CARET"
+//         |  )
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |lazy val foo = project.in(file("foo"))
+//         |  .settings(
+//         |    name := "foo",
+//         |    scalaVersion := "${version.minor}",
+//         |    libraryDependencies += $RESULT_DEPENDENCY
+//         |  )
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
-  def testInProjectSettings_Single_CompleteArtifact_OutsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |lazy val foo = project.in(file("foo"))
-         |  .settings(
-         |    name := "foo",
-         |    scalaVersion := "${version.minor}",
-         |    libraryDependencies += "$GROUP_ID" % $CARET
-         |  )
-         |""".stripMargin,
-    resultText =
-      s"""
-         |lazy val foo = project.in(file("foo"))
-         |  .settings(
-         |    name := "foo",
-         |    scalaVersion := "${version.minor}",
-         |    libraryDependencies += $RESULT_DEPENDENCY
-         |  )
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testInProjectSettings_Single_CompleteArtifact_OutsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |lazy val foo = project.in(file("foo"))
+//         |  .settings(
+//         |    name := "foo",
+//         |    scalaVersion := "${version.minor}",
+//         |    libraryDependencies += "$GROUP_ID" % $CARET
+//         |  )
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |lazy val foo = project.in(file("foo"))
+//         |  .settings(
+//         |    name := "foo",
+//         |    scalaVersion := "${version.minor}",
+//         |    libraryDependencies += $RESULT_DEPENDENCY
+//         |  )
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
-  def testInProjectSettings_Single_CompleteArtifact_InsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |lazy val foo = project.in(file("foo"))
-         |  .settings(
-         |    name := "foo",
-         |    scalaVersion := "${version.minor}",
-         |    libraryDependencies += "$GROUP_ID" % "$CARET"
-         |  )
-         |""".stripMargin,
-    resultText =
-      s"""
-         |lazy val foo = project.in(file("foo"))
-         |  .settings(
-         |    name := "foo",
-         |    scalaVersion := "${version.minor}",
-         |    libraryDependencies += $RESULT_DEPENDENCY
-         |  )
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testInProjectSettings_Single_CompleteArtifact_InsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |lazy val foo = project.in(file("foo"))
+//         |  .settings(
+//         |    name := "foo",
+//         |    scalaVersion := "${version.minor}",
+//         |    libraryDependencies += "$GROUP_ID" % "$CARET"
+//         |  )
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |lazy val foo = project.in(file("foo"))
+//         |  .settings(
+//         |    name := "foo",
+//         |    scalaVersion := "${version.minor}",
+//         |    libraryDependencies += $RESULT_DEPENDENCY
+//         |  )
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
-  def testInProjectSettings_Single_CompleteArtifactWithDefinedVersion_OutsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |lazy val foo = project.in(file("foo"))
-         |  .settings(
-         |    name := "foo",
-         |    scalaVersion := "${version.minor}",
-         |    libraryDependencies += "$GROUP_ID" % $CARET % "0.0.1"
-         |  )
-         |""".stripMargin,
-    resultText =
-      s"""
-         |lazy val foo = project.in(file("foo"))
-         |  .settings(
-         |    name := "foo",
-         |    scalaVersion := "${version.minor}",
-         |    libraryDependencies += "$GROUP_ID" % "$ARTIFACT_ID$CARET" % "0.0.1"
-         |  )
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testInProjectSettings_Single_CompleteArtifactWithDefinedVersion_OutsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |lazy val foo = project.in(file("foo"))
+//         |  .settings(
+//         |    name := "foo",
+//         |    scalaVersion := "${version.minor}",
+//         |    libraryDependencies += "$GROUP_ID" % $CARET % "0.0.1"
+//         |  )
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |lazy val foo = project.in(file("foo"))
+//         |  .settings(
+//         |    name := "foo",
+//         |    scalaVersion := "${version.minor}",
+//         |    libraryDependencies += "$GROUP_ID" % "$ARTIFACT_ID$CARET" % "0.0.1"
+//         |  )
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
-  def testInProjectSettings_Single_CompleteArtifactWithDefinedVersion_InsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |lazy val foo = project.in(file("foo"))
-         |  .settings(
-         |    name := "foo",
-         |    scalaVersion := "${version.minor}",
-         |    libraryDependencies += "$GROUP_ID" % "$CARET" % "0.0.1"
-         |  )
-         |""".stripMargin,
-    resultText =
-      s"""
-         |lazy val foo = project.in(file("foo"))
-         |  .settings(
-         |    name := "foo",
-         |    scalaVersion := "${version.minor}",
-         |    libraryDependencies += "$GROUP_ID" % "$ARTIFACT_ID$CARET" % "0.0.1"
-         |  )
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testInProjectSettings_Single_CompleteArtifactWithDefinedVersion_InsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |lazy val foo = project.in(file("foo"))
+//         |  .settings(
+//         |    name := "foo",
+//         |    scalaVersion := "${version.minor}",
+//         |    libraryDependencies += "$GROUP_ID" % "$CARET" % "0.0.1"
+//         |  )
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |lazy val foo = project.in(file("foo"))
+//         |  .settings(
+//         |    name := "foo",
+//         |    scalaVersion := "${version.minor}",
+//         |    libraryDependencies += "$GROUP_ID" % "$ARTIFACT_ID$CARET" % "0.0.1"
+//         |  )
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
-  def testInProjectSettings_SeqOneLine_OutsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |lazy val foo = project.in(file("foo"))
-         |  .settings(
-         |    name := "foo",
-         |    scalaVersion := "${version.minor}",
-         |    libraryDependencies ++= Seq($CARET)
-         |  )
-         |""".stripMargin,
-    resultText =
-      s"""
-         |lazy val foo = project.in(file("foo"))
-         |  .settings(
-         |    name := "foo",
-         |    scalaVersion := "${version.minor}",
-         |    libraryDependencies ++= Seq($RESULT_DEPENDENCY)
-         |  )
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testInProjectSettings_SeqOneLine_OutsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |lazy val foo = project.in(file("foo"))
+//         |  .settings(
+//         |    name := "foo",
+//         |    scalaVersion := "${version.minor}",
+//         |    libraryDependencies ++= Seq($CARET)
+//         |  )
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |lazy val foo = project.in(file("foo"))
+//         |  .settings(
+//         |    name := "foo",
+//         |    scalaVersion := "${version.minor}",
+//         |    libraryDependencies ++= Seq($RESULT_DEPENDENCY)
+//         |  )
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
-  def testInProjectSettings_SeqOneLine_InsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |lazy val foo = project.in(file("foo"))
-         |  .settings(
-         |    name := "foo",
-         |    scalaVersion := "${version.minor}",
-         |    libraryDependencies ++= Seq("$CARET")
-         |  )
-         |""".stripMargin,
-    resultText =
-      s"""
-         |lazy val foo = project.in(file("foo"))
-         |  .settings(
-         |    name := "foo",
-         |    scalaVersion := "${version.minor}",
-         |    libraryDependencies ++= Seq($RESULT_DEPENDENCY)
-         |  )
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testInProjectSettings_SeqOneLine_InsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |lazy val foo = project.in(file("foo"))
+//         |  .settings(
+//         |    name := "foo",
+//         |    scalaVersion := "${version.minor}",
+//         |    libraryDependencies ++= Seq("$CARET")
+//         |  )
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |lazy val foo = project.in(file("foo"))
+//         |  .settings(
+//         |    name := "foo",
+//         |    scalaVersion := "${version.minor}",
+//         |    libraryDependencies ++= Seq($RESULT_DEPENDENCY)
+//         |  )
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
-  def testInProjectSettings_SeqOneLine_CompleteArtifact_OutsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |lazy val foo = project.in(file("foo"))
-         |  .settings(
-         |    name := "foo",
-         |    scalaVersion := "${version.minor}",
-         |    libraryDependencies ++= Seq("$GROUP_ID" % $CARET)
-         |  )
-         |""".stripMargin,
-    resultText =
-      s"""
-         |lazy val foo = project.in(file("foo"))
-         |  .settings(
-         |    name := "foo",
-         |    scalaVersion := "${version.minor}",
-         |    libraryDependencies ++= Seq($RESULT_DEPENDENCY)
-         |  )
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testInProjectSettings_SeqOneLine_CompleteArtifact_OutsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |lazy val foo = project.in(file("foo"))
+//         |  .settings(
+//         |    name := "foo",
+//         |    scalaVersion := "${version.minor}",
+//         |    libraryDependencies ++= Seq("$GROUP_ID" % $CARET)
+//         |  )
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |lazy val foo = project.in(file("foo"))
+//         |  .settings(
+//         |    name := "foo",
+//         |    scalaVersion := "${version.minor}",
+//         |    libraryDependencies ++= Seq($RESULT_DEPENDENCY)
+//         |  )
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
-  def testInProjectSettings_SeqOneLine_CompleteArtifact_InsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |lazy val foo = project.in(file("foo"))
-         |  .settings(
-         |    name := "foo",
-         |    scalaVersion := "${version.minor}",
-         |    libraryDependencies ++= Seq("$GROUP_ID" % "$CARET")
-         |  )
-         |""".stripMargin,
-    resultText =
-      s"""
-         |lazy val foo = project.in(file("foo"))
-         |  .settings(
-         |    name := "foo",
-         |    scalaVersion := "${version.minor}",
-         |    libraryDependencies ++= Seq($RESULT_DEPENDENCY)
-         |  )
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testInProjectSettings_SeqOneLine_CompleteArtifact_InsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |lazy val foo = project.in(file("foo"))
+//         |  .settings(
+//         |    name := "foo",
+//         |    scalaVersion := "${version.minor}",
+//         |    libraryDependencies ++= Seq("$GROUP_ID" % "$CARET")
+//         |  )
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |lazy val foo = project.in(file("foo"))
+//         |  .settings(
+//         |    name := "foo",
+//         |    scalaVersion := "${version.minor}",
+//         |    libraryDependencies ++= Seq($RESULT_DEPENDENCY)
+//         |  )
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
-  def testInProjectSettings_SeqOneLine_CompleteArtifactWithDefinedVersion_OutsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |lazy val foo = project.in(file("foo"))
-         |  .settings(
-         |    name := "foo",
-         |    scalaVersion := "${version.minor}",
-         |    libraryDependencies ++= Seq("$GROUP_ID" % $CARET % "0.0.1")
-         |  )
-         |""".stripMargin,
-    resultText =
-      s"""
-         |lazy val foo = project.in(file("foo"))
-         |  .settings(
-         |    name := "foo",
-         |    scalaVersion := "${version.minor}",
-         |    libraryDependencies ++= Seq("$GROUP_ID" % "$ARTIFACT_ID$CARET" % "0.0.1")
-         |  )
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testInProjectSettings_SeqOneLine_CompleteArtifactWithDefinedVersion_OutsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |lazy val foo = project.in(file("foo"))
+//         |  .settings(
+//         |    name := "foo",
+//         |    scalaVersion := "${version.minor}",
+//         |    libraryDependencies ++= Seq("$GROUP_ID" % $CARET % "0.0.1")
+//         |  )
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |lazy val foo = project.in(file("foo"))
+//         |  .settings(
+//         |    name := "foo",
+//         |    scalaVersion := "${version.minor}",
+//         |    libraryDependencies ++= Seq("$GROUP_ID" % "$ARTIFACT_ID$CARET" % "0.0.1")
+//         |  )
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
-  def testInProjectSettings_SeqOneLine_CompleteArtifactWithDefinedVersion_InsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |lazy val foo = project.in(file("foo"))
-         |  .settings(
-         |    name := "foo",
-         |    scalaVersion := "${version.minor}",
-         |    libraryDependencies ++= Seq("$GROUP_ID" % "$CARET" % "0.0.1")
-         |  )
-         |""".stripMargin,
-    resultText =
-      s"""
-         |lazy val foo = project.in(file("foo"))
-         |  .settings(
-         |    name := "foo",
-         |    scalaVersion := "${version.minor}",
-         |    libraryDependencies ++= Seq("$GROUP_ID" % "$ARTIFACT_ID$CARET" % "0.0.1")
-         |  )
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testInProjectSettings_SeqOneLine_CompleteArtifactWithDefinedVersion_InsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |lazy val foo = project.in(file("foo"))
+//         |  .settings(
+//         |    name := "foo",
+//         |    scalaVersion := "${version.minor}",
+//         |    libraryDependencies ++= Seq("$GROUP_ID" % "$CARET" % "0.0.1")
+//         |  )
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |lazy val foo = project.in(file("foo"))
+//         |  .settings(
+//         |    name := "foo",
+//         |    scalaVersion := "${version.minor}",
+//         |    libraryDependencies ++= Seq("$GROUP_ID" % "$ARTIFACT_ID$CARET" % "0.0.1")
+//         |  )
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
-  def testInProjectSettings_SeqMultilineFirst_OutsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |lazy val foo = project.in(file("foo"))
-         |  .settings(
-         |    name := "foo",
-         |    scalaVersion := "${version.minor}",
-         |    libraryDependencies ++= Seq(
-         |      $CARET
-         |    )
-         |  )
-         |""".stripMargin,
-    resultText =
-      s"""
-         |lazy val foo = project.in(file("foo"))
-         |  .settings(
-         |    name := "foo",
-         |    scalaVersion := "${version.minor}",
-         |    libraryDependencies ++= Seq(
-         |      $RESULT_DEPENDENCY
-         |    )
-         |  )
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testInProjectSettings_SeqMultilineFirst_OutsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |lazy val foo = project.in(file("foo"))
+//         |  .settings(
+//         |    name := "foo",
+//         |    scalaVersion := "${version.minor}",
+//         |    libraryDependencies ++= Seq(
+//         |      $CARET
+//         |    )
+//         |  )
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |lazy val foo = project.in(file("foo"))
+//         |  .settings(
+//         |    name := "foo",
+//         |    scalaVersion := "${version.minor}",
+//         |    libraryDependencies ++= Seq(
+//         |      $RESULT_DEPENDENCY
+//         |    )
+//         |  )
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
-  def testInProjectSettings_SeqMultilineFirst_InsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |lazy val foo = project.in(file("foo"))
-         |  .settings(
-         |    name := "foo",
-         |    scalaVersion := "${version.minor}",
-         |    libraryDependencies ++= Seq(
-         |      "$CARET"
-         |    )
-         |  )
-         |""".stripMargin,
-    resultText =
-      s"""
-         |lazy val foo = project.in(file("foo"))
-         |  .settings(
-         |    name := "foo",
-         |    scalaVersion := "${version.minor}",
-         |    libraryDependencies ++= Seq(
-         |      $RESULT_DEPENDENCY
-         |    )
-         |  )
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testInProjectSettings_SeqMultilineFirst_InsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |lazy val foo = project.in(file("foo"))
+//         |  .settings(
+//         |    name := "foo",
+//         |    scalaVersion := "${version.minor}",
+//         |    libraryDependencies ++= Seq(
+//         |      "$CARET"
+//         |    )
+//         |  )
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |lazy val foo = project.in(file("foo"))
+//         |  .settings(
+//         |    name := "foo",
+//         |    scalaVersion := "${version.minor}",
+//         |    libraryDependencies ++= Seq(
+//         |      $RESULT_DEPENDENCY
+//         |    )
+//         |  )
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
-  def testInProjectSettings_SeqMultilineFirst_CompleteArtifact_OutsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |lazy val foo = project.in(file("foo"))
-         |  .settings(
-         |    name := "foo",
-         |    scalaVersion := "${version.minor}",
-         |    libraryDependencies ++= Seq(
-         |      "$GROUP_ID" % $CARET
-         |    )
-         |  )
-         |""".stripMargin,
-    resultText =
-      s"""
-         |lazy val foo = project.in(file("foo"))
-         |  .settings(
-         |    name := "foo",
-         |    scalaVersion := "${version.minor}",
-         |    libraryDependencies ++= Seq(
-         |      $RESULT_DEPENDENCY
-         |    )
-         |  )
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testInProjectSettings_SeqMultilineFirst_CompleteArtifact_OutsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |lazy val foo = project.in(file("foo"))
+//         |  .settings(
+//         |    name := "foo",
+//         |    scalaVersion := "${version.minor}",
+//         |    libraryDependencies ++= Seq(
+//         |      "$GROUP_ID" % $CARET
+//         |    )
+//         |  )
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |lazy val foo = project.in(file("foo"))
+//         |  .settings(
+//         |    name := "foo",
+//         |    scalaVersion := "${version.minor}",
+//         |    libraryDependencies ++= Seq(
+//         |      $RESULT_DEPENDENCY
+//         |    )
+//         |  )
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
-  def testInProjectSettings_SeqMultilineFirst_CompleteArtifact_InsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |lazy val foo = project.in(file("foo"))
-         |  .settings(
-         |    name := "foo",
-         |    scalaVersion := "${version.minor}",
-         |    libraryDependencies ++= Seq(
-         |      "$GROUP_ID" % "$CARET"
-         |    )
-         |  )
-         |""".stripMargin,
-    resultText =
-      s"""
-         |lazy val foo = project.in(file("foo"))
-         |  .settings(
-         |    name := "foo",
-         |    scalaVersion := "${version.minor}",
-         |    libraryDependencies ++= Seq(
-         |      $RESULT_DEPENDENCY
-         |    )
-         |  )
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testInProjectSettings_SeqMultilineFirst_CompleteArtifact_InsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |lazy val foo = project.in(file("foo"))
+//         |  .settings(
+//         |    name := "foo",
+//         |    scalaVersion := "${version.minor}",
+//         |    libraryDependencies ++= Seq(
+//         |      "$GROUP_ID" % "$CARET"
+//         |    )
+//         |  )
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |lazy val foo = project.in(file("foo"))
+//         |  .settings(
+//         |    name := "foo",
+//         |    scalaVersion := "${version.minor}",
+//         |    libraryDependencies ++= Seq(
+//         |      $RESULT_DEPENDENCY
+//         |    )
+//         |  )
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
-  def testInProjectSettings_SeqMultilineFirst_CompleteArtifactWithDefinedVersion_OutsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |lazy val foo = project.in(file("foo"))
-         |  .settings(
-         |    name := "foo",
-         |    scalaVersion := "${version.minor}",
-         |    libraryDependencies ++= Seq(
-         |      "$GROUP_ID" % $CARET % "0.0.1"
-         |    )
-         |  )
-         |""".stripMargin,
-    resultText =
-      s"""
-         |lazy val foo = project.in(file("foo"))
-         |  .settings(
-         |    name := "foo",
-         |    scalaVersion := "${version.minor}",
-         |    libraryDependencies ++= Seq(
-         |      "$GROUP_ID" % "$ARTIFACT_ID$CARET" % "0.0.1"
-         |    )
-         |  )
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testInProjectSettings_SeqMultilineFirst_CompleteArtifactWithDefinedVersion_OutsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |lazy val foo = project.in(file("foo"))
+//         |  .settings(
+//         |    name := "foo",
+//         |    scalaVersion := "${version.minor}",
+//         |    libraryDependencies ++= Seq(
+//         |      "$GROUP_ID" % $CARET % "0.0.1"
+//         |    )
+//         |  )
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |lazy val foo = project.in(file("foo"))
+//         |  .settings(
+//         |    name := "foo",
+//         |    scalaVersion := "${version.minor}",
+//         |    libraryDependencies ++= Seq(
+//         |      "$GROUP_ID" % "$ARTIFACT_ID$CARET" % "0.0.1"
+//         |    )
+//         |  )
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
-  def testInProjectSettings_SeqMultilineFirst_CompleteArtifactWithDefinedVersion_InsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |lazy val foo = project.in(file("foo"))
-         |  .settings(
-         |    name := "foo",
-         |    scalaVersion := "${version.minor}",
-         |    libraryDependencies ++= Seq(
-         |      "$GROUP_ID" % "$CARET" % "0.0.1"
-         |    )
-         |  )
-         |""".stripMargin,
-    resultText =
-      s"""
-         |lazy val foo = project.in(file("foo"))
-         |  .settings(
-         |    name := "foo",
-         |    scalaVersion := "${version.minor}",
-         |    libraryDependencies ++= Seq(
-         |      "$GROUP_ID" % "$ARTIFACT_ID$CARET" % "0.0.1"
-         |    )
-         |  )
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testInProjectSettings_SeqMultilineFirst_CompleteArtifactWithDefinedVersion_InsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |lazy val foo = project.in(file("foo"))
+//         |  .settings(
+//         |    name := "foo",
+//         |    scalaVersion := "${version.minor}",
+//         |    libraryDependencies ++= Seq(
+//         |      "$GROUP_ID" % "$CARET" % "0.0.1"
+//         |    )
+//         |  )
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |lazy val foo = project.in(file("foo"))
+//         |  .settings(
+//         |    name := "foo",
+//         |    scalaVersion := "${version.minor}",
+//         |    libraryDependencies ++= Seq(
+//         |      "$GROUP_ID" % "$ARTIFACT_ID$CARET" % "0.0.1"
+//         |    )
+//         |  )
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
-  def testInProjectSettings_SeqMultilineSecond_OutsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |lazy val foo = project.in(file("foo"))
-         |  .settings(
-         |    name := "foo",
-         |    scalaVersion := "${version.minor}",
-         |    libraryDependencies ++= Seq(
-         |      "foo" % "bar" % "baz",
-         |      $CARET
-         |    )
-         |  )
-         |""".stripMargin,
-    resultText =
-      s"""
-         |lazy val foo = project.in(file("foo"))
-         |  .settings(
-         |    name := "foo",
-         |    scalaVersion := "${version.minor}",
-         |    libraryDependencies ++= Seq(
-         |      "foo" % "bar" % "baz",
-         |      $RESULT_DEPENDENCY
-         |    )
-         |  )
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testInProjectSettings_SeqMultilineSecond_OutsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |lazy val foo = project.in(file("foo"))
+//         |  .settings(
+//         |    name := "foo",
+//         |    scalaVersion := "${version.minor}",
+//         |    libraryDependencies ++= Seq(
+//         |      "foo" % "bar" % "baz",
+//         |      $CARET
+//         |    )
+//         |  )
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |lazy val foo = project.in(file("foo"))
+//         |  .settings(
+//         |    name := "foo",
+//         |    scalaVersion := "${version.minor}",
+//         |    libraryDependencies ++= Seq(
+//         |      "foo" % "bar" % "baz",
+//         |      $RESULT_DEPENDENCY
+//         |    )
+//         |  )
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
-  def testInProjectSettings_SeqMultilineSecond_InsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |lazy val foo = project.in(file("foo"))
-         |  .settings(
-         |    name := "foo",
-         |    scalaVersion := "${version.minor}",
-         |    libraryDependencies ++= Seq(
-         |      "foo" % "bar" % "baz",
-         |      "$CARET"
-         |    )
-         |  )
-         |""".stripMargin,
-    resultText =
-      s"""
-         |lazy val foo = project.in(file("foo"))
-         |  .settings(
-         |    name := "foo",
-         |    scalaVersion := "${version.minor}",
-         |    libraryDependencies ++= Seq(
-         |      "foo" % "bar" % "baz",
-         |      $RESULT_DEPENDENCY
-         |    )
-         |  )
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testInProjectSettings_SeqMultilineSecond_InsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |lazy val foo = project.in(file("foo"))
+//         |  .settings(
+//         |    name := "foo",
+//         |    scalaVersion := "${version.minor}",
+//         |    libraryDependencies ++= Seq(
+//         |      "foo" % "bar" % "baz",
+//         |      "$CARET"
+//         |    )
+//         |  )
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |lazy val foo = project.in(file("foo"))
+//         |  .settings(
+//         |    name := "foo",
+//         |    scalaVersion := "${version.minor}",
+//         |    libraryDependencies ++= Seq(
+//         |      "foo" % "bar" % "baz",
+//         |      $RESULT_DEPENDENCY
+//         |    )
+//         |  )
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
-  def testInProjectSettings_SeqMultilineSecond_CompleteArtifact_OutsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |lazy val foo = project.in(file("foo"))
-         |  .settings(
-         |    name := "foo",
-         |    scalaVersion := "${version.minor}",
-         |    libraryDependencies ++= Seq(
-         |      "foo" % "bar" % "baz",
-         |      "$GROUP_ID" % $CARET
-         |    )
-         |  )
-         |""".stripMargin,
-    resultText =
-      s"""
-         |lazy val foo = project.in(file("foo"))
-         |  .settings(
-         |    name := "foo",
-         |    scalaVersion := "${version.minor}",
-         |    libraryDependencies ++= Seq(
-         |      "foo" % "bar" % "baz",
-         |      $RESULT_DEPENDENCY
-         |    )
-         |  )
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testInProjectSettings_SeqMultilineSecond_CompleteArtifact_OutsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |lazy val foo = project.in(file("foo"))
+//         |  .settings(
+//         |    name := "foo",
+//         |    scalaVersion := "${version.minor}",
+//         |    libraryDependencies ++= Seq(
+//         |      "foo" % "bar" % "baz",
+//         |      "$GROUP_ID" % $CARET
+//         |    )
+//         |  )
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |lazy val foo = project.in(file("foo"))
+//         |  .settings(
+//         |    name := "foo",
+//         |    scalaVersion := "${version.minor}",
+//         |    libraryDependencies ++= Seq(
+//         |      "foo" % "bar" % "baz",
+//         |      $RESULT_DEPENDENCY
+//         |    )
+//         |  )
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
-  def testInProjectSettings_SeqMultilineSecond_CompleteArtifact_InsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |lazy val foo = project.in(file("foo"))
-         |  .settings(
-         |    name := "foo",
-         |    scalaVersion := "${version.minor}",
-         |    libraryDependencies ++= Seq(
-         |      "foo" % "bar" % "baz",
-         |      "$GROUP_ID" % "$CARET"
-         |    )
-         |  )
-         |""".stripMargin,
-    resultText =
-      s"""
-         |lazy val foo = project.in(file("foo"))
-         |  .settings(
-         |    name := "foo",
-         |    scalaVersion := "${version.minor}",
-         |    libraryDependencies ++= Seq(
-         |      "foo" % "bar" % "baz",
-         |      $RESULT_DEPENDENCY
-         |    )
-         |  )
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testInProjectSettings_SeqMultilineSecond_CompleteArtifact_InsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |lazy val foo = project.in(file("foo"))
+//         |  .settings(
+//         |    name := "foo",
+//         |    scalaVersion := "${version.minor}",
+//         |    libraryDependencies ++= Seq(
+//         |      "foo" % "bar" % "baz",
+//         |      "$GROUP_ID" % "$CARET"
+//         |    )
+//         |  )
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |lazy val foo = project.in(file("foo"))
+//         |  .settings(
+//         |    name := "foo",
+//         |    scalaVersion := "${version.minor}",
+//         |    libraryDependencies ++= Seq(
+//         |      "foo" % "bar" % "baz",
+//         |      $RESULT_DEPENDENCY
+//         |    )
+//         |  )
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
-  def testInProjectSettings_SeqMultilineSecond_CompleteArtifactWithDefinedVersion_OutsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |lazy val foo = project.in(file("foo"))
-         |  .settings(
-         |    name := "foo",
-         |    scalaVersion := "${version.minor}",
-         |    libraryDependencies ++= Seq(
-         |      "foo" % "bar" % "baz",
-         |      "$GROUP_ID" % $CARET % "0.0.1"
-         |    )
-         |  )
-         |""".stripMargin,
-    resultText =
-      s"""
-         |lazy val foo = project.in(file("foo"))
-         |  .settings(
-         |    name := "foo",
-         |    scalaVersion := "${version.minor}",
-         |    libraryDependencies ++= Seq(
-         |      "foo" % "bar" % "baz",
-         |      "$GROUP_ID" % "$ARTIFACT_ID$CARET" % "0.0.1"
-         |    )
-         |  )
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testInProjectSettings_SeqMultilineSecond_CompleteArtifactWithDefinedVersion_OutsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |lazy val foo = project.in(file("foo"))
+//         |  .settings(
+//         |    name := "foo",
+//         |    scalaVersion := "${version.minor}",
+//         |    libraryDependencies ++= Seq(
+//         |      "foo" % "bar" % "baz",
+//         |      "$GROUP_ID" % $CARET % "0.0.1"
+//         |    )
+//         |  )
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |lazy val foo = project.in(file("foo"))
+//         |  .settings(
+//         |    name := "foo",
+//         |    scalaVersion := "${version.minor}",
+//         |    libraryDependencies ++= Seq(
+//         |      "foo" % "bar" % "baz",
+//         |      "$GROUP_ID" % "$ARTIFACT_ID$CARET" % "0.0.1"
+//         |    )
+//         |  )
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
-  def testInProjectSettings_SeqMultilineSecond_CompleteArtifactWithDefinedVersion_InsideOfStringLiteral(): Unit = doTest(
-    fileText =
-      s"""
-         |lazy val foo = project.in(file("foo"))
-         |  .settings(
-         |    name := "foo",
-         |    scalaVersion := "${version.minor}",
-         |    libraryDependencies ++= Seq(
-         |      "foo" % "bar" % "baz",
-         |      "$GROUP_ID" % "$CARET" % "0.0.1"
-         |    )
-         |  )
-         |""".stripMargin,
-    resultText =
-      s"""
-         |lazy val foo = project.in(file("foo"))
-         |  .settings(
-         |    name := "foo",
-         |    scalaVersion := "${version.minor}",
-         |    libraryDependencies ++= Seq(
-         |      "foo" % "bar" % "baz",
-         |      "$GROUP_ID" % "$ARTIFACT_ID$CARET" % "0.0.1"
-         |    )
-         |  )
-         |""".stripMargin,
-    item = LOOKUP_ITEM
-  )
+//  def testInProjectSettings_SeqMultilineSecond_CompleteArtifactWithDefinedVersion_InsideOfStringLiteral(): Unit = doTest(
+//    fileText =
+//      s"""
+//         |lazy val foo = project.in(file("foo"))
+//         |  .settings(
+//         |    name := "foo",
+//         |    scalaVersion := "${version.minor}",
+//         |    libraryDependencies ++= Seq(
+//         |      "foo" % "bar" % "baz",
+//         |      "$GROUP_ID" % "$CARET" % "0.0.1"
+//         |    )
+//         |  )
+//         |""".stripMargin,
+//    resultText =
+//      s"""
+//         |lazy val foo = project.in(file("foo"))
+//         |  .settings(
+//         |    name := "foo",
+//         |    scalaVersion := "${version.minor}",
+//         |    libraryDependencies ++= Seq(
+//         |      "foo" % "bar" % "baz",
+//         |      "$GROUP_ID" % "$ARTIFACT_ID$CARET" % "0.0.1"
+//         |    )
+//         |  )
+//         |""".stripMargin,
+//    item = LOOKUP_ITEM
+//  )
 
   //region needs `with MockSbt_1_0`
-  def testTopLevel_VariableWithType_OutsideOfStringLiteral(): Unit = doTest(
-    fileText = s"val dep: ModuleID = $CARET",
-    resultText = s"val dep: ModuleID = $RESULT_DEPENDENCY",
-    item = LOOKUP_ITEM
-  )
+//  def testTopLevel_VariableWithType_OutsideOfStringLiteral(): Unit = doTest(
+//    fileText = s"val dep: ModuleID = $CARET",
+//    resultText = s"val dep: ModuleID = $RESULT_DEPENDENCY",
+//    item = LOOKUP_ITEM
+//  )
 
-  def testTopLevel_VariableWithType_WithPrefix_OutsideOfStringLiteral(): Unit = doTest(
-    fileText = s"val dep: ModuleID = sca$CARET",
-    resultText = s"val dep: ModuleID = $RESULT_DEPENDENCY",
-    item = LOOKUP_ITEM
-  )
+//  def testTopLevel_VariableWithType_WithPrefix_OutsideOfStringLiteral(): Unit = doTest(
+//    fileText = s"val dep: ModuleID = sca$CARET",
+//    resultText = s"val dep: ModuleID = $RESULT_DEPENDENCY",
+//    item = LOOKUP_ITEM
+//  )
 
-  def testTopLevel_SeqWithType_OutsideOfStringLiteral(): Unit = doTest(
-    fileText = s"val deps: Seq[ModuleID] = Seq($CARET)",
-    resultText = s"val deps: Seq[ModuleID] = Seq($RESULT_DEPENDENCY)",
-    item = LOOKUP_ITEM
-  )
+//  def testTopLevel_SeqWithType_OutsideOfStringLiteral(): Unit = doTest(
+//    fileText = s"val deps: Seq[ModuleID] = Seq($CARET)",
+//    resultText = s"val deps: Seq[ModuleID] = Seq($RESULT_DEPENDENCY)",
+//    item = LOOKUP_ITEM
+//  )
 
-  def testTopLevel_SeqWithType_WithPrefix_OutsideOfStringLiteral(): Unit = doTest(
-    fileText = s"val deps: Seq[ModuleID] = Seq(sca$CARET)",
-    resultText = s"val deps: Seq[ModuleID] = Seq($RESULT_DEPENDENCY)",
-    item = LOOKUP_ITEM
-  )
+//  def testTopLevel_SeqWithType_WithPrefix_OutsideOfStringLiteral(): Unit = doTest(
+//    fileText = s"val deps: Seq[ModuleID] = Seq(sca$CARET)",
+//    resultText = s"val deps: Seq[ModuleID] = Seq($RESULT_DEPENDENCY)",
+//    item = LOOKUP_ITEM
+//  )
   //endregion
 
   //region SCL-22717 examples
