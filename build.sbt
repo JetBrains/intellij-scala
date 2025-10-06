@@ -399,7 +399,7 @@ lazy val sbtImpl =
     .settings(
       scalaVersion := Versions.scala3Version,
       Compile / scalacOptions := globalScala3ScalacOptions,
-      intellijPlugins += "org.jetbrains.idea.maven".toPlugin,
+      intellijPlugins += "com.intellij.properties".toPlugin,
       libraryDependencies += Dependencies.sbtStructureCore.exclude("org.scala-lang.modules", "scala-xml_3")
     )
 
@@ -851,7 +851,7 @@ lazy val mavenIntegration =
     .dependsOn(
       scalaImpl % "test->test;compile->compile",
       testingSupport,
-      sbtImpl % "test->test",
+      sbtImpl % "test->test;compile->compile",
       compilerIntegration % "test->test;compile->compile"
     )
     .settings(
