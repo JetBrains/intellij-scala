@@ -56,6 +56,7 @@ private [documentationProvider] object WithHtmlPsiLink extends AccessQualifierRe
     Implicit    -> "implicit",
     Infix       -> "infix",
     Inline      -> "inline",
+    Into        -> "into",
     Lazy        -> "lazy",
     Opaque      -> "opaque",
     Open        -> "open",
