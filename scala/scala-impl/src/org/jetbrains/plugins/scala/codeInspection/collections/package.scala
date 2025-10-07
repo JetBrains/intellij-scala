@@ -34,6 +34,7 @@ package object collections {
   // TODO: once initialized, it doesn't change because it is used in `val`s below
   def likeCollectionClasses: ArraySeq[String] = ArraySeq.unsafeWrapArray(ScalaApplicationSettings.getInstance().getLikeCollectionClasses)
   def likeOptionClasses: ArraySeq[String] = ArraySeq.unsafeWrapArray(ScalaApplicationSettings.getInstance().getLikeOptionClasses)
+  def stringClass: ArraySeq[String] = ArraySeq.unsafeWrapArray(Array("java.lang.String"))
 
   val monadicMethods: Set[String] = Set("map", "flatMap", "filter", "withFilter")
   val foldMethodNames: Set[String] = Set("foldLeft", "/:", "foldRight", ":\\", "fold")
@@ -87,6 +88,7 @@ package object collections {
   private[collections] val `.drop` = invocation("drop").from(likeCollectionClasses)
   private[collections] val `.sameElements` = invocation("sameElements").from(likeCollectionClasses)
   private[collections] val `.corresponds` = invocation("corresponds").from(likeCollectionClasses)
+  private[collections] val `.substring` = invocation("substring").from(stringClass)
 
   private[collections] val `.toString` = invocation("toString") // on everything
   private[collections] val `.to` = invocation("to").from(ArraySeq("RichInt", "RichChar", "RichLong", "RichDouble", "RichFloat").map("scala.runtime." + _))
