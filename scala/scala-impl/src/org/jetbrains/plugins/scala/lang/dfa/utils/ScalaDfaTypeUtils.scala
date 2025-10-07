@@ -26,6 +26,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.Any
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType}
 
+import scala.annotation.nowarn
+
 //noinspection UnstableApiUsage
 object ScalaDfaTypeUtils {
 
@@ -172,5 +174,5 @@ object ScalaDfaTypeUtils {
   }
 
   def nullability(param: Parameter): Nullability =
-    DfaPsiUtil.getElementNullability(param.paramType.toPsiType, param.psiParam.orNull)
+    DfaPsiUtil.getElementNullability(param.paramType.toPsiType, param.psiParam.orNull): @nowarn("cat=deprecation")
 }

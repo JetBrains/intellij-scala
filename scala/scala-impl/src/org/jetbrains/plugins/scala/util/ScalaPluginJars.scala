@@ -4,6 +4,7 @@ import com.intellij.openapi.util.io.{FileUtil, FileUtilRt}
 import com.intellij.util.PathUtil
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap
 import org.jetbrains.jps.incremental.BuilderService
+import org.jetbrains.org.objectweb.asm.ClassReader
 import org.jetbrains.plugins.scala.extensions.{PathExt, invokeLater}
 
 import java.nio.file.Path
@@ -47,6 +48,7 @@ object IntellijPlatformJars {
   val utilJar: Path = Path.of(PathUtil.getJarPathForClass(classOf[FileUtil]))
   val utilRtJar: Path = Path.of(PathUtil.getJarPathForClass(classOf[FileUtilRt]))
   val fastUtilJar: Path = Path.of(PathUtil.getJarPathForClass(classOf[Int2ObjectMap[_]]))
+  val asmJar: Path = Path.of(PathUtil.getJarPathForClass(classOf[ClassReader]))
 
   /**
    * NOTE:<br>
