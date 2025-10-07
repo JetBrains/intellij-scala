@@ -229,22 +229,19 @@ class ScalaCompilingVisitor(globalVisitor: GlobalCompilingVisitor) extends Scala
     override def visitReference(ref: ScReference): Unit = {
       val word = ref.refName
       if (ref.resolve == null && Strings.isCapitalized(word)) return
-      if (handleWord(word, OccurenceKind.CODE, globalVisitor.getContext)) {
+      if (!handleWord(word, OccurenceKind.CODE, globalVisitor.getContext)) {
         super.visitReference(ref)
       }
     }
 
     override def visitFunction(fun: ScFunction): Unit = {
-      if (handleWord(fun.name, OccurenceKind.CODE, globalVisitor.getContext)) return
+      if (!handleWord(fun.name, OccurenceKind.CODE, globalVisitor.getContext)) return
       super.visitFunction(fun)
     }
 
     override def visitTypeDefinition(typedef: ScTypeDefinition): Unit = {
-      if (handleWord(typedef.name, OccurenceKind.CODE, globalVisitor.getContext)) return
+      if (!handleWord(typedef.name, OccurenceKind.CODE, globalVisitor.getContext)) return
       super.visitTypeDefinition(typedef)
     }
   }
-
-  // TODO could add filter to only match this pattern node to matching nodes, e.g. comment on comment
-  // otherwise the default filter works by getClass comparison
 }
