@@ -93,8 +93,8 @@ object SbtUtil {
     defaultGlobalBase / sbtVersion.binaryVersion.presentation
   }
 
-  def isBuiltWithSeparateModulesForProdTest(project: Project): Boolean = {
-    val sbtProjectDataOpt = getSbtProjectData(project)
+  def isBuiltWithSeparateModulesForProdTest(project: Project, projectPath: Option[String] = None): Boolean = {
+    val sbtProjectDataOpt = getSbtProjectData(project, projectPath)
     sbtProjectDataOpt.exists(_.prodTestSourcesSeparated)
   }
 
