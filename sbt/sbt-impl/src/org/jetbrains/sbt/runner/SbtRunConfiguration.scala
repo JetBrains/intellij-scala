@@ -32,8 +32,15 @@ import scala.jdk.CollectionConverters._
 /**
  * Run configuration of sbt tasks.
  */
-class SbtRunConfiguration(val project: Project, val configurationFactory: ConfigurationFactory, val name: String)
-        extends ModuleBasedConfiguration[RunConfigurationModule,Element](name, new RunConfigurationModule(project), configurationFactory) with EnvFilesOptions {
+class SbtRunConfiguration(
+  val project: Project,
+  val configurationFactory: ConfigurationFactory,
+  val name: String
+)  extends ModuleBasedConfiguration[RunConfigurationModule,Element](
+  name,
+  new RunConfigurationModule(project),
+  configurationFactory
+) with EnvFilesOptions {
 
   /**
    * List of task to execute in format of sbt.
@@ -103,8 +110,13 @@ class SbtRunConfiguration(val project: Project, val configurationFactory: Config
   }
 }
 
-class SbtCommandLineState(val processedCommands: String, val configuration: SbtRunConfiguration, environment: ExecutionEnvironment,
-                          private var listener: Option[String => Unit] = None) extends JavaCommandLineState(environment) {
+class SbtCommandLineState(
+  val processedCommands: String,
+  val configuration: SbtRunConfiguration,
+  environment: ExecutionEnvironment,
+  private var listener: Option[String => Unit] = None
+) extends JavaCommandLineState(environment) {
+
   def getListener: Option[String => Unit] = listener
 
   override def execute(executor: Executor, runner: ProgramRunner[_]): ExecutionResult = {

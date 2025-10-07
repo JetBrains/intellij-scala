@@ -10,22 +10,30 @@ import com.intellij.execution.{ExecutionResult, Executor}
 import com.intellij.openapi.project.Project
 import org.jetbrains.sbt.shell.SbtProcessManager
 
+/**
+ * @see [[org.jetbrains.sbt.runner.SbtProgramRunner]]
+ */
 class SbtDebugProgramRunner extends GenericDebuggerRunner with SbtProgramRunnerBase {
   override def createContentDescriptor(state: RunProfileState, environment: ExecutionEnvironment): RunContentDescriptor = {
     state match {
       case sbtState: SbtCommandLineState =>
-        if (sbtState.configuration.useSbtShell) SbtProcessManager.forProject(environment.getProject).acquireShellRunner().getDebugConnection.foreach {
-          connection =>
+        if (sbtState.configuration.useSbtShell) {
+          val shellRunner = SbtProcessManager.forProject(environment.getProject).acquireShellRunner()
+          val shellDebugConnection = shellRunner.getDebugConnection
+          shellDebugConnection.foreach { connection =>
             import scala.concurrent.ExecutionContext.Implicits.global
-            
+
             val state = new MyTrojanRemoteState(environment.getProject, connection)
             val attach = attachVirtualMachine(state, environment, connection, true)
-            submitCommands(environment, sbtState).onComplete {
-              _ => 
-                state.detach()
+            val commandFuture = submitCommands(environment, sbtState)
+            commandFuture.onComplete { _ =>
+              state.detach()
             }
             return attach
-        } else super.createContentDescriptor(state, environment)
+          }
+        } else {
+          super.createContentDescriptor(state, environment)
+        }
       case _ => 
     }
     
