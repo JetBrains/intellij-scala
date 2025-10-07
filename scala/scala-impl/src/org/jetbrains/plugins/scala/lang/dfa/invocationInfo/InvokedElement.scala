@@ -13,6 +13,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.Any
 import org.jetbrains.plugins.scala.lang.psi.types.{ApplicabilityProblem, ScType}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
+import scala.annotation.nowarn
+
 case class InvokedElement(psiElement: PsiElement) {
 
   override def toString: String = psiElement match {
@@ -42,7 +44,7 @@ case class InvokedElement(psiElement: PsiElement) {
   }
 
   lazy val returnInfo: ValueInfo = {
-    val nullability = DfaPsiUtil.getElementNullability(returnType.toPsiType, psiElement.asOptionOf[PsiModifierListOwner].orNull)
+    val nullability = DfaPsiUtil.getElementNullability(returnType.toPsiType, psiElement.asOptionOf[PsiModifierListOwner].orNull): @nowarn("cat=deprecation")
     ValueInfo(returnType, nullability)
   }
 }
