@@ -6,14 +6,18 @@ import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.runners.{ExecutionEnvironment, GenericProgramRunner, ProgramRunner}
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.fileEditor.FileDocumentManager
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.extensions.{IteratorExt, executionContext}
+import org.jetbrains.plugins.scala.extensions.{IteratorExt, executionContext, invokeAndWait}
 import org.jetbrains.sbt.runner.SbtProgramRunner.DummyProcessHandler
 import org.jetbrains.sbt.shell.SbtShellCommunication
 
 import java.io.OutputStream
 import scala.util.Try
 
+/**
+ * @see [[org.jetbrains.sbt.runner.SbtDebugProgramRunner]]
+ */
 class SbtProgramRunner extends GenericProgramRunner[RunnerSettings] with SbtProgramRunnerBase {
 
   override def getRunnerId: String = "SbtProgramRunner"
@@ -52,6 +56,15 @@ class SbtProgramRunner extends GenericProgramRunner[RunnerSettings] with SbtProg
     val listeners = project.getMessageBus.syncPublisher(ExecutionManager.EXECUTION_TOPIC)
     listeners.processStartScheduled(executorId, environment)
 
+    // Ensure all the documents are flushed to disk before running "sbt task" run configuration,
+    // otherwise, if you make any changes in some document and do e.g. "sbt assembly", sbt won't see the latest changes.
+    // Note1: It works fine with the "Build" because that action also commits the document.
+    // Note2: This is not needed when sbt shell is not used, because a separate process will be started
+    // and documents are saved in `com.intellij.execution.impl.DefaultJavaProgramRunner.doExecute`
+    invokeAndWait {
+      FileDocumentManager.getInstance().saveAllDocuments()
+    }
+
     ApplicationManager.getApplication.executeOnPooledThread((() => {
       val commandFuture = submitCommands(environment, sbtState)
       commandFuture.onComplete { result =>
@@ -63,7 +76,6 @@ class SbtProgramRunner extends GenericProgramRunner[RunnerSettings] with SbtProg
       }(executionContext.appExecutionContext)
     }): Runnable)
   }
-
 
   private def commandFinishedSuccessfully(result: Try[CharSequence]): Boolean = {
     // ATTENTION: technically it's not the most correct and reliable way to detect if a command was finished "successfully".
