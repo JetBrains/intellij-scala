@@ -279,15 +279,6 @@ lazy val tastyReader = Project("tasty-reader", file("scala/tasty-reader"))
   )
   .settings(compilationCacheSettings)
 
-lazy val packageSearchClient: sbt.Project =
-  newProjectWithKotlin("package-search-client", file("scala/package-search-client"))
-    .settings(
-      scalaVersion := Versions.scala3Version,
-      Compile / scalacOptions := globalScala3ScalacOptions,
-      resolvers += DependencyResolvers.PackageSearch,
-      libraryDependencies ++= Dependencies.packageSearchDependencies,
-    )
-
 lazy val scalaImpl: sbt.Project =
   newProject("scala-impl", file("scala/scala-impl"))
     .dependsOn(
@@ -300,7 +291,6 @@ lazy val scalaImpl: sbt.Project =
       scalatestFinders,
       runners,
       testRunners,
-      packageSearchClient % "test->test;compile->compile",
       testUtilsCommon % "test->test"
     )
     .settings(
@@ -409,7 +399,7 @@ lazy val sbtImpl =
     .settings(
       scalaVersion := Versions.scala3Version,
       Compile / scalacOptions := globalScala3ScalacOptions,
-      intellijPlugins += "org.jetbrains.idea.maven".toPlugin,
+      intellijPlugins += "com.intellij.properties".toPlugin,
       libraryDependencies += Dependencies.sbtStructureCore.exclude("org.scala-lang.modules", "scala-xml_3")
     )
 
@@ -861,7 +851,7 @@ lazy val mavenIntegration =
     .dependsOn(
       scalaImpl % "test->test;compile->compile",
       testingSupport,
-      sbtImpl % "test->test",
+      sbtImpl % "test->test;compile->compile",
       compilerIntegration % "test->test;compile->compile"
     )
     .settings(

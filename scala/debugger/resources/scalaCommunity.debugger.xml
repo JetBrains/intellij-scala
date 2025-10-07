@@ -30,6 +30,8 @@
         <debugger.jvmSmartStepIntoHandler implementation="org.jetbrains.plugins.scala.debugger.smartStepInto.ScalaSmartStepIntoHandler"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCache"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCompileHelper"/>
+
+        <registryKey defaultValue="true" description="Use an expression evaluator in the debugger which does lazy resolve during evaluation time" key="scala.debugger.expression.evaluator.lazy.resolve.enabled"/>
     </extensions>
 
     <projectListeners>

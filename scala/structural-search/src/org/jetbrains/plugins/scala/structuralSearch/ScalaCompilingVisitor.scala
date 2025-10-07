@@ -1,9 +1,12 @@
 package org.jetbrains.plugins.scala.structuralSearch
 
 import com.intellij.dupLocator.util.DuplocatorUtil
+import com.intellij.openapi.project.DumbService
+import com.intellij.openapi.util.text.Strings
 import com.intellij.psi.PsiElement
 import com.intellij.structuralsearch.impl.matcher.MatchContext
-import com.intellij.structuralsearch.impl.matcher.compiler.GlobalCompilingVisitor
+import com.intellij.structuralsearch.impl.matcher.compiler.GlobalCompilingVisitor.OccurenceKind
+import com.intellij.structuralsearch.impl.matcher.compiler.{GlobalCompilingVisitor, WordOptimizer}
 import com.intellij.structuralsearch.impl.matcher.handlers.{MatchingHandler, SubstitutionHandler, TopLevelMatchingHandler}
 import com.intellij.structuralsearch.impl.matcher.strategies.MatchingStrategy
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScReferencePattern}
@@ -35,9 +38,11 @@ class ScalaCompilingVisitor(globalVisitor: GlobalCompilingVisitor) extends Scala
     })
 
     val context = globalVisitor.getContext
+    val optimizer = Option.when(!DumbService.isDumb(context.getProject))(new ScalaWordOptimizer())
     val pattern = context.getPattern
     for (element <- topLevelElements) {
       element.accept(this)
+      optimizer.foreach(element.accept)
       pattern.setHandler(element, new TopLevelMatchingHandler(pattern.getHandler(element)))
     }
   }
@@ -216,6 +221,27 @@ class ScalaCompilingVisitor(globalVisitor: GlobalCompilingVisitor) extends Scala
           })
         case _ =>
       }
+    }
+  }
+
+  class ScalaWordOptimizer extends ScalaRecursiveElementVisitor, WordOptimizer {
+
+    override def visitReference(ref: ScReference): Unit = {
+      val word = ref.refName
+      if (ref.resolve == null && Strings.isCapitalized(word)) return
+      if (handleWord(word, OccurenceKind.CODE, globalVisitor.getContext)) {
+        super.visitReference(ref)
+      }
+    }
+
+    override def visitFunction(fun: ScFunction): Unit = {
+      if (handleWord(fun.name, OccurenceKind.CODE, globalVisitor.getContext)) return
+      super.visitFunction(fun)
+    }
+
+    override def visitTypeDefinition(typedef: ScTypeDefinition): Unit = {
+      if (handleWord(typedef.name, OccurenceKind.CODE, globalVisitor.getContext)) return
+      super.visitTypeDefinition(typedef)
     }
   }
 

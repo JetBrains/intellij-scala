@@ -6,7 +6,6 @@ import com.intellij.codeInsight.completion.{CompletionParameters, CompletionProv
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.util.ProcessingContext
-import org.jetbrains.packagesearch.api.v3.ApiMavenPackage
 import org.jetbrains.plugins.scala.LatestScalaVersions
 import org.jetbrains.plugins.scala.extensions.NonNullObjectExt
 import org.jetbrains.plugins.scala.lang.completion.positionFromParameters
@@ -31,9 +30,10 @@ final class ScalaDirectiveDependencyCompletionProvider extends CompletionProvide
 
     def findDependencies(groupId: String, artifactId: String, exactMatchGroupId: Boolean): Seq[LookupElement] = {
       val useCache = !params.isExtendedCompletion || ApplicationManager.getApplication.isUnitTestMode
-      val packages = DependencyUtil.getArtifacts(groupId, artifactId, useCache, exactMatchGroupId)
+//      val packages = DependencyUtil.getArtifacts(groupId, artifactId, useCache, exactMatchGroupId)
+      val packages = List.empty[AnyRef]
 
-      packages.map(toArtifactStringWithoutVersion).distinct.map { lookupString =>
+      packages.flatMap(toArtifactStringWithoutVersion).distinct.map { lookupString =>
         // schedule version completion auto popup after insertion
         ScalaDirectiveDependencyLookupItem(lookupString, valueKind, scheduleAutoPopupAfterInsert = true)
       }
@@ -81,24 +81,26 @@ object ScalaDirectiveDependencyCompletionProvider {
   private[this] val Scala2MajorVersions = LatestScalaVersions.allScala2.map(_.major)
   private[this] val ScalaMajorVersions = Scala2MajorVersions :+ "3"
 
-  private def toArtifactStringWithoutVersion(pkg: ApiMavenPackage): String = {
-    val artifactId = pkg.getArtifactId match {
-      case CrossPublishedArtifact(artifactId, version) =>
-
-        /**
-         * group:artifact   -> group:artifact
-         * group::artifact  -> group:artifact_3, group:artifact_2.12, etc.
-         * group:::artifact -> group:artifact_3.3.0, group:artifact_2.12.15, group:artifact_2.13.0-RC3, etc.
-         */
-        val crossVersionPrefix =
-          if (ScalaMajorVersions.contains(version)) ":"
-          else "::"
-
-        s"$crossVersionPrefix$artifactId"
-      case artifactId => artifactId
-    }
-
-    s"${pkg.getGroupId}:$artifactId:"
+  // TODO: SCL-23246 Reimplement using new maven search api.
+  private def toArtifactStringWithoutVersion(pkg: AnyRef /* ApiMavenPackage */): None.type /* String */ = {
+//    val artifactId = pkg.getArtifactId match {
+//      case CrossPublishedArtifact(artifactId, version) =>
+//
+//        /**
+//         * group:artifact   -> group:artifact
+//         * group::artifact  -> group:artifact_3, group:artifact_2.12, etc.
+//         * group:::artifact -> group:artifact_3.3.0, group:artifact_2.12.15, group:artifact_2.13.0-RC3, etc.
+//         */
+//        val crossVersionPrefix =
+//          if (ScalaMajorVersions.contains(version)) ":"
+//          else "::"
+//
+//        s"$crossVersionPrefix$artifactId"
+//      case artifactId => artifactId
+//    }
+//
+//    s"${pkg.getGroupId}:$artifactId:"
+    None
   }
 
   private def clean(text: String): String = {
