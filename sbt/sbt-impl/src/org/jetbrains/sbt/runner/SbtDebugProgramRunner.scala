@@ -36,7 +36,7 @@ class SbtDebugProgramRunner extends GenericDebuggerRunner with SbtProgramRunnerB
   }
 
   override def canRun(executorId: String, profile: RunProfile): Boolean =
-    checkRunProfile(profile) && executorId == DefaultDebugExecutor.EXECUTOR_ID
+    isSbtRunConfigurationWithUseSbtShell(profile) && executorId == DefaultDebugExecutor.EXECUTOR_ID
 
   override def getRunnerId: String = "SbtDebugProgramRunner"
   
