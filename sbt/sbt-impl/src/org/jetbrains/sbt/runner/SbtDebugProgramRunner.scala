@@ -7,6 +7,7 @@ import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.runners.{ExecutionEnvironment, ProgramRunner}
 import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.execution.{ExecutionResult, Executor}
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import org.jetbrains.sbt.shell.SbtProcessManager
 
@@ -14,31 +15,46 @@ import org.jetbrains.sbt.shell.SbtProcessManager
  * @see [[org.jetbrains.sbt.runner.SbtProgramRunner]]
  */
 class SbtDebugProgramRunner extends GenericDebuggerRunner with SbtProgramRunnerBase {
-  override def createContentDescriptor(state: RunProfileState, environment: ExecutionEnvironment): RunContentDescriptor = {
+  override def createContentDescriptor(state: RunProfileState, environment: ExecutionEnvironment): RunContentDescriptor =
     state match {
       case sbtState: SbtCommandLineState =>
-        if (sbtState.configuration.useSbtShell) {
-          val processManager = SbtProcessManager.forProject(environment.getProject)
-          processManager.acquireShellProcessHandler()
-          val shellDebugConnection = processManager.debugConnection
-          shellDebugConnection.foreach { connection =>
-            import scala.concurrent.ExecutionContext.Implicits.global
-
-            val state = new MyTrojanRemoteState(environment.getProject, connection)
-            val attach = attachVirtualMachine(state, environment, connection, true)
-            val commandFuture = submitCommands(environment, sbtState)
-            commandFuture.onComplete { _ =>
-              state.detach()
-            }
-            return attach
-          }
-        } else {
+        if (sbtState.configuration.useSbtShell)
+          createContentDescriptorForSbtShellDelegation(environment, sbtState)
+        else
           super.createContentDescriptor(state, environment)
-        }
-      case _ => 
+      case _ =>
+        null
     }
 
-    null
+  private def createContentDescriptorForSbtShellDelegation(environment: ExecutionEnvironment, sbtState: SbtCommandLineState): RunContentDescriptor = {
+    val processManager = SbtProcessManager.forProject(environment.getProject)
+    processManager.acquireShellProcessHandler()
+    val shellDebugConnection = processManager.debugConnection
+    // ATTENTION: currently, if sbt shell was not launched with the debug agent,
+    // we won't notify user anyhow that we haven't launched sbt in the debug mode
+    shellDebugConnection.map { connection =>
+      createContentDescriptorForDebugConnection(environment, sbtState, connection)
+    }.orNull
+  }
+
+  private def createContentDescriptorForDebugConnection(
+    environment: ExecutionEnvironment,
+    sbtState: SbtCommandLineState,
+    connection: RemoteConnection
+  ): RunContentDescriptor = {
+    val state = new MyTrojanRemoteState(environment.getProject, connection)
+    val attach = attachVirtualMachine(state, environment, connection, true)
+
+    import org.jetbrains.plugins.scala.extensions.executionContext.appExecutionContext
+
+    ApplicationManager.getApplication.executeOnPooledThread((() => {
+      val commandFuture = submitCommands(environment, sbtState)
+      commandFuture.onComplete { _ =>
+        state.detach()
+      }
+    }): Runnable)
+
+    attach
   }
 
   override def canRun(executorId: String, profile: RunProfile): Boolean =
