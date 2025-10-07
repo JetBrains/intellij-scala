@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala.worksheet.settings
 
+import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt}
 import org.jetbrains.sbt.SbtSourceSetUtil.SbtSourceSetModuleExt
 import org.jetbrains.sbt.SbtUtil
-import org.jetbrains.sbt.settings.SbtSettings
 
 private object WorksheetModuleUtil {
   def allModulesWithScalaSdk(project: Project): Seq[Module] = {
@@ -29,7 +29,7 @@ private object WorksheetModuleUtil {
   }
 
   def isStale(module: Module): Boolean = {
-    val externalProjectPath = SbtSettings.getInstance(module.getProject).getLinkedProjectSettings(module).map(_.getExternalProjectPath)
+    val externalProjectPath = Option(ExternalSystemApiUtil.getExternalRootProjectPath(module))
     val separate = SbtUtil.isBuiltWithSeparateModulesForProdTest(module.getProject, externalProjectPath)
     val isMainOrTest = module.isMain || module.isTest
     if (separate) !isMainOrTest else isMainOrTest
