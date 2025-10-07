@@ -11,7 +11,7 @@ import com.intellij.openapi.application.{ApplicationManager, WriteIntentReadActi
 import com.intellij.openapi.editor.actions.ToggleUseSoftWrapsToolbarAction
 import com.intellij.openapi.editor.event.{EditorMouseEvent, EditorMouseListener}
 import com.intellij.openapi.editor.ex.EditorEx
-import com.intellij.openapi.editor.{Editor, EditorFactory}
+import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.IdeFocusManager
 import com.intellij.psi.search.GlobalSearchScope
@@ -73,7 +73,6 @@ final class SbtShellConsoleView private(project: Project, debugConnection: Optio
   override def dispose(): Unit = {
     super.dispose()
     ConsoleViewsRegistry.removeConsoleView(project)
-    EditorFactory.getInstance().releaseEditor(getConsoleEditor)
   }
 
 }
