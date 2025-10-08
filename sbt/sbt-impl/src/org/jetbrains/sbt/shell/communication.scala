@@ -7,13 +7,12 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.model.ExternalSystemException
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
-import org.jetbrains.annotations.Nls
 import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import org.jetbrains.annotations.ApiStatus.Internal
-import org.jetbrains.annotations.{ApiStatus, NonNls, TestOnly}
+import org.jetbrains.annotations.{ApiStatus, Nls, NonNls, TestOnly}
 import org.jetbrains.ide.PooledThreadExecutor
-import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
+import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}
 import org.jetbrains.plugins.scala.extensions.LoggerExt
 import org.jetbrains.plugins.scala.isInternalMode
 import org.jetbrains.sbt.shell.LineListener.{LineSeparatorRegex, escapeNewLines}
@@ -22,13 +21,13 @@ import org.jetbrains.sbt.shell.SbtShellCommunication._
 import org.jetbrains.sbt.shell.SbtShellLifecycle.{ShellState, ShellStateEvent}
 import org.jetbrains.sbt.{SbtBundle, SbtUtil, SbtVersion}
 
-import java.util.concurrent._
 import java.util.UUID
+import java.util.concurrent._
 import java.util.concurrent.atomic.AtomicReference
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
 import scala.concurrent.{Future, Promise}
-import scala.util.{Success, Try}
+import scala.util.{Failure, Success}
 
 // TODO: this class has become too complicated, too much random state updates.
 //  We need to design a better architecture for it.
@@ -576,7 +575,7 @@ private[shell] class CommandListener[A](default: A, aggregator: EventAggregator[
 
   def processTerminated(): Unit = {
     aggregate(ProcessTerminated)
-    promise.complete(Try(a))
+    promise.complete(Failure(new RuntimeException("Sbt shell terminated before command is finished")))
   }
 
   override def onLine(text: String): Unit =
