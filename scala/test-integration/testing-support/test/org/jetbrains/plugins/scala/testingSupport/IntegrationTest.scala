@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.testingSupport
 import com.intellij.execution.RunnerAndConfigurationSettings
 import com.intellij.execution.testframework.AbstractTestProxy
 import com.intellij.openapi.project.Project
+import com.intellij.testFramework.UsefulTestCase
 import org.jetbrains.plugins.scala.configurations.TestLocation
 import org.jetbrains.plugins.scala.configurations.TestLocation.CaretLocation
 import org.jetbrains.plugins.scala.extensions.PathExt
@@ -10,7 +11,7 @@ import org.junit.Assert._
 
 import java.nio.file.Path
 
-trait IntegrationTest extends AnyRef
+trait IntegrationTest extends UsefulTestCase
   with IntegrationTestConfigurationCreation
   with IntegrationTestConfigurationRunning
   with IntegrationTestGoToTests
