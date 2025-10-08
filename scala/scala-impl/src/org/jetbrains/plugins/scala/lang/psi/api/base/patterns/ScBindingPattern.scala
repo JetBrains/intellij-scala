@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 
 import javax.swing.Icon
 
@@ -133,5 +133,8 @@ trait ScBindingPattern extends ScPattern with ScNamedElement with ScTypedDefinit
 
   override def aliasExport: Option[PsiNamedElement] =
     if (!hasStablePath(this)) None
-    else `type`().toOption.collect { case ScDesignatorType(o: ScObject) if o.name == name => o }
+    else `type`().toOption.collect {
+      case ScDesignatorType(o: ScObject) if o.name == name => o
+      case ScProjectionType(_, o: ScObject) if o.name == name => o
+    }
 }
