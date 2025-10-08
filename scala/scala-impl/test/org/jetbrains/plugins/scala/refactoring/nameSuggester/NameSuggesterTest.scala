@@ -5,14 +5,17 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeElementFromText
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.ScalaNameSuggestionProvider
 import org.jetbrains.plugins.scala.project.ScalaFeatures
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsJUnit4Runner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.Assert.{assertEquals, assertNotNull}
+import org.junit.Test
 import org.junit.runner.RunWith
 
 import scala.jdk.CollectionConverters._
 
+@RunWith(classOf[MultipleScalaVersionsJUnit4Runner])
 abstract class NameSuggesterTest extends AbstractNameSuggesterTest {
 
+  @Test
   def testStandard(): Unit = {
     testNamesByType("Boolean", "bool")
     testNamesByType("Char", "c")
@@ -26,12 +29,14 @@ abstract class NameSuggesterTest extends AbstractNameSuggesterTest {
     testNamesByType("String", "str")
   }
 
+  @Test
   def testArray(): Unit = {
     testNamesByType("Array[String]", "strings", "array")
     testNamesByType("Array[Int]", "ints", "array")
     testNamesByType("Array[Object]", "objects", "array")
   }
 
+  @Test
   def testCollections(): Unit = {
     testNamesByType("Seq[String]", "strings", "seq")
     testNamesByType("Seq[Int]", "ints", "seq")
@@ -41,8 +46,11 @@ abstract class NameSuggesterTest extends AbstractNameSuggesterTest {
 
   // Views were simplified in 2.13: https://docs.scala-lang.org/overviews/core/collections-migration-213.html
   protected def doTestViews(): Unit
+
+  @Test
   def testViews(): Unit = doTestViews()
 
+  @Test
   def testCollectionsOfCollections(): Unit = {
     testNamesByType("List[List[String]]", "list")
     testNamesByType("Set[List[Object]]", "set")
@@ -50,14 +58,18 @@ abstract class NameSuggesterTest extends AbstractNameSuggesterTest {
 
   // Views were simplified in 2.13: https://docs.scala-lang.org/overviews/core/collections-migration-213.html
   protected def doTestViewsOfCollections(): Unit
+
+  @Test
   def testViewsOfCollections(): Unit = doTestViewsOfCollections()
 
+  @Test
   def testJavaCollections(): Unit = {
     testNamesByType("java.util.List[String]", "strings", "list")
     testNamesByType("java.util.ArrayList[String]", "strings", "list", "arrayList")
     testNamesByType("java.lang.Iterable[String]", "strings", "iterable")
   }
 
+  @Test
   def testMaps(): Unit = {
     testNamesByType("java.util.Map[String, Object]", "stringToObject", "map")
     testNamesByType("java.util.HashMap[String, Object]", "stringToObject", "map", "hashMap")
@@ -67,17 +79,20 @@ abstract class NameSuggesterTest extends AbstractNameSuggesterTest {
     testNamesByType("scala.collection.mutable.HashMap[String, Int]", "stringToInt", "map", "hashMap")
   }
 
+  @Test
   def testTuple(): Unit = {
     testNamesByType("(String, Int)", "tuple")
     testNamesByType("(String, Int, Int)", "tuple")
   }
 
+  @Test
   def testFunction(): Unit = {
     testNamesByType("() => String", "str", "function")
     testNamesByType("(Int) => (String)", "intToString", "function")
     testNamesByType("(Int, Int) => (String)", "function")
   }
 
+  @Test
   def testSpecial(): Unit = {
     testNamesByType("Option[String]", "maybeString", "option")
     testNamesByType("Some[String]", "someString", "some")
@@ -93,7 +108,6 @@ abstract class NameSuggesterTest extends AbstractNameSuggesterTest {
   }
 }
 
-@RunWith(classOf[MultipleScalaVersionsRunner])
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_11,
   TestScalaVersion.Scala_2_12,
@@ -110,7 +124,6 @@ class NameSuggesterTest_Before_2_13 extends NameSuggesterTest {
   }
 }
 
-@RunWith(classOf[MultipleScalaVersionsRunner])
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_13,
   TestScalaVersion.Scala_3_Latest,
