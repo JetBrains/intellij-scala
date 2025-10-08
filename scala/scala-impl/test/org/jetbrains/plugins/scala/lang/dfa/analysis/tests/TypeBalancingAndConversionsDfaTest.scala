@@ -2,9 +2,11 @@ package org.jetbrains.plugins.scala.lang.dfa.analysis.tests
 
 import org.jetbrains.plugins.scala.lang.dfa.Messages._
 import org.jetbrains.plugins.scala.lang.dfa.analysis.ScalaDfaTestBase
+import org.junit.Test
 
 class TypeBalancingAndConversionsDfaTest extends ScalaDfaTestBase {
 
+  @Test
   def testLiteralTypeWidening(): Unit =  test(codeFromMethodBody(returnType = "Boolean") {
     """
       |val x = "1"
@@ -14,6 +16,7 @@ class TypeBalancingAndConversionsDfaTest extends ScalaDfaTestBase {
     "x == \"1\"" -> ConditionAlwaysTrue,
   )
 
+  @Test
   def testImplicitConversionsInBinaryOperators(): Unit = test(codeFromMethodBody(returnType = "Boolean") {
     """
       |1 + 2L == 3L
@@ -41,6 +44,7 @@ class TypeBalancingAndConversionsDfaTest extends ScalaDfaTestBase {
     "2.5 > 2" -> ConditionAlwaysTrue
   )
 
+  @Test
   def testImplicitConversionsInOtherExpressions(): Unit = test(codeFromMethodBody(returnType = "Boolean") {
     """
       |val y: Long = 3
@@ -79,6 +83,7 @@ class TypeBalancingAndConversionsDfaTest extends ScalaDfaTestBase {
     "z == 4L" -> ConditionAlwaysTrue
   )
 
+  @Test
   def testNotReportingDoublesAsZero(): Unit = test(codeFromMethodBody(returnType = "Boolean") {
     """
       |val x = 2

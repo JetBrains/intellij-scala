@@ -2,9 +2,11 @@ package org.jetbrains.plugins.scala.lang.dfa.analysis.tests.invocations
 
 import org.jetbrains.plugins.scala.lang.dfa.Messages._
 import org.jetbrains.plugins.scala.lang.dfa.analysis.ScalaDfaTestBase
+import org.junit.Test
 
 class OtherMethodsSpecialSupportDfaTest extends ScalaDfaTestBase {
 
+  @Test
   def testAbsFunction(): Unit = test(codeFromMethodBody(returnType = "Boolean") {
     """
       |val x1 = abs(-9)
@@ -29,6 +31,7 @@ class OtherMethodsSpecialSupportDfaTest extends ScalaDfaTestBase {
     "abs(-arg1) > 25" -> ConditionAlwaysTrue,
   )
 
+  @Test
   def testMinAndMaxFunctions(): Unit = test(codeFromMethodBody(returnType = "Boolean") {
     """
       |val x1 = max(max(8, max(6, 2)), -5)
@@ -44,6 +47,7 @@ class OtherMethodsSpecialSupportDfaTest extends ScalaDfaTestBase {
     "x3 > 6.2" -> ConditionAlwaysFalse
   )
 
+  @Test
   def testSqrtFunction(): Unit = test(codeFromMethodBody(returnType = "Boolean") {
     """
       |val x1 = sqrt(9)
@@ -61,6 +65,7 @@ class OtherMethodsSpecialSupportDfaTest extends ScalaDfaTestBase {
     "x3 >= 1.3" -> ConditionAlwaysTrue
   )
 
+  @Test
   def testJavaMethodsWithCustomHandlers(): Unit = test(codeFromMethodBody(returnType = "Boolean") {
     """
       |val x = Math.sqrt(9)

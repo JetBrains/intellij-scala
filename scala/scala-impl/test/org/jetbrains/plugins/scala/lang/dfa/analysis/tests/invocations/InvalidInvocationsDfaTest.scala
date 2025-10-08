@@ -2,9 +2,11 @@ package org.jetbrains.plugins.scala.lang.dfa.analysis.tests.invocations
 
 import org.jetbrains.plugins.scala.lang.dfa.Messages._
 import org.jetbrains.plugins.scala.lang.dfa.analysis.ScalaDfaTestBase
+import org.junit.Test
 
 class InvalidInvocationsDfaTest extends ScalaDfaTestBase {
 
+  @Test
   def testProperFlushingOfVars(): Unit = test(codeFromMethodBody(returnType = "Boolean") {
     """
       |val x = 333

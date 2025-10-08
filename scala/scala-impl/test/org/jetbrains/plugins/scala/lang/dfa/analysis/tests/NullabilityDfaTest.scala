@@ -3,9 +3,11 @@ package org.jetbrains.plugins.scala.lang.dfa.analysis.tests
 import org.jetbrains.plugins.scala.lang.dfa.Messages.{ConditionAlwaysFalse, ConditionAlwaysTrue}
 import org.jetbrains.plugins.scala.lang.dfa.analysis.ScalaDfaTestBase
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaNullAccessProblem.{npeOnInvocation, nullableToUnannotatedParam}
+import org.junit.Test
 
 class NullabilityDfaTest extends ScalaDfaTestBase {
 
+  @Test
   def test_always_null(): Unit = test(codeFromMethodBody() {
       """
         |val x: String = null
@@ -21,6 +23,7 @@ class NullabilityDfaTest extends ScalaDfaTestBase {
     "x != null" -> ConditionAlwaysFalse,
     )
 
+  @Test
   def test_probably_not_null(): Unit = test(codeFromMethodBody() {
     """
       |val x: String = arg4
@@ -39,6 +42,7 @@ class NullabilityDfaTest extends ScalaDfaTestBase {
     "x"-> npeOnInvocation.alwaysMessage,
   )
 
+  @Test
   def test_never_null(): Unit = test(codeFromMethodBody() {
     """
       |val x: String = ""
@@ -56,6 +60,7 @@ class NullabilityDfaTest extends ScalaDfaTestBase {
     "x != null" -> ConditionAlwaysTrue,
   )
 
+  @Test
   def test_null_from_branch(): Unit = test(codeFromMethodBody() {
     """
       |val x = if (arg3) "" else null
@@ -65,6 +70,7 @@ class NullabilityDfaTest extends ScalaDfaTestBase {
     "x" -> npeOnInvocation.sometimesMessage
   )
 
+  @Test
   def test_implicit_class(): Unit = test(codeFromMethodBody() {
     """
       |implicit class TestClass(val x: String) {
@@ -78,6 +84,7 @@ class NullabilityDfaTest extends ScalaDfaTestBase {
     "x" -> nullableToUnannotatedParam.alwaysMessage
   )
 
+  @Test
   def test_nullable_implicit_class(): Unit = test(codeFromMethodBody() {
     """
       |implicit class TestClass(@Nullable val x: String) {
@@ -89,6 +96,7 @@ class NullabilityDfaTest extends ScalaDfaTestBase {
       |""".stripMargin
   })()
 
+  @Test
   def test_implicit_conversion(): Unit = test(codeFromMethodBody() {
     """
       |class TestClass(val x: String) {

@@ -2,11 +2,13 @@ package org.jetbrains.plugins.scala.lang.dfa.analysis.tests
 
 import org.jetbrains.plugins.scala.lang.dfa.Messages.ConditionAlwaysTrue
 import org.jetbrains.plugins.scala.lang.dfa.analysis.ScalaDfaTestBase
+import org.junit.Test
 
 class IgnoredConstructsDfaTest extends ScalaDfaTestBase {
 
   override protected def shouldPass: Boolean = false
 
+  @Test
   def testDefinitionsNotAffectingRestOfAnalysis(): Unit = test(codeFromMethodBody(returnType = "Boolean") {
     """
       |val x = 2
@@ -38,6 +40,7 @@ class IgnoredConstructsDfaTest extends ScalaDfaTestBase {
     "x == 2" -> ConditionAlwaysTrue
   )
 
+  @Test
   def testIgnoringImplicitConversions(): Unit = test(codeFromMethodBody(returnType = "Boolean") {
     """
       |val x = 2
@@ -50,6 +53,7 @@ class IgnoredConstructsDfaTest extends ScalaDfaTestBase {
     "x == 2" -> ConditionAlwaysTrue
   )
 
+  @Test
   def testFlushingAfterModifyingAssignmentCalls(): Unit = test(codeFromMethodBody(returnType = "Boolean") {
     """
       |val y = 2

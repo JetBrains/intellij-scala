@@ -2,9 +2,11 @@ package org.jetbrains.plugins.scala.lang.dfa.analysis.tests.invocations
 
 import org.jetbrains.plugins.scala.lang.dfa.Messages._
 import org.jetbrains.plugins.scala.lang.dfa.analysis.ScalaDfaTestBase
+import org.junit.Test
 
 class UnaryPrefixExpressionsDfaTest extends ScalaDfaTestBase {
 
+  @Test
   def testNumericUnaryOperators(): Unit = test(codeFromMethodBody(returnType = "Boolean") {
     """
       |(-3) + 5 == 2
@@ -29,6 +31,7 @@ class UnaryPrefixExpressionsDfaTest extends ScalaDfaTestBase {
     "+0" -> ExpressionAlwaysZero,
   )
 
+  @Test
   def testLogicalUnaryOperators(): Unit = test(codeFromMethodBody(returnType = "Boolean") {
     """
       |val y = 200
