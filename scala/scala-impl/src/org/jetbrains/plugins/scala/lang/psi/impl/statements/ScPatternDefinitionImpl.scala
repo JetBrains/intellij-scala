@@ -32,13 +32,7 @@ final class ScPatternDefinitionImpl private[psi](stub: ScPropertyStub[ScPatternD
     else "ScPatternDefinition: " + declaredNames.mkString(", ")
   }("")
 
-  override def isStable: Boolean =
-    if (this.hasModifierPropertyScala(ScalaModifier.LAZY))
-      this.hasFinalModifier || this.isTopLevel || // top level `lazy val x = 1` is effectively final
-        !this.isInScala3File || // in scala2 lazy val can be referenced with `.type` even without explicit type
-        typeElement.exists(_.isSingleton)
-    else
-      true
+  override def isStable: Boolean = true
 
   override def bindings: Seq[ScBindingPattern] = Option(pList).map(_.bindings).getOrElse(Seq.empty)
 

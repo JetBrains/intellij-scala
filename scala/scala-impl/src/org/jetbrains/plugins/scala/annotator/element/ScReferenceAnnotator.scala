@@ -14,13 +14,15 @@ import org.jetbrains.plugins.scala.annotator.{ScalaAnnotationHolder, UnresolvedR
 import org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.codeInspection.varCouldBeValInspection.ValToVarQuickFix
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScExtractorPattern, ScInfixPattern, ScPattern}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScExtractorPattern, ScInfixPattern, ScPattern, ScReferencePattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatternDefinition, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
@@ -74,7 +76,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
             case _: ScDocResolvableCodeReference => // TODO Uniform, fine-grained highlighting, SCL-22154
               checkQualifiedReferenceElement(element, typeAware)
             case e: ScExpression if precursorAlreadyHasProblem(e) =>
-              // Don't highlight the remainder if the type of the qualifier is unknown (see SCL-15138, SCL-20431, SCL-22138)
+            // Don't highlight the remainder if the type of the qualifier is unknown (see SCL-15138, SCL-20431, SCL-22138)
             case _ =>
               checkQualifiedReferenceElement(element, typeAware)
           }
@@ -132,8 +134,8 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
   }
 
   /**
-    * Annotates: val a = 1; a += 1;
-    */
+   * Annotates: val a = 1; a += 1;
+   */
   private def annotateAssignmentReference(reference: ScReference)
                                          (implicit holder: ScalaAnnotationHolder): Unit = {
     val qualifier = reference.getContext match {
@@ -248,7 +250,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
       }
     }
 
-    checkAccessForReference(resolve, refElement)
+    runCommonChecksForReference(resolve, refElement)
 
     if (resolve.length == 1) {
       val resolveResult = resolve(0)
@@ -369,7 +371,8 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
 
     val resolve = refElement.multiResolveScala(true)
 
-    checkAccessForReference(resolve, refElement)
+    runCommonChecksForReference(resolve, refElement)
+
     val resolveCount = resolve.length
     if (refElement.isInstanceOf[ScExpression] && resolveCount == 1) {
       val resolveResult = resolve(0)
@@ -462,8 +465,10 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
     highlightImplicitView(refElement.nameId)
   }
 
-  private def checkAccessForReference(resolve: Array[ScalaResolveResult], refElement: ScReference)
-                                     (implicit holder: ScalaAnnotationHolder): Unit = {
+  private def runCommonChecksForReference(
+    resolve: Array[ScalaResolveResult],
+    refElement: ScReference
+  )(implicit holder: ScalaAnnotationHolder): Unit = {
     if (refElement.isInstanceOf[ScDocResolvableCodeReference]) { //TODO
       return
     }
@@ -472,14 +477,49 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
     if (resolve.length != 1)
       return
 
-    resolve(0) match {
-      case r if !r.isAccessible =>
-        val error = ScalaBundle.message("symbol.is.inaccessible.from.this.place", r.element.name)
-        holder.createErrorAnnotation(refElement.nameId, error)
+    val resolveElement = resolve(0)
+    if (checkAccessibilityForReference(resolveElement, refElement)) {
+      checkStableReferenceValidness(resolveElement, refElement)
+    }
+  }
+  /**
+   * @return true - if the reference is accessible or it's not applicable for this reference<br>
+   *         false - otherwise
+   */
+  private def checkAccessibilityForReference(
+    resolveResult: ScalaResolveResult,
+    refElement: ScReference
+  )(implicit holder: ScalaAnnotationHolder): Boolean = {
+    if (!resolveResult.isAccessible) {
+      val error = ScalaBundle.message("symbol.is.inaccessible.from.this.place", resolveResult.element.name)
+      holder.createErrorAnnotation(refElement.nameId, error)
       //todo: add fixes
+      false
+    }
+    else true
+  }
+
+  private def checkStableReferenceValidness(
+    resolveResult: ScalaResolveResult,
+    refElement: ScReference
+  )(implicit holder: ScalaAnnotationHolder): Unit = {
+    if (!refElement.is[ScStableCodeReference])
+      return
+
+    resolveResult.element match {
+      case (rp: ScReferencePattern) & inNameContext(lazyValDef: ScPatternDefinition) if lazyValDef.hasModifierPropertyScala(ScalaModifier.LAZY) =>
+        if (!isStableLazyVal(lazyValDef)) {
+          holder.createErrorAnnotation(refElement.nameId, ScalaBundle.message("reference.to.non.final.lazy.value.name.is.not.allowed.here", rp.name))
+        }
       case _ =>
     }
   }
+
+  private def isStableLazyVal(valDef: ScPatternDefinition): Boolean =
+    valDef.hasFinalModifier ||
+      valDef.isTopLevel || // top level `lazy val x = 1` is effectively final
+      !valDef.isInScala3File || // in scala2 lazy val can be referenced with `.type` even without an explicit type
+      valDef.typeElement.exists(_.isSingleton)
 
   def createFixesByUsages(reference: ScReference): List[CreateFromUsageQuickFixBase] =
     reference match {
