@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.completion3
 import com.intellij.platform.testFramework.core.FileComparisonFailedError
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunnerJUnit4, RunWithScalaVersions, TestScalaVersion}
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsJUnit4Runner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -13,7 +13,7 @@ import org.junit.runner.RunWith
   TestScalaVersion.Scala_2_13,
   TestScalaVersion.Scala_3_Latest
 ))
-@RunWith(classOf[MultipleScalaVersionsRunnerJUnit4])
+@RunWith(classOf[MultipleScalaVersionsJUnit4Runner])
 class ScalaConversionCompletionTest extends AbstractConversionCompletionTest {
 
   @Test

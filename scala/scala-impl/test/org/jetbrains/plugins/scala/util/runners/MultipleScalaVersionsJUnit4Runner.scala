@@ -28,10 +28,10 @@ import scala.jdk.CollectionConverters._
  * @note Use `@RunWith(classOf[MultipleScalaVersionsRuner])` to run a test with this runner.
  * @param cls The test class instance provided reflectively by the JUnit 4 runtime.
  */
-class MultipleScalaVersionsRunnerJUnit4(cls: Class[?])
-  extends Suite(cls, MultipleScalaVersionsRunnerJUnit4.createRunners(cls).asJava)
+class MultipleScalaVersionsJUnit4Runner(cls: Class[?])
+  extends Suite(cls, MultipleScalaVersionsJUnit4Runner.createRunners(cls).asJava)
 
-private object MultipleScalaVersionsRunnerJUnit4 {
+private object MultipleScalaVersionsJUnit4Runner {
 
   /**
    * Inspired by [[org.junit.runners.Parameterized]].

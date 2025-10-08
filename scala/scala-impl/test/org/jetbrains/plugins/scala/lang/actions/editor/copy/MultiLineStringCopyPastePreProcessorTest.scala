@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.actions.editor.copy
 
 import com.intellij.codeInsight.CodeInsightSettings
 import org.jetbrains.plugins.scala.settings.{ScalaApplicationSettings, ScalaProjectSettings}
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunnerJUnit4, RunWithScalaVersions, TestScalaVersion}
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsJUnit4Runner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -11,7 +11,7 @@ import org.junit.runner.RunWith
  *
  * @see [[StringLiteralCopyPastePreProcessorTest]]
  */
-@RunWith(classOf[MultipleScalaVersionsRunnerJUnit4])
+@RunWith(classOf[MultipleScalaVersionsJUnit4Runner])
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_13,
   TestScalaVersion.Scala_3_Latest
