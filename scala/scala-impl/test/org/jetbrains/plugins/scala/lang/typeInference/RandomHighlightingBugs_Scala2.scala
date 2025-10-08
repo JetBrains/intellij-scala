@@ -1,12 +1,19 @@
 package org.jetbrains.plugins.scala.lang.typeInference
 
-import org.jetbrains.plugins.scala.TypecheckerTests
+import org.jetbrains.plugins.scala.{ScalaVersion, TypecheckerTests}
+import org.jetbrains.plugins.scala.annotator.ScalaHighlightingTestLike
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[TypecheckerTests]))
-class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestCase {
-  def testSCL13786(): Unit = checkTextHasNoErrors(
+class RandomHighlightingBugs_Scala2
+  extends ScalaLightCodeInsightFixtureTestCase
+    with ScalaHighlightingTestLike
+    with RandomHighlightingBugs_CommonTests {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
+
+  def testSCL13786(): Unit = assertNoErrors(
     s"""
        |trait Builder {
        |  type Self = this.type
@@ -18,7 +25,7 @@ class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestCase {
     """.stripMargin)
 
   def testSCL14533(): Unit =
-    checkTextHasNoErrors(
+    assertNoErrors(
       """
         |trait Implicit[F[_]]
         |trait Context {
@@ -36,7 +43,7 @@ class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestCase {
       """.stripMargin)
 
   def testSCL14700(): Unit =
-    checkTextHasNoErrors(
+    assertNoErrors(
       """
         |type Id[A] = A
         |val opt1: Id[Option[String]] = Some("Foo")
@@ -47,7 +54,7 @@ class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestCase {
     )
 
   def testSCL14486(): Unit =
-    checkTextHasNoErrors(
+    assertNoErrors(
       """
         |trait CovariantBifunctorMonad[F[+_, +_]] {
         |  def pure[A](a: A): F[Nothing ,A]
@@ -78,7 +85,7 @@ class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestCase {
     )
 
   def testSCL14745(): Unit =
-    checkTextHasNoErrors(
+    assertNoErrors(
       """
         |trait Category[F[_, _]] {
         |  def compose[A, B, C](f: F[B, C], g: F[A, B]): F[A, C]
@@ -94,7 +101,7 @@ class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestCase {
     )
 
   def testSCL14586(): Unit =
-    checkTextHasNoErrors(
+    assertNoErrors(
       """
         |import scala.language.higherKinds
         |import scala.concurrent.Future
@@ -112,7 +119,7 @@ class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestCase {
       """.stripMargin
     )
 
-  def testSCL4652(): Unit = checkTextHasNoErrors(
+  def testSCL4652(): Unit = assertNoErrors(
     s"""import scala.language.higherKinds
        |
        |  trait Binding[A]
@@ -140,7 +147,7 @@ class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestCase {
   )
 
   def testSCL14680(): Unit =
-    checkTextHasNoErrors(
+    assertNoErrors(
       """
         |object IntellijPartialUnification extends App {
         |  import scala.collection.generic.CanBuildFrom
@@ -155,7 +162,7 @@ class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestCase {
     )
 
   def testSCL14468(): Unit =
-    checkTextHasNoErrors(
+    assertNoErrors(
       """
         |object Tag {
         |  type @@[+T, U] = T with Tagged[U]
@@ -191,7 +198,7 @@ class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestCase {
       """.stripMargin
     )
 
-  def testSCL14897(): Unit = checkTextHasNoErrors(
+  def testSCL14897(): Unit = assertNoErrors(
     """
       |trait Bar
       |trait Foo { this: Bar =>
@@ -205,7 +212,7 @@ class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestCase {
     """.stripMargin
   )
 
-  def testSCL14894(): Unit = checkTextHasNoErrors(
+  def testSCL14894(): Unit = assertNoErrors(
     """
       |import Container._
       |
@@ -227,7 +234,7 @@ class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestCase {
   )
 
   def testScl13027(): Unit = {
-    checkTextHasNoErrors(
+    assertNoErrors(
       """
         |object Test {
         |  class returnType[T]
@@ -248,7 +255,7 @@ class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestCase {
   }
 
   def testScl13920(): Unit = {
-    checkTextHasNoErrors(
+    assertNoErrors(
       """
         |trait TBase {
         |  trait TProperty
@@ -289,7 +296,7 @@ class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestCase {
       """.stripMargin)
   }
 
-  def testSCL15614(): Unit = checkTextHasNoErrors(
+  def testSCL15614(): Unit = assertNoErrors(
     s"""
        |object Main extends App {
        |  val plot = ((1, 1), 0)
@@ -299,7 +306,7 @@ class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestCase {
        |""".stripMargin
   )
 
-  def testSCL15812(): Unit = checkTextHasNoErrors(
+  def testSCL15812(): Unit = assertNoErrors(
     s"""
        |object Test {
        | Seq(("foo" -> ("bar" -> "baz"))).map(_._2._2.length)
@@ -308,7 +315,7 @@ class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestCase {
   )
 
   //SCL-8236
-  def testSCL8236(): Unit = checkTextHasNoErrors(
+  def testSCL8236(): Unit = assertNoErrors(
     """
       |import scala.util.{Try, Failure, Success}
       |class Foo(s: String) {
@@ -330,7 +337,7 @@ class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestCase {
 
   //SCL-10077
   def testSCL10077(): Unit = {
-    checkTextHasNoErrors(
+    assertNoErrors(
       """
         |object SCL10077{
         |
@@ -356,7 +363,7 @@ class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestCase {
 
   //SCL-7468
   def testSCL7468(): Unit =
-    checkTextHasNoErrors(
+    assertNoErrors(
       s"""
          |class Container[A](x: A) { def value: A = x }
          |trait Unboxer[A, B] { def unbox(x: A): B }
@@ -379,7 +386,7 @@ class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestCase {
 
   //SCL-6372
   def testSCL6372(): Unit =
-    checkTextHasNoErrors(
+    assertNoErrors(
       s"""
          |class TagA[A]
          |  class TagB[B]
@@ -409,7 +416,7 @@ class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestCase {
 
   //SCL-7658
   def testSCL7658(): Unit = {
-    checkTextHasNoErrors(
+    assertNoErrors(
       """implicit def i2s(i: Int): String = i.toString
         |
         |def hoo(x: String): String = {
@@ -427,7 +434,7 @@ class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestCase {
 
   //SCL-8242
   def testSCL8242(): Unit = {
-    checkTextHasNoErrors(
+    assertNoErrors(
       """object SCL8242 {
         |  def foo(x: Float) = {
         |    val t: Double = 56
@@ -441,7 +448,7 @@ class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestCase {
 
   //SCL-8242
   def testSCL8242_1(): Unit = {
-    checkTextHasNoErrors(
+    assertNoErrors(
       """import scala.language.implicitConversions
         |import scala.math._
         |
@@ -492,7 +499,7 @@ class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestCase {
 
   //SCL-9241
   def testSCL9241(): Unit =
-    checkTextHasNoErrors(
+    assertNoErrors(
       s"""
          |trait Inv[A] { def head: A }
          |trait Cov[+A] { def head: A }
@@ -508,7 +515,7 @@ class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestCase {
 
   //SCL-12174
   def testSCL12174_1(): Unit =
-    checkTextHasNoErrors(
+    assertNoErrors(
       s"""
          |def foo = (_:String).split(":") match {
          |    case x => x
@@ -518,7 +525,7 @@ class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestCase {
 
   //SCL-4487
   def testSCL4487(): Unit =
-    checkTextHasNoErrors(
+    assertNoErrors(
       s"""
          |def x(a: Int): String => Int = _ match {
          |  case value if value == "0" => a
@@ -528,7 +535,7 @@ class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestCase {
 
   //SCL-5725
   def testSCL5725(): Unit =
-    checkTextHasNoErrors(
+    assertNoErrors(
       """def test(x: List[Int]) = x match {
         |  case l: List[a] => ???
         |}
@@ -537,7 +544,7 @@ class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestCase {
 
   //SCL-5725
   def testSCL5725_1(): Unit =
-    checkTextHasNoErrors(
+    assertNoErrors(
       """
         |class Zoo {
         |  def g: Any = 1
@@ -551,7 +558,7 @@ class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestCase {
 
 
   //SCL-9474
-  def testSCL9474(): Unit = checkTextHasNoErrors {
+  def testSCL9474(): Unit = assertNoErrors {
     """
       |object Foo {
       |  trait Sys[L <: Sys[L]]
@@ -578,7 +585,7 @@ class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestCase {
 
   //SCL-13634
   def testSCL13634(): Unit =
-    checkTextHasNoErrors(
+    assertNoErrors(
       s"""
          |trait C[+A, B]
          |  type F[T] = C[Int, T]
@@ -591,7 +598,7 @@ class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestCase {
 
   //SCL-10414
   def testSCL10414(): Unit = {
-    checkTextHasNoErrors(
+    assertNoErrors(
       """object X {
         |  val s1 : Set[Class[_]] = Set()
         |  val s2 : Set[Class[_]] = Set()
@@ -611,7 +618,7 @@ class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestCase {
 
   //SCL-11052
   def testSCL11052(): Unit = {
-    checkTextHasNoErrors(
+    assertNoErrors(
       s"""
          |def second[T]: Seq[T] => Option[T] = _.drop(1).headOption
          |second(Seq("one", "two"))
@@ -621,7 +628,7 @@ class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestCase {
 
   //SCL-6143
   def testSCL6143(): Unit =
-    checkTextHasNoErrors(
+    assertNoErrors(
       """object SCL6143 extends App {
         |  class A {
         |    class B {
@@ -641,7 +648,7 @@ class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestCase {
 
   //SCL-7954
   def testSCL7954(): Unit =
-    checkTextHasNoErrors(
+    assertNoErrors(
       """object SCL7954 {
         |
         |  trait Base {
@@ -663,7 +670,7 @@ class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestCase {
 
   //SCL-8234
   def testSCL8234(): Unit =
-    checkTextHasNoErrors(
+    assertNoErrors(
       s"""object Test {
          |  implicit class Gram(number: Double) {
          |    def g: Gram = this
@@ -680,7 +687,7 @@ class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestCase {
 
   //SCL-9523
   def testScl9523(): Unit = {
-    checkTextHasNoErrors(
+    assertNoErrors(
       s"""import scala.language.{existentials, implicitConversions}
          |
          |object Main extends App {
@@ -707,7 +714,7 @@ class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestCase {
     )
   }
 
-  def SCL18853(): Unit = checkTextHasNoErrors(
+  def SCL18853(): Unit = assertNoErrors(
     """
       |trait Sealed[T] {
       |	type MyType = T
@@ -733,7 +740,7 @@ class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestCase {
 
   //SCL-15422
   def testSCL15422(): Unit = {
-    checkTextHasNoErrors(
+    assertNoErrors(
       """trait Test {
         |  type A = { type T <: Any }
         |  type B <: A { type T <: Int }
@@ -752,7 +759,7 @@ class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestCase {
 
   //SCL-15422
   def testSCL15422_1(): Unit = {
-    checkTextHasNoErrors(
+    assertNoErrors(
       """trait Trait { def method(): Unit }
         |trait OtherTrait { def otherMethod(): Unit }
         |
@@ -769,5 +776,15 @@ class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestCase {
         |//    But Scalac compiles this code
         |}""".stripMargin
     )
+  }
+
+  override def test_SCL24453_1(): Unit = {
+    getFixture.addFileToProject("definitions.scala", SCL24453.CommonDefinitions)
+    assertNoErrors(SCL24453.CodeExample1)
+  }
+
+  override def test_SCL24453_2(): Unit = {
+    getFixture.addFileToProject("definitions.scala", SCL24453.CommonDefinitions)
+    assertNoErrors(SCL24453.CodeExample2)
   }
 }

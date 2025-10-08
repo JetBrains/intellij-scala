@@ -149,6 +149,26 @@ abstract class ReferenceToStableAndNonStableTypeTestBase extends ScalaHighlighti
       |""".stripMargin
   def testReferenceToLazyVal(): Unit
 
+  protected val LazyVal_Code2 =
+    """class MyClass {
+      |  type MyType
+      |  val value = 42
+      |  val value2: MyClass = ???
+      |  private val valuePrivate: MyClass = ???
+      |}
+      |
+      |class StableLazy {
+      |  lazy val valueLazy: MyClass = ???
+      |
+      |  val _: valueLazy.value.type = ???
+      |  val _: valueLazy.value2.value.type = ???
+      |  val _: valueLazy.MyType = ???
+      |  val _: valueLazy.value2.MyType = ???
+      |  val _: valueLazy.type = ???
+      |}
+      |""".stripMargin
+  def testReferenceToLazyVal2(): Unit
+
   protected val FinalLazyVal_Code =
     """class A {
       |  final lazy val v1_WithExplicitType: 42 = 42
@@ -183,6 +203,9 @@ class ReferenceToStableAndNonStableTypeTest_Scala2 extends ReferenceToStableAndN
 
   override def testReferenceToLazyVal(): Unit =
     assertNoErrors(LazyVal_Code)
+
+  override def testReferenceToLazyVal2(): Unit =
+    assertNoErrors(LazyVal_Code2)
 
   override def testVarWithSingletonType(): Unit =
     assertErrorsText(
@@ -726,7 +749,18 @@ class ReferenceToStableAndNonStableTypeTest_Scala3 extends ReferenceToStableAndN
   override def testReferenceToLazyVal(): Unit =
     assertErrorsText(
       LazyVal_Code,
-      """Error(v2_WithoutExplicitType.type,Stable identifier required but v2_WithoutExplicitType.type found)
+      """Error(v2_WithoutExplicitType,Reference to non-final lazy value `v2_WithoutExplicitType` is not allowed here)
+        |""".stripMargin
+    )
+
+  override def testReferenceToLazyVal2(): Unit =
+    assertErrorsText(
+      LazyVal_Code2,
+      """Error(valueLazy,Reference to non-final lazy value `valueLazy` is not allowed here)
+        |Error(valueLazy,Reference to non-final lazy value `valueLazy` is not allowed here)
+        |Error(valueLazy,Reference to non-final lazy value `valueLazy` is not allowed here)
+        |Error(valueLazy,Reference to non-final lazy value `valueLazy` is not allowed here)
+        |Error(valueLazy,Reference to non-final lazy value `valueLazy` is not allowed here)
         |""".stripMargin
     )
 
