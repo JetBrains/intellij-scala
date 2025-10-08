@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, S
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames.Apply
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
 
 class GoToDeclarationTest extends GoToDeclarationTestBase {
 
@@ -221,7 +221,7 @@ class GoToDeclarationTest extends GoToDeclarationTestBase {
     s"""object TestLibraryTypeAlias {
        |  val traversable: ${CARET}Traversable[Int] = ???
        |}""".stripMargin,
-    (is[ScTypeAlias], "Traversable")
+    (is[ScTrait], "scala.collection.Traversable")
   )
 
   def testLibraryVal(): Unit = doTestFromLibrarySource(
@@ -229,7 +229,7 @@ class GoToDeclarationTest extends GoToDeclarationTestBase {
        |  Predef.${CARET}Map
        |}
        |""".stripMargin,
-    (isVal, "Map")
+    (is[ScObject], "scala.collection.immutable.Map")
   )
 
   def testLibraryFunction(): Unit = doTestFromLibrarySource(
