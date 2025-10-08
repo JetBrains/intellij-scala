@@ -488,6 +488,10 @@ final class SbtProcessManager(project: Project) extends Disposable {
     }
   }
 
+  /**
+   * @return Some shell runner if sbt shell is already running<br>
+   *         None if sbt shell is not running
+   */
   def shellRunner: Option[SbtShellRunner] = processData.collect { case x: AbstractConsoleProcessData => x.runner }
   def terminalConsole: Option[TerminalExecutionConsole] = processData.collect { case x: TerminalConsoleProcessData => x.console }
   def debugConnection: Option[RemoteConnection] = processData.flatMap(_.debugConnection)
