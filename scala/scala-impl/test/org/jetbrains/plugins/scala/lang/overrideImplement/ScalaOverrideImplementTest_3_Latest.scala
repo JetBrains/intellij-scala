@@ -2,15 +2,15 @@ package org.jetbrains.plugins.scala.lang.overrideImplement
 
 import com.intellij.openapi.project.Project
 import com.intellij.testFramework.EditorTestUtil.{CARET_TAG, SELECTION_END_TAG, SELECTION_START_TAG}
+import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.overrideImplement.ScExtensionMethodMember
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.jetbrains.plugins.scala.util.{RevertableChange, TypeAnnotationSettings}
-import org.junit.runner.RunWith
 
-@RunWith(classOf[MultipleScalaVersionsRunner])
-@RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Latest))
 class ScalaOverrideImplementTest_3_Latest extends ScalaOverrideImplementTestBase {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
+
   override protected def prepareSettings(newSettings: ScalaCodeStyleSettings)(implicit project: Project) = {
     val oldSettings = super.prepareSettings(newSettings)
     ScalaCodeStyleSettings.getInstance(project).USE_SCALA3_INDENTATION_BASED_SYNTAX = newSettings.USE_SCALA3_INDENTATION_BASED_SYNTAX
