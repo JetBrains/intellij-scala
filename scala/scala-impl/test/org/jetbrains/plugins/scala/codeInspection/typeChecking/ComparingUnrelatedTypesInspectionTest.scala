@@ -3,10 +3,11 @@ package codeInspection
 package typeChecking
 
 import com.intellij.codeInspection.LocalInspectionTool
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsJUnit4Runner, MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
+import org.junit.Test
 import org.junit.runner.RunWith
 
-@RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWith(classOf[MultipleScalaVersionsJUnit4Runner])
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_12,
   TestScalaVersion.Scala_2_13
@@ -22,6 +23,7 @@ class Test1 extends ComparingUnrelatedTypesInspectionTest {
   override protected val description: String =
     ScalaInspectionBundle.message("comparing.unrelated.types.hint", "Short", "Int")
 
+  @Test
   def testWeakConformance(): Unit = checkTextHasNoErrors(
     s"""val a = 0
        |val b: Short = 1
@@ -35,6 +37,7 @@ class Test2 extends ComparingUnrelatedTypesInspectionTest {
   override protected val description: String =
     ScalaInspectionBundle.message("comparing.unrelated.types.hint", "Double", "Int")
 
+  @Test
   def testWeakConformance(): Unit = checkTextHasNoErrors(
     s"""val a = 0
        |val b = 1.0
@@ -48,6 +51,7 @@ class Test3 extends ComparingUnrelatedTypesInspectionTest {
   override protected val description: String =
     ScalaInspectionBundle.message("comparing.unrelated.types.hint", "Double", "Byte")
 
+  @Test
   def testWeakConformance(): Unit = checkTextHasNoErrors(
     s"""val a = 0.0
        |val b: Byte = 100
@@ -61,6 +65,7 @@ class Test4 extends ComparingUnrelatedTypesInspectionTest {
   override protected val description: String =
     ScalaInspectionBundle.message("comparing.unrelated.types.hint", "Int", "Double")
 
+  @Test
   def testWeakConformance(): Unit = checkTextHasNoErrors(
     s"${START}1 == 1.0$END"
   )
@@ -71,6 +76,7 @@ class Test5 extends ComparingUnrelatedTypesInspectionTest {
   override protected val description: String =
     ScalaInspectionBundle.message("comparing.unrelated.types.hint", "Int", "Boolean")
 
+  @Test
   def testValueType(): Unit = checkTextHasError(
     s"""val a = true
        |val b = 1
@@ -78,6 +84,7 @@ class Test5 extends ComparingUnrelatedTypesInspectionTest {
        """.stripMargin
   )
 
+  @Test
   def testInstanceOf(): Unit = checkTextHasError(
     s"${START}1.isInstanceOf[Boolean]$END"
   )
@@ -88,6 +95,7 @@ class Test6 extends ComparingUnrelatedTypesInspectionTest {
   override protected val description: String =
     ScalaInspectionBundle.message("comparing.unrelated.types.hint", "Boolean", "Double")
 
+  @Test
   def testValueType(): Unit = checkTextHasError(
     s"""val a = true
        |val b = 0.0
@@ -101,6 +109,7 @@ class Test7 extends ComparingUnrelatedTypesInspectionTest {
   override protected val description: String =
     ScalaInspectionBundle.message("comparing.unrelated.types.hint", "Boolean", "Int")
 
+  @Test
   def testValueType(): Unit = checkTextHasError(
     s"${START}true != 0$END"
   )
@@ -111,6 +120,7 @@ class Test8 extends ComparingUnrelatedTypesInspectionTest {
   override protected val description: String =
     ScalaInspectionBundle.message("comparing.unrelated.types.hint", "Array[Char]", "String")
 
+  @Test
   def testString(): Unit = checkTextHasError(
     s"""val a = "a"
        |val b = Array('a')
@@ -124,6 +134,7 @@ class Test9 extends ComparingUnrelatedTypesInspectionTest {
   override protected val description: String =
     ScalaInspectionBundle.message("comparing.unrelated.types.hint", "String", "Int")
 
+  @Test
   def testString(): Unit = checkTextHasError(
     s"""val a = "0"
        |val b = 0
@@ -137,6 +148,7 @@ class Test10 extends ComparingUnrelatedTypesInspectionTest {
   override protected val description: String =
     ScalaInspectionBundle.message("comparing.unrelated.types.hint", "String", "Char")
 
+  @Test
   def testString(): Unit = checkTextHasError(
     s"""val s = "s"
        |${START}s == 's'$END
@@ -149,6 +161,7 @@ class Test11 extends ComparingUnrelatedTypesInspectionTest {
   override protected val description: String =
     ScalaInspectionBundle.message("comparing.unrelated.types.hint", "CharSequence", "String")
 
+  @Test
   def testString(): Unit = checkTextHasNoErrors(
     s"""val a = "a"
        |val b: CharSequence = null
@@ -162,6 +175,7 @@ class Test12 extends ComparingUnrelatedTypesInspectionTest {
   override protected val description: String =
     ScalaInspectionBundle.message("comparing.unrelated.types.hint", "scala.collection.Iterable", "scala.collection.List")
 
+  @Test
   def testInheritors(): Unit = checkTextHasNoErrors(
     s"""val a = scala.collection.Iterable(1)
        |val b = List(0)
@@ -175,6 +189,7 @@ class Test13 extends ComparingUnrelatedTypesInspectionTest {
   override protected val description: String =
     ScalaInspectionBundle.message("comparing.unrelated.types.hint", "A", "B")
 
+  @Test
   def testInheritors(): Unit = checkTextHasNoErrors(
     s"""case class A(i: Int)
        |final class B extends A(1)
@@ -184,6 +199,7 @@ class Test13 extends ComparingUnrelatedTypesInspectionTest {
        """.stripMargin
   )
 
+  @Test
   def testFinal(): Unit = checkTextHasError(
     s"""final class A extends Serializable
        |final class B extends Serializable
@@ -193,6 +209,7 @@ class Test13 extends ComparingUnrelatedTypesInspectionTest {
       """.stripMargin
   )
 
+  @Test
   def testInstanceOf(): Unit = checkTextHasError(
     s"""final class A extends Serializable
        |final class B extends Serializable
@@ -201,6 +218,7 @@ class Test13 extends ComparingUnrelatedTypesInspectionTest {
       """.stripMargin
   )
 
+  @Test
   def testTraits(): Unit = checkTextHasError(
     s"""trait A
        |trait B
@@ -210,6 +228,7 @@ class Test13 extends ComparingUnrelatedTypesInspectionTest {
       """.stripMargin
   )
 
+  @Test
   def testInstanceOfTrait(): Unit = checkTextHasNoErrors(
     s"""trait A
        |trait B
@@ -224,6 +243,7 @@ class Test14 extends ComparingUnrelatedTypesInspectionTest {
   override protected val description: String =
     ScalaInspectionBundle.message("comparing.unrelated.types.hint", "B", "A")
 
+  @Test
   def testInheritors(): Unit = checkTextHasNoErrors(
     s"""trait A
        |object B extends A
@@ -237,6 +257,7 @@ class Test15 extends ComparingUnrelatedTypesInspectionTest {
   override protected val description: String =
     ScalaInspectionBundle.message("comparing.unrelated.types.hint", "A", "B.type")
 
+  @Test
   def testObject(): Unit = checkTextHasNoErrors(
     s"""trait A
        |object B extends A
@@ -245,6 +266,7 @@ class Test15 extends ComparingUnrelatedTypesInspectionTest {
       """.stripMargin
   )
 
+  @Test
   def testObject2(): Unit = checkTextHasNoErrors(
     s"""trait A
        |object B extends A
@@ -260,6 +282,7 @@ class Test16 extends ComparingUnrelatedTypesInspectionTest {
   override protected val description: String =
     ScalaInspectionBundle.message("comparing.unrelated.types.hint", "C", "B.type")
 
+  @Test
   def testObject(): Unit = checkTextHasError(
     s"""trait A
        |object B extends A
@@ -275,6 +298,7 @@ class Test17 extends ComparingUnrelatedTypesInspectionTest {
   override protected val description: String =
     ScalaInspectionBundle.message("comparing.unrelated.types.hint", "Int", "java.lang.Integer")
 
+  @Test
   def testBoxedTypes(): Unit = checkTextHasNoErrors(
     """val i = new java.lang.Integer(0)
       |i == 100
@@ -287,6 +311,7 @@ class Test18 extends ComparingUnrelatedTypesInspectionTest {
   override protected val description: String =
     ScalaInspectionBundle.message("comparing.unrelated.types.hint", "Boolean", "java.lang.Boolean")
 
+  @Test
   def testBoxedTypes(): Unit = checkTextHasNoErrors(
     """val b = new java.lang.Boolean(false)
       |b equals true
@@ -299,6 +324,7 @@ class Test19 extends ComparingUnrelatedTypesInspectionTest {
   override protected val description: String =
     ScalaInspectionBundle.message("comparing.unrelated.types.hint", "java.lang.Integer", "Null")
 
+  @Test
   def testBoxedTypes(): Unit = checkTextHasNoErrors(
     "def test(i: Integer) = if (i == null) \"foo\" else \"bar\""
   )
@@ -309,6 +335,7 @@ class Test20 extends ComparingUnrelatedTypesInspectionTest {
   override protected val description: String =
     ScalaInspectionBundle.message("comparing.unrelated.types.hint", "Seq[Int]", "List[_]")
 
+  @Test
   def testExistential(): Unit = checkTextHasNoErrors(
     "Seq(1).isInstanceOf[List[_])"
   )
@@ -319,6 +346,7 @@ class Test21 extends ComparingUnrelatedTypesInspectionTest {
   override protected val description: String =
     ScalaInspectionBundle.message("comparing.unrelated.types.hint", "Some[Int]", "List[_]")
 
+  @Test
   def testExistential(): Unit = checkTextHasError(
     s"${START}Some(1).isInstanceOf[List[_]]$END"
   )
@@ -329,6 +357,7 @@ class Test22 extends ComparingUnrelatedTypesInspectionTest {
   override protected val description: String =
     ScalaInspectionBundle.message("comparing.unrelated.types.hint", "Some[_]", "Some[Int]")
 
+  @Test
   def testExistential(): Unit = checkTextHasNoErrors(
     "def foo(x: Some[_]) { x == Some(1) }"
   )
@@ -339,6 +368,7 @@ class Test23 extends ComparingUnrelatedTypesInspectionTest {
   override protected val description: String =
     ScalaInspectionBundle.message("comparing.unrelated.types.hint", "Some[_]", "Seq[Int]")
 
+  @Test
   def testExistential(): Unit = checkTextHasError(
     s"def foo(x: Some[_]) { ${START}x == Seq(1)$END }"
   )
@@ -349,6 +379,7 @@ class Test24 extends ComparingUnrelatedTypesInspectionTest {
   override protected val description: String =
     ScalaInspectionBundle.message("comparing.unrelated.types.hint", "BigInt", "Int")
 
+  @Test
   def testNumeric(): Unit = checkTextHasNoErrors(
     "BigInt(1) == 1"
   )
@@ -359,6 +390,7 @@ class Test25 extends ComparingUnrelatedTypesInspectionTest {
   override protected val description: String =
     ScalaInspectionBundle.message("comparing.unrelated.types.hint", "BigInt", "Long")
 
+  @Test
   def testNumeric(): Unit = checkTextHasNoErrors(
     "BigInt(1) == 1L"
   )
@@ -369,6 +401,7 @@ class Test26 extends ComparingUnrelatedTypesInspectionTest {
   override protected val description: String =
     ScalaInspectionBundle.message("comparing.unrelated.types.hint", "BigInt", "java.lang.Integer")
 
+  @Test
   def testNumeric(): Unit = checkTextHasNoErrors(
     "BigInt(1) == new java.lang.Integer(1)"
   )
@@ -379,6 +412,7 @@ class Test27 extends ComparingUnrelatedTypesInspectionTest {
   override protected val description: String =
     ScalaInspectionBundle.message("comparing.unrelated.types.hint", "BigInt", "Boolean")
 
+  @Test
   def testNumeric(): Unit = checkTextHasError(
     s"${START}BigInt(1) == true$END"
   )
@@ -389,6 +423,7 @@ class Test28 extends ComparingUnrelatedTypesInspectionTest {
   override protected val description: String =
     ScalaInspectionBundle.message("comparing.unrelated.types.hint", "BigInt", "String")
 
+  @Test
   def testNumeric(): Unit = checkTextHasError(
     s"${START}BigInt(1) == 1.toString$END"
   )
@@ -399,6 +434,7 @@ class Test29 extends ComparingUnrelatedTypesInspectionTest {
   override protected val description: String =
     ScalaInspectionBundle.message("comparing.unrelated.types.hint", "Coord", "Int")
 
+  @Test
   def testTypeAlias(): Unit = checkTextHasNoErrors(
     """
       |object A {
@@ -410,6 +446,7 @@ class Test29 extends ComparingUnrelatedTypesInspectionTest {
     """.stripMargin
   )
 
+  @Test
   def testTypeAlias2(): Unit = checkTextHasError(
     s"""
        |object A {
@@ -421,6 +458,7 @@ class Test29 extends ComparingUnrelatedTypesInspectionTest {
       """.stripMargin
   )
 
+  @Test
   def testTypeAlias3(): Unit = checkTextHasNoErrors(
     """
       |trait A {
@@ -446,6 +484,7 @@ class Test30 extends ComparingUnrelatedTypesInspectionTest {
   override protected def descriptionMatches(s: String): Boolean =
     s == description || s == ScalaInspectionBundle.message("comparing.unrelated.types.hint", "Dummy", "Integer")
 
+  @Test
   def testOverriddenMethods(): Unit = checkTextHasNoErrors(
     """
       |case class Dummy(v: Int) {
@@ -460,6 +499,7 @@ class Test30 extends ComparingUnrelatedTypesInspectionTest {
     """.stripMargin
   )
 
+  @Test
   def testOverriddenMethods2(): Unit = checkTextHasError(
     s"""
        |case class Dummy(v: Int) {
@@ -473,6 +513,7 @@ class Test30 extends ComparingUnrelatedTypesInspectionTest {
       """.stripMargin
   )
 
+  @Test
   def testOverriddenEquals(): Unit = checkTextHasError(
     s"""
        |case class Dummy(v: Int) {
@@ -488,6 +529,7 @@ class Test30 extends ComparingUnrelatedTypesInspectionTest {
       """.stripMargin
   )
 
+  @Test
   def testOverriddenEquals2(): Unit = checkTextHasError(
     s"""
        |case class Dummy(v: Int) {
@@ -508,6 +550,7 @@ class Test31 extends ComparingUnrelatedTypesInspectionTest {
   override protected val description: String =
     ScalaInspectionBundle.message("comparing.unrelated.types.hint", "FooBinder", "String")
 
+  @Test
   def testOverriddenWithImplicitParam(): Unit = checkTextHasError(
     s"""
        |class Store(val foo: Int, val bar: String)
@@ -539,6 +582,7 @@ class Test32 extends ComparingUnrelatedTypesInspectionTest {
   override protected val description: String =
     ScalaInspectionBundle.message("comparing.unrelated.types.hint", "abc.Dummy", "cde.Dummy")
 
+  @Test
   def testSameNameTypes(): Unit = checkTextHasError(
     s"""
        |package abc {
@@ -563,6 +607,7 @@ class TestUnderscore extends ComparingUnrelatedTypesInspectionTest {
   override protected val description: String =
     ScalaInspectionBundle.message("comparing.unrelated.types.hint", "Int", "Some[Int]")
 
+  @Test
   def testLeftIsUnderscore(): Unit = checkTextHasError(
     s"""
        |object Test {
@@ -571,6 +616,7 @@ class TestUnderscore extends ComparingUnrelatedTypesInspectionTest {
       """.stripMargin
   )
 
+  @Test
   def testLeftContainsUnderscoreNoErrors(): Unit = checkTextHasNoErrors(
     s"""
        |object Test {
@@ -595,18 +641,22 @@ class TestUnderscoreAccess extends ComparingUnrelatedTypesInspectionTest {
        |}
        |""".stripMargin
 
+  @Test
   def testFind(): Unit = checkTextHasError(
     s"path.find(${START}_.to == to$END)"
   )
 
+  @Test
   def testFilter(): Unit = checkTextHasError(
     s"path.filter(${START}_.to == to$END)"
   )
 
+  @Test
   def testFindWithoutUnderscore(): Unit = checkTextHasError(
     s"path.find(p => ${START}p.to == to$END)"
   )
 
+  @Test
   def testFilterWithoutUnderscore(): Unit = checkTextHasError(
     s"path.find(p => ${START}p.to == to$END)"
   )
@@ -618,6 +668,7 @@ class TestInstanceOfAutoBoxing extends ComparingUnrelatedTypesInspectionTest {
   override protected val description: String =
     ScalaInspectionBundle.message("comparing.unrelated.types.hint", "AnyRef", "Int")
 
+  @Test
   def testInstanceOfInt(): Unit = checkTextHasNoErrors(
     """
       |object T {
@@ -637,6 +688,7 @@ class TestInstanceOfAutoBoxing2 extends ComparingUnrelatedTypesInspectionTest {
   override protected val description: String =
     ScalaInspectionBundle.message("comparing.unrelated.types.hint", "Integer", "Int")
 
+  @Test
   def testInstanceOfInt(): Unit = checkTextHasNoErrors(
     """
       |def test(v: Integer): Unit = {
@@ -650,6 +702,7 @@ class TestInstanceOfAutoBoxing3 extends ComparingUnrelatedTypesInspectionTest {
   override protected val description: String =
     ScalaInspectionBundle.message("comparing.unrelated.types.hint", "", "Int")
 
+  @Test
   def testInstanceOfInt(): Unit = checkTextHasNoErrors(
     s"""
       |def test(v: Integer): Unit = {
@@ -669,6 +722,7 @@ class TestLiteralTypes extends ComparingUnrelatedTypesInspectionTest {
   override protected val description: String =
     ScalaInspectionBundle.message("comparing.unrelated.types.hint", "3", "4")
 
+  @Test
   def testLiteralTypes(): Unit = checkTextHasError(
     s"""
       |val a: 3 = 3
@@ -677,6 +731,7 @@ class TestLiteralTypes extends ComparingUnrelatedTypesInspectionTest {
       |""".stripMargin
   )
 
+  @Test
   def testLiteralTypesInInstanceOf(): Unit = checkTextHasError(
     s"""
        |val a: 3 = 3
@@ -691,6 +746,7 @@ class TestLambda extends ComparingUnrelatedTypesInspectionTest {
   override protected val description: String =
     ScalaInspectionBundle.message("comparing.unrelated.types.hint", "() => A", "A")
 
+  @Test
   def testLambda_with_unrelated_class(): Unit = checkTextHasError(
     s"""
        |object Test {
@@ -701,6 +757,7 @@ class TestLambda extends ComparingUnrelatedTypesInspectionTest {
       """.stripMargin
   )
 
+  @Test
   def testLambda_with_likely_unrelated_Trait(): Unit = checkTextHasError(
     s"""
        |object Test {
@@ -716,6 +773,7 @@ class TestRange extends ComparingUnrelatedTypesInspectionTest {
   override protected val description: String =
     ScalaInspectionBundle.message("comparing.unrelated.types.hint", "Range.Inclusive", "Range.Exclusive")
 
+  @Test
   def test_comparing_inclusive_and_exclusive_range(): Unit = checkTextHasNoErrors(
     s"""
        |val r1 = 1 to 9
@@ -729,6 +787,7 @@ class TestCaseClasses extends ComparingUnrelatedTypesInspectionTest {
   override protected val description: String =
     ScalaInspectionBundle.message("comparing.unrelated.types.hint", "A", "B")
 
+  @Test
   def test_comparing_different_case_classe(): Unit = checkTextHasError(
     s"""
        |trait T
@@ -738,6 +797,7 @@ class TestCaseClasses extends ComparingUnrelatedTypesInspectionTest {
        |""".stripMargin
   )
 
+  @Test
   def test_comparing_case_class_with_normal_class(): Unit = checkTextHasError(
     s"""
        |case class A()
@@ -747,6 +807,7 @@ class TestCaseClasses extends ComparingUnrelatedTypesInspectionTest {
        |""".stripMargin
   )
 
+  @Test
   def test_special_comparing_normal_class_with_case_class(): Unit = checkTextHasNoErrors(
     s"""
        |case class A()
@@ -756,6 +817,7 @@ class TestCaseClasses extends ComparingUnrelatedTypesInspectionTest {
        |""".stripMargin
   )
 
+  @Test
   def test_normal_comparing_normal_class_with_case_class(): Unit = checkTextHasError(
     s"""
        |class A
@@ -768,6 +830,7 @@ class TestCaseClasses extends ComparingUnrelatedTypesInspectionTest {
   ///////////////// eq /////////////////
 
 
+  @Test
   def test_eq_case_class_with_normal_class(): Unit = checkTextHasError(
     s"""
        |case class A()
@@ -777,6 +840,7 @@ class TestCaseClasses extends ComparingUnrelatedTypesInspectionTest {
        |""".stripMargin
   )
 
+  @Test
   def test_eq_normal_class_with_case_class(): Unit = checkTextHasError(
     s"""
        |class A { override def equals(obj: Any): Boolean = true }
@@ -793,6 +857,7 @@ class TestVariousCasesWithStdTypes extends ComparingUnrelatedTypesInspectionTest
   override protected def descriptionMatches(s: String): Boolean =
     s != null && s.contains("Comparing unrelated types:")
 
+  @Test
   def test_any_and_any(): Unit = checkTextHasNoErrors(
     s"""
        |val a: Any = null
@@ -802,6 +867,7 @@ class TestVariousCasesWithStdTypes extends ComparingUnrelatedTypesInspectionTest
        |""".stripMargin
   )
 
+  @Test
   def test_any_and_anyval(): Unit = checkTextHasNoErrors(
     s"""
        |val a: Any = null
@@ -811,6 +877,7 @@ class TestVariousCasesWithStdTypes extends ComparingUnrelatedTypesInspectionTest
        |""".stripMargin
   )
 
+  @Test
   def test_any_and_trait(): Unit = checkTextHasNoErrors(
     s"""
        |trait A
@@ -821,6 +888,7 @@ class TestVariousCasesWithStdTypes extends ComparingUnrelatedTypesInspectionTest
        |""".stripMargin
   )
 
+  @Test
   def test_any_and_class(): Unit = checkTextHasNoErrors(
     s"""
        |class A
@@ -831,6 +899,7 @@ class TestVariousCasesWithStdTypes extends ComparingUnrelatedTypesInspectionTest
        |""".stripMargin
   )
 
+  @Test
   def test_with_nothing(): Unit = checkTextHasNoErrors(
     s"""
        |val a: Boolean = true
@@ -840,6 +909,7 @@ class TestVariousCasesWithStdTypes extends ComparingUnrelatedTypesInspectionTest
        |""".stripMargin
   )
 
+  @Test
   def test_trait_with_null(): Unit = checkTextHasNoErrors(
     s"""
        |trait A
@@ -849,6 +919,7 @@ class TestVariousCasesWithStdTypes extends ComparingUnrelatedTypesInspectionTest
        |""".stripMargin
   )
 
+  @Test
   def test_class_with_null(): Unit = checkTextHasNoErrors(
     s"""
        |class A
@@ -858,6 +929,7 @@ class TestVariousCasesWithStdTypes extends ComparingUnrelatedTypesInspectionTest
        |""".stripMargin
   )
 
+  @Test
   def test_anyref_with_null(): Unit = checkTextHasNoErrors(
     s"""
        |class A
@@ -867,6 +939,7 @@ class TestVariousCasesWithStdTypes extends ComparingUnrelatedTypesInspectionTest
        |""".stripMargin
   )
 
+  @Test
   def test_anyval_with_null(): Unit = checkTextHasError(
     s"""
        |val a: AnyVal = true
@@ -874,6 +947,7 @@ class TestVariousCasesWithStdTypes extends ComparingUnrelatedTypesInspectionTest
        |""".stripMargin
   )
 
+  @Test
   def test_int_with_null(): Unit = checkTextHasError(
     s"""
        |val a: Int = 3
@@ -881,6 +955,7 @@ class TestVariousCasesWithStdTypes extends ComparingUnrelatedTypesInspectionTest
        |""".stripMargin
   )
 
+  @Test
   def test_generic_type_with_null(): Unit = checkTextHasNoErrors(
     s"""
        |class Test[T](a: T) {
@@ -889,6 +964,7 @@ class TestVariousCasesWithStdTypes extends ComparingUnrelatedTypesInspectionTest
        |""".stripMargin
   )
 
+  @Test
   def test_associated_type_with_null(): Unit = checkTextHasNoErrors(
     s"""
        |class Test {
@@ -902,6 +978,7 @@ class TestVariousCasesWithStdTypes extends ComparingUnrelatedTypesInspectionTest
        |""".stripMargin
   )
 
+  @Test
   def test_generic_type_with_upper_bound(): Unit = checkTextHasNoErrors(
     s"""
        |class Enum[E <: Enum[E]]
@@ -934,6 +1011,7 @@ class TestVariousCasesWithStdTypes extends ComparingUnrelatedTypesInspectionTest
        |""".stripMargin
   )
 
+  @Test
   def test_generic_type_in_compound_type(): Unit = checkTextHasNoErrors(
     s"""
        |trait A
@@ -945,6 +1023,7 @@ class TestVariousCasesWithStdTypes extends ComparingUnrelatedTypesInspectionTest
   )
 
   // SCL-18996
+  @Test
   def test_double_dependent_type(): Unit = checkTextHasNoErrors(
     s"""
        |trait NewtypeBase[T] {
@@ -973,6 +1052,7 @@ class TestVariousCasesWithStdTypes extends ComparingUnrelatedTypesInspectionTest
        |""".stripMargin
   )
 
+  @Test
   def test_double_dependent_type_with_different_tag(): Unit = checkTextHasNoErrors(
     s"""
        |trait NewtypeBase[T] {
@@ -1002,12 +1082,14 @@ class TestVariousCasesWithStdTypes extends ComparingUnrelatedTypesInspectionTest
        |""".stripMargin
   )
 
+  @Test
   def testGenericTypeComparison(): Unit = checkTextHasNoErrors(
     """def test[U](c: Class[U]): Boolean = {
       |    c == classOf[String]
       |}""".stripMargin
   )
 
+  @Test
   def testWithImplicitConversion(): Unit = checkTextHasNoErrors(
     """object UnrelatedTypesExample {
       |  class Container[A](value: A) {
@@ -1019,6 +1101,7 @@ class TestVariousCasesWithStdTypes extends ComparingUnrelatedTypesInspectionTest
       |}""".stripMargin
   )
 
+  @Test
   def testWithImplicitConversion2(): Unit = checkTextHasError(
     s"""object UnrelatedTypesExample {
       |  implicit def toList[A](a: A) : List[A] = a :: Nil
