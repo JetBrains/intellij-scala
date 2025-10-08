@@ -399,7 +399,6 @@ lazy val sbtImpl =
     .settings(
       scalaVersion := Versions.scala3Version,
       Compile / scalacOptions := globalScala3ScalacOptions,
-      intellijPlugins += "com.intellij.properties".toPlugin,
       libraryDependencies += Dependencies.sbtStructureCore.exclude("org.scala-lang.modules", "scala-xml_3")
     )
 
@@ -925,7 +924,10 @@ lazy val mlCompletionIntegration =
 
 lazy val mlCompletionPropertiesIntegration =
   newProject("ml-completion-properties", file("scala/integration/ml-completion-properties"))
-    .dependsOn(mlCompletionIntegration)
+    .dependsOn(
+      mlCompletionIntegration,
+      propertiesIntegration
+    )
     .settings(
       scalaVersion := Versions.scala3Version,
       Compile / scalacOptions := globalScala3ScalacOptions,

@@ -1,8 +1,5 @@
 package org.jetbrains.sbt.language.completion
 
-import com.intellij.codeInsight.completion.CompletionInitializationContext
-import com.intellij.lang.properties.PropertiesFileType
-import com.intellij.lang.properties.psi.Property
 import com.intellij.patterns.PlatformPatterns.{psiElement, psiFile}
 import com.intellij.patterns.PsiElementPattern.Capture
 import com.intellij.patterns.StandardPatterns.instanceOf
@@ -23,13 +20,6 @@ object SbtPsiElementPatterns {
 
   def scalaFilePattern: Capture[PsiElement] = inBuildModule `and` psiElement.inFile {
     psiFile.withFileType(instanceOf(classOf[ScalaFileType]))
-  }
-
-  /**
-   * WARNING: Uses a class ([[PropertiesFileType]]) defined in properties plugin. Only call from places dependent on this plugin
-   */
-  def propertiesFilePattern: Capture[PsiElement] = psiElement.inFile {
-    psiFile.withFileType(instanceOf(classOf[PropertiesFileType]))
   }
 
   def inBuildModule: Capture[PsiElement] = psiElement(classOf[PsiElement])
@@ -60,15 +50,6 @@ object SbtPsiElementPatterns {
         case other =>
           other.textMatches("scalaVersion")
       }
-    case _ => false
-  })
-
-  /**
-   * WARNING: Uses a class ([[Property]]) defined in properties plugin. Only call from places dependent on this plugin
-   */
-  def versionPropertyPattern: Capture[PsiElement] = psiElement().`with`(condition[PsiElement]("isVersionPropertyPattern") {
-    case property: Property =>
-      property.getKey == "sbt.version" && property.getValue.contains(CompletionInitializationContext.DUMMY_IDENTIFIER_TRIMMED)
     case _ => false
   })
 }
