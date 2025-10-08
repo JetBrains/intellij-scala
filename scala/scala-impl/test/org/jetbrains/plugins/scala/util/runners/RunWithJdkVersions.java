@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.CONSTRUCTOR)
+@Target({ElementType.TYPE, ElementType.METHOD})
 public @interface RunWithJdkVersions {
 
     /** unsupported JDK for scala SDK are filtered out in
