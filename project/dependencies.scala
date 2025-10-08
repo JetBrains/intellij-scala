@@ -48,7 +48,7 @@ object Versions {
 
   val bspVersion = "2.1.0"
   val sbtStructureVersion: String = "2025.3.3"
-  val sbtIdeaShellVersion: String = "2025.2.0"
+  val sbtIdeaShellVersion: String = "2025.3.0"
   val compilerIndicesVersion = "1.0.16"
 
   val java9rtExportVersion: String = "0.1.0"
