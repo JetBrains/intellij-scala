@@ -1,9 +1,8 @@
 package org.jetbrains.plugins.scala.codeInsight.generation.actions
 
 import com.intellij.lang.LanguageCodeInsightActionHandler
+import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
-import org.junit.runner.RunWith
 
 trait GenerateCompanionObjectTestBase extends ScalaGenerateTestBase {
   override protected val handler: LanguageCodeInsightActionHandler =
@@ -123,9 +122,9 @@ class GenerateCompanionObjectTest extends GenerateCompanionObjectTestBase {
   }
 }
 
-@RunWith(classOf[MultipleScalaVersionsRunner])
-@RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Latest))
 class GenerateCompanionObjectTest_3_Latest extends GenerateCompanionObjectTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
+
   private def doTest(text: String, result: String, useIndentationBasedSyntax: Boolean): Unit = {
     val settings = ScalaCodeStyleSettings.getInstance(getProject)
     val oldSetting = settings.USE_SCALA3_INDENTATION_BASED_SYNTAX
