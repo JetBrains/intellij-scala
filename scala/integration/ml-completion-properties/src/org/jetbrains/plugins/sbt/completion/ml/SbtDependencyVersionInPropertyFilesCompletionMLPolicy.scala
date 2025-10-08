@@ -5,7 +5,7 @@ import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.completion.CaptureExt
 import org.jetbrains.plugins.scala.mlCompletion.sbt.SbtDependencyVersionCompletionMLPolicy
-import org.jetbrains.sbt.language.completion.SbtPsiElementPatterns.{propertiesFilePattern, versionPropertyPattern}
+import org.jetbrains.sbt.language.completion.SbtPropertiesPsiElementPatterns.{propertiesFilePattern, versionPropertyPattern}
 
 /**
  * Disable ML Sorting for completion in `sbt.version` in `.properties` files.
