@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.worksheet.integration
 
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType
 
-trait WorksheetRunTestSettings extends {
+trait WorksheetRunTestSettings {
 
   def runType: WorksheetExternalRunType
 
