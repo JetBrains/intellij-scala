@@ -52,17 +52,22 @@ private object MultipleScalaVersionsRunnerJUnit4 {
     for {
       sv <- scalaVersions
       jv <- jdkVersions
-    } yield new MyCustomRunner(scalaSdkOwnerCls, sv.toProductionVersion, jv.toProductionVersion)
+    } yield new InjectedScalaAndJdkVersionRunner(scalaSdkOwnerCls, sv.toProductionVersion, jv.toProductionVersion)
   }
 
   /**
    * A JUnit 4 runner which runs all tests annotated with the [[org.junit.Test]] annotation. The only custom logic
    * is the injection of the Scala version and the JDK version which the specified tests will be running against.
-   * @param cls The test class.
+   *
+   * @param cls          The test class.
    * @param scalaVersion The Scala version to be injected.
-   * @param jdkVersion The JDK version to be injected.
+   * @param jdkVersion   The JDK version to be injected.
    */
-  private final class MyCustomRunner(cls: Class[? <: ScalaSdkOwner], scalaVersion: ScalaVersion, jdkVersion: LanguageLevel) extends BlockJUnit4ClassRunner(cls) {
+  private final class InjectedScalaAndJdkVersionRunner(
+    cls: Class[? <: ScalaSdkOwner],
+    scalaVersion: ScalaVersion,
+    jdkVersion: LanguageLevel
+  ) extends BlockJUnit4ClassRunner(cls) {
     override def createTest(): ScalaSdkOwner = {
       val instance = getTestClass.getOnlyConstructor.newInstance().asInstanceOf[ScalaSdkOwner]
       instance.injectedScalaVersion = scalaVersion
