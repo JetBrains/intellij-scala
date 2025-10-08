@@ -3797,4 +3797,19 @@ final class ScalaBugsTest extends AbstractScalaFormatterTestBase {
         |""".stripMargin
     )
   }
+
+  //SCL-24443
+  def testInterpolatedStringPattern(): Unit = {
+    doTextTest(
+      """val s"Hello, $name!" = "Hello, IDE!"
+        |//NOTE: this is non-compilable code (f and raw don't have unapplySeq), but we just test the formatter
+        |val f"Hello, $name2!" = "Hello, IDE!"
+        |val raw"Hello, $name3!" = "Hello, IDE!"
+        |
+        |s"Hello, $name!"
+        |raw"Hello, $name!"
+        |f"Hello, $name!"
+        |""".stripMargin
+    )
+  }
 }
