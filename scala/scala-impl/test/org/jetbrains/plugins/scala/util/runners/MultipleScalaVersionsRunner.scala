@@ -224,14 +224,14 @@ private object MultipleScalaVersionsRunner {
     }
   }
 
-  private def scalaVersionsToRun(klass: Class[_ <: TestCase]): Seq[TestScalaVersion] = {
+  private[runners] def scalaVersionsToRun(klass: Class[_ <: TestCase]): Seq[TestScalaVersion] = {
     val annotation = findAnnotation(klass, classOf[RunWithScalaVersions])
     annotation
       .map(_.value.toSeq)
       .getOrElse(DefaultScalaVersionsToRun)
   }
 
-  private def jdkVersionsToRun(klass: Class[_ <: TestCase]): Seq[TestJdkVersion] = {
+  private[runners] def jdkVersionsToRun(klass: Class[_ <: TestCase]): Seq[TestJdkVersion] = {
     val annotation = findAnnotation(klass, classOf[RunWithJdkVersions])
     annotation
       .map(_.value.toSeq)
