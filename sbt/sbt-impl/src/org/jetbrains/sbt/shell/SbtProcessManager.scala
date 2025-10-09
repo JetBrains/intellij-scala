@@ -165,7 +165,8 @@ final class SbtProcessManager(project: Project) extends Disposable {
       vmParams.add(s"-D$IdeaRunIdVmOption=$runId")
 
     // For details see: https://youtrack.jetbrains.com/issue/SCL-13293#focus=streamItem-27-3323121.0-0
-    if(SystemInfo.isWindows)
+    // When the new shell is enabled and TerminalExecutionConsole is used, the colors can be enabled again on Windows
+    if (SystemInfo.isWindows && !withNewShell)
       vmParams.add("-Dsbt.log.noformat=true")
 
     val commandLine: GeneralCommandLine = javaParameters.toCommandLine
@@ -294,6 +295,11 @@ final class SbtProcessManager(project: Project) extends Disposable {
     pty.withParameters(commandLine.getParametersList.getList)
     val parentEnvironmentType = if (passParentEnvironment) commandLine.getParentEnvironmentType else ParentEnvironmentType.NONE
     pty.withParentEnvironmentType(parentEnvironmentType)
+
+    // The console mode needs to be disabled when TerminalExecution is used (see com.intellij.execution.process.LocalPtyOptions.Builder.consoleMode)
+    if (withNewShell) {
+      pty.withConsoleMode(false)
+    }
 
     /*
      Setting an initial PTY window size for the sbt shell pty process.
