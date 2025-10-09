@@ -3,10 +3,12 @@ package org.jetbrains.plugins.scala.util.runners
 import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
+import org.junit.Test
 import org.junit.runner.Runner
-import org.junit.runners.{BlockJUnit4ClassRunner, Suite}
 import org.junit.runners.model.{FrameworkMethod, InvalidTestClassError}
+import org.junit.runners.{BlockJUnit4ClassRunner, Suite}
 
+import java.lang.reflect.{Method, Modifier}
 import scala.jdk.CollectionConverters._
 
 /**
@@ -71,6 +73,9 @@ private object MultipleScalaVersionsJUnit4Runner {
     scalaVersion: ScalaVersion,
     jdkVersion: LanguageLevel
   ) extends BlockJUnit4ClassRunner(cls) {
+
+    validateNoUnmigratedJUnit3TestDefinitions(cls)
+
     override def createTest(): ScalaSdkOwner = {
       val instance = getTestClass.getOnlyConstructor.newInstance().asInstanceOf[ScalaSdkOwner]
       instance.injectedScalaVersion = scalaVersion
@@ -91,5 +96,29 @@ private object MultipleScalaVersionsJUnit4Runner {
      * to some confusion about the test runtime.
      */
     override def testName(method: FrameworkMethod): String = method.getName + getName
+
+    private def validateNoUnmigratedJUnit3TestDefinitions(testClass: Class[? <: ScalaSdkOwner]): Unit = {
+      val allPublicMethods = testClass.getMethods
+      val unmigratedMethods = allPublicMethods.filter(isUnmigratedJUnit3TestDefinition)
+      if (unmigratedMethods.nonEmpty) {
+        val message = unmigratedMethods.map(m => s"     - ${m.getName}")
+          .mkString(
+            start = s"The test class ${testClass.getName} contains unmigrated JUnit 3 style test methods:\n",
+            sep = "\n",
+            end = "\n     Please annotate these methods with @org.junit.Test to make them executable with MultipleScalaVersionsJUnit4Runner."
+          )
+        val exception = new Exception(message)
+        throw new InvalidTestClassError(testClass, java.util.List.of(exception))
+      }
+    }
+
+    private def isUnmigratedJUnit3TestDefinition(method: Method): Boolean = {
+      val isPublic = Modifier.isPublic(method.getModifiers)
+      val startsWithTest = method.getName.startsWith("test")
+      val hasZeroParameters = method.getParameters.isEmpty
+      val returnsVoid = method.getReturnType == java.lang.Void.TYPE
+      val hasTestAnnotation = method.getAnnotation(classOf[Test]) != null
+      isPublic && startsWithTest && hasZeroParameters && returnsVoid && !hasTestAnnotation
+    }
   }
 }
