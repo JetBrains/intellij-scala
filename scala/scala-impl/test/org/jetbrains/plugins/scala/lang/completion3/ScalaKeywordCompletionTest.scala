@@ -3,7 +3,8 @@ package org.jetbrains.plugins.scala.lang.completion3
 import com.intellij.codeInsight.lookup.Lookup
 import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion, WithIndexingMode}
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsJUnit4Runner, RunWithScalaVersions, TestScalaVersion, WithIndexingMode}
+import org.junit.Test
 import org.junit.runner.RunWith
 
 @WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
@@ -628,11 +629,12 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
 
 /** Version specific tests */
 
-@RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWith(classOf[MultipleScalaVersionsJUnit4Runner])
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_13
 ))
 class ScalaKeywordCompletionTest_2_13 extends ScalaCompletionTestBase {
+  @Test
   def testMatch(): Unit = doCompletionTest(
     fileText =
       s"42 m$CARET",
@@ -643,6 +645,7 @@ class ScalaKeywordCompletionTest_2_13 extends ScalaCompletionTestBase {
     item = "match"
   )
 
+  @Test
   def testInfixMatch(): Unit = doCompletionTest(
     fileText =
       s"42 m$CARET ",
@@ -653,6 +656,7 @@ class ScalaKeywordCompletionTest_2_13 extends ScalaCompletionTestBase {
     item = "match"
   )
 
+  @Test
   def testCatch(): Unit = doCompletionTest(
     fileText =
       s"try 42 c$CARET",
@@ -664,7 +668,7 @@ class ScalaKeywordCompletionTest_2_13 extends ScalaCompletionTestBase {
   )
 }
 
-@RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWith(classOf[MultipleScalaVersionsJUnit4Runner])
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_3_Latest
 ))
@@ -674,6 +678,7 @@ class ScalaKeywordCompletionTest_3_Latest extends ScalaCompletionTestBase {
     getScalaCodeStyleSettings.USE_SCALA3_INDENTATION_BASED_SYNTAX = true
   }
 
+  @Test
   def testMatch(): Unit = doCompletionTest(
     fileText =
       s"42 m$CARET",
@@ -683,6 +688,7 @@ class ScalaKeywordCompletionTest_3_Latest extends ScalaCompletionTestBase {
     item = "match"
   )
 
+  @Test
   def testMatchInBracelessBlock(): Unit = doCompletionTest(
     fileText =
       s"""object O:
@@ -696,6 +702,7 @@ class ScalaKeywordCompletionTest_3_Latest extends ScalaCompletionTestBase {
     item = "match"
   )
 
+  @Test
   def testMatchInBracedBlock(): Unit = doCompletionTest(
     fileText =
       s"""object O {
@@ -709,6 +716,7 @@ class ScalaKeywordCompletionTest_3_Latest extends ScalaCompletionTestBase {
     item = "match"
   )
 
+  @Test
   def testInfixMatch(): Unit = doCompletionTest(
     fileText =
       s"42 m$CARET ",
@@ -718,6 +726,7 @@ class ScalaKeywordCompletionTest_3_Latest extends ScalaCompletionTestBase {
     item = "match"
   )
 
+  @Test
   def testCatch(): Unit = doCompletionTest(
     fileText =
       s"try 42 c$CARET",
@@ -727,6 +736,7 @@ class ScalaKeywordCompletionTest_3_Latest extends ScalaCompletionTestBase {
     item = "catch"
   )
 
+  @Test
   def testCatchInBracelessBlock(): Unit = doCompletionTest(
     fileText =
       s"""object O:
@@ -740,6 +750,7 @@ class ScalaKeywordCompletionTest_3_Latest extends ScalaCompletionTestBase {
     item = "catch"
   )
 
+  @Test
   def testCatchInBracedBlock(): Unit = doCompletionTest(
     fileText =
       s"""object O {
@@ -753,6 +764,7 @@ class ScalaKeywordCompletionTest_3_Latest extends ScalaCompletionTestBase {
     item = "catch"
   )
 
+  @Test
   def testWithInGivenDefinition(): Unit = doCompletionTest(
     fileText =
       s"""given foo: AnyRef w$CARET""".stripMargin,
@@ -761,6 +773,7 @@ class ScalaKeywordCompletionTest_3_Latest extends ScalaCompletionTestBase {
     item = "with"
   )
 
+  @Test
   def testWithInGivenDefinitionWithBody(): Unit = doCompletionTest(
     fileText =
       s"""given foo: AnyRef w$CARET {
