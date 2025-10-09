@@ -6,7 +6,8 @@ import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.util.ConfigureJavaFile.configureJavaFile
 import org.jetbrains.plugins.scala.util.TypeAnnotationSettings.{alwaysAddType, set}
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsJUnit4Runner, RunWithScalaVersions, TestScalaVersion}
+import org.junit.Test
 import org.junit.runner.RunWith
 
 class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
@@ -489,10 +490,11 @@ class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
     checkNoCompletion(fileText, SMART)(predicate)
 }
 
-@RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWith(classOf[MultipleScalaVersionsJUnit4Runner])
 @RunWithScalaVersions(Array(TestScalaVersion.Scala_2_13))
 class ScalaSmartCompletionTest_2_13 extends ScalaCompletionTestBase {
   //Return type for inserting method is generated according to TypeAnnotations Settings
+  @Test
   def testNewFunction(): Unit = {
     val project = getProject
     set(project, alwaysAddType(ScalaCodeStyleSettings.getInstance(project)))
@@ -514,7 +516,7 @@ class ScalaSmartCompletionTest_2_13 extends ScalaCompletionTestBase {
   }
 }
 
-@RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWith(classOf[MultipleScalaVersionsJUnit4Runner])
 @RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Latest))
 class ScalaSmartCompletionTest_3_Latest extends ScalaCompletionTestBase {
   override protected def setUp(): Unit = {
@@ -523,6 +525,7 @@ class ScalaSmartCompletionTest_3_Latest extends ScalaCompletionTestBase {
   }
 
   //Return type for inserting method is generated according to TypeAnnotations Settings
+  @Test
   def testNewFunction(): Unit = {
     val project = getProject
     set(project, alwaysAddType(ScalaCodeStyleSettings.getInstance(project)))
