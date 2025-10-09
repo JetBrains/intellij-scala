@@ -2,12 +2,11 @@ package org.jetbrains.plugins.scala.lang.completion.postfix
 
 import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
 import org.jetbrains.plugins.scala.extensions.PathExt
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion, WithIndexingMode}
-import org.junit.runner.RunWith
+import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion, WithIndexingMode}
+import org.junit.Test
 
 import java.nio.file.Path
 
-@RunWith(classOf[MultipleScalaVersionsRunner])
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_3_Latest
 ))
@@ -20,35 +19,48 @@ final class Scala3MatchPostfixTemplateTest extends PostfixTemplateTest {
 
   override def testPath(): Path = super.testPath() / "match3"
 
+  @Test
   def testSimple(): Unit = doTest()
 
+  @Test
   def testInnerMatch(): Unit = doTest()
 
+  @Test
   def testInfixExpr(): Unit = doTest()
 
+  @Test
   def testInInfixExpr(): Unit = doTest()
 
+  @Test
   def testInnerMatchInfixExpr(): Unit = doTest()
 
   @WithIndexingMode(mode = IndexingMode.SMART, reason = "exhaustive match needs type inference")
+  @Test
   def testExhaustiveSealed(): Unit = doTest()
 
   @WithIndexingMode(mode = IndexingMode.SMART, reason = "exhaustive match needs type inference")
+  @Test
   def testExhaustiveJavaEnum(): Unit = doTest()
 
   @WithIndexingMode(mode = IndexingMode.SMART, reason = "exhaustive match needs type inference")
+  @Test
   def testExhaustiveScala2Enum(): Unit = doTest()
 
   @WithIndexingMode(mode = IndexingMode.SMART, reason = "exhaustive match needs type inference")
+  @Test
   def testExhaustiveScala2Enum2(): Unit = doTest()
 
   @WithIndexingMode(mode = IndexingMode.SMART, reason = "exhaustive match needs type inference")
+  @Test
   def testExhaustiveScala3Enum(): Unit = doTest()
 
   @WithIndexingMode(mode = IndexingMode.SMART, reason = "exhaustive match needs type inference")
+  @Test
   def testExhaustiveScala3EnumInTheMiddle(): Unit = doTest()
 
+  @Test
   def testNoFunctionExprParent(): Unit = doNotApplicableTest()
 
+  @Test
   def testNoBlockParent(): Unit = doNotApplicableTest()
 }
