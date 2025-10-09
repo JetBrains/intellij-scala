@@ -199,10 +199,13 @@ object ParenthesizedElement {
     /*
      * Parenthesis here are not redundant
      * test { blub: (Int => Int) => ??? }
+     * case _: (String => String) =>  // SCL-21577
      */
     def unapply(p: ScParenthesisedTypeElement): Boolean =
-      p.innerElement.exists(_.is[ScFunctionalTypeElement]) &&
-        p.getParent.is[ScParameterType] &&
-        p.nextVisibleLeaf.exists(_.elementType == ScalaTokenTypes.tFUNTYPE)
+      p.innerElement.exists(_.is[ScFunctionalTypeElement]) && (
+        (p.getParent.is[ScParameterType] &&
+         p.nextVisibleLeaf.exists(_.elementType == ScalaTokenTypes.tFUNTYPE)) ||
+        p.getParent.is[ScTypePattern]
+      )
   }
 }

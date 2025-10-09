@@ -680,4 +680,15 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala3 extends ScalaUnnecessaryP
     checkTextHasErrors(s"val $START((x = _, y = _))$END = ???")
     checkTextHasErrors(s"val (x = _, y = $START(_)$END) = ???")
   }
+
+  def testSCL21577_FunctionTypeInPattern(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |null match {
+        |  case _: (String => String) =>
+        |  case _ =>
+        |}
+      """.stripMargin
+    )
+  }
 }
