@@ -25,8 +25,7 @@ import com.intellij.openapi.vfs.encoding.EncodingProjectManager
 import com.intellij.terminal.{ProcessHandlerTtyConnector, TerminalExecutionConsole}
 import com.intellij.util.messages.MessageBusConnection
 import com.jediterm.core.util.TermSize
-import com.pty4j.unix.UnixPtyProcess
-import com.pty4j.{PtyProcess, WinSize}
+import com.sun.jna.Platform
 import org.jetbrains.annotations.ApiStatus.Internal
 import org.jetbrains.annotations.{NonNls, TestOnly}
 import org.jetbrains.plugins.scala.extensions.*
@@ -197,7 +196,8 @@ final class SbtProcessManager(project: Project) extends Disposable {
     val sbtLauncherArgs = sbtOpts.collect { case a: SbtLauncherOption => a.value }
     commandLine.addParameters(sbtLauncherArgs.asJava)
 
-    val pty = createPtyCommandLine(commandLine, sbtSettings.passParentEnvironment, sbtSettings.userSetEnvironment)
+    val pty = createPtyCommandLine(commandLine, sbtSettings.passParentEnvironment, sbtSettings.userSetEnvironment, withNewShell)
+    // KillableProcessHandler is a handler compatible with TerminalExecutionConsole. Maybe it will change IJPL-212220
     val cpty =
       if (withNewShell)
         new KillableProcessHandler(pty)
@@ -205,7 +205,6 @@ final class SbtProcessManager(project: Project) extends Disposable {
         new ColoredProcessHandler(pty)
 
     cpty.setShouldKillProcessSoftly(true)
-    patchWindowSize(cpty.getProcess, withNewShell)
 
     (cpty, debugConnection, projectSbtVersion)
   }
@@ -224,36 +223,6 @@ final class SbtProcessManager(project: Project) extends Disposable {
       FileUtil.createTempFile("idea", Sbt.Extension, true)
     else
       new File(globalPluginsDir, "idea.sbt")
-  }
-
-  /**
-   * Sets an initial PTY window size for the sbt shell pty process.
-   *
-   * Initially, this was only required on Windows since the terminal defaults to 80 columns,
-   * causing line wrapping and breaking highlighting. However, with the new shell enabled, it is now required for both Windows and Unix.
-   * This is because if the shell window is minimized at startup, the terminal may report a 0×0 size.
-   * As a result, ">..." will be displayed instead of the shell prompt, preventing the shell from becoming ready
-   * (see `org.jline.reader.impl.LineReaderImpl#redisplay`).
-   *
-   * Behavior:
-   *  - New shell: applies on both Unix and Windows.
-   *  - Old shell: applies on Windows only.
-   *
-   * @note dynamic window size adjustments can be done in the custom TTY connector (see [[createTerminalConsole]]).
-   */
-  private def patchWindowSize(process: Process, withNewShell: Boolean): Unit = {
-    val shouldPatchSize = !isUnitTestMode || withNewShell
-
-    if (shouldPatchSize) {
-      val initialSize = new WinSize(2000, 100)
-      process match {
-        case proc: UnixPtyProcess if withNewShell =>
-          proc.setWinSize(initialSize)
-        case proc: PtyProcess =>
-          proc.setWinSize(initialSize)
-        case _ =>
-      }
-    }
   }
 
   private def selectSdkOrWarn(sbtSettings: SbtExecutionSettings): Sdk = {
@@ -311,7 +280,12 @@ final class SbtProcessManager(project: Project) extends Disposable {
    * @param commandLine commandLine to copy from
    * @return
    */
-  private def createPtyCommandLine(commandLine: GeneralCommandLine, passParentEnvironment: Boolean, environment: Map[String, String]) = {
+  private def createPtyCommandLine(
+    commandLine: GeneralCommandLine,
+    passParentEnvironment: Boolean,
+    environment: Map[String, String],
+    withNewShell: Boolean
+  ) = {
     val pty = new PtyCommandLine()
     pty.withExePath(commandLine.getExePath)
     pty.withWorkDirectory(commandLine.getWorkDirectory)
@@ -320,6 +294,29 @@ final class SbtProcessManager(project: Project) extends Disposable {
     pty.withParameters(commandLine.getParametersList.getList)
     val parentEnvironmentType = if (passParentEnvironment) commandLine.getParentEnvironmentType else ParentEnvironmentType.NONE
     pty.withParentEnvironmentType(parentEnvironmentType)
+
+    /*
+     Setting an initial PTY window size for the sbt shell pty process.
+
+     Initially (in the "old shell"), this was only required on Windows since the terminal defaults to 80 columns,
+     causing line wrapping and breaking highlighting. However, with the new shell enabled, it is required for both Windows and Unix.
+     This is because if the shell window is minimized at startup, the terminal may report a 0×0 size.
+     As a result, ">..." (see `org.jline.reader.impl.LineReaderImpl#redisplay`) will be displayed instead of the shell prompt,
+     which breaks the shell ready mechanism.
+
+     Behavior:
+       - New shell: applies on both Unix and Windows.
+       - Old shell: applies on Windows only.
+
+     Dynamic window size adjustments can be done in the custom TTY connector (see [[createTerminalConsole]]).
+     */
+    val requireResizeForOldShell = !isUnitTestMode && Platform.isWindows
+    val shouldPatchInitialSize = requireResizeForOldShell || withNewShell
+
+    if (shouldPatchInitialSize) {
+      pty.withInitialColumns(2000)
+      pty.withInitialRows(100)
+    }
 
     pty
   }
