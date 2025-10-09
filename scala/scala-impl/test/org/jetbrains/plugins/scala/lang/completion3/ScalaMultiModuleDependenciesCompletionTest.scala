@@ -17,7 +17,8 @@ import org.jetbrains.plugins.scala.base.{HelperFixtureEditorOps, ScalaSdkOwner}
 import org.jetbrains.plugins.scala.extensions.{StringExt, invokeAndWait}
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase.DefaultInvocationCount
 import org.jetbrains.plugins.scala.project.ProjectExt
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsJUnit4Runner, RunWithScalaVersions, TestScalaVersion}
+import org.junit.Test
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 
@@ -26,10 +27,10 @@ import scala.jdk.CollectionConverters.{IterableHasAsScala, SeqHasAsJava, SetHasA
 import scala.util.chaining.scalaUtilChainingOps
 
 @Category(Array(classOf[CompletionTests]))
-@RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWith(classOf[MultipleScalaVersionsJUnit4Runner])
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_13,
-  TestScalaVersion.Scala_3_Latest,
+  TestScalaVersion.Scala_3_Latest
 ))
 final class ScalaMultiModuleDependenciesCompletionTest
   extends JavaCodeInsightFixtureTestCase
@@ -70,8 +71,10 @@ final class ScalaMultiModuleDependenciesCompletionTest
   }
 
   //start section: tests
+  @Test
   def testFirstModule(): Unit = doTest(ZIO1_MODULE_NAME)
 
+  @Test
   def testSecondModule(): Unit = doTest(ZIO2_MODULE_NAME)
   //end section: tests
 
