@@ -12,7 +12,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.{ScalaChangeSignatureHandler, ScalaParameterInfo}
 import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
+import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
 import org.junit.Assert._
+import org.junit.Test
 
 import java.nio.file.Path
 
@@ -45,12 +47,14 @@ abstract class ChangeSignatureInScalaTestBase extends ChangeSignatureTestBase {
 }
 
 final class ChangeSignatureInScalaTest extends ChangeSignatureInScalaTestBase {
+  @Test
   def testVisibility(): Unit = {
     isAddDefaultValue = false
     val params = Seq(parameterInfo("i", -1, Int, "1"))
     doTest("protected", "foo", null, Seq(params))
   }
 
+  @Test
   def testAddRepeatedParam(): Unit = {
     isAddDefaultValue = false
     val params = Seq(parameterInfo("i", 0, Int), parameterInfo("b", 1, Boolean),
@@ -58,48 +62,56 @@ final class ChangeSignatureInScalaTest extends ChangeSignatureInScalaTestBase {
     doTest(null, "foo", null, Seq(params))
   }
 
+  @Test
   def testAddRepeatedWithoutDefault(): Unit = {
     isAddDefaultValue = false
     val params = Seq(parameterInfo("i", 0, Int), parameterInfo("xs", -1, Int, isRep = true))
     doTest(null, "foo", null, Seq(params))
   }
 
+  @Test
   def testMakeRepeatedParam(): Unit = {
     isAddDefaultValue = false
     val params = Seq(parameterInfo("i", 0, Int), parameterInfo("b", 1, Boolean, isRep = true))
     doTest(null, "foo", null, Seq(params))
   }
 
+  @Test
   def testRemoveRepeatedParam(): Unit = {
     isAddDefaultValue = false
     val params = Seq(parameterInfo("i", 0, Int), parameterInfo("b", 1, Boolean))
     doTest(null, "foo", null, Seq(params))
   }
 
+  @Test
   def testNoDefaultArg(): Unit = {
     isAddDefaultValue = true
     val params = Seq(parameterInfo("i", 0, Int), parameterInfo("j", -1, Int))
     doTest(null, "foo", null, Seq(params))
   }
 
+  @Test
   def testNoDefaultArg2(): Unit = {
     isAddDefaultValue = false
     val params = Seq(parameterInfo("i", 0, Int), parameterInfo("j", -1, Int))
     doTest(null, "foo", null, Seq(params))
   }
 
+  @Test
   def testAnonFunWithDefaultArg(): Unit = {
     isAddDefaultValue = true
     val params = Seq(parameterInfo("i", 0, Int), parameterInfo("j", -1, Int, "0"))
     doTest(null, "foo", null, Seq(params))
   }
 
+  @Test
   def testAnonFunModifyCall(): Unit = {
     isAddDefaultValue = false
     val params = Seq(parameterInfo("i", 0, Int), parameterInfo("j", -1, Int, "0"))
     doTest(null, "foo", null, Seq(params))
   }
 
+  @Test
   def testAnonFunManyParams(): Unit = {
     isAddDefaultValue = true
     val params = Seq(parameterInfo("j", 1, Int),
@@ -108,6 +120,7 @@ final class ChangeSignatureInScalaTest extends ChangeSignatureInScalaTestBase {
     doTest(null, "foo", null, Seq(params))
   }
 
+  @Test
   def testLocalFunction(): Unit = {
     isAddDefaultValue = true
     val params = Seq(parameterInfo("i", 0, Int), parameterInfo("s", -1, Boolean, "true"))
@@ -116,18 +129,21 @@ final class ChangeSignatureInScalaTest extends ChangeSignatureInScalaTestBase {
     doTest(null, "local", null, Seq(params), settings = TypeAnnotationSettings.noTypeAnnotationForLocal(settings))
   }
 
+  @Test
   def testImported(): Unit = {
     isAddDefaultValue = false
     val params = Seq(parameterInfo("i", -1, Int, "0"))
     doTest(null, "foo", null, Seq(params))
   }
 
+  @Test
   def testAddClauseConstructorVararg(): Unit = {
     isAddDefaultValue = false
     val params = Seq(Seq(parameterInfo("b", 0, Boolean)), Seq(parameterInfo("x", -1, Int, "10"), parameterInfo("i", 1, Int, isRep = true)))
     doTest(null, "AddClauseConstructorVararg", null, params)
   }
 
+  @Test
   def testCaseClass(): Unit = {
     isAddDefaultValue = true
     val params = Seq(
@@ -137,6 +153,7 @@ final class ChangeSignatureInScalaTest extends ChangeSignatureInScalaTestBase {
     doTest(null, "CClass", null, params)
   }
 
+  @Test
   def testSelfInvocation(): Unit = {
     isAddDefaultValue = false
     val params = Seq(
@@ -147,12 +164,12 @@ final class ChangeSignatureInScalaTest extends ChangeSignatureInScalaTestBase {
   }
 }
 
+@RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Latest))
 final class ChangeSignatureInScalaTest_Scala3 extends ChangeSignatureInScalaTestBase {
-  override def supportedIn(version: ScalaVersion): Boolean = version.isScala3
-
   override def folderPath: Path = super.folderPath / "scala3"
 
   // SCL-22597
+  @Test
   def testRenameParamWithScala3Wildcard(): Unit = {
     isAddDefaultValue = false
     doTest(newVisibility = null, newName = "bar", newReturnType = null,
