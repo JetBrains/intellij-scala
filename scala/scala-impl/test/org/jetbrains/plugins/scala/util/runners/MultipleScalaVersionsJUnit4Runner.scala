@@ -26,6 +26,9 @@ import scala.jdk.CollectionConverters._
  * @note Must be applied to a test which mixes in the trait [[ScalaSdkOwner]].
  * @note Because this is a JUnit 4 test runner, only the methods annotated with [[org.junit.Test]] are executed.
  * @note Use `@RunWith(classOf[MultipleScalaVersionsRuner])` to run a test with this runner.
+ * @note The result of [[ScalaSdkOwner.skip]] is not taken into account by this runner. This matches the philosophy of
+ *       JUnit 4 and matches the [[org.junit.runners.Parameterized]] runner. If a combination of Scala and JDK version
+ *       is specified, a corresponding suite will be created and the tests will be run.
  * @param cls The test class instance provided reflectively by the JUnit 4 runtime.
  */
 class MultipleScalaVersionsJUnit4Runner(cls: Class[?])
