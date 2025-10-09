@@ -90,6 +90,7 @@ object ScalaInsertHandler {
         .getStartOffset
 
       document.insertString(tailOffset, "}")
+      // This looks like a bug, when insertString(offset) param is equal to context.currentOffset it does not increment
       document.insertString(startOffset, "{")
       document.insertString(literalOffset, "s")
       context.commitDocument()
@@ -103,7 +104,7 @@ object ScalaInsertHandler {
 
       val element = context
         .getFile
-        .findElementAt(context.getStartOffset + 2)
+        .findElementAt(context.getStartOffset + 1) // There is a bug in Platform SDK in which context offset is not updated when the insertOffset is the same as current offset.
 
       val maybeBlock = element.getNode.getElementType match {
         case `tIDENTIFIER` =>
