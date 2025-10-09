@@ -3,7 +3,8 @@ package org.jetbrains.plugins.scala.lang.completion3
 import com.intellij.codeInsight.completion.CompletionType.BASIC
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase.createPresentation
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsJUnit4Runner, RunWithScalaVersions, TestScalaVersion}
+import org.junit.Test
 import org.junit.runner.RunWith
 
 import scala.jdk.CollectionConverters.CollectionHasAsScala
@@ -71,6 +72,7 @@ abstract class ScalaTypeMatchingEnumBasicCompletionTest extends ScalaCompletionT
 
   /// ------------ JAVA ENUM -------------
 
+  @Test
   def testJavaEnumInMatchByCaseName(): Unit = {
     configureJavaEnum()
 
@@ -104,6 +106,7 @@ abstract class ScalaTypeMatchingEnumBasicCompletionTest extends ScalaCompletionT
     )
   }
 
+  @Test
   def testJavaEnumInMatchByEnumName(): Unit = {
     configureJavaEnum()
 
@@ -137,6 +140,7 @@ abstract class ScalaTypeMatchingEnumBasicCompletionTest extends ScalaCompletionT
     )
   }
 
+  @Test
   def testJavaEnumInValInitialization(): Unit = {
     configureJavaEnum()
 
@@ -166,6 +170,7 @@ abstract class ScalaTypeMatchingEnumBasicCompletionTest extends ScalaCompletionT
     )
   }
 
+  @Test
   def testJavaEnumInMethodCall(): Unit = {
     configureJavaEnum()
 
@@ -199,6 +204,7 @@ abstract class ScalaTypeMatchingEnumBasicCompletionTest extends ScalaCompletionT
     )
   }
 
+  @Test
   def testJavaEnumInMethodCallWithNamedArgument(): Unit = {
     configureJavaEnum()
 
@@ -232,6 +238,7 @@ abstract class ScalaTypeMatchingEnumBasicCompletionTest extends ScalaCompletionT
     )
   }
 
+  @Test
   def testSCL_21582_JavaEnum_VariableDefinition(): Unit = {
     configureJavaWeekdayEnum()
 
@@ -261,6 +268,7 @@ abstract class ScalaTypeMatchingEnumBasicCompletionTest extends ScalaCompletionT
     )
   }
 
+  @Test
   def testSCL_21582_JavaEnum_VariableDefinition_Seq(): Unit = {
     configureJavaWeekdayEnum()
 
@@ -290,6 +298,7 @@ abstract class ScalaTypeMatchingEnumBasicCompletionTest extends ScalaCompletionT
     )
   }
 
+  @Test
   def testSCL_21582_JavaEnum_Equals(): Unit = {
     configureJavaWeekdayEnum()
 
@@ -323,6 +332,7 @@ abstract class ScalaTypeMatchingEnumBasicCompletionTest extends ScalaCompletionT
     )
   }
 
+  @Test
   def testSCL_21582_JavaEnum_Equals_InMethodCall(): Unit = {
     configureJavaWeekdayEnum()
 
@@ -356,6 +366,7 @@ abstract class ScalaTypeMatchingEnumBasicCompletionTest extends ScalaCompletionT
     )
   }
 
+  @Test
   def testSCL_21582_JavaEnum_MethodCall(): Unit = {
     configureJavaWeekdayEnum()
 
@@ -389,6 +400,7 @@ abstract class ScalaTypeMatchingEnumBasicCompletionTest extends ScalaCompletionT
     )
   }
 
+  @Test
   def testSCL_21582_JavaEnum_MethodCall2(): Unit = {
     configureJavaWeekdayEnum()
 
@@ -426,6 +438,7 @@ abstract class ScalaTypeMatchingEnumBasicCompletionTest extends ScalaCompletionT
 
   /// ---------- SCALA 2 ENUM ------------
 
+  @Test
   def testScala2EnumInMatchByCaseName(): Unit = {
     configureScala2Enum()
 
@@ -461,6 +474,7 @@ abstract class ScalaTypeMatchingEnumBasicCompletionTest extends ScalaCompletionT
     )
   }
 
+  @Test
   def testScala2EnumInMatchByEnumName(): Unit = {
     configureScala2Enum()
 
@@ -496,6 +510,7 @@ abstract class ScalaTypeMatchingEnumBasicCompletionTest extends ScalaCompletionT
     )
   }
 
+  @Test
   def testScala2EnumInValInitialization(): Unit = {
     configureScala2Enum()
 
@@ -527,6 +542,7 @@ abstract class ScalaTypeMatchingEnumBasicCompletionTest extends ScalaCompletionT
     )
   }
 
+  @Test
   def testScala2EnumInMethodCall(): Unit = {
     configureScala2Enum()
 
@@ -562,6 +578,7 @@ abstract class ScalaTypeMatchingEnumBasicCompletionTest extends ScalaCompletionT
     )
   }
 
+  @Test
   def testScala2EnumInMethodCallWithNamedArgument(): Unit = {
     configureScala2Enum()
 
@@ -597,6 +614,7 @@ abstract class ScalaTypeMatchingEnumBasicCompletionTest extends ScalaCompletionT
     )
   }
 
+  @Test
   def testSCL_21582_Scala2Enum_VariableDefinition(): Unit = {
     configureScala2WeekdayEnum()
 
@@ -626,6 +644,7 @@ abstract class ScalaTypeMatchingEnumBasicCompletionTest extends ScalaCompletionT
     )
   }
 
+  @Test
   def testSCL_21582_Scala2Enum_VariableDefinition_Seq(): Unit = {
     configureScala2WeekdayEnum()
 
@@ -655,6 +674,7 @@ abstract class ScalaTypeMatchingEnumBasicCompletionTest extends ScalaCompletionT
     )
   }
 
+  @Test
   def testSCL_21582_Scala2Enum_Equals(): Unit = {
     configureScala2WeekdayEnum()
 
@@ -688,6 +708,7 @@ abstract class ScalaTypeMatchingEnumBasicCompletionTest extends ScalaCompletionT
     )
   }
 
+  @Test
   def testSCL_21582_Scala2Enum_Equals_InMethodCall(): Unit = {
     configureScala2WeekdayEnum()
 
@@ -721,6 +742,7 @@ abstract class ScalaTypeMatchingEnumBasicCompletionTest extends ScalaCompletionT
     )
   }
 
+  @Test
   def testSCL_21582_Scala2Enum_MethodCall(): Unit = {
     configureScala2WeekdayEnum()
 
@@ -754,6 +776,7 @@ abstract class ScalaTypeMatchingEnumBasicCompletionTest extends ScalaCompletionT
     )
   }
 
+  @Test
   def testSCL_21582_Scala2Enum_MethodCall2(): Unit = {
     configureScala2WeekdayEnum()
 
@@ -791,6 +814,7 @@ abstract class ScalaTypeMatchingEnumBasicCompletionTest extends ScalaCompletionT
 
   /// ---------- SCALA SEALED ------------
 
+  @Test
   def testSCL_21582_ScalaSealed_VariableDefinition(): Unit = {
     configureScalaSealedWeekdayEnum()
 
@@ -822,6 +846,7 @@ abstract class ScalaTypeMatchingEnumBasicCompletionTest extends ScalaCompletionT
     )
   }
 
+  @Test
   def testSCL_21582_ScalaSealedDefinition_Seq(): Unit = {
     configureScalaSealedWeekdayEnum()
 
@@ -853,6 +878,7 @@ abstract class ScalaTypeMatchingEnumBasicCompletionTest extends ScalaCompletionT
     )
   }
 
+  @Test
   def testSCL_21582_ScalaSealedEnum_Equals(): Unit = {
     configureScalaSealedWeekdayEnum()
 
@@ -888,6 +914,7 @@ abstract class ScalaTypeMatchingEnumBasicCompletionTest extends ScalaCompletionT
     )
   }
 
+  @Test
   def testSCL_21582_ScalaSealedMethodCall(): Unit = {
     configureScalaSealedWeekdayEnum()
 
@@ -923,6 +950,7 @@ abstract class ScalaTypeMatchingEnumBasicCompletionTest extends ScalaCompletionT
     )
   }
 
+  @Test
   def testSCL_21582_ScalaSealed_MethodCall(): Unit = {
     configureScalaSealedWeekdayEnum()
 
@@ -958,6 +986,7 @@ abstract class ScalaTypeMatchingEnumBasicCompletionTest extends ScalaCompletionT
     )
   }
 
+  @Test
   def testSCL_21582_ScalaSealed_MethodCall2(): Unit = {
     configureScalaSealedWeekdayEnum()
 
@@ -996,11 +1025,11 @@ abstract class ScalaTypeMatchingEnumBasicCompletionTest extends ScalaCompletionT
   /// ---------- SCALA SEALED ------------
 }
 
-@RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWith(classOf[MultipleScalaVersionsJUnit4Runner])
 @RunWithScalaVersions(Array(TestScalaVersion.Scala_2_13))
 final class ScalaTypeMatchingEnumBasicCompletionTest_2_13 extends ScalaTypeMatchingEnumBasicCompletionTest
 
-@RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWith(classOf[MultipleScalaVersionsJUnit4Runner])
 @RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Latest))
 final class ScalaTypeMatchingEnumBasicCompletionTest_3_Latest extends ScalaTypeMatchingEnumBasicCompletionTest {
   private def configureScala3Enum(): Unit = myFixture.addFileToProject("completion/MyEnum.scala",
@@ -1028,6 +1057,7 @@ final class ScalaTypeMatchingEnumBasicCompletionTest_3_Latest extends ScalaTypeM
 
   /// ---------- SCALA 3 ENUM ------------
 
+  @Test
   def testScala3EnumInMatchByCaseName(): Unit = {
     configureScala3Enum()
 
@@ -1062,6 +1092,7 @@ final class ScalaTypeMatchingEnumBasicCompletionTest_3_Latest extends ScalaTypeM
     )
   }
 
+  @Test
   def testScala3EnumInMatchByEnumName(): Unit = {
     configureScala3Enum()
 
@@ -1096,6 +1127,7 @@ final class ScalaTypeMatchingEnumBasicCompletionTest_3_Latest extends ScalaTypeM
     )
   }
 
+  @Test
   def testScala3EnumInMatchWithTypeParams(): Unit = {
     configureScala3Enum()
 
@@ -1130,6 +1162,7 @@ final class ScalaTypeMatchingEnumBasicCompletionTest_3_Latest extends ScalaTypeM
     )
   }
 
+  @Test
   def testScala3EnumInMatchWithConstructorWithoutParams(): Unit = {
     configureScala3Enum()
 
@@ -1164,6 +1197,7 @@ final class ScalaTypeMatchingEnumBasicCompletionTest_3_Latest extends ScalaTypeM
     )
   }
 
+  @Test
   def testScala3EnumInMatchWithConstructorWithParams(): Unit = {
     configureScala3Enum()
 
@@ -1198,6 +1232,7 @@ final class ScalaTypeMatchingEnumBasicCompletionTest_3_Latest extends ScalaTypeM
     )
   }
 
+  @Test
   def testScala3EnumInValInitialization(): Unit = {
     configureScala3Enum()
 
@@ -1228,6 +1263,7 @@ final class ScalaTypeMatchingEnumBasicCompletionTest_3_Latest extends ScalaTypeM
     )
   }
 
+  @Test
   def testScala3EnumInValInitializationWithTypeParams(): Unit = {
     configureScala3Enum()
 
@@ -1258,6 +1294,7 @@ final class ScalaTypeMatchingEnumBasicCompletionTest_3_Latest extends ScalaTypeM
     )
   }
 
+  @Test
   def testScala3EnumInValInitializationWithConstructorWithoutParams(): Unit = {
     configureScala3Enum()
 
@@ -1288,6 +1325,7 @@ final class ScalaTypeMatchingEnumBasicCompletionTest_3_Latest extends ScalaTypeM
     )
   }
 
+  @Test
   def testScala3EnumInValInitializationWithConstructorWithParams(): Unit = {
     configureScala3Enum()
 
@@ -1318,6 +1356,7 @@ final class ScalaTypeMatchingEnumBasicCompletionTest_3_Latest extends ScalaTypeM
     )
   }
 
+  @Test
   def testScala3EnumInMethodCall(): Unit = {
     configureScala3Enum()
 
@@ -1352,6 +1391,7 @@ final class ScalaTypeMatchingEnumBasicCompletionTest_3_Latest extends ScalaTypeM
     )
   }
 
+  @Test
   def testScala3EnumInMethodCallWithNamedArgument(): Unit = {
     configureScala3Enum()
 
@@ -1386,6 +1426,7 @@ final class ScalaTypeMatchingEnumBasicCompletionTest_3_Latest extends ScalaTypeM
     )
   }
 
+  @Test
   def testSCL_21582_Scala3Enum_VariableDefinition(): Unit = {
     configureScala3WeekdayEnum()
 
@@ -1417,6 +1458,7 @@ final class ScalaTypeMatchingEnumBasicCompletionTest_3_Latest extends ScalaTypeM
     )
   }
 
+  @Test
   def testSCL_21582_Scala3Enum_VariableDefinition_Seq(): Unit = {
     configureScala3WeekdayEnum()
 
@@ -1448,6 +1490,7 @@ final class ScalaTypeMatchingEnumBasicCompletionTest_3_Latest extends ScalaTypeM
     )
   }
 
+  @Test
   def testSCL_21582_Scala3Enum_Equals(): Unit = {
     configureScala3WeekdayEnum()
 
@@ -1483,6 +1526,7 @@ final class ScalaTypeMatchingEnumBasicCompletionTest_3_Latest extends ScalaTypeM
     )
   }
 
+  @Test
   def testSCL_21582_Scala3Enum_Equals_InMethodCall(): Unit = {
     configureScala3WeekdayEnum()
 
@@ -1518,6 +1562,7 @@ final class ScalaTypeMatchingEnumBasicCompletionTest_3_Latest extends ScalaTypeM
     )
   }
 
+  @Test
   def testSCL_21582_Scala3Enum_MethodCall(): Unit = {
     configureScala3WeekdayEnum()
 
@@ -1553,6 +1598,7 @@ final class ScalaTypeMatchingEnumBasicCompletionTest_3_Latest extends ScalaTypeM
     )
   }
 
+  @Test
   def testSCL_21582_Scala3Enum_MethodCall2(): Unit = {
     configureScala3WeekdayEnum()
 
@@ -1588,6 +1634,7 @@ final class ScalaTypeMatchingEnumBasicCompletionTest_3_Latest extends ScalaTypeM
     )
   }
 
+  @Test
   def test_doNotCompleteEnumBase(): Unit = {
     checkNoCompletion(
       s"""
