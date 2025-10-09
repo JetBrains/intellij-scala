@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.packagesearch.api.PackageSearchClientTesting
 import org.jetbrains.plugins.scala.packagesearch.util.DependencyUtil
 import org.jetbrains.plugins.scala.packagesearch.util.DependencyUtil.{Scala2CompilerArtifactId, Scala3CompilerArtifactId, ScalaCompilerGroupId}
 import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
+import org.junit.Test
 
 @WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 final class ScalaDirectiveScalaVersionCompletionTest
@@ -44,28 +45,33 @@ final class ScalaDirectiveScalaVersionCompletionTest
     )
   }
 
+  @Test
   def testScala2Version(): Unit = doTest(
     s"//> using scala $CARET",
     s"//> using scala $scala2StableVersion$CARET",
     scala2StableVersion
   )
 
+  @Test
   def testScala2Version2(): Unit = doTest(
     s"//> using scala 2.$CARET",
     s"//> using scala $scala2StableVersion$CARET",
     scala2StableVersion
   )
 
+  @Test
   def testNoCompletionForScala2UnstableVersion(): Unit = doTestNoCompletion(
     s"//> using scala $CARET",
     scala2UnstableVersion
   )
 
+  @Test
   def testNoCompletionForScala2UnstableVersion2(): Unit = doTestNoCompletion(
     s"//> using scala 2$CARET",
     scala2UnstableVersion
   )
 
+  @Test
   def testScala2UnstableVersionOnSecondInvocation(): Unit = doTest(
     s"//> using scala $CARET",
     s"//> using scala $scala2UnstableVersion$CARET",
@@ -73,6 +79,7 @@ final class ScalaDirectiveScalaVersionCompletionTest
     invocationCount = 2
   )
 
+  @Test
   def testScala2UnstableVersionOnSecondInvocation2(): Unit = doTest(
     s"//> using scala 2.$CARET",
     s"//> using scala $scala2UnstableVersion$CARET",
@@ -80,28 +87,33 @@ final class ScalaDirectiveScalaVersionCompletionTest
     invocationCount = 2
   )
 
+  @Test
   def testScala3Version(): Unit = doTest(
     s"//> using scala $CARET",
     s"//> using scala $scala3StableVersion$CARET",
     scala3StableVersion
   )
 
+  @Test
   def testScala3Version2(): Unit = doTest(
     s"//> using scala 3.$CARET",
     s"//> using scala $scala3StableVersion$CARET",
     scala3StableVersion
   )
 
+  @Test
   def testNoCompletionForScala3UnstableVersion(): Unit = doTestNoCompletion(
     s"//> using scala $CARET",
     scala3UnstableVersion
   )
 
+  @Test
   def testNoCompletionForScala3UnstableVersion2(): Unit = doTestNoCompletion(
     s"//> using scala 3$CARET",
     scala3UnstableVersion
   )
 
+  @Test
   def testScala3UnstableVersionOnSecondInvocation(): Unit = doTest(
     s"//> using scala $CARET",
     s"//> using scala $scala3UnstableVersion$CARET",
@@ -109,6 +121,7 @@ final class ScalaDirectiveScalaVersionCompletionTest
     invocationCount = 2
   )
 
+  @Test
   def testScala3UnstableVersionOnSecondInvocation2(): Unit = doTest(
     s"//> using scala 3.$CARET",
     s"//> using scala $scala3UnstableVersion$CARET",

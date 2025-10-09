@@ -5,7 +5,7 @@ import com.intellij.lang.annotation.HighlightSeverity
 import org.jetbrains.plugins.scala.lang.completion.ScalaTextLookupItem
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
-import org.junit.Assert
+import org.junit.{Assert, Test}
 
 //todo fix for Scala 3
 @RunWithScalaVersions(Array(
@@ -15,6 +15,7 @@ import org.junit.Assert
 ))
 class ScalaUnresolvedCompletionTest extends ScalaCompletionTestBase {
 
+  @Test
   def testFieldVal(): Unit = {
     val fileText =
       s"""
@@ -34,7 +35,7 @@ class ScalaUnresolvedCompletionTest extends ScalaCompletionTestBase {
     doTest(fileText, "intValue")
   }
 
-
+  @Test
   def testFieldVar(): Unit = {
     val fileText =
       s"""
@@ -56,6 +57,7 @@ class ScalaUnresolvedCompletionTest extends ScalaCompletionTestBase {
     doTest(fileText, "field1", "value")
   }
 
+  @Test
   def testMethodWithUnresolvedParams(): Unit = {
     val fileText =
       s"""
@@ -77,6 +79,7 @@ class ScalaUnresolvedCompletionTest extends ScalaCompletionTestBase {
     doTest(fileText, "field1", "value", "foo1(i: Int, i1: Int)", "foo2(i: Int, value: Any)")
   }
 
+  @Test
   def testMethod(): Unit = {
     val fileText =
       s"""
@@ -96,6 +99,7 @@ class ScalaUnresolvedCompletionTest extends ScalaCompletionTestBase {
     doTest(fileText, "methodWithParams(str: String)", "methodWithoutParams()", "intValue")
   }
 
+  @Test
   def testMethodWithNamedParams(): Unit = {
     val fileText =
       s"""
@@ -115,6 +119,7 @@ class ScalaUnresolvedCompletionTest extends ScalaCompletionTestBase {
     doTest(fileText, "methodWithParams(a: String, b: Int, i: Int)", "methoda(i: Int, i1: Int, str: String, d: Double, i2: Int, str1: String)", "intValue")
   }
 
+  @Test
   def testInfixMethodWithParams(): Unit = {
     val fileText =
       s"""
@@ -127,6 +132,7 @@ class ScalaUnresolvedCompletionTest extends ScalaCompletionTestBase {
     doTest(fileText, "add(i: Int)")
   }
 
+  @Test
   def testObject(): Unit = {
     val fileText =
       s"""
@@ -146,6 +152,7 @@ class ScalaUnresolvedCompletionTest extends ScalaCompletionTestBase {
     doTest(fileText, "intValue", "methodWithoutParams", "methodWithoutParams")
   }
 
+  @Test
   def testObjectSelected(): Unit = {
     val fileText =
       s"""
@@ -174,6 +181,7 @@ class ScalaUnresolvedCompletionTest extends ScalaCompletionTestBase {
     checkResultByText(expectedFileText)
   }
 
+  @Test
   def testCaseClass(): Unit = {
     val fileText =
       s"""
@@ -193,6 +201,7 @@ class ScalaUnresolvedCompletionTest extends ScalaCompletionTestBase {
     doTest(fileText, "methodWithParams(str: String)", "methodWithoutParams()")
   }
 
+  @Test
   def testClass(): Unit = {
     val fileText =
       s"""
@@ -209,6 +218,7 @@ class ScalaUnresolvedCompletionTest extends ScalaCompletionTestBase {
     doTest(fileText, "Base", "NewType")
   }
 
+  @Test
   def testTypeAlias(): Unit = {
     val fileText =
       s"""
@@ -225,6 +235,7 @@ class ScalaUnresolvedCompletionTest extends ScalaCompletionTestBase {
     doTest(fileText, "Base", "NewType")
   }
 
+  @Test
   def testClassAfterNew(): Unit = {
     val fileText =
       s"""
@@ -235,6 +246,7 @@ class ScalaUnresolvedCompletionTest extends ScalaCompletionTestBase {
     doTest(fileText, "Test(i: Int, str: String)")
   }
 
+  @Test
   def testRanges(): Unit = {
     val fileText =
       s"""
@@ -270,15 +282,19 @@ class ScalaUnresolvedCompletionTest extends ScalaCompletionTestBase {
     doTest(fileText, "field1", "foo1(i: Int, i1: Int)", "foo2(i: Int, value: Any)", "value")
   }
 
+  @Test
   def testNoCompletionAfterOverrideField(): Unit =
     noCompletion(s"override val $CARET }")
 
+  @Test
   def testNoCompletionAfterOverrideClazz(): Unit =
     noCompletion(s"override class $CARET }")
 
+  @Test
   def testNoCompletionAfterOverrideType(): Unit =
     noCompletion(s"override type $CARET")
 
+  @Test
   def testNoCompletionAfterOverrideMethod(): Unit =
     noCompletion(s"override def $CARET }")
 

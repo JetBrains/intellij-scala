@@ -4,10 +4,13 @@ import com.intellij.codeInsight.completion.CompletionType
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase.hasItemText
+import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
+import org.junit.Test
 
+@RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Latest))
 class Scala3OpaqueTypeAliasTest extends ScalaCompletionTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_3_0
 
+  @Test
   def testQualifierInside(): Unit = doCompletionTest(
     fileText =
       s"""object Inside:
@@ -19,9 +22,10 @@ class Scala3OpaqueTypeAliasTest extends ScalaCompletionTestBase {
          |  opaque type Foo = Int
          |  val foo: Foo = ???
          |  foo.abs$CARET""".stripMargin,
-      item = "abs"
+    item = "abs"
   )
 
+  @Test
   def testQualifierOutside(): Unit = checkNoCompletion(
     fileText =
       s"""object Inside:
@@ -31,6 +35,7 @@ class Scala3OpaqueTypeAliasTest extends ScalaCompletionTestBase {
          |  foo.ab$CARET""".stripMargin,
   )()
 
+  @Test
   def testRenderingInside(): Unit = doRawCompletionTest(
     fileText =
       s"""object Inside:
@@ -44,6 +49,7 @@ class Scala3OpaqueTypeAliasTest extends ScalaCompletionTestBase {
     hasItemText(_, "Foo")(typeText = "Int", itemTextBold = true)
   }
 
+  @Test
   def testRenderingOutside(): Unit = doRawCompletionTest(
     fileText =
       s"""object Inside:
@@ -59,6 +65,7 @@ class Scala3OpaqueTypeAliasTest extends ScalaCompletionTestBase {
     hasItemText(_, "Foo")(typeText = "", itemTextBold = true)
   }
 
+  @Test
   def testSmartInside(): Unit = doCompletionTest(
     completionType = CompletionType.SMART,
     fileText =
@@ -74,7 +81,7 @@ class Scala3OpaqueTypeAliasTest extends ScalaCompletionTestBase {
     item = "foo"
   )
 
-  // TODO checkNoCompletion(SMART) and checkNoSmartCompletion don't actually test the condition
+  @Test
   def testSmartOutside(): Unit = checkNoCompletion(
     `type` = CompletionType.SMART,
     fileText =

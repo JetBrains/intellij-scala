@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.annotator.createFromUsage
 
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInspection.ScalaAnnotatorQuickFixTestBase
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsJUnit4Runner, MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsJUnit4Runner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.Test
 import org.junit.runner.RunWith
 

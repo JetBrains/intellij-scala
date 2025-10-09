@@ -6,6 +6,7 @@ import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTypeDefinitionImpl
+import org.junit.Test
 
 class ScalaAotCompletionTest extends ScalaCompletionTestBase {
 
@@ -14,6 +15,7 @@ class ScalaAotCompletionTest extends ScalaCompletionTestBase {
   override protected lazy val projectJdk: Sdk =
     SmartJDKLoader.createFilteredJdk(LanguageLevel.JDK_17, Seq("java.base", "java.desktop"))
 
+  @Test
   def testParameterName(): Unit = doAotCompletionTest(
     fileText =
       s"""class Foo
@@ -27,6 +29,7 @@ class ScalaAotCompletionTest extends ScalaCompletionTestBase {
     itemText = "foo: Foo"
   )
 
+  @Test
   def testValueName(): Unit = doAotCompletionTest(
     fileText =
       s"""class Foo
@@ -41,6 +44,7 @@ class ScalaAotCompletionTest extends ScalaCompletionTestBase {
     tailText = null
   )
 
+  @Test
   def testValueNameWithRhs(): Unit = doAotCompletionTest(
     fileText =
       s"""class Foo
@@ -55,6 +59,7 @@ class ScalaAotCompletionTest extends ScalaCompletionTestBase {
     tailText = null
   )
 
+  @Test
   def testVariableName(): Unit = doAotCompletionTest(
     fileText =
       s"""class Foo
@@ -69,6 +74,7 @@ class ScalaAotCompletionTest extends ScalaCompletionTestBase {
     tailText = null
   )
 
+  @Test
   def testVariableNameWithRhs(): Unit = doAotCompletionTest(
     fileText =
       s"""class Foo
@@ -83,6 +89,7 @@ class ScalaAotCompletionTest extends ScalaCompletionTestBase {
     tailText = null
   )
 
+  @Test
   def testMethodName(): Unit = doAotCompletionTest(
     fileText =
       s"""class Foo
@@ -101,6 +108,7 @@ class ScalaAotCompletionTest extends ScalaCompletionTestBase {
     tailText = null
   )
 
+  @Test
   def testMethodNameWithRhs(): Unit = doAotCompletionTest(
     fileText =
       s"""class Foo
@@ -119,6 +127,7 @@ class ScalaAotCompletionTest extends ScalaCompletionTestBase {
     tailText = null
   )
 
+  @Test
   def testPartialName(): Unit = doAotCompletionTest(
     fileText =
       s"""class FooBarBaz
@@ -132,6 +141,7 @@ class ScalaAotCompletionTest extends ScalaCompletionTestBase {
     itemText = "barBaz: FooBarBaz"
   )
 
+  @Test
   def testImport(): Unit = doAotCompletionTest(
     fileText =
       s"""def foo(rectangle$CARET)
@@ -146,6 +156,7 @@ class ScalaAotCompletionTest extends ScalaCompletionTestBase {
     tailText = "(java.awt)"
   )
 
+  @Test
   def testErasure(): Unit = doAotCompletionTest(
     fileText =
       s"""class Foo
@@ -161,6 +172,7 @@ class ScalaAotCompletionTest extends ScalaCompletionTestBase {
     itemText = "bar: Bar"
   )
 
+  @Test
   def testNoErasure(): Unit = doAotCompletionTest(
     fileText =
       s"""class Foo
@@ -177,6 +189,7 @@ class ScalaAotCompletionTest extends ScalaCompletionTestBase {
     char = Lookup.NORMAL_SELECT_CHAR
   )
 
+  @Test
   def testLambdaParameter(): Unit = doAotCompletionTest(
     fileText =
       s"""List.empty[String].foreach { s$CARET =>
@@ -189,6 +202,7 @@ class ScalaAotCompletionTest extends ScalaCompletionTestBase {
     tailText = null
   )
 
+  @Test
   def testDefaultPattern(): Unit = doAotCompletionTest(
     fileText =
       s"""class Foo
@@ -208,6 +222,7 @@ class ScalaAotCompletionTest extends ScalaCompletionTestBase {
     itemText = "foo: Foo"
   )
 
+  @Test
   def testBeforeCase(): Unit = checkNoBasicCompletion(
     fileText =
       s"""class Foo
@@ -219,6 +234,7 @@ class ScalaAotCompletionTest extends ScalaCompletionTestBase {
     item = "foo: Foo"
   )
 
+  @Test
   def testAfterArrow(): Unit = checkNoBasicCompletion(
     fileText =
       s"""class Foo
@@ -230,6 +246,7 @@ class ScalaAotCompletionTest extends ScalaCompletionTestBase {
     item = "foo: Foo"
   )
 
+  @Test
   def testWildcard(): Unit = checkNoBasicCompletion(
     fileText =
       s"""class Foo
@@ -241,6 +258,7 @@ class ScalaAotCompletionTest extends ScalaCompletionTestBase {
     item = "foo: Foo"
   )
 
+  @Test
   def testNamedPattern(): Unit = checkNoBasicCompletion(
     fileText =
       s"""class Foo
@@ -252,6 +270,7 @@ class ScalaAotCompletionTest extends ScalaCompletionTestBase {
     item = "foo: Foo"
   )
 
+  @Test
   def testCaseClassParameters(): Unit = doAotCompletionTest(
     fileText =
       s"""class Foo
@@ -265,6 +284,7 @@ class ScalaAotCompletionTest extends ScalaCompletionTestBase {
     itemText = "foo: Foo"
   )
 
+  @Test
   def testNoOverrideCompletion(): Unit = checkNoCompletion(
     fileText =
       s"""class Foo

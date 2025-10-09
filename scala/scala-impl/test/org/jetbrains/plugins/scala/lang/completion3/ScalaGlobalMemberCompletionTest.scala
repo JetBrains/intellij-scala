@@ -5,6 +5,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.junit.Assert.assertEquals
+import org.junit.Test
 
 import java.nio.file.Path
 
@@ -17,6 +18,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
 
   override protected def sourceRootPath: Path = Path.of(getTestDataPath)
 
+  @Test
   def testGlobalMember1(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -36,6 +38,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
     invocationCount = 2
   )
 
+  @Test
   def testGlobalMember2(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -55,6 +58,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
     invocationCount = 2
   )
 
+  @Test
   def testGlobalMember3(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -74,6 +78,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
     invocationCount = 2
   )
 
+  @Test
   def testGlobalMember4(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -93,6 +98,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
     invocationCount = 2
   )
 
+  @Test
   def testGlobalMember5(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -112,6 +118,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
     invocationCount = 2
   )
 
+  @Test
   def testGlobalMember6(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -133,6 +140,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
     item = "importedDef"
   )
 
+  @Test
   def testGlobalMember7(): Unit = checkNoCompletion(
     fileText =
       s"""
@@ -143,6 +151,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
     invocationCount = 2
   )()
 
+  @Test
   def testGlobalMemberJava(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -160,6 +169,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
     invocationCount = 2
   )
 
+  @Test
   def testGlobalMemberJava2(): Unit = checkNoBasicCompletion(
     fileText =
       s"""class TUI {
@@ -170,6 +180,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
     invocationCount = 2
   )
 
+  @Test
   def testGlobalMemberJavaAccessAll(): Unit = doCompletionTest(
     fileText =
       s"""class TUI {
@@ -185,6 +196,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
     invocationCount = 3
   )
 
+  @Test
   def testGlobalMemberJava3(): Unit = {
     configureFromFileText(s"object Wrapper { sort$CARET }")
 
@@ -200,6 +212,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
     assertEquals(1, actual)
   }
 
+  @Test
   def testGlobalMember8(): Unit = checkNoBasicCompletion(
     fileText =
       s"""
@@ -218,6 +231,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
     invocationCount = 2
   )
 
+  @Test
   def testGlobalMember9(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -247,6 +261,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
     invocationCount = 3
   )
 
+  @Test
   def testGlobalMember10(): Unit = doCompletionTest(
     fileText =
       s"""trait Foo {
@@ -278,6 +293,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
     invocationCount = 2
   )
 
+  @Test
   def testGlobalMember11(): Unit = checkNoBasicCompletion(
     fileText =
       s"""class Foo
@@ -293,6 +309,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
     item = "update"
   )
 
+  @Test
   def testCompanionObjectMethod(): Unit = checkNoBasicCompletion(
     fileText =
       s"""class Foo {
@@ -308,6 +325,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
     item = "foo"
   )
 
+  @Test
   def testImportedCompanionObjectMethod(): Unit = doRawCompletionTest(
     fileText =
       s"""import Foo.bar
@@ -340,6 +358,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
     )
   }
 
+  @Test
   def testCompanionObjectUpdateMethod(): Unit = checkNoBasicCompletion(
     fileText =
       s"""class Foo {
@@ -353,6 +372,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
     item = "update"
   )
 
+  @Test
   def testCompanionObjectMethodAccessAll(): Unit = doCompletionTest(
     fileText =
       s"""class Foo {
@@ -382,6 +402,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
     invocationCount = 2
   )
 
+  @Test
   def testCompanionObjectValue(): Unit = doRawCompletionTest(
     fileText =
       s"""class Foo {
@@ -410,6 +431,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
     )
   }
 
+  @Test
   def testCompanionObjectTypeAlias(): Unit = checkNoBasicCompletion(
     fileText =
       s"""class Foo {
@@ -423,6 +445,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
     item = "Bar"
   )
 
+  @Test
   def testCompanionObjectNestedObject(): Unit = checkNoBasicCompletion(
     fileText =
       s"""class Foo {
@@ -436,6 +459,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
     item = "Bar"
   )
 
+  @Test
   def testImportedCompanionObjectValue(): Unit = checkNoCompletion(
     fileText =
       s"""class Foo {
@@ -456,6 +480,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
       )
   }
 
+  @Test
   def testNestedCompanionObjectValue(): Unit = doCompletionTest(
     fileText =
       s"""class Foo {
@@ -484,6 +509,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
     item = "foo"
   )
 
+  @Test
   def testCompanionObjectVariableNameCollision(): Unit = doRawCompletionTest(
     fileText =
       s"""class Foo {
@@ -513,6 +539,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
     )
   }
 
+  @Test
   def testCompanionObjectExtensionLikeMethod(): Unit = doRawCompletionTest(
     fileText =
       s"""class Foo {
@@ -551,6 +578,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
     )
   }
 
+  @Test
   def testCompanionObjectExtensionLikeMethod_postfix(): Unit = doRawCompletionTest(
     fileText =
       s"""class Foo {
@@ -589,6 +617,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
     )
   }
 
+  @Test
   def testCompanionObjectExtensionLikeMethod2(): Unit = checkNoBasicCompletion(
     fileText =
       s"""sealed trait Foo
@@ -604,6 +633,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
     item = "foo"
   )
 
+  @Test
   def testCompanionObjectExtensionLikeMethod2_postfix(): Unit = checkNoBasicCompletion(
     fileText =
       s"""sealed trait Foo
@@ -619,6 +649,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
     item = "foo"
   )
 
+  @Test
   def testCompanionObjectExtensionLikeMethodAccessAll(): Unit = doCompletionTest(
     fileText =
       s"""sealed trait Foo
@@ -648,6 +679,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
     invocationCount = 2
   )
 
+  @Test
   def testCompanionObjectExtensionLikeMethodAccessAll_postfix(): Unit = doCompletionTest(
     fileText =
       s"""sealed trait Foo
@@ -677,6 +709,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
     invocationCount = 2
   )
 
+  @Test
   def testCompanionObjectExtensionLikeMethod3(): Unit = doCompletionTest(
     fileText =
       s"""sealed trait Foo
@@ -699,6 +732,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
     item = "foo"
   )
 
+  @Test
   def testCompanionObjectExtensionLikeMethod3_postfix(): Unit = doCompletionTest(
     fileText =
       s"""sealed trait Foo
@@ -721,6 +755,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
     item = "foo"
   )
 
+  @Test
   def testCompanionObjectExtensionLikeMethod4(): Unit = doCompletionTest(
     fileText =
       s"""sealed trait Foo
@@ -747,6 +782,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
     item = "foo"
   )
 
+  @Test
   def testCompanionObjectExtensionLikeMethod4_postfix(): Unit = doCompletionTest(
     fileText =
       s"""sealed trait Foo
@@ -773,6 +809,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
     item = "foo"
   )
 
+  @Test
   def testCompanionObjectInvalidExtensionLikeMethodInvalidArgumentsCount(): Unit = checkNoBasicCompletion(
     fileText =
       s"""class Foo {
@@ -787,6 +824,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
     item = "bar"
   )
 
+  @Test
   def testCompanionObjectInvalidExtensionLikeMethodInvalidArgumentType(): Unit = checkNoBasicCompletion(
     fileText =
       s"""class Foo {
@@ -803,6 +841,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
     item = "foo"
   )
 
+  @Test
   def testGlobalMemberInherited(): Unit = {
     configureFromFileText(
       fileText =
@@ -841,6 +880,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
     assertEquals(expected, actual)
   }
 
+  @Test
   def testCompanionObjectConversion(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -887,6 +927,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
     item = "bar"
   )
 
+  @Test
   def testCompanionObjectConversion2(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -936,6 +977,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
     invocationCount = 2
   )
 
+  @Test
   def testImportObjectConversion(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -993,6 +1035,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
     invocationCount = 2
   )
 
+  @Test
   def testImportObjectConversion2(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -1050,6 +1093,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
     invocationCount = 2
   )
 
+  @Test
   def testImportStringInterpolator(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -1081,6 +1125,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
     invocationCount = 2
   )
 
+  @Test
   def testImportableMethod(): Unit = doRawCompletionTest(
     fileText =
       s"""import java.util.Collections.emptyList
@@ -1103,6 +1148,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
     )
   }
 
+  @Test
   def testImportableField(): Unit = doCompletionTest(
     fileText =
       s"""import Thread.currentThread
@@ -1122,6 +1168,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
     invocationCount = 2
   )
 
+  @Test
   def testImportableFunction(): Unit = doCompletionTest(
     fileText =
       s"""import Foo.foo
@@ -1152,6 +1199,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
     item = "bar"
   )
 
+  @Test
   def testImportableValue(): Unit = doCompletionTest(
     fileText =
       s"""import Foo.foo
@@ -1182,6 +1230,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
     item = "bar"
   )
 
+  @Test
   def testImportableVariable(): Unit = doCompletionTest(
     fileText =
       s"""import Foo.foo
@@ -1212,6 +1261,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
     item = "bar"
   )
 
+  @Test
   def testImportableFromPackageObject(): Unit = doCompletionTest(
     fileText =
       s"""package foo

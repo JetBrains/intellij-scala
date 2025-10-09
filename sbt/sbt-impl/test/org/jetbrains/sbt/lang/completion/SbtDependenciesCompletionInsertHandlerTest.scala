@@ -4,6 +4,7 @@ import org.jetbrains.plugins.scala.packagesearch.api.PackageSearchClientTesting
 import org.jetbrains.plugins.scala.packagesearch.util.DependencyUtil
 import org.jetbrains.plugins.scala.util.RevertableChange
 import org.jetbrains.sbt.MockSbt_1_0
+import org.junit.Test
 
 //noinspection ApiStatus
 class SbtDependenciesCompletionInsertHandlerTest
@@ -42,6 +43,7 @@ class SbtDependenciesCompletionInsertHandlerTest
     }
   }
 
+  @Test
   def testTopLevel_CompletionDoesNotStopOutsideStringLiteral(): Unit = doTest(
     fileText =
       s"""
@@ -54,6 +56,7 @@ class SbtDependenciesCompletionInsertHandlerTest
     item = "intransitive"
   )
 
+  @Test
   def testTopLevel_Single_CompleteVersion_OutsideOfStringLiteral(): Unit = doTest(
     fileText =
       s"""
@@ -66,6 +69,7 @@ class SbtDependenciesCompletionInsertHandlerTest
     item = STABLE_VERSION
   )
 
+  @Test
   def testTopLevel_Single_CompleteVersion_OutsideOfStringLiteral_WithOrgRef(): Unit = doTest(
     fileText =
       s"""
@@ -82,6 +86,7 @@ class SbtDependenciesCompletionInsertHandlerTest
     item = STABLE_VERSION
   )
 
+  @Test
   def testTopLevel_Single_CompleteVersion_OutsideOfStringLiteral_WithArtifactRef(): Unit = doTest(
     fileText =
       s"""
@@ -98,6 +103,7 @@ class SbtDependenciesCompletionInsertHandlerTest
     item = STABLE_VERSION
   )
 
+  @Test
   def testTopLevel_Single_CompleteVersion_OutsideOfStringLiteral_WithOrgRefAndArtifactRef(): Unit = doTest(
     fileText =
       s"""
@@ -116,6 +122,7 @@ class SbtDependenciesCompletionInsertHandlerTest
     item = STABLE_VERSION
   )
 
+  @Test
   def testTopLevel_Single_CompleteVersion_OutsideOfStringLiteral_WithOrgAndArtifactRef(): Unit = doTest(
     fileText =
       s"""
@@ -132,6 +139,7 @@ class SbtDependenciesCompletionInsertHandlerTest
     item = STABLE_VERSION
   )
 
+//  @Test
 //  def testTopLevel_Single_OutsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -144,6 +152,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testTopLevel_Single_InsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -156,6 +165,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testTopLevel_Single_CompleteArtifact_OutsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -168,6 +178,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testTopLevel_Single_CompleteArtifact_InsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -180,6 +191,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testTopLevel_Single_CompleteArtifactWithDefinedVersion_OutsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -192,6 +204,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testTopLevel_Single_CompleteArtifactWithDefinedVersion_InsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -204,6 +217,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testTopLevel_SeqOneLine_OutsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -216,6 +230,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testTopLevel_SeqOneLine_InsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -229,6 +244,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //  )
 
   //region completion inside Seq inheritors
+//  @Test
 //  def testTopLevel_ListOneLine_OutsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -241,6 +257,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testTopLevel_ListOneLine_InsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -253,6 +270,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testTopLevel_VectorOneLine_OutsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -265,6 +283,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testTopLevel_VectorOneLine_InsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -278,6 +297,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //  )
   //endregion
 
+//  @Test
 //  def testTopLevel_SeqOneLine_CompleteArtifact_OutsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -290,6 +310,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testTopLevel_SeqOneLine_CompleteArtifact_InsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -302,6 +323,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testTopLevel_SeqOneLine_CompleteArtifact_InsideOfMultilineStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -314,6 +336,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testTopLevel_SeqOneLine_CompleteArtifactWithDefinedVersion_OutsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -326,6 +349,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testTopLevel_SeqOneLine_CompleteArtifactWithDefinedVersion_InsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -338,6 +362,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testTopLevel_SeqMultilineFirst_OutsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -354,6 +379,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testTopLevel_SeqMultilineFirst_InsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -370,6 +396,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testTopLevel_SeqMultilineFirst_CompleteArtifact_OutsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -386,6 +413,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testTopLevel_SeqMultilineFirst_CompleteArtifact_InsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -402,6 +430,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testTopLevel_SeqMultilineFirst_CompleteArtifactWithDefinedVersion_OutsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -418,6 +447,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testTopLevel_SeqMultilineFirst_CompleteArtifactWithDefinedVersion_InsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -434,6 +464,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testTopLevel_SeqMultilineSecond_OutsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -452,6 +483,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testTopLevel_SeqMultilineSecond_InsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -470,6 +502,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testTopLevel_SeqMultilineSecond_CompleteArtifact_OutsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -488,6 +521,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testTopLevel_SeqMultilineSecond_CompleteArtifact_InsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -506,6 +540,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testTopLevel_SeqMultilineSecond_CompleteArtifactWithDefinedVersion_OutsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -524,6 +559,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testTopLevel_SeqMultilineSecond_CompleteArtifactWithDefinedVersion_InsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -542,6 +578,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testInProjectSettings_Single_OutsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -564,6 +601,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testInProjectSettings_Single_InsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -586,6 +624,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testInProjectSettings_Single_CompleteArtifact_OutsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -608,6 +647,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testInProjectSettings_Single_CompleteArtifact_InsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -630,6 +670,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testInProjectSettings_Single_CompleteArtifactWithDefinedVersion_OutsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -652,6 +693,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testInProjectSettings_Single_CompleteArtifactWithDefinedVersion_InsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -674,6 +716,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testInProjectSettings_SeqOneLine_OutsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -696,6 +739,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testInProjectSettings_SeqOneLine_InsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -718,6 +762,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testInProjectSettings_SeqOneLine_CompleteArtifact_OutsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -740,6 +785,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testInProjectSettings_SeqOneLine_CompleteArtifact_InsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -762,6 +808,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testInProjectSettings_SeqOneLine_CompleteArtifactWithDefinedVersion_OutsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -784,6 +831,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testInProjectSettings_SeqOneLine_CompleteArtifactWithDefinedVersion_InsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -806,6 +854,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testInProjectSettings_SeqMultilineFirst_OutsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -832,6 +881,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testInProjectSettings_SeqMultilineFirst_InsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -858,6 +908,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testInProjectSettings_SeqMultilineFirst_CompleteArtifact_OutsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -884,6 +935,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testInProjectSettings_SeqMultilineFirst_CompleteArtifact_InsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -910,6 +962,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testInProjectSettings_SeqMultilineFirst_CompleteArtifactWithDefinedVersion_OutsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -936,6 +989,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testInProjectSettings_SeqMultilineFirst_CompleteArtifactWithDefinedVersion_InsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -962,6 +1016,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testInProjectSettings_SeqMultilineSecond_OutsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -990,6 +1045,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testInProjectSettings_SeqMultilineSecond_InsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -1018,6 +1074,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testInProjectSettings_SeqMultilineSecond_CompleteArtifact_OutsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -1046,6 +1103,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testInProjectSettings_SeqMultilineSecond_CompleteArtifact_InsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -1074,6 +1132,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testInProjectSettings_SeqMultilineSecond_CompleteArtifactWithDefinedVersion_OutsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -1102,6 +1161,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testInProjectSettings_SeqMultilineSecond_CompleteArtifactWithDefinedVersion_InsideOfStringLiteral(): Unit = doTest(
 //    fileText =
 //      s"""
@@ -1131,24 +1191,28 @@ class SbtDependenciesCompletionInsertHandlerTest
 //  )
 
   //region needs `with MockSbt_1_0`
+//  @Test
 //  def testTopLevel_VariableWithType_OutsideOfStringLiteral(): Unit = doTest(
 //    fileText = s"val dep: ModuleID = $CARET",
 //    resultText = s"val dep: ModuleID = $RESULT_DEPENDENCY",
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testTopLevel_VariableWithType_WithPrefix_OutsideOfStringLiteral(): Unit = doTest(
 //    fileText = s"val dep: ModuleID = sca$CARET",
 //    resultText = s"val dep: ModuleID = $RESULT_DEPENDENCY",
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testTopLevel_SeqWithType_OutsideOfStringLiteral(): Unit = doTest(
 //    fileText = s"val deps: Seq[ModuleID] = Seq($CARET)",
 //    resultText = s"val deps: Seq[ModuleID] = Seq($RESULT_DEPENDENCY)",
 //    item = LOOKUP_ITEM
 //  )
 
+//  @Test
 //  def testTopLevel_SeqWithType_WithPrefix_OutsideOfStringLiteral(): Unit = doTest(
 //    fileText = s"val deps: Seq[ModuleID] = Seq(sca$CARET)",
 //    resultText = s"val deps: Seq[ModuleID] = Seq($RESULT_DEPENDENCY)",
@@ -1168,6 +1232,7 @@ class SbtDependenciesCompletionInsertHandlerTest
   // TODO: in-between artifactId tests -- works fine
   // TODO: groupId tests -- covers `// 2. ref<caret> %% [...] // org` branch!
   // TODO: incomplete definition tests(???)
+//  @Test
 //  def testSCL22717_1(): Unit = {
 //    setupCachesSCL22717()
 //    doTest(
@@ -1197,6 +1262,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    )
 //  }
 
+//  @Test
 //  def testSCL22717_2(): Unit = {
 //    setupCachesSCL22717()
 //    doTest(
@@ -1226,6 +1292,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    )
 //  }
 
+//  @Test
 //  def testSCL22717_3(): Unit = {
 //    setupCachesSCL22717()
 //    doTest(
@@ -1255,6 +1322,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    )
 //  }
 
+//  @Test
 //  def testSCL22717_4(): Unit = {
 //    setupCachesSCL22717()
 //    doTest(
@@ -1284,6 +1352,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    )
 //  }
 
+//  @Test
 //  def testSCL22717_5(): Unit = {
 //    setupCachesSCL22717()
 //    doTest(
@@ -1313,6 +1382,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    )
 //  }
 
+//  @Test
 //  def testSCL22717_6(): Unit = {
 //    setupCachesSCL22717(artifactId = "scalatest-app")
 //    doTest(
@@ -1343,6 +1413,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //  }
 
   ////////
+//  @Test
 //  def testSCL22717_1_refOrg(): Unit = {
 //    setupCachesSCL22717()
 //    doTest(
@@ -1376,6 +1447,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    )
 //  }
 
+//  @Test
 //  def testSCL22717_2_refOrg(): Unit = {
 //    setupCachesSCL22717()
 //    doTest(
@@ -1409,6 +1481,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    )
 //  }
 
+//  @Test
 //  def testSCL22717_3_refOrg(): Unit = {
 //    setupCachesSCL22717()
 //    doTest(
@@ -1442,6 +1515,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    )
 //  }
 
+//  @Test
 //  def testSCL22717_4_refOrg(): Unit = {
 //    setupCachesSCL22717()
 //    doTest(
@@ -1475,6 +1549,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    )
 //  }
 
+//  @Test
 //  def testSCL22717_5_refOrg(): Unit = {
 //    setupCachesSCL22717()
 //    doTest(
@@ -1508,6 +1583,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    )
 //  }
 
+//  @Test
 //  def testSCL22717_6_refOrg(): Unit = {
 //    setupCachesSCL22717(artifactId = "scalatest-app")
 //    doTest(
@@ -1543,6 +1619,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 
   ////////
 
+//  @Test
 //  def testSCL22717_2_inOrg(): Unit = {
 //    setupCachesSCL22717(groupId = "org.scala", artifactId = "")
 //    doTest(
@@ -1572,6 +1649,7 @@ class SbtDependenciesCompletionInsertHandlerTest
 //    )
 //  }
 
+//  @Test
 //  def testSCL22717_2_inArtifactRef(): Unit = {
 //    setupCachesSCL22717(artifactId = "scala")
 //

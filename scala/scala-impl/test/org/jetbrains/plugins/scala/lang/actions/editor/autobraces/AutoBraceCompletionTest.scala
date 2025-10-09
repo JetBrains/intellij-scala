@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaKeywordLookupItem.KeywordInsertHandler
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
+import org.junit.Test
 
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_13
@@ -17,6 +18,7 @@ class AutoBraceCompletionTest extends ScalaCompletionTestBase {
     getProject.getService(classOf[AutoBraceLookupListenerService])
   }
 
+  @Test
   def testAutoBraceCompletionWithNewline(): Unit = doRawCompletionTest(
     s"""object Test {
        |  def ella(i: Int): Unit = ()
@@ -40,6 +42,7 @@ class AutoBraceCompletionTest extends ScalaCompletionTestBase {
     '\n'
   )(_.getLookupString.contains("ella"))
 
+  @Test
   def testAutoBraceCompletionWithTab(): Unit = doRawCompletionTest(
     s"""object Test {
        |  def ella(i: Int): Unit = ()
@@ -63,6 +66,7 @@ class AutoBraceCompletionTest extends ScalaCompletionTestBase {
     '\t'
   )(_.getLookupString.contains("ella"))
 
+  @Test
   def testAutoBraceCompletionWithContinuationKeyword(): Unit = doRawCompletionTest(
     s"""
        |object Test {
@@ -85,6 +89,7 @@ class AutoBraceCompletionTest extends ScalaCompletionTestBase {
     case _ => false
   }
 
+  @Test
   def testAutoBraceAbortionContinuationKeyword(): Unit = checkNonEmptyCompletionWithKeyAbortion(
     s"""object Test {
        |  def elsa(i: Int): Unit = ()
@@ -107,6 +112,7 @@ class AutoBraceCompletionTest extends ScalaCompletionTestBase {
     'e'
   )
 
+  @Test
   def testAutoBraceAbortionWithKey(): Unit = checkNonEmptyCompletionWithKeyAbortion(
     s"""
        |def ella(i: Int): Unit = ()
@@ -128,6 +134,7 @@ class AutoBraceCompletionTest extends ScalaCompletionTestBase {
     'ü'
   )
 
+  @Test
   def testAutoBraceAbortionAfterUncertainContinuation(): Unit = checkEmptyCompletionAbortion(
     s"""object Test {
        |  def ella(i: Int): Unit = ()
@@ -150,6 +157,7 @@ class AutoBraceCompletionTest extends ScalaCompletionTestBase {
        |""".stripMargin,
   )
 
+  @Test
   def testAutoBraceAbortionAfterPossibleContinuation(): Unit = checkEmptyCompletionAbortion(
     s"""object Test {
        |  def ella(i: Int): Unit = ()
@@ -172,6 +180,7 @@ class AutoBraceCompletionTest extends ScalaCompletionTestBase {
   )
 
   // todo: fix completion from within
+  //@Test
   /*def testAutoBraceCompletionWithNewlineWithin(): Unit = doRawCompletionTest(
     s"""
        |def ella(i: Int): Unit = ()
@@ -193,6 +202,7 @@ class AutoBraceCompletionTest extends ScalaCompletionTestBase {
     '\n'
   )(_.getLookupString.contains("ella"))*/
 
+  //@Test
   /*def testAutoBraceCompletionWithTabWithin(): Unit = doRawCompletionTest(
     s"""
        |def ella(i: Int): Unit = ()

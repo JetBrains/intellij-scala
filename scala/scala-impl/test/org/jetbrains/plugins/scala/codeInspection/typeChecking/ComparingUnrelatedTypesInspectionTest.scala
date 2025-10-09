@@ -3,7 +3,7 @@ package codeInspection
 package typeChecking
 
 import com.intellij.codeInspection.LocalInspectionTool
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsJUnit4Runner, MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsJUnit4Runner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.Test
 import org.junit.runner.RunWith
 
