@@ -1,5 +1,7 @@
 package org.jetbrains.sbt.lang.completion
 
+import org.junit.Test
+
 class SbtScalacOptionInsertHandlerTest extends SbtCompletionTestBase {
   private val LOOKUP_ITEM = "-Yno-generic-signatures" // flag with multiple dashes
   private val RESULT_OPTION = s""""$LOOKUP_ITEM""""
@@ -7,6 +9,7 @@ class SbtScalacOptionInsertHandlerTest extends SbtCompletionTestBase {
   private val LOOKUP_ITEM_WITH_SEPARATE_ARG = "-classpath"
   private val RESULT_OPTION_WITH_SEPARATE_ARG = s"""Seq("$LOOKUP_ITEM_WITH_SEPARATE_ARG", ".")"""
 
+  @Test
   def testTopLevel_Single_OutsideOfStringLiteral_AfterParenthesisedExpr(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -19,6 +22,7 @@ class SbtScalacOptionInsertHandlerTest extends SbtCompletionTestBase {
     item = LOOKUP_ITEM
   )
 
+  @Test
   def testTopLevel_Single_InsideOfStringLiteral_AfterParenthesisedExpr(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -31,6 +35,7 @@ class SbtScalacOptionInsertHandlerTest extends SbtCompletionTestBase {
     item = LOOKUP_ITEM
   )
 
+  @Test
   def testTopLevel_Single_OutsideOfStringLiteral_AfterParenthesisedExpr2(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -43,6 +48,7 @@ class SbtScalacOptionInsertHandlerTest extends SbtCompletionTestBase {
     item = LOOKUP_ITEM
   )
 
+  @Test
   def testTopLevel_Single_InsideOfStringLiteral_AfterParenthesisedExpr2(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -55,6 +61,7 @@ class SbtScalacOptionInsertHandlerTest extends SbtCompletionTestBase {
     item = LOOKUP_ITEM
   )
 
+  @Test
   def testTopLevel_Single_OutsideOfStringLiteral_AfterDeepParenthesisedExpr(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -67,6 +74,7 @@ class SbtScalacOptionInsertHandlerTest extends SbtCompletionTestBase {
     item = LOOKUP_ITEM
   )
 
+  @Test
   def testTopLevel_Single_InsideOfStringLiteral_AfterDeepParenthesisedExpr(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -79,6 +87,7 @@ class SbtScalacOptionInsertHandlerTest extends SbtCompletionTestBase {
     item = LOOKUP_ITEM
   )
 
+  @Test
   def testTopLevel_Single_OutsideOfStringLiteral_WithoutSpaces(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -91,6 +100,7 @@ class SbtScalacOptionInsertHandlerTest extends SbtCompletionTestBase {
     item = LOOKUP_ITEM
   )
 
+  @Test
   def testTopLevel_Single_InsideOfStringLiteral_WithoutSpaces(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -103,6 +113,7 @@ class SbtScalacOptionInsertHandlerTest extends SbtCompletionTestBase {
     item = LOOKUP_ITEM
   )
 
+  @Test
   def testTopLevel_Single_OutsideOfStringLiteral(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -115,6 +126,7 @@ class SbtScalacOptionInsertHandlerTest extends SbtCompletionTestBase {
     item = LOOKUP_ITEM
   )
 
+  @Test
   def testTopLevel_Single_InsideOfStringLiteral(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -127,6 +139,7 @@ class SbtScalacOptionInsertHandlerTest extends SbtCompletionTestBase {
     item = LOOKUP_ITEM
   )
 
+  @Test
   def testTopLevel_Single_OutsideOfStringLiteral_-=(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -139,6 +152,7 @@ class SbtScalacOptionInsertHandlerTest extends SbtCompletionTestBase {
     item = LOOKUP_ITEM
   )
 
+  @Test
   def testTopLevel_Single_InsideOfStringLiteral_-=(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -151,6 +165,7 @@ class SbtScalacOptionInsertHandlerTest extends SbtCompletionTestBase {
     item = LOOKUP_ITEM
   )
 
+  @Test
   def testTopLevel_SingleToSeq_OutsideOfStringLiteral(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -163,6 +178,7 @@ class SbtScalacOptionInsertHandlerTest extends SbtCompletionTestBase {
     item = LOOKUP_ITEM_WITH_SEPARATE_ARG
   )
 
+  @Test
   def testTopLevel_SingleToSeq_InsideOfStringLiteral(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -175,6 +191,7 @@ class SbtScalacOptionInsertHandlerTest extends SbtCompletionTestBase {
     item = LOOKUP_ITEM_WITH_SEPARATE_ARG
   )
 
+  @Test
   def testTopLevel_SingleToSeq_OutsideOfStringLiteral_-=(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -187,6 +204,7 @@ class SbtScalacOptionInsertHandlerTest extends SbtCompletionTestBase {
     item = LOOKUP_ITEM_WITH_SEPARATE_ARG
   )
 
+  @Test
   def testTopLevel_SingleToSeq_InsideOfStringLiteral_-=(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -199,6 +217,7 @@ class SbtScalacOptionInsertHandlerTest extends SbtCompletionTestBase {
     item = LOOKUP_ITEM_WITH_SEPARATE_ARG
   )
 
+  @Test
   def testTopLevel_SeqOneLine_OutsideOfStringLiteral(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -211,6 +230,7 @@ class SbtScalacOptionInsertHandlerTest extends SbtCompletionTestBase {
     item = LOOKUP_ITEM
   )
 
+  @Test
   def testTopLevel_SeqOneLine_InsideOfStringLiteral(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -223,6 +243,7 @@ class SbtScalacOptionInsertHandlerTest extends SbtCompletionTestBase {
     item = LOOKUP_ITEM
   )
 
+  @Test
   def testTopLevel_SeqOneLine_OutsideOfStringLiteral_--=(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -235,6 +256,7 @@ class SbtScalacOptionInsertHandlerTest extends SbtCompletionTestBase {
     item = LOOKUP_ITEM
   )
 
+  @Test
   def testTopLevel_SeqOneLine_InsideOfStringLiteral_--=(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -247,6 +269,7 @@ class SbtScalacOptionInsertHandlerTest extends SbtCompletionTestBase {
     item = LOOKUP_ITEM
   )
 
+  @Test
   def testTopLevel_SeqOneLine_OutsideOfStringLiteral_:=(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -259,6 +282,7 @@ class SbtScalacOptionInsertHandlerTest extends SbtCompletionTestBase {
     item = LOOKUP_ITEM
   )
 
+  @Test
   def testTopLevel_SeqOneLine_InsideOfStringLiteral_:=(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -271,6 +295,7 @@ class SbtScalacOptionInsertHandlerTest extends SbtCompletionTestBase {
     item = LOOKUP_ITEM
   )
 
+  @Test
   def testTopLevel_SeqMultilineFirst_OutsideOfStringLiteral(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -287,6 +312,7 @@ class SbtScalacOptionInsertHandlerTest extends SbtCompletionTestBase {
     item = LOOKUP_ITEM
   )
 
+  @Test
   def testTopLevel_SeqMultilineFirst_InsideOfStringLiteral(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -303,6 +329,7 @@ class SbtScalacOptionInsertHandlerTest extends SbtCompletionTestBase {
     item = LOOKUP_ITEM
   )
 
+  @Test
   def testTopLevel_SeqMultilineSecond_OutsideOfStringLiteral(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -321,6 +348,7 @@ class SbtScalacOptionInsertHandlerTest extends SbtCompletionTestBase {
     item = LOOKUP_ITEM
   )
 
+  @Test
   def testTopLevel_SeqMultilineSecond_InsideOfStringLiteral(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -339,6 +367,7 @@ class SbtScalacOptionInsertHandlerTest extends SbtCompletionTestBase {
     item = LOOKUP_ITEM
   )
 
+  @Test
   def testInProjectSettings_Single_OutsideOfStringLiteral(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -361,6 +390,7 @@ class SbtScalacOptionInsertHandlerTest extends SbtCompletionTestBase {
     item = LOOKUP_ITEM
   )
 
+  @Test
   def testInProjectSettings_Single_InsideOfStringLiteral(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -383,6 +413,7 @@ class SbtScalacOptionInsertHandlerTest extends SbtCompletionTestBase {
     item = LOOKUP_ITEM
   )
 
+  @Test
   def testInProjectSettings_SingleToSeq_OutsideOfStringLiteral(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -405,6 +436,7 @@ class SbtScalacOptionInsertHandlerTest extends SbtCompletionTestBase {
     item = LOOKUP_ITEM_WITH_SEPARATE_ARG
   )
 
+  @Test
   def testInProjectSettings_SingleToSeq_InsideOfStringLiteral(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -427,6 +459,7 @@ class SbtScalacOptionInsertHandlerTest extends SbtCompletionTestBase {
     item = LOOKUP_ITEM_WITH_SEPARATE_ARG
   )
 
+  @Test
   def testInProjectSettings_SeqOneLine_OutsideOfStringLiteral(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -449,6 +482,7 @@ class SbtScalacOptionInsertHandlerTest extends SbtCompletionTestBase {
     item = LOOKUP_ITEM
   )
 
+  @Test
   def testInProjectSettings_SeqOneLine_InsideOfStringLiteral(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -471,6 +505,7 @@ class SbtScalacOptionInsertHandlerTest extends SbtCompletionTestBase {
     item = LOOKUP_ITEM
   )
 
+  @Test
   def testInProjectSettings_SeqMultilineFirst_OutsideOfStringLiteral(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -497,6 +532,7 @@ class SbtScalacOptionInsertHandlerTest extends SbtCompletionTestBase {
     item = LOOKUP_ITEM
   )
 
+  @Test
   def testInProjectSettings_SeqMultilineFirst_InsideOfStringLiteral(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -523,6 +559,7 @@ class SbtScalacOptionInsertHandlerTest extends SbtCompletionTestBase {
     item = LOOKUP_ITEM
   )
 
+  @Test
   def testInProjectSettings_SeqMultilineSecond_OutsideOfStringLiteral(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -551,6 +588,7 @@ class SbtScalacOptionInsertHandlerTest extends SbtCompletionTestBase {
     item = LOOKUP_ITEM
   )
 
+  @Test
   def testInProjectSettings_SeqMultilineSecond_InsideOfStringLiteral(): Unit = doCompletionTest(
     fileText =
       s"""

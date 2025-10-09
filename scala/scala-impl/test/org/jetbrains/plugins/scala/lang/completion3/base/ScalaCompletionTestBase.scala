@@ -8,11 +8,11 @@ import com.intellij.psi.statistics.impl.StatisticsManagerImpl
 import com.intellij.testFramework.fixtures.TestLookupElementPresentation
 import org.jetbrains.plugins.scala.CompletionTests
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsJUnit4Runner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 
-@RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWith(classOf[MultipleScalaVersionsJUnit4Runner])
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_13,
   TestScalaVersion.Scala_3_Latest

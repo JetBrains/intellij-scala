@@ -2,12 +2,14 @@ package org.jetbrains.plugins.scala.lang.completion3
 
 import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword.{DEF, OVERRIDE}
 import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
+import org.junit.Test
 
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_3_Latest
 ))
 class ScalaOverrideTargetNameCompletionTest extends ScalaOverrideCompletionTestBase {
 
+  @Test
   def testFunction(): Unit = doRawCompletionTest(
     fileText =
       s"""class Inheritor extends BaseTrait {
@@ -22,6 +24,7 @@ class ScalaOverrideTargetNameCompletionTest extends ScalaOverrideCompletionTestB
       """.stripMargin
   )()
 
+  @Test
   def testValue(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -39,6 +42,7 @@ class ScalaOverrideTargetNameCompletionTest extends ScalaOverrideCompletionTestB
     items = "intValue"
   )
 
+  @Test
   def testVariable(): Unit = doCompletionTest(
     fileText =
       s"""class Inheritor extends BaseTrait {
@@ -52,6 +56,7 @@ class ScalaOverrideTargetNameCompletionTest extends ScalaOverrideCompletionTestB
     items = "intVariable"
   )
 
+  @Test
   def testAbstractFunction(): Unit = doCompletionTest(
     fileText =
       s"""class Inheritor extends BaseTrait {
@@ -67,6 +72,7 @@ class ScalaOverrideTargetNameCompletionTest extends ScalaOverrideCompletionTestB
     items = "abstractFoo"
   )
 
+  @Test
   def testWithAnnotation(): Unit = doCompletionTest(
     fileText =
       s"""class Inheritor extends BaseTrait {
@@ -80,6 +86,7 @@ class ScalaOverrideTargetNameCompletionTest extends ScalaOverrideCompletionTestB
     items = OVERRIDE, "annotFoo"
   )
 
+  @Test
   def testType(): Unit = doCompletionTest(
     fileText =
       s"""class Inheritor extends BaseTrait {
@@ -95,6 +102,7 @@ class ScalaOverrideTargetNameCompletionTest extends ScalaOverrideCompletionTestB
     items = "StringType"
   )
 
+  @Test
   def testAbstractType(): Unit = doCompletionTest(
     fileText =
       s"""class Inheritor extends BaseTrait {
@@ -110,6 +118,7 @@ class ScalaOverrideTargetNameCompletionTest extends ScalaOverrideCompletionTestB
     items = "A"
   )
 
+  @Test
   def testParamsFromClass(): Unit = doCompletionTest(
     fileText =
       s"""class Inheritor(override val f$CARET) extends BaseClass {
@@ -122,6 +131,7 @@ class ScalaOverrideTargetNameCompletionTest extends ScalaOverrideCompletionTestB
     items = "foo"
   )
 
+  @Test
   def testParamsFromClassInCaseClass(): Unit = doCompletionTest(
     fileText =
       s"""class Inheritor(b$CARET) extends BaseClass {
@@ -134,6 +144,7 @@ class ScalaOverrideTargetNameCompletionTest extends ScalaOverrideCompletionTestB
     items = "bar"
   )
 
+  @Test
   def testOverrideKeyword(): Unit = doCompletionTest(
     fileText =
       s"""class Inheritor extends BaseTrait {
@@ -149,6 +160,7 @@ class ScalaOverrideTargetNameCompletionTest extends ScalaOverrideCompletionTestB
     items = OVERRIDE, DEF, "foo"
   )
 
+  @Test
   def testAllowOverrideFunctionWithoutOverrideKeyword(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -166,6 +178,7 @@ class ScalaOverrideTargetNameCompletionTest extends ScalaOverrideCompletionTestB
     items = "abstractFoo"
   )
 
+  @Test
   def testAllowOverrideVariableWithoutOverrideKeyword(): Unit = doCompletionTest(
     fileText =
       s"""class Inheritor extends BaseTrait {
@@ -181,6 +194,7 @@ class ScalaOverrideTargetNameCompletionTest extends ScalaOverrideCompletionTestB
     items = "intVariable"
   )
 
+  @Test
   def testDoNotAddTargetNameIfAlreadyPresent(): Unit = doCompletionTest(
     fileText =
       s"""class Inheritor extends BaseTrait {

@@ -2,17 +2,19 @@ package org.jetbrains.plugins.scala.lang.completion3
 
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
+import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
+import org.junit.Test
 
 import java.nio.file.Path
 
+@RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Latest))
 class Scala3GlobalMemberCompletionTest extends ScalaCompletionTestBase {
-  override protected def supportedIn(version: ScalaVersion) = version >= ScalaVersion.Latest.Scala_3_0
-
   override def getTestDataPath: String =
     s"${super.getTestDataPath}globalMember3"
 
   override protected def sourceRootPath: Path = Path.of(getTestDataPath)
 
+  @Test
   def testExtensionMethod(): Unit = doCompletionTest(
     fileText =
       s""""foobar".fiThC$CARET
@@ -26,6 +28,7 @@ class Scala3GlobalMemberCompletionTest extends ScalaCompletionTestBase {
     invocationCount = 2
   )
 
+  @Test
   def testNoCompletionForPrivateExtensionMethod(): Unit = checkNoCompletion(
     fileText =
       s"""2.imposToR$CARET
@@ -33,6 +36,7 @@ class Scala3GlobalMemberCompletionTest extends ScalaCompletionTestBase {
     invocationCount = 2
   )()
 
+  @Test
   def testNoCompletionForLocalExtensionMethod(): Unit = checkNoCompletion(
     fileText =
       s"""false.unreaLocEx$CARET
@@ -40,6 +44,7 @@ class Scala3GlobalMemberCompletionTest extends ScalaCompletionTestBase {
     invocationCount = 2
   )()
 
+  @Test
   def testExtensionMethod2(): Unit = doCompletionTest(
     fileText =
       s"""import tests.Foo
@@ -78,6 +83,7 @@ class Scala3GlobalMemberCompletionTest extends ScalaCompletionTestBase {
     invocationCount = 2
   )
 
+  @Test
   def testTopLevelExtensionMethod(): Unit = doCompletionTest(
     fileText =
       s"""import tests.Foo
@@ -113,6 +119,7 @@ class Scala3GlobalMemberCompletionTest extends ScalaCompletionTestBase {
     invocationCount = 2
   )
 
+  @Test
   def testExtensionMethodInsideGiven(): Unit = doCompletionTest(
     fileText =
       s"""import tests.Foo
@@ -153,6 +160,7 @@ class Scala3GlobalMemberCompletionTest extends ScalaCompletionTestBase {
     invocationCount = 2
   )
 
+  @Test
   def testExtensionMethodInsideTopLevelGiven(): Unit = doCompletionTest(
     fileText =
       s"""import tests.Foo
@@ -190,6 +198,7 @@ class Scala3GlobalMemberCompletionTest extends ScalaCompletionTestBase {
     invocationCount = 2
   )
 
+  @Test
   def testTopLevelTypeAliasTest(): Unit = doCompletionTest(
     s"""package a {
        |  type Foobar = Int
@@ -210,6 +219,7 @@ class Scala3GlobalMemberCompletionTest extends ScalaCompletionTestBase {
        |""".stripMargin,
     item = "Foobar")
 
+  @Test
   def testEnumTypeTest(): Unit = doCompletionTest(
     s"""package a {
        |  enum Foobar
@@ -230,6 +240,7 @@ class Scala3GlobalMemberCompletionTest extends ScalaCompletionTestBase {
        |""".stripMargin,
     item = "Foobar")
 
+  @Test
   def testEnumTermTest(): Unit = doCompletionTest(
     s"""package a {
        |  enum Foobar

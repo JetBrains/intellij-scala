@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.util.ConfigureJavaFile.configureJavaFile
 import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
+import org.junit.Test
 
 abstract class ScalaClassNameCompletionTest extends ScalaCompletionTestBase {
 
@@ -31,6 +32,7 @@ abstract class ScalaClassNameCompletionTest extends ScalaCompletionTestBase {
   TestScalaVersion.Scala_2_13
 ))
 class ClassNameCompletionTest extends ScalaClassNameCompletionTest {
+  @Test
   def testInterfaceNameImplement(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -49,6 +51,7 @@ class ClassNameCompletionTest extends ScalaClassNameCompletionTest {
     item = "AutoCloseable"
   )
 
+  @Test
   def testClassNameRenamed(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -67,6 +70,7 @@ class ClassNameCompletionTest extends ScalaClassNameCompletionTest {
     item = "BLLLL"
   )
 
+  @Test
   def testExpressionSameName(): Unit = doRawCompletionTest(
     fileText =
       s"""
@@ -92,6 +96,7 @@ class ClassNameCompletionTest extends ScalaClassNameCompletionTest {
     predicate(_, "scala.collection.mutable.HashSet", companionObject = true)
   }
 
+  @Test
   def testExpressionSameNameAfterNew(): Unit = doRawCompletionTest(
     fileText =
       s"""
@@ -117,6 +122,7 @@ class ClassNameCompletionTest extends ScalaClassNameCompletionTest {
     predicate(_, "scala.collection.mutable.HashSet", companionObject = true)
   }
 
+  @Test
   def testExpressionSameNameAfterNewInsideMethodCall(): Unit = doRawCompletionTest(
     fileText =
       s"""
@@ -146,6 +152,7 @@ class ClassNameCompletionTest extends ScalaClassNameCompletionTest {
     predicate(_, "scala.collection.mutable.HashSet", companionObject = true)
   }
 
+  @Test
   def testClassSameName(): Unit = doRawCompletionTest(
     fileText =
       s"""
@@ -171,6 +178,7 @@ class ClassNameCompletionTest extends ScalaClassNameCompletionTest {
     predicate(_, "scala.collection.mutable.HashSet")
   }
 
+  @Test
   def testImportsMess(): Unit = doRawCompletionTest(
     fileText =
       s"""
@@ -197,6 +205,7 @@ class ClassNameCompletionTest extends ScalaClassNameCompletionTest {
     predicate(_, "scala.collection.immutable.ListSet")
   }
 
+  @Test
   def testImplicitClass(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -236,6 +245,7 @@ class ClassNameCompletionTest extends ScalaClassNameCompletionTest {
     invocationCount = 2
   )
 
+  @Test
   def testSpaceInClassParents(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -250,6 +260,7 @@ class ClassNameCompletionTest extends ScalaClassNameCompletionTest {
     item = "Foo"
   )
 
+  @Test
   def testJavaClassLocation(): Unit = {
     configureJavaFile(
       fileText =
@@ -266,6 +277,7 @@ class ClassNameCompletionTest extends ScalaClassNameCompletionTest {
   }
 
   // SCL-21466
+  @Test
   def testAutoImportWithoutNew(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -288,6 +300,7 @@ class ClassNameCompletionTest extends ScalaClassNameCompletionTest {
   )
 
   // SCL-21466
+  @Test
   def testAutoImportObjectWithoutNew(): Unit = doRawCompletionTest(
     fileText =
       s"""
@@ -318,6 +331,7 @@ class ClassNameCompletionTest_Scala_3 extends ClassNameCompletionTest {
     getScalaCodeStyleSettings.USE_SCALA3_INDENTATION_BASED_SYNTAX = true
   }
 
+  @Test
   override def testInterfaceNameImplement(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -333,6 +347,7 @@ class ClassNameCompletionTest_Scala_3 extends ClassNameCompletionTest {
     item = "AutoCloseable"
   )
 
+  @Test
   override def testImportsMess(): Unit = doRawCompletionTest(
     fileText =
       s"""
@@ -359,6 +374,7 @@ class ClassNameCompletionTest_Scala_3 extends ClassNameCompletionTest {
     predicate(_, "scala.collection.immutable.ListSet")
   }
 
+  @Test
   def testClassWithoutNew(): Unit = doCompletionTest(
     fileText =
       s"""package com.example
@@ -379,6 +395,7 @@ class ClassNameCompletionTest_Scala_3 extends ClassNameCompletionTest {
     item = "MyUniversalApplyClass"
   )
 
+  @Test
   def testClassNameRenamedWithoutNew(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -397,6 +414,7 @@ class ClassNameCompletionTest_Scala_3 extends ClassNameCompletionTest {
     item = "BLLLL"
   )
 
+  @Test
   def testDoNotSuggestTraitWithoutNew(): Unit = checkNoBasicCompletion(
     fileText =
       s"""package com.example
@@ -409,6 +427,7 @@ class ClassNameCompletionTest_Scala_3 extends ClassNameCompletionTest {
     item = "MyUniversalApplyTrait"
   )
 
+  @Test
   override def testExpressionSameName(): Unit = doRawCompletionTest(
     fileText =
       s"""
@@ -434,6 +453,7 @@ class ClassNameCompletionTest_Scala_3 extends ClassNameCompletionTest {
     predicate(_, "scala.collection.mutable.HashSet", companionObject = true)
   }
 
+  @Test
   def testExpressionSameNameInsideNew(): Unit = doRawCompletionTest(
     fileText =
       s"""
@@ -467,6 +487,7 @@ class ClassNameCompletionTest_Scala_3 extends ClassNameCompletionTest {
     predicate(_, "scala.collection.mutable.HashSet", companionObject = true)
   }
 
+  @Test
   def testExpressionSameNameInsideNew2(): Unit = doRawCompletionTest(
     fileText =
       s"""
@@ -496,6 +517,7 @@ class ClassNameCompletionTest_Scala_3 extends ClassNameCompletionTest {
     predicate(_, "scala.collection.mutable.HashSet", companionObject = true)
   }
 
+  @Test
   def testEnumCase(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -539,6 +561,7 @@ class ImportsWithPrefixCompletionTest extends ScalaClassNameCompletionTest {
     super.tearDown()
   }
 
+  @Test
   def testSmartJoining(): Unit = doRawCompletionTest(
     fileText =
       s"""
@@ -586,6 +609,7 @@ class FullQualifiedImportsCompletionTest extends ScalaClassNameCompletionTest {
     super.tearDown()
   }
 
+  @Test
   def testSCL4087(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -620,6 +644,7 @@ class FullQualifiedImportsCompletionTest extends ScalaClassNameCompletionTest {
     invocationCount = 2
   )
 
+  @Test
   def testSCL4087_2(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -659,6 +684,7 @@ class FullQualifiedImportsCompletionTest extends ScalaClassNameCompletionTest {
   TestScalaVersion.Scala_3_Latest
 ))
 class FullQualifiedImportsCompletionTest_Scala_3 extends FullQualifiedImportsCompletionTest {
+  @Test
   override def testSCL4087(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -693,6 +719,7 @@ class FullQualifiedImportsCompletionTest_Scala_3 extends FullQualifiedImportsCom
     invocationCount = 2
   )
 
+  @Test
   override def testSCL4087_2(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -743,6 +770,7 @@ class FullQualifiedImportsCompletionTest_Scala_3 extends FullQualifiedImportsCom
       |class MyJavaClassPackagePrivate {}
       |""".stripMargin
 
+  @Test
   def testCompleteAfterNew_ShouldContainDefinitionsFromSamePackage_BothScalaAndJava_FromPackageObject(): Unit = {
     myFixture.addFileToProject("org/example/MyJavaClassPublic.java", JavaFileTextInSamePackage)
     myFixture.addFileToProject("org/example/scala_definitions.scala", ScalaFileTextInSamePackage)
@@ -765,6 +793,7 @@ class FullQualifiedImportsCompletionTest_Scala_3 extends FullQualifiedImportsCom
     ))
   }
 
+  @Test
   def testCompleteAfterNew_ShouldContainDefinitionsFromSamePackage_BothScalaAndJava_FromClass(): Unit = {
     myFixture.addFileToProject("org/example/scala_definitions.scala", ScalaFileTextInSamePackage)
     myFixture.addFileToProject("org/example/MyJavaClassPublic.java", JavaFileTextInSamePackage)

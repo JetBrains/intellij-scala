@@ -3,13 +3,13 @@ package org.jetbrains.plugins.scala.lang.completion3
 import com.intellij.codeInsight.lookup.Lookup
 import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsJUnit4Runner, RunWithScalaVersions, TestScalaVersion, WithIndexingMode}
+import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion, WithIndexingMode}
 import org.junit.Test
-import org.junit.runner.RunWith
 
 @WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
 
+  @Test
   def testPrivateVal(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -26,6 +26,7 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
     item = "val"
   )
 
+  @Test
   def testPrivateThis(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -43,6 +44,7 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
     char = '['
   )
 
+  @Test
   def testFirstVal(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -64,6 +66,7 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
     char = ' '
   )
 
+  @Test
   def testIfAfterCase(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -81,6 +84,7 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
     char = ' '
   )
 
+  @Test
   def testValUnderCaseClause(): Unit = doCompletionTest(fileText =
     s"""
        |1 match {
@@ -99,6 +103,7 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
     char = ' '
   )
 
+  @Test
   def testDefUnderCaseClause(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -118,6 +123,7 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
     char = ' '
   )
 
+  @Test
   def testIfParentheses(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -137,6 +143,7 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
     char = '('
   )
 
+  @Test
   def testTryBraces(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -156,6 +163,7 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
     char = '{'
   )
 
+  @Test
   def testDoWhile(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -173,6 +181,7 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
 
   /// extends
 
+  @Test
   def testExtendsAsLastInFile(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -185,6 +194,7 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
     item = "extends"
   )
 
+  @Test
   def testExtendsOnANewLine(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -199,6 +209,7 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
     item = "extends"
   )
 
+  @Test
   def testExtendsAfterBlockComment(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -211,6 +222,7 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
     item = "extends"
   )
 
+  @Test
   def testExtendsAfterLineComment(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -225,6 +237,7 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
     item = "extends"
   )
 
+  @Test
   def testExtendsBeforeSemicolon(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -238,6 +251,7 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
   )
 
   // SCL-19181
+  @Test
   def testExtendsBeforeId(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -250,7 +264,7 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
     item = "extends"
   )
 
-
+  @Test
   def testExtendsBetweenClasses(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -266,6 +280,7 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
   )
 
   // This one is highly opinionated
+  @Test
   def testExtendsBetweenClasses2(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -281,6 +296,7 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
     char = Lookup.NORMAL_SELECT_CHAR
   )
 
+  @Test
   def testExtendsBetweenClasses3(): Unit = checkNoBasicCompletion(
     fileText =
       s"""
@@ -292,6 +308,7 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
   )
 
   // SCL-19022
+  @Test
   def testExtendsBeforeBody(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -306,6 +323,7 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
     item = "extends"
   )
 
+  @Test
   def testExtendsBeforeObjectBody(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -320,6 +338,7 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
     item = "extends"
   )
 
+  @Test
   def testExtendsBeforeExtends(): Unit = checkNoBasicCompletion(
     fileText =
       s"""
@@ -328,6 +347,7 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
     item = "extends"
   )
 
+  @Test
   def testExtendsBeforeExtendsWithComment(): Unit = checkNoBasicCompletion(
     fileText =
       s"""
@@ -336,6 +356,7 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
     item = "extends"
   )
 
+  @Test
   def testExtendsAfterExtends(): Unit = checkNoBasicCompletion(
     fileText =
       s"""
@@ -344,6 +365,7 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
     item = "extends"
   )
 
+  @Test
   def testExtendsAfterExtendsWithComment(): Unit = checkNoBasicCompletion(
     fileText =
       s"""
@@ -354,6 +376,7 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
 
   /// with
 
+  @Test
   def testWithAsLastInFile(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -368,6 +391,7 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
     item = "with"
   )
 
+  @Test
   def testWithOnANewLine(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -384,6 +408,7 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
     item = "with"
   )
 
+  @Test
   def testWithAfterBlockComment(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -398,6 +423,7 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
     item = "with"
   )
 
+  @Test
   def testWithAfterBlockComment2(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -414,6 +440,7 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
     item = "with"
   )
 
+  @Test
   def testWithAfterBlockComment3(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -432,6 +459,7 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
     item = "with"
   )
 
+  @Test
   def testWithAfterLineComment(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -448,6 +476,7 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
     item = "with"
   )
 
+  @Test
   def testWithAfterLineComment2(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -466,6 +495,7 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
     item = "with"
   )
 
+  @Test
   def testWithBeforeSemicolon(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -480,6 +510,7 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
     item = "with"
   )
 
+  @Test
   def testWithBeforeId(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -496,7 +527,7 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
     item = "with"
   )
 
-
+  @Test
   def testWithBetweenClasses(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -513,6 +544,7 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
     item = "with"
   )
 
+  @Test
   def testWithBeforeBody(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -529,6 +561,7 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
     item = "with"
   )
 
+  @Test
   def testWithBeforeWith(): Unit = checkNoBasicCompletion(
     fileText =
       s"""
@@ -538,6 +571,7 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
     item = "with"
   )
 
+  @Test
   def testWithBeforeWithWithComment(): Unit = checkNoBasicCompletion(
     fileText =
       s"""
@@ -547,6 +581,7 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
     item = "with"
   )
 
+  @Test
   def testWithAfterTwoNewlines(): Unit = checkNoBasicCompletion(
     fileText =
       s"""
@@ -558,6 +593,7 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
     item = "with"
   )
 
+  @Test
   def testWithAfterTwoNewlinesAndComment(): Unit = checkNoBasicCompletion(
     fileText =
       s"""
@@ -570,6 +606,7 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
     item = "with"
   )
 
+  @Test
   def testWithAfterTwoNewlinesAndComment2(): Unit = checkNoBasicCompletion(
     fileText =
       s"""
@@ -582,6 +619,7 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
     item = "with"
   )
 
+  @Test
   def testWithAfterWith(): Unit = checkNoBasicCompletion(
     fileText =
       s"""
@@ -591,6 +629,7 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
     item = "with"
   )
 
+  @Test
   def testWithAfterWithWithComment(): Unit = checkNoBasicCompletion(
     fileText =
       s"""
@@ -600,6 +639,7 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
     item = "with"
   )
 
+  @Test
   def testNoWithOnANewLine(): Unit = checkNoBasicCompletion(
     fileText =
       s"""
@@ -609,6 +649,7 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
     item = "with"
   )
 
+  @Test
   def testNoWithOnANewLine2(): Unit = checkNoBasicCompletion(
     fileText =
       s"""
@@ -618,6 +659,7 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
     item = "with"
   )
 
+  @Test
   def testNoWithOnANewLine3(): Unit = checkNoBasicCompletion(
     fileText =
       s"""
@@ -629,7 +671,6 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
 
 /** Version specific tests */
 
-@RunWith(classOf[MultipleScalaVersionsJUnit4Runner])
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_13
 ))
@@ -668,7 +709,6 @@ class ScalaKeywordCompletionTest_2_13 extends ScalaCompletionTestBase {
   )
 }
 
-@RunWith(classOf[MultipleScalaVersionsJUnit4Runner])
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_3_Latest
 ))

@@ -2,9 +2,11 @@ package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.codeInsight.completion.CompletionType.SMART
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
+import org.junit.Test
 
 class ScalaSomeSmartCompletionTest extends ScalaCompletionTestBase {
 
+  @Test
   def testSomeSmart1(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -29,6 +31,7 @@ class ScalaSomeSmartCompletionTest extends ScalaCompletionTestBase {
     completionType = SMART
   )
 
+  @Test
   def testSomeSmart2(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -54,6 +57,7 @@ class ScalaSomeSmartCompletionTest extends ScalaCompletionTestBase {
     completionType = SMART
   )
 
+  @Test
   def testSomeSmart3(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -78,6 +82,7 @@ class ScalaSomeSmartCompletionTest extends ScalaCompletionTestBase {
     completionType = SMART
   )
 
+  @Test
   def testSomeSmart4(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -102,6 +107,7 @@ class ScalaSomeSmartCompletionTest extends ScalaCompletionTestBase {
     completionType = SMART
   )
 
+  @Test
   def testSomeSmart5(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -126,6 +132,7 @@ class ScalaSomeSmartCompletionTest extends ScalaCompletionTestBase {
     completionType = SMART
   )
 
+  @Test
   def testOuterThis(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -148,6 +155,7 @@ class ScalaSomeSmartCompletionTest extends ScalaCompletionTestBase {
     completionType = SMART
   )
 
+  @Test
   def testSomeScalaEnum(): Unit = doCompletionTest(
     fileText =
       s"""

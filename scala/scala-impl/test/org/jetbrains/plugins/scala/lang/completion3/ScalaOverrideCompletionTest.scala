@@ -1,9 +1,11 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
 import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword.{DEF, OVERRIDE}
+import org.junit.Test
 
 class ScalaOverrideCompletionTest extends ScalaOverrideCompletionTestBase {
 
+  @Test
   def testFunction(): Unit = doRawCompletionTest(
     fileText =
       s"""
@@ -19,6 +21,7 @@ class ScalaOverrideCompletionTest extends ScalaOverrideCompletionTestBase {
       """.stripMargin
   )()
 
+  @Test
   def testValue(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -35,6 +38,7 @@ class ScalaOverrideCompletionTest extends ScalaOverrideCompletionTestBase {
     items = "intValue"
   )
 
+  @Test
   def testVariable(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -51,6 +55,7 @@ class ScalaOverrideCompletionTest extends ScalaOverrideCompletionTestBase {
     items = "intVariable"
   )
 
+  @Test
   def testJavaObjectMethod(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -67,6 +72,7 @@ class ScalaOverrideCompletionTest extends ScalaOverrideCompletionTestBase {
     items = "hashCode"
   )
 
+  @Test
   def testOverrideKeyword(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -83,6 +89,7 @@ class ScalaOverrideCompletionTest extends ScalaOverrideCompletionTestBase {
     items = OVERRIDE, DEF, "foo"
   )
 
+  @Test
   def testAbstractType(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -99,6 +106,7 @@ class ScalaOverrideCompletionTest extends ScalaOverrideCompletionTestBase {
     items = "A"
   )
 
+  @Test
   def testAbstractFunction(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -115,6 +123,7 @@ class ScalaOverrideCompletionTest extends ScalaOverrideCompletionTestBase {
     items = "abstractFoo"
   )
 
+  @Test
   def testAllowOverrideFunctionWithoutOverrideKeyword(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -131,6 +140,7 @@ class ScalaOverrideCompletionTest extends ScalaOverrideCompletionTestBase {
     items = "abstractFoo"
   )
 
+  @Test
   def testAllowOverrideVariableWithoutOverrideKeyword(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -147,6 +157,7 @@ class ScalaOverrideCompletionTest extends ScalaOverrideCompletionTestBase {
     items = "intVariable"
   )
 
+  @Test
   def testNoMethodCompletionInClassParameter(): Unit = checkNoOverrideCompletion(
     fileText =
       s"""
@@ -157,6 +168,7 @@ class ScalaOverrideCompletionTest extends ScalaOverrideCompletionTestBase {
     lookupString = "abstractFoo"
   )
 
+  @Test
   def testNoCompletionAfterDot(): Unit = checkNoOverrideCompletion(
     fileText =
       s"""
@@ -168,6 +180,7 @@ class ScalaOverrideCompletionTest extends ScalaOverrideCompletionTestBase {
   )
 
   //Like in java, don't save annotations here
+  @Test
   def testWithAnnotation(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -184,6 +197,7 @@ class ScalaOverrideCompletionTest extends ScalaOverrideCompletionTestBase {
     items = OVERRIDE, "annotFoo"
   )
 
+  @Test
   def testNoCompletionInFunction(): Unit = checkNoOverrideCompletion(
     fileText =
       s"""
@@ -196,6 +210,7 @@ class ScalaOverrideCompletionTest extends ScalaOverrideCompletionTestBase {
     lookupString = "abstractFoo"
   )
 
+  @Test
   def testNoCompletionInModifier(): Unit = checkNoOverrideCompletion(
     fileText =
       s"""
@@ -206,6 +221,7 @@ class ScalaOverrideCompletionTest extends ScalaOverrideCompletionTestBase {
     lookupString = "intValue"
   )
 
+  @Test
   def testNoCompletionAfterColon(): Unit = checkNoOverrideCompletion(
     fileText =
       s"""
@@ -217,6 +233,7 @@ class ScalaOverrideCompletionTest extends ScalaOverrideCompletionTestBase {
   )
 
   //SCL-11519
+  @Test
   def testParamsFromTrait(): Unit = doCompletionTest(
     fileText = s"class Test(ov$CARET) extends Base",
     resultText = "class Test(override var intVariable: Int) extends Base",
@@ -224,6 +241,7 @@ class ScalaOverrideCompletionTest extends ScalaOverrideCompletionTestBase {
   )
 
   //SCL-11519
+  @Test
   def testParamsFromClass(): Unit = doRawCompletionTest(
     fileText =
       s"""

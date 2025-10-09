@@ -3,26 +3,27 @@ package org.jetbrains.plugins.scala.lang.completion3
 import com.intellij.application.options.CodeStyle
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.pom.java.LanguageLevel
-import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaClausesCompletionTestBase
 import org.jetbrains.plugins.scala.util.ConfigureJavaFile.configureJavaFile
 import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
+import org.junit.Test
 
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_13
 ))
 class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
 
-  import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase._
   import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword.{CASE, MATCH}
   import org.jetbrains.plugins.scala.lang.completion.clauses.DirectInheritors.FqnBlockList
+  import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase._
 
   override protected lazy val projectJdk: Sdk =
     SmartJDKLoader.createFilteredJdk(LanguageLevel.JDK_17, Seq("java.base", "java.desktop"))
 
   override protected def includeScalaLibrarySources: Boolean = true
 
+  @Test
   def testSyntheticUnapply(): Unit = doPatternCompletionTest(
     fileText =
       s"""case class Foo(foo: Int = 42)(bar: Int = 42)
@@ -41,6 +42,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
     itemText = "Foo(foo)"
   )
 
+  @Test
   def testInnerSyntheticUnapply(): Unit = doPatternCompletionTest(
     fileText =
       s"""sealed trait Foo
@@ -67,6 +69,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
     itemText = "Bar(foo)"
   )
 
+  @Test
   def testSyntheticUnapplyVararg(): Unit = doPatternCompletionTest(
     fileText =
       s"""case class Foo(foos: Int*)
@@ -85,6 +88,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
     itemText = "Foo(foos@_*)"
   )
 
+  @Test
   def testUnapply(): Unit = doPatternCompletionTest(
     fileText =
       s"""trait Foo
@@ -111,6 +115,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
     itemText = "Foo(foo)"
   )
 
+  @Test
   def testBeforeCase(): Unit = checkNoBasicCompletion(
     fileText =
       s"""case class Foo()
@@ -122,6 +127,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
     item = "Foo()"
   )
 
+  @Test
   def testAfterArrow(): Unit = checkNoBasicCompletion(
     fileText =
       s"""case class Foo()
@@ -133,6 +139,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
     item = "Foo()"
   )
 
+  @Test
   def testNestedPattern(): Unit = doPatternCompletionTest(
     fileText =
       s"""sealed trait Foo
@@ -165,6 +172,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
     itemText = "Baz(foo)"
   )
 
+  @Test
   def testCollectPattern(): Unit = doPatternCompletionTest(
     fileText =
       s"""case class Foo(foo: Int = 42)(bar: Int = 42)
@@ -183,6 +191,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
     itemText = "Foo(foo)"
   )
 
+  @Test
   def testNamedPattern(): Unit = doPatternCompletionTest(
     fileText =
       s"""case class Foo(foo: Int = 42)
@@ -201,6 +210,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
     itemText = "Foo(foo)"
   )
 
+  @Test
   def testTuplePattern(): Unit = doPatternCompletionTest(
     fileText =
       s"""List
@@ -221,6 +231,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
     itemText = "(str, i)"
   )
 
+  @Test
   def testCompleteClause(): Unit = doClauseCompletionTest(
     fileText =
       s"""sealed trait Foo
@@ -243,6 +254,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
     itemText = "Bar()"
   )
 
+  @Test
   def testCompleteClauseFormatting(): Unit = withCaseAlignment {
     doClauseCompletionTest(
       fileText =
@@ -269,6 +281,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
     )
   }
 
+  @Test
   def testCompleteObjectClause(): Unit = doClauseCompletionTest(
     fileText =
       s"""sealed trait Foo
@@ -289,6 +302,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
     itemText = "Baz"
   )
 
+  @Test
   def testCompleteNamedClause(): Unit = doClauseCompletionTest(
     fileText =
       s"""sealed trait Foo
@@ -309,6 +323,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
     itemText = "_: FooImpl"
   )
 
+  @Test
   def testCompleteClauseAdjustment(): Unit = doClauseCompletionTest(
     fileText =
       s"""sealed trait Foo
@@ -337,6 +352,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
     itemText = "Bar()"
   )
 
+  @Test
   def testCompleteClauseAdjustmentWithImport(): Unit = doClauseCompletionTest(
     fileText =
       s"""sealed trait Foo
@@ -365,6 +381,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
     itemText = "Baz()"
   )
 
+  @Test
   def testCompleteParameterizedClause(): Unit = doClauseCompletionTest(
     fileText =
       s"""sealed trait Foo
@@ -385,6 +402,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
     itemText = "_: FooExt[_]"
   )
 
+  @Test
   def testCompleteTupleClause(): Unit = doClauseCompletionTest(
     fileText =
       s"""List
@@ -403,6 +421,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
     itemText = "(str, i)"
   )
 
+  @Test
   def testCompleteClauseBeforeAnother(): Unit = doClauseCompletionTest(
     fileText =
       s"""List
@@ -421,6 +440,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
     itemText = "(str, i)"
   )
 
+  @Test
   def testCompleteClauseAfterAnother(): Unit = doClauseCompletionTest(
     fileText =
       s"""List
@@ -440,6 +460,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
     itemText = "(str, i)"
   )
 
+  @Test
   def testCompleteFirstClauseInInfix(): Unit = doClauseCompletionTest(
     fileText =
       s"""Option.empty[(String, String)] foreach {
@@ -452,6 +473,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
     itemText = "(str, str1)"
   )
 
+  @Test
   def testCompleteFirstClauseInPartialFunction(): Unit = doClauseCompletionTest(
     fileText =
       s"""sealed trait Foo
@@ -470,6 +492,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
     itemText = "Bar()"
   )
 
+  @Test
   def testCompleteSecondClauseInInfix(): Unit = doClauseCompletionTest(
     fileText =
       s"""Option.empty[(String, String)] foreach {
@@ -484,6 +507,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
     itemText = "(str, str1)"
   )
 
+  @Test
   def testCompleteFirstClauseInMatch(): Unit = doClauseCompletionTest(
     fileText =
       s"""("", "") match {
@@ -496,6 +520,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
     itemText = "(str, str1)"
   )
 
+  @Test
   def testCompleteSecondClauseInMatch(): Unit = doClauseCompletionTest(
     fileText =
       s"""("", "") match {
@@ -510,6 +535,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
     itemText = "(str, str1)"
   )
 
+  @Test
   def testCompleteSingleLineClause(): Unit = doClauseCompletionTest(
     fileText =
       s"""Option.empty[(String, String)].map{c$CARET}""".stripMargin,
@@ -518,6 +544,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
     itemText = "(str, str1)"
   )
 
+  @Test
   def testCompleteJavaTypeClause(): Unit = {
     configureJavaFile(
       "public interface Foo",
@@ -541,6 +568,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
     )
   }
 
+  @Test
   def testCompleteWithImportsClause(): Unit = doClauseCompletionTest(
     fileText =
       s"""import javax.swing.JComponent
@@ -557,6 +585,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
     itemText = "_: JTree"
   )
 
+  @Test
   def testCompleteInaccessibleClause(): Unit = doClauseCompletionTest(
     fileText =
       s"""sealed trait Foo
@@ -582,6 +611,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
     invocationCount = 2
   )
 
+  @Test
   def testNoCompleteInaccessibleClause(): Unit = checkNoCompletion(
     fileText =
       s"""sealed trait Foo
@@ -595,6 +625,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
          |}""".stripMargin
   )(isCaseClause(_, "Bar"))
 
+  @Test
   def testNoCompleteClause(): Unit = checkNoCompletion(
     fileText =
       s"""List.empty[String]
@@ -606,6 +637,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
     case LookupString(string) => string.startsWith(CASE)
   }
 
+  @Test
   def testSealedTrait(): Unit = doMatchCompletionTest(
     fileText =
       s"""sealed trait Foo
@@ -643,6 +675,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
          """.stripMargin
   )
 
+  @Test
   def testJavaEnum(): Unit = doMatchCompletionTest(
     fileText =
       s"""import java.nio.file.FileVisitResult
@@ -661,6 +694,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
          """.stripMargin
   )
 
+  @Test
   def testInnerJavaEnum(): Unit = {
     configureJavaFile(
       """
@@ -687,6 +721,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
     )
   }
 
+  @Test
   def testInnerJavaEnum2(): Unit = {
     configureJavaFile(
       """public class Scope {
@@ -716,6 +751,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
     )
   }
 
+  @Test
   def testEmptyJavaEnum(): Unit = {
     configureJavaFile(
       "public enum EmptyEnum {}",
@@ -727,6 +763,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
     )(isExhaustiveMatch)
   }
 
+  @Test
   def testScalaEnum(): Unit = doMatchCompletionTest(
     fileText =
       s"""object Margin extends Enumeration {
@@ -759,6 +796,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
        """.stripMargin
   )
 
+  @Test
   def testScalaEnum2(): Unit = doMatchCompletionTest(
     fileText =
       s"""object Margin extends Enumeration {
@@ -789,6 +827,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
        """.stripMargin
   )
 
+  @Test
   def testInnerScalaEnumeration(): Unit = doMatchCompletionTest(
     fileText =
       s"""object Scope {
@@ -825,6 +864,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
        """.stripMargin
   )
 
+  @Test
   def testEmptyScalaEnum(): Unit = checkNoCompletion(
     fileText =
       s"""object Margin extends Enumeration {
@@ -837,6 +877,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
        """.stripMargin
   )(isExhaustiveMatch)
 
+  @Test
   def testEmptyScalaEnum2(): Unit = doMatchCompletionTest(
     fileText =
       s"""object Margin extends Enumeration {
@@ -861,6 +902,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
     invocationCount = 2
   )
 
+  @Test
   def testVarargs(): Unit = doMatchCompletionTest(
     fileText =
       s"""sealed trait Foo
@@ -880,6 +922,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
          """.stripMargin
   )
 
+  @Test
   def testNonSealedClass(): Unit = doMatchCompletionTest(
     fileText =
       s"""trait Foo
@@ -906,6 +949,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
          |}""".stripMargin
   )
 
+  @Test
   def testMaybe(): Unit = withCaseAlignment {
     doMatchCompletionTest(
       fileText =
@@ -924,6 +968,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
     )
   }
 
+  @Test
   def testList(): Unit = doMatchCompletionTest(
     fileText =
       s"""(_: List[String]) m$CARET
@@ -936,6 +981,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
         """.stripMargin
   )
 
+  @Test
   def testTry(): Unit = doMatchCompletionTest(
     fileText =
       s"""import scala.util.Try
@@ -952,6 +998,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
        """.stripMargin
   )
 
+  @Test
   def testAnonymousInheritor(): Unit = doMatchCompletionTest(
     fileText =
       s"""sealed trait Foo
@@ -976,6 +1023,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
        """.stripMargin
   )
 
+  @Test
   def testLowerCaseExtractor(): Unit = doCompletionTest(
     fileText =
       s"""trait Foo {
@@ -1010,6 +1058,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
     item = "foo"
   )
 
+  @Test
   def testExplicitCompanion(): Unit = doMatchCompletionTest(
     fileText =
       s"""sealed trait Foo
@@ -1031,6 +1080,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
        """.stripMargin
   )
 
+  @Test
   def testInfixExpression(): Unit = doMatchCompletionTest(
     fileText =
       s"""sealed trait Foo
@@ -1052,6 +1102,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
        """.stripMargin
   )
 
+  //  @Test
   //  def testPathDependent(): Unit = doMatchCompletionTest(
   //    fileText =
   //      s"""class Foo {
@@ -1102,6 +1153,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
   //       """.stripMargin
   //  )
 
+  @Test
   def testConcreteClass(): Unit = doMatchCompletionTest(
     fileText =
       s"""sealed class Foo
@@ -1122,6 +1174,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
        """.stripMargin
   )
 
+  @Test
   def testAbstractClass(): Unit = doMatchCompletionTest(
     fileText =
       s"""sealed abstract class Foo
@@ -1141,6 +1194,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
        """.stripMargin
   )
 
+  @Test
   def testMatchFormatting(): Unit = withCaseAlignment {
     doMatchCompletionTest(
       fileText =
@@ -1157,6 +1211,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
     )
   }
 
+  @Test
   def testJavaType(): Unit = {
     configureJavaFile(
       fileText =
@@ -1183,6 +1238,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
     )
   }
 
+  @Test
   def testCompoundType(): Unit = doMatchCompletionTest(
     fileText =
       s"""sealed trait Foo
@@ -1219,6 +1275,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
          |}""".stripMargin
   )
 
+  @Test
   def testInaccessibleInheritors(): Unit = doMatchCompletionTest(
     fileText =
       s"""sealed trait Foo
@@ -1243,6 +1300,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
          |}""".stripMargin
   )
 
+  @Test
   def testInaccessibleInheritors2(): Unit = doMatchCompletionTest(
     fileText =
       s"""sealed trait Foo
@@ -1268,6 +1326,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
     invocationCount = 2
   )
 
+  @Test
   def testNonSealedInheritorsThreshold(): Unit = checkNoCompletion(
     fileText =
       s"""trait Foo
@@ -1280,6 +1339,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
          |(_: Foo) ma$CARET""".stripMargin,
   )(isExhaustiveMatch)
 
+  @Test
   def testCaseInFunction(): Unit = doCaseCompletionTest(
     fileText =
       s"""sealed trait Foo
@@ -1301,6 +1361,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
        """.stripMargin
   )
 
+  @Test
   def testCaseInPartialFunction(): Unit = doCaseCompletionTest(
     fileText =
       s"""sealed trait Foo
@@ -1322,6 +1383,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
        """.stripMargin
   )
 
+  @Test
   def testCaseInMatch(): Unit = doCaseCompletionTest(
     fileText =
       s"""sealed trait Foo
@@ -1343,6 +1405,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
        """.stripMargin
   )
 
+  @Test
   def testNoCaseInFunction(): Unit = checkNoCompletion(
     fileText =
       s"""sealed trait Foo
@@ -1356,6 +1419,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
        """.stripMargin,
   )(isExhaustiveCase)
 
+  @Test
   def testNoCaseInPartialFunction(): Unit = checkNoCompletion(
     fileText =
       s"""sealed trait Foo
@@ -1369,6 +1433,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
        """.stripMargin,
   )(isExhaustiveCase)
 
+  @Test
   def testNoCaseInMatch(): Unit = checkNoCompletion(
     fileText =
       s"""sealed trait Foo
@@ -1382,10 +1447,12 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
        """.stripMargin,
   )(isExhaustiveCase)
 
+  @Test
   def testFqnBlockList(): Unit = for {
     fqn <- FqnBlockList
   } checkNoCompletion(s"(_: $fqn) m$CARET")(isExhaustiveMatch)
 
+  @Test
   def testQualifiedReference(): Unit = checkNoCompletion(
     fileText =
       s"""sealed trait Foo
