@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.codeInsight.intention.lists
 
+import org.junit.Test
+
 abstract class ScalaSplitJoinParametersIntentionTestBase extends ScalaSplitJoinLineIntentionTestBase {
   private def doTestWithMethodParamSettings(newLineAfterLParen: Boolean, newLineBeforeRParen: Boolean)
                                            (singleLineText: String, multiLineText: String): Unit = {
@@ -24,6 +26,7 @@ abstract class ScalaSplitJoinParametersIntentionTestBase extends ScalaSplitJoinL
 
   // Methods
 
+  @Test
   def testMethodDef1(): Unit =
     doTestWithMethodParamSettings(newLineAfterLParen = false, newLineBeforeRParen = false)(
       singleLineText =
@@ -33,6 +36,7 @@ abstract class ScalaSplitJoinParametersIntentionTestBase extends ScalaSplitJoinL
           |        s: String)""".stripMargin
     )
 
+  @Test
   def testMethodDef2(): Unit =
     doTestWithMethodParamSettings(newLineAfterLParen = false, newLineBeforeRParen = true)(
       singleLineText =
@@ -43,6 +47,7 @@ abstract class ScalaSplitJoinParametersIntentionTestBase extends ScalaSplitJoinL
           |       )""".stripMargin
     )
 
+  @Test
   def testMethodDef3(): Unit =
     doTestWithMethodParamSettings(newLineAfterLParen = true, newLineBeforeRParen = false)(
       singleLineText =
@@ -53,6 +58,7 @@ abstract class ScalaSplitJoinParametersIntentionTestBase extends ScalaSplitJoinL
           |         s: String)""".stripMargin
     )
 
+  @Test
   def testMethodDef4(): Unit =
     doTestWithMethodParamSettings(newLineAfterLParen = true, newLineBeforeRParen = true)(
       singleLineText =
@@ -64,6 +70,7 @@ abstract class ScalaSplitJoinParametersIntentionTestBase extends ScalaSplitJoinL
           |       )""".stripMargin
     )
 
+  @Test
   def testMethodDefTrailingComma(): Unit =
     doTestWithMethodParamSettings(newLineAfterLParen = false, newLineBeforeRParen = true)(
       singleLineText =
@@ -74,6 +81,7 @@ abstract class ScalaSplitJoinParametersIntentionTestBase extends ScalaSplitJoinL
           |       )""".stripMargin
     )
 
+  @Test
   def testMethodDefTrailingComma2(): Unit =
     doTestWithMethodParamSettings(newLineAfterLParen = false, newLineBeforeRParen = false)(
       singleLineText =
@@ -83,12 +91,14 @@ abstract class ScalaSplitJoinParametersIntentionTestBase extends ScalaSplitJoinL
           |        s: String,)""".stripMargin
     )
 
+  @Test
   def testMethodDefWithOneArg(): Unit =
     checkIntentionIsNotAvailable(
       s"""def foo$CARET(i: Int): Unit = {}
          |""".stripMargin
     )
 
+  @Test
   def testMethodDefWithoutArgs(): Unit =
     checkIntentionIsNotAvailable(
       s"""def foo$CARET(): Unit = {}
@@ -97,6 +107,7 @@ abstract class ScalaSplitJoinParametersIntentionTestBase extends ScalaSplitJoinL
 
   // Class
 
+  @Test
   def testClass1(): Unit =
     doTestWithMethodParamSettings(newLineAfterLParen = false, newLineBeforeRParen = false)(
       singleLineText =
@@ -106,6 +117,7 @@ abstract class ScalaSplitJoinParametersIntentionTestBase extends ScalaSplitJoinL
           |          s: String)""".stripMargin
     )
 
+  @Test
   def testClass2(): Unit =
     doTestWithMethodParamSettings(newLineAfterLParen = false, newLineBeforeRParen = true)(
       singleLineText =
@@ -116,6 +128,7 @@ abstract class ScalaSplitJoinParametersIntentionTestBase extends ScalaSplitJoinL
           |         )""".stripMargin
     )
 
+  @Test
   def testClass3(): Unit =
     doTestWithMethodParamSettings(newLineAfterLParen = true, newLineBeforeRParen = false)(
       singleLineText =
@@ -126,6 +139,7 @@ abstract class ScalaSplitJoinParametersIntentionTestBase extends ScalaSplitJoinL
           |           s: String)""".stripMargin
     )
 
+  @Test
   def testClass4(): Unit =
     doTestWithMethodParamSettings(newLineAfterLParen = true, newLineBeforeRParen = true)(
       singleLineText =
@@ -137,6 +151,7 @@ abstract class ScalaSplitJoinParametersIntentionTestBase extends ScalaSplitJoinL
           |         )""".stripMargin
     )
 
+  @Test
   def testClassTrailingComma(): Unit =
     doTestWithMethodParamSettings(newLineAfterLParen = false, newLineBeforeRParen = true)(
       singleLineText =
@@ -147,6 +162,7 @@ abstract class ScalaSplitJoinParametersIntentionTestBase extends ScalaSplitJoinL
            |         )""".stripMargin
     )
 
+  @Test
   def testClassTrailingComma2(): Unit =
     doTestWithMethodParamSettings(newLineAfterLParen = false, newLineBeforeRParen = false)(
       singleLineText =
@@ -158,6 +174,7 @@ abstract class ScalaSplitJoinParametersIntentionTestBase extends ScalaSplitJoinL
 
   // Case class
 
+  @Test
   def testCaseClass1(): Unit =
     doTestWithMethodParamSettings(newLineAfterLParen = false, newLineBeforeRParen = false)(
       singleLineText =
@@ -167,6 +184,7 @@ abstract class ScalaSplitJoinParametersIntentionTestBase extends ScalaSplitJoinL
           |               s: String)""".stripMargin
     )
 
+  @Test
   def testCaseClass2(): Unit =
     doTestWithMethodParamSettings(newLineAfterLParen = false, newLineBeforeRParen = true)(
       singleLineText =
@@ -178,6 +196,7 @@ abstract class ScalaSplitJoinParametersIntentionTestBase extends ScalaSplitJoinL
 
     )
 
+  @Test
   def testCaseClass3(): Unit =
     doTestWithMethodParamSettings(newLineAfterLParen = true, newLineBeforeRParen = false)(
       singleLineText =
@@ -188,6 +207,7 @@ abstract class ScalaSplitJoinParametersIntentionTestBase extends ScalaSplitJoinL
           |                s: String)""".stripMargin
     )
 
+  @Test
   def testCaseClass4(): Unit =
     doTestWithMethodParamSettings(newLineAfterLParen = true, newLineBeforeRParen = true)(
       singleLineText =
@@ -199,6 +219,7 @@ abstract class ScalaSplitJoinParametersIntentionTestBase extends ScalaSplitJoinL
           |              )""".stripMargin
     )
 
+  @Test
   def testCaseClassTrailingComma(): Unit =
     doTestWithMethodParamSettings(newLineAfterLParen = false, newLineBeforeRParen = true)(
       singleLineText = "case class Foo(i: Int, s: String,)",
@@ -208,6 +229,7 @@ abstract class ScalaSplitJoinParametersIntentionTestBase extends ScalaSplitJoinL
            |              )""".stripMargin
     )
 
+  @Test
   def testCaseClassTrailingComma2(): Unit =
     doTestWithMethodParamSettings(newLineAfterLParen = false, newLineBeforeRParen = false)(
       singleLineText = "case class Foo(i: Int, s: String,)",

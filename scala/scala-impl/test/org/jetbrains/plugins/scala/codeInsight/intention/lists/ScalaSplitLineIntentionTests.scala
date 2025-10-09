@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.codeInsight.intention.lists
 
 import com.intellij.codeInsight.CodeInsightBundle
+import org.junit.Test
 
 sealed trait ScalaSplitLineIntentionTestBase {
   self: ScalaSplitJoinLineIntentionTestBase =>
@@ -13,6 +14,7 @@ final class ScalaSplitArgumentsIntentionTest
     with ScalaSplitLineIntentionTestBase {
   override protected val intentionText: String = "Put arguments on separate lines"
 
+  @Test
   def testIntentionAvailableEverywhereInside(): Unit = {
     getFixture.addFileToProject("a.scala", "def foo(x: Int, y: Int): Unit = ???")
 
@@ -29,6 +31,7 @@ final class ScalaSplitParametersIntentionTest
     with ScalaSplitLineIntentionTestBase {
   override protected val intentionText: String = "Put parameters on separate lines"
 
+  @Test
   def testIntentionAvailableEverywhereInside(): Unit = {
     checkIntentionIsNotAvailable(s"def ${CARET}foo(p1: String, p2: Option[Option[String]]): Unit = {}")
 
@@ -44,6 +47,7 @@ final class ScalaSplitTupleTypesIntentionTest
     with ScalaSplitLineIntentionTestBase {
   override protected val intentionText: String = "Put tuple type elements on separate lines"
 
+  @Test
   def testIntentionAvailableEverywhereInside(): Unit = {
     checkIntentionIsNotAvailable(s"val x$CARET: (Int, String) = ???")
 
@@ -58,6 +62,7 @@ final class ScalaSplitTuplesIntentionTest
     with ScalaSplitLineIntentionTestBase {
   override protected val intentionText: String = "Put tuple elements on separate lines"
 
+  @Test
   def testIntentionAvailableEverywhereInside(): Unit = {
     checkIntentionIsNotAvailable(s"val x $CARET= (1 + 2 + 3, 4 + 5 + 6")
 
@@ -72,6 +77,7 @@ final class ScalaSplitTypeArgumentsIntentionTest
     with ScalaSplitLineIntentionTestBase {
   override protected val intentionText: String = "Put type arguments on separate lines"
 
+  @Test
   def testIntentionAvailableEverywhereInside(): Unit = {
     getFixture.addFileToProject("a.scala", "def foo[A, B]: Unit = {}")
 
@@ -89,6 +95,7 @@ final class ScalaSplitTypeParametersIntentionTest
     with ScalaSplitLineIntentionTestBase {
   override protected val intentionText: String = "Put type parameters on separate lines"
 
+  @Test
   def testIntentionAvailableEverywhereInside(): Unit = {
     checkIntentionIsNotAvailable(s"def ${CARET}foo[A, B <: CharSequence]: Unit = {}")
 

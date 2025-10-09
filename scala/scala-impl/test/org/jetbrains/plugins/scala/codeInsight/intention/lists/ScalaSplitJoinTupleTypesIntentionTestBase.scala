@@ -1,9 +1,12 @@
 package org.jetbrains.plugins.scala.codeInsight.intention.lists
 
+import org.junit.Test
+
 abstract class ScalaSplitJoinTupleTypesIntentionTestBase extends ScalaSplitJoinLineIntentionTestBase {
   private def doTest(singleLineText: String, multiLineText: String): Unit =
     doTest(singleLineText, multiLineText, listStartChar = '(')
 
+  @Test
   def testSimpleType(): Unit =
     doTest(
       singleLineText = """def foo: (Int, String, Boolean) = ???""",
@@ -15,6 +18,7 @@ abstract class ScalaSplitJoinTupleTypesIntentionTestBase extends ScalaSplitJoinL
           |  ) = ???""".stripMargin
     )
 
+  @Test
   def testSimpleTypeTrailingComma(): Unit =
     doTest(
       singleLineText = """def foo: (Int, String, Boolean, ) = ???""",
@@ -26,12 +30,15 @@ abstract class ScalaSplitJoinTupleTypesIntentionTestBase extends ScalaSplitJoinL
           |  ) = ???""".stripMargin
     )
 
+  @Test
   def testSimpleTypeWithOneElement(): Unit =
     checkIntentionIsNotAvailable(s"def foo: $CARET(Int) = ???")
 
+  @Test
   def testSimpleTypeWithOneElementTrailingComma(): Unit =
     checkIntentionIsNotAvailable(s"def foo: $CARET(Int, ) = ???")
 
+  @Test
   def testTypeArgumentFirst(): Unit =
     doTest(
       singleLineText =
@@ -52,6 +59,7 @@ abstract class ScalaSplitJoinTupleTypesIntentionTestBase extends ScalaSplitJoinL
           |}""".stripMargin
     )
 
+  @Test
   def testTypeArgumentInTheMiddle(): Unit =
     doTest(
       singleLineText =
@@ -72,6 +80,7 @@ abstract class ScalaSplitJoinTupleTypesIntentionTestBase extends ScalaSplitJoinL
           |}""".stripMargin
     )
 
+  @Test
   def testTypeArgumentLast(): Unit =
     doTest(
       singleLineText =
@@ -92,6 +101,7 @@ abstract class ScalaSplitJoinTupleTypesIntentionTestBase extends ScalaSplitJoinL
           |}""".stripMargin
     )
 
+  @Test
   def testTypeArgumentWithOneElement(): Unit =
     checkIntentionIsNotAvailable(
       s"""def foo[A] = ???
@@ -101,6 +111,7 @@ abstract class ScalaSplitJoinTupleTypesIntentionTestBase extends ScalaSplitJoinL
          |}""".stripMargin
     )
 
+  @Test
   def testTypeArgumentWithOneElementTrailingComma(): Unit =
     checkIntentionIsNotAvailable(
       s"""def foo[A] = ???

@@ -1,11 +1,14 @@
 package org.jetbrains.plugins.scala.codeInsight.intention.lists
 
+import org.junit.Test
+
 abstract class ScalaSplitJoinTypeArgumentsIntentionTestBase extends ScalaSplitJoinLineIntentionTestBase {
   private def doTest(singleLineText: String, multiLineText: String): Unit =
     doTest(singleLineText, multiLineText, listStartChar = '[')
 
   // Method Calls
 
+  @Test
   def testMethodCall(): Unit =
     doTest(
       singleLineText =
@@ -25,6 +28,7 @@ abstract class ScalaSplitJoinTypeArgumentsIntentionTestBase extends ScalaSplitJo
           |}""".stripMargin
     )
 
+  @Test
   def testMethodCallTrailingComma(): Unit =
     doTest(
       singleLineText =
@@ -44,6 +48,7 @@ abstract class ScalaSplitJoinTypeArgumentsIntentionTestBase extends ScalaSplitJo
           |}""".stripMargin
     )
 
+  @Test
   def testMethodCallWithOneArg(): Unit =
     checkIntentionIsNotAvailable(
       """def foo[A]: Unit = {}
@@ -53,6 +58,7 @@ abstract class ScalaSplitJoinTypeArgumentsIntentionTestBase extends ScalaSplitJo
         |}""".stripMargin
     )
 
+  @Test
   def testMethodCallWithOneArgTrailingComma(): Unit =
     checkIntentionIsNotAvailable(
       """def foo[A]: Unit = {}
@@ -64,6 +70,7 @@ abstract class ScalaSplitJoinTypeArgumentsIntentionTestBase extends ScalaSplitJo
 
   // Class creation
 
+  @Test
   def testClassCreation(): Unit =
     doTest(
       singleLineText =
@@ -83,6 +90,7 @@ abstract class ScalaSplitJoinTypeArgumentsIntentionTestBase extends ScalaSplitJo
           |}""".stripMargin
     )
 
+  @Test
   def testClassCreationTrailingComma(): Unit =
     doTest(
       singleLineText =
@@ -102,6 +110,7 @@ abstract class ScalaSplitJoinTypeArgumentsIntentionTestBase extends ScalaSplitJo
           |}""".stripMargin
     )
 
+  @Test
   def testClassCreationWithOneArg(): Unit =
     checkIntentionIsNotAvailable(
       """class Foo[A]
@@ -111,6 +120,7 @@ abstract class ScalaSplitJoinTypeArgumentsIntentionTestBase extends ScalaSplitJo
         |}""".stripMargin
     )
 
+  @Test
   def testClassCreationWithOneArgTrailingComma(): Unit =
     checkIntentionIsNotAvailable(
       """class Foo[A]
@@ -122,6 +132,7 @@ abstract class ScalaSplitJoinTypeArgumentsIntentionTestBase extends ScalaSplitJo
 
   // Case class creation
 
+  @Test
   def testCaseClassCreation(): Unit =
     doTest(
       singleLineText =
@@ -141,6 +152,7 @@ abstract class ScalaSplitJoinTypeArgumentsIntentionTestBase extends ScalaSplitJo
           |}""".stripMargin
     )
 
+  @Test
   def testCaseClassCreationTrailingComma(): Unit =
     doTest(
       singleLineText =
@@ -160,6 +172,7 @@ abstract class ScalaSplitJoinTypeArgumentsIntentionTestBase extends ScalaSplitJo
           |}""".stripMargin
     )
 
+  @Test
   def testCaseClassCreationWithOneArg(): Unit =
     checkIntentionIsNotAvailable(
       """case class Foo[A]()
@@ -169,6 +182,7 @@ abstract class ScalaSplitJoinTypeArgumentsIntentionTestBase extends ScalaSplitJo
         |}""".stripMargin
     )
 
+  @Test
   def testCaseClassCreationWithOneArgTrailingComma(): Unit =
     checkIntentionIsNotAvailable(
       """case class Foo[A]()
