@@ -3,6 +3,8 @@ package org.jetbrains.sbt.shell
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
+import com.intellij.util.concurrency.annotations.RequiresEdt
+import org.jetbrains.plugins.scala.extensions.invokeAndWait
 
 import scala.collection.mutable
 
@@ -15,8 +17,12 @@ object ConsoleViewsRegistry {
 
   /**
    * Disposes and removes the last console view for the given project, if any.
+   *
+   * @note must be called on EDT because disposing `SbtShellConsoleView` requires EDT to release the editor
+   *       (see [[com.intellij.openapi.editor.impl.EditorFactoryImpl#releaseEditor]]).
    */
-  def disposeLast(project: Project): Unit = synchronized {
+  @RequiresEdt
+  def disposeLast(project: Project): Unit = {
     lastConsoleViews.get(project).foreach(Disposer.dispose)
     removeConsoleView(project)
   }
@@ -24,8 +30,10 @@ object ConsoleViewsRegistry {
   /**
    * Registers the new console for the project.
    * If there was a previous console, it will be disposed first.
+   *
+   * It will be run synchronously on EDT.
    */
-  def set(project: Project, console: Disposable): Unit = synchronized {
+  def set(project: Project, console: Disposable): Unit = invokeAndWait {
     disposeLast(project)
     lastConsoleViews.put(project, console)
   }
