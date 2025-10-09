@@ -67,7 +67,7 @@ object ScClassFileDecompiler {
     val file = content.getFile
     //TODO: the `isTopLevelScalaClass` check seems to be causing SCL-24273
     // we need to carefully fix it ensuring no performance regression reappears SCL-15202
-    if (isTasty(file) || isTopLevelScalaClass(file)) {
+    if (isTasty(file) || (!hasTasty(file) && isTopLevelScalaClass(file))) {
       val nameAndText = sourceNameAndText(file, content.getContent)
       nameAndText.map { case (sourceName, sourceText) =>
         val language = if (isTasty(file)) Scala3Language.INSTANCE else ScalaLanguage.INSTANCE
