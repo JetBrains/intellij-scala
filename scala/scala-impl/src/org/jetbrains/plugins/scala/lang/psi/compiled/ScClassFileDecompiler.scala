@@ -62,7 +62,7 @@ object ScClassFileDecompiler {
   }
 
   private def decompiledScalaFile(content: FileContent): Option[PsiFile] = content.getFile match {
-    case original if isTasty(content.getFile) || isTopLevelScalaClass(original) =>
+    case original if isTasty(content.getFile) || (!hasTasty(content.getFile) && isTopLevelScalaClass(original)) =>
       sourceNameAndText(original, content.getContent).map {
         case (sourceName, sourceText) => PsiFileFactory.getInstance(content.getProject).createFileFromText(
           sourceName,
