@@ -15,7 +15,8 @@ import junit.framework.TestCase.{assertNotNull, assertNull, fail}
 import org.jetbrains.plugins.scala.base.ScalaCompletionAutoPopupTestCase
 import org.jetbrains.plugins.scala.lang.completion.postfix.templates.{ScalaExhaustiveMatchPostfixTemplate, ScalaMatchPostfixTemplate}
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestFixture.lookupItemsDebugText
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion, WithIndexingMode}
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsJUnit4Runner, RunWithScalaVersions, TestScalaVersion, WithIndexingMode}
+import org.junit.Test
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 
@@ -66,63 +67,84 @@ abstract class ScalaPostfixTemplateTabCompletionTestBase extends ScalaCompletion
   }
 }
 
-@RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWith(classOf[MultipleScalaVersionsJUnit4Runner])
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_13,
-  TestScalaVersion.Scala_3_Latest,
+  TestScalaVersion.Scala_3_Latest
 ))
 class ScalaPostfixTemplateTabCompletionTest extends ScalaPostfixTemplateTabCompletionTestBase {
 
   @WithIndexingMode(mode = IndexingMode.SMART, reason = "`assert` needs type inference to check conformance with Boolean")
+  @Test
   def testAssert(): Unit = doTestUniqueKeyTemplate()()
 
+  @Test
   def testCast(): Unit = doTestUniqueKeyTemplate()()
 
   @WithIndexingMode(mode = IndexingMode.SMART, reason = "`for` needs type inference to check sameOrInheritor")
+  @Test
   def testFor(): Unit = doTestUniqueKeyTemplate()()
 
+  @Test
   def testField(): Unit = doTestUniqueKeyTemplate()()
 
+  @Test
   def testVar(): Unit = doTestUniqueKeyTemplate()()
 
   @WithIndexingMode(mode = IndexingMode.SMART, reason = "`not` needs type inference to check conformance with Boolean")
+  @Test
   def testNot(): Unit = doTestUniqueKeyTemplate()()
 
   @WithIndexingMode(mode = IndexingMode.SMART, reason = "`!` needs type inference to check conformance with Boolean")
+  @Test
   def testNotBang(): Unit = doTestUniqueKeyTemplate("not")("!")
 
+  @Test
   def testPar(): Unit = doTestUniqueKeyTemplate()()
 
+  @Test
   def testReturn(): Unit = doTestUniqueKeyTemplate()()
 
+  @Test
   def testSout(): Unit = doTestUniqueKeyTemplate("println")(".sout")
 
+  @Test
   def testPrtln(): Unit = doTestUniqueKeyTemplate("println")(".prtln")
 
   @WithIndexingMode(mode = IndexingMode.SMART, reason = "`throw` needs type inference to check sameOrInheritor")
+  @Test
   def testThrow(): Unit = doTestUniqueKeyTemplate()()
 
   @WithIndexingMode(mode = IndexingMode.SMART, reason = "`while` needs type inference to check conformance with Boolean")
+  @Test
   def testWhile(): Unit = doTestUniqueKeyTemplate()()
 
   @WithIndexingMode(mode = IndexingMode.SMART, reason = "`do-while` needs type inference to check conformance with Boolean")
+  @Test
   def testDoWhile(): Unit = doTestUniqueKeyTemplate()(".dowhile")
 
   @WithIndexingMode(mode = IndexingMode.SMART, reason = "`null` needs type inference to check conformance with AnyRef")
+  @Test
   def testIsNull(): Unit = doTestUniqueKeyTemplate()(".null")
 
   @WithIndexingMode(mode = IndexingMode.SMART, reason = "`notnull` needs type inference to check conformance with AnyRef")
+  @Test
   def testNotNull(): Unit = doTestUniqueKeyTemplate()(".notnull")
 
   @WithIndexingMode(mode = IndexingMode.SMART, reason = "`nn` needs type inference to check conformance with AnyRef")
+  @Test
   def testNotNullNn(): Unit = doTestUniqueKeyTemplate("notNull")(".nn")
 
+  @Test
   def testOption(): Unit = doTestUniqueKeyTemplate()(".Option")
 
+  @Test
   def testSeq(): Unit = doTestUniqueKeyTemplate()(".Seq")
 
+  @Test
   def testList(): Unit = doTestUniqueKeyTemplate()(".List")
 
+  @Test
   def testNothingInComment(): Unit = {
     LiveTemplateCompletionContributor.setShowTemplatesInTests(true, myFixture.getTestRootDisposable)
 
