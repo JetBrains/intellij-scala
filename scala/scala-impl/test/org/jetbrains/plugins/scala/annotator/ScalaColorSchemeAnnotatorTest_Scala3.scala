@@ -4,6 +4,7 @@ import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
 import org.junit.Assert.assertEquals
+import org.junit.Test
 
 @RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Latest))
 class ScalaColorSchemeAnnotatorTest_Scala3 extends ScalaColorSchemeAnnotatorTestBase[TextAttributesKey] {
@@ -17,6 +18,7 @@ class ScalaColorSchemeAnnotatorTest_Scala3 extends ScalaColorSchemeAnnotatorTest
 
   override protected def getFilterByField(annotation: Message2): TextAttributesKey = annotation.textAttributesKey
 
+  @Test
   def testSoftKeywords_As(): Unit = {
     val text =
       """
@@ -31,6 +33,7 @@ class ScalaColorSchemeAnnotatorTest_Scala3 extends ScalaColorSchemeAnnotatorTest
     )
   }
 
+  @Test
   def testSoftKeywords_Derives(): Unit = {
     val text =
       """
@@ -44,6 +47,7 @@ class ScalaColorSchemeAnnotatorTest_Scala3 extends ScalaColorSchemeAnnotatorTest
     )
   }
 
+  @Test
   def testSoftKeywords_End(): Unit = {
     val text =
       """
@@ -59,6 +63,7 @@ class ScalaColorSchemeAnnotatorTest_Scala3 extends ScalaColorSchemeAnnotatorTest
     )
   }
 
+  @Test
   def testSoftKeywords_Extension(): Unit = {
     val text =
       """
@@ -73,6 +78,7 @@ class ScalaColorSchemeAnnotatorTest_Scala3 extends ScalaColorSchemeAnnotatorTest
     )
   }
 
+  @Test
   def testSoftKeywords_Opaque(): Unit = {
     val text =
       """
@@ -86,6 +92,7 @@ class ScalaColorSchemeAnnotatorTest_Scala3 extends ScalaColorSchemeAnnotatorTest
     )
   }
 
+  @Test
   def testSoftKeywords_Inline(): Unit = {
     val text =
       """
@@ -99,6 +106,7 @@ class ScalaColorSchemeAnnotatorTest_Scala3 extends ScalaColorSchemeAnnotatorTest
     )
   }
 
+  @Test
   def testSoftKeywords_Transparent(): Unit = {
     val text =
       """
@@ -112,6 +120,7 @@ class ScalaColorSchemeAnnotatorTest_Scala3 extends ScalaColorSchemeAnnotatorTest
     )
   }
 
+  @Test
   def testSoftKeywords_Using(): Unit = {
     val text =
       """
@@ -125,6 +134,7 @@ class ScalaColorSchemeAnnotatorTest_Scala3 extends ScalaColorSchemeAnnotatorTest
     )
   }
 
+  @Test
   def testContextParameter(): Unit = {
     testAllAnnotations("def foo(using p: Int): Unit = ()",
       """Info((4,7),foo,Scala Method declaration)
@@ -136,6 +146,7 @@ class ScalaColorSchemeAnnotatorTest_Scala3 extends ScalaColorSchemeAnnotatorTest
     )
   }
 
+  @Test
   def testContextParameterAnonymous(): Unit = {
     testAllAnnotations("def foo(using Int): Unit = ()",
       """Info((4,7),foo,Scala Method declaration)
@@ -146,6 +157,7 @@ class ScalaColorSchemeAnnotatorTest_Scala3 extends ScalaColorSchemeAnnotatorTest
     )
   }
 
+  @Test
   def testSoftKeywords_Open(): Unit = {
     val text =
       """
@@ -159,6 +171,7 @@ class ScalaColorSchemeAnnotatorTest_Scala3 extends ScalaColorSchemeAnnotatorTest
     )
   }
 
+  @Test
   def testSoftKeywords_Infix(): Unit = {
     val text =
       """
@@ -196,6 +209,7 @@ class ScalaColorSchemeAnnotatorTest_Scala3 extends ScalaColorSchemeAnnotatorTest
     )
   }
 
+  @Test
   def testEnum(): Unit = {
     val code =
       """enum MyEnum {
@@ -247,6 +261,7 @@ class ScalaColorSchemeAnnotatorTest_Scala3 extends ScalaColorSchemeAnnotatorTest
       |val x6: MyEnum = MyEnum.MyCase6_WithParametersAndExtendsList(23)
       |""".stripMargin
 
+  @Test
   def testEnumCase_WithoutParameters(): Unit = {
     doPartialHighlightTest(CodeWithEnumCases, "MyCase1_WithoutParameters",
       """Info((21,46),MyCase1_WithoutParameters,Scala Enum Singleton Case)
@@ -255,6 +270,7 @@ class ScalaColorSchemeAnnotatorTest_Scala3 extends ScalaColorSchemeAnnotatorTest
     )
   }
 
+  @Test
   def testEnumCase_WithEmptyParameters(): Unit = {
     doPartialHighlightTest(CodeWithEnumCases, "MyCase2_WithEmptyParameters",
       """Info((54,81),MyCase2_WithEmptyParameters,Scala Enum Class Case)
@@ -263,6 +279,7 @@ class ScalaColorSchemeAnnotatorTest_Scala3 extends ScalaColorSchemeAnnotatorTest
     )
   }
 
+  @Test
   def testEnumCase_WithParameters(): Unit = {
     doPartialHighlightTest(CodeWithEnumCases, "MyCase3_WithParameters",
       """Info((91,113),MyCase3_WithParameters,Scala Enum Class Case)
@@ -271,6 +288,7 @@ class ScalaColorSchemeAnnotatorTest_Scala3 extends ScalaColorSchemeAnnotatorTest
     )
   }
 
+  @Test
   def testEnumCase_WithTypeParameters(): Unit = {
     doPartialHighlightTest(CodeWithEnumCases, "MyCase4_WithTypeParameters",
       """Info((129,155),MyCase4_WithTypeParameters,Scala Enum Class Case)
@@ -279,6 +297,7 @@ class ScalaColorSchemeAnnotatorTest_Scala3 extends ScalaColorSchemeAnnotatorTest
     )
   }
 
+  @Test
   def testEnumCase_WithExtendsList(): Unit = {
     doPartialHighlightTest(CodeWithEnumCases, "MyCase5_WithExtendsList",
       """Info((172,195),MyCase5_WithExtendsList,Scala Enum Singleton Case)
@@ -287,6 +306,7 @@ class ScalaColorSchemeAnnotatorTest_Scala3 extends ScalaColorSchemeAnnotatorTest
     )
   }
 
+  @Test
   def testEnumCase_WithParametersAndExtendsList(): Unit = {
     doPartialHighlightTest(CodeWithEnumCases, "MyCase6_WithParametersAndExtendsList",
       """Info((218,254),MyCase6_WithParametersAndExtendsList,Scala Enum Class Case)
