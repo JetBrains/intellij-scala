@@ -5,7 +5,8 @@ import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.codeInsight.{ScalaCodeInsightBundle, intentions}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion, WithIndexingMode}
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsJUnit4Runner, RunWithScalaVersions, TestScalaVersion, WithIndexingMode}
+import org.junit.Test
 import org.junit.runner.RunWith
 
 import scala.annotation.nowarn
@@ -21,13 +22,14 @@ abstract class ArgumentToBlockExpressionIntentionTestBase extends intentions.Sca
   }
 }
 
-@RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWith(classOf[MultipleScalaVersionsJUnit4Runner])
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_13,
   TestScalaVersion.Scala_3_Latest
 ))
 final class ArgumentToBlockExpressionIntentionTest extends ArgumentToBlockExpressionIntentionTestBase {
 
+  @Test
   def test(): Unit = {
     val text =
       s"""
@@ -48,6 +50,7 @@ final class ArgumentToBlockExpressionIntentionTest extends ArgumentToBlockExpres
     doTest(text, resultText)
   }
 
+  @Test
   def testParameterOnNewLine(): Unit = {
     setClosureParametersOnNewLineSetting()
 
@@ -71,6 +74,7 @@ final class ArgumentToBlockExpressionIntentionTest extends ArgumentToBlockExpres
     doTest(text, resultText)
   }
 
+  @Test
   def testCursorAfterParenthesis(): Unit = doTest(
     s"""
        |call($CARET???)
@@ -82,6 +86,7 @@ final class ArgumentToBlockExpressionIntentionTest extends ArgumentToBlockExpres
       |""".stripMargin
   )
 
+  @Test
   def testCursorAfterParenthesis2(): Unit = doTest(
     s"""
        |call(???)$CARET
