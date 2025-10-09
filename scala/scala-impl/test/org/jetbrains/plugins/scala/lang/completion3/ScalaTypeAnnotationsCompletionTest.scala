@@ -4,7 +4,8 @@ import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings.ScalacPlugin
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsJUnit4Runner, RunWithScalaVersions, TestScalaVersion}
+import org.junit.Test
 import org.junit.runner.RunWith
 
 abstract class ScalaTypeAnnotationsCompletionTestBase extends ScalaCompletionTestBase
@@ -213,7 +214,7 @@ class ScalaTypeAnnotationsCompletionTest_with_2_13 extends ScalaTypeAnnotationsC
   )
 }
 
-@RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWith(classOf[MultipleScalaVersionsJUnit4Runner])
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_12_12
 ))
@@ -228,6 +229,7 @@ class ScalaTypeAnnotationsCompletionTest_with_kind_projector extends ScalaTypeAn
     defaultProfile.setSettings(newSettings)
   }
 
+  @Test
   def testTypeLambdaInline(): Unit = doCompletionTest(
     fileText =
       s"""object O {
@@ -244,6 +246,7 @@ class ScalaTypeAnnotationsCompletionTest_with_kind_projector extends ScalaTypeAn
     item = "Either[String, _]"
   )
 
+  @Test
   def testTypeLambda(): Unit = doCompletionTest(
     fileText =
       s"""object O {
