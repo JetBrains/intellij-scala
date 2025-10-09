@@ -2,14 +2,15 @@ package org.jetbrains.plugins.scala.codeInspection.format
 
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 import org.jetbrains.plugins.scala.util.FindCaretOffset.findCaretOffset
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsJUnit4Runner, RunWithScalaVersions, TestScalaVersion}
+import org.junit.Test
 import org.junit.runner.RunWith
 
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 import scala.util.Try
 
-@RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWith(classOf[MultipleScalaVersionsJUnit4Runner])
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_12,
   TestScalaVersion.Scala_2_13
@@ -112,12 +113,15 @@ class ScalaMalformedStringInspectionTest extends ScalaInspectionTestBase {
     }
   }
 
+  @Test
   def test_format_call(): Unit =
     run_all((specifier, arg) => s"""String.format("$specifier", $arg)""")
 
+  @Test
   def test_interpolated(): Unit =
     run_all((specifier, arg) => s"""f"$${$arg}$specifier"""")
 
+  @Test
   def test_printf(): Unit =
     run_all((specifier, arg) => s"""printf("$specifier", $arg)""")
 }
