@@ -1,8 +1,9 @@
 package org.jetbrains.plugins.scala.annotator.createFromUsage
 
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInspection.ScalaAnnotatorQuickFixTestBase
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsJUnit4Runner, RunWithScalaVersions, TestScalaVersion}
+import org.jetbrains.plugins.scala.{ScalaBundle, ScalaVersion}
+import org.junit.Test
 import org.junit.runner.RunWith
 
 abstract class CreateClassQuickFixTestBase extends ScalaAnnotatorQuickFixTestBase {
@@ -37,36 +38,36 @@ abstract class CreateClassQuickFixTestBase extends ScalaAnnotatorQuickFixTestBas
   }
 }
 
-@RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWith(classOf[MultipleScalaVersionsJUnit4Runner])
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_12,
   TestScalaVersion.Scala_2_13,
-  TestScalaVersion.Scala_3_Latest,
+  TestScalaVersion.Scala_3_Latest
 ))
 final class CreateClassQuickFixTest_LowerCased extends CreateClassQuickFixTestBase {
   override val className = "foo"
 
+  @Test
   def testNotFixableWhenLowerCased(): Unit =
     doTestNotFixable("foo()")
 }
 
-@RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWith(classOf[MultipleScalaVersionsJUnit4Runner])
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_12,
-  TestScalaVersion.Scala_2_13,
+  TestScalaVersion.Scala_2_13
 ))
 final class CreateClassQuickFixTest_Scala2 extends CreateClassQuickFixTestBase {
   override val className = "Foo"
 
+  @Test
   def testNotFixableInScala2(): Unit =
     doTestNotFixable("Foo()")
 }
 
-@RunWith(classOf[MultipleScalaVersionsRunner])
-@RunWithScalaVersions(Array(
-  TestScalaVersion.Scala_3_Latest,
-))
 final class CreateClassQuickFixTest_Scala3 extends CreateClassQuickFixTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
+
   override val className = "Foo"
 
   def testCreateClass(): Unit = {
