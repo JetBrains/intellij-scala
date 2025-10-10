@@ -4,6 +4,7 @@ import com.intellij.codeInsight.lookup.Lookup
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{CommonClassNames, JavaPsiFacade}
+import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG, SELECTION_START_TAG}
 import junit.framework.AssertionFailedError
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiNamedElementExt, inWriteAction, invokeAndWait}
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
@@ -2096,6 +2097,84 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
          |}""".stripMargin,
     item = "foo2"
   )
+
+  // NOTE: the StackOverflowError in SCL-24428 is actually reproduced during completion, not resolution
+  // but I decided to add this test as well
+  def testJavaRawStackOverflowSCL24428(): Unit = {
+    myFixture.addFileToProject("JavaRaw.java",
+      """import java.lang.Comparable;
+        |
+        |interface ProcessorDefinition00<T extends ProcessorDefinition0> { }
+        |abstract class ProcessorDefinition0<T extends ProcessorDefinition0<T>> implements ProcessorDefinition00 { abstract String foo0();}
+        |abstract class ProcessorDefinition1<T extends ProcessorDefinition1<T>> implements Comparable<ProcessorDefinition1> { abstract int foo1();}
+        |abstract class ProcessorDefinition2<T extends ProcessorDefinition2<T>> implements Comparable<Comparable<ProcessorDefinition2>> { abstract long foo2();}
+        |abstract class ProcessorDefinition3<T extends ProcessorDefinition3<T>> implements Comparable<ProcessorDefinition3<?>> { abstract short foo3();}
+        |""".stripMargin)
+
+    doCompletionTest(
+      fileText =
+        s"""class Example {
+           |  val value0: ProcessorDefinition0[_] = ???
+           |  value0.$CARET
+           |}
+           |""".stripMargin,
+      resultText =
+        s"""class Example {
+           |  val value0: ProcessorDefinition0[_] = ???
+           |  value0.foo0()
+           |}
+           |""".stripMargin,
+      item = "foo0"
+    )
+
+    doCompletionTest(
+      fileText =
+        s"""class Example {
+           |  val value1: ProcessorDefinition1[_] = ???
+           |  value1.$CARET
+           |}
+           |""".stripMargin,
+      resultText =
+        s"""class Example {
+           |  val value1: ProcessorDefinition1[_] = ???
+           |  value1.foo1()
+           |}
+           |""".stripMargin,
+      item = "foo1"
+    )
+
+    doCompletionTest(
+      fileText =
+        s"""class Example {
+           |  val value2: ProcessorDefinition2[_] = ???
+           |  value2.$CARET
+           |}
+           |""".stripMargin,
+      resultText =
+        s"""class Example {
+           |  val value2: ProcessorDefinition2[_] = ???
+           |  value2.foo2()
+           |}
+           |""".stripMargin,
+      item = "foo2"
+    )
+
+    doCompletionTest(
+      fileText =
+        s"""class Example {
+           |  val value3: ProcessorDefinition3[_] = ???
+           |  value3.$CARET
+           |}
+           |""".stripMargin,
+      resultText =
+        s"""class Example {
+           |  val value3: ProcessorDefinition3[_] = ???
+           |  value3.foo3()
+           |}
+           |""".stripMargin,
+      item = "foo3"
+    )
+  }
 }
 
 @RunWithScalaVersions(Array(TestScalaVersion.Scala_2_12))
