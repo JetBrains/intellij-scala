@@ -407,7 +407,7 @@ final class SbtShellCommunication(project: Project) {
       val text = raw.trim
       processOutputBuilder.foreach(_.append(text))
 
-      val isError = isErrorOutput(text)
+      val isError = text startsWith ERROR_PREFIX
       val newMessages =
         if (isError) {
           if (messages.errors.isEmpty && showSbtShellOnError) {
@@ -468,17 +468,6 @@ object SbtShellCommunication {
     * The final result will just be the value of the last invocation. */
   def listenerAggregator[A](listener: ShellEvent => A): EventAggregator[A] = (_,e) =>
     listener(e)
-
-  /**
-   * @param sbtOutputText a line of output from the sbt shell
-   * @return true if the line starts with `[error]`
-   * @note technically it's not entirely correct way to detect if the output is "an error".
-   *       A user can still print some text to stdout that would start with `[error]` that would not be a "sbt error".
-   *       But to our latest knowledge, there is no better way to reliably get that with the way current sbt-shell communication
-   *       is implemented.
-   */
-  def isErrorOutput(sbtOutputText: String): Boolean =
-    sbtOutputText.startsWith(ERROR_PREFIX)
 }
 
 private[shell] object SbtShellLifecycle {
