@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlo
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
+import org.jetbrains.plugins.scala.lang.psi.types.api
 import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, ParameterizedType, StdType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
@@ -228,28 +229,34 @@ object ImplicitProcessor {
     // Here, we convert such existential arguments to stand-in types that have a useful
     // equals/hashCode implementation, and use this as the marker in the `visitedType` set.
     def convertRawArgs(tp: ScType): ScType = {
-      def rawArgToDummy(tp: ScType) = tp match {
+      def rawArgToDummy(typeArgType: ScType): ScType = typeArgType match {
         case existentialArgument: ScExistentialArgument =>
           existentialArgument.typeParamOfRawArg match {
-            case Some(typeParam) =>
-              ScAbstractType(typeParam, existentialArgument.lower, existentialArgument.upper)
+            case Some(typeParamRaw) =>
+              ScAbstractType(typeParamRaw, lower = api.Nothing, upper = api.Any)
             case None =>
-              tp
+              typeArgType
           }
         case tp => tp
       }
-      def isRawArg(tp: ScType) = tp match {
+
+      def isRawArg(tp: ScType): Boolean = tp match {
         case existentialArgument: ScExistentialArgument =>
           existentialArgument.typeParamOfRawArg.isDefined
-        case _ => false
+        case _ =>
+          false
       }
+
       tp match {
         case ParameterizedType(des, targs) =>
           if (targs.exists(isRawArg)) {
-            val targs1 = targs.map(rawArgToDummy)
-            ScParameterizedType(des, targs1)
-          } else tp
-        case _ => tp
+            val targsNew = targs.map(rawArgToDummy)
+            val tpNew = ScParameterizedType(des, targsNew)
+            tpNew
+          } else
+            tp
+        case _ =>
+          tp
       }
     }
 
@@ -258,7 +265,8 @@ object ImplicitProcessor {
         case td: ScTemplateDefinition =>
           collectPartsIterable(td.superTypes.map(subst))
           td.selfType.foreach(stpe => collectParts(subst(stpe)))
-        case clazz: PsiClass => collectPartsIterable(clazz.getSuperTypes.map(t => subst(t.toScType())))
+        case clazz: PsiClass =>
+          collectPartsIterable(clazz.getSuperTypes.map(t => subst(t.toScType())))
       }
 
     /**
@@ -276,7 +284,10 @@ object ImplicitProcessor {
 
     def collectParts(tp: ScType): Unit = {
       ProgressManager.checkCanceled()
-      if (!visited.add(convertRawArgs(tp))) return
+
+      val tpWithRawTypesConverted = convertRawArgs(tp)
+      if (!visited.add(tpWithRawTypesConverted))
+        return
 
       tp match {
         case AliasType(_, _, Right(t), _) => collectParts(t)
