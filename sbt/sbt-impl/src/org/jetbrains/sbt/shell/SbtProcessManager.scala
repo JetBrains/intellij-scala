@@ -413,10 +413,6 @@ final class SbtProcessManager(project: Project) extends Disposable {
     }
   }
 
-  /**
-   * @return Some shell runner if sbt shell is already running<br>
-   *         None if sbt shell is not running
-   */
   def shellRunner: Option[SbtShellRunner] = processData.map(_.runner)
 
   def restartProcess(): Unit = processDataMutex.synchronized {
