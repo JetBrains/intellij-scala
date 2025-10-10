@@ -66,8 +66,6 @@ class SbtProgramRunner extends GenericProgramRunner[RunnerSettings] with SbtProg
     }
 
     ApplicationManager.getApplication.executeOnPooledThread((() => {
-      import org.jetbrains.plugins.scala.extensions.executionContext.appExecutionContext
-
       val commandFuture = submitCommands(environment, sbtState)
       commandFuture.onComplete { result =>
         // We have to create a dummy handler because `processTerminated` requires it.
@@ -75,7 +73,7 @@ class SbtProgramRunner extends GenericProgramRunner[RunnerSettings] with SbtProg
         val dummyProcessHandler = new DummyProcessHandler()
         val exitCode = if (commandFinishedSuccessfully(result)) 0 else 1
         listeners.processTerminated(executorId, environment, dummyProcessHandler, exitCode)
-      }
+      }(executionContext.appExecutionContext)
     }): Runnable)
   }
 
