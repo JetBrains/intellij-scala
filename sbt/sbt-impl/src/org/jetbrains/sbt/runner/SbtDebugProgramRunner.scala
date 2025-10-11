@@ -2,7 +2,8 @@ package org.jetbrains.sbt.runner
 
 import com.intellij.debugger.engine.RemoteStateState
 import com.intellij.debugger.impl.GenericDebuggerRunner
-import com.intellij.execution.configurations.{RemoteConnection, RunProfileState}
+import com.intellij.execution.configurations.{RemoteConnection, RunProfile, RunProfileState}
+import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.runToolbar.RunToolbarProcessData
 import com.intellij.execution.runners.{ExecutionEnvironment, ProgramRunner}
 import com.intellij.execution.ui.RunContentDescriptor
@@ -17,6 +18,11 @@ import org.jetbrains.sbt.shell.SbtProcessManager
  * @see [[org.jetbrains.sbt.runner.SbtProgramRunner]]
  */
 class SbtDebugProgramRunner extends GenericDebuggerRunner with SbtProgramRunnerBase {
+
+  override def getRunnerId: String = "SbtDebugProgramRunner"
+
+  override def canRun(executorId: String, profile: RunProfile): Boolean =
+    isSbtRunConfigurationWithUseSbtShell(profile) && executorId == DefaultDebugExecutor.EXECUTOR_ID
 
   override def doExecute(state: RunProfileState, env: ExecutionEnvironment): RunContentDescriptor = {
     state match {
