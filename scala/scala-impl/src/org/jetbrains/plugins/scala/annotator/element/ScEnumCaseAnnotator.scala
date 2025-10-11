@@ -63,5 +63,12 @@ object ScEnumCaseAnnotator extends ElementAnnotator[ScEnumCase] {
         ScalaBundle.message("annotator.error.enum.two.type.parameter.clauses")
       )
     }
+
+    if (enumDef.parameters.exists(!_.isDefaultParam) && parents.isEmpty) {
+      holder.createErrorAnnotation(
+        cse.nameId,
+        ScalaBundle.message("annotator.error.enum.parent.has.required.parameters", enumDef.name)
+      )
+    }
   }
 }
