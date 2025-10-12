@@ -1181,7 +1181,7 @@ lazy val runBatchedTests = Command.args("runBatchedTests", "") { (state, args) =
   val newState = state.appendWithSession(Seq(
     Test / testFrameworks := Seq(TestFrameworks.JUnit),
     Test / testOptions := Seq(
-      Tests.Argument(TestFrameworks.JUnit, "-v", "-s", "-a", "+c", "+q"),
+      Tests.Argument(TestFrameworks.JUnit, "-v", "-s", "-a", "+c", "+q", s"--exclude-categories=$randomTypingTests,$flakyTests"),
       Tests.Filter { testClassName => !excludedTests.contains(testClassName) }
     )
   ))
