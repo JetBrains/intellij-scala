@@ -1,6 +1,7 @@
 package org.jetbrains.sbt.project
 
 import com.intellij.util.lang.JavaVersion
+import junitparams.naming.TestCaseName
 import junitparams.{JUnitParamsRunner, Parameters}
 import org.jetbrains.sbt.SbtVersion
 import org.jetbrains.sbt.project.template.wizard.JdkSbtCompatibilityChecker
@@ -11,7 +12,7 @@ import org.junit.runner.RunWith
 import scala.annotation.unused
 
 @RunWith(classOf[JUnitParamsRunner])
-class JdkSbtCompatibilityCheckerTest {
+class JdkSbtCompatibilityCheckerTest:
 
   @unused("used reflectively by the @Parameters annotation")
   private def testDataMinimumSbtToJdkCompatibleVersion: Array[AnyRef] = Array(
@@ -29,10 +30,10 @@ class JdkSbtCompatibilityCheckerTest {
 
   @Test
   @Parameters(method = "testDataMinimumSbtToJdkCompatibleVersion")
-  def testMinimumSbtToJdkCompatibleVersion(jdk: JavaVersion, sbt: SbtVersion, expectedResult: Option[SbtVersion]): Unit = {
-    val minimumCompatibleVersion = JdkSbtCompatibilityChecker.getMinimumSbtToJdkCompatibleVersion(jdk, sbt)
-    assertEquals(expectedResult, minimumCompatibleVersion)
-  }
+  @TestCaseName("{method}[javaVersion = {0}, sbtVersion = {1}, expected = {2}]")
+  def testMinimumSbtToJdkCompatibleVersion(javaVersion: JavaVersion, sbtVersion: SbtVersion, expected: Option[SbtVersion]): Unit =
+    val minimumCompatibleVersion = JdkSbtCompatibilityChecker.getMinimumSbtToJdkCompatibleVersion(javaVersion, sbtVersion)
+    assertEquals(expected, minimumCompatibleVersion)
 
   @unused("used reflectively by the @Parameters annotation")
   private def testDataHighestCompatibleJdkForSbt: Array[AnyRef] = Array(
@@ -50,8 +51,7 @@ class JdkSbtCompatibilityCheckerTest {
 
   @Test
   @Parameters(method = "testDataHighestCompatibleJdkForSbt")
-  def testHighestCompatibleJdkForSbt(jdk: JavaVersion, sbt: SbtVersion, expectedResult: Option[JavaVersion]): Unit = {
-    val highestCompatibleVersion = JdkSbtCompatibilityChecker.getHighestCompatibleJdkForSbt(jdk, sbt)
-    assertEquals(expectedResult, highestCompatibleVersion)
-  }
-}
+  @TestCaseName("{method}[javaVersion = {0}, sbtVersion = {1}, expected = {2}]")
+  def testHighestCompatibleJdkForSbt(javaVersion: JavaVersion, sbtVersion: SbtVersion, expected: Option[JavaVersion]): Unit =
+    val highestCompatibleVersion = JdkSbtCompatibilityChecker.getHighestCompatibleJdkForSbt(javaVersion, sbtVersion)
+    assertEquals(expected, highestCompatibleVersion)

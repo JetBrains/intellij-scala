@@ -51,7 +51,7 @@ abstract class NoSdkFileSetTestBase extends LightJavaCodeInsightFixtureTestCase 
    */
   @Test
   @Parameters(method = "testParameters")
-  @TestCaseName(value = "{0}")
+  @TestCaseName(value = "{method}[{0}]")
   def noSdkFileSetTest(@unused("used reflectively by the @TestCaseName annotation") testName: String, testFile: Path): Unit = {
     baseFileSetTest(testFile)
   }
@@ -82,7 +82,7 @@ abstract class SdkFileSetTestBase extends ScalaLightCodeInsightFixtureTestCase w
    */
   @Test
   @Parameters(method = "testParameters")
-  @TestCaseName(value = "{0}")
+  @TestCaseName(value = "{method}[{0}]")
   def sdkFileSetTest(@unused("used reflectively by the @TestCaseName annotation") testName: String, testFile: Path): Unit = {
     baseFileSetTest(testFile)
   }
