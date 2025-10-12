@@ -28,13 +28,18 @@ final class CompilerHighlightingFixture(project: Project) {
   }
 
   def openFileAndWaitUntilFileIsHighlighted(virtualFile: VirtualFile): Unit = {
-    triggerCompilerBasedHighlightingAndWaitForFinalCompilerEvent(virtualFile)
-    waitForExternalHighlightingApplied(virtualFile)
+    val finalCompilationEventPromise = listenForFinalCompilerEventPromise(virtualFile)
+    // we need to create the listener before triggering compilation, otherwise the even can be broadcasted before we subscribe to it
+    val highlightingAppliedPromise = externalHighlightingAppliedPromise(virtualFile)
+
+    triggerCompilerBasedHighlightingByOpeningTheFile(virtualFile)
+
+    val timeout = 60.seconds
+    Await.result(finalCompilationEventPromise.future, timeout)
+    Await.result(highlightingAppliedPromise.future, timeout)
   }
 
-  private def triggerCompilerBasedHighlightingAndWaitForFinalCompilerEvent(
-    virtualFile: VirtualFile,
-  ): Unit = {
+  private def listenForFinalCompilerEventPromise(virtualFile: VirtualFile): Promise[Unit] = {
     val promise = Promise[Unit]()
     project.getMessageBus.connect().subscribe(CompilerEventListener.topic, new CompilerEventListener {
       override def eventReceived(event: CompilerEvent): Unit = {
@@ -43,11 +48,7 @@ final class CompilerHighlightingFixture(project: Project) {
         }
       }
     })
-
-    triggerCompilerBasedHighlightingByOpeningTheFile(virtualFile)
-
-    val timeout = 60.seconds
-    Await.result(promise.future, timeout)
+    promise
   }
 
   // Compilation is done on file opening (see RegisterCompilationListener.MyFileEditorManagerListener)
@@ -61,7 +62,7 @@ final class CompilerHighlightingFixture(project: Project) {
     }
   }
 
-  private def waitForExternalHighlightingApplied(virtualFile: VirtualFile): Unit = {
+  private def externalHighlightingAppliedPromise(virtualFile: VirtualFile): Promise[Unit] = {
     val promise = Promise[Unit]()
     project.getMessageBus.connect().subscribe(ExternalHighlightingAppliedListener.topic, new ExternalHighlightingAppliedListener {
       override def highlightingApplied(virtualFiles: Set[VirtualFile]): Unit = {
@@ -70,7 +71,6 @@ final class CompilerHighlightingFixture(project: Project) {
         }
       }
     })
-    val timeout = 60.seconds
-    Await.result(promise.future, timeout)
+    promise
   }
 }
