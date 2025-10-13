@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.worksheet.integration.WorksheetRuntimeExcepti
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterRepl
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.junit.Assert._
+import org.junit.Test
 
 import scala.language.postfixOps
 
@@ -28,6 +29,7 @@ class WorksheetReplIntegration_Scala_3_2_Test extends WorksheetReplIntegration_S
 class WorksheetReplIntegration_Before_Scala_3_2_Test extends WorksheetReplIntegration_Scala_3_BaseTest
 
 abstract class WorksheetReplIntegration_Since_3_2_TestBase extends WorksheetReplIntegration_Scala_3_BaseTest with FailableTest {
+  @Test
   override def testAllInOne(): Unit = {
     val before =
       """import java.io.PrintStream
@@ -130,6 +132,7 @@ abstract class WorksheetReplIntegration_Since_3_2_TestBase extends WorksheetRepl
     doRenderTest(before, after)
   }
 
+  @Test
   override def testScalaConcurrentDurationInstantiation(): Unit = {
     try {
       // TODO: This test passes when the `super` test fails. This is a platform bug in Scala 3.2.1.
@@ -142,6 +145,7 @@ abstract class WorksheetReplIntegration_Since_3_2_TestBase extends WorksheetRepl
     }
   }
 
+  @Test
   def testIgnoreFatalWarningsCompilerOption(): Unit = {
     val worksheetText =
       """//warning since scala 2.13.11: Implicit definition should have explicit type (inferred String)
@@ -180,8 +184,7 @@ abstract class WorksheetReplIntegration_Since_3_2_TestBase extends WorksheetRepl
 abstract class WorksheetReplIntegration_Scala_3_BaseTest extends WorksheetReplIntegrationBaseTest
   with WorksheetRuntimeExceptionsTests {
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version > LatestScalaVersions.Scala_2_10
-
+  @Test
   def testAllInOne(): Unit = {
     val before =
       """import java.io.PrintStream
@@ -290,6 +293,7 @@ abstract class WorksheetReplIntegration_Scala_3_BaseTest extends WorksheetReplIn
     doRenderTest(before, after)
   }
 
+  @Test
   def testBracelessSyntax(): Unit = {
     val before =
       """def foo42(x: Int) =
@@ -323,6 +327,7 @@ abstract class WorksheetReplIntegration_Scala_3_BaseTest extends WorksheetReplIn
     doRenderTest(before, after)
   }
 
+  @Test
   def testScalaConcurrentDurationInstantiation(): Unit = {
     val before =
       """val n = scala.concurrent.duration.DurationInt(5)
@@ -332,6 +337,7 @@ abstract class WorksheetReplIntegration_Scala_3_BaseTest extends WorksheetReplIn
     doRenderTest(before, after)
   }
 
+  @Test
   def testSealedTraitHierarchy_1(): Unit = {
     val editor = doRenderTest(
       """sealed trait T""",
@@ -340,6 +346,7 @@ abstract class WorksheetReplIntegration_Scala_3_BaseTest extends WorksheetReplIn
     assertLastLine(editor, 0)
   }
 
+  @Test
   def testSealedTraitHierarchy_2(): Unit = {
     val editor = doRenderTest(
       """sealed trait T
@@ -350,6 +357,7 @@ abstract class WorksheetReplIntegration_Scala_3_BaseTest extends WorksheetReplIn
     assertLastLine(editor, 1)
   }
 
+  @Test
   def testSealedTraitHierarchy_3(): Unit = {
     val editor = doRenderTest(
       """sealed trait T
@@ -362,6 +370,7 @@ abstract class WorksheetReplIntegration_Scala_3_BaseTest extends WorksheetReplIn
     assertLastLine(editor, 2)
   }
 
+  @Test
   def testSealedTraitHierarchy_WithSpacesAndComments(): Unit = {
     val editor = doRenderTest(
       """sealed trait T
@@ -394,6 +403,7 @@ abstract class WorksheetReplIntegration_Scala_3_BaseTest extends WorksheetReplIn
     assertLastLine(editor, 12)
   }
 
+  @Test
   def testSealedTraitHierarchy_Several(): Unit = {
     val editor = doRenderTest(
       """sealed trait T1
@@ -420,6 +430,7 @@ abstract class WorksheetReplIntegration_Scala_3_BaseTest extends WorksheetReplIn
     assertLastLine(editor, 9)
   }
 
+  @Test
   def testIgnoreWarnAboutUnusedImportsCompilerOption(): Unit = {
     val worksheetText =
       """import scala.util.Random

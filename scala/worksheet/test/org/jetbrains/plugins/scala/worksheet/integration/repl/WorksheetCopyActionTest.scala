@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.util.runners._
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.{CleanWorksheetAction, CopyWorksheetAction}
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.WorksheetEditorAndFile
 import org.junit.Assert._
+import org.junit.Test
 
 import scala.language.postfixOps
 
@@ -28,6 +29,7 @@ class WorksheetCopyActionTest extends WorksheetReplIntegrationBaseTest {
        |line 3$foldEnd""".stripMargin
   )
 
+  @Test
   def testCopyAction(): Unit = {
     val editor = prepareEditorForCopyAction()
     val result = CopyWorksheetAction.prepareCopiableText(editor.editor, editor.psiFile)
@@ -44,6 +46,7 @@ class WorksheetCopyActionTest extends WorksheetReplIntegrationBaseTest {
     )
   }
 
+  @Test
   def testCopyAction_AfterViewEditorWasAlreadyCleared(): Unit = {
     val editor = prepareEditorForCopyAction()
 
@@ -61,6 +64,7 @@ class WorksheetCopyActionTest extends WorksheetReplIntegrationBaseTest {
     )
   }
 
+  @Test
   def testCopyAction_AfterRemovingLinesFromTheOriginalEditor(): Unit = {
     val editor = prepareEditorForCopyAction()
 

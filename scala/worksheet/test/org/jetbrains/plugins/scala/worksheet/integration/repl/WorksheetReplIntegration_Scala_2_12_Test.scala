@@ -1,35 +1,16 @@
 package org.jetbrains.plugins.scala.worksheet.integration.repl
 
-import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettingsProfile
 import org.jetbrains.plugins.scala.util.runners.{RunWithJdkVersions, RunWithScalaVersions, TestJdkVersion, TestScalaVersion}
-import org.jetbrains.plugins.scala.worksheet.WorksheetFile
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetRuntimeExceptionsTests
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult
+import org.junit.Test
 
 @RunWithScalaVersions(Array(TestScalaVersion.Scala_2_12))
 class WorksheetReplIntegration_Scala_2_12_Test
   extends WorksheetReplIntegrationBaseTest
     with WorksheetRuntimeExceptionsTests
     with WorksheetReplIntegration_CommonTests_Since_2_12 {
-
-  @RunWithScalaVersions(Array(TestScalaVersion.Scala_2_12_0))
-  @RunWithJdkVersions(Array(TestJdkVersion.JDK_11))
-  def testSimpleDeclaration__2_12_0(): Unit =
-    testSimpleDeclaration()
-
-
-  // TODO: why is there this strange error
-  //  Error:(10, 14) not found: value unknownVar
-  //  val $ires0 = unknownVar
-  //  ?
-  @RunWithScalaVersions(Array(
-    TestScalaVersion.Scala_2_12_12,
-    TestScalaVersion.Scala_2_12_6
-  ))
-  @RunWithJdkVersions(Array(TestJdkVersion.JDK_11))
-  def testRestoreErrorPositionsInOriginalFile_ExtraScalaVersions(): Unit =
-    testRestoreErrorPositionsInOriginalFile()
 
   private def TestProfileName = "TestProfileName"
 
@@ -40,6 +21,7 @@ class WorksheetReplIntegration_Scala_2_12_Test
       |""".stripMargin
 
   // -Ypartial-unification is enabled in 2.13 by default, so testing on 2.12
+  @Test
   def testWorksheetShouldRespectCompilerSettingsFromCompilerProfile(): Unit = {
     val editorAndFile = prepareWorksheetEditor(PartialUnificationTestText, scratchFile = true)
     setAdditionalCompilerOptions(editorAndFile.psiFile, PartialUnificationCompilerOptions)
@@ -49,12 +31,14 @@ class WorksheetReplIntegration_Scala_2_12_Test
     )
   }
 
+  @Test
   def testWorksheetShouldRespectCompilerSettingsFromCompilerProfile_WithoutSetting(): Unit = {
     val editorAndFile = prepareWorksheetEditor(PartialUnificationTestText, scratchFile = true)
     setAdditionalCompilerOptions(editorAndFile.psiFile, Seq.empty)
     doResultTest(editorAndFile, RunWorksheetActionResult.WorksheetRunError(WorksheetCompilerResult.CompilationError))
   }
 
+  @Test
   def testWorksheetShouldRespectCompilerSettingsFromCompilerProfile_NonDefaultProfile(): Unit = {
     val editorAndFile = prepareWorksheetEditor(PartialUnificationTestText, scratchFile = true)
     worksheetSettings(editorAndFile.editor).setCompilerProfileName(TestProfileName)
@@ -69,6 +53,7 @@ class WorksheetReplIntegration_Scala_2_12_Test
     )
   }
 
+  @Test
   def testWorksheetShouldRespectCompilerSettingsFromCompilerProfile_WithoutSetting_NonDefaultProfile(): Unit = {
     val editorAndFile = prepareWorksheetEditor(PartialUnificationTestText, scratchFile = true)
     worksheetSettings(editorAndFile.editor).setCompilerProfileName(TestProfileName)
@@ -81,3 +66,22 @@ class WorksheetReplIntegration_Scala_2_12_Test
   }
 
 }
+
+@RunWithScalaVersions(Array(TestScalaVersion.Scala_2_12_0))
+@RunWithJdkVersions(Array(TestJdkVersion.JDK_11))
+class WorksheetReplIntegration_Scala_2_12_0_HealthCheckTest
+  extends WorksheetReplIntegrationBaseTest
+    with WorksheetReplIntegrationHealthCheckTest_Since_2_11
+
+// TODO: why is there this strange error
+//  Error:(10, 14) not found: value unknownVar
+//  val $ires0 = unknownVar
+//  ?
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_2_12_6,
+  TestScalaVersion.Scala_2_12_12
+))
+@RunWithJdkVersions(Array(TestJdkVersion.JDK_11))
+class WorksheetReplIntegration_Scala_2_12_RestoreErrorPositionsExtraTests
+  extends WorksheetReplIntegrationBaseTest
+    with WorksheetReplIntegrationRestoreErrorPositionsInOriginalFileTest_Since_2_12

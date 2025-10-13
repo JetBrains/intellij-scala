@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.worksheet.integration.util.{EditorRobot, MyUi
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.junit.Assert._
+import org.junit.Test
 
 import scala.concurrent.duration.DurationInt
 import scala.language.postfixOps
@@ -36,29 +37,7 @@ class WorksheetReplIntegration_Scala_2_13_Test
     with WorksheetRuntimeExceptionsTests
     with WorksheetReplIntegration_CommonTests_Since_2_12 {
 
-  // with some health check runs
-  @RunWithScalaVersions(Array(TestScalaVersion.Scala_2_13_0))
-  @RunWithJdkVersions(Array(TestJdkVersion.JDK_11))
-  def testSimpleDeclaration_2_13_0(): Unit = {
-    /**
-     * pre-download jline to avoid flaky tests on machines without locally-available jline (requires internet)
-     * see org.jetbrains.plugins.scala.console.configuration.ScalaSdkJLineFixer for the details
-     */
-    import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
-    TestDependencyManager.resolve("jline" % "jline" % "2.14.6")
-
-    val left =
-      """val a = 1
-        |var b = 2
-        |""".stripMargin
-
-    val right =
-      """a: Int = 1
-        |b: Int = 2""".stripMargin
-
-    doRenderTest(left, right)
-  }
-
+  @Test
   override def testSimpleDeclaration(): Unit = {
     val left =
       """val a = 1
@@ -72,6 +51,7 @@ class WorksheetReplIntegration_Scala_2_13_Test
     doRenderTest(left, right)
   }
 
+  @Test
   override def testSimpleFolding(): Unit = {
     val left =
       """println("1\n2\n3")
@@ -87,6 +67,7 @@ class WorksheetReplIntegration_Scala_2_13_Test
     doRenderTest(left, right)
   }
 
+  @Test
   override def testMultipleFoldings(): Unit = {
     val left =
       """println("1\n2\n3")
@@ -108,6 +89,7 @@ class WorksheetReplIntegration_Scala_2_13_Test
     doRenderTest(left, right)
   }
 
+  @Test
   override def testTrimChunkOutputFromTheRightButNotFromTheLeft(): Unit = {
     val left =
       """println("\n\n1\n2\n3\n\n")
@@ -125,6 +107,7 @@ class WorksheetReplIntegration_Scala_2_13_Test
     doRenderTest(left, right)
   }
 
+  @Test
   override def testMultipleFoldings_WithSpacesBetweenSpaces(): Unit = {
     val left =
       """
@@ -160,6 +143,7 @@ class WorksheetReplIntegration_Scala_2_13_Test
     doRenderTest(left, right)
   }
 
+  @Test
   override def testLongLineOutput(): Unit = {
     val left =
       """val text = "1\n^\n2\n3\n4\n^\n5\n6\n7\n8\n9"
@@ -184,6 +168,7 @@ class WorksheetReplIntegration_Scala_2_13_Test
     doRenderTest(left, right)
   }
 
+  @Test
   override def testDisplayFirstRuntimeException(): Unit = {
     val left =
       """println("1\n2")
@@ -213,6 +198,7 @@ class WorksheetReplIntegration_Scala_2_13_Test
     assertLastLine(editor, 0)
   }
 
+  @Test
   override def testCompilationErrorsAndWarnings_ComplexTest(): Unit =
     baseTestCompilationErrorsAndWarnings_ComplexTest(
       """Warning:(2, 7) match may not be exhaustive.
@@ -233,6 +219,7 @@ class WorksheetReplIntegration_Scala_2_13_Test
         |""".stripMargin.trim
     )
 
+  @Test
   override def testArrayRender(): Unit = {
     doRenderTest(
       """var a1 = new Array[Int](3)
@@ -242,6 +229,7 @@ class WorksheetReplIntegration_Scala_2_13_Test
     )
   }
 
+  @Test
   override def testInteractive(): Unit = {
     val editor = doRenderTest(
       """42""",
@@ -267,6 +255,7 @@ class WorksheetReplIntegration_Scala_2_13_Test
     assertNoErrorMessages(editor)
   }
 
+  @Test
   override def testInteractive_WithError(): Unit = {
     val editor = doRenderTest(
       """42""",
@@ -292,6 +281,7 @@ class WorksheetReplIntegration_Scala_2_13_Test
   }
 
   // see SCL-11450
+  @Test
   override def testLambdaValueDefinitionOutputShouldBeFancy(): Unit = {
     val before = """val foo: String => Int = _.length"""
 
@@ -300,6 +290,7 @@ class WorksheetReplIntegration_Scala_2_13_Test
     })
   }
 
+  @Test
   override def testSameWorksheetEvaluatedSeveralTimesShouldntAddAnyNewOutput(): Unit = {
     val before =
       """val x = 42
@@ -314,16 +305,7 @@ class WorksheetReplIntegration_Scala_2_13_Test
     assertViewerEditorText(editorAndFile.editor, after)
   }
 
-  @RunWithJdkVersions(Array(TestJdkVersion.JDK_1_8, TestJdkVersion.JDK_11))
-  override def testSystemExit(): Unit =
-    doRenderTest(
-      """val x = 42
-        |println(s"x: $x")
-        |System.exit(0)""".stripMargin,
-      """val x: Int = 42
-        |x: 42""".stripMargin
-    )
-
+  @Test
   override def testManyCompanionClassesAndObjects_WithVariousSpacesAndComments(): Unit = {
     val before =
       """val x = 1
@@ -464,6 +446,7 @@ class WorksheetReplIntegration_Scala_2_13_Test
     doRenderTest(before, after)
   }
 
+  @Test
   override def testManyCompanionClassesAndObjects_WithVariousTypeOfClasses(): Unit = {
     val before =
       """class C1
@@ -504,6 +487,7 @@ class WorksheetReplIntegration_Scala_2_13_Test
     doRenderTest(before, after)
   }
 
+  @Test
   override def testSealedTraitHierarchy_1(): Unit = {
     val editor = doRenderTest(
       """sealed trait T""",
@@ -512,6 +496,7 @@ class WorksheetReplIntegration_Scala_2_13_Test
     assertLastLine(editor, 0)
   }
 
+  @Test
   override def testSealedTraitHierarchy_2(): Unit = {
     val editor = doRenderTest(
       """sealed trait T
@@ -522,6 +507,7 @@ class WorksheetReplIntegration_Scala_2_13_Test
     assertLastLine(editor, 1)
   }
 
+  @Test
   override def testSealedTraitHierarchy_3(): Unit = {
     val editor = doRenderTest(
       """sealed trait T
@@ -534,6 +520,7 @@ class WorksheetReplIntegration_Scala_2_13_Test
     assertLastLine(editor, 2)
   }
 
+  @Test
   override def testSealedTraitHierarchy_WithSpacesAndComments(): Unit = {
     val editor = doRenderTest(
       """sealed trait T
@@ -566,6 +553,7 @@ class WorksheetReplIntegration_Scala_2_13_Test
     assertLastLine(editor, 12)
   }
 
+  @Test
   override def testSealedTraitHierarchy_Several(): Unit = {
     val editor = doRenderTest(
       """sealed trait T1
@@ -593,6 +581,7 @@ class WorksheetReplIntegration_Scala_2_13_Test
   }
 
   // yes, this is a very strange case, but anyway
+  @Test
   override def testSemicolonSeparatedExpressions(): Unit =
     doRenderTest(
       """val x = 23; val y = 42; def f(i: Int): String = "hello"; println("1\n2")""",
@@ -603,6 +592,7 @@ class WorksheetReplIntegration_Scala_2_13_Test
          |def f(i: Int): String$foldEnd""".stripMargin
     )
 
+  @Test
   override def testSemicolonSeparatedExpressions_OnMultipleLines(): Unit =
     doRenderTest(
       """val x = 23; val y =
@@ -616,6 +606,7 @@ class WorksheetReplIntegration_Scala_2_13_Test
          |def f(i: Int): String$foldEnd""".stripMargin
     )
 
+  @Test
   override def testDoNoAddLineCommentsWithLineIndexesInsideMultilineStringLiterals(): Unit =
     doRenderTest(
       s"""val x =
@@ -704,6 +695,7 @@ class WorksheetReplIntegration_Scala_2_13_Test
       |  unknown14
       |}""".stripMargin
 
+  @Test
   override def testRestoreErrorPositionsInOriginalFile(): Unit =
     withModifiedRegistryValue(WorksheetUtils.ContinueOnFirstFailure, newValue = true).run {
       val expectedCompilerOutput =
@@ -743,6 +735,7 @@ class WorksheetReplIntegration_Scala_2_13_Test
       assertCompilerMessages(editorAndFile.editor)(expectedCompilerOutput)
     }
 
+  @Test
   def testIgnoreFatalWarningsCompilerOption(): Unit = {
     val worksheetText =
       """//warning since scala 2.13.11: Implicit definition should have explicit type (inferred String)
@@ -763,5 +756,30 @@ class WorksheetReplIntegration_Scala_2_13_Test
         |implicit def foo = "42"
         |""".stripMargin
     )
+  }
+}
+
+@RunWithScalaVersions(Array(TestScalaVersion.Scala_2_13_0))
+@RunWithJdkVersions(Array(TestJdkVersion.JDK_11))
+class WorksheetReplIntegration_Scala_2_13_0_HealthCheckTest extends WorksheetReplIntegrationBaseTest {
+  @Test
+  def testSimpleDeclaration(): Unit = {
+    /**
+     * pre-download jline to avoid flaky tests on machines without locally-available jline (requires internet)
+     * see org.jetbrains.plugins.scala.console.configuration.ScalaSdkJLineFixer for the details
+     */
+    import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
+    TestDependencyManager.resolve("jline" % "jline" % "2.14.6")
+
+    val left =
+      """val a = 1
+        |var b = 2
+        |""".stripMargin
+
+    val right =
+      """a: Int = 1
+        |b: Int = 2""".stripMargin
+
+    doRenderTest(left, right)
   }
 }
