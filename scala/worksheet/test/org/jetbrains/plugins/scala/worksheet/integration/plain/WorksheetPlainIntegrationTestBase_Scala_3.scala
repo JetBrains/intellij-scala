@@ -322,8 +322,8 @@ trait WorksheetPlainIntegrationTestBase_Scala_3_Next_RC_AllInOne { self: PlainWo
          |val x: Int = 2
          |val y: String = 21231
          |val x2: java.io.PrintStream = null
-         |val q1: scala.concurrent.duration.package.DurationInt = scala.concurrent.duration.package$$DurationInt@3
-         |var q2: scala.concurrent.duration.package.DurationInt = scala.concurrent.duration.package$$DurationInt@4
+         |val q1: scala.concurrent.duration.DurationInt = scala.concurrent.duration.package$$DurationInt@3
+         |var q2: scala.concurrent.duration.DurationInt = scala.concurrent.duration.package$$DurationInt@4
          |
          |def f: Int
          |
