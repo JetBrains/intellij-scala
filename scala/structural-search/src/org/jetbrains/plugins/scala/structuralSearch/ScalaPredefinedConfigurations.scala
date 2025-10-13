@@ -133,7 +133,7 @@ object ScalaPredefinedConfigurations {
         replaceFolder),
       createSRConfiguration(ScalaStructuralSearchBundle.message("convert.function.into.value"), "functoval",
         """def '_func""".stripMargin,
-        """val $func$()""",
+        """val $func$""",
         replaceFolder),
       createSRConfiguration(ScalaStructuralSearchBundle.message("convert.var.to.val"), "vartoval",
         """var '_var""".stripMargin,
