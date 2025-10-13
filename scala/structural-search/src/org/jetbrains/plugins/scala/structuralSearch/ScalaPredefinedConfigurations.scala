@@ -86,12 +86,12 @@ object ScalaPredefinedConfigurations {
         exprFolder),
       createSConfiguration(ScalaStructuralSearchBundle.message("all.matches.without.guard"), "matchwithoutguard",
         """'_expr match {
-          |  case '_pattern* if '_guard{0,0} => '_res
+          |  case '_pattern{1,} if '_guard{0,0} => '_res
           |}""".stripMargin,
         exprFolder),
       createSConfiguration(ScalaStructuralSearchBundle.message("all.match.case.clauses"), "matchwithoutguard",
         """'_expr match {
-          |  case 'pattern if '_guard{0,1} => '_res
+          |  case 'pattern{1,} if '_guard{0,1} => '_res
           |}""".stripMargin,
         exprFolder),
       createSConfiguration(ScalaStructuralSearchBundle.message("function.calls"), "matchwithoutguard",
