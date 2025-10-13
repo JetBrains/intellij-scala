@@ -4,10 +4,11 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.runners.{RunWithJdkVersions, RunWithScalaVersions, TestJdkVersion, TestScalaVersion}
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType
+import org.junit.Test
 
 import scala.language.postfixOps
 
-class WorksheetEclipseModeIntegrationBaseTest extends WorksheetIntegrationBaseTest {
+class WorksheetEclipseModeIntegrationTest extends WorksheetIntegrationBaseTest {
 
   override def runType: WorksheetExternalRunType = WorksheetExternalRunType.PlainRunType
 
@@ -20,6 +21,7 @@ class WorksheetEclipseModeIntegrationBaseTest extends WorksheetIntegrationBaseTe
     ScalaProjectSettings.getInstance(getProject).setUseEclipseCompatibility(true)
   }
 
+  @Test
   def testAllInOne(): Unit = {
     val left =
       """import math.abs
@@ -114,13 +116,12 @@ class WorksheetEclipseModeIntegrationBaseTest extends WorksheetIntegrationBaseTe
 
     doRenderTest(left, right)
   }
-
-  @RunWithScalaVersions(Array(
-    TestScalaVersion.Scala_2_11_0,
-    TestScalaVersion.Scala_2_12_0,
-    TestScalaVersion.Scala_2_13_0
-  ))
-  @RunWithJdkVersions(Array(TestJdkVersion.JDK_11))
-  def testAllInOne_OldScalaVersions(): Unit =
-    testAllInOne()
 }
+
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_2_11_0,
+  TestScalaVersion.Scala_2_12_0,
+  TestScalaVersion.Scala_2_13_0
+))
+@RunWithJdkVersions(Array(TestJdkVersion.JDK_11))
+class WorksheetEclipseModeIntegrationTest_OldScalaVersions extends WorksheetEclipseModeIntegrationTest

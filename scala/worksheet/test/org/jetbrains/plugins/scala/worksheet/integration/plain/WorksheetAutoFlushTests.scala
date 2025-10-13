@@ -3,15 +3,13 @@ package org.jetbrains.plugins.scala.worksheet.integration.plain
 import org.jetbrains.plugins.scala.FlakyTests
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult
-import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.{Folding, ViewerEditorData}
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
-import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterPlain.{FoldingDataForTests, ViewerEditorState}
 import org.jetbrains.plugins.scala.worksheet.ui.printers.{WorksheetEditorPrinterFactory, WorksheetEditorPrinterPlain}
 import org.junit.Assert.{assertEquals, assertTrue, fail}
-import org.junit.ComparisonFailure
 import org.junit.experimental.categories.Category
+import org.junit.{ComparisonFailure, Test}
 
 import scala.concurrent.duration.{Duration, DurationInt, FiniteDuration}
 
@@ -27,9 +25,8 @@ class WorksheetPlainCompileLocallyRunLocallyAutoFlushTest extends WorksheetPlain
   override def runInCompileServerProcess = false
 }
 
-abstract class WorksheetPlainAutoFlushTestBase extends WorksheetIntegrationBaseTest {
-  override def runType: WorksheetExternalRunType = WorksheetExternalRunType.PlainRunType
-
+abstract class WorksheetPlainAutoFlushTestBase extends PlainWorksheetTestBase {
+  @Test
   def testAutoFlushOnLongEvaluation_DefaultAutoFlushTimeout(): Unit =
     doTestAutoFlushOnLongEvaluationNTimes(
       timesToRunTest = 3,
@@ -39,6 +36,7 @@ abstract class WorksheetPlainAutoFlushTestBase extends WorksheetIntegrationBaseT
 
   // flush timeout is currently not intended to be changed  by user via any setting,
   // but this test helps catching concurrency bugs
+  @Test
   def testAutoFlushOnLongEvaluation_SmallAutoFlushTimeout(): Unit =
     doTestAutoFlushOnLongEvaluationNTimes(
       timesToRunTest = 20,
