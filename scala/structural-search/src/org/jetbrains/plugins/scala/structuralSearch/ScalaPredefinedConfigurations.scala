@@ -104,14 +104,14 @@ object ScalaPredefinedConfigurations {
         """try {
           |  '_try*
           |} catch {
-          |  case '_exc\: '_excType => '_handler
+          |  case '_exc{1,}\: '_excType => '_handler
           |}""".stripMargin,
         exprFolder),
       createSConfiguration(ScalaStructuralSearchBundle.message("case.clauses.of.try.catch.blocks"), "trycatchclauses",
         """try {
           |  '_try*
           |} catch {
-          |  case 'exc\: '_excType => '_handler
+          |  case 'exc{1,}\: '_excType => '_handler
           |}""".stripMargin,
         exprFolder),
       createSConfiguration(ScalaStructuralSearchBundle.message("try.finally.blocks"), "tryfinally",
