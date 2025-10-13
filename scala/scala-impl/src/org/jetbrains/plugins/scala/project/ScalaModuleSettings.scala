@@ -148,6 +148,7 @@ private class ScalaModuleSettings private(
 
   val hasNoIndentFlag: Boolean = additionalCompilerOptions.contains("-no-indent")
   val hasOldSyntaxFlag: Boolean = additionalCompilerOptions.contains("-old-syntax")
+  val hasPreviewFlag: Boolean = additionalCompilerOptions.contains("-preview")
 
   val isCompilerStrictMode: Boolean =
     settingsForHighlighting.exists(_.strict)
@@ -172,6 +173,7 @@ private class ScalaModuleSettings private(
       hasMetaEnabled = isMetaEnabled,
       hasTrailingCommasEnabled = isTrailingCommasEnabled,
       hasUnderscoreWildcardsDisabled = kindProjectorUnderscorePlaceholdersEnabled || YKindProjectorUnderscoresOptionEnabled,
+      hasPreviewFlag = hasPreviewFlag,
     )
 
   lazy val externalSystemId: Option[String] =

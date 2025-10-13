@@ -74,6 +74,10 @@ object SoftModifier extends ParsingRule {
   private def SoftModifier(builder: ScalaPsiBuilder): Option[ScalaModifierTokenType] =
     Option(ScalaModifier.byText(builder.getTokenText))
       .filter(modifiers.contains)
+      .filter {
+        case `Into` => builder.features.`supports 'into' modifier`
+        case _ => true
+      }
       .map(ScalaModifierTokenType(_))
 
   private def isFollowedBySoftModifier()(implicit builder: ScalaPsiBuilder): Boolean = {

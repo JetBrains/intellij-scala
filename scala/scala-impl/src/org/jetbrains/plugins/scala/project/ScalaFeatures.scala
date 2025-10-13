@@ -40,6 +40,8 @@ trait ScalaFeatures extends Any {
   def indentationBasedSyntaxEnabled: Boolean
   def warnAboutDeprecatedInfixCallsEnabled: Boolean
 
+  def hasPreviewFlag: Boolean
+
   def `& instead of with`: Boolean
   def `Scala 3 vararg splice syntax`: Boolean
 //   wildcards import are bugged in 2.12.14 and 2.13.6
@@ -56,6 +58,7 @@ trait ScalaFeatures extends Any {
   def usingInArgumentsEnabled: Boolean
   def `new context bounds and givens`: Boolean
   def noUnicodeEscapesInRawStrings: Boolean
+  def `supports 'into' modifier`: Boolean
 }
 
 object ScalaFeatures {
@@ -94,6 +97,8 @@ object ScalaFeatures {
     def indentationBasedSyntaxEnabled: Boolean = Bits.indentationBasedSyntaxEnabled.read(bits)
     def warnAboutDeprecatedInfixCallsEnabled: Boolean = Bits.warnAboutDeprecatedInfixCallsEnabled.read(bits)
 
+    def hasPreviewFlag: Boolean = Bits.previewFlag.read(bits)
+
     def `& instead of with`: Boolean = `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`
     def `Scala 3 vararg splice syntax`: Boolean = `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`
     // wildcards import are bugged in 2.12.14 and 2.13.6
@@ -124,6 +129,11 @@ object ScalaFeatures {
     override def `new context bounds and givens`: Boolean =
       languageLevel >= ScalaLanguageLevel.Scala_3_6
 
+    override def `supports 'into' modifier`: Boolean = {
+      // should become non-preview in 3.9
+      hasPreviewFlag && languageLevel >= ScalaLanguageLevel.Scala_3_7
+    }
+
     def copy(
       version:                        ScalaVersion,
       isSource3:                      Boolean = this.isSource3,
@@ -134,7 +144,8 @@ object ScalaFeatures {
       hasSourceFutureFlag:            Boolean = this.hasSourceFutureFlag,
       hasMetaEnabled:                 Boolean = this.hasMetaEnabled,
       hasTrailingCommasEnabled:       Boolean = this.hasTrailingCommasEnabled,
-      hasUnderscoreWildcardsDisabled: Boolean = this.hasUnderscoreWildcardsDisabled
+      hasUnderscoreWildcardsDisabled: Boolean = this.hasUnderscoreWildcardsDisabled,
+      hasPreviewFlag:                 Boolean = this.hasPreviewFlag,
     ): SerializableScalaFeatures =
       ScalaFeatures(
         version = version,
@@ -146,7 +157,8 @@ object ScalaFeatures {
         hasSourceFutureFlag = hasSourceFutureFlag,
         hasMetaEnabled = hasMetaEnabled,
         hasTrailingCommasEnabled = hasTrailingCommasEnabled,
-        hasUnderscoreWildcardsDisabled = hasUnderscoreWildcardsDisabled
+        hasUnderscoreWildcardsDisabled = hasUnderscoreWildcardsDisabled,
+        hasPreviewFlag = hasPreviewFlag,
       )
 
     def serializeToInt: Int = bits
@@ -163,6 +175,7 @@ object ScalaFeatures {
     override def hasUnderscoreWildcardsDisabled: Boolean         = delegate.hasUnderscoreWildcardsDisabled
     override def indentationBasedSyntaxEnabled: Boolean          = delegate.indentationBasedSyntaxEnabled
     override def warnAboutDeprecatedInfixCallsEnabled: Boolean   = delegate.warnAboutDeprecatedInfixCallsEnabled
+    override def hasPreviewFlag: Boolean                         = delegate.hasPreviewFlag
     override def `& instead of with`: Boolean                    = delegate.`& instead of with`
     override def `Scala 3 vararg splice syntax`: Boolean         = delegate.`Scala 3 vararg splice syntax`
     override def `Scala 3 wildcard imports`: Boolean             = delegate.`Scala 3 wildcard imports`
@@ -177,6 +190,7 @@ object ScalaFeatures {
     override def `optional braces for method arguments`: Boolean = delegate.`optional braces for method arguments`
     override def `named tuples`: Boolean                         = delegate.`named tuples`
     override def `new context bounds and givens`: Boolean        = delegate.`named tuples`
+    override def `supports 'into' modifier`: Boolean             = delegate.`supports 'into' modifier`
   }
 
   private val minorVersion6  = Version("6")
@@ -200,7 +214,8 @@ object ScalaFeatures {
     hasSourceFutureFlag: Boolean,
     hasMetaEnabled: Boolean,
     hasTrailingCommasEnabled: Boolean,
-    hasUnderscoreWildcardsDisabled: Boolean
+    hasUnderscoreWildcardsDisabled: Boolean,
+    hasPreviewFlag: Boolean,
   ): SerializableScalaFeatures = {
 
     val languageLevel = version.languageLevel
@@ -241,12 +256,13 @@ object ScalaFeatures {
       hasUnderscoreWildcardsDisabled = hasUnderscoreWildcardsDisabled,
       indentationBasedSyntaxEnabled = indentationBasedSyntaxEnabled,
       warnAboutDeprecatedInfixCallsEnabled = warnAboutDeprecatedInfixCallsEnabled,
+      hasPreviewFlag = hasPreviewFlag,
       `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3` = `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`,
       `in >= 2.12.15 or 2.13.7 with -XSource:3 or 3` = `in >= 2.12.15 or 2.13.7 with -XSource:3 or 3`,
       `in >= 2.12.15 or 2.13.7 or 3` = `in >= 2.12.15 or 2.13.7 or 3`,
       `in >= 2.12.16 or 2.13.9 or 3` = `in >= 2.12.16 or 2.13.9 or 3`,
       usingInArgumentsEnabled = usingInArgumentsEnabled,
-      noUnicodeEscapesInRawStrings = noUnicodeEscapesInRawStrings
+      noUnicodeEscapesInRawStrings = noUnicodeEscapesInRawStrings,
     )
   }
 
@@ -281,7 +297,8 @@ object ScalaFeatures {
       hasSourceFutureFlag = false,
       hasMetaEnabled = false,
       hasTrailingCommasEnabled = version >= ScalaVersion_2_12_2,
-      hasUnderscoreWildcardsDisabled = false
+      hasUnderscoreWildcardsDisabled = false,
+      hasPreviewFlag = false,
     )
 
   val CreatedWithScalaFeatures: Key[ScalaFeatures] =
@@ -356,6 +373,7 @@ object ScalaFeatures {
     hasUnderscoreWildcardsDisabled:                 Boolean,
     indentationBasedSyntaxEnabled:                  Boolean,
     warnAboutDeprecatedInfixCallsEnabled:           Boolean,
+    hasPreviewFlag:                                 Boolean,
     `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`: Boolean,
     `in >= 2.12.15 or 2.13.7 with -XSource:3 or 3`: Boolean,
     `in >= 2.12.15 or 2.13.7 or 3`:                 Boolean,
@@ -376,6 +394,7 @@ object ScalaFeatures {
     Bits.hasUnderscoreWildcardsDisabled.write(bits, hasUnderscoreWildcardsDisabled)
     Bits.indentationBasedSyntaxEnabled.write(bits, indentationBasedSyntaxEnabled)
     Bits.warnAboutDeprecatedInfixCallsEnabled.write(bits, warnAboutDeprecatedInfixCallsEnabled)
+    Bits.previewFlag.write(bits, hasPreviewFlag)
     Bits.`in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`.write(bits, `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`)
     Bits.`in >= 2.12.15 or 2.13.7 with -XSource:3 or 3`.write(bits, `in >= 2.12.15 or 2.13.7 with -XSource:3 or 3`)
     Bits.`in >= 2.12.15 or 2.13.7 or 3`.write(bits, `in >= 2.12.15 or 2.13.7 or 3`)
@@ -400,6 +419,7 @@ object ScalaFeatures {
     val hasTrailingCommasEnabled             = bool("hasTrailingCommaEnabled")
     val hasUnderscoreWildcardsDisabled       = bool("hasUnderscoreWildcardsDisabled")
     val warnAboutDeprecatedInfixCallsEnabled = bool("warnAboutDeprecatedInfixCallsEnabled")
+    val previewFlag                          = bool("previewFlag")
 
     val `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3` = bool("in >= 2.12.14 or 2.13.6 with -XSource:3 or 3")
     val `in >= 2.12.15 or 2.13.7 with -XSource:3 or 3` = bool("in >= 2.12.15 or 2.13.7 with -XSource:3 or 3")
