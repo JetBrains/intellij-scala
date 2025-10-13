@@ -7,7 +7,7 @@ import scala.collection.immutable.ArraySeq
 
 class TakeZeroInspection extends OperationOnCollectionInspection {
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple ={
-    case expr@_ `.take` (arg) if arg.textMatches("0") =>
+    case expr@_ `.take` arg if arg.textMatches("0") =>
       holder.registerProblem(expr, ScalaInspectionBundle.message("take.0.is.always.empty"), ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
     case _ =>
   }

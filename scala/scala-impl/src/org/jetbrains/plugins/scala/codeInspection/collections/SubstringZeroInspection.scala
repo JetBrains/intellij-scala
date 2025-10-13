@@ -16,7 +16,7 @@ object DropSubstringZeroOption extends SimplificationType {
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {
-      case qual`.substring`(arg) if arg.textMatches("0") =>
+      case qual`.substring`arg if arg.textMatches("0") =>
         Some(replace(expr).withText(qual.getText).highlightFrom(qual))
       case _ => None
     }

@@ -102,6 +102,7 @@ package object collections {
   val `!`: Qualified = invocation(Set("!", "unary_!"))
   val `-`: Qualified = invocation("-")
   val `+`: Qualified = invocation("+")
+  val `&&`: Qualified = invocation("&&")
 
   private val isSpecialStringToConversions = Set(
     "toString", "toLowerCase", "toUpperCase"
