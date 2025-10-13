@@ -2098,8 +2098,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "foo2"
   )
 
-  // NOTE: the StackOverflowError in SCL-24428 is actually reproduced during completion, not resolution
-  // but I decided to add this test as well
+  @Test
   def testJavaRawStackOverflowSCL24428(): Unit = {
     myFixture.addFileToProject("JavaRaw.java",
       """import java.lang.Comparable;
