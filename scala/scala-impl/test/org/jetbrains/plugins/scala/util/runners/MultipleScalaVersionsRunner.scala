@@ -17,6 +17,8 @@ import java.util
 import scala.annotation.{tailrec, unused}
 import scala.jdk.CollectionConverters._
 
+@Deprecated(forRemoval = true)
+@deprecated(message = "Consider migrating to MultipleScalaVersionsJUnit4Runner")
 class MultipleScalaVersionsRunner(private val myTest: Test, klass: Class[_]) extends JUnit38ClassRunner(myTest) {
 
   def this(klass: Class[_]) =

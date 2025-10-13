@@ -5,6 +5,7 @@ import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.junit.internal.MethodSorter
 
 import java.lang.reflect.{Method, Modifier}
+import scala.annotation.nowarn
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
@@ -113,7 +114,7 @@ class ScalaVersionAwareTestsCollector(klass: Class[_ <: TestCase],
         } else {
           annotation.value.toSeq
         }
-        val extraVersions = annotation.extra.toSeq
+        val extraVersions = (annotation.extra: @nowarn("cat=deprecation")).toSeq
         (baseVersions ++ extraVersions).sorted.distinct
     }
 
@@ -127,7 +128,7 @@ class ScalaVersionAwareTestsCollector(klass: Class[_ <: TestCase],
         } else {
           annotation.value.toSeq
         }
-        val extraVersions = annotation.extra.toSeq
+        val extraVersions = (annotation.extra: @nowarn("cat=deprecation")).toSeq
         (baseVersions ++ extraVersions).sorted.distinct
     }
 
