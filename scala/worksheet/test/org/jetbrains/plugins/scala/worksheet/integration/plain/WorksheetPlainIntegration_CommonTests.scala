@@ -209,8 +209,7 @@ trait WorksheetPlainIntegration_CommonTests extends PlainWorksheetTestBase
        |s: String = boo""".stripMargin
   )
 
-  @Test
-  def doRenderTestWithoutCompilationWarningsChecks(): Unit = doRenderTest(
+  private def doRenderTestWithoutCompilationWarningsChecks(): Unit = doRenderTest(
     """import java.util._
       |import java.lang.Math
       |
