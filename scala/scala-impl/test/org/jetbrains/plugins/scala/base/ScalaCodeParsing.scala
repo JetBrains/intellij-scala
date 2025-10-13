@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.project.ScalaFeatures.SerializableScalaFeatures
 import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures}
 
 import scala.reflect.ClassTag
@@ -13,6 +14,7 @@ import scala.reflect.ClassTag
 trait ScalaCodeParsing {
 
   protected def scalaVersion: ScalaVersion = ScalaVersion.default
+  protected def scalaFeatures: SerializableScalaFeatures = ScalaFeatures.onlyByVersion(scalaVersion)
 
   def parseScalaFile(
     @InputLanguage("Scala") text: String,
@@ -42,7 +44,6 @@ trait ScalaCodeParsing {
     scalaVersion: ScalaVersion,
     enableEventSystem: Boolean,
   )(implicit project: ProjectContext): ScalaFile = {
-    val scalaFeatures = ScalaFeatures.onlyByVersion(scalaVersion)
     ScalaPsiElementFactory.createScalaFileFromText(text, scalaFeatures, eventSystemEnabled = enableEventSystem, shouldTrimText = false)
   }
 
