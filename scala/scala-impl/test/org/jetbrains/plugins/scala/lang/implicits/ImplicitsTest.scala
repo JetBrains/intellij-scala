@@ -1,6 +1,9 @@
 package org.jetbrains.plugins.scala.lang.implicits
 
+import com.intellij.testFramework.EditorTestUtil._
 import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase
+
+import scala.jdk.CollectionConverters.ListHasAsScala
 
 class ImplicitsTest extends TypeInferenceTestBase {
 
@@ -38,7 +41,7 @@ class ImplicitsTest extends TypeInferenceTestBase {
          |    import E.{string=>_, _}
          |    implicit def string1(s:String):Echo = Echo(s+" --- Custom implicit conversion")
          |    // works, but IDEA doesn't recognize
-         |    echo(${START}"sss"$END)
+         |    echo($START"sss"$END)
          |  }
          |}
          |//Echo
@@ -91,7 +94,7 @@ class ImplicitsTest extends TypeInferenceTestBase {
       s"""
         |class SCL19526 {
         |  def javaRaw1(x: M[JavaRaw.CalculationEnum[_]]): Unit = {
-        |    ${START}x.extension.str()${END}
+        |    ${START}x.extension.str()$END
         |  }
         |  class M[A] { def a: A = ??? }
         |  object M {
@@ -100,6 +103,48 @@ class ImplicitsTest extends TypeInferenceTestBase {
         |}
         |// String
         |""".stripMargin)
+  }
+
+  // NOTE: the StackOverflowError in SCL-24428 is actually reproduced during completion, not resolution
+  // but I decided to add this test as well
+  def testJavaRawStackOverflowSCL24428(): Unit = {
+    addFileToProject("JavaRaw.java",
+      """package java_raw;
+        |
+        |import java.lang.Comparable;
+        |
+        |interface ProcessorDefinition00<T extends ProcessorDefinition0> { }
+        |abstract class ProcessorDefinition0<T extends ProcessorDefinition0<T>> implements ProcessorDefinition00 { abstract String foo0();}
+        |abstract class ProcessorDefinition1<T extends ProcessorDefinition1<T>> implements Comparable<ProcessorDefinition1> { abstract int foo1();}
+        |abstract class ProcessorDefinition2<T extends ProcessorDefinition2<T>> implements Comparable<Comparable<ProcessorDefinition2>> { abstract long foo2();}
+        |abstract class ProcessorDefinition3<T extends ProcessorDefinition3<T>> implements Comparable<ProcessorDefinition3<?>> { abstract short foo3();}
+        |""".stripMargin)
+
+    configureFromFileText(
+      "Example.scala",
+      s"""package java_raw
+         |
+         |class Example {
+         |  private def foo(): Unit = {
+         |    val value0: ProcessorDefinition0[_] = ???
+         |    val value1: ProcessorDefinition1[_] = ???
+         |    val value2: ProcessorDefinition2[_] = ???
+         |    val value3: ProcessorDefinition3[_] = ???
+         |
+         |    $SELECTION_START_TAG${CARET}value0.foo0()$SELECTION_END_TAG
+         |    $SELECTION_START_TAG${CARET}value1.foo1()$SELECTION_END_TAG
+         |    $SELECTION_START_TAG${CARET}value2.foo2()$SELECTION_END_TAG
+         |    $SELECTION_START_TAG${CARET}value3.foo3()$SELECTION_END_TAG
+         |
+         |    ???
+         |  }
+         |}
+         |""".stripMargin)
+
+    typeInferenceFixture.assertTypeAtSelectionIndex(getFile, getEditor, 0, "String")
+    typeInferenceFixture.assertTypeAtSelectionIndex(getFile, getEditor, 1, "Int")
+    typeInferenceFixture.assertTypeAtSelectionIndex(getFile, getEditor, 2, "Long")
+    typeInferenceFixture.assertTypeAtSelectionIndex(getFile, getEditor, 3, "Short")
   }
 
   def testSCL10141(): Unit = {

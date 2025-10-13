@@ -1,19 +1,23 @@
 package org.jetbrains.plugins.scala.lang.typeInference
 
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.util.TextRange
+import com.intellij.psi.PsiFile
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypePresentation
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestFixture.extractTextForCurrentVersion
 import org.jetbrains.plugins.scala.util.TestUtils
-import org.jetbrains.plugins.scala.util.TestUtils.ExpectedResultFromLastComment
 import org.jetbrains.plugins.scala.util.assertions.PsiAssertions.assertNoParserErrors
 import org.junit.Assert
 import org.junit.Assert._
+
+import scala.jdk.CollectionConverters.ListHasAsScala
 
 /**
  * @param scalaVersion scala version is required because some test data defines multiple expected types
@@ -43,40 +47,48 @@ final class TypeInferenceTestFixture(
       assertNoParserErrors(scalaFile)
     }
 
+    lazy val lastLineCommentText = TestUtils.extractExpectedResultFromLastComment(scalaFile).expectedResult
+    lazy val expectedTextForCurrentVersion = extractTextForCurrentVersion(lastLineCommentText, scalaVersion)
     val expression = findSelectedExpression(scalaFile)
+    assertExpressionType(expression, expectedTextForCurrentVersion)
+  }
+
+  private def assertExpressionType(expression: ScExpression, expectedTextForCurrentVersion: => String): Unit = {
     val expressionTypeResult = expression.`type`() match {
       case Right(t) if t.isUnit => expression.getTypeIgnoreBaseType
       case x => x
     }
     expressionTypeResult match {
       case Right(expressionType) =>
-        val ExpectedResultFromLastComment(_, lastLineCommentText) = TestUtils.extractExpectedResultFromLastComment(scalaFile)
-        val expectedTextForCurrentVersion = extractTextForCurrentVersion(lastLineCommentText, scalaVersion)
-
-        implicit val tpc: TypePresentationContext = TypePresentationContext.emptyContextIn(scalaVersion)
-        implicit val context: Context = Context.Empty
-
-        val expressionTypeText = expressionType.presentableText
-
-        if (expectedTextForCurrentVersion.startsWith(FewVariantsMarker)) {
-          val results = expectedTextForCurrentVersion.substring(FewVariantsMarker.length).trim.split('\n')
-          if (!results.contains(expressionTypeText))
-            assertEqualsFailable(results(0), expressionTypeText)
-        }
-
-        else expectedTextForCurrentVersion match {
-          case ExpectedPattern(expectedExpectedTypeText) =>
-            val actualExpectedTypeText = expression.expectedType().map(_.presentableText).getOrElse("<none>")
-            assertEqualsFailable(expectedExpectedTypeText, actualExpectedTypeText)
-          case SimplifiedPattern(expectedText) =>
-            assertEqualsFailable(expectedText, TypePresentation.withoutAliases(expressionType))
-          case JavaTypePattern(expectedText) =>
-            assertEqualsFailable(expectedText, expression.`type`().map(_.toPsiType.getPresentableText()).getOrElse("<none>"))
-          case _ =>
-            assertEqualsFailable(expectedTextForCurrentVersion, expressionTypeText)
-        }
-      case Failure(msg) if shouldPass => fail(msg)
+        assertExpressionType(expression, expressionType, expectedTextForCurrentVersion)
+      case Failure(msg) if shouldPass =>
+        fail(msg)
       case _ =>
+    }
+  }
+
+  private def assertExpressionType(expression: ScExpression, expressionType: ScType, expectedTextForCurrentVersion: => String): Unit = {
+    implicit val tpc: TypePresentationContext = TypePresentationContext.emptyContextIn(scalaVersion)
+    implicit val context: Context = Context.Empty
+
+    val expressionTypeText = expressionType.presentableText
+
+    if (expectedTextForCurrentVersion.startsWith(FewVariantsMarker)) {
+      val results = expectedTextForCurrentVersion.substring(FewVariantsMarker.length).trim.split('\n')
+      if (!results.contains(expressionTypeText))
+        assertEqualsFailable(results(0), expressionTypeText)
+    }
+
+    else expectedTextForCurrentVersion match {
+      case ExpectedPattern(expectedExpectedTypeText) =>
+        val actualExpectedTypeText = expression.expectedType().map(_.presentableText).getOrElse("<none>")
+        assertEqualsFailable(expectedExpectedTypeText, actualExpectedTypeText)
+      case SimplifiedPattern(expectedText) =>
+        assertEqualsFailable(expectedText, TypePresentation.withoutAliases(expressionType))
+      case JavaTypePattern(expectedText) =>
+        assertEqualsFailable(expectedText, expression.`type`().map(_.toPsiType.getPresentableText()).getOrElse("<none>"))
+      case _ =>
+        assertEqualsFailable(expectedTextForCurrentVersion, expressionTypeText)
     }
   }
 
@@ -101,6 +113,30 @@ final class TypeInferenceTestFixture(
     val expr: ScExpression = PsiTreeUtil.findElementOfClassAtRange(scalaFile, startOffset + addOne, endOffset, classOf[ScExpression])
     assert(expr != null, "Not specified expression in range to infer type.")
 
+    expr
+  }
+
+  /**
+   * @param selectionIndex index of the editor selection that will be used to find the selected expression
+   * @param expectedTypeText text of the expected type
+   */
+  def assertTypeAtSelectionIndex(
+    psiFile: PsiFile,
+    editor: Editor,
+    selectionIndex: Int,
+    expectedTypeText: String
+  ): Unit = {
+    val allSelections = editor.getCaretModel.getAllCarets.asScala.map(_.getSelectionRange)
+    val selectedRange = allSelections.lift(selectionIndex).getOrElse(throw new IllegalArgumentException(s"Selection index $selectionIndex exceeds the number of selections in the editor"))
+    val expr = findSelectedExpression(psiFile, selectedRange)
+    assertExpressionType(expr, expectedTypeText)
+  }
+
+  private def findSelectedExpression(psiFile: PsiFile, range: TextRange): ScExpression = {
+    val start = range.getStartOffset
+    val end = range.getEndOffset
+    val expr: ScExpression = PsiTreeUtil.findElementOfClassAtRange(psiFile, start, end, classOf[ScExpression])
+    assert(expr != null, "Not specified expression in range to infer type.")
     expr
   }
 }

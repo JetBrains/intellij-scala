@@ -7,13 +7,12 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.model.ExternalSystemException
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
-import org.jetbrains.annotations.Nls
 import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import org.jetbrains.annotations.ApiStatus.Internal
-import org.jetbrains.annotations.{ApiStatus, NonNls, TestOnly}
+import org.jetbrains.annotations.{ApiStatus, Nls, NonNls, TestOnly}
 import org.jetbrains.ide.PooledThreadExecutor
-import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
+import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}
 import org.jetbrains.plugins.scala.extensions.LoggerExt
 import org.jetbrains.plugins.scala.isInternalMode
 import org.jetbrains.sbt.shell.LineListener.{LineSeparatorRegex, escapeNewLines}
@@ -23,13 +22,13 @@ import org.jetbrains.sbt.shell.SbtShellCommunication.*
 import org.jetbrains.sbt.shell.SbtShellLifecycle.{ShellState, ShellStateEvent}
 import org.jetbrains.sbt.{SbtBundle, SbtUtil, SbtVersion}
 
-import java.util.concurrent.*
 import java.util.UUID
+import java.util.concurrent.*
 import java.util.concurrent.atomic.AtomicReference
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
 import scala.concurrent.{Future, Promise}
-import scala.util.{Success, Try}
+import scala.util.{Failure, Success}
 
 // TODO: this class has become too complicated, too much random state updates.
 //  We need to design a better architecture for it.
@@ -423,7 +422,7 @@ final class SbtShellCommunication(project: Project) {
 
       processOutputBuilder.foreach(_.append(text))
 
-      val isError = text `startsWith` ERROR_PREFIX
+      val isError = isErrorOutput(text)
       val newMessages =
         if (isError) {
           if (messages.errors.isEmpty && showSbtShellOnError) {
@@ -484,6 +483,17 @@ object SbtShellCommunication {
     * The final result will just be the value of the last invocation. */
   def listenerAggregator[A](listener: ShellEvent => A): EventAggregator[A] = (_,e) =>
     listener(e)
+
+  /**
+   * @param sbtOutputText a line of output from the sbt shell
+   * @return true if the line starts with `[error]`
+   * @note technically it's not entirely correct way to detect if the output is "an error".
+   *       A user can still print some text to stdout that would start with `[error]` that would not be a "sbt error".
+   *       But to our latest knowledge, there is no better way to reliably get that with the way current sbt-shell communication
+   *       is implemented.
+   */
+  def isErrorOutput(sbtOutputText: String): Boolean =
+    sbtOutputText.startsWith(ERROR_PREFIX)
 }
 
 private[shell] object SbtShellLifecycle {
@@ -525,8 +535,8 @@ private[shell] object SbtShellLifecycle {
   }
 
   def transition(state: ShellState, event: ShellStateEvent): ShellState = {
-    import ShellState._
-    import ShellStateEvent._
+    import ShellState.*
+    import ShellStateEvent.*
     def logProhibitedTransition(): ShellState = {
       val msg = s"[SbtShellLifecycle] The prohibited $event event from $state. Ignored"
       if (isInternalMode) log.error(msg)
@@ -581,7 +591,7 @@ private[shell] class CommandListener[A](default: A, aggregator: EventAggregator[
 
   def processTerminated(): Unit = {
     aggregate(ProcessTerminated)
-    promise.complete(Try(a))
+    promise.complete(Failure(new RuntimeException("Sbt shell terminated before command is finished")))
   }
 
   override def onLine(text: String): Unit =
