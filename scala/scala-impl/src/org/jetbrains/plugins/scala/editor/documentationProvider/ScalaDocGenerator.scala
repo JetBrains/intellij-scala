@@ -47,7 +47,6 @@ object ScalaDocGenerator {
   def generateDoc(elementWithDoc: PsiElement, originalElement: Option[PsiElement]): String = internalLog {
     val builder = new StringBuilder
 
-    // for library classes, get class from sources jar
     appendHeader(builder, elementWithDoc)
 
     ScalaDocDefinitionGenerator.generate(builder, elementWithDoc, originalElement)
