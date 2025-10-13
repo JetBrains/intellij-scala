@@ -27,7 +27,6 @@ class ScalaLibraryQuickDocGenerationHealthCheckTest extends base.ScalaLightCodeI
 
   override protected def includeScalaLibrarySources: Boolean = true
 
-  @Ignore("The test is failing since Scala 2.13.17")
   @Test
   def testAllMacroAreResolved(): Unit = {
     ScalaDocContentGenerator.unresolvedMacro.clear()
