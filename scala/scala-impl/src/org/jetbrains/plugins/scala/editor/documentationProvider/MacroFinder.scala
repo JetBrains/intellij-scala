@@ -120,6 +120,9 @@ private class MacroFinderImpl(
           val supers = clazz.supers
           supers.foreach(enqueue)
 
+          val selfTypeClass = clazz.selfType.flatMap(_.extractClass)
+          selfTypeClass.foreach(enqueue)
+
           Option(clazz.containingClass).foreach(enqueue)
         case member: ScMember =>
           result += member
