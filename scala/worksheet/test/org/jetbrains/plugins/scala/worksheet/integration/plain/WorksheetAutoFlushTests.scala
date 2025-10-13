@@ -3,8 +3,8 @@ package org.jetbrains.plugins.scala.worksheet.integration.plain
 import org.jetbrains.plugins.scala.FlakyTests
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult
+import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.{Folding, ViewerEditorData}
-import org.jetbrains.plugins.scala.worksheet.integration.{WorksheetIntegrationBaseTest, WorksheetRunTestSettings}
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterPlain.{FoldingDataForTests, ViewerEditorState}
@@ -27,7 +27,7 @@ class WorksheetPlainCompileLocallyRunLocallyAutoFlushTest extends WorksheetPlain
   override def runInCompileServerProcess = false
 }
 
-abstract class WorksheetPlainAutoFlushTestBase extends WorksheetIntegrationBaseTest with WorksheetRunTestSettings {
+abstract class WorksheetPlainAutoFlushTestBase extends WorksheetIntegrationBaseTest {
   override def runType: WorksheetExternalRunType = WorksheetExternalRunType.PlainRunType
 
   def testAutoFlushOnLongEvaluation_DefaultAutoFlushTimeout(): Unit =

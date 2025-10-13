@@ -2,12 +2,12 @@ package org.jetbrains.plugins.scala.worksheet.integration.plain.eclipse_mode
 
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.runners.{RunWithJdkVersions, RunWithScalaVersions, TestJdkVersion, TestScalaVersion}
-import org.jetbrains.plugins.scala.worksheet.integration.{WorksheetIntegrationBaseTest, WorksheetRunTestSettings}
+import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType
 
 import scala.language.postfixOps
 
-class WorksheetEclipseModeIntegrationBaseTest extends WorksheetIntegrationBaseTest with WorksheetRunTestSettings {
+class WorksheetEclipseModeIntegrationBaseTest extends WorksheetIntegrationBaseTest {
 
   override def runType: WorksheetExternalRunType = WorksheetExternalRunType.PlainRunType
 

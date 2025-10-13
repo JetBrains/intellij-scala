@@ -42,10 +42,10 @@ import scala.language.postfixOps
 @Category(Array(classOf[WorksheetEvaluationTests]))
 abstract class WorksheetIntegrationBaseTest
   extends ScalaCompilerTestBase
+    with WorksheetRunTestSettings
     with WorksheetItEditorPreparations
     with WorksheetItEvaluations
     with WorksheetItAssertions {
-  self: WorksheetRunTestSettings =>
 
   protected val (foldStart, foldEnd)                 = ("<folding>", "</folding>")
   protected val (foldStartExpanded, foldEndExpanded) = ("<foldingExpanded>", "</foldingExpanded>")
@@ -61,7 +61,7 @@ abstract class WorksheetIntegrationBaseTest
   protected def worksheetFileName: String = s"worksheet_${getTestName(false)}.sc"
 
   protected def setupWorksheetSettings(settings: WorksheetFilePersistentSettings): Unit = {
-    settings.setRunType(self.runType)
+    settings.setRunType(runType)
     settings.setInteractive(false) // TODO: test these values?
     settings.setMakeBeforeRun(false)
   }
@@ -78,7 +78,7 @@ abstract class WorksheetIntegrationBaseTest
     super.setUp()
 
     val settings = ScalaProjectSettings.getInstance(project)
-    settings.setInProcessMode(self.runInCompileServerProcess)
+    settings.setInProcessMode(runInCompileServerProcess)
     settings.setAutoRunDelay(300)
   }
 

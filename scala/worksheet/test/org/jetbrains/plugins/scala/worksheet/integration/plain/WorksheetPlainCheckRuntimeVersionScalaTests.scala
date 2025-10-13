@@ -2,9 +2,7 @@ package org.jetbrains.plugins.scala.worksheet.integration.plain
 
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.util.runners.{RunWithJdkVersions, RunWithScalaVersions, TestJdkVersion, TestScalaVersion}
-import org.jetbrains.plugins.scala.worksheet.integration.{WorksheetIntegrationBaseTest, WorksheetRunTestSettings}
-import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType
-import org.junit.Ignore
+import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest
 
 trait WorksheetPlainCheckRuntimeVersionScalaTests  {
   self: WorksheetIntegrationBaseTest =>

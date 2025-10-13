@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult.WorksheetRunError
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetRuntimeExceptionsTests.Folded
 import org.jetbrains.plugins.scala.worksheet.integration.util.{EditorRobot, MyUiUtils}
-import org.jetbrains.plugins.scala.worksheet.integration.{WorksheetIntegrationBaseTest, WorksheetRunTestSettings, WorksheetRuntimeExceptionsTests}
+import org.jetbrains.plugins.scala.worksheet.integration.{WorksheetIntegrationBaseTest, WorksheetRuntimeExceptionsTests}
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType
@@ -18,7 +18,6 @@ import scala.concurrent.duration.DurationInt
 
 //noinspection RedundantBlock
 abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBaseTest
-  with WorksheetRunTestSettings
   with WorksheetRuntimeExceptionsTests
   with WorksheetPlainCheckRuntimeVersionScalaTests {
 

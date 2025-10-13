@@ -2,12 +2,11 @@ package org.jetbrains.plugins.scala.worksheet.integration.plain
 
 import com.intellij.openapi.compiler.{CompilerMessage, CompilerMessageCategory}
 import org.jetbrains.plugins.scala.LatestScalaVersions
-import org.jetbrains.plugins.scala.worksheet.integration.{WorksheetIntegrationBaseTest, WorksheetRunTestSettings}
+import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType
 
 class WorksheetPlainCompileLocallyRunLocallyIntegrationTest
   extends WorksheetIntegrationBaseTest
-    with WorksheetRunTestSettings
     with WorksheetPlainCheckRuntimeVersionScalaTests {
 
   override def runType: WorksheetExternalRunType = WorksheetExternalRunType.PlainRunType

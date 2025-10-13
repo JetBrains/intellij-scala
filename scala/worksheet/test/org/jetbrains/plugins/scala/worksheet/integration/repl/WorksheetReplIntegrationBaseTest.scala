@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala.worksheet.integration.repl
 
-import org.jetbrains.plugins.scala.worksheet.integration.{WorksheetIntegrationBaseTest, WorksheetRunTestSettings}
+import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType
 
 import scala.language.postfixOps
 
-abstract class WorksheetReplIntegrationBaseTest extends WorksheetIntegrationBaseTest with WorksheetRunTestSettings {
+abstract class WorksheetReplIntegrationBaseTest extends WorksheetIntegrationBaseTest {
 
   override def useCompileServer: Boolean = true
 
