@@ -50,8 +50,6 @@ abstract class WorksheetIntegrationBaseTest
   protected val (foldStart, foldEnd)                 = ("<folding>", "</folding>")
   protected val (foldStartExpanded, foldEndExpanded) = ("<foldingExpanded>", "</foldingExpanded>")
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version > LatestScalaVersions.Scala_2_9
-
   protected def evaluationTimeout: Duration = 60 seconds
 
   protected implicit def project: Project = getProject
