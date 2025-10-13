@@ -8,7 +8,7 @@ import com.intellij.psi.util.{CachedValueProvider, CachedValuesManager, PsiTreeU
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses, ScConstructorPattern, ScPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
@@ -135,6 +135,17 @@ package object collections {
     }
   }
 
+  object scalaSomePattern {
+    def unapply(expr: ScPattern): Option[ScPattern] = expr match {
+      case ScConstructorPattern(ref: ScReference, args) if ref.refName == "Some" =>
+        (ref.resolve(), args.patterns) match {
+          case (m: ScMember, Seq(arg)) if m.containingClass.nullSafe.exists(_.qualifiedName == "scala.Some") => Some(arg)
+          case _ => None
+        }
+      case _ => None
+    }
+  }
+
   object scalaOption {
     def unapply(expr: ScExpression): Option[ScExpression] = expr match {
       case MethodRepr(_, Some(ref: ScReferenceExpression), _, Seq(e)) if ref.refName == "Option" =>
@@ -152,6 +163,22 @@ package object collections {
         case ScIf(Some(c), Some(stripped(tb)), Some(stripped(eb))) => Some(c, tb, eb)
         case _ => None
       }
+    }
+  }
+
+  object CaseClause {
+    def unapply(expr: ScCaseClause): Option[(ScPattern, Option[ScGuard], ScExpression)] = {
+      expr match {
+        case ScCaseClause(Some(pattern), guard, Some(stripped(expr))) => Some(pattern, guard, expr)
+        case _ => None
+      }
+    }
+  }
+
+  object Guard {
+    def unapply(guard: Any): Option[ScExpression] = guard match {
+      case Some(guard: ScGuard) => guard.get.expr
+      case guard: ScGuard => guard.expr
     }
   }
 
