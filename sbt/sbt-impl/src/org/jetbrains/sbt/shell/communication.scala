@@ -638,21 +638,30 @@ private[shell] class SbtShellReadyListener(
 
 private[shell] object SbtProcessUtil {
 
-  // Should be the same as in `org.jetbrains.sbt.constants.IDEA_PROMPT_MARKER`
+  /**
+   * The prompt marker is inserted by the `sbt-idea-shell plugin`.
+   * Should be the same as in `org.jetbrains.sbt.constants.IDEA_PROMPT_MARKER`
+   */
   private val IDEA_PROMPT_MARKER = "[IJ]"
 
-  // TODO adjust it to the real prompt value SCL-24401
-  private val SHELL_COMMAND_PROMPT = "sbt:"
+  private val DEFAULT_SHELL_PROMPT = "sbt:"
 
-  // the prompt marker is inserted by the sbt-idea-shell plugin
-  def promptReady(line: String): Boolean = {
-    val prompt =
-      if (isNewShell) SHELL_COMMAND_PROMPT
-      else IDEA_PROMPT_MARKER
-
-    val lineWithNoAnsi = BuildMessages.stripAnsiCodes(line, stripDeckpnm = isNewShell)
-    lineWithNoAnsi.trim.startsWith(prompt)
-  }
+  def promptReady(line: String): Boolean =
+    if (isNewShell) {
+      // When using the new shell (with the built-in shell command), jline3 is utilized under the hood.
+      // Before displaying any prompt, jline3 prints the BRACKETED_PASTE_ON escape sequence to the terminal to enable bracketed paste mode.
+      // If a line contains this escape sequence, it indicates that the line contains a prompt.
+      // As a fallback, we check if the line starts with the default shell prompt ("sbt:project_name").
+      // This heuristic may fail for users with custom prompts but should work for most standard configurations.
+      val bracketedPasteModeEnabled = "\u001B[?2004h"
+      val isBracket = line.contains(bracketedPasteModeEnabled)
+      isBracket || {
+        val lineWithNoAnsi = BuildMessages.stripAnsiCodes(line, stripDeckpnm = isNewShell)
+        lineWithNoAnsi.trim.startsWith(DEFAULT_SHELL_PROMPT)
+      }
+    } else {
+      line.trim.startsWith(IDEA_PROMPT_MARKER)
+    }
 
   def promptError(line: String): Boolean =
     line.trim.endsWith("(r)etry, (q)uit, (l)ast, or (i)gnore?")

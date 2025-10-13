@@ -62,7 +62,7 @@ abstract class SettingQueryHandlerTestBase extends SbtProjectStructureImportingL
 
     if (useNewShell) {
       val newShellRegistry = Registry.get("sbt.new.shell")
-      newShellRegistry.setValue(true)
+      newShellRegistry.setValue(true, getTestRootDisposable)
     }
 
     importProject()
