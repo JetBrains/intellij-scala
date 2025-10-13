@@ -27,7 +27,7 @@ object ScalaPredefinedConfigurations {
         classFolder),
       createSConfiguration(ScalaStructuralSearchBundle.message("class.with.functions"), "classprop",
         """class '_class {
-          | def '_func('_arg*\: '_ty): '_ret = { '_body* }
+          | def '_func('_arg*\: '_ty{0,1})
           |}""".stripMargin,
         classFolder),
       createSConfiguration(ScalaStructuralSearchBundle.message("all.value.properties.of.a.class"), "classvalprops",
@@ -42,9 +42,7 @@ object ScalaPredefinedConfigurations {
         classFolder),
       createSConfiguration(ScalaStructuralSearchBundle.message("all.functions.of.a.class"), "classvalprops",
         """class '_class {
-          | def 'func('_para*\: '_ty{0,1}): '_ret{0,1} = {
-          |   '_body*
-          | }
+          | def 'func('_para*)
           |}""".stripMargin,
         classFolder),
       createSConfiguration(ScalaStructuralSearchBundle.message("class.without.certain.modifiers"), "classwithoutmod",
@@ -52,20 +50,19 @@ object ScalaPredefinedConfigurations {
           |}""".stripMargin,
         classFolder),
       createSConfiguration(ScalaStructuralSearchBundle.message("any.function"), "functionany",
-        """def '_func('_arg*\: '_ty): '_ret = {
-          | '_b*
+        """def '_func('_arg*)""",
+        funcFolder),
+      createSConfiguration(ScalaStructuralSearchBundle.message("any.function.full.template"), "functionanyfull",
+        """def '_func('_arg*\: '_ty{0,1}): '_ret{0,1} = {
+          | '_stmt*
           |}""".stripMargin,
         funcFolder),
       createSConfiguration(ScalaStructuralSearchBundle.message("functions.without.return.type"), "functionnotret",
-        """def '_func('_arg*\: '_ty): '_ret{0,0} = {
-          | '_b*
-          |}""".stripMargin,
+        """def '_func('_arg*)\: '_ret{0,0} """,
         funcFolder),
       createSConfiguration(ScalaStructuralSearchBundle.message("functions.with.annotation"), "functionannot",
         """@'_anno
-          |def '_func('_arg*\: '_ty): '_ret = {
-          | '_b*
-          |}""".stripMargin,
+          |def '_func('_arg*)""".stripMargin,
         funcFolder),
       createSConfiguration(ScalaStructuralSearchBundle.message("function.without.certain.modifiers"), "funcwithoutmod",
         """def '_func:[ script( "!__context__.hasModifierPropertyScala("private")" ) ]('_arg*)""".stripMargin,
