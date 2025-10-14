@@ -1146,3 +1146,31 @@ addCommandAlias("runCompilerPluginTests-2_12", "compiler-plugin-2_12/testOnly --
 addCommandAlias("runCompilerPluginTests-2_13", "compiler-plugin-2_13/testOnly -- -v -s -a +c +q")
 addCommandAlias("runCompilerPluginTests-3_3", "compiler-plugin-3_3/testOnly -- -v -s -a +c +q")
 addCommandAlias("runCompilerPluginTests", "runCompilerPluginTests-2_12; runCompilerPluginTests-2_13; runCompilerPluginTests-3_3")
+
+lazy val runHashedTests = Command.args("runHashedTests", "") { (state, args) =>
+  def parseInt(str: String): Option[Int] =
+    try Some(str.toInt)
+    catch { case _: NumberFormatException => None }
+
+  val totalBuckets = sys.env.get("TC_SBT_TEST_BUCKETS_TOTAL").flatMap(parseInt).getOrElse(1)
+  val currentBucket = sys.env.get("TC_SBT_TEST_BUCKETS_CURRENT").flatMap(parseInt).getOrElse(0)
+
+  def runTestByHash(testClassName: String): Boolean = {
+    val hash = testClassName.##
+    val modulo = hash % totalBuckets
+    val positive = if (modulo < 0) modulo + totalBuckets else modulo
+    positive == currentBucket
+  }
+
+  val newState = state.appendWithSession(Seq(
+    Test / testOptions := Seq(
+      Tests.Argument(TestFrameworks.JUnit, "-v", "-s", "-a", "+c", "+q", s"--exclude-categories=$randomTypingTests,$flakyTests"),
+      Tests.Filter(runTestByHash)
+    )
+  ))
+
+  val (result, ()) = Project.extract(newState).runInputTask(Test / testOnly, "", newState)
+  result
+}
+
+Global / commands += runHashedTests
