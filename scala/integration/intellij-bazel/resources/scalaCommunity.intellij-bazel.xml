@@ -2,6 +2,7 @@
 <idea-plugin>
     <dependencies>
         <plugin id="org.jetbrains.bazel"/>
+        <module name="scalaCommunity.testing-support"/>
     </dependencies>
 
     <extensions defaultExtensionNs="org.jetbrains.bazel">
@@ -16,5 +17,6 @@
     </extensions>
     <extensions defaultExtensionNs="com.intellij">
         <runLineMarkerContributor implementationClass="org.jetbrains.plugins.scala.bazel.BazelScalaRunLineMarkerContributor" language="Scala" order="before ScalaRunLineMarkerContributor"/>
+        <runLineMarkerContributor implementationClass="org.jetbrains.plugins.scala.bazel.BazelTestRunLineMarkerContributor" language="Scala" />
     </extensions>
 </idea-plugin>

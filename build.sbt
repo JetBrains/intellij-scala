@@ -824,7 +824,7 @@ lazy val gradleIntegration =
 
 lazy val intellijBazelIntegration =
   newProject("intellij-bazel", file("scala/integration/intellij-bazel"))
-    .dependsOn(scalaImpl, sbtImpl)
+    .dependsOn(scalaImpl, sbtImpl, testingSupport)
     .settings(
       intellijPlugins += "org.jetbrains.bazel::stable".toPlugin,
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.intellij-bazel")
