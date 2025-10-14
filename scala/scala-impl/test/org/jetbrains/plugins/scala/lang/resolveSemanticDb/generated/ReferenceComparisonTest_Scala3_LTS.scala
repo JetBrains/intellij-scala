@@ -13,7 +13,10 @@ import org.junit.experimental.categories.Category
  */
 //noinspection NameBooleanParameters
 @Category(Array(classOf[ScalacTests]))
-class ReferenceComparisonTest_Scala3_LTS extends ReferenceComparisonTestBase(org.jetbrains.plugins.scala.lang.resolveSemanticDb.configurations.ReferenceComparisonTestConfig_Scala3_LTS) {
+abstract class ReferenceComparisonTest_Scala3_LTS extends ReferenceComparisonTestBase(org.jetbrains.plugins.scala.lang.resolveSemanticDb.configurations.ReferenceComparisonTestConfig_Scala3_LTS)
+
+//noinspection NameBooleanParameters
+final class ReferenceComparisonTest_Scala3_LTS_Part1 extends ReferenceComparisonTest_Scala3_LTS {
   def test_1567(): Unit = doTest("1567", true)
   def test_3190(): Unit = doTest("3190", true)
   def test_6322(): Unit = doTest("6322", true) // #matchType
@@ -115,6 +118,10 @@ class ReferenceComparisonTest_Scala3_LTS extends ReferenceComparisonTestBase(org
   def test_blockescapes(): Unit = doTest("blockescapes", true)
   def test_bounds(): Unit = doTest("bounds", true)
   def test_Bridges(): Unit = doTest("Bridges", true)
+}
+
+//noinspection NameBooleanParameters
+final class ReferenceComparisonTest_Scala3_LTS_Part2 extends ReferenceComparisonTest_Scala3_LTS {
   def test_bubbleUpNothing(): Unit = doTest("bubbleUpNothing", true)
   def test_builders(): Unit = doTest("builders", true)
   def test_byname_implicits_1(): Unit = doTest("byname-implicits-1", false) // #byNameImplicit
@@ -216,6 +223,10 @@ class ReferenceComparisonTest_Scala3_LTS extends ReferenceComparisonTestBase(org
   def test_derive_eq(): Unit = doTest("derive-eq", false) // #derives, #enum
   def test_derives_obj(): Unit = doTest("derives-obj", true) // #derives
   def test_devalify(): Unit = doTest("devalify", true)
+}
+
+//noinspection NameBooleanParameters
+final class ReferenceComparisonTest_Scala3_LTS_Part3 extends ReferenceComparisonTest_Scala3_LTS {
   def test_doWhile(): Unit = doTest("doWhile", true)
   def test_duplicate_parents(): Unit = doTest("duplicate-parents", true)
   def test_Dynamic(): Unit = doTest("Dynamic", true)
@@ -317,6 +328,10 @@ class ReferenceComparisonTest_Scala3_LTS extends ReferenceComparisonTestBase(org
   def test_given_constrapps(): Unit = doTest("given-constrapps", true)
   def test_given_pattern(): Unit = doTest("given-pattern", true) // #transparentInline
   def test_givenFallback(): Unit = doTest("givenFallback", true)
+}
+
+//noinspection NameBooleanParameters
+final class ReferenceComparisonTest_Scala3_LTS_Part4 extends ReferenceComparisonTest_Scala3_LTS {
   def test_givenIn(): Unit = doTest("givenIn", true)
   def test_gosh(): Unit = doTest("gosh", true)
   def test_gui(): Unit = doTest("gui", true)
@@ -418,6 +433,10 @@ class ReferenceComparisonTest_Scala3_LTS extends ReferenceComparisonTestBase(org
   def test_i1432(): Unit = doTest("i1432", true)
   def test_i1442(): Unit = doTest("i1442", true)
   def test_i1444(): Unit = doTest("i1444", true) // #traitParameters
+}
+
+//noinspection NameBooleanParameters
+final class ReferenceComparisonTest_Scala3_LTS_Part5 extends ReferenceComparisonTest_Scala3_LTS {
   def test_i1447(): Unit = doTest("i1447", true)
   def test_i1500(): Unit = doTest("i1500", true)
   def test_i1515(): Unit = doTest("i1515", true)
@@ -519,6 +538,10 @@ class ReferenceComparisonTest_Scala3_LTS extends ReferenceComparisonTestBase(org
   def test_i2671(): Unit = doTest("i2671", true)
   def test_i2672(): Unit = doTest("i2672", true)
   def test_i2673(): Unit = doTest("i2673", true)
+}
+
+//noinspection NameBooleanParameters
+final class ReferenceComparisonTest_Scala3_LTS_Part6 extends ReferenceComparisonTest_Scala3_LTS {
   def test_i2697(): Unit = doTest("i2697", true)
   def test_i2723(): Unit = doTest("i2723", false) // #traitParameters
   def test_i2732(): Unit = doTest("i2732", true)
@@ -620,6 +643,10 @@ class ReferenceComparisonTest_Scala3_LTS extends ReferenceComparisonTestBase(org
   def test_i3736(): Unit = doTest("i3736", true)
   def test_i3816(): Unit = doTest("i3816", false)
   def test_i3857(): Unit = doTest("i3857", true)
+}
+
+//noinspection NameBooleanParameters
+final class ReferenceComparisonTest_Scala3_LTS_Part7 extends ReferenceComparisonTest_Scala3_LTS {
   def test_i3873(): Unit = doTest("i3873", true)
   def test_i3909(): Unit = doTest("i3909", true)
   def test_i3917(): Unit = doTest("i3917", true)
@@ -721,6 +748,10 @@ class ReferenceComparisonTest_Scala3_LTS extends ReferenceComparisonTestBase(org
   def test_i5411(): Unit = doTest("i5411", true) // #unionType
   def test_i5413_a(): Unit = doTest("i5413-a", true)
   def test_i5413_b(): Unit = doTest("i5413-b", true)
+}
+
+//noinspection NameBooleanParameters
+final class ReferenceComparisonTest_Scala3_LTS_Part8 extends ReferenceComparisonTest_Scala3_LTS {
   def test_i5418(): Unit = doTest("i5418", true)
   def test_i5427(): Unit = doTest("i5427", false)
   def test_i5481(): Unit = doTest("i5481", true) // #opaque
@@ -822,6 +853,10 @@ class ReferenceComparisonTest_Scala3_LTS extends ReferenceComparisonTestBase(org
   def test_i6781(): Unit = doTest("i6781", true) // #enum
   def test_i6822(): Unit = doTest("i6822", true) // #opaque
   def test_i6828(): Unit = doTest("i6828", true) // #byNameImplicit
+}
+
+//noinspection NameBooleanParameters
+final class ReferenceComparisonTest_Scala3_LTS_Part9 extends ReferenceComparisonTest_Scala3_LTS {
   def test_i6847(): Unit = doTest("i6847", true) // #extension
   def test_i6849a(): Unit = doTest("i6849a", true)
   def test_i6849b(): Unit = doTest("i6849b", true)
@@ -923,6 +958,10 @@ class ReferenceComparisonTest_Scala3_LTS extends ReferenceComparisonTestBase(org
   def test_i8049(): Unit = doTest("i8049", true)
   def test_i8056(): Unit = doTest("i8056", true) // #intersectionType, #unionType
   def test_i8067(): Unit = doTest("i8067", true)
+}
+
+//noinspection NameBooleanParameters
+final class ReferenceComparisonTest_Scala3_LTS_Part10 extends ReferenceComparisonTest_Scala3_LTS {
   def test_i8069(): Unit = doTest("i8069", false)
   def test_i8083(): Unit = doTest("i8083", true)
   def test_i8084(): Unit = doTest("i8084", true) // #intersectionType
@@ -1024,6 +1063,10 @@ class ReferenceComparisonTest_Scala3_LTS extends ReferenceComparisonTestBase(org
   def test_i9226(): Unit = doTest("i9226", true)
   def test_i9228(): Unit = doTest("i9228", true)
   def test_i9248(): Unit = doTest("i9248", false) // #extension
+}
+
+//noinspection NameBooleanParameters
+final class ReferenceComparisonTest_Scala3_LTS_Part11 extends ReferenceComparisonTest_Scala3_LTS {
   def test_i9260(): Unit = doTest("i9260", true) // #enum
   def test_i9266(): Unit = doTest("i9266", true)
   def test_i9267(): Unit = doTest("i9267", true)
@@ -1125,6 +1168,10 @@ class ReferenceComparisonTest_Scala3_LTS extends ReferenceComparisonTestBase(org
   def test_i10897(): Unit = doTest("i10897", true) // #intersectionType
   def test_i10900(): Unit = doTest("i10900", true)
   def test_i10927(): Unit = doTest("i10927", true)
+}
+
+//noinspection NameBooleanParameters
+final class ReferenceComparisonTest_Scala3_LTS_Part12 extends ReferenceComparisonTest_Scala3_LTS {
   def test_i10945(): Unit = doTest("i10945", true)
   def test_i10951(): Unit = doTest("i10951", true)
   def test_i10964(): Unit = doTest("i10964", true) // #typeLambda
@@ -1226,6 +1273,10 @@ class ReferenceComparisonTest_Scala3_LTS extends ReferenceComparisonTestBase(org
   def test_i12072_c(): Unit = doTest("i12072-c", true) // #transparentInline, #intersectionType
   def test_i12072_d(): Unit = doTest("i12072-d", true)
   def test_i12072_e(): Unit = doTest("i12072-e", true) // #unionType
+}
+
+//noinspection NameBooleanParameters
+final class ReferenceComparisonTest_Scala3_LTS_Part13 extends ReferenceComparisonTest_Scala3_LTS {
   def test_i12073(): Unit = doTest("i12073", true) // #transparentInline
   def test_i12112(): Unit = doTest("i12112", true) // #export
   def test_i12126(): Unit = doTest("i12126", false) // #extension, #opaque, #typeLambda, #givenImport
@@ -1327,6 +1378,10 @@ class ReferenceComparisonTest_Scala3_LTS extends ReferenceComparisonTestBase(org
   def test_i13490(): Unit = doTest("i13490", false) // #enum, #export
   def test_i13503(): Unit = doTest("i13503", false) // #transparentInline
   def test_i13512(): Unit = doTest("i13512", true)
+}
+
+//noinspection NameBooleanParameters
+final class ReferenceComparisonTest_Scala3_LTS_Part14 extends ReferenceComparisonTest_Scala3_LTS {
   def test_i13526(): Unit = doTest("i13526", true) // #matchType
   def test_i13532(): Unit = doTest("i13532", false) // #spliced/quoted
   def test_i13541(): Unit = doTest("i13541", true) // #typeLambda
@@ -1428,6 +1483,10 @@ class ReferenceComparisonTest_Scala3_LTS extends ReferenceComparisonTestBase(org
   def test_i15030(): Unit = doTest("i15030", true)
   def test_i15054(): Unit = doTest("i15054", true)
   def test_i15097(): Unit = doTest("i15097", true) // #intersectionType
+}
+
+//noinspection NameBooleanParameters
+final class ReferenceComparisonTest_Scala3_LTS_Part15 extends ReferenceComparisonTest_Scala3_LTS {
   def test_i15133a(): Unit = doTest("i15133a", true)
   def test_i15133b(): Unit = doTest("i15133b", true)
   def test_i15154(): Unit = doTest("i15154", true)
@@ -1529,6 +1588,10 @@ class ReferenceComparisonTest_Scala3_LTS extends ReferenceComparisonTestBase(org
   def test_i16374a(): Unit = doTest("i16374a", true)
   def test_i16374b(): Unit = doTest("i16374b", true)
   def test_i16374c(): Unit = doTest("i16374c", true)
+}
+
+//noinspection NameBooleanParameters
+final class ReferenceComparisonTest_Scala3_LTS_Part16 extends ReferenceComparisonTest_Scala3_LTS {
   def test_i16374d(): Unit = doTest("i16374d", true)
   def test_i16407(): Unit = doTest("i16407", true)
   def test_i16435(): Unit = doTest("i16435", true)
@@ -1630,6 +1693,10 @@ class ReferenceComparisonTest_Scala3_LTS extends ReferenceComparisonTestBase(org
   def test_i18601(): Unit = doTest("i18601", false) // #extension
   def test_i18601b(): Unit = doTest("i18601b", true) // #extension
   def test_i18645(): Unit = doTest("i18645", true) // #extension
+}
+
+//noinspection NameBooleanParameters
+final class ReferenceComparisonTest_Scala3_LTS_Part17 extends ReferenceComparisonTest_Scala3_LTS {
   def test_i18649(): Unit = doTest("i18649", true)
   def test_i18654(): Unit = doTest("i18654", false)
   def test_i18713(): Unit = doTest("i18713", true) // #extension
@@ -1731,6 +1798,10 @@ class ReferenceComparisonTest_Scala3_LTS extends ReferenceComparisonTestBase(org
   def test_implicit_conversion(): Unit = doTest("implicit-conversion", true)
   def test_implicit_dep(): Unit = doTest("implicit-dep", true)
   def test_implicit_divergent(): Unit = doTest("implicit-divergent", true)
+}
+
+//noinspection NameBooleanParameters
+final class ReferenceComparisonTest_Scala3_LTS_Part18 extends ReferenceComparisonTest_Scala3_LTS {
   def test_implicit_infix_ops(): Unit = doTest("implicit-infix-ops", true)
   def test_implicit_lower_bound(): Unit = doTest("implicit-lower-bound", false)
   def test_implicit_match_and_inline_match(): Unit = doTest("implicit-match-and-inline-match", true)
@@ -1832,6 +1903,10 @@ class ReferenceComparisonTest_Scala3_LTS extends ReferenceComparisonTestBase(org
   def test_Labels(): Unit = doTest("Labels", false)
   def test_lambda(): Unit = doTest("lambda", true)
   def test_lambdalift(): Unit = doTest("lambdalift", true)
+}
+
+//noinspection NameBooleanParameters
+final class ReferenceComparisonTest_Scala3_LTS_Part19 extends ReferenceComparisonTest_Scala3_LTS {
   def test_lambdalift_1(): Unit = doTest("lambdalift-1", true)
   def test_lambdalift1(): Unit = doTest("lambdalift1", true)
   def test_lambdalift_1_1(): Unit = doTest("lambdalift_1", true)
@@ -1933,6 +2008,10 @@ class ReferenceComparisonTest_Scala3_LTS extends ReferenceComparisonTestBase(org
   def test_opaque_propability_xm(): Unit = doTest("opaque-propability-xm", false) // #opaque, #extension
   def test_opaque_simple(): Unit = doTest("opaque-simple", true) // #opaque
   def test_opaque_xm(): Unit = doTest("opaque-xm", true) // #opaque, #extension
+}
+
+//noinspection NameBooleanParameters
+final class ReferenceComparisonTest_Scala3_LTS_Part20 extends ReferenceComparisonTest_Scala3_LTS {
   def test_opaques_patmat(): Unit = doTest("opaques-patmat", true) // #opaque
   def test_opaques_queue(): Unit = doTest("opaques-queue", true) // #opaque
   def test_opassign(): Unit = doTest("opassign", true)
@@ -2034,6 +2113,10 @@ class ReferenceComparisonTest_Scala3_LTS extends ReferenceComparisonTestBase(org
   def test_S8(): Unit = doTest("S8", true)
   def test_sammy_poly(): Unit = doTest("sammy_poly", true)
   def test_sammy_scope(): Unit = doTest("sammy_scope", true)
+}
+
+//noinspection NameBooleanParameters
+final class ReferenceComparisonTest_Scala3_LTS_Part21 extends ReferenceComparisonTest_Scala3_LTS {
   def test_sammy_single(): Unit = doTest("sammy_single", true)
   def test_sammy_twice(): Unit = doTest("sammy_twice", true)
   def test_sams(): Unit = doTest("sams", true)
@@ -2135,6 +2218,10 @@ class ReferenceComparisonTest_Scala3_LTS extends ReferenceComparisonTestBase(org
   def test_spec_partialmap(): Unit = doTest("spec-partialmap", true)
   def test_spec_polymeth(): Unit = doTest("spec-polymeth", true)
   def test_spec_private(): Unit = doTest("spec-private", true)
+}
+
+//noinspection NameBooleanParameters
+final class ReferenceComparisonTest_Scala3_LTS_Part22 extends ReferenceComparisonTest_Scala3_LTS {
   def test_spec_sealed(): Unit = doTest("spec-sealed", true)
   def test_spec_short(): Unit = doTest("spec-short", true)
   def test_spec_simple(): Unit = doTest("spec-simple", true)
@@ -2236,6 +2323,10 @@ class ReferenceComparisonTest_Scala3_LTS extends ReferenceComparisonTestBase(org
   def test_t304(): Unit = doTest("t304", true)
   def test_t0304(): Unit = doTest("t0304", true)
   def test_t0305(): Unit = doTest("t0305", true)
+}
+
+//noinspection NameBooleanParameters
+final class ReferenceComparisonTest_Scala3_LTS_Part23 extends ReferenceComparisonTest_Scala3_LTS {
   def test_t318(): Unit = doTest("t318", true)
   def test_t319(): Unit = doTest("t319", true)
   def test_t344(): Unit = doTest("t344", true)
@@ -2337,6 +2428,10 @@ class ReferenceComparisonTest_Scala3_LTS extends ReferenceComparisonTestBase(org
   def test_t1049(): Unit = doTest("t1049", true)
   def test_t1050(): Unit = doTest("t1050", true)
   def test_t1053(): Unit = doTest("t1053", true)
+}
+
+//noinspection NameBooleanParameters
+final class ReferenceComparisonTest_Scala3_LTS_Part24 extends ReferenceComparisonTest_Scala3_LTS {
   def test_t1056(): Unit = doTest("t1056", true)
   def test_t1070(): Unit = doTest("t1070", true)
   def test_t1075(): Unit = doTest("t1075", true)
@@ -2438,6 +2533,10 @@ class ReferenceComparisonTest_Scala3_LTS extends ReferenceComparisonTestBase(org
   def test_t2405(): Unit = doTest("t2405", true)
   def test_t2421(): Unit = doTest("t2421", true)
   def test_t2421_delitedsl(): Unit = doTest("t2421_delitedsl", true)
+}
+
+//noinspection NameBooleanParameters
+final class ReferenceComparisonTest_Scala3_LTS_Part25 extends ReferenceComparisonTest_Scala3_LTS {
   def test_t2421b_pos(): Unit = doTest("t2421b_pos", true)
   def test_t2421c(): Unit = doTest("t2421c", true)
   def test_t2425(): Unit = doTest("t2425", true)
@@ -2539,6 +2638,10 @@ class ReferenceComparisonTest_Scala3_LTS extends ReferenceComparisonTestBase(org
   def test_t3582b(): Unit = doTest("t3582b", true)
   def test_t3622(): Unit = doTest("t3622", true)
   def test_t3631(): Unit = doTest("t3631", true)
+}
+
+//noinspection NameBooleanParameters
+final class ReferenceComparisonTest_Scala3_LTS_Part26 extends ReferenceComparisonTest_Scala3_LTS {
   def test_t3636(): Unit = doTest("t3636", true)
   def test_t3642(): Unit = doTest("t3642", true)
   def test_t3670(): Unit = doTest("t3670", true)
@@ -2640,6 +2743,10 @@ class ReferenceComparisonTest_Scala3_LTS extends ReferenceComparisonTestBase(org
   def test_t5084(): Unit = doTest("t5084", true)
   def test_t5099(): Unit = doTest("t5099", true)
   def test_t5120(): Unit = doTest("t5120", true)
+}
+
+//noinspection NameBooleanParameters
+final class ReferenceComparisonTest_Scala3_LTS_Part27 extends ReferenceComparisonTest_Scala3_LTS {
   def test_t5127(): Unit = doTest("t5127", true)
   def test_t5137(): Unit = doTest("t5137", true)
   def test_t5175(): Unit = doTest("t5175", true)
@@ -2741,6 +2848,10 @@ class ReferenceComparisonTest_Scala3_LTS extends ReferenceComparisonTestBase(org
   def test_t6562(): Unit = doTest("t6562", true)
   def test_t6575a(): Unit = doTest("t6575a", true)
   def test_t6575b(): Unit = doTest("t6575b", true)
+}
+
+//noinspection NameBooleanParameters
+final class ReferenceComparisonTest_Scala3_LTS_Part28 extends ReferenceComparisonTest_Scala3_LTS {
   def test_t6595(): Unit = doTest("t6595", true)
   def test_t6600(): Unit = doTest("t6600", true)
   def test_t6664(): Unit = doTest("t6664", true)
@@ -2842,6 +2953,10 @@ class ReferenceComparisonTest_Scala3_LTS extends ReferenceComparisonTestBase(org
   def test_t8219(): Unit = doTest("t8219", true)
   def test_t8230a(): Unit = doTest("t8230a", true)
   def test_t8237(): Unit = doTest("t8237", true)
+}
+
+//noinspection NameBooleanParameters
+final class ReferenceComparisonTest_Scala3_LTS_Part29 extends ReferenceComparisonTest_Scala3_LTS {
   def test_t8244d(): Unit = doTest("t8244d", true)
   def test_t8300_conversions_a(): Unit = doTest("t8300-conversions-a", true)
   def test_t8300_conversions_b(): Unit = doTest("t8300-conversions-b", true)
@@ -2943,6 +3058,10 @@ class ReferenceComparisonTest_Scala3_LTS extends ReferenceComparisonTestBase(org
   def test_toplevel_opaque_xm(): Unit = doTest("toplevel-opaque-xm", false) // #opaque, #extension
   def test_toplevel_privates(): Unit = doTest("toplevel-privates", true)
   def test_tparam_inf(): Unit = doTest("tparam_inf", true)
+}
+
+//noinspection NameBooleanParameters
+final class ReferenceComparisonTest_Scala3_LTS_Part30 extends ReferenceComparisonTest_Scala3_LTS {
   def test_trailing_comma_pattern(): Unit = doTest("trailing-comma-pattern", true)
   def test_trailingCommas(): Unit = doTest("trailingCommas", false)
   def test_trait_access(): Unit = doTest("trait-access", true)

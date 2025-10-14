@@ -31,7 +31,7 @@ abstract class ReferenceComparisonTestBase(config: ReferenceComparisonTestConfig
   override protected def reportFailedTestContextDetails: Boolean = false
 
   override protected lazy val projectJdk: Sdk =
-    SmartJDKLoader.createFilteredJdk(LanguageLevel.JDK_17, Seq("java.base", "java.compiler", "java.rmi", "java.sql", "java.desktop"))
+    SmartJDKLoader.createFilteredJdk(LanguageLevel.JDK_21, Seq("java.base", "java.compiler", "java.rmi", "java.sql", "java.desktop"))
 
   override def doTest(testName: String, shouldSucceed: Boolean): Unit = {
     val Result(actualProblems, _, _, _, _, _, _) = runTestToResult(testName)
