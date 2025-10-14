@@ -1729,7 +1729,7 @@ abstract class SbtProjectStructureImportingTestBase_ProdTestSourcesSeparated ext
       }
     )
 
-  private def customSbtContentRootsForParent(binaryVersion: Int): Seq[ExpectedDirectoryCompletionVariant] =
+  protected def customSbtContentRootsForParent(binaryVersion: Int): Seq[ExpectedDirectoryCompletionVariant] =
     Seq(
       ("src/main/java", JavaSourceRootType.SOURCE),
       ("src/main/scala", JavaSourceRootType.SOURCE),
@@ -1741,7 +1741,7 @@ abstract class SbtProjectStructureImportingTestBase_ProdTestSourcesSeparated ext
       ("src/test/resources", JavaResourceRootType.TEST_RESOURCE),
     ).map((ExpectedDirectoryCompletionVariant.apply _).tupled)
 
-  private def customSbtContentRootsForMain(binaryVersion: Int): Seq[ExpectedDirectoryCompletionVariant] =
+  protected def customSbtContentRootsForMain(binaryVersion: Int): Seq[ExpectedDirectoryCompletionVariant] =
     Seq(
       ("java", JavaSourceRootType.SOURCE),
       ("scala", JavaSourceRootType.SOURCE),
@@ -1749,7 +1749,7 @@ abstract class SbtProjectStructureImportingTestBase_ProdTestSourcesSeparated ext
       ("resources", JavaResourceRootType.RESOURCE),
     ).map((ExpectedDirectoryCompletionVariant.apply _).tupled)
 
-  private def customSbtContentRootsForTest(binaryVersion: Int): Seq[ExpectedDirectoryCompletionVariant] =
+  protected def customSbtContentRootsForTest(binaryVersion: Int): Seq[ExpectedDirectoryCompletionVariant] =
     Seq(
       ("java", JavaSourceRootType.TEST_SOURCE),
       ("scala", JavaSourceRootType.TEST_SOURCE),
