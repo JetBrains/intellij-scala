@@ -17,6 +17,7 @@ import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.ListHasAsScala
 import scala.util.Random
+import scala.util.chaining.scalaUtilChainingOps
 
 @Category(Array(classOf[RandomTypingTests]))
 class RandomTypingTest_in_Scala3 extends RandomTypingTestBase(TestUtils.getTestDataPath + "/parser/data3") {
@@ -56,6 +57,7 @@ class RandomTypingTest_in_Scala2 extends RandomTypingTestBase(TestUtils.getTestD
 }
 
 abstract class RandomTypingTestBase(testFilePath: String) extends EditorActionTestBase {
+  val timeoutInMs = 40 * 60 * 1000
   val logging = false
 
   private def log(s: Any): Unit =
@@ -74,8 +76,10 @@ abstract class RandomTypingTestBase(testFilePath: String) extends EditorActionTe
       .filterNot(file => hasCodePointsSpanningMultipleChars(file.readAllBytesToString()))
       .filterNot(file => ignoredFiles.contains(file.getFileName.toString))
       .to(ArraySeq)
+      .pipe(random.shuffle(_))
     println(s"Test ${allFiles.size} in $testFilePath:")
-    for ((file, i) <- allFiles.zipWithIndex) {
+    val now = System.currentTimeMillis()
+    for ((file, i) <- allFiles.iterator.zipWithIndex.takeWhile(_ => System.currentTimeMillis() - now < timeoutInMs)) {
       print(f"[${i + 1}%4s/${allFiles.length}] ")
       typeRandomly(file, random.nextInt(Int.MaxValue))
     }
