@@ -1,0 +1,3 @@
+def method(a: Int)
+
+method(0, <spot>"foo"</spot>)

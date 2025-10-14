@@ -106,6 +106,13 @@
             <language>Scala</language>
             <categoryKey>intention.category.scala.argument.conversion</categoryKey>
             <bundleName>messages.ScalaCodeInsightBundle</bundleName>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.argument.AddParametersIntention</className>
+        </intentionAction>
+
+        <intentionAction>
+            <language>Scala</language>
+            <categoryKey>intention.category.scala.argument.conversion</categoryKey>
+            <bundleName>messages.ScalaCodeInsightBundle</bundleName>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.argument.ArgumentToBlockExpressionIntention</className>
         </intentionAction>
 

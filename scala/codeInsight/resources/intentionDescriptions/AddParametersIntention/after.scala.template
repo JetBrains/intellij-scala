@@ -1,0 +1,3 @@
+def method(a: Int, arg1: String)
+
+method(0, "foo")
