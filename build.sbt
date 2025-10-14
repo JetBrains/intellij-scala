@@ -814,7 +814,7 @@ lazy val gradleIntegration =
 
 lazy val intellijBazelIntegration =
   newProject("intellij-bazel", file("scala/integration/intellij-bazel"))
-    .dependsOn(scalaImpl, sbtImpl)
+    .dependsOn(scalaImpl, sbtImpl, testingSupport)
     .settings(
       scalaVersion := Versions.scala3Version,
       Compile / scalacOptions := globalScala3ScalacOptions,
