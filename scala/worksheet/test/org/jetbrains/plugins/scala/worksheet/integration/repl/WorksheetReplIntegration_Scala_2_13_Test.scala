@@ -764,12 +764,7 @@ class WorksheetReplIntegration_Scala_2_13_Test
 class WorksheetReplIntegration_Scala_2_13_0_HealthCheckTest extends WorksheetReplIntegrationBaseTest {
   @Test
   def testSimpleDeclaration(): Unit = {
-    /**
-     * pre-download jline to avoid flaky tests on machines without locally-available jline (requires internet)
-     * see org.jetbrains.plugins.scala.console.configuration.ScalaSdkJLineFixer for the details
-     */
-    import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
-    TestDependencyManager.resolve("jline" % "jline" % "2.14.6")
+    fetchJLineForScala_2_13_0()
 
     val left =
       """val a = 1
