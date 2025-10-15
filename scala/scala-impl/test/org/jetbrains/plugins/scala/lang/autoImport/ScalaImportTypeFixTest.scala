@@ -2,8 +2,9 @@ package org.jetbrains.plugins.scala.lang.autoImport
 
 import org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsJUnit4Runner, RunWithScalaVersions, TestScalaVersion}
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
+import org.junit.Test
 import org.junit.runner.RunWith
 
 abstract class ScalaImportTypeFixTestBase extends ImportElementFixTestBase[ScReference] {
@@ -13,10 +14,11 @@ abstract class ScalaImportTypeFixTestBase extends ImportElementFixTestBase[ScRef
 
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_13,
-  TestScalaVersion.Scala_3_Latest,
+  TestScalaVersion.Scala_3_Latest
 ))
-@RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWith(classOf[MultipleScalaVersionsJUnit4Runner])
 class ScalaImportTypeFixTest extends ScalaImportTypeFixTestBase {
+  @Test
   def testCaseClass(): Unit = {
     val fileText =
       s"""object Source {
@@ -41,6 +43,7 @@ class ScalaImportTypeFixTest extends ScalaImportTypeFixTestBase {
     )
   }
 
+  @Test
   def testCaseClassWithField(): Unit = {
     val fileText =
       s"""object Source {
@@ -65,6 +68,7 @@ class ScalaImportTypeFixTest extends ScalaImportTypeFixTestBase {
     )
   }
 
+  @Test
   def testClassInAnnotationPosition(): Unit = checkNoImportFix(
     s"""object Source {
        |  class Foo
@@ -75,6 +79,7 @@ class ScalaImportTypeFixTest extends ScalaImportTypeFixTestBase {
        |""".stripMargin
   )
 
+  @Test
   def testCaseClassInAnnotationPosition(): Unit = checkNoImportFix(
     s"""object Source {
        |  case class Foo
@@ -85,6 +90,7 @@ class ScalaImportTypeFixTest extends ScalaImportTypeFixTestBase {
        |""".stripMargin
   )
 
+  @Test
   def testTraitInAnnotationPosition(): Unit = checkNoImportFix(
     s"""object Source {
        |  trait Foo
@@ -95,6 +101,7 @@ class ScalaImportTypeFixTest extends ScalaImportTypeFixTestBase {
        |""".stripMargin
   )
 
+  @Test
   def testObjectInAnnotationPosition(): Unit = checkNoImportFix(
     s"""object Source {
        |  object Foo
@@ -105,6 +112,7 @@ class ScalaImportTypeFixTest extends ScalaImportTypeFixTestBase {
        |""".stripMargin
   )
 
+  @Test
   def testScalaAnnotationClassInAnnotationPosition(): Unit = {
     val fileText =
       s"""object Source {
@@ -128,6 +136,7 @@ class ScalaImportTypeFixTest extends ScalaImportTypeFixTestBase {
     )
   }
 
+  @Test
   def testJavaAnnotationInAnnotationPosition(): Unit = {
     val fileText =
       s"""@${CARET}Baz
@@ -163,6 +172,7 @@ class ScalaImportTypeFixTest extends ScalaImportTypeFixTestBase {
     )
   }
 
+  @Test
   def testInheritedClassFromTrait(): Unit = checkElementsToImport(
     s"""trait MyHelperTrait {
        |  class MyClassInTrait()
@@ -177,6 +187,7 @@ class ScalaImportTypeFixTest extends ScalaImportTypeFixTestBase {
     "MyObject.MyClassInTrait"
   )
 
+  @Test
   def testInheritedClassFromClass(): Unit = checkElementsToImport(
     s"""class MyHelperClass {
        |  class MyClassInClass()
@@ -191,6 +202,7 @@ class ScalaImportTypeFixTest extends ScalaImportTypeFixTestBase {
     "MyObject.MyClassInClass"
   )
 
+  @Test
   def testInheritedTraitFromTrait(): Unit = checkElementsToImport(
     s"""trait MyHelperTrait {
        |  trait MyTraitInTrait {}
@@ -205,6 +217,7 @@ class ScalaImportTypeFixTest extends ScalaImportTypeFixTestBase {
     "MyObject.MyTraitInTrait"
   )
 
+  @Test
   def testInheritedTraitFromClass(): Unit = checkElementsToImport(
     s"""class MyHelperClass {
        |  trait MyTraitInClass {}
@@ -219,6 +232,7 @@ class ScalaImportTypeFixTest extends ScalaImportTypeFixTestBase {
     "MyObject.MyTraitInClass"
   )
 
+  @Test
   def testInheritedObjectFromTrait(): Unit = checkElementsToImport(
     s"""trait MyHelperTrait {
        |  object MyObjectInTrait {}
@@ -233,6 +247,7 @@ class ScalaImportTypeFixTest extends ScalaImportTypeFixTestBase {
     "MyObject.MyObjectInTrait"
   )
 
+  @Test
   def testInheritedObjectFromClass(): Unit = checkElementsToImport(
     s"""class MyHelperClass {
        |  object MyObjectInClass {}

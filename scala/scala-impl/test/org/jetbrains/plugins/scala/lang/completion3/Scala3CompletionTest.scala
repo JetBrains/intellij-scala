@@ -1,12 +1,13 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.codeInsight.completion.CompletionType
-import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
+import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
+import org.junit.Test
 
+@RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Latest))
 class Scala3CompletionTest extends ScalaCompletionTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_3_0
-
+  @Test
   def testDoNotShowAnonymousContextParametersInCompletionList(): Unit = {
     val text =
       s"""def foo(using String, Short): Unit =
@@ -26,6 +27,7 @@ class Scala3CompletionTest extends ScalaCompletionTestBase {
     )
   }
 
+  @Test
   def testSecondCompletionForMethodWithImplicitParams(): Unit = checkLookupItemsExist(
     s"""
        |object Test {
@@ -44,6 +46,7 @@ class Scala3CompletionTest extends ScalaCompletionTestBase {
     completionType = CompletionType.SMART
   )("blubImplicit.xxx")
 
+  @Test
   def testSecondCompletionForMethodWithUsingParams(): Unit = checkLookupItemsExist(
     s"""
        |object Test {
@@ -62,6 +65,7 @@ class Scala3CompletionTest extends ScalaCompletionTestBase {
     completionType = CompletionType.SMART
   )("blubUsing.xxx")
 
+  @Test
   def testSCL22693(): Unit = checkLookupItemsExist(
     s"""
        |object A {

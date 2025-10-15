@@ -1,25 +1,25 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
-import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
-import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
+import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion, WithIndexingMode}
+import org.junit.Test
 
 @WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
+@RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Latest))
 class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
-
-  override protected def supportedIn(version: ScalaVersion): Boolean =
-    version == ScalaVersion.Latest.Scala_3
 
   /// INFIX
 
+  @Test
   def testInfixTopLevel(): Unit = doCompletionTest(
     fileText = s"in$CARET",
     resultText = s"infix $CARET",
     item = "infix"
   )
 
+  @Test
   def testInfixInsideObject(): Unit = doCompletionTest(
     fileText =
       s"""object O:
@@ -32,30 +32,35 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "infix"
   )
 
+  @Test
   def testSoftModifierAfterInfix(): Unit = doCompletionTest(
     fileText = s"infix in$CARET",
     resultText = s"infix inline $CARET",
     item = "inline"
   )
 
+  @Test
   def testInfixAfterHardModifier(): Unit = doCompletionTest(
     fileText = s"private in$CARET",
     resultText = s"private infix $CARET",
     item = "infix"
   )
 
+  @Test
   def testHardModifierAfterInfix(): Unit = doCompletionTest(
     fileText = s"infix pr$CARET",
     resultText = s"infix private $CARET",
     item = "private"
   )
 
+  @Test
   def testInfixDef(): Unit = doCompletionTest(
     fileText = s"infix d$CARET",
     resultText = s"infix def $CARET",
     item = "def"
   )
 
+  @Test
   def testInfixType(): Unit = doCompletionTest(
     fileText = s"infix t$CARET",
     resultText = s"infix type $CARET",
@@ -64,12 +69,14 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
 
   /// INLINE
 
+  @Test
   def testInlineTopLevel(): Unit = doCompletionTest(
     fileText = s"in$CARET",
     resultText = s"inline $CARET",
     item = "inline"
   )
 
+  @Test
   def testInlineInsideObject(): Unit = doCompletionTest(
     fileText =
       s"""object O:
@@ -82,53 +89,62 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "inline"
   )
 
+  @Test
   def testSoftModifierAfterInline(): Unit = doCompletionTest(
     fileText = s"inline tr$CARET",
     resultText = s"inline transparent $CARET",
     item = "transparent"
   )
 
+  @Test
   def testInlineAfterHardModifier(): Unit = doCompletionTest(
     fileText = s"private in$CARET",
     resultText = s"private inline $CARET",
     item = "inline"
   )
 
+  @Test
   def testHardModifierAfterInline(): Unit = doCompletionTest(
     fileText = s"inline pr$CARET",
     resultText = s"inline private $CARET",
     item = "private"
   )
 
+  @Test
   def testInlineDef(): Unit = doCompletionTest(
     fileText = s"infix d$CARET",
     resultText = s"infix def $CARET",
     item = "def"
   )
 
+  @Test
   def testInlineVal(): Unit = doCompletionTest(
     fileText = s"inline v$CARET",
     resultText = s"inline val $CARET",
     item = "val"
   )
 
+  @Test
   def testInlineParamOfInlineDef(): Unit = doCompletionTest(
     fileText = s"inline def foo($CARET)",
     resultText = s"inline def foo(inline $CARET)",
     item = "inline"
   )
 
+  @Test
   def testNoCompletionInlineParamOfDef(): Unit = checkNoBasicCompletion(
     fileText = s"def foo($CARET)",
     item = "inline"
   )
 
+  @Test
   def testInlineBodyOfInlineDef(): Unit = doCompletionTest(
     fileText = s"inline def foo() = $CARET",
     resultText = s"inline def foo() = inline $CARET",
     item = "inline"
   )
 
+  @Test
   def testNoCompletionInlineBodyOfDef(): Unit = checkNoBasicCompletion(
     fileText = s"def foo() = $CARET",
     item = "inline"
@@ -136,12 +152,14 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
 
   /// OPAQUE
 
+  @Test
   def testOpaqueTopLevel(): Unit = doCompletionTest(
     fileText = s"op$CARET",
     resultText = s"opaque $CARET",
     item = "opaque"
   )
 
+  @Test
   def testOpaqueInsideObject(): Unit = doCompletionTest(
     fileText =
       s"""object O:
@@ -154,24 +172,28 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "opaque"
   )
 
+  @Test
   def testSoftModifierAfterOpaque(): Unit = doCompletionTest(
     fileText = s"opaque in$CARET",
     resultText = s"opaque infix $CARET",
     item = "infix"
   )
 
+  @Test
   def testOpaqueAfterHardModifier(): Unit = doCompletionTest(
     fileText = s"private op$CARET",
     resultText = s"private opaque $CARET",
     item = "opaque"
   )
 
+  @Test
   def testHardModifierAfterOpaque(): Unit = doCompletionTest(
     fileText = s"opaque pr$CARET",
     resultText = s"opaque private $CARET",
     item = "private"
   )
 
+  @Test
   def testOpaqueType(): Unit = doCompletionTest(
     fileText = s"opaque t$CARET",
     resultText = s"opaque type $CARET",
@@ -180,12 +202,14 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
 
   /// OPEN
 
+  @Test
   def testOpenTopLevel(): Unit = doCompletionTest(
     fileText = s"op$CARET",
     resultText = s"open $CARET",
     item = "open"
   )
 
+  @Test
   def testOpenInsideObject(): Unit = doCompletionTest(
     fileText =
       s"""object O:
@@ -198,48 +222,56 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "open"
   )
 
+  @Test
   def testSoftModifierAfterOpen(): Unit = doCompletionTest(
     fileText = s"open t$CARET",
     resultText = s"open transparent $CARET",
     item = "transparent"
   )
 
+  @Test
   def testOpenAfterHardModifier(): Unit = doCompletionTest(
     fileText = s"private op$CARET",
     resultText = s"private open $CARET",
     item = "open"
   )
 
+  @Test
   def testHardModifierAfterOpen(): Unit = doCompletionTest(
     fileText = s"open ab$CARET",
     resultText = s"open abstract $CARET",
     item = "abstract"
   )
 
+  @Test
   def testOpenClass(): Unit = doCompletionTest(
     fileText = s"open c$CARET",
     resultText = s"open class $CARET",
     item = "class"
   )
 
+  @Test
   def testOpenObject(): Unit = doCompletionTest(
     fileText = s"open o$CARET",
     resultText = s"open object $CARET",
     item = "object"
   )
 
+  @Test
   def testOpenTrait(): Unit = doCompletionTest(
     fileText = s"open t$CARET",
     resultText = s"open trait $CARET",
     item = "trait"
   )
 
+  @Test
   def testOpenCase(): Unit = doCompletionTest(
     fileText = s"open c$CARET",
     resultText = s"open case $CARET",
     item = "case"
   )
 
+  @Test
   def testOpenCaseClass(): Unit = doCompletionTest(
     fileText = s"open case c$CARET",
     resultText = s"open case class $CARET",
@@ -248,12 +280,14 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
 
   /// TRANSPARENT
 
+  @Test
   def testTransparentTopLevel(): Unit = doCompletionTest(
     fileText = s"tr$CARET",
     resultText = s"transparent $CARET",
     item = "transparent"
   )
 
+  @Test
   def testTransparentInsideObject(): Unit = doCompletionTest(
     fileText =
       s"""object O:
@@ -266,30 +300,35 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "transparent"
   )
 
+  @Test
   def testSoftModifierAfterTransparent(): Unit = doCompletionTest(
     fileText = s"transparent in$CARET",
     resultText = s"transparent inline $CARET",
     item = "inline"
   )
 
+  @Test
   def testTransparentAfterHardModifier(): Unit = doCompletionTest(
     fileText = s"private tr$CARET",
     resultText = s"private transparent $CARET",
     item = "transparent"
   )
 
+  @Test
   def testHardModifierAfterTransparent(): Unit = doCompletionTest(
     fileText = s"transparent pr$CARET",
     resultText = s"transparent private $CARET",
     item = "private"
   )
 
+  @Test
   def testTransparentDef(): Unit = doCompletionTest(
     fileText = s"transparent d$CARET",
     resultText = s"transparent def $CARET",
     item = "def"
   )
 
+  @Test
   def testTransparentTrait(): Unit = doCompletionTest(
     fileText = s"transparent t$CARET",
     resultText = s"transparent trait $CARET",
@@ -298,12 +337,14 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
 
   /// ENUM
 
+  @Test
   def testEnumTopLevel(): Unit = doCompletionTest(
     fileText = s"en$CARET",
     resultText = s"enum $CARET",
     item = "enum"
   )
 
+  @Test
   def testEnumInsideObject(): Unit = doCompletionTest(
     fileText =
       s"""object O:
@@ -316,12 +357,14 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "enum"
   )
 
+  @Test
   def testEnumAfterAccessModifier(): Unit = doCompletionTest(
     fileText = s"private en$CARET",
     resultText = s"private enum $CARET",
     item = "enum"
   )
 
+  @Test
   def testNoCompletionEnumAfterSoftModifiers(): Unit =
     ScalaKeyword.SOFT_MODIFIERS.foreach { softModifier =>
       checkNoBasicCompletion(
@@ -332,12 +375,14 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
 
   /// EXTENSION
 
+  @Test
   def testExtensionTopLevel(): Unit = doCompletionTest(
     fileText = s"ex$CARET",
     resultText = s"extension $CARET",
     item = "extension"
   )
 
+  @Test
   def testExtensionInsideObject(): Unit = doCompletionTest(
     fileText =
       s"""object O:
@@ -350,22 +395,26 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "extension"
   )
 
+  @Test
   def testNoCompletionSoftModifierAfterExtension(): Unit = checkNoBasicCompletion(
     fileText = s"extension in$CARET",
     item = "inline"
   )
 
+  @Test
   def testNoCompletionHardModifierAfterExtension(): Unit = checkNoBasicCompletion(
     fileText = s"extension pr$CARET",
     item = "private"
   )
 
+  @Test
   def testExtensionDefOneLine(): Unit = doCompletionTest(
     fileText = s"extension (i: Int) d$CARET",
     resultText = s"extension (i: Int) def $CARET",
     item = "def"
   )
 
+  @Test
   def testExtensionDef(): Unit = doCompletionTest(
     fileText =
       s"""extension (i: Int)
@@ -376,6 +425,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "def"
   )
 
+  @Test
   def testExtensionDef2(): Unit = doCompletionTest(
     fileText =
       s"""extension (i: Int)
@@ -388,6 +438,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "def"
   )
 
+  @Test
   def testExtensionDef3(): Unit = doCompletionTest(
     fileText =
       s"""extension (i: Int)
@@ -400,6 +451,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "def"
   )
 
+  @Test
   def testExtensionDefInsideBraces(): Unit = doCompletionTest(
     fileText =
       s"""extension (i: Int) {
@@ -412,6 +464,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "def"
   )
 
+  @Test
   def testExtensionDefWithTypeParamAndUsing(): Unit = doCompletionTest(
     fileText =
       s"""extension [T](x: T)(using n: Numeric[T])
@@ -424,48 +477,56 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
 
   /// DERIVES
 
+  @Test
   def testDerivesClass(): Unit = doCompletionTest(
     fileText = s"class Test d$CARET",
     resultText = s"class Test derives $CARET",
     item = "derives"
   )
 
+  @Test
   def testDerivesTrait(): Unit = doCompletionTest(
     fileText = s"trait Test d$CARET",
     resultText = s"trait Test derives $CARET",
     item = "derives"
   )
 
+  @Test
   def testDerivesCaseClass(): Unit = doCompletionTest(
     fileText = s"case class Test d$CARET",
     resultText = s"case class Test derives $CARET",
     item = "derives"
   )
 
+  @Test
   def testDerivesObject(): Unit = doCompletionTest(
     fileText = s"object Test d$CARET",
     resultText = s"object Test derives $CARET",
     item = "derives"
   )
 
+  @Test
   def testDerivesEnum(): Unit = doCompletionTest(
     fileText = s"enum Test d$CARET",
     resultText = s"enum Test derives $CARET",
     item = "derives"
   )
 
+  @Test
   def testDerivesBeforeSemicolon(): Unit = doCompletionTest(
     fileText = s"class Test d$CARET;",
     resultText = s"class Test derives $CARET;",
     item = "derives"
   )
 
+  @Test
   def testDerivesBeforeId(): Unit = doCompletionTest(
     fileText = s"class Test d$CARET Show",
     resultText = s"class Test derives ${CARET}Show",
     item = "derives"
   )
 
+  @Test
   def testDerivesBetweenClasses(): Unit = doCompletionTest(
     fileText =
       s"""class Test d$CARET
@@ -476,6 +537,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "derives"
   )
 
+  @Test
   def testDerivesBeforeBody(): Unit = doCompletionTest(
     fileText =
       s"""class Test d$CARET {
@@ -486,12 +548,14 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "derives"
   )
 
+  @Test
   def testDerivesBeforeColon(): Unit = doCompletionTest(
     fileText = s"class Test d$CARET:",
     resultText = s"class Test derives $CARET:",
     item = "derives"
   )
 
+  @Test
   def testDerivesBeforeObjectBody(): Unit = doCompletionTest(
     fileText =
       s"""object Test d$CARET {
@@ -502,11 +566,13 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "derives"
   )
 
+  @Test
   def testNoCompletionDerivesBeforeExtends(): Unit = checkNoBasicCompletion(
     fileText = s"object Obj d$CARET extends",
     item = "derives"
   )
 
+  @Test
   def testNoCompletionDerivesBeforeDerives(): Unit = checkNoBasicCompletion(
     fileText = s"object Obj d$CARET derives",
     item = "derives"
@@ -514,18 +580,21 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
 
   /// if - THEN
 
+  @Test
   def testThen(): Unit = doCompletionTest(
     fileText = s"if 1 == 2 t$CARET",
     resultText = s"if 1 == 2 then $CARET",
     item = "then"
   )
 
+  @Test
   def testThenAfterParens(): Unit = doCompletionTest(
     fileText = s"if (1 == 2) t$CARET",
     resultText = s"if (1 == 2) then $CARET",
     item = "then"
   )
 
+  @Test
   def testThenAfterElseIf(): Unit = doCompletionTest(
     fileText =
       s"""val x = 0
@@ -542,6 +611,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "then"
   )
 
+  @Test
   def testThenAfterBlockCondition(): Unit = doCompletionTest(
     fileText =
       s"""if {
@@ -562,6 +632,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "then"
   )
 
+  @Test
   def testThenAfterBlockConditionInParens(): Unit = doCompletionTest(
     fileText =
       s"""if ({
@@ -582,6 +653,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "then"
   )
 
+  @Test
   def testThenAfterBlockConditionAndComments(): Unit = doCompletionTest(
     fileText =
       s"""if {
@@ -610,12 +682,14 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
 
   /// if - then - ELSE
 
+  @Test
   def testElse(): Unit = doCompletionTest(
     fileText = s"if 1 == 2 then 7 e$CARET",
     resultText = s"if 1 == 2 then 7 else $CARET",
     item = "else"
   )
 
+  @Test
   def testElseMultiline(): Unit = doCompletionTest(
     fileText =
       s"""object Wrapper {
@@ -636,6 +710,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "else"
   )
 
+  @Test
   def testElseMultiline2(): Unit = doCompletionTest(
     fileText =
       s"""object Wrapper {
@@ -662,18 +737,21 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
 
   /// while - DO
 
+  @Test
   def testDoInWhileLoop(): Unit = doCompletionTest(
     fileText = s"while 1 == 2 d$CARET",
     resultText = s"while 1 == 2 do $CARET",
     item = "do"
   )
 
+  @Test
   def testDoInWhileLoopAfterParens(): Unit = doCompletionTest(
     fileText = s"while (1 == 2) d$CARET",
     resultText = s"while (1 == 2) do $CARET",
     item = "do"
   )
 
+  @Test
   def testDoInWhileLoopAfterBlockCondition(): Unit = doCompletionTest(
     fileText =
       s"""var x = 5
@@ -692,6 +770,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "do"
   )
 
+  @Test
   def testDoInWhileLoopAfterBlockConditionInParens(): Unit = doCompletionTest(
     fileText =
       s"""var x = 5
@@ -710,6 +789,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "do"
   )
 
+  @Test
   def testDoInWhileLoopAfterBlockConditionAndComments(): Unit = doCompletionTest(
     fileText =
       s"""var x = 5
@@ -738,18 +818,21 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
 
   /// for - DO
 
+  @Test
   def testDoInForLoop(): Unit = doCompletionTest(
     fileText = s"for x <- 1 to 3 d$CARET",
     resultText = s"for x <- 1 to 3 do $CARET",
     item = "do"
   )
 
+  @Test
   def testDoInForLoopAfterIf(): Unit = doCompletionTest(
     fileText = s"for x <- 1 to 3 if x % 2 == 0 d$CARET",
     resultText = s"for x <- 1 to 3 if x % 2 == 0 do $CARET",
     item = "do"
   )
 
+  @Test
   def testDoInForLoopAfterIfAndNewLine(): Unit = doCompletionTest(
     fileText =
       s"""for x <- 1 to 3 if x % 2 == 0
@@ -760,12 +843,14 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "do"
   )
 
+  @Test
   def testDoInForLoopAfterParens(): Unit = doCompletionTest(
     fileText = s"for (x <- 1 to 3) d$CARET",
     resultText = s"for (x <- 1 to 3) do $CARET",
     item = "do"
   )
 
+  @Test
   def testDoInForLoopMultiline(): Unit = doCompletionTest(
     fileText =
       s"""for
@@ -782,6 +867,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "do"
   )
 
+  @Test
   def testDoInForLoopAfterBlock(): Unit = doCompletionTest(
     fileText =
       s"""for {
@@ -798,6 +884,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "do"
   )
 
+  @Test
   def testDoInForLoopMultilineAfterComments(): Unit = doCompletionTest(
     fileText =
       s"""for {
@@ -824,18 +911,21 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
 
   /// for - YIELD
 
+  @Test
   def testYieldInForLoop(): Unit = doCompletionTest(
     fileText = s"for x <- 1 to 3 y$CARET",
     resultText = s"for x <- 1 to 3 yield $CARET",
     item = "yield"
   )
 
+  @Test
   def testYieldInForLoopAfterIf(): Unit = doCompletionTest(
     fileText = s"for x <- 1 to 3 if x % 2 == 0 y$CARET",
     resultText = s"for x <- 1 to 3 if x % 2 == 0 yield $CARET",
     item = "yield"
   )
 
+  @Test
   def testYieldInForLoopAfterIfAndNewLine(): Unit = doCompletionTest(
     fileText =
       s"""for x <- 1 to 3 if x % 2 == 0
@@ -846,12 +936,14 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "yield"
   )
 
+  @Test
   def testYieldInForLoopAfterParens(): Unit = doCompletionTest(
     fileText = s"for (x <- 1 to 3) y$CARET",
     resultText = s"for (x <- 1 to 3) yield $CARET",
     item = "yield"
   )
 
+  @Test
   def testYieldInForLoopMultiline(): Unit = doCompletionTest(
     fileText =
       s"""for
@@ -868,6 +960,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "yield"
   )
 
+  @Test
   def testYieldInForLoopAfterBlock(): Unit = doCompletionTest(
     fileText =
       s"""for {
@@ -884,6 +977,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "yield"
   )
 
+  @Test
   def testYieldInForLoopMultilineAfterComments(): Unit = doCompletionTest(
     fileText =
       s"""for {
@@ -910,6 +1004,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
 
   /// CASE toplevel
 
+  @Test
   def testCaseTopLevel(): Unit = doCompletionTest(
     fileText =
       s"""c$CARET
@@ -920,6 +1015,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "case"
   )
 
+  @Test
   def testCaseTopLevelWithPackage(): Unit = doCompletionTest(
     fileText =
       s"""package com.example
@@ -943,6 +1039,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
        |def boom = throw new InterruptedIOException("boom")
        |""".stripMargin
 
+  @Test
   def testTryCatch(): Unit = doCompletionTest(
     fileText =
       s"""$throwingFunctionDefinition
@@ -957,6 +1054,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "case"
   )
 
+  @Test
   def testTryCatchIndented(): Unit = doCompletionTest(
     fileText =
       s"""$throwingFunctionDefinition
@@ -973,6 +1071,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "case"
   )
 
+  @Test
   def testTryCatchIndentedBeforeCaseClause(): Unit = doCompletionTest(
     fileText =
       s"""$throwingFunctionDefinition
@@ -991,6 +1090,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "case"
   )
 
+  @Test
   def testTryCatchIndentedAfterCaseClause(): Unit = doCompletionTest(
     fileText =
       s"""$throwingFunctionDefinition
@@ -1009,6 +1109,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "case"
   )
 
+  @Test
   def testTryCatchIndentedBetweenCaseClauses(): Unit = doCompletionTest(
     fileText =
       s"""$throwingFunctionDefinition
@@ -1029,6 +1130,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "case"
   )
 
+  @Test
   def testNoCompletionTryCatchNotIndentedBeforeIndentedCaseClause(): Unit = checkNoBasicCompletion(
     fileText =
       s"""$throwingFunctionDefinition
@@ -1041,11 +1143,13 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
 
   /// USING
 
+  @Test
   def testNoCompletionUsingTopLevel(): Unit = checkNoBasicCompletion(
     fileText = s"u$CARET",
     item = "using"
   )
 
+  @Test
   def testNoCompletionUsingInsideObject(): Unit = checkNoBasicCompletion(
     fileText =
       s"""object O:
@@ -1054,65 +1158,76 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "using"
   )
 
+  @Test
   def testUsingParamOfDef(): Unit = doCompletionTest(
     fileText = s"def foo($CARET)",
     resultText = s"def foo(using $CARET)",
     item = "using"
   )
 
+  @Test
   def testUsingParamOfClass(): Unit = doCompletionTest(
     fileText = s"class Foo($CARET)",
     resultText = s"class Foo(using $CARET)",
     item = "using"
   )
 
+  @Test
   def testUsingParamOfInlinePrivateDef(): Unit = doCompletionTest(
     fileText = s"inline private def foo($CARET)",
     resultText = s"inline private def foo(using $CARET)",
     item = "using"
   )
 
+  @Test
   def testUsingParamOfDefBeforeFirstParam(): Unit = doCompletionTest(
     fileText = s"def foo($CARET s: String, i: Int)",
     resultText = s"def foo(using ${CARET}s: String, i: Int)",
     item = "using"
   )
 
+  @Test
   def testUsingParamOfDefInSecondParamList(): Unit = doCompletionTest(
     fileText = s"def foo(s: String)($CARET)",
     resultText = s"def foo(s: String)(using $CARET)",
     item = "using"
   )
 
+  @Test
   def testNoCompletionUsingParamOfDefAfterFirstParam(): Unit = checkNoBasicCompletion(
     fileText = s"def foo(s: String, $CARET)",
     item = "using"
   )
 
+  @Test
   def testUsingArg(): Unit = doCompletionTest(
     fileText = s"foo($CARET)",
     resultText = s"foo(using $CARET)",
     item = "using"
   )
 
+  @Test
   def testUsingInGiven(): Unit = doCompletionTest(
     fileText = s"given foo(u$CARET)",
     resultText = s"given foo(using $CARET)",
     item = "using"
   )
 
+  @Test
   def testUsingInAnonymousGiven(): Unit = doCompletionTest(
     fileText = s"given (u$CARET)",
     resultText = s"given (using $CARET)",
     item = "using"
   )
 
+  @Test
   def testUsingInGenericGiven(): Unit = doCompletionTest(
     fileText = s"given foo[T](u$CARET)",
     resultText = s"given foo[T](using $CARET)",
     item = "using"
   )
 
+  @Test
   def testUsingInAnonymousGenericGiven(): Unit = doCompletionTest(
     fileText = s"given [T](u$CARET)",
     resultText = s"given [T](using $CARET)",
@@ -1121,12 +1236,14 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
 
   /// GIVEN
 
+  @Test
   def testGivenTopLevel(): Unit = doCompletionTest(
     fileText = s"g$CARET",
     resultText = s"given $CARET",
     item = "given"
   )
 
+  @Test
   def testGivenInsideObject(): Unit = doCompletionTest(
     fileText =
       s"""object O:
@@ -1139,18 +1256,21 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "given"
   )
 
+  @Test
   def testGivenAfterHardModifier(): Unit = doCompletionTest(
     fileText = s"private g$CARET",
     resultText = s"private given $CARET",
     item = "given"
   )
 
+  @Test
   def testGivenAfterSoftModifier(): Unit = doCompletionTest(
     fileText = s"transparent inline g$CARET",
     resultText = s"transparent inline given $CARET",
     item = "given"
   )
 
+  @Test
   def testNoCompletionHardModifierAfterGiven(): Unit = checkNoBasicCompletion(
     fileText = s"given pr$CARET",
     item = "private"
@@ -1158,12 +1278,14 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
 
   /// pattern-bound GIVEN
 
+  @Test
   def testPatternBoundGivenInForOneLine(): Unit = doCompletionTest(
     fileText = s"for g$CARET",
     resultText = s"for given $CARET",
     item = "given"
   )
 
+  @Test
   def testPatternBoundGivenInForBeforeAnotherStatement(): Unit = doCompletionTest(
     fileText =
       s"""for
@@ -1178,6 +1300,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "given"
   )
 
+  @Test
   def testPatternBoundGivenInForMultiline(): Unit = doCompletionTest(
     fileText =
       s"""for
@@ -1190,6 +1313,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "given"
   )
 
+  @Test
   def testPatternBoundGivenInForAfterGenerator(): Unit = doCompletionTest(
     fileText =
       s"""for
@@ -1204,6 +1328,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "given"
   )
 
+  @Test
   def testPatternBoundGivenInForBetweenGeneratorAndBinding(): Unit = doCompletionTest(
     fileText =
       s"""for
@@ -1220,6 +1345,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "given"
   )
 
+  @Test
   def testPatternBoundGivenInForBetweenGenerators(): Unit = doCompletionTest(
     fileText =
       s"""for
@@ -1236,6 +1362,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "given"
   )
 
+  @Test
   def testPatternBoundGivenInForBeforeBinding(): Unit = doCompletionTest(
     fileText =
       s"""for
@@ -1250,6 +1377,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "given"
   )
 
+  @Test
   def testPatternBoundGivenInForBeforeGenerator(): Unit = doCompletionTest(
     fileText =
       s"""for
@@ -1264,6 +1392,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "given"
   )
 
+  @Test
   def testPatternBoundGivenInForInSimpleNamedPattern(): Unit = doCompletionTest(
     fileText =
       s"""for
@@ -1276,6 +1405,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "given"
   )
 
+  @Test
   def testPatternBoundGivenInForInSimpleNamedPatternAfterGenerator(): Unit = doCompletionTest(
     fileText =
       s"""for
@@ -1290,6 +1420,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "given"
   )
 
+  @Test
   def testPatternBoundGivenInForInSimpleNamedPatternAfterGeneratorBeforeAnotherStatement(): Unit = doCompletionTest(
     fileText =
       s"""for
@@ -1308,6 +1439,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "given"
   )
 
+  @Test
   def testPatternBoundGivenInForInSimpleNamedPatternBeforeGenerator(): Unit = doCompletionTest(
     fileText =
       s"""for
@@ -1322,6 +1454,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "given"
   )
 
+  @Test
   def testPatternBoundGivenInForInSimpleNamedPatternBeforeBinding(): Unit = doCompletionTest(
     fileText =
       s"""for
@@ -1336,6 +1469,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "given"
   )
 
+  @Test
   def testPatternBoundGivenInForInSimpleNamedPatternBetweenGenerators(): Unit = doCompletionTest(
     fileText =
       s"""for
@@ -1352,6 +1486,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "given"
   )
 
+  @Test
   def testPatternBoundGivenInForInSimpleNamedPatternBetweenGeneratorAndBinding(): Unit = doCompletionTest(
     fileText =
       s"""for
@@ -1368,6 +1503,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "given"
   )
 
+  @Test
   def testPatternBoundGivenInForTuple(): Unit = doCompletionTest(
     fileText =
       s"""for
@@ -1380,6 +1516,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "given"
   )
 
+  @Test
   def testPatternBoundGivenInForTupleAfterGenerator(): Unit = doCompletionTest(
     fileText =
       s"""for
@@ -1394,6 +1531,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "given"
   )
 
+  @Test
   def testPatternBoundGivenInForTupleBeforeGenerator(): Unit = doCompletionTest(
     fileText =
       s"""for
@@ -1408,6 +1546,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "given"
   )
 
+  @Test
   def testPatternBoundGivenInForTupleBeforeBinding(): Unit = doCompletionTest(
     fileText =
       s"""for
@@ -1422,6 +1561,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "given"
   )
 
+  @Test
   def testPatternBoundGivenInForNamedPatternInTupleAfterGenerator(): Unit = doCompletionTest(
     fileText =
       s"""for
@@ -1436,6 +1576,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "given"
   )
 
+  @Test
   def testPatternBoundGivenInForNamedPatternInTupleAfterGeneratorBeforeAnotherStatement(): Unit = doCompletionTest(
     fileText =
       s"""for
@@ -1454,6 +1595,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "given"
   )
 
+  @Test
   def testPatternBoundGivenInMatch(): Unit = doCompletionTest(
     fileText =
       s""""foo" match
@@ -1466,6 +1608,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "given"
   )
 
+  @Test
   def testPatternBoundGivenInMatchWithBraces(): Unit = doCompletionTest(
     fileText =
       s""""foo" match {
@@ -1480,6 +1623,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "given"
   )
 
+  @Test
   def testPatternBoundGivenInMatchSimpleNamedPattern(): Unit = doCompletionTest(
     fileText =
       s""""foo" match
@@ -1492,6 +1636,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "given"
   )
 
+  @Test
   def testPatternBoundGivenInMatchInTuple(): Unit = doCompletionTest(
     fileText =
       s"""(7, "foo") match
@@ -1504,6 +1649,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "given"
   )
 
+  @Test
   def testPatternBoundGivenInMatchNamedPatternInTuple(): Unit = doCompletionTest(
     fileText =
       s"""(7, "foo") match
@@ -1516,6 +1662,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "given"
   )
 
+  @Test
   def testPatternBoundGivenInMap(): Unit = doCompletionTest(
     fileText =
       s"""(1 to 5) map {
@@ -1528,6 +1675,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "given"
   )
 
+  @Test
   def testPatternBoundGivenInMapSimpleNamedPattern(): Unit = doCompletionTest(
     fileText =
       s"""(1 to 5) map {
@@ -1540,6 +1688,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "given"
   )
 
+  @Test
   def testPatternBoundGivenInMapInTuple(): Unit = doCompletionTest(
     fileText =
       s"""List((1, "foo"), (2, "bar")) map {
@@ -1552,6 +1701,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "given"
   )
 
+  @Test
   def testPatternBoundGivenInMapNamedPatternInTuple(): Unit = doCompletionTest(
     fileText =
       s"""List((1, "foo"), (2, "bar")) map {
@@ -1566,6 +1716,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
 
   /// GIVEN in import
 
+  @Test
   def testGivenInSimpleImport(): Unit = doCompletionTest(
     fileText =
       s"""object Givens
@@ -1582,6 +1733,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "given"
   )
 
+  @Test
   def testGivenInImportWithSelectors(): Unit = doCompletionTest(
     fileText =
       s"""object Givens
@@ -1598,6 +1750,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "given"
   )
 
+  @Test
   def testGivenInImportWithSelectorsWithoutClosingBrace(): Unit = doCompletionTest(
     fileText =
       s"""object Givens
@@ -1614,6 +1767,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "given"
   )
 
+  @Test
   def testGivenInImportWithSelectorsAfterComma(): Unit = doCompletionTest(
     fileText =
       s"""object Givens
@@ -1630,6 +1784,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "given"
   )
 
+  @Test
   def testGivenInImportWithSelectorsBeforeComma(): Unit = doCompletionTest(
     fileText =
       s"""object Givens
@@ -1646,6 +1801,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "given"
   )
 
+  @Test
   def testGivenInImportAlreadyHavingGivenSelector(): Unit = doCompletionTest(
     fileText =
       s"""object Givens
@@ -1662,6 +1818,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "given"
   )
 
+  @Test
   def testGivenInImportAlreadyHavingGivenSelector2(): Unit = doCompletionTest(
     fileText =
       s"""object Givens
@@ -1678,6 +1835,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "given"
   )
 
+  @Test
   def testGivenTypeInSimpleImport(): Unit = doCompletionTest(
     fileText =
       s"""object Givens { given Int = 1 }
@@ -1694,6 +1852,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "Int"
   )
 
+  @Test
   def testGivenTypeInImportSelector(): Unit = doCompletionTest(
     fileText =
       s"""object Givens { given Int = 1 }
@@ -1710,6 +1869,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "Int"
   )
 
+  @Test
   def testGivenInImportWithoutQualifier(): Unit = checkNoBasicCompletion(
     fileText =
       s"""object Givens
@@ -1720,6 +1880,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "given"
   )
 
+  @Test
   def testGivenInImportWrongPlace(): Unit = checkNoBasicCompletion(
     fileText =
       s"""object Givens
@@ -1732,6 +1893,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
 
   /// given - WITH
 
+  @Test
   def testWithOnGiven(): Unit = doCompletionTest(
     fileText =
       s"""trait Ord[T]:
@@ -1748,6 +1910,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "with"
   )
 
+  @Test
   def testWithOnAnonymousGiven(): Unit = doCompletionTest(
     fileText =
       s"""trait Ord[T]:
@@ -1764,6 +1927,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "with"
   )
 
+  @Test
   def testWithOnGenericAnonymousGivenWithDependencies(): Unit = doCompletionTest(
     fileText =
       s"""trait Ord[T]:
@@ -1782,12 +1946,14 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
 
   /// EXPORT
 
+  @Test
   def testExportTopLevel(): Unit = doCompletionTest(
     fileText = s"ex$CARET",
     resultText = s"export $CARET",
     item = "export"
   )
 
+  @Test
   def testExportInsideObject(): Unit = doCompletionTest(
     fileText =
       s"""object O:
@@ -1802,6 +1968,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
 
   /// EXTENDS in enum cases
 
+  @Test
   def testExtendsAfterEnumCase(): Unit = doCompletionTest(
     fileText =
       s"""enum Color(val rgb: Int):
@@ -1814,6 +1981,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "extends"
   )
 
+  @Test
   def testExtendsAfterEnumCaseWithConstructor(): Unit = doCompletionTest(
     fileText =
       s"""enum Tree[T]:
@@ -1840,18 +2008,21 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
 
   /// members after annotation
 
+  @Test
   def testDefAfterAnnotation(): Unit = doCompletionTest(
     fileText = s"""class Test { @deprecated $CARET}""".stripMargin,
     resultText = s"""class Test { @deprecated def $CARET}""".stripMargin,
     item = "def"
   )
 
+  @Test
   def testTypeAfterAnnotation(): Unit = doCompletionTest(
     fileText = s"""class Test { @deprecated $CARET}""".stripMargin,
     resultText = s"""class Test { @deprecated type $CARET}""".stripMargin,
     item = "type"
   )
 
+  @Test
   def testClassAfterAnnotation(): Unit = doCompletionTest(
     fileText = s"""class Test { @deprecated $CARET}""".stripMargin,
     resultText = s"""class Test { @deprecated class $CARET}""".stripMargin,
@@ -1860,18 +2031,21 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
 
   /// toplevel members
 
+  @Test
   def testToplevelDef(): Unit = doCompletionTest(
     fileText = s"""$CARET""".stripMargin,
     resultText = s"""def $CARET""".stripMargin,
     item = "def"
   )
 
+  @Test
   def testToplevelType(): Unit = doCompletionTest(
     fileText = s"""$CARET""".stripMargin,
     resultText = s"""type $CARET""".stripMargin,
     item = "type"
   )
 
+  @Test
   def testToplevelClass(): Unit = doCompletionTest(
     fileText = s"""$CARET""".stripMargin,
     resultText = s"""class $CARET""".stripMargin,
@@ -1880,30 +2054,35 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
 
   /// toplevel members after annotation
 
+  @Test
   def testToplevelDefAfterAnnotation(): Unit = doCompletionTest(
     fileText = s"""@deprecated $CARET""".stripMargin,
     resultText = s"""@deprecated def $CARET""".stripMargin,
     item = "def"
   )
 
+  @Test
   def testToplevelTypeAfterAnnotation(): Unit = doCompletionTest(
     fileText = s"""@deprecated $CARET""".stripMargin,
     resultText = s"""@deprecated type $CARET""".stripMargin,
     item = "type"
   )
 
+  @Test
   def testToplevelClassAfterAnnotation(): Unit = doCompletionTest(
     fileText = s"""@deprecated $CARET""".stripMargin,
     resultText = s"""@deprecated class $CARET""".stripMargin,
     item = "class"
   )
 
+  @Test
   def testToplevelDefAfterFullyQualifiedAnnotation(): Unit = doCompletionTest(
     fileText = s"@scala.annotation.tailrec d$CARET",
     resultText = s"@scala.annotation.tailrec def $CARET",
     item = "def"
   )
 
+  @Test
   def testToplevelDefAfterAnnotationWithPackage(): Unit = doCompletionTest(
     fileText =
       s"""package org.example
@@ -1918,6 +2097,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
 
   /// package
 
+  @Test
   def testPackage(): Unit = doCompletionTest(
     fileText =
       s"""pa$CARET
@@ -1928,6 +2108,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "package"
   )
 
+  @Test
   def testPackage2(): Unit = doCompletionTest(
     fileText =
       s"""package one
@@ -1942,6 +2123,7 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     item = "package"
   )
 
+  @Test
   def testPackage3(): Unit = doCompletionTest(
     fileText =
       s"""package one

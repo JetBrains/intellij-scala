@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, StringExt, ToNullSafe}
 import org.jetbrains.plugins.scala.highlighter.{ScalaColorSchemeAnnotator, ScalaSyntaxHighlightingVisitor}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsJUnit4Runner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.Assert.assertEquals
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
@@ -22,7 +22,7 @@ import scala.collection.immutable.ListSet
  * Q: Maybe it would make sense to test all in combination?
  * Because users can't see just highlighting from ScalaColorSchemeAnnotator, they see it on top of ScalaSyntaxHighlighter
  */
-@RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWith(classOf[MultipleScalaVersionsJUnit4Runner])
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_10,
   TestScalaVersion.Scala_2_11,

@@ -6,6 +6,7 @@ import com.intellij.refactoring.changeSignature._
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PathExt}
 import org.jetbrains.plugins.scala.lang.psi.types.api.PsiTypeConstants
 import org.junit.Assert._
+import org.junit.Test
 
 import java.nio.file.Path
 
@@ -34,6 +35,7 @@ class ChangeSignatureFromJavaTest extends ChangeSignatureTestBase {
     element.asInstanceOf[PsiMethod]
   }
 
+  @Test
   def testStaticMethod(): Unit = {
     val params = Seq(
       new ParameterInfoImpl(0, "ii", PsiTypeConstants.Int),
@@ -41,6 +43,7 @@ class ChangeSignatureFromJavaTest extends ChangeSignatureTestBase {
     doTest(null, "bar", null, Seq(params))
   }
 
+  @Test
   def testInstanceMethod(): Unit = {
     val newParams = Seq(
       new ParameterInfoImpl(-1, "b", PsiTypeConstants.Boolean, "true"),
@@ -49,6 +52,7 @@ class ChangeSignatureFromJavaTest extends ChangeSignatureTestBase {
     doTest(null, "bar", null, Seq(newParams))
   }
 
+  @Test
   def testOverriders(): Unit = {
     val newParams = Seq(
       new ParameterInfoImpl(-1, "b", PsiTypeConstants.Boolean, "true"),
@@ -57,6 +61,7 @@ class ChangeSignatureFromJavaTest extends ChangeSignatureTestBase {
     doTest(null, "bar", "boolean", Seq(newParams))
   }
 
+  @Test
   def testOverriderInAnonClass(): Unit = {
     val newParams = Seq(
       new ParameterInfoImpl(-1, "b", PsiTypeConstants.Boolean, "true"),
@@ -65,26 +70,31 @@ class ChangeSignatureFromJavaTest extends ChangeSignatureTestBase {
     doTest(null, "bar", "boolean", Seq(newParams))
   }
 
+  @Test
   def testParameterlessOverriders(): Unit = {
     doTest(null, "bar", null, Seq(Seq.empty))
   }
 
+  @Test
   def testParameterlessOverriders2(): Unit = {
     val params = Seq(new ParameterInfoImpl(-1, "b", PsiTypeConstants.Boolean, "true"))
     doTest(null, "bar", null, Seq(params))
   }
 
+  @Test
   def testInfixUsage(): Unit = {
     val params = Seq(new ParameterInfoImpl(-1, "b", PsiTypeConstants.Boolean, "true"))
     doTest(null, "print", null, Seq(params))
   }
 
+  @Test
   def testInfixUsage2(): Unit = {
     val params = Seq(new ParameterInfoImpl(0, "i", PsiTypeConstants.Int),
       new ParameterInfoImpl(-1, "b", PsiTypeConstants.Boolean, "true"))
     doTest(null, "print", null, Seq(params))
   }
 
+  @Test
   def testInfixUsageWithTuple(): Unit = {
     val params = Seq(
       new ParameterInfoImpl(0, "i", PsiTypeConstants.Int),
@@ -94,11 +104,13 @@ class ChangeSignatureFromJavaTest extends ChangeSignatureTestBase {
     doTest(null, "foo", null, Seq(params))
   }
 
+  @Test
   def testInfixUsageWithTuple2(): Unit = {
     val params = Seq(new ParameterInfoImpl(0, "i", PsiTypeConstants.Int))
     doTest(null, "foo", null, Seq(params))
   }
 
+  @Test
   def testGeneric(): Unit = {
     val params = Seq(
       new ParameterInfoImpl(0, "t", getPsiTypeFromText("T", targetMethod)),
@@ -106,6 +118,7 @@ class ChangeSignatureFromJavaTest extends ChangeSignatureTestBase {
     doTest(null, "foo", "T", Seq(params))
   }
 
+  @Test
   def testVarargs(): Unit = {
     val params = Seq(
       new ParameterInfoImpl(0, "i", PsiTypeConstants.Int),
@@ -115,6 +128,7 @@ class ChangeSignatureFromJavaTest extends ChangeSignatureTestBase {
     doTest(null, "foo", null, Seq(params))
   }
 
+  @Test
   def testVarargsRemove(): Unit = {
     val params = Seq(
       new ParameterInfoImpl(0, "i", PsiTypeConstants.Int),
@@ -123,6 +137,7 @@ class ChangeSignatureFromJavaTest extends ChangeSignatureTestBase {
     doTest(null, "foo", null, Seq(params))
   }
 
+  @Test
   def testArrayToVarargs(): Unit = {
     val params = Seq(
       new ParameterInfoImpl(0, "i", PsiTypeConstants.Int),
@@ -132,6 +147,7 @@ class ChangeSignatureFromJavaTest extends ChangeSignatureTestBase {
     doTest(null, "foo", null, Seq(params))
   }
 
+  @Test
   def testNamedAndDefaultArgs(): Unit = {
     val params = Seq(
       new ParameterInfoImpl(2, "s", getPsiTypeFromText("String", targetMethod)),
@@ -141,16 +157,19 @@ class ChangeSignatureFromJavaTest extends ChangeSignatureTestBase {
     doTest(null, "foo", null, Seq(params))
   }
 
+  @Test
   def testAnonymousFunction(): Unit = {
     val params = Seq(new ParameterInfoImpl(0, "i", PsiTypeConstants.Int), new ParameterInfoImpl(-1, "j", PsiTypeConstants.Int, "0"))
     doTest(null, "foo", null, Seq(params))
   }
 
+  @Test
   def testDifferentParamNames0(): Unit = {
     val params = Seq(new ParameterInfoImpl(0, "newName", PsiTypeConstants.Int))
     doTest(null, "foo", null, Seq(params))
   }
 
+  @Test
   def testDifferentParamNames1(): Unit = {
     val params = Seq(new ParameterInfoImpl(0, "newName", PsiTypeConstants.Int))
     doTest(null, "foo", null, Seq(params))

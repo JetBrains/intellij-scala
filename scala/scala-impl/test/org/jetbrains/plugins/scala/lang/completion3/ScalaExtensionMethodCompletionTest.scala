@@ -1,12 +1,13 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
-import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
+import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
+import org.junit.Test
 
+@RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Latest))
 class ScalaExtensionMethodCompletionTest extends ScalaCompletionTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean =
-    version >= ScalaVersion.Latest.Scala_3_0
 
+  @Test
   def testSimpleExtension(): Unit = doCompletionTest(
     s"""object Test {
        |  extension (s: String)
@@ -23,6 +24,7 @@ class ScalaExtensionMethodCompletionTest extends ScalaCompletionTestBase {
     item = "digits"
   )
 
+  @Test
   def testExtensionFromGiven(): Unit = doCompletionTest(
     s"""object math3:
        |  trait Ord[T]
@@ -49,6 +51,7 @@ class ScalaExtensionMethodCompletionTest extends ScalaCompletionTestBase {
     item = "numeric"
   )
 
+  @Test
   def testFromImplicitScope(): Unit = doCompletionTest(
     s"""class MyList[+T]
        |

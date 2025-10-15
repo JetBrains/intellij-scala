@@ -5,6 +5,7 @@ import com.intellij.execution.testframework.AbstractTestProxy
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.testFramework.UsefulTestCase
 import org.jetbrains.plugins.scala.configurations.TestLocation.CaretLocation
 import org.jetbrains.plugins.scala.extensions.{PsiNamedElementExt, inReadAction}
 import org.junit.Assert.{assertEquals, assertNotNull, fail}
@@ -13,7 +14,7 @@ import org.junit.ComparisonFailure
 import scala.annotation.tailrec
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
-trait IntegrationTestGoToTests extends AnyRef
+trait IntegrationTestGoToTests extends UsefulTestCase
   with IntegrationTestConfigurationRunning
   with IntegrationTestTreeViewAssertions
   with IntegrationTestConfigAssertions

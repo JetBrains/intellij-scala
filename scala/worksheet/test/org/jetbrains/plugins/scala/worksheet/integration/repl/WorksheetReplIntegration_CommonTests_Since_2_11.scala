@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.worksheet.integration.repl
 import com.intellij.openapi.editor.Editor
 import org.jetbrains.plugins.scala.util.RevertableChange.withModifiedRegistryValue
 import org.jetbrains.plugins.scala.util.assertions.StringAssertions.{assertIsBlank, assertStringMatches}
-import org.jetbrains.plugins.scala.util.runners.{RunWithJdkVersions, TestJdkVersion}
 import org.jetbrains.plugins.scala.worksheet.WorksheetUtils
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult.WorksheetRunError
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.{TestRunResult, WorksheetEditorAndFile}
@@ -14,12 +13,12 @@ import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.Workshe
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterRepl
 import org.junit.Assert.assertEquals
+import org.junit.Test
 
 import scala.concurrent.duration.DurationInt
 
-trait WorksheetReplIntegration_CommonTests_Since_2_11 {
-  self: WorksheetReplIntegrationBaseTest with WorksheetRuntimeExceptionsTests =>
-
+trait WorksheetReplIntegrationHealthCheckTest_Since_2_11 { self: WorksheetReplIntegrationBaseTest =>
+  @Test
   def testSimpleDeclaration(): Unit = {
     val left =
       """val a = 1
@@ -32,7 +31,130 @@ trait WorksheetReplIntegration_CommonTests_Since_2_11 {
 
     doRenderTest(left, right)
   }
+}
 
+trait WorksheetReplIntegrationRestoreErrorPositionsInOriginalFileTest_Since_2_11 { self: WorksheetReplIntegrationBaseTest =>
+
+  protected val RestoreErrorPositionsInOriginalFileCode =
+    """var x =
+      |      unknown1
+      |
+      |
+      |/**
+      |  *
+      |  */
+      |unknownVar = 23 +
+      |  unknown2
+      |
+      |42 +
+      |    unknown3 +
+      |      unknown4
+      |
+      |println(
+      |  "1" +
+      |        unknown5
+      |)
+      |
+      |val y =
+      |  23; 42 +
+      |    unknown6; val z =
+      |      unknown7
+      |
+      |/**
+      |  */
+      |def foo: String = {
+      |
+      |    unknown8
+      |}
+      |
+      |/**
+      |  */
+      |42 + {
+      |    unknown9
+      |}
+      |
+      |{
+      |    unknown10
+      |}
+      |
+      |
+      |/**
+      |  */
+      |class X {
+      |
+      |
+      |    unknown11
+      |
+      |      unknown12
+      |}
+      |
+      |//
+      |//comment
+      |//
+      |
+      |object X {
+      |
+      |      unknown13
+      |
+      |
+      |  unknown14
+      |}""".stripMargin
+
+  /**
+   * These two errors positions are restored IINCORRECTLY in Scala < 2.13:
+   * Error:(10, 7) not found: value unknownVar
+   * val $ires0 = unknownVar
+   * Error:(12, 5) not found: value unknown3
+   * unknown3 +
+   */
+  @Test
+  def testRestoreErrorPositionsInOriginalFile(): Unit =
+    withModifiedRegistryValue(WorksheetUtils.ContinueOnFirstFailure, newValue = true).run {
+      val expectedCompilerOutput =
+        """Error:(2, 7) not found: value unknown1
+          |unknown1
+          |Error:(8, 1) not found: value unknownVar
+          |unknownVar = 23 +
+          |Error:(11, 7) not found: value unknownVar
+          |val $ires0 = unknownVar
+          |Error:(12, 5) not found: value unknown3
+          |unknown3 +
+          |Error:(13, 7) not found: value unknown4
+          |unknown4
+          |Error:(17, 9) not found: value unknown5
+          |unknown5
+          |Error:(22, 5) not found: value unknown6
+          |unknown6; val z =
+          |Error:(23, 7) not found: value unknown7
+          |unknown7
+          |Error:(29, 5) not found: value unknown8
+          |unknown8
+          |Error:(35, 5) not found: value unknown9
+          |unknown9
+          |Error:(39, 5) not found: value unknown10
+          |unknown10
+          |Error:(48, 5) not found: value unknown11
+          |unknown11
+          |Error:(50, 7) not found: value unknown12
+          |unknown12
+          |Error:(59, 7) not found: value unknown13
+          |unknown13
+          |Error:(62, 3) not found: value unknown14
+          |unknown14""".stripMargin
+
+      val TestRunResult(editor, evaluationResult) =
+        doRenderTestWithoutCompilationChecks2(RestoreErrorPositionsInOriginalFileCode, output => assertIsBlank(output))
+      assertEquals(WorksheetRunError(WorksheetCompilerResult.CompilationError), evaluationResult)
+      assertCompilerMessages(editor.editor)(expectedCompilerOutput)
+    }
+}
+
+trait WorksheetReplIntegration_CommonTests_Since_2_11
+  extends WorksheetReplIntegrationHealthCheckTest_Since_2_11
+    with WorksheetReplIntegrationRestoreErrorPositionsInOriginalFileTest_Since_2_11 {
+  self: WorksheetReplIntegrationBaseTest with WorksheetRuntimeExceptionsTests =>
+
+  @Test
   def testSimpleFolding(): Unit = {
     val left =
       """println("1\n2\n3")
@@ -48,6 +170,7 @@ trait WorksheetReplIntegration_CommonTests_Since_2_11 {
     doRenderTest(left, right)
   }
 
+  @Test
   def testMultipleFoldings(): Unit = {
     val left =
       """println("1\n2\n3")
@@ -69,6 +192,7 @@ trait WorksheetReplIntegration_CommonTests_Since_2_11 {
     doRenderTest(left, right)
   }
 
+  @Test
   def testTrimChunkOutputFromTheRightButNotFromTheLeft(): Unit = {
     val left =
       """println("\n\n1\n2\n3\n\n")
@@ -86,6 +210,7 @@ trait WorksheetReplIntegration_CommonTests_Since_2_11 {
     doRenderTest(left, right)
   }
 
+  @Test
   def testMultipleFoldings_WithSpacesBetweenSpaces(): Unit = {
     val left =
       """
@@ -121,6 +246,7 @@ trait WorksheetReplIntegration_CommonTests_Since_2_11 {
     doRenderTest(left, right)
   }
 
+  @Test
   def testLongLineOutput(): Unit = {
     val left =
       """val text = "1\n^\n2\n3\n4\n^\n5\n6\n7\n8\n9"
@@ -153,6 +279,7 @@ trait WorksheetReplIntegration_CommonTests_Since_2_11 {
     )
   }
 
+  @Test
   def testDisplayFirstRuntimeException(): Unit = {
     val left =
       """println("1\n2")
@@ -182,7 +309,7 @@ trait WorksheetReplIntegration_CommonTests_Since_2_11 {
     assertLastLine(editor, 0)
   }
 
-
+  @Test
   def testArrayRender(): Unit = {
     doRenderTest(
       """var a1 = new Array[Int](3)
@@ -192,6 +319,7 @@ trait WorksheetReplIntegration_CommonTests_Since_2_11 {
     )
   }
 
+  @Test
   def testInteractive(): Unit = {
     val editor = doRenderTest(
       """42""",
@@ -217,6 +345,7 @@ trait WorksheetReplIntegration_CommonTests_Since_2_11 {
     assertNoErrorMessages(editor)
   }
 
+  @Test
   def testInteractive_WithError(): Unit = {
     val editor = doRenderTest(
       """42""",
@@ -242,6 +371,7 @@ trait WorksheetReplIntegration_CommonTests_Since_2_11 {
   }
 
   // see SCL-11450
+  @Test
   def testLambdaValueDefinitionOutputShouldBeFancy(): Unit = {
     val before = """val foo: String => Int = _.length"""
 
@@ -250,6 +380,7 @@ trait WorksheetReplIntegration_CommonTests_Since_2_11 {
     })
   }
 
+  @Test
   def testSameWorksheetEvaluatedSeveralTimesShouldntAddAnyNewOutput(): Unit = {
     val before =
       """val x = 42
@@ -264,16 +395,7 @@ trait WorksheetReplIntegration_CommonTests_Since_2_11 {
     assertViewerEditorText(editor, after)
   }
 
-  @RunWithJdkVersions(Array(TestJdkVersion.JDK_1_8, TestJdkVersion.JDK_11))
-  def testSystemExit(): Unit =
-    doRenderTest(
-      """val x = 42
-        |println(s"x: $x")
-        |System.exit(0)""".stripMargin,
-      """x: Int = 42
-        |x: 42""".stripMargin
-    )
-
+  @Test
   def testManyCompanionClassesAndObjects_WithVariousSpacesAndComments(): Unit = {
     val before =
       """val x = 1
@@ -414,6 +536,7 @@ trait WorksheetReplIntegration_CommonTests_Since_2_11 {
     doRenderTest(before, after)
   }
 
+  @Test
   def testManyCompanionClassesAndObjects_WithVariousTypeOfClasses(): Unit = {
     val before =
       """class C1
@@ -454,6 +577,7 @@ trait WorksheetReplIntegration_CommonTests_Since_2_11 {
     doRenderTest(before, after)
   }
 
+  @Test
   def testSealedTraitHierarchy_1(): Unit = {
     val editor = doRenderTest(
       """sealed trait T""",
@@ -462,6 +586,7 @@ trait WorksheetReplIntegration_CommonTests_Since_2_11 {
     assertLastLine(editor, 0)
   }
 
+  @Test
   def testSealedTraitHierarchy_2(): Unit = {
     val editor = doRenderTest(
       """sealed trait T
@@ -472,6 +597,7 @@ trait WorksheetReplIntegration_CommonTests_Since_2_11 {
     assertLastLine(editor, 1)
   }
 
+  @Test
   def testSealedTraitHierarchy_3(): Unit = {
     val editor = doRenderTest(
       """sealed trait T
@@ -484,6 +610,7 @@ trait WorksheetReplIntegration_CommonTests_Since_2_11 {
     assertLastLine(editor, 2)
   }
 
+  @Test
   def testSealedTraitHierarchy_WithSpacesAndComments(): Unit = {
     val editor = doRenderTest(
       """sealed trait T
@@ -516,6 +643,7 @@ trait WorksheetReplIntegration_CommonTests_Since_2_11 {
     assertLastLine(editor, 12)
   }
 
+  @Test
   def testSealedTraitHierarchy_Several(): Unit = {
     val editor = doRenderTest(
       """sealed trait T1
@@ -543,6 +671,7 @@ trait WorksheetReplIntegration_CommonTests_Since_2_11 {
   }
 
   // yes, this is a very strange case, but anyway
+  @Test
   def testSemicolonSeparatedExpressions(): Unit =
     doRenderTest(
       """val x = 23; val y = 42; def f(i: Int): String = "hello"; println("1\n2")""",
@@ -553,6 +682,7 @@ trait WorksheetReplIntegration_CommonTests_Since_2_11 {
          |f: (i: Int)String$foldEnd""".stripMargin
     )
 
+  @Test
   def testSemicolonSeparatedExpressions_OnMultipleLines(): Unit =
     doRenderTest(
       """val x = 23; val y =
@@ -566,6 +696,7 @@ trait WorksheetReplIntegration_CommonTests_Since_2_11 {
          |f: (i: Int)String$foldEnd""".stripMargin
     )
 
+  @Test
   def testDoNoAddLineCommentsWithLineIndexesInsideMultilineStringLiterals(): Unit =
     doRenderTest(
       s"""val x =
@@ -589,118 +720,7 @@ trait WorksheetReplIntegration_CommonTests_Since_2_11 {
         |res1: Int = 19""".stripMargin
     )
 
-  protected val RestoreErrorPositionsInOriginalFileCode =
-    """var x =
-      |      unknown1
-      |
-      |
-      |/**
-      |  *
-      |  */
-      |unknownVar = 23 +
-      |  unknown2
-      |
-      |42 +
-      |    unknown3 +
-      |      unknown4
-      |
-      |println(
-      |  "1" +
-      |        unknown5
-      |)
-      |
-      |val y =
-      |  23; 42 +
-      |    unknown6; val z =
-      |      unknown7
-      |
-      |/**
-      |  */
-      |def foo: String = {
-      |
-      |    unknown8
-      |}
-      |
-      |/**
-      |  */
-      |42 + {
-      |    unknown9
-      |}
-      |
-      |{
-      |    unknown10
-      |}
-      |
-      |
-      |/**
-      |  */
-      |class X {
-      |
-      |
-      |    unknown11
-      |
-      |      unknown12
-      |}
-      |
-      |//
-      |//comment
-      |//
-      |
-      |object X {
-      |
-      |      unknown13
-      |
-      |
-      |  unknown14
-      |}""".stripMargin
-
-  /**
-   * These two errors positions are restored IINCORRECTLY in Scala < 2.13:
-   * Error:(10, 7) not found: value unknownVar
-   * val $ires0 = unknownVar
-   * Error:(12, 5) not found: value unknown3
-   * unknown3 +
-   */
-  def testRestoreErrorPositionsInOriginalFile(): Unit =
-    withModifiedRegistryValue(WorksheetUtils.ContinueOnFirstFailure, newValue = true).run {
-      val expectedCompilerOutput =
-        """Error:(2, 7) not found: value unknown1
-          |unknown1
-          |Error:(8, 1) not found: value unknownVar
-          |unknownVar = 23 +
-          |Error:(11, 7) not found: value unknownVar
-          |val $ires0 = unknownVar
-          |Error:(12, 5) not found: value unknown3
-          |unknown3 +
-          |Error:(13, 7) not found: value unknown4
-          |unknown4
-          |Error:(17, 9) not found: value unknown5
-          |unknown5
-          |Error:(22, 5) not found: value unknown6
-          |unknown6; val z =
-          |Error:(23, 7) not found: value unknown7
-          |unknown7
-          |Error:(29, 5) not found: value unknown8
-          |unknown8
-          |Error:(35, 5) not found: value unknown9
-          |unknown9
-          |Error:(39, 5) not found: value unknown10
-          |unknown10
-          |Error:(48, 5) not found: value unknown11
-          |unknown11
-          |Error:(50, 7) not found: value unknown12
-          |unknown12
-          |Error:(59, 7) not found: value unknown13
-          |unknown13
-          |Error:(62, 3) not found: value unknown14
-          |unknown14""".stripMargin
-
-      val TestRunResult(editor, evaluationResult) =
-        doRenderTestWithoutCompilationChecks2(RestoreErrorPositionsInOriginalFileCode, output => assertIsBlank(output))
-      assertEquals(WorksheetRunError(WorksheetCompilerResult.CompilationError), evaluationResult)
-      assertCompilerMessages(editor.editor)(expectedCompilerOutput)
-    }
-
+  @Test
   def testCompilationErrorsAndWarnings_ComplexTest(): Unit =
     baseTestCompilationErrorsAndWarnings_ComplexTest(
       """Warning:(2, 7) match may not be exhaustive.

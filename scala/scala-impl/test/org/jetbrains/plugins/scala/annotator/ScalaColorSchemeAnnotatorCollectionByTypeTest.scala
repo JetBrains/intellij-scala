@@ -7,11 +7,13 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.{AliasExportSemantics, ScalaCollectionHighlightingLevel}
 import org.jetbrains.plugins.scala.util.RevertableChange.withModifiedSetting
 import org.junit.Assert.assertEquals
+import org.junit.Test
 
 import scala.collection.immutable.ListSet
 
 class ScalaColorSchemeAnnotatorCollectionByTypeTest extends ScalaColorSchemeAnnotatorCollectionByTypeTestBase {
 
+  @Test
   def testAnnotateImmutable_NonQualified(): Unit = {
     val text =
       """import scala.collection.immutable.HashMap
@@ -49,6 +51,7 @@ class ScalaColorSchemeAnnotatorCollectionByTypeTest extends ScalaColorSchemeAnno
         |""".stripMargin)
   }
 
+  @Test
   def testAnnotateImmutable_QualifiedName_Fully(): Unit = {
     val text =
       s"""class A {
@@ -85,6 +88,7 @@ class ScalaColorSchemeAnnotatorCollectionByTypeTest extends ScalaColorSchemeAnno
         |""".stripMargin)
   }
 
+  @Test
   def testAnnotateImmutable_QualifiedName_Partially(): Unit = {
     val text =
       s"""import scala.collection.immutable
@@ -134,6 +138,7 @@ class ScalaColorSchemeAnnotatorCollectionByTypeTest extends ScalaColorSchemeAnno
     }
   }
 
+  @Test
   def testAnnotateImmutable_FromPredef_ExportAliasSemantics(): Unit = {
     withAliasSemantics(AliasExportSemantics.Export) {
       val text =
@@ -159,6 +164,7 @@ class ScalaColorSchemeAnnotatorCollectionByTypeTest extends ScalaColorSchemeAnno
     }
   }
 
+  @Test
   def testAnnotateImmutable_FromPredef_DefinitionAliasSemantics(): Unit = {
     withAliasSemantics(AliasExportSemantics.Definition) {
       val text =
@@ -190,6 +196,7 @@ class ScalaColorSchemeAnnotatorCollectionByTypeTest extends ScalaColorSchemeAnno
   //
   ////////////////////////////////////////////////////
 
+  @Test
   def testAnnotateMutable_NonQualified(): Unit = {
     val text =
       """import scala.collection.mutable.HashMap
@@ -225,6 +232,7 @@ class ScalaColorSchemeAnnotatorCollectionByTypeTest extends ScalaColorSchemeAnno
         |""".stripMargin)
   }
 
+  @Test
   def testAnnotateMutable_QualifiedName_Fully(): Unit = {
     val text =
       s"""class A {
@@ -261,6 +269,7 @@ class ScalaColorSchemeAnnotatorCollectionByTypeTest extends ScalaColorSchemeAnno
         |""".stripMargin)
   }
 
+  @Test
   def testAnnotateMutable_QualifiedName_Partially(): Unit = {
     val text =
       s"""import scala.collection.mutable
@@ -299,6 +308,7 @@ class ScalaColorSchemeAnnotatorCollectionByTypeTest extends ScalaColorSchemeAnno
         |""".stripMargin)
   }
 
+  @Test
   def testAnnotateMutable_FromPredef(): Unit = {
     val text =
       """class A {
@@ -319,6 +329,7 @@ class ScalaColorSchemeAnnotatorCollectionByTypeTest extends ScalaColorSchemeAnno
   //
   ////////////////////////////////////////////////////
 
+  @Test
   def testAnnotateJavaCollection_NonQualified(): Unit = {
     val text =
       """import java.util.ArrayList
@@ -354,6 +365,7 @@ class ScalaColorSchemeAnnotatorCollectionByTypeTest extends ScalaColorSchemeAnno
         |""".stripMargin)
   }
 
+  @Test
   def testAnnotateJavaCollection_QualifiedName_Fully(): Unit = {
     val text =
       s"""class A {
@@ -385,6 +397,7 @@ class ScalaColorSchemeAnnotatorCollectionByTypeTest extends ScalaColorSchemeAnno
         |""".stripMargin)
   }
 
+  @Test
   def testAnnotateJavaCollection_QualifiedName_Partially(): Unit = {
     val text =
       s"""import java.util
@@ -424,6 +437,7 @@ class ScalaColorSchemeAnnotatorCollectionByTypeTest extends ScalaColorSchemeAnno
   //
   ////////////////////////////////////////////////////
 
+  @Test
   def testDoNotAnnotateApplyMethod(): Unit = {
     val text =
       """class A {
@@ -450,6 +464,7 @@ class ScalaColorSchemeAnnotatorCollectionByTypeTest extends ScalaColorSchemeAnno
     )
   }
 
+  @Test
   def testDoNotAnnotateImport(): Unit = {
     val text =
       """import scala.collection.mutable.HashMap

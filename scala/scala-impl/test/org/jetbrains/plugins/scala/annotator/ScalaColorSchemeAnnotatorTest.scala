@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.annotator
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter
+import org.junit.Test
 
 class ScalaColorSchemeAnnotatorTest extends ScalaColorSchemeAnnotatorTestBase[TextAttributesKey] {
   import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter._
@@ -14,6 +15,7 @@ class ScalaColorSchemeAnnotatorTest extends ScalaColorSchemeAnnotatorTestBase[Te
 
   override protected def getFilterByField(annotation: Message2): TextAttributesKey = annotation.textAttributesKey
 
+  @Test
   def testAnnotateGeneratorAndEnumerator(): Unit = {
     val text =
       s"""for {
@@ -37,6 +39,7 @@ class ScalaColorSchemeAnnotatorTest extends ScalaColorSchemeAnnotatorTestBase[Te
         |""".stripMargin)
   }
 
+  @Test
   def testForYield(): Unit = {
     val text =
       s"""for {
@@ -51,6 +54,7 @@ class ScalaColorSchemeAnnotatorTest extends ScalaColorSchemeAnnotatorTestBase[Te
         |""".stripMargin)
   }
 
+  @Test
   def testAnnotatePattern_1(): Unit = {
     val text =
       s"""??? match {
@@ -66,6 +70,7 @@ class ScalaColorSchemeAnnotatorTest extends ScalaColorSchemeAnnotatorTestBase[Te
         |""".stripMargin)
   }
 
+  @Test
   def testAnnotatePattern_2(): Unit = {
     val text =
       s"""val sourceRoots = Seq()
@@ -97,6 +102,7 @@ class ScalaColorSchemeAnnotatorTest extends ScalaColorSchemeAnnotatorTestBase[Te
         |""".stripMargin)
   }
 
+  @Test
   def testAnnotatePattern_3(): Unit = {
     val text =
       s"""??? match {
@@ -108,6 +114,7 @@ class ScalaColorSchemeAnnotatorTest extends ScalaColorSchemeAnnotatorTestBase[Te
         |""".stripMargin)
   }
 
+  @Test
   def testBooleans(): Unit = {
     val text =
       """
@@ -121,6 +128,7 @@ class ScalaColorSchemeAnnotatorTest extends ScalaColorSchemeAnnotatorTestBase[Te
         |""".stripMargin)
   }
 
+  @Test
   def testStringInterpolation(): Unit = {
     testAllAnnotations(
       """raw"Hi ${System.currentTimeMillis()}"
@@ -131,6 +139,7 @@ class ScalaColorSchemeAnnotatorTest extends ScalaColorSchemeAnnotatorTestBase[Te
     )
   }
 
+  @Test
   def testStringInterpolation_2(): Unit = {
     getFixture.addFileToProject("defs.scala",
       """case class Bar()
@@ -147,6 +156,7 @@ class ScalaColorSchemeAnnotatorTest extends ScalaColorSchemeAnnotatorTestBase[Te
     )
   }
 
+  @Test
   def testLanguageInjection(): Unit = {
     val text =
       """
@@ -158,6 +168,7 @@ class ScalaColorSchemeAnnotatorTest extends ScalaColorSchemeAnnotatorTestBase[Te
         |""".stripMargin)
   }
 
+  @Test
   def testSymbol(): Unit = {
     val text =
       """
@@ -168,6 +179,7 @@ class ScalaColorSchemeAnnotatorTest extends ScalaColorSchemeAnnotatorTestBase[Te
         |""".stripMargin)
   }
 
+  @Test
   def testTypeAlias(): Unit = {
     val text =
       """
@@ -178,6 +190,7 @@ class ScalaColorSchemeAnnotatorTest extends ScalaColorSchemeAnnotatorTestBase[Te
         |""".stripMargin)
   }
 
+  @Test
   def testAbstractClass(): Unit = {
     val text =
       """
@@ -189,6 +202,7 @@ class ScalaColorSchemeAnnotatorTest extends ScalaColorSchemeAnnotatorTestBase[Te
     )
   }
 
+  @Test
   def testAnnotation(): Unit = {
     val text =
       """
@@ -204,6 +218,7 @@ class ScalaColorSchemeAnnotatorTest extends ScalaColorSchemeAnnotatorTestBase[Te
     )
   }
 
+  @Test
   def testAnonymousParameter(): Unit = {
     val text =
       """
@@ -220,6 +235,7 @@ class ScalaColorSchemeAnnotatorTest extends ScalaColorSchemeAnnotatorTestBase[Te
     )
   }
 
+  @Test
   def testMethodVsValueVsVariable(): Unit = {
     val text =
       """
@@ -247,6 +263,7 @@ class ScalaColorSchemeAnnotatorTest extends ScalaColorSchemeAnnotatorTestBase[Te
     )
   }
 
+  @Test
   def testHighlightParameterFieldAsField(): Unit = {
     val text =
       """class MyClass(
@@ -359,6 +376,7 @@ class ScalaColorSchemeAnnotatorTest extends ScalaColorSchemeAnnotatorTestBase[Te
     )
   }
 
+  @Test
   def testHighlightParameterFieldAsParameterInScalaDoc(): Unit = {
     val text =
       """/**
@@ -438,6 +456,7 @@ class ScalaColorSchemeAnnotatorTest extends ScalaColorSchemeAnnotatorTestBase[Te
     )
   }
 
+  @Test
   def testNamedArguments(): Unit = {
     addScalaFileToProject("defs.scala",
       """class MyClass(param: Int, val paramFieldVal: Int, var paramFieldVar: Int)(param4: Int)
@@ -484,6 +503,7 @@ class ScalaColorSchemeAnnotatorTest extends ScalaColorSchemeAnnotatorTestBase[Te
     )
   }
 
+  @Test
   def testUnderscoreLambdaWithAssignmentInParameterPosition(): Unit = {
     addScalaFileToProject("defs.scala",
       """class MyClass {
@@ -521,6 +541,7 @@ class ScalaColorSchemeAnnotatorTest extends ScalaColorSchemeAnnotatorTestBase[Te
     )
   }
 
+  @Test
   def testAssignmentToField(): Unit = {
     addScalaFileToProject("defs.scala",
       """class MyClass {
@@ -560,6 +581,7 @@ class ScalaColorSchemeAnnotatorTest extends ScalaColorSchemeAnnotatorTestBase[Te
     )
   }
 
+  @Test
   def testAbstractVariables(): Unit = {
     testAnnotations(
       //language=Scala

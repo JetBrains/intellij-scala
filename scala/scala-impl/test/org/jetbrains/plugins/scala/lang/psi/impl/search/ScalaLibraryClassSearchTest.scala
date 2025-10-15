@@ -10,7 +10,8 @@ import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt, PsiNamedE
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.jetbrains.plugins.scala.lang.navigation.ChooseClassOrSymbolByNameTestBase
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsJUnit4Runner, RunWithScalaVersions, TestScalaVersion}
+import org.junit.Test
 import org.junit.runner.RunWith
 
 import scala.jdk.CollectionConverters.SeqHasAsJava
@@ -60,10 +61,10 @@ private[search] trait ScalaLibraryClassSearchTestBase extends ScalaLightCodeInsi
   )
 }
 
-@RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWith(classOf[MultipleScalaVersionsJUnit4Runner])
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_13,
-  TestScalaVersion.Scala_3_Latest,
+  TestScalaVersion.Scala_3_Latest
 ))
 class ScalaCompleteLibraryClassTest
   extends ScalaCompletionTestBase
@@ -76,6 +77,7 @@ class ScalaCompleteLibraryClassTest
     UsefulTestCase.assertContainsElements(actual.asJava, expected: _*)
   }
 
+  @Test
   def testScalatestLookupItems(): Unit = {
     val fileText =
       s"""package tests
@@ -86,6 +88,7 @@ class ScalaCompleteLibraryClassTest
     checkLookupItems(fileText, SCALATEST_DESCRIPTORS)
   }
 
+  @Test
   def testZioLookupItems(): Unit = {
     val fileText =
       s"""package com.example
@@ -97,7 +100,7 @@ class ScalaCompleteLibraryClassTest
   }
 }
 
-@RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWith(classOf[MultipleScalaVersionsJUnit4Runner])
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_13,
   TestScalaVersion.Scala_3_Latest
@@ -112,15 +115,19 @@ class ScalaGoToLibraryClassTest
     super[ChooseClassOrSymbolByNameTestBase].checkContainExpected(elements, expected: _*)
   }
 
+  @Test
   def testGoToClassScalatestShortName(): Unit =
     checkClassElements(SCALATEST_ANY_FUN_SUITE_NAME_PART, SCALATEST_DESCRIPTORS)
 
+  @Test
   def testGoToClassScalatestFullName(): Unit =
     checkClassElements(SCALATEST_ANY_FUN_SUITE_FQN, SCALATEST_DESCRIPTORS)
 
+  @Test
   def testGoToClassZioShortName(): Unit =
     checkClassElements(ZIO_APP_NAME_PART, ZIO_DESCRIPTORS)
 
+  @Test
   def testGoToClassZioFullName(): Unit =
     checkClassElements(ZIO_APP_FQN, ZIO_DESCRIPTORS)
 }

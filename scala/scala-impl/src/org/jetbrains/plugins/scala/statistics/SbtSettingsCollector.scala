@@ -12,6 +12,7 @@ import org.jetbrains.sbt.settings.SbtSettings
 
 import java.util.Collections
 import java.{util => ju}
+import scala.annotation.nowarn
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 import scala.util.Try
 
@@ -86,7 +87,7 @@ class SbtSettingsCollector extends ProjectUsagesCollector {
 //noinspection UnstableApiUsage
 private object SbtSettingsCollector {
   // The group name was chosen to be unified with GradleSettingsCollector.GROUP
-  private val Group = new EventLogGroup("build.sbt.state", 1)
+  private val Group = new EventLogGroup("build.sbt.state", 1): @nowarn("cat=deprecation") // TODO: SCL-24479
 
   locally {
     //initialize the fields eagerly in order scheme generation works
@@ -111,7 +112,7 @@ private object SbtSettingsCollector {
         Fields.SbtVersion,
         Fields.SbtVersionMajor
       ): _*
-    )
+    ): @nowarn("cat=deprecation") // TODO: SCL-24479
   }
 
   private object Fields {

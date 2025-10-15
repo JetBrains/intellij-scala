@@ -47,8 +47,8 @@ class Scala3BracelessSyntaxEnterHandlerTest_Exhaustive extends DoEditorStateTest
 
   @Test
   @Parameters(method = "testParameters")
-  @TestCaseName(value = "{0}")
-  def myTest(@unused("used reflectively by the @TestCaseName annotation") testName: String, testData: TestData): Unit = {
+  @TestCaseName(value = "{method}[{0}]")
+  def enterHandler(@unused("used reflectively by the @TestCaseName annotation") testName: String, testData: TestData): Unit = {
     testData match {
       case TestData.ExplicitEditorStates(editorStates) =>
         doEditorStateTest(myFixture, editorStates)

@@ -8,31 +8,12 @@ import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBas
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetRuntimeExceptionsTests
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult
 import org.junit.Assert.assertEquals
+import org.junit.Test
 
-trait WorksheetReplIntegration_CommonTests_Since_2_12
-  extends WorksheetReplIntegration_CommonTests_Since_2_11 {
-  self: WorksheetReplIntegrationBaseTest with WorksheetRuntimeExceptionsTests =>
+trait WorksheetReplIntegrationRestoreErrorPositionsInOriginalFileTest_Since_2_12
+  extends WorksheetReplIntegrationRestoreErrorPositionsInOriginalFileTest_Since_2_11 { self: WorksheetReplIntegrationBaseTest =>
 
-  override def testCompilationErrorsAndWarnings_ComplexTest(): Unit =
-    baseTestCompilationErrorsAndWarnings_ComplexTest(
-      """Warning:(2, 7) match may not be exhaustive.
-        |It would fail on the following inputs: None, Some((x: Int forSome x not in 42))
-        |Option(42) match {
-        |
-        |Error:(11, 13) not found: value Sum
-        |def foo = Sum(Product(Number(2),
-        |
-        |Error:(11, 17) not found: value Product
-        |def foo = Sum(Product(Number(2),
-        |
-        |Error:(11, 25) class java.lang.Number is not a value
-        |def foo = Sum(Product(Number(2),
-        |
-        |Error:(12, 5) class java.lang.Number is not a value
-        |Number(3)))
-        |""".stripMargin.trim
-    )
-
+  @Test
   override def testRestoreErrorPositionsInOriginalFile(): Unit =
     withModifiedRegistryValue(WorksheetUtils.ContinueOnFirstFailure, newValue = true).run {
       val expectedCompilerOutput =
@@ -72,4 +53,31 @@ trait WorksheetReplIntegration_CommonTests_Since_2_12
       assertEquals(WorksheetRunError(WorksheetCompilerResult.CompilationError), evaluationResult)
       assertCompilerMessages(editorAndFile.editor)(expectedCompilerOutput)
     }
+}
+
+trait WorksheetReplIntegration_CommonTests_Since_2_12
+  extends WorksheetReplIntegration_CommonTests_Since_2_11
+    with WorksheetReplIntegrationRestoreErrorPositionsInOriginalFileTest_Since_2_12 {
+  self: WorksheetReplIntegrationBaseTest with WorksheetRuntimeExceptionsTests =>
+
+  @Test
+  override def testCompilationErrorsAndWarnings_ComplexTest(): Unit =
+    baseTestCompilationErrorsAndWarnings_ComplexTest(
+      """Warning:(2, 7) match may not be exhaustive.
+        |It would fail on the following inputs: None, Some((x: Int forSome x not in 42))
+        |Option(42) match {
+        |
+        |Error:(11, 13) not found: value Sum
+        |def foo = Sum(Product(Number(2),
+        |
+        |Error:(11, 17) not found: value Product
+        |def foo = Sum(Product(Number(2),
+        |
+        |Error:(11, 25) class java.lang.Number is not a value
+        |def foo = Sum(Product(Number(2),
+        |
+        |Error:(12, 5) class java.lang.Number is not a value
+        |Number(3)))
+        |""".stripMargin.trim
+    )
 }

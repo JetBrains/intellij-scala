@@ -2,9 +2,11 @@ package org.jetbrains.plugins.scala.lang.dfa.analysis.tests
 
 import org.jetbrains.plugins.scala.lang.dfa.Messages._
 import org.jetbrains.plugins.scala.lang.dfa.analysis.ScalaDfaTestBase
+import org.junit.Test
 
 class IfStatementsDfaTest extends ScalaDfaTestBase {
 
+  @Test
   def testRegularIfs(): Unit = test(codeFromMethodBody(returnType = "Int") {
     """
       |val x = if (3 < 2 && 5 <= 7) {

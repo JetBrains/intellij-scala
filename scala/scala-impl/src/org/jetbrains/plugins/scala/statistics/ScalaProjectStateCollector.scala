@@ -5,6 +5,8 @@ import com.intellij.internal.statistic.beans.MetricEvent
 import com.intellij.internal.statistic.eventLog.EventLogGroup
 import com.intellij.internal.statistic.eventLog.events.EventFields.{StringValidatedByRegexpReference, String => FString}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
+
+import scala.annotation.nowarn
 //noinspection ApiStatus,UnstableApiUsage
 import com.intellij.internal.statistic.service.fus.collectors.ProjectUsagesCollector
 import com.intellij.openapi.project.Project
@@ -64,7 +66,7 @@ class ScalaProjectStateCollector extends ProjectUsagesCollector {
 //noinspection UnstableApiUsage
 object ScalaProjectStateCollector {
 
-  private final val Group = new EventLogGroup("scala.project.state", 1)
+  private final val Group = new EventLogGroup("scala.project.state", 1): @nowarn("cat=deprecation") // TODO: SCL-24479
 
   /**
    * See also [[org.jetbrains.plugins.scala.statistics.SbtShellCommandsUsagesCollector]]
@@ -75,18 +77,18 @@ object ScalaProjectStateCollector {
    */
   private final val SbtInfoEvent = Group.registerEvent("sbt.info",
     StringValidatedByRegexpReference("version", "version")
-  )
+  ): @nowarn("cat=deprecation") // TODO: SCL-24479
 
   //noinspection UnstableApiUsage
   private final val CompilerPlugin = Group.registerEvent("compiler.plugin",
     FString("name", CompilerPluginsWhiteList.get.toList.asJava),
     StringValidatedByRegexpReference("version", "version")
-  )
+  ): @nowarn("cat=deprecation") // TODO: SCL-24479
 
   //noinspection UnstableApiUsage
   private final val ScalaLangLevelEvent = Group.registerEvent("scala.lang.level",
     StringValidatedByRegexpReference("value", "version")
-  )
+  ): @nowarn("cat=deprecation") // TODO: SCL-24479
 
   private val CompilerPluginRegex = ".+_\\d+\\.\\d+(\\.\\d+)?-(\\d+\\.\\d+(\\.\\d+)?)\\.jar".r
 

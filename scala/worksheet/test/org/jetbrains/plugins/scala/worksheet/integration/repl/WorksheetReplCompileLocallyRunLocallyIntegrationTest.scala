@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.worksheet.integration.repl
 import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult.{Precondition, PreconditionError}
+import org.junit.Test
 
 import scala.language.postfixOps
 
@@ -13,6 +14,7 @@ class WorksheetReplCompileLocallyRunLocallyIntegrationTest extends WorksheetRepl
 
   override def runInCompileServerProcess: Boolean = false
 
+  @Test
   def testSimpleDeclaration(): Unit = {
     val left = "val a = 1"
     val compilerError = PreconditionError(Precondition.ReplRequiresCompileServerProcess)

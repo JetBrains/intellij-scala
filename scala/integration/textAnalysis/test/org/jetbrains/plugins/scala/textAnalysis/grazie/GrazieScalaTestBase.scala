@@ -112,7 +112,8 @@ abstract class GrazieScalaTestBase extends ScalaLightCodeInsightFixtureTestCase:
         /*parameters = */ state.getParameters,
         /*parametersPerDomain = */ state.getParametersPerDomain,
         /*useOxfordSpelling = */ state.getUseOxfordSpelling,
-        /*autoFix = */ state.getAutoFix
+        /*autoFix = */ state.getAutoFix,
+        /*explicitlyChosenProcessing = */ state.getExplicitlyChosenProcessing
       )
 
     service[GrazieCheckers].awaitConfiguration()

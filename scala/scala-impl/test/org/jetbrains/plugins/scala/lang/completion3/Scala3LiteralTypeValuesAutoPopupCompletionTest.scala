@@ -2,16 +2,15 @@ package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.codeInsight.editorActions.CompletionAutoPopupHandler
 import com.intellij.testFramework.{TestModeFlags, UsefulTestCase}
+import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.ScalaCompletionAutoPopupTestCase
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.Assert.{assertNotNull, assertNull}
-import org.junit.runner.RunWith
 
 import scala.jdk.CollectionConverters._
 
-@RunWith(classOf[MultipleScalaVersionsRunner])
-@RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Latest))
 final class Scala3LiteralTypeValuesAutoPopupCompletionTest extends ScalaCompletionAutoPopupTestCase {
+  override def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
+
   override def setUp(): Unit = {
     super.setUp()
     TestModeFlags.set[java.lang.Boolean](

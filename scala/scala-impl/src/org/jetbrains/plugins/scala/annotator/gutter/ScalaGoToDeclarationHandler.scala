@@ -180,12 +180,12 @@ object ScalaGoToDeclarationHandler {
   }
 
   private def regularCase(result: ScalaResolveResult): Seq[PsiElement] = {
-    val actualElement = result.getActualElement
-    result.element match {
+    val actualElement = ScNamedElement.adjusted(result.getActualElement)
+    ScNamedElement.adjusted(result.element) match {
       case function: ScFunction if function.isSynthetic =>
         Seq(function.syntheticCaseClass.getOrElse(actualElement))
       case constr@Constructor.ofClass(`actualElement`) => Seq(constr)
-      case element => Seq(actualElement, element) ++ result.innerResolveResult.map(_.getElement)
+      case element => Seq(actualElement, element) ++ result.innerResolveResult.map(r => ScNamedElement.adjusted(r.getElement))
     }
   }
 

@@ -2,23 +2,13 @@ package org.jetbrains.plugins.scala.worksheet.integration.plain
 
 import com.intellij.openapi.compiler.{CompilerMessage, CompilerMessageCategory}
 import org.jetbrains.plugins.scala.LatestScalaVersions
-import org.jetbrains.plugins.scala.worksheet.integration.{WorksheetIntegrationBaseTest, WorksheetRunTestSettings}
-import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType
+import org.junit.Test
 
-class WorksheetPlainCompileLocallyRunLocallyIntegrationTest
-  extends WorksheetIntegrationBaseTest
-    with WorksheetRunTestSettings
-    with WorksheetPlainCheckRuntimeVersionScalaTests {
-
-  override def runType: WorksheetExternalRunType = WorksheetExternalRunType.PlainRunType
-
-  override def useCompileServer = false
-
-  // the value doesn't actually matter, cause compile server isn't used anyway
-  override def runInCompileServerProcess = false
+class WorksheetPlainCompileLocallyRunLocallyIntegrationTest extends CompileLocallyRunLocallyTestBase {
 
   // 1 test should be enough, not-using compile server os something legacy and in future we will probably
   // leave only one option with using compile server
+  @Test
   def testHealthCheck(): Unit = {
     doRenderTest(
       """import java.io.PrintStream

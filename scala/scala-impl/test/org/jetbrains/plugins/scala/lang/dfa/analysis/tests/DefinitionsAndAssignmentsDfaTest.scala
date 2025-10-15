@@ -2,9 +2,11 @@ package org.jetbrains.plugins.scala.lang.dfa.analysis.tests
 
 import org.jetbrains.plugins.scala.lang.dfa.Messages._
 import org.jetbrains.plugins.scala.lang.dfa.analysis.ScalaDfaTestBase
+import org.junit.Test
 
 class DefinitionsAndAssignmentsDfaTest extends ScalaDfaTestBase {
 
+  @Test
   def testDefiningSimpleValuesAndVariables(): Unit = test(codeFromMethodBody(returnType = "Int") {
     """
       |val booleanVal = 3 > 2
@@ -21,6 +23,7 @@ class DefinitionsAndAssignmentsDfaTest extends ScalaDfaTestBase {
     "z > 300" -> ConditionAlwaysFalse
   )
 
+  @Test
   def testReassigningVars(): Unit = test(codeFromMethodBody(returnType = "Int") {
     """
       |var y = 5 * 2

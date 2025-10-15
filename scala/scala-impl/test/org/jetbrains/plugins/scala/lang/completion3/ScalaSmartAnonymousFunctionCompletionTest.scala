@@ -2,9 +2,11 @@ package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.codeInsight.completion.CompletionType.SMART
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
+import org.junit.Test
 
 class ScalaSmartAnonymousFunctionCompletionTest extends ScalaCompletionTestBase {
 
+  @Test
   def testAbstractTypeInfoFromFirstClause(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -18,6 +20,7 @@ class ScalaSmartAnonymousFunctionCompletionTest extends ScalaCompletionTestBase 
       """.stripMargin
   )
 
+  @Test
   def testSimpleCaseTest(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -31,6 +34,7 @@ class ScalaSmartAnonymousFunctionCompletionTest extends ScalaCompletionTestBase 
        """.stripMargin
   )
 
+  @Test
   def testSimple(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -44,6 +48,7 @@ class ScalaSmartAnonymousFunctionCompletionTest extends ScalaCompletionTestBase 
        """.stripMargin
   )
 
+  @Test
   def testJustTuple(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -57,6 +62,7 @@ class ScalaSmartAnonymousFunctionCompletionTest extends ScalaCompletionTestBase 
        """.stripMargin
   )
 
+  @Test
   def testCaseTuple(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -70,6 +76,7 @@ class ScalaSmartAnonymousFunctionCompletionTest extends ScalaCompletionTestBase 
        """.stripMargin
   )
 
+  @Test
   def testAbstractTypeInfoWithUpper(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -83,6 +90,7 @@ class ScalaSmartAnonymousFunctionCompletionTest extends ScalaCompletionTestBase 
        """.stripMargin
   )
 
+  @Test
   def testAbstractTypeInfoWithLower(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -96,6 +104,7 @@ class ScalaSmartAnonymousFunctionCompletionTest extends ScalaCompletionTestBase 
        """.stripMargin
   )
 
+  @Test
   def testAbstractTypeInfoTypeParameters(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -111,6 +120,7 @@ class ScalaSmartAnonymousFunctionCompletionTest extends ScalaCompletionTestBase 
        """.stripMargin
   )
 
+  @Test
   def testFewParams(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -124,6 +134,7 @@ class ScalaSmartAnonymousFunctionCompletionTest extends ScalaCompletionTestBase 
        """.stripMargin
   )
 
+  @Test
   def testFewParamsDifferent(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -137,6 +148,7 @@ class ScalaSmartAnonymousFunctionCompletionTest extends ScalaCompletionTestBase 
        """.stripMargin
   )
 
+  @Test
   def testAbstractTypeInfo(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -150,6 +162,7 @@ class ScalaSmartAnonymousFunctionCompletionTest extends ScalaCompletionTestBase 
        """.stripMargin
   )
 
+  @Test
   def testAliasType(): Unit = doCompletionTest(
     fileText =
       s"""

@@ -25,7 +25,7 @@ abstract class GeneratedSimpleParameterizedTest(minScalaVersion: ScalaVersion)
 
   @Test
   @Parameters(method = "testParameters")
-  @TestCaseName(value = "{0}")
+  @TestCaseName(value = "{method}[{0}]")
   def simpleParameterizedTest(@unused("used reflectively by the @TestCaseName annotation") testName: String, testData: TD): Unit = {
     runActualTest(testData)
   }
@@ -48,7 +48,7 @@ abstract class GeneratedHighlightingParameterizedTest(minScalaVersion: ScalaVers
 
   @Test
   @Parameters(method = "testParameters")
-  @TestCaseName(value = "{0}")
+  @TestCaseName(value = "{method}[{0}]")
   def highlightingParameterizedTest(@unused("used reflectively by the @TestCaseName annotation") testName: String, testData: TD): Unit = {
     checkTextHasNoErrors(testData)
   }

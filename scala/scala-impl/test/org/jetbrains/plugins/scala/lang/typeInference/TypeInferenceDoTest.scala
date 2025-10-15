@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.typeInference
 
 import com.intellij.psi.PsiFile
-import junit.framework.TestCase
+import com.intellij.testFramework.UsefulTestCase
 import org.jetbrains.plugins.scala.TypecheckerTests
 import org.jetbrains.plugins.scala.annotator.Message
 import org.jetbrains.plugins.scala.base.{FailableTest, ScalaSdkOwner}
@@ -11,7 +11,7 @@ import org.junit.Assert._
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[TypecheckerTests]))
-trait TypeInferenceDoTest extends TestCase with FailableTest with ScalaSdkOwner {
+trait TypeInferenceDoTest extends UsefulTestCase with FailableTest with ScalaSdkOwner {
   protected val typeInferenceFixture = new TypeInferenceTestFixture(
     version,
     shouldPass = shouldPass

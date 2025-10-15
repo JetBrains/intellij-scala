@@ -7,7 +7,7 @@ import junitparams.{JUnitParamsRunner, Parameters}
 import org.intellij.lang.regexp.RegExpLanguage
 import org.jetbrains.plugins.scala.FileSetTests
 import org.jetbrains.plugins.scala.extensions.PathExt
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
@@ -28,7 +28,7 @@ class RegexpLanguageInjectionTest extends ScalaLanguageInjectionTestBase {
 
   @Test
   @Parameters(method = "testParameters")
-  @TestCaseName(value = "{0}")
+  @TestCaseName(value = "{method}[{0}]")
   def regexpLanguageInjectionTest(
     @unused("used reflectively by the @TestCaseName annotation") testName: String,
     testFile: Path,

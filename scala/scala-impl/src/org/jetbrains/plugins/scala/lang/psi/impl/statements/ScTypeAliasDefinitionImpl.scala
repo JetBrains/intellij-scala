@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.ScTopLevelStubBasedEle
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTypeDefinitionLikeImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeAliasStub
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 
 import javax.swing.Icon
 
@@ -95,7 +95,9 @@ final class ScTypeAliasDefinitionImpl private(stub: ScTypeAliasStub, node: ASTNo
   override def aliasExport: Option[PsiNamedElement] = if (!hasStablePath(this)) None else {
     val element = aliasedType.toOption.collect {
       case ScDesignatorType(e) => e
+      case ScProjectionType(_, e) => e
       case ParameterizedType(ScDesignatorType(e), _) => e
+      case ParameterizedType(ScProjectionType(_, e), _) => e
     }
     element.filter {
       case cls: PsiClass if cls.name == name && isAliasFor(cls) => true

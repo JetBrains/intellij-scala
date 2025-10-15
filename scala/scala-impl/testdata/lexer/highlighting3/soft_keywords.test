@@ -1,5 +1,5 @@
 // soft keywords
-transparent inline opaque infix open case class Test
+transparent inline opaque infix open into case class Test
 
 inline case blub
 
@@ -47,6 +47,8 @@ white space in line { }
 infix {infix}
 white space in line { }
 open {open}
+white space in line { }
+into {into}
 white space in line { }
 case {case}
 white space in line { }

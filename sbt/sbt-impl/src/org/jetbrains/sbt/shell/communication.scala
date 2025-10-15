@@ -7,13 +7,12 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.model.ExternalSystemException
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
-import org.jetbrains.annotations.Nls
 import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import org.jetbrains.annotations.ApiStatus.Internal
-import org.jetbrains.annotations.{ApiStatus, NonNls, TestOnly}
+import org.jetbrains.annotations.{ApiStatus, Nls, NonNls, TestOnly}
 import org.jetbrains.ide.PooledThreadExecutor
-import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
+import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}
 import org.jetbrains.plugins.scala.extensions.LoggerExt
 import org.jetbrains.plugins.scala.isInternalMode
 import org.jetbrains.sbt.shell.LineListener.{LineSeparatorRegex, escapeNewLines}
@@ -23,13 +22,13 @@ import org.jetbrains.sbt.shell.SbtShellCommunication.*
 import org.jetbrains.sbt.shell.SbtShellLifecycle.{ShellState, ShellStateEvent}
 import org.jetbrains.sbt.{SbtBundle, SbtUtil, SbtVersion}
 
-import java.util.concurrent.*
 import java.util.UUID
+import java.util.concurrent.*
 import java.util.concurrent.atomic.AtomicReference
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
 import scala.concurrent.{Future, Promise}
-import scala.util.{Success, Try}
+import scala.util.{Failure, Success}
 
 // TODO: this class has become too complicated, too much random state updates.
 //  We need to design a better architecture for it.
@@ -91,7 +90,16 @@ final class SbtShellCommunication(project: Project) {
 
   def command[A](@NonNls cmd: String, id: String, default: A, eventHandler: EventAggregator[A]): Future[A] = {
     val listener = new CommandListener(default, eventHandler)
-    val qc = QueuedCommand(id, cmd, listener)
+
+    // Prefix the command with a leading space.
+    // In the "new" sbt shell (based on jline3), lines that start with a space are excluded
+    // from the history (see HISTORY_IGNORE_SPACE in jline3). This prevents
+    // IntelliJ IDEA–generated commands (e.g., reload, build, tasks, test) from cluttering the user's sbt commands history.
+    // We keep the same prefix in the "old" shell (jline2) for simplicity - it has no effect and causes no harm there.
+    // Consider - maybe not all commands should be escaped e.g. tasks from the sbt tool window.
+    // But this is how it used to work in the "old shell".
+    val spacedCmd = s" $cmd"
+    val qc = QueuedCommand(id, spacedCmd, listener)
 
     if (isDestroyingOrEmptyingQueueInProgress) {
       afterRestartCommands.put(qc)
@@ -414,7 +422,7 @@ final class SbtShellCommunication(project: Project) {
 
       processOutputBuilder.foreach(_.append(text))
 
-      val isError = text `startsWith` ERROR_PREFIX
+      val isError = isErrorOutput(text)
       val newMessages =
         if (isError) {
           if (messages.errors.isEmpty && showSbtShellOnError) {
@@ -475,6 +483,17 @@ object SbtShellCommunication {
     * The final result will just be the value of the last invocation. */
   def listenerAggregator[A](listener: ShellEvent => A): EventAggregator[A] = (_,e) =>
     listener(e)
+
+  /**
+   * @param sbtOutputText a line of output from the sbt shell
+   * @return true if the line starts with `[error]`
+   * @note technically it's not entirely correct way to detect if the output is "an error".
+   *       A user can still print some text to stdout that would start with `[error]` that would not be a "sbt error".
+   *       But to our latest knowledge, there is no better way to reliably get that with the way current sbt-shell communication
+   *       is implemented.
+   */
+  def isErrorOutput(sbtOutputText: String): Boolean =
+    sbtOutputText.startsWith(ERROR_PREFIX)
 }
 
 private[shell] object SbtShellLifecycle {
@@ -516,8 +535,8 @@ private[shell] object SbtShellLifecycle {
   }
 
   def transition(state: ShellState, event: ShellStateEvent): ShellState = {
-    import ShellState._
-    import ShellStateEvent._
+    import ShellState.*
+    import ShellStateEvent.*
     def logProhibitedTransition(): ShellState = {
       val msg = s"[SbtShellLifecycle] The prohibited $event event from $state. Ignored"
       if (isInternalMode) log.error(msg)
@@ -572,7 +591,7 @@ private[shell] class CommandListener[A](default: A, aggregator: EventAggregator[
 
   def processTerminated(): Unit = {
     aggregate(ProcessTerminated)
-    promise.complete(Try(a))
+    promise.complete(Failure(new RuntimeException("Sbt shell terminated before command is finished")))
   }
 
   override def onLine(text: String): Unit =
@@ -619,21 +638,30 @@ private[shell] class SbtShellReadyListener(
 
 private[shell] object SbtProcessUtil {
 
-  // Should be the same as in `org.jetbrains.sbt.constants.IDEA_PROMPT_MARKER`
+  /**
+   * The prompt marker is inserted by the `sbt-idea-shell plugin`.
+   * Should be the same as in `org.jetbrains.sbt.constants.IDEA_PROMPT_MARKER`
+   */
   private val IDEA_PROMPT_MARKER = "[IJ]"
 
-  // TODO adjust it to the real prompt value SCL-24401
-  private val SHELL_COMMAND_PROMPT = "sbt:"
+  private val DEFAULT_SHELL_PROMPT = "sbt:"
 
-  // the prompt marker is inserted by the sbt-idea-shell plugin
-  def promptReady(line: String): Boolean = {
-    val prompt =
-      if (isNewShell) SHELL_COMMAND_PROMPT
-      else IDEA_PROMPT_MARKER
-
-    val lineWithNoAnsi = BuildMessages.stripAnsiCodes(line, stripDeckpnm = isNewShell)
-    lineWithNoAnsi.trim.startsWith(prompt)
-  }
+  def promptReady(line: String): Boolean =
+    if (isNewShell) {
+      // When using the new shell (with the built-in shell command), jline3 is utilized under the hood.
+      // Before displaying any prompt, jline3 prints the BRACKETED_PASTE_ON escape sequence to the terminal to enable bracketed paste mode.
+      // If a line contains this escape sequence, it indicates that the line contains a prompt.
+      // As a fallback, we check if the line starts with the default shell prompt ("sbt:project_name").
+      // This heuristic may fail for users with custom prompts but should work for most standard configurations.
+      val bracketedPasteModeEnabled = "\u001B[?2004h"
+      val isBracket = line.contains(bracketedPasteModeEnabled)
+      isBracket || {
+        val lineWithNoAnsi = BuildMessages.stripAnsiCodes(line, stripDeckpnm = isNewShell)
+        lineWithNoAnsi.trim.startsWith(DEFAULT_SHELL_PROMPT)
+      }
+    } else {
+      line.trim.startsWith(IDEA_PROMPT_MARKER)
+    }
 
   def promptError(line: String): Boolean =
     line.trim.endsWith("(r)etry, (q)uit, (l)ast, or (i)gnore?")

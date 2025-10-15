@@ -5,13 +5,14 @@ import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.codeInspection.ScalaAnnotatorQuickFixTestBase
 import org.jetbrains.plugins.scala.lang.formatter.scalafmt.ScalaFmtForTestsSetupOps
 import org.jetbrains.plugins.scala.util.TestUtils
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsJUnit4Runner, RunWithScalaVersions, TestScalaVersion}
+import org.junit.Test
 import org.junit.runner.RunWith
 import org.scalafmt.dynamic.ScalafmtVersion
 
 import java.nio.file.Path
 
-@RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWith(classOf[MultipleScalaVersionsJUnit4Runner])
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_12,
   TestScalaVersion.Scala_2_13
@@ -128,36 +129,42 @@ abstract class CreateMethodQuickFixTestBase extends ScalaAnnotatorQuickFixTestBa
 }
 
 class CreateMethodQuickFixTest extends CreateMethodQuickFixTestBase {
+  @Test
   def testCreateMethod(): Unit = {
     val usage = """foo(42, "text", Some(true))"""
     val definition = """def foo(i: Int, str: String, someBoolean: Some[Boolean]) = ???"""
     doCompoundTest(usage, definition)
   }
 
+  @Test
   def testCreateMethod_WithNamedArguments_All(): Unit = {
     val usage = """foo(name1 = 42, name2 = "text", name3 = Some(true))"""
     val definition = """def foo(name1: Int, name2: String, name3: Some[Boolean]) = ???"""
     doCompoundTest(usage, definition)
   }
 
+  @Test
   def testCreateMethod_WithNamedArguments_SomeInTheBeginning(): Unit = {
     val usage = """foo(name1 = 42, name2 = "text", Some(true))"""
     val definition = """def foo(name1: Int, name2: String, someBoolean: Some[Boolean]) = ???"""
     doCompoundTest(usage, definition)
   }
 
+  @Test
   def testCreateMethod_WithNamedArguments_SomeInTheEnd(): Unit = {
     val usage = """foo(42, name2 = "text", name3 = Some(true))"""
     val definition = """def foo(i: Int, name2: String, name3: Some[Boolean]) = ???"""
     doCompoundTest(usage, definition)
   }
 
+  @Test
   def testCreateMethod_WithNamedArguments_SomeInTheMiddle(): Unit = {
     val usage = """foo(42, name2 = "text", Some(true))"""
     val definition = """def foo(i: Int, name2: String, someBoolean: Some[Boolean]) = ???"""
     doCompoundTest(usage, definition)
   }
 
+  @Test
   def testCreateMethod_WithParenthesis(): Unit = {
     val usage = """foo((42))"""
     val definition = """def foo(i: Int) = ???"""
@@ -167,6 +174,7 @@ class CreateMethodQuickFixTest extends CreateMethodQuickFixTestBase {
   private val TopLevelUsage = """foo(42)"""
   private val TopLevelDefinition = """def foo(i: Int) = ???"""
 
+  @Test
   def testTopLevelFirstElementInFile(): Unit = {
     doTest(
       s"""$TopLevelUsage""".stripMargin,
@@ -175,6 +183,7 @@ class CreateMethodQuickFixTest extends CreateMethodQuickFixTestBase {
          |$TopLevelUsage""".stripMargin)
   }
 
+  @Test
   def testTopLevelFirstElementInFile_1(): Unit = {
     doTest(
       s"""
@@ -185,6 +194,7 @@ class CreateMethodQuickFixTest extends CreateMethodQuickFixTestBase {
          |$TopLevelUsage""".stripMargin)
   }
 
+  @Test
   def testTopLevelInTheMiddle(): Unit = {
     doTest(
       s"""val x = 42
@@ -196,6 +206,7 @@ class CreateMethodQuickFixTest extends CreateMethodQuickFixTestBase {
          |$TopLevelUsage""".stripMargin)
   }
 
+  @Test
   def testTopLevelInTheMiddle_1(): Unit = {
     doTest(
       s"""val x = 42
@@ -223,6 +234,7 @@ class CreateMethodQuickFixWithScalafmtTest
     )
   }
 
+  @Test
   def testDisabledUseIntellijFormatterForRangeFormatting(): Unit = {
     setScalafmtConfig("scala2_scalafmt.config")
     getScalaCodeStyleSettings.SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT = false

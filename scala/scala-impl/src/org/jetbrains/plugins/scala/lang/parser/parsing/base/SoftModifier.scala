@@ -16,6 +16,7 @@ object SoftModifier extends ParsingRule {
     Open,
     Infix,
     Opaque,
+    Into,
   )
 
   import ScalaTokenTypes._
@@ -27,7 +28,7 @@ object SoftModifier extends ParsingRule {
       builder.remapCurrentToken(remappedTokenType)
       builder.advanceLexer() // ate soft modifier
 
-      // soft modifiers must me followed either by:
+      // soft modifiers must be followed either by:
       // * a hard modifier;
       // * a definition start;
       // * another soft modifier;
@@ -73,6 +74,10 @@ object SoftModifier extends ParsingRule {
   private def SoftModifier(builder: ScalaPsiBuilder): Option[ScalaModifierTokenType] =
     Option(ScalaModifier.byText(builder.getTokenText))
       .filter(modifiers.contains)
+      .filter {
+        case `Into` => builder.features.`supports 'into' modifier`
+        case _ => true
+      }
       .map(ScalaModifierTokenType(_))
 
   private def isFollowedBySoftModifier()(implicit builder: ScalaPsiBuilder): Boolean = {

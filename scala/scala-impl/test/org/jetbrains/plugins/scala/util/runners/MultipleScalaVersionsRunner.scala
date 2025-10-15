@@ -17,6 +17,8 @@ import java.util
 import scala.annotation.{tailrec, unused}
 import scala.jdk.CollectionConverters._
 
+@Deprecated(forRemoval = true)
+@deprecated(message = "Consider migrating to MultipleScalaVersionsJUnit4Runner")
 class MultipleScalaVersionsRunner(private val myTest: Test, klass: Class[_]) extends JUnit38ClassRunner(myTest) {
 
   def this(klass: Class[_]) =
@@ -224,14 +226,14 @@ private object MultipleScalaVersionsRunner {
     }
   }
 
-  private def scalaVersionsToRun(klass: Class[_ <: TestCase]): Seq[TestScalaVersion] = {
+  private[runners] def scalaVersionsToRun(klass: Class[_ <: TestCase]): Seq[TestScalaVersion] = {
     val annotation = findAnnotation(klass, classOf[RunWithScalaVersions])
     annotation
       .map(_.value.toSeq)
       .getOrElse(DefaultScalaVersionsToRun)
   }
 
-  private def jdkVersionsToRun(klass: Class[_ <: TestCase]): Seq[TestJdkVersion] = {
+  private[runners] def jdkVersionsToRun(klass: Class[_ <: TestCase]): Seq[TestJdkVersion] = {
     val annotation = findAnnotation(klass, classOf[RunWithJdkVersions])
     annotation
       .map(_.value.toSeq)

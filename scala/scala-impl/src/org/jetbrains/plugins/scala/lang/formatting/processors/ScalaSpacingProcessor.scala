@@ -499,6 +499,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
     if (leftElementType == ScalaElementType.INTERPOLATED_PREFIX_LITERAL_REFERENCE)
       return WITHOUT_SPACING
+    if (leftElementType == ScalaElementType.INTERPOLATED_PREFIX_PATTERN_REFERENCE)
+      return WITHOUT_SPACING
     if (rightElementType == tINTERPOLATED_STRING_END)
       return Spacing.getReadOnlySpacing
     if (leftElementType == tINTERPOLATED_STRING_INJECTION || rightElementType == tINTERPOLATED_STRING_INJECTION)

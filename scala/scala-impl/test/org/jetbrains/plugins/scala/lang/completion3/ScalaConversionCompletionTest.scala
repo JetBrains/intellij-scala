@@ -3,8 +3,9 @@ package org.jetbrains.plugins.scala.lang.completion3
 import com.intellij.platform.testFramework.core.FileComparisonFailedError
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsJUnit4Runner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.Assert.fail
+import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWithScalaVersions(Array(
@@ -12,9 +13,10 @@ import org.junit.runner.RunWith
   TestScalaVersion.Scala_2_13,
   TestScalaVersion.Scala_3_Latest
 ))
-@RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWith(classOf[MultipleScalaVersionsJUnit4Runner])
 class ScalaConversionCompletionTest extends AbstractConversionCompletionTest {
 
+  @Test
   def testJavaConverters(): Unit = doCompletionTest(
     fileText =
       s"""val ja = new java.util.ArrayList[Int]

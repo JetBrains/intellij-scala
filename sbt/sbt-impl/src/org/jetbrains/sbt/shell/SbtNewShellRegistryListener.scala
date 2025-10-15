@@ -21,9 +21,10 @@ class SbtNewShellRegistryListener extends ProjectActivity {
   override def execute(project: Project): Unit = {
     val disposable = UnloadAwareDisposable.forProject(project)
     val registry = Registry.get("sbt.new.shell")
+    val sbtProcessManager = SbtProcessManager.forProject(project)
     registry.addListener(new RegistryValueListener {
       override def beforeValueChanged(value: RegistryValue): Unit = {
-        SbtProcessManager.forProject(project).destroyProcess()
+        sbtProcessManager.destroyProcess()
       }
     }, disposable)
   }

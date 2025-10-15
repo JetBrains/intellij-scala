@@ -22,7 +22,7 @@ class ScalaBundleSortingTest {
 
   @Test
   @Parameters(method = "testParameters")
-  @TestCaseName(value = "{0}")
+  @TestCaseName(value = "{method}[{0}]")
   def bundleSortingTest(
     @unused("used reflectively by the @TestCaseName annotation") testName: String,
     bundle: ModuleWithBundleInfo

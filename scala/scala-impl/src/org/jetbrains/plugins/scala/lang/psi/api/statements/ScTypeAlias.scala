@@ -1,9 +1,10 @@
 package org.jetbrains.plugins.scala.lang.psi.api.statements
 
 import com.intellij.psi.{PsiClass, PsiElement}
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScExistentialClause
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefinitionLike, ScDocCommentOwner, ScMember, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOwner, ScMember, ScTypeDefinition, ScTypeDefinitionLike}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScPolymorphicElement}
 import org.jetbrains.plugins.scala.lang.psi.types.Context
 
@@ -40,8 +41,8 @@ trait ScTypeAlias extends ScNamedElement
     val ccontainingClass = containingClass
     if (ccontainingClass == null) return this
     val originalClass: PsiClass = ccontainingClass.getOriginalElement.asInstanceOf[PsiClass]
-    if (ccontainingClass eq  originalClass) return this
-    if (!originalClass.isInstanceOf[ScTypeDefinition]) return this
+    if (ccontainingClass eq originalClass) return this
+    if (!originalClass.is[ScTypeDefinition]) return this
     val c = originalClass.asInstanceOf[ScTypeDefinition]
     val aliasesIterator = c.aliases.iterator
     while (aliasesIterator.hasNext) {

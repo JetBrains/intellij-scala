@@ -1,15 +1,15 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
-import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings.ScalacPlugin
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
-import org.junit.runner.RunWith
+import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
+import org.junit.Test
 
 abstract class ScalaTypeAnnotationsCompletionTestBase extends ScalaCompletionTestBase
 
 class ScalaTypeAnnotationsCompletionTest extends ScalaTypeAnnotationsCompletionTestBase {
+  @Test
   def testCollectionFactory1(): Unit = doCompletionTest(
     fileText =
       s"""object O {
@@ -22,6 +22,7 @@ class ScalaTypeAnnotationsCompletionTest extends ScalaTypeAnnotationsCompletionT
     item = "Seq[String]"
   )
 
+  @Test
   def testCollectionFactory2(): Unit = doCompletionTest(
     fileText =
       s"""object O {
@@ -34,6 +35,7 @@ class ScalaTypeAnnotationsCompletionTest extends ScalaTypeAnnotationsCompletionT
     item = "Iterable[String]"
   )
 
+  @Test
   def testCompoundType(): Unit = doCompletionTest(
     fileText =
       s"""object O {
@@ -54,6 +56,7 @@ class ScalaTypeAnnotationsCompletionTest extends ScalaTypeAnnotationsCompletionT
     item = "Runnable"
   )
 
+  @Test
   def testCompoundTypeWithTypeMember(): Unit = doCompletionTest(
     fileText =
       s"""trait Foo {
@@ -83,6 +86,7 @@ class ScalaTypeAnnotationsCompletionTest extends ScalaTypeAnnotationsCompletionT
       s"""Foo { type X = Int }""".stripMargin
   )
 
+  @Test
   def testCompoundTypeWithMultipleTypeMembers(): Unit = doCompletionTest(
     fileText =
       s"""trait Foo {
@@ -120,54 +124,7 @@ class ScalaTypeAnnotationsCompletionTest extends ScalaTypeAnnotationsCompletionT
       s"""Foo { type X = Int; type Y = String; type Z = Boolean }""".stripMargin
   )
 
-  @RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Latest))
-  def testInfixType(): Unit = doCompletionTest(
-    fileText =
-      s"""trait A
-         |trait B
-         |
-         |object O {
-         |  def foo(): =:=[A, <:<[B, =:=[=:=[B, B], A]]] = ???
-         |
-         |  val bar:$CARET = foo()
-         |}""".stripMargin,
-    resultText =
-      s"""trait A
-         |trait B
-         |
-         |object O {
-         |  def foo(): =:=[A, <:<[B, =:=[=:=[B, B], A]]] = ???
-         |
-         |  val bar: A =:= B <:< (B =:= B =:= A)$CARET = foo()
-         |}""".stripMargin,
-    item = "A =:= B <:< (B =:= B =:= A)"
-  )
-
-  @RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Latest))
-  def testInfixDifferentAssociativity(): Unit = doCompletionTest(
-    fileText =
-      s"""trait +[A, B]
-         |trait ::[A, B]
-         |trait A
-         |
-         |object O {
-         |  def foo(): ::[+[A, +[::[A, A], A]], +[A, ::[A, A]]] = ???
-         |
-         |  val bar:$CARET = foo()
-         |}""".stripMargin,
-    resultText =
-      s"""trait +[A, B]
-         |trait ::[A, B]
-         |trait A
-         |
-         |object O {
-         |  def foo(): ::[+[A, +[::[A, A], A]], +[A, ::[A, A]]] = ???
-         |
-         |  val bar: A + ((A :: A) + A) :: A + (A :: A)$CARET = foo()
-         |}""".stripMargin,
-    item = "A + ((A :: A) + A) :: A + (A :: A)"
-  )
-
+  @Test
   def testTupledFunction(): Unit = doCompletionTest(
     fileText =
       s"""class Test {
@@ -185,9 +142,9 @@ class ScalaTypeAnnotationsCompletionTest extends ScalaTypeAnnotationsCompletionT
   )
 }
 
+@RunWithScalaVersions(Array(TestScalaVersion.Scala_2_13))
 class ScalaTypeAnnotationsCompletionTest_with_2_13 extends ScalaTypeAnnotationsCompletionTestBase {
-  override protected def supportedIn(version: ScalaVersion) = version >= ScalaVersion.Latest.Scala_2_13
-
+  @Test
   def testShowAsInfixAnnotation(): Unit = doCompletionTest(
     fileText =
       s"""import scala.annotation.showAsInfix
@@ -213,7 +170,57 @@ class ScalaTypeAnnotationsCompletionTest_with_2_13 extends ScalaTypeAnnotationsC
   )
 }
 
-@RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Latest))
+class ScalaTypeAnnotationsCompletionTest_with_3 extends ScalaTypeAnnotationsCompletionTest_with_2_13 {
+  @Test
+  def testInfixType(): Unit = doCompletionTest(
+    fileText =
+      s"""trait A
+         |trait B
+         |
+         |object O {
+         |  def foo(): =:=[A, <:<[B, =:=[=:=[B, B], A]]] = ???
+         |
+         |  val bar:$CARET = foo()
+         |}""".stripMargin,
+    resultText =
+      s"""trait A
+         |trait B
+         |
+         |object O {
+         |  def foo(): =:=[A, <:<[B, =:=[=:=[B, B], A]]] = ???
+         |
+         |  val bar: A =:= B <:< (B =:= B =:= A)$CARET = foo()
+         |}""".stripMargin,
+    item = "A =:= B <:< (B =:= B =:= A)"
+  )
+
+  @Test
+  def testInfixDifferentAssociativity(): Unit = doCompletionTest(
+    fileText =
+      s"""trait +[A, B]
+         |trait ::[A, B]
+         |trait A
+         |
+         |object O {
+         |  def foo(): ::[+[A, +[::[A, A], A]], +[A, ::[A, A]]] = ???
+         |
+         |  val bar:$CARET = foo()
+         |}""".stripMargin,
+    resultText =
+      s"""trait +[A, B]
+         |trait ::[A, B]
+         |trait A
+         |
+         |object O {
+         |  def foo(): ::[+[A, +[::[A, A], A]], +[A, ::[A, A]]] = ???
+         |
+         |  val bar: A + ((A :: A) + A) :: A + (A :: A)$CARET = foo()
+         |}""".stripMargin,
+    item = "A + ((A :: A) + A) :: A + (A :: A)"
+  )
+}
+
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_12_12
 ))
@@ -228,6 +235,7 @@ class ScalaTypeAnnotationsCompletionTest_with_kind_projector extends ScalaTypeAn
     defaultProfile.setSettings(newSettings)
   }
 
+  @Test
   def testTypeLambdaInline(): Unit = doCompletionTest(
     fileText =
       s"""object O {
@@ -244,6 +252,7 @@ class ScalaTypeAnnotationsCompletionTest_with_kind_projector extends ScalaTypeAn
     item = "Either[String, _]"
   )
 
+  @Test
   def testTypeLambda(): Unit = doCompletionTest(
     fileText =
       s"""object O {

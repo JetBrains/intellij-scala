@@ -526,7 +526,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
   override def visitTry(tryStmt: ScTry): Unit = {
     val other = globalVisitor.getElement.asInstanceOf[ScTry]
 
-    def exprMatch = matchOpt(tryStmt.expression, other.expression)
+    def exprMatch = matchBody(tryStmt.expression, other.expression)
     def catchMatch = matchOptOptional(tryStmt.catchBlock, other.catchBlock)
     def finallyMatch = matchOptOptional(tryStmt.finallyBlock, other.finallyBlock)
     globalVisitor.setResult(exprMatch && catchMatch && finallyMatch)
@@ -543,7 +543,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
 
   def visitFinally(finallyBlock: ScFinallyBlock): Unit = {
     val other = globalVisitor.getElement.asInstanceOf[ScFinallyBlock]
-    globalVisitor.setResult(matchOpt(finallyBlock.expression, other.expression))
+    globalVisitor.setResult(matchBody(finallyBlock.expression, other.expression))
   }
 
   override def visitMatch(ms: ScMatch): Unit = {

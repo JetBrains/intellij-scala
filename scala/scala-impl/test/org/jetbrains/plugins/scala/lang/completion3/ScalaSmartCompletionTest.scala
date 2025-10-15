@@ -6,13 +6,14 @@ import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.util.ConfigureJavaFile.configureJavaFile
 import org.jetbrains.plugins.scala.util.TypeAnnotationSettings.{alwaysAddType, set}
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
-import org.junit.runner.RunWith
+import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
+import org.junit.Test
 
 class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
 
   import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase._
 
+  @Test
   def testAfterPlaceholder(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -32,6 +33,7 @@ class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
     completionType = SMART
   )
 
+  @Test
   def testTimeUnit1(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -65,6 +67,7 @@ class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
     completionType = SMART
   )
 
+  @Test
   def testTimeUnit2(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -98,6 +101,7 @@ class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
     completionType = SMART
   )
 
+  @Test
   def testAfterNew(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -121,6 +125,7 @@ class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
     completionType = SMART
   )
 
+  @Test
   def testAfterNewNoObject(): Unit = checkNoSmartCompletion(
     fileText =
       s"""class testAfterNewNoObject {
@@ -133,6 +138,7 @@ class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
          |""".stripMargin
   )(hasLookupString(_, "OTest"))
 
+  @Test
   def testFilterPrivates(): Unit = checkNoSmartCompletion(
     fileText =
       s"""class Test {
@@ -145,6 +151,7 @@ class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
          |}""".stripMargin
   )()
 
+  @Test
   def testFilterObjectDouble(): Unit = checkNoSmartCompletion(
     fileText =
       s"""class Test {
@@ -152,6 +159,7 @@ class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
          |}""".stripMargin,
   )(hasLookupString(_, "Double"))
 
+  @Test
   def testFilterFinal(): Unit = checkNoSmartCompletion(
     fileText =
       s"""class Test {
@@ -159,6 +167,7 @@ class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
          |}""".stripMargin
   )()
 
+  @Test
   def testFilterImplicit(): Unit = checkNoSmartCompletion(
     fileText =
       s"""def foo(p: (Int => Int)) {}
@@ -166,6 +175,7 @@ class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
          |""".stripMargin
   )()
 
+  @Test
   def testFalse(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -183,6 +193,7 @@ class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
     completionType = SMART
   )
 
+  @Test
   def testClassOf(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -200,6 +211,7 @@ class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
     completionType = SMART
   )
 
+  @Test
   def testSmartRenamed(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -219,6 +231,7 @@ class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
     completionType = SMART
   )
 
+  @Test
   def testThis(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -236,6 +249,7 @@ class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
     completionType = SMART
   )
 
+  @Test
   def testInnerThis(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -257,6 +271,7 @@ class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
     completionType = SMART
   )
 
+  @Test
   def testOuterThis(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -278,6 +293,7 @@ class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
     completionType = SMART
   )
 
+  @Test
   def testWhile(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -291,6 +307,7 @@ class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
     completionType = SMART
   )
 
+  @Test
   def testDoWhile(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -304,6 +321,7 @@ class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
     completionType = SMART
   )
 
+  @Test
   def testEtaExpansion(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -319,6 +337,7 @@ class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
     completionType = SMART
   )
 
+  @Test
   def testJavaEnum(): Unit = {
     configureJavaFile(
       fileText =
@@ -353,6 +372,7 @@ class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
     )
   }
 
+  @Test
   def testScalaEnum(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -372,6 +392,7 @@ class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
     completionType = SMART
   )
 
+  @Test
   def testScalaFactoryMethod(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -397,6 +418,7 @@ class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
     completionType = SMART
   )
 
+  @Test
   def testScalaFactoryApply(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -416,6 +438,7 @@ class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
     completionType = SMART
   )
 
+  @Test
   def testScalaHashSetEmpty(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -435,6 +458,7 @@ class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
     completionType = SMART
   )
 
+  @Test
   def testTwoGenerics(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -456,6 +480,7 @@ class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
     completionType = SMART
   )
 
+  @Test
   def testChainedSecondCompletion(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -489,10 +514,10 @@ class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
     checkNoCompletion(fileText, SMART)(predicate)
 }
 
-@RunWith(classOf[MultipleScalaVersionsRunner])
 @RunWithScalaVersions(Array(TestScalaVersion.Scala_2_13))
 class ScalaSmartCompletionTest_2_13 extends ScalaCompletionTestBase {
   //Return type for inserting method is generated according to TypeAnnotations Settings
+  @Test
   def testNewFunction(): Unit = {
     val project = getProject
     set(project, alwaysAddType(ScalaCodeStyleSettings.getInstance(project)))
@@ -514,7 +539,6 @@ class ScalaSmartCompletionTest_2_13 extends ScalaCompletionTestBase {
   }
 }
 
-@RunWith(classOf[MultipleScalaVersionsRunner])
 @RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Latest))
 class ScalaSmartCompletionTest_3_Latest extends ScalaCompletionTestBase {
   override protected def setUp(): Unit = {
@@ -523,6 +547,7 @@ class ScalaSmartCompletionTest_3_Latest extends ScalaCompletionTestBase {
   }
 
   //Return type for inserting method is generated according to TypeAnnotations Settings
+  @Test
   def testNewFunction(): Unit = {
     val project = getProject
     set(project, alwaysAddType(ScalaCodeStyleSettings.getInstance(project)))

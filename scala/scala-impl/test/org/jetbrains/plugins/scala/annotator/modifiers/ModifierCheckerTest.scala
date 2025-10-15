@@ -5,6 +5,7 @@ import org.jetbrains.plugins.scala.annotator._
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
+import org.jetbrains.plugins.scala.project.ScalaFeatures.SerializableScalaFeatures
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaVersion, TypecheckerTests}
 import org.junit.experimental.categories.Category
 
@@ -245,7 +246,8 @@ class ModifierCheckerTest_Scala_2 extends ModifierCheckerTestBase {
 class ModifierCheckerTest_Scala_3 extends ModifierCheckerTest_Scala_2 {
   import Message._
 
-  override protected def scalaVersion = ScalaVersion.Latest.Scala_3
+  override protected def scalaVersion = ScalaVersion.Latest.Scala_3_7
+  override protected def scalaFeatures: SerializableScalaFeatures = super.scalaFeatures.copy(scalaVersion, hasPreviewFlag = true)
 
   override protected def messages(@Language(value = "Scala 3") code: String) =
     super.messages(code)
@@ -282,6 +284,7 @@ class ModifierCheckerTest_Scala_3 extends ModifierCheckerTest_Scala_2 {
   protected val OnlyClassesCanBeOpen = "Only classes can be open"
   protected val IllegalOpaqueModifier = "'opaque' modifier allowed only for type aliases"
   protected val RepeatedModifier = "repeated modifier"
+  protected val IllegalIntoModifier = ScalaBundle.message("into.modifier.is.only.allowed.on")
 
   def testOpenModifierIsRedundant(): Unit = {
     assertMessages(messages(
@@ -369,4 +372,23 @@ class ModifierCheckerTest_Scala_3 extends ModifierCheckerTest_Scala_2 {
       Error("opaque", IllegalOpaqueModifier),
     )
   }
+
+  def testIllegalIntoOnObject(): Unit =
+    assertMessages(messages("into object Test"))(
+      Error("into", IllegalIntoModifier)
+    )
+
+  def testIllegalIntoOnNonOpaqueTypeAlias(): Unit =
+    assertMessages(messages("into type AType = Int"))(
+      Error("into", IllegalIntoModifier)
+    )
+
+  def testLegalInto(): Unit = assertNothing(messages(
+    """
+      |into class AClass
+      |into trait ATrait
+      |into opaque type AnOpaqueType = Int
+      |into enum AnEnum
+      |""".stripMargin
+  ))
 }

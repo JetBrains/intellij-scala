@@ -24,6 +24,7 @@ object ReferenceComparisonTestsGenerator_Scala3  {
   final class TestCase_Scala3_Newest extends ScriptTestCaseBase(ReferenceComparisonTestConfig_Scala3_Newest)
 
   abstract class ScriptTestCaseBase(config: ReferenceComparisonTestConfig) extends TestCase {
+    val targetTestsPerPart: Int = 100
     val excluded: Set[String] = Set(
       "large", "large2" // they're just very large with ~10k references/definitions
     )
@@ -52,12 +53,14 @@ object ReferenceComparisonTestsGenerator_Scala3  {
            | */
            |//noinspection NameBooleanParameters
            |@Category(Array(classOf[ScalacTests]))
-           |class ${config.testClassName} extends ReferenceComparisonTestBase(${config.selfQualifiedName}) {
+           |abstract class ${config.testClassName} extends ReferenceComparisonTestBase(${config.selfQualifiedName})
            |""".stripMargin
 
+      var currentPart = 0
       var testedCases = 0
       var successes = 0
       var result = Result.empty
+      var testsInCurrentPart = Integer.MAX_VALUE
 
       def testNameFromFilePath(path: Path): String =
         path.getFileName.toString.replaceAll("(\\.[0-9a-f]{6})?\\.semdb$", "")
@@ -68,6 +71,9 @@ object ReferenceComparisonTestsGenerator_Scala3  {
       val originalTestNames = testOutPaths.map(testNameFromFilePath).toSet
       val usedTestNames = mutable.Set.empty[String]
 
+      val predictedAmountOfTests = testOutPaths.size
+      val finalAmountOfParts = (predictedAmountOfTests.toFloat / targetTestsPerPart.toFloat).round
+      val testsPerPart: Int = (predictedAmountOfTests.toFloat / finalAmountOfParts.toFloat).ceil.toInt
       for {
         testOutPath <- testOutPaths
         testName = testNameFromFilePath(testOutPath)
@@ -98,6 +104,21 @@ object ReferenceComparisonTestsGenerator_Scala3  {
             val finalTestName = createUniqueNameId(normalizedTestName)
             usedTestNames += finalTestName
 
+
+            if (testsInCurrentPart >= testsPerPart) {
+              if (currentPart > 0) {
+                builder ++= "}\n"
+              }
+              testsInCurrentPart = 0
+              currentPart += 1
+              builder ++=
+                s"""
+                   |//noinspection NameBooleanParameters
+                   |final class ${config.testClassName}_Part$currentPart extends ${config.testClassName} {
+                   |""".stripMargin
+            }
+            testsInCurrentPart += 1
+
             val testId = s"test_$finalTestName"
             val tags =
               if (res.tags.isEmpty) ""
@@ -105,7 +126,7 @@ object ReferenceComparisonTestsGenerator_Scala3  {
             builder ++= raw"""  def $testId(): Unit = doTest("$testName", $success)$tags"""
             builder += '\n'
 
-            val progress = testedCases.toDouble / testOutPaths.size.toDouble * 100
+            val progress = testedCases.toDouble / predictedAmountOfTests.toDouble * 100
             val successRate = (successes.toDouble / testedCases.toDouble) * 100
             println(
               s"(${progress.toInt}%) " +

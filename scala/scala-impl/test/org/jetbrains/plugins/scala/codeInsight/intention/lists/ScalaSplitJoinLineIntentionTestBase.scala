@@ -1,14 +1,14 @@
 package org.jetbrains.plugins.scala.codeInsight.intention.lists
 
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsJUnit4Runner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.Assert.fail
 import org.junit.runner.RunWith
 
-@RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWith(classOf[MultipleScalaVersionsJUnit4Runner])
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_12,
-  TestScalaVersion.Scala_3_Latest,
+  TestScalaVersion.Scala_3_Latest
 ))
 abstract class ScalaSplitJoinLineIntentionTestBase extends ScalaIntentionTestBase {
   protected def testType: SplitJoinTestType

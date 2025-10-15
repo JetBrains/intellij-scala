@@ -10,9 +10,14 @@ class Node(val addr: Addr, val tag: Int, val names: Seq[String], children0: () =
 
   override def toString: String = toString(0)
 
-  protected def toString(indent: Int): String =
-    Iterator.fill(indent)(' ').mkString + TastyFormat.astTagToString(tag) + " " + names.mkString +
-      children.map("\n" + _.toString(indent + 2)).mkString
+  protected def toString(indent: Int): String = {
+    val indentation = Iterator.fill(indent)(' ').mkString
+    val tagText = TastyFormat.astTagToString(tag)
+    val namesText = (if (names.nonEmpty) " " + names.mkString(", ") else "") + refName.fold("")(n => s" ($n)")
+    val selfText = indentation + tagText + namesText
+    val childrenText = children.map("\n" + _.toString(indent + 2)).mkString
+    selfText + childrenText
+  }
 
   def name: String = names.head
 

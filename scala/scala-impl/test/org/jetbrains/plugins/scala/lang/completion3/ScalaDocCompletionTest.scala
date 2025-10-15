@@ -4,11 +4,13 @@ import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.junit.Assert.assertEquals
+import org.junit.Test
 
 class ScalaDocCompletionTest extends ScalaCompletionTestBase {
 
-  import ScalaDocCompletionTest.DefaultInvocationCount
+  private final val DefaultInvocationCount = 2
 
+  @Test
   def testTagNameCompletion(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -28,6 +30,7 @@ class ScalaDocCompletionTest extends ScalaCompletionTestBase {
     invocationCount = DefaultInvocationCount
   )
 
+  @Test
   def testTagValueCompletion(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -56,6 +59,7 @@ class ScalaDocCompletionTest extends ScalaCompletionTestBase {
     assertEquals("Completion lookup items don't match", expectedLookups, actualLookups)
   }
 
+  @Test
   def testParameterTagAvailableItems(): Unit = assertCompletionItemsEqual(
     s"""/**
        | * @param $CARET
@@ -65,6 +69,7 @@ class ScalaDocCompletionTest extends ScalaCompletionTestBase {
     Seq("param1", "param2", "param3")
   )
 
+  @Test
   def testTypeParameterTagAvailableItems(): Unit = assertCompletionItemsEqual(
     s"""/**
        | * @tparam $CARET
@@ -74,6 +79,7 @@ class ScalaDocCompletionTest extends ScalaCompletionTestBase {
     Seq("TypeParam1", "TypeParam2", "TypeParam3")
   )
 
+  @Test
   def testParameterTagAvailableItems_DontIncludeParamsWithAlreadyExistingTag(): Unit = assertCompletionItemsEqual(
     s"""/**
        | * @param param1
@@ -85,6 +91,7 @@ class ScalaDocCompletionTest extends ScalaCompletionTestBase {
     Seq("param2")
   )
 
+  @Test
   def testTypeParameterTagAvailableItems_DontIncludeParamsWithAlreadyExistingTag(): Unit = assertCompletionItemsEqual(
     s"""/**
        | * @tparam TypeParam1
@@ -96,6 +103,7 @@ class ScalaDocCompletionTest extends ScalaCompletionTestBase {
     Seq("TypeParam2")
   )
 
+  @Test
   def testLinkCodeCompletion(): Unit = doRawCompletionTest(
     fileText =
       s"""
@@ -119,6 +127,7 @@ class ScalaDocCompletionTest extends ScalaCompletionTestBase {
     }
   }
 
+  @Test
   def testTagValueFilteredCompletion(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -139,9 +148,4 @@ class ScalaDocCompletionTest extends ScalaCompletionTestBase {
     item = "ikk",
     invocationCount = DefaultInvocationCount
   )
-}
-
-object ScalaDocCompletionTest {
-
-  private val DefaultInvocationCount: Int = 2
 }

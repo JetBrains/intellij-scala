@@ -1,21 +1,21 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.codeInsight.completion.CompletionType
-import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.icons.Icons.{FIELD_VAL, VAL}
 import org.jetbrains.plugins.scala.lang.completion3.base.SameSignatureCallParametersProviderTestBase
+import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
+import org.junit.Test
 
+@RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Latest))
 class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallParametersProviderTestBase {
 
   import org.jetbrains.plugins.scala.icons.Icons.PARAMETER
   import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase._
 
-  override protected def supportedIn(version: ScalaVersion): Boolean =
-    version >= ScalaVersion.Latest.Scala_3_0
-
   /// extends TRAIT
 
+  @Test
   def testTraitConstructorCall(): Unit = doCompletionTest(
     fileText =
       s"""trait A(x: Int, y: Int)
@@ -30,6 +30,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
     item = "x, y"
   )
 
+  @Test
   def testTraitConstructorCallSmart(): Unit = doCompletionTest(
     fileText =
       s"""trait A(x: Int, y: Int)
@@ -45,6 +46,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
     completionType = CompletionType.SMART
   )
 
+  @Test
   def testTraitConstructorCallLookupElement(): Unit = checkLookupElement(
     fileText =
       s"""trait A(x: Int, y: Int)
@@ -61,6 +63,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
     icons = PARAMETER, PARAMETER
   )
 
+  @Test
   def testAfterParenthesisOnlyInTraitConstructor(): Unit = checkNoCompletion(
     s"""trait A(x: Int, y: Int)
        |
@@ -68,6 +71,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
        |""".stripMargin
   )
 
+  @Test
   def testBeforeParenthesisOnlyInTraitConstructor(): Unit = checkNoCompletion(
     s"""trait A(x: Int, y: Int)
        |
@@ -75,6 +79,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
        |""".stripMargin
   )
 
+  @Test
   def testPositionInTraitConstructor(): Unit = doCompletionTest(
     fileText =
       s"""trait A(x: Int, y: Int, z: Int)
@@ -89,6 +94,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
     item = "y, z"
   )
 
+  @Test
   def testEmptyTraitConstructor(): Unit = checkNoCompletion(
     s"""trait A()
        |
@@ -96,6 +102,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
        |""".stripMargin
   )
 
+  @Test
   def testTooShortTraitConstructor(): Unit = checkNoCompletion(
     s"""trait A(x: Int)
        |
@@ -103,6 +110,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
        |""".stripMargin
   )
 
+  @Test
   def testNoNameMatchingTraitConstructor(): Unit = checkNoCompletion(
     fileText =
       s"""trait A(x: Int, y: Int)
@@ -111,6 +119,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
          |""".stripMargin
   )
 
+  @Test
   def testNoTypeMatchingTraitConstructor(): Unit = checkNoCompletion(
     fileText =
       s"""trait A(x: Int, y: Int)
@@ -121,6 +130,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
 
   /// new TRAIT
 
+  @Test
   def testTraitConstructorCallAfterNew(): Unit = doCompletionTest(
     fileText =
       s"""object O:
@@ -143,6 +153,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
     item = "x, y"
   )
 
+  @Test
   def testTraitConstructorCallAfterNewSmart(): Unit = doCompletionTest(
     fileText =
       s"""object O:
@@ -166,6 +177,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
     completionType = CompletionType.SMART
   )
 
+  @Test
   def testTraitConstructorCallAfterNewLookupElement(): Unit = checkLookupElement(
     fileText =
       s"""object O:
@@ -190,6 +202,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
     icons = Icons.FIELD_VAL, Icons.FIELD_VAR
   )
 
+  @Test
   def testAfterParenthesisOnlyInTraitConstructorAfterNew(): Unit = checkNoCompletion(
     fileText =
       s"""object O:
@@ -202,6 +215,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
         """.stripMargin
   )
 
+  @Test
   def testBeforeParenthesisOnlyInTraitConstructorAfterNew(): Unit = checkNoCompletion(
     fileText =
       s"""object O:
@@ -214,6 +228,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
         """.stripMargin
   )
 
+  @Test
   def testPositionInTraitConstructorAfterNew(): Unit = doCompletionTest(
     fileText =
       s"""object O:
@@ -236,6 +251,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
     item = "y, z"
   )
 
+  @Test
   def testEmptyTraitConstructorAfterNew(): Unit = checkNoCompletion(
     s"""object O:
        |  trait A()
@@ -247,6 +263,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
        |""".stripMargin
   )
 
+  @Test
   def testTooShortTraitConstructorAfterNew(): Unit = checkNoCompletion(
     s"""object O:
        |  trait A(x: Int)
@@ -258,6 +275,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
        |""".stripMargin
   )
 
+  @Test
   def testNoNameMatchingTraitConstructorAfterNew(): Unit = checkNoCompletion(
     fileText =
       s"""object O:
@@ -270,6 +288,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
          |""".stripMargin
   )
 
+  @Test
   def testNoTypeMatchingTraitConstructorAfterNew(): Unit = checkNoCompletion(
     fileText =
       s"""object O:
@@ -284,6 +303,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
 
   /// ENUM
 
+  @Test
   def testEnumConstructorCall(): Unit = doCompletionTest(
     fileText =
       s"""enum A(x: Int, y: Int):
@@ -296,6 +316,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
     item = "x, y"
   )
 
+  @Test
   def testEnumConstructorCall2(): Unit = doCompletionTest(
     fileText =
       s"""enum A(x: Int, y: Int):
@@ -310,6 +331,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
     item = "x, y, z"
   )
 
+  @Test
   def testEnumConstructorCall3(): Unit = doCompletionTest(
     fileText =
       s"""enum A(x: Int, y: Int):
@@ -324,6 +346,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
     item = "x, y"
   )
 
+  @Test
   def testEnumConstructorCall3Smart(): Unit = doCompletionTest(
     fileText =
       s"""enum A(x: Int, y: Int):
@@ -339,6 +362,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
     completionType = CompletionType.SMART
   )
 
+  @Test
   def testEnumConstructorCallLookupElement(): Unit = checkLookupElement(
     fileText =
       s"""enum A(x: Int, y: Int):
@@ -353,18 +377,21 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
     icons = FIELD_VAL, FIELD_VAL
   )
 
+  @Test
   def testAfterParenthesisOnlyInEnumConstructor(): Unit = checkNoCompletion(
     s"""enum A(x: Int, y: Int):
        |  case B(x: Int, y: Int) extends A(x, $CARET)
        |""".stripMargin
   )
 
+  @Test
   def testBeforeParenthesisOnlyInEnumConstructor(): Unit = checkNoCompletion(
     s"""enum A(x: Int, y: Int):
        |  case B(x: Int, y: Int) extends A($CARET, y)
        |""".stripMargin
   )
 
+  @Test
   def testPositionInEnumConstructor(): Unit = doCompletionTest(
     fileText =
       s"""enum A(x: Int, y: Int, z: Int):
@@ -377,12 +404,14 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
     item = "y, z"
   )
 
+  @Test
   def testEmptyEnumConstructor(): Unit = checkNoCompletion(
     s"""enum A():
        |  case B(x: Int, y: Int) extends A($CARET)
        |""".stripMargin
   )
 
+  @Test
   def testTooShortEnumConstructor(): Unit = checkNoCompletion(
     s"""enum A(x: Int):
        |  case B(x: Int, y: Int) extends A($CARET)
@@ -390,6 +419,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
   )
 
   // should have (x = ???, y = ???) but not (x, y)
+  @Test
   def testNoNameMatchingEnumConstructor(): Unit = checkNoCompletionWithoutTailText(
     fileText =
       s"""enum A(x: Int, y: Int):
@@ -399,6 +429,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
   )
 
   // should have (x = ???, y = ???) but not (x, y)
+  @Test
   def testNoTypeMatchingEnumConstructor(): Unit = checkNoCompletionWithoutTailText(
     fileText =
       s"""enum A(x: Int, y: Int):
@@ -407,6 +438,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
     lookupString = "x, y"
   )
 
+  @Test
   def testEnumConstructorAssignment(): Unit = doRawCompletionTest(
     fileText =
       s"""enum A(x: Int, y: Int):
@@ -420,6 +452,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
     hasItemText(_, "x, y")(tailText = " = ")
   }
 
+  @Test
   def testPositionInEnumConstructorAssignment(): Unit = doCompletionTest(
     fileText =
       s"""enum A(x: Int, y: Int, z: Int):
@@ -432,6 +465,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
     item = "y, z"
   )
 
+  @Test
   def testEnumConstructorAssignmentLookupElement(): Unit = checkLookupElement(
     fileText =
       s"""enum A(x: Int, y: Int):
@@ -448,6 +482,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
 
   /// ENUM CASE
 
+  @Test
   def testEnumCaseConstructorCall(): Unit = doCompletionTest(
     fileText =
       s"""object O:
@@ -472,6 +507,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
     item = "x, y"
   )
 
+  @Test
   def testEnumCaseConstructorCallSmart(): Unit = doCompletionTest(
     fileText =
       s"""object O:
@@ -497,6 +533,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
     completionType = CompletionType.SMART
   )
 
+  @Test
   def testEnumCaseConstructorCallLookupElement(): Unit = checkLookupElement(
     fileText =
       s"""object O:
@@ -523,6 +560,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
     icons = Icons.FIELD_VAL, Icons.FIELD_VAR
   )
 
+  @Test
   def testAfterParenthesisOnlyInEnumCaseConstructor(): Unit = checkNoCompletion(
     fileText =
       s"""object O:
@@ -536,6 +574,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
         """.stripMargin
   )
 
+  @Test
   def testBeforeParenthesisOnlyInEnumCaseConstructor(): Unit = checkNoCompletion(
     fileText =
       s"""object O:
@@ -549,6 +588,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
         """.stripMargin
   )
 
+  @Test
   def testPositionInEnumCaseConstructor(): Unit = doCompletionTest(
     fileText =
       s"""object O:
@@ -573,6 +613,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
     item = "y, z"
   )
 
+  @Test
   def testEmptyEnumCaseConstructor(): Unit = checkNoCompletion(
     s"""object O:
        |  enum A:
@@ -585,6 +626,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
        |""".stripMargin
   )
 
+  @Test
   def testTooShortEnumCaseConstructor(): Unit = checkNoCompletion(
     s"""object O:
        |  enum A:
@@ -598,6 +640,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
   )
 
   // should have (x = ???, y = ???) but not (x, y)
+  @Test
   def testNoNameMatchingEnumCaseConstructor(): Unit = checkNoCompletionWithoutTailText(
     fileText =
       s"""object O:
@@ -613,6 +656,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
   )
 
   // should have (x = ???, y = ???) but not (x, y)
+  @Test
   def testNoTypeMatchingConstructorAfterNew(): Unit = checkNoCompletionWithoutTailText(
     fileText =
       s"""object O:
@@ -627,6 +671,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
     lookupString = "x, y"
   )
 
+  @Test
   def testEnumCaseConstructorAssignment(): Unit = doRawCompletionTest(
     fileText =
       s"""object O:
@@ -646,6 +691,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
     hasItemText(_, "x, y")(tailText = " = ")
   }
 
+  @Test
   def testPositionInEnumCaseConstructorAssignment(): Unit = doCompletionTest(
     fileText =
       s"""object O:
@@ -664,6 +710,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
     item = "y, z"
   )
 
+  @Test
   def testEnumCaseConstructorAssignmentLookupElement(): Unit = checkLookupElement(
     fileText =
       s"""object O:
@@ -686,6 +733,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
 
   /// Universal Apply
 
+  @Test
   def testUniversalApplyConstructorCall(): Unit = checkLookupElement(
     fileText =
       s"""class A(x: Int, y: Int)
@@ -708,6 +756,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
     icons = VAL, VAL
   )
 
+  @Test
   def testUniversalApplyConstructorCall2(): Unit = checkLookupElement(
     fileText =
       s"""class A(x: Int, y: Int) {
@@ -736,6 +785,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
     icons = VAL, VAL
   )
 
+  @Test
   def testUniversalApplyConstructorCall3(): Unit = checkLookupElement(
     fileText =
       s"""class A(x: Int, y: Int) {
@@ -764,6 +814,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
     icons = VAL, VAL
   )
 
+  @Test
   def testUniversalApplyConstructorCall4(): Unit = checkLookupElement(
     fileText =
       s"""class A(x: Int, y: Int)
@@ -780,7 +831,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
     icons = PARAMETER, PARAMETER
   )
 
-  // should have (x = ???, y = ???) but not (x, y)
+  @Test
   def testUniversalApplyConstructorCall5(): Unit = checkNoCompletionWithoutTailText(
     fileText =
       s"""class A(x: Int, y: Int)
@@ -790,6 +841,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
     lookupString = "x, y"
   )
 
+  @Test
   def testPositionInUniversalApply(): Unit = checkLookupElement(
     fileText =
       s"""class A(x: Int, y: Int, z: Int)
@@ -812,6 +864,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
     icons = VAL, VAL
   )
 
+  @Test
   def testPositionInUniversalApplyAssignment(): Unit = checkLookupElement(
     fileText =
       s"""class A(x: Int, y: Int, z: Int)
@@ -828,6 +881,7 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
     icons = PARAMETER, PARAMETER
   )
 
+  @Test
   def testBeforeParenthesisOnlyInUniversalApply(): Unit = checkNoCompletion(
     fileText =
       s"""class A(x: Int, y: Int)

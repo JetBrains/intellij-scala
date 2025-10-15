@@ -2,11 +2,13 @@ package org.jetbrains.plugins.scala.lang.completion3
 
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
+import org.junit.Test
 
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_3_Latest
 ))
 final class Scala3InlineCompletionTest extends ScalaCompletionTestBase {
+  @Test
   def testParamInRegularMethod(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -26,6 +28,7 @@ final class Scala3InlineCompletionTest extends ScalaCompletionTestBase {
     item = "column"
   )
 
+  @Test
   def testParamInInlineMethod(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -45,6 +48,7 @@ final class Scala3InlineCompletionTest extends ScalaCompletionTestBase {
     item = "column"
   )
 
+  @Test
   def testInlineParamInInlineMethod(): Unit = doCompletionTest(
     fileText =
       s"""

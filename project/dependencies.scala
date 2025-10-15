@@ -20,7 +20,7 @@ object Versions {
    * ATTENTION: check the comment in [[Common.newProjectWithKotlin]] when updating this version.
    *            update `since-build` in plugin.xml if there are binary incompatible changes after update
    */
-  val intellijVersion = "253.25908.13"
+  val intellijVersion = "253.27642.13"
 
   def isNightlyIntellijVersion: Boolean = intellijVersion.count(_ == '.') == 1
 
@@ -48,7 +48,7 @@ object Versions {
 
   val bspVersion = "2.1.0"
   val sbtStructureVersion: String = "2025.3.3"
-  val sbtIdeaShellVersion: String = "2025.2.0"
+  val sbtIdeaShellVersion: String = "2025.3.0"
   val compilerIndicesVersion = "1.0.16"
 
   val java9rtExportVersion: String = "0.1.0"
@@ -194,6 +194,7 @@ object DependencyGroups {
     scalaXml,
     scalaParserCombinators,
     coursierDirectoriesJni,
+    apacheCommonsText,
     ivy2,
     compilerIndicesProtocol,
     scalafmtDynamic
@@ -220,8 +221,7 @@ object DependencyGroups {
 
   val decompiler: Seq[ModuleID] = Seq(
     scalaLibrary,
-    scalaReflect,
-    apacheCommonsText
+    scalaReflect
   )
 
   val testRunners: Seq[ModuleID] = Seq(

@@ -3,9 +3,11 @@ package org.jetbrains.plugins.scala.lang.dfa.analysis.tests.invocations
 import org.jetbrains.plugins.scala.lang.dfa.Messages._
 import org.jetbrains.plugins.scala.lang.dfa.analysis.ScalaDfaTestBase
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaCollectionAccessProblem.{indexOutOfBoundsProblem, noSuchElementProblem}
+import org.junit.Test
 
 class SequencesSpecialSupportDfaTest extends ScalaDfaTestBase {
 
+  @Test
   def testApplyFactoryForLists(): Unit = test(codeFromMethodBody(returnType = "Boolean") {
     """
       |val list1 = List(3, 5, 8)
@@ -24,6 +26,7 @@ class SequencesSpecialSupportDfaTest extends ScalaDfaTestBase {
     "list4 == List(5, 9, 3)" -> ConditionAlwaysFalse
   )
 
+  @Test
   def testApplyAccessOnLists(): Unit = test(codeFromMethodBody(returnType = "Int") {
     """
       |val x = 488
@@ -48,6 +51,7 @@ class SequencesSpecialSupportDfaTest extends ScalaDfaTestBase {
     "list(x)" -> indexOutOfBoundsProblem.alwaysMessage
   )
 
+  @Test
   def testNotFlushingImmutableLists(): Unit = test(codeFromMethodBody(returnType = "Int") {
     """
       |val list1 = 15 :: Nil
@@ -64,6 +68,7 @@ class SequencesSpecialSupportDfaTest extends ScalaDfaTestBase {
     "list1(4)" -> indexOutOfBoundsProblem.alwaysMessage
   )
 
+  @Test
   def testHeadOnLists(): Unit = test(codeFromMethodBody(returnType = "Int") {
     """
       |val list = List()
@@ -75,6 +80,7 @@ class SequencesSpecialSupportDfaTest extends ScalaDfaTestBase {
     "list.head" -> noSuchElementProblem.alwaysMessage
   )
 
+  @Test
   def testNilReference(): Unit = test(codeFromMethodBody(returnType = "Int") {
     """
       |val x = 488
@@ -103,6 +109,7 @@ class SequencesSpecialSupportDfaTest extends ScalaDfaTestBase {
     "x < 500" -> ConditionAlwaysTrue
   )
 
+  @Test
   def testMapMethod(): Unit = test(codeFromMethodBody(returnType = "Int") {
     """
       |val list1 = List(4, 6, 20, 55)
@@ -117,6 +124,7 @@ class SequencesSpecialSupportDfaTest extends ScalaDfaTestBase {
     "list1.map(_ * 2).map(y => y - 3) == list2" -> ConditionAlwaysFalse
   )
 
+  @Test
   def testFilterMethod(): Unit = test(codeFromMethodBody(returnType = "Int") {
     """
       |val list1 = List(4, 6, 20, 55)
@@ -132,6 +140,7 @@ class SequencesSpecialSupportDfaTest extends ScalaDfaTestBase {
     "list1.filter(x => x == 4) == list2" -> ConditionAlwaysFalse
   )
 
+  @Test
   def testSizeMethod(): Unit = test(codeFromMethodBody(returnType = "Boolean") {
     """
       |val list1 = List(4, 6, 20, 55)

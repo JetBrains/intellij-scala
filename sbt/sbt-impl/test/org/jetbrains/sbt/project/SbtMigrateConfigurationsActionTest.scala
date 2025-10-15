@@ -1,5 +1,6 @@
 package org.jetbrains.sbt.project
 
+import junitparams.naming.TestCaseName
 import junitparams.{JUnitParamsRunner, Parameters}
 import org.jetbrains.sbt.project.SbtMigrateConfigurationsAction.ConfigDetails
 import org.junit.Assert.assertEquals
@@ -48,6 +49,7 @@ class SbtMigrateConfigurationsActionTest {
    */
   @Test
   @Parameters(method = "moduleNameAndMainClassHeuristicsConsistencyTestParameters")
+  @TestCaseName("{method}[config = {0}, expected = {1}]")
   def moduleNameAndMainClassHeuristicsConsistencyTest(configDetails: ConfigDetails, expectedResult: Seq[String]): Unit = {
     val moduleNameToClassesInside = Map (
       "root~1.foo.test" -> Seq("Main1"),
@@ -82,6 +84,7 @@ class SbtMigrateConfigurationsActionTest {
 
   @Test
   @Parameters(method = "separateModulesForProdTestEnabled_isDowngradingNoneOrFalseTestParameters")
+  @TestCaseName("{method}[config = {0}, expected = {1}]")
   def separateModulesForProdTestEnabled_isDowngradingNoneOrFalseTest(configDetails: ConfigDetails, expectedResult: Seq[String]): Unit =
     Seq(None, Some(false)).foreach { isDowngrading =>
       execute(
@@ -104,6 +107,7 @@ class SbtMigrateConfigurationsActionTest {
 
   @Test
   @Parameters(method = "separateModulesForProdTestDisabled_isDowngradingTrueTestParameters")
+  @TestCaseName("{method}[config = {0}, expected = {1}]")
   def separateModulesForProdTestDisabled_isDowngradingTrueTest(configDetails: ConfigDetails, expectedResult: Seq[String]): Unit =
     execute(
       configDetails,
@@ -123,6 +127,7 @@ class SbtMigrateConfigurationsActionTest {
   
   @Test
   @Parameters(method = "separateModulesForProdTestDisabled_isDowngradingFalseTestParameters")
+  @TestCaseName("{method}[config = {0}, expected = {1}]")
   def separateModulesForProdTestDisabled_isDowngradingFalseTest(configDetails: ConfigDetails, expectedResult: Seq[String]): Unit =
     execute(
       configDetails,
@@ -144,6 +149,7 @@ class SbtMigrateConfigurationsActionTest {
   
   @Test
   @Parameters(method = "separateModulesForProdTestDisabled_isDowngradingNoneTestParameters")
+  @TestCaseName("{method}[config = {0}, expected = {1}]")
   def separateModulesForProdTestDisabled_isDowngradingNoneTest(configDetails: ConfigDetails, expectedResult: Seq[String]): Unit =
     execute(
       configDetails,

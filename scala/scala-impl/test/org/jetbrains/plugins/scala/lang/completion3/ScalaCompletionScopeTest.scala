@@ -5,25 +5,34 @@ import org.jetbrains.plugins.scala.lang.completion.isAccessible
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticNamedElement
 import org.junit.Assert.assertTrue
+import org.junit.Test
 
 class ScalaCompletionScopeTest extends ScalaCompletionTestBase {
 
   import org.jetbrains.plugins.scala.extensions.{PsiMemberExt, PsiElementExt}
 
+  @Test
   def testBasicCompletion0(): Unit = checkCompletionsAreInScopeAndAccessible("File", 0)
 
+  @Test
   def testBasicCompletion1(): Unit = checkCompletionsAreInScopeAndAccessible("File", 1)
 
+  @Test
   def testBasicCompletion2(): Unit = checkCompletionsAreInScopeAndAccessible("File", 2)
 
+  @Test
   def testTypeCompletion1(): Unit = checkCompletionsAreInScopeAndAccessible("null: ", 1)
 
+  @Test
   def testTypeCompletion2(): Unit = checkCompletionsAreInScopeAndAccessible("null: ", 2)
 
+  @Test
   def testAfterDotCompletion1(): Unit = checkCompletionsAreInScopeAndAccessible("\"\".", 1)
 
+  @Test
   def testAfterDotCompletion2(): Unit = checkCompletionsAreInScopeAndAccessible("\"\".", 2)
 
+  @Test
   def testBasicCompletion1EmptyPrefix(): Unit = checkCompletionsAreInScopeAndAccessible("", 1)
 
   private def checkCompletionsAreInScopeAndAccessible(prefix: String, invocationCount: Int): Unit = {

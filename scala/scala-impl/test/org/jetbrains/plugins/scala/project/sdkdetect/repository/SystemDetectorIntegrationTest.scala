@@ -28,7 +28,7 @@ class SystemDetectorIntegrationTest extends ScalaLightCodeInsightFixtureTestCase
 
   @Test
   @Parameters(method = "scalaVersionsParameters")
-  @TestCaseName("test system scala sdk creation for version {0}")
+  @TestCaseName("{method}[{0}]")
   def systemDetectorIntegrationTest(
     @unused("used reflectively by the @TestCaseName annotation") scalaVersionString: String,
     scalaVersion: ScalaVersion

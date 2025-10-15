@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.completion3
 
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
+import org.junit.Test
 
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_3_Latest
@@ -11,6 +12,7 @@ class ScalaOverrideCompletionTest_Scala3 extends ScalaOverrideCompletionTestBase
   override protected def prepareFileText(fileText: String): String =
     fileText.withNormalizedSeparator.trim
 
+  @Test
   def testFunctionWithImplicitParameters(): Unit = doRawCompletionTest(
     fileText =
       s"""abstract class Base[T]:
@@ -28,6 +30,7 @@ class ScalaOverrideCompletionTest_Scala3 extends ScalaOverrideCompletionTestBase
          |""".stripMargin
   )()
 
+  @Test
   def testFunctionWithUsingParameters(): Unit = doRawCompletionTest(
     fileText =
       s"""abstract class Base[T]:
@@ -45,6 +48,7 @@ class ScalaOverrideCompletionTest_Scala3 extends ScalaOverrideCompletionTestBase
          |""".stripMargin
   )()
 
+  @Test
   def testExtension(): Unit = doRawCompletionTest(
     fileText =
       s"""abstract class MyBaseFromScala3:
@@ -66,6 +70,7 @@ class ScalaOverrideCompletionTest_Scala3 extends ScalaOverrideCompletionTestBase
          |""".stripMargin
   )()
 
+  @Test
   def testExtension_ImplementedInNestedIndentationBasedSyntax(): Unit = doRawCompletionTest(
     fileText =
       s"""abstract class MyBaseFromScala3:

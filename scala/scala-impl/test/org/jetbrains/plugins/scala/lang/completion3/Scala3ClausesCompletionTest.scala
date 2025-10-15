@@ -1,16 +1,17 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
-import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaClausesCompletionTestBase
+import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
+import org.junit.Test
 
+@RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Latest))
 class Scala3ClausesCompletionTest extends ScalaClausesCompletionTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_3_0
-
   override protected def setUp(): Unit = {
     super.setUp()
     getScalaCodeStyleSettings.USE_SCALA3_INDENTATION_BASED_SYNTAX = true
   }
 
+  @Test
   def testScala3Enum(): Unit = doMatchCompletionTest(
     fileText =
       s"""enum Direction:
@@ -36,6 +37,7 @@ class Scala3ClausesCompletionTest extends ScalaClausesCompletionTestBase {
        """.stripMargin
   )
 
+  @Test
   def testScala3Enum2(): Unit = doMatchCompletionTest(
     fileText =
       s"""enum Json:
@@ -63,6 +65,7 @@ class Scala3ClausesCompletionTest extends ScalaClausesCompletionTestBase {
        """.stripMargin
   )
 
+  @Test
   def testScala3Enum3(): Unit = doMatchCompletionTest(
     fileText =
       s"""trait A
@@ -93,6 +96,7 @@ class Scala3ClausesCompletionTest extends ScalaClausesCompletionTestBase {
        """.stripMargin
   )
 
+  @Test
   def testInnerScala3Enum(): Unit = doMatchCompletionTest(
     fileText =
       s"""object Scope:
@@ -122,6 +126,7 @@ class Scala3ClausesCompletionTest extends ScalaClausesCompletionTestBase {
        """.stripMargin
   )
 
+  @Test
   def testScala3EnumBetweenMethods(): Unit = doMatchCompletionTest(
     fileText =
       s"""
@@ -163,6 +168,7 @@ class Scala3ClausesCompletionTest extends ScalaClausesCompletionTestBase {
         |""".stripMargin,
   )
 
+  @Test
   def testScala3EnumInsideMethodBodyBetweenMethods(): Unit = doMatchCompletionTest(
     fileText =
       s"""

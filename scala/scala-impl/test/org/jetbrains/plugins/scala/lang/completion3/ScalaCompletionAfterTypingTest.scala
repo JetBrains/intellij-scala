@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
+import org.junit.Test
 
 class ScalaCompletionAfterTypingTest extends ScalaCompletionTestBase {
   private def setCustomTyper(myTextToType: String): Unit = {
@@ -15,6 +16,7 @@ class ScalaCompletionAfterTypingTest extends ScalaCompletionTestBase {
   }
 
   //SCL-17313
+  @Test
   def testNoItemsFromPreviousRef(): Unit = {
     setCustomTyper("B.")
 
@@ -41,6 +43,7 @@ class ScalaCompletionAfterTypingTest extends ScalaCompletionTestBase {
     )
   }
 
+  @Test
   def testCompletionBeforeLastRefInBlock(): Unit = {
     setCustomTyper(".")
 

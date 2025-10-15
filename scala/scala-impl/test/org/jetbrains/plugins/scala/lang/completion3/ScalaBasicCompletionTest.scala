@@ -4,6 +4,7 @@ import com.intellij.codeInsight.lookup.Lookup
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{CommonClassNames, JavaPsiFacade}
+import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG, SELECTION_START_TAG}
 import junit.framework.AssertionFailedError
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiNamedElementExt, inWriteAction, invokeAndWait}
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
@@ -13,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{StdType, StdTypes}
 import org.jetbrains.plugins.scala.util.ConfigureJavaFile.configureJavaFile
 import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
 import org.junit.Assert.{assertEquals, assertNotNull, assertTrue}
+import org.junit.Test
 
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
@@ -73,12 +75,14 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
 
   import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase._
 
+  @Test
   def testInImportSelector(): Unit = doCompletionTest(
     fileText = s"import scala.collection.immutable.{VBuil$CARET}",
     resultText = s"import scala.collection.immutable.{VectorBuilder$CARET}",
     item = "VectorBuilder"
   )
 
+  @Test
   def testPrivateFromCompanionModule(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -101,6 +105,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "xxxxx"
   )
 
+  @Test
   def testVarCompletion(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -123,6 +128,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "xxxxx"
   )
 
+  @Test
   def testVarNoCompletion(): Unit = checkNoBasicCompletion(
     fileText =
       s"""
@@ -136,6 +142,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "xxxxx_="
   )
 
+  @Test
   def testVarCompletion2(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -159,6 +166,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     invocationCount = 2
   )
 
+  @Test
   def testNewInnerClass(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -177,6 +185,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "BBBBB"
   )
 
+  @Test
   def testBeanProperty(): Unit = doCompletionTest(
     fileText =
       s"""import scala.beans.BeanProperty
@@ -203,6 +212,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "getGoo"
   )
 
+  @Test
   def testSCL3546(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -217,6 +227,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "abcdef"
   )
 
+  @Test
   def testRecursion(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -255,6 +266,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "brrrrr"
   )
 
+  @Test
   def testObjectCompletion(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -277,6 +289,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "States"
   )
 
+  @Test
   def testImportObjectCompletion(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -299,6 +312,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "States"
   )
 
+  @Test
   def testObjectCompletionDotChar(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -322,6 +336,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     char = '.'
   )
 
+  @Test
   def testPrivateMethod(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -344,6 +359,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "fooaa"
   )
 
+  @Test
   def testParenthCompletionChar(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -359,6 +375,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     char = '('
   )
 
+  @Test
   def testAfterNew(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -378,6 +395,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     char = '['
   )
 
+  @Test
   def testAfterNewWithImport(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -397,6 +415,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     char = '['
   )
 
+  @Test
   def testSeq(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -414,6 +433,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     char = '('
   )
 
+  @Test
   def testClosingParentheses(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -431,6 +451,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     char = ')'
   )
 
+  @Test
   def testDeprecated(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -449,6 +470,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "deprecated"
   )
 
+  @Test
   def testStringLength(): Unit = doRawCompletionTest(
     fileText =
       s"""class Foo {
@@ -467,6 +489,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     )
   }
 
+  @Test
   def testStringTrim(): Unit = doRawCompletionTest(
     fileText =
       s"""class Foo {
@@ -485,6 +508,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     )
   }
 
+  @Test
   def testStringHashCode(): Unit = doRawCompletionTest(
     fileText =
       s"""class Foo {
@@ -503,6 +527,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     )
   }
 
+  @Test
   def testObjectHashCode(): Unit = doRawCompletionTest(
     fileText =
       s"""class Foo {
@@ -522,6 +547,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     )
   }
 
+  @Test
   def testJavaMethod(): Unit = {
     configureJavaFile(
       fileText =
@@ -552,6 +578,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     }
   }
 
+  @Test
   def testParameterCompletion(): Unit = doRawCompletionTest(
     fileText =
       s"""class Foo {
@@ -571,6 +598,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     hasItemText(_, "bar")(typeText = "Int")
   }
 
+  @Test
   def testNamedParameterCompletion(): Unit = doRawCompletionTest(
     fileText =
       s"""class Foo {
@@ -593,6 +621,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     )
   }
 
+  @Test
   def testHiding1(): Unit = doCompletionTest(
     fileText =
       s"""class SmartValueInitializerCompletion {
@@ -618,6 +647,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     invocationCount = 0
   )
 
+  @Test
   def testHiding2(): Unit = {
     configureFromFileText(
       fileText =
@@ -636,6 +666,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     assertEquals(2, lookups.count(hasLookupString(_, "foo")))
   }
 
+  @Test
   def testHiding3(): Unit = doCompletionTest(
     fileText =
       s"""class SmartValueInitializerCompletion {
@@ -655,6 +686,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     invocationCount = 0
   )
 
+  @Test
   def testBasicRenamed(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -673,6 +705,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "BLLLL"
   )
 
+  @Test
   def testYield(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -689,6 +722,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "`yield`"
   )
 
+  @Test
   def testInfix(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -707,6 +741,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "foo"
   )
 
+  @Test
   def testNoPrefixedThis(): Unit = checkNoBasicCompletion(
     fileText =
       s"""
@@ -717,6 +752,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "aaa.this"
   )
 
+  @Test
   def testNoPrefixedSuper(): Unit = checkNoBasicCompletion(
     fileText =
       s"""
@@ -727,6 +763,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "aaa.super"
   )
 
+  @Test
   def testPrefixedThis(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -747,6 +784,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "aaa.this"
   )
 
+  @Test
   def testPrefixedSuper(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -769,6 +807,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "aaa.super"
   )
 
+  @Test
   def testNoPrefixedSuperOnQualifier(): Unit = checkNoCompletion(
     fileText =
       s"""
@@ -782,7 +821,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     _.getLookupString.contains(".super")
   )
 
-
+  @Test
   def testCompanionTraitName(): Unit = doCompletionTest(
     fileText =
       s"""trait F$CARET
@@ -797,6 +836,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "Foo"
   )
 
+  @Test
   def testCompanionObjectName(): Unit = doCompletionTest(
     fileText =
       s"""class Foo
@@ -811,6 +851,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "Foo"
   )
 
+  @Test
   def testClassFileName(): Unit = doCompletionTest(
     fileText =
       s"""class a$CARET
@@ -821,6 +862,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "aaa"
   )
 
+  @Test
   def testObjectFileName(): Unit = doCompletionTest(
     fileText =
       s"""class a$CARET
@@ -831,6 +873,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "aaa"
   )
 
+  @Test
   def testNoBeanCompletion(): Unit = checkNoBasicCompletion(
     fileText =
       s"""
@@ -843,6 +886,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "getBar"
   )
 
+  @Test
   def testBasicTypeCompletion(): Unit = doCompletionTest(
     fileText =
       s"""class Foo {
@@ -855,6 +899,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "Int"
   )
 
+  @Test
   def testCompanionObjectWithPackage(): Unit = doCompletionTest(
     fileText =
       s"""package foo
@@ -877,6 +922,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "Foo"
   )
 
+  @Test
   def testObjectsCompletion(): Unit = {
     configureFromFileText(
       s"""object Main {
@@ -904,6 +950,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     } assertEquals(1, actual)
   }
 
+  @Test
   def testBasicTypeCompletionNoMethods(): Unit = checkNoBasicCompletion(
     fileText =
       s"""
@@ -916,6 +963,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "foo"
   )
 
+  @Test
   def testBraceCompletionChar(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -933,6 +981,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     char = '{'
   )
 
+  @Test
   def testBraceCompletionChar2(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -950,6 +999,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     char = '{'
   )
 
+  @Test
   def testBraceCompletionChar3(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -967,6 +1017,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     char = '{'
   )
 
+  @Test
   def testTailrecBasicCompletion(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -987,6 +1038,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "tailrec"
   )
 
+  @Test
   def testSCL4791(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -1023,12 +1075,14 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "fault"
   )
 
+  @Test
   def testSCL4837(): Unit = doCompletionTest(
     fileText = s"System.current$CARET()",
     resultText = s"System.currentTimeMillis()$CARET",
     item = "currentTimeMillis"
   )
 
+  @Test
   def testParenthesisExists(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -1043,6 +1097,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "foo"
   )
 
+  @Test
   def testParenthesisExists2(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -1057,6 +1112,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "foo"
   )
 
+  @Test
   def testParenthesesExistBraceCompletionChar2(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -1072,6 +1128,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     char = '{'
   )
 
+  @Test
   def testBracesExists(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -1086,6 +1143,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "foo"
   )
 
+  @Test
   def testBracesExists2(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -1100,6 +1158,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "foo"
   )
 
+  @Test
   def testBracesExists3(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -1118,6 +1177,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "foo"
   )
 
+  @Test
   def testBracesExistsParenthesesCompletionChar(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -1133,6 +1193,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     char = '('
   )
 
+  @Test
   def testBracesExistsParenthesesCompletionChar2(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -1148,12 +1209,14 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     char = '('
   )
 
+  @Test
   def testBracketsExists(): Unit = doCompletionTest(
     fileText = s"clas$CARET[]",
     resultText = s"classOf[$CARET]",
     item = "classOf"
   )
 
+  @Test
   def testBracketsExistsForType(): Unit = doRawCompletionTest(
     fileText = s"val x: Opti$CARET[]",
     resultText = s"val x: Option[$CARET]",
@@ -1162,6 +1225,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     hasLookupString(lookup, "Option") && lookup.getPsiElement.is[ScClass]
   }
 
+  @Test
   def testBracketsWithoutParentheses(): Unit = doCompletionTest(
     fileText = s"Array.app$CARET",
     resultText = s"Array.apply[$CARET]",
@@ -1169,6 +1233,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     char = '['
   )
 
+  @Test
   def testParenthesesCompletionChar(): Unit = doCompletionTest(
     fileText = s"System.c$CARET",
     resultText = s"System.currentTimeMillis($CARET)",
@@ -1176,6 +1241,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     char = '('
   )
 
+  @Test
   def testNoEtaExpansion(): Unit = doCompletionTest(
     fileText = s"List(1, 2, 3) takeRight$CARET",
     resultText = s"List(1, 2, 3) takeRight $CARET",
@@ -1183,6 +1249,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     char = ' '
   )
 
+  @Test
   def testNoEtaExpansionParenthesesCompletionChar(): Unit = doCompletionTest(
     fileText = s"List(1, 2, 3) takeRight$CARET",
     resultText = s"List(1, 2, 3) takeRight($CARET)",
@@ -1190,7 +1257,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     char = '('
   )
 
-
+  @Test
   def testNoEtaExpansionBraceCompletionChar(): Unit = doCompletionTest(
     fileText = s"List(1, 2, 3) takeRight$CARET",
     resultText = s"List(1, 2, 3) takeRight {$CARET}",
@@ -1198,6 +1265,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     char = '{'
   )
 
+  @Test
   def testTypeIsFirst(): Unit = {
     val (_, items) = activeLookupWithItems(
       fileText =
@@ -1212,6 +1280,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     assertTrue(items.exists(hasLookupString(_, "type")))
   }
 
+  @Test
   def testBackticks(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -1232,6 +1301,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "`foo`"
   )
 
+  @Test
   def testStringSimple(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -1250,6 +1320,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "xxx"
   )
 
+  @Test
   def testStringSimpleFunctionParameter(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -1266,6 +1337,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "yyy"
   )
 
+  @Test
   def testStringNeedBraces(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -1285,6 +1357,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     char = '\n'
   )
 
+  @Test
   def testStringFunction(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -1303,6 +1376,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "xxx"
   )
 
+  @Test
   def testInterpolatedStringDotCompletion(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -1321,6 +1395,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "substring"
   )
 
+  @Test
   def testInterpolatedStringDotCompletionBracesExist(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -1339,6 +1414,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "substring"
   )
 
+  @Test
   def testInterpolatedStringDotCompletion2(): Unit = doCompletionTest(
     fileText =
       s"""class Foo {
@@ -1363,6 +1439,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "f"
   )
 
+  @Test
   def testMakeStringInterpolated(): Unit = doCompletionTest(
     fileText =
       s"""object Test {
@@ -1379,6 +1456,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "abc"
   )
 
+  @Test
   def testCaseClassParamInValuePattern(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -1393,6 +1471,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "name"
   )
 
+  @Test
   def testCaseClassParamInCaseClause(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -1411,6 +1490,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "name"
   )
 
+  @Test
   def testCaseClassParamInGenerator(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -1427,6 +1507,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "name"
   )
 
+  @Test
   def testClassInPackageWithBackticks(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -1456,6 +1537,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "ScalaClass"
   )
 
+  @Test
   def testMirror(): Unit = doCompletionTest(
     fileText =
       s"""object Main {
@@ -1484,6 +1566,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "bar"
   )
 
+  @Test
   def testPackageObject(): Unit = doCompletionTest(
     fileText =
       s"""package object foo {
@@ -1520,6 +1603,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
       }
     }
 
+  @Test
   def testNoObjectMethodsOnPackageObject(): Unit = {
     val fileText =
       s"""package object foo {}
@@ -1539,6 +1623,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     checkNoCompletion(fileText, objectMethods)
   }
 
+  @Test
   def testNoAnyRefMethodsOnPackageObject(): Unit = {
     val fileText =
       s"""package object foo {}
@@ -1552,6 +1637,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     checkNoCompletion(fileText, anyRefMethods)
   }
 
+  @Test
   def testNoAnyMethodsOnPackageObject(): Unit = {
     val fileText =
       s"""package object foo {}
@@ -1565,23 +1651,27 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     checkNoCompletion(fileText, anyMethods)
   }
 
+  @Test
   def testPredefinedConversion(): Unit = doCompletionTest(
     fileText = s""""1".he$CARET""",
     resultText = s""""1".headOption$CARET""",
     item = "headOption"
   )
 
+  @Test
   def testPredefinedConversionsCollision(): Unit = doCompletionTest(
     fileText = s"1.toBin$CARET",
     resultText = s"1.toBinaryString$CARET",
     item = "toBinaryString"
   )
 
+  @Test
   def testParameterName(): Unit = checkNoBasicCompletion(
     fileText = s"def foo(bar: b$CARET)",
     item = "bar"
   )
 
+  @Test
   def testLocalValueName(): Unit = checkNoBasicCompletion(
     fileText =
       s"""class Foo
@@ -1595,6 +1685,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "foo"
   )
 
+  @Test
   def testLocalValueName2(): Unit = checkNoBasicCompletion(
     fileText =
       s"""class A {
@@ -1605,6 +1696,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "foo"
   )
 
+  @Test
   def testLocalValueName_WithTypeDefinition(): Unit = checkNoBasicCompletion(
     fileText =
       s"""class Foo
@@ -1618,6 +1710,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "foo"
   )
 
+  @Test
   def testLocalValueName_InTypeAnnotation(): Unit = checkNoBasicCompletion(
     fileText =
       s"""class Foo
@@ -1631,6 +1724,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "foo"
   )
 
+  @Test
   def testLocalValue_ClassField(): Unit = checkNoBasicCompletion(
     fileText =
       s"""class A {
@@ -1640,6 +1734,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "foo"
   )
 
+  @Test
   def testLocalLazyValueName(): Unit = doCompletionTest(
     fileText =
       s"""class Foo
@@ -1662,16 +1757,19 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "foo"
   )
 
+  @Test
   def testLocalValueName3(): Unit = checkNoBasicCompletion(
     fileText = s"val foo: f$CARET",
     item = "foo"
   )
 
+  @Test
   def testClassParameter(): Unit = checkNoBasicCompletion(
     fileText = s"class Foo(val Som$CARET)",
     item = "Som"
   )
 
+  @Test
   def testConstructorPatternValueName(): Unit = doCompletionTest(
     fileText =
       s"""Array.emptyObjectArray match {
@@ -1684,6 +1782,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "head"
   )
 
+  @Test
   def testThisTypeDependentType(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -1712,6 +1811,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "Type"
   )
 
+  @Test
   def testThisTypeDependentType2(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -1742,6 +1842,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "toString"
   )
 
+  @Test
   def testSuperTypeDependentType(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -1776,6 +1877,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "toString"
   )
 
+  @Test
   def testCompletionAfterDotNotLastInBlock(): Unit = doCompletionTest(
     fileText =
       s"""class TestClass {
@@ -1798,6 +1900,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "charAt"
   )
 
+  @Test
   def testCompletionAfterDotNotLastInBlock2(): Unit = doCompletionTest(
     fileText =
       s"""class TestClass {
@@ -1820,6 +1923,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "charAt"
   )
 
+  @Test
   def testGetter(): Unit = doCompletionTest(
     fileText =
       s"""def foo: Int = ???
@@ -1832,6 +1936,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "foo"
   )
 
+  @Test
   def testSetter(): Unit = doRawCompletionTest(
     fileText =
       s"""def foo: Int = ???
@@ -1850,6 +1955,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     )
   }
 
+  @Test
   def testConversionWithImplicitParameter(): Unit = doCompletionTest(
     fileText =
       s"""sealed trait ToInt[A] { def toInt(a: A): Int }
@@ -1879,6 +1985,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "asX"
   )
 
+  @Test
   def testNoConversionWithoutImplicitParameter(): Unit = checkNoBasicCompletion(
     fileText =
       s"""sealed trait ToInt[A] { def toInt(a: A): Int }
@@ -1895,6 +2002,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
     item = "asX"
   )
 
+  @Test
   def testConversionWithImplicitParameter2(): Unit = doCompletionTest(
     fileText =
       s"""object Test {
@@ -1938,6 +2046,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
   )
 
   //SCL-19124
+  @Test
   def testConversionWithImplicitParameter3(): Unit = doCompletionTest(
     s"""
        |import scala.language.implicitConversions
@@ -1988,6 +2097,83 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
          |}""".stripMargin,
     item = "foo2"
   )
+
+  @Test
+  def testJavaRawStackOverflowSCL24428(): Unit = {
+    myFixture.addFileToProject("JavaRaw.java",
+      """import java.lang.Comparable;
+        |
+        |interface ProcessorDefinition00<T extends ProcessorDefinition0> { }
+        |abstract class ProcessorDefinition0<T extends ProcessorDefinition0<T>> implements ProcessorDefinition00 { abstract String foo0();}
+        |abstract class ProcessorDefinition1<T extends ProcessorDefinition1<T>> implements Comparable<ProcessorDefinition1> { abstract int foo1();}
+        |abstract class ProcessorDefinition2<T extends ProcessorDefinition2<T>> implements Comparable<Comparable<ProcessorDefinition2>> { abstract long foo2();}
+        |abstract class ProcessorDefinition3<T extends ProcessorDefinition3<T>> implements Comparable<ProcessorDefinition3<?>> { abstract short foo3();}
+        |""".stripMargin)
+
+    doCompletionTest(
+      fileText =
+        s"""class Example {
+           |  val value0: ProcessorDefinition0[_] = ???
+           |  value0.$CARET
+           |}
+           |""".stripMargin,
+      resultText =
+        s"""class Example {
+           |  val value0: ProcessorDefinition0[_] = ???
+           |  value0.foo0()
+           |}
+           |""".stripMargin,
+      item = "foo0"
+    )
+
+    doCompletionTest(
+      fileText =
+        s"""class Example {
+           |  val value1: ProcessorDefinition1[_] = ???
+           |  value1.$CARET
+           |}
+           |""".stripMargin,
+      resultText =
+        s"""class Example {
+           |  val value1: ProcessorDefinition1[_] = ???
+           |  value1.foo1()
+           |}
+           |""".stripMargin,
+      item = "foo1"
+    )
+
+    doCompletionTest(
+      fileText =
+        s"""class Example {
+           |  val value2: ProcessorDefinition2[_] = ???
+           |  value2.$CARET
+           |}
+           |""".stripMargin,
+      resultText =
+        s"""class Example {
+           |  val value2: ProcessorDefinition2[_] = ???
+           |  value2.foo2()
+           |}
+           |""".stripMargin,
+      item = "foo2"
+    )
+
+    doCompletionTest(
+      fileText =
+        s"""class Example {
+           |  val value3: ProcessorDefinition3[_] = ???
+           |  value3.$CARET
+           |}
+           |""".stripMargin,
+      resultText =
+        s"""class Example {
+           |  val value3: ProcessorDefinition3[_] = ???
+           |  value3.foo3()
+           |}
+           |""".stripMargin,
+      item = "foo3"
+    )
+  }
 }
 
 @RunWithScalaVersions(Array(TestScalaVersion.Scala_2_12))
@@ -1995,6 +2181,7 @@ class ScalaBasicCompletionTest_with_2_12 extends ScalaBasicCompletionTest_Common
 
 @RunWithScalaVersions(Array(TestScalaVersion.Scala_2_13))
 class ScalaBasicCompletionTest_with_2_13 extends ScalaBasicCompletionTest_CommonTests {
+  @Test
   def testCompleteBackticksInBackticks(): Unit =
     for (char <- Seq(Lookup.NORMAL_SELECT_CHAR, Lookup.REPLACE_SELECT_CHAR))
       doCompletionTest(
@@ -2014,6 +2201,7 @@ class ScalaBasicCompletionTest_with_2_13 extends ScalaBasicCompletionTest_Common
         char = char,
       )
 
+  @Test
   def testCompleteBackticksOutsideOfBackticks(): Unit =
     for (char <- Seq(Lookup.NORMAL_SELECT_CHAR, Lookup.REPLACE_SELECT_CHAR))
       doCompletionTest(
@@ -2033,6 +2221,7 @@ class ScalaBasicCompletionTest_with_2_13 extends ScalaBasicCompletionTest_Common
         char = char,
       )
 
+  @Test
   def testCompleteBackticksInStablePattern(): Unit =
     for (char <- Seq(Lookup.NORMAL_SELECT_CHAR, Lookup.REPLACE_SELECT_CHAR))
       doCompletionTest(
@@ -2056,6 +2245,7 @@ class ScalaBasicCompletionTest_with_2_13 extends ScalaBasicCompletionTest_Common
         char = char,
       )
 
+  @Test
   def testCompleteBackticksInEmptyPatternPosition(): Unit =
     for (char <- Seq(Lookup.NORMAL_SELECT_CHAR, Lookup.REPLACE_SELECT_CHAR))
       doCompletionTest(
@@ -2080,6 +2270,7 @@ class ScalaBasicCompletionTest_with_2_13 extends ScalaBasicCompletionTest_Common
       )
 
   // SCL-15659
+  @Test
   def testCompleteInStableIdentPattern(): Unit =
     for (char <- Seq(Lookup.NORMAL_SELECT_CHAR, Lookup.REPLACE_SELECT_CHAR))
       doCompletionTest(
@@ -2105,29 +2296,34 @@ class ScalaBasicCompletionTest_with_2_13 extends ScalaBasicCompletionTest_Common
         char = char,
       )
 
+  @Test
   def testExtensionMethodFromStandardLibrary_Scala213_1(): Unit = doCompletionTest(
     fileText = s""""".toInt$CARET""",
     resultText = s""""".toIntOption$CARET""",
     item = "toIntOption"
   )
 
+  @Test
   def testExtensionMethodFromStandardLibrary_Scala213_2(): Unit = doCompletionTest(
     fileText = s"Nil.length$CARET",
     resultText = s"Nil.lengthIs$CARET",
     item = "lengthIs"
   )
 
+  @Test
   def testMethodFromImplicitConversion(): Unit = doCompletionTest(
     s"""def test(): Unit = 1.unti$CARET""".stripMargin,
     s"""def test(): Unit = 1.until($CARET)""".stripMargin,
     item = "until"
   )
 
+  @Test
   def testAbstractTypeCompanionInScala2_1(): Unit = checkNoBasicCompletion(
     s"""type Foo
        |object F$CARET""".stripMargin,
     "Foo")
 
+  @Test
   def testAbstractTypeCompanionInScala2_2(): Unit = checkNoBasicCompletion(
     s"""object Foo
        |type F$CARET""".stripMargin,
@@ -2137,6 +2333,7 @@ class ScalaBasicCompletionTest_with_2_13 extends ScalaBasicCompletionTest_Common
 @RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Latest))
 class ScalaBasicCompletionTest_with_3_0 extends ScalaBasicCompletionTest_CommonTests {
 
+  @Test
   def testEnumFileName(): Unit = doCompletionTest(
     fileText =
       s"""enum a$CARET
@@ -2147,6 +2344,7 @@ class ScalaBasicCompletionTest_with_3_0 extends ScalaBasicCompletionTest_CommonT
     item = "aaa"
   )
 
+  @Test
   def testEnumCompanionTraitName(): Unit = checkNoBasicCompletion(
     fileText =
       s"""enum aaa
@@ -2156,6 +2354,7 @@ class ScalaBasicCompletionTest_with_3_0 extends ScalaBasicCompletionTest_CommonT
     item = "aaa"
   )
 
+  @Test
   def testAbstractTypeCompanion1(): Unit = doCompletionTest(
     s"""type Foo
        |object F$CARET""".stripMargin,
@@ -2163,6 +2362,7 @@ class ScalaBasicCompletionTest_with_3_0 extends ScalaBasicCompletionTest_CommonT
        |object Foo$CARET""".stripMargin,
     "Foo")
 
+  @Test
   def testAbstractTypeCompanion2(): Unit = doCompletionTest(
     s"""object Foo
        |type F$CARET""".stripMargin,
@@ -2170,6 +2370,7 @@ class ScalaBasicCompletionTest_with_3_0 extends ScalaBasicCompletionTest_CommonT
        |type Foo$CARET""".stripMargin,
     "Foo")
 
+  @Test
   def testOpaqueTypeCompanion1(): Unit = doCompletionTest(
     s"""opaque type Foo = Int
        |object F$CARET""".stripMargin,
@@ -2177,6 +2378,7 @@ class ScalaBasicCompletionTest_with_3_0 extends ScalaBasicCompletionTest_CommonT
        |object Foo$CARET""".stripMargin,
     "Foo")
 
+  @Test
   def testOpaqueTypeCompanion2(): Unit = doCompletionTest(
     s"""object Foo
        |opaque type F$CARET""".stripMargin,
@@ -2184,26 +2386,26 @@ class ScalaBasicCompletionTest_with_3_0 extends ScalaBasicCompletionTest_CommonT
        |opaque type Foo$CARET""".stripMargin,
     "Foo")
 
+  @Test
   def testMethodFromImplicitConversion(): Unit = doCompletionTest(
     s"""def test(): Unit = 1.unti$CARET""".stripMargin,
     s"""def test(): Unit = 1.until($CARET)""".stripMargin,
     item = "until"
   )
 
+  @Test
   def testTypeAliasCompanion1(): Unit = checkNoBasicCompletion(
     s"""type Foo = Int
        |object F$CARET""".stripMargin,
     "Foo")
 
+  @Test
   def testTypeAliasCompanion2(): Unit = checkNoBasicCompletion(
     s"""object Foo
        |type F$CARET = Int""".stripMargin,
     "Foo")
 
-  override def testLocalValueName(): Unit = super.testLocalValueName()
-
-  override def testLocalValueName2(): Unit = super.testLocalValueName2()
-
+  @Test
   override def testNewInnerClass(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -2222,6 +2424,7 @@ class ScalaBasicCompletionTest_with_3_0 extends ScalaBasicCompletionTest_CommonT
     item = "BBBBB"
   )
 
+  @Test
   override def testClassInPackageWithBackticks(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -2251,6 +2454,7 @@ class ScalaBasicCompletionTest_with_3_0 extends ScalaBasicCompletionTest_CommonT
     item = "ScalaClass"
   )
 
+  @Test
   def testNewAfterDot(): Unit = doCompletionTest(
     fileText =
       s"""

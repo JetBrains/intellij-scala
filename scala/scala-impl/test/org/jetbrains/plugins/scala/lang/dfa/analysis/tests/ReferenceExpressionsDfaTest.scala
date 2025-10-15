@@ -3,9 +3,11 @@ package org.jetbrains.plugins.scala.lang.dfa.analysis.tests
 import org.jetbrains.plugins.scala.lang.dfa.Messages.{ConditionAlwaysFalse, ConditionAlwaysTrue}
 import org.jetbrains.plugins.scala.lang.dfa.analysis.ScalaDfaTestBase
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaCollectionAccessProblem.indexOutOfBoundsProblem
+import org.junit.Test
 
 class ReferenceExpressionsDfaTest extends ScalaDfaTestBase {
 
+  @Test
   def testIgnoringReferencesToMethodArgs(): Unit = test(codeFromMethodBody(returnType = "Int") {
     """
       |var x = 15
@@ -18,6 +20,7 @@ class ReferenceExpressionsDfaTest extends ScalaDfaTestBase {
     "x == 15" -> ConditionAlwaysTrue
   )
 
+  @Test
   def testAccessingCaseClassParameters(): Unit = test {
     """
       |object Test {
@@ -39,6 +42,7 @@ class ReferenceExpressionsDfaTest extends ScalaDfaTestBase {
     "p1.grades(5)" -> indexOutOfBoundsProblem.alwaysMessage,
   )
 
+  @Test
   def testAccessingRegularClassParameters(): Unit = test {
     """
       |object Test {
@@ -61,6 +65,7 @@ class ReferenceExpressionsDfaTest extends ScalaDfaTestBase {
     "p1.grades(5)" -> indexOutOfBoundsProblem.alwaysMessage,
   )
 
+  @Test
   def testCopyingReferenceValueDirectly(): Unit = test(codeFromMethodBody(returnType = "Int") {
     """
       |val x = 15
@@ -72,6 +77,7 @@ class ReferenceExpressionsDfaTest extends ScalaDfaTestBase {
     "z == 15" -> ConditionAlwaysTrue
   )
 
+  @Test
   def testSuppressingWarningsForSomeNamedReferences(): Unit = test(codeFromMethodBody(returnType = "Int") {
     """
       |val x = 2
@@ -90,6 +96,7 @@ class ReferenceExpressionsDfaTest extends ScalaDfaTestBase {
     "x == 2" -> ConditionAlwaysTrue
   )
 
+  @Test
   def testNestedQualifiedExpressions(): Unit = test(codeFromMethodBody(returnType = "Boolean") {
     """
       |case class User(age: Int, bestFriend: Person)

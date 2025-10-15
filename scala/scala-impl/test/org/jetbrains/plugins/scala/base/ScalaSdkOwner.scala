@@ -1,12 +1,13 @@
 package org.jetbrains.plugins.scala.base
 
+import com.intellij.testFramework.UsefulTestCase
 import com.intellij.util.containers.ContainerUtil
 import junit.framework.{AssertionFailedError, Test, TestListener, TestResult}
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 import scala.collection.immutable.SortedSet
 
-trait ScalaSdkOwner extends Test
+trait ScalaSdkOwner extends UsefulTestCase
   with InjectableJdk
   with ScalaVersionProvider
   with LibrariesOwner {

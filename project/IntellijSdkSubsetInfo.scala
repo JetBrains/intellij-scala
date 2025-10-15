@@ -85,7 +85,7 @@ object IntellijSdkSubsetInfo {
       "lib/app-client.jar",
       "lib/util.jar",
       "lib/util-8.jar",
-      "lib/util_rt.jar",
+      "lib/util_rt.jar"
     ),
   )
 }

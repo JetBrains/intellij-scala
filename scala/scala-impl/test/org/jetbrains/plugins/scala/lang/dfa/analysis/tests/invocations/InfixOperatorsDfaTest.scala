@@ -2,9 +2,11 @@ package org.jetbrains.plugins.scala.lang.dfa.analysis.tests.invocations
 
 import org.jetbrains.plugins.scala.lang.dfa.Messages._
 import org.jetbrains.plugins.scala.lang.dfa.analysis.ScalaDfaTestBase
+import org.junit.Test
 
 class InfixOperatorsDfaTest extends ScalaDfaTestBase {
 
+  @Test
   def testRelationalOperators(): Unit = test(codeFromMethodBody(returnType = "Boolean") {
     """
       |3 > 2
@@ -17,6 +19,7 @@ class InfixOperatorsDfaTest extends ScalaDfaTestBase {
     "3.0 > 2.2" -> ConditionAlwaysTrue
   )
 
+  @Test
   def testLogicalOperatorsAndBooleanLiteralSuppression(): Unit =
     test(codeFromMethodBody(returnType = "Boolean") {
       """

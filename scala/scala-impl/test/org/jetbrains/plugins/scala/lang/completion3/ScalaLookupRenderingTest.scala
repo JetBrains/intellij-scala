@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestFixture.lookupItemsDebugText
 import org.jetbrains.plugins.scala.util.ConfigureJavaFile.configureJavaFile
 import org.junit.Assert.assertTrue
+import org.junit.Test
 
 class ScalaLookupRenderingTest extends ScalaCompletionTestBase {
   private def doTest(fileText: String, itemFilter: LookupElement => Boolean): Unit = {
@@ -19,6 +20,7 @@ class ScalaLookupRenderingTest extends ScalaCompletionTestBase {
     )
   }
 
+  @Test
   def testJavaVarargs(): Unit = {
     configureJavaFile(
       fileText =
@@ -45,6 +47,7 @@ class ScalaLookupRenderingTest extends ScalaCompletionTestBase {
     )
   }
 
+  @Test
   def testParamWithAnnotation(): Unit = {
     doTest(
       fileText =
@@ -66,6 +69,7 @@ class ScalaLookupRenderingTest extends ScalaCompletionTestBase {
     )
   }
 
+  @Test
   def testJavaParamWithAnnotation(): Unit = {
     configureJavaFile(
       fileText =

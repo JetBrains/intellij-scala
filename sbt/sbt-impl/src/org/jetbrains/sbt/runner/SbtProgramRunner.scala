@@ -4,17 +4,25 @@ import com.intellij.execution.configurations.{RunProfile, RunProfileState, Runne
 import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.runners.{ExecutionEnvironment, GenericProgramRunner, ProgramRunner}
 
+/**
+ * @see [[org.jetbrains.sbt.runner.SbtDebugProgramRunner]]
+ */
 class SbtProgramRunner extends GenericProgramRunner[RunnerSettings] with SbtProgramRunnerBase {
+
   override def getRunnerId: String = "SbtProgramRunner"
+
+  override def canRun(executorId: String, profile: RunProfile): Boolean =
+    isSbtRunConfigurationWithUseSbtShell(profile) && executorId != DefaultDebugExecutor.EXECUTOR_ID
 
   override def execute(environment: ExecutionEnvironment, callback: ProgramRunner.Callback, state: RunProfileState): Unit = {
     state match {
-      case sbtState: SbtCommandLineState => 
-        if (sbtState.configuration.useSbtShell) submitCommands(environment, sbtState) else super.execute(environment, callback, state)
+      case sbtState: SbtCommandLineState =>
+        if (sbtState.configuration.useSbtShell) {
+          delegateExecutionToSbtShell(environment, sbtState)
+        } else {
+          super.execute(environment, callback, state)
+        }
       case _ =>
     }
   }
-
-  override def canRun(executorId: String, profile: RunProfile): Boolean =
-    checkRunProfile(profile) && executorId != DefaultDebugExecutor.EXECUTOR_ID
 }

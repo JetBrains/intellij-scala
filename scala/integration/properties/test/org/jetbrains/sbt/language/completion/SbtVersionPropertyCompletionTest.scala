@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.packagesearch.api.PackageSearchClientTesting
 import org.jetbrains.plugins.scala.packagesearch.util.DependencyUtil
 import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 import org.jetbrains.sbt.language.completion.SbtVersionCompletionContributor.{SbtGroupId, SbtLaunchArtifactId}
+import org.junit.Test
 
 @WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 final class SbtVersionPropertyCompletionTest
@@ -45,52 +46,61 @@ final class SbtVersionPropertyCompletionTest
     )
   }
 
+  @Test
   def testSbtVersion(): Unit = doTest(
     s"sbt.version=$CARET",
     s"sbt.version=$sbtStableVersion$CARET",
     sbtStableVersion
   )
 
+  @Test
   def testSbtVersionKeepSpaces(): Unit = doTest(
     s"sbt.version= $CARET",
     s"sbt.version= $sbtStableVersion$CARET",
     sbtStableVersion
   )
 
+  @Test
   def testSbtVersionKeepSpaces2(): Unit = doTest(
     s"sbt.version =$CARET",
     s"sbt.version =$sbtStableVersion$CARET",
     sbtStableVersion
   )
 
+  @Test
   def testSbtVersionKeepSpaces3(): Unit = doTest(
     s"sbt.version = $CARET",
     s"sbt.version = $sbtStableVersion$CARET",
     sbtStableVersion
   )
 
+  @Test
   def testSbtVersion2(): Unit = doTest(
     s"sbt.version=1.$CARET",
     s"sbt.version=$sbtStableVersion$CARET",
     sbtStableVersion
   )
 
+  @Test
   def testSbtVersion3(): Unit = doTest(
     s"sbt.version=1.${CARET}9.0",
     s"sbt.version=$sbtStableVersion$CARET",
     sbtStableVersion
   )
 
+  @Test
   def testNoCompletionForSbtUnstableVersion(): Unit = doTestNoCompletion(
     s"sbt.version=$CARET",
     sbtUnstableVersion
   )
 
+  @Test
   def testNoCompletionForSbtUnstableVersion2(): Unit = doTestNoCompletion(
     s"sbt.version=1.$CARET",
     sbtUnstableVersion
   )
 
+  @Test
   def testSbtUnstableVersionOnSecondInvocation(): Unit = doTest(
     s" sbt.version=$CARET",
     s"sbt.version=$sbtUnstableVersion$CARET",
@@ -98,6 +108,7 @@ final class SbtVersionPropertyCompletionTest
     invocationCount = 2
   )
 
+  @Test
   def testSbtUnstableVersionOnSecondInvocation2(): Unit = doTest(
     s"sbt.version=1.$CARET",
     s"sbt.version=$sbtUnstableVersion$CARET",

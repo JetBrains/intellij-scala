@@ -2,9 +2,11 @@ package org.jetbrains.plugins.scala.lang.dfa.analysis.tests
 
 import org.jetbrains.plugins.scala.lang.dfa.Messages._
 import org.jetbrains.plugins.scala.lang.dfa.analysis.ScalaDfaTestBase
+import org.junit.Test
 
 class AlwaysZeroDfaTest extends ScalaDfaTestBase {
 
+  @Test
   def testReportingAlwaysZero(): Unit = test(codeFromMethodBody(returnType = "Int") {
     """
       |5 + -3 + 2 + 1 - 7 + 2
