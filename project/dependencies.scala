@@ -194,6 +194,7 @@ object DependencyGroups {
     scalaXml,
     scalaParserCombinators,
     coursierDirectoriesJni,
+    apacheCommonsText,
     ivy2,
     compilerIndicesProtocol,
     scalafmtDynamic
@@ -220,8 +221,7 @@ object DependencyGroups {
 
   val decompiler: Seq[ModuleID] = Seq(
     scalaLibrary,
-    scalaReflect,
-    apacheCommonsText
+    scalaReflect
   )
 
   val testRunners: Seq[ModuleID] = Seq(

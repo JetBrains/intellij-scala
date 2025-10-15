@@ -1,7 +1,7 @@
 package org.jetbrains.jps.incremental.scala.remote
 
-import org.apache.commons.lang3.StringUtils
-import org.jetbrains.jps.incremental.scala._
+import org.jetbrains.annotations.Nullable
+import org.jetbrains.jps.incremental.scala.*
 
 import java.io.{BufferedInputStream, BufferedOutputStream, DataInputStream, DataOutputStream}
 import java.net.{InetAddress, InetSocketAddress, Socket}
@@ -78,7 +78,7 @@ trait RemoteResourceOwner {
         // e.g. see com.facebook.nailgun.builtins.DefaultNail.nailMain
         case Chunk(NailgunConstants.CHUNKTYPE_STDERR, data) =>
           val message = fromBytes(data)
-          if (StringUtils.isNotBlank(message)) {
+          if (isNotBlank(message)) {
             val messageClean = RemoteResourceOwner.ansiColorCodePattern.replaceAllIn(message, "")
             client.warning(messageClean)
           }
@@ -87,6 +87,19 @@ trait RemoteResourceOwner {
       }
     }
   }
+
+  /**
+   * An exact reimplementation of `org.apache.commons.lang3.StringUtils.isNotBlank` to avoid having to ship
+   * the Apache `commons-lang3` on the JPS classpath.
+   */
+  private def isNotBlank(@Nullable str: String): Boolean = !isBlank(str)
+
+  /**
+   * An exact reimplementation of `org.apache.commons.lang3.StringUtils.isBlank` to avoid having to ship
+   * the Apache `commons-lang3` on the JPS classpath.
+   */
+  private def isBlank(@Nullable str: String): Boolean =
+    str == null || str.forall(_.isWhitespace)
 
   protected def createChunks(command: String, args: Seq[String]): Seq[Chunk] = {
     args.map(s => Chunk(NailgunConstants.CHUNKTYPE_ARGUMENT.toChar, toBytes(s))) :+

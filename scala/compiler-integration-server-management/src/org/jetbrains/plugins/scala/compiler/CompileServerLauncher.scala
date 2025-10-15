@@ -375,7 +375,6 @@ object CompileServerLauncher {
     IntellijPlatformJars.protobufJava, // required for org.jetbrains.jps.incremental.scala.remote.Main.compileJpsLogic
     IntellijPlatformJars.fastUtilJar,
     IntellijPlatformJars.asmJar,
-    IntellijPlatformJars.commonsLang3Jar,
     LibraryJars.scalaParserCombinators,
     ScalaPluginJars.scalaLibraryJar,
     ScalaPluginJars.scala3LibraryJar,
