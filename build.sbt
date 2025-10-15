@@ -1164,7 +1164,7 @@ lazy val runHashedTests = Command.args("runHashedTests", "") { (state, args) =>
 
   val newState = state.appendWithSession(Seq(
     Test / testOptions := Seq(
-      Tests.Argument(TestFrameworks.JUnit, "-v", "-s", "-a", "+c", "+q", s"--exclude-categories=$randomTypingTests,$flakyTests"),
+      Tests.Argument(TestFrameworks.JUnit, "-v", "-s", "-a", "+c", "+q", s"--exclude-categories=$highlightingTests,$randomTypingTests,$flakyTests"),
       Tests.Filter(runTestByHash)
     )
   ))
