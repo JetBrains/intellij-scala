@@ -16,6 +16,7 @@ import org.jetbrains.annotations.VisibleForTesting
 import org.jetbrains.plugins.scala.build.BuildReporter
 import org.jetbrains.plugins.scala.extensions.RichFile
 import org.jetbrains.plugins.scala.project.Version
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.util.ExternalSystemUtil
 import org.jetbrains.sbt.Sbt.SbtModuleChildKeyInstance
 import org.jetbrains.sbt.buildinfo.BuildInfo
@@ -97,6 +98,20 @@ object SbtUtil {
     val sbtProjectDataOpt = getSbtProjectData(project)
     sbtProjectDataOpt.exists(_.prodTestSourcesSeparated)
   }
+
+  /**
+   * Checks whether the main/test modules are enabled based on
+   * [[org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration.separateProdTestSources]].
+   *
+   * ATTENTION!
+   *
+   * This method returns incorrect results when an IDEA project contains multiple linked sbt projects
+   * with inconsistent main/test module separation settings (i.e., some have it enabled, others disabled).
+   *
+   * @see [[org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration.separateProdTestSources]]
+   */
+  def hasScalaCompilerSeparateProdTestSourcesEnabled(project: Project): Boolean =
+    ScalaCompilerConfiguration.instanceIn(project).separateProdTestSources
 
   def isPreview(project: Project, projectPath: String): Boolean = {
     val sbtProjectDataOpt = getSbtProjectData(project, Some(projectPath))

@@ -1,39 +1,41 @@
 package org.jetbrains.sbt.execution
 
-import com.intellij.openapi.module.{Module, ModuleManager}
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.roots.OrderEnumerationHandler.AddDependencyType
-import com.intellij.openapi.roots._
+import com.intellij.openapi.roots.*
 import com.intellij.openapi.roots.impl.ModuleOrderEnumerator
 import com.intellij.util.CommonProcessors
 import org.jetbrains.sbt.SbtSourceSetUtil.SbtSourceSetModuleExt
 import org.jetbrains.sbt.SbtUtil
 
 import java.util
-import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 /**
  * ATTENTION: implementation should be in sync with<br>
  * org.jetbrains.jps.incremental.scala.model.JpsSbtDependenciesEnumerationHandler
  */
 class SbtOrderEnumeratorHandler(processDependenciesRecursively: Boolean) extends OrderEnumerationHandler {
-  override def shouldAddDependency(orderEntry: OrderEntry, settings: OrderEnumeratorSettings): AddDependencyType = {
+  override def shouldAddDependency(orderEntry: OrderEntry, settings: OrderEnumeratorSettings): AddDependencyType =
     (orderEntry, settings) match {
-      // note: when shouldProcessDependenciesRecursively is true, then the project is built with separate modules for prod/test, and
-      // we deal with a parent (aka grouping) module. It's set to true for a parent module because we want to process its dependencies recursively,
-      // but we only want to do it to one level of depth. A parent module will always include its own source modules
-      // in dependencies - e.g. root.main and root.test, and we only want to process their (root.main and root.test) direct dependencies.
-      // We don't want to process root.main and root.test dependencies recursively (all the necessary dependencies are already added to them).
-      //
-      // It was necessary to implement, because by default, if shouldProcessDependenciesRecursively is true, then dependencies are processed recursively indefinitely.
       case (entry @ (_: ModuleOrderEntry | _: LibraryOrderEntry), enumerator: ModuleOrderEnumerator) if shouldProcessDependenciesRecursively =>
         getAddDependencyType(entry, enumerator)
       case _ =>
         AddDependencyType.DEFAULT
     }
-  }
 
   /**
-   * Returns <code>AddDependencyType.DEFAULT</code> if order entry is either a direct dependency of an enumerator module or a dependency of the enumerator module's direct dependencies. <br>
+   * Limits recursive dependency processing to two levels.
+   *
+   * When `shouldProcessDependenciesRecursively` is `true`, then the project is built with main/test modules, and
+   * the `SbtOrderEnumeratorHandler` is created for a parent (aka grouping) module. It's set to `true` for parent modules to enable recursive processing,
+   * but the goal of this method is to limit this to two levels of depth. For parent modules two levels means:
+   *   - its direct source modules (e.g., `root.main` and `root.test`)
+   *   - the direct dependencies of those source modules (the direct dependencies of e.g., `root.main` and `root.test`)
+   *
+   * Without this limit, dependencies would be processed recursively through the entire tree,
+   * but source modules like `root.main` and `root.test` already contain all necessary dependencies.
+   *
+   * @return `AddDependencyType.DEFAULT` if order entry is either a direct dependency of an enumerator module or a dependency of the enumerator module's direct dependencies. <br>
    * Example:
    * <code>
    * <pre> root -> main -> foo -> dummy
@@ -41,28 +43,35 @@ class SbtOrderEnumeratorHandler(processDependenciesRecursively: Boolean) extends
    *</code>
    * -> means "depends on".
    *
-   * In the example above, if we have an enumerator for module <code>root</code>, then for module order entries <code>main</code>, <code>test</code> and <code>foo</code> it returns <code>AddDependencyType.DEFAULT</code>.
-   * For module order entry  <code>dummy</code>, it returns <code>AddDependencyTye.DO_NOT_ADD</code>.
+   * In the example above, if we have an enumerator for module `root`, then for module order entries `main`, `test` and `foo` it returns `AddDependencyType.DEFAULT`.
+   * For module order entry `dummy`, it returns `AddDependencyTye.DO_NOT_ADD`.
    */
   private def getAddDependencyType(orderEntry: OrderEntry, enumerator: ModuleOrderEnumerator): AddDependencyType = {
-    val ownerModule = orderEntry.getOwnerModule
+    val entryOwnerModule = orderEntry.getOwnerModule
     val moduleFromEnumerator = getModuleFromEnumerator(enumerator)
     val shouldAdd = moduleFromEnumerator.forall { enumeratorModule =>
-      val isOwnerModuleTheSameAsEnumeratorModule = ownerModule.getName == enumeratorModule.getName
-      val isOwnerModuleInEnumeratorModuleDeps = isDependentModule(enumeratorModule, ownerModule)
-      isOwnerModuleTheSameAsEnumeratorModule || isOwnerModuleInEnumeratorModuleDeps
+      val isDirectDependency = entryOwnerModule.getName == enumeratorModule.getName
+      isDirectDependency || isSourceSetOfModule(entryOwnerModule, enumeratorModule)
     }
     if (shouldAdd) AddDependencyType.DEFAULT
     else AddDependencyType.DO_NOT_ADD
   }
 
   /**
-   * Checks whether a parent is a module-dependent on a child
+   * Determines whether the `maybeSourceSetModule` module is a direct source set module (main/test) of the `module`.
+   *
+   * For example, when the `module` is `root`:
+   *  - Returns `true` if `maybeSourceSetModule` is `root.test`
+   *  - Returns `false` if `maybeSourceSetModule` is `root.foo.test` (not a direct child)
+   *
+   * This method uses lightweight module name pattern matching for performance (see SCL-24366).
    */
-  private def isDependentModule(parent: Module, child: Module): Boolean = {
-    val project = parent.getProject
-    val dependantModules = ModuleManager.getInstance(project).getModuleDependentModules(child).asScala.toSeq
-    dependantModules.contains(parent)
+  private def isSourceSetOfModule(maybeSourceSetModule: Module, module: Module): Boolean = {
+    if (!maybeSourceSetModule.isSbtSourceSetModule) return false
+
+    val moduleName = module.getName
+    val pattern = s"^$moduleName\\.(main|test)(~\\d+)?$$".r
+    pattern.matches(maybeSourceSetModule.getName)
   }
 
   private def getModuleFromEnumerator(enumerator: ModuleOrderEnumerator): Option[Module] = {
@@ -98,7 +107,7 @@ class SbtOrderEnumeratorHandlerFactory extends OrderEnumerationHandler.Factory {
 
   override def createHandler(module: Module): OrderEnumerationHandler = {
     val recursiveRequired = {
-      val separateModulesForProdTest = SbtUtil.isBuiltWithSeparateModulesForProdTest(module.getProject)
+      val separateModulesForProdTest = SbtUtil.hasScalaCompilerSeparateProdTestSourcesEnabled(module.getProject)
       separateModulesForProdTest && !module.isSbtSourceSetModule
     }
 
