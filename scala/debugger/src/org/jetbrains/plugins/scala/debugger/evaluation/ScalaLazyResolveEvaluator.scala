@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.debugger.evaluation
 
 import com.intellij.debugger.SourcePosition
 import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
-import com.intellij.debugger.engine.evaluation.expression.{Evaluator, ModifiableValue}
+import com.intellij.debugger.engine.evaluation.expression.{Evaluator, ExpressionEvaluator, ModifiableValue}
 import com.intellij.openapi.application.ReadAction
 import com.sun.jdi.Value
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
@@ -14,9 +14,10 @@ private final class ScalaLazyResolveEvaluator(
   position: SourcePosition
 ) extends Evaluator {
   override def evaluate(context: EvaluationContextImpl): Value = {
-    val callable: Callable[Value] = () => ScalaEvaluatorBuilder.build(codeFragment, position).evaluate(context)
+    val callable: Callable[ExpressionEvaluator] = () => ScalaEvaluatorBuilder.build(codeFragment, position)
     val project = context.getProject
-    ReadAction.nonBlocking(callable).expireWhen(() => project.isDisposed).executeSynchronously()
+    val evaluator = ReadAction.nonBlocking(callable).expireWhen(() => project.isDisposed).executeSynchronously()
+    evaluator.evaluate(context)
   }
 
   override def evaluateModifiable(context: EvaluationContextImpl): ModifiableValue = {
