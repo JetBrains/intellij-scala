@@ -29,7 +29,24 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
 
   var customProfiles: Seq[ScalaCompilerSettingsProfile] = Seq.empty
 
-  // TODO the default value should be changed if separateProdTestSources is enabled by default
+  /**
+   * Indicates whether the main/test modules feature is enabled.
+   *
+   * ATTENTION!
+   *
+   * This setting is scoped to the IDEA project level, which causes incorrect behavior
+   * when multiple sbt projects are linked within a single IDEA project. Each linked
+   * project has its own `SbtProjectSettings#separateProdAndTestSources`,
+   * meaning one project may be imported with main/test separation while another is not.
+   * However, this field is shared across the entire IDEA project. As a result, the last
+   * imported sbt project overwrites the value in this field (it happens in
+   * `SbtProjectDataService#updateSeparateProdTestSources`).
+   * This leads to a problem where, for example, a project imported with main/test
+   * may have this field set to false (and vice versa). Since this field is used for compilation
+   * purposes, it may result in incorrect module dependencies being determined for compilation.
+   *
+   * @see [[https://youtrack.jetbrains.com/issue/SCL-23719 SCL-23719]]
+   */
   var separateProdTestSources: Boolean = false
 
   @TestOnly
