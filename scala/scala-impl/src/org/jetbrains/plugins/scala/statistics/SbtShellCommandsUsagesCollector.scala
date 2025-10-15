@@ -5,6 +5,8 @@ import com.intellij.internal.statistic.service.fus.collectors.CounterUsagesColle
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.statistics.SbtShellCommandsUsagesCollector.Group
 
+import scala.annotation.nowarn
+
 /**
  * Note, other sbt-related info is collected in these collectors:
  *  - [[org.jetbrains.plugins.scala.statistics.SbtSettingsCollector]]
@@ -23,11 +25,11 @@ object SbtShellCommandsUsagesCollector {
    * @todo once AP-4992 is implemented, we can rename the group to "build.sbt.actions"
    *       (to be consistent with SbtSettingsCollector.Group and GradleActionsUsagesCollector.GROUP)
    */
-  private val Group = new EventLogGroup("scala.sbt", 1)
+  private val Group = new EventLogGroup("scala.sbt", 1): @nowarn("cat=deprecation") // TODO: SCL-24479
 
-  private val ShellCommandEvent = Group.registerEvent("shell.execute.command")
-  private val ShellTestCommandEvent = Group.registerEvent("shell.test.command")
-  private val ShellTestRunCommandEvent = Group.registerEvent("shell.test.run.command")
+  private val ShellCommandEvent = Group.registerEvent("shell.execute.command"): @nowarn("cat=deprecation") // TODO: SCL-24479
+  private val ShellTestCommandEvent = Group.registerEvent("shell.test.command"): @nowarn("cat=deprecation") // TODO: SCL-24479
+  private val ShellTestRunCommandEvent = Group.registerEvent("shell.test.run.command"): @nowarn("cat=deprecation") // TODO: SCL-24479
 
   def logShellCommand(project: Project): Unit = ShellCommandEvent.log(project)
   def logShellTestCommand(project: Project): Unit = ShellTestCommandEvent.log(project)

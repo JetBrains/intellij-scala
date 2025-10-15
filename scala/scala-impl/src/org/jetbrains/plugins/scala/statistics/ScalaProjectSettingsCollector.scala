@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.statistics.ScalaProjectSettingsCollector._
 import org.jetbrains.sbt.settings.SbtSettings
 
 import java.util
+import scala.annotation.nowarn
 
 //noinspection UnstableApiUsage
 class ScalaProjectSettingsCollector extends ProjectUsagesCollector {
@@ -59,15 +60,15 @@ class ScalaProjectSettingsCollector extends ProjectUsagesCollector {
 
 //noinspection UnstableApiUsage
 private object ScalaProjectSettingsCollector {
-  private val Group = new EventLogGroup("scala.project.settings", 1)
+  private val Group = new EventLogGroup("scala.project.settings", 1): @nowarn("cat=deprecation") // TODO: SCL-24479
 
   // NOTE: collecting this info might be redundant here as it's already collected in "SbtSettingsCollector"
   // But at the same time it might be convenient to have them here, near other compiler-related settings
-  private val SbtShellBuildEvent = Group.registerEvent("sbt.shell.build")
-  private val SbtIdeaBuildEvent = Group.registerEvent("sbt.idea.build")
+  private val SbtShellBuildEvent = Group.registerEvent("sbt.shell.build"): @nowarn("cat=deprecation") // TODO: SCL-24479
+  private val SbtIdeaBuildEvent = Group.registerEvent("sbt.idea.build"): @nowarn("cat=deprecation") // TODO: SCL-24479
 
-  private val CompilerIncTypeUsedSbtEvent = Group.registerEvent("compiler.inc.type.used.sbt")
-  private val CompilerIncTypeUsedIdeaEvent = Group.registerEvent("compiler.inc.type.used.idea")
-  private val CompilerCompileServerUsedEvent = Group.registerEvent("compiler.compile.server.used")
-  private val ProjectViewHighlightingEvent = Group.registerEvent("project.view.highlighting")
+  private val CompilerIncTypeUsedSbtEvent = Group.registerEvent("compiler.inc.type.used.sbt"): @nowarn("cat=deprecation") // TODO: SCL-24479
+  private val CompilerIncTypeUsedIdeaEvent = Group.registerEvent("compiler.inc.type.used.idea"): @nowarn("cat=deprecation") // TODO: SCL-24479
+  private val CompilerCompileServerUsedEvent = Group.registerEvent("compiler.compile.server.used"): @nowarn("cat=deprecation") // TODO: SCL-24479
+  private val ProjectViewHighlightingEvent = Group.registerEvent("project.view.highlighting"): @nowarn("cat=deprecation") // TODO: SCL-24479
 }

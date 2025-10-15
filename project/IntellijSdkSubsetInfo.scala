@@ -68,6 +68,7 @@ object IntellijSdkSubsetInfo {
       "lib/forms_rt.jar",
       "lib/idea_rt.jar",
       "lib/module-intellij.libraries.asm.jar",
+      "lib/module-intellij.libraries.commons.lang3.jar",
 
       //If you need any extra plugin dependencies, add the jars here
       "plugins/java/lib/jps-builders.jar",
@@ -86,6 +87,7 @@ object IntellijSdkSubsetInfo {
       "lib/util.jar",
       "lib/util-8.jar",
       "lib/util_rt.jar",
+      "lib/module-intellij.libraries.commons.lang3.jar"
     ),
   )
 }
