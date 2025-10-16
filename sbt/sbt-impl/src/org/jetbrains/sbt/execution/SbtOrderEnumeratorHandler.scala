@@ -1,6 +1,6 @@
 package org.jetbrains.sbt.execution
 
-import com.intellij.openapi.module.Module
+import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.roots.OrderEnumerationHandler.AddDependencyType
 import com.intellij.openapi.roots.*
 import com.intellij.openapi.roots.impl.ModuleOrderEnumerator
@@ -51,27 +51,13 @@ class SbtOrderEnumeratorHandler(processDependenciesRecursively: Boolean) extends
     val moduleFromEnumerator = getModuleFromEnumerator(enumerator)
     val shouldAdd = moduleFromEnumerator.forall { enumeratorModule =>
       val isDirectDependency = entryOwnerModule.getName == enumeratorModule.getName
-      isDirectDependency || isSourceSetOfModule(entryOwnerModule, enumeratorModule)
+
+      isDirectDependency ||
+        // Checks whether the enumeratorModule directly depends on the entryOwnerModule (the module that owns the order entry).
+        ModuleManager.getInstance(enumeratorModule.getProject).isModuleDependent(enumeratorModule, entryOwnerModule)
     }
     if (shouldAdd) AddDependencyType.DEFAULT
     else AddDependencyType.DO_NOT_ADD
-  }
-
-  /**
-   * Determines whether the `maybeSourceSetModule` module is a direct source set module (main/test) of the `module`.
-   *
-   * For example, when the `module` is `root`:
-   *  - Returns `true` if `maybeSourceSetModule` is `root.test`
-   *  - Returns `false` if `maybeSourceSetModule` is `root.foo.test` (not a direct child)
-   *
-   * This method uses lightweight module name pattern matching for performance (see SCL-24366).
-   */
-  private def isSourceSetOfModule(maybeSourceSetModule: Module, module: Module): Boolean = {
-    if (!maybeSourceSetModule.isSbtSourceSetModule) return false
-
-    val moduleName = module.getName
-    val pattern = s"^$moduleName\\.(main|test)(~\\d+)?$$".r
-    pattern.matches(maybeSourceSetModule.getName)
   }
 
   private def getModuleFromEnumerator(enumerator: ModuleOrderEnumerator): Option[Module] = {
