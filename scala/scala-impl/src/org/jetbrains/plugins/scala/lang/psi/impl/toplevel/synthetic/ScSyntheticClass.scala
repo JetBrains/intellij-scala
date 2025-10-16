@@ -17,9 +17,10 @@ import org.jetbrains.plugins.scala.caches.cachedInUserData
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.adapters.PsiClassAdapter
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction, ScTypeAlias}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction, ScPatternDefinition, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.PsiClassFake
@@ -291,6 +292,7 @@ final class SyntheticClasses(project: Project) {
       scala3Classes.clear()
       anyValCompanionObjects.clear()
       aliases.clear()
+      vals.clear()
     }
 
     stringPlusMethod = null
@@ -306,7 +308,8 @@ final class SyntheticClasses(project: Project) {
 
   private val sharedClasses: mutable.Map[String, PsiClass] = mutable.HashMap.empty[String, PsiClass]
   private val scala3Classes: mutable.Map[String, PsiClass] = mutable.HashMap.empty[String, PsiClass]
-  val aliases: mutable.Set[ScTypeAlias]      = mutable.HashSet.empty[ScTypeAlias]
+  val aliases: mutable.Set[ScTypeAlias]                    = mutable.HashSet.empty[ScTypeAlias]
+  val vals: mutable.Set[ScBindingPattern]                  = mutable.HashSet.empty[ScBindingPattern]
 
   private val anyValCompanionObjects: mutable.Map[String, ScObject] = mutable.HashMap.empty
 
@@ -452,6 +455,17 @@ final class SyntheticClasses(project: Project) {
       aliases += alias
     }
 
+    def registerVal(
+      @Language("Scala") text: String,
+      sourceFileName: String,
+    ): Unit = {
+      val file  = ScalaPsiElementFactory.createScalaFileFromText(text, ScalaFeatures.default)
+      val valDef = file.members.head.asInstanceOf[ScPatternDefinition].bindings.head
+      val isScala3 = true
+      valDef.putUserData(SyntheticNamedElement.ScalaLibrarySyntheticDefinitionSourceFileName, (sourceFileName, isScala3))
+      vals += valDef
+    }
+
     //
     // Scala 3 library
     //
@@ -461,6 +475,19 @@ final class SyntheticClasses(project: Project) {
     //FIXME: in a scala library Matchable actually a "trait", not a "class"
     // though right now it doesn't matter much as #SCL-15104 is not implemented
     registerClass(Matchable, "Matchable", isScala3 = true)
+
+    //Implementing proper resolve for transparent inline defs is quite tricky,
+    //as it expands our notion of stable refs, which in turn leads to all kind of
+    //problematic recursive behaviour. This is a temporary solution, which at least allows the (possibly)
+    //most common use case (`import scala.quoted.quotes.*`) to work somewhat correctly.
+    registerVal(
+      """
+        |package scala.quoted
+        |val quotes: scala.quoted.Quotes = ???
+        |""".stripMargin,
+      "quotes.scala"
+    )
+
     registerAlias(
       """package scala
         |
@@ -494,7 +521,9 @@ final class SyntheticClasses(project: Project) {
     sharedClasses.values ++ scala3Classes.values
 
   def allElements(shouldProcessScala3Definitions: Boolean): Iterable[PsiNamedElement] = {
-    val scala3Elements = if (shouldProcessScala3Definitions) scala3Classes.values ++ aliases.iterator else Iterator.empty
+    val scala3Elements =
+      if (shouldProcessScala3Definitions) scala3Classes.values ++ aliases.iterator ++ vals.iterator
+      else                                Iterator.empty
     sharedClasses.values ++ anyValCompanionObjects.valuesIterator ++ scala3Elements
   }
 
