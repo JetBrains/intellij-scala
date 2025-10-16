@@ -55,8 +55,30 @@ trait ScParameter extends ScTypedDefinition
 
   def getActualDefaultExpression: Option[ScExpression]
 
-  def getRealParameterType: TypeResult =
+  @deprecated("Use `outsideParamType` or `insideParamType` instead", "2025.2")
+  def getRealParameterType: TypeResult = outsideParamType
+
+  /**
+   * Returns the type of the parameter as seen from a calling position or from a signature perspective
+   *
+   * In `def fun(p: into[Int]*)` outsideParamType returns `Seq[into[Int]]` for p
+   */
+  def outsideParamType: TypeResult =
     `type`() match {
+      case Right(tp) if isRepeatedParameter => Right(tp.tryWrapIntoSeqType)
+      case f                                => f
+    }
+
+  /**
+   * Returns the type of the parameter as seen from inside the function/class.
+   * When parameters are used inside a function the wrapper type [[scala.Conversion.into]]
+   * is automatically stripped by the compiler.
+   * So this returns the same type as [[outsideParamType]] except that it strips `into[_]`.
+   *
+   * In `def fun(p: into[Int]*) = p` outsideParamType returns `Seq[Int]` for p
+   */
+  def insideParamType: TypeResult =
+    `type`().map(_.removeInto()) match {
       case Right(tp) if isRepeatedParameter => Right(tp.tryWrapIntoSeqType)
       case f                                => f
     }
@@ -122,7 +144,7 @@ trait ScParameter extends ScTypedDefinition
 
   //noinspection UnstableApiUsage
   override def getType: PsiType = {
-    val scType = getRealParameterType.getOrNothing
+    val scType = insideParamType.getOrNothing
     if (DumbService.isDumb(getProject)) new FakePsiType(scType)
     else scType.toPsiType
   }

@@ -140,6 +140,7 @@ class ScParameterImpl protected(
           case Some(e) => e.`type`()
         }
       case paramStub =>
+        //noinspection InstanceOf
         paramStub.typeText match {
           case None if paramStub.getParentStub != null && paramStub.getParentStub.getParentStub != null &&
             paramStub.getParentStub.getParentStub.getParentStub.isInstanceOf[ScFunctionStub[_]] =>

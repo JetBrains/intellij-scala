@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameterClause, TypeParamIdOwner}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, TypeParamIdOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
@@ -442,6 +442,7 @@ class MostSpecificUtil(
           vd.declaredType.getOrElse(Nothing)
         case _ => refPatt.`type`().getOrAny
       }
+      case param: ScParameter       => param.insideParamType.getOrAny
       case typed: ScTypedDefinition => typed.`type`().getOrAny
       case f: PsiField              => f.getType.toScType()
       case _                        => Nothing

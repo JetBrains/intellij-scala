@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.types.api.designator
 
 import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement}
-import org.jetbrains.plugins.scala.extensions.PsiClassExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
@@ -22,7 +22,7 @@ trait DesignatorOwner extends ValueType {
     case _                                  => false
   }
 
-  def isStable: Boolean = isSingleton || element.isInstanceOf[ScObject]
+  def isStable: Boolean = isSingleton || element.is[ScObject]
 
   override def isFinalType(implicit context: Context): Boolean = element match {
     case clazz: PsiClass if clazz.isEffectivelyFinal => true
@@ -31,7 +31,7 @@ trait DesignatorOwner extends ValueType {
 
   private[types] def designatorSingletonType = element match {
     case _: ScObject                                          => None
-    case parameter: ScParameter if parameter.isStable         => parameter.getRealParameterType.toOption
+    case parameter: ScParameter if parameter.isStable         => parameter.insideParamType.toOption
     case definition: ScTypedDefinition if definition.isStable => definition.`type`().toOption
     case _                                                    => None
   }

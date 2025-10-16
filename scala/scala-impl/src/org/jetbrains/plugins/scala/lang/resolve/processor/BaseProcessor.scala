@@ -223,7 +223,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
       case ScDesignatorType(e: ScTypedDefinition) if place.is[ScTypeProjection] =>
         val result: TypeResult =
           e match {
-            case p: ScParameter => p.getRealParameterType
+            case p: ScParameter => p.insideParamType
             case _ => e.`type`()
           }
         result match {
@@ -351,7 +351,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
       case des: ScTypedDefinition =>
         val typeResult: TypeResult =
           des match {
-            case p: ScParameter => p.getRealParameterType
+            case p: ScParameter => p.insideParamType
             case _ => des.`type`()
           }
         typeResult match {
