@@ -16,6 +16,9 @@ import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestConfig
 
 import java.util
 
+/**
+ * @see [[org.jetbrains.plugins.scala.testingSupport.test.ui.ScalaTestRunLineMarkerProvider]] for the rest of Scala test frameworks handling
+ */
 class BazelTestRunLineMarkerContributor extends BazelRunLineMarkerContributor {
   private val TEST_ARG = "-t"
 
@@ -25,6 +28,7 @@ class BazelTestRunLineMarkerContributor extends BazelRunLineMarkerContributor {
     psiElement match {
       case leaf: LeafPsiElement if leaf.getElementType == ScalaTokenTypes.tIDENTIFIER =>
         leaf.getParent match {
+          // only handle ScTypeDefinition (for test class names) and ScReferenceExpression (for individual test names)
           case _: ScTypeDefinition | _: ScReferenceExpression => true
           case _ => false
         }
