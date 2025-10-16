@@ -155,7 +155,7 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
       case alias: ScTypeAliasDefinition if !alias.isEffectivelyOpaque =>
         presentationStringForScalaType(alias.aliasedType.getOrAny, substitutor)
       case param: ScParameter =>
-        presentationStringForScalaType(param.getRealParameterType.getOrAny, substitutor)
+        presentationStringForScalaType(param.insideParamType.getOrAny, substitutor)
       case t: ScTemplateDefinition if getLookupString == "this" || getLookupString.endsWith(".this") =>
         t.getTypeWithProjections(thisProjections = true) match {
           case Right(tp) =>

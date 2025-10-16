@@ -150,7 +150,7 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
       case t: ScTypedExpression if t.isSequenceArg                                           => true
       case param: ScParameter if !param.isDefaultParam                                       => true //performance optimization
       case param: ScParameter =>
-        param.getRealParameterType match {
+        param.insideParamType match {
           case Right(paramType) if paramType.extractClass.isDefined =>
             false //do not check generic types. See SCL-3508
           case _ => true

@@ -597,6 +597,8 @@ object InferUtil {
       val maybeType = element match {
         case lightParam: LightContextFunctionParameter =>
           lightParam.contextFunctionParameterType.toOption
+        case param: ScParameter =>
+          param.insideParamType.toOption
         case _: ScObject |
              _: ScParameter |
              _: patterns.ScBindingPattern |

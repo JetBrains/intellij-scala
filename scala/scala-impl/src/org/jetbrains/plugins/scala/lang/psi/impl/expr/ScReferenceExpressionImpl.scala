@@ -392,7 +392,8 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
           }
         }
 
-        val stableTypeRequired = param.getRealParameterType.exists(isStableContext)
+        val paramType = param.insideParamType
+        val stableTypeRequired = paramType.exists(isStableContext)
 
         r.fromType match {
           case Some(fT) if param.isVal && stableTypeRequired => ScProjectionType(fT, param)
@@ -405,10 +406,9 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
               case function: ScFunction if PsiTreeUtil.isContextAncestor(function, this, true) &&
                 isMethodDependent(function) => ScalaType.designator(param)
               case _ =>
-                val result = param.getRealParameterType
-                s(result match {
+                s(paramType match {
                   case Right(tp) => tp
-                  case _ => return result
+                  case _ => return paramType
                 })
             }
         }

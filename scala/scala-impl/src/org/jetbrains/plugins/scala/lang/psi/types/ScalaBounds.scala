@@ -312,11 +312,11 @@ trait ScalaBounds extends api.Bounds {
           case (_, TypeConstructor(poly)) =>
             lubInner(t1, poly, depth, checkWeak)
           case (ScDesignatorType(t: ScParameter), _) =>
-            lubInner(t.getRealParameterType.getOrAny, t2, depth, checkWeak)
+            lubInner(t.insideParamType.getOrAny, t2, depth, checkWeak)
           case (ScDesignatorType(t: ScTypedDefinition), _) if !t.is[ScObject] =>
             lubInner(t.`type`().getOrAny, t2, depth, checkWeak)
           case (_, ScDesignatorType(t: ScParameter)) =>
-            lubInner(t1, t.getRealParameterType.getOrAny, depth, checkWeak)
+            lubInner(t1, t.insideParamType.getOrAny, depth, checkWeak)
           case (_, ScDesignatorType(t: ScTypedDefinition)) if !t.is[ScObject] =>
             lubInner(t1, t.`type`().getOrAny, depth, checkWeak)
           case (ex: ScExistentialType, _) => lubInner(ex.quantified, t2, depth, checkWeak).unpackedType

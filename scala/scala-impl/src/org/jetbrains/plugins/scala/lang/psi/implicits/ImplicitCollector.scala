@@ -167,7 +167,7 @@ class ImplicitCollector(
   private def canContainTargetMethod(srr: ScalaResolveResult): Boolean = measure("ImplicitCollector.canContainTargetMethod") {
     withExtensions && !srr.isExtensionCall && !hasExplicitClause(srr) && {
       val targetType = srr.element match {
-        case param: ScParameter => param.typeElement.flatMap(_.`type`().toOption)
+        case param: ScParameter => param.insideParamType.toOption
         case fun: ScFunction    => fun.returnType.toOption
         case _                  => None
       }
@@ -517,28 +517,30 @@ class ImplicitCollector(
   //@TODO: apply context function to implicit args if type of `c` does not conform
   //       to expected type
   private def simpleConformanceCheck(c: ScalaResolveResult): Option[ScalaResolveResult] = {
-    c.element match {
-      case typeable: Typeable =>
-        val subst = c.substitutor
-        typeable.`type`() match {
-          case Right(t) =>
-            val conformance = subst(t).conforms(tp, ConstraintSystem.empty)(Context(place))
-            conformance match {
-              case ConstraintSystem(subst) =>
-                //Update synthetic parameters, coming from expected context-function type
-                typeable match {
-                  case contextParam: LightContextFunctionParameter if !isImplicitConversion =>
-                    contextParam.updateWithSubst(subst)
-                  case _ => ()
-                }
+    val ty = c.element match {
+      case param: ScParameter => param.insideParamType
+      case typeable: Typeable => typeable.`type`()
+      case _ => return None
+    }
 
-                Option(c.copy(implicitReason = OkResult))
-              case _ =>
-                reportWrong(c, TypeDoesntConformResult, propagateFailures = withExtensions)
+    val subst = c.substitutor
+    ty match {
+      case Right(t) =>
+        val conformance = subst(t).conforms(tp, ConstraintSystem.empty)(Context(place))
+        conformance match {
+          case ConstraintSystem(subst) =>
+            //Update synthetic parameters, coming from expected context-function type
+            c.element match {
+              case contextParam: LightContextFunctionParameter if !isImplicitConversion =>
+                contextParam.updateWithSubst(subst)
+              case _ => ()
             }
-          case _ => reportWrong(c, BadTypeResult, propagateFailures = withExtensions)
+
+            Option(c.copy(implicitReason = OkResult))
+          case _ =>
+            reportWrong(c, TypeDoesntConformResult, propagateFailures = withExtensions)
         }
-      case _ => None
+      case _ => reportWrong(c, BadTypeResult, propagateFailures = withExtensions)
     }
   }
 

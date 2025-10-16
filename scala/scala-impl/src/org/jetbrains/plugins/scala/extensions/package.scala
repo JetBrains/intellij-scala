@@ -644,7 +644,7 @@ package object extensions {
         case e: ScFunction       => e.`type`().toOption
         case e: ScBindingPattern => e.`type`().toOption
         case e: ScFieldId        => e.`type`().toOption
-        case e: ScParameter      => e.getRealParameterType.toOption
+        case e: ScParameter      => e.outsideParamType.toOption
         case e: PsiMethod        => e.functionType(scope, context)
         case e: PsiVariable      => lift(e.getType)
         case e: ScTypeAliasDefinition if !e.isEffectivelyOpaque => e.aliasedType.toOption

@@ -286,7 +286,7 @@ object ImplicitProcessor {
       tp match {
         case ScDesignatorType(v: ScBindingPattern) => collectPartsTypeResult(v.`type`())
         case ScDesignatorType(v: ScFieldId)        => collectPartsTypeResult(v.`type`())
-        case ScDesignatorType(p: ScParameter)      => collectPartsTypeResult(p.`type`())
+        case ScDesignatorType(p: ScParameter)      => collectPartsTypeResult(p.insideParamType)
         case ScCompoundType(comps, _, _)           => collectPartsIterable(comps)
         case ScAndType(lhs, rhs)                   => collectParts(lhs); collectParts(rhs)
         case ScOrType(lhs, rhs)                    => collectParts(lhs); collectParts(rhs)
@@ -318,7 +318,7 @@ object ImplicitProcessor {
           proj.actualElement match {
             case v: ScBindingPattern => collectPartsTypeResult(v.`type`().map(proj.actualSubst))
             case v: ScFieldId        => collectPartsTypeResult(v.`type`().map(proj.actualSubst))
-            case v: ScParameter      => collectPartsTypeResult(v.`type`().map(proj.actualSubst))
+            case v: ScParameter      => collectPartsTypeResult(v.insideParamType.map(proj.actualSubst))
             case v: ScTypeAliasDefinition if v.isEffectivelyOpaque => parts += tp
             case v: ScTypeAliasDeclaration if v.isInScala3File => parts += tp
             case _                   =>
