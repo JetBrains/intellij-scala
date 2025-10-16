@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
 import com.intellij.psi.PsiNamedElement
-import org.jetbrains.plugins.scala.extensions.&
+import org.jetbrains.plugins.scala.extensions.{&, ObjectExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAliasDeclaration, ScTypeAliasDefinition}
@@ -56,7 +56,7 @@ object ScalaType {
     */
   def designator(element: PsiNamedElement): ScType = {
     element match {
-      case clazz: ScClass if !Option(clazz.getContext).exists(c => c.isInstanceOf[ScTemplateBody] || c.isInstanceOf[ScEarlyDefinitions]) =>
+      case clazz: ScClass if !Option(clazz.getContext).exists(c => c.is[ScTemplateBody, ScEarlyDefinitions]) =>
         val designatorType = ScDesignatorType(element)
         designatorType.getValType.getOrElse(designatorType)
       case _ =>
