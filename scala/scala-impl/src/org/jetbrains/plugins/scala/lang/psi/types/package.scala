@@ -158,6 +158,16 @@ package object types {
       }.unpackedType
     }
 
+    // into[Ty] -> Ty
+    def removeInto(): ScType = {
+      scType match {
+        case ParameterizedType(alias, Seq(inner)) if alias.aliasType.exists(_.ta.qualifiedNameOpt.contains("scala.Conversion.into")) =>
+          inner
+        case _ =>
+          scType
+      }
+    }
+
     def toPsiType: PsiType = typeSystem.toPsiType(scType)
 
     /**

@@ -97,7 +97,7 @@ object SideEffectsUtil {
               !(asArg && FunctionType.isFunctionType(tp.getOrAny))
             case _: ScObject => true // not correct, but very likely that a lone object-ref has no sideeffect
             case p: ScParameter if p.isCallByNameParameter => false
-            case p: ScParameter if !(asArg && FunctionType.isFunctionType(p.getRealParameterType.getOrAny)) => true
+            case p: ScParameter if !(asArg && FunctionType.isFunctionType(p.insideParamType.getOrAny)) => true
             case _: ScSyntheticFunction => true
             case m: PsiMethod => methodHasNoSideEffects(m, ref.qualifier.flatMap(_.`type`().toOption))
             case _ => false

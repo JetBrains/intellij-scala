@@ -61,7 +61,7 @@ private object ScLightParameter {
 
     val paramType =
       if (isJavaVarargs) param.`type`()
-      else param.getRealParameterType
+      else param.insideParamType
 
     paramType.map(substitutor) match {
       case Right(tp) if param.isCallByNameParameter => javaFunction0Type(tp)

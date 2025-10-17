@@ -420,7 +420,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
 
         val maybeType = d.element match {
           case v: ScBindingPattern => v.`type`()
-          case v: ScParameter      => v.`type`()
+          case v: ScParameter      => v.insideParamType
           case v: ScFieldId        => v.`type`()
           case _                   => return
         }
@@ -543,7 +543,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
                     result = conformsInner(l, syntheticClass.stdType, HashSet.empty, constraints)
                     return
                   case v: ScBindingPattern => v.`type`()
-                  case v: ScParameter      => v.`type`()
+                  case v: ScParameter      => v.insideParamType
                   case v: ScFieldId        => v.`type`()
                   case _                   => return
                 }

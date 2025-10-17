@@ -197,7 +197,7 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
       case ScDesignatorType(c: ScTypeDefinition) if qualNameToType.contains(c.qualifiedName) =>
         toPsiTypeInner(qualNameToType(c.qualifiedName), noPrimitives)(recursionCallDepth + 1, `type`, noPrimitives)
       case ScDesignatorType(valClass: ScClass) if ValueClassType.isValueClass(valClass) =>
-        valClass.parameters.head.getRealParameterType match {
+        valClass.parameters.head.insideParamType match {
           case Right(tp) if !(noPrimitives && tp.isPrimitive) =>
             toPsiTypeInner(tp, noPrimitives)(recursionCallDepth + 1, `type`, noPrimitives)
           case _ => createType(valClass)
