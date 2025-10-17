@@ -46,7 +46,7 @@ class ScalaDocMarkdownFlavour extends CommonMarkFlavourDescriptor {
     parent.putAll(
       Map(
         // ScalaDoc tags
-        ScalaDocTagMarkerBlock.TAG_BLOCK -> new SimpleTagProvider("div"),
+        ScalaDocTagMarkerBlock.TAG_BLOCK -> new SimpleTagProvider("span"),
         ScalaDocTagMarkerBlock.TAG_NAME -> new SimpleTagProvider("span"),
         ScalaDocTagMarkerBlock.TAG_ARGUMENT -> new SimpleTagProvider("span"),
 
@@ -74,24 +74,23 @@ class ScalaDocMarkdownFlavour extends CommonMarkFlavourDescriptor {
 }
 
 object ScalaDocMarkdownFlavour {
-  def withLanguageSyntaxHighlighting(project: Project): ScalaDocMarkdownFlavour = {
-    val htmlSyntaxHighlighter = new HtmlSyntaxHighlighter {
-      override def color(language: String, rawContent: String): HtmlChunk =
-        HtmlSyntaxHighlighterCompanionProxy.colorHtmlChunk(project, selectLanguage(language), rawContent.stripLineEnd)
+  class ScalaHtmlSyntaxHighlighter(project: Project) extends HtmlSyntaxHighlighter {
+    override def color(language: String, rawContent: String): HtmlChunk =
+      HtmlSyntaxHighlighterCompanionProxy.colorHtmlChunk(project, selectLanguage(language), rawContent.stripLineEnd)
 
-      private def selectLanguage(language: String): Language = {
-        Language.getRegisteredLanguages.asScala
-          .find(registeredLanguage => Option(language).exists(_.toLowerCase == registeredLanguage.getID.toLowerCase))
-          .getOrElse(Scala3Language.INSTANCE)
-      }
+    private def selectLanguage(language: String): Language = {
+      Language.getRegisteredLanguages.asScala
+        .find(registeredLanguage => Option(language).exists(_.toLowerCase == registeredLanguage.getID.toLowerCase))
+        .getOrElse(Scala3Language.INSTANCE)
     }
+  }
 
-    new ScalaDocMarkdownFlavour {
-      override def createHtmlGeneratingProviders(linkMap: LinkMap, uri: URI): java.util.Map[IElementType, GeneratingProvider] = {
-        val parent = super.createHtmlGeneratingProviders(linkMap, uri)
-        parent.put(MarkdownElementTypes.CODE_FENCE, new CodeFenceSyntaxHighlighterGeneratingProvider(htmlSyntaxHighlighter))
-        parent
-      }
+  class WithScalaSyntaxHighlighting(project: Project) extends ScalaDocMarkdownFlavour {
+    override def createHtmlGeneratingProviders(linkMap: LinkMap, uri: URI): java.util.Map[IElementType, GeneratingProvider] = {
+      val parent = super.createHtmlGeneratingProviders(linkMap, uri)
+      val highlighter = new ScalaHtmlSyntaxHighlighter(project)
+      parent.put(MarkdownElementTypes.CODE_FENCE, new CodeFenceSyntaxHighlighterGeneratingProvider(highlighter))
+      parent
     }
   }
 
