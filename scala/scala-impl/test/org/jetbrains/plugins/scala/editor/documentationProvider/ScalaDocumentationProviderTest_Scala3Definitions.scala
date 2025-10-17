@@ -151,7 +151,9 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
        |$DefinitionStart<span style="color:#000080;font-weight:bold;">enum</span> <span style="color:#000000;">TestEnum</span>
        |<span style="color:#000080;font-weight:bold;">extends</span> <span style="color:#000000;"><a href="psi_element://java.io.Serializable"><code>Serializable</code></a></span>$DefinitionEnd
        |$ContentStart
+       |<p>
        |Description of TestEnum
+       |</p>
        |$ContentEnd
        |$BodyEnd
        |</html>
@@ -203,7 +205,9 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
        |$ContainerInfoStart<icon src="org.jetbrains.plugins.scala.icons.Icons.ENUM"/>&nbsp;<a href="psi_element://example.MyEnum"><code>example.MyEnum</code></a>$ContainerInfoEnd
        |$DefinitionStart<span style="color:#000080;font-weight:bold;">case</span> <span style="color:#660e7a;font-style:italic;">MyEnumCase1</span>$DefinitionEnd
        |$ContentStart
+       |<p>
        |Description of MyEnumCase1
+       |</p>
        |$ContentEnd
        |$BodyEnd
        |</html>
@@ -255,7 +259,9 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
        |$ContainerInfoStart<icon src="org.jetbrains.plugins.scala.icons.Icons.ENUM"/>&nbsp;<a href="psi_element://example.MyEnum"><code>example.MyEnum</code></a>$ContainerInfoEnd
        |$DefinitionStart<span style="color:#000080;font-weight:bold;">case</span> <span style="color:#660e7a;font-style:italic;">MyEnumCase2</span>$DefinitionEnd
        |$ContentStart
+       |<p>
        |Description of MyEnumCase1, MyEnumCase2
+       |</p>
        |$ContentEnd
        |$BodyEnd
        |</html>
