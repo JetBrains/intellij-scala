@@ -4,19 +4,20 @@ import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.execution.PsiLocation
-
 import org.jetbrains.bazel.ui.gutters.BazelRunLineMarkerContributor
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
-
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScDerivesClauseOwner, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestConfigurationProducer
 
 import java.util
 
 /**
+ * Supports running with Bazel of entire test classes and individual tests from ScalaTest and ZIO-test
+ *
  * @see [[org.jetbrains.plugins.scala.testingSupport.test.ui.ScalaTestRunLineMarkerProvider]] for the rest of Scala test frameworks handling
  */
 class BazelTestRunLineMarkerContributor extends BazelRunLineMarkerContributor {
@@ -36,9 +37,8 @@ class BazelTestRunLineMarkerContributor extends BazelRunLineMarkerContributor {
         false
     }
 
-  override def getSingleTestFilter(element: PsiElement): String =
-    Option(PsiTreeUtil.getParentOfType(element, classOf[ScClass]))
-      .map(_.qualifiedName).orNull
+  override def getSingleTestFilter(psiElement: PsiElement): String =
+    getTestClass(psiElement).map(_.qualifiedName).orNull
 
   override def getExtraProgramArguments(psiElement: PsiElement): util.List[String] = {
     val testElement = psiElement.getParent
@@ -58,16 +58,37 @@ class BazelTestRunLineMarkerContributor extends BazelRunLineMarkerContributor {
     }
   }
 
-  private def getTestName(psiElement: PsiElement): util.List[String] = {
-    val name =
-      for {
-        testClass <- Option(PsiTreeUtil.getParentOfType(psiElement, classOf[ScClass]))
-        location <- Option(PsiLocation.fromPsiElement(testClass.getProject, psiElement))
-        testClassWithTestName <- ScalaTestConfigurationProducer.apply().getTestClassWithTestName(location)
-        testName <- testClassWithTestName.testName
-      } yield escape(testName)
-    name.getOrElse(util.List.of[String]())
-  }
+  private def getTestClass(psiElement: PsiElement): Option[ScDerivesClauseOwner] =
+    Option(PsiTreeUtil.getParentOfType(psiElement, classOf[ScClass], classOf[ScObject]))
+
+  private def getTestName(psiElement: PsiElement): util.List[String] =
+    getScalaTestName(psiElement)
+      .orElse(getZioTestName(psiElement))
+      .map(escape)
+      .getOrElse(util.List.of[String]())
+
+  private def getScalaTestName(psiElement: PsiElement): Option[String] =
+    for {
+      testClass <- getTestClass(psiElement)
+      location <- Option(PsiLocation.fromPsiElement(testClass.getProject, psiElement))
+      testClassWithTestName <- ScalaTestConfigurationProducer.apply().getTestClassWithTestName(location)
+      testName <- testClassWithTestName.testName
+    } yield testName
+
+  /**
+   * borrowed from zio-intellij plugin
+   *
+   * @see https://github.com/zio/zio-intellij/blob/idea252.x/src/main/scala/zio/intellij/testsupport/package.scala#L34-L45
+   */
+  private def getZioTestName(psiElement: PsiElement): Option[String] =
+    psiElement.getParent match {
+      case m: ScMethodCall =>
+        m.argumentExpressions.headOption.flatMap {
+          case lit: ScLiteral => Option(lit.getValue).map(_.toString)
+          case _ => None
+        }
+      case _ => None
+    }
 
   private def escape(testName: String): util.List[String] =
     util.List.of(
