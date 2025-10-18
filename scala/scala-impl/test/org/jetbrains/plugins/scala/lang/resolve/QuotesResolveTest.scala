@@ -9,7 +9,7 @@ class QuotesResolveTest extends SimpleResolveTestBase {
   def testQuotesSimple(): Unit =
     checkTextHasNoErrors(
       """
-        |import scala.quoted.quotes.*
+        |import scala.quoted.*
         |object A {
         |  given scala.quoted.Quotes = ???
         |  import quotes.reflect.*

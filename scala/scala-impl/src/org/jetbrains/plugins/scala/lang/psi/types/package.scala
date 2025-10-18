@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypePresentat
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, _}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{NonValueType, Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate._
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{AfterUpdate, ScSubstitutor}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.project.{ProjectContext, _}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
@@ -235,9 +235,21 @@ package object types {
     def removeAliasDefinitionsIn(place: PsiElement): ScType =
       removeAliasDefinitions()(Context(place))
 
+    def removeAliasDefinitionsAndReduceMatchTypes(
+      expandableOnly: Boolean = false,
+    )(implicit
+      context: Context
+    ): ScType = removeAliasDefinitions(
+      expandableOnly = expandableOnly,
+      processMatchType = mt => mt.reduce match {
+        case Right(redex) => ReplaceWith(redex)
+        case Left(_)      => Stop
+      }
+    )
+
     def removeAliasDefinitions(
-      expandableOnly: Boolean          = false,
-      doNotExpandToMatchTypes: Boolean = false
+      expandableOnly: Boolean                      = false,
+      processMatchType: ScMatchType => AfterUpdate = Function.const(Stop)
     )(implicit
       context: Context
     ): ScType = {
@@ -245,9 +257,7 @@ package object types {
 
       def innerUpdate(tp: ScType, visited: Set[ScType]): ScType = {
         tp.recursiveUpdate {
-          case _: ScMatchType => Stop
-          case DesignatorOwner(ta: ScTypeAliasDefinition) if ta.isMatchTypeAlias && doNotExpandToMatchTypes => Stop
-          case ParameterizedType(DesignatorOwner(ta: ScTypeAliasDefinition), _) if ta.isMatchTypeAlias && doNotExpandToMatchTypes => Stop
+          case mt: ScMatchType => processMatchType(mt)
           case AliasType(_: ScTypeAliasDefinition, Right(_: ScTypePolymorphicType), _, effectivelyOpaque) if !effectivelyOpaque => ProcessSubtypes
           case AliasType(ta: ScTypeAliasDefinition, _, Failure(_), effectivelyOpaque) if !effectivelyOpaque && needExpand(ta) =>
             ReplaceWith(projectContext.stdTypes.Any)

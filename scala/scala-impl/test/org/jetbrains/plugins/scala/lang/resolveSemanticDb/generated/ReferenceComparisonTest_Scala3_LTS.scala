@@ -2995,7 +2995,7 @@ final class ReferenceComparisonTest_Scala3_LTS_Part29 extends ReferenceCompariso
   def test_targetName_infer_result(): Unit = doTest("targetName-infer-result", true) // #enum
   def test_targetName_override(): Unit = doTest("targetName-override", true)
   def test_tasty_named_arguments(): Unit = doTest("tasty-named-arguments", false)
-  def test_tasty_parent_unapply(): Unit = doTest("tasty-parent-unapply", false)
+  def test_tasty_parent_unapply(): Unit = doTest("tasty-parent-unapply", true)
   def test_tasty_reflect_opaque_api_proto(): Unit = doTest("tasty-reflect-opaque-api-proto", true) // #opaque, #extension
   def test_tasty_tags_obscure(): Unit = doTest("tasty-tags-obscure", true)
   def test_tcpoly_boundedmonad(): Unit = doTest("tcpoly_boundedmonad", true)

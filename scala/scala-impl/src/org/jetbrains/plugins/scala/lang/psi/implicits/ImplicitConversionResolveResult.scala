@@ -95,7 +95,7 @@ object ImplicitConversionResolveResult {
             .withImportsUsed(srr.importsUsed)
             .withUnresolvedTypeParams(srr.unresolvedTypeParameters.getOrElse(Seq.empty))
             .withExportedInfo(srr.exportedInfo)
-            .withImplicitScopeObject(srr.implicitScopeObject)
+            .withImplicitScopeType(srr.implicitScopeType)
             .withIsExtensionFromGiven(srr.isExtensionFromGiven)
 
           processor.execute(srr.element, state)

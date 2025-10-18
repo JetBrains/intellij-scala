@@ -64,11 +64,11 @@ trait ResolveStateOps extends Any {
   def withPrefixCompletion: ResolveState =
     resolveState.put(PREFIX_COMPLETION_KEY, TRUE)
 
-  def withImplicitScopeObject(tpe: ScType): ResolveState =
-    resolveState.put(IMPLICIT_SCOPE_OBJECT, tpe)
+  def withImplicitScopeType(tpe: ScType): ResolveState =
+    resolveState.put(IMPLICIT_SCOPE_TYPE, tpe)
 
-  def withImplicitScopeObject(tpe: Option[ScType]): ResolveState =
-    tpe.fold(resolveState)(withImplicitScopeObject)
+  def withImplicitScopeType(tpe: Option[ScType]): ResolveState =
+    tpe.fold(resolveState)(withImplicitScopeType)
 
   def withMatchClauseSubstitutor(subst: ScSubstitutor): ResolveState =
     resolveState.put(MATCH_SUBSTITUTOR, subst)
@@ -136,8 +136,8 @@ trait ResolveStateOps extends Any {
   def isPrefixCompletion: Boolean =
     boolean(PREFIX_COMPLETION_KEY)
 
-  def implicitScopeObject: Option[ScType] =
-    option(IMPLICIT_SCOPE_OBJECT)
+  def implicitScopeType: Option[ScType] =
+    option(IMPLICIT_SCOPE_TYPE)
 
   def matchClauseSubstitutor: ScSubstitutor =
     option(MATCH_SUBSTITUTOR).getOrElse(ScSubstitutor.empty)
@@ -192,8 +192,8 @@ private object ResolveStateOps {
   //covers several cases like import alias, deprecated parameter names and default to "_root_" package
   private val RENAMED_KEY: Key[String] = Key.create("scala.renamed.key")
 
-  //specifies the designator type of an object in an implicit scope, which provided this resolve result
-  private val IMPLICIT_SCOPE_OBJECT: Key[ScType] = Key.create("scala.implicit.scope.object")
+  //specifies the designator type of a part of an implicit scope, which provided this resolve result
+  private val IMPLICIT_SCOPE_TYPE: Key[ScType] = Key.create("scala.implicit.scope.object")
 
   private val MATCH_SUBSTITUTOR: Key[ScSubstitutor] = Key.create("scala.match.subsitutor")
 

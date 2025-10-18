@@ -35,6 +35,7 @@ import scala.annotation.tailrec
  * @param implicitArguments      If this result was resolved implicitly (i.e. this is a conversion/implicit arg.), its implicit arguments
  * @param isExtensionCall        True, iff resolved reference was an infix invocation of an extension method
  * @param extensionContext       Enclosing (relative to the place, where resolve was invoked) extension, if any
+ * @param implicitScopeType      If this result was resolved implicitly, the type (part of implicit scope) it was resolved from
  * @param intersectedReturnType  If this result was created from an intersected signature, its return type
  * @param matchClauseSubstitutor Substitutor accumulated during upwards context traversal
  *                               of [[org.jetbrains.plugins.scala.lang.psi.api.expr.ScMatch]] expressions,
@@ -70,7 +71,7 @@ class ScalaResolveResult(
   val implicitReason:           ImplicitResult               = NoResult,
   val implicitSearchState:      Option[ImplicitState]        = None,
   val unresolvedTypeParameters: Option[Seq[TypeParameter]]   = None,
-  val implicitScopeObject:      Option[ScType]               = None,
+  val implicitScopeType:        Option[ScType]               = None,
   val isExtensionCall:          Boolean                      = false,
   val extensionContext:         Option[ScExtension]          = None,
   val intersectedReturnType:    Option[ScType]               = None,
@@ -153,7 +154,7 @@ class ScalaResolveResult(
     implicitReason:           ImplicitResult               = implicitReason,
     implicitSearchState:      Option[ImplicitState]        = implicitSearchState,
     unresolvedTypeParameters: Option[Seq[TypeParameter]]   = unresolvedTypeParameters,
-    implicitScopeObject:      Option[ScType]               = implicitScopeObject,
+    implicitScopeType:        Option[ScType]               = implicitScopeType,
     isExtensionCall:          Boolean                      = isExtensionCall,
     extensionContext:         Option[ScExtension]          = extensionContext,
     matchClauseSubstitutor:   ScSubstitutor                = matchClauseSubstitutor,
@@ -187,7 +188,7 @@ class ScalaResolveResult(
       implicitReason           = implicitReason,
       implicitSearchState      = implicitSearchState,
       unresolvedTypeParameters = unresolvedTypeParameters,
-      implicitScopeObject      = implicitScopeObject,
+      implicitScopeType        = implicitScopeType,
       isExtensionCall          = isExtensionCall,
       extensionContext         = extensionContext,
       matchClauseSubstitutor   = matchClauseSubstitutor,
@@ -201,14 +202,16 @@ class ScalaResolveResult(
       (element eq rr.element) &&
         renamed == rr.renamed &&
         implicitFunction == rr.implicitFunction &&
-        innerResolveResult == rr.innerResolveResult &&
-        implicitScopeObject == rr.implicitScopeObject &&
-        exportedInfo == rr.exportedInfo
+        innerResolveResult == rr.innerResolveResult && {
+          val substedImplicitScope = implicitScopeType.map(substitutor)
+          val otherSubstedImplicitScope = rr.implicitScopeType.map(rr.substitutor)
+          substedImplicitScope == otherSubstedImplicitScope
+        } && exportedInfo == rr.exportedInfo
     case _ => false
   }
 
   override def hashCode: Int =
-    element #+ innerResolveResult #+ renamed #+ implicitFunction #+ implicitScopeObject
+    element #+ innerResolveResult #+ renamed #+ implicitFunction #+ implicitScopeType
 
   override def toString: String =  {
     val name = element match {

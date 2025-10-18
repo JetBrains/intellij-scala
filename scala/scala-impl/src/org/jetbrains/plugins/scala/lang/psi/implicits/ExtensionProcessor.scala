@@ -27,7 +27,7 @@ final class ExtensionProcessor(
           importsUsed              = state.importsUsed,
           implicitConversion       = state.implicitConversion,
           implicitType             = state.implicitType,
-          implicitScopeObject      = state.implicitScopeObject,
+          implicitScopeType        = state.implicitScopeType,
           unresolvedTypeParameters = state.unresolvedTypeParams,
           isExtensionCall          = true,
           exportedInfo             = state.exportedInfo,

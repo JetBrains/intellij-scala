@@ -330,9 +330,10 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
         ta match {
           case tadef: ScTypeAliasDefinition if tadef.isMatchTypeAlias =>
             val dealiased = tadef.aliasedType.getOrAny.removeAliasDefinitions()
-            processTypeImpl(s(dealiased), place, stateWithSubst)(recState.add(ta))
+            processTypeImpl(s(dealiased), place, state)(recState.add(ta))
           case _ =>
             if (recState.visitedProjections.contains(ta)) return true
+            val newState = state.withSubstitutor(ScSubstitutor.empty)
             //Scala 3 allows rhs of a type alias to be both:
             val upperBound = ta.upperBound.getOrAny match {
               //Type lambda
@@ -344,7 +345,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
               case other                              => s(other)
             }
 
-            processTypeImpl(upperBound, place, stateWithSubst)(recState.add(ta))
+            processTypeImpl(upperBound, place, newState)(recState.add(ta))
         }
       //need to process scala way
       case clazz: PsiClass =>

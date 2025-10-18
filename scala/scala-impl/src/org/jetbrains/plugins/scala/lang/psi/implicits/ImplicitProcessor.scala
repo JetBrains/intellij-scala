@@ -16,12 +16,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtensionBody, ScF
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
-import org.jetbrains.plugins.scala.lang.psi.types.api
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, ParameterizedType, StdType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
-import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, Context, ScAbstractType, ScAndType, ScCompoundType, ScExistentialArgument, ScExistentialType, ScMatchType, ScOrType, ScParameterizedType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, Context, ScAbstractType, ScAndType, ScCompoundType, ScExistentialArgument, ScExistentialType, ScMatchType, ScOrType, ScParameterizedType, ScType, api}
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
@@ -133,16 +132,16 @@ abstract class ImplicitProcessor(
     val includePackagePrefix =
       !isScala3OrEquivalent || getPlace.isSource3MigrationEnabled
 
-    val objects =
+    val scopeParts =
       ImplicitProcessor
-        .findImplicitObjects(
-          expandedType,
+        .findImplicitScopeParts(
+          expandedType.removeAliasDefinitionsAndReduceMatchTypes()(Context(getPlace)),
           getPlace.resolveScope,
           includePackagePrefix
         )
 
-    objects.foreach(objectTpe =>
-      processType(objectTpe, getPlace, ScalaResolveState.withImplicitScopeObject(objectTpe))
+    scopeParts.foreach(partTpe =>
+      processType(partTpe, getPlace, ScalaResolveState.withImplicitScopeType(partTpe))
     )
 
     candidatesS
@@ -181,8 +180,7 @@ object ImplicitProcessor {
       }
   }
 
-
-  private def findImplicitObjects(
+  private def findImplicitScopeParts(
     `type`:               ScType,
     scope:                GlobalSearchScope,
     includePackagePrefix: Boolean
@@ -195,7 +193,11 @@ object ImplicitProcessor {
 
     implicitObjectsCache.get(cacheKey) match {
       case null =>
-        val implicitObjects = findImplicitObjectsImpl(`type`, includePackagePrefix)(ElementScope(projectContext.project, scope), context)
+        val implicitObjects =
+          findImplicitObjectsImpl(
+            `type`, includePackagePrefix
+          )(ElementScope(projectContext.project, scope), context)
+
         implicitObjectsCache.put(cacheKey, implicitObjects)
         implicitObjects
       case cached => cached
@@ -221,7 +223,7 @@ object ImplicitProcessor {
     }
 
     def collectPartsTypeResult(tr: TypeResult): Unit =
-      tr.foreach(collectParts)
+      tr.foreach(collectParts(_))
 
     // Java Raw types are converted to F[ScExistentialArgument.Deferred("A", .....), ...]
     // In combination with F-Bounds this can lead to different instantiations that are not ==,
@@ -296,19 +298,27 @@ object ImplicitProcessor {
       }
 
     @tailrec
-    def collectTermsFromPath(path: ScType): Unit = path match {
-      case des @ ScDesignatorType(elem) => elem match {
-        case _: ScBindingPattern | _: ScFieldId | _: ScParameter => pathTerms.add(des)
-        case _                                                   => ()
+    def collectTermsFromPath(path: ScType): Unit = {
+      def isValueAlias(pat: ScBindingPattern): Boolean = pat.`type`().exists {
+        case downer: DesignatorOwner => downer.isSingleton
+        case _                       => false
       }
-      case proj @ ScProjectionType(prefix, elem) =>
-        elem match {
-          case _: ScBindingPattern | _: ScFieldId | _: ScParameter =>
-            pathTerms.add(proj)
+
+      path match {
+        case des @ ScDesignatorType(elem) => elem match {
+          case pat: ScBindingPattern if isValueAlias(pat)          => ()
+          case _: ScBindingPattern | _: ScFieldId | _: ScParameter => pathTerms.add(des)
           case _                                                   => ()
         }
-        collectTermsFromPath(prefix)
-      case _ => ()
+        case proj @ ScProjectionType(prefix, elem) =>
+          elem match {
+            case pat: ScBindingPattern if isValueAlias(pat)          => ()
+            case _: ScBindingPattern | _: ScFieldId | _: ScParameter => pathTerms.add(proj)
+            case _                                                   => ()
+          }
+          collectTermsFromPath(prefix)
+        case _ => ()
+      }
     }
 
     def collectTypeAliasDefinitionParts(tp: ScType, tdef: ScTypeAliasDefinition): Unit =
@@ -316,19 +326,21 @@ object ImplicitProcessor {
       else if (tdef.isMatchTypeAlias) {
         val matchType = tdef.aliasedType.map(_.asInstanceOf[ScMatchType])
         val upperBound = matchType.toOption.flatMap(_.upperBound)
-        upperBound.foreach(collectParts)
+        upperBound.foreach(collectParts(_))
       }
 
-    def collectParts(tp: ScType): Unit = {
+    def collectParts(tp: ScType, dealias: Boolean = true): Unit = {
       ProgressManager.checkCanceled()
 
       val tpWithRawTypesConverted = convertRawArgs(tp)
       if (!visited.add(tpWithRawTypesConverted))
         return
 
-      tp match {
-        case AliasType(_, _, Right(t), _) => collectParts(t)
-        case _                            => ()
+      if (dealias) {
+        tp match {
+          case AliasType(_, _, Right(t), _) => collectParts(t)
+          case _                            => ()
+        }
       }
 
       tp match {
@@ -344,14 +356,24 @@ object ImplicitProcessor {
           collectParts(a)
           collectPartsIterable(args)
         case p @ ParameterizedType(des, args) =>
+          val dealias = des match {
+            //In scala 3 you can have parameterless type aliases designated to classes with
+            //type parameters:
+            //type Foo = ClassWithTypeParams; Foo[Int]
+            //if tp = Foo[Int] we should not try to further
+            //expand Foo into [T] ClassWithTypeParams[T]
+            case DesignatorOwner(_: ScTypeAlias) => false
+            case _                               => true
+          }
+
           p.extractClassType match {
             case Some((clazz, subst)) =>
               parts += des
-              collectParts(des)
+              collectParts(des, dealias = dealias)
               collectPartsIterable(args)
               collectPartsFromSuperTypes(clazz, subst)
             case _ =>
-              collectParts(des)
+              collectParts(des, dealias = dealias)
               collectPartsIterable(args)
           }
         case j: JavaArrayType =>
@@ -389,6 +411,9 @@ object ImplicitProcessor {
           tp.extractClassType match {
             case Some((clazz, subst)) =>
               parts += tp
+              if (tp.isInstanceOf[ScThisType]) {
+                println(123)
+              }
               val packagePrefix = clazz.parentOfType(classOf[ScPackageLike], strict = false)
               packagePrefix.foreach(processPackagePrefix)
               collectPartsFromSuperTypes(clazz, subst)

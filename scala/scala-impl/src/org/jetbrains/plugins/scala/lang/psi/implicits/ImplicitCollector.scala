@@ -500,7 +500,7 @@ class ImplicitCollector(
 
     tp.foreach { t =>
       val state = ScalaResolveState
-        .withImplicitScopeObject(t)
+        .withImplicitScopeType(t)
         .withImportsUsed(result.importsUsed)
 
       val stateWithUnresolved = unresolvedTypeParams match {

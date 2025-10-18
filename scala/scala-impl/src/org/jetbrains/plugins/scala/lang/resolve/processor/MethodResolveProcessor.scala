@@ -86,7 +86,7 @@ class MethodResolveProcessor(
 
     def implFunction: Option[ScalaResolveResult]             = state.implicitConversion
     def implType: Option[ScType]                             = state.implicitType
-    def implScopeObject: Option[ScType]                      = state.implicitScopeObject
+    def implScopeType: Option[ScType]                        = state.implicitScopeType
     def isExtensionFromGiven: Boolean                        = state.isExtensionFromGiven
     def isNamedParameter: Boolean                            = state.isNamedParameter
     def fromType: Option[ScType]                             = state.fromType
@@ -124,7 +124,7 @@ class MethodResolveProcessor(
           matchClauseSubstitutor   = state.matchClauseSubstitutor,
           intersectedReturnType    = intersectedReturnType,
           exportedInfo             = exportedInfo,
-          implicitScopeObject      = implScopeObject,
+          implicitScopeType        = implScopeType,
           isExtensionFromGiven     = isExtensionFromGiven,
         )
 
