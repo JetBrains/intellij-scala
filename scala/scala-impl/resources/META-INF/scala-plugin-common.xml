@@ -1909,6 +1909,12 @@
                          groupPathKey="grouppath.scala.collections" groupKey="group.options"
                          shortName="IfElseToFilterdOption" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SimulatedFilterInspection"
+                         bundle="messages.ScalaInspectionBundle"
+                         key="displayname.replace.with.filter"
+                         groupPathKey="grouppath.scala.collections" groupKey="group.options"
+                         shortName="SimulatedFilter" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SomeToOptionInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.some.to.option"
@@ -1935,6 +1941,12 @@
                          groupPathKey="grouppath.scala.collections" groupKey="group.other"
                          shortName="UnzipSingleElement" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SubstringZeroInspection"
+                         bundle="messages.ScalaInspectionBundle"
+                         key="displayname.substring.with.zero"
+                         groupPath="Scala" groupKey="group.general"
+                         shortName="SubstringZero" level="WARNING" editorAttributes="NOT_USED_ELEMENT_ATTRIBUTES"
+                         enabledByDefault="true" language="Scala"/>
 
         <!-- Collections -->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.RedundantCollectionConversionInspection"
@@ -1950,6 +1962,18 @@
                          groupPath="Scala" groupKey="group.collections"
                          shortName="SideEffectsInMonadicTransformation" level="WARNING"
                          enabledByDefault="false" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.TakeZeroInspection"
+                         bundle="messages.ScalaInspectionBundle"
+                         key="displayname.take.zero.qualifier.no.effect"
+                         groupPathKey="grouppath.scala.collections" groupKey="group.simplifications.other"
+                         shortName="TakeZeroQualifierNoEffect" level="WARNING" editorAttributes="NOT_USED_ELEMENT_ATTRIBUTES"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.DropZeroInspection"
+                         bundle="messages.ScalaInspectionBundle"
+                         key="displayname.drop.with.zero.has.no.effect"
+                         groupPathKey="grouppath.scala.collections" groupKey="group.simplifications.filter.and.exists"
+                         shortName="DropZero" level="WARNING" editorAttributes="NOT_USED_ELEMENT_ATTRIBUTES"
+                         enabledByDefault="true" language="Scala"/>
 
         <!-- Scaladoc inspections -->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scaladoc.ScalaDocUnclosedTagWithoutParserInspection"
