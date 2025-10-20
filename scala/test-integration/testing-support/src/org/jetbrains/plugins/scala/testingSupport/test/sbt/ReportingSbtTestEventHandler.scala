@@ -36,7 +36,7 @@ class ReportingSbtTestEventHandler(messageConsumer: TeamCityTestStatusReporter)
     case SbtShellCommunication.Output(output) =>
       import TestRunnerUtil._
       val outputNoAnsi =
-        if (isNewShell) BuildMessages.stripAnsiCodes(output, stripDeckpnm = true)
+        if (isNewShell) BuildMessages.stripAnsiCodes(output)
         else output
 
       val infoIdx = outputNoAnsi.indexOf(sbtInfo)

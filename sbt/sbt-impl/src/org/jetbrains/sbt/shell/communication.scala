@@ -416,7 +416,7 @@ final class SbtShellCommunication(project: Project) {
       // Stripping ansi codes in "old shell" mode is likely safe, but let's preserve the original behavior for safety
       val text =
         if (isNewShell)
-          BuildMessages.stripAnsiCodes(raw, stripDeckpnm = true).trim
+          BuildMessages.stripAnsiCodes(raw).trim
         else
           raw.trim
 
@@ -656,7 +656,7 @@ private[shell] object SbtProcessUtil {
       val bracketedPasteModeEnabled = "\u001B[?2004h"
       val isBracket = line.contains(bracketedPasteModeEnabled)
       isBracket || {
-        val lineWithNoAnsi = BuildMessages.stripAnsiCodes(line, stripDeckpnm = isNewShell)
+        val lineWithNoAnsi = BuildMessages.stripAnsiCodes(line)
         lineWithNoAnsi.trim.startsWith(DEFAULT_SHELL_PROMPT)
       }
     } else {

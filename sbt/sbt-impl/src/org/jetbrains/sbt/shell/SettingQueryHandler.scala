@@ -130,7 +130,7 @@ object SettingQueryHandler {
 
     def getBufferedOutput: String = {
       if (isNewShell) {
-        strings = strings.map(BuildMessages.stripAnsiCodes(_, stripDeckpnm = true))
+        strings = strings.map(BuildMessages.stripAnsiCodes)
       }
       strings = strings.dropWhile(line => !line.startsWith(filterPrefix) && !handler.settingValuePrefixes.contains(line.stripPrefix(filterPrefix)))
       if (strings.isEmpty) return ""

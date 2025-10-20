@@ -48,7 +48,7 @@ class ScalaTestFrameworkCommandLineSbtState(
       SMTestRunnerConnectionUtil.createConsole("Scala", consoleProperties)
     } else {
       def stripped(text: String): String =
-        if (isNewShell) BuildMessages.stripAnsiCodes(text, stripDeckpnm = true)
+        if (isNewShell) BuildMessages.stripAnsiCodes(text)
         else text
 
       new ConsoleViewImpl(project, true) {
