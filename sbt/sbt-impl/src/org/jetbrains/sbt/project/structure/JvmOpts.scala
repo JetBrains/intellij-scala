@@ -1,22 +1,24 @@
 package org.jetbrains.sbt
 package project.structure
 
-import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.execution.ParametersListUtil
-import org.jetbrains.plugins.scala.extensions.RichFile
+import org.jetbrains.plugins.scala.extensions.PathExt
 
-import java.io.File
-import scala.jdk.CollectionConverters._
+import java.nio.charset.Charset
+import java.nio.file.{Files, Path}
+import scala.jdk.CollectionConverters.*
+import scala.jdk.StreamConverters.StreamHasToScala
+import scala.util.Using
 
 /**
   * Support for the .jvmopts file loaded by the sbt launcher script as alternative to command line options.
   */
 object JvmOpts {
 
-  def loadFrom(directory: File): Seq[String] = {
+  def loadFrom(directory: Path): Seq[String] = {
     val jvmOptsFile = directory / ".jvmopts"
-    if (jvmOptsFile.exists && jvmOptsFile.isFile && jvmOptsFile.canRead) {
-      val optsFromFile = FileUtil.loadLines(jvmOptsFile).asScala.toSeq
+    if (jvmOptsFile.exists && jvmOptsFile.isRegularFile && Files.isReadable(jvmOptsFile)) {
+      val optsFromFile = Using.resource(Files.lines(jvmOptsFile, Charset.defaultCharset()))(_.toScala(Seq))
       processJvmOptions(optsFromFile)
     } else
       Seq.empty
@@ -29,5 +31,4 @@ object JvmOpts {
       .filter(_.startsWith("-"))
       .map(_.trim)
   }
-
 }

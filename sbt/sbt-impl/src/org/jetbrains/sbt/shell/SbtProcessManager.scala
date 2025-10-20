@@ -155,7 +155,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
     val vmParams = javaParameters.getVMParametersList
     vmParams.add("-server")
 
-    val sbtOpts = SbtUtil.collectAllOptionsFromSbt(sbtSettings.sbtOptions, workingDir, sbtSettings.passParentEnvironment, sbtSettings.userSetEnvironment)
+    val sbtOpts = SbtUtil.collectAllOptionsFromSbt(sbtSettings.sbtOptions, workingDir.toPath, sbtSettings.passParentEnvironment, sbtSettings.userSetEnvironment)
     val sbtOptsValues = sbtOpts.collect { case a: JvmOption => a.value }
     val allOpts = buildVMParameters(sbtSettings, workingDir, sbtOptsValues)
     vmParams.addAll(allOpts.asJava)
@@ -673,7 +673,7 @@ object SbtProcessManager {
     // which are not yet fully supported in sbt
     val hardcoded = List("-Dsbt.supershell=false", "-Djdk.console=java.base")
     val jvmOpts = hardcoded ++
-      SbtUtil.collectAllOptionsFromJava(workingDir, sbtSettings.vmOptions, sbtSettings.passParentEnvironment, sbtSettings.userSetEnvironment) ++
+      SbtUtil.collectAllOptionsFromJava(workingDir.toPath, sbtSettings.vmOptions, sbtSettings.passParentEnvironment, sbtSettings.userSetEnvironment) ++
       sbtOpts
 
     val hasXmx = jvmOpts.exists(_.startsWith("-Xmx"))

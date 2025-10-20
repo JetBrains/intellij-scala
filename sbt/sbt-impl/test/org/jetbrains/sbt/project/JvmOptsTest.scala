@@ -27,7 +27,7 @@ class JvmOptsTest {
     Using.resource(Files.createTempDirectory("jvmOptsTest")) { optsDir =>
       val optsFile = optsDir.resolve(".jvmopts")
       Files.writeString(optsFile, input)
-      val opts = JvmOpts.loadFrom(optsDir.toFile)
+      val opts = JvmOpts.loadFrom(optsDir)
       assertEquals(expected, opts)
     }
   }
