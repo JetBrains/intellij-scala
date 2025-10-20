@@ -43,7 +43,9 @@ import org.jetbrains.sbt.shell.SbtShellLifecycle.ShellStateEvent
 import org.jetbrains.sbt.shell.action.{DebugShellAction, EOFAction, StartAction, StopAction}
 import org.jetbrains.sbt.{JvmMemorySize, Sbt, SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabilities}
 
-import java.io.{File, IOException, OutputStreamWriter, PrintWriter}
+import java.io.{IOException, OutputStreamWriter, PrintWriter}
+import java.nio.charset.StandardCharsets
+import java.nio.file.{Files, Path}
 import java.util.concurrent.TimeUnit
 import scala.concurrent.TimeoutException
 import scala.jdk.CollectionConverters.*
@@ -109,16 +111,16 @@ final class SbtProcessManager(project: Project) extends Disposable {
    */
   private def detectCurrentSbtVersion: SbtVersion = {
     val workingDirPath = getWorkingDirPath(project)
-    val workingDir = new File(workingDirPath)
+    val workingDir = Path.of(workingDirPath)
     val sbtSettings = getSbtSettings(workingDirPath)
     val launcher = SbtUtil.getLauncherJar(sbtSettings)
-    SbtUtil.detectSbtVersion(workingDir.toPath, launcher)
+    SbtUtil.detectSbtVersion(workingDir, launcher)
   }
 
   private def createShellProcessHandler(withNewShell: Boolean): (OSProcessHandler, Option[RemoteConnection], SbtVersion) = {
     log.debug("createShellProcessHandler")
     val workingDirPath = getWorkingDirPath(project)
-    val workingDir = new File(workingDirPath)
+    val workingDir = Path.of(workingDirPath)
 
     val sbtSettings = getSbtSettings(workingDirPath)
     lazy val launcher = SbtUtil.getLauncherJar(sbtSettings)
@@ -132,7 +134,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
     val javaParameters: JavaParameters = new JavaParameters
     javaParameters.setJdk(sdk)
     javaParameters.configureByProject(project, 1, sdk)
-    javaParameters.setWorkingDirectory(workingDir)
+    javaParameters.setWorkingDirectory(workingDir.toCanonicalPath.toString)
     javaParameters.setJarPath(launcher.toCanonicalPath.toString)
 
     val debugConnection = if (sbtSettings.shellDebugMode) Option(addDebugParameters(javaParameters)) else None
@@ -147,7 +149,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
       }
     }
 
-    val projectSbtVersion = SbtUtil.detectSbtVersion(workingDir.toPath, launcher)
+    val projectSbtVersion = SbtUtil.detectSbtVersion(workingDir, launcher)
     val addPluginCommandSupported = SbtVersionCapabilities.isAddPluginCommandSupported(projectSbtVersion)
     log.debug(s"projectSbtVersion = $projectSbtVersion")
     log.debug(s"addPluginCommandSupported = $addPluginCommandSupported")
@@ -155,7 +157,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
     val vmParams = javaParameters.getVMParametersList
     vmParams.add("-server")
 
-    val sbtOpts = SbtUtil.collectAllOptionsFromSbt(sbtSettings.sbtOptions, workingDir.toPath, sbtSettings.passParentEnvironment, sbtSettings.userSetEnvironment)
+    val sbtOpts = SbtUtil.collectAllOptionsFromSbt(sbtSettings.sbtOptions, workingDir, sbtSettings.passParentEnvironment, sbtSettings.userSetEnvironment)
     val sbtOptsValues = sbtOpts.collect { case a: JvmOption => a.value }
     val allOpts = buildVMParameters(sbtSettings, workingDir, sbtOptsValues)
     vmParams.addAll(allOpts.asJava)
@@ -172,7 +174,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
     val commandLine: GeneralCommandLine = javaParameters.toCommandLine
     sbtSettings.getCustomVMExecutableOrWarn(project).foreach(exe => commandLine.setExePath(exe.getAbsolutePath))
 
-    val settingsFile: File =
+    val settingsFile: Path =
       getOrCreateExtraSbtSettingsFile(addPluginCommandSupported, commandLine, projectSbtVersion.binaryVersion)
 
     val injectPluginsSettings = getInjectedPluginsCommands(projectSbtVersion)
@@ -187,7 +189,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
     )
 
     if (addPluginCommandSupported) {
-      val settingsPath = settingsFile.getAbsolutePath
+      val settingsPath = settingsFile.toAbsolutePath.toCanonicalPath.toString
       commandLine.addParameter(s"early(addPluginSbtFile=\"\"\"$settingsPath\"\"\")")
     }
 
@@ -214,16 +216,16 @@ final class SbtProcessManager(project: Project) extends Disposable {
     addPluginCommandSupported: Boolean,
     commandLine: GeneralCommandLine,
     sbtBinVersion: Version
-  ): File = {
-    val globalPluginsDir = globalPluginsDirectory(SbtVersion(sbtBinVersion), commandLine.getParametersList)
+  ): Path = {
+    val globalPluginsDir = globalPluginsDirectory(SbtVersion(sbtBinVersion), commandLine.getParametersList).toPath
     // workaround: --addPluginSbtFile fails if global plugins dir does not exist. https://youtrack.jetbrains.com/issue/SCL-14415
-    if (!globalPluginsDir.exists()) {
-      globalPluginsDir.mkdirs()
+    if (!globalPluginsDir.exists) {
+      Files.createDirectories(globalPluginsDir)
     }
     if (addPluginCommandSupported)
-      FileUtil.createTempFile("idea", Sbt.Extension, true)
+      FileUtil.createTempFile("idea", Sbt.Extension, true).toPath
     else
-      new File(globalPluginsDir, "idea.sbt")
+      globalPluginsDir / "idea.sbt"
   }
 
   private def selectSdkOrWarn(sbtSettings: SbtExecutionSettings): Sdk = {
@@ -335,7 +337,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
     sbtVersion: SbtVersion,
     runId: String,
     guardSettings: Boolean,
-    settingsFile: File,
+    settingsFile: Path,
     settings: Seq[String]
   ): Unit = {
     @NonNls
@@ -356,10 +358,10 @@ final class SbtProcessManager(project: Project) extends Disposable {
     val content = header + "\n" + guardedSettings
 
     try {
-      FileUtil.writeToFile(settingsFile, content)
+      Files.writeString(settingsFile, content, StandardCharsets.UTF_8)
     } catch {
       case x : IOException =>
-        log.error(s"unable to write ${settingsFile.getPath} which is required for sbt shell support", x)
+        log.error(s"unable to write ${settingsFile.toCanonicalPath} which is required for sbt shell support", x)
         throw x
     }
   }
@@ -672,12 +674,12 @@ object SbtProcessManager {
   }
 
   private[shell]
-  def buildVMParameters(sbtSettings: SbtExecutionSettings, workingDir: File, sbtOpts: Seq[String]): Seq[String] = {
+  def buildVMParameters(sbtSettings: SbtExecutionSettings, workingDir: Path, sbtOpts: Seq[String]): Seq[String] = {
     //TODO #SCL-22878 "-Djdk.console=java.base" is needed due to modifications made to the System.console() after JDK 21,
     // which are not yet fully supported in sbt
     val hardcoded = List("-Dsbt.supershell=false", "-Djdk.console=java.base")
     val jvmOpts = hardcoded ++
-      SbtUtil.collectAllOptionsFromJava(workingDir.toPath, sbtSettings.vmOptions, sbtSettings.passParentEnvironment, sbtSettings.userSetEnvironment) ++
+      SbtUtil.collectAllOptionsFromJava(workingDir, sbtSettings.vmOptions, sbtSettings.passParentEnvironment, sbtSettings.userSetEnvironment) ++
       sbtOpts
 
     val hasXmx = jvmOpts.exists(_.startsWith("-Xmx"))
