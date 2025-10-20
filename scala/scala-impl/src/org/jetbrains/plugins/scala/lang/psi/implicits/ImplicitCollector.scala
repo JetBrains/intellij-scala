@@ -109,7 +109,7 @@ object ImplicitCollector {
  * @param place                   The call site
  * @param tp                      Search for an implicit definition of this type. May have type variables.
  * @param forDeferredGivenInClass Template definition for which deferred given instance search was initiated.
- *                                In this case special kind of lexical scope is used, even though `place` is technically
+ *                                In this case, a special kind of lexical scope is used, even though `place` is technically
  *                                inside the template definition, only constructor parameters contribute to it.
  * @param withExtensions          If true, include Scala 3 extension methods.
  */
@@ -500,7 +500,7 @@ class ImplicitCollector(
 
     tp.foreach { t =>
       val state = ScalaResolveState
-        .withImplicitScopeObject(t)
+        .withImplicitScopeType(t)
         .withImportsUsed(result.importsUsed)
 
       val stateWithUnresolved = unresolvedTypeParams match {

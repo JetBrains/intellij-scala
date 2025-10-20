@@ -39,11 +39,11 @@ private[implicits] final class ImplicitParametersProcessor(
         new ScalaResolveResult(
           namedElement,
           state.substitutorWithThisType,
-          renamed             = state.renamed,
-          importsUsed         = state.importsUsed,
-          implicitScopeObject = state.implicitScopeObject,
-          isExtensionCall     = isDeclaredOrExportedInExtension,
-          exportedInfo        = state.exportedInfo
+          renamed           = state.renamed,
+          importsUsed       = state.importsUsed,
+          implicitScopeType = state.implicitScopeType,
+          isExtensionCall   = isDeclaredOrExportedInExtension,
+          exportedInfo      = state.exportedInfo
         )
       )
     }

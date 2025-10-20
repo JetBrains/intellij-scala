@@ -259,6 +259,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
         cont && processNamedTuple(p, state, execute) && processScala3Tuple(p, execute(_, state))
       case proj: ScProjectionType =>
         val withActual = new ScProjectionType.withActual(updateWithProjectionSubst)
+
         proj match {
           case withActual(elem, s) =>
             if (recState.visitedProjections.contains(elem))
@@ -272,6 +273,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
                 val subst =
                   if (updateWithProjectionSubst) ScSubstitutor(proj) followed s
                   else                           s
+
                 processElement(elem, subst, place, state)(recState.add(elem))
             }
         }
@@ -321,6 +323,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
     val subst = state.substitutor
     val compoundOrThis = state.compoundOrThisType //todo: looks like ugly workaround
     val newSubst = if (compoundOrThis.nonEmpty) subst else subst.followed(s)
+    val stateWithSubst = state.withSubstitutor(newSubst)
 
     e match {
       case ta: ScTypeAlias =>
@@ -331,7 +334,6 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
           case _ =>
             if (recState.visitedProjections.contains(ta)) return true
             val newState = state.withSubstitutor(ScSubstitutor.empty)
-
             //Scala 3 allows rhs of a type alias to be both:
             val upperBound = ta.upperBound.getOrAny match {
               //Type lambda
@@ -347,23 +349,23 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
         }
       //need to process scala way
       case clazz: PsiClass =>
-        processClassDeclarations(clazz, BaseProcessor.this, state.withSubstitutor(newSubst), null, place)
+        processClassDeclarations(clazz, BaseProcessor.this, stateWithSubst, null, place)
       case des: ScTypedDefinition =>
         val typeResult: TypeResult =
           des match {
             case p: ScParameter => p.insideParamType
             case _ => des.`type`()
           }
+
         typeResult match {
           case Right(tp) =>
-            val newState = state.withSubstitutor(ScSubstitutor.empty)
-            processTypeImpl(newSubst(tp), place, newState, updateWithProjectionSubst = false)
+            processTypeImpl(newSubst(tp), place, stateWithSubst, updateWithProjectionSubst = false)
           case _ => true
         }
       case pack: ScPackage =>
-        pack.processDeclarations(BaseProcessor.this, state.withSubstitutor(newSubst), null, place)
+        pack.processDeclarations(BaseProcessor.this, stateWithSubst, null, place)
       case des =>
-        des.processDeclarations(BaseProcessor.this, state.withSubstitutor(newSubst), null, place)
+        des.processDeclarations(BaseProcessor.this, stateWithSubst, null, place)
     }
   }
 }

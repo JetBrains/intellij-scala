@@ -47,8 +47,8 @@ final class ImplicitConversionProcessor(
           namedElement,
           subst,
           state.importsUsed,
-          fromType            = state.fromType,
-          implicitScopeObject = state.implicitScopeObject
+          fromType          = state.fromType,
+          implicitScopeType = state.implicitScopeType
         )
       )
     }
@@ -61,8 +61,8 @@ final class ImplicitConversionProcessor(
           function,
           state.substitutorWithThisType,
           state.importsUsed,
-          fromType            = state.fromType,
-          implicitScopeObject = state.implicitScopeObject
+          fromType          = state.fromType,
+          implicitScopeType = state.implicitScopeType
         )
       )
     }
