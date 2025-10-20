@@ -71,7 +71,6 @@ class LineListenerTest {
   }
 
   private class CollectingLineListener extends LineListener {
-    override protected def testPrompt: Boolean = false
 
     private val buffer = new ArrayBuffer[String]
 
@@ -80,6 +79,9 @@ class LineListenerTest {
     override def onLine(line: String): Unit = {
       buffer += line
     }
+
+    // Although tests in this class don't depend on #isNewShell, it must be false to prevent AnsiEscapeDecoder initialization
+    override protected lazy val isNewShell: Boolean = false
   }
 
   @Test

@@ -142,7 +142,7 @@ object SbtShellToolWindowFactory {
       val sbtManager = SbtProcessManager.forProject(project)
 
       def getShellComponent: Option[JComponent] =
-        if (SbtProcessManager.isNewShell) {
+        if (sbtManager.isRunWithNewShell) {
           sbtManager.terminalConsole.map(_.getComponent)
         } else {
           for {
