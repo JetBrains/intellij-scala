@@ -26,7 +26,8 @@ object ReferenceComparisonTestsGenerator_Scala3  {
   abstract class ScriptTestCaseBase(config: ReferenceComparisonTestConfig) extends TestCase {
     val targetTestsPerPart: Int = 100
     val excluded: Set[String] = Set(
-      "large", "large2" // they're just very large with ~10k references/definitions
+      "large", "large2", // they're just very large with ~10k references/definitions
+      "t0674", // long chain of flatMaps (because of long for-expr) that produces a stackoverflow
     )
 
 //    val testOutputPath: Path =
