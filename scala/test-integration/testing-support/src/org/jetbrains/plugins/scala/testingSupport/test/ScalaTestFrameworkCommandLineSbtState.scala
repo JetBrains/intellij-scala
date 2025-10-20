@@ -14,7 +14,6 @@ import org.jetbrains.plugins.scala.statistics.SbtShellCommandsUsagesCollector
 import org.jetbrains.plugins.scala.testingSupport.test.sbt.{ReportingSbtTestEventHandler, SbtProcessHandlerWrapper, SbtShellTestsRunner, SbtTestRunningSupport}
 import org.jetbrains.plugins.scala.testingSupport.test.utils.RawProcessOutputDebugLogger
 import org.jetbrains.sbt.shell.SbtProcessManager
-import org.jetbrains.sbt.shell.SbtProcessManager.isNewShell
 
 @ApiStatus.Internal
 class ScalaTestFrameworkCommandLineSbtState(
@@ -47,16 +46,9 @@ class ScalaTestFrameworkCommandLineSbtState(
       consoleProperties.setIdBasedTestTree(true)
       SMTestRunnerConnectionUtil.createConsole("Scala", consoleProperties)
     } else {
-      def stripped(text: String): String =
-        if (isNewShell) BuildMessages.stripAnsiCodes(text)
-        else text
-
       new ConsoleViewImpl(project, true) {
-        override def print(text: String, contentType: ConsoleViewContentType): Unit =
-          super.print(stripped(text), contentType)
-
         override def print(text: String, contentType: ConsoleViewContentType, info: HyperlinkInfo): Unit =
-          super.print(stripped(text), contentType, info)
+          super.print(BuildMessages.stripAnsiCodes(text), contentType, info)
       }
     }
     consoleView.attachToProcess(processHandler)

@@ -6,7 +6,6 @@ import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.plugins.scala.build.BuildMessages
 import org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil
 import org.jetbrains.plugins.scala.testingSupport.test.sbt.ReportingSbtTestEventHandler.TeamCityTestStatusReporter
-import org.jetbrains.sbt.shell.SbtProcessManager.isNewShell
 import org.jetbrains.sbt.shell.SbtShellCommunication
 import org.jetbrains.sbt.shell.SbtShellCommunication.{ErrorWaitForInput, ProcessTerminated, ShellEvent, TaskComplete, TaskStart}
 
@@ -35,9 +34,8 @@ class ReportingSbtTestEventHandler(messageConsumer: TeamCityTestStatusReporter)
     case ErrorWaitForInput => throw new Exception("error running sbt")
     case SbtShellCommunication.Output(output) =>
       import TestRunnerUtil._
-      val outputNoAnsi =
-        if (isNewShell) BuildMessages.stripAnsiCodes(output)
-        else output
+      // Strip ANSI codes in both old and new sbt shell modes for simplicity - it's harmless in old mode.
+      val outputNoAnsi = BuildMessages.stripAnsiCodes(output)
 
       val infoIdx = outputNoAnsi.indexOf(sbtInfo)
       if (infoIdx == -1) return

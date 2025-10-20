@@ -401,16 +401,16 @@ final class SbtProcessManager(project: Project) extends Disposable {
   }
 
   private def createProcessData(): ProcessData = {
-    val withNewShell = isNewShell
+    val withNewShell = Registry.is("sbt.new.shell")
     val (handler, debugConnection, sbtVersion) = createShellProcessHandler(withNewShell)
 
     if (withNewShell) {
       val console = createTerminalConsole(handler)
-      TerminalConsoleProcessData(handler, sbtVersion, debugConnection, console)
+      TerminalConsoleProcessData(handler, sbtVersion, debugConnection, console, withNewShell)
     } else {
       val title = project.getName
       val runner = new SbtShellRunner(project, title, debugConnection)
-      AbstractConsoleProcessData(handler, sbtVersion, debugConnection, runner)
+      AbstractConsoleProcessData(handler, sbtVersion, debugConnection, runner, withNewShell)
     }
   }
 
@@ -622,11 +622,12 @@ final class SbtProcessManager(project: Project) extends Disposable {
       val actionGroup = createActionGroupForTerminalConsole(processData.console)
       SbtShellToolWindowFactory.initUi(project, actionGroup, component = processData.console.getComponent)
   }
+
+  private[shell] def isRunWithNewShell: Boolean =
+    processData.exists(_.isNewShell)
 }
 
 object SbtProcessManager {
-
-  def isNewShell: Boolean = Registry.is("sbt.new.shell")
 
   def forProject(project: Project): SbtProcessManager = {
     val pm = project.getService(classOf[SbtProcessManager])
@@ -645,6 +646,7 @@ object SbtProcessManager {
     def processHandler: OSProcessHandler
     def sbtVersion: SbtVersion
     def debugConnection: Option[RemoteConnection]
+    def isNewShell: Boolean
 
     def flushText(): Unit
   }
@@ -653,7 +655,8 @@ object SbtProcessManager {
     processHandler: OSProcessHandler,
     sbtVersion: SbtVersion,
     debugConnection: Option[RemoteConnection],
-    runner: SbtShellRunner
+    runner: SbtShellRunner,
+    isNewShell: Boolean
   ) extends ProcessData {
     override def flushText(): Unit = runner.getConsoleView.flushDeferredText()
   }
@@ -662,7 +665,8 @@ object SbtProcessManager {
     processHandler: OSProcessHandler,
     sbtVersion: SbtVersion,
     debugConnection: Option[RemoteConnection],
-    console: TerminalExecutionConsole
+    console: TerminalExecutionConsole,
+    isNewShell: Boolean
   ) extends ProcessData {
     override def flushText(): Unit = console.flushImmediately()
   }

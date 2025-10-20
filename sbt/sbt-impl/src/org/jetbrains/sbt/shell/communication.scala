@@ -16,7 +16,6 @@ import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}
 import org.jetbrains.plugins.scala.extensions.LoggerExt
 import org.jetbrains.plugins.scala.isInternalMode
 import org.jetbrains.sbt.shell.LineListener.{LineSeparatorRegex, escapeNewLines}
-import org.jetbrains.sbt.shell.SbtProcessManager.isNewShell
 import org.jetbrains.sbt.shell.SbtProcessUtil.*
 import org.jetbrains.sbt.shell.SbtShellCommunication.*
 import org.jetbrains.sbt.shell.SbtShellLifecycle.{ShellState, ShellStateEvent}
@@ -89,7 +88,7 @@ final class SbtShellCommunication(project: Project) {
     command(cmd, id = UUID.randomUUID().toString, default, eventHandler)
 
   def command[A](@NonNls cmd: String, id: String, default: A, eventHandler: EventAggregator[A]): Future[A] = {
-    val listener = new CommandListener(default, eventHandler)
+    val listener = new CommandListener(default, eventHandler, project)
 
     // Prefix the command with a leading space.
     // In the "new" sbt shell (based on jline3), lines that start with a space are excluded
@@ -334,6 +333,7 @@ final class SbtShellCommunication(project: Project) {
           emitShellStateEvent(shellEventBasedOnCommandsQueue())
         },
         whenWorking = (),
+        project
       )
       emitShellStateEvent(shellEventBasedOnCommandsQueue())
       handler.addProcessListener(releaseCommandQueueListener)
@@ -413,12 +413,8 @@ final class SbtShellCommunication(project: Project) {
       messages.addError(msg)
 
     case Output(raw) =>
-      // Stripping ansi codes in "old shell" mode is likely safe, but let's preserve the original behavior for safety
-      val text =
-        if (isNewShell)
-          BuildMessages.stripAnsiCodes(raw).trim
-        else
-          raw.trim
+      // Strip ANSI codes in both old and new sbt shell modes for simplicity - it's harmless in old mode.
+      val text = BuildMessages.stripAnsiCodes(raw).trim
 
       processOutputBuilder.foreach(_.append(text))
 
@@ -571,7 +567,8 @@ private[shell] object SbtShellLifecycle {
   }
 }
 
-private[shell] class CommandListener[A](default: A, aggregator: EventAggregator[A]) extends LineListener {
+private[shell] class CommandListener[A](default: A, aggregator: EventAggregator[A], project: Project)
+  extends LineListener with ProjectShellModeProvider(project) {
 
   private val promise = Promise[A]()
   private var a: A = default
@@ -595,7 +592,7 @@ private[shell] class CommandListener[A](default: A, aggregator: EventAggregator[
   }
 
   override def onLine(text: String): Unit =
-    if (!promise.isCompleted && promptReady(text)) {
+    if (!promise.isCompleted && promptReady(text, isNewShell)) {
       aggregate(TaskComplete)
       promise.complete(Success(a))
     }
@@ -615,14 +612,15 @@ private[shell] class SbtShellReadyListener(
   debugName: String,
   whenReady: => Unit,
   whenWorking: => Unit,
-) extends LineListener {
+  project: Project,
+) extends LineListener with ProjectShellModeProvider(project) {
 
   private var readyState: Boolean = false
 
   override def toString: String = s"${super.toString} ($debugName)"
 
   override def onLine(line: String): Unit = {
-    val sbtReady: Boolean = promptReady(line) || (readyState && debuggerMessage(line))
+    val sbtReady: Boolean = promptReady(line, isNewShell) || (readyState && debuggerMessage(line))
     log.traceSafe(f"onLine: (sbtReady: $sbtReady%-5s) $line")
 
     if (sbtReady && !readyState) {
@@ -646,8 +644,8 @@ private[shell] object SbtProcessUtil {
 
   private val DEFAULT_SHELL_PROMPT = "sbt:"
 
-  def promptReady(line: String): Boolean =
-    if (isNewShell) {
+  def promptReady(line: String, withNewShell: Boolean): Boolean =
+    if (withNewShell) {
       // When using the new shell (with the built-in shell command), jline3 is utilized under the hood.
       // Before displaying any prompt, jline3 prints the BRACKETED_PASTE_ON escape sequence to the terminal to enable bracketed paste mode.
       // If a line contains this escape sequence, it indicates that the line contains a prompt.
@@ -675,15 +673,30 @@ private[shell] object SbtProcessUtil {
   }
 }
 
+private[shell] trait ShellModeProvider {
+  /**
+   * The lazy evaluation is a workaround to initialize this variable only when the shell process is started and the first line
+   * from the shell is being processed.
+   * Potentially using this method when the shell is not started may return an incorrect result, i.e., it may return `false`
+   * even though the registry is enabled and the shell will be started in the new mode.
+   * So be careful and use it only when it's clear that the shell is running.
+   */
+  protected lazy val isNewShell: Boolean
+}
+
+private[shell] trait ProjectShellModeProvider(project: Project) extends ShellModeProvider {
+  /**
+   * See [[ShellModeProvider.isNewShell]] for details how to use it.
+   */
+  override protected lazy val isNewShell: Boolean =
+    SbtProcessManager.forProject(project).isRunWithNewShell
+}
 
 /**
   * Pieces lines back together from parts of colored lines.
   */
-abstract class LineListener extends ProcessListener with AnsiEscapeDecoder.ColoredTextAcceptor {
+abstract class LineListener extends ProcessListener with AnsiEscapeDecoder.ColoredTextAcceptor with ShellModeProvider  {
   protected val log: Logger = Logger.getInstance(getClass)
-
-  @TestOnly
-  protected def testPrompt: Boolean = true
 
   def onLine(line: String): Unit
 
@@ -730,7 +743,7 @@ abstract class LineListener extends ProcessListener with AnsiEscapeDecoder.Color
     }
     else {
       val lastLineOption = lines.lastOption
-      val shouldFlushLastLine = testPrompt && lastLineOption.exists(line => promptReady(line) || promptError(line))
+      val shouldFlushLastLine = lastLineOption.exists(line => promptReady(line, isNewShell) || promptError(line))
       if (shouldFlushLastLine) {
         //NOTE: last line with IJ prompt or error might not have new line character in the end
         //But we still want it to be reported the line to detect that the console is "ready"
