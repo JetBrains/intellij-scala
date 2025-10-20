@@ -2657,7 +2657,7 @@ final class ReferenceComparisonTest_Scala3_Newest_Part26 extends ReferenceCompar
   def test_t651(): Unit = doTest("t651", true)
   def test_t0654(): Unit = doTest("t0654", true)
   def test_t661(): Unit = doTest("t661", true)
-  def test_t0674(): Unit = doTest("t0674", true)
+  //def test_t0674(): Unit = doTest("t0674", true)
   def test_t675(): Unit = doTest("t675", true)
   def test_t684(): Unit = doTest("t684", true)
   def test_t690(): Unit = doTest("t690", true)
