@@ -3,7 +3,7 @@ package org.jetbrains.sbt.project
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 import org.jetbrains.sbt.PathTestUtil
-import org.jetbrains.sbt.project.structure.SbtOption._
+import org.jetbrains.sbt.project.structure.SbtOption.*
 import org.jetbrains.sbt.project.structure.{SbtOption, SbtOpts}
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -42,7 +42,7 @@ class SbtOptsTest {
     Using.resource(Files.createTempDirectory("sbtOptsTest")) { optsDir =>
       val optsFile = optsDir.resolve(SbtOpts.SbtOptsFile)
       Files.writeString(optsFile, input)
-      val opts = SbtOpts.loadFrom(optsDir.toFile)(using null)
+      val opts = SbtOpts.loadFrom(optsDir)(using null)
       assertEquals(expected, opts)
     }
   }
@@ -71,7 +71,7 @@ class SbtOptsTest {
     Using.resource(Files.createTempDirectory("sbtOptsTest")) { optsDir =>
       val optsFile = optsDir.resolve(SbtOpts.SbtOptsFile)
       Files.writeString(optsFile, input)
-      val opts = SbtOpts.loadFrom(optsDir.toFile)(using null)
+      val opts = SbtOpts.loadFrom(optsDir)(using null)
       assertEquals(expected, opts)
     }
   }

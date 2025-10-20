@@ -9,11 +9,12 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.SystemInfo
+import com.intellij.openapi.util.io.FileUtil
+import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import org.jetbrains.annotations.{Nls, NonNls}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}
-import org.jetbrains.plugins.scala.extensions.LoggerExt
-import org.jetbrains.sbt.SbtUtil.normalizePath
+import org.jetbrains.plugins.scala.extensions.{LoggerExt, PathExt}
 import org.jetbrains.sbt.actions.GenerateManagedSourcesReporter
 import org.jetbrains.sbt.project.SbtProjectResolver.ImportCancelledException
 import org.jetbrains.sbt.project.structure.SbtOption.*
@@ -23,6 +24,7 @@ import org.jetbrains.sbt.{SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabilities
 
 import java.io.{BufferedWriter, File, OutputStreamWriter, PrintWriter}
 import java.nio.charset.Charset
+import java.nio.file.Path
 import java.util.UUID
 import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicBoolean
@@ -131,11 +133,11 @@ class SbtStructureDump {
 
     runSbt(
       indicator,
-      directory,
-      vmExecutable,
+      directory.toPath,
+      vmExecutable.toPath,
       vmOptions,
       environment,
-      sbtLauncher,
+      sbtLauncher.toPath,
       sbtOptions,
       sbtLauncherArgs = Seq.empty,
       sbtCommandsString,
@@ -185,14 +187,46 @@ class SbtStructureDump {
     )
   }
 
-  /** Run sbt with some sbt commands. */
+  /**
+   * Runs sbt via the `java -jar sbt-launch.jar` mechanism.
+   * The working directory, the java vm executable, and the sbt-launch.jar need to be paths on the local machine where
+   * the process will be executed. In most cases, this means simply the same machine where IntelliJ IDEA is running,
+   * with the vm executable pointing to a local JDK installation, the working directory pointing to the current project
+   * directory, and the sbt-launch.jar path pointing to the sbt-launch.jar distributed within the Scala Plugin. In the
+   * case of running using WSL, the IDE will be installed on the regular Windows installation, while the JDK, the
+   * project directory and the sbt-launcher will point to paths inside the virtualized Linux WSL environment. In both
+   * cases, the eel API will be used to translate local filesystem paths to the paths on the remote machines as well
+   * as running the actual OS process. In the case of everything running on a local machine, this work will essentially
+   * be a no-op, with the local and remote paths matching, as well as the OS process running mechanism being the same
+   * as the local one.
+   *
+   * @note This method must run on a background thread behind a progress indicator.
+   * @note If any of the options or commands arguments also refer to filesystem paths, it is up to the caller to
+   *       translate these paths to the required target machine. The options and commands are passed as provided and
+   *       not interpreted in any way.
+   *
+   * @param indicator The required progress indicator instance
+   * @param directory The working directory of the JVM process to be spawned
+   * @param vmExecutable The path to the JDK `java` executable
+   * @param vmOptions JDK VM options passed directly to the `java` process
+   * @param environment0 Environment variables to be provided to the `java` process
+   * @param sbtLauncher A path to the sbt launcher jar
+   * @param sbtOptions A list of options to be provided to sbt
+   * @param sbtLauncherArgs A list of extra launcher arguments to be provided during sbt startup
+   * @param sbtCommands A list of sbt commands to be executed by the spawned sbt process
+   * @param reportMessage A description message to be provided to the reporting mechanism (usually shown to the end user)
+   * @param passParentEnvironment Include the environment variables available to IntelliJ IDEA when starting the process
+   * @param reporter A build reported instance for flexibly reporting different aspects of the status of the sbt process
+   * @return A set of messages (success or failure) reported by the execution of the sbt process.
+   */
+  @RequiresBackgroundThread
   def runSbt(
     indicator: ProgressIndicator,
-    directory: File,
-    vmExecutable: File,
+    directory: Path,
+    vmExecutable: Path,
     vmOptions: Seq[String],
     environment0: Map[String, String],
-    sbtLauncher: File,
+    sbtLauncher: Path,
     sbtOptions: Seq[String],
     sbtLauncherArgs: Seq[String],
     @NonNls sbtCommands: String,
@@ -230,13 +264,13 @@ class SbtStructureDump {
     val allSbtLauncherArgs = sbtOpts.collect { case a: SbtLauncherOption => a.value } ++ sbtLauncherArgs
     val processCommandsRaw =
       List(
-        normalizePath(vmExecutable),
+        normalizedPath(vmExecutable),
         "-Djline.terminal=jline.UnsupportedTerminal",
         "-Dsbt.log.noformat=true",
         "-Dfile.encoding=UTF-8"
       ) ++
         allOpts ++
-        List("-jar", normalizePath(sbtLauncher)) ++
+        List("-jar", normalizedPath(sbtLauncher)) ++
         allSbtLauncherArgs// :+ "--debug"
 
     val processCommands = processCommandsRaw.filterNot(_.isEmpty)
@@ -245,11 +279,12 @@ class SbtStructureDump {
     reporter.startTask(dumpTaskId, None, reportMessage, startTime)
 
     val resultMessages = Try {
+      // Will be replaced with eel API soon.
       val parentEnvironmentType = if (passParentEnvironment) GeneralCommandLine.ParentEnvironmentType.CONSOLE else ParentEnvironmentType.NONE
       val generalCommandLine = new GeneralCommandLine(processCommands.asJava)
         .withParentEnvironmentType(parentEnvironmentType)
       val processBuilder = generalCommandLine.toProcessBuilder
-      processBuilder.directory(directory)
+      processBuilder.directory(directory.toFile)
       processBuilder.environment().putAll(environment.asJava)
       // It is required due to #SCL-19498
       processBuilder.environment().put("HISTCONTROL", "ignorespace")
@@ -412,6 +447,9 @@ class SbtStructureDump {
     processOutputBuilder.clear()
     if (collectProcessOutput) Some(processOutputBuilder) else None
   }
+
+  private def normalizedPath(path: Path): String =
+    FileUtil.toSystemIndependentName(path.toCanonicalPath.toString)
 }
 
 object SbtStructureDump {

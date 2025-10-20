@@ -111,11 +111,11 @@ private final class SbtGenerateManagedSourcesAction extends AnAction(
           val generateCommand = "show " + SbtUtil.sbtStructureGlobalCommand("ideaGenerateAllManagedSources", sbtVersion)
           val sbtResult = new SbtStructureDump().runSbt(
             indicator,
-            projectBasePath.toFile,
-            settings.vmExecutable,
+            projectBasePath,
+            settings.vmExecutable.toPath,
             settings.vmOptions,
             settings.userSetEnvironment,
-            launcher.toFile,
+            launcher,
             settings.sbtOptions,
             setupOptions,
             generateCommand,

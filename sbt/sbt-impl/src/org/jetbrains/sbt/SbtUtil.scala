@@ -14,7 +14,7 @@ import com.intellij.util.net.{ProxyConfiguration, ProxyCredentialStore, ProxyCre
 import com.intellij.util.{EnvironmentUtil, SystemProperties}
 import org.jetbrains.annotations.VisibleForTesting
 import org.jetbrains.plugins.scala.build.BuildReporter
-import org.jetbrains.plugins.scala.extensions.RichFile
+import org.jetbrains.plugins.scala.extensions.{PathExt, RichFile}
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.util.ExternalSystemUtil
@@ -289,21 +289,21 @@ object SbtUtil {
     if (quotesStack.isEmpty) Some(result) else None
   }
 
-  def collectAllOptionsFromJava(workingDir: File, vmOptionsFromSettings: Seq[String], passParentEnvironment: Boolean, userSetEnv: Map[String, String]): Seq[String] = {
+  def collectAllOptionsFromJava(workingDir: Path, vmOptionsFromSettings: Seq[String], passParentEnvironment: Boolean, userSetEnv: Map[String, String]): Seq[String] = {
     val java_opts_env = environmentsToUse(passParentEnvironment, userSetEnv).get("JAVA_OPTS")
       .map { options => JvmOpts.processJvmOptions(Seq(options)) }
       .getOrElse(Seq.empty)
     java_opts_env ++ JvmOpts.loadFrom(workingDir) ++ vmOptionsFromSettings
   }
 
-  def collectAllOptionsFromSbt(sbtOptions: Seq[String], directory: File, passParentEnvironment: Boolean, userSetEnv: Map[String, String])
+  def collectAllOptionsFromSbt(sbtOptions: Seq[String], directory: Path, passParentEnvironment: Boolean, userSetEnv: Map[String, String])
                               (implicit reporter: BuildReporter = null): Seq[SbtOption] = {
     val sbt_opts_env = environmentsToUse(passParentEnvironment, userSetEnv).get("SBT_OPTS")
       .map { options =>
         val combinedOptions = SbtOpts.combineOptionsWithArgs(options)
-        SbtOpts.mapOptionsToSbtOptions(combinedOptions, directory.getCanonicalPath)
+        SbtOpts.mapOptionsToSbtOptions(combinedOptions, directory.toCanonicalPath.toString)
       }.getOrElse(Seq.empty)
-    sbt_opts_env ++ SbtOpts.loadFrom(directory) ++ SbtOpts.mapOptionsToSbtOptions(sbtOptions, directory.getCanonicalPath)
+    sbt_opts_env ++ SbtOpts.loadFrom(directory) ++ SbtOpts.mapOptionsToSbtOptions(sbtOptions, directory.toCanonicalPath.toString)
   }
 
   private def environmentsToUse(passParentEnvironment: Boolean, userSetEnv: Map[String, String]) =
