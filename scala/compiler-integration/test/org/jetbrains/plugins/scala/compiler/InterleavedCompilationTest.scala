@@ -8,7 +8,7 @@ import com.intellij.testFramework.{CompilerTester, VfsTestUtil}
 import org.jetbrains.plugins.scala.CompilationTests_Zinc
 import org.jetbrains.plugins.scala.compiler.CompilerMessagesUtil.{assertCompilingScalaSources, assertNoErrorsOrWarnings}
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
-import org.jetbrains.plugins.scala.extensions.inWriteAction
+import org.jetbrains.plugins.scala.extensions.{PathExt, inWriteAction}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.sbt.SbtUtil
 import org.junit.Assert.{assertEquals, assertNotNull}
@@ -117,10 +117,10 @@ class InterleavedCompilationTest extends SbtProjectCompilationTestBase {
   }
 
   private def runSbtCommand(command: String): Unit = {
-    val launcher = SbtUtil.getDefaultLauncher
+    val launcher = SbtUtil.defaultLauncherPath
 
     val javaParams = new JavaParameters()
-    javaParams.setJarPath(launcher.getCanonicalPath)
+    javaParams.setJarPath(launcher.toCanonicalPath.toString)
     javaParams.setWorkingDirectory(getProjectPath)
     javaParams.setJdk(sdk)
 

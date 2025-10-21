@@ -9,12 +9,11 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.SystemInfo
-import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import org.jetbrains.annotations.{Nls, NonNls}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}
-import org.jetbrains.plugins.scala.extensions.{LoggerExt, PathExt}
+import org.jetbrains.plugins.scala.extensions.LoggerExt
 import org.jetbrains.sbt.actions.GenerateManagedSourcesReporter
 import org.jetbrains.sbt.project.SbtProjectResolver.ImportCancelledException
 import org.jetbrains.sbt.project.structure.SbtOption.*
@@ -122,7 +121,7 @@ class SbtStructureDump {
     ).mkString(s"set $SeqFqn(", ",", ")")
 
     val maybePreferScala2Command = if (preferScala2) "preferScala2" else ""
-    val applyStateTransformersCommand = s"""apply -cp "${SbtUtil.normalizePath(sbtStructureJar)}" "org.jetbrains.sbt.CreateTasks" "sbt.jetbrains.LogDownloadArtifacts""""
+    val applyStateTransformersCommand = s"""apply -cp "${SbtUtil.normalizePath(sbtStructureJar.toPath)}" "org.jetbrains.sbt.CreateTasks" "sbt.jetbrains.LogDownloadArtifacts""""
 
     val sbtCommandsString = buildSbtCompositeCommand(Seq(
       setCommands,
@@ -264,13 +263,13 @@ class SbtStructureDump {
     val allSbtLauncherArgs = sbtOpts.collect { case a: SbtLauncherOption => a.value } ++ sbtLauncherArgs
     val processCommandsRaw =
       List(
-        normalizedPath(vmExecutable),
+        SbtUtil.normalizePath(vmExecutable),
         "-Djline.terminal=jline.UnsupportedTerminal",
         "-Dsbt.log.noformat=true",
         "-Dfile.encoding=UTF-8"
       ) ++
         allOpts ++
-        List("-jar", normalizedPath(sbtLauncher)) ++
+        List("-jar", SbtUtil.normalizePath(sbtLauncher)) ++
         allSbtLauncherArgs// :+ "--debug"
 
     val processCommands = processCommandsRaw.filterNot(_.isEmpty)
@@ -447,9 +446,6 @@ class SbtStructureDump {
     processOutputBuilder.clear()
     if (collectProcessOutput) Some(processOutputBuilder) else None
   }
-
-  private def normalizedPath(path: Path): String =
-    FileUtil.toSystemIndependentName(path.toCanonicalPath.toString)
 }
 
 object SbtStructureDump {

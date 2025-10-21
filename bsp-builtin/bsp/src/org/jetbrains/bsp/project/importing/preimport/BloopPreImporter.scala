@@ -27,11 +27,11 @@ object BloopPreImporter {
     val jdkType = JavaSdk.getInstance()
     val jdkExe = Path.of(jdkType.getVMExecutablePath(jdk))
     val jdkHome = Option(jdk.getHomePath).map(Path.of(_))
-    val sbtLauncher = SbtUtil.getDefaultLauncher
+    val sbtLauncher = SbtUtil.defaultLauncherPath
 
     val injectedPlugins = s"""addSbtPlugin("ch.epfl.scala" % "sbt-bloop" % "${BuildInfo.bloopVersion}")"""
     val pluginFile = FileUtil.createTempFile("idea",Sbt.Extension, true)
-    val pluginFilePath = SbtUtil.normalizePath(pluginFile)
+    val pluginFilePath = SbtUtil.normalizePath(pluginFile.toPath)
     FileUtil.writeToFile(pluginFile, injectedPlugins)
 
     val injectedSettings = """bloopExportJarClassifiers in Global := Some(Set("sources"))"""
@@ -43,7 +43,7 @@ object BloopPreImporter {
     )
     val sbtCommands = "bloopInstall"
 
-    val projectSbtVersion = detectSbtVersion(baseDir, SbtUtil.getDefaultLauncher.toPath)
+    val projectSbtVersion = detectSbtVersion(baseDir, SbtUtil.defaultLauncherPath)
     val sbtVersion = SbtVersion.upgradeSbtVersionToTheLatestCompatible(projectSbtVersion)
     val upgradeParam =
       if (sbtVersion > projectSbtVersion)
@@ -56,7 +56,7 @@ object BloopPreImporter {
       val dumper = new SbtStructureDump()
       val runDump = (dumper: SbtStructureDump, indicator: ProgressIndicator) => dumper.runSbt(
         indicator, baseDir, jdkExe, vmArgs,
-        Map.empty, sbtLauncher.toPath, Seq.empty, sbtLauncherArgs, sbtCommands,
+        Map.empty, sbtLauncher, Seq.empty, sbtLauncherArgs, sbtCommands,
         BspBundle.message("bsp.resolver.creating.bloop.configuration.from.sbt"), passParentEnvironment = true
       )
       new BloopPreImporter(dumper, runDump)

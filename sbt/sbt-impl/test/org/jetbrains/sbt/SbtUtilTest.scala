@@ -18,33 +18,33 @@ class SbtUtilTest {
   private val v223: SbtVersion = SbtVersion("2.2.3")
 
   import SbtUtil.defaultGlobalBase
-  private val globalBase012 = defaultGlobalBase.toPath / "0.12"
-  private val globalBase013 = defaultGlobalBase.toPath / "0.13"
-  private val globalBase10 = defaultGlobalBase.toPath / "1.0"
-  private val globalBase20 = defaultGlobalBase.toPath / "2"
+  private val globalBase012 = defaultGlobalBase / "0.12"
+  private val globalBase013 = defaultGlobalBase / "0.13"
+  private val globalBase10 = defaultGlobalBase / "1.0"
+  private val globalBase20 = defaultGlobalBase / "2"
 
   @Test
   def testDefaultGlobalBase(): Unit = {
     import SbtUtil.globalBase
-    assertEquals(globalBase012, globalBase(v0120).toPath)
-    assertEquals(globalBase013, globalBase(v0130).toPath)
-    assertEquals(globalBase013, globalBase(v01317).toPath)
-    assertEquals(globalBase10, globalBase(v100).toPath)
-    assertEquals(globalBase10, globalBase(v112).toPath)
-    assertEquals(globalBase20, globalBase(v200).toPath)
-    assertEquals(globalBase20, globalBase(v223).toPath)
+    assertEquals(globalBase012, globalBase(v0120))
+    assertEquals(globalBase013, globalBase(v0130))
+    assertEquals(globalBase013, globalBase(v01317))
+    assertEquals(globalBase10, globalBase(v100))
+    assertEquals(globalBase10, globalBase(v112))
+    assertEquals(globalBase20, globalBase(v200))
+    assertEquals(globalBase20, globalBase(v223))
   }
 
   @Test
   def testDefaultGlobalPluginsDirectory(): Unit = {
     import SbtUtil.globalPluginsDirectory
-    assertEquals(globalBase012 / "plugins", globalPluginsDirectory(v0120).toPath)
-    assertEquals(globalBase013 / "plugins", globalPluginsDirectory(v0130).toPath)
-    assertEquals(globalBase013 / "plugins", globalPluginsDirectory(v01317).toPath)
-    assertEquals(globalBase10 / "plugins", globalPluginsDirectory(v100).toPath)
-    assertEquals(globalBase10 / "plugins", globalPluginsDirectory(v112).toPath)
-    assertEquals(globalBase20 / "plugins", globalPluginsDirectory(v200).toPath)
-    assertEquals(globalBase20 / "plugins", globalPluginsDirectory(v223).toPath)
+    assertEquals(globalBase012 / "plugins", globalPluginsDirectory(v0120))
+    assertEquals(globalBase013 / "plugins", globalPluginsDirectory(v0130))
+    assertEquals(globalBase013 / "plugins", globalPluginsDirectory(v01317))
+    assertEquals(globalBase10 / "plugins", globalPluginsDirectory(v100))
+    assertEquals(globalBase10 / "plugins", globalPluginsDirectory(v112))
+    assertEquals(globalBase20 / "plugins", globalPluginsDirectory(v200))
+    assertEquals(globalBase20 / "plugins", globalPluginsDirectory(v223))
   }
 
   @Test
@@ -54,7 +54,7 @@ class SbtUtilTest {
 
     import SbtUtil.globalPluginsDirectory
     val dir = globalPluginsDirectory(v0120, params)
-    assertEquals(Path.of("hockensnock", "plugins"), dir.toPath)
+    assertEquals(Path.of("hockensnock", "plugins"), dir)
   }
 
   @Test
@@ -77,7 +77,7 @@ class SbtUtilTest {
     params.addProperty("sbt.global.plugins", "snickenfland")
 
     val dir = SbtUtil.globalPluginsDirectory(v0120, params)
-    assertEquals(Path.of("snickenfland"), dir.toPath)
+    assertEquals(Path.of("snickenfland"), dir)
   }
 
   @Test
@@ -87,7 +87,7 @@ class SbtUtilTest {
     params.add("-Dsbt.global.plugins=tocklewick")
 
     val dir = SbtUtil.globalPluginsDirectory(v0120, params)
-    assertEquals(Path.of("tocklewick"), dir.toPath)
+    assertEquals(Path.of("tocklewick"), dir)
   }
 
   @Test

@@ -164,7 +164,7 @@ class SbtCommandLineState(
       params.getClassPath.add(sbtSystemSettings.customLauncherPath)
       params.setMainClass(determineMainClass(sbtSystemSettings.customLauncherPath))
     } else {
-      val launcher = SbtUtil.getDefaultLauncher
+      val launcher = SbtUtil.defaultLauncherPath.toFile
       params.getClassPath.add(launcher)
       params.setMainClass(determineMainClass(launcher.getAbsolutePath))
     }

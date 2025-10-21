@@ -117,7 +117,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val conversionResult: Try[DataNode[ESProjectData]] = structureDump
       .map { case (elem, _) =>
         val data = elem.deserialize[sbtStructure.StructureData].getOrElse(throw new IllegalStateException("Could not deserialize sbt structure data"))
-        convert(normalizePath(projectRoot), data, settings.jdk, settings, Option(ideaProject)).toDataNode
+        convert(normalizePath(projectRoot.toPath), data, settings.jdk, settings, Option(ideaProject)).toDataNode
       }
       .recoverWith {
         case ImportCancelledException(cause) =>
@@ -168,7 +168,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val options = getSbtStructureDumpOptions(settings)
 
     def doDumpStructure(structureFile: File): Try[(Elem, BuildMessages)] = {
-      val structureFilePath = normalizePath(structureFile)
+      val structureFilePath = normalizePath(structureFile.toPath)
 
       val dumper = new SbtStructureDump()
       activeProcessDumper = Option(dumper)
@@ -199,6 +199,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
         else {
           val sbtStructureJar = settings
             .customSbtStructureFile
+            .map(_.toPath)
             .orElse(SbtUtil.getSbtStructureJar(sbtVersion))
             .getOrElse(throw new ExternalSystemException(s"Could not find sbt-structure-extractor for sbt version $sbtVersion"))
 
@@ -214,7 +215,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
             settings.sbtOptions,
             settings.userSetEnvironment,
             sbtLauncher,
-            sbtStructureJar,
+            sbtStructureJar.toFile,
             settings.preferScala2,
             settings.passParentEnvironment,
             settings.generateManagedSourcesDuringProjectSync
@@ -389,7 +390,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     createBuildModule(
       dummyBuildData,
       projects,
-      getDefaultModuleFilesDirectory(projectRoot),
+      getDefaultModuleFilesDirectory(projectRoot.toPath),
       None,
       projectToParentModule,
       buildProjectsGroup,
@@ -468,7 +469,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val modulesSorted: Seq[ModuleDataNodeType] = projectToParentModule.values.toSeq.sortBy(_.getId)
     projectNode.addAll(removeNestedModuleNodes(modulesSorted))
 
-    val defaultModuleFilesDirectory = getDefaultModuleFilesDirectory(projectRootFile)
+    val defaultModuleFilesDirectory = getDefaultModuleFilesDirectory(projectRootFile.toPath)
     addSharedSourceModules(
       groupedSharedRoots,
       projectToModule,
@@ -884,7 +885,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val projectRootDirectory = Seq(projectRoot.getName).filter(_.nonEmpty)
     val pathComponents = projectRootDirectory :+ relativePath
 
-    val defaultModuleFilesDir = getDefaultModuleFilesDirectory(projectRoot)
+    val defaultModuleFilesDir = getDefaultModuleFilesDirectory(projectRoot.toPath)
     Path.of(defaultModuleFilesDir, pathComponents*).toCanonicalPath.toString
   }
 
@@ -939,7 +940,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
         Compile / sourceDirectory := baseDirectory.value
     In such cases, excluded directories should be added to this content root, and there should be no content root in the parent module.
     */
-    val contentRootWithProjectBase = (testContentRoots ++ mainContentRoots).find(_.data.getRootPath == SbtUtil.normalizePath(project.base))
+    val contentRootWithProjectBase = (testContentRoots ++ mainContentRoots).find(_.data.getRootPath == SbtUtil.normalizePath(project.base.toPath))
     contentRootWithProjectBase match {
       case Some(contentRoot) => storeExcludedPathsInContentRoot(contentRoot, project)
       case None if sourcesDetails.canCreateParentContentRoot => parentModule.add(createParentContentRoot(project))

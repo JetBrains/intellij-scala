@@ -103,7 +103,7 @@ trait ContentRootsResolution { self: ExternalSourceRootResolution =>
       val testBase = group.base / "src" / "test"
       val actualBases = Seq(mainBase, testBase).filter(base => group.sourceRoots.exists(_.directory.isUnder(base)))
       group.base +: actualBases
-    }.map(SbtUtil.normalizePath)
+    }.map(SbtUtil.normalizePath.compose(_.toPath))
 
     // The mainSourceDirectories/testSourceDirectories values are derived from the sourceDirectory sbt key.
     // In the ideal/default case, for example, the mainSourceDirectories value is src/main, and it contains source paths like scala, java, etc.
@@ -122,7 +122,7 @@ trait ContentRootsResolution { self: ExternalSourceRootResolution =>
       val testSources = getSourceRoots(_.isTest)
 
       def getValidSourceBaseDirs(sourceBaseDirs: Seq[File]): Seq[String] =
-        sourceBaseDirs.map(SbtUtil.normalizePath)
+        sourceBaseDirs.map(SbtUtil.normalizePath.compose(_.toPath))
           .filterNot(uniqueSourcesPaths.contains)
           .filterNot(alreadyUsedSourceBaseDirs.contains)
           .filterNot(sharedSourcesBaseDirs.contains)
