@@ -96,7 +96,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val importTaskDescriptor =
       new TaskOperationDescriptor(SbtBundle.message("sbt.import.to.intellij.project.model"), System.currentTimeMillis(), "project-model-import")
 
-    val esReporter = new ExternalSystemNotificationReporter(projectRoot.toAbsolutePath.toCanonicalPath.toString, taskId, notifications)
+    val esReporter = new ExternalSystemNotificationReporter(projectRoot.toCanonicalPath.toString, taskId, notifications)
     implicit val reporter: BuildReporter = if (isUnitTestMode) {
       val logReporter = new LogReporter
       new CompositeReporter(esReporter, logReporter)

@@ -188,7 +188,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
     )
 
     if (addPluginCommandSupported) {
-      val settingsPath = settingsFile.toAbsolutePath.toCanonicalPath.toString
+      val settingsPath = settingsFile.toCanonicalPath.toString
       commandLine.addParameter(s"early(addPluginSbtFile=\"\"\"$settingsPath\"\"\")")
     }
 
