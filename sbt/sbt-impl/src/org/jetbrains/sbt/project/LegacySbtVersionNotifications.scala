@@ -1,7 +1,7 @@
 package org.jetbrains.sbt.project
 
 import com.intellij.ide.BrowserUtil
-import com.intellij.notification._
+import com.intellij.notification.*
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.project.DumbService.DumbModeListener
@@ -10,11 +10,10 @@ import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFileManager
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.build.BuildReporter
-import org.jetbrains.plugins.scala.extensions.{OptionExt, RichFile, executeOnPooledThread}
+import org.jetbrains.plugins.scala.extensions.{OptionExt, PathExt, executeOnPooledThread}
 import org.jetbrains.plugins.scala.startup.ProjectActivity
 import org.jetbrains.sbt.{Sbt, SbtBundle, SbtUtil, SbtVersion, SbtVersionDetector}
 
-import java.io.File
 import java.nio.file.Path
 
 /**
@@ -102,20 +101,20 @@ private object LegacySbtVersionNotifications {
 
   private def createBuildPropertiesOpenFileDescriptor(project: Project): Option[OpenFileDescriptor] = {
     val settings = SbtExternalSystemManager.executionSettingsFor(project)
-    val projectBaseDir = new File(settings.realProjectPath)
+    val projectBaseDir = Path.of(settings.realProjectPath)
     createBuildPropertiesOpenFileDescriptor(project, projectBaseDir)
   }
 
-  private def createBuildPropertiesOpenFileDescriptor(project: Project, projectRoot: File): Option[OpenFileDescriptor] = {
+  private def createBuildPropertiesOpenFileDescriptor(project: Project, projectRoot: Path): Option[OpenFileDescriptor] = {
     val buildPropertiesFile = projectRoot / Sbt.ProjectDirectory / Sbt.PropertiesFile
     Option(buildPropertiesFile)
-      .filter(_.exists()).map(_.toPath).safeMap(VirtualFileManager.getInstance.findFileByNioPath)
+      .filter(_.exists).safeMap(VirtualFileManager.getInstance.findFileByNioPath)
       .map(new OpenFileDescriptor(project, _, 0))
   }
 
   def warnForBuildToolWindow(
     project: Project,
-    projectRoot: File,
+    projectRoot: Path,
     sbtVersion: SbtVersion,
     buildReporter: BuildReporter
   ): Unit = {

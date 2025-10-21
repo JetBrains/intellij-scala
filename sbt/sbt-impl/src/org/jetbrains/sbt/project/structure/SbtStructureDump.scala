@@ -21,8 +21,8 @@ import org.jetbrains.sbt.project.structure.SbtStructureDump.*
 import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication}
 import org.jetbrains.sbt.{SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabilities}
 
-import java.io.{BufferedWriter, File, OutputStreamWriter, PrintWriter}
-import java.nio.charset.Charset
+import java.io.{BufferedWriter, OutputStreamWriter, PrintWriter}
+import java.nio.charset.{Charset, StandardCharsets}
 import java.nio.file.Path
 import java.util.UUID
 import java.util.concurrent.TimeoutException
@@ -94,22 +94,22 @@ class SbtStructureDump {
 
   def dumpFromProcess(
     indicator: ProgressIndicator,
-    directory: File,
+    directory: Path,
     structureFilePath: String,
     options: Seq[String],
-    vmExecutable: File,
+    vmExecutable: Path,
     vmOptions: Seq[String],
     sbtOptions: Seq[String],
     environment: Map[String, String],
-    sbtLauncher: File,
-    sbtStructureJar: File,
+    sbtLauncher: Path,
+    sbtStructureJar: Path,
     preferScala2: Boolean,
     passParentEnvironment: Boolean,
     generateManagedSources: Boolean
   )(implicit reporter: BuildReporter): Try[BuildMessages] = {
     val optString = makeOptionsStringLiteral(options)
 
-    val sbtVersion = SbtUtil.detectSbtVersion(directory.toPath, sbtLauncher.toPath)
+    val sbtVersion = SbtUtil.detectSbtVersion(directory, sbtLauncher)
 
     val SeqFqn = SbtVersionCapabilities.collectionsSeqClassFqn(sbtVersion)
     val setCommands = Seq(
@@ -121,7 +121,7 @@ class SbtStructureDump {
     ).mkString(s"set $SeqFqn(", ",", ")")
 
     val maybePreferScala2Command = if (preferScala2) "preferScala2" else ""
-    val applyStateTransformersCommand = s"""apply -cp "${SbtUtil.normalizePath(sbtStructureJar.toPath)}" "org.jetbrains.sbt.CreateTasks" "sbt.jetbrains.LogDownloadArtifacts""""
+    val applyStateTransformersCommand = s"""apply -cp "${SbtUtil.normalizePath(sbtStructureJar)}" "org.jetbrains.sbt.CreateTasks" "sbt.jetbrains.LogDownloadArtifacts""""
 
     val sbtCommandsString = buildSbtCompositeCommand(Seq(
       setCommands,
@@ -132,11 +132,11 @@ class SbtStructureDump {
 
     runSbt(
       indicator,
-      directory.toPath,
-      vmExecutable.toPath,
+      directory,
+      vmExecutable,
       vmOptions,
       environment,
-      sbtLauncher.toPath,
+      sbtLauncher,
       sbtOptions,
       sbtLauncherArgs = Seq.empty,
       sbtCommandsString,
@@ -297,7 +297,7 @@ class SbtStructureDump {
       processBuilder.start()
     }
       .flatMap { process =>
-        Using.resource(new PrintWriter(new BufferedWriter(new OutputStreamWriter(process.getOutputStream, "UTF-8")))) { writer =>
+        Using.resource(new PrintWriter(new BufferedWriter(new OutputStreamWriter(process.getOutputStream, StandardCharsets.UTF_8)))) { writer =>
 
           writer.println(ignoreInShellHistory(sbtCommands))
           // exit needs to be in a separate command, otherwise it will never execute when a previous command in the chain errors

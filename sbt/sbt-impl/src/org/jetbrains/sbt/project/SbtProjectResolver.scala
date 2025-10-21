@@ -79,15 +79,15 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       if (indicator == null) {
         throw new IllegalStateException("The External System machinery did not provide a ProgressIndicator instance")
       }
-      importProject(taskId, settings, projectRoot, sbtLauncher.toFile, listener, indicator)
+      importProject(taskId, settings, projectRoot.toPath, sbtLauncher, listener, indicator)
     }
   }
 
   private def importProject(
     taskId: ExternalSystemTaskId,
     settings: SbtExecutionSettings,
-    projectRoot: File,
-    sbtLauncher: File,
+    projectRoot: Path,
+    sbtLauncher: Path,
     notifications: ExternalSystemTaskNotificationListener,
     indicator: ProgressIndicator
   )(implicit context: ImportContext): DataNode[ESProjectData] = {
@@ -96,7 +96,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val importTaskDescriptor =
       new TaskOperationDescriptor(SbtBundle.message("sbt.import.to.intellij.project.model"), System.currentTimeMillis(), "project-model-import")
 
-    val esReporter = new ExternalSystemNotificationReporter(projectRoot.getAbsolutePath, taskId, notifications)
+    val esReporter = new ExternalSystemNotificationReporter(projectRoot.toAbsolutePath.toCanonicalPath.toString, taskId, notifications)
     implicit val reporter: BuildReporter = if (isUnitTestMode) {
       val logReporter = new LogReporter
       new CompositeReporter(esReporter, logReporter)
@@ -117,14 +117,14 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val conversionResult: Try[DataNode[ESProjectData]] = structureDump
       .map { case (elem, _) =>
         val data = elem.deserialize[sbtStructure.StructureData].getOrElse(throw new IllegalStateException("Could not deserialize sbt structure data"))
-        convert(normalizePath(projectRoot.toPath), data, settings.jdk, settings, Option(ideaProject)).toDataNode
+        convert(normalizePath(projectRoot), data, settings.jdk, settings, Option(ideaProject)).toDataNode
       }
       .recoverWith {
         case ImportCancelledException(cause) =>
           val causeMessage = if (cause != null) cause.getMessage else SbtBundle.message("sbt.unknown.cause")
 
           // notify user if project exists already
-          val projectOpt = ProjectManager.getInstance().getOpenProjects.find(p => FileUtil.pathsEqual(p.getBasePath, projectRoot.getCanonicalPath))
+          val projectOpt = ProjectManager.getInstance().getOpenProjects.find(p => FileUtil.pathsEqual(p.getBasePath, projectRoot.toCanonicalPath.toString))
           projectOpt.foreach { p =>
             val notification = ScalaNotificationGroups.sbtProjectImport.createNotification(SbtBundle.message("sbt.import.cancelled", causeMessage), NotificationType.INFORMATION)
             notification.notify(p)
@@ -155,8 +155,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   }
 
   private def dumpStructure(
-    projectRoot: File,
-    sbtLauncher: File,
+    projectRoot: Path,
+    sbtLauncher: Path,
     sbtVersion: SbtVersion,
     settings: SbtExecutionSettings,
     @Nullable project: Project,
@@ -210,12 +210,12 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
             projectRoot,
             structureFilePath,
             options,
-            settings.vmExecutable,
+            settings.vmExecutable.toPath,
             settings.vmOptions,
             settings.sbtOptions,
             settings.userSetEnvironment,
             sbtLauncher,
-            sbtStructureJar.toFile,
+            sbtStructureJar,
             settings.preferScala2,
             settings.passParentEnvironment,
             settings.generateManagedSourcesDuringProjectSync
@@ -269,15 +269,15 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       result
     }
 
-    if (!sbtLauncher.isFile) {
-      val error = SbtBundle.message("sbt.launcher.not.found", sbtLauncher.getCanonicalPath)
+    if (!sbtLauncher.isRegularFile) {
+      val error = SbtBundle.message("sbt.launcher.not.found", sbtLauncher.toCanonicalPath.toString)
       Failure(new FileNotFoundException(error))
     } else {
       if (sbtVersion.isSbt0) {
         LegacySbtVersionNotifications.warnForBuildToolWindow(project, projectRoot, sbtVersion, reporter)
       }
 
-      val structureFilePath = getStructureFilePath(projectRoot)
+      val structureFilePath = getStructureFilePath(projectRoot.toFile)
       val StructureFileReuseMode(readStructureFile, writeStructureFile) = getStructureFileReuseMode
 
       if (readStructureFile && structureFilePath.exists()) {
@@ -446,7 +446,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       )
     )
 
-    val newPlay2Data = projects.flatMap(p => p.play2.map(d => (p.id, p.base, d)))
+    val newPlay2Data = projects.flatMap(p => p.play2.map(d => (p.id, p.base.toPath, d)))
     projectNode.add(new Play2ProjectNode(Play2OldStructureAdapter(newPlay2Data)))
 
     val projectLibraryNodes = createLibraries(data, projects)
