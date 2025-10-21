@@ -6,8 +6,6 @@ import com.intellij.psi.tree.IElementType
 import org.intellij.markdown.ast.ASTNode
 import org.intellij.markdown.parser.MarkdownParser
 import org.intellij.markdown.{MarkdownElementTypes, MarkdownTokenTypes}
-import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilderImpl
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableIdForImport
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
@@ -300,13 +298,25 @@ class ScaladocMarkdownParsing(private val builder: PsiBuilder,
 
         val marker = builder.mark()
 
-        val children = node.getChildren.asScala
+        val children = node.getChildren.asScala.toSeq
         // Compat with wikidoc
-        if (node.getChildren.get(0).getType == MarkdownTokenTypes.WHITE_SPACE) {
-          ensureBuilderInPosition(node.getChildren.get(0).getEndOffset, ScalaDocTokenType.DOC_WHITESPACE)
-          children.drop(1).foreach(visitNode)
-        } else {
-          children.foreach(visitNode)
+        val initialWs = children.headOption.filter(_.getType == MarkdownTokenTypes.WHITE_SPACE)
+        val restChildren = initialWs match {
+          case Some(ws) =>
+            ensureBuilderInPosition(ws.getEndOffset, ScalaDocTokenType.DOC_WHITESPACE)
+            children.drop(1)
+          case None =>
+            children
+        }
+
+        val lastWs = restChildren.lastOption.filter(_.getType == MarkdownTokenTypes.WHITE_SPACE)
+        lastWs match {
+          case Some(ws) =>
+            restChildren.dropRight(1).foreach(visitNode)
+            ensureBuilderInPosition(ws.getStartOffset)
+            ensureBuilderInPosition(ws.getEndOffset, ScalaDocTokenType.DOC_WHITESPACE)
+          case None =>
+            restChildren.foreach(visitNode)
         }
 
         ensureBuilderInPosition(node.getEndOffset)

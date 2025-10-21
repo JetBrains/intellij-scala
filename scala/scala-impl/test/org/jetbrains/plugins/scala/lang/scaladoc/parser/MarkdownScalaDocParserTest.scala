@@ -23,6 +23,23 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n')""".stripMargin
   )
 
+  def test_in_one_line(): Unit = checkTree(
+    """
+      |/** A basic textual comment */
+      |""".stripMargin,
+    """ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  DocComment
+      |    ScPsiDocToken(DOC_COMMENT_START)('/**')
+      |    ScDocParagraph
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      ScPsiDocToken(DOC_COMMENT_DATA)('A basic textual comment')
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |    ScPsiDocToken(DOC_COMMENT_END)('*/')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
   // Basic formatting tests
   def test_bold_text(): Unit = checkTree(
       """
