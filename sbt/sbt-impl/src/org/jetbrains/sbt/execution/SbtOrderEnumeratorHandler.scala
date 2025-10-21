@@ -11,8 +11,15 @@ import org.jetbrains.sbt.SbtUtil
 import java.util
 
 /**
- * ATTENTION: implementation should be in sync with<br>
- * org.jetbrains.jps.incremental.scala.model.JpsSbtDependenciesEnumerationHandler
+ * ATTENTION!
+ *
+ * 1. The implementation should be in sync with [[org.jetbrains.jps.incremental.scala.model.JpsSbtDependenciesEnumerationHandler]].
+ *
+ * 2. Any potential "heavy" operations should be avoided in [[SbtOrderEnumeratorHandler]] and [[SbtOrderEnumeratorHandlerFactory]].
+ *    In large projects with many modules and dependencies processed recursively, the methods inside these 2 classes are
+ *    executed many, many times. When written in a non-optimized way, this may even block the UI, e.g., in the edit run configuration window.
+ *    When introducing any additional logic to these classes, it's best to test the performance in a large project.
+ *    More info and an example large project is available in SCL-24366.
  */
 class SbtOrderEnumeratorHandler(processDependenciesRecursively: Boolean) extends OrderEnumerationHandler {
   override def shouldAddDependency(orderEntry: OrderEntry, settings: OrderEnumeratorSettings): AddDependencyType =
@@ -86,6 +93,9 @@ class SbtOrderEnumeratorHandler(processDependenciesRecursively: Boolean) extends
     processDependenciesRecursively
 }
 
+/**
+ * @see [[SbtOrderEnumeratorHandler]]
+ */
 class SbtOrderEnumeratorHandlerFactory extends OrderEnumerationHandler.Factory {
 
   private val RecursiveDependenciesInstance = new SbtOrderEnumeratorHandler(true)
