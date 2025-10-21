@@ -91,7 +91,7 @@ final class SbtShellCommunication(project: Project) {
     val listener = new CommandListener(default, eventHandler, project)
 
     // Prefix the command with a leading space.
-    // In the "new" sbt shell (based on jline3), lines that start with a space are excluded
+    // In the "new" sbt shell (based on jline3 since sbt 1.4), lines that start with a space are excluded
     // from the history (see HISTORY_IGNORE_SPACE in jline3). This prevents
     // IntelliJ IDEA–generated commands (e.g., reload, build, tasks, test) from cluttering the user's sbt commands history.
     // We keep the same prefix in the "old" shell (jline2) for simplicity - it has no effect and causes no harm there.
@@ -646,7 +646,7 @@ private[shell] object SbtProcessUtil {
 
   def promptReady(line: String, withNewShell: Boolean): Boolean =
     if (withNewShell) {
-      // When using the new shell (with the built-in shell command), jline3 is utilized under the hood.
+      // When using the new shell (with the built-in shell command), jline3 is utilized under the hood since sbt 1.4.
       // Before displaying any prompt, jline3 prints the BRACKETED_PASTE_ON escape sequence to the terminal to enable bracketed paste mode.
       // If a line contains this escape sequence, it indicates that the line contains a prompt.
       // As a fallback, we check if the line starts with the default shell prompt ("sbt:project_name").
