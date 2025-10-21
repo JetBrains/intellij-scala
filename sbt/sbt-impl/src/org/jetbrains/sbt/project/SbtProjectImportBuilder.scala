@@ -12,7 +12,6 @@ import org.jetbrains.plugins.scala.project.external.SdkUtils
 import org.jetbrains.sbt.project.SbtImportControl.SbtImportControlFactory
 import org.jetbrains.sbt.project.data.SbtProjectData
 
-import java.io.File
 import javax.swing.Icon
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
@@ -31,7 +30,7 @@ class SbtProjectImportBuilder
 
   override def beforeCommit(dataNode: DataNode[ProjectData], project: Project): Unit = {}
 
-  override def getExternalProjectConfigToUse(file: File): File = file
+  override def getExternalProjectConfigToUse(file: java.io.File): java.io.File = file
 
   override def applyExtraSettings(context: WizardContext): Unit = {
     getList.asScala.foreach { projectData =>

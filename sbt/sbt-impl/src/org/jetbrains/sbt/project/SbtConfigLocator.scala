@@ -6,17 +6,16 @@ import com.intellij.openapi.externalSystem.service.settings.ExternalSystemConfig
 import com.intellij.openapi.externalSystem.settings.ExternalProjectSettings
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 
-import java.io.File
-import java.util
-import scala.jdk.CollectionConverters._
+import java.nio.file.Path
+import scala.jdk.CollectionConverters.*
 
 class SbtConfigLocator extends ExternalSystemConfigLocator {
   override def getTargetExternalSystemId: ProjectSystemId = SbtProjectSystem.Id
 
-  override def findAll(externalProjectSettings: ExternalProjectSettings): util.List[VirtualFile] = {
+  override def findAll(externalProjectSettings: ExternalProjectSettings): java.util.List[VirtualFile] = {
     val modules = externalProjectSettings.getModules.asScala
     modules.flatMap { path =>
-      Option(LocalFileSystem.getInstance.refreshAndFindFileByIoFile(new File(path))).safeMap(adjust)
+      Option(LocalFileSystem.getInstance.refreshAndFindFileByNioFile(Path.of(path))).safeMap(adjust)
     }.toList.asJava
   }
 
