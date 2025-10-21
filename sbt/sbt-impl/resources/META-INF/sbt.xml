@@ -173,7 +173,7 @@
                      description="If enabled, the information to update configurations is displayed as a suggestion and remains in the tool window until all configurations have been migrated."/>
 
         <registryKey key="sbt.new.shell" defaultValue="false" restartRequired="false"
-                     description="If enabled, new, terminal-like sbt shell implementation is used. It affects the new shell instance."/>
+                     description="If enabled, new, terminal-like sbt shell implementation is used. It will apply only to new shell instances and only with sbt >= 1.4.0."/>
 
         <newProjectWizard.languageGenerator implementation="org.jetbrains.sbt.project.template.wizard.ScalaNewProjectWizard"/>
         <newProjectWizard.scala.buildSystem implementation="org.jetbrains.sbt.project.template.wizard.buildSystem.SbtScalaNewProjectWizard" />
