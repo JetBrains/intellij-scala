@@ -7,7 +7,7 @@ import org.jetbrains.bsp.BspBundle
 import org.jetbrains.bsp.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}
 import org.jetbrains.plugins.scala.extensions.invokeAndWait
-import org.jetbrains.sbt.SbtUtil.{detectSbtVersion, getDefaultLauncher, sbtVersionParam}
+import org.jetbrains.sbt.SbtUtil.{detectSbtVersion, sbtVersionParam}
 import org.jetbrains.sbt.project.SbtExternalSystemManager
 import org.jetbrains.sbt.project.structure.SbtStructureDump
 import org.jetbrains.sbt.{Sbt, SbtUtil, SbtVersion}
@@ -50,7 +50,7 @@ object BloopPreImporter {
         List(sbtVersionParam(sbtVersion))
       else List.empty
 
-    val vmArgs = SbtExternalSystemManager.getVmOptions(Seq.empty, jdkHome.map(_.toFile)) ++ upgradeParam
+    val vmArgs = SbtExternalSystemManager.getVmOptions(Seq.empty, jdkHome) ++ upgradeParam
 
     try {
       val dumper = new SbtStructureDump()

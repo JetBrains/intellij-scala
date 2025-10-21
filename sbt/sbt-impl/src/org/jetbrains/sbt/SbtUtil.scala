@@ -238,7 +238,7 @@ object SbtUtil {
     settings.customLauncher.map(_.toPath).getOrElse(defaultLauncherPath)
 
   /** Normalizes pathname so that backslashes don't get interpreted as escape characters in interpolated strings. */
-  def normalizePath(path: Path): String = path.toAbsolutePath.toCanonicalPath.toString.replace('\\', '/')
+  def normalizePath(path: Path): String = path.toCanonicalPath.toString.replace('\\', '/')
 
   private def pluginBase: Path = {
     val path = jarWith[this.type]

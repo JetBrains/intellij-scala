@@ -6,9 +6,9 @@ import org.jetbrains.bsp.BspBundle
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}
 import org.jetbrains.plugins.scala.extensions.invokeAndWait
 import org.jetbrains.sbt.SbtUtil.{defaultLauncherPath, detectSbtVersion, sbtVersionParam}
+import org.jetbrains.sbt.SbtVersion
 import org.jetbrains.sbt.project.SbtExternalSystemManager
 import org.jetbrains.sbt.project.structure.SbtStructureDump
-import org.jetbrains.sbt.SbtVersion
 
 import java.nio.file.Path
 import scala.util.Try
@@ -43,7 +43,7 @@ object SbtConfigSetup {
         List(sbtVersionParam(sbtVersion))
       else List.empty
 
-    val vmArgs = SbtExternalSystemManager.getVmOptions(Seq.empty, jdkHome.map(_.toFile)) ++ upgradeParam
+    val vmArgs = SbtExternalSystemManager.getVmOptions(Seq.empty, jdkHome) ++ upgradeParam
 
     val dumper = new SbtStructureDump()
     val runInit = (indicator: ProgressIndicator, reporter: BuildReporter) => dumper.runSbt(
