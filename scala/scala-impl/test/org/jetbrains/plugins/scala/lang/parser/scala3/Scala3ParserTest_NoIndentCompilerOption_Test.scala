@@ -633,7 +633,7 @@ class Scala3ParserTest_NoIndentCompilerOption_Test
       |      ???
       |      ???
       |
-      |    /** try / finally (catch is handled in [[Scala3TestDataCaseClausesEditorStates]]) */
+      |    /* try / finally (catch is handled in [[Scala3TestDataCaseClausesEditorStates]]) */
       |    try
       |      ???
       |      ???
@@ -875,19 +875,7 @@ class Scala3ParserTest_NoIndentCompilerOption_Test
       |        ReferenceExpression: ???
       |          PsiElement(identifier)('???')
       |        PsiWhiteSpace('\n\n    ')
-      |        DocComment
-      |          ScPsiDocToken(DOC_COMMENT_START)('/**')
-      |          ScDocParagraph
-      |            ScPsiDocToken(DOC_WHITESPACE)(' ')
-      |            ScPsiDocToken(DOC_COMMENT_DATA)('try / finally (catch is handled in ')
-      |            DocSyntaxElement 64
-      |              ScPsiDocToken(DOC_LINK_TAG 64)('[[')
-      |              CodeReferenceElement (scalaDoc): Scala3TestDataCaseClausesEditorStates
-      |                PsiElement(identifier)('Scala3TestDataCaseClausesEditorStates')
-      |              ScPsiDocToken(DOC_LINK_CLOSE_TAG 0)(']]')
-      |            ScPsiDocToken(DOC_COMMENT_DATA)(')')
-      |            ScPsiDocToken(DOC_WHITESPACE)(' ')
-      |          ScPsiDocToken(DOC_COMMENT_END)('*/')
+      |        PsiComment(BlockComment)('/* try / finally (catch is handled in [[Scala3TestDataCaseClausesEditorStates]]) */')
       |        PsiWhiteSpace('\n    ')
       |        TryStatement
       |          PsiElement(try)('try')
@@ -944,7 +932,8 @@ class Scala3ParserTest_NoIndentCompilerOption_Test
       |        ReferenceExpression: ???
       |          PsiElement(identifier)('???')
       |        PsiWhiteSpace('\n')
-      |        PsiElement(})('}')""".stripMargin
+      |        PsiElement(})('}')
+      |""".stripMargin
   )
 
   def testExtensions(): Unit = checkTree(
