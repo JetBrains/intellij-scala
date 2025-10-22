@@ -99,10 +99,10 @@ trait ContentRootsResolution { self: ExternalSourceRootResolution =>
     // * Additionally, content roots may be created for individual source directories (see ContentRootsResolution.createContentRootNodes).
     // However, any overlap with individual source directories for shared sources is handled in #resolveExternalSystemSources.
     val sharedSourcesBaseDirs = groupedSharedRoots.filter(_.hasStandardBasePath).flatMap { group =>
-      val mainBase = group.base.toPath / "src" / "main"
-      val testBase = group.base.toPath / "src" / "test"
-      val actualBases = Seq(mainBase, testBase).filter(base => group.sourceRoots.exists(_.directory.toPath.isUnder(base)))
-      group.base.toPath +: actualBases
+      val mainBase = group.base / "src" / "main"
+      val testBase = group.base / "src" / "test"
+      val actualBases = Seq(mainBase, testBase).filter(base => group.sourceRoots.exists(_.directory.isUnder(base)))
+      group.base +: actualBases
     }.map(SbtUtil.normalizePath)
 
     // The mainSourceDirectories/testSourceDirectories values are derived from the sourceDirectory sbt key.
@@ -166,7 +166,7 @@ trait ContentRootsResolution { self: ExternalSourceRootResolution =>
 
   private def getSharedSourcesPath(sharedRoots: Seq[SharedSourcesGroup]): Set[String] =
     sharedRoots.flatMap(_.sourceRoots)
-      .map(sr => FileUtil.toSystemIndependentName(sr.directory.getPath)).toSet
+      .map(sr => FileUtil.toSystemIndependentName(sr.directory.toCanonicalPath.toString)).toSet
 
   private def resolveExternalSystemSources(
     isMainScope: Boolean,
@@ -260,13 +260,6 @@ trait ContentRootsResolution { self: ExternalSourceRootResolution =>
       dir.isUnder(contentRootDir, strict = false)
     }
   }
-
-  extension (path: Path)
-    private def isUnder(root: Path): Boolean = path.isUnder(root, strict = true)
-
-    private def isUnder(root: Path, strict: Boolean): Boolean =
-      FileUtil.isAncestor(root.toCanonicalPath.toString, path.toCanonicalPath.toString, strict)
-  end extension
 
   private def managedDirectories(dirs: Seq[sbtStructure.DirectoryData]): Seq[String] =
     dirs.filter(_.managed).map(_.file.canonicalPath)
