@@ -16,7 +16,7 @@ import com.intellij.structuralsearch.plugin.ui.{Configuration, UIUtil}
 import com.intellij.structuralsearch.{MatchOptions, MatchResult, MatchVariableConstraint, StructuralSearchProfile, StructuralSearchProfileBase}
 import com.intellij.util.SmartList
 import org.jetbrains.annotations.{NotNull, Nullable}
-import org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaFileTemplateContextType
+import org.jetbrains.plugins.scala.codeInsight.template.impl.{Scala3FileTemplateContextType, ScalaFileTemplateContextType}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
@@ -43,6 +43,9 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
 
   override def getContext(pattern: String, @Nullable language: Language, contextId: String): String =
     StructuralSearchProfile.PATTERN_PLACEHOLDER
+
+  override def getTemplateContextTypeClass(language: Language): Class[? <: TemplateContextType] =
+    if language == Scala3Language.INSTANCE then classOf[Scala3FileTemplateContextType] else classOf[ScalaFileTemplateContextType]
 
   override def getTemplateContextTypeClass: Class[? <: TemplateContextType] = classOf[ScalaFileTemplateContextType]
 
