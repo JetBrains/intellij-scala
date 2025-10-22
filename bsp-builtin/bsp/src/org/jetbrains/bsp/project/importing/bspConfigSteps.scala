@@ -152,7 +152,7 @@ object bspConfigSteps {
     val vfile = LocalFileSystem.getInstance().findFileByIoFile(workspace.toFile)
 
     val sbtChoice = if (SbtProjectImportProvider.canImport(vfile)) {
-      val sbtVersion = detectSbtVersion(workspace, SbtUtil.getDefaultLauncher.toPath)
+      val sbtVersion = detectSbtVersion(workspace, SbtUtil.defaultLauncherPath)
       if (sbtVersion >= SbtVersion("1.4")) {
         // sbt >= 1.4 : user choose: bloop or sbt
         List(SbtSetup, BloopSbtSetup)

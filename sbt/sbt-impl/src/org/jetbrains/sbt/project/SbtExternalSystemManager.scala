@@ -16,14 +16,14 @@ import com.intellij.util.Function
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.jps.model.java.JdkVersionDetector
-import org.jetbrains.plugins.scala.extensions.{RichFile, invokeAndWait}
+import org.jetbrains.plugins.scala.extensions.{PathExt, invokeAndWait}
 import org.jetbrains.sbt.SbtBundle
-import org.jetbrains.sbt.SbtUtil.{detectSbtVersion, getDefaultLauncher}
+import org.jetbrains.sbt.SbtUtil.{defaultLauncherPath, detectSbtVersion}
 import org.jetbrains.sbt.project.settings.*
 import org.jetbrains.sbt.project.structure.SbtOpts
 import org.jetbrains.sbt.settings.{SbtExternalSystemConfigurable, SbtSettings}
 
-import java.io.File
+import java.nio.file.Path
 
 class SbtExternalSystemManager
   extends ExternalSystemManager[SbtProjectSettings, SbtProjectSettingsListener, SbtSettings, SbtLocalSettings, SbtExecutionSettings]
@@ -81,32 +81,32 @@ object SbtExternalSystemManager {
     val linkedProjectSettings = settings.getLinkedProjectSettings(path)
     val projectSettings = Option(linkedProjectSettings).getOrElse(SbtProjectSettings.default)
 
-    val customLauncher = Option(settingsState.customLauncherPath).map(new File(_))
-    val customSbtStructureFile = Option(settingsState.customSbtStructurePath).filterNot(StringUtils.isBlank).map(new File(_))
+    val customLauncher = Option(settingsState.customLauncherPath).map(Path.of(_))
+    val customSbtStructureFile = Option(settingsState.customSbtStructurePath).filterNot(StringUtils.isBlank).map(Path.of(_))
 
     val realProjectPath = Option(projectSettings.getExternalProjectPath).getOrElse(path)
 
-    val sbtLauncher = customLauncher.getOrElse(getDefaultLauncher)
+    val sbtLauncher = customLauncher.getOrElse(defaultLauncherPath)
     val projectRoot = {
-      val file = new File(realProjectPath)
-      if (file.isDirectory) file else file.getParentFile
+      val file = Path.of(realProjectPath)
+      if (file.isDirectory) file else file.getParent
     }
-    val sbtVersion = detectSbtVersion(projectRoot.toPath, sbtLauncher.toPath)
+    val sbtVersion = detectSbtVersion(projectRoot, sbtLauncher)
 
     val projectJdkName = bootstrapJdk(project, projectSettings)
     val vmExecutable = getVmExecutable(projectJdkName, settingsState, sbtVersion)
-    val jreHome = vmExecutable.parent.flatMap(_.parent)
+    val jreHome = Option(vmExecutable.getParent).flatMap(p => Option(p.getParent))
     val vmOptions = getVmOptions(settingsState, jreHome, projectSettings.separateProdAndTestSources)
     val sbtOptions = SbtOpts.combineOptionsWithArgs(settings.sbtOptions)
 
     new SbtExecutionSettings(
       realProjectPath = realProjectPath,
-      vmExecutable = vmExecutable,
+      vmExecutable = vmExecutable.toFile,
       vmOptions = vmOptions,
       sbtOptions = sbtOptions,
       hiddenDefaultMaxHeapSize = SbtSettings.hiddenDefaultMaxHeapSize,
-      customLauncher = customLauncher,
-      customSbtStructureFile = customSbtStructureFile,
+      customLauncher = customLauncher.map(_.toFile),
+      customSbtStructureFile = customSbtStructureFile.map(_.toFile),
       jdk = projectJdkName,
       resolveClassifiers = projectSettings.resolveClassifiers,
       resolveSbtClassifiers = projectSettings.resolveSbtClassifiers,
@@ -125,7 +125,7 @@ object SbtExternalSystemManager {
   /** Choose a jdk for imports. This is then only used when no overriding information is available from sbt definition.
    * SbtProjectResolver figures out that part
    */
-  private def bootstrapJdk(project: Project, importSettings: SbtProjectSettings) = {
+  private def bootstrapJdk(project: Project, importSettings: SbtProjectSettings): Option[String] = {
     // either what was set in previous import, or default from Project Structure defaults
     val jdkInProject = Option(ProjectRootManager.getInstance(project).getProjectSdk).map(_.getName)
     // setting used *only* for initial import
@@ -136,7 +136,7 @@ object SbtExternalSystemManager {
     result
   }
 
-  private def getVmExecutable(projectJdkName: Option[String], settings: SbtSettings.State, sbtVersion: SbtVersion): File = {
+  private def getVmExecutable(projectJdkName: Option[String], settings: SbtSettings.State, sbtVersion: SbtVersion): Path = {
     val jdkTable = ProjectJdkTable.getInstance()
 
     val customPath = settings.customVMPath
@@ -145,7 +145,7 @@ object SbtExternalSystemManager {
         Log.debug(s"Using Java from custom VM path: $customPath")
 
         @NonNls val javaExe = if (SystemInfo.isWindows) "java.exe" else "java"
-        Some(new File(customPath) / "bin" / javaExe)
+        Some(Path.of(customPath) / "bin" / javaExe)
       }
       else None
 
@@ -158,7 +158,7 @@ object SbtExternalSystemManager {
 
             sdk.getSdkType match {
               case sdkType: JavaSdkType =>
-                new File(sdkType.getVMExecutablePath(sdk))
+                Path.of(sdkType.getVMExecutablePath(sdk))
               case _ =>
                 // ugh
                 throw new ExternalSystemException(SbtBundle.message("sbt.import.noProjectJvmFound"))
@@ -183,7 +183,7 @@ object SbtExternalSystemManager {
         autoDetectedSdk.map { sdk =>
           Log.debug(s"Using Java from best auto-detected JDK: $sdk")
 
-          new File(JavaSdk.getInstance().getVMExecutablePath(sdk))
+          Path.of(JavaSdk.getInstance().getVMExecutablePath(sdk))
         }
       }
       .getOrElse {
@@ -195,7 +195,7 @@ object SbtExternalSystemManager {
 
   private def getVmOptions(
     settings: SbtSettings.State,
-    jreHome: Option[File],
+    jreHome: Option[Path],
     separateProdAndTestSources: Boolean
   ): Seq[String] = {
     @NonNls val userOptions = settings.vmParameters.split("\\s+").toSeq.filter(_.nonEmpty)
@@ -219,7 +219,7 @@ object SbtExternalSystemManager {
     getVmOptions(givenOptions, jreHome)
   }
 
-  def getVmOptions(givenOptions: Seq[String], jreHome: Option[File]): Seq[String] = {
+  def getVmOptions(givenOptions: Seq[String], jreHome: Option[Path]): Seq[String] = {
     import DefaultOptions.*
     val ideaProxyOptions = proxyOptions { optName => !givenOptions.exists(_.startsWith(optName)) }
 
@@ -239,14 +239,14 @@ object SbtExternalSystemManager {
   }
 
   private implicit class OptionsOps(options: Seq[String]) {
-    def addPermSize(jreHome: Option[File]): Seq[String] = {
+    def addPermSize(jreHome: Option[Path]): Seq[String] = {
       import DefaultOptions.maxPermSize
 
       // use no MaxPermSize param if we know jdk version is >= 8 or user set it anyway
       val withoutPermSize = for {
         home <- jreHome
         if ! hasOption(maxPermSize.key)
-        jreVersion <- Option(JdkVersionDetector.getInstance().detectJdkVersionInfo(home.getAbsolutePath))
+        jreVersion <- Option(JdkVersionDetector.getInstance().detectJdkVersionInfo(home.toCanonicalPath.toString))
         if jreVersion.version.feature >= 8
       } yield options
 

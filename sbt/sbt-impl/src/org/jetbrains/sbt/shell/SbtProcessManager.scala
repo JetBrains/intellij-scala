@@ -41,9 +41,11 @@ import org.jetbrains.sbt.project.structure.SbtOption.*
 import org.jetbrains.sbt.shell.SbtProcessManager.*
 import org.jetbrains.sbt.shell.SbtShellLifecycle.ShellStateEvent
 import org.jetbrains.sbt.shell.action.{DebugShellAction, EOFAction, StartAction, StopAction}
-import org.jetbrains.sbt.{JvmMemorySize, Sbt, SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabilities}
+import org.jetbrains.sbt.{JvmMemorySize, Sbt, SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabilities, SbtVersionDetector}
 
-import java.io.{File, IOException, OutputStreamWriter, PrintWriter}
+import java.io.{IOException, OutputStreamWriter, PrintWriter}
+import java.nio.charset.StandardCharsets
+import java.nio.file.{Files, Path}
 import java.util.concurrent.TimeUnit
 import scala.concurrent.TimeoutException
 import scala.jdk.CollectionConverters.*
@@ -104,21 +106,16 @@ final class SbtProcessManager(project: Project) extends Disposable {
   private val IdeaRunIdVmOption = "idea.runid"
 
   /**
-   * @return the version of sbt defined in `project/build.properties`, or inferred from the launcher jar
-   *         extracted from [[org.jetbrains.sbt.project.settings.SbtExecutionSettings]].
+   * @return A tuple containing:
+   *         - `OSProcessHandler`: the configured process handler instance for the sbt shell.
+   *         - `Option[RemoteConnection]`: debug connection information if the shell debug mode is enabled; otherwise, None.
+   *         - `SbtVersion`: detected sbt version used in the project.
+   *         - `Boolean`: A flag indicating whether the "new sbt shell" is being used.
    */
-  private def detectCurrentSbtVersion: SbtVersion = {
-    val workingDirPath = getWorkingDirPath(project)
-    val workingDir = new File(workingDirPath)
-    val sbtSettings = getSbtSettings(workingDirPath)
-    val launcher = SbtUtil.getLauncherJar(sbtSettings)
-    SbtUtil.detectSbtVersion(workingDir.toPath, launcher)
-  }
-
-  private def createShellProcessHandler(withNewShell: Boolean): (OSProcessHandler, Option[RemoteConnection], SbtVersion) = {
+  private def createShellProcessHandler: (OSProcessHandler, Option[RemoteConnection], SbtVersion, Boolean) = {
     log.debug("createShellProcessHandler")
     val workingDirPath = getWorkingDirPath(project)
-    val workingDir = new File(workingDirPath)
+    val workingDir = Path.of(workingDirPath)
 
     val sbtSettings = getSbtSettings(workingDirPath)
     lazy val launcher = SbtUtil.getLauncherJar(sbtSettings)
@@ -132,7 +129,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
     val javaParameters: JavaParameters = new JavaParameters
     javaParameters.setJdk(sdk)
     javaParameters.configureByProject(project, 1, sdk)
-    javaParameters.setWorkingDirectory(workingDir)
+    javaParameters.setWorkingDirectory(workingDir.toCanonicalPath.toString)
     javaParameters.setJarPath(launcher.toCanonicalPath.toString)
 
     val debugConnection = if (sbtSettings.shellDebugMode) Option(addDebugParameters(javaParameters)) else None
@@ -147,7 +144,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
       }
     }
 
-    val projectSbtVersion = SbtUtil.detectSbtVersion(workingDir.toPath, launcher)
+    val projectSbtVersion = SbtUtil.detectSbtVersion(workingDir, launcher)
     val addPluginCommandSupported = SbtVersionCapabilities.isAddPluginCommandSupported(projectSbtVersion)
     log.debug(s"projectSbtVersion = $projectSbtVersion")
     log.debug(s"addPluginCommandSupported = $addPluginCommandSupported")
@@ -164,15 +161,19 @@ final class SbtProcessManager(project: Project) extends Disposable {
     if (!addPluginCommandSupported)
       vmParams.add(s"-D$IdeaRunIdVmOption=$runId")
 
+    // Allow using the "new shell" only with sbt >= 1.4, because starting from this version, JLine 3 is utilized within the "shell" command.
+    // This provides better completion support and is used for detecting when the shell is ready (see org.jetbrains.sbt.shell.SbtProcessUtil.promptReady).
+    val useNewShell = Registry.is("sbt.new.shell") && projectSbtVersion >= SbtVersion.apply("1.4")
+
     // For details see: https://youtrack.jetbrains.com/issue/SCL-13293#focus=streamItem-27-3323121.0-0
     // When the new shell is enabled and TerminalExecutionConsole is used, the colors can be enabled again on Windows
-    if (SystemInfo.isWindows && !withNewShell)
+    if (SystemInfo.isWindows && !useNewShell)
       vmParams.add("-Dsbt.log.noformat=true")
 
     val commandLine: GeneralCommandLine = javaParameters.toCommandLine
     sbtSettings.getCustomVMExecutableOrWarn(project).foreach(exe => commandLine.setExePath(exe.getAbsolutePath))
 
-    val settingsFile: File =
+    val settingsFile: Path =
       getOrCreateExtraSbtSettingsFile(addPluginCommandSupported, commandLine, projectSbtVersion.binaryVersion)
 
     val injectPluginsSettings = getInjectedPluginsCommands(projectSbtVersion)
@@ -187,43 +188,43 @@ final class SbtProcessManager(project: Project) extends Disposable {
     )
 
     if (addPluginCommandSupported) {
-      val settingsPath = settingsFile.getAbsolutePath
+      val settingsPath = settingsFile.toCanonicalPath.toString
       commandLine.addParameter(s"early(addPluginSbtFile=\"\"\"$settingsPath\"\"\")")
     }
 
-    val commands = if (withNewShell) "shell" else "idea-shell"
+    val commands = if (useNewShell) "shell" else "idea-shell"
 
     commandLine.addParameter(commands)
     val sbtLauncherArgs = sbtOpts.collect { case a: SbtLauncherOption => a.value }
     commandLine.addParameters(sbtLauncherArgs.asJava)
 
-    val pty = createPtyCommandLine(commandLine, sbtSettings.passParentEnvironment, sbtSettings.userSetEnvironment, withNewShell)
+    val pty = createPtyCommandLine(commandLine, sbtSettings.passParentEnvironment, sbtSettings.userSetEnvironment, useNewShell)
     // KillableProcessHandler is a handler compatible with TerminalExecutionConsole. Maybe it will change IJPL-212220
     val cpty =
-      if (withNewShell)
+      if (useNewShell)
         new KillableProcessHandler(pty)
       else
         new ColoredProcessHandler(pty)
 
     cpty.setShouldKillProcessSoftly(true)
 
-    (cpty, debugConnection, projectSbtVersion)
+    (cpty, debugConnection, projectSbtVersion, useNewShell)
   }
 
   private def getOrCreateExtraSbtSettingsFile(
     addPluginCommandSupported: Boolean,
     commandLine: GeneralCommandLine,
     sbtBinVersion: Version
-  ): File = {
+  ): Path = {
     val globalPluginsDir = globalPluginsDirectory(SbtVersion(sbtBinVersion), commandLine.getParametersList)
     // workaround: --addPluginSbtFile fails if global plugins dir does not exist. https://youtrack.jetbrains.com/issue/SCL-14415
-    if (!globalPluginsDir.exists()) {
-      globalPluginsDir.mkdirs()
+    if (!globalPluginsDir.exists) {
+      Files.createDirectories(globalPluginsDir)
     }
     if (addPluginCommandSupported)
-      FileUtil.createTempFile("idea", Sbt.Extension, true)
+      FileUtil.createTempFile("idea", Sbt.Extension, true).toPath
     else
-      new File(globalPluginsDir, "idea.sbt")
+      globalPluginsDir / "idea.sbt"
   }
 
   private def selectSdkOrWarn(sbtSettings: SbtExecutionSettings): Sdk = {
@@ -305,7 +306,8 @@ final class SbtProcessManager(project: Project) extends Disposable {
      Setting an initial PTY window size for the sbt shell pty process.
 
      Initially (in the "old shell"), this was only required on Windows since the terminal defaults to 80 columns,
-     causing line wrapping and breaking highlighting. However, with the new shell enabled, it is required for both Windows and Unix.
+     causing line wrapping and breaking highlighting. However, with the new shell enabled,
+     it is required for both Windows and Unix (due to the use of jline3 in the built-in "shell" command since sbt 1.4).
      This is because if the shell window is minimized at startup, the terminal may report a 0×0 size.
      As a result, ">..." (see `org.jline.reader.impl.LineReaderImpl#redisplay`) will be displayed instead of the shell prompt,
      which breaks the shell ready mechanism.
@@ -335,7 +337,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
     sbtVersion: SbtVersion,
     runId: String,
     guardSettings: Boolean,
-    settingsFile: File,
+    settingsFile: Path,
     settings: Seq[String]
   ): Unit = {
     @NonNls
@@ -356,10 +358,10 @@ final class SbtProcessManager(project: Project) extends Disposable {
     val content = header + "\n" + guardedSettings
 
     try {
-      FileUtil.writeToFile(settingsFile, content)
+      Files.writeString(settingsFile, content, StandardCharsets.UTF_8)
     } catch {
       case x : IOException =>
-        log.error(s"unable to write ${settingsFile.getPath} which is required for sbt shell support", x)
+        log.error(s"unable to write ${settingsFile.toCanonicalPath} which is required for sbt shell support", x)
         throw x
     }
   }
@@ -401,16 +403,15 @@ final class SbtProcessManager(project: Project) extends Disposable {
   }
 
   private def createProcessData(): ProcessData = {
-    val withNewShell = isNewShell
-    val (handler, debugConnection, sbtVersion) = createShellProcessHandler(withNewShell)
+    val (handler, debugConnection, sbtVersion, useNewShell) = createShellProcessHandler
 
-    if (withNewShell) {
+    if (useNewShell) {
       val console = createTerminalConsole(handler)
-      TerminalConsoleProcessData(handler, sbtVersion, debugConnection, console)
+      TerminalConsoleProcessData(handler, sbtVersion, debugConnection, console, useNewShell)
     } else {
       val title = project.getName
       val runner = new SbtShellRunner(project, title, debugConnection)
-      AbstractConsoleProcessData(handler, sbtVersion, debugConnection, runner)
+      AbstractConsoleProcessData(handler, sbtVersion, debugConnection, runner, useNewShell)
     }
   }
 
@@ -418,7 +419,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
    * Create a `TerminalExecutionConsole` for the sbt shell process with a custom `ProcessHandlerTtyConnector`.
    *
    * The custom `ProcessHandlerTtyConnector` overrides the `resize` method to enforce a minimum rows in terminal.
-   * If the terminal rows fall at or below the minimum value used by `org.jline.reader.impl.LineReaderImpl` (3),
+   * If the terminal rows fall at or below the minimum value used by `org.jline.reader.impl.LineReaderImpl` (JLine 3),
    * JLine switches to a mode where output is displayed on a single line.
    * This results in the following issues:
    *   - Commands are not fully rendered, e.g., during project sync, parts of the command are replaced with "..."
@@ -480,11 +481,11 @@ final class SbtProcessManager(project: Project) extends Disposable {
    * Checks whether the sbt version used by the sbt shell process matches the current sbt version.
    * Returns `false` if the sbt shell is not running.
    *
-   * @see [[detectCurrentSbtVersion]]
+   * @see [[org.jetbrains.sbt.SbtVersionDetector.detectSbtVersion]]
    */
   def isSbtVersionOutdated: Boolean = processDataMutex.synchronized {
     processData.filter(isAlive).exists { data =>
-      data.sbtVersion != detectCurrentSbtVersion
+      data.sbtVersion != SbtVersionDetector.detectSbtVersion(project)
     }
   }
 
@@ -622,11 +623,12 @@ final class SbtProcessManager(project: Project) extends Disposable {
       val actionGroup = createActionGroupForTerminalConsole(processData.console)
       SbtShellToolWindowFactory.initUi(project, actionGroup, component = processData.console.getComponent)
   }
+
+  private[shell] def isRunWithNewShell: Boolean =
+    processData.exists(_.isNewShell)
 }
 
 object SbtProcessManager {
-
-  def isNewShell: Boolean = Registry.is("sbt.new.shell")
 
   def forProject(project: Project): SbtProcessManager = {
     val pm = project.getService(classOf[SbtProcessManager])
@@ -645,6 +647,7 @@ object SbtProcessManager {
     def processHandler: OSProcessHandler
     def sbtVersion: SbtVersion
     def debugConnection: Option[RemoteConnection]
+    def isNewShell: Boolean
 
     def flushText(): Unit
   }
@@ -653,7 +656,8 @@ object SbtProcessManager {
     processHandler: OSProcessHandler,
     sbtVersion: SbtVersion,
     debugConnection: Option[RemoteConnection],
-    runner: SbtShellRunner
+    runner: SbtShellRunner,
+    isNewShell: Boolean
   ) extends ProcessData {
     override def flushText(): Unit = runner.getConsoleView.flushDeferredText()
   }
@@ -662,13 +666,14 @@ object SbtProcessManager {
     processHandler: OSProcessHandler,
     sbtVersion: SbtVersion,
     debugConnection: Option[RemoteConnection],
-    console: TerminalExecutionConsole
+    console: TerminalExecutionConsole,
+    isNewShell: Boolean
   ) extends ProcessData {
     override def flushText(): Unit = console.flushImmediately()
   }
 
   private[shell]
-  def buildVMParameters(sbtSettings: SbtExecutionSettings, workingDir: File, sbtOpts: Seq[String]): Seq[String] = {
+  def buildVMParameters(sbtSettings: SbtExecutionSettings, workingDir: Path, sbtOpts: Seq[String]): Seq[String] = {
     //TODO #SCL-22878 "-Djdk.console=java.base" is needed due to modifications made to the System.console() after JDK 21,
     // which are not yet fully supported in sbt
     val hardcoded = List("-Dsbt.supershell=false", "-Djdk.console=java.base")

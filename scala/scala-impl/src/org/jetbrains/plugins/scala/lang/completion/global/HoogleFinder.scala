@@ -25,7 +25,7 @@ private final class HoogleFinder(originalType: ScType,
     objectCandidates(targetTypeDefinitions) {
       case function: ScFunction =>
         function.parameters match {
-          case Seq(head) if head.getRealParameterType.exists(valueType.conforms) =>
+          case Seq(head) if head.outsideParamType.exists(valueType.conforms) =>
             Seq(function)
           case _ => Seq.empty
         }

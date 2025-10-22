@@ -1,7 +1,8 @@
 package org.jetbrains.bsp.projectHighlighting
 
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
-import com.intellij.openapi.progress.DumbProgressIndicator
+import com.intellij.openapi.progress.{ProgressIndicator, Task}
+import com.intellij.testFramework.PlatformTestUtil
 import org.jetbrains.bsp.BSP
 import org.jetbrains.bsp.project.importing.setup.SbtConfigSetup
 import org.jetbrains.bsp.settings.BspProjectSettings
@@ -10,10 +11,10 @@ import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.projectHighlighting.base.ProjectHighlightingTestUtils
 import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.project.ScalaExternalSystemImportingTestBase
-import org.junit.Assert.fail
 
 import java.nio.file.Path
-import scala.util.Try
+import java.util.concurrent.CompletableFuture
+import scala.util.{Failure, Success}
 
 /** See also [[org.jetbrains.sbt.project.SbtExternalSystemImportingTestLike]] */
 trait SbtOverBspExternalSystemImportingTestCase extends ScalaExternalSystemImportingTestBase {
@@ -59,19 +60,31 @@ trait SbtOverBspExternalSystemImportingTestCase extends ScalaExternalSystemImpor
     //it's done in `setupSdk` but in this test we need JDK earlier
     setupProjectJdk()
     val jdk = getJdkConfiguredForTestCase
-    val sbtBspConfigSetup = SbtConfigSetup(projectPath, jdk)
-    val reporter = new ConsoleReporter(name = "") {
-      override def progressTask(eventId: BuildMessages.EventId, total: Long, progress: Long, unit: String, message: String, time: Long): Unit = {
-        //do nothing, in tests it's enough to see the console output which is already printed by SbtStructureDump
+
+    val future = new CompletableFuture[Unit]()
+    val task = new Task.Backgroundable(null, title, false) {
+      override def run(indicator: ProgressIndicator): Unit = {
+        val sbtBspConfigSetup = SbtConfigSetup(projectPath, jdk)
+        val reporter = new ConsoleReporter(name = "") {
+          override def progressTask(eventId: BuildMessages.EventId, total: Long, progress: Long, unit: String, message: String, time: Long): Unit = {
+            //do nothing, in tests it's enough to see the console output which is already printed by SbtStructureDump
+          }
+        }
+        val buildMessages = sbtBspConfigSetup.run(indicator)(reporter)
+        buildMessages match {
+          case Failure(exception) =>
+            future.completeExceptionally(exception)
+          case Success(messages) =>
+            if (messages.errors.nonEmpty) {
+              future.completeExceptionally(new AssertionError(s"$title Failed: ${messages.errors.map(_.getMessage).mkString("\n")}"))
+            } else {
+              println(s"$title Completed")
+              future.complete(())
+            }
+        }
       }
     }
-    val buildMessages: Try[BuildMessages] = sbtBspConfigSetup.run(new DumbProgressIndicator())(reporter)
-    val messages = buildMessages.get
-    if (messages.errors.nonEmpty) {
-      fail(s"$title Failed")
-    }
-    else {
-      println(s"$title Completed")
-    }
+    task.queue()
+    PlatformTestUtil.waitForFuture(future)
   }
 }

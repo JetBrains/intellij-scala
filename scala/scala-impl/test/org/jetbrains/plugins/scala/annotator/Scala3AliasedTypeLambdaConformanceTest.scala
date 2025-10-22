@@ -138,4 +138,44 @@ class Scala3AliasedTypeLambdaConformanceTest extends ScalaLightCodeInsightFixtur
       |val r1: Option[Int] = f1(Seq(1, 2, 3))
       |""".stripMargin
   )
+
+  def testSCL22391(): Unit = checkTextHasNoErrors(
+    """
+      |object wrapper:
+      |  trait MyOutput[T]
+      |
+      |  final type MyOutputAlias1[T] = MyOutput[T]
+      |  final type MyOutputAlias2 = MyOutput
+      |  final type MyOutputAlias3 = [T] =>> MyOutput[T]
+      |
+      |  trait MyType
+      |  object MyType:
+      |    extension (output: MyOutput[MyType]) def ext21: String = null
+      |    extension (output: MyOutputAlias1[MyType]) def ext22: String = null
+      |    extension (output: MyOutputAlias2[MyType]) def ext23: String = null
+      |    extension (output: MyOutputAlias3[MyType]) def ext24: String = null
+      |
+      |  extension (output: MyOutput[MyType]) def ext11: String = null
+      |  extension (output: MyOutputAlias1[MyType]) def ext12: String = null
+      |  extension (output: MyOutputAlias2[MyType]) def ext13: String = null
+      |  extension (output: MyOutputAlias3[MyType]) def ext14: String = null
+      |
+      |  //noinspection DfaNpeOnInvocation
+      |  def foo(): Unit =
+      |    val v1: MyOutput[MyType] = null
+      |    val v2: MyOutputAlias1[MyType] = null
+      |    val v3: MyOutputAlias2[MyType] = null
+      |    val v4: MyOutputAlias3[MyType] = null
+      |
+      |    v1.ext11 + v2.ext11 + v3.ext11
+      |    v1.ext12 + v2.ext12 + v3.ext12
+      |    v1.ext13 + v2.ext13 + v3.ext13
+      |    v1.ext13 + v2.ext13 + v3.ext14
+      |
+      |    v1.ext21 + v2.ext21 + v3.ext21
+      |    v1.ext22 + v2.ext22 + v3.ext22
+      |    v1.ext23 + v2.ext23 + v3.ext23
+      |    v1.ext23 + v2.ext23 + v3.ext24
+      |""".stripMargin
+  )
 }

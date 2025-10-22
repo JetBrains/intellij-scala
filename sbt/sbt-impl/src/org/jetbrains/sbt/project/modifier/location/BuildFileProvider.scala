@@ -1,20 +1,20 @@
 package org.jetbrains.sbt.project.modifier.location
 
-import com.intellij.openapi.module.{Module => IJModule}
+import com.intellij.openapi.module.Module as IJModule
 import com.intellij.openapi.vfs.{VfsUtil, VfsUtilCore, VirtualFile}
 import com.intellij.psi.{PsiFile, PsiManager}
 import com.intellij.testFramework.LightVirtualFile
 import com.intellij.util.LocalTimeCounter
 import org.jetbrains.sbt.project.modifier.BuildFileElementType
 
-import java.io.File
+import java.nio.file.Path
 import scala.collection.mutable
 
 trait BuildFileProvider {
   def findBuildFile(module: IJModule, elementType: BuildFileElementType,
                     vfsFileToCopy: mutable.Map[VirtualFile, LightVirtualFile]): Option[BuildFileEntry[PsiFile]] = {
 
-    def findVirtualFile(file: File) = Option(VfsUtil.findFileByIoFile(file, true))
+    def findVirtualFile(file: Path) = Option(VfsUtil.findFile(file, true))
 
     def toLightVirtualFile(origFile: VirtualFile) = vfsFileToCopy.getOrElseUpdate(origFile,
       new LightVirtualFile(origFile, VfsUtilCore.loadText(origFile), LocalTimeCounter.currentTime))
@@ -31,7 +31,5 @@ trait BuildFileProvider {
   }
 
 
-  def findIoFile(module: IJModule, elementType: BuildFileElementType): Option[BuildFileEntry[File]]
+  def findIoFile(module: IJModule, elementType: BuildFileElementType): Option[BuildFileEntry[Path]]
 }
-
-case class BuildFileEntry[T](file: T, isModuleLocal: Boolean)

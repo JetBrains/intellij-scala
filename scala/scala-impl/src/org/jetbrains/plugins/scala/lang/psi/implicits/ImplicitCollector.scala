@@ -109,7 +109,7 @@ object ImplicitCollector {
  * @param place                   The call site
  * @param tp                      Search for an implicit definition of this type. May have type variables.
  * @param forDeferredGivenInClass Template definition for which deferred given instance search was initiated.
- *                                In this case special kind of lexical scope is used, even though `place` is technically
+ *                                In this case, a special kind of lexical scope is used, even though `place` is technically
  *                                inside the template definition, only constructor parameters contribute to it.
  * @param withExtensions          If true, include Scala 3 extension methods.
  */
@@ -167,7 +167,7 @@ class ImplicitCollector(
   private def canContainTargetMethod(srr: ScalaResolveResult): Boolean = measure("ImplicitCollector.canContainTargetMethod") {
     withExtensions && !srr.isExtensionCall && !hasExplicitClause(srr) && {
       val targetType = srr.element match {
-        case param: ScParameter => param.typeElement.flatMap(_.`type`().toOption)
+        case param: ScParameter => param.insideParamType.toOption
         case fun: ScFunction    => fun.returnType.toOption
         case _                  => None
       }
@@ -500,7 +500,7 @@ class ImplicitCollector(
 
     tp.foreach { t =>
       val state = ScalaResolveState
-        .withImplicitScopeObject(t)
+        .withImplicitScopeType(t)
         .withImportsUsed(result.importsUsed)
 
       val stateWithUnresolved = unresolvedTypeParams match {
@@ -517,28 +517,30 @@ class ImplicitCollector(
   //@TODO: apply context function to implicit args if type of `c` does not conform
   //       to expected type
   private def simpleConformanceCheck(c: ScalaResolveResult): Option[ScalaResolveResult] = {
-    c.element match {
-      case typeable: Typeable =>
-        val subst = c.substitutor
-        typeable.`type`() match {
-          case Right(t) =>
-            val conformance = subst(t).conforms(tp, ConstraintSystem.empty)(Context(place))
-            conformance match {
-              case ConstraintSystem(subst) =>
-                //Update synthetic parameters, coming from expected context-function type
-                typeable match {
-                  case contextParam: LightContextFunctionParameter if !isImplicitConversion =>
-                    contextParam.updateWithSubst(subst)
-                  case _ => ()
-                }
+    val ty = c.element match {
+      case param: ScParameter => param.insideParamType
+      case typeable: Typeable => typeable.`type`()
+      case _ => return None
+    }
 
-                Option(c.copy(implicitReason = OkResult))
-              case _ =>
-                reportWrong(c, TypeDoesntConformResult, propagateFailures = withExtensions)
+    val subst = c.substitutor
+    ty match {
+      case Right(t) =>
+        val conformance = subst(t).conforms(tp, ConstraintSystem.empty)(Context(place))
+        conformance match {
+          case ConstraintSystem(subst) =>
+            //Update synthetic parameters, coming from expected context-function type
+            c.element match {
+              case contextParam: LightContextFunctionParameter if !isImplicitConversion =>
+                contextParam.updateWithSubst(subst)
+              case _ => ()
             }
-          case _ => reportWrong(c, BadTypeResult, propagateFailures = withExtensions)
+
+            Option(c.copy(implicitReason = OkResult))
+          case _ =>
+            reportWrong(c, TypeDoesntConformResult, propagateFailures = withExtensions)
         }
-      case _ => None
+      case _ => reportWrong(c, BadTypeResult, propagateFailures = withExtensions)
     }
   }
 

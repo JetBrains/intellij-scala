@@ -133,7 +133,8 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
         val status = SbtBundle.message("sbt.shell.status.busy")
         consoleView.setPrompt(s"($status) >")
         scrollToEnd()
-      }
+      },
+      project
     )
   }
 

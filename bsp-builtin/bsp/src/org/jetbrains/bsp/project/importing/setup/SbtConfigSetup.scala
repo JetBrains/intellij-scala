@@ -5,10 +5,10 @@ import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable, Sdk}
 import org.jetbrains.bsp.BspBundle
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}
 import org.jetbrains.plugins.scala.extensions.invokeAndWait
-import org.jetbrains.sbt.SbtUtil.{detectSbtVersion, getDefaultLauncher, sbtVersionParam}
+import org.jetbrains.sbt.SbtUtil.{defaultLauncherPath, detectSbtVersion, sbtVersionParam}
+import org.jetbrains.sbt.SbtVersion
 import org.jetbrains.sbt.project.SbtExternalSystemManager
 import org.jetbrains.sbt.project.structure.SbtStructureDump
-import org.jetbrains.sbt.{SbtUtil, SbtVersion}
 
 import java.nio.file.Path
 import scala.util.Try
@@ -30,24 +30,24 @@ object SbtConfigSetup {
     val jdkType = JavaSdk.getInstance()
     val jdkExe = Path.of(jdkType.getVMExecutablePath(jdk))
     val jdkHome = Option(jdk.getHomePath).map(Path.of(_))
-    val sbtLauncher = SbtUtil.getDefaultLauncher
+    val sbtLauncher = defaultLauncherPath
 
     // dummy command so that sbt will run, init and exit
     val sbtLauncherArgs = List("early(startServer)")
     val sbtCommands = ""
 
-    val projectSbtVersion = detectSbtVersion(baseDir, getDefaultLauncher.toPath)
+    val projectSbtVersion = detectSbtVersion(baseDir, defaultLauncherPath)
     val sbtVersion = SbtVersion.upgradeSbtVersionToTheLatestCompatible(projectSbtVersion)
     val upgradeParam =
       if (sbtVersion > projectSbtVersion)
         List(sbtVersionParam(sbtVersion))
       else List.empty
 
-    val vmArgs = SbtExternalSystemManager.getVmOptions(Seq.empty, jdkHome.map(_.toFile)) ++ upgradeParam
+    val vmArgs = SbtExternalSystemManager.getVmOptions(Seq.empty, jdkHome) ++ upgradeParam
 
     val dumper = new SbtStructureDump()
     val runInit = (indicator: ProgressIndicator, reporter: BuildReporter) => dumper.runSbt(
-      indicator, baseDir.toFile, jdkExe.toFile, vmArgs,
+      indicator, baseDir, jdkExe, vmArgs,
       Map.empty, sbtLauncher, Seq.empty, sbtLauncherArgs, sbtCommands,
       BspBundle.message("bsp.resolver.creating.sbt.configuration"), passParentEnvironment = true
     )(reporter)

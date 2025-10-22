@@ -51,7 +51,7 @@ class MaxJvmHeapParameterTest {
         sbtVersion = SbtVersion.Latest.Sbt_1
       )
 
-      SbtProcessManager.buildVMParameters(settings, workingDir.toFile, List.empty)
+      SbtProcessManager.buildVMParameters(settings, workingDir, List.empty)
     }
   }
 

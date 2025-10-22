@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.worksheet.settings
 
+import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt}
@@ -28,7 +29,8 @@ private object WorksheetModuleUtil {
   }
 
   def isStale(module: Module): Boolean = {
-    val separate = SbtUtil.isBuiltWithSeparateModulesForProdTest(module.getProject)
+    val externalProjectPath = Option(ExternalSystemApiUtil.getExternalRootProjectPath(module))
+    val separate = SbtUtil.isBuiltWithSeparateModulesForProdTest(module.getProject, externalProjectPath)
     val isMainOrTest = module.isMain || module.isTest
     if (separate) !isMainOrTest else isMainOrTest
   }

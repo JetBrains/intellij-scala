@@ -173,7 +173,7 @@
                      description="If enabled, the information to update configurations is displayed as a suggestion and remains in the tool window until all configurations have been migrated."/>
 
         <registryKey key="sbt.new.shell" defaultValue="false" restartRequired="false"
-                     description="If enabled, new, terminal-like sbt shell implementation is used"/>
+                     description="If enabled, new, terminal-like sbt shell implementation is used. It will apply only to new shell instances and only with sbt >= 1.4.0."/>
 
         <newProjectWizard.languageGenerator implementation="org.jetbrains.sbt.project.template.wizard.ScalaNewProjectWizard"/>
         <newProjectWizard.scala.buildSystem implementation="org.jetbrains.sbt.project.template.wizard.buildSystem.SbtScalaNewProjectWizard" />
@@ -187,7 +187,6 @@
         <editorNotificationProvider implementation="org.jetbrains.sbt.project.SbtProjectImportStateNotificationProvider"/>
         <editorNotificationProvider implementation="org.jetbrains.sbt.project.SetupScalaHighlightingNotificationProvider"/>
 
-        <postStartupActivity implementation="org.jetbrains.sbt.shell.SbtNewShellRegistryListener" />
         <postStartupActivity implementation="org.jetbrains.sbt.project.SbtProjectManagerListener" />
         <postStartupActivity implementation="org.jetbrains.sbt.project.LegacySbtVersionNotifications$MyProjectActivity"/>"
     </extensions>

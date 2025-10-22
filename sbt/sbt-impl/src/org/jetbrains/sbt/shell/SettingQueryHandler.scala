@@ -4,7 +4,6 @@ import com.intellij.task.{ProjectTaskContext, ProjectTaskManager}
 import org.jetbrains.plugins.scala.build.{BuildMessages, TaskManagerResult}
 import org.jetbrains.sbt.SbtUtil.SbtProjectUriAndId
 import org.jetbrains.sbt.SbtVersionCapabilities
-import org.jetbrains.sbt.shell.SbtProcessManager.isNewShell
 import org.jetbrains.sbt.shell.SbtShellCommunication.{EventAggregator, ShellEvent, TaskComplete}
 import org.jetbrains.sbt.shell.SettingQueryHandler.*
 
@@ -129,9 +128,8 @@ object SettingQueryHandler {
     private var collectInfo = true
 
     def getBufferedOutput: String = {
-      if (isNewShell) {
-        strings = strings.map(BuildMessages.stripAnsiCodes(_, stripDeckpnm = true))
-      }
+      // Strip ANSI codes in both old and new sbt shell modes for simplicity - it's harmless in old mode.
+      strings = strings.map(BuildMessages.stripAnsiCodes)
       strings = strings.dropWhile(line => !line.startsWith(filterPrefix) && !handler.settingValuePrefixes.contains(line.stripPrefix(filterPrefix)))
       if (strings.isEmpty) return ""
       if (strings.length == 1) return strings.head.stripPrefix(filterPrefix)

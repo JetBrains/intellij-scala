@@ -32,7 +32,7 @@ object GlobalImplicitInstance {
   }
 
   private def containingObject(srr: ScalaResolveResult): Option[ScObject] = {
-    val ownerType = srr.implicitScopeObject.orElse {
+    val ownerType = srr.implicitScopeType.orElse {
       srr.element.containingClassOfNameContext
         .filterByType[ScTemplateDefinition]
         .map(c => srr.substitutor(ScThisType(c)))

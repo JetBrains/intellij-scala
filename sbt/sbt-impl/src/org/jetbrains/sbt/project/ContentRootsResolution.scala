@@ -2,13 +2,13 @@ package org.jetbrains.sbt.project
 
 import com.intellij.openapi.externalSystem.model.project.ExternalSystemSourceType
 import com.intellij.openapi.util.io.FileUtil
-import org.jetbrains.plugins.scala.extensions.RichFile
+import org.jetbrains.plugins.scala.extensions.{PathExt, RichFile}
 import org.jetbrains.sbt.project.SbtProjectResolver.{CompileScope, ImportContext, IntegrationTestScope, TestScope}
 import org.jetbrains.sbt.project.data.ContentRootNode
 import org.jetbrains.sbt.structure.DirectoryData
-import org.jetbrains.sbt.{Sbt, SbtUtil, structure => sbtStructure}
+import org.jetbrains.sbt.{Sbt, SbtUtil, structure as sbtStructure}
 
-import java.io.File
+import java.nio.file.Path
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
@@ -99,10 +99,10 @@ trait ContentRootsResolution { self: ExternalSourceRootResolution =>
     // * Additionally, content roots may be created for individual source directories (see ContentRootsResolution.createContentRootNodes).
     // However, any overlap with individual source directories for shared sources is handled in #resolveExternalSystemSources.
     val sharedSourcesBaseDirs = groupedSharedRoots.filter(_.hasStandardBasePath).flatMap { group =>
-      val mainBase = group.base / "src" / "main"
-      val testBase = group.base / "src" / "test"
-      val actualBases = Seq(mainBase, testBase).filter(base => group.sourceRoots.exists(_.directory.isUnder(base)))
-      group.base +: actualBases
+      val mainBase = group.base.toPath / "src" / "main"
+      val testBase = group.base.toPath / "src" / "test"
+      val actualBases = Seq(mainBase, testBase).filter(base => group.sourceRoots.exists(_.directory.toPath.isUnder(base)))
+      group.base.toPath +: actualBases
     }.map(SbtUtil.normalizePath)
 
     // The mainSourceDirectories/testSourceDirectories values are derived from the sourceDirectory sbt key.
@@ -111,7 +111,7 @@ trait ContentRootsResolution { self: ExternalSourceRootResolution =>
     // or within the same project but in a different scope. This is why it's necessary to collect already reserved base source directories to prevent duplicates.
     val alreadyUsedSourceBaseDirs = mutable.HashSet.empty[String]
     // See org.jetbrains.sbt.project.ContentRootsResolution.ProjectSourcesDetails.canCreateParentContentRoot
-    val alreadyUsedProjectBaseDirs = mutable.HashSet.empty[File]
+    val alreadyUsedProjectBaseDirs = mutable.HashSet.empty[Path]
     projects.map { project =>
       val sources = projectToSources.getOrElse(project, Seq.empty)
 
@@ -121,19 +121,19 @@ trait ContentRootsResolution { self: ExternalSourceRootResolution =>
       val mainSources = getSourceRoots(s => !s.isTest && !s.isExcluded)
       val testSources = getSourceRoots(_.isTest)
 
-      def getValidSourceBaseDirs(sourceBaseDirs: Seq[File]): Seq[String] =
+      def getValidSourceBaseDirs(sourceBaseDirs: Seq[Path]): Seq[String] =
         sourceBaseDirs.map(SbtUtil.normalizePath)
           .filterNot(uniqueSourcesPaths.contains)
           .filterNot(alreadyUsedSourceBaseDirs.contains)
           .filterNot(sharedSourcesBaseDirs.contains)
 
-      val mainSourceBaseDirs = getValidSourceBaseDirs(project.mainSourceDirectories)
+      val mainSourceBaseDirs = getValidSourceBaseDirs(project.mainSourceDirectories.map(_.toPath))
       alreadyUsedSourceBaseDirs ++= mainSourceBaseDirs
-      val testSourceBaseDirs = getValidSourceBaseDirs(project.testSourceDirectories)
+      val testSourceBaseDirs = getValidSourceBaseDirs(project.testSourceDirectories.map(_.toPath))
       alreadyUsedSourceBaseDirs ++= testSourceBaseDirs
 
-      val isProjectDirReserved = alreadyUsedProjectBaseDirs.contains(project.base)
-      alreadyUsedProjectBaseDirs += project.base
+      val isProjectDirReserved = alreadyUsedProjectBaseDirs.contains(project.base.toPath)
+      alreadyUsedProjectBaseDirs += project.base.toPath
 
       project -> ProjectSourcesDetails(mainSources, testSources, mainSourceBaseDirs, testSourceBaseDirs, !isProjectDirReserved)
     }.toMap
@@ -254,12 +254,19 @@ trait ContentRootsResolution { self: ExternalSourceRootResolution =>
   }
 
   private def findContentRootContainingPath(contentRoots: Seq[ContentRootNode], path: String): Option[ContentRootNode] = {
-    val dir = new File(path)
+    val dir = Path.of(path)
     contentRoots.find { contentRoot =>
-      val contentRootDir = new File(contentRoot.data.getRootPath)
+      val contentRootDir = Path.of(contentRoot.data.getRootPath)
       dir.isUnder(contentRootDir, strict = false)
     }
   }
+
+  extension (path: Path)
+    private def isUnder(root: Path): Boolean = path.isUnder(root, strict = true)
+
+    private def isUnder(root: Path, strict: Boolean): Boolean =
+      FileUtil.isAncestor(root.toCanonicalPath.toString, path.toCanonicalPath.toString, strict)
+  end extension
 
   private def managedDirectories(dirs: Seq[sbtStructure.DirectoryData]): Seq[String] =
     dirs.filter(_.managed).map(_.file.canonicalPath)
@@ -312,7 +319,7 @@ trait ContentRootsResolution { self: ExternalSourceRootResolution =>
     contentRoot: ContentRootNode,
     project: sbtStructure.ProjectData,
   )(implicit context: ImportContext): Unit = {
-    val extractedExcludes = project.configurations.flatMap(_.excludes)
+    val extractedExcludes = project.configurations.flatMap(_.excludes).map(_.toPath)
 
     val excludedDirs = if (extractedExcludes.nonEmpty)
       extractedExcludes.distinct
@@ -324,12 +331,12 @@ trait ContentRootsResolution { self: ExternalSourceRootResolution =>
       // - https://github.com/sbt/sbt/issues/8037
       //
       // We could extract this hardcoding logic to sbt-structure plugin, but for now it seems not necessary
-      Seq(new File(contentRoot.data.getRootPath, Sbt.TargetDirectory))
+      Seq(Path.of(contentRoot.data.getRootPath) / Sbt.TargetDirectory)
     } else
-      Seq(project.target)
+      Seq(project.target.toPath)
 
     excludedDirs.foreach { path =>
-      contentRoot.storePath(ExternalSystemSourceType.EXCLUDED, path.path)
+      contentRoot.storePath(ExternalSystemSourceType.EXCLUDED, path.toCanonicalPath.toString)
     }
   }
 }

@@ -509,7 +509,7 @@ trait ProjectStructureMatcher {
     val externalProjectRoot = ExternalSystemApiUtil.getExternalRootProjectPath(module)
     assertNotNull(s"The external project root for $moduleName is null", externalProjectRoot)
 
-    val defaultModuleFilesDirectory = SbtUtil.getDefaultModuleFilesDirectory(Path.of(externalProjectRoot).toFile)
+    val defaultModuleFilesDirectory = SbtUtil.getDefaultModuleFilesDirectory(Path.of(externalProjectRoot))
     val expectedModuleFileDirectoryPath = Path.of(defaultModuleFilesDirectory, expected)
     assertEquals(s"The module file directory for $moduleName is incorrect", expectedModuleFileDirectoryPath, module.getModuleNioFile.getParent)
   }

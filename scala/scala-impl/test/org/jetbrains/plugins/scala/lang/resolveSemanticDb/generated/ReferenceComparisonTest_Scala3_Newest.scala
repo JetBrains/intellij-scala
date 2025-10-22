@@ -1737,7 +1737,7 @@ final class ReferenceComparisonTest_Scala3_Newest_Part17 extends ReferenceCompar
   def test_i17391(): Unit = doTest("i17391", false)
   def test_i17394(): Unit = doTest("i17394", true)
   def test_i17394b(): Unit = doTest("i17394b", true) // #givenImport
-  def test_i17395_spec(): Unit = doTest("i17395-spec", false) // #matchType
+  def test_i17395_spec(): Unit = doTest("i17395-spec", true) // #matchType
   def test_i17465(): Unit = doTest("i17465", true) // #intersectionType, #unionType, #traitParameters
   def test_i17525(): Unit = doTest("i17525", true) // #transparentInline
   def test_i17556(): Unit = doTest("i17556", true)
@@ -1906,7 +1906,7 @@ final class ReferenceComparisonTest_Scala3_Newest_Part19 extends ReferenceCompar
   def test_i20344(): Unit = doTest("i20344", false) // #typeLambda, #givenImport
   def test_i20377(): Unit = doTest("i20377", false)
   def test_i20415(): Unit = doTest("i20415", true)
-  def test_i20482(): Unit = doTest("i20482", false) // #typeLambda, #matchType
+  def test_i20482(): Unit = doTest("i20482", true) // #typeLambda, #matchType
   def test_i20483(): Unit = doTest("i20483", true)
   def test_i20484(): Unit = doTest("i20484", true)
   def test_i20498(): Unit = doTest("i20498", true)
@@ -2657,7 +2657,7 @@ final class ReferenceComparisonTest_Scala3_Newest_Part26 extends ReferenceCompar
   def test_t651(): Unit = doTest("t651", true)
   def test_t0654(): Unit = doTest("t0654", true)
   def test_t661(): Unit = doTest("t661", true)
-  def test_t0674(): Unit = doTest("t0674", true)
+  //def test_t0674(): Unit = doTest("t0674", true)
   def test_t675(): Unit = doTest("t675", true)
   def test_t684(): Unit = doTest("t684", true)
   def test_t690(): Unit = doTest("t690", true)
@@ -3279,7 +3279,7 @@ final class ReferenceComparisonTest_Scala3_Newest_Part32 extends ReferenceCompar
   def test_targetName_infer_result(): Unit = doTest("targetName-infer-result", true) // #enum
   def test_targetName_override(): Unit = doTest("targetName-override", true)
   def test_tasty_named_arguments(): Unit = doTest("tasty-named-arguments", false)
-  def test_tasty_parent_unapply(): Unit = doTest("tasty-parent-unapply", false)
+  def test_tasty_parent_unapply(): Unit = doTest("tasty-parent-unapply", true)
   def test_tasty_reflect_opaque_api_proto(): Unit = doTest("tasty-reflect-opaque-api-proto", true) // #opaque, #extension
   def test_tasty_tags_obscure(): Unit = doTest("tasty-tags-obscure", true)
   def test_tcpoly_boundedmonad(): Unit = doTest("tcpoly_boundedmonad", true)

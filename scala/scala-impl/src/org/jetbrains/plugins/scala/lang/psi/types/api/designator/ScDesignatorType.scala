@@ -26,7 +26,7 @@ final case class ScDesignatorType(override val element: PsiNamedElement) extends
   override protected def calculateAliasType(implicit context: Context): Option[AliasType] = calculateAliasTypeAux(element, ScSubstitutor.empty)
 
   def getValType: Option[StdType] = element match {
-    case clazz: PsiClass if !clazz.isInstanceOf[ScObject] =>
+    case clazz: PsiClass if !clazz.is[ScObject] =>
       projectContext.stdTypes.QualNameToType.get(clazz.qualifiedName)
     case _ => None
   }

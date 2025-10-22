@@ -4,19 +4,20 @@ import com.intellij.openapi.compiler.CompilerMessage
 import com.intellij.openapi.editor.{Editor, FoldRegion}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDocumentManager
+import org.jetbrains.plugins.scala.WorksheetEvaluationTests
 import org.jetbrains.plugins.scala.compiler.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.extensions.TextRangeExt
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettingsProfile}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.MarkersUtils
 import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers._
+import org.jetbrains.plugins.scala.util.dependencymanager.TestDependencyManager
 import org.jetbrains.plugins.scala.util.runners._
 import org.jetbrains.plugins.scala.worksheet.WorksheetFile
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest._
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.settings.persistent.WorksheetFilePersistentSettings
-import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion, WorksheetEvaluationTests}
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
@@ -256,6 +257,17 @@ abstract class WorksheetIntegrationBaseTest
   private def compilerSettingsProfile(file: WorksheetFile): ScalaCompilerSettingsProfile =
     ScalaCompilerSettingsProfile.forFile(file)
       .getOrElse(throw new IllegalStateException(s"No compiler settings configured for $file"))
+
+  protected def fetchJLineForScala_2_13_0(): Unit = {
+    if (version == TestScalaVersion.Scala_2_13_0.toProductionVersion) {
+      /**
+       * pre-download jline to avoid flaky tests on machines without locally-available jline (requires internet)
+       * see org.jetbrains.plugins.scala.console.configuration.ScalaSdkJLineFixer for the details
+       */
+      import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
+      TestDependencyManager.resolve("jline" % "jline" % "2.14.6")
+    }
+  }
 }
 
 object WorksheetIntegrationBaseTest {

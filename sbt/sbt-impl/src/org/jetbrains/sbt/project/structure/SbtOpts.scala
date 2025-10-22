@@ -1,20 +1,20 @@
 package org.jetbrains.sbt
 package project.structure
 
-import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.execution.ParametersListUtil
 import com.intellij.util.text.EditDistance
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.build.BuildReporter
-import org.jetbrains.plugins.scala.extensions.RichFile
+import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.sbt.project.structure.SbtOption.*
 
-import java.io.File
+import java.nio.charset.Charset
+import java.nio.file.{Files, Path}
 import scala.annotation.tailrec
 import scala.collection.immutable.ListMap
 import scala.collection.mutable.ListBuffer
 import scala.jdk.CollectionConverters.*
-import scala.util.Try
+import scala.util.{Try, Using}
 
 /**
   * Support for the .sbtopts file loaded by the sbt launcher script as alternative to command line options.
@@ -49,16 +49,19 @@ object SbtOpts {
 
   private val allAvailableOptions = sbtToJdkOpts("") ++ sbtToLauncherOpts
 
-  def loadFrom(directory: File)(implicit reporter: BuildReporter): Seq[SbtOption] = {
+  def loadFrom(directory: Path)(implicit reporter: BuildReporter): Seq[SbtOption] = {
     val sbtOptsFile = directory / SbtOptsFile
-    if (sbtOptsFile.exists && sbtOptsFile.isFile && sbtOptsFile.canRead) {
-      val optsFromFile = FileUtil.loadLines(sbtOptsFile)
-        .asScala.iterator
-        .flatMap(combineOptionsWithArgs)
-        .map(_.trim)
-        .filter(_.nonEmpty)
-        .toSeq
-      mapOptionsToSbtOptions(optsFromFile, directory.getCanonicalPath)
+    if (sbtOptsFile.exists && sbtOptsFile.isRegularFile && Files.isReadable(sbtOptsFile)) {
+      val optsFromFile = Using.resource(Files.lines(sbtOptsFile, Charset.defaultCharset())) { stream =>
+        stream
+          .iterator()
+          .asScala
+          .flatMap(combineOptionsWithArgs)
+          .map(_.trim)
+          .filter(_.nonEmpty)
+          .toSeq
+      }
+      mapOptionsToSbtOptions(optsFromFile, directory.toCanonicalPath.toString)
     } else
       Seq.empty
   }

@@ -1,16 +1,14 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
-import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.types.ScalaConformance.Bound
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
+import org.jetbrains.plugins.scala.lang.psi.types.intrinsics.TypeIntrinsics
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
-import org.jetbrains.plugins.scala.lang.psi.types.intrinsics.TypeIntrinsics
 import org.jetbrains.plugins.scala.util.HashBuilder._
 
 import scala.annotation.tailrec
@@ -46,6 +44,7 @@ final class ScParameterizedType private (override val designator: ScType, overri
       else
         t match {
           case ScTypePolymorphicType(internal, tps) => (internal, tps)
+          case TypeConstructor(tpt)                 => (tpt.internalType, tpt.typeParameters)
           case AliasType(ta, Right(lower), _, _)    => stripParamsFromTypeLambdas(ta, lower)
           case t                                    => (t, Seq.empty)
         }
