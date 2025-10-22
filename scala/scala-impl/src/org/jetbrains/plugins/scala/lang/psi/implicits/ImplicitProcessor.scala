@@ -411,9 +411,6 @@ object ImplicitProcessor {
           tp.extractClassType match {
             case Some((clazz, subst)) =>
               parts += tp
-              if (tp.isInstanceOf[ScThisType]) {
-                println(123)
-              }
               val packagePrefix = clazz.parentOfType(classOf[ScPackageLike], strict = false)
               packagePrefix.foreach(processPackagePrefix)
               collectPartsFromSuperTypes(clazz, subst)
