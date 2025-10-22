@@ -35,6 +35,8 @@
         <liveTemplatePreprocessor implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaTemplatePreprocessor"/>
         <liveTemplateContext contextId="SCALA"
                              implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaFileTemplateContextType"/>
+        <liveTemplateContext contextId="SCALA3"
+                             implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.Scala3FileTemplateContextType"/>
         <liveTemplateContext contextId="SCALA_XML"
                              baseContextId="SCALA"
                              implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaXmlContextType"/>
