@@ -177,8 +177,9 @@ package object collections {
 
   object Guard {
     def unapply(guard: Any): Option[ScExpression] = guard match {
-      case Some(guard: ScGuard) => guard.get.expr
+      case Some(g: ScGuard) => g.expr
       case guard: ScGuard => guard.expr
+      case _ => None
     }
   }
 
