@@ -241,7 +241,7 @@ object CompileServerLauncher {
             )
             LOG.assertTrue(serverInstance.isEmpty, "serverInstance is expected to be None")
             serverInstance = Some(instance)
-            ApplicationManager.getApplication.getMessageBus.syncPublisher(CompileServerManager.ServerStatusTopic).onServerStatus(true)
+            toggleServerStatus(running = true)
             watcher.startNotify()
             watcher.addProcessListener(new ProcessListener {
               override def processTerminated(event: ProcessEvent): Unit = {
@@ -258,7 +258,7 @@ object CompileServerLauncher {
                 }
 
                 serverInstance = None
-                ApplicationManager.getApplication.getMessageBus.syncPublisher(CompileServerManager.ServerStatusTopic).onServerStatus(false)
+                toggleServerStatus(running = false)
               }
             })
             infoAndPrintOnTeamcity(s"compile server process started: ${instance.summary}")
@@ -277,6 +277,12 @@ object CompileServerLauncher {
         val paths = absentFiles.mkString(", ")
         Left(CompileServerProblem.Error(CompilerIntegrationBundle.message("required.file.not.found.paths", paths)))
     }
+  }
+
+  private def toggleServerStatus(running: Boolean): Unit = {
+    val app = ApplicationManager.getApplication
+    if (app.isDisposed) return
+    app.getMessageBus.syncPublisher(CompileServerManager.ServerStatusTopic).onServerStatus(running)
   }
 
   // ensure that old tokens from old sessions do not exist on file system to avoid race conditions (see ticket from the commit)
