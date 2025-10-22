@@ -40,8 +40,6 @@ trait ScalaBounds extends api.Bounds {
         case (_, TypeConstructor(poly)) => glb(t1, poly, checkWeak)
         case (lhs: ScTypePolymorphicType, rhs: ScTypePolymorphicType) =>
           polymorphicTypesBound(lhs, rhs, BoundKind.Glb, checkWeak, 0)(stopAddingUpperBound = false, context = context)
-        case (lhs, _: WildcardType) => lhs
-        case (_: WildcardType, rhs) => rhs
         case _ => ScCompoundType(Seq(t1, t2), Map.empty, Map.empty)
       }
     }

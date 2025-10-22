@@ -12,6 +12,21 @@ class PartialUnificationTypeInferenceTest extends TypeInferenceTestBase {
     profile.setSettings(newSettings)
   }
 
+  def testSCL24497(): Unit = doTest {
+      s"""
+         |trait IO[+A]
+         |object IO {
+         |  def f[A](thunk: A): IO[A] = ???
+         |}
+         |
+         |object example {
+         |  def foo2[T[_], A](tioa: T[IO[A]]): IO[T[A]] = ???
+         |  ${START}foo2(List.apply(IO.f(1)))$END
+         |}
+         |//IO[List[Int]]
+         |""".stripMargin
+  }
+
   def testSCL11320(): Unit = doTest(
     """
       |case class Foo[F[_], A](fab: F[Option[A]])

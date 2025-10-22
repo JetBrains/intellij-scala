@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScalaTypePresentation.Infix
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypePresentation.ABSTRACT_TYPE_POSTFIX
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.{NameRenderer, TypeBoundsRenderer, TypePresentation, TypeRenderer}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ContextFunctionType, FunctionType, NamedTupleType, ParameterizedType, StdType, TupleType, TypeParameter, TypeParameterType, WildcardType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ContextFunctionType, FunctionType, NamedTupleType, ParameterizedType, StdType, TupleType, TypeParameter, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScAbstractType, ScAndType, ScCompoundType, ScExistentialArgument, ScExistentialType, ScLiteralType, ScMatchType, ScOrType, ScType, TypePresentationContext}
@@ -55,8 +55,6 @@ private [documentationProvider] class ScalaDocTypeRenderer(
       }
     case typeParam: TypeParameterType =>
       renderWithAttrKey(typeParam.name, DefaultHighlighter.TYPEPARAM)
-    case _: WildcardType =>
-      renderedWildcard
     case ScAbstractType(tpt, _, _) =>
       renderWithAttrKey(tpt.name.capitalize + ABSTRACT_TYPE_POSTFIX, DefaultHighlighter.TYPE_ALIAS)
     case FunctionType(ret, params) if !typ.isAliasType =>
