@@ -4,15 +4,15 @@ package project
 import com.intellij.openapi.externalSystem.model.ExternalSystemException
 import com.intellij.openapi.externalSystem.model.project.{ExternalSystemSourceType, ModuleData}
 import com.intellij.openapi.roots.DependencyScope
-import org.jetbrains.plugins.scala.extensions.RichFile
+import org.jetbrains.plugins.scala.extensions.{PathExt, RichFile}
 import org.jetbrains.sbt.project.SbtProjectResolver.ImportContext
 import org.jetbrains.sbt.project.data.*
 import org.jetbrains.sbt.project.sources.SharedSourcesModuleType
 import org.jetbrains.sbt.structure as sbtStructure
 import org.jetbrains.sbt.structure.{Dependencies, ProjectData, ProjectDependencyData}
 
-import java.io.File
 import java.net.URI
+import java.nio.file.Path
 import scala.reflect.ClassTag
 
 /**
@@ -130,7 +130,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
       val representativeProjectManagedSources = getManagedSourceRootsFromRepresentativeProjectToIncludeAsBaseModelSourceRoots(rootGroup, representativeProject)
       representativeProjectManagedSources.foreach { root =>
         val esSourceType = calculateEsSourceType(root)
-        contentRootNode.storePath(esSourceType, root.directory.path)
+        contentRootNode.storePath(esSourceType, root.directory.toCanonicalPath.toString)
       }
 
       representativeProjectModule.foreach { case PrentModuleSourceSet(reprProjectModule) =>
@@ -442,24 +442,24 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
       group.name,
       group.name,
       moduleFilesDirectory,
-      groupBase.canonicalPath,
+      groupBase.toCanonicalPath.toString,
       shouldCreateNestedModule = true
     )
 
     moduleNode.add(new SbtDisplayModuleNameNode(group.name))
     moduleNode.add(new SharedSourcesOwnersNode(SharedSourcesOwnersData(ownerProjectsIds)))
 
-    val contentRootNode = new ContentRootNode(groupBase.path)
+    val contentRootNode = new ContentRootNode(groupBase.toCanonicalPath.toString)
     group.sourceRoots.foreach { root =>
       val esSourceType = calculateEsSourceType(root)
-      contentRootNode.storePath(esSourceType, root.directory.path)
+      contentRootNode.storePath(esSourceType, root.directory.toCanonicalPath.toString)
     }
 
     moduleNode.add(contentRootNode)
 
     val contentRootData = contentRootNode.data
     val contentRootPath = contentRootData.getRootPath
-    contentRootData.storePath(ExternalSystemSourceType.EXCLUDED, new File(contentRootPath, "target").getAbsolutePath)
+    contentRootData.storePath(ExternalSystemSourceType.EXCLUDED, (Path.of(contentRootPath) / "target").toCanonicalPath.toString)
 
     setupOutputDirectories(moduleNode, contentRootPath, sourceTypeFilter = None)
 
@@ -472,12 +472,12 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
       group.name,
       group.name,
       moduleFilesDirectory,
-      group.base.canonicalPath
+      group.base.toCanonicalPath.toString
     )
-    val shouldCreateContentRoot = !parentModulesBases.contains(group.base.path)
+    val shouldCreateContentRoot = !parentModulesBases.contains(group.base.toCanonicalPath.toString)
     if (shouldCreateContentRoot && group.hasStandardBasePath) {
-      val contentRootNode = new ContentRootNode(group.base.path)
-      contentRootNode.storePath(ExternalSystemSourceType.EXCLUDED, new File(group.base.path, "target").getAbsolutePath)
+      val contentRootNode = new ContentRootNode(group.base.toCanonicalPath.toString)
+      contentRootNode.storePath(ExternalSystemSourceType.EXCLUDED, (group.base / "target").toCanonicalPath.toString)
       moduleNode.add(contentRootNode)
     }
 
@@ -498,7 +498,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
     sourceRootsWithType: Seq[(SourceRoot, ExternalSystemSourceType)],
     allSourceModules: Seq[ModuleDataNodeType]
   ): Option[SbtSourceSetModuleNode] = {
-    val groupPath = group.base.path
+    val groupPath = group.base.toCanonicalPath.toString
 
     val internalModuleName = s"${group.name}.$sourceSetName"
     val moduleNode = new SbtSourceSetModuleNode(
@@ -506,7 +506,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
       internalModuleName,
       sourceSetName,
       moduleFilesDirectory,
-      group.base.canonicalPath
+      group.base.toCanonicalPath.toString
     )
     moduleNode.setInternalName(internalModuleName)
     moduleNode.add(new SbtDisplayModuleNameNode(internalModuleName))
@@ -519,7 +519,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
     // it is not needed to care about excluded because it is not possible to have excluded type see #calculateEsSourceType
     val sourceRoots = sourceRootsWithType
       .filter { case (_, sourceType) => isApplicableSource(sourceType) }
-      .map { case (root, sourceType) => (root.directory.path, sourceType) }
+      .map { case (root, sourceType) => (root.directory.toCanonicalPath.toString, sourceType) }
 
     if (sourceRoots.nonEmpty) {
       // Hardcode src/main or src/test base directories, only when the shared sources group was derived from the base paths
@@ -618,7 +618,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
       //ensure that source roots are in the content root of base module
       .filter(_.directory.isUnder(rootGroupBase))
       //get those source roots which are outside representative project content root
-      .filterNot(_.directory.isUnder(representativeProjectBase))
+      .filterNot(_.directory.isUnder(representativeProjectBase.toPath))
   }
 
   /**
@@ -648,7 +648,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
       case None => dirs
     }
     dirsFiltered.foreach { case (sourceType, relPath) =>
-      moduleNode.setCompileOutputPath(sourceType, new File(contentRoot, relPath).getAbsolutePath)
+      moduleNode.setCompileOutputPath(sourceType, (Path.of(contentRoot) / relPath).toCanonicalPath.toString)
     }
   }
 
@@ -703,7 +703,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
         //  sbtcrossproject.CrossPlugin.autoImport$#crossProjectCrossType
         //  (only when sbt-crossproject sbt plugin is enable in the build)
         val FullCrossTypeSharedSourcesLocation = "shared"
-        projects.size > 1 || sourceRoot.standardBasePathGuessed.exists(_.name == FullCrossTypeSharedSourcesLocation)
+        projects.size > 1 || sourceRoot.standardBasePathGuessed.exists(_.getFileName.toString == FullCrossTypeSharedSourcesLocation)
       }
       else
         true
@@ -739,7 +739,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
         projectSourceRoots.partition(_.isInternal)
 
       // TODO return the message about omitted directories
-      val sourceRootsInternal: Set[File] =
+      val sourceRootsInternal: Set[Path] =
         projectRootsInternal.map(_.sourceRoot.directory).toSet
 
       projectRootsExternal.filter { externalProjectRoot =>
@@ -755,15 +755,15 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
    * Only specific directory names, such as `root/dummy` (and not `root/dummy/src`), can produce meaningful shared source names.
    * If no suitable parent directory is found, the shared sources group will have a generic module name (see [[SharedSourceRootNameProvider#nameFor]]).
    */
-  private def findCommonParentDirectoryForRoots(roots: Seq[SharedSourceRoot], projectRootFile: File): Option[File] = {
+  private def findCommonParentDirectoryForRoots(roots: Seq[SharedSourceRoot], projectRootFile: Path): Option[Path] = {
     /**
      * Using a simple heuristic, it attempts to locate non-standard directories up to three levels above.
      */
-    def findNonStandardParentDirectories(sharedSourcesRoot: SharedSourceRoot): Seq[File] =
+    def findNonStandardParentDirectories(sharedSourcesRoot: SharedSourceRoot): Seq[Path] =
       (1 to 3).flatMap { parentLevel =>
         val parent = sharedSourcesRoot.sourceRoot.directory << parentLevel
         val standardDirNames = Seq("src", "main", "test", "scala", "java", "resources")
-        val isNonStandardDir = !standardDirNames.exists(parent.getName.contains)
+        val isNonStandardDir = !standardDirNames.exists(parent.getFileName.toString.contains)
         if (parent.isUnder(projectRootFile) && isNonStandardDir) Some(parent)
         else None
       }
@@ -772,13 +772,13 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
     val commonParentsForAllRoots = parentDirectories.map(_.toSet).reduce(_ intersect _).toSeq
     // If there are multiple common parents for roots, sort them by their paths and select the longest one,
     // as it is the most "specific" to the underlying roots.
-    commonParentsForAllRoots.sortBy(_.getAbsolutePath).lastOption
+    commonParentsForAllRoots.sortBy(_.toCanonicalPath.toString).lastOption
   }
 
   private def groupDanglingSharedSourcesRoots(
     sharedSourcesRoots: Seq[SharedSourceRoot],
-    projectRootFile: File
-  ): Seq[(Option[File], Seq[SharedSourceRoot])] = {
+    projectRootFile: Path
+  ): Seq[(Option[Path], Seq[SharedSourceRoot])] = {
     // See org.jetbrains.sbt.project.ContentRootsResolution.sortSourcesByType to know why sources need to be sorted and duplicates removed
     // Sources take precedence over resources, and compile scope takes precedence over test scope.
     // It's just a heuristic - this isn't based on any specific principle.
@@ -800,7 +800,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
     }
   }
 
-  protected def groupSharedRoots(projects: Seq[ProjectData], projectRootFile: File)(implicit context: ImportContext): Seq[SharedSourcesGroup] = {
+  protected def groupSharedRoots(projects: Seq[ProjectData], projectRootFile: Path)(implicit context: ImportContext): Seq[SharedSourcesGroup] = {
     val sharedSourceRoots = sharedRootsIn(projects)
     val nameProvider = new SharedSourceRootNameProvider()
 
@@ -815,7 +815,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
       Seq.empty
     }
 
-    def mapToSharedSourcesGroup(roots: Seq[(Option[File], Seq[SharedSourceRoot])], isStandardBase: Boolean): Seq[SharedSourcesGroup] =
+    def mapToSharedSourcesGroup(roots: Seq[(Option[Path], Seq[SharedSourceRoot])], isStandardBase: Boolean): Seq[SharedSourcesGroup] =
       roots.map { case (base, sharedRoots) =>
         val name = nameProvider.nameFor(base)
         val projects = sharedRoots.flatMap(_.projects).distinct
@@ -833,7 +833,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
     relevantConfigurations.flatMap { configuration =>
       def createRoot(kind: SourceRoot.Kind)(directory: sbtStructure.DirectoryData): SourceRoot = {
         val scope = if (configuration.id == "compile") SourceRoot.Scope.Compile else SourceRoot.Scope.Test
-        SourceRoot(scope, kind, directory.file.canonicalFile, directory.managed)
+        SourceRoot(scope, kind, directory.file.canonicalFile.toPath, directory.managed)
       }
 
       val sourceRoots = configuration.sources.map(createRoot(SourceRoot.Kind.Sources))
@@ -875,7 +875,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
     projects: Seq[sbtStructure.ProjectData],
     hasStandardBasePath: Boolean
   ) {
-    lazy val base: File = commonBase(sourceRoots)
+    lazy val base: Path = commonBase(sourceRoots)
 
     /**
      * Returns the common base directory for the roots.<br>
@@ -899,11 +899,10 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
      *     ./project1/shared/custom/dir
      * }}}
      */
-    private def commonBase(roots: Seq[SourceRoot]): File = {
+    private def commonBase(roots: Seq[SourceRoot]): Path = {
       import scala.jdk.CollectionConverters.*
       val paths = roots.map { root =>
-        root.standardBasePathGuessed.getOrElse(root.directory)
-          .getCanonicalFile.toPath.normalize
+        root.standardBasePathGuessed.getOrElse(root.directory).toCanonicalPath
       }
 
       paths.foldLeft(paths.head) { case (common, it) =>
@@ -911,7 +910,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
           .takeWhile { case (c, p) => c == p }
           .map(_._1)
           .foldLeft(paths.head.getRoot) { case (base, child) => base.resolve(child) }
-      }.toFile
+      }
     }
   }
 
@@ -937,13 +936,13 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
      *         See https://youtrack.jetbrains.com/issue/SCL-23789
      */
     def isInternal(implicit context: ImportContext): Boolean =
-      sourceRoot.directory.isUnder(project.base, strict = context.useSeparateProdTestSources)
+      sourceRoot.directory.isUnder(project.base.toPath, strict = context.useSeparateProdTestSources)
   }
 
   protected case class SourceRoot(
     scope: SourceRoot.Scope,
     kind: SourceRoot.Kind,
-    directory: File,
+    directory: Path,
     managed: Boolean
   ) {
     /**
@@ -957,7 +956,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
      *   result    : None
      * }}}
      */
-    lazy val standardBasePathGuessed: Option[File] = SourceRoot.DefaultPaths.collectFirst {
+    lazy val standardBasePathGuessed: Option[Path] = SourceRoot.DefaultPaths.collectFirst {
       //Example directory: /c/example-project/downstream/src/test/java (check if it parent ends with `src/test`)
       case paths if directory.parent.exists(_.endsWith(paths*)) => directory << (paths.length + 1)
     }
@@ -986,9 +985,9 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
     private var usedNames = Set.empty[String]
     private var counter = 1
 
-    def nameFor(base: Option[File]): String = {
-      val namedDirectory = if (base.exists(_.getName == "shared")) base.flatMap(_.parent) else base
-      val prefix = namedDirectory.map(_.getName + "-sources").getOrElse("shared-sources")
+    def nameFor(base: Option[Path]): String = {
+      val namedDirectory = if (base.exists(_.getFileName.toString == "shared")) base.flatMap(_.parent) else base
+      val prefix = namedDirectory.map(_.getFileName.toString + "-sources").getOrElse("shared-sources")
       val withoutSlashes = replaceSlashesWithUnderscores(prefix)
 
       val result = if (usedNames.contains(withoutSlashes)) {

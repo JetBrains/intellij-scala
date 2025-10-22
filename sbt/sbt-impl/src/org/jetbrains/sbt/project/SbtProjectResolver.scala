@@ -452,7 +452,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val projectLibraryNodes = createLibraries(data, projects)
     projectNode.addAll(projectLibraryNodes)
 
-    val groupedSharedRoots = groupSharedRoots(projects, projectRootFile)
+    val groupedSharedRoots = groupSharedRoots(projects, projectRootFile.toPath)
 
     val buildProjectsGroups: Seq[BuildProjectsGroup] = createBuildProjectGroups(projects)
     val projectToModule: Map[ProjectData, ModuleSourceSet] = createIntelliJModuleNodes(
