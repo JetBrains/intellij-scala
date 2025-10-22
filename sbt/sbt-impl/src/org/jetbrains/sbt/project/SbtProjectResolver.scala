@@ -35,9 +35,9 @@ import org.jetbrains.sbt.structure.XmlSerializer.*
 import org.jetbrains.sbt.structure.{BuildData, CompilerOptions, Configuration, ConfigurationData, Dependencies, DependencyData, DirectoryData, JarDependencyData, JavaData, ModuleDependencyData, ModuleIdentifier, ProjectData, ProjectDependencyData, ScalaData, structureDataSerializer}
 import org.jetbrains.sbt.{RichBoolean, Sbt, SbtBundle, SbtUtil, SbtVersion, usingTempFile, structure as sbtStructure}
 
-import java.io.{File, FileNotFoundException}
+import java.io.FileNotFoundException
 import java.net.URI
-import java.nio.file.Path
+import java.nio.file.{Files, Path}
 import java.util.{Collections, Locale, UUID}
 import scala.collection.{MapView, mutable}
 import scala.concurrent.duration.Duration
@@ -63,8 +63,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     listener: ExternalSystemTaskNotificationListener
   ): DataNode[ESProjectData] = {
     val projectRoot = {
-      val file = new File(settings.realProjectPath)
-      if (file.isDirectory) file else file.getParentFile
+      val file = Path.of(settings.realProjectPath)
+      if (file.isDirectory) file else file.getParent
     }
 
     val sbtLauncher = SbtUtil.getLauncherJar(settings)
@@ -79,7 +79,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       if (indicator == null) {
         throw new IllegalStateException("The External System machinery did not provide a ProgressIndicator instance")
       }
-      importProject(taskId, settings, projectRoot.toPath, sbtLauncher, listener, indicator)
+      importProject(taskId, settings, projectRoot, sbtLauncher, listener, indicator)
     }
   }
 
@@ -167,8 +167,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val useShellImport = settings.useShellForImport && project != null
     val options = getSbtStructureDumpOptions(settings)
 
-    def doDumpStructure(structureFile: File): Try[(Elem, BuildMessages)] = {
-      val structureFilePath = normalizePath(structureFile.toPath)
+    def doDumpStructure(structureFile: Path): Try[(Elem, BuildMessages)] = {
+      val structureFilePath = normalizePath(structureFile)
 
       val dumper = new SbtStructureDump()
       activeProcessDumper = Option(dumper)
@@ -233,12 +233,12 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
           if (messages.status != BuildMessages.OK)
             failure(SbtBundle.message("sbt.import.message.build.status", messages.status))
-          else if (!structureFile.isFile)
-            failure(SbtBundle.message("sbt.import.message.structure.file.is.not.a.file", structureFile.getPath))
-          else if (structureFile.length <= 0)
-            failure(SbtBundle.message("sbt.import.message.structure.file.is.empty", structureFile.getPath))
+          else if (!structureFile.isRegularFile)
+            failure(SbtBundle.message("sbt.import.message.structure.file.is.not.a.file", structureFile.toCanonicalPath.toString))
+          else if (Files.size(structureFile) <= 0)
+            failure(SbtBundle.message("sbt.import.message.structure.file.is.empty", structureFile.toCanonicalPath.toString))
           else Try {
-            val elem = XML.load(structureFile.toURI.toURL)
+            val elem = XML.load(structureFile.toUri.toURL)
             (elem, messages)
           }
         }
@@ -277,33 +277,33 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
         LegacySbtVersionNotifications.warnForBuildToolWindow(project, projectRoot, sbtVersion, reporter)
       }
 
-      val structureFilePath = getStructureFilePath(projectRoot.toFile)
+      val structureFilePath = getStructureFilePath(projectRoot)
       val StructureFileReuseMode(readStructureFile, writeStructureFile) = getStructureFileReuseMode
 
-      if (readStructureFile && structureFilePath.exists()) {
+      if (readStructureFile && structureFilePath.exists) {
         val reuseWarning = s"sbt reload skipped: using existing structure file: $structureFilePath"
         log.warn(reuseWarning)
         //noinspection ReferencePassedToNls (this branch is only triggered when registry was explicitly modified, so it's not i18-ed)
         reporter.log(reuseWarning)
-        val elem = XML.load(structureFilePath.toURI.toURL)
+        val elem = XML.load(structureFilePath.toUri.toURL)
         Try((elem, BuildMessages.empty))
       } else if (writeStructureFile) {
         log.warn(s"reused structure file created: $structureFilePath")
         doDumpStructure(structureFilePath)
       } else {
         usingTempFile("sbt-structure", Some(".xml")) { structureFile =>
-          doDumpStructure(structureFile.toFile)
+          doDumpStructure(structureFile.toFile.toPath)
         }
       }
     }
   }
 
-  private def getStructureFilePath(projectRoot: File): File = {
-    var structureFileFolder = new File(Option(System.getProperty("sbt.project.structure.location")).getOrElse(FileUtil.getTempDirectory))
+  private def getStructureFilePath(projectRoot: Path): Path = {
+    var structureFileFolder = Path.of(Option(System.getProperty("sbt.project.structure.location")).getOrElse(FileUtil.getTempDirectory))
     if (!structureFileFolder.isAbsolute) {
-      structureFileFolder = projectRoot.toPath.resolve(structureFileFolder.toPath).normalize().toFile
+      structureFileFolder = projectRoot.resolve(structureFileFolder).toCanonicalPath
     }
-    structureFileFolder / s"sbt-structure-reused-${projectRoot.getName}.xml"
+    structureFileFolder / s"sbt-structure-reused-${projectRoot.getFileName.toString}.xml"
   }
 
   //noinspection NameBooleanParameters
@@ -336,29 +336,29 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
    * Also sbt boot makes the whole process way too slow.
    */
   private def dummyProject(
-    projectRoot: File,
+    projectRoot: Path,
     settings: SbtExecutionSettings,
   )(implicit context: ImportContext): Node[ESProjectData] = {
 
     // TODO add default scala sdk and sbt libs (newest versions or so)
 
-    val projectUri = projectRoot.toURI
-    val projectPath = projectRoot.getAbsolutePath
-    val projectName = normalizeModuleId(projectRoot.getName)
+    val projectUri = projectRoot.toUri
+    val projectPath = projectRoot.toCanonicalPath.toString
+    val projectName = normalizeModuleId(projectRoot.getFileName.toString)
     val projectNameNumberSuffix =
       if (ApplicationManager.getApplication.isUnitTestMode) PreviewImportNumberSuffixInTests
       else Random.nextInt(10000)
     val projectTmpName = projectName + "_" + projectNameNumberSuffix
-    val sourceDir = new File(projectRoot, "src/main/scala")
-    val classDir = new File(projectRoot, "target/dummy")
+    val sourceDir = projectRoot / "src" / "main" / "scala"
+    val classDir = projectRoot / "target" / "dummy"
 
-    val dummyConfigurationData = ConfigurationData(CompileScope, Seq(DirectoryData(sourceDir, managed = false)), Seq.empty, Seq.empty, classDir)
+    val dummyConfigurationData = ConfigurationData(CompileScope, Seq(DirectoryData(sourceDir.toFile, managed = false)), Seq.empty, Seq.empty, classDir.toFile)
     val dummyJavaData = JavaData(None, Seq.empty)
     val dummyDependencyData = DependencyData(Dependencies(Seq.empty, Seq.empty), Dependencies(Seq.empty, Seq.empty), Dependencies(Seq.empty, Seq.empty))
     val dummyRootProject = ProjectData(
-      projectTmpName, projectUri, projectTmpName, s"org.$projectName", "0.0", projectRoot, None, Seq.empty,
-      new File(projectRoot, "target"), Seq(dummyConfigurationData), Option(dummyJavaData), None, CompileOrder.Mixed.toString,
-      dummyDependencyData, Set.empty, None, Seq.empty, Seq.empty, Seq.empty, mainSourceDirectories = Seq(new File(projectRoot, "src/main")),
+      projectTmpName, projectUri, projectTmpName, s"org.$projectName", "0.0", projectRoot.toFile, None, Seq.empty,
+      (projectRoot / "target").toFile, Seq(dummyConfigurationData), Option(dummyJavaData), None, CompileOrder.Mixed.toString,
+      dummyDependencyData, Set.empty, None, Seq.empty, Seq.empty, Seq.empty, mainSourceDirectories = Seq((projectRoot / "src" / "main").toFile),
       Seq(), generatedManagedSources = false
     )
 
@@ -371,7 +371,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       buildProjectsGroup,
       groupedSharedRoots = Nil,
       libraryNodes,
-      projectRoot,
+      projectRoot
     )
 
     val dummySbtProjectData = SbtProjectData(
@@ -390,7 +390,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     createBuildModule(
       dummyBuildData,
       projects,
-      getDefaultModuleFilesDirectory(projectRoot.toPath),
+      getDefaultModuleFilesDirectory(projectRoot),
       None,
       projectToParentModule,
       buildProjectsGroup,
@@ -426,9 +426,9 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     optIdeaProject: Option[Project]
   )(implicit context: ImportContext): Node[ESProjectData] = {
     val projects: Seq[sbtStructure.ProjectData] = data.projects
-    val projectRootFile = new File(root)
+    val projectRootFile = Path.of(root)
     val rootProject: sbtStructure.ProjectData =
-      projects.find(p => FileUtil.filesEqual(p.base, projectRootFile))
+      projects.find(p => FileUtil.filesEqual(p.base, projectRootFile.toFile))
         .orElse(projects.headOption)
         .getOrElse(throw new RuntimeException("No root project found"))
     val projectNode = new ProjectNode(rootProject.name, root, root)
@@ -452,14 +452,14 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val projectLibraryNodes = createLibraries(data, projects)
     projectNode.addAll(projectLibraryNodes)
 
-    val groupedSharedRoots = groupSharedRoots(projects, projectRootFile.toPath)
+    val groupedSharedRoots = groupSharedRoots(projects, projectRootFile)
 
     val buildProjectsGroups: Seq[BuildProjectsGroup] = createBuildProjectGroups(projects)
     val projectToModule: Map[ProjectData, ModuleSourceSet] = createIntelliJModuleNodes(
       buildProjectsGroups,
       groupedSharedRoots,
       projectLibraryNodes,
-      projectRootFile,
+      projectRootFile
     )
 
     //Sort modules by id to make project imports more reproducible
@@ -469,7 +469,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val modulesSorted: Seq[ModuleDataNodeType] = projectToParentModule.values.toSeq.sortBy(_.getId)
     projectNode.addAll(removeNestedModuleNodes(modulesSorted))
 
-    val defaultModuleFilesDirectory = getDefaultModuleFilesDirectory(projectRootFile.toPath)
+    val defaultModuleFilesDirectory = getDefaultModuleFilesDirectory(projectRootFile)
     addSharedSourceModules(
       groupedSharedRoots,
       projectToModule,
@@ -503,11 +503,11 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
   private def findRootNodeForBuild(
     buildProjectsGroups: Seq[BuildProjectsGroup],
-    buildModuleBaseDir: File,
+    buildModuleBaseDir: Path,
     projectToModule: Map[ProjectData, ModuleDataNodeType]
   ): Option[ModuleDataNodeType] = {
     val rootProjectOpt = buildProjectsGroups
-      .find(_.rootProject.base == buildModuleBaseDir)
+      .find(_.rootProject.base.toPath == buildModuleBaseDir)
       .map(_.rootProject)
     val rootProjectModuleName = rootProjectOpt
       .flatMap(projectToModule.get)
@@ -537,10 +537,10 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   private def configureBuildModuleDependencies(buildModules: Seq[BuildModuleNodeWithBuildBaseDir]): Unit = {
     if (buildModules.size == 2) {
       val Seq(module1, module2) = buildModules
-      if (isChild(module1.buildBaseDir.toPath, module2.buildBaseDir.toPath)) {
+      if (isChild(module1.buildBaseDir, module2.buildBaseDir)) {
         addModuleDependencyNode(module2.moduleNode, module1.moduleNode, DependencyScope.COMPILE)
       }
-      else if (isChild(module2.buildBaseDir.toPath, module1.buildBaseDir.toPath)) {
+      else if (isChild(module2.buildBaseDir, module1.buildBaseDir)) {
         addModuleDependencyNode(module1.moduleNode, module2.moduleNode, DependencyScope.COMPILE)
       }
       else {
@@ -590,7 +590,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     projectsGrouped: Seq[BuildProjectsGroup],
     groupedSharedRoots: Seq[SharedSourcesGroup],
     projectLibraryNodes: Seq[LibraryNode],
-    projectRoot: File,
+    projectRoot: Path,
   )(implicit context: ImportContext): Map[ProjectData, ModuleSourceSet] = {
     val librariesData = projectLibraryNodes.map(_.data)
 
@@ -620,7 +620,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
    */
   private def createModulesInsideBuildProjectGroup(
     buildProjectsGroup: BuildProjectsGroup,
-    projectRoot: File,
+    projectRoot: Path,
     librariesData: Seq[LibraryData],
     projectsSourcesDetails: Map[ProjectData, ProjectSourcesDetails]
   )(implicit context: ImportContext): Seq[(ProjectData, ModuleSourceSet)] = {
@@ -738,15 +738,15 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   protected def createScalaSdkData(scala: Option[ScalaData]): ScalaSdkNode = {
     val data = SbtScalaSdkData(
       scalaVersion = scala.map(_.version),
-      scalacClasspath = scala.fold(Seq.empty[File])(_.allCompilerJars),
-      scaladocExtraClasspath = scala.fold(Seq.empty[File])(_.extraJars),
+      scalacClasspath = scala.fold(Seq.empty[java.io.File])(_.allCompilerJars),
+      scaladocExtraClasspath = scala.fold(Seq.empty[java.io.File])(_.extraJars),
       compilerBridgeBinaryJar = scala.flatMap(_.compilerBridgeBinaryJar),
     )
     new ScalaSdkNode(data)
   }
 
   private def createModuleExtData(project: sbtStructure.ProjectData, moduleType: ModuleType): ModuleExtNode = {
-    val ProjectData(_, _, _, _, _, _, packagePrefix, basePackages, _, _, java, scala, compileOrder, _, _, _, _, _, _, _, _, _) = project
+    val ProjectData(_, _, _, _, _, _, packagePrefix, basePackages, _, _, javaData, scala, compileOrder, _, _, _, _, _, _, _, _, _) = project
 
     val scope = moduleType match {
       case TestModuleType => Configuration.Test
@@ -760,11 +760,11 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     val data = SbtModuleExtData(
       scalaVersion           = scala.map(_.version),
-      scalacClasspath        = scala.fold(Seq.empty[File])(_.allCompilerJars),
-      scaladocExtraClasspath = scala.fold(Seq.empty[File])(_.extraJars),
+      scalacClasspath        = scala.fold(Seq.empty[java.io.File])(_.allCompilerJars),
+      scaladocExtraClasspath = scala.fold(Seq.empty[java.io.File])(_.extraJars),
       scalacOptions          = findCompilerOptionsInScope(scope, scala.map(_.options).getOrElse(Seq.empty)),
-      sdk                    = java.flatMap(_.home).map(home => JdkByHome(home.toPath)),
-      javacOptions           = findCompilerOptionsInScope(scope, java.map(_.options).getOrElse(Seq.empty)),
+      sdk                    = javaData.flatMap(_.home).map(home => JdkByHome(home.toPath)),
+      javacOptions           = findCompilerOptionsInScope(scope, javaData.map(_.options).getOrElse(Seq.empty)),
       packagePrefix          = packagePrefix,
       basePackage            = basePackages.headOption, // TODO Rename basePackages to basePackage in sbt-ide-settings?
       compileOrder           = CompileOrder.valueOf(compileOrder)
@@ -823,7 +823,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
   private def createModuleWithAllRequiredDataLegacy(
     project: sbtStructure.ProjectData,
-    projectRoot: File,
+    projectRoot: Path,
     moduleName: String,
     moduleGroup: Option[String],
     librariesData: Seq[LibraryData],
@@ -834,7 +834,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val projectId = ModuleNode.combinedId(project.id, Option(project.buildURI))
     //NOTE: module name which is passed in ModuleNode constructor will be saved as external module name, module name and
     //additionally as internal name but with all the "/" characters changed to "_"
-    val moduleFilesDirectory = createModuleFilesDirectory(projectRoot, project.base)
+    val moduleFilesDirectory = createModuleFilesDirectory(projectRoot, project.base.toPath)
 
     val result = createModuleNode(
       JavaModuleType.getModuleType.getId,
@@ -876,22 +876,22 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     moduleNameWithGroup
   }
 
-  private def createModuleFilesDirectory(projectRoot: File, moduleBase: File): String = {
-    val relativeToRoot = FileUtil.getRelativePath(projectRoot, moduleBase)
+  private def createModuleFilesDirectory(projectRoot: Path, moduleBase: Path): String = {
+    val relativeToRoot = FileUtil.getRelativePath(projectRoot.toFile, moduleBase.toFile)
     val relativePath =
       if (relativeToRoot == null || relativeToRoot.equals(".")) ""
       else relativeToRoot
 
-    val projectRootDirectory = Seq(projectRoot.getName).filter(_.nonEmpty)
+    val projectRootDirectory = Seq(projectRoot.getFileName.toString).filter(_.nonEmpty)
     val pathComponents = projectRootDirectory :+ relativePath
 
-    val defaultModuleFilesDir = getDefaultModuleFilesDirectory(projectRoot.toPath)
+    val defaultModuleFilesDir = getDefaultModuleFilesDirectory(projectRoot)
     Path.of(defaultModuleFilesDir, pathComponents*).toCanonicalPath.toString
   }
 
   private def createModuleWithAllRequiredDataForSeparateProdAndTestSources(
     project: sbtStructure.ProjectData,
-    projectRoot: File,
+    projectRoot: Path,
     moduleName: String,
     moduleGroup: Option[String],
     librariesData: Seq[LibraryData],
@@ -901,7 +901,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     // TODO use both ID and Name when related flaws in the External System will be fixed
     // TODO explicit canonical path is needed until IDEA-126011 is fixed
     val projectId = ModuleNode.combinedId(project.id, Option(project.buildURI))
-    val moduleFilesDirectory = createModuleFilesDirectory(projectRoot, project.base)
+    val moduleFilesDirectory = createModuleFilesDirectory(projectRoot, project.base.toPath)
     val parentModule = createModuleNode(
       JavaModuleType.getModuleType.getId,
       projectId,
@@ -1121,7 +1121,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
   private case class BuildModuleNodeWithBuildBaseDir(
     moduleNode: ModuleDataNodeType,
-    buildBaseDir: File
+    buildBaseDir: Path
   )
 
   private def createBuildModule(
@@ -1147,11 +1147,11 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       .map(_.getModuleName + Sbt.BuildModuleSuffix)
       .getOrElse(build.uri.toString)
 
-    val buildBaseDir: File = buildBaseProject
-      .map(_.base)
+    val buildBaseDir: Path = buildBaseProject
+      .map(_.base.toPath)
       .getOrElse {
-        if (build.uri.getScheme == "file") new File(build.uri.getPath)
-        else projects.head.base // this really shouldn't happen
+        if (build.uri.getScheme == "file") Path.of(build.uri.getPath)
+        else projects.head.base.toPath // this really shouldn't happen
       }
 
     val buildProjectDirRoot = buildBaseDir / Sbt.ProjectDirectory
@@ -1160,7 +1160,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val moduleFilesDirectory = rootNode.map(_.getModuleFileDirectoryPath).getOrElse(defaultModuleFilesDirectory)
     // TODO explicit canonical path is needed until IDEA-126011 is fixed
     val result = createModuleNode(
-      SbtModuleType.instance.getId, buildId, buildId, moduleFilesDirectory, buildProjectDirRoot.canonicalPath, shouldCreateNestedModule = true
+      SbtModuleType.instance.getId, buildId, buildId, moduleFilesDirectory, buildProjectDirRoot.toCanonicalPath.toString, shouldCreateNestedModule = true
     )
 
     result.add(new SbtDisplayModuleNameNode(buildId))
@@ -1168,8 +1168,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     result.add(ModuleSdkNode.inheritFromProject)
 
     result.setInheritProjectCompileOutputPath(false)
-    result.setCompileOutputPath(ExternalSystemSourceType.SOURCE, (buildProjectDirRoot / Sbt.TargetDirectory / "idea-classes").path)
-    result.setCompileOutputPath(ExternalSystemSourceType.TEST, (buildProjectDirRoot / Sbt.TargetDirectory / "idea-test-classes").path)
+    result.setCompileOutputPath(ExternalSystemSourceType.SOURCE, (buildProjectDirRoot / Sbt.TargetDirectory / "idea-classes").toCanonicalPath.toString)
+    result.setCompileOutputPath(ExternalSystemSourceType.TEST, (buildProjectDirRoot / Sbt.TargetDirectory / "idea-test-classes").toCanonicalPath.toString)
     result.add(createBuildContentRoot(buildProjectDirRoot, isPreview))
 
     val library = {
@@ -1198,12 +1198,12 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
    *                  it shouldn't be added as a source to the build module content root.
    *                  It's a workaround for [[https://youtrack.jetbrains.com/issue/SCL-24181]]
    */
-  private def createBuildContentRoot(buildProjectDirRoot: File, isPreview: Boolean): ContentRootNode = {
-    val result = new ContentRootNode(buildProjectDirRoot.path)
+  private def createBuildContentRoot(buildProjectDirRoot: Path, isPreview: Boolean): ContentRootNode = {
+    val result = new ContentRootNode(buildProjectDirRoot.toCanonicalPath.toString)
 
     // Remove this workaround when https://youtrack.jetbrains.com/issue/IJPL-201546/WorkspaceModel-storage-inconsistency is fixed
     val sourceDirs =
-      if (!isPreview || buildProjectDirRoot.exists()) Seq(buildProjectDirRoot) // , base << 1
+      if (!isPreview || buildProjectDirRoot.exists) Seq(buildProjectDirRoot) // , base << 1
       else Nil
 
     val excludedDirs = Seq(
@@ -1211,8 +1211,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       buildProjectDirRoot / Sbt.ProjectDirectory / Sbt.TargetDirectory,
     )
 
-    result.storePaths(ExternalSystemSourceType.SOURCE, sourceDirs.map(_.path))
-    result.storePaths(ExternalSystemSourceType.EXCLUDED, excludedDirs.map(_.path))
+    result.storePaths(ExternalSystemSourceType.SOURCE, sourceDirs.map(_.toCanonicalPath.toString))
+    result.storePaths(ExternalSystemSourceType.EXCLUDED, excludedDirs.map(_.toCanonicalPath.toString))
 
     result
   }
@@ -1230,7 +1230,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
   private def localCacheResolver(localCachePath: Option[String]): SbtResolver = {
     val localCachePathFinal = localCachePath.getOrElse {
-      SystemProperties.getUserHome + "/.ivy2/cache".replace('/', File.separatorChar)
+      SystemProperties.getUserHome + "/.ivy2/cache".replace('/', java.io.File.separatorChar)
     }
     new SbtIvyResolver("Local cache", localCachePathFinal, isLocal = true, SbtBundle.message("sbt.local.cache"))
   }
