@@ -171,7 +171,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
       vmParams.add("-Dsbt.log.noformat=true")
 
     val commandLine: GeneralCommandLine = javaParameters.toCommandLine
-    sbtSettings.getCustomVMExecutableOrWarn(project).foreach(exe => commandLine.setExePath(exe.getAbsolutePath))
+    sbtSettings.getCustomVMExecutableOrWarn(project).foreach(exe => commandLine.setExePath(exe.toCanonicalPath.toString))
 
     val settingsFile: Path =
       getOrCreateExtraSbtSettingsFile(addPluginCommandSupported, commandLine, projectSbtVersion.binaryVersion)

@@ -1,7 +1,7 @@
 package org.jetbrains.sbt.runner
 
 import com.intellij.execution.configuration.EnvironmentVariablesComponent
-import com.intellij.execution.configurations._
+import com.intellij.execution.configurations.*
 import com.intellij.execution.process.ProcessEvent
 import com.intellij.execution.runners.{ExecutionEnvironment, ProgramRunner}
 import com.intellij.execution.util.EnvFilesUtilKt.configureEnvsFromFiles
@@ -17,17 +17,17 @@ import com.intellij.util.execution.ParametersListUtil
 import com.intellij.util.xmlb.XmlSerializer
 import com.intellij.util.xmlb.annotations.XCollection
 import org.jdom.Element
-import org.jetbrains.plugins.scala.extensions.RichFile
+import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.{JarManifestUtils, JdomExternalizerMigrationHelper}
 import org.jetbrains.sbt.SbtUtil
-import org.jetbrains.sbt.project.SbtExternalSystemManager
+import org.jetbrains.sbt.project.{<<, SbtExternalSystemManager}
 import org.jetbrains.sbt.settings.SbtSettings
 
 import java.nio.file.Path
 import java.util
 import scala.beans.BeanProperty
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 /**
  * Run configuration of sbt tasks.
@@ -146,7 +146,7 @@ class SbtCommandLineState(
       // See org.jetbrains.sbt.project.SbtExternalSystemManager.getVmExecutable
       javaHome = vmExecutablePath << 2
       if javaHome != null
-      jdk  <- Option(ExternalSystemJdkUtil.findJdkInSdkTableByPath(javaHome.getAbsolutePath))
+      jdk  <- Option(ExternalSystemJdkUtil.findJdkInSdkTableByPath(javaHome.toCanonicalPath.toString))
     } yield jdk
 
     val jdk = customJdk.getOrElse(JavaParametersUtil.createProjectJdk(project, null))
