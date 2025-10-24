@@ -679,43 +679,17 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
      * uses this root (see `SbtProjectResolver#validSourceRootPathsIn`)
      *
      * ==When separate main/test sources mode is enabled==
-     * We treat the root as "shared" in one of these cases:
-     *  1. The directory is actually used in more than 1 projects
-     *  1. The directory is a known/standard sbt location for shared sources (SCL-12520)
+     * We treat the root as "shared" when the directory is actually used in more than 1 project.
      *
-     * Handle the default "shared" directory defined in `sbtcrossproject.CrossType.Full`.<br>
-     * By default, in "Full" mode, the directory has this structure: {{{
-     *   .
-     *   ├── js
-     *   ├── jvm
-     *   ├── native
-     *   └── shared
-     *       └──src/main/scala
-     *       └──src/main/scala2
-     *       └──src/test/resources
-     * }}}
      */
-    def shouldTreatDirectoryShared(sourceRoot: SourceRoot, projects: Set[ProjectData]): Boolean = {
-      if (context.useSeparateProdTestSources) {
-        // primarily for SCL-12520
-        // TODO: also handle sbtcrossproject.CrossType.Pure.
-        //  But for that we should ideally import the value of during structure extraction
-        //  sbtcrossproject.CrossPlugin.autoImport$#crossProjectCrossType
-        //  (only when sbt-crossproject sbt plugin is enable in the build)
-        val FullCrossTypeSharedSourcesLocation = "shared"
-        projects.size > 1 || sourceRoot.standardBasePathGuessed.exists(_.getFileName.toString == FullCrossTypeSharedSourcesLocation)
-      }
-      else
-        true
-    }
+    def shouldTreatDirectoryShared(projects: Set[ProjectData]): Boolean =
+      !context.useSeparateProdTestSources || projects.size > 1
 
     val sharedSourceRootsToProjects: Map[SourceRoot, Set[ProjectData]] =
       projectRootsExternal
         .groupBy(_.sourceRoot)
         .view.mapValues(_.map(_.project).toSet)
-        .filter { case (sourceRoot, projects) =>
-          shouldTreatDirectoryShared(sourceRoot, projects)
-        }
+        .filter { case (_, projects) => shouldTreatDirectoryShared(projects) }
         .toMap
 
     sharedSourceRootsToProjects
