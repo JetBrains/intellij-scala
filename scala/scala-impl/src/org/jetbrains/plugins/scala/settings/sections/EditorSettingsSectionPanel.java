@@ -40,8 +40,12 @@ public class EditorSettingsSectionPanel extends SettingsSectionPanel {
     private JCheckBox showAmbiguousImplicitArgumentsCheckBox;
     private JComboBox<ScalaProjectSettings.AliasExportSemantics> aliasSemantics;
     private JPanel aliasSemanticsHelp;
+    private JPanel incrementalHighlightingPanel;
     private JCheckBox incrementalHighlighting;
     private JPanel incrementalHighlightingHelp;
+    private JPanel disableInspectionsPanel;
+    private JCheckBox disableInspections;
+    private JPanel disableInspectionsHelp;
     private JPanel useCompilerTypesHelp;
     private JCheckBox useCompilerTypes;
     private JCheckBox showTypeMismatchHintsCheckBox;
@@ -80,6 +84,7 @@ public class EditorSettingsSectionPanel extends SettingsSectionPanel {
         updateCompilerSettings();
 
         incrementalHighlightingHelp.add(ContextHelpLabel.create(ScalaBundle.message("incremental.highlighting.help")));
+        disableInspectionsHelp.add(ContextHelpLabel.create(ScalaBundle.message("disable.inspections.help")));
         useCompilerTypesHelp.add(ContextHelpLabel.create(ScalaBundle.message("use.compiler.types.help")));
 
         aliasSemantics.setModel(new DefaultComboBoxModel<>(ScalaProjectSettings.AliasExportSemantics.values()));
@@ -120,9 +125,15 @@ public class EditorSettingsSectionPanel extends SettingsSectionPanel {
                         ScalaProjectUtil.hasScala3(myProject) && typeCheckerScala3.getSelectedItem() == ScalaProjectSettings.TypeChecker.BuiltIn;
         incrementalHighlighting.setVisible(incrementalHighlightingAvailable);
         incrementalHighlightingHelp.setVisible(incrementalHighlightingAvailable);
+        incrementalHighlightingPanel.setVisible(incrementalHighlightingAvailable);
         if (!incrementalHighlightingAvailable) {
             incrementalHighlighting.setSelected(false);
         }
+
+        boolean isCompilerHighlightingOnly = !incrementalHighlightingAvailable;
+        disableInspections.setVisible(isCompilerHighlightingOnly);
+        disableInspectionsHelp.setVisible(isCompilerHighlightingOnly);
+        disableInspectionsPanel.setVisible(isCompilerHighlightingOnly);
 
         useCompilerTypes.setVisible(forScala2 || forScala3);
         useCompilerTypesHelp.setVisible(forScala2 || forScala3);
@@ -158,6 +169,7 @@ public class EditorSettingsSectionPanel extends SettingsSectionPanel {
                 scalaProjectSettings.isCompilerHighlightingScala2() != (typeCheckerScala2.getSelectedItem() == ScalaProjectSettings.TypeChecker.Compiler) ||
                 scalaProjectSettings.isCompilerHighlightingScala3() != (typeCheckerScala3.getSelectedItem() == ScalaProjectSettings.TypeChecker.Compiler) ||
                 scalaProjectSettings.isIncrementalHighlighting() != incrementalHighlighting.isSelected() ||
+                scalaProjectSettings.isDisableInspections() != disableInspections.isSelected() ||
                 scalaProjectSettings.isUseCompilerTypes() != useCompilerTypes.isSelected()
                 ;
     }
@@ -198,6 +210,7 @@ public class EditorSettingsSectionPanel extends SettingsSectionPanel {
         if (enabled != wasEnabled) {
             Highlighting.update(enabled, myProject);
         }
+        scalaProjectSettings.setDisableInspections(disableInspections.isSelected());
         scalaProjectSettings.setUseCompilerTypes(useCompilerTypes.isSelected());
     }
 
@@ -226,6 +239,7 @@ public class EditorSettingsSectionPanel extends SettingsSectionPanel {
         typeCheckerScala2.setSelectedItem(scalaProjectSettings.isCompilerHighlightingScala2() ? ScalaProjectSettings.TypeChecker.Compiler : ScalaProjectSettings.TypeChecker.BuiltIn);
         typeCheckerScala3.setSelectedItem(scalaProjectSettings.isCompilerHighlightingScala3() ? ScalaProjectSettings.TypeChecker.Compiler : ScalaProjectSettings.TypeChecker.BuiltIn);
         incrementalHighlighting.setSelected(scalaProjectSettings.isIncrementalHighlighting());
+        disableInspections.setSelected(scalaProjectSettings.isDisableInspections());
         useCompilerTypes.setSelected(scalaProjectSettings.isUseCompilerTypes());
         updateCompilerSettings();
     }
@@ -350,7 +364,7 @@ public class EditorSettingsSectionPanel extends SettingsSectionPanel {
         this.$$$loadButtonText$$$(showTypeMismatchHintsCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.show.type.mismatch.hints"));
         rootPanel.add(showTypeMismatchHintsCheckBox, new GridConstraints(3, 0, 1, 5, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         errorHighlightingSection = new JPanel();
-        errorHighlightingSection.setLayout(new GridLayoutManager(5, 1, new Insets(0, 0, 0, 0), -1, -1));
+        errorHighlightingSection.setLayout(new GridLayoutManager(6, 1, new Insets(0, 0, 0, 0), -1, -1));
         rootPanel.add(errorHighlightingSection, new GridConstraints(0, 0, 1, 5, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, true));
         final TitledSeparator titledSeparator4 = new TitledSeparator();
         titledSeparator4.setText(this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.error.highlighting"));
@@ -377,24 +391,33 @@ public class EditorSettingsSectionPanel extends SettingsSectionPanel {
         typeCheckerScala3Help = new JPanel();
         typeCheckerScala3Help.setLayout(new BorderLayout(0, 0));
         typeCheckerScala3Section.add(typeCheckerScala3Help, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JPanel panel3 = new JPanel();
-        panel3.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
-        errorHighlightingSection.add(panel3, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_VERTICAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        incrementalHighlightingPanel = new JPanel();
+        incrementalHighlightingPanel.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
+        errorHighlightingSection.add(incrementalHighlightingPanel, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_VERTICAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         incrementalHighlighting = new JCheckBox();
         this.$$$loadButtonText$$$(incrementalHighlighting, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "incremental.highlighting"));
-        panel3.add(incrementalHighlighting, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        incrementalHighlightingPanel.add(incrementalHighlighting, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         incrementalHighlightingHelp = new JPanel();
         incrementalHighlightingHelp.setLayout(new BorderLayout(0, 0));
-        panel3.add(incrementalHighlightingHelp, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JPanel panel4 = new JPanel();
-        panel4.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
-        errorHighlightingSection.add(panel4, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_VERTICAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        incrementalHighlightingPanel.add(incrementalHighlightingHelp, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JPanel panel3 = new JPanel();
+        panel3.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
+        errorHighlightingSection.add(panel3, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_VERTICAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         useCompilerTypes = new JCheckBox();
         this.$$$loadButtonText$$$(useCompilerTypes, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.compiler.types"));
-        panel4.add(useCompilerTypes, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel3.add(useCompilerTypes, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         useCompilerTypesHelp = new JPanel();
         useCompilerTypesHelp.setLayout(new BorderLayout(0, 0));
-        panel4.add(useCompilerTypesHelp, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel3.add(useCompilerTypesHelp, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        disableInspectionsPanel = new JPanel();
+        disableInspectionsPanel.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
+        errorHighlightingSection.add(disableInspectionsPanel, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_VERTICAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        disableInspections = new JCheckBox();
+        this.$$$loadButtonText$$$(disableInspections, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.disable.inspections"));
+        disableInspectionsPanel.add(disableInspections, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        disableInspectionsHelp = new JPanel();
+        disableInspectionsHelp.setLayout(new BorderLayout(0, 0));
+        disableInspectionsPanel.add(disableInspectionsHelp, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     private static Method $$$cachedGetBundleMethod$$$ = null;

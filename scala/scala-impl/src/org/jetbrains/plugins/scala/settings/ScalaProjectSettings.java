@@ -182,6 +182,7 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
   private boolean COMPILER_HIGHLIGHTING_SCALA2 = false;
   private boolean COMPILER_HIGHLIGHTING_SCALA3 = true;
   private boolean INCREMENTAL_HIGHLIGHTING = false;
+  private boolean DISABLE_INSPECTIONS = false;
   private boolean USE_COMPILER_TYPES = true;
 
   public static ScalaProjectSettings in(@NotNull Project project) {
@@ -391,6 +392,14 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
 
   public void setIncrementalHighlighting(boolean value) {
     INCREMENTAL_HIGHLIGHTING = value;
+  }
+
+  public boolean isDisableInspections() {
+    return DISABLE_INSPECTIONS;
+  }
+
+  public void setDisableInspections(boolean value) {
+    DISABLE_INSPECTIONS = value;
   }
 
   public void setCompilerHighlightingScala2(boolean value) {

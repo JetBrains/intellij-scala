@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.Inspecti
 import org.jetbrains.plugins.scala.codeInspection.suppression.ScalaInspectionSuppressor
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.incremental
+import org.jetbrains.plugins.scala.incremental.Highlighting.builtInHighlightingDisabledIn
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
@@ -53,7 +54,7 @@ abstract class InspectionBasedHighlightingPass(file: ScalaFile, document: Option
   private def profile: InspectionProfileImpl = InspectionProjectProfileManager.getInstance(myProject).getCurrentProfile
 
   def isEnabled(element: PsiElement): Boolean = {
-    if (incremental.Highlighting.enabledIn(file.getProject)) return false
+    if (builtInHighlightingDisabledIn(file.getProject) || incremental.Highlighting.enabledIn(file.getProject)) return false
 
     profile.isToolEnabled(highlightKey, element) && !inspectionSuppressor.isSuppressedFor(element, inspection.getShortName)
   }
