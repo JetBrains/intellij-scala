@@ -15,6 +15,7 @@ import com.intellij.openapi.util.{Pair, SystemInfo}
 import com.intellij.util.Function
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.annotations.NonNls
+import org.jetbrains.jps.incremental.scala.remote.SerializablePath
 import org.jetbrains.jps.model.java.JdkVersionDetector
 import org.jetbrains.plugins.scala.extensions.{PathExt, invokeAndWait}
 import org.jetbrains.sbt.SbtBundle
@@ -101,12 +102,12 @@ object SbtExternalSystemManager {
 
     new SbtExecutionSettings(
       realProjectPath = realProjectPath,
-      vmExecutable = vmExecutable.toFile,
+      vmExecutable = SerializablePath(vmExecutable),
       vmOptions = vmOptions,
       sbtOptions = sbtOptions,
       hiddenDefaultMaxHeapSize = SbtSettings.hiddenDefaultMaxHeapSize,
-      customLauncher = customLauncher.map(_.toFile),
-      customSbtStructureFile = customSbtStructureFile.map(_.toFile),
+      customLauncher = customLauncher.map(SerializablePath.apply),
+      customSbtStructureFile = customSbtStructureFile.map(SerializablePath.apply),
       jdk = projectJdkName,
       resolveClassifiers = projectSettings.resolveClassifiers,
       resolveSbtClassifiers = projectSettings.resolveSbtClassifiers,
