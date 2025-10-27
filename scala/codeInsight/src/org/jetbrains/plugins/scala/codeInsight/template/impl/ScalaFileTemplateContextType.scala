@@ -9,7 +9,11 @@ import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 final class ScalaFileTemplateContextType extends FileTypeBasedContextType(
   ScalaLanguage.INSTANCE.getDisplayName,
   ScalaFileType.INSTANCE
-)
+) {
+
+  override def isInContext(templateActionContext: TemplateActionContext): Boolean =
+    templateActionContext.getFile.getLanguage == ScalaLanguage.INSTANCE
+}
 
 object ScalaFileTemplateContextType {
 
