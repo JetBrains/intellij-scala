@@ -13,6 +13,8 @@ import java.awt.event.MouseEvent
  * that delegates to [[com.intellij.codeInsight.navigation.GotoImplementationHandler]]
  *
  * Note, that the Java version handles not only classes but also methods.
+ *
+ * @see [[ScalaInheritorsMembersLineMarkerNavigator]]
  */
 private class ScalaInheritorsLineMarkerNavigator extends GutterIconNavigationHandler[PsiElement] {
   override def navigate(event: MouseEvent, element: PsiElement): Unit = {
