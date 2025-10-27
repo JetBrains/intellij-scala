@@ -35,7 +35,7 @@ object ScalaMarkerType {
     case _                         => None
   }
 
-  private[this] def navigate[T <: PsiElement](
+  private[gutter] def navigate[T <: PsiElement](
     event: MouseEvent,
     targets: Array[T],
     project: Project,
@@ -200,7 +200,7 @@ object ScalaMarkerType {
   def newCellRenderer: PsiElementListCellRenderer[PsiElement] = new ScCellRenderer
 
   val subclassedClass: ScalaMarkerType = ScalaMarkerType(
-    element =>
+    tooltipProvider = element =>
       element.parent.collect {
         case aClass: PsiClass =>
           val inheritors = ClassInheritorsSearch.search(aClass, aClass.getUseScope, true).toArray(PsiClass.EMPTY_ARRAY).toSeq
@@ -208,39 +208,20 @@ object ScalaMarkerType {
           val prefix = aClass match {
             case _: ScTrait =>
               if (isTooMany) ScalaBundle.message("trait.has.several.implementations", inheritors.size)
-              else           ScalaBundle.message("trait.has.implementations")
+              else ScalaBundle.message("trait.has.implementations")
             case _ =>
               if (isTooMany) ScalaBundle.message("class.has.several.subclasses", inheritors.size)
-              else           ScalaBundle.message("class.has.subclasses")
+              else ScalaBundle.message("class.has.subclasses")
           }
           val shownInheritors = if (isTooMany) emptyList else inheritors.asJava
 
           GutterTooltipHelper.getTooltipText(shownInheritors,
-              prefix,
-              false, //do not skip inheritor itself
-              IdeActions.ACTION_GOTO_IMPLEMENTATION)
+            prefix,
+            false, //do not skip inheritor itself
+            IdeActions.ACTION_GOTO_IMPLEMENTATION)
 
       }.orNull,
-    (event, element) =>
-      element.parent.collect {
-        case aClass: PsiClass =>
-          val inheritors = ClassInheritorsSearch.search(aClass, aClass.getUseScope, true).toArray(PsiClass.EMPTY_ARRAY)
-          if (inheritors.nonEmpty) {
-            val cname = aClass.name
-            val (title, findUsagesTitle) =
-              if (aClass.isInstanceOf[ScTrait]) {
-                ScalaBundle.message("navigation.title.inheritors.trait", cname, inheritors.length.toString) ->
-                  ScalaBundle.message("navigation.findUsages.title.inheritors.trait", cname)
-              } else {
-                ScalaBundle.message("navigation.title.inheritors.class", cname, inheritors.length.toString) ->
-                  ScalaBundle.message("navigation.findUsages.title.inheritors.class", cname)
-              }
-
-            val renderer = new PsiClassListCellRenderer
-            util.Arrays.sort(inheritors, renderer.getComparator)
-            navigate(event, inheritors, aClass.getProject, title, findUsagesTitle, renderer)
-          }
-    }
+    navigationHandler = new ScalaInheritorsLineMarkerNavigator
   )
 
   def samTypeImplementation(aClass: PsiClass): ScalaMarkerType = {
