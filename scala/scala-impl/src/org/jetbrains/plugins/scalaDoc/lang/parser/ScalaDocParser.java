@@ -21,7 +21,7 @@ public class ScalaDocParser implements PsiParser, LightPsiParser {
   @Override
   public void parseLight(@NotNull IElementType root, @NotNull PsiBuilder builder) {
     if (isMarkdown) {
-      new ScaladocMarkdownParsing(builder, tabSize).parse(root);
+      ScaladocMarkdownParsing.parse(builder, root);
     } else {
       new MyScaladocParsing(builder, tabSize).parse(root);
     }
