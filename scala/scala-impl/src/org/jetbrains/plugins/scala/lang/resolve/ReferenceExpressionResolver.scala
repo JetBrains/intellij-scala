@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.resolve
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil._
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.dependency.Dependency.DependencyProcessor
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -344,7 +345,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
 
     def resolveUnqualifiedExpression(): Unit = {
       @tailrec
-      def treeWalkUp(place: PsiElement, lastParent: PsiElement, state: ResolveState): Unit = {
+      def treeWalkUp(@Nullable place: PsiElement, @Nullable lastParent: PsiElement, state: ResolveState): Unit = {
         if (place == null) return
 
         val newState = place match {

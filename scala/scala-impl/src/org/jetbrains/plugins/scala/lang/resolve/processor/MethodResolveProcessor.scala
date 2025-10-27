@@ -130,13 +130,16 @@ class MethodResolveProcessor(
       namedElement match {
         case m: PsiMethod => addResult(resultBuilder(m))
         case o: ScObject if o.isPackageObject =>  // do not resolve to package object
-        case obj: ScObject if ref.getParent.is[ScMethodCall] || ref.getParent.is[ScGenericCall] =>
+        case obj: ScObject if ref.getParent.is[ScMethodCall, ScGenericCall] =>
           addResult(resultBuilder(obj))
         case cls: PsiClass
           if ref.isInScala3Module &&
-            (ref.getParent.is[ScMethodCall] || ref.getParent.is[ScGenericCall]) =>
+            (ref.getParent.is[ScMethodCall, ScGenericCall]) =>
           // process constructor proxies
-          val constructors = cls.constructors
+          val constructors = cls.constructors match {
+            case Seq() => Seq(namedElement)
+            case c => c
+          }
 
           val withAccessibilityCheck =
             constructors.view.map { cons =>
