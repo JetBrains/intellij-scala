@@ -33,7 +33,7 @@ private class ScalaInheritorsLineMarkerNavigator extends GutterIconNavigationHan
 
           val renderer = new PsiClassListCellRenderer
           util.Arrays.sort(inheritors, renderer.getComparator)
-          ScalaMarkerType.navigate(event, inheritors, aClass.getProject, title, findUsagesTitle, renderer)
+          ScalaNavigationUtils.navigate(event, inheritors, aClass.getProject, title, findUsagesTitle, renderer)
         }
     }
   }
