@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScRefinement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScGivenAliasDefinition, ScGivenDefinition, ScMember}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
@@ -234,6 +234,12 @@ trait OverridingAnnotator {
               case _ => signature
             }
           e match {
+            case _: ScGivenAliasDefinition =>
+              // NOTE: given instances are effectively final (the final modifier will be added in the bytecode)
+              // We could use the method `ScMember.isEffectivelyFinal`, however, it has a slightly different meaning.
+              // It's closer to "cannotBeOverridden" (e.g., private[this] methods don't have a final modifier in the code but can't be overridden)
+              // This can matter for calculating the error message or in other places.
+              overridesFinal = true
             case owner1: PsiModifierListOwner if owner1.hasFinalModifier =>
               overridesFinal = true
             case _ =>
