@@ -55,7 +55,6 @@ object ScalaMarkerType {
   }
 
   def findOverrides(member: ScMember, deep: Boolean): Seq[PsiNamedElement] = {
-
     val namedElems = member match {
       case d: ScDeclaredElementsHolder => d.declaredElements.filterByType[ScNamedElement]
       case param: ScClassParameter => Seq(param)
@@ -67,7 +66,7 @@ object ScalaMarkerType {
   }
 
   val overridingMember: ScalaMarkerType = ScalaMarkerType(
-    element => {
+    tooltipProvider = element => {
       namedParent(element)
         .collect {
           case method: ScFunction =>
@@ -97,7 +96,7 @@ object ScalaMarkerType {
         }
         .orNull
     },
-    (event, element) =>
+    navigationHandler = (event, element) =>
       namedParent(element).collect {
         case method: ScFunction =>
           navigateToSuperMethod(event, method, method.getProject, includeSelf = false)
@@ -114,49 +113,17 @@ object ScalaMarkerType {
           val superElements = ScalaPsiUtil.superTypeMembers(ta, withSelfType = true)
           val navigatables = superElements.filterByType[NavigatablePsiElement].toArray
           ScalaNavigationUtils.navigateToSuperType(event, navigatables, ta.getProject, ta.name)
-    }
+      }
   )
 
   val overriddenMember: ScalaMarkerType = ScalaMarkerType(
-    element =>
+    tooltipProvider = element =>
       namedParent(element).collect {
         case m: ScMember =>
           if (GutterUtil.isAbstract(m)) ScalaBundle.message("has.implementations")
           else ScalaBundle.message("is.overridden.by")
       }.orNull,
-    (event, element) =>
-      namedParent(element).collect {
-        case member: ScMember =>
-          val project = member.getProject
-          if (DumbService.isDumb(project)) {
-            DumbService.getInstance(project)
-              .showDumbModeNotification(ScalaBundle.message("notification.navigation.to.overriding.members"))
-          } else {
-            var overrides: Seq[PsiNamedElement] = Seq.empty
-            if (ProgressManager.getInstance().runProcessWithProgressSynchronously(() => {
-              overrides = findOverrides(member, deep = true)
-            }, ScalaBundle.message("searching.for.overriding.members"), true,
-              project, event.getComponent.asInstanceOf[JComponent])) {
-              if (overrides.nonEmpty) {
-                val name = overrides.headOption.fold("")(_.name)
-
-                val (title, findUsagesTitle) =
-                  if (GutterUtil.isAbstract(member)) {
-                    ScalaBundle.message("navigation.title.implementing.member", name, overrides.length.toString) ->
-                      ScalaBundle.message("navigation.findUsages.title.implementing.member", name)
-                  } else {
-                    ScalaBundle.message("navigation.title.overriding.member", name, overrides.length.toString) ->
-                      ScalaBundle.message("navigation.findUsages.title.overriding.member", name)
-                  }
-
-                val renderer = newCellRenderer
-                val overridesArray = overrides.toArray[PsiElement]
-                util.Arrays.sort(overridesArray, renderer.getComparator)
-                ScalaNavigationUtils.navigate(event, overridesArray, project, title, findUsagesTitle, renderer)
-              }
-            }
-          }
-    }
+    navigationHandler = new ScalaInheritorsMembersLineMarkerNavigator
   )
 
   def newCellRenderer: PsiElementListCellRenderer[PsiElement] = new ScCellRenderer
