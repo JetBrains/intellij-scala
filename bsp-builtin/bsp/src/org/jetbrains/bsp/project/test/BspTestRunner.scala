@@ -21,7 +21,7 @@ import org.jetbrains.bsp.{BspBundle, BspErrorMessage}
 import org.jetbrains.plugins.scala.build.BuildToolWindowReporter.CancelBuildAction
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter, BuildToolWindowReporter}
 
-import java.io.{File, OutputStream}
+import java.io.OutputStream
 import java.net.URI
 import java.nio.file.Path
 import java.util.UUID

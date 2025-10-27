@@ -141,8 +141,8 @@ object bspConfigSteps {
       case bspConfigSteps.ScalaCliSetup =>
         (NoConfigSetup, Some(ScalaCliBspPreImport), Some(AutoConfig), None)
       case bspConfigSteps.FastpassSetup =>
-        val bspWorkspace = FastpassConfigSetup.computeBspWorkspace(workspace.toFile)
-        val configSetup: BspConfigSetup = FastpassConfigSetup.create(workspace.toFile).fold(throw _, identity)
+        val bspWorkspace = FastpassConfigSetup.computeBspWorkspace(workspace)
+        val configSetup: BspConfigSetup = FastpassConfigSetup.create(workspace).fold(throw _, identity)
         (configSetup, Some(NoPreImport), None, Some(bspWorkspace))
     }
     BuilderConfigurationParameters.tupled.apply(tuple)
