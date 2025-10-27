@@ -11,7 +11,7 @@ package object impl {
     member.hasFinalModifier ||
       member.isLocal ||
       member.isTopLevel ||
-      member.isPrivate ||
+      member.getModifierList.accessModifier.exists(_.isUnqualifiedPrivateOrThis) ||
       Option(member.containingClass).exists(_.isEffectivelyFinal)
   }
 }
