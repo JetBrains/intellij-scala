@@ -1131,6 +1131,4 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |    ScPsiDocToken(DOC_COMMENT_END)('*/')
       |  PsiWhiteSpace('\n')""".stripMargin
   )
-
-  def test_that_fails_safety(): Unit = assertNothing {}
 }
