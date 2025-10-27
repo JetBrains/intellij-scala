@@ -13,10 +13,12 @@ import org.jetbrains.bsp.protocol.BspJob
 import org.jetbrains.bsp.protocol.BspNotifications._
 import org.jetbrains.bsp.protocol.session.BspSession._
 import org.jetbrains.bsp.protocol.session.jobs.BspSessionJob
+import org.jetbrains.plugins.scala.extensions.PathExt
 
-import java.io._
+import java.io.{InputStream, OutputStream, PrintWriter, Writer}
 import java.lang.reflect.{InvocationHandler, Method}
-import java.nio.file.{Files, Paths}
+import java.nio.charset.Charset
+import java.nio.file.{Files, Path, Paths, StandardOpenOption}
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.{Callable, CompletableFuture, LinkedBlockingQueue, TimeUnit}
@@ -110,13 +112,13 @@ class BspSession private(bspPID: Long,
     }
   }
 
-  private def lazyFileCreateWriter(file: File): Writer = new Writer() {
+  private def lazyFileCreateWriter(file: Path): Writer = new Writer() {
 
-    class MFileWriter(f: File, b: Boolean) extends FileWriter(file, b) {
-      logger.debug(s"Writing BSP trace log to file ${file.getName}")
+    lazy val writer: Writer = {
+      logger.debug(s"Writing BSP trace log to file ${file.getFileName.toString}")
+      import StandardOpenOption._
+      Files.newBufferedWriter(file, Charset.defaultCharset(), WRITE, CREATE, APPEND)
     }
-
-    lazy val writer: FileWriter = new MFileWriter(file, true)
 
 
     override def write(cbuf: Array[Char], off: Int, len: Int): Unit = {
@@ -136,13 +138,13 @@ class BspSession private(bspPID: Long,
     if (traceLogPredicate()) {
       val logfile = sys.env.get("BSP_TRACE_PATH")
         .orElse(sys.props.get("BSP_TRACE_PATH"))
-        .map(new File(_))
+        .map(Path.of(_))
         .getOrElse({
           val dirs = Paths.get(PathManager.getLogPath, "bsp")
           Files.createDirectories(dirs)
           val stamp = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH-mm-ss")
             .format(LocalDateTime.now())
-          new File(dirs.toFile, s"bsp-protocol-trace-$stamp.log")
+          dirs / s"bsp-protocol-trace-$stamp.log"
         })
       Some(new PrintWriter(lazyFileCreateWriter(logfile)))
     } else {
