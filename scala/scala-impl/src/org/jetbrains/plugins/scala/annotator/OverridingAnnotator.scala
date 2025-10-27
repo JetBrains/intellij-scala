@@ -232,11 +232,7 @@ trait OverridingAnnotator {
               case _ => signature
             }
           e match {
-            case _: ScGivenAliasDefinition =>
-              // NOTE: given instances are effectively final (the final modifier will be added in the bytecode)
-              // We could use the method `ScMember.isEffectivelyFinal`, however, it has a slightly different meaning.
-              // It's closer to "cannotBeOverridden" (e.g., private[this] methods don't have a final modifier in the code but can't be overridden)
-              // This can matter for calculating the error message or in other places.
+            case member: ScMember if member.isEffectivelyFinal =>
               overridesFinal = true
             case owner1: PsiModifierListOwner if owner1.hasFinalModifier =>
               overridesFinal = true
