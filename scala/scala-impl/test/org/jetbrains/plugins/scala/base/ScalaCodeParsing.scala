@@ -16,18 +16,24 @@ trait ScalaCodeParsing {
   protected def scalaVersion: ScalaVersion = ScalaVersion.default
   protected def scalaFeatures: SerializableScalaFeatures = ScalaFeatures.onlyByVersion(scalaVersion)
 
+  private def thisScalaFeatures: SerializableScalaFeatures = {
+    assert(scalaFeatures.languageLevel == scalaVersion.languageLevel)
+    scalaFeatures
+  }
+
   def parseScalaFile(
     @InputLanguage("Scala") text: String,
-    scalaVersion: ScalaVersion
+    scalaVersion: ScalaVersion,
   )(implicit project: ProjectContext): ScalaFile = {
-    parseScalaFile(text, scalaVersion, enableEventSystem = false)
+    val features = ScalaFeatures.onlyByVersion(scalaVersion)
+    parseScalaFile(text, features, enableEventSystem = false)
   }
 
   def parseScalaFile(
     @InputLanguage("Scala") text: String,
     enableEventSystem: Boolean = false
   )(implicit project: ProjectContext): ScalaFile = {
-    parseScalaFile(text, scalaVersion, enableEventSystem)
+    parseScalaFile(text, thisScalaFeatures, enableEventSystem)
   }
 
   def parseScalaFileAndGetCaretPosition(
@@ -39,9 +45,9 @@ trait ScalaCodeParsing {
     (parseScalaFile(trimmed.replaceAll(caretMarker, "")), caretPos)
   }
 
-  private def parseScalaFile(
+  def parseScalaFile(
     @InputLanguage("Scala") text: String,
-    scalaVersion: ScalaVersion,
+    scalaFeatures: ScalaFeatures,
     enableEventSystem: Boolean,
   )(implicit project: ProjectContext): ScalaFile = {
     ScalaPsiElementFactory.createScalaFileFromText(text, scalaFeatures, eventSystemEnabled = enableEventSystem, shouldTrimText = false)

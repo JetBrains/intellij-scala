@@ -16,10 +16,8 @@ import org.junit.experimental.categories.Category
 abstract class ModifierCheckerTestBase extends SimpleTestCase {
   import Message._
 
-  protected def scalaVersion: ScalaVersion
-
   protected def messages(code: String) = {
-    val file = parseScalaFile(code, scalaVersion)
+    val file = parseScalaFile(code)
 
     implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
     file.depthFirst().foreach {
