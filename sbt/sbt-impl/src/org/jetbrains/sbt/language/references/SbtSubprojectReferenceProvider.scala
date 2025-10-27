@@ -4,7 +4,7 @@ package language.references
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.io.FileUtil
-import com.intellij.psi._
+import com.intellij.psi.*
 import com.intellij.psi.search.{FilenameIndex, GlobalSearchScope}
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScMethodCall,
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
 
-import java.io.File
+import java.io.File.separator as Separator
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 class SbtSubprojectReferenceProvider extends PsiReferenceProvider {
@@ -29,7 +29,7 @@ class SbtSubprojectReferenceProvider extends PsiReferenceProvider {
   private def findBuildFile(subprojectPath: String, project: Project): Option[PsiFile] = {
     val vFiles = FilenameIndex.getVirtualFilesByName("build.sbt", GlobalSearchScope.allScope(project)).asScala
     val buildVFile = vFiles.find { vFile =>
-      val relativeToProjectPath = project.getBasePath + File.separator + subprojectPath
+      val relativeToProjectPath = project.getBasePath + Separator + subprojectPath
       val absolutePath = FileUtil.toSystemIndependentName(FileUtil.toCanonicalPath(relativeToProjectPath))
       Option(vFile.getParent).map(_.getPath).fold(false)(FileUtil.comparePaths(_, absolutePath) == 0)
     }
@@ -87,9 +87,9 @@ class SbtSubprojectReferenceProvider extends PsiReferenceProvider {
       case Seq(ScStringLiteral(path)) =>
         Some(path)
       case Seq(ScStringLiteral(parent), ScStringLiteral(child)) =>
-        Some(parent + File.separator + child)
+        Some(parent + Separator + child)
       case Seq(parentElt, ScStringLiteral(child)) =>
-        extractPathFromFileParam(parentElt).map(_ + File.separator + child)
+        extractPathFromFileParam(parentElt).map(_ + Separator + child)
       case _ => None
     }
   }
@@ -97,12 +97,12 @@ class SbtSubprojectReferenceProvider extends PsiReferenceProvider {
   private def extractPathFromConcatenation(concatExpr: ScInfixExpr): Option[String] =
     concatExpr.right match {
       case ScStringLiteral(child) =>
-        extractPathFromFileParam(concatExpr.left).map(_ + File.separator + child)
+        extractPathFromFileParam(concatExpr.left).map(_ + Separator + child)
       case partRef : ScReferenceExpression =>
         for {
           parent <- extractPathFromFileParam(concatExpr.left)
           child  <- extractPathFromFileParam(partRef)
-        } yield parent + File.separator + child
+        } yield parent + Separator + child
       case _ => None
     }
 
