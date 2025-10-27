@@ -1,30 +1,30 @@
 package org.jetbrains.bsp.project
 
-import java.io.{File, FileReader}
-import java.util.{Collections, List => JList, Map => JMap}
 import com.google.gson.Gson
 import com.intellij.execution.configurations.SimpleJavaParameters
 import com.intellij.openapi
-import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys, ProjectSystemId}
 import com.intellij.openapi.externalSystem.model.project.{ExternalSystemSourceType, ProjectData}
+import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys, ProjectSystemId}
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.externalSystem.{ExternalSystemAutoImportAware, ExternalSystemConfigurableAware, ExternalSystemManager}
 import com.intellij.openapi.fileChooser.FileChooserDescriptor
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.Key
-import com.intellij.openapi.util.UserDataHolder
+import com.intellij.openapi.util.{Key, UserDataHolder}
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.util.Function
 import org.jetbrains.bsp._
-import org.jetbrains.bsp.project.importing.BspProjectResolver
-import org.jetbrains.bsp.settings._
 import org.jetbrains.bsp.project.BspExternalSystemManager.{DetectExternalProjectFiles, ScalaCliAffectedProjectFiles}
+import org.jetbrains.bsp.project.importing.BspProjectResolver
 import org.jetbrains.bsp.protocol.BspConnectionConfig
+import org.jetbrains.bsp.settings._
+import org.jetbrains.plugins.scala.extensions.PathExt
 
-import java.nio.file.Path
+import java.nio.charset.Charset
+import java.nio.file.{Files, Path}
+import java.util.Collections
 import scala.jdk.CollectionConverters._
-import scala.util.Try
+import scala.util.{Try, Using}
 
 class BspExternalSystemManager extends ExternalSystemManager[BspProjectSettings, BspProjectSettingsListener, BspSettings, BspLocalSettings, BspExecutionSettings]
   with ExternalSystemConfigurableAware
@@ -52,21 +52,21 @@ class BspExternalSystemManager extends ExternalSystemManager[BspProjectSettings,
 
   override def getAffectedExternalProjectPath(changedFileOrDirPath: String, project: Project): String = {
     if (detectExternalProjectFiles(project)) {
-      val file = new File(changedFileOrDirPath)
-      val isConfigFile = (BspConnectionConfig.isBspConfigFile(file.toPath) || BspUtil.isBloopConfigFile(file.toPath)) &&
-        BspUtil.workspaces(project).contains(file.getParentFile.toPath)
+      val file = Path.of(changedFileOrDirPath)
+      val isConfigFile = (BspConnectionConfig.isBspConfigFile(file) || BspUtil.isBloopConfigFile(file)) &&
+        BspUtil.workspaces(project).contains(file.getParent)
 
-      if (isConfigFile) file.getParentFile.getAbsolutePath
+      if (isConfigFile) file.getParent.toCanonicalPath.toString
       else null
     } else null
   }
 
-  override def getAffectedExternalProjectFiles(projectPath: String, project: Project): JList[File] = {
+  override def getAffectedExternalProjectFiles(projectPath: String, project: Project): java.util.List[java.io.File] = {
     if (detectExternalProjectFiles(project)) {
-      val workspace = new File(projectPath)
-      val bspConfigs = BspConnectionConfig.workspaceConfigurationFiles(workspace.toPath)
-      val bloopConfigs = BspUtil.bloopConfigDir(workspace.toPath).map(_.toFile).toList
-        .flatMap(_.listFiles(file => file.getName.endsWith(".json")).toList)
+      val workspace = Path.of(projectPath)
+      val bspConfigs = BspConnectionConfig.workspaceConfigurationFiles(workspace)
+      val bloopConfigs = BspUtil.bloopConfigDir(workspace).toList
+        .flatMap(_.children().filter(file => file.getFileName.toString.endsWith(".json")))
 
       /* !!! ATTENTION !!!
       Files in `bspConfigs` and `bloopConfigs` are .json files so they won't be proceed by
@@ -81,13 +81,13 @@ class BspExternalSystemManager extends ExternalSystemManager[BspProjectSettings,
       val scalaCliConfigs =
         if (BspUtil.isBspScalaCliProject(project)) getScalaCliAffectedFiles(project, projectPath)
         else List.empty
-      (bspConfigs ++ bloopConfigs.map(_.toPath) ++ scalaCliConfigs.map(_.toPath)).map(_.toFile).asJava
+      (bspConfigs ++ bloopConfigs ++ scalaCliConfigs).map(_.toFile).asJava
     } else {
       Collections.emptyList()
     }
   }
 
-  private def getScalaCliAffectedFiles(project: Project, projectPath: String): List[File] = {
+  private def getScalaCliAffectedFiles(project: Project, projectPath: String): List[Path] = {
     val projectNode = ExternalSystemApiUtil.findProjectNode(project, BSP.ProjectSystemId, projectPath)
     if (projectNode == null) return List.empty
     cached(ScalaCliAffectedProjectFiles, projectNode) {
@@ -95,7 +95,7 @@ class BspExternalSystemManager extends ExternalSystemManager[BspProjectSettings,
     }
   }
 
-  private def getSourceRootFiles(structure: DataNode[ProjectData]): List[File] = {
+  private def getSourceRootFiles(structure: DataNode[ProjectData]): List[Path] = {
     val affectedExternalSystemSourceTypes = Seq(
       ExternalSystemSourceType.SOURCE, ExternalSystemSourceType.TEST,
       ExternalSystemSourceType.SOURCE_GENERATED, ExternalSystemSourceType.TEST_GENERATED
@@ -105,16 +105,16 @@ class BspExternalSystemManager extends ExternalSystemManager[BspProjectSettings,
       contentRootNode <- ExternalSystemApiUtil.findAll(moduleDataNode, ProjectKeys.CONTENT_ROOT).asScala.toSeq
       data = contentRootNode.getData
       sourceRoot <- affectedExternalSystemSourceTypes.flatMap(data.getPaths(_).asScala)
-    } yield new File(sourceRoot.getPath)
+    } yield Path.of(sourceRoot.getPath)
   }
 
   private def detectExternalProjectFiles(project: Project): Boolean = {
     cached(DetectExternalProjectFiles, project) {
       if (BspUtil.isBspProject(project) && project.getBasePath != null) {
-        val workspace = new File(project.getBasePath)
-        val files = BspConnectionConfig.workspaceConfigurationFiles(workspace.toPath)
+        val workspace = Path.of(project.getBasePath)
+        val files = BspConnectionConfig.workspaceConfigurationFiles(workspace)
         files
-          .flatMap(p => parseAsMap(p.toFile).toOption)
+          .flatMap(p => parseAsMap(p).toOption)
           .forall { details =>
             ! details.get("X-detectExternalProjectFiles")
               .contains(false)
@@ -123,12 +123,13 @@ class BspExternalSystemManager extends ExternalSystemManager[BspProjectSettings,
     }
   }
 
-  private def parseAsMap(file: File): Try[Map[String, Any]] = Try {
-    new Gson()
-      .fromJson(new FileReader(file), classOf[JMap[String, _]])
-      .asScala
-      .toMap
-  }
+  private def parseAsMap(file: Path): Try[Map[String, Any]] =
+    Using(Files.newBufferedReader(file, Charset.defaultCharset())) { reader =>
+      new Gson()
+        .fromJson(reader, classOf[java.util.Map[String, _]])
+        .asScala
+        .toMap
+    }
 
   private def cached[A](key: Key[A], holder: UserDataHolder)(compute: => A): A = {
     Option(holder.getUserData(key)).getOrElse {
@@ -142,11 +143,11 @@ class BspExternalSystemManager extends ExternalSystemManager[BspProjectSettings,
 
 object BspExternalSystemManager {
   val DetectExternalProjectFiles: Key[Boolean] = Key.create[Boolean]("BSP.detectExternalProjectFiles")
-  val ScalaCliAffectedProjectFiles: Key[List[File]] = Key.create[List[File]]("BSP.scalaCliAffectedProjectFiles")
+  val ScalaCliAffectedProjectFiles: Key[List[Path]] = Key.create("BSP.scalaCliAffectedProjectFiles")
 
-  def parseAsMap(file: File): Map[String, Any] = {
-    val virtualFile = LocalFileSystem.getInstance.findFileByIoFile(file)
+  def parseAsMap(file: Path): Map[String, Any] = {
+    val virtualFile = LocalFileSystem.getInstance.findFileByNioFile(file)
     val content = new String(virtualFile.contentsToByteArray())
-    new Gson().fromJson(content, classOf[JMap[String, _]]).asScala.toMap
+    new Gson().fromJson(content, classOf[java.util.Map[String, _]]).asScala.toMap
   }
 }
