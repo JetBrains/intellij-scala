@@ -4,18 +4,23 @@ import com.intellij.lang.PsiBuilder
 import com.intellij.lang.impl.PsiBuilderAdapter
 import com.intellij.openapi.util.Key
 import com.intellij.psi.tree.IElementType
+import org.intellij.markdown
 import org.intellij.markdown.ast.ASTNode
 import org.intellij.markdown.parser.MarkdownParser
-import org.intellij.markdown.{MarkdownElementTypes, MarkdownTokenTypes}
+import org.intellij.markdown.{MarkdownElementType, MarkdownElementTypes, MarkdownTokenTypes}
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilderImpl
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableIdForImport
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScalaDocSyntaxElementType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
-import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.ScaladocMarkdownParsing.MkBuilder
+import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.ScaladocMarkdownParsing.{MkBuilder, MkTreeIt}
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.markdown.{ScalaDocMarkdownFlavour, ScalaDocTagMarkerBlock, WikiLinkParser}
 
+import java.{util => ju}
 import scala.collection.immutable.ArraySeq
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.ListHasAsScala
+
 
 private class ScaladocMarkdownParsing(builder: MkBuilder) extends ScalaDocElementTypes {
   @inline
@@ -25,27 +30,164 @@ private class ScaladocMarkdownParsing(builder: MkBuilder) extends ScalaDocElemen
   @inline
   private def ensureBuilderInPosition(i: Int, elementType: IElementType): Unit = builder.ensureBuilderInPosition(i, elementType)
 
-  def visitNode(node: ASTNode): Unit = {
-    val tpe = node.getType
+  def visitNode(treeIt: MkTreeIt): Unit = {
+    assert(!treeIt.ended)
+    val tpe = treeIt.currentNodeType
 
     if (tpe == MarkdownTokenTypes.EOL) {
-      ensureBuilderInPosition(node.getStartOffset)
+      ensureBuilderInPosition(treeIt.currentStartOffset)
       advanceToNextLine()
       return
     }
 
-    val element = tpe match {
+    val elementTy = mapType(treeIt, tpe) match {
+      case Some(element) => element
+      case None => return
+    }
+
+    tpe match {
+      case _ if !treeIt.currentHasChildren =>
+        ensureBuilderInPosition(treeIt.currentStartOffset)
+
+        val marker = builder.mark()
+        ensureBuilderInPosition(treeIt.currentEndOffset)
+        marker.collapse(elementTy)
+      case ScalaDocTagMarkerBlock.TAG_BLOCK => visitTagBlock(elementTy, treeIt)
+      case MarkdownElementTypes.EMPH => visitBorderSyntaxElement(elementTy, treeIt, ScalaDocTokenType.DOC_ITALIC_TAG, ScalaDocTokenType.DOC_ITALIC_TAG, 1)
+      case MarkdownElementTypes.STRONG => visitBorderSyntaxElement(elementTy, treeIt, ScalaDocTokenType.DOC_BOLD_TAG, ScalaDocTokenType.DOC_BOLD_TAG, 2)
+      case MarkdownElementTypes.CODE_SPAN => visitBorderSyntaxElement(elementTy, treeIt, ScalaDocTokenType.DOC_MONOSPACE_TAG, ScalaDocTokenType.DOC_MONOSPACE_TAG, 1)
+      case WikiLinkParser.WIKI_LINK => visitBorderSyntaxElement(elementTy, treeIt, ScalaDocTokenType.DOC_LINK_TAG, ScalaDocTokenType.DOC_LINK_CLOSE_TAG, 2, ScalaDocElementTypes.SCALA_DOC_REFERENCE_LINK)
+      case MarkdownElementTypes.PARAGRAPH => visitParagraph(elementTy, treeIt)
+      case _ =>
+        ensureBuilderInPosition(treeIt.currentStartOffset)
+
+        val marker = builder.mark()
+        visitRest(treeIt.startIterateCurrentChildren())
+        ensureBuilderInPosition(treeIt.currentEndOffset)
+        marker.done(elementTy)
+    }
+  }
+
+  def visitTagBlock(elementTy: IElementType, treeIt: MkTreeIt): Unit = {
+    // TAG_BLOCK needs to be dealt with in this complicated way,
+    // due to needing whitespace inserted in a few places (which is not necessary for the rest)
+    // and some nodes being special
+    val hasArgument = treeIt.currentChildren.asScala.indexWhere(_.getType == ScalaDocTagMarkerBlock.TAG_ARGUMENT) != -1
+    ensureBuilderInPosition(treeIt.currentStartOffset)
+    val marker = builder.mark()
+    val childIt = treeIt.startIterateCurrentChildren()
+
+    // drop until finding the tag name
+    // (every tag block has a tag name, so we don't have to check for ended)
+    childIt.advanceUntil(ScalaDocTagMarkerBlock.TAG_NAME)
+    ensureBuilderInPosition(childIt.currentStartOffset, ScalaDocTokenType.DOC_WHITESPACE)
+    val isThrows = hasArgument && {
+      val tagName = builder.content.substring(childIt.currentStartOffset + 1, childIt.currentEndOffset)
+      tagName == MyScaladocParsing.TagNames.Throws
+    }
+
+    visitNode(childIt)
+    childIt.advance()
+
+    if (hasArgument) {
+      childIt.advanceUntil(ScalaDocTagMarkerBlock.TAG_ARGUMENT)
+      ensureBuilderInPosition(childIt.currentStartOffset, ScalaDocTokenType.DOC_WHITESPACE)
+
+      // Disabled because `builder` is not the right thing to pass here, but I'm not sure how to do it nicely.
+      if (isThrows) {
+        ensureBuilderInPosition(childIt.currentEndOffset, ScalaDocElementTypes.SCALA_DOC_REFERENCE_LINK)
+      } else {
+        visitNode(childIt)
+      }
+      childIt.advance()
+    }
+    visitRest(childIt)
+
+    ensureBuilderInPosition(treeIt.currentEndOffset)
+    marker.done(elementTy)
+  }
+
+  // Elements that are started and ended by a fixed amount of border elements like
+  //  - italic      *text*
+  //  - bold       **text**
+  //  - code-spans  `text` or ``text`` (multiple `` are still one child in the tree)
+  //  - wiki-links [[text]]
+  private def visitBorderSyntaxElement(elementTy: IElementType,
+                                       treeIt: MkTreeIt,
+                                       startTagType: ScalaDocSyntaxElementType,
+                                       endTagType: ScalaDocSyntaxElementType,
+                                       borderNum: Int,
+                                       innerType: IElementType = null): Unit = {
+    assert(treeIt.currentChildren.size() >= borderNum * 2)
+    val childIt = treeIt.startIterateCurrentChildren()
+    ensureBuilderInPosition(childIt.currentStartOffset)
+
+    val marker = builder.mark()
+    // We *know* there are at least borderNum*2 children here
+    // Force the first borderNum children to be a tagType
+    for (_ <- 1 until borderNum) {
+      childIt.advance()
+    }
+    ensureBuilderInPosition(childIt.currentEndOffset, startTagType)
+    childIt.advance()
+
+    while(childIt.availableNodesOnLevel > borderNum) {
+      if (innerType == null) {
+        visitNode(childIt)
+      }
+      childIt.advance()
+    }
+
+    if (innerType == null)
+      ensureBuilderInPosition(childIt.currentStartOffset)
+    else
+      ensureBuilderInPosition(childIt.currentStartOffset, innerType)
+    childIt.dropRest()
+
+    // Force the last children to be a tagType
+    ensureBuilderInPosition(treeIt.currentEndOffset, endTagType)
+
+    marker.done(elementTy)
+  }
+
+  private def visitParagraph(elementTy: IElementType, treeIt: MkTreeIt): Unit = {
+    ensureBuilderInPosition(treeIt.currentStartOffset)
+
+    val marker = builder.mark()
+    val childIt = treeIt.startIterateCurrentChildren()
+
+    if (!childIt.ended && childIt.currentNodeType == MarkdownTokenTypes.WHITE_SPACE) {
+      ensureBuilderInPosition(childIt.currentEndOffset, ScalaDocTokenType.DOC_WHITESPACE)
+      childIt.advance()
+    }
+
+    while (!childIt.ended) {
+      if (childIt.currentNodeType == MarkdownTokenTypes.WHITE_SPACE && childIt.availableNodesOnLevel == 1) {
+        ensureBuilderInPosition(childIt.currentStartOffset)
+        ensureBuilderInPosition(childIt.currentEndOffset, ScalaDocTokenType.DOC_WHITESPACE)
+      } else {
+        visitNode(childIt)
+      }
+      childIt.advance()
+    }
+
+    ensureBuilderInPosition(treeIt.currentEndOffset)
+    marker.done(elementTy)
+  }
+
+  private def mapType(treeIt: MkTreeIt, tpe: markdown.IElementType): Option[IElementType] = Some(
+    tpe match {
       // ScalaDoc stuff
       case ScalaDocTagMarkerBlock.TAG_BLOCK => ScalaDocElementTypes.DOC_TAG
       case ScalaDocTagMarkerBlock.TAG_NAME => ScalaDocTokenType.DOC_TAG_NAME
       case ScalaDocTagMarkerBlock.TAG_ARGUMENT =>
         // Special handling to match `MyScaladocParsing`.
-        ensureBuilderInPosition(node.getStartOffset)
+        ensureBuilderInPosition(treeIt.currentStartOffset)
 
         val marker = builder.mark()
-        ensureBuilderInPosition(node.getEndOffset, ScalaDocTokenType.DOC_TAG_VALUE_TOKEN)
+        ensureBuilderInPosition(treeIt.currentEndOffset, ScalaDocTokenType.DOC_TAG_VALUE_TOKEN)
         marker.done(ScalaDocTokenType.DOC_TAG_VALUE_TOKEN)
-        return
+        return None
 
       // Common blocks
       case MarkdownElementTypes.PARAGRAPH => ScalaDocElementTypes.DOC_PARAGRAPH
@@ -68,8 +210,8 @@ private class ScaladocMarkdownParsing(builder: MkBuilder) extends ScalaDocElemen
       // Tokens
       //case MarkdownTokenTypes.EMPH => ScalaDocTokenType.DOC_ITALIC_TAG
       //case MarkdownTokenTypes.BACKTICK => ScalaDocTokenType.DOC_MONOSPACE_TAG
-      case MarkdownTokenTypes.WHITE_SPACE if builder.rawLookup(-1) == ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS
-      => ScalaDocTokenType.DOC_WHITESPACE
+      case MarkdownTokenTypes.WHITE_SPACE if builder.rawLookup(-1) == ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS =>
+        ScalaDocTokenType.DOC_WHITESPACE
 
       // Remains
       // Not needed: it is parsed as regular text by the parser!
@@ -84,163 +226,16 @@ private class ScaladocMarkdownParsing(builder: MkBuilder) extends ScalaDocElemen
       case MarkdownElementTypes.SETEXT_2 => ScalaDocTokenType.DOC_MARKDOWN_HEADER
 
       case _ =>
-        node.getChildren.forEach(visitNode)
-        return
+        val childIt = treeIt.startIterateCurrentChildren()
+        visitRest(childIt)
+        return None
     }
+  )
 
-    if (node.getChildren.isEmpty) {
-      ensureBuilderInPosition(node.getStartOffset)
-
-      val marker = builder.mark()
-      ensureBuilderInPosition(node.getEndOffset)
-      marker.collapse(element)
-    } else if (node.getType == ScalaDocTagMarkerBlock.TAG_BLOCK) {
-      // TAG_BLOCK needs to be dealt with in this complicated way,
-      // due to needing whitespace inserted in a few places (which is not necessary for the rest)
-      // and some nodes being special
-      ensureBuilderInPosition(node.getStartOffset)
-
-      val children = node.getChildren.asScala
-
-      // Never -1; name always exists
-      val name = children.indexWhere(_.getType == ScalaDocTagMarkerBlock.TAG_NAME)
-
-      val marker = builder.mark()
-
-      ensureBuilderInPosition(children(name).getStartOffset, ScalaDocTokenType.DOC_WHITESPACE)
-      visitNode(children(name))
-
-      val argument = children.indexWhere(_.getType == ScalaDocTagMarkerBlock.TAG_ARGUMENT)
-
-      val skippable = if (argument != -1) {
-        ensureBuilderInPosition(children(argument).getStartOffset, ScalaDocTokenType.DOC_WHITESPACE)
-
-        // Disabled because `builder` is not the right thing to pass here, but I'm not sure how to do it nicely.
-        if (
-          builder.content.substring(children(name).getStartOffset + 1, children(name).getEndOffset)
-            == MyScaladocParsing.TagNames.Throws
-        ) {
-          ensureBuilderInPosition(children(argument).getEndOffset, ScalaDocElementTypes.SCALA_DOC_REFERENCE_LINK)
-        } else {
-          visitNode(children(argument))
-        }
-
-        argument
-      } else {
-        name
-      }
-      children.drop(skippable + 1).foreach(visitNode)
-
-
-      ensureBuilderInPosition(node.getEndOffset)
-      marker.done(element)
-    } else if (node.getType == MarkdownElementTypes.EMPH) {
-      // Special casing for italic to set emph tokens
-      val children = node.getChildren.asScala
-
-      ensureBuilderInPosition(node.getStartOffset)
-      val marker = builder.mark()
-      // We *know* there are at least 2 children here
-      // Force the first child to be a DOC_ITALIC_TAG
-      ensureBuilderInPosition(children.head.getEndOffset, ScalaDocTokenType.DOC_ITALIC_TAG)
-
-      children.slice(1, children.length - 1).foreach(visitNode)
-
-      ensureBuilderInPosition(children.last.getStartOffset)
-
-      // Force the last child to be a DOC_ITALIC_TAG
-      ensureBuilderInPosition(node.getEndOffset, ScalaDocTokenType.DOC_ITALIC_TAG)
-
-      marker.done(element)
-    } else if (node.getType == MarkdownElementTypes.STRONG) {
-      // Special casing for bold to merge boundary tokens
-      val children = node.getChildren.asScala
-
-      ensureBuilderInPosition(node.getStartOffset)
-      val marker = builder.mark()
-      // We *know* there are at least 4 children here
-      // Force the first 2 children to be a DOC_BOLD_TAG
-      ensureBuilderInPosition(children(1).getEndOffset, ScalaDocTokenType.DOC_BOLD_TAG)
-
-      children.slice(2, children.length - 2).foreach(visitNode)
-
-      ensureBuilderInPosition(children(children.length - 2).getStartOffset)
-
-      // Force the last 2 children to be a DOC_BOLD_TAG
-      ensureBuilderInPosition(node.getEndOffset, ScalaDocTokenType.DOC_BOLD_TAG)
-
-      marker.done(element)
-    } else if (node.getType == MarkdownElementTypes.CODE_SPAN) {
-      // Special case for code spans
-      // Even multiple backticks will occur as one MarkdownTokenTypes.BACKTICK token
-      val children = node.getChildren.asScala
-
-      ensureBuilderInPosition(node.getStartOffset)
-      val marker = builder.mark()
-      // We *know* there are at least 2 children here
-      // Force the first child to be a DOC_MONOSPACE_TAG
-      ensureBuilderInPosition(children.head.getEndOffset, ScalaDocTokenType.DOC_MONOSPACE_TAG)
-
-      children.slice(1, children.length - 1).foreach(visitNode)
-
-      ensureBuilderInPosition(children.last.getStartOffset)
-
-      // Force the last child to be a DOC_MONOSPACE_TAG
-      ensureBuilderInPosition(node.getEndOffset, ScalaDocTokenType.DOC_MONOSPACE_TAG)
-
-      marker.done(element)
-    } else if (node.getType == WikiLinkParser.WIKI_LINK) {
-      // Special casing for bold to merge boundary tokens
-      val children = node.getChildren.asScala
-
-      ensureBuilderInPosition(node.getStartOffset)
-      val marker = builder.mark()
-      // We *know* there are at least 4 children here
-      // Force the first 2 children to be a DOC_LINK_TAG
-      ensureBuilderInPosition(children(1).getEndOffset, ScalaDocTokenType.DOC_LINK_TAG)
-
-      ensureBuilderInPosition(children(children.length - 2).getStartOffset, ScalaDocElementTypes.SCALA_DOC_REFERENCE_LINK)
-
-      // Force the last 2 children to be a DOC_LINK_CLOSE_TAG
-      ensureBuilderInPosition(node.getEndOffset, ScalaDocTokenType.DOC_LINK_CLOSE_TAG)
-
-      marker.done(element)
-    } else if (node.getType == MarkdownElementTypes.PARAGRAPH) {
-      ensureBuilderInPosition(node.getStartOffset)
-
-      val marker = builder.mark()
-
-      val children = node.getChildren.asScala.toSeq
-      // Compat with wikidoc
-      val initialWs = children.headOption.filter(_.getType == MarkdownTokenTypes.WHITE_SPACE)
-      val restChildren = initialWs match {
-        case Some(ws) =>
-          ensureBuilderInPosition(ws.getEndOffset, ScalaDocTokenType.DOC_WHITESPACE)
-          children.drop(1)
-        case None =>
-          children
-      }
-
-      val lastWs = restChildren.lastOption.filter(_.getType == MarkdownTokenTypes.WHITE_SPACE)
-      lastWs match {
-        case Some(ws) =>
-          restChildren.dropRight(1).foreach(visitNode)
-          ensureBuilderInPosition(ws.getStartOffset)
-          ensureBuilderInPosition(ws.getEndOffset, ScalaDocTokenType.DOC_WHITESPACE)
-        case None =>
-          restChildren.foreach(visitNode)
-      }
-
-      ensureBuilderInPosition(node.getEndOffset)
-      marker.done(element)
-    } else {
-      ensureBuilderInPosition(node.getStartOffset)
-
-      val marker = builder.mark()
-      node.getChildren.forEach(visitNode)
-
-      ensureBuilderInPosition(node.getEndOffset)
-      marker.done(element)
+  private def visitRest(treeIt: MkTreeIt): Unit = {
+    while (!treeIt.ended) {
+      visitNode(treeIt)
+      treeIt.advance()
     }
   }
 }
@@ -261,7 +256,7 @@ object ScaladocMarkdownParsing {
 
     builder.ensureBuilderInPosition(mkRootNode.getStartOffset, ScalaDocTokenType.DOC_COMMENT_START)
     val parsing = new ScaladocMarkdownParsing(builder)
-    parsing.visitNode(mkRootNode)
+    parsing.visitNode(MkTreeIt(mkRootNode))
 
     if (!builder.eof()) {
       val marker = builder.mark()
@@ -352,5 +347,59 @@ object ScaladocMarkdownParsing {
         advanceLexer()
       }
     }
+  }
+
+  private final class MkTreeIt(@Nullable firstNode: ASTNode, rest: ju.ListIterator[ASTNode], len: Int, private var parent: Option[MkTreeIt]) {
+    @Nullable
+    private var node = firstNode
+    private var processesChildren: Boolean = false
+    
+    def currentNodeType: org.intellij.markdown.IElementType = node.getType
+    def currentStartOffset: Int = node.getStartOffset
+    def currentEndOffset: Int = node.getEndOffset
+    def currentChildren: ju.List[ASTNode] = node.getChildren
+    def currentHasChildren: Boolean = !currentChildren.isEmpty
+    // returns the available nodes including the current one
+    def availableNodesOnLevel: Int = len - rest.previousIndex()
+
+    def ended: Boolean = node == null
+    def advance(): Unit = {
+      if (rest.hasNext)
+        node = rest.next()
+      else {
+        parent.foreach { parent =>
+          assert(parent.processesChildren)
+          parent.processesChildren = false
+        }
+        node = null
+      }
+    }
+
+    def advanceUntil(tpe: MarkdownElementType): Unit = {
+      while (!ended && currentNodeType != tpe) {
+        advance()
+      }
+    }
+
+    def dropRest(): Unit = {
+      while (!ended) advance()
+    }
+
+    def startIterateCurrentChildren(): MkTreeIt = {
+      assert(!processesChildren)
+      val children = currentChildren
+      val it = children.listIterator()
+      if (it.hasNext) {
+        processesChildren = true
+        new MkTreeIt(it.next(), it, children.size(), Some(this))
+      } else {
+        new MkTreeIt(null, ju.Collections.emptyListIterator(), 0, Some(this))
+      }
+    }
+  }
+
+  private object MkTreeIt {
+    def apply(node: ASTNode): MkTreeIt =
+      new MkTreeIt(node, ju.Collections.emptyListIterator(), 1, None)
   }
 }
