@@ -72,7 +72,6 @@ trait SbtModuleDataServiceTestCase extends ProjectDataServiceTestCase {
         scalaLibrary.foreach(libraryDependencies += _)
         arbitraryNodes ++= Seq(
           new ModuleExtNode(SbtModuleExtData(
-            scalaVersion = scalaVersion,
             scalacOptions = scalacOptions,
             sdk = sdk,
             javacOptions = javacOptions)),

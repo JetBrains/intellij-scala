@@ -759,9 +759,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     }
 
     val data = SbtModuleExtData(
-      scalaVersion           = scala.map(_.version),
-      scalacClasspath        = scala.fold(Seq.empty[java.io.File])(_.allCompilerJars),
-      scaladocExtraClasspath = scala.fold(Seq.empty[java.io.File])(_.extraJars),
       scalacOptions          = findCompilerOptionsInScope(scope, scala.map(_.options).getOrElse(Seq.empty)),
       sdk                    = javaData.flatMap(_.home).map(home => JdkByHome(home.toPath)),
       javacOptions           = findCompilerOptionsInScope(scope, javaData.map(_.options).getOrElse(Seq.empty)),
@@ -1107,7 +1104,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     addSbtRelatedData(projectData, moduleNode)
 
     val data = SbtModuleExtData(
-      scalaVersion = None,
       sdk = projectData.java.flatMap(_.home).map(home => JdkByHome(home.toPath)),
     )
     moduleNode.add(new ModuleExtNode(data))
