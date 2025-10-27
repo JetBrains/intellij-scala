@@ -1,13 +1,9 @@
 package org.jetbrains.plugins.scala.codeInsight.template.impl
 
-import com.intellij.codeInsight.template.{FileTypeBasedContextType, TemplateActionContext, TemplateContextType}
+import com.intellij.codeInsight.template.{FileTypeBasedContextType, TemplateActionContext}
 import com.intellij.openapi.fileTypes.SyntaxHighlighter
-import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighterFactory
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
-import org.jetbrains.plugins.scala.{Scala3Language, ScalaFileType, ScalaLanguage}
+import org.jetbrains.plugins.scala.{Scala3Language, ScalaFileType}
 
 final class Scala3FileTemplateContextType extends FileTypeBasedContextType(
   Scala3Language.INSTANCE.getDisplayName,
@@ -16,4 +12,7 @@ final class Scala3FileTemplateContextType extends FileTypeBasedContextType(
 
   override def createHighlighter(): SyntaxHighlighter =
     ScalaSyntaxHighlighterFactory.createScalaSyntaxHighlighter(null, null, Scala3Language.INSTANCE)
+
+  override def isInContext(templateActionContext: TemplateActionContext): Boolean =
+    templateActionContext.getFile.getLanguage == Scala3Language.INSTANCE
 }
