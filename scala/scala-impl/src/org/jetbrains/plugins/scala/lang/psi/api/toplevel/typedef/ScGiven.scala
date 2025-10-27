@@ -5,6 +5,11 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScCommentOwner, ScDeclaredElementsHolder, ScParameterOwner}
 
+/**
+ * Can be:
+ *  - [[ScGivenAlias]] - alias given declaration or definition
+ *  - [[ScGivenDefinition]] - structural given definition
+ */
 trait ScGiven extends ScalaPsiElement
   with ScNamedElement
   with ScTypedDefinition // TODO It's a subtype of ScNamedElement
