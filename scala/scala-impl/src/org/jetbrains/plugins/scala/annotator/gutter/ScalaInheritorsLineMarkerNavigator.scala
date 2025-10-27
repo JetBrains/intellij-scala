@@ -1,40 +1,29 @@
 package org.jetbrains.plugins.scala.annotator.gutter
 
 import com.intellij.codeInsight.daemon.GutterIconNavigationHandler
-import com.intellij.ide.util.PsiClassListCellRenderer
-import com.intellij.psi.search.searches.ClassInheritorsSearch
+import com.intellij.codeInsight.navigation.GotoImplementationHandler
+import com.intellij.openapi.util.NlsContexts
 import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
 
 import java.awt.event.MouseEvent
-import java.util
 
 /**
  * Java version is in [[com.intellij.codeInsight.daemon.impl.InheritorsLineMarkerNavigator]]
  * that delegates to [[com.intellij.codeInsight.navigation.GotoImplementationHandler]]
+ *
+ * Note, that the Java version handles not only classes but also methods.
  */
-private class ScalaInheritorsLineMarkerNavigator extends GutterIconNavigationHandler[PsiElement]{
+private class ScalaInheritorsLineMarkerNavigator extends GutterIconNavigationHandler[PsiElement] {
   override def navigate(event: MouseEvent, element: PsiElement): Unit = {
-    element.parent.collect {
-      case aClass: PsiClass =>
-        val inheritors = ClassInheritorsSearch.search(aClass, aClass.getUseScope, true).toArray(PsiClass.EMPTY_ARRAY)
-        if (inheritors.nonEmpty) {
-          val cname = aClass.name
-          val (title, findUsagesTitle) =
-            if (aClass.isInstanceOf[ScTrait]) {
-              ScalaBundle.message("navigation.title.inheritors.trait", cname, inheritors.length.toString) ->
-                ScalaBundle.message("navigation.findUsages.title.inheritors.trait", cname)
-            } else {
-              ScalaBundle.message("navigation.title.inheritors.class", cname, inheritors.length.toString) ->
-                ScalaBundle.message("navigation.findUsages.title.inheritors.class", cname)
-            }
-
-          val renderer = new PsiClassListCellRenderer
-          util.Arrays.sort(inheritors, renderer.getComparator)
-          ScalaNavigationUtils.navigate(event, inheritors, aClass.getProject, title, findUsagesTitle, renderer)
-        }
+    val clazz = element.getParent match {
+      case aClass: PsiClass => aClass
+      case _ =>
+        return
     }
+
+    @NlsContexts.PopupContent
+    val dumbModeMessage = ScalaBundle.message("notification.navigation.to.overriding.classes")
+    new GotoImplementationHandler().navigateToImplementations(clazz, event, dumbModeMessage)
   }
 }
