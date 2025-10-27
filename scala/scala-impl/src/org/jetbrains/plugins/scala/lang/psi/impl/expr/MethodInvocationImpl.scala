@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.{PsiElement, PsiMethod}
+import com.intellij.psi.{PsiClass, PsiElement, PsiMethod}
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedWithRecursionGuard}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, MacroInvocationContext, ScalaMacroEvaluator}
@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUs
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility._
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScProjectionType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ParameterizedType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
@@ -354,6 +354,8 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
         Option((returnType, parameters, Option(pTpe)))
       case ScMethodType(returnType, parameters, _)      => Option((returnType, parameters, None))
       case ty if resolveResultIsPostfixOrPrefixFunction => Option((ty, Seq.empty, None))
+      case des: ScDesignatorType if des.element.asOptionOf[PsiClass].exists(_.constructors.isEmpty) =>
+        Some((des, Seq(), None))
       case _ => None
     }
 
