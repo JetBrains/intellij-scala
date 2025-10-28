@@ -490,6 +490,36 @@ class OverridingAnnotatorTest extends OverridingAnnotatorTestBase {
     )
   }
 
+  def testSCL24536(): Unit = {
+    assertNothing(
+      messages(
+        """
+          |trait Test[T] {
+          |  def foo[S](x: T): Unit = {
+          |    new Test[S] {
+          |      override def foo[U](x: S): Unit = {}
+          |    }
+          |
+          |    class InnerClass extends Test[S] {
+          |      override def foo[U](x: S): Unit = {}
+          |    }
+          |  }
+          |
+          |  def other[S](x: T): Unit = {
+          |    new Test[S] {
+          |      override def foo[U](x: S): Unit = {}
+          |    }
+          |
+          |    class InnerClass extends Test[S] {
+          |      override def foo[U](x: S): Unit = {}
+          |    }
+          |  }
+          |}
+          |""".stripMargin
+      )
+    )
+  }
+
   def testSCL20442(): Unit = assertNothing(
     messages(
       """
