@@ -4,10 +4,10 @@ import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.collections.{`scalaOption`, literal}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
+import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, ObjectExt, PsiElementExt}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 class OptionWithLiteralToSomeIntention extends PsiElementBaseIntentionAction  {
@@ -34,11 +34,10 @@ object OptionWithLiteralToSomeIntention {
 
   val familyName: String = ScalaInspectionBundle.message("replace.option.with.some")
 
-  object OptionLiteral {
+  private object OptionLiteral {
     def unapply(element: PsiElement): Option[(ScMethodCall, String)] =  {
-      PsiTreeUtil.getParentOfType(element, classOf[ScMethodCall]) match {
-        case opt @ `scalaOption`(literal(constant)) if constant != "null" => Some((opt, constant))
-        case _ => None
+      element.withParentsInFile.takeWhile(!_.is[ScBlock]).findByType[ScMethodCall].collect {
+        case opt @ `scalaOption`(literal(constant)) if constant != "null" => (opt, constant)
       }
     }
   }
