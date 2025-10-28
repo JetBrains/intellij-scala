@@ -90,7 +90,7 @@ final class ScTypeAliasDefinitionImpl private(stub: ScTypeAliasStub, node: ASTNo
     visitor.visitTypeAliasDefinition(this)
   }
 
-  override def isEffectivelyFinal: Boolean = true
+  override def isEffectivelyFinal: Boolean = false
 
   override def aliasExport: Option[PsiNamedElement] = if (!hasStablePath(this)) None else {
     val element = aliasedType.toOption.collect {

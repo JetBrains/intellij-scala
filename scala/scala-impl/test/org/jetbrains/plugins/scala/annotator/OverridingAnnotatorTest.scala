@@ -161,7 +161,44 @@ class OverridingAnnotatorTest extends ScalaLightCodeInsightFixtureTestCase
         | }
         |}
         |""".stripMargin,
-      """Error(foo,Type 'foo' cannot override final member)"""
+      """Error(foo,Overriding type String is not equivalent to Int)
+        |Error(foo,Type 'foo' cannot override final member)
+        |""".stripMargin
+    )
+  }
+
+  def testTypeAliases(): Unit = {
+    assertMessagesText(
+      """class A {
+        |  type AliasAbstract1
+        |  type AliasAbstract2 <: CharSequence
+        |  type AliasAbstract3 <: CharSequence
+        |  type AliasAbstract4 <: CharSequence
+        |  type AliasAbstract5 <: CharSequence
+        |
+        |  type Alias1 = CharSequence
+        |  type Alias2 = CharSequence
+        |  type Alias3 = CharSequence
+        |  type Alias4 = CharSequence
+        |}
+        |
+        |class B extends A {
+        |  override type AliasAbstract1 = String
+        |  override type AliasAbstract2 = String
+        |  override type AliasAbstract3 = Int
+        |  override type AliasAbstract4 <: CharSequence
+        |  override type AliasAbstract5 <: String
+        |
+        |  override type Alias1 = CharSequence
+        |  override type Alias2 = String
+        |  override type Alias3 = Int
+        |  override type Alias4 = Alias1
+        |}
+        |""".stripMargin,
+      """Error(AliasAbstract3,Overriding type Int does not conform to base type CharSequence)
+        |Error(Alias2,Overriding type String is not equivalent to CharSequence)
+        |Error(Alias3,Overriding type Int is not equivalent to CharSequence)
+        |""".stripMargin
     )
   }
 

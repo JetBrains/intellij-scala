@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala
 package annotator
 
 import com.intellij.psi._
+import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.quickfix.PullUpQuickFix
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods
@@ -11,12 +13,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScRefinement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScGivenAliasDefinition, ScGivenDefinition, ScMember}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, TermSignature, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, Context, ScType, Signature, TermSignature, TypePresentationContext, TypeSignature}
 import org.jetbrains.plugins.scala.statistics.ScalaAnnotatorUsagesCollector
 
 trait OverridingAnnotator {
@@ -127,22 +129,22 @@ trait OverridingAnnotator {
   def checkOverrideTypeAliases(alias: ScTypeAlias)
                               (implicit holder: ScalaAnnotationHolder): Unit = alias.getParent match {
     case _: ScTemplateBody =>
-      val supersWithSelfType = superTypeMembers(alias, withSelfType = true).filter(_.isInstanceOf[ScTypeAlias])
-      val supers             = superTypeMembers(alias).filter(_.isInstanceOf[ScTypeAlias])
+      val supersWithSelfType = superTypeSignatures(alias, withSelfType = true).filter(_.namedElement.is[ScTypeAlias])
+      val supers             = superTypeSignatures(alias).filter(_.namedElement.is[ScTypeAlias])
 
-      checkOverrideMembers(
+      checkOverrideMembers[TypeSignature](
         alias,
         alias,
         supersWithSelfType,
         supers,
-        isConcreteElement,
+        sig => isConcreteElement(sig.namedElement.nameContext),
         Function.const(false),
         "Type"
       )
     case _ =>
   }
 
-  private def checkOverrideMembers[Res](
+  private def checkOverrideMembers[Res <: Signature](
     namedElement:                ScNamedElement,
     member:                      ScMember,
     superSignaturesWithSelfType: Seq[Res],
@@ -226,12 +228,8 @@ trait OverridingAnnotator {
         //fix for SCL-7831
         var overridesFinal = false
         for (signature <- superSignatures if !overridesFinal) {
-          val e =
-            signature match {
-              case signature: TermSignature => signature.namedElement
-              case _ => signature
-            }
-          e match {
+          val signatureNamedElement = signature.namedElement
+          signatureNamedElement match {
             case member: ScMember if member.isEffectivelyFinal =>
               overridesFinal = true
             case owner1: PsiModifierListOwner if owner1.hasFinalModifier =>
@@ -294,7 +292,34 @@ trait OverridingAnnotator {
 
       def effectiveParams(fun: ScFunction) = fun.parameterClausesWithExtension().flatMap(_.effectiveParameters)
 
-      def overrideTypeMatchesBase(baseType: ScType, overType: ScType, s: TermSignature, baseName: String): Boolean = {
+      def overrideTypeMatches(baseType: ScType, overType: ScType, s: Signature, baseName: String): Boolean = {
+        s match {
+          case s: TermSignature =>
+            overrideTypeMatchesForTerm(baseType, overType, s, baseName)
+          case s: TypeSignature =>
+            overrideTypeMatchesForTypeAlias(baseType, overType, s)
+          case _ =>
+            false // unexpected branch
+        }
+      }
+
+      def overrideTypeMatchesForTypeAlias(baseType: ScType, overType: ScType, s: TypeSignature): Boolean = {
+        s.namedElement match {
+          case _: ScTypeAliasDeclaration =>
+            // baseType: type T <: CharSequence
+            // overType: override type T = String
+            overType.conforms(baseType)
+          case _ =>
+            // baseType: type T = String
+            // overType: override type T = String
+            //
+            // Equivalent type required when overriding a type alias
+            // (Not sure where this makes sense exactly to override the type with the same type)
+            overType.equivInner(baseType, ConstraintSystem.empty, falseUndef = false).isRight
+        }
+      }
+
+      def overrideTypeMatchesForTerm(baseType: ScType, overType: ScType, s: TermSignature, baseName: String): Boolean = {
         val renameSubst = (s.namedElement, namedElement) match {
           case (sFun: ScFunction, mFun: ScFunction) if effectiveParams(sFun).length == effectiveParams(mFun).length &&
             sFun.typeParameters.length == mFun.typeParameters.length =>
@@ -364,17 +389,21 @@ trait OverridingAnnotator {
       if (!isMismatchedExtension) {
         for {
           overridingType <- typeForSigElement(namedElement)
-          superSig       <- superSignatures.filterByType[TermSignature]
+          superSig       <- superSignatures
           baseType       <- typeForSigElement(superSig.namedElement)
-          if !overrideTypeMatchesBase(baseType, overridingType, superSig, superSig.namedElement.name)
+          if !overrideTypeMatches(baseType, overridingType, superSig, superSig.namedElement.name)
         } {
+          val typeText = overridingType.presentableText
+          val baseTypeText = baseType.presentableText
+          @Nls val message = superSig.namedElement match {
+            case _: ScTypeAliasDefinition => // `type T = S` (but not `type T <: S`)
+              ScalaBundle.message("overriding.type.not.equivalent", typeText, baseTypeText)
+            case _ =>
+              ScalaBundle.message("override.types.not.conforming", typeText, baseTypeText)
+          }
           holder.createErrorAnnotation(
             memberNameId,
-            ScalaBundle.message(
-              "override.types.not.conforming",
-              overridingType.presentableText,
-              baseType.presentableText
-            )
+            message
           )
         }
       }
@@ -385,9 +414,16 @@ trait OverridingAnnotator {
 object OverridingAnnotator {
   def typeForSigElement(named: PsiNamedElement): Option[ScType] =
     named match {
-      case cp: ScClassParameter => cp.outsideParamType.toOption
-      case t: Typeable          => t.`type`().toOption
-      case _                    => None
+      case cp: ScClassParameter     =>
+        cp.outsideParamType.toOption
+      case t: Typeable              =>
+        t.`type`().toOption
+      case a: ScTypeAliasDefinition =>  // type T = S
+        a.aliasedType.toOption
+      case a: ScTypeAliasDeclaration => // / type T <: S
+        a.upperBound.toOption
+      case _                        =>
+        None
     }
 
   private def isInAnyVal(body: ScTemplateBody) = body.getParent match {
