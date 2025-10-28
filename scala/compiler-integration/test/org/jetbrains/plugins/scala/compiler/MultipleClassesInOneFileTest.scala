@@ -2,20 +2,25 @@ package org.jetbrains.plugins.scala.compiler
 
 import org.jetbrains.plugins.scala.compiler.CompilerMessagesUtil.{assertCompilingScalaSources, assertNoErrorsOrWarnings}
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsJUnit4Runner, RunWithJdkVersions, RunWithScalaVersions, TestJdkVersion, TestScalaVersion}
 import org.jetbrains.plugins.scala.{CompilationTests_Zinc, ScalaVersion}
 import org.junit.Assert.assertTrue
+import org.junit.Test
 import org.junit.experimental.categories.Category
+import org.junit.runner.RunWith
 
 import java.nio.file.Files
 import scala.jdk.CollectionConverters._
 
 @Category(Array(classOf[CompilationTests_Zinc]))
-class MultipleClassesInOneFileTest extends ScalaCompilerTestBase with JdkVersionDiscovery {
-
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
+@RunWith(classOf[MultipleScalaVersionsJUnit4Runner])
+@RunWithScalaVersions(Array(TestScalaVersion.Scala_2_13))
+@RunWithJdkVersions(Array(TestJdkVersion.JDK_1_8, TestJdkVersion.JDK_11, TestJdkVersion.JDK_17))
+class MultipleClassesInOneFileTest extends ScalaCompilerTestBase {
 
   override protected val incrementalityType: IncrementalityType = IncrementalityType.SBT
 
+  @Test
   def testRemoveOneClassFileAndCompileAgain(): Unit = {
     addFileToProjectSources("foo.scala",
       """class Foo

@@ -1,14 +1,9 @@
 package org.jetbrains.plugins.scala.compiler
 
 import com.intellij.pom.java.LanguageLevel
-import org.jetbrains.plugins.scala.base.InjectableJdk
 import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
 
 import scala.util.Try
-
-trait JdkVersionDiscovery extends InjectableJdk {
-  override def testProjectJdkVersion: LanguageLevel = JdkVersionDiscovery.discoveredJdk
-}
 
 private object JdkVersionDiscovery {
   def discoveredJdk: LanguageLevel =
