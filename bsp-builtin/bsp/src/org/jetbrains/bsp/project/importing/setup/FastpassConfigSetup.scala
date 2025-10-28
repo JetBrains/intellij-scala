@@ -12,7 +12,7 @@ import org.jetbrains.bsp.{BSP, BspBundle, BspErrorMessage}
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}
 
 import java.awt.datatransfer.StringSelection
-import java.io.{BufferedReader, File, InputStreamReader}
+import java.io.{BufferedReader, InputStreamReader}
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicBoolean
 import scala.concurrent.duration.DurationInt
@@ -26,17 +26,17 @@ object FastpassConfigSetup {
 
   val fastpassRelativePath = "fastpass/bin/fastpass"
 
-  def computeBspWorkspace(file: File): Path = {
-    val pantsRoot = FastpassProjectImportProvider.pantsRoot(LocalFileSystem.getInstance().findFileByIoFile(file))
-    val relativeDir = pantsRoot.get.toNioPath.relativize(file.toPath)
+  def computeBspWorkspace(file: Path): Path = {
+    val pantsRoot = FastpassProjectImportProvider.pantsRoot(LocalFileSystem.getInstance().findFileByNioFile(file))
+    val relativeDir = pantsRoot.get.toNioPath.relativize(file)
     val projectName = relativeDir.toString.replace("/", ".")
     val bspWorkspace = pantsRoot.get.getParent.toNioPath.resolve("bsp-projects").resolve(projectName)
     bspWorkspace.toFile.toPath
   }
 
-  def create(baseDir: File): Try[BspConfigSetup] = {
+  def create(baseDir: Path): Try[BspConfigSetup] = {
     val bspWorkspace = FastpassConfigSetup.computeBspWorkspace(baseDir)
-    val baseDirVFile = LocalFileSystem.getInstance().findFileByIoFile(baseDir)
+    val baseDirVFile = LocalFileSystem.getInstance().findFileByNioFile(baseDir)
     FastpassProjectImportProvider.pantsRoot(baseDirVFile) match {
       case Some(_) if bspWorkspace.resolve(".bloop").toFile.exists()=> {
         Success(new FastpassConfigSetupEmpty(bspWorkspace))
@@ -49,7 +49,7 @@ object FastpassConfigSetup {
           s"--name=${bspWorkspace.getFileName}",
           relativeDir.toString + "::"
         )
-        processBuilder.directory(new File(pantsRoot.toNioPath.toString))
+        processBuilder.directory(pantsRoot.toNioPath.toFile)
         logger.info(s"Creating BSP configuration with '${processBuilder.command().asScala.mkString(" ")}'")
         Success(new FastpassConfigSetup(processBuilder))
       case None => Failure(new IllegalArgumentException(s"'$baseDir is not a pants directory'"))

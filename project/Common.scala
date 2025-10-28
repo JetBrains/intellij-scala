@@ -188,7 +188,7 @@ object Common {
       NewProjectBaseSettings
     ).settings(
       name := projectName,
-      intellijMainJars := intellijMainJars.value.filterNot(file => Dependencies.excludeJarsFromPlatformDependencies(file)),
+      intellijMainJars ~= { _.filterNot(Dependencies.excludeJarsFromPlatformDependencies).filter(_.exists()) },
       intellijPlugins += "com.intellij.java".toPlugin,
       pathExcludeFilter := excludePathsFromPackage _
     )

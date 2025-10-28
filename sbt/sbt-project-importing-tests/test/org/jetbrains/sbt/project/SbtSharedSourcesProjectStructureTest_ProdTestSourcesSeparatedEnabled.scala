@@ -117,35 +117,12 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
     }
   )
 
-  /** SCL-12520: Generate a shared sources module even when it is used only from a single target module */
+  /** SCL-12520: If sources belong to only a single module, add them as source roots to that module
+   * (even if they could theoretically be a shared directory based on external plugin heuristics,
+   * such as the sbt-crossbuild plugin) */
   def testCrossProjectJvmOnly_LegacyCrossBuildPlugin(): Unit = {
     runTest(
       new project("root") {
-        val sharedModule: module = new module("root.p1-sources") {
-          sources := Nil
-          testSources := Nil
-          contentRoots += "%PROJECT_ROOT%/p1/shared"
-          moduleFileDirectoryPath := "crossProjectJvmOnly_LegacyCrossBuildPlugin/p1/jvm"
-        }
-        val sharedModuleMain: module = new module("root.p1-sources.main") {
-          sources := Seq(
-            "%PROJECT_ROOT%/p1/shared/src/main/scala",
-            "%PROJECT_ROOT%/p1/shared/src/main/scala-2.13",
-          )
-          testSources := Nil
-          contentRoots += "%PROJECT_ROOT%/p1/shared/src/main"
-          moduleFileDirectoryPath := "crossProjectJvmOnly_LegacyCrossBuildPlugin/p1/jvm"
-        }
-        val sharedModuleTest: module = new module("root.p1-sources.test") {
-          sources := Nil
-          testSources := Seq(
-            "%PROJECT_ROOT%/p1/shared/src/test/scala",
-            "%PROJECT_ROOT%/p1/shared/src/test/scala-2.13",
-          )
-          contentRoots += "%PROJECT_ROOT%/p1/shared/src/test"
-          moduleFileDirectoryPath := "crossProjectJvmOnly_LegacyCrossBuildPlugin/p1/jvm"
-        }
-
         val jvmModule: module = new module("root.p1") {
           sources := Nil
           testSources := Nil
@@ -153,34 +130,40 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
           moduleFileDirectoryPath := "crossProjectJvmOnly_LegacyCrossBuildPlugin/p1/jvm"
         }
         val jvmModuleMain: module = new module("root.p1.main") {
-          moduleDependencies += new dependency(sharedModuleMain) { isExported := true }
+          moduleDependencies := Nil
           sources := Seq(
             "%PROJECT_ROOT%/p1/jvm/src/main/scala",
             "%PROJECT_ROOT%/p1/jvm/src/main/scala-2.13",
+            "%PROJECT_ROOT%/p1/shared/src/main/scala",
+            "%PROJECT_ROOT%/p1/shared/src/main/scala-2.13",
           )
           testSources := Nil
           contentRoots := Seq(
             "%PROJECT_ROOT%/p1/jvm/src/main",
             "%PROJECT_ROOT%/p1/jvm/target/scala-2.13/src_managed/main",
             "%PROJECT_ROOT%/p1/jvm/target/scala-2.13/resource_managed/main",
+            "%PROJECT_ROOT%/p1/shared/src/main/scala",
+            "%PROJECT_ROOT%/p1/shared/src/main/scala-2.13"
           )
           moduleFileDirectoryPath := "crossProjectJvmOnly_LegacyCrossBuildPlugin/p1/jvm"
         }
         val jvmModuleTest: module = new module("root.p1.test") {
           moduleDependencies := Seq(
-            new dependency(sharedModuleMain) { isExported := true },
-            new dependency(sharedModuleTest) { isExported := true },
             new dependency(jvmModuleMain) { isExported := false }
           )
           sources := Nil
           testSources := Seq(
             "%PROJECT_ROOT%/p1/jvm/src/test/scala",
             "%PROJECT_ROOT%/p1/jvm/src/test/scala-2.13",
+            "%PROJECT_ROOT%/p1/shared/src/test/scala",
+            "%PROJECT_ROOT%/p1/shared/src/test/scala-2.13",
           )
           contentRoots := Seq(
             "%PROJECT_ROOT%/p1/jvm/src/test",
             "%PROJECT_ROOT%/p1/jvm/target/scala-2.13/src_managed/test",
             "%PROJECT_ROOT%/p1/jvm/target/scala-2.13/resource_managed/test",
+            "%PROJECT_ROOT%/p1/shared/src/test/scala",
+            "%PROJECT_ROOT%/p1/shared/src/test/scala-2.13"
           )
           moduleFileDirectoryPath := "crossProjectJvmOnly_LegacyCrossBuildPlugin/p1/jvm"
         }
@@ -199,7 +182,6 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
         }
 
         modules := Seq(
-          sharedModule, sharedModuleMain, sharedModuleTest,
           rootModule, rootModuleMain, rootModuleTest, rootBuildModule,
           jvmModule, jvmModuleMain, jvmModuleTest
         )
@@ -210,35 +192,12 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
     assertNoTargetDirGeneratedInSharedDirectory("%PROJECT_ROOT%/p1/shared")
   }
 
-  /** SCL-12520: Generate a shared sources module even when it is used only from a single target module */
+  /** SCL-12520: If sources belong to only a single module, add them as source roots to that module
+   * (even if they could theoretically be a shared directory based on external plugin heuristics,
+   * such as the sbt-crossbuild plugin) */
   def testCrossProjectJvmOnly_CrossTypeFull(): Unit = {
     runTest(
       new project("root") {
-        val sharedModule: module = new module("root.p1-sources") {
-          sources := Nil
-          testSources := Nil
-          contentRoots += "%PROJECT_ROOT%/p1/shared"
-          moduleFileDirectoryPath := "crossProjectJvmOnly_CrossTypeFull/p1/jvm"
-        }
-        val sharedModuleMain: module = new module("root.p1-sources.main") {
-          sources := Seq(
-            "%PROJECT_ROOT%/p1/shared/src/main/scala",
-            "%PROJECT_ROOT%/p1/shared/src/main/scala-2.13",
-          )
-          testSources := Nil
-          contentRoots += "%PROJECT_ROOT%/p1/shared/src/main"
-          moduleFileDirectoryPath := "crossProjectJvmOnly_CrossTypeFull/p1/jvm"
-        }
-        val sharedModuleTest: module = new module("root.p1-sources.test") {
-          sources := Nil
-          testSources := Seq(
-            "%PROJECT_ROOT%/p1/shared/src/test/scala",
-            "%PROJECT_ROOT%/p1/shared/src/test/scala-2.13",
-          )
-          contentRoots += "%PROJECT_ROOT%/p1/shared/src/test"
-          moduleFileDirectoryPath := "crossProjectJvmOnly_CrossTypeFull/p1/jvm"
-        }
-
         val jvmModule: module = new module("root.p1") {
           sources := Nil
           testSources := Nil
@@ -246,34 +205,44 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
           moduleFileDirectoryPath := "crossProjectJvmOnly_CrossTypeFull/p1/jvm"
         }
         val jvmModuleMain: module = new module("root.p1.main") {
-          moduleDependencies += new dependency(sharedModuleMain) { isExported := true }
+          moduleDependencies := Nil
           sources := Seq(
             "%PROJECT_ROOT%/p1/jvm/src/main/scala",
             "%PROJECT_ROOT%/p1/jvm/src/main/scala-2.13",
+            "%PROJECT_ROOT%/p1/shared/src/main/scala",
+            "%PROJECT_ROOT%/p1/shared/src/main/scala-2.13"
           )
           testSources := Nil
           contentRoots := Seq(
             "%PROJECT_ROOT%/p1/jvm/src/main",
             "%PROJECT_ROOT%/p1/jvm/target/scala-2.13/src_managed/main",
             "%PROJECT_ROOT%/p1/jvm/target/scala-2.13/resource_managed/main",
+            "%PROJECT_ROOT%/p1/shared/src/main/resources",
+            "%PROJECT_ROOT%/p1/shared/src/main/scala",
+            "%PROJECT_ROOT%/p1/shared/src/main/scala-2",
+            "%PROJECT_ROOT%/p1/shared/src/main/scala-2.13"
           )
           moduleFileDirectoryPath := "crossProjectJvmOnly_CrossTypeFull/p1/jvm"
         }
         val jvmModuleTest: module = new module("root.p1.test") {
           moduleDependencies := Seq(
-            new dependency(sharedModuleMain) { isExported := true },
-            new dependency(sharedModuleTest) { isExported := true },
             new dependency(jvmModuleMain) { isExported := false }
           )
           sources := Nil
           testSources := Seq(
             "%PROJECT_ROOT%/p1/jvm/src/test/scala",
             "%PROJECT_ROOT%/p1/jvm/src/test/scala-2.13",
+            "%PROJECT_ROOT%/p1/shared/src/test/scala",
+            "%PROJECT_ROOT%/p1/shared/src/test/scala-2.13"
           )
           contentRoots := Seq(
             "%PROJECT_ROOT%/p1/jvm/src/test",
             "%PROJECT_ROOT%/p1/jvm/target/scala-2.13/src_managed/test",
             "%PROJECT_ROOT%/p1/jvm/target/scala-2.13/resource_managed/test",
+            "%PROJECT_ROOT%/p1/shared/src/test/resources",
+            "%PROJECT_ROOT%/p1/shared/src/test/scala",
+            "%PROJECT_ROOT%/p1/shared/src/test/scala-2",
+            "%PROJECT_ROOT%/p1/shared/src/test/scala-2.13"
           )
           moduleFileDirectoryPath := "crossProjectJvmOnly_CrossTypeFull/p1/jvm"
         }
@@ -292,7 +261,6 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
         }
 
         modules := Seq(
-          sharedModule, sharedModuleMain, sharedModuleTest,
           rootModule, rootModuleMain, rootModuleTest, rootBuildModule,
           jvmModule, jvmModuleMain, jvmModuleTest
         )
@@ -761,13 +729,6 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
         s"%PROJECT_ROOT%/target/scala-2.11/src_managed/$sourceSet"
       )
 
-    def platformContentRoots(platform: String, sourceSet: String): Seq[String] =
-      Seq(
-       s"%PROJECT_ROOT%/.$platform/src/$sourceSet",
-       s"%PROJECT_ROOT%/.$platform/target/scala-2.11/resource_managed/$sourceSet",
-       s"%PROJECT_ROOT%/.$platform/target/scala-2.11/src_managed/$sourceSet"
-      )
-
     runTest(
       new project("crossplatformpureinroot") {
         val sharedModule: module = new module("crossplatformpureinroot.crossPlatformPureInRoot-sources") {
@@ -794,7 +755,7 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
         }
         val jvmModuleMain: module = new module("crossplatformpureinroot.root.rootJVM.main") {
           moduleDependencies += new dependency(sharedModuleMain) { isExported := true }
-          contentRoots := platformContentRoots("jvm", "main")
+          contentRoots := platformContentRootsPureType("", "jvm", "main", "2.11")
           sources := Seq("%PROJECT_ROOT%/.jvm/src/main/scala")
           emptySourceResourceDirsTest(this)
         }
@@ -804,7 +765,7 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
             new dependency(sharedModuleTest) { isExported := true },
             new dependency(jvmModuleMain) { isExported := false }
           )
-          contentRoots := platformContentRoots("jvm", "test")
+          contentRoots := platformContentRootsPureType("", "jvm", "test", "2.11")
           testSources := Seq("%PROJECT_ROOT%/.jvm/src/test/scala")
           emptySourceResourceDirsMain(this)
         }
@@ -816,7 +777,7 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
         }
         val jsModuleMain: module = new module("crossplatformpureinroot.root.rootJS.main") {
           moduleDependencies += new dependency(sharedModuleMain) { isExported := true }
-          contentRoots := platformContentRoots("js", "main")
+          contentRoots := platformContentRootsPureType("", "js", "main", "2.11")
           sources := Seq("%PROJECT_ROOT%/.js/src/main/scala")
           emptySourceResourceDirsTest(this)
         }
@@ -826,7 +787,7 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
             new dependency(sharedModuleTest) { isExported := true },
             new dependency(jsModuleMain) { isExported := false }
           )
-          contentRoots := platformContentRoots("js", "test")
+          contentRoots := platformContentRootsPureType("", "js", "test", "2.11")
           testSources := Seq("%PROJECT_ROOT%/.js/src/test/scala")
           emptySourceResourceDirsMain(this)
         }
@@ -1847,6 +1808,180 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
           sharedModule, sharedModuleTest
         )
       }
+    )
+  }
+
+  // The reproduction project from https://youtrack.jetbrains.com/issue/SCL-24518
+  def testWebScalajsCrossCompile(): Unit = {
+    runTest(
+      new project("root") {
+        val sharedModuleMain: module = new module("root.foo.foo-sources.main") {
+          contentRoots := Seq("%PROJECT_ROOT%/foo/src/main")
+          sources := Seq("%PROJECT_ROOT%/foo/src/main/scala")
+          emptySourceResourceDirsTest(this)
+        }
+        val sharedModuleTest: module = new module("root.foo.foo-sources.test") {
+          contentRoots := Seq("%PROJECT_ROOT%/foo/src/test")
+          sources := Seq("%PROJECT_ROOT%/foo/src/test/scala")
+          emptySourceResourceDirs(this)
+        }
+        val sharedModule: module = new module("root.foo.foo-sources") {
+          moduleDependencies ++= Seq(
+            new dependency(sharedModuleMain) { isExported := false },
+            new dependency(sharedModuleTest) { isExported := false },
+          )
+          contentRoots := Seq("%PROJECT_ROOT%/foo")
+        }
+
+        val fooJSMain: module = new module("root.foo.fooJS.main") {
+          contentRoots := platformContentRootsPureType("foo", "js", "main")
+          moduleDependencies := Seq(
+            new dependency(sharedModuleMain) { isExported := true },
+          )
+          emptySourceResourceDirsTest(this)
+        }
+        val fooJSTest: module = new module("root.foo.fooJS.test") {
+          contentRoots := platformContentRootsPureType("foo", "js", "test")
+          moduleDependencies := Seq(
+            new dependency(sharedModuleMain) { isExported := true },
+            new dependency(sharedModuleTest) { isExported := true },
+            new dependency(fooJSMain) { isExported := false },
+          )
+          emptySourceResourceDirs(this)
+        }
+        val fooJS: module = new module("root.foo.fooJS") {
+          moduleDependencies := Seq(
+            new dependency(fooJSMain) { isExported := false },
+            new dependency(fooJSTest) { isExported := false },
+          )
+          contentRoots += "%PROJECT_ROOT%/foo/.js"
+          excluded += "target"
+        }
+
+        val fooJVMMain: module = new module("root.foo.fooJVM.main") {
+          contentRoots := platformContentRootsPureType("foo", "jvm", "main")
+          moduleDependencies := Seq(
+            new dependency(sharedModuleMain) { isExported := true },
+          )
+          emptySourceResourceDirsTest(this)
+        }
+        val fooJVMTest: module = new module("root.foo.fooJVM.test") {
+          contentRoots := platformContentRootsPureType("foo", "jvm", "test")
+          moduleDependencies := Seq(
+            new dependency(sharedModuleMain) { isExported := true },
+            new dependency(sharedModuleTest) { isExported := true },
+            new dependency(fooJVMMain) { isExported := false },
+          )
+          emptySourceResourceDirs(this)
+        }
+        val fooJVM: module = new module("root.foo.fooJVM") {
+          moduleDependencies := Seq(
+            new dependency(fooJVMMain) { isExported := false },
+            new dependency(fooJVMTest) { isExported := false },
+          )
+          contentRoots += "%PROJECT_ROOT%/foo/.jvm"
+          excluded += "target"
+        }
+
+        val barJSMain: module = new module("root.barJS.main") {
+          contentRoots := platformContentRoots("bar", "js", "main")
+          moduleDependencies := Seq(
+            new dependency(sharedModuleMain) { isExported := true },
+            new dependency(fooJSMain) { isExported := false },
+          )
+          emptySourceResourceDirsTest(this)
+        }
+        val barJSTest: module = new module("root.barJS.test") {
+          contentRoots := platformContentRoots("bar", "js", "test")
+          moduleDependencies := Seq(
+            new dependency(sharedModuleMain) { isExported := true },
+            new dependency(barJSMain) { isExported := false },
+            new dependency(fooJSMain) { isExported := false },
+          )
+          emptySourceResourceDirs(this)
+        }
+        val barJS: module = new module("root.barJS") {
+          moduleDependencies := Seq(
+            new dependency(barJSMain) { isExported := false },
+            new dependency(barJSTest) { isExported := false },
+          )
+          contentRoots += "%PROJECT_ROOT%/bar/js"
+          excluded += "target"
+        }
+
+        val barJVMMain: module = new module("root.barJVM.main") {
+          contentRoots := platformContentRoots("bar", "jvm", "main") ++ Seq(
+            "%PROJECT_ROOT%/bar/jvm/src/test/assets",
+            "%PROJECT_ROOT%/bar/jvm/src/test/public"
+          )
+          moduleDependencies := Seq(
+            new dependency(sharedModuleMain) { isExported := true },
+            new dependency(fooJVMMain) { isExported := false },
+          )
+          emptySourceResourceDirsTest(this)
+        }
+        val barJVMTest: module = new module("root.barJVM.test") {
+          contentRoots := platformContentRoots("bar", "jvm", "test")
+          moduleDependencies := Seq(
+            new dependency(sharedModuleMain) { isExported := true },
+            new dependency(barJVMMain) { isExported := false },
+            new dependency(fooJVMMain) { isExported := false },
+          )
+          emptySourceResourceDirs(this)
+        }
+        val barJVM: module = new module("root.barJVM") {
+          moduleDependencies := Seq(
+            new dependency(barJVMMain) { isExported := false },
+            new dependency(barJVMTest) { isExported := false },
+          )
+          contentRoots += "%PROJECT_ROOT%/bar/jvm"
+          excluded += "target"
+        }
+
+        val rootMain: module = new module("root.main") {
+          moduleDependencies := Nil
+          contentRoots := standardRoots("", "main")
+          emptySourceResourceDirs(this)
+        }
+        val rootTest: module = new module("root.test") {
+          moduleDependencies := Seq(
+            new dependency(rootMain) { isExported := false },
+          )
+          contentRoots := standardRoots("", "test")
+          emptySourceResourceDirs(this)
+        }
+        val root: module = new module("root") {
+          moduleDependencies := Seq(
+            new dependency(rootMain) { isExported := false },
+            new dependency(rootTest) { isExported := false },
+          )
+          contentRoots += "%PROJECT_ROOT%"
+          excluded += "target"
+        }
+
+        modules := Seq(
+          root, rootMain, rootTest,
+          sharedModule, sharedModuleTest, sharedModuleMain,
+          fooJSMain, fooJSTest, fooJS,
+          fooJVMMain, fooJVMTest, fooJVM,
+          barJSMain, barJSTest, barJS,
+          barJVMMain, barJVMTest, barJVM,
+        )
+      }
+    )
+    buildProjectAndAssertNoWarningsOrErrors()
+    assertNoTargetDirGeneratedInSharedDirectory("%PROJECT_ROOT%/foo")
+  }
+
+  private def platformContentRootsPureType(relativePath: String, platform: String, sourceSet: String, scalaVersion: String = "2.13"): Seq[String] =
+    platformContentRoots(relativePath, s".$platform", sourceSet, scalaVersion)
+
+  private def platformContentRoots(relativePath: String, platform: String, sourceSet: String, scalaVersion: String = "2.13"): Seq[String] = {
+    val normalized = if (relativePath.isEmpty) "" else s"$relativePath/"
+    Seq(
+      s"%PROJECT_ROOT%/$normalized$platform/src/$sourceSet",
+      s"%PROJECT_ROOT%/$normalized$platform/target/scala-$scalaVersion/resource_managed/$sourceSet",
+      s"%PROJECT_ROOT%/$normalized$platform/target/scala-$scalaVersion/src_managed/$sourceSet"
     )
   }
 

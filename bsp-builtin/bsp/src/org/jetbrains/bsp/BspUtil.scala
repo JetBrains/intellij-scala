@@ -11,6 +11,7 @@ import com.intellij.openapi.vfs.VirtualFileManager
 import org.eclipse.lsp4j.jsonrpc.ResponseErrorException
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseErrorCode
 import org.jetbrains.annotations.Nls
+import org.jetbrains.bsp.data.BspProjectData
 import org.jetbrains.bsp.project.BspExternalSystemUtil
 import org.jetbrains.bsp.settings.BspSettings
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
@@ -123,15 +124,17 @@ object BspUtil {
     dir.children()
       .find(x => x.getFileName.toString == name && !x.isDirectory)
 
-  def isBspScalaCliProject(project: Project): Boolean = {
-    val projectData = BspExternalSystemUtil.getBspProjectData(project)
-    projectData.exists(_.serverDisplayName == "scala-cli")
-  }
+  private def isBspScalaCliProjectImpl(project: Project, rootProjectPath: Option[String]): Boolean =
+    BspExternalSystemUtil.getBspProjectData(project, rootProjectPath) match {
+      case Some(BspProjectData(_, _, "scala-cli")) => true
+      case _ => false
+    }
 
-  def isBspScalaCliProject(project: Project, rootProjectPath: String): Boolean = {
-    val projectData = BspExternalSystemUtil.getBspProjectData(project, Some(rootProjectPath))
-    projectData.exists(_.serverDisplayName == "scala-cli")
-  }
+  def isBspScalaCliProject(project: Project): Boolean =
+    isBspScalaCliProjectImpl(project, None)
+
+  def isBspScalaCliProject(project: Project, rootProjectPath: String): Boolean =
+    isBspScalaCliProjectImpl(project, Some(rootProjectPath))
 
   /**
    * Checks whether a specified directory contains at least one file with a name from a given sequence of file names.

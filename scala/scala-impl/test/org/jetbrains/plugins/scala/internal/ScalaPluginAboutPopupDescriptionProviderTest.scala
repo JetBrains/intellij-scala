@@ -24,7 +24,7 @@ class ScalaPluginAboutPopupDescriptionProviderTest extends ScalaLightCodeInsight
     revertApplicationSettings.applyChange(this)
 
     // 2. Project-level settings (no need to revert them as the project won't be reused in other test classes)
-    val project = getProject()
+    val project = getProject
     println(getProject)
 
     // SBT settings (skipped as it requires SBT project setup, and I want to make the test fast)
@@ -37,7 +37,6 @@ class ScalaPluginAboutPopupDescriptionProviderTest extends ScalaLightCodeInsight
     val scalaProjectSettings = ScalaProjectSettings.getInstance(project)
     scalaProjectSettings.setCompilerHighlightingScala2(true)
     scalaProjectSettings.setCompilerHighlightingScala3(false)
-    scalaProjectSettings.setUseCompilerRanges(false)
 
     // Scala compiler settings
     val compilerConfiguration = ScalaCompilerConfiguration.instanceIn(project)
@@ -46,7 +45,7 @@ class ScalaPluginAboutPopupDescriptionProviderTest extends ScalaLightCodeInsight
     //noinspection ApiStatus
     // Get extended description
     val provider = new ScalaPluginAboutPopupDescriptionProvider()
-    val extendedDescription = provider.getExtendedDescription()
+    val extendedDescription = provider.getExtendedDescription
 
     // Verify the result with a single assertion
     val expectedDescription =
@@ -57,7 +56,6 @@ class ScalaPluginAboutPopupDescriptionProviderTest extends ScalaLightCodeInsight
         |  === scala settings for active project ===
         |    compiler.highlighting.scala2.enabled=true
         |    compiler.highlighting.scala3.enabled=false
-        |    compiler.highlighting.use.compiler.ranges=false
         |  === compiler settings for active project ===
         |    incrementality.type=IDEA""".stripMargin
 

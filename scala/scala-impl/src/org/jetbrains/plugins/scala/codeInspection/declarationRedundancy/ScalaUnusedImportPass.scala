@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaUnu
 import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer
 import org.jetbrains.plugins.scala.extensions.{PsiFileExt, invokeLater}
 import org.jetbrains.plugins.scala.incremental
+import org.jetbrains.plugins.scala.incremental.Highlighting.builtInHighlightingDisabledIn
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
@@ -42,7 +43,7 @@ class ScalaUnusedImportPass(override val file: PsiFile, editor: Editor, override
   private var myOptimizeImportsRunnable: Option[Runnable] = None
 
   override def collectInformationWithProgress(progress: ProgressIndicator): Unit = file match {
-    case _ if incremental.Highlighting.enabledIn(file.getProject) => myHighlights = ju.Collections.emptyList()
+    case _ if builtInHighlightingDisabledIn(file.getProject) || incremental.Highlighting.enabledIn(file.getProject) => myHighlights = ju.Collections.emptyList()
     case _ if HighlightingLevelManager.getInstance(file.getProject).shouldInspect(file) =>
       file.findScalaLikeFile match {
         case Some(scalaFile: ScalaFile) =>

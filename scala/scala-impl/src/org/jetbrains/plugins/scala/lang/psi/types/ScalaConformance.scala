@@ -998,10 +998,11 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
           val subst = ScSubstitutor.bind(a.typeParameter.typeParameters, p.typeArguments)
           val upper: ScType =
             subst(a.upper) match {
-              case up if up.equiv(Any)      => ScParameterizedType(WildcardType(a.typeParameter), p.typeArguments)
+              case up if up.equiv(Any)      => Any
               case ParameterizedType(up, _) => ScParameterizedType(up, p.typeArguments)
               case up                       => ScParameterizedType(up, p.typeArguments)
             }
+
           if (!upper.equiv(Any)) {
             result = conformsInner(upper, r, visited, constraints, checkWeak)
           } else {
@@ -1010,7 +1011,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
           if (result.isRight) {
             val lower: ScType =
               subst(a.lower) match {
-                case low if low.equiv(Nothing) => ScParameterizedType(WildcardType(a.typeParameter), p.typeArguments)
+                case low if low.equiv(Nothing) => Nothing
                 case ParameterizedType(low, _) => ScParameterizedType(low, p.typeArguments)
                 case low                       => ScParameterizedType(low, p.typeArguments)
               }
@@ -1073,9 +1074,9 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
                     constraints, visited, checkWeak)
                 }
               } else result = retryTypeParamsConformance(lhs, l, r, constraints)
-            case (UndefinedOrWildcard(_, _), UndefinedOrWildcard(typeParameter, addBound)) =>
+            case (UndefinedType(_, _), UndefinedType(typeParameter, _)) =>
               if (TypeVariableUnification.unifiableKinds(p, p2)) {
-                if (addBound) constraints = constraints.withUpper(typeParameter.typeParamId, des1)
+                constraints = constraints.withUpper(typeParameter.typeParamId, des1)
 
                 result = checkParameterizedType(
                   typeParameter.typeParameters,
@@ -1083,8 +1084,8 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
                   visited, checkWeak
                 )
               } else result = ConstraintsResult.Left
-            case (UndefinedOrWildcard(_, _), _) => result = unifyHK(p, p2, constraints, Bound.Lower, visited, checkWeak)
-            case (_, UndefinedOrWildcard(_, _)) => result = unifyHK(p2, p, constraints, Bound.Upper, visited, checkWeak)
+            case (UndefinedType(_, _), _) => result = unifyHK(p, p2, constraints, Bound.Lower, visited, checkWeak)
+            case (_, UndefinedType(_, _)) => result = unifyHK(p2, p, constraints, Bound.Upper, visited, checkWeak)
             case _ if des1 equiv des2 =>
               result =
                 if (args1.length != args2.length) ConstraintsResult.Left
@@ -1661,14 +1662,6 @@ private object ScalaConformance {
           .withUpper(typeParameter.typeParamId, bound, variance = Invariant)
           .withLower(typeParameter.typeParamId, bound, variance = Invariant)
     }
-
-  private[types] object UndefinedOrWildcard {
-    def unapply(tpe: NonValueType): Option[(TypeParameter, Boolean)] = tpe match {
-      case UndefinedType(tparam, _) => Option((tparam, true))
-      case WildcardType(tparam)     => Option((tparam, false))
-      case _                        => None
-    }
-  }
 
   private[psi] sealed trait Bound
   private[psi] object Bound {

@@ -6,6 +6,7 @@ import com.intellij.openapi.editor.{Editor, EditorFactory}
 import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
 import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import com.intellij.testFramework.{EdtTestUtil, IndexingTestUtil}
@@ -16,7 +17,7 @@ import org.jetbrains.plugins.scala.compiler.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.extensions.{HighlightInfoExt, inReadAction, invokeAndWait}
 import org.jetbrains.plugins.scala.project.VirtualFileExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.util.CompilerTestUtil.runWithErrorsFromCompiler
 import org.jetbrains.plugins.scala.util.matchers.{HamcrestMatchers, ScalaBaseMatcher}
 import org.junit.experimental.categories.Category
@@ -171,11 +172,16 @@ abstract class ScalaCompilerHighlightingTestBase
   }
 
   protected def withUseCompilerRangesDisabled(test: => Unit): Unit = {
+    def setUseCompilerRanges(value: Boolean): Unit = {
+      Registry.get("scala.compiler.highlighting.use.compiler.ranges").setValue(value)
+    }
+
+    val oldValue = ScalaHighlightingMode.useCompilerRanges
     try {
-      ScalaProjectSettings.in(getProject).setUseCompilerRanges(false)
+      setUseCompilerRanges(false)
       test
     } finally {
-      ScalaProjectSettings.in(getProject).setUseCompilerRanges(true)
+      setUseCompilerRanges(oldValue)
     }
   }
 }

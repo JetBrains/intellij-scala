@@ -189,17 +189,7 @@ object SbtCommandData {
     SbtCommandData(name, toJavaMap(help.toMap))
 }
 
-//TODO remove scalaVersion, scalacClasspath, scaladocExtraClasspath after the 2023.2 release
-/**
- * @param scalacClasspath        contains jars required to create scala compiler instance
- * @param scaladocExtraClasspath contains extra jars required to run ScalaDoc in Scala 3<br>
- *                               Needs to be added to `scalacClasspath`<br>
- *                               For Scala 2 it is empty, because scaladoc generation is built into compiler
- */
-case class SbtModuleExtData @PropertyMapping(Array("scalaVersion", "scalacClasspath", "scaladocExtraClasspath", "scalacOptions", "sdk", "javacOptions", "packagePrefix", "basePackage", "compileOrder")) (
-  @Nullable scalaVersion: String,
-  scalacClasspath: JList[File],
-  scaladocExtraClasspath: JList[File],
+case class SbtModuleExtData @PropertyMapping(Array("scalacOptions", "sdk", "javacOptions", "packagePrefix", "basePackage", "compileOrder")) (
   scalacOptions: JList[String],
   @Nullable sdk: SdkReference,
   javacOptions: JList[String],
@@ -212,9 +202,6 @@ object SbtModuleExtData {
   val Key: Key[SbtModuleExtData] = datakey(classOf[SbtModuleExtData], ProjectKeys.LIBRARY_DEPENDENCY.getProcessingWeight + 1)
 
   def apply(
-    scalaVersion: Option[String],
-    scalacClasspath: Seq[File] = Seq.empty,
-    scaladocExtraClasspath: Seq[File] = Seq.empty,
     scalacOptions: Seq[String] = Seq.empty,
     sdk: Option[SdkReference] = None,
     javacOptions: Seq[String] = Seq.empty,
@@ -223,9 +210,6 @@ object SbtModuleExtData {
     compileOrder: CompileOrder = CompileOrder.Mixed
   ): SbtModuleExtData =
     new SbtModuleExtData(
-      scalaVersion.orNull,
-      scalacClasspath.toJavaList,
-      scaladocExtraClasspath.toJavaList,
       scalacOptions.toJavaList,
       sdk.orNull,
       javacOptions.toJavaList,

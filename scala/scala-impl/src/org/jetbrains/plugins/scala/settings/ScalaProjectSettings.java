@@ -182,7 +182,7 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
   private boolean COMPILER_HIGHLIGHTING_SCALA2 = false;
   private boolean COMPILER_HIGHLIGHTING_SCALA3 = true;
   private boolean INCREMENTAL_HIGHLIGHTING = false;
-  private boolean USE_COMPILER_RANGES = true;
+  private boolean DISABLE_INSPECTIONS = false;
   private boolean USE_COMPILER_TYPES = true;
 
   public static ScalaProjectSettings in(@NotNull Project project) {
@@ -394,8 +394,12 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
     INCREMENTAL_HIGHLIGHTING = value;
   }
 
-  public boolean isUseCompilerRanges() {
-    return USE_COMPILER_RANGES;
+  public boolean isDisableInspections() {
+    return DISABLE_INSPECTIONS;
+  }
+
+  public void setDisableInspections(boolean value) {
+    DISABLE_INSPECTIONS = value;
   }
 
   public void setCompilerHighlightingScala2(boolean value) {
@@ -409,10 +413,6 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
     var listener = ApplicationManager.getApplication().getMessageBus()
             .syncPublisher(CompilerHighlightingListener$.MODULE$.Topic());
     listener.compilerHighlightingScala3Changed(value);
-  }
-
-  public void setUseCompilerRanges(boolean value) {
-    USE_COMPILER_RANGES = value;
   }
 
   public boolean isUseCompilerTypes() {

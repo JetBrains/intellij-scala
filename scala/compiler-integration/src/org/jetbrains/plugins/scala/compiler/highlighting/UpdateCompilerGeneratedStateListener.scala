@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListene
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectPsiFileExt}
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
 
 private class UpdateCompilerGeneratedStateListener(project: Project) extends CompilerEventListener {
   private final val CompilerPluginTypePrefix = "<type>" // CompilerPlugin.TypePrefix
@@ -70,7 +70,7 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
                 // Empirically, this only highlights the name of the symbol which cannot be resolved.
                 calculateRangeInfo(pointerOrProblemStart(msg), msg.problemEnd, s"wrong_ref case, msg=$msg")
               }
-            case _ if ScalaProjectSettings.in(project).isUseCompilerRanges =>
+            case _ if ScalaHighlightingMode.useCompilerRanges =>
               // If the setting is checked, the full text range provided by the compiler is used.
               calculateRangeInfo(msg.problemStart, msg.problemEnd, s"use compiler ranges true case, msg=$msg")
             case _ =>

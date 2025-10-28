@@ -293,13 +293,7 @@ trait OverridingAnnotator {
       def effectiveParams(fun: ScFunction) = fun.parameterClausesWithExtension().flatMap(_.effectiveParameters)
 
       def overrideTypeMatchesBase(baseType: ScType, overType: ScType, s: TermSignature, baseName: String): Boolean = {
-        val actualType = if (s.name == baseName + "_=") {
-          overType match {
-            case ParameterizedType(des, args) if des.canonicalText == "_root_.scala.Function1" => args.head
-            case _ => return true
-          }
-        } else overType
-        val actualBase = (s.namedElement, namedElement) match {
+        val renameSubst = (s.namedElement, namedElement) match {
           case (sFun: ScFunction, mFun: ScFunction) if effectiveParams(sFun).length == effectiveParams(mFun).length &&
             sFun.typeParameters.length == mFun.typeParameters.length =>
             val sParams = effectiveParams(sFun)
@@ -307,17 +301,27 @@ trait OverridingAnnotator {
             val sTypeParams = sFun.typeParametersWithExtension()
             val mTypeParams = mFun.typeParametersWithExtension()
 
-            val subst =
-              if (sParams.size != mParams.size || sTypeParams.size != mTypeParams.size)
-                s.substitutor
-              else {
-                val typeParamSubst = ScSubstitutor.bind(sTypeParams, mTypeParams)(TypeParameterType(_))
-                val paramTypesSubst = ScSubstitutor.paramToParam(sParams, mParams)
-                s.substitutor.followed(typeParamSubst).followed(paramTypesSubst)
-              }
-            subst(baseType)
-          case _ => s.substitutor(baseType)
+            if (sParams.size != mParams.size || sTypeParams.size != mTypeParams.size)
+              ScSubstitutor.empty
+            else {
+              val typeParamSubst  = ScSubstitutor.bind(sTypeParams, mTypeParams)(TypeParameterType(_))
+              val paramTypesSubst = ScSubstitutor.paramToParam(sParams, mParams)
+              typeParamSubst.followed(paramTypesSubst)
+            }
+          case _ => ScSubstitutor.empty
         }
+
+        val fullSubst = s.substitutor.followed(renameSubst)
+
+        val actualType =
+          if (s.name == baseName + "_=") {
+            overType match {
+              case ParameterizedType(des, args) if des.canonicalText == "_root_.scala.Function1" => args.head
+              case _ => return true
+            }
+          } else renameSubst(overType)
+
+        val actualBase = fullSubst(baseType)
 
         def allowEmptyParens(e: ScNamedElement): Boolean = e match {
           case _: ScClassParameter => true

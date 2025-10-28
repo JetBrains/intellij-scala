@@ -44,7 +44,7 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
     val workspace = base.toCanonicalPath
     val files = BspConnectionConfig.workspaceBspConfigs(workspace)
     val argvExitCommands = files.flatMap { file =>
-      val bspConnectionDetails = BspExternalSystemManager.parseAsMap(file._1.toFile)
+      val bspConnectionDetails = BspExternalSystemManager.parseAsMap(file._1)
       bspConnectionDetails.get(argvExit).flatMap{comand =>
         Try {comand.asInstanceOf[java.util.List[String]]}.toOption.map(_.asScala.toList)
       }

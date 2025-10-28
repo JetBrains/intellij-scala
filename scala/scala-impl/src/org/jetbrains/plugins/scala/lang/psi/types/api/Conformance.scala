@@ -34,7 +34,7 @@ trait Conformance {
                           checkWeak: Boolean = false)(implicit context: Context): ConstraintsResult = {
     ProgressManager.checkCanceled()
 
-    if (left.isAny || left.isAnyKind || left.is[WildcardType] || right.isNothing || left == right)
+    if (left.isAny || left.isAnyKind || right.isNothing || left == right)
       constraints
     else if (right.canBeSameOrInheritor(left)) {
       val result = conformsInner(Key(left, right, checkWeak), visited)

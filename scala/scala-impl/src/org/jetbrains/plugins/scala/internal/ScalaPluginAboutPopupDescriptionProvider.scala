@@ -112,7 +112,6 @@ class ScalaPluginAboutPopupDescriptionProvider extends AboutPopupDescriptionProv
       buildSettingsMappings(scalaProjectSettings, DefaultSettings.ScalaProjectSettings)(
         SettingLabels.CompilerHighlightingScala2 -> (_.isCompilerHighlightingScala2),
         SettingLabels.CompilerHighlightingScala3 -> (_.isCompilerHighlightingScala3),
-        SettingLabels.CompilerHighlightingUseCompilerRanges -> (_.isUseCompilerRanges),
         SettingLabels.CompilerHighlightingUseCompilerTypes -> (_.isUseCompilerTypes),
         SettingLabels.TypeAwareHighlighting -> (_.isTypeAwareHighlightingEnabled),
         SettingLabels.IncrementalHighlighting -> (_.isIncrementalHighlighting),
@@ -271,7 +270,6 @@ object ScalaPluginAboutPopupDescriptionProvider {
     val TypeAwareHighlighting = "type.aware.highlighting.enabled"
     val CompilerHighlightingScala2 = "compiler.highlighting.scala2.enabled"
     val CompilerHighlightingScala3 = "compiler.highlighting.scala3.enabled"
-    val CompilerHighlightingUseCompilerRanges = "compiler.highlighting.use.compiler.ranges"
     val CompilerHighlightingUseCompilerTypes = "compiler.highlighting.use.compiler.types"
     val IncrementalHighlighting = "incremental.highlighting.enabled"
 

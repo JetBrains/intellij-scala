@@ -4,11 +4,10 @@ import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import com.intellij.psi.util.PsiTreeUtil.getNonStrictParentOfType
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.actions.MakeExplicitAction
-import org.jetbrains.plugins.scala.extensions.ObjectExt
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt, PsiElementExt}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
 class MakeImplicitConversionExplicit extends PsiElementBaseIntentionAction {
@@ -32,7 +31,7 @@ class MakeImplicitConversionExplicit extends PsiElementBaseIntentionAction {
 
 object MakeImplicitConversionExplicit {
   private def findImplicitElement(element: PsiElement) = for {
-    parent <- Option(getNonStrictParentOfType(element, classOf[ScExpression]))
+    parent <- element.withParentsInFile.takeWhile(!_.is[ScBlock]).findByType[ScExpression]
     if parent.isValid
 
     function <- parent.implicitElement(fromUnderscore = true)

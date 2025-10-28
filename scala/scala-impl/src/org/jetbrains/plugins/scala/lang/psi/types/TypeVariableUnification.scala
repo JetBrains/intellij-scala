@@ -31,20 +31,18 @@ trait TypeVariableUnification { self: ScalaConformance with ProjectContextOwner 
     visited:      Set[PsiClass],
     checkWeak:    Boolean
   ): ConstraintsResult = {
-    val (tvDes, tvArgs, addBounds) = typeVariable match {
-      case ParameterizedType(UndefinedOrWildcard(tp, bounds), typeArgs) => (tp, typeArgs, bounds)
+    val (tvDes, tvArgs) = typeVariable match {
+      case ParameterizedType(UndefinedType(tp, _), typeArgs) => (tp, typeArgs)
       case _ =>
         throw new IllegalArgumentException(s"Only higher-order type variables can be unified, actual: ${typeVariable.canonicalText}")
     }
 
     def addBound(constraints: ConstraintSystem, bound: ScType): ConstraintSystem =
-      if (!addBounds) constraints
-      else
-        boundKind match {
-          case Bound.Lower       => constraints.withLower(tvDes.typeParamId, bound)
-          case Bound.Upper       => constraints.withUpper(tvDes.typeParamId, bound)
-          case Bound.Equivalence => addParam(tvDes, bound, constraints)
-        }
+      boundKind match {
+        case Bound.Lower       => constraints.withLower(tvDes.typeParamId, bound)
+        case Bound.Upper       => constraints.withUpper(tvDes.typeParamId, bound)
+        case Bound.Equivalence => addParam(tvDes, bound, constraints)
+      }
 
     val args = tpe.typeArguments
     val des  = tpe.designator
@@ -62,7 +60,7 @@ trait TypeVariableUnification { self: ScalaConformance with ProjectContextOwner 
     if (!unifiableKinds(abstractedTypeParams, tvTypeParameters))
       ConstraintsResult.Left
     else if (captureLength == 0) {
-       /** Higher-kinded type var with same arity as `tpe` */
+       /** Higher-kinded type var with the same arity as `tpe` */
       checkParameterizedType(
         lhsTypeParams,
         lhsArgs,
@@ -171,7 +169,7 @@ object TypeVariableUnification {
     case AliasType(alias, _, _, _)         => alias.typeParameters.map(TypeParameter(_))
     case ScAbstractType(tp, _, _)          => tp.typeParameters
     case ScTypePolymorphicType(_, tparams) => tparams
-    case UndefinedOrWildcard(tparam, _)    => tparam.typeParameters
+    case UndefinedType(tparam, _)          => tparam.typeParameters
     case tpt: TypeParameterType            => tpt.typeParameters
     case other =>
       other.extractClass.fold(Seq.empty[TypeParameter])(_.getTypeParameters.instantiate)

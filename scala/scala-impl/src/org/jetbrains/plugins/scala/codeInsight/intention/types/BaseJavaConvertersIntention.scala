@@ -10,7 +10,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScBlockExpr, ScExpression, ScGenericCall, ScNewTemplateDefinition, ScParenthesisedExpr, ScReferenceExpression, ScSugarCallExpr}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScBlock, ScBlockExpr, ScExpression, ScGenericCall, ScNewTemplateDefinition, ScParenthesisedExpr, ScReferenceExpression, ScSugarCallExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScTypeExt}
@@ -90,12 +90,13 @@ abstract class BaseJavaConvertersIntention(methodName: String) extends PsiElemen
   }
 
   private def getTargetExpression(element: PsiElement): ScExpression = {
-    val expr = PsiTreeUtil.getNonStrictParentOfType(element, classOf[ScExpression])
+    val expr = element.withParentsInFile.takeWhile(!_.is[ScBlock]).findByType[ScExpression].orNull
 
     if (expr == null) expr
     else {
       val maybeTargetExpr = expr
-        .withParents
+        .withParentsInFile
+        .takeWhile(!_.is[ScBlock])
         .takeWhile(_.is[ScExpression])
         .findByType[ScNewTemplateDefinition, MethodInvocation, ScGenericCall]
 
