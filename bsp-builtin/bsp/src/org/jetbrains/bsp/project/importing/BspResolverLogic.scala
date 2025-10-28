@@ -56,9 +56,9 @@ private[importing] object BspResolverLogic {
     val scala = ScalaSdkData(
       scalaOrganization = target.getScalaOrganization,
       scalaVersion = target.getScalaVersion,
-      scalacClasspath = target.getJars.asScala.map(p => Path.of(p.toURI)).map(_.toFile).asJava,
-      scaladocExtraClasspath = Collections.emptyList(), // FIXME pass in actual data when obtainable from BSP: https://github.com/build-server-protocol/build-server-protocol/issues/229
-      scalacOptions = scalaOptionsStrings
+      scalacClasspath = target.getJars.asScala.map(p => Path.of(p.toURI)).toSeq,
+      scaladocExtraClasspath = Seq.empty, // FIXME pass in actual data when obtainable from BSP: https://github.com/build-server-protocol/build-server-protocol/issues/229
+      scalacOptions = scalaOptionsStrings.asScala.toSeq
     )
     (jdk, scala)
   }
@@ -767,7 +767,8 @@ private[importing] object BspResolverLogic {
     val bspProjectData = {
       val jdkReference = inferProjectJdk(modules)
       val vcsRootsCandidates = projectModules.modules.flatMap(_.data.basePath).distinct
-      new DataNode[BspProjectData](BspProjectData.Key, BspProjectData(jdkReference, vcsRootsCandidates.map(_.toPath.toFile).asJava, displayName), projectNode)
+      val data = BspProjectData(jdkReference, vcsRootsCandidates.map(_.toPath), displayName)
+      new DataNode[BspProjectData](BspProjectData.Key, data, projectNode)
     }
     
     val bspCanCompileData = new DataNode[BspTargetCanCompileData](BspTargetCanCompileData.Key, BspTargetCanCompileData(canCompile.asJava), projectNode)
@@ -1074,7 +1075,7 @@ private[importing] object BspResolverLogic {
         buildModuleIdOpt match {
           case Some(buildModuleId) =>
             val moduleId = new MyURI(moduleDescriptionData.idUri)
-            val sbtModuleData = SbtModuleDataBsp(moduleId, buildModuleId, moduleDescriptionData.basePath.map(_.toPath.toFile).orNull)
+            val sbtModuleData = SbtModuleDataBsp(moduleId, buildModuleId, moduleDescriptionData.basePath.map(_.toPath))
             val sbtModuleDataNode = new DataNode[SbtModuleDataBsp](SbtModuleDataBsp.Key, sbtModuleData, moduleNode)
             moduleNode.addChild(sbtModuleDataNode)
           case _ =>

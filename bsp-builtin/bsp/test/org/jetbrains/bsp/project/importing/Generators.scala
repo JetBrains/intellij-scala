@@ -90,9 +90,9 @@ object Generators {
   def genScalaSdkData: Gen[ScalaSdkData] = for {
     scalaOrganization <- arbitrary[String]
     scalaVersion <- arbitrary[Option[String]]
-    scalacClasspath <- arbitrary[Path].map(_.toFile).list
-    scaladocExtraClasspath <- arbitrary[Path].map(_.toFile).list
-    scalacOptions <- arbitrary[String].list
+    scalacClasspath <- Gen.listOf(arbitrary[Path])
+    scaladocExtraClasspath <- Gen.listOf(arbitrary[Path])
+    scalacOptions <- Gen.listOf(arbitrary[String])
   } yield ScalaSdkData(scalaOrganization, scalaVersion.orNull, scalacClasspath, scaladocExtraClasspath, scalacOptions)
 
   def genJdkData: Gen[JdkData] = for {

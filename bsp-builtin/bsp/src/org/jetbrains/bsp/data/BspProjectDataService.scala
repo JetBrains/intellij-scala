@@ -28,8 +28,9 @@ class BspProjectDataService extends ScalaAbstractProjectDataService[BspProjectDa
     modelsProvider: IdeModifiableModelsProvider
   ): Unit = {
     toImport.forEach { node =>
-      configureJdk(Option(node.getData.jdk))(project)
-      configureVcs(node.getData.vcsRootsCandidates.asScala.map(_.toPath), project)
+      val BspProjectData(jdkOpt, vcsRootsCandidates, _) = node.getData
+      configureJdk(jdkOpt)(project)
+      configureVcs(vcsRootsCandidates.map(_.toPath), project)
     }
   }
 

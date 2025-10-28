@@ -11,9 +11,12 @@ import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.bsp.data.BspEntityData._
 import org.jetbrains.bsp.{BSP, BspBundle}
 import org.jetbrains.plugins.scala.project.external.SdkReference
-import org.jetbrains.sbt.project.data.MyURI
+import org.jetbrains.sbt.project.data.{MyURI, PathData}
 
+import java.nio.file.Path
 import java.util
+import java.util.Objects
+import scala.jdk.CollectionConverters._
 
 abstract class BspEntityData extends AbstractExternalEntityData(BSP.ProjectSystemId) with Product {
 
@@ -37,22 +40,83 @@ object BspEntityData {
 }
 
 /**
- * @param serverDisplayName corresponds to `InitializeBuildResult.displayName`, examples: "sbt", "scala-cli"
+ * The class is written in a way which allows us to migrate certain fields from one type to another while keeping
+ * serialization compatibility. The idea is that the same data is written in two different fields in two different
+ * formats, the old format and the new one.
+ *
+ * After some time, for example, after
+ * [[com.intellij.openapi.externalSystem.service.project.manage.ExternalProjectsDataStorage#STORAGE_VERSION]]
+ * has been incremented, we can remove the old data fields. We will be guaranteed that a project reload will be forced,
+ * which will guarantee that the new field values are populated and serialized.
+ *
+ * @note The fields must be public, otherwise the Scala 2 compiler mangles the names of the fields, to avoid clashes.
+ *       This results in serialization failures.
+ *
+ * @param vcsRootsCandidates The field must be named exactly [[vcsRootsCandidates]] so the platform External System
+ *                           serialization mechanism can deserialize the old project data into it
+ * @param _vcsRootsCandidatesPaths The shadow field of [[vcsRootsCandidates]], where we save the same data in a
+ *                                 different format, one which we plan to use in the future
+ * @param serverDisplayName Corresponds to `InitializeBuildResult.displayName`, examples: `"sbt"`, `"scala-cli"`
  */
-case class BspProjectData @PropertyMapping(Array(
-  "jdk",
-  "vcsRootsCandidates",
-  "serverDisplayName"
-)) private (
-  @Nullable jdk: SdkReference,
-  @NotNull vcsRootsCandidates: util.List[java.io.File],
-  @NotNull serverDisplayName: String,
-) extends BspEntityData
+//noinspection ApiStatus
+class BspProjectData private (
+  @Nullable val jdk: SdkReference,
+  @NotNull val vcsRootsCandidates: java.util.List[java.io.File],
+  @Nullable val _vcsRootsCandidatesPaths: java.util.List[PathData],
+  @NotNull val serverDisplayName: String
+) extends AbstractExternalEntityData(BSP.ProjectSystemId) with Equals {
+
+  /**
+   * Default constructor used by the External System serialization mechanism.
+   */
+  private def this() = this(
+    jdk = null,
+    vcsRootsCandidates = java.util.Collections.emptyList(),
+    _vcsRootsCandidatesPaths = null,
+    serverDisplayName = ""
+  )
+
+  //noinspection InstanceOf
+  override def canEqual(that: Any): Boolean = that.isInstanceOf[BspProjectData]
+
+  override def equals(obj: Any): Boolean = obj match {
+    case that: BspProjectData =>
+      //noinspection InstanceOf
+      that.canEqual(this) &&
+        this.jdkValue == that.jdkValue &&
+        this.vcsRootsCandidatesValue == that.vcsRootsCandidatesValue &&
+        this. serverDisplayName == that.serverDisplayName
+    case _ => false
+  }
+
+  override def hashCode(): Int = Objects.hash(jdkValue, vcsRootsCandidatesValue, serverDisplayName)
+
+  private def jdkValue: Option[SdkReference] = Option(jdk)
+
+  private def vcsRootsCandidatesValue: Seq[PathData] = {
+    if (_vcsRootsCandidatesPaths == null) {
+      if (vcsRootsCandidates != null)
+        return vcsRootsCandidates.stream().map[PathData](f => PathData(f.toPath)).toList.asScala.toSeq
+      else
+        return Seq.empty
+    }
+    _vcsRootsCandidatesPaths.asScala.toSeq
+  }
+}
 
 object BspProjectData {
   val Key: Key[BspProjectData] = datakey(classOf[BspProjectData], weight = ProjectKeys.PROJECT.getProcessingWeight +  1)
-  def apply(sdk: Option[SdkReference], vcsRootsCandidates: util.List[java.io.File], displayName: String): BspProjectData =
-    BspProjectData(sdk.orNull, vcsRootsCandidates, displayName)
+
+  def apply(sdk: Option[SdkReference], vcsRootsCandidates: Seq[Path], displayName: String): BspProjectData =
+    new BspProjectData(
+      jdk = sdk.orNull,
+      vcsRootsCandidates = vcsRootsCandidates.map(_.toFile).asJava,
+      _vcsRootsCandidatesPaths = vcsRootsCandidates.map(PathData.apply).asJava,
+      serverDisplayName = displayName
+    )
+
+  def unapply(data: BspProjectData): Some[(Option[SdkReference], Seq[PathData], String)] =
+    Some((data.jdkValue, data.vcsRootsCandidatesValue, data.serverDisplayName))
 }
 
 case class BspTargetCanCompileData @PropertyMapping(Array("compilableTargets"))(
@@ -68,17 +132,88 @@ case class JdkData @PropertyMapping(Array("javaHome", "javaVersion"))(
   @Nullable javaVersion: String
 ) extends BspEntityData
 
-case class ScalaSdkData @PropertyMapping(Array("scalaOrganization", "scalaVersion", "scalacClasspath", "scaladocExtraClasspath", "scalacOptions"))(
-  @NotNull scalaOrganization: String,
-  @Nullable scalaVersion: String,
-  @NotNull scalacClasspath: util.List[java.io.File],
-  @NotNull scaladocExtraClasspath: util.List[java.io.File],
-  @NotNull scalacOptions: util.List[String]
-) extends BspEntityData
+/**
+ * @see [[BspProjectData]] for an explanation on the serialization compatibility.
+ */
+class ScalaSdkData private (
+  @NotNull val scalaOrganization: String,
+  @Nullable val scalaVersion: String,
+  @NotNull val scalacClasspath: java.util.List[java.io.File],
+  @Nullable val _scalacClasspathPaths: java.util.List[PathData],
+  @NotNull val scaladocExtraClasspath: java.util.List[java.io.File],
+  @Nullable val _scaladocExtraClasspathPaths: java.util.List[PathData],
+  @NotNull val scalacOptions: java.util.List[String]
+) extends AbstractExternalEntityData(BSP.ProjectSystemId) with Equals {
+
+  private def this() = this(
+    scalaOrganization = "",
+    scalaVersion = null,
+    scalacClasspath = java.util.Collections.emptyList(),
+    _scalacClasspathPaths = null,
+    scaladocExtraClasspath = java.util.Collections.emptyList(),
+    _scaladocExtraClasspathPaths = null,
+    scalacOptions = java.util.Collections.emptyList()
+  )
+
+  //noinspection InstanceOf
+  override def canEqual(that: Any): Boolean = that.isInstanceOf[ScalaSdkData]
+
+  override def equals(obj: Any): Boolean = obj match {
+    case that: ScalaSdkData =>
+      that.canEqual(this) &&
+        this.scalaOrganization == that.scalaOrganization &&
+        this.scalaVersionValue == that.scalaVersionValue &&
+        this.scalacClasspathValue == that.scalacClasspathValue &&
+        this.scaladocExtraClasspathValue == that.scaladocExtraClasspathValue &&
+        this.scalacOptionsValue == that.scalacOptionsValue
+    case _ => false
+  }
+
+  override def hashCode(): Int =
+    Objects.hash(scalaOrganization, scalaVersionValue, scalacClasspathValue, scaladocExtraClasspathValue, scalacOptionsValue)
+
+  private def scalaVersionValue: Option[String] = Option(scalaVersion)
+
+  private def scalacClasspathValue: Seq[PathData] = {
+    if (_scalacClasspathPaths == null) {
+      return scalacClasspath.stream().map[PathData](f => PathData(f.toPath)).toList.asScala.toSeq
+    }
+    _scalacClasspathPaths.asScala.toSeq
+  }
+
+  private def scaladocExtraClasspathValue: Seq[PathData] = {
+    if (_scaladocExtraClasspathPaths == null) {
+      return scaladocExtraClasspath.stream().map[PathData](f => PathData(f.toPath)).toList.asScala.toSeq
+    }
+    _scaladocExtraClasspathPaths.asScala.toSeq
+  }
+
+  private def scalacOptionsValue: Seq[String] = scalacOptions.asScala.toSeq
+}
 
 object ScalaSdkData {
   val Key: Key[ScalaSdkData] = datakey(classOf[ScalaSdkData], weight = ProjectKeys.LIBRARY_DEPENDENCY.getProcessingWeight + 10)
   val LibraryName: String = "scala-sdk"
+
+  def apply(
+    scalaOrganization: String,
+    scalaVersion: String,
+    scalacClasspath: Seq[Path],
+    scaladocExtraClasspath: Seq[Path],
+    scalacOptions: Seq[String]
+  ): ScalaSdkData =
+    new ScalaSdkData(
+      scalaOrganization = scalaOrganization,
+      scalaVersion = scalaVersion,
+      scalacClasspath = scalacClasspath.map(_.toFile).asJava,
+      _scalacClasspathPaths = scalacClasspath.map(PathData.apply).asJava,
+      scaladocExtraClasspath = scaladocExtraClasspath.map(_.toFile).asJava,
+      _scaladocExtraClasspathPaths = scaladocExtraClasspath.map(PathData.apply).asJava,
+      scalacOptions = scalacOptions.asJava
+    )
+
+  def unapply(data: ScalaSdkData): Some[(String, Option[String], Seq[PathData], Seq[PathData], Seq[String])] =
+    Some((data.scalaOrganization, data.scalaVersionValue, data.scalacClasspathValue, data.scaladocExtraClasspathValue, data.scalacOptionsValue))
 }
 
 case class BspMetadataError(msg: String)

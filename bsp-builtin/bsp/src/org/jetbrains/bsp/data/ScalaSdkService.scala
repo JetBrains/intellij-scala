@@ -11,7 +11,6 @@ import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.external.{ScalaAbstractProjectDataService, ScalaSdkUtils}
 
 import java.nio.file.Path
-import scala.jdk.CollectionConverters._
 
 class ScalaSdkService extends ScalaAbstractProjectDataService[ScalaSdkData, Library](ScalaSdkData.Key) {
 
@@ -30,11 +29,11 @@ class ScalaSdkService extends ScalaAbstractProjectDataService[ScalaSdkData, Libr
       module <- modelsProvider.getIdeModuleByNode(dataNode)
     } {
       val ScalaSdkData(_, scalaVersion, scalacClasspath, _, scalacOptions) = dataNode.getData
-      module.configureScalaCompilerSettingsFrom("bsp", scalacOptions.asScala)
+      module.configureScalaCompilerSettingsFrom("bsp", scalacOptions)
       configureScalaSdk(
         module,
-        Option(scalaVersion),
-        scalacClasspath.asScala.toSeq.map(_.toPath)
+        scalaVersion,
+        scalacClasspath.map(_.toPath)
       )
     }
 
