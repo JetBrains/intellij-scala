@@ -18,11 +18,12 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 class ImportAllMembersIntention extends PsiElementBaseIntentionAction {
   override def getFamilyName: String = ScalaBundle.message("family.name.import.all.members")
 
-  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
-    val qualAtCaret = PsiTreeUtil.getParentOfType(element, classOf[ScReference])
-    if (qualAtCaret == null) return false
-    setText(ScalaBundle.message("import.all.members.of.reference", qualAtCaret.refName))
-    checkQualifier(qualAtCaret)
+  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = element.getParent match {
+    case qualAtCaret: ScReference =>
+      setText(ScalaBundle.message("import.all.members.of.reference", qualAtCaret.refName))
+      checkQualifier(qualAtCaret)
+    case _ =>
+      false
   }
 
 
