@@ -29,7 +29,7 @@ sealed abstract class FormatConversionIntention[P <: StringParser](
   override def getFamilyName: String = getText
 
   protected def findCandidates(element: PsiElement): Seq[PsiElement] =
-    element.withParentsInFile.toList
+    element.withParentsInFile.takeWhile(!_.is[ScBlock]).toSeq
 
   protected def findTargetIn(element: PsiElement): Option[(PsiElement, Seq[StringPart])] = {
     val candidates = findCandidates(element)
