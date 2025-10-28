@@ -489,4 +489,31 @@ class OverridingAnnotatorTest extends OverridingAnnotatorTestBase {
       )
     )
   }
+
+  def testSCL20442(): Unit = assertNothing(
+    messages(
+      """
+        |import java.util
+        |
+        |trait BaseScala {
+        |  def foo1(result: util.Collection[ScalaInterface]): Unit
+        |  def foo2(result: util.Collection[_ >: ScalaInterface]): Unit
+        |  def foo3(result: util.Collection[ScalaInterfaceTyped[_]]): Unit
+        |  def foo4(result: util.Collection[_ >: ScalaInterfaceTyped[_]]): Unit
+        |  def foo5(result: ScalaInterfaceTyped[_ >: ScalaInterfaceTyped[_]]): Unit
+        |}
+        |
+        |trait ScalaInterface {}
+        |trait ScalaInterfaceTyped[T] {}
+        |
+        |class ChildOfScala extends BaseScala {
+        |  override def foo1(result: util.Collection[ScalaInterface]): Unit = ()
+        |  override def foo2(result: util.Collection[_ >: ScalaInterface]): Unit = ()
+        |  override def foo3(result: util.Collection[ScalaInterfaceTyped[_]]): Unit = ()
+        |  override def foo4(result: util.Collection[_ >: ScalaInterfaceTyped[_]]): Unit = ()
+        |  override def foo5(result: ScalaInterfaceTyped[_ >: ScalaInterfaceTyped[_]]): Unit = ()
+        |}
+        |""".stripMargin
+    )
+  )
 }

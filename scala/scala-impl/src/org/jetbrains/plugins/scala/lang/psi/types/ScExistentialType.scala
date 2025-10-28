@@ -21,9 +21,16 @@ final class ScExistentialType private (
 
   override implicit def projectContext: ProjectContext = quantified.projectContext
 
-  override protected def calculateAliasType(implicit context: Context): Option[AliasType] = {
-    quantified.aliasType.map(a => a.copy(lower = a.lower.map(_.unpackedType), upper = a.upper.map(_.unpackedType), effectivelyOpaque = a.effectivelyOpaque))
-  }
+  override protected def calculateAliasType(implicit context: Context): Option[AliasType] =
+    quantified
+      .aliasType
+      .map(a =>
+        a.copy(
+          lower             = a.lower.map(_.unpackedType),
+          upper             = a.upper.map(_.unpackedType),
+          effectivelyOpaque = a.effectivelyOpaque
+        )
+      )
 
   override def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean)(implicit context: Context): ConstraintsResult = {
     if (r.equiv(Nothing)) return quantified.equiv(Nothing, constraints)
@@ -225,14 +232,18 @@ object ScExistentialType {
     result
   }
 
-  private def equivImpl(left : ScExistentialType,
-                        right: ScExistentialType,
-                        constraints: ConstraintSystem,
-                        falseUndef: Boolean)(implicit context: Context): ConstraintsResult = {
-
+  private def equivImpl(
+    left :       ScExistentialType,
+    right:       ScExistentialType,
+    constraints: ConstraintSystem,
+    falseUndef:  Boolean
+  )(implicit context: Context): ConstraintsResult = {
     val rightToLeft: java.util.Map[ScExistentialArgument, ScExistentialArgument] = {
       val byNameStrategy: Hash.Strategy[ScExistentialArgument] = new Hash.Strategy[ScExistentialArgument] {
-        override def hashCode(t: ScExistentialArgument): Int = t.name.hashCode
+
+        override def hashCode(t: ScExistentialArgument): Int =
+          t.name.hashCode
+
         override def equals(t: ScExistentialArgument, t1: ScExistentialArgument): Boolean = {
           if (t == null || t1 == null) false
           else t.name == t1.name
@@ -241,7 +252,10 @@ object ScExistentialType {
 
       val map = new Object2ObjectOpenCustomHashMap[ScExistentialArgument, ScExistentialArgument](byNameStrategy)
       right.wildcards.zip(left.wildcards).foreach {
-        case (x, y) => map.put(x, y)
+        case (x, y) =>
+          //Unnamed existential arguments cannot be referenced by another ones,
+          //additionally they obviously break by-name hashing implemented above.
+          if (!x.name.startsWith("_$")) map.put(x, y)
       }
       map
     }
