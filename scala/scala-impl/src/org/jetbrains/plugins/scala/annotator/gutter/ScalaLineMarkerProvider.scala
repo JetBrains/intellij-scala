@@ -292,6 +292,14 @@ private object GutterUtil {
       }
     }
 
+    override def getCommonIconAlignment(infos: ju.List[_ <: MergeableLineMarkerInfo[_]]): GutterIconRenderer.Alignment =
+      infos.get(0) match {
+        case that: ArrowUpOrDownLineMarkerInfo =>
+          that.alignment
+        case _ =>
+          super.getCommonIconAlignment(infos)
+      }
+
     override def getElementPresentation(element: PsiElement): String =
       presentationParent.fold(super.getElementPresentation(element))(
         parent => StringUtil.shortenTextWithEllipsis(parent.getText, 100, 0)
