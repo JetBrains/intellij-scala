@@ -7,9 +7,9 @@ import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScExpression}
+import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt, PsiElementExt}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScBlock, ScExpression}
 
 import scala.annotation.tailrec
 
@@ -36,7 +36,8 @@ final class PermuteArgumentsIntention extends PsiElementBaseIntentionAction {
 object PermuteArgumentsIntention {
 
   private def check(project: Project, editor: Editor, element: PsiElement): Option[() => Unit] = {
-    val argList = PsiTreeUtil.getParentOfType(element, classOf[ScArgumentExprList])
+    val argList = element.withParentsInFile.takeWhile(!_.is[ScBlock]).findByType[ScArgumentExprList].orNull
+
     if (argList == null)
       return None
 
