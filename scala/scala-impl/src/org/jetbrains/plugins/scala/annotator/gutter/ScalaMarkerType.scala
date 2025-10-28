@@ -123,7 +123,7 @@ object ScalaMarkerType {
           if (GutterUtil.isAbstract(m)) ScalaBundle.message("has.implementations")
           else ScalaBundle.message("is.overridden.by")
       }.orNull,
-    navigationHandler = new ScalaInheritorsMembersLineMarkerNavigator
+    navigationHandler = new ScalaInheritorsLineMarkerNavigator
   )
 
   def newCellRenderer: PsiElementListCellRenderer[PsiElement] = new ScCellRenderer
