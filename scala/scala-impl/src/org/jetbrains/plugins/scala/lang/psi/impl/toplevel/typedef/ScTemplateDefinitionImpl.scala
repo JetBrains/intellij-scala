@@ -542,7 +542,7 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
     for {
       firstSuper  <- superTypes.headOption
       cls         <- firstSuper.extractClass
-      if !cls.is[ScTrait]
+      if !cls.isInterface // filters out scala traits and java interfaces
     } yield cls
 
   override def injectedParentTraitConstructorCalls: collection.Set[(ScPrimaryConstructor, ScSubstitutor)] = {
@@ -630,7 +630,4 @@ object ScTemplateDefinitionImpl {
       Path(clazz.name, Option(clazz.qualifiedName), kind)
     }
   }
-
-  private def isNullOrLineTerminator(node: ASTNode): Boolean =
-    node == null || isLineTerminator(node.getPsi)
 }

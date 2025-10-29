@@ -4,16 +4,11 @@ package typedef
 import com.intellij.lang.ASTNode
 import com.intellij.navigation._
 import com.intellij.psi._
-import com.intellij.psi.impl.source.PsiFileImpl
 import com.intellij.psi.javadoc.PsiDocComment
-import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScTypeDefinitionFactory
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.caches.stats.Tracer
-import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, CacheInUserData, ModTracker, cached, cachedInUserData, cachedWithRecursionGuard}
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker, cached, cachedWithRecursionGuard}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.TokenSets.TYPE_DEFINITIONS
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiImplementationHelper
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.stubOrPsiNextSibling
@@ -21,12 +16,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScEnumCases, ScFunction, ScTypeAliasDeclaration}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCases, ScFunction}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createObjectWithContext
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaStubBasedElementImpl}
+import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType.ImplicitValueClassDumbMode
@@ -375,8 +371,31 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
 
   override def psiMethods: Array[PsiMethod] =
     cachedWithRecursionGuard("psiMethods", this, PsiMethod.EMPTY_ARRAY, ModTracker.libraryAware(this)) {
-      getAllMethods.filter(_.containingClass == this)
+      // note: this could be optimized my not processing super classes as it's unnecessary
+      val allMethods = getAllMethods
+      // Filter out mixed-in methods
+      // It was primarily added for com.intellij.psi.impl.search.JavaOverridingMethodsSearcher.findOverridingMethod
+      // Note, exported members are considered as implementations as they have a physical export statement in the code.
+      //
+      // NOTE: Similar filtering is done for a Scala version of the searcher in ScalaOverridingMemberSearcher.processImpl
+      // It's not a direct alternative, but still it's related.
+      val methodsFiltered = allMethods.filter(m => m.containingClass == this && !isMixedInSyntheticMethod(m))
+      methodsFiltered
     }
+
+  /**
+   * @return true - if the method represents a method in a class that was mixed-in from a trait and does not exist in the class sources
+   *         (see scaladoc of [[ScFunctionWrapper.isMixedInSyntheticMethod]]).
+   * @note ATTENTION: This might lead to some inconsistencies and confusions in other parts of IDE features:
+   *       the containing class of such methods can be equal to this class (reflecting how it will be in the JVM bytecode).
+   *       But we filter them out from `getMethods` / `psiMethods` (reflecting how it is in the Scala sources).
+   */
+  private def isMixedInSyntheticMethod(method: PsiMethod): Boolean = method match {
+    case wrapper: ScFunctionWrapper =>
+      wrapper.isMixedInSyntheticMethod
+    case _ =>
+      false
+  }
 }
 
 object ScTypeDefinitionImpl {

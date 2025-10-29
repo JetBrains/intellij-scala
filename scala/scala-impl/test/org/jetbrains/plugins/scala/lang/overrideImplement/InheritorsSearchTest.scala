@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.search
+package org.jetbrains.plugins.scala.lang.overrideImplement
 
 import com.intellij.psi.PsiClass
 import com.intellij.psi.search.searches.ClassInheritorsSearch
