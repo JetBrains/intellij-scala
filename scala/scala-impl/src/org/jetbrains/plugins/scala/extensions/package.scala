@@ -1170,12 +1170,14 @@ package object extensions {
           case _ =>
         }
 
-        signature.exportedInCls.orElse(
+        val exportedInCls = signature.exportedInCls
+        exportedInCls.orElse(
           typedDef.nameContext match {
             case m: ScMember =>
               m.containingClass match {
-                case _: ScTrait if isStatic =>
-                  Some(clazz) //companion object extends some trait, static method generated in a companion class
+                case _: ScTrait | _: ScClass if isStatic =>
+                  // When companion object extends some trait or class the static forwarder method generated in a companion class
+                  Some(clazz)
                 case t: ScTrait =>
                   concreteForTrait(t)
                 case _ => None
@@ -1197,7 +1199,12 @@ package object extensions {
 
       element match {
         case fun: ScFunction if !fun.isConstructor =>
-          val wrappers = fun.getFunctionWrappers(isStatic, isAbstract = fun.isAbstractMember, concreteClassFor(fun))
+          val wrappers = fun.getFunctionWrappers(
+            isStatic = isStatic,
+            isAbstract = fun.isAbstractMember,
+            isExportForwarder = signature.exportedInfo.isDefined,
+            cClass = concreteClassFor(fun)
+          )
           wrappers.foreach(processMethod)
           wrappers.foreach(w => processName(w.name))
         case method: PsiMethod if !method.isConstructor =>

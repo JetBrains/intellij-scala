@@ -94,11 +94,16 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
 
   override protected def addFromCompanion(companion: ScTypeDefinition): Boolean = companion.isInstanceOf[ScObject]
 
-  override def getConstructors: Array[PsiMethod] =
-    constructor.toArray
-      .flatMap(_.getFunctionWrappers) ++
-      secondaryConstructors
-        .flatMap(_.getFunctionWrappers(isStatic = false, isAbstract = false, Some(this)))
+  override def getConstructors: Array[PsiMethod] = {
+    val constructorWrappers = constructor.toArray.flatMap(_.getFunctionWrappers)
+    val secondaryConstructorWrappers = secondaryConstructors.flatMap(_.getFunctionWrappers(
+      isStatic = false,
+      isAbstract = false,
+      isExportForwarder = false,
+      cClass = Some(this))
+    )
+    constructorWrappers ++ secondaryConstructorWrappers
+  }
 
   private def implicitMethodText: String = {
     val constr = constructor.getOrElse(return "")

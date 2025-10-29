@@ -357,7 +357,12 @@ class ScalaFileImpl(
 
         members.foreach {
           case fn: ScFunction =>
-            val fnWrappers = fn.getFunctionWrappers(isStatic = true, isAbstract = false, wrapper.toOption)
+            val fnWrappers = fn.getFunctionWrappers(
+              isStatic = true,
+              isAbstract = false,
+              isExportForwarder = false,
+              cClass = Some(wrapper)
+            )
             fnWrappers.foreach(wrapper.addMethod)
           case pat: ScPatternDefinition =>
             pat.bindings.collect { case bpat if !bpat.isWildcard =>

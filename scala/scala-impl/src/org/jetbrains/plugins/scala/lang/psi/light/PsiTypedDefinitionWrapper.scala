@@ -43,7 +43,14 @@ class PsiTypedDefinitionWrapper(override val delegate: ScTypedDefinition,
 
     def wrap(superSig: TermSignature): Option[PsiMethod] = superSig.namedElement match {
       case f: ScFunction =>
-        Some(new ScFunctionWrapper(f, isStatic, isAbstract = f.isAbstractMember, cClass = None, isJavaVarargs = false))
+        Some(new ScFunctionWrapper(
+          delegate = f,
+          isStatic = isStatic,
+          isAbstract = f.isAbstractMember,
+          isExportForwarder = superSig.exportedInfo.isDefined,
+          cClass = None,
+          isJavaVarargs = false
+        ))
       case td: ScTypedDefinition =>
         Some(new PsiTypedDefinitionWrapper(td, isStatic, isAbstract = td.isAbstractMember, role))
       case m: PsiMethod =>
