@@ -42,14 +42,19 @@ class MethodImplementationsSearch extends QueryExecutor[PsiElement, PsiElement] 
 /**
  *  This class is required for Ctrl+Alt+B action for cases when PsiMethod overrides PsiMethod (no Wrappers!)
  *  That's why we need to stop processing, to avoid showing wrappers in Scala.
+ *
+ * Java analogue: [[com.intellij.psi.impl.search.JavaOverridingMethodsSearcher]]
  */
 class ScalaOverridingMemberSearcher extends QueryExecutor[PsiMethod, OverridingMethodsSearch.SearchParameters] {
   override def execute(queryParameters: SearchParameters, consumer: Processor[_ >: PsiMethod]): Boolean = {
     val method = queryParameters.getMethod
     method match {
       case namedElement: ScNamedElement =>
-        for (implementation <- ScalaOverridingMemberSearcher.getOverridingMethods(namedElement)
-             if implementation.is[PsiMethod]) {
+        val overridingMembers = ScalaOverridingMemberSearcher.getOverridingMethods(namedElement)
+        for {
+          implementation <- overridingMembers
+          if implementation.is[PsiMethod]
+        } {
           if (!consumer.process(implementation.asInstanceOf[PsiMethod])) {
             return false
           }
@@ -192,6 +197,9 @@ object ScalaOverridingMemberSearcher {
         while (signsIterator.hasNext) {
           val node = signsIterator.next()
           val parentClass = PsiTreeUtil.getParentOfType(node.info.namedElement, classOf[PsiClass])
+
+          // Treat the signature as overriding only if the member is syntactically defined in the class we are processing ("inheritor")
+          // For a java version of the searcher a similar filtering is invoked in `ScTypeDefinitionImpl.psiMethods`
           if (parentClass == inheritor) {
             val supersIterator = node.supers.iterator
             while (supersIterator.hasNext) {

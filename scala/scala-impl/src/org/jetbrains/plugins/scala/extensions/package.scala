@@ -22,8 +22,8 @@ import com.intellij.psi.impl.PsiImplUtil
 import com.intellij.psi.impl.light.LightMethod
 import com.intellij.psi.impl.source.tree.{FileElement, SharedImplUtil}
 import com.intellij.psi.impl.source.{PostprocessReformattingAspect, PsiFileImpl}
-import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
 import com.intellij.psi.search.searches.ClassInheritorsSearch
+import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.psi.util.PsiTreeUtil
@@ -1163,10 +1163,19 @@ package object extensions {
       }
 
       def concreteClassFor(typedDef: ScTypedDefinition): Option[PsiClass] = {
-        if (typedDef.isAbstractMember) return None
+        // Abstract members won't be mixed-in into the concrete classes (won't be physically copied by Scala compiler)
+        // In this example:
+        // ```scala
+        //    trait A { def fooAbstract: Int; def fooConcrete: Int = 1 }
+        //    abstract class C extends A
+        // ```
+        // the JVM bytecode of class `C` will contain only one method `fooConcrete` and not `fooAbstract`
+        if (typedDef.isAbstractMember)
+          return None
+
         clazz match {
           case PsiClassWrapper(_: ScObject) =>
-            return Some(clazz) //this is static case, when containing class should be wrapper
+            return Some(clazz) //this is a static case, when the containing class should be wrapper
           case _ =>
         }
 

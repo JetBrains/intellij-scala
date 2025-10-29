@@ -129,31 +129,32 @@ abstract class PsiMethodWrapper[T <: ScalaPsiElement with PsiNamedElement with N
 }
 
 object PsiMethodWrapper {
-  def containingClass(delegate: ScNamedElement, cClass: Option[PsiClass], isStatic: Boolean): PsiClass = {
-    val result = cClass.getOrElse {
-      delegate.nameContext match {
-        case s: ScMember =>
-          val res = s.containingClass match {
-            case null => s.syntheticContainingClass
-            case clazz => clazz
-          }
-          if (isStatic) {
-            res match {
-              case o: ScObject => o.fakeCompanionClassOrCompanionClass
-              case _ => res
-            }
-          } else res
-        case _ => null
-      }
-    }
 
+  def containingClass(delegate: ScNamedElement, concreteClass: Option[PsiClass], isStatic: Boolean): PsiClass = {
+    val result = concreteClass.getOrElse(containingClass(delegate, isStatic))
     assert(
       result != null,
       s"""Member: ${delegate.getText}
          |has null containing class. isStatic: $isStatic
          |Containing file text: ${delegate.getContainingFile.getText}""".stripMargin
     )
-
     result
+  }
+
+  private def containingClass(delegate: ScNamedElement, isStatic: Boolean): PsiClass = {
+    delegate.nameContext match {
+      case s: ScMember =>
+        val res = s.containingClass match {
+          case null => s.syntheticContainingClass
+          case clazz => clazz
+        }
+        if (isStatic) {
+          res match {
+            case o: ScObject => o.fakeCompanionClassOrCompanionClass
+            case _ => res
+          }
+        } else res
+      case _ => null
+    }
   }
 }

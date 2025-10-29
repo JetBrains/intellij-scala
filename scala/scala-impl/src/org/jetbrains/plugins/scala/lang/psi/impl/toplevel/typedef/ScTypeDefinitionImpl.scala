@@ -378,6 +378,9 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
     cachedWithRecursionGuard("psiMethods", this, PsiMethod.EMPTY_ARRAY, ModTracker.libraryAware(this)) {
       // note: this could be optimized my not processing super classes as it's unnecessary
       val allMethods = getAllMethods
+      // Filter out mixed-in methods
+      // It was primarily added for com.intellij.psi.impl.search.JavaOverridingMethodsSearcher.findOverridingMethod
+      // Similar filtering is done for a Scala version of the searcher in ScalaOverridingMemberSearcher.processImpl
       allMethods.filter(m => m.containingClass == this && !isMixedInJvmMethod(m))
     }
 

@@ -96,7 +96,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
   def injectedParentTraitConstructorCalls: collection.Set[(ScPrimaryConstructor, ScSubstitutor)]
 
   /**
-   * Returns parent super class (not trait) if there is one.
+   * Returns a parent super class (not trait and not java interface) if there is one.
    */
   def superClass: Option[PsiClass]
 
