@@ -27,6 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlo
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createObjectWithContext
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaStubBasedElementImpl}
+import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType.ImplicitValueClassDumbMode
@@ -375,8 +376,27 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
 
   override def psiMethods: Array[PsiMethod] =
     cachedWithRecursionGuard("psiMethods", this, PsiMethod.EMPTY_ARRAY, ModTracker.libraryAware(this)) {
-      getAllMethods.filter(_.containingClass == this)
+      // note: this could be optimized my not processing super classes as it's unnecessary
+      val allMethods = getAllMethods
+      allMethods.filter(m => m.containingClass == this && !isMixedInJvmMethod(m))
     }
+
+  /**
+   * @return true - if the method represents a method in a class that was mixed-in from a trait and does not exist in the class sources.
+   *         Note, such methods will still physically exist in the class byte code. This is because under the hood
+   *         scala compiled copies bodies of mixed in methods with bodies to the class to which the trait is mixed.
+   *
+   *         ATTENTION: This might lead to some inconsistencies and confusions in other parts of IDE features:<br>
+   *         The containing class of such methods can be equal to this class (reflecting how it will be in the JVM bytecode).<br>
+   *         But we filter them out from `getMethods` / `psiMethods` (reflecting how it is in the Scala sources)<br>
+   *         And it's not quite obvious why it is so and
+   */
+  private def isMixedInJvmMethod(method: PsiMethod): Boolean = method match {
+    case wrapper: ScFunctionWrapper =>
+      wrapper.cClass.isDefined
+    case _ =>
+      false
+  }
 }
 
 object ScTypeDefinitionImpl {

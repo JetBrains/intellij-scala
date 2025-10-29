@@ -11,13 +11,22 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 
 /**
  * Represents Scala functions for Java.
+ *
+ * @param cClass Concrete class for which the inherited function is materialized in this wrapper.
+ *               It's empty (None) if the original `delegate` function exists physically in the source code of the class.
+ *               It has some value of the method was mixed-in from some trait (methods with bodies)
  */
-class ScFunctionWrapper(override val delegate: ScFunction,
-                        isStatic: Boolean,
-                        isAbstract: Boolean,
-                        cClass: Option[PsiClass],
-                        isJavaVarargs: Boolean = false)
-  extends PsiMethodWrapper(delegate, delegate.getName, PsiMethodWrapper.containingClass(delegate, cClass, isStatic)) {
+class ScFunctionWrapper(
+  override val delegate: ScFunction,
+  isStatic: Boolean,
+  isAbstract: Boolean,
+  private[scala] val cClass: Option[PsiClass],
+  isJavaVarargs: Boolean = false
+) extends PsiMethodWrapper(
+  delegate,
+  delegate.getName,
+  PsiMethodWrapper.containingClass(delegate, cClass, isStatic)
+) {
 
   override def isConstructor: Boolean = delegate.isConstructor
 
