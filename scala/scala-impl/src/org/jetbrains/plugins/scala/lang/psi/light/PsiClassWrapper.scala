@@ -72,10 +72,12 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
       case _ => definition.getFields //todo:
     }
   }
-
   override def psiMethods: Array[PsiMethod] = {
     definition match {
       case obj: ScObject =>
+        // Q: What exactly this branch is needed for? In which example is it required?
+        // I tried commenting this out and playing with some code, and nothing seemed to be break.
+        // If you find out, leave a comment here, please
         val res = new ArrayBuffer[PsiMethod]()
         TypeDefinitionMembers.getSignatures(obj).allSignatures.foreach {
           this.processWrappersForSignature(_, isStatic = true, isInterface = false)(res += _)
