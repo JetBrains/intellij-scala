@@ -8,22 +8,24 @@ import com.intellij.openapi.roots.ModuleRootModificationUtil
 import com.intellij.testFramework.{CompilerTester, EdtTestUtil}
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
-import org.jetbrains.plugins.scala.compiler.{CompileServerTestUtil, JdkVersionDiscovery}
+import org.jetbrains.plugins.scala.compiler.{CompileServerTestUtil, JdkVersionParameters}
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
+import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
 import org.jetbrains.plugins.scala.{CompilationTests_IDEA, CompilationTests_Zinc}
 import org.junit.Assert.{assertNotNull, assertTrue}
 import org.junit.Test
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import org.junit.runners.Parameterized
 
 import scala.compiletime.uninitialized
 import scala.jdk.CollectionConverters.*
 
-@RunWith(classOf[JUnit4])
-abstract class MavenProjectWithPureJavaModuleTestBase(incrementality: IncrementalityType) extends MavenImportingTestCase {
+@RunWith(classOf[Parameterized])
+abstract class MavenProjectWithPureJavaModuleTestBase(jdkVersion: TestJdkVersion, incrementality: IncrementalityType)
+  extends MavenImportingTestCase {
 
   private var sdk: Sdk = uninitialized
 
@@ -33,8 +35,7 @@ abstract class MavenProjectWithPureJavaModuleTestBase(incrementality: Incrementa
     super.setUp()
 
     EdtTestUtil.runInEdtAndWait { () =>
-      val jdkVersion = JdkVersionDiscovery.discoveredJdk
-      val res = SmartJDKLoader.getOrCreateJDK(jdkVersion)
+      val res = SmartJDKLoader.getOrCreateJDK(jdkVersion.toProductionVersion)
       val settings = ScalaCompileServerSettings.getInstance()
       settings.COMPILE_SERVER_SDK = res.getName
       settings.USE_DEFAULT_SDK = false
@@ -202,7 +203,13 @@ abstract class MavenProjectWithPureJavaModuleTestBase(incrementality: Incrementa
 }
 
 @Category(Array(classOf[CompilationTests_IDEA]))
-class MavenProjectWithPureJavaModuleTest_IDEA extends MavenProjectWithPureJavaModuleTestBase(IncrementalityType.IDEA)
+class MavenProjectWithPureJavaModuleTest_IDEA(jdkVersion: TestJdkVersion)
+  extends MavenProjectWithPureJavaModuleTestBase(jdkVersion, IncrementalityType.IDEA)
+
+private object MavenProjectWithPureJavaModuleTest_IDEA extends JdkVersionParameters
 
 @Category(Array(classOf[CompilationTests_Zinc]))
-class MavenProjectWithPureJavaModuleTest_Zinc extends MavenProjectWithPureJavaModuleTestBase(IncrementalityType.SBT)
+class MavenProjectWithPureJavaModuleTest_Zinc(jdkVersion: TestJdkVersion)
+  extends MavenProjectWithPureJavaModuleTestBase(jdkVersion, IncrementalityType.SBT)
+
+private object MavenProjectWithPureJavaModuleTest_Zinc extends JdkVersionParameters

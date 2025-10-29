@@ -8,21 +8,22 @@ import com.intellij.testFramework.{CompilerTester, EdtTestUtil, IndexingTestUtil
 import org.jetbrains.plugins.scala.CompilationTests_Zinc
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
-import org.jetbrains.plugins.scala.compiler.{CompileServerTestUtil, JdkVersionDiscovery}
+import org.jetbrains.plugins.scala.compiler.{CompileServerTestUtil, JdkVersionParameters}
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
+import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
 import org.junit.Assert.{assertEquals, assertNotNull}
 import org.junit.Test
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import org.junit.runners.Parameterized
 
 import scala.compiletime.uninitialized
 
 @Category(Array(classOf[CompilationTests_Zinc]))
-@RunWith(classOf[JUnit4])
-class PolyglotMavenCompilationTest extends MavenImportingTestCase {
+@RunWith(classOf[Parameterized])
+class PolyglotMavenCompilationTest(jdkVersion: TestJdkVersion) extends MavenImportingTestCase {
 
   private var sdk: Sdk = uninitialized
 
@@ -32,8 +33,7 @@ class PolyglotMavenCompilationTest extends MavenImportingTestCase {
     super.setUp()
 
     EdtTestUtil.runInEdtAndWait { () =>
-      val jdkVersion = JdkVersionDiscovery.discoveredJdk
-      val res = SmartJDKLoader.getOrCreateJDK(jdkVersion)
+      val res = SmartJDKLoader.getOrCreateJDK(jdkVersion.toProductionVersion)
       val settings = ScalaCompileServerSettings.getInstance()
       settings.COMPILE_SERVER_SDK = res.getName
       settings.USE_DEFAULT_SDK = false
@@ -265,3 +265,5 @@ class PolyglotMavenCompilationTest extends MavenImportingTestCase {
     finally compiler.tearDown()
   }
 }
+
+private object PolyglotMavenCompilationTest extends JdkVersionParameters
