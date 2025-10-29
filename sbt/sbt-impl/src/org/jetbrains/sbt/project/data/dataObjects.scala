@@ -3,20 +3,19 @@ package org.jetbrains.sbt.project.data
 import com.intellij.openapi.externalSystem.model.project.AbstractExternalEntityData
 import com.intellij.openapi.externalSystem.model.{Key, ProjectKeys}
 import com.intellij.serialization.PropertyMapping
-import org.jetbrains.annotations.{Nls, Nullable}
+import org.jetbrains.annotations.{Nls, NotNull, Nullable}
 import org.jetbrains.plugins.scala.compiler.data.CompileOrder
 import org.jetbrains.plugins.scala.project.external.SdkReference
 import org.jetbrains.sbt.RichSeq
 import org.jetbrains.sbt.project.SbtProjectSystem
-import org.jetbrains.sbt.project.data.SbtEntityData._
+import org.jetbrains.sbt.project.data.SbtEntityData.*
 import org.jetbrains.sbt.project.structure.Play2Keys.AllKeys.{ParsedValue, SeqStringParsedValue, StringParsedValue}
 import org.jetbrains.sbt.resolvers.SbtResolver
 
-import java.io.{File, Serializable}
 import java.net.URI
-import java.util
-import java.util.{Objects, HashMap => JHashMap, List => JList, Map => JMap, Set => JSet}
-import scala.jdk.CollectionConverters._
+import java.nio.file.Path
+import java.util.{Objects, HashMap as JHashMap, List as JList, Map as JMap, Set as JSet}
+import scala.jdk.CollectionConverters.*
 
 abstract class SbtEntityData extends AbstractExternalEntityData(SbtProjectSystem.Id) with Product {
 
@@ -71,6 +70,8 @@ object SbtBuildModuleData {
 /**
  * Data describing a project which is part of an sbt build
  *
+ * @see `org.jetbrains.bsp.data.BspProjectData` for an explanation on the serialization compatibility.
+ *
  * @param buildURI      ~ `sbt.ProjectRef#build()`<br>
  *                      Note `buildURI` doesn't always equal to `baseDirectory`.
  *                      For example if you have this sub-project: {{{
@@ -84,25 +85,52 @@ object SbtBuildModuleData {
  *                      It can be removed later if Platform ES STORAGE_VERSION is incremented in future releases
  *                      (see IDEA-314999 for the details)
  */
-case class SbtModuleData @PropertyMapping(Array(
-  "id",
-  "buildURI",
-  "baseDirectory"
-))(
-  id: String,
-  buildURI: MyURI,
-  @Nullable baseDirectory: File
-) extends SbtEntityData {
-  //Default constructor is needed in order intellij can deserialize data in old format with some fields missing
-  def this() = this(null, null, null)
-}
+class SbtModuleData private (
+  val id: String,
+  val buildURI: MyURI,
+  @Nullable val baseDirectory: java.io.File,
+  @Nullable val _baseDirectoryPath: PathData
+) extends AbstractExternalEntityData(SbtProjectSystem.Id) with Equals:
 
-object SbtModuleData {
+  /**
+   * Only invoked by the External System serialization mechanism. It doesn't matter what values we provide here, they
+   * are replaced by data from disk.
+   */
+  private def this() = this(null, null, null, null)
+
+  //noinspection InstanceOf
+  override def canEqual(that: Any): Boolean = that.isInstanceOf[SbtModuleData]
+
+  override def equals(obj: Any): Boolean = obj match
+    case that: SbtModuleData =>
+      that.canEqual(this) &&
+        this.id == that.id &&
+        this.buildURI == that.buildURI &&
+        this.baseDirectoryValue == that.baseDirectoryValue
+    case _ => false
+
+  override def hashCode(): Int = Objects.hash(id, buildURI, baseDirectoryValue)
+
+  private def baseDirectoryValue: Option[PathData] =
+    Option(_baseDirectoryPath).orElse(Option(baseDirectory).map(f => PathData(f.toPath)))
+
+end SbtModuleData
+
+object SbtModuleData:
   val Key: Key[SbtModuleData] = datakey(classOf[SbtModuleData])
 
-  def apply(id: String, buildURI: URI, baseDirectory: File): SbtModuleData =
-    new SbtModuleData(id, new MyURI(buildURI), baseDirectory)
-}
+  def apply(id: String, buildURI: URI, baseDirectory: Path): SbtModuleData =
+    new SbtModuleData(
+      id = id,
+      buildURI = new MyURI(buildURI),
+      baseDirectory = baseDirectory.toFile,
+      _baseDirectoryPath = PathData(baseDirectory)
+    )
+
+  def unapply(data: SbtModuleData): Some[(String, MyURI, Option[PathData])] =
+    Some((data.id, data.buildURI, data.baseDirectoryValue))
+
+end SbtModuleData
 
 case class SbtProjectData @PropertyMapping(Array("jdk", /*"javacOptions",*/ "sbtVersion", "projectPath", "projectTransitiveDependenciesUsed"))(
   @Nullable jdk: SdkReference,
@@ -220,43 +248,93 @@ object SbtModuleExtData {
 }
 
 /**
+ * @see `org.jetbrains.bsp.data.BspProjectData` for an explanation on the serialization compatibility.
+ *
  * @param scalacClasspath        contains jars required to create scala compiler instance
  * @param scaladocExtraClasspath contains extra jars required to run ScalaDoc in Scala 3<br>
  *                               Needs to be added to `scalacClasspath`<br>
  *                               For Scala 2 it is empty, because scaladoc generation is built into compiler
  */
-case class SbtScalaSdkData @PropertyMapping(Array(
-  "scalaVersion",
-  "scalacClasspath",
-  "scaladocExtraClasspath",
-  "compilerBridgeBinaryJar"
-)) (
-  @Nullable scalaVersion: String,
-  scalacClasspath: JList[File],
-  scaladocExtraClasspath: JList[File],
-  @Nullable compilerBridgeBinaryJar: File
-) extends SbtEntityData {
-  //Default constructor is needed in order intellij can deserialize data in old format with some fields missing
-  def this() = this(null, new util.ArrayList(), new util.ArrayList(), null)
-}
+class SbtScalaSdkData private (
+  @Nullable val scalaVersion: String,
+  @NotNull val scalacClasspath: java.util.List[java.io.File],
+  @Nullable val _scalacClasspathPaths: java.util.List[PathData],
+  @NotNull val scaladocExtraClasspath: java.util.List[java.io.File],
+  @Nullable val _scaladocExtraClasspathPaths: java.util.List[PathData],
+  @Nullable val compilerBridgeBinaryJar: java.io.File,
+  @Nullable val _compilerBridgeBinaryJarPath: PathData
+) extends AbstractExternalEntityData(SbtProjectSystem.Id) with Equals:
 
-object SbtScalaSdkData {
+  /**
+   * Only invoked by the External System serialization mechanism. It doesn't matter what values we provide here, they
+   * are replaced by data from disk.
+   */
+  def this() = this(
+    scalaVersion = null,
+    scalacClasspath = java.util.Collections.emptyList(),
+    _scalacClasspathPaths = null,
+    scaladocExtraClasspath = java.util.Collections.emptyList(),
+    _scaladocExtraClasspathPaths = null,
+    compilerBridgeBinaryJar = null,
+    _compilerBridgeBinaryJarPath = null
+  )
+
+  //noinspection InstanceOf
+  override def canEqual(that: Any): Boolean = that.isInstanceOf[SbtScalaSdkData]
+
+  override def equals(obj: Any): Boolean = obj match
+    case that: SbtScalaSdkData =>
+      that.canEqual(this) &&
+        this.scalaVersionValue == that.scalaVersionValue &&
+        this.scalacClasspathValue == that.scalacClasspathValue &&
+        this.scaladocExtraClasspathValue == that.scaladocExtraClasspathValue &&
+        this.compilerBridgeBinaryJarValue == that.compilerBridgeBinaryJarValue
+    case _ => false
+
+  override def hashCode(): Int =
+    Objects.hash(scalaVersionValue, scalacClasspathValue, scaladocExtraClasspathValue, compilerBridgeBinaryJarValue)
+
+  private def scalaVersionValue: Option[String] = Option(scalaVersion)
+
+  private def scalacClasspathValue: Seq[PathData] =
+    if _scalacClasspathPaths == null then
+      return scalacClasspath.stream().map[PathData](f => PathData(f.toPath)).toList.asScala.toSeq
+    _scalacClasspathPaths.asScala.toSeq
+
+  private def scaladocExtraClasspathValue: Seq[PathData] =
+    if _scaladocExtraClasspathPaths == null then
+      return scaladocExtraClasspath.stream().map[PathData](f => PathData(f.toPath)).toList.asScala.toSeq
+    _scaladocExtraClasspathPaths.asScala.toSeq
+
+  private def compilerBridgeBinaryJarValue: Option[PathData] =
+    Option(_compilerBridgeBinaryJarPath)
+      .orElse(Option(compilerBridgeBinaryJar).map(f => PathData(f.toPath)))
+
+end SbtScalaSdkData
+
+object SbtScalaSdkData:
   val Key: Key[SbtScalaSdkData] = datakey(classOf[SbtScalaSdkData], ProjectKeys.LIBRARY_DEPENDENCY.getProcessingWeight + 1)
 
   def apply(
     scalaVersion: Option[String],
-    scalacClasspath: Seq[File] = Seq.empty,
-    scaladocExtraClasspath: Seq[File] = Seq.empty,
-    @Nullable compilerBridgeBinaryJar: Option[File] = None
+    scalacClasspath: Seq[Path] = Seq.empty,
+    scaladocExtraClasspath: Seq[Path] = Seq.empty,
+    compilerBridgeBinaryJar: Option[Path] = Option.empty
   ): SbtScalaSdkData =
     new SbtScalaSdkData(
-      scalaVersion.orNull,
-      scalacClasspath.toJavaList,
-      scaladocExtraClasspath.toJavaList,
-      compilerBridgeBinaryJar.orNull
+      scalaVersion = scalaVersion.orNull,
+      scalacClasspath = scalacClasspath.map(_.toFile).asJava,
+      _scalacClasspathPaths = scalacClasspath.map(PathData.apply).asJava,
+      scaladocExtraClasspath = scaladocExtraClasspath.map(_.toFile).asJava,
+      _scaladocExtraClasspathPaths = scaladocExtraClasspath.map(PathData.apply).asJava,
+      compilerBridgeBinaryJar = compilerBridgeBinaryJar.map(_.toFile).orNull,
+      _compilerBridgeBinaryJarPath = compilerBridgeBinaryJar.map(PathData.apply).orNull
     )
-}
 
+  def unapply(data: SbtScalaSdkData): Some[(Option[String], Seq[PathData], Seq[PathData], Option[PathData])] =
+    Some((data.scalaVersionValue, data.scalacClasspathValue, data.scaladocExtraClasspathValue, data.compilerBridgeBinaryJarValue))
+
+end SbtScalaSdkData
 
 case class SbtPlay2ProjectData @PropertyMapping(Array("stringValues", "seqStringsValues")) (
   stringValues: JMap[String, JMap[String, StringParsedValue]],

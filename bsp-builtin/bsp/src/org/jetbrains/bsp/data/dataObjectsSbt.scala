@@ -66,6 +66,7 @@ class SbtModuleDataBsp private (
         this.id == that.id &&
         this.buildModuleId == that.buildModuleId &&
         this.baseDirectoryValue == that.baseDirectoryValue
+    case _ => false
   }
 
   override def hashCode(): Int = Objects.hash(id, buildModuleId, baseDirectoryValue)

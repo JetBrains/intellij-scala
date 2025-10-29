@@ -738,9 +738,9 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   protected def createScalaSdkData(scala: Option[ScalaData]): ScalaSdkNode = {
     val data = SbtScalaSdkData(
       scalaVersion = scala.map(_.version),
-      scalacClasspath = scala.fold(Seq.empty[java.io.File])(_.allCompilerJars),
-      scaladocExtraClasspath = scala.fold(Seq.empty[java.io.File])(_.extraJars),
-      compilerBridgeBinaryJar = scala.flatMap(_.compilerBridgeBinaryJar),
+      scalacClasspath = scala.fold(Seq.empty[Path])(_.allCompilerJars.map(_.toPath)),
+      scaladocExtraClasspath = scala.fold(Seq.empty[Path])(_.extraJars.map(_.toPath)),
+      compilerBridgeBinaryJar = scala.flatMap(_.compilerBridgeBinaryJar.map(_.toPath)),
     )
     new ScalaSdkNode(data)
   }
@@ -1084,7 +1084,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     moduleNode.addAll(libraryDependenciesNodes)
     moduleNode.add(createModuleExtData(projectData, moduleType))
     moduleNode.add(createScalaSdkData(projectData.scala))
-    moduleNode.add(new SbtModuleNode(SbtModuleData(projectData.id, projectData.buildURI, projectData.base)))
+    moduleNode.add(new SbtModuleNode(SbtModuleData(projectData.id, projectData.buildURI, projectData.base.toPath)))
     moduleNode.addAll(unmanagedDependencies)
     unmanagedSourcesAndDocsLibrary.foreach { lib =>
       val dependency = new LibraryDependencyNode(moduleNode, lib, LibraryLevel.MODULE)
@@ -1100,7 +1100,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     moduleNode: ModuleDataNodeType,
   ): Unit = {
     moduleNode.add(new SbtDisplayModuleNameNode(moduleNode.getModuleName))
-    moduleNode.add(new SbtModuleNode(SbtModuleData(projectData.id, projectData.buildURI, projectData.base)))
+    moduleNode.add(new SbtModuleNode(SbtModuleData(projectData.id, projectData.buildURI, projectData.base.toPath)))
     addSbtRelatedData(projectData, moduleNode)
 
     val data = SbtModuleExtData(
