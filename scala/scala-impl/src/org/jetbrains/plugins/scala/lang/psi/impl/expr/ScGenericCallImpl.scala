@@ -1,16 +1,18 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.PsiMethod
+import com.intellij.psi.{PsiClass, PsiMethod}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.caches.{ModTracker, cached}
-import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt}
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.KindProjectorUtil.kindProjectorPolymorphicLambdaType
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.PolymorphicLambda
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.MethodInvocationImpl.ConstructorlessJavaClass
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Nothing, TypeParameter, UndefinedType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider.PsiMethodTypeProviderExt
@@ -34,7 +36,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
           .updateTypeOfDynamicCall(srr.isDynamic)
           .toOption
       case _ => None
-  }
+    }
 
     val applyResolveContext = getContext match {
       case inv: MethodInvocation if inv.getInvokedExpr == this => inv
@@ -99,7 +101,16 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
 
   protected override def innerType: TypeResult =
     polymorphicLambdaType().left.flatMap { _ =>
-      val typeResult = referencedExpr.getNonValueType()
+      val typeResult = referencedExpr.getNonValueType().map {
+        case ConstructorlessJavaClass(des, clsTypeParameters) =>
+          ScTypePolymorphicType(
+            ScMethodType(ScParameterizedType(des, clsTypeParameters.map(UndefinedType.apply)), Seq()),
+            clsTypeParameters.map(psiTp => {
+              val tp = TypeParameter(psiTp)
+              TypeParameter(tp.psiTypeParameter, tp.typeParameters, tp.lowerType, tp.upperType)
+            }))
+        case e => e
+      }
       convertReferencedType(typeResult, isShape = false)
     }
 

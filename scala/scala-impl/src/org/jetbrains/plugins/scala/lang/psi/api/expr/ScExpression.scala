@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes.ParameterType
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, InferUtil, ScalaPsiElement, ScalaRecursiveElementVisitor}
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.MethodInvocationImpl.ConstructorlessJavaClass
 import org.jetbrains.plugins.scala.lang.psi.impl.{CompilerType, ScalaPsiElementFactory}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible
 import org.jetbrains.plugins.scala.lang.psi.light.LightContextFunctionParameter
@@ -259,14 +260,14 @@ object ScExpression {
       ignoreBaseType: Boolean = false,
       fromUnderscore: Boolean = false
     ): TypeResult =
-      cachedWithRecursionGuard(
-        "getNonValueType",
-        expr,
-        Failure(NlsString.force("Recursive getNonValueType")),
-        BlockModificationTracker(expr),
-        (ignoreBaseType, fromUnderscore)
-      ) {
-        ProgressManager.checkCanceled()
+//      cachedWithRecursionGuard(
+//        "getNonValueType",
+//        expr,
+//        Failure(NlsString.force("Recursive getNonValueType")),
+//        BlockModificationTracker(expr),
+//        (ignoreBaseType, fromUnderscore)
+//      ) {
+//        ProgressManager.checkCanceled()
 
         if (fromUnderscore) expr.innerType
         else {
@@ -295,7 +296,7 @@ object ScExpression {
 
             Right(methType)
           }
-        }
+//        }
       }
 
     def getTypeWithoutImplicits(

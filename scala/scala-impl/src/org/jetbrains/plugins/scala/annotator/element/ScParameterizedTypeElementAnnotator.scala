@@ -84,8 +84,8 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
         if (isForContextBound) annotationRange
         else
           args.lastOption
-              .map(e => new TextRange(e.endOffset - 1, annotationRange.getEndOffset))
-              .getOrElse(annotationRange)
+            .map(e => new TextRange(e.endOffset - 1, annotationRange.getEndOffset))
+            .getOrElse(annotationRange)
 
       holder.createErrorAnnotation(range, ScalaBundle.message("unspecified.type.parameters", missingText))
     } else if (args.length > params.length) {
@@ -119,7 +119,6 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
         )
       }
     }
-
     val substitute: ScSubstitutor = {
       val (ps, as) = (
         for {
