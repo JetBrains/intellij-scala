@@ -24,8 +24,7 @@ import scala.compiletime.uninitialized
 import scala.jdk.CollectionConverters.*
 
 @RunWith(classOf[Parameterized])
-abstract class MavenProjectWithPureJavaModuleTestBase(jdkVersion: TestJdkVersion, incrementality: IncrementalityType)
-  extends MavenImportingTestCase {
+class MavenProjectWithPureJavaModuleTest(jdkVersion: TestJdkVersion) extends MavenImportingTestCase {
 
   private var sdk: Sdk = uninitialized
 
@@ -156,8 +155,17 @@ abstract class MavenProjectWithPureJavaModuleTestBase(jdkVersion: TestJdkVersion
     super.tearDown()
   }
 
+  @Category(Array(classOf[CompilationTests_Zinc]))
   @Test
-  def importAndCompile(): Unit = {
+  def importAndCompile_Zinc(): Unit =
+    runImportAndCompileTest(IncrementalityType.SBT)
+
+  @Category(Array(classOf[CompilationTests_IDEA]))
+  @Test
+  def importAndCompile_IDEA(): Unit =
+    runImportAndCompileTest(IncrementalityType.IDEA)
+
+  private def runImportAndCompileTest(incrementality: IncrementalityType): Unit = {
     importProject()
 
     ScalaCompilerConfiguration.instanceIn(getProject).incrementalityType = incrementality
@@ -202,14 +210,4 @@ abstract class MavenProjectWithPureJavaModuleTestBase(jdkVersion: TestJdkVersion
   }
 }
 
-@Category(Array(classOf[CompilationTests_IDEA]))
-class MavenProjectWithPureJavaModuleTest_IDEA(jdkVersion: TestJdkVersion)
-  extends MavenProjectWithPureJavaModuleTestBase(jdkVersion, IncrementalityType.IDEA)
-
-private object MavenProjectWithPureJavaModuleTest_IDEA extends JdkVersionParameters
-
-@Category(Array(classOf[CompilationTests_Zinc]))
-class MavenProjectWithPureJavaModuleTest_Zinc(jdkVersion: TestJdkVersion)
-  extends MavenProjectWithPureJavaModuleTestBase(jdkVersion, IncrementalityType.SBT)
-
-private object MavenProjectWithPureJavaModuleTest_Zinc extends JdkVersionParameters
+private object MavenProjectWithPureJavaModuleTest extends JdkVersionParameters

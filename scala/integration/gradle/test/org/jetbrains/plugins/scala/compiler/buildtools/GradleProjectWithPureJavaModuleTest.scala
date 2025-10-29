@@ -29,7 +29,7 @@ import scala.compiletime.uninitialized
 import scala.jdk.CollectionConverters.*
 
 @RunWith(classOf[Parameterized])
-abstract class GradleProjectWithPureJavaModuleTestBase(jdkVersion: TestJdkVersion, incrementality: IncrementalityType) extends ExternalSystemImportingTestCase {
+class GradleProjectWithPureJavaModuleTest(jdkVersion: TestJdkVersion) extends ExternalSystemImportingTestCase {
 
   private var gradleSdk: Sdk = uninitialized
 
@@ -127,8 +127,19 @@ abstract class GradleProjectWithPureJavaModuleTestBase(jdkVersion: TestJdkVersio
     super.tearDown()
   }
 
+  @Category(Array(classOf[CompilationTests_Zinc]))
   @Test
-  def testImportAndCompile(): Unit = {
+  def importAndCompile_Zinc(): Unit = {
+    runImportAndCompileTest(IncrementalityType.SBT)
+  }
+
+  @Category(Array(classOf[CompilationTests_IDEA]))
+  @Test
+  def importAndCompile_IDEA(): Unit = {
+    runImportAndCompileTest(IncrementalityType.IDEA)
+  }
+
+  private def runImportAndCompileTest(incrementality: IncrementalityType): Unit = {
     importProject(false)
 
     ScalaCompilerConfiguration.instanceIn(getMyProject).incrementalityType = incrementality
@@ -164,12 +175,4 @@ abstract class GradleProjectWithPureJavaModuleTestBase(jdkVersion: TestJdkVersio
   }
 }
 
-@Category(Array(classOf[CompilationTests_IDEA]))
-class GradleProjectWithPureJavaModuleTest_IDEA(jdkVersion: TestJdkVersion) extends GradleProjectWithPureJavaModuleTestBase(jdkVersion, IncrementalityType.IDEA)
-
-private object GradleProjectWithPureJavaModuleTest_IDEA extends JdkVersionParameters
-
-@Category(Array(classOf[CompilationTests_Zinc]))
-class GradleProjectWithPureJavaModuleTest_Zinc(jdkVersion: TestJdkVersion) extends GradleProjectWithPureJavaModuleTestBase(jdkVersion, IncrementalityType.SBT)
-
-private object GradleProjectWithPureJavaModuleTest_Zinc extends JdkVersionParameters
+private object GradleProjectWithPureJavaModuleTest extends JdkVersionParameters
