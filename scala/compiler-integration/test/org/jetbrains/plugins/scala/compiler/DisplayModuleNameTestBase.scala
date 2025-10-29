@@ -2,9 +2,13 @@ package org.jetbrains.plugins.scala.compiler
 
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.testFramework.CompilerTester
+import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
 import org.junit.Assert.fail
 
-abstract class DisplayModuleNameTestBase(separateProdAndTestSources: Boolean = false) extends SbtProjectCompilationTestBase(separateProdAndTestSources) {
+abstract class DisplayModuleNameTestBase(jdkVersion: TestJdkVersion, separateProdAndTestSources: Boolean = false)
+  extends SbtProjectCompilationTestBase(separateProdAndTestSources) {
+
+  override protected def jdkVersionForTest: TestJdkVersion = jdkVersion
 
   override protected def reuseCompileServerProcessBetweenTests: Boolean = false
 

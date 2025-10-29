@@ -3,17 +3,24 @@ package org.jetbrains.plugins.scala.compiler.buildtools
 import com.intellij.openapi.compiler.CompilerMessageCategory
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.testFramework.CompilerTester
-import org.jetbrains.plugins.scala.compiler.SbtProjectCompilationTestBase
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
+import org.jetbrains.plugins.scala.compiler.{JdkVersionParameters, SbtProjectCompilationTestBase}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
 import org.jetbrains.plugins.scala.{CompilationTests_IDEA, CompilationTests_Zinc}
 import org.junit.Assert.{assertNotNull, assertTrue}
+import org.junit.Test
 import org.junit.experimental.categories.Category
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 import scala.jdk.CollectionConverters._
 
-abstract class SbtProjectWithPureJavaModuleTestBase(incrementality: IncrementalityType, separateModulesForProdTest: Boolean)
+@RunWith(classOf[Parameterized])
+abstract class SbtProjectWithPureJavaModuleTestBase(jdkVersion: TestJdkVersion, separateModulesForProdTest: Boolean)
   extends SbtProjectCompilationTestBase(separateProdAndTestSources = separateModulesForProdTest) {
+
+  override protected def jdkVersionForTest: TestJdkVersion = jdkVersion
 
   override def setUp(): Unit = {
     super.setUp()
@@ -50,7 +57,19 @@ abstract class SbtProjectWithPureJavaModuleTestBase(incrementality: Incrementali
         |""".stripMargin)
   }
 
-  def testImportAndCompile(): Unit = {
+  @Test
+  @Category(Array(classOf[CompilationTests_Zinc]))
+  def importAndCompile_Zinc(): Unit = {
+    runImportAndCompileTest(IncrementalityType.SBT)
+  }
+
+  @Test
+  @Category(Array(classOf[CompilationTests_IDEA]))
+  def importAndCompile_IDEA(): Unit = {
+    runImportAndCompileTest(IncrementalityType.IDEA)
+  }
+
+  private def runImportAndCompileTest(incrementality: IncrementalityType): Unit = {
     importProject(false)
 
     ScalaCompilerConfiguration.instanceIn(getMyProject).incrementalityType = incrementality
@@ -109,14 +128,12 @@ abstract class SbtProjectWithPureJavaModuleTestBase(incrementality: Incrementali
   }
 }
 
-@Category(Array(classOf[CompilationTests_IDEA]))
-class SbtProjectWithPureJavaModuleTest_IDEA extends SbtProjectWithPureJavaModuleTestBase(IncrementalityType.IDEA, separateModulesForProdTest = false)
+class SbtProjectWithPureJavaModuleTest(jdkVersion: TestJdkVersion)
+  extends SbtProjectWithPureJavaModuleTestBase(jdkVersion, separateModulesForProdTest = false)
 
-@Category(Array(classOf[CompilationTests_Zinc]))
-class SbtProjectWithPureJavaModuleTest_Zinc extends SbtProjectWithPureJavaModuleTestBase(IncrementalityType.SBT, separateModulesForProdTest = false)
+private object SbtProjectWithPureJavaModuleTest extends JdkVersionParameters
 
-@Category(Array(classOf[CompilationTests_IDEA]))
-class SbtProjectWithPureJavaModuleTest_separateModulesForProdTest_IDEA extends SbtProjectWithPureJavaModuleTestBase(IncrementalityType.IDEA, separateModulesForProdTest = true)
+class SbtProjectWithPureJavaModuleTest_SeparateModulesForProdTest(jdkVersion: TestJdkVersion)
+  extends SbtProjectWithPureJavaModuleTestBase(jdkVersion, separateModulesForProdTest = true)
 
-@Category(Array(classOf[CompilationTests_Zinc]))
-class SbtProjectWithPureJavaModuleTest_separateModulesForProdTest_Zinc extends SbtProjectWithPureJavaModuleTestBase(IncrementalityType.SBT, separateModulesForProdTest = true)
+private object SbtProjectWithPureJavaModuleTest_SeparateModulesForProdTest extends JdkVersionParameters

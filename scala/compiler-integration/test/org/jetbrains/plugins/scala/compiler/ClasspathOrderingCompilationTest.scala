@@ -5,15 +5,34 @@ import com.intellij.testFramework.CompilerTester
 import org.jetbrains.plugins.scala.compiler.CompilerMessagesUtil.{assertCompilingScalaSources, assertNoErrorsOrWarnings}
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
 import org.jetbrains.plugins.scala.{CompilationTests_IDEA, CompilationTests_Zinc}
 import org.junit.Assert.assertNotNull
+import org.junit.Test
 import org.junit.experimental.categories.Category
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 import scala.jdk.CollectionConverters._
 
-abstract class ClasspathOrderingCompilationTestBase(incrementality: IncrementalityType) extends SbtProjectCompilationTestBase {
+@RunWith(classOf[Parameterized])
+class ClasspathOrderingCompilationTest(jdkVersion: TestJdkVersion) extends SbtProjectCompilationTestBase {
 
-  def testClasspathOrdering(): Unit = {
+  override protected def jdkVersionForTest: TestJdkVersion = jdkVersion
+
+  @Test
+  @Category(Array(classOf[CompilationTests_Zinc]))
+  def classpathOrdering_Zinc(): Unit = {
+    runClasspathOrderingTest(IncrementalityType.SBT)
+  }
+
+  @Test
+  @Category(Array(classOf[CompilationTests_IDEA]))
+  def classpathOrdering_IDEA(): Unit = {
+    runClasspathOrderingTest(IncrementalityType.IDEA)
+  }
+
+  private def runClasspathOrderingTest(incrementality: IncrementalityType): Unit = {
     createProjectSubDirs("project", "src/main/scala")
     createProjectSubFile("project/build.properties", "sbt.version=1.10.1")
     createProjectSubFile("src/main/scala/Test.scala",
@@ -58,8 +77,4 @@ abstract class ClasspathOrderingCompilationTestBase(incrementality: Incrementali
   }
 }
 
-@Category(Array(classOf[CompilationTests_Zinc]))
-class ClasspathOrderingCompilationTest_Zinc extends ClasspathOrderingCompilationTestBase(IncrementalityType.SBT)
-
-@Category(Array(classOf[CompilationTests_IDEA]))
-class ClasspathOrderingCompilationTest_IDEA extends ClasspathOrderingCompilationTestBase(IncrementalityType.IDEA)
+private object ClasspathOrderingCompilationTest extends JdkVersionParameters

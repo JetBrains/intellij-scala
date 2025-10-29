@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
+import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
 import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.project.{SbtCachesSetupUtil, SbtProjectSystem}
@@ -59,12 +60,13 @@ abstract class SbtProjectCompilationTestBase(separateProdAndTestSources: Boolean
 
   protected def reuseCompileServerProcessBetweenTests: Boolean = true
 
+  protected def jdkVersionForTest: TestJdkVersion
+
   override def setUp(): Unit = {
     super.setUp()
 
     sdk = {
-      val jdkVersion = JdkVersionDiscovery.discoveredJdk
-      val res = SmartJDKLoader.getOrCreateJDK(jdkVersion)
+      val res = SmartJDKLoader.getOrCreateJDK(jdkVersionForTest.toProductionVersion)
       val settings = ScalaCompileServerSettings.getInstance()
       settings.COMPILE_SERVER_SDK = res.getName
       settings.USE_DEFAULT_SDK = false

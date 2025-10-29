@@ -2,22 +2,32 @@ package org.jetbrains.plugins.scala.compiler
 
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.testFramework.CompilerTester
-import org.jetbrains.plugins.scala.{CompilationTests_IDEA, CompilationTests_Zinc}
 import org.jetbrains.plugins.scala.compiler.CompilerMessagesUtil.{assertCompilingScalaSources, assertNoErrorsOrWarnings}
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
+import org.jetbrains.plugins.scala.{CompilationTests_IDEA, CompilationTests_Zinc}
 import org.junit.Assert.assertNotNull
+import org.junit.Test
 import org.junit.experimental.categories.Category
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 import scala.jdk.CollectionConverters._
 
-class ClasspathOrderingCompilationTest_ProdTestSourcesSeparatedEnabled extends SbtProjectCompilationTestBase(separateProdAndTestSources = true) {
+@RunWith(classOf[Parameterized])
+class ClasspathOrderingCompilationTest_ProdTestSourcesSeparatedEnabled(jdkVersion: TestJdkVersion)
+  extends SbtProjectCompilationTestBase(separateProdAndTestSources = true) {
 
+  override protected def jdkVersionForTest: TestJdkVersion = jdkVersion
+
+  @Test
   @Category(Array(classOf[CompilationTests_Zinc]))
   def testClasspathOrdering_Zinc(): Unit = {
     runClasspathOrderingTest(IncrementalityType.SBT)
   }
 
+  @Test
   @Category(Array(classOf[CompilationTests_IDEA]))
   def testClasspathOrdering_IDEA(): Unit = {
     runClasspathOrderingTest(IncrementalityType.IDEA)
@@ -67,3 +77,5 @@ class ClasspathOrderingCompilationTest_ProdTestSourcesSeparatedEnabled extends S
     assertNotNull("Could not find compiled Test$.class", testObject)
   }
 }
+
+private object ClasspathOrderingCompilationTest_ProdTestSourcesSeparatedEnabled extends JdkVersionParameters

@@ -5,15 +5,35 @@ import com.intellij.testFramework.CompilerTester
 import org.jetbrains.plugins.scala.compiler.CompilerMessagesUtil.assertNoErrorsOrWarnings
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
 import org.jetbrains.plugins.scala.{CompilationTests_IDEA, CompilationTests_Zinc}
 import org.junit.Assert.assertNotNull
+import org.junit.Test
 import org.junit.experimental.categories.Category
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 import scala.jdk.CollectionConverters._
 
-abstract class CompileToTestDependencyTestBase(incrementality: IncrementalityType) extends SbtProjectCompilationTestBase(separateProdAndTestSources = true) {
+@RunWith(classOf[Parameterized])
+class CompileToTestDependencyTest(jdkVersion: TestJdkVersion)
+  extends SbtProjectCompilationTestBase(separateProdAndTestSources = true) {
 
-  def testCompileToTestDependency(): Unit  = {
+  override protected def jdkVersionForTest: TestJdkVersion = jdkVersion
+
+  @Test
+  @Category(Array(classOf[CompilationTests_Zinc]))
+  def compileToTestDependency_Zinc(): Unit = {
+    runCompileToTestDependencyTest(IncrementalityType.SBT)
+  }
+
+  @Test
+  @Category(Array(classOf[CompilationTests_IDEA]))
+  def compileToTestDependency_IDEA(): Unit = {
+    runCompileToTestDependencyTest(IncrementalityType.IDEA)
+  }
+
+  private def runCompileToTestDependencyTest(incrementality: IncrementalityType): Unit = {
     createProjectSubDirs(
       "project",
       "src/main/scala",
@@ -47,8 +67,4 @@ abstract class CompileToTestDependencyTestBase(incrementality: IncrementalityTyp
   }
 }
 
-@Category(Array(classOf[CompilationTests_Zinc]))
-class CompileToTestDependencyTest_Zinc extends CompileToTestDependencyTestBase(IncrementalityType.SBT)
-
-@Category(Array(classOf[CompilationTests_IDEA]))
-class CompileToTestDependencyTest_IDEA extends CompileToTestDependencyTestBase(IncrementalityType.IDEA)
+private object CompileToTestDependencyTest extends JdkVersionParameters

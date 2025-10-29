@@ -8,6 +8,7 @@ import com.intellij.testFramework.CompilerTester
 import junit.framework.TestCase.{assertEquals, assertNotNull, assertTrue}
 import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.compiler.CompilerMessagesUtil.assertNoErrorsOrWarnings
+import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
 import org.junit.experimental.categories.Category
 
 import java.nio.file.{Files, Path}
@@ -16,6 +17,8 @@ import scala.jdk.CollectionConverters._
 
 @Category(Array(classOf[SlowTests]))
 class SbtGenerateManagedSourcesActionTest extends SbtProjectCompilationTestBase {
+
+  override protected def jdkVersionForTest: TestJdkVersion = TestJdkVersion.JDK_17
 
   private var module1: Module = _
   private var module2: Module = _

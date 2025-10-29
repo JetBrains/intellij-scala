@@ -4,28 +4,43 @@ import com.intellij.openapi.compiler.CompilerMessageCategory
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.roots.{LibraryOrderEntry, ModuleRootManager}
 import com.intellij.testFramework.CompilerTester
-import org.jetbrains.plugins.scala.{CompilationTests_IDEA, CompilationTests_Zinc}
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.project.LibraryExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
+import org.jetbrains.plugins.scala.{CompilationTests_IDEA, CompilationTests_Zinc}
 import org.junit.Assert.{assertEquals, assertNotNull}
 import org.junit.Test
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import org.junit.runners.Parameterized
 
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
-@RunWith(classOf[JUnit4])
-abstract class MissingScalaSdkCompilationTestBase(incrementalityType: IncrementalityType) extends SbtProjectCompilationTestBase(separateProdAndTestSources = true) {
+@RunWith(classOf[Parameterized])
+class MissingScalaSdkCompilationTest(jdkVersion: TestJdkVersion)
+  extends SbtProjectCompilationTestBase(separateProdAndTestSources = true) {
+
+  override protected def jdkVersionForTest: TestJdkVersion = jdkVersion
 
   private var module1: Module = _
   private var module2: Module = _
   private var module3: Module = _
 
   @Test
-  def missingScalaSdkWarning(): Unit = {
+  @Category(Array(classOf[CompilationTests_Zinc]))
+  def missingScalaSdkWarning_Zinc(): Unit = {
+    runMissingScalaSdkWarningTest(IncrementalityType.SBT)
+  }
+
+  @Test
+  @Category(Array(classOf[CompilationTests_IDEA]))
+  def missingScalaSdkWarning_IDEA(): Unit = {
+    runMissingScalaSdkWarningTest(IncrementalityType.IDEA)
+  }
+
+  private def runMissingScalaSdkWarningTest(incrementality: IncrementalityType): Unit = {
     createProjectSubDirs("project", "module1/src/main/scala", "module2/src/main/scala", "module3/src/main/scala")
     createProjectSubFile("project/build.properties", "sbt.version=1.11.2")
     createProjectSubFile("module1/src/main/scala/One.scala", "class One")
@@ -46,7 +61,7 @@ abstract class MissingScalaSdkCompilationTestBase(incrementalityType: Incrementa
         |""".stripMargin)
     importProject(false)
 
-    ScalaCompilerConfiguration.instanceIn(getMyProject).incrementalityType = incrementalityType
+    ScalaCompilerConfiguration.instanceIn(getMyProject).incrementalityType = incrementality
 
     val modules = ModuleManager.getInstance(getMyProject).getModules
     rootModule = findModule("missingScalaSdkTest.main", modules)
@@ -89,8 +104,4 @@ abstract class MissingScalaSdkCompilationTestBase(incrementalityType: Incrementa
     s"${MissingScalaSdk.MessagePrefix}: ${MissingScalaSdk.skippedModuleMessage(module.getName)}"
 }
 
-@Category(Array(classOf[CompilationTests_Zinc]))
-class MissingScalaSdkCompilationTest_Zinc extends MissingScalaSdkCompilationTestBase(IncrementalityType.SBT)
-
-@Category(Array(classOf[CompilationTests_IDEA]))
-class MissingScalaSdkCompilationTest_IDEA extends MissingScalaSdkCompilationTestBase(IncrementalityType.IDEA)
+private object MissingScalaSdkCompilationTest extends JdkVersionParameters

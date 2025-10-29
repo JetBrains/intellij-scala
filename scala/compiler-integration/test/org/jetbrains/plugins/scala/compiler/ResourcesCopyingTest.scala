@@ -8,17 +8,23 @@ import junit.framework.TestCase.{assertNotNull, assertTrue}
 import org.jetbrains.plugins.scala.compiler.CompilerMessagesUtil.assertNoErrorsOrWarnings
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
 import org.jetbrains.plugins.scala.{CompilationTests_IDEA, CompilationTests_Zinc}
+import org.junit.Test
 import org.junit.experimental.categories.Category
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 import java.nio.file.Files
 import scala.jdk.CollectionConverters._
 
+@RunWith(classOf[Parameterized])
 abstract class ResourcesCopyingTestBase(
-  separateMainTest: Boolean,
-  incrementalityType: IncrementalityType,
-  expectedResourcesCopied: Boolean
+  jdkVersion: TestJdkVersion,
+  separateMainTest: Boolean
 ) extends SbtProjectCompilationTestBase(separateProdAndTestSources = separateMainTest) {
+
+  override protected def jdkVersionForTest: TestJdkVersion = jdkVersion
 
   private var apiMainModule: Module = _
   private var apiTestModule: Module = _
@@ -74,7 +80,6 @@ abstract class ResourcesCopyingTestBase(
         |""".stripMargin)
 
     importProject(false)
-    ScalaCompilerConfiguration.instanceIn(getMyProject).incrementalityType = incrementalityType
 
     val modules = ModuleManager.getInstance(getMyProject).getModules
     rootModule = modules.find(_.getName == "root").orNull
@@ -90,13 +95,29 @@ abstract class ResourcesCopyingTestBase(
     compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
   }
 
-  def testResourcesAreCopied(): Unit = {
+  @Test
+  @Category(Array(classOf[CompilationTests_Zinc]))
+  def resourcesAreCopied_Zinc(): Unit = {
+    runResourcesAreCopiedTest(IncrementalityType.SBT)
+  }
+
+  @Test
+  @Category(Array(classOf[CompilationTests_IDEA]))
+  def resourcesAreCopied_IDEA(): Unit = {
+    runResourcesAreCopiedTest(IncrementalityType.IDEA)
+  }
+
+  private def runResourcesAreCopiedTest(incrementality: IncrementalityType): Unit = {
+    ScalaCompilerConfiguration.instanceIn(getMyProject).incrementalityType = incrementality
+
     val messages1 = compiler.make().asScala.toSeq
     assertNoErrorsOrWarnings(messages1)
     assertClassesCompiled()
     assertResourcesCopied()
 
     removeAllOutputDirectories()
+
+    val expectedResourcesCopied = incrementality == IncrementalityType.SBT
 
     if (expectedResourcesCopied) {
       val messages2 = compiler.make().asScala.toSeq
@@ -181,18 +202,12 @@ abstract class ResourcesCopyingTestBase(
   }
 }
 
-@Category(Array(classOf[CompilationTests_Zinc]))
-class ResourcesCopyingTest_Zinc
-  extends ResourcesCopyingTestBase(separateMainTest = false, IncrementalityType.SBT, expectedResourcesCopied = true)
+class ResourcesCopyingTest(jdkVersion: TestJdkVersion)
+  extends ResourcesCopyingTestBase(jdkVersion, separateMainTest = false)
 
-@Category(Array(classOf[CompilationTests_Zinc]))
-class ResourcesCopyingTest_Zinc_Split
-  extends ResourcesCopyingTestBase(separateMainTest = true, IncrementalityType.SBT, expectedResourcesCopied = true)
+private object ResourcesCopyingTest extends JdkVersionParameters
 
-@Category(Array(classOf[CompilationTests_IDEA]))
-class ResourcesCopyingTest_IDEA
-  extends ResourcesCopyingTestBase(separateMainTest = false, IncrementalityType.IDEA, expectedResourcesCopied = false)
+class ResourcesCopyingTest_Split(jdkVersion: TestJdkVersion)
+  extends ResourcesCopyingTestBase(jdkVersion, separateMainTest = true)
 
-@Category(Array(classOf[CompilationTests_IDEA]))
-class ResourcesCopyingTest_IDEA_Split
-  extends ResourcesCopyingTestBase(separateMainTest = true, IncrementalityType.IDEA, expectedResourcesCopied = false)
+private object ResourcesCopyingTest_Split extends JdkVersionParameters

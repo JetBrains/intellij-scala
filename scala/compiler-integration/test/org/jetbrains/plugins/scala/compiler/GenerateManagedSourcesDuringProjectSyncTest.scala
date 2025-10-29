@@ -5,6 +5,7 @@ import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.testFramework.CompilerTester
 import org.jetbrains.plugins.scala.SlowTests2
 import org.jetbrains.plugins.scala.compiler.CompilerMessagesUtil.assertNoErrorsOrWarnings
+import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
 import org.junit.Assert.assertNotNull
 import org.junit.Test
 import org.junit.experimental.categories.Category
@@ -18,6 +19,8 @@ import scala.jdk.CollectionConverters._
 @Category(Array(classOf[SlowTests2]))
 abstract class GenerateManagedSourcesDuringProjectSyncTestBase(separateProdAndTestSources: Boolean)
   extends SbtProjectCompilationTestBase(separateProdAndTestSources) {
+
+  override protected def jdkVersionForTest: TestJdkVersion = TestJdkVersion.JDK_17
 
   @Test
   def compilationSucceedsWhenGenerated(): Unit = {
