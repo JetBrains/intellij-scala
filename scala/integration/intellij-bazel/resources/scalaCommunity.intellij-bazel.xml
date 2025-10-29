@@ -16,8 +16,7 @@
         <newScalaFileActionExtension implementation="org.jetbrains.plugins.scala.bazel.BazelNewScalaFileActionExtension"/>
     </extensions>
     <extensions defaultExtensionNs="com.intellij">
-        <runLineMarkerContributor implementationClass="org.jetbrains.plugins.scala.bazel.BazelScalaRunLineMarkerContributor" language="Scala" order="before ScalaRunLineMarkerContributor"/>
         <!-- order="first" here to override zio-intellij's runLineMarkerContributor -->
-        <runLineMarkerContributor implementationClass="org.jetbrains.plugins.scala.bazel.BazelTestRunLineMarkerContributor" language="Scala" order="first"/>
+        <runLineMarkerContributor implementationClass="org.jetbrains.plugins.scala.bazel.BazelScalaRunLineMarkerContributor" language="Scala" order="first"/>
     </extensions>
 </idea-plugin>
