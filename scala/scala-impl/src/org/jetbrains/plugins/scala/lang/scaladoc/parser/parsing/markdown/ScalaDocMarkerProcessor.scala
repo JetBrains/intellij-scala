@@ -6,12 +6,12 @@ import org.intellij.markdown.parser.markerblocks.MarkerBlockProvider
 import org.intellij.markdown.parser.markerblocks.providers._
 import org.intellij.markdown.parser.{MarkerProcessor, ProductionHolder}
 
-import scala.jdk.CollectionConverters._
+import java.{util => ju}
 
 class ScalaDocMarkerProcessor(productionHolder: ProductionHolder, constraints: MarkdownConstraints)
   extends CommonMarkMarkerProcessor(productionHolder, constraints) {
 
-  private val markerBlockProviders = List(
+  private val markerBlockProviders = ju.List.of(
     new CodeBlockProvider,
     new HorizontalRuleProvider,
     new CodeFenceProvider,
@@ -23,7 +23,7 @@ class ScalaDocMarkerProcessor(productionHolder: ProductionHolder, constraints: M
     new AtxHeaderProvider,
     new HtmlBlockProvider,
     new LinkReferenceDefinitionProvider,
-  ).asJava
+  )
 
-  override def getMarkerBlockProviders: java.util.List[MarkerBlockProvider[MarkerProcessor.StateInfo]] = markerBlockProviders
+  override def getMarkerBlockProviders: ju.List[MarkerBlockProvider[MarkerProcessor.StateInfo]] = markerBlockProviders
 }
