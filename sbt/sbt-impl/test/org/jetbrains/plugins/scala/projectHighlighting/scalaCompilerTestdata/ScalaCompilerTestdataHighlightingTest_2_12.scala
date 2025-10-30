@@ -36,10 +36,6 @@ class ScalaCompilerTestdataHighlightingTest_2_12 extends ScalaCompilerTestdataHi
     "pos/unchecked-a.scala" -> Set(
       (107,110), // Type Any does not conform to upper bound Y of type parameter A
     ),
-    "pos/userdefined_apply.scala" -> Set(
-      // This is an actual error, which the compiler gives as well
-      (1201,1202), // Type mismatch, expected: Boolean, actual: Int
-    )
   )
 
   override protected val reporter: HighlightingProgressReporter =

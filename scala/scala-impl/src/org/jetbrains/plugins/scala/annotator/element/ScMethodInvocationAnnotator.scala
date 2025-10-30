@@ -1,13 +1,7 @@
 package org.jetbrains.plugins.scala.annotator.element
 
-import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
-import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
-import com.intellij.modcommand.{ActionContext, ModCommand, PsiBasedModCommandAction}
-import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
-import com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.{registerTypeMismatchError, withoutNonHighlightables}
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
@@ -20,7 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLitera
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createNewLine
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
