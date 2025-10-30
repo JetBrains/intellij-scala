@@ -61,7 +61,7 @@ object Versions {
    * However according to Peter Gromov it shouldn't be important for us and we can use maven dependencies.
    * Those custom distributions usually contain performance fixes and not the logic.
    */
-  val LanguageToolVersion = "6.6.17"
+  val LanguageToolVersion = "6.7.19"
 
   /**
    * Potentially automate the updating of this version in the future.
