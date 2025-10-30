@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.compiler
 
+import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.roots.CompilerModuleExtension
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.VfsTestUtil
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
@@ -244,7 +244,9 @@ class IncrementalIdeaOnServerCompilationTest
 @Category(Array(classOf[CompilationTests_IDEA]))
 @RunWithJdkVersions(Array(TestJdkVersion.JDK_17))
 class IncrementalIdeaCompilationTest
-  extends IncrementalCompilationTestBase(IncrementalityType.IDEA, useCompileServer = false)
+  extends IncrementalCompilationTestBase(IncrementalityType.IDEA, useCompileServer = false) {
+  override protected def buildProcessJdk: Sdk = getTestProjectJdk
+}
 
 @Category(Array(classOf[CompilationTests_Zinc]))
 class IncrementalSbtOnServerCompilationTest
@@ -298,4 +300,6 @@ class IncrementalSbtOnServerCompilationTest
 @RunWithJdkVersions(Array(TestJdkVersion.JDK_17))
 class IncrementalSbtCompilationTest extends IncrementalSbtOnServerCompilationTest {
   override protected val useCompileServer: Boolean = false
+
+  override protected def buildProcessJdk: Sdk = getTestProjectJdk
 }
