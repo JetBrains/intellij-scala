@@ -8,10 +8,8 @@ import com.intellij.psi.PsiFile
 import com.intellij.testFramework.InspectionsKt
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.{ScalaAccessCanBeTightenedInspection, ScalaUnusedDeclarationInspection}
 import org.jetbrains.plugins.scala.projectHighlighting.reporter.HighlightingProgressReporter
-import org.jetbrains.plugins.scala.settings.BackReferencesFromSharedSources
-import org.jetbrains.plugins.scala.util.RevertableChange
 
-class SbtOverBspCrossBuildProjectHighlightingTest_BackReferencesEnabled extends SbtOverBspProjectHighlightingLocalProjectsTestBase {
+class SbtOverBspCrossBuildProjectHighlightingTest extends SbtOverBspProjectHighlightingLocalProjectsTestBase {
 
   override def projectName = "sbt-crossproject-test-project"
 
@@ -37,23 +35,6 @@ class SbtOverBspCrossBuildProjectHighlightingTest_BackReferencesEnabled extends 
     reporter: HighlightingProgressReporter,
   ): Unit =
     doHighlightingForFile(virtualFile, psiFile, reporter)
-
-  override def testHighlighting(): Unit =
-    withEnabledBackReferencesFromSharedSources {
-      super.testHighlighting()
-    }
-
-  private def withEnabledBackReferencesFromSharedSources(body: => Any): Unit = {
-    val revertible = RevertableChange.withModifiedScalaProjectSettings[Boolean](
-      getProject,
-      _ => BackReferencesFromSharedSources.isEnabled,
-      (_, _) => (),
-      true
-    )
-    revertible.run {
-      body
-    }
-  }
 
   import org.jetbrains.plugins.scala.util.TextRangeUtils.ImplicitConversions.tupleToTextRange
   override protected def filesWithProblems: Map[String, Set[TextRange]] = Map(
