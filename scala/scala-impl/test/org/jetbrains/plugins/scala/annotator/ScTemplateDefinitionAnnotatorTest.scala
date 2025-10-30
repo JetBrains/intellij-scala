@@ -165,6 +165,9 @@ class ScTemplateDefinitionAnnotatorTest3_6
   private def errorMessage(targetType: String, givenName: String, traitName: String): String =
     ScalaBundle.message("no.given.instance.for.deferred", targetType, givenName, traitName)
 
+  /**
+   * Related tests in [[org.jetbrains.plugins.scala.annotator.OverridingAnnotatorTest_Scala3.testGivenInstancesDeferred]]
+   */
   def testTraitDeferredGivenSimple(): Unit =
     assertMessages(
       """
