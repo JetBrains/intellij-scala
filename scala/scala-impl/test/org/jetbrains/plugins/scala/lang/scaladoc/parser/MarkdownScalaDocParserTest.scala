@@ -1,9 +1,32 @@
 package org.jetbrains.plugins.scala.lang.scaladoc.parser
 
+import com.intellij.psi.impl.DebugUtil.psiToString
+import org.jetbrains.plugins.scala.ScalaVersion
+import org.jetbrains.plugins.scala.extensions.{PsiNamedElementExt, StringExt}
 import org.jetbrains.plugins.scala.lang.parser.scala3.SimpleScala3ParserTestBase
+import org.junit.Assert.assertEquals
 
 class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
-  def test_basic_markdown(): Unit = checkTree(
+
+  def checkBoth(scala2and3Code: String, expected: String): Unit =
+    checkBoth(scala2and3Code, scala2and3Code, expected)
+
+  def checkBoth(scala3Code: String, scala2Code: String, expected: String): Unit = {
+    val scala3File = parseScalaFile(scala3Code, ScalaVersion.Latest.Scala_3)
+    val scala3Tree = psiToString(scala3File, true).replace(": " + scala3File.name, "")
+    assertEquals(expected.trim, scala3Tree.trim.withNormalizedSeparator)
+
+    val scala2File = parseScalaFile(scala2Code, ScalaVersion.Latest.Scala_2)
+    val scala2Tree = psiToString(scala2File, true).replace(": " + scala2File.name, "")
+    val transformed = transformScala2TreeToScala3Tree(scala2Tree)
+    assertEquals(expected.trim, transformed.trim.withNormalizedSeparator)
+  }
+
+  def transformScala2TreeToScala3Tree(code: String): String = code
+    .replace("ScPsiDocToken(DOC_BOLD_TAG 1)(''''')", "ScPsiDocToken(DOC_BOLD_TAG 1)('**')")
+    .replace("ScPsiDocToken(DOC_ITALIC_TAG 2)('''')", "ScPsiDocToken(DOC_ITALIC_TAG 2)('*')")
+
+  def test_basic_markdown(): Unit = checkBoth(
     """
       |/**
       | * A basic textual comment
@@ -18,12 +41,12 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |    ScDocParagraph
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      ScPsiDocToken(DOC_COMMENT_DATA)('A basic textual comment')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |    ScPsiDocToken(DOC_COMMENT_END)('*/')
       |  PsiWhiteSpace('\n')""".stripMargin
   )
 
-  def test_in_one_line(): Unit = checkTree(
+  def test_in_one_line(): Unit = checkBoth(
     """
       |/** A basic textual comment */
       |""".stripMargin,
@@ -41,10 +64,15 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
   )
 
   // Basic formatting tests
-  def test_bold_text(): Unit = checkTree(
+  def test_bold_text(): Unit = checkBoth(
       """
         |/**
         | * This is **bold** text
+        | */
+        |""".stripMargin,
+      """
+        |/**
+        | * This is '''bold''' text
         | */
         |""".stripMargin,
       """ScalaFile
@@ -61,15 +89,20 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
         |        ScPsiDocToken(DOC_COMMENT_DATA)('bold')
         |        ScPsiDocToken(DOC_BOLD_TAG 1)('**')
         |      ScPsiDocToken(DOC_COMMENT_DATA)(' text')
-        |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
         |    ScPsiDocToken(DOC_COMMENT_END)('*/')
         |  PsiWhiteSpace('\n')""".stripMargin
     )
 
-  def test_italic_text(): Unit = checkTree(
+  def test_italic_text(): Unit = checkBoth(
     """
       |/**
       | * This is *italic* text
+      | */
+      |""".stripMargin,
+    """
+      |/**
+      | * This is ''italic'' text
       | */
       |""".stripMargin,
     """ScalaFile
@@ -86,7 +119,7 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |        ScPsiDocToken(DOC_COMMENT_DATA)('italic')
       |        ScPsiDocToken(DOC_ITALIC_TAG 2)('*')
       |      ScPsiDocToken(DOC_COMMENT_DATA)(' text')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |    ScPsiDocToken(DOC_COMMENT_END)('*/')
       |  PsiWhiteSpace('\n')""".stripMargin
   )
@@ -100,7 +133,8 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       | *  - Item 3
       | */
       |""".stripMargin,
-    """ScalaFile
+    """
+      |ScalaFile
       |  PsiWhiteSpace('\n')
       |  DocComment
       |    ScPsiDocToken(DOC_COMMENT_START)('/**')
@@ -109,28 +143,29 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |    ScDocParagraph
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      ScPsiDocToken(DOC_COMMENT_DATA)('Unordered list:')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |    ScDocList
       |      ScDocListItem
       |        ScPsiDocToken(DOC_LIST_ITEM_HEAD)('  - ')
       |        ScDocParagraph
       |          ScPsiDocToken(DOC_COMMENT_DATA)('Item 1')
-      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |          ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |          ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |      ScDocListItem
       |        ScPsiDocToken(DOC_LIST_ITEM_HEAD)('  - ')
       |        ScDocParagraph
       |          ScPsiDocToken(DOC_COMMENT_DATA)('Item 2')
-      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |          ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |          ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |      ScDocListItem
       |        ScPsiDocToken(DOC_LIST_ITEM_HEAD)('  - ')
       |        ScDocParagraph
       |          ScPsiDocToken(DOC_COMMENT_DATA)('Item 3')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |          ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |    ScPsiDocToken(DOC_COMMENT_END)('*/')
-      |  PsiWhiteSpace('\n')""".stripMargin
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
   )
 
   def test_ordered_list(): Unit = checkTree(
@@ -142,7 +177,8 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       | *  1. Third item
       | */
       |""".stripMargin,
-    """ScalaFile
+    """
+      |ScalaFile
       |  PsiWhiteSpace('\n')
       |  DocComment
       |    ScPsiDocToken(DOC_COMMENT_START)('/**')
@@ -151,28 +187,29 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |    ScDocParagraph
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      ScPsiDocToken(DOC_COMMENT_DATA)('Ordered list:')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |    ScDocList
       |      ScDocListItem
       |        ScPsiDocToken(DOC_LIST_ITEM_HEAD)('  1. ')
       |        ScDocParagraph
       |          ScPsiDocToken(DOC_COMMENT_DATA)('First item')
-      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |          ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |          ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |      ScDocListItem
       |        ScPsiDocToken(DOC_LIST_ITEM_HEAD)('  1. ')
       |        ScDocParagraph
       |          ScPsiDocToken(DOC_COMMENT_DATA)('Second item')
-      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |          ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |          ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |      ScDocListItem
       |        ScPsiDocToken(DOC_LIST_ITEM_HEAD)('  1. ')
       |        ScDocParagraph
       |          ScPsiDocToken(DOC_COMMENT_DATA)('Third item')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |          ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |    ScPsiDocToken(DOC_COMMENT_END)('*/')
-      |  PsiWhiteSpace('\n')""".stripMargin
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
   )
 
   // Code blocks with {{{ and }}} fences
@@ -195,22 +232,61 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |    ScDocParagraph
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      ScPsiDocToken(DOC_COMMENT_DATA)('Code block example:')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    ScPsiDocToken(DOC_WHITESPACE)(' ')
       |    InnerCodeElement
-      |      ScPsiDocToken(DOC_COMMENT_DATA)(' {{{')
+      |      ScPsiDocToken(DOC_INNER_CODE_TAG)('{{{')
       |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      |      ScPsiDocToken(DOC_COMMENT_DATA)(' val x = 42')
+      |      ScPsiDocToken(DOC_INNER_CODE)(' val x = 42')
       |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      |      ScPsiDocToken(DOC_COMMENT_DATA)(' println(x)')
+      |      ScPsiDocToken(DOC_INNER_CODE)(' println(x)')
       |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      |      ScPsiDocToken(DOC_COMMENT_DATA)(' }}}')
+      |      ScPsiDocToken(DOC_INNER_CODE)(' ')
+      |      ScPsiDocToken(DOC_INNER_CLOSE_CODE_TAG)('}}}')
       |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |    ScPsiDocToken(DOC_COMMENT_END)('*/')
       |  PsiWhiteSpace('\n')""".stripMargin
+  )
+
+  def test_no_code_fence_in_the_middle(): Unit = checkTree(
+    """
+      |/**
+      | * No code block: {{{
+      | * val x = 42
+      | * println(x)
+      | * }}}
+      | */
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  DocComment
+      |    ScPsiDocToken(DOC_COMMENT_START)('/**')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    ScDocParagraph
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      ScPsiDocToken(DOC_COMMENT_DATA)('No code block: {{{')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      ScPsiDocToken(DOC_COMMENT_DATA)('val x = 42')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      ScPsiDocToken(DOC_COMMENT_DATA)('println(x)')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      ScPsiDocToken(DOC_COMMENT_DATA)('}}}')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_END)('*/')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
   )
 
   // Code references with [[Reference]]
@@ -260,13 +336,13 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |            PsiElement(identifier)('Option')
       |        ScPsiDocToken(DOC_LINK_CLOSE_TAG 0)(']]')
       |      ScPsiDocToken(DOC_COMMENT_DATA)('.')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |    ScPsiDocToken(DOC_COMMENT_END)('*/')
       |  PsiWhiteSpace('\n')""".stripMargin
   )
 
   // ScalaDoc tags
-  def test_scaladoc_param_tag(): Unit = checkTree(
+  def test_scaladoc_param_tag(): Unit = checkBoth(
     """
       |/**
       | * A method description
@@ -283,8 +359,8 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |    ScDocParagraph
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      ScPsiDocToken(DOC_COMMENT_DATA)('A method description')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |    DocTag
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      ScPsiDocToken(DOC_TAG_NAME)('@param')
@@ -294,8 +370,8 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |      ScDocParagraph
       |        ScPsiDocToken(DOC_WHITESPACE)(' ')
       |        ScPsiDocToken(DOC_COMMENT_DATA)('The name parameter')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |    DocTag
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      ScPsiDocToken(DOC_TAG_NAME)('@param')
@@ -305,12 +381,12 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |      ScDocParagraph
       |        ScPsiDocToken(DOC_WHITESPACE)(' ')
       |        ScPsiDocToken(DOC_COMMENT_DATA)('The age parameter')
-      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |        ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |    ScPsiDocToken(DOC_COMMENT_END)('*/')
       |  PsiWhiteSpace('\n')""".stripMargin
   )
 
-  def test_scaladoc_return_tag(): Unit = checkTree(
+  def test_scaladoc_return_tag(): Unit = checkBoth(
     """
       |/**
       | * Calculates something
@@ -326,15 +402,15 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |    ScDocParagraph
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      ScPsiDocToken(DOC_COMMENT_DATA)('Calculates something')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |    DocTag
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      ScPsiDocToken(DOC_TAG_NAME)('@return')
       |      ScDocParagraph
       |        ScPsiDocToken(DOC_WHITESPACE)(' ')
       |        ScPsiDocToken(DOC_COMMENT_DATA)('The calculated value')
-      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |        ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |    ScPsiDocToken(DOC_COMMENT_END)('*/')
       |  PsiWhiteSpace('\n')""".stripMargin
   )
@@ -356,8 +432,8 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |    ScDocParagraph
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      ScPsiDocToken(DOC_COMMENT_DATA)('Does something risky')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |    DocTag
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      ScPsiDocToken(DOC_TAG_NAME)('@throws')
@@ -368,8 +444,8 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |      ScDocParagraph
       |        ScPsiDocToken(DOC_WHITESPACE)(' ')
       |        ScPsiDocToken(DOC_COMMENT_DATA)('if the argument is invalid')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |    DocTag
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      ScPsiDocToken(DOC_TAG_NAME)('@throws')
@@ -380,7 +456,7 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |      ScDocParagraph
       |        ScPsiDocToken(DOC_WHITESPACE)(' ')
       |        ScPsiDocToken(DOC_COMMENT_DATA)('if the input is null')
-      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |        ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |    ScPsiDocToken(DOC_COMMENT_END)('*/')
       |  PsiWhiteSpace('\n')""".stripMargin
   )
@@ -427,11 +503,11 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |        ScPsiDocToken(DOC_COMMENT_DATA)('italic')
       |        ScPsiDocToken(DOC_ITALIC_TAG 2)('*')
       |      ScPsiDocToken(DOC_COMMENT_DATA)(' text.')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      |    ScPsiDocToken(DOC_WHITESPACE)(' ')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |    ScDocMarkdownHeader
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      ScPsiDocToken(DOC_COMMENT_DATA)('## Heading 2')
@@ -449,8 +525,8 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |            ScPsiDocToken(DOC_BOLD_TAG 1)('**')
       |            ScPsiDocToken(DOC_COMMENT_DATA)('bold')
       |            ScPsiDocToken(DOC_BOLD_TAG 1)('**')
-      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |          ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |          ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |      ScDocListItem
       |        ScPsiDocToken(DOC_LIST_ITEM_HEAD)(' - ')
       |        ScDocParagraph
@@ -459,8 +535,8 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |            ScPsiDocToken(DOC_ITALIC_TAG 2)('*')
       |            ScPsiDocToken(DOC_COMMENT_DATA)('italic')
       |            ScPsiDocToken(DOC_ITALIC_TAG 2)('*')
-      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |          ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |          ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |      ScDocListItem
       |        ScPsiDocToken(DOC_LIST_ITEM_HEAD)(' - ')
       |        ScDocParagraph
@@ -475,7 +551,7 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |                PsiElement(identifier)('Option')
       |            ScPsiDocToken(DOC_LINK_CLOSE_TAG 0)(']]')
       |          ScPsiDocToken(DOC_COMMENT_DATA)(' reference')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |          ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |    ScPsiDocToken(DOC_COMMENT_END)('*/')
       |  PsiWhiteSpace('\n')""".stripMargin
   )
@@ -496,7 +572,8 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
        | * @throws NullPointerException if name is null
        | */
       |""".stripMargin,
-    """ScalaFile
+    """
+      |ScalaFile
       |  PsiWhiteSpace('\n')
       |  DocComment
       |    ScPsiDocToken(DOC_COMMENT_START)('/**')
@@ -505,25 +582,27 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |    ScDocParagraph
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      ScPsiDocToken(DOC_COMMENT_DATA)('Complex example with code and tags')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |    ScPsiDocToken(DOC_WHITESPACE)(' ')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |    InnerCodeElement
-      |      ScPsiDocToken(DOC_COMMENT_DATA)(' {{{')
+      |      ScPsiDocToken(DOC_INNER_CODE_TAG)('{{{')
       |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      |      ScPsiDocToken(DOC_COMMENT_DATA)(' def example(name: String): Option[Int] = {')
+      |      ScPsiDocToken(DOC_INNER_CODE)(' def example(name: String): Option[Int] = {')
       |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      |      ScPsiDocToken(DOC_COMMENT_DATA)('   Some(name.length)')
+      |      ScPsiDocToken(DOC_INNER_CODE)('   Some(name.length)')
       |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      |      ScPsiDocToken(DOC_COMMENT_DATA)(' }')
+      |      ScPsiDocToken(DOC_INNER_CODE)(' }')
       |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      |      ScPsiDocToken(DOC_COMMENT_DATA)(' }}}')
+      |      ScPsiDocToken(DOC_INNER_CODE)(' ')
+      |      ScPsiDocToken(DOC_INNER_CLOSE_CODE_TAG)('}}}')
       |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |    ScPsiDocToken(DOC_WHITESPACE)(' ')
@@ -538,8 +617,8 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |      ScDocParagraph
       |        ScPsiDocToken(DOC_WHITESPACE)(' ')
       |        ScPsiDocToken(DOC_COMMENT_DATA)('The input name')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |    DocTag
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      ScPsiDocToken(DOC_TAG_NAME)('@return')
@@ -555,8 +634,8 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |              PsiElement(identifier)('Option')
       |          ScPsiDocToken(DOC_LINK_CLOSE_TAG 0)(']]')
       |        ScPsiDocToken(DOC_COMMENT_DATA)(' containing the length')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |    DocTag
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      ScPsiDocToken(DOC_TAG_NAME)('@throws')
@@ -567,9 +646,10 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |      ScDocParagraph
       |        ScPsiDocToken(DOC_WHITESPACE)(' ')
       |        ScPsiDocToken(DOC_COMMENT_DATA)('if name is null')
-      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |        ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |    ScPsiDocToken(DOC_COMMENT_END)('*/')
-      |  PsiWhiteSpace('\n')""".stripMargin
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
   )
 
   def test_java_style_inline_tags(): Unit = checkTree(
@@ -597,7 +677,7 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
         |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
         |      ScPsiDocToken(DOC_WHITESPACE)(' ')
         |      ScPsiDocToken(DOC_COMMENT_DATA)('{@literal literal text}')
-        |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
         |    ScPsiDocToken(DOC_COMMENT_END)('*/')
         |  PsiWhiteSpace('\n')""".stripMargin
     )
@@ -619,7 +699,8 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       | * 1. List item
       | *    > @note A note that's not a tag
       | */""".stripMargin,
-    """ScalaFile
+    """
+      |ScalaFile
       |  PsiWhiteSpace('\n')
       |  DocComment
       |    ScPsiDocToken(DOC_COMMENT_START)('/**')
@@ -630,26 +711,26 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |        ScPsiDocToken(DOC_LIST_ITEM_HEAD)(' 1. ')
       |        ScDocParagraph
       |          ScPsiDocToken(DOC_COMMENT_DATA)('List item')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |          ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |          ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |    DocTag
       |      ScPsiDocToken(DOC_WHITESPACE)('    ')
       |      ScPsiDocToken(DOC_TAG_NAME)('@note')
       |      ScDocParagraph
       |        ScPsiDocToken(DOC_WHITESPACE)(' ')
       |        ScPsiDocToken(DOC_COMMENT_DATA)('a continuation of that list item')
-      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |      InnerCodeElement
-      |        ScPsiDocToken(DOC_COMMENT_DATA)(' ```')
+      |        ScPsiDocToken(DOC_INNER_CODE_TAG)(' ```')
       |        ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      |        ScPsiDocToken(DOC_COMMENT_DATA)(' @note tag in code block (not a tag)')
+      |        ScPsiDocToken(DOC_INNER_CODE)(' @note tag in code block (not a tag)')
       |        ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      |        ScPsiDocToken(DOC_COMMENT_DATA)(' ```')
+      |        ScPsiDocToken(DOC_INNER_CLOSE_CODE_TAG)(' ```')
       |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
@@ -658,32 +739,33 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |        ScPsiDocToken(DOC_COMMENT_DATA)(' > ')
       |        ScDocParagraph
       |          ScPsiDocToken(DOC_COMMENT_DATA)('Block quote')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |          ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |          ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |    DocTag
       |      ScPsiDocToken(DOC_WHITESPACE)('   ')
       |      ScPsiDocToken(DOC_TAG_NAME)('@note')
       |      ScDocParagraph
       |        ScPsiDocToken(DOC_WHITESPACE)(' ')
       |        ScPsiDocToken(DOC_COMMENT_DATA)('a note in that block quote')
-      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |      ScDocList
       |        ScDocListItem
       |          ScPsiDocToken(DOC_LIST_ITEM_HEAD)(' 1. ')
       |          ScDocParagraph
       |            ScPsiDocToken(DOC_COMMENT_DATA)('List item')
-      |          ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |          ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      |          ScPsiDocToken(DOC_WHITESPACE)('    ')
+      |            ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |            ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |            ScPsiDocToken(DOC_WHITESPACE)('    ')
       |          ASTWrapperPsiElement(ScalaDocBlockquote)
       |            ScPsiDocToken(DOC_COMMENT_DATA)('> ')
       |            ScDocParagraph
       |              ScPsiDocToken(DOC_COMMENT_DATA)('@note A note that's not a tag')
-      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_END)('*/')""".stripMargin
+      |              ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_END)('*/')
+      |""".stripMargin
   )
 
   def test_all_features_combined(): Unit = checkTree(
@@ -722,7 +804,8 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       | * @throws NullPointerException if input is null
       | */
       |""".stripMargin,
-    """ScalaFile
+    """
+      |ScalaFile
       |  PsiWhiteSpace('\n')
       |  DocComment
       |    ScPsiDocToken(DOC_COMMENT_START)('/**')
@@ -769,11 +852,11 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |            PsiElement(identifier)('List')
       |        ScPsiDocToken(DOC_LINK_CLOSE_TAG 0)(']]')
       |      ScPsiDocToken(DOC_COMMENT_DATA)('.')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      |    ScPsiDocToken(DOC_WHITESPACE)(' ')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |    ScDocMarkdownHeader
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      ScPsiDocToken(DOC_COMMENT_DATA)('## Code Examples')
@@ -785,19 +868,21 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |    ScDocParagraph
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      ScPsiDocToken(DOC_COMMENT_DATA)('Here's a simple code example:')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    ScPsiDocToken(DOC_WHITESPACE)(' ')
       |    InnerCodeElement
-      |      ScPsiDocToken(DOC_COMMENT_DATA)(' {{{')
+      |      ScPsiDocToken(DOC_INNER_CODE_TAG)('{{{')
       |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      |      ScPsiDocToken(DOC_COMMENT_DATA)(' val numbers = List(1, 2, 3, 4, 5)')
+      |      ScPsiDocToken(DOC_INNER_CODE)(' val numbers = List(1, 2, 3, 4, 5)')
       |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      |      ScPsiDocToken(DOC_COMMENT_DATA)(' val doubled = numbers.map(_ * 2)')
+      |      ScPsiDocToken(DOC_INNER_CODE)(' val doubled = numbers.map(_ * 2)')
       |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      |      ScPsiDocToken(DOC_COMMENT_DATA)(' }}}')
+      |      ScPsiDocToken(DOC_INNER_CODE)(' ')
+      |      ScPsiDocToken(DOC_INNER_CLOSE_CODE_TAG)('}}}')
       |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |    ScPsiDocToken(DOC_WHITESPACE)(' ')
@@ -818,11 +903,11 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      ScPsiDocToken(DOC_COMMENT_DATA)('{@literal literal text}')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      |    ScPsiDocToken(DOC_WHITESPACE)(' ')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |    ScDocMarkdownHeader
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      ScPsiDocToken(DOC_COMMENT_DATA)('## Parameters')
@@ -840,8 +925,8 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |      ScDocParagraph
       |        ScPsiDocToken(DOC_WHITESPACE)(' ')
       |        ScPsiDocToken(DOC_COMMENT_DATA)('The input string to process')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |    DocTag
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      ScPsiDocToken(DOC_TAG_NAME)('@param')
@@ -851,11 +936,11 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |      ScDocParagraph
       |        ScPsiDocToken(DOC_WHITESPACE)(' ')
       |        ScPsiDocToken(DOC_COMMENT_DATA)('The number of times to process')
-      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
-      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |        ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |      ScDocMarkdownHeader
       |        ScPsiDocToken(DOC_WHITESPACE)(' ')
       |        ScPsiDocToken(DOC_COMMENT_DATA)('## Return Value')
@@ -880,11 +965,11 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |              PsiElement(identifier)('Option')
       |          ScPsiDocToken(DOC_LINK_CLOSE_TAG 0)(']]')
       |        ScPsiDocToken(DOC_COMMENT_DATA)(' containing the result')
-      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
-      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |        ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |      ScDocMarkdownHeader
       |        ScPsiDocToken(DOC_WHITESPACE)(' ')
       |        ScPsiDocToken(DOC_COMMENT_DATA)('## Exceptions')
@@ -903,8 +988,8 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |      ScDocParagraph
       |        ScPsiDocToken(DOC_WHITESPACE)(' ')
       |        ScPsiDocToken(DOC_COMMENT_DATA)('if input is empty')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |    DocTag
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      ScPsiDocToken(DOC_TAG_NAME)('@throws')
@@ -915,9 +1000,10 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |      ScDocParagraph
       |        ScPsiDocToken(DOC_WHITESPACE)(' ')
       |        ScPsiDocToken(DOC_COMMENT_DATA)('if input is null')
-      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |        ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |    ScPsiDocToken(DOC_COMMENT_END)('*/')
-      |  PsiWhiteSpace('\n')""".stripMargin
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
   )
 
   def test_incomplete(): Unit = checkTree(
@@ -933,7 +1019,7 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |    ScPsiDocToken(DOC_WHITESPACE)('\n')
       |    ScDocParagraph
       |      ScPsiDocToken(DOC_COMMENT_DATA)('object Blub')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n')
       |""".stripMargin
   )
 
@@ -971,7 +1057,8 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       | * *_italic*_
       | */
       |""".stripMargin,
-    """ScalaFile
+    """
+      |ScalaFile
       |  PsiWhiteSpace('\n')
       |  DocComment
       |    ScPsiDocToken(DOC_COMMENT_START)('/**')
@@ -984,10 +1071,10 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |        ScPsiDocToken(DOC_ITALIC_TAG 2)('*')
       |        ScPsiDocToken(DOC_COMMENT_DATA)('italic')
       |        ScPsiDocToken(DOC_ITALIC_TAG 2)('*')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |    ScDocParagraph
       |      ScPsiDocToken(DOC_WHITESPACE)('  ')
       |      DocSyntaxElement 2
@@ -995,10 +1082,10 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |        ScPsiDocToken(DOC_COMMENT_DATA)('italic')
       |        ScPsiDocToken(DOC_ITALIC_TAG 2)('*')
       |      ScPsiDocToken(DOC_COMMENT_DATA)('*')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |    ScDocParagraph
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      ScPsiDocToken(DOC_COMMENT_DATA)('_')
@@ -1006,10 +1093,10 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |        ScPsiDocToken(DOC_ITALIC_TAG 2)('_')
       |        ScPsiDocToken(DOC_COMMENT_DATA)('italic')
       |        ScPsiDocToken(DOC_ITALIC_TAG 2)('_')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |    ScDocParagraph
       |      ScPsiDocToken(DOC_WHITESPACE)('  ')
       |      DocSyntaxElement 2
@@ -1017,10 +1104,10 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |        ScPsiDocToken(DOC_COMMENT_DATA)('italic')
       |        ScPsiDocToken(DOC_ITALIC_TAG 2)('_')
       |      ScPsiDocToken(DOC_COMMENT_DATA)('_')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |    ScDocParagraph
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      ScPsiDocToken(DOC_COMMENT_DATA)('*')
@@ -1028,10 +1115,10 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |        ScPsiDocToken(DOC_BOLD_TAG 1)('**')
       |        ScPsiDocToken(DOC_COMMENT_DATA)('bold')
       |        ScPsiDocToken(DOC_BOLD_TAG 1)('**')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |    ScDocParagraph
       |      ScPsiDocToken(DOC_WHITESPACE)('  ')
       |      DocSyntaxElement 1
@@ -1039,10 +1126,10 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |        ScPsiDocToken(DOC_COMMENT_DATA)('bold')
       |        ScPsiDocToken(DOC_BOLD_TAG 1)('**')
       |      ScPsiDocToken(DOC_COMMENT_DATA)('*')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |    ScDocParagraph
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      ScPsiDocToken(DOC_COMMENT_DATA)('_')
@@ -1050,10 +1137,10 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |        ScPsiDocToken(DOC_BOLD_TAG 1)('__')
       |        ScPsiDocToken(DOC_COMMENT_DATA)('bold')
       |        ScPsiDocToken(DOC_BOLD_TAG 1)('__')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |    ScDocParagraph
       |      ScPsiDocToken(DOC_WHITESPACE)('  ')
       |      DocSyntaxElement 1
@@ -1061,54 +1148,54 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |        ScPsiDocToken(DOC_COMMENT_DATA)('bold')
       |        ScPsiDocToken(DOC_BOLD_TAG 1)('__')
       |      ScPsiDocToken(DOC_COMMENT_DATA)('_')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |    ScDocParagraph
       |      ScPsiDocToken(DOC_WHITESPACE)('   ')
       |      DocSyntaxElement 8
       |        ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
       |        ScPsiDocToken(DOC_COMMENT_DATA)('code')
       |        ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |    ScDocParagraph
       |      ScPsiDocToken(DOC_WHITESPACE)('  ')
       |      ScPsiDocToken(DOC_COMMENT_DATA)('``code`')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |    ScDocParagraph
       |      ScPsiDocToken(DOC_WHITESPACE)('   ')
       |      ScPsiDocToken(DOC_COMMENT_DATA)('`code``')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |    ScDocParagraph
       |      ScPsiDocToken(DOC_WHITESPACE)('  ')
       |      DocSyntaxElement 8
       |        ScPsiDocToken(DOC_MONOSPACE_TAG 8)('``')
       |        ScPsiDocToken(DOC_COMMENT_DATA)('code')
       |        ScPsiDocToken(DOC_MONOSPACE_TAG 8)('``')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |    ScDocParagraph
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      DocSyntaxElement 8
       |        ScPsiDocToken(DOC_MONOSPACE_TAG 8)('```')
       |        ScPsiDocToken(DOC_COMMENT_DATA)('code')
       |        ScPsiDocToken(DOC_MONOSPACE_TAG 8)('```')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |    ScDocParagraph
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      DocSyntaxElement 2
@@ -1116,10 +1203,10 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |        ScPsiDocToken(DOC_COMMENT_DATA)('*italic')
       |        ScPsiDocToken(DOC_ITALIC_TAG 2)('_')
       |      ScPsiDocToken(DOC_COMMENT_DATA)('*')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
-      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |    ScDocParagraph
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      DocSyntaxElement 2
@@ -1127,8 +1214,9 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |        ScPsiDocToken(DOC_COMMENT_DATA)('_italic')
       |        ScPsiDocToken(DOC_ITALIC_TAG 2)('*')
       |      ScPsiDocToken(DOC_COMMENT_DATA)('_')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |    ScPsiDocToken(DOC_COMMENT_END)('*/')
-      |  PsiWhiteSpace('\n')""".stripMargin
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
   )
 }

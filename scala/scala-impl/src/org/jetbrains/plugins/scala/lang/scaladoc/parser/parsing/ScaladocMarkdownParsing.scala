@@ -8,7 +8,6 @@ import org.intellij.markdown
 import org.intellij.markdown.ast.ASTNode
 import org.intellij.markdown.parser.MarkdownParser
 import org.intellij.markdown.{MarkdownElementType, MarkdownElementTypes, MarkdownTokenTypes}
-import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilderImpl
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableIdForImport
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
@@ -18,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.ScaladocMarkdown
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.markdown.{ScalaDocMarkdownFlavour, ScalaDocTagMarkerBlock, WikiLinkParser}
 
 import java.{util => ju}
+import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
 import scala.jdk.CollectionConverters.ListHasAsScala
 
@@ -57,6 +57,7 @@ private class ScaladocMarkdownParsing(builder: MkBuilder) extends ScalaDocElemen
       case MarkdownElementTypes.STRONG => visitBorderSyntaxElement(elementTy, treeIt, ScalaDocTokenType.DOC_BOLD_TAG, ScalaDocTokenType.DOC_BOLD_TAG, 2)
       case MarkdownElementTypes.CODE_SPAN => visitBorderSyntaxElement(elementTy, treeIt, ScalaDocTokenType.DOC_MONOSPACE_TAG, ScalaDocTokenType.DOC_MONOSPACE_TAG, 1)
       case WikiLinkParser.WIKI_LINK => visitBorderSyntaxElement(elementTy, treeIt, ScalaDocTokenType.DOC_LINK_TAG, ScalaDocTokenType.DOC_LINK_CLOSE_TAG, 2, ScalaDocElementTypes.SCALA_DOC_REFERENCE_LINK)
+      case MarkdownElementTypes.CODE_FENCE => visitCodeFence(elementTy, treeIt)
       case MarkdownElementTypes.PARAGRAPH => visitParagraph(elementTy, treeIt)
       case _ =>
         ensureBuilderInPosition(treeIt.currentStartOffset)
@@ -150,6 +151,35 @@ private class ScaladocMarkdownParsing(builder: MkBuilder) extends ScalaDocElemen
     marker.done(elementTy)
   }
 
+  private def visitCodeFence(elementTy: IElementType, treeIt: MkTreeIt): Unit = {
+    val childIt = treeIt.startIterateCurrentChildren()
+    def splitWsFromFenceBorder(s: String, wsType: IElementType): Unit = {
+      val text = textOf(childIt)
+      val idx = text.indexOf(s)
+
+      if (idx > 0) {
+        ensureBuilderInPosition(childIt.currentStartOffset + idx, wsType)
+      }
+    }
+    assert(childIt.currentNodeType == MarkdownTokenTypes.CODE_FENCE_START)
+
+    splitWsFromFenceBorder("{{{", ScalaDocTokenType.DOC_WHITESPACE)
+    val marker = builder.mark()
+    ensureBuilderInPosition(childIt.currentEndOffset, ScalaDocTokenType.DOC_INNER_CODE_TAG)
+
+    while (!childIt.ended) {
+      if (childIt.currentNodeType == MarkdownTokenTypes.CODE_FENCE_END) {
+        splitWsFromFenceBorder("}}}", ScalaDocTokenType.DOC_INNER_CODE)
+        ensureBuilderInPosition(childIt.currentEndOffset, ScalaDocTokenType.DOC_INNER_CLOSE_CODE_TAG)
+      } else {
+        visitNode(childIt)
+      }
+      childIt.advance()
+    }
+
+    marker.done(elementTy)
+  }
+
   private def visitParagraph(elementTy: IElementType, treeIt: MkTreeIt): Unit = {
     ensureBuilderInPosition(treeIt.currentStartOffset)
 
@@ -172,6 +202,30 @@ private class ScaladocMarkdownParsing(builder: MkBuilder) extends ScalaDocElemen
     }
 
     ensureBuilderInPosition(treeIt.currentEndOffset)
+
+    // also eat eol and whitespaces of the parents
+    @tailrec
+    def eat(it: MkTreeIt): Unit = {
+      it.peek() match {
+        case Some(node) =>
+          val ty = node.getType
+          if (ty == MarkdownElementTypes.CODE_FENCE) {
+
+          } else if (ty == MarkdownTokenTypes.WHITE_SPACE || ty == MarkdownTokenTypes.EOL) {
+            it.advance()
+            visitNode(it)
+            eat(it)
+          }
+        case _ =>
+          it.parent match {
+            case Some(parent) =>
+              eat(parent)
+            case None =>
+          }
+      }
+    }
+    eat(treeIt)
+
     marker.done(elementTy)
   }
 
@@ -224,6 +278,7 @@ private class ScaladocMarkdownParsing(builder: MkBuilder) extends ScalaDocElemen
       case MarkdownElementTypes.ATX_6 => ScalaDocTokenType.DOC_MARKDOWN_HEADER
       case MarkdownElementTypes.SETEXT_1 => ScalaDocTokenType.DOC_MARKDOWN_HEADER
       case MarkdownElementTypes.SETEXT_2 => ScalaDocTokenType.DOC_MARKDOWN_HEADER
+      case MarkdownTokenTypes.CODE_FENCE_CONTENT => ScalaDocTokenType.DOC_INNER_CODE
 
       case _ =>
         val childIt = treeIt.startIterateCurrentChildren()
@@ -238,6 +293,9 @@ private class ScaladocMarkdownParsing(builder: MkBuilder) extends ScalaDocElemen
       treeIt.advance()
     }
   }
+
+  private def textOf(it: MkTreeIt): String =
+    builder.content.substring(it.currentStartOffset, it.currentEndOffset)
 }
 
 object ScaladocMarkdownParsing {
@@ -349,29 +407,28 @@ object ScaladocMarkdownParsing {
     }
   }
 
-  private final class MkTreeIt(@Nullable firstNode: ASTNode, rest: ju.ListIterator[ASTNode], len: Int, private var parent: Option[MkTreeIt]) {
-    @Nullable
-    private var node = firstNode
+  private final class MkTreeIt(private var idx: Int, list: ju.List[ASTNode], val parent: Option[MkTreeIt]) {
     private var processesChildren: Boolean = false
-    
-    def currentNodeType: org.intellij.markdown.IElementType = node.getType
-    def currentStartOffset: Int = node.getStartOffset
-    def currentEndOffset: Int = node.getEndOffset
-    def currentChildren: ju.List[ASTNode] = node.getChildren
+
+    def index: Int = idx
+    def current: ASTNode = list.get(idx)
+    def currentNodeType: org.intellij.markdown.IElementType = current.getType
+    def currentStartOffset: Int = current.getStartOffset
+    def currentEndOffset: Int = current.getEndOffset
+    def currentChildren: ju.List[ASTNode] = current.getChildren
     def currentHasChildren: Boolean = !currentChildren.isEmpty
     // returns the available nodes including the current one
-    def availableNodesOnLevel: Int = len - rest.previousIndex()
+    def availableNodesOnLevel: Int = list.size() - idx
 
-    def ended: Boolean = node == null
+    def ended: Boolean = idx >= list.size()
     def advance(): Unit = {
-      if (rest.hasNext)
-        node = rest.next()
-      else {
+      assert(!ended)
+      idx += 1
+      if (ended) {
         parent.foreach { parent =>
           assert(parent.processesChildren)
           parent.processesChildren = false
         }
-        node = null
       }
     }
 
@@ -381,6 +438,10 @@ object ScaladocMarkdownParsing {
       }
     }
 
+    def peek(): Option[ASTNode] =
+      if (idx + 1 < list.size()) Some(list.get(idx + 1))
+      else None
+
     def dropRest(): Unit = {
       while (!ended) advance()
     }
@@ -388,18 +449,15 @@ object ScaladocMarkdownParsing {
     def startIterateCurrentChildren(): MkTreeIt = {
       assert(!processesChildren)
       val children = currentChildren
-      val it = children.listIterator()
-      if (it.hasNext) {
+      if (!children.isEmpty) {
         processesChildren = true
-        new MkTreeIt(it.next(), it, children.size(), Some(this))
-      } else {
-        new MkTreeIt(null, ju.Collections.emptyListIterator(), 0, Some(this))
       }
+      new MkTreeIt(0, currentChildren, Some(this))
     }
   }
 
   private object MkTreeIt {
     def apply(node: ASTNode): MkTreeIt =
-      new MkTreeIt(node, ju.Collections.emptyListIterator(), 1, None)
+      new MkTreeIt(0, ju.Collections.singletonList(node), None)
   }
 }
