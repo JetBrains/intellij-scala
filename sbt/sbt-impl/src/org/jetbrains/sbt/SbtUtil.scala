@@ -394,6 +394,6 @@ object SbtUtil {
     BrowserLauncher.getInstance().open(SeparateMainTestModulesBlogPostLink)
 
   val SeparateMainTestModulesBlogPostLink =
-    "https://blog.jetbrains.com/scala/2024/11/19/new-module-layout-for-sbt/"
+    "https://blog.jetbrains.com/scala/new-module-layout-for-sbt/"
 
 }
