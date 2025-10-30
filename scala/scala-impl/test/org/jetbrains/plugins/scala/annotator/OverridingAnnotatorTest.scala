@@ -4,17 +4,9 @@ import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 
-class OverridingAnnotatorTest extends ScalaLightCodeInsightFixtureTestCase
-  with ScalaHighlightingTestLike{
+abstract class OverridingAnnotatorTestBase extends ScalaLightCodeInsightFixtureTestCase with ScalaHighlightingTestLike
 
-  override protected def supportedIn(version: ScalaVersion): Boolean =
-    version == ScalaVersion.Latest.Scala_3
-
-  override protected def assertMessagesText(@Language("Scala 3") code: String, messagesConcatenated: String): Unit =
-    super.assertMessagesText(code, messagesConcatenated)
-
-  override protected def assertNoErrors(@Language("Scala 3") code: String): Unit =
-    super.assertNoErrors(code)
+class OverridingAnnotatorTest_Scala2 extends OverridingAnnotatorTestBase {
 
   def testSyntheticUnapply(): Unit =
     assertNoErrors(
@@ -407,25 +399,30 @@ class OverridingAnnotatorTest extends ScalaLightCodeInsightFixtureTestCase
         |""".stripMargin
     )
 
-  def testSCL14570(): Unit =
-    assertNoErrors(
-      """trait WeaveResource {
-        |  def url(): String
-        |}
-        |
-        |case class DefaultWeaveResource(url: String) extends WeaveResource
-        |""".stripMargin
-    )
+  //language=Scala
+  protected val Code_SCL14570_1 =
+    """trait WeaveResource {
+      |  def url(): String
+      |}
+      |
+      |case class DefaultWeaveResource(url: String) extends WeaveResource
+      |""".stripMargin
+
+  //language=Scala
+  protected val Code_SCL14570_2 =
+    """trait WeaveResource {
+      |  def url(): Seq[String]
+      |}
+      |
+      |case class DefaultWeaveResource(url: String*) extends WeaveResource
+      |""".stripMargin
+
+  //SCL-14570
+  def testSCL14570_1(): Unit =
+    assertNoErrors(Code_SCL14570_1)
 
   def testSCL14570_2(): Unit =
-    assertNoErrors(
-      """trait WeaveResource {
-        |  def url(): Seq[String]
-        |}
-        |
-        |case class DefaultWeaveResource(url: String*) extends WeaveResource
-        |""".stripMargin
-    )
+    assertNoErrors(Code_SCL14570_2)
 
   def testSCL17459(): Unit =
     assertNoErrors(
@@ -531,29 +528,6 @@ class OverridingAnnotatorTest extends ScalaLightCodeInsightFixtureTestCase
     )
   }
 
-  def testGivenInstances(): Unit = {
-    assertMessagesText(
-      """trait MyTrait
-        |
-        |class Base {
-        |  given String = "42"
-        |  given givenInt: Int = 42
-        |  given givenStructured: MyTrait with {}
-        |}
-        |
-        |class Child extends Base {
-        |  override given String = "23"
-        |  override given givenInt: Int = 23
-        |  override given givenStructured: MyTrait with {}
-        |}
-        |""".stripMargin,
-      """Error(String,Method 'given_String' cannot override final member)
-        |Error(givenInt,Method 'givenInt' cannot override final member)
-        |Error(override,'override' modifier allowed only for type definitions members)
-        |""".stripMargin
-    )
-  }
-
   def testSCL24536(): Unit = {
     assertNoErrors(
       """
@@ -606,4 +580,103 @@ class OverridingAnnotatorTest extends ScalaLightCodeInsightFixtureTestCase
       |}
       |""".stripMargin
   )
+}
+
+class OverridingAnnotatorTest_Scala3 extends OverridingAnnotatorTest_Scala2 {
+
+  // min 3.6 is chosen primarily for "deferred" givens tests
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version >= ScalaVersion.Latest.Scala_3_6
+
+  override protected def assertMessagesText(@Language("Scala 3") code: String, messagesConcatenated: String): Unit =
+    super.assertMessagesText(code, messagesConcatenated)
+
+  override protected def assertNoErrors(@Language("Scala 3") code: String): Unit =
+    super.assertNoErrors(code)
+
+  override def testSCL14570_1(): Unit =
+    assertErrorsText(
+      Code_SCL14570_1,
+      "Error(url,Overriding type String does not conform to base type () => String)"
+    )
+
+  override def testSCL14570_2(): Unit =
+    assertErrorsText(
+      Code_SCL14570_2,
+      "Error(url,Overriding type Seq[String] does not conform to base type () => Seq[String])"
+    )
+
+  def testGivenInstances(): Unit = {
+    assertMessagesText(
+      """trait MyTrait
+        |
+        |class Base {
+        |  given String = "42"
+        |  given givenInt: Int = 42
+        |  given givenStructured: MyTrait with {}
+        |}
+        |
+        |class Child extends Base {
+        |  override given String = "23"
+        |  override given givenInt: Int = 23
+        |  override given givenStructured: MyTrait with {}
+        |}
+        |""".stripMargin,
+      """Error(String,Method 'given_String' cannot override final member)
+        |Error(givenInt,Method 'givenInt' cannot override final member)
+        |Error(override,'override' modifier allowed only for type definitions members)
+        |""".stripMargin
+    )
+  }
+
+  /**
+   * More tests in [[org.jetbrains.plugins.scala.annotator.ScTemplateDefinitionAnnotatorTest3_6]]
+   */
+  def testGivenInstancesDeferred(): Unit = {
+    assertNoErrors(
+      """trait Base {
+        |  given String = scala.compiletime.deferred
+        |
+        |  import scala.compiletime.deferred
+        |
+        |  given givenInt: Int = deferred
+        |
+        |  given Short = compiletime.deferred
+        |
+        |  given Long = _root_.scala.compiletime.deferred
+        |
+        |  import _root_.scala.{compiletime => myCompileTime}
+        |
+        |  given Char = myCompileTime.deferred
+        |
+        |  // Illegal 1:
+        |  //    `deferred` can only be used as the right hand side of a given definition in a trait
+        |  //val myDeferred = scala.compiletime.deferred
+        |  //given Boolean = myDeferred
+        |
+        |  // Illegal 2:
+        |  //   `deferred` can only be used as the right hand side of a given definition in a trait.
+        |  //   Note that `deferred` can only be used under its own name when implementing a given in a trait
+        |  //import scala.compiletime.{deferred => myDeferred2}
+        |  //given Boolean = myDeferred2
+        |
+        |  // Illegal 3:
+        |  //   `deferred` can only be used as the right hand side of a given definition in a trait
+        |  //given Boolean = {scala.compiletime.deferred}
+        |}
+        |
+        |class Child extends Base {
+        |  override given String = "0"
+        |
+        |  override given givenInt: Int = 0
+        |
+        |  override given Short = 0
+        |
+        |  override given Char = 0
+        |
+        |  override given Long = 0
+        |}
+        |""".stripMargin
+    )
+  }
 }

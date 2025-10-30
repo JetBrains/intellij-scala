@@ -90,7 +90,7 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
     }
 
     def isDeferredGivenSig(sig: TermSignature): Boolean = sig.namedElement match {
-      case gvn: ScGivenAliasDefinition => ScGivenAliasDefinitionAnnotator.isDeferredGiven(gvn)
+      case gvn: ScGivenAliasDefinition => gvn.isDeferred
       case _                           => false
     }
 
