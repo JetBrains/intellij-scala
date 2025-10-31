@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.project.Versions
 import org.jetbrains.plugins.scala.project.template.PackagePrefixStepLike
 import org.jetbrains.plugins.scala.util.ui.extensions.JComboBoxOps
 import org.jetbrains.sbt.SbtVersion
-import org.jetbrains.sbt.project.template.wizard.{SbtNewProjectWizardStep, ScalaNewProjectWizardMultiStep, ScalaVersionStepLike}
+import org.jetbrains.sbt.project.template.wizard.{SbtNewProjectWizardStep, ScalaNewProjectWizardMultiStep}
 import org.jetbrains.sbt.project.template.{SbtModuleBuilder, SbtModuleBuilderSelections}
 
 import java.util.concurrent.atomic.AtomicReference
@@ -38,8 +38,7 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardMultiStep)
   extends SbtNewProjectWizardStep(parent)
     with SbtScalaNewProjectWizardData
     with ScalaSampleCodeNewProjectWizardData
-    with PackagePrefixStepLike
-    with ScalaVersionStepLike {
+    with PackagePrefixStepLike {
 
   private val availableSbtVersions: AtomicReference[Option[Seq[SbtVersion]]] = new AtomicReference(None)
   private val availableSbtVersionsForScala3: AtomicReference[Option[Seq[SbtVersion]]] = new AtomicReference(None)
