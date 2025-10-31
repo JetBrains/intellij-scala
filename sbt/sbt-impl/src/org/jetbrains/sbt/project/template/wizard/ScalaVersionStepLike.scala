@@ -2,12 +2,13 @@ package org.jetbrains.sbt.project.template.wizard
 
 import com.intellij.ide.wizard.NewProjectWizardStep
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.observable.properties.{GraphProperty, PropertyGraph}
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.dsl.builder.{Panel, Row, RowLayout}
-import org.jetbrains.annotations.Nls
+import org.jetbrains.sbt.project.template.wizard.kotlin_interop.KotlinInteropUtils
 import org.jetbrains.plugins.scala.extensions.applyTo
-import org.jetbrains.plugins.scala.isUnitTestMode
+import org.jetbrains.plugins.scala.{ScalaVersion, isUnitTestMode}
 import org.jetbrains.plugins.scala.project.template.{IndentationSyntaxStepLike, ScalaVersionDownloadingDialog}
 import org.jetbrains.plugins.scala.project.{Version, Versions}
 import org.jetbrains.plugins.scala.util.AsynchronousVersionsDownloading
@@ -19,14 +20,23 @@ import scala.collection.immutable.ListSet
 
 trait ScalaVersionStepLike extends IndentationSyntaxStepLike with AsynchronousVersionsDownloading { self: NewProjectWizardStep =>
 
-  protected def selections: ScalaModuleBuilderSelections
+  protected def selections: ScalaModuleBuilderSelections =
+    ScalaModuleBuilderSelections.default
 
   protected def defaultAvailableScalaVersions: Seq[String]
 
-  private val isScalaVersionManuallySelected: AtomicBoolean = new AtomicBoolean(false)
+  protected val isScalaVersionManuallySelected: AtomicBoolean = AtomicBoolean(false)
 
-  private val isScalaLoading = new AtomicBoolean(false)
+  protected val isScalaLoading = AtomicBoolean(false)
   protected lazy val scalaVersionComboBox: SComboBox[String] = createSComboBoxWithSearchingListRenderer(ListSet(defaultAvailableScalaVersions*), None, isScalaLoading)
+
+  @inline private def propertyGraph: PropertyGraph = getPropertyGraph
+
+  protected lazy val scalaVersionProperty: GraphProperty[String] = propertyGraph.property(defaultAvailableScalaVersions.head)
+  protected def getScalaVersion: Option[ScalaVersion] = {
+    val scalaVersionStr = scalaVersionProperty.get()
+    ScalaVersion.fromString(scalaVersionStr)
+  }
 
   private def downloadScalaVersions(disposable: Disposable): Unit = {
     val scalaDownloadVersions: ProgressIndicator => Seq[Version] = indicator => {
@@ -38,12 +48,11 @@ trait ScalaVersionStepLike extends IndentationSyntaxStepLike with AsynchronousVe
     }
   }
 
-  @Nls
-  protected val scalaLabelText: String = SbtBundle.message("sbt.settings.scala")
-
-  protected val downloadScalaSourcesCheckbox: JBCheckBox = applyTo(new JBCheckBox(SbtBundle.message("sbt.module.step.download.sources")))(
+  private val downloadScalaSourcesCheckbox: JBCheckBox = applyTo(new JBCheckBox(SbtBundle.message("sbt.module.step.download.sources")))(
     _.setToolTipText(SbtBundle.message("sbt.download.scala.standard.library.sources"))
   )
+
+  protected val downloadScalaSourcesProperty: GraphProperty[java.lang.Boolean] = propertyGraph.property(java.lang.Boolean.TRUE)
 
   protected def setUpScalaUI(panel: Panel, downloadSourcesCheckbox: Boolean): Unit = {
     scalaVersionComboBox.addItemListener { e =>
@@ -54,12 +63,16 @@ trait ScalaVersionStepLike extends IndentationSyntaxStepLike with AsynchronousVe
       }
     }
 
-    panel.row(scalaLabelText, (row: Row) => {
+    panel.row(SbtBundle.message("sbt.settings.scala"), (row: Row) => {
       row.layout(RowLayout.PARENT_GRID)
-      row.cell(scalaVersionComboBox)
+      val scalaVersionComboBoxCell = row.cell(scalaVersionComboBox)
+      KotlinInteropUtils.bindItem(scalaVersionComboBoxCell, scalaVersionProperty)
+
       if (downloadSourcesCheckbox) {
-        row.cell(downloadScalaSourcesCheckbox)
+        val downloadSourcesCell = row.cell(downloadScalaSourcesCheckbox)
+        KotlinInteropUtils.bind(downloadSourcesCell, downloadScalaSourcesProperty)
       }
+
       kotlin.Unit.INSTANCE
     })
     setupIndentationSyntaxUI(panel)
