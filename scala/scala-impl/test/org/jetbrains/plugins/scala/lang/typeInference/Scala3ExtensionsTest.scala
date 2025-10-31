@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package lang.typeInference
 
+import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.junit.experimental.categories.Category
 
@@ -8,6 +9,9 @@ import org.junit.experimental.categories.Category
 class Scala3ExtensionsTest extends ScalaLightCodeInsightFixtureTestCase {
   override def supportedIn(version: ScalaVersion): Boolean =
     version >= LatestScalaVersions.Scala_3_7
+
+  override def checkTextHasNoErrors(@Language("Scala 3") text: String): Unit =
+    super.checkTextHasNoErrors(text)
 
   def testSimpleExtension(): Unit = checkTextHasNoErrors(
     """
@@ -777,6 +781,73 @@ class Scala3ExtensionsTest extends ScalaLightCodeInsightFixtureTestCase {
       |  def main(args: Array[String]): Unit = {
       |    val l = List(LeafState(), LeafState(), LeafState())
       |    l.collectWithFilter[LeafState](_ => true)
+      |  }
+      |}
+      |""".stripMargin
+  )
+
+  //SCL-22627
+  def testSCL22627_1(): Unit = checkTextHasNoErrors(
+    """object RootObject:
+      |  type TypeAlias
+      |  extension (self: TypeAlias) def show: String = ""
+      |
+      |  trait Trait
+      |  extension (self: Trait) def show: String = ""
+      |
+      |trait RootTrait:
+      |  type TypeAlias
+      |  extension (self: TypeAlias) def show: String = ""
+      |
+      |  trait Trait
+      |  extension (self: Trait) def show: String = ""
+      |
+      |//OK: statically-available types
+      |object Usage1:
+      |  import RootObject.TypeAlias
+      |  val ta: TypeAlias = ???
+      |  ta.show
+      |
+      |  import RootObject.Trait
+      |  val t: Trait = ???
+      |  t.show
+      |
+      |//ERROR: path-dependent types
+      |object Usage2:
+      |  val rt: RootTrait = ???
+      |  import rt.TypeAlias
+      |  val ta: TypeAlias = ???
+      |  ta.show
+      |
+      |  import rt.Trait
+      |  val t: Trait = ???
+      |  t.show
+      |""".stripMargin
+  )
+
+  def testSCL22627_2(): Unit = checkTextHasNoErrors(
+    """import scala.quoted.{Expr, Quotes, quotes}
+      |
+      |object Example {
+      |  def foo(using Quotes): Unit = {
+      |    val qq = quotes
+      |    import qq.reflect.*
+      |
+      |    //without this `.typeSymbol` is not resolved
+      |    //import qq.reflect.TypeReprMethods //type TypeRepr
+      |    //without this `.caseFields` is not resolved
+      |    //import qq.reflect.SymbolMethods // type Symbol <: AnyRef
+      |    //without this `.asExpr` is not resolved
+      |    //import qq.reflect.TreeMethods // type Tree <: AnyRef
+      |
+      |    def extractFields(tpe: TypeRepr): List[(String, TypeRepr, List[Expr[Any]])] = {
+      |      tpe.typeSymbol.caseFields.map { field =>
+      |        val fieldType = tpe.memberType(field)
+      |        val annotations = field.annotations.map(_.asExpr)
+      |        field.name
+      |        null
+      |      }
+      |    }
       |  }
       |}
       |""".stripMargin
