@@ -112,6 +112,12 @@ object SbtUtil {
   def hasScalaCompilerSeparateProdTestSourcesEnabled(project: Project): Boolean =
     ScalaCompilerConfiguration.instanceIn(project).separateProdTestSources
 
+  /**
+   * Determines whether the [[SbtProjectData]] for the external system project at `projectPath` corresponds to a preview mode.
+   *
+   * @return `true` if the sbt project is in preview mode or if [[SbtProjectData]] cannot be found; `false` otherwise.
+   *         If [[SbtProjectData]] is not found at `projectPath`, the external system project at given `projectPath` is likely not an sbt project.
+   */
   def isPreview(project: Project, projectPath: String): Boolean = {
     val sbtProjectDataOpt = getSbtProjectData(project, Some(projectPath))
     sbtProjectDataOpt.forall(_.isPreview)
@@ -385,5 +391,9 @@ object SbtUtil {
       s"*/*:$command"
 
   def openSeparateMainTestModulesBlogPost(): Unit =
-    BrowserLauncher.getInstance().open("https://blog.jetbrains.com/scala/2024/11/19/new-module-layout-for-sbt/")
+    BrowserLauncher.getInstance().open(SeparateMainTestModulesBlogPostLink)
+
+  val SeparateMainTestModulesBlogPostLink =
+    "https://blog.jetbrains.com/scala/new-module-layout-for-sbt/"
+
 }

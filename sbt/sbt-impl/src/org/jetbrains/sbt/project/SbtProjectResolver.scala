@@ -277,6 +277,10 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
         LegacySbtVersionNotifications.warnForBuildToolWindow(project, projectRoot, sbtVersion, reporter)
       }
 
+      if (!settings.separateProdTestSources) {
+        LegacyModulesLayoutNotifications.warnForBuildToolWindow(reporter)
+      }
+
       val structureFilePath = getStructureFilePath(projectRoot)
       val StructureFileReuseMode(readStructureFile, writeStructureFile) = getStructureFileReuseMode
 

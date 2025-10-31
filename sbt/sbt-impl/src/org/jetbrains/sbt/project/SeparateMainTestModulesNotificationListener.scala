@@ -1,8 +1,6 @@
 package org.jetbrains.sbt.project
 
-import com.intellij.ide.trustedProjects.TrustedProjects
 import com.intellij.ide.util.PropertiesComponent
-import com.intellij.openapi.externalSystem.service.project.manage.ProjectDataImportListener
 import com.intellij.openapi.project.Project
 import com.intellij.ui.GotItTooltip
 import org.jetbrains.plugins.scala.settings.ShowSettingsUtilImplExt
@@ -20,9 +18,11 @@ import org.jetbrains.sbt.{SbtBundle, SbtUtil}
  *  - Read more about this feature in the blog post
  *  - Access sbt project settings to revert this if needed
  */
-class SeparateMainTestModulesNotificationListener(project: Project) extends ProjectDataImportListener {
+class SeparateMainTestModulesNotificationListener(project: Project) extends SbtProjectDataImportListener(project) {
 
   override def onImportFinished(projectPath: String): Unit = {
+    if (!isListenerAllowed(projectPath)) return
+
     val sbtProjectSettings = SbtProjectSettings.`for`(project, projectPath)
     sbtProjectSettings.foreach(showNotificationIfNecessary(_, project))
   }
@@ -38,10 +38,12 @@ object SeparateMainTestModulesNotificationListener {
    *  - The separate sources setting is enabled but not explicitly set by user
    *  - The notification hasn't been shown before
    */
-  def showNotificationIfNecessary(sbtProjectSettings: SbtProjectSettings, project: Project): Unit =
-    if (!wasOldNotificationShown && shouldShow(sbtProjectSettings, project)) {
+  def showNotificationIfNecessary(sbtProjectSettings: SbtProjectSettings, project: Project): Unit = {
+    val shouldShow = sbtProjectSettings.separateProdAndTestSources && !sbtProjectSettings.separateProdAndTestSourcesIsExplicit
+    if (!wasOldNotificationShown && shouldShow) {
       show(project)
     }
+  }
 
   /**
    * Checks whether the old main/test modules notification has already been shown to the user.
@@ -51,14 +53,6 @@ object SeparateMainTestModulesNotificationListener {
     // The key construction is taken from com.intellij.ide.util.RunOnceUtilKt.createKey
     val key = s"RunOnceActivity.$Key"
     PropertiesComponent.getInstance().isValueSet(key)
-  }
-
-  private def shouldShow(sbtProjectSettings: SbtProjectSettings, project: Project): Boolean = {
-    val isTrusted = TrustedProjects.isProjectTrusted(project)
-    isTrusted && {
-      val isPreview = SbtUtil.isPreview(project, sbtProjectSettings.getExternalProjectPath)
-      !isPreview && sbtProjectSettings.separateProdAndTestSources && !sbtProjectSettings.separateProdAndTestSourcesIsExplicit
-    }
   }
 
   private def show(project: Project): Unit = {
