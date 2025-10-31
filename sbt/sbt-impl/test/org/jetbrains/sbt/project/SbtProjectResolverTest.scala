@@ -2,7 +2,7 @@ package org.jetbrains.sbt.project
 
 import junit.framework.TestCase
 import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
-import org.jetbrains.sbt.structure.{Configuration, ModuleDependencyData, ModuleIdentifier}
+import org.jetbrains.sbt.project.structure.data.{Configuration, ModuleDependencyData, ModuleIdentifier}
 
 class SbtProjectResolverTest extends TestCase {
 
