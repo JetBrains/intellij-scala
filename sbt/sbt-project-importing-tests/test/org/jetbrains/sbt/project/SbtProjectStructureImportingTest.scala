@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.compiler.data.CompileOrder
 import org.jetbrains.plugins.scala.extensions.{PathExt, RichFile, inWriteAction}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.external.JdkByName
-import org.jetbrains.sbt.{Sbt, SbtVersion}
+import org.jetbrains.sbt.{Sbt, SbtBundle, SbtVersion}
 import org.junit.Assert
 import org.junit.Assert.{assertEquals, assertTrue}
 import org.junit.experimental.categories.Category
@@ -1370,4 +1370,7 @@ final class SbtProjectStructureImportingTest extends SbtProjectStructureImportin
         modules := Seq(root, project1, project2)
       }
     )
+
+  override protected def runTest(expected: project): Unit =
+    runTest(expected, identity, mutedNotificationTitles = Seq(SbtBundle.message("sbt.legacy.modules.layout.notification.title")))
 }
