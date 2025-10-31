@@ -41,16 +41,13 @@ class ScalaCompilerTestdataHighlightingTest_2_12 extends ScalaCompilerTestdataHi
   override protected val reporter: HighlightingProgressReporter =
     HighlightingProgressReporter.newInstance(getClass.getSimpleName, filesWithProblems)
 
-  override protected def filesToHighlight: Seq[Path] = {
+  private def allPosTestFilesToHighlight: Seq[Path] = {
     val testDataPath = s"${TestUtils.getTestDataPath}/scalacTests/pos/"
-
     val dir = Path.of(testDataPath)
     dir.children()
   }
 
   //SOE at pos/t0674.scala
-  def testScalacTests(): Unit = doTest()
-
-  def test_t267(): Unit = doTest()
+  def testScalacTests(): Unit = doTest(allPosTestFilesToHighlight)
 }
 

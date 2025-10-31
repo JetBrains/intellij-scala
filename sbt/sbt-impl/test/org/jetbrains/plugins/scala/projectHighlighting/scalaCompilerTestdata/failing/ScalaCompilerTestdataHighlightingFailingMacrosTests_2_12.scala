@@ -3,5 +3,5 @@ package org.jetbrains.plugins.scala.projectHighlighting.scalaCompilerTestdata.fa
 class ScalaCompilerTestdataHighlightingFailingMacrosTests_2_12 extends ScalaCompilerTestdataHighlightingFailingTestBase_2_12 {
   override def getTestDirName = "macros"
 
-  def test_t8781(): Unit = doTest()
+  def test_t8781(): Unit = doTestForFileOrDirectory()
 }
