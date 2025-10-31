@@ -15,6 +15,7 @@ import org.junit.experimental.categories.Category
 
 import java.nio.file.{Files, Path}
 import scala.jdk.StreamConverters.StreamHasToScala
+import scala.reflect.NameTransformer
 import scala.util.Using
 
 @Category(Array(classOf[ScalacTests]))
@@ -24,6 +25,8 @@ abstract class ScalaCompilerTestdataHighlightingTest
   override protected val includeReflectLibrary = true
   override protected val includeCompilerAsLibrary = true
 
+  protected def reporter: HighlightingProgressReporter
+
   protected def getTestDirName: String
 
   protected final def getScalaCompilerTestDataRoot: String =
@@ -32,14 +35,28 @@ abstract class ScalaCompilerTestdataHighlightingTest
   protected final def getTestDataDir: String =
     s"${getScalaCompilerTestDataRoot}/$getTestDirName/"
 
-  protected def filesToHighlight: Seq[Path]
+  protected def getSingleTestFileNameForThisTest = getTestName(/*lowercaseFirstLetter*/ false).stripPrefix("_")
 
-  protected def reporter: HighlightingProgressReporter
+  protected def doTestForFileOrDirectory(): Unit = {
+    doTest(Seq(getSingleTestFileOrDirectoryForThisTest))
+  }
 
-  protected def doTest(): Unit = {
-    val allFiles = filesToHighlight
+  private def getSingleTestFileOrDirectoryForThisTest: Path = {
+    val decoded = NameTransformer.decode(getSingleTestFileNameForThisTest)
+    val dirPath = getTestDataDir + decoded
+    val dir = Path.of(dirPath)
+    val file = Path.of(s"$dirPath.scala")
 
-    val allFilesGrouped: Seq[(String, Seq[Path])] = allFiles
+    if (dir.exists)
+      dir
+    else if (file.exists)
+      file
+    else
+      throw new RuntimeException("No file exists")
+  }
+
+  protected def doTest(allFilesAndDirsToHighlight: Seq[Path]): Unit = {
+    val allFilesGrouped: Seq[(String, Seq[Path])] = allFilesAndDirsToHighlight
       .filter(f => f.isDirectory || isScalaFile(f) || isFlagsFile(f))
       .groupBy(f => FilenameUtils.removeExtension(f.toCanonicalPath.toString.replace("\\", "/")))
       .toSeq
