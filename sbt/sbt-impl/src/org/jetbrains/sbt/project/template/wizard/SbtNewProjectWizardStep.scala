@@ -30,10 +30,10 @@ import kotlin.jvm.functions
 import scala.annotation.nowarn
 import scala.collection.immutable.ListSet
 
-//TODO Add a Scala combobox (and all related functionality, such as downloading) to this step so that everything needed
-// for sbt is in one place.
-abstract class SbtNewProjectWizardStep(parent: NewProjectWizardStep) extends AbstractNewProjectWizardStep(parent)
-  with AsynchronousVersionsDownloading {
+abstract class SbtNewProjectWizardStep(parent: NewProjectWizardStep)
+  extends AbstractNewProjectWizardStep(parent)
+  with AsynchronousVersionsDownloading
+  with ScalaVersionStepLike {
 
   protected val defaultAvailableSbtVersions: ListSet[SbtVersion]
 
