@@ -23,12 +23,20 @@ import scala.jdk.CollectionConverters.ListHasAsScala
 
 
 private class ScaladocMarkdownParsing(builder: MkBuilder) extends ScalaDocElementTypes {
-  @inline
-  private def advanceToNextLine(): Unit = builder.advanceToNextLine()
-  @inline
-  private def ensureBuilderInPosition(i: Int): Unit = builder.ensureBuilderInPosition(i)
-  @inline
-  private def ensureBuilderInPosition(i: Int, elementType: IElementType): Unit = builder.ensureBuilderInPosition(i, elementType)
+  import builder.ensureBuilderInPosition
+
+  private val elementsHandlingInnerWs = Set(
+    MarkdownElementTypes.CODE_FENCE,
+  )
+
+  private val elementsHandlingPrevWs = Set(
+    MarkdownElementTypes.PARAGRAPH,
+    MarkdownElementTypes.BLOCK_QUOTE,
+    MarkdownElementTypes.ORDERED_LIST,
+    MarkdownElementTypes.UNORDERED_LIST,
+    MarkdownElementTypes.CODE_BLOCK,
+    ScalaDocTagMarkerBlock.TAG_BLOCK,
+  )
 
   def visitNode(treeIt: MkTreeIt): Unit = {
     assert(!treeIt.ended)
@@ -36,7 +44,9 @@ private class ScaladocMarkdownParsing(builder: MkBuilder) extends ScalaDocElemen
 
     if (tpe == MarkdownTokenTypes.EOL) {
       ensureBuilderInPosition(treeIt.currentStartOffset)
-      advanceToNextLine()
+      val parentHandlesWs = treeIt.parent.exists(it => elementsHandlingInnerWs(it.currentNodeType))
+      val nextNodeHandlesWs = treeIt.peek().forall(node => elementsHandlingPrevWs(node.getType))
+      builder.advanceToNextLine(emitInitialWs = !parentHandlesWs && !nextNodeHandlesWs)
       return
     }
 
@@ -46,6 +56,9 @@ private class ScaladocMarkdownParsing(builder: MkBuilder) extends ScalaDocElemen
     }
 
     tpe match {
+      case MarkdownTokenTypes.CODE_FENCE_CONTENT =>
+        // just make everything code content, including the initial ws
+        ensureBuilderInPosition(treeIt.currentEndOffset, elementTy)
       case _ if !treeIt.currentHasChildren =>
         ensureBuilderInPosition(treeIt.currentStartOffset)
 
@@ -59,6 +72,7 @@ private class ScaladocMarkdownParsing(builder: MkBuilder) extends ScalaDocElemen
       case WikiLinkParser.WIKI_LINK => visitBorderSyntaxElement(elementTy, treeIt, ScalaDocTokenType.DOC_LINK_TAG, ScalaDocTokenType.DOC_LINK_CLOSE_TAG, 2, ScalaDocElementTypes.SCALA_DOC_REFERENCE_LINK)
       case MarkdownElementTypes.CODE_FENCE => visitCodeFence(elementTy, treeIt)
       case MarkdownElementTypes.PARAGRAPH => visitParagraph(elementTy, treeIt)
+      case MarkdownElementTypes.BLOCK_QUOTE => visitBlockQuote(elementTy, treeIt)
       case _ =>
         ensureBuilderInPosition(treeIt.currentStartOffset)
 
@@ -69,12 +83,12 @@ private class ScaladocMarkdownParsing(builder: MkBuilder) extends ScalaDocElemen
     }
   }
 
-  def visitTagBlock(elementTy: IElementType, treeIt: MkTreeIt): Unit = {
+  private def visitTagBlock(elementTy: IElementType, treeIt: MkTreeIt): Unit = {
     // TAG_BLOCK needs to be dealt with in this complicated way,
     // due to needing whitespace inserted in a few places (which is not necessary for the rest)
     // and some nodes being special
     val hasArgument = treeIt.currentChildren.asScala.indexWhere(_.getType == ScalaDocTagMarkerBlock.TAG_ARGUMENT) != -1
-    ensureBuilderInPosition(treeIt.currentStartOffset)
+    builder.ensureBuilderInPositionLeavingLastWs(treeIt.currentStartOffset)
     val marker = builder.mark()
     val childIt = treeIt.startIterateCurrentChildren()
 
@@ -104,7 +118,7 @@ private class ScaladocMarkdownParsing(builder: MkBuilder) extends ScalaDocElemen
     }
     visitRest(childIt)
 
-    ensureBuilderInPosition(treeIt.currentEndOffset)
+    builder.ensureBuilderInPositionLeavingLastWs(treeIt.currentEndOffset)
     marker.done(elementTy)
   }
 
@@ -153,23 +167,21 @@ private class ScaladocMarkdownParsing(builder: MkBuilder) extends ScalaDocElemen
 
   private def visitCodeFence(elementTy: IElementType, treeIt: MkTreeIt): Unit = {
     val childIt = treeIt.startIterateCurrentChildren()
-    def splitWsFromFenceBorder(s: String, wsType: IElementType): Unit = {
-      val text = textOf(childIt)
-      val idx = text.indexOf(s)
-
-      if (idx > 0) {
-        ensureBuilderInPosition(childIt.currentStartOffset + idx, wsType)
+    def splitWsFromFenceBorder(wsType: IElementType): Unit = {
+      if (builder.getTokenType == ScalaDocTokenType.DOC_WHITESPACE) {
+        builder.remapCurrentToken(wsType)
+        builder.advanceLexer()
       }
     }
     assert(childIt.currentNodeType == MarkdownTokenTypes.CODE_FENCE_START)
 
-    splitWsFromFenceBorder("{{{", ScalaDocTokenType.DOC_WHITESPACE)
+    splitWsFromFenceBorder(ScalaDocTokenType.DOC_WHITESPACE)
     val marker = builder.mark()
     ensureBuilderInPosition(childIt.currentEndOffset, ScalaDocTokenType.DOC_INNER_CODE_TAG)
 
     while (!childIt.ended) {
       if (childIt.currentNodeType == MarkdownTokenTypes.CODE_FENCE_END) {
-        splitWsFromFenceBorder("}}}", ScalaDocTokenType.DOC_INNER_CODE)
+        splitWsFromFenceBorder(ScalaDocTokenType.DOC_INNER_CODE)
         ensureBuilderInPosition(childIt.currentEndOffset, ScalaDocTokenType.DOC_INNER_CLOSE_CODE_TAG)
       } else {
         visitNode(childIt)
@@ -181,7 +193,7 @@ private class ScaladocMarkdownParsing(builder: MkBuilder) extends ScalaDocElemen
   }
 
   private def visitParagraph(elementTy: IElementType, treeIt: MkTreeIt): Unit = {
-    ensureBuilderInPosition(treeIt.currentStartOffset)
+    builder.ensureBuilderInPositionLeavingLastWs(treeIt.currentStartOffset)
 
     val marker = builder.mark()
     val childIt = treeIt.startIterateCurrentChildren()
@@ -189,6 +201,8 @@ private class ScaladocMarkdownParsing(builder: MkBuilder) extends ScalaDocElemen
     if (!childIt.ended && childIt.currentNodeType == MarkdownTokenTypes.WHITE_SPACE) {
       ensureBuilderInPosition(childIt.currentEndOffset, ScalaDocTokenType.DOC_WHITESPACE)
       childIt.advance()
+    } else {
+      builder.ensureBuilderInPosition(childIt.currentStartOffset, ScalaDocTokenType.DOC_WHITESPACE)
     }
 
     while (!childIt.ended) {
@@ -226,6 +240,13 @@ private class ScaladocMarkdownParsing(builder: MkBuilder) extends ScalaDocElemen
     }
     eat(treeIt)
 
+    marker.done(elementTy)
+  }
+
+  private def visitBlockQuote(elementTy: IElementType, treeIt: MkTreeIt): Unit = {
+    val marker = builder.mark()
+    visitRest(treeIt.startIterateCurrentChildren())
+    ensureBuilderInPosition(treeIt.currentEndOffset)
     marker.done(elementTy)
   }
 
@@ -312,7 +333,9 @@ object ScaladocMarkdownParsing {
 
     val rootMarker = builder.mark()
 
-    builder.ensureBuilderInPosition(mkRootNode.getStartOffset, ScalaDocTokenType.DOC_COMMENT_START)
+    if (builder.getTokenType == ScalaDocTokenType.DOC_COMMENT_START) {
+      builder.advanceLexer()
+    }
     val parsing = new ScaladocMarkdownParsing(builder)
     parsing.visitNode(MkTreeIt(mkRootNode))
 
@@ -333,24 +356,30 @@ object ScaladocMarkdownParsing {
     psiBuilder.getTreeBuilt
   }
 
+  private val contentAfterStar = raw"\*( )+\S".r
   private def splitContext(input: CharSequence): (String, Seq[Int]) = {
     val text = input.toString
     val initialOffset = if (text.startsWith("/*")) 2 else 0
-
     val content = text.substring(
       initialOffset,
       if (text.endsWith("*/")) text.length - 2 else text.length
     )
+    val startsOnFirstLine = contentAfterStar.findPrefixOf(content).isDefined
 
     var extraRemoved = initialOffset
+    var firstLine = true
     val result = content.linesWithSeparators.map(line => {
       val initialLength = line.length
       val trimmed = line.stripLeading
 
-      val cleanedLine = if (!trimmed.startsWith("*")) {
-        trimmed
-      } else {
+      val cleanedLine = if (startsOnFirstLine && !firstLine && trimmed.startsWith("*  ")) {
+        trimmed.substring(3)
+      } else if (trimmed.startsWith("* ")) {
+        trimmed.substring(2)
+      } else if (trimmed.startsWith("*")) {
         trimmed.substring(1)
+      } else {
+        trimmed
       }
 
       // Don't fully delete empty lines, keep the newline.
@@ -358,6 +387,7 @@ object ScaladocMarkdownParsing {
 
       extraRemoved += initialLength - finalLine.length
 
+      firstLine = false
       (finalLine, extraRemoved)
     })
 
@@ -378,18 +408,46 @@ object ScaladocMarkdownParsing {
   private class MkBuilder(base: PsiBuilder, val content: String, val lineOffsetMapping: Seq[Int]) extends PsiBuilderAdapter(base) {
     private var curLine = 0
 
-    def ensureBuilderInPosition(position: Int, iType: IElementType = ScalaDocTokenType.DOC_COMMENT_DATA): Unit = {
+    def ensureBuilderInPosition(position: Int, iType: IElementType = null, splitWs: Boolean = false): Unit = {
       val target = position + lineOffsetMapping(curLine)
 
       if (getCurrentOffset >= target) return
 
+      if (splitWs && getTokenType == ScalaDocTokenType.DOC_WHITESPACE) {
+        advanceLexer()
+
+        if (getCurrentOffset >= target) return
+      }
+
+      var onlyWs = true
       val marker = mark()
-      while (getCurrentOffset < target) advanceLexer()
+      do {
+        onlyWs &&= getTokenType == ScalaDocTokenType.DOC_WHITESPACE
+        advanceLexer()
+      } while (getCurrentOffset < target)
+
+      marker.collapse(
+        if (iType != null) iType
+        else if (onlyWs) ScalaDocTokenType.DOC_WHITESPACE
+        else ScalaDocTokenType.DOC_COMMENT_DATA
+      )
+    }
+
+    def ensureBuilderInPositionLeavingLastWs(position: Int, iType: IElementType = ScalaDocTokenType.DOC_COMMENT_DATA): Unit = {
+      val target = position + lineOffsetMapping(curLine)
+
+      def isAtPosition = getCurrentOffset >= target || (getTokenType == ScalaDocTokenType.DOC_WHITESPACE && rawTokenTypeStart(1) >= target)
+      if (isAtPosition) return
+
+      val marker = mark()
+      do {
+        advanceLexer()
+      } while (!isAtPosition)
 
       marker.collapse(iType)
     }
 
-    def advanceToNextLine(): Unit = {
+    def advanceToNextLine(emitInitialWs: Boolean): Unit = {
       val whitespaceMarker = mark()
       var gotOne = false
       while (getTokenType == ScalaDocTokenType.DOC_WHITESPACE) {
@@ -402,6 +460,10 @@ object ScaladocMarkdownParsing {
 
       // Skip the leading asterisk
       if (getTokenType == ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS) {
+        advanceLexer()
+      }
+
+      if (emitInitialWs && getTokenType == ScalaDocTokenType.DOC_WHITESPACE && !getTokenText.exists(_ == '\n')) {
         advanceLexer()
       }
     }
