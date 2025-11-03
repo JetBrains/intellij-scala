@@ -111,7 +111,7 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardMultiStep)
 
     setupSbtUI(panel)
 
-    setUpScalaUI(panel, downloadSourcesCheckbox = true)
+    setUpScalaUIWithJDKValidation(panel)
 
     setupPackagePrefixUI(panel)
 
