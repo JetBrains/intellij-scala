@@ -14,8 +14,7 @@ import com.intellij.openapi.roots.impl.libraries.LibraryEx
 import com.intellij.openapi.roots.libraries.{Library, LibraryTablesRegistrar}
 import com.intellij.openapi.util.{Key, UserDataHolder, UserDataHolderEx}
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.platform.workspace.jps.entities.DependenciesKt.setLibraryProperties
-import com.intellij.platform.workspace.jps.entities.{DependenciesKt, DependencyScope, LibraryDependency, LibraryEntity, LibraryId, LibraryPropertiesEntity, LibraryRoot, LibraryTableId, LibraryTypeId, Library_extensionsKt, ModuleEntity, ModuleEntityAndExtensions, ModuleExtensions}
+import com.intellij.platform.workspace.jps.entities.{DependencyScope, _}
 import com.intellij.platform.workspace.storage.MutableEntityStorage
 import com.intellij.psi.{LanguageSubstitutors, PsiElement, PsiFile}
 import com.intellij.util.PathsList
@@ -131,8 +130,8 @@ package object project {
         val externalSource = ExternalProjectSystemRegistry.getInstance().getSourceById(sourceId)
         val legacyBridgeModifiableBase = CompanionProxyUtils.LegacyBridgeJpsEntitySourceFactoryCompanion.getInstance(project)
         val librarySource = legacyBridgeModifiableBase.createEntitySourceForProjectLibrary(externalSource)
-        val libraryEntity = LibraryEntity.create(libraryName, LibraryTableId.ProjectLibraryTableId.INSTANCE, roots.asJava, librarySource)
-        storage.addEntity[LibraryEntity.Builder, LibraryEntity](libraryEntity)
+        val libraryEntity = LibraryEntityModifications.createLibraryEntity(libraryName, LibraryTableId.ProjectLibraryTableId.INSTANCE, roots.asJava, librarySource)
+        storage.addEntity[LibraryEntityBuilder, LibraryEntity](libraryEntity)
       }
     }
   }
@@ -162,14 +161,14 @@ package object project {
       val libraryProperties = Library_extensionsKt.getLibraryProperties(libraryEntity)
 
       if (libraryProperties == null) {
-        DependenciesKt.modifyLibraryEntity(storage, libraryEntity, builder => {
-          val entity = LibraryPropertiesEntity.create(libraryEntity.getEntitySource)
+        LibraryEntityModifications.modifyLibraryEntity(storage, libraryEntity, builder => {
+          val entity = LibraryPropertiesEntityModifications.createLibraryPropertiesEntity(libraryEntity.getEntitySource)
           entity.setPropertiesXmlTag(scalaLibraryPropertiesXmlTag)
-          setLibraryProperties(builder, entity)
+          LibraryEntityModifications.setLibraryProperties(builder, entity)
           KUnit
         })
       } else {
-        Library_extensionsKt.modifyLibraryPropertiesEntity(storage, libraryProperties, builder => {
+        LibraryPropertiesEntityModifications.modifyLibraryPropertiesEntity(storage, libraryProperties, builder => {
           builder.setPropertiesXmlTag(scalaLibraryPropertiesXmlTag)
           KUnit
         })
@@ -177,7 +176,7 @@ package object project {
     }
 
     def setScalaKind(storage: MutableEntityStorage): Unit =
-      storage.modifyEntity[LibraryEntity.Builder, LibraryEntity](classOf[LibraryEntity.Builder], libraryEntity, { builder =>
+      storage.modifyEntity[LibraryEntityBuilder, LibraryEntity](classOf[LibraryEntityBuilder], libraryEntity, { builder =>
         val libraryTypeId = new LibraryTypeId(ScalaLibraryType.Kind.getKindId)
         builder.setTypeId(libraryTypeId)
         KUnit
@@ -456,7 +455,7 @@ package object project {
     }
 
     def addLibraryDependency(storage: MutableEntityStorage, libraryEntity: LibraryEntity): Unit =
-      ModuleEntityAndExtensions.modifyModuleEntity(storage, moduleEntity, builder => {
+      ModuleEntityModifications.modifyModuleEntity(storage, moduleEntity, builder => {
         val libraryId = new LibraryId(libraryEntity.getName, libraryEntity.getTableId)
         val libraryDependency = new LibraryDependency(libraryId, false, DependencyScope.COMPILE)
         builder.getDependencies.add(libraryDependency)

@@ -1,11 +1,11 @@
 package org.jetbrains.sbt.project.data.service
 
-import com.intellij.entities.{ModuleExtensionWorkspaceEntityKt, SharedSourcesOwnersEntity}
+import com.intellij.entities.{ModuleExtensionWorkspaceEntityModifications, SharedSourcesOwnersEntityBuilder, SharedSourcesOwnersEntityModifications}
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.model.{DataNode, Key}
 import com.intellij.openapi.externalSystem.service.project.manage.WorkspaceDataService
 import com.intellij.openapi.project.Project
-import com.intellij.platform.workspace.jps.entities.{ModuleEntityAndExtensions, ModuleId}
+import com.intellij.platform.workspace.jps.entities.{ModuleEntityModifications, ModuleId}
 import com.intellij.platform.workspace.storage.MutableEntityStorage
 import org.jetbrains.sbt.SbtUtil.EntityStorageOps
 import org.jetbrains.sbt.WorkspaceModelUtil
@@ -13,7 +13,7 @@ import org.jetbrains.sbt.project.SharedSourcesOwnersData
 import org.jetbrains.sbt.project.data.findModuleForParentOfDataNode
 
 import java.util
-import java.util.{List => JList}
+import java.util.List as JList
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 // TODO SCL-22395
@@ -36,8 +36,8 @@ class SharedSourcesOwnersDataWorkspaceDataService extends WorkspaceDataService[S
           .foreach { moduleEntity =>
             val sharedSourcesOwnersData = dataNode.getData
             val newEntity = createSharedSourcesOwnersEntity(sharedSourcesOwnersData.ownerModuleIds)
-            ModuleEntityAndExtensions.modifyModuleEntity(mutableStorage, moduleEntity, builder => {
-              ModuleExtensionWorkspaceEntityKt.setModuleExtensionWorkspaceEntity(builder, newEntity)
+            ModuleEntityModifications.modifyModuleEntity(mutableStorage, moduleEntity, builder => {
+              ModuleExtensionWorkspaceEntityModifications.setModuleExtensionWorkspaceEntity(builder, newEntity)
               kotlin.Unit.INSTANCE
             })
           }
@@ -45,8 +45,8 @@ class SharedSourcesOwnersDataWorkspaceDataService extends WorkspaceDataService[S
     }
   }
 
-  private def createSharedSourcesOwnersEntity(ownerModulesIds: JList[String]): SharedSourcesOwnersEntity.Builder = {
+  private def createSharedSourcesOwnersEntity(ownerModulesIds: JList[String]): SharedSourcesOwnersEntityBuilder = {
     val entitySource = WorkspaceEntitiesCompanionProxy.SharedSourcesOwnersEntitySource
-    WorkspaceEntitiesCompanionProxy.SharedSourcesOwnersEntityCompanion.create(ownerModulesIds, entitySource)
+    SharedSourcesOwnersEntityModifications.createSharedSourcesOwnersEntity(ownerModulesIds, entitySource)
   }
 }
