@@ -14,12 +14,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
@@ -54,7 +56,6 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
       element match {
         // Highlight type ascription differently from type mismatch (handled in ScTypedExpressionAnnotator), SCL-15544
         case Parent(_: ScTypedExpression) | Parent((_: ScParenthesisedExpr) & Parent(_: ScTypedExpression)) => ()
-
         // Highlight if-then with non-Unit expected type as incomplete rather than type mismatch, SCL-19447
         case it: ScIf if it.thenExpression.nonEmpty && it.elseExpression.isEmpty &&
           typeAware && it.expectedType().exists(et => it.`type`().exists(!_.conforms(et))) =>
@@ -119,6 +120,19 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
     implicit val tpc: TypePresentationContext = TypePresentationContext(element)
     implicit val context: Context = Context(element)
 
+    val parameterParent =
+      ScalaPsiUtil.contextOfType(element, strict = true, classOf[ScParameter]).toOption
+
+    val ptSubst =
+      parameterParent match {
+        case Some(p: ScParameter) if p.getDefaultExpression.exists(_.isAncestorOf(element, strict = false)) =>
+          // if an element is part of a default argument expression, undefine corresponding type parameters in expected type
+          val owner         = ScalaPsiUtil.contextOfType(p, strict = true, classOf[ScFunction]).toOption
+          val typeParams    = owner.toSeq.flatMap(_.typeParameters).map(TypeParameter(_))
+          ScSubstitutor.undefineTypeParams(typeParams)
+        case _ => ScSubstitutor.empty
+    }
+
     @tailrec
     def isInArgumentPosition(expr: ScExpression): Boolean =
       expr.getContext match {
@@ -149,25 +163,26 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
       case a: ScAssignment if a.rightExpression.contains(expr) && a.isDynamicNamedAssignment => true
       case t: ScTypedExpression if t.isSequenceArg                                           => true
       case param: ScParameter if !param.isDefaultParam                                       => true //performance optimization
-      case param: ScParameter =>
-        param.insideParamType match {
-          case Right(paramType) if paramType.extractClass.isDefined =>
-            false //do not check generic types. See SCL-3508
-          case _ => true
-        }
       case ass: ScAssignment if ass.isNamedParameter =>
         true //that's checked in application annotator
       case _ => false
     }
 
-    def checkExpressionTypeInner(fromUnderscore: Boolean): Unit = {
+    def checkExpressionTypeInner(
+      fromUnderscore: Boolean,
+      ptSubst:        ScSubstitutor
+    ): Unit = {
       val smartExpectedType = element.smartExpectedType(fromUnderscore)
+
       val ExpressionTypeResult(exprType, _, implicitFunction) =
         element.getTypeAfterImplicitConversion(expectedOption = smartExpectedType, fromUnderscore = fromUnderscore)
 
       if (isTooBigToHighlight(element) || (!fromFunctionLiteral && isInArgumentPosition(element)) || shouldNotHighlight(element)) return
 
-      val typeEx = element.expectedTypeEx(fromUnderscore)
+      val typeEx = element.expectedTypeEx(fromUnderscore).map {
+        case (pt, elem) => ptSubst(pt) -> elem
+      }
+
       typeEx match {
         case Some((tp: ScType, _)) if tp equiv api.Unit => //do nothing
         case Some((tp: ScType, typeElement)) =>
@@ -253,11 +268,11 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
           }
         case _ => //do nothing
       }
+    }
 
-    }
     if (ScUnderScoreSectionUtil.isUnderscoreFunction(element)) {
-      checkExpressionTypeInner(fromUnderscore = true)
+      checkExpressionTypeInner(fromUnderscore = true, ptSubst)
     }
-    checkExpressionTypeInner(fromUnderscore = false)
+    checkExpressionTypeInner(fromUnderscore = false, ptSubst)
   }
 }
