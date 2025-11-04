@@ -29,6 +29,19 @@ abstract class IdeClient(compilerName: String,
 
   override def message(msg: Client.ClientMsg): Unit = {
     val Client.ClientMsg(kind, text, source, pointer, _, _, _) = msg
+    val isErrorOrWarning = kind == MessageKind.Error || kind == MessageKind.Warning
+    val textWithWarning =
+      if (isErrorOrWarning && containsScalaJdkCompatibilityError(text)) {
+        s"""Incompatible JDK version for Scala.
+          |
+          |The compiler has encountered an error that is likely caused by incompatible Scala and JDK versions.
+          |Please check the official compatibility table: https://docs.scala-lang.org/overviews/jdk-compatibility/overview.html#scala-compatibility-table
+          |You may need to update either your Scala or JDK version to resolve this issue.
+          |
+          |$text
+          |""".stripMargin
+      } else text
+
     if (kind == MessageKind.Error) {
       hasErrors = true
     }
@@ -59,7 +72,7 @@ abstract class IdeClient(compilerName: String,
     }.toOption
 
     // CompilerMessage expects 1-based line and column indices.
-    context.processMessage(new CompilerMessage(name, jpsKind, text, sourcePath.orNull,
+    context.processMessage(new CompilerMessage(name, jpsKind, textWithWarning, sourcePath.orNull,
       -1L, -1L, -1L, line.getOrElse(-1L), column.getOrElse(-1L)))
     context.processMessage(new Base64BuilderMessage(CompilerEvent.MessageEmitted(compilationId, compilationUnitId, uuid, msg)))
   }
@@ -115,6 +128,29 @@ abstract class IdeClient(compilerName: String,
   override def isCanceled: Boolean = context.getCancelStatus.isCanceled
 
   def hasReportedErrors: Boolean = hasErrors
+
+  /**
+   * Determines whether the given error text matches a known Scala/JDK incompatibility error pattern.
+   *
+   * @param text the error message text to analyze.
+   */
+  private def containsScalaJdkCompatibilityError(text: String): Boolean = {
+    // Error indicating JDK incompatibility with Scala 2.11.x or 2.12.x
+    val case1 = text.contains("scala.reflect.internal.MissingRequirementError: object java.lang.Object in compiler mirror not found") &&
+      text.contains("scala.reflect.internal.MissingRequirementError$.signal")
+
+    // Error indicating JDK incompatibility with Scala 2.12.x or 2.13.x
+    val case2 = text.contains("scala.reflect.internal.FatalError") &&
+      text.contains("bad constant pool index: 0 at") &&
+      text.contains("scala.reflect.internal.Reporting.abort(Reporting.scala")
+
+    // Error indicating JDK incompatibility with Scala 3
+    val accessFlagPattern = text.contains("error while loading AccessFlag") && text.contains("class file /modules/java.base/java/lang/reflect/AccessFlag.class is broken")
+    val elementTypePattern = text.contains("error while loading ElementType") && text.contains("class file /modules/java.base/java/lang/annotation/ElementType.class is broken")
+    val case3 = (accessFlagPattern || elementTypePattern) && text.contains("bad constant pool index: 0 at")
+
+    case1 || case2 || case3
+  }
 }
 
 object IdeClient {
