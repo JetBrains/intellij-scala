@@ -1,9 +1,10 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
+import org.junit.Test
 
 class ScalaStringInterpolatorCompletionTest extends ScalaCompletionTestBase {
-
+  @Test
   def testBracesBasic(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -22,6 +23,7 @@ class ScalaStringInterpolatorCompletionTest extends ScalaCompletionTestBase {
     item = "zzz",
   )
 
+  @Test
   def testBracesBasicEmpty(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -40,6 +42,7 @@ class ScalaStringInterpolatorCompletionTest extends ScalaCompletionTestBase {
     item = "zzz",
   )
 
+  @Test
   def testBracesSingleLetter(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -58,6 +61,7 @@ class ScalaStringInterpolatorCompletionTest extends ScalaCompletionTestBase {
     item = "z",
   )
 
+  @Test
   def testBracesSingleLetterEmpty(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -76,6 +80,7 @@ class ScalaStringInterpolatorCompletionTest extends ScalaCompletionTestBase {
     item = "z",
   )
 
+  @Test
   def testAddBracesWhenRequiredForMethods(): Unit = doCompletionTest(
     fileText =
       s"""
