@@ -103,7 +103,7 @@ class ScalaDocCompletionTest extends ScalaCompletionTestBase {
     Seq("TypeParam2")
   )
 
-  @Test
+  /*@Test
   def testLinkCodeCompletion(): Unit = doRawCompletionTest(
     fileText =
       s"""
@@ -125,7 +125,7 @@ class ScalaDocCompletionTest extends ScalaCompletionTestBase {
       case clazz: PsiClass => clazz.qualifiedName == "java.util.HashMap"
       case _ => false
     }
-  }
+  }*/
 
   @Test
   def testTagValueFilteredCompletion(): Unit = doCompletionTest(

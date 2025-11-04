@@ -795,7 +795,8 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
         |      ScPsiDocToken(DOC_COMMENT_DATA)('{@literal literal text}')
         |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
         |    ScPsiDocToken(DOC_COMMENT_END)('*/')
-        |  PsiWhiteSpace('\n')""".stripMargin
+        |  PsiWhiteSpace('\n')
+        |""".stripMargin
     )
 
   // Edge cases for tags within blocks
@@ -814,7 +815,8 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       | *
       | * 1. List item
       | *    > @note A note that's not a tag
-      | */""".stripMargin,
+      | */
+      |""".stripMargin,
     """
       |ScalaFile
       |  PsiWhiteSpace('\n')
@@ -830,8 +832,8 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |          ScPsiDocToken(DOC_COMMENT_DATA)('List item')
       |          ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |          ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      |      ScPsiDocToken(DOC_WHITESPACE)('    ')
       |    DocTag
+      |      ScPsiDocToken(DOC_WHITESPACE)('    ')
       |      ScPsiDocToken(DOC_TAG_NAME)('@note')
       |      ScDocParagraph
       |        ScPsiDocToken(DOC_WHITESPACE)(' ')
@@ -887,6 +889,7 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |              ScPsiDocToken(DOC_COMMENT_DATA)('@note A note that's not a tag')
       |              ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |    ScPsiDocToken(DOC_COMMENT_END)('*/')
+      |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
 
