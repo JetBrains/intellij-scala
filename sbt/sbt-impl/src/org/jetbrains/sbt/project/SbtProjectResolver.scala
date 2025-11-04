@@ -20,7 +20,7 @@ import org.jetbrains.annotations.{ApiStatus, NonNls, Nullable, TestOnly}
 import org.jetbrains.plugins.scala.*
 import org.jetbrains.plugins.scala.build.*
 import org.jetbrains.plugins.scala.compiler.data.CompileOrder
-import org.jetbrains.plugins.scala.extensions.{PathExt, RichFile}
+import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.project.external.{JdkByHome, JdkByName, SdkReference}
 import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
@@ -440,10 +440,19 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     settings: SbtExecutionSettings,
     optIdeaProject: Option[Project]
   )(implicit context: ImportContext): Node[esProjectData.ProjectData] = {
+
+    /**
+     * A copy of [[FileUtil.filesEqual]] but without using `java.io.File`.
+     */
+    def filesEqual(@Nullable file1: Path, @Nullable file2: Path): Boolean =
+      val path1 = if file1 == null then null else file1.toCanonicalPath.toString
+      val path2 = if file2 == null then null else file2.toCanonicalPath.toString
+      FileUtil.pathsEqual(path1, path2)
+
     val projects: Seq[sbtStructure.ProjectData] = data.projects
     val projectRootFile = Path.of(root)
     val rootProject: sbtStructure.ProjectData =
-      projects.find(p => FileUtil.filesEqual(p.base.toPath.toFile, projectRootFile.toFile))
+      projects.find(p => filesEqual(p.base.toPath, projectRootFile))
         .orElse(projects.headOption)
         .getOrElse(throw new RuntimeException("No root project found"))
     val projectNode = new ProjectNode(rootProject.name, root, root)
@@ -889,10 +898,10 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   }
 
   private def createModuleFilesDirectory(projectRoot: Path, moduleBase: Path): String = {
-    val relativeToRoot = FileUtil.getRelativePath(projectRoot.toFile, moduleBase.toFile)
     val relativePath =
-      if (relativeToRoot == null || relativeToRoot.equals(".")) ""
-      else relativeToRoot
+      try projectRoot.relativize(moduleBase).toString
+      catch
+        case _: IllegalArgumentException => ""
 
     val projectRootDirectory = Seq(projectRoot.getFileName.toString).filter(_.nonEmpty)
     val pathComponents = projectRootDirectory :+ relativePath
@@ -1147,13 +1156,21 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     buildProjectsGroups: Seq[BuildProjectsGroup],
     isPreview: Boolean
   )(implicit context: ImportContext): BuildModuleNodeWithBuildBaseDir = {
+
+    extension (file: Path)
+      /**
+       * A copy of [[FileUtil.isAncestor]] but without using `java.io.File`.
+       */
+      def isAncestorOf(other: Path): Boolean =
+        FileUtil.isAncestor(file.toCanonicalPath.toString, other.toCanonicalPath.toString, true)
+
     val buildBaseProject =
       projects
         .filter(p => p.buildURI == build.uri)
         .foldLeft(None: Option[ProjectData]) {
           case (None, p) => Some(p)
           case (Some(p), p1) =>
-            val parent = if (p.base.toPath.toFile.isAncestorOf(p1.base.toPath.toFile)) p else p1
+            val parent = if (p.base.toPath.isAncestorOf(p1.base.toPath)) p else p1
             Some(parent)
         }
 
