@@ -58,13 +58,14 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
     associations.restoreOnUiThread(bounds, adjuster) {
       case bindings if setting == ASK =>
         val bindingsSorted = bindings.filterNot(_.path.isEmpty).sortBy(_.path)
-        if (bindingsSorted.nonEmpty) {
-          val dialog = new RestoreReferencesDialog(project, bindingsSorted, file.features, editor.getColorsScheme)
+        val bindingsUnique = bindingsSorted.distinctBy(b => (b.path, b.aliasName))
+        if (bindingsUnique.nonEmpty) {
+          val dialog = new RestoreReferencesDialog(project, bindingsUnique, file.features, editor.getColorsScheme)
           dialog.show()
           dialog.getExitCode match {
             case DialogWrapper.OK_EXIT_CODE =>
               val selectedElements = dialog.getSelectedElements
-              bindingsSorted.filter(selectedElements.contains)
+              bindingsUnique.filter(selectedElements.contains)
             case _ => Seq.empty
           }
         }
