@@ -2563,7 +2563,7 @@ final class ReferenceComparisonTest_Scala3_Newest_Part24 extends ReferenceCompar
 final class ReferenceComparisonTest_Scala3_Newest_Part25 extends ReferenceComparisonTest_Scala3_Newest {
   def test_strict_pattern_bindings_3_1(): Unit = doTest("strict-pattern-bindings-3.1", true)
   def test_stringConstantFold(): Unit = doTest("stringConstantFold", true)
-  def test_StringContext(): Unit = doTest("StringContext", false)
+  def test_StringContext(): Unit = doTest("StringContext", true)
   def test_strings(): Unit = doTest("strings", true)
   def test_strip_tvars_for_lubbasetypes(): Unit = doTest("strip-tvars-for-lubbasetypes", true)
   def test_subtyping(): Unit = doTest("subtyping", true)
