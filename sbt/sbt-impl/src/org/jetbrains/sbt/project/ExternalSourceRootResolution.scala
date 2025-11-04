@@ -10,7 +10,7 @@ import org.jetbrains.sbt.project.SbtProjectResolver.ImportContext.given
 import org.jetbrains.sbt.project.data.*
 import org.jetbrains.sbt.project.sources.SharedSourcesModuleType
 import org.jetbrains.sbt.project.structure.data as sbtStructure
-import org.jetbrains.sbt.project.structure.data.{Dependencies, ProjectData, ProjectDependencyData, toPath}
+import org.jetbrains.sbt.project.structure.data.{Dependencies, ProjectData, ProjectDependencyData}
 
 import java.net.URI
 import java.nio.file.Path

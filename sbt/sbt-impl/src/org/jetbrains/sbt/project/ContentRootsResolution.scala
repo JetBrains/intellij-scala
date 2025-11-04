@@ -8,7 +8,7 @@ import org.jetbrains.sbt.project.SbtProjectResolver.ImportContext.given
 import org.jetbrains.sbt.project.SbtProjectResolver.{CompileScope, ImportContext, IntegrationTestScope, TestScope}
 import org.jetbrains.sbt.project.data.ContentRootNode
 import org.jetbrains.sbt.project.structure.data as sbtStructure
-import org.jetbrains.sbt.project.structure.data.{DirectoryData, toPath}
+import org.jetbrains.sbt.project.structure.data.DirectoryData
 import org.jetbrains.sbt.{Sbt, SbtUtil}
 
 import java.nio.file.Path

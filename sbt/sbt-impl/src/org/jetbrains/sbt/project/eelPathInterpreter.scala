@@ -1,9 +1,10 @@
 //noinspection ApiStatus,UnstableApiUsage
-package org.jetbrains.sbt.project.structure.data
+package org.jetbrains.sbt.project
 
 import com.intellij.platform.eel.EelDescriptor
 import com.intellij.platform.eel.path.EelPath
 import com.intellij.platform.eel.provider.EelNioBridgeServiceKt
+import org.jetbrains.sbt.project.structure.data.{InterpretablePath, PathInterpreter}
 
 import java.nio.file.Path
 
