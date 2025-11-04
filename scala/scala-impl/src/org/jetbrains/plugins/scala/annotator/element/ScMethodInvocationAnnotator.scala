@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.{registerTypeMismatc
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
 import org.jetbrains.plugins.scala.annotator.createFromUsage.{CreateApplyQuickFix, InstanceOfClass}
 import org.jetbrains.plugins.scala.annotator.element.ScReferenceAnnotator.{createFixesByUsages, nameWithSignature}
+import org.jetbrains.plugins.scala.annotator.quickfix.AddParametersQuickfix
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
@@ -82,7 +83,7 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
           opening.map(e => new TextRange(e.getTextOffset, argument.getTextOffset + 1)).getOrElse(argument.getTextRange)
         }
 
-      val fixes = ref.toList.flatMap(createFixesByUsages)
+      val fixes = new AddParametersQuickfix :: ref.toList.flatMap(createFixesByUsages)
       val message = elem.fold(ScalaBundle.message("annotator.error.too.many.arguments")) { elem =>
         ScalaBundle.message("annotator.error.too.many.arguments.method", nameWithSignature(elem))
       }
