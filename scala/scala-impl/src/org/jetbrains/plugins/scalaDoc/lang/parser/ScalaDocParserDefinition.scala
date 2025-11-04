@@ -35,14 +35,14 @@ class ScalaDocParserDefinition extends ParserDefinition {
 
   def createLexerWithFlavour(project: Project, isMarkdown: Boolean): Lexer = if (isMarkdown) new ScalaDocMarkdownLexer else new ScalaDocLexer
 
-  override def createLexer(project: Project): Lexer = createLexerWithFlavour(project, isMarkdown = true /* fallback is no Markdown */)
+  override def createLexer(project: Project): Lexer = createLexerWithFlavour(project, isMarkdown = false /* fallback is no Markdown */)
 
   def createParserWithFlavour(project: Project, isMarkdown: Boolean): PsiParser = {
     val tabSize = CodeStyle.getSettings(project).getLanguageIndentOptions(ScalaLanguage.INSTANCE).TAB_SIZE
     new ScalaDocParser(tabSize, isMarkdown)
   }
 
-  override def createParser(project: Project): PsiParser = createParserWithFlavour(project, isMarkdown = true /* fallback is no Markdown */)
+  override def createParser(project: Project): PsiParser = createParserWithFlavour(project, isMarkdown = false /* fallback is no Markdown */)
 
   /**
    * see also [[org.jetbrains.plugins.scala.lang.parser.ScalaASTFactory.createLeaf]]

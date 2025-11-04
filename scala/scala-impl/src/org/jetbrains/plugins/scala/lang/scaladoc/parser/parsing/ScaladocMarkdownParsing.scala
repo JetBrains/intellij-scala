@@ -76,9 +76,10 @@ private class ScaladocMarkdownParsing(builder: MkBuilder) extends ScalaDocElemen
       case _ =>
         ensureBuilderInPosition(treeIt.currentStartOffset)
 
+        val endOffset = treeIt.currentEndOffset
         val marker = builder.mark()
         visitRest(treeIt.startIterateCurrentChildren())
-        ensureBuilderInPosition(treeIt.currentEndOffset)
+        ensureBuilderInPosition(endOffset)
         marker.done(elementTy)
     }
   }
@@ -116,9 +117,10 @@ private class ScaladocMarkdownParsing(builder: MkBuilder) extends ScalaDocElemen
       }
       childIt.advance()
     }
+    val endOffset = treeIt.currentEndOffset
     visitRest(childIt)
 
-    builder.ensureBuilderInPositionLeavingLastWs(treeIt.currentEndOffset)
+    builder.ensureBuilderInPositionLeavingLastWs(endOffset)
     marker.done(elementTy)
   }
 
@@ -223,14 +225,13 @@ private class ScaladocMarkdownParsing(builder: MkBuilder) extends ScalaDocElemen
       it.peek() match {
         case Some(node) =>
           val ty = node.getType
-          if (ty == MarkdownElementTypes.CODE_FENCE) {
-
-          } else if (ty == MarkdownTokenTypes.WHITE_SPACE || ty == MarkdownTokenTypes.EOL) {
+          if (ty == MarkdownTokenTypes.WHITE_SPACE || ty == MarkdownTokenTypes.EOL) {
             it.advance()
             visitNode(it)
             eat(it)
           }
         case _ =>
+          it.advance()
           it.parent match {
             case Some(parent) =>
               eat(parent)
@@ -245,8 +246,9 @@ private class ScaladocMarkdownParsing(builder: MkBuilder) extends ScalaDocElemen
 
   private def visitBlockQuote(elementTy: IElementType, treeIt: MkTreeIt): Unit = {
     val marker = builder.mark()
+    val endOffset = treeIt.currentEndOffset
     visitRest(treeIt.startIterateCurrentChildren())
-    ensureBuilderInPosition(treeIt.currentEndOffset)
+    ensureBuilderInPosition(endOffset)
     marker.done(elementTy)
   }
 
@@ -484,12 +486,14 @@ object ScaladocMarkdownParsing {
 
     def ended: Boolean = idx >= list.size()
     def advance(): Unit = {
-      assert(!ended)
-      idx += 1
-      if (ended) {
-        parent.foreach { parent =>
-          assert(parent.processesChildren)
-          parent.processesChildren = false
+      if (!ended) {
+        assert(!processesChildren)
+        idx += 1
+        if (ended) {
+          parent.foreach { parent =>
+            assert(parent.processesChildren)
+            parent.processesChildren = false
+          }
         }
       }
     }
