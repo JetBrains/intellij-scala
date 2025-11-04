@@ -55,7 +55,7 @@ final class AddParametersIntention extends PsiElementBaseIntentionAction {
         val newClause     = clause.replace(createClauseFromText(newClauseText, clause.getParent)(element.getManager))
 
         val builder = new TemplateBuilderImpl(newClause)
-        addParametersToTemplate(newClause, builder)
+        addParametersToTemplate(newClause, builder, p => indices.contains(p.index))
         CodeInsightUtilCore.forcePsiPostprocessAndRestoreElement(newClause)
         TemplateUtils.positionCursorAndStartTemplate(newClause, builder.buildTemplate(), editor)
       }
