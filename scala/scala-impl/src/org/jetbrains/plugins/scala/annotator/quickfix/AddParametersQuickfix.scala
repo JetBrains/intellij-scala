@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.codeInsight.intention.argument
+package org.jetbrains.plugins.scala.annotator.quickfix
 
 import com.intellij.codeInsight.CodeInsightUtilCore
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
@@ -8,9 +8,9 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.TemplateUtils
 import org.jetbrains.plugins.scala.annotator.createFromUsage.CreateFromUsageUtil.addParametersToTemplate
-import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.{ScBooleanLiteral, ScDoubleLiteral, ScFloatLiteral, ScIntegerLiteral, ScStringLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScExpression, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createCl
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 
-final class AddParametersIntention extends PsiElementBaseIntentionAction {
+final class AddParametersQuickfix extends PsiElementBaseIntentionAction {
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit =
     if (element.isValid) addParameterFix(element, editor).foreach(_.apply())
@@ -28,9 +28,9 @@ final class AddParametersIntention extends PsiElementBaseIntentionAction {
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean =
     addParameterFix(element, editor).isDefined
 
-  override def getFamilyName: String = ScalaCodeInsightBundle.message("family.name.add.parameter")
+  override def getFamilyName: String = ScalaBundle.message("add.parameter.to.method.family.name")
 
-  override def getText: String = ScalaCodeInsightBundle.message("add.parameter.to.method")
+  override def getText: String = ScalaBundle.message("add.parameter.to.method")
 
   private def addParameterFix(element: PsiElement, editor: Editor): Option[() => Unit] = {
     val argList: ScArgumentExprList = PsiTreeUtil.getParentOfType(element, classOf[ScArgumentExprList])
@@ -55,10 +55,10 @@ final class AddParametersIntention extends PsiElementBaseIntentionAction {
         val indices       = findNewParameterIndices(parameters, arguments)
         val newParamTexts = generateNewParameterTexts(arguments, indices, parameters.map(_.name))
         val newClauseText = createNewClauseText(clause.getText, newParamTexts)
-        val newClause     = clause.replace(createClauseFromText(newClauseText, clause.getParent)(element.getManager))
+        val newClause     = clause.replace(createClauseFromText(newClauseText, clause.getParent)(element.getManager)).asInstanceOf[ScParameterClause]
 
         val builder = new TemplateBuilderImpl(newClause)
-        addParametersToTemplate(newClause, builder, p => indices.contains(p.index))
+        addParametersToTemplate(newClause, builder, p => indices.contains(newClause.parameters.indexOf(p)))
         CodeInsightUtilCore.forcePsiPostprocessAndRestoreElement(newClause)
         TemplateUtils.positionCursorAndStartTemplate(newClause, builder.buildTemplate(), editor)
       }
