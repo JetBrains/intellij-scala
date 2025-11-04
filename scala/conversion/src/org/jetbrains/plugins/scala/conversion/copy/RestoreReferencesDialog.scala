@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.conversion.copy
 
 import com.intellij.CommonBundle
+import com.intellij.codeInspection.ex.ApplicationInspectionProfileManager
 import com.intellij.java.JavaBundle
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.colors.EditorColorsScheme
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.{DialogWrapper, VerticalFlowLayout}
@@ -10,6 +12,7 @@ import com.intellij.ui.components.{JBLabel, JBList}
 import com.intellij.util.ui.UIUtil
 import com.intellij.util.ui.UIUtil.ComponentStyle.SMALL
 import com.intellij.util.ui.UIUtil.FontColor.BRIGHTER
+import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.lang.refactoring.Associations
 import org.jetbrains.plugins.scala.project.ScalaFeatures
 
@@ -28,6 +31,9 @@ class RestoreReferencesDialog(
   private val importedPathsArray = bindings.toArray
 
   override protected def getDimensionServiceKey = "#com.intellij.codeInsight.editorActions.RestoreReferencesDialog"
+
+  @TestOnly
+  def getBindings: Seq[Associations.Binding] = bindings
 
   private var myList: JList[Associations.Binding] = _
   private var mySelectedElements: java.util.List[Associations.Binding] = Collections.emptyList
@@ -52,7 +58,13 @@ class RestoreReferencesDialog(
     panel.add(new JBLabel(JavaBundle.message("dialog.paste.on.import.text2"), SMALL, BRIGHTER), BorderLayout.NORTH)
     val buttonPanel = new JPanel(new VerticalFlowLayout)
     val okButton = new JButton(CommonBundle.getOkButtonText)
-    getRootPane.setDefaultButton(okButton)
+
+
+    if (!ApplicationManager.getApplication.isUnitTestMode) {
+      // the root pane in tests is null
+      getRootPane.setDefaultButton(okButton)
+    }
+
     buttonPanel.add(okButton)
     val cancelButton = new JButton(CommonBundle.getCancelButtonText)
     buttonPanel.add(cancelButton)
