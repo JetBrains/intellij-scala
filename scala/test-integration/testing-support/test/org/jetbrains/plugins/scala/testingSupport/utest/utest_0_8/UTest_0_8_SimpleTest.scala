@@ -1,9 +1,10 @@
-package org.jetbrains.plugins.scala.testingSupport.utest
+package org.jetbrains.plugins.scala.testingSupport.utest.utest_0_8
 
 import com.intellij.execution.testframework.sm.runner.states.TestStateInfo.Magnitude
 import org.jetbrains.plugins.scala.structureView.element.Test
+import org.jetbrains.plugins.scala.testingSupport.utest.UTestTestCase
 
-trait UTestNewSyntaxSimpleTest extends UTestTestCase {
+trait UTest_0_8_SimpleTest extends UTestTestCase {
 
   protected val uTestTestName = "UTestTest"
   protected val uTestFileName = uTestTestName + ".scala"
