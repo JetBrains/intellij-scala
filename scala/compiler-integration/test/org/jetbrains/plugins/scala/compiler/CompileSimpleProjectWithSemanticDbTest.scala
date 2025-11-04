@@ -35,7 +35,7 @@ class CompileSimpleProjectWithSemanticDbTest extends SbtExternalSystemImportingT
     //This is needed because `org.jetbrains.jps.incremental.scala.data.CompilerDataFactory.semanticDbOptionsFor`
     //needs the correct project path to be equal to the project actual root in order correct semanticDb target folder is calculated later
     //(it's done in dotty.tools.dotc.semanticdb.ExtractSemanticDB#write)
-    val testProjectDir = getTestProjectDir.toPath
+    val testProjectDir = getTestProjectPath
     val projectParentFolder = testProjectDir.getParent
     val projectName = testProjectDir.getFileName.toString
     setMyTestFixture(IdeaTestFixtureFactory.getFixtureFactory.createFixtureBuilder(projectName, projectParentFolder, true).getFixture)

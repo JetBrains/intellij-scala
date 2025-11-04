@@ -10,6 +10,7 @@ import org.jetbrains.sbt.shell.testSettingsQueryHandler.SbtProjectPlatformTestCa
 import org.jetbrains.sbt.shell.testSettingsQueryHandler.SettingQueryHandlerTestBase.{SbtSetCommand, SbtSetCommandSettingPath}
 import com.intellij.execution.process.OSProcessHandler
 import org.jetbrains.plugins.scala.build.BuildMessages
+import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication, SettingQueryHandler}
 import org.jetbrains.sbt.{SbtVersion, SbtVersionCapabilities}
 import org.junit.Assert.assertNotNull
@@ -42,7 +43,7 @@ abstract class SettingQueryHandlerTestBase extends SbtProjectStructureImportingL
 
   protected val DefaultCommandWaitTimeout: FiniteDuration = 60.seconds
 
-  private lazy val testProjectUri: String = s"file:${getTestProjectDir.getCanonicalPath}/"
+  private lazy val testProjectUri: String = s"file:${getTestProjectPath.toCanonicalPath.toString}/"
   private lazy val sbtProjectUriAndId = SbtProjectUriAndId(
     uri = testProjectUri,
     id = "scalaTest"
