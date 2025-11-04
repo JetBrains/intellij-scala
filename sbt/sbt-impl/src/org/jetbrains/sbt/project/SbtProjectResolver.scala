@@ -303,7 +303,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
         doDumpStructure(structureFilePath)
       } else {
         usingTempFile("sbt-structure", Some(".xml")) { structureFile =>
-          doDumpStructure(structureFile.toFile.toPath)
+          doDumpStructure(structureFile)
         }
       }
     }
