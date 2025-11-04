@@ -11,11 +11,11 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.TemplateUtils
 import org.jetbrains.plugins.scala.annotator.createFromUsage.CreateFromUsageUtil.addParametersToTemplate
-import org.jetbrains.plugins.scala.lang.psi.api.base.literals.{ScBooleanLiteral, ScDoubleLiteral, ScFloatLiteral, ScIntegerLiteral, ScStringLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScExpression, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createClauseFromText
+import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
@@ -52,8 +52,8 @@ final class AddParametersQuickfix extends PsiElementBaseIntentionAction {
 
     Some(() => IntentionPreviewUtils.write { () =>
       if (!IntentionPreviewUtils.isIntentionPreviewActive) {
-        val indices       = findNewParameterIndices(parameters, arguments)
-        val newParamTexts = generateNewParameterTexts(arguments, indices, parameters.map(_.name))
+        val indices       = findNewParameterIndices(parameters, arguments, clause)
+        val newParamTexts = generateNewParameterTexts(arguments, indices, parameters.map(_.name), clause)
         val newClauseText = createNewClauseText(clause.getText, newParamTexts)
         val newClause     = clause.replace(createClauseFromText(newClauseText, clause.getParent)(element.getManager)).asInstanceOf[ScParameterClause]
 
@@ -105,7 +105,7 @@ final class AddParametersQuickfix extends PsiElementBaseIntentionAction {
     "(" + newTxtList.mkString(", ") + ")"
   }
 
-  private def findNewParameterIndices(parameters: Seq[ScParameter], arguments: Seq[ScExpression]): Seq[Int] = {
+  private def findNewParameterIndices(parameters: Seq[ScParameter], arguments: Seq[ScExpression], place: PsiElement): Seq[Int] = {
     val buf = ArrayBuffer.empty[Int]
     var ai = 0
     var pi = 0
@@ -113,7 +113,7 @@ final class AddParametersQuickfix extends PsiElementBaseIntentionAction {
       if (pi == parameters.size) buf.addOne(ai)
       else {
         val ptr = parameters(pi).`type`().getOrNothing.toString
-        val atr = argumentTypeText(arguments(ai))
+        val atr = argumentTypeText(arguments(ai))(place)
         if (ptr != atr) buf.addOne(ai) else pi += 1
       }
       ai += 1
@@ -121,16 +121,10 @@ final class AddParametersQuickfix extends PsiElementBaseIntentionAction {
     buf.toSeq
   }
 
-  private def argumentTypeText(expr: ScExpression): String = expr match {
-    case _: ScIntegerLiteral => "Int"
-    case _: ScDoubleLiteral  => "Double"
-    case _: ScFloatLiteral   => "Float"
-    case _: ScBooleanLiteral => "Boolean"
-    case _: ScStringLiteral  => "String"
-    case _ => expr.getTypeAfterImplicitConversion().tr.getOrAny.toString
-  }
+  private def argumentTypeText(expr: ScExpression)(implicit typePresentationCtx: TypePresentationContext): String =
+    expr.getTypeAfterImplicitConversion().tr.getOrAny.widenIfLiteral.presentableText
 
-  private def generateNewParameterTexts(arguments: Seq[ScExpression], indices: Seq[Int], paramNames: Seq[String]): Seq[(Int, String)] = {
+  private def generateNewParameterTexts(arguments: Seq[ScExpression], indices: Seq[Int], paramNames: Seq[String], place: PsiElement): Seq[(Int, String)] = {
     var index = 0
     indices.map { i =>
       index += 1
@@ -139,7 +133,7 @@ final class AddParametersQuickfix extends PsiElementBaseIntentionAction {
         index += 1
         name = s"arg$index"
       }
-      val typeText = argumentTypeText(arguments(i))
+      val typeText = argumentTypeText(arguments(i))(place)
       i -> s"$name: $typeText"
     }
   }
