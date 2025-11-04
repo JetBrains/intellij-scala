@@ -29,7 +29,7 @@ final class AddParametersIntention extends PsiElementBaseIntentionAction {
 
   override def getFamilyName: String = ScalaCodeInsightBundle.message("family.name.add.parameter")
 
-  override def getText: String = ScalaCodeInsightBundle.message("add.parameter.to.a.method")
+  override def getText: String = ScalaCodeInsightBundle.message("add.parameter.to.method")
 
   private def addParameterFix(element: PsiElement, editor: Editor): Option[() => Unit] = {
     val argList: ScArgumentExprList = PsiTreeUtil.getParentOfType(element, classOf[ScArgumentExprList])
