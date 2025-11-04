@@ -14,7 +14,7 @@
   ~ limitations under the License.
   -->
 
-<idea-plugin package="org.jetbrains.plugins.scala.project.maven">
+<idea-plugin>
   <dependencies>
     <plugin id="org.jetbrains.idea.maven"/>
     <module name="scalaCommunity.compiler-integration"/>

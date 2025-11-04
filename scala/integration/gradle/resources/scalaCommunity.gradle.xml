@@ -14,7 +14,7 @@
   ~ limitations under the License.
   -->
 
-<idea-plugin package="org.jetbrains.plugins.scala.project.gradle">
+<idea-plugin>
     <dependencies>
         <plugin id="com.intellij.gradle"/>
         <module name="scalaCommunity.compiler-integration"/>
