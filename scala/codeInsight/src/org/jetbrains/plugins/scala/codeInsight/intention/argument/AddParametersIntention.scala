@@ -13,10 +13,11 @@ import org.jetbrains.plugins.scala.annotator.createFromUsage.CreateFromUsageUtil
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.{ScBooleanLiteral, ScDoubleLiteral, ScFloatLiteral, ScIntegerLiteral, ScStringLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScExpression, ScMethodCall}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createClauseFromText
 
+import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 
 final class AddParametersIntention extends PsiElementBaseIntentionAction {
@@ -37,14 +38,16 @@ final class AddParametersIntention extends PsiElementBaseIntentionAction {
 
     val methodCall = PsiTreeUtil.getParentOfType(element, classOf[ScMethodCall])
     val arguments = methodCall.args.exprs
-    val funDefOpt = methodCall.target.map(result => result.element)
-    if (funDefOpt.isEmpty) return None
 
-    val funDef = funDefOpt.get.asInstanceOf[ScFunctionDefinition]
-    val parameters = funDef.parameters
+    // Find the actual function and the parameter clause that corresponds to the edited argument list
+    val clause = findParamList(methodCall) match {
+      case Some(clause) => clause
+      case None => return None
+    }
+
+    val parameters = clause.parameters
     if (parameters.size >= arguments.size) return None
 
-    val clause = funDef.paramClauses.clauses.head
     if (!clause.isValid || !clause.isPhysical) return None
 
     Some(() => IntentionPreviewUtils.write { () =>
@@ -60,6 +63,31 @@ final class AddParametersIntention extends PsiElementBaseIntentionAction {
         TemplateUtils.positionCursorAndStartTemplate(newClause, builder.buildTemplate(), editor)
       }
     })
+  }
+
+  private def findParamList(call: ScMethodCall): Option[ScParameterClause] = {
+    // Walk down via getEffectiveInvokedExpr until we reach a ScMethodCall
+    // that actually resolves to a function.
+    @tailrec
+    def findFun(call: ScMethodCall, idxAcc: Int): Option[(ScFunction, Int)] =
+      call.target match {
+        case Some(target) =>
+          target.element match {
+            case fun: ScFunction if !fun.isInCompiledFile => Some(fun, idxAcc)
+            case _ => None
+          }
+        case None =>
+          call.getEffectiveInvokedExpr match {
+            case call: ScMethodCall => findFun(call, idxAcc + 1)
+            case _ => None
+          }
+      }
+
+    findFun(call, 0).flatMap {
+      case (fun, idx) =>
+        val clauses = fun.paramClauses.clauses
+        clauses.lift(idx)
+    }
   }
 
   private def createNewClauseText(oldClauseText: String, newParamTexts: Seq[(Int, String)]): String = {

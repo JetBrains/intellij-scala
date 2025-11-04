@@ -166,4 +166,52 @@ class AddParametersIntentionTest extends intentions.ScalaIntentionTestBase {
 
     doTest(text, resultText)
   }
+
+  def testMultipleParamLists(): Unit = doTest(
+    s"""
+       |object Foo {
+       |  def test(a: Int)(b: Int) = 0
+       |
+       |  test(3)(3, 3$CARET)
+       |}
+       |""".stripMargin,
+    s"""
+       |object Foo {
+       |  def test(a: Int)(b: Int, arg1: Int)$CARET = 0
+       |
+       |  test(3)(3, 3)
+       |}
+       |""".stripMargin
+  )
+
+  def testMultipleParamListsWithApply(): Unit = doTest(
+    s"""
+       |class Foo {
+       |  def apply(a: Int)(b: Int) = 0
+       |
+       |  def test(a: Int)(b: Int): Foo = 0
+       |
+       |  (test(1)(2)(3))(4, 4$CARET)
+       |}
+       |""".stripMargin,
+    s"""
+       |class Foo {
+       |  def apply(a: Int)(b: Int, arg1: Int)$CARET = 0
+       |
+       |  def test(a: Int)(b: Int): Foo = 0
+       |
+       |  (test(1)(2)(3))(4, 4)
+       |}
+       |""".stripMargin
+  )
+
+  def testReturnedLambda(): Unit = checkIntentionIsNotAvailable(
+    s"""
+       |class Foo {
+       |  def test(a: Int): Int => Int = 0
+       |
+       |  test(1)(2, 3$CARET)
+       |}
+       |""".stripMargin
+  )
 }
