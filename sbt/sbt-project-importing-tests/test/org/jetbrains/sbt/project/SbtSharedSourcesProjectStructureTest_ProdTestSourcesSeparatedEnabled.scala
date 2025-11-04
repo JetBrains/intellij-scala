@@ -3,7 +3,7 @@ package org.jetbrains.sbt.project
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.roots.DependencyScope
 import org.jetbrains.plugins.scala.SlowTests2
-import org.jetbrains.plugins.scala.extensions.inWriteAction
+import org.jetbrains.plugins.scala.extensions.{PathExt, inWriteAction}
 import org.junit.Assert.{assertFalse, assertTrue}
 import org.junit.experimental.categories.Category
 
@@ -1178,7 +1178,7 @@ final class SbtSharedSourcesProjectStructureTest_ProdTestSourcesSeparatedEnabled
       lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
       libraries := scalaLibraries
 
-      val buildURI: URI = getTestProjectDir.getCanonicalFile.toURI
+      val buildURI: URI = getTestProjectPath.toCanonicalPath.toUri
 
       lazy val c1: module = new module("c1") {
         contentRoots := Seq(getProjectPath + "/c1")

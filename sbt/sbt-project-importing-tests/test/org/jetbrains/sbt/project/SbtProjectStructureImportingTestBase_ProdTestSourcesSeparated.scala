@@ -423,7 +423,7 @@ abstract class SbtProjectStructureImportingTestBase_ProdTestSourcesSeparated ext
 
   def testSCL14635(): Unit = runTest(
     new project("SCL-14635") {
-      private val buildURI: URI = getTestProjectDir.getCanonicalFile.toURI
+      private val buildURI: URI = getTestProjectPath.toCanonicalPath.toUri
 
       private val sbtIdeaPluginGroup = Array("sbtIdeaPlugin")
       private val sbtIdeSettingsGroup = Array("sbt-ide-settings")
@@ -1852,7 +1852,7 @@ abstract class SbtProjectStructureImportingTestBase_ProdTestSourcesSeparated ext
    */
   def testSCL13600(): Unit = runTest(
     new project("root") {
-      val buildURI: URI = getTestProjectDir.getCanonicalFile.toURI
+      val buildURI: URI = getTestProjectPath.toCanonicalPath.toUri
 
       val rootC1: module = new module("Build C1 Name") {
         sbtProjectId := "root"
@@ -2126,7 +2126,7 @@ abstract class SbtProjectStructureImportingTestBase_ProdTestSourcesSeparated ext
 
   def testMultiBuildProjectWithSpecialCharactersInRootProjectNames(): Unit = runTest(
     new project("ro//o/t\\") {
-      val buildURI: URI = getTestProjectDir.getCanonicalFile.toURI
+      val buildURI: URI = getTestProjectPath.toCanonicalPath.toUri
 
       val rootC1: module = new module("Build__1_N_ame") {
         sbtProjectId := "root"
@@ -2199,7 +2199,7 @@ abstract class SbtProjectStructureImportingTestBase_ProdTestSourcesSeparated ext
       lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
       libraries := scalaLibraries
 
-      val buildURI: URI = getTestProjectDir.getCanonicalFile.toURI
+      val buildURI: URI = getTestProjectPath.toCanonicalPath.toUri
 
       lazy val c1: module = new module("c1") {
         contentRoots := Seq(getProjectPath + "/c1")
