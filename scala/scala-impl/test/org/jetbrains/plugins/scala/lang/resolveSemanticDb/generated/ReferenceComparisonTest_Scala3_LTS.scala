@@ -2240,7 +2240,7 @@ final class ReferenceComparisonTest_Scala3_LTS_Part22 extends ReferenceCompariso
   def test_strict_pattern_bindings_3_0_migration(): Unit = doTest("strict-pattern-bindings-3.0-migration", true)
   def test_strict_pattern_bindings_3_1(): Unit = doTest("strict-pattern-bindings-3.1", true)
   def test_stringConstantFold(): Unit = doTest("stringConstantFold", true)
-  def test_StringContext(): Unit = doTest("StringContext", false)
+  def test_StringContext(): Unit = doTest("StringContext", true)
   def test_strings(): Unit = doTest("strings", true)
   def test_strip_tvars_for_lubbasetypes(): Unit = doTest("strip-tvars-for-lubbasetypes", true)
   def test_subtyping(): Unit = doTest("subtyping", true)
