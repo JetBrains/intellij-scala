@@ -7,7 +7,6 @@ import sbt.*
 import sbt.Keys.target
 import sbt.librarymanagement.CrossVersion
 
-import java.io.File
 import java.net.URI
 import java.nio.file.{Files, Path, Paths}
 import scala.annotation.nowarn
@@ -260,7 +259,7 @@ object LocalRepoPackager extends AutoPlugin {
             throw new RuntimeException(s"Can't determine .ivy2 root for coursier repo $repo, for artifact $artifact")
           }
           val root = new URI(rootStr)
-          new File(root).toPath
+          Path.of(root)
       }
     else
       fetch.repositories.collect {
