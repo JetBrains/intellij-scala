@@ -2,13 +2,14 @@ package org.jetbrains.plugins.scala.testingSupport
 
 import com.intellij.ide.util.PsiNavigationSupport
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditorManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiClass, PsiFile}
 import com.intellij.testIntegration.TestFramework
+import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.SlowTests2
 import org.jetbrains.plugins.scala.actions.FileTemplateTestUtils
 import org.jetbrains.plugins.scala.extensions.invokeAndWait
@@ -17,11 +18,12 @@ import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestTestFr
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
 import org.jetbrains.sbt.project.SbtExternalSystemImportingTestLike
-import org.junit.Assert.assertNotNull
+import org.junit.Assert.{assertEquals, assertNotNull}
 import org.junit.experimental.categories.Category
 
 import scala.jdk.CollectionConverters.ListHasAsScala
 
+//noinspection SameParameterValue,DfaNullableToUnannotatedParam
 @Category(Array(classOf[SlowTests2]))
 class ScalaTestCreatorInSbtProjectsTest extends SbtExternalSystemImportingTestLike {
 
@@ -38,51 +40,163 @@ class ScalaTestCreatorInSbtProjectsTest extends SbtExternalSystemImportingTestLi
   }
 
   // SCL-24058
-  // NOTE: we have to jeep multiple tests inside the same test class to reuse the same sbt project and do not run project reimport every time.
+  // NOTE: we have to keep multiple tests inside the same test class to reuse the same sbt project and do not run project reimport every time.
   // Unfortunately current ExternalSystemTestCase doesn't provide another convenient way to reuse the project in multiple test classes
   def testCreateNewTestInMultiModuleProjectWithMultipleExistingTestDirectories(): Unit = {
     importProject(null)
 
+    // This can be an arbitrary test framework as the primary purpose of thie test is not test-framework-specific
+    val testFramework = ScalaTestTestFramework()
+
     doTestCreateNewTest(
       "com.example.level1.Dummy11",
-      "project1/src/test/scala/com/example/level1/MyDummy11Test.scala",
-      "com.example.level1.MyDummy11Test"
+      testFramework,
+      "project1/src/test/scala/com/example/level1/Dummy11Test.scala",
+      "com.example.level1.Dummy11Test"
     )
     doTestCreateNewTest(
       "com.example.level2.Dummy12",
-      "project1/src/test/scala/com/example/level2/MyDummy12Test.scala",
-      "com.example.level2.MyDummy12Test"
+      testFramework,
+      "project1/src/test/scala/com/example/level2/Dummy12Test.scala",
+      "com.example.level2.Dummy12Test"
     )
 
     doTestCreateNewTest(
       "com.example.level1.Dummy21",
-      "project2/src/test/scala/com/example/level1/MyDummy21Test.scala",
-      "com.example.level1.MyDummy21Test"
+      testFramework,
+      "project2/src/test/scala/com/example/level1/Dummy21Test.scala",
+      "com.example.level1.Dummy21Test"
     )
     doTestCreateNewTest(
       "com.example.level2.Dummy22",
-      "project2/src/test/scala/com/example/level2/MyDummy22Test.scala",
-      "com.example.level2.MyDummy22Test"
+      testFramework,
+      "project2/src/test/scala/com/example/level2/Dummy22Test.scala",
+      "com.example.level2.Dummy22Test"
     )
 
     doTestCreateNewTest(
       "com.example.level1.Dummy31",
-      "project3/src/test/scala/com/example/level1/MyDummy31Test.scala",
-      "com.example.level1.MyDummy31Test"
+      testFramework,
+      "project3/src/test/scala/com/example/level1/Dummy31Test.scala",
+      "com.example.level1.Dummy31Test"
     )
     doTestCreateNewTest(
       "com.example.level2.Dummy32",
-      "project3/src/test/scala/com/example/level2/MyDummy32Test.scala",
-      "com.example.level2.MyDummy32Test"
+      testFramework,
+      "project3/src/test/scala/com/example/level2/Dummy32Test.scala",
+      "com.example.level2.Dummy32Test"
     )
   }
 
-  //noinspection DfaNullableToUnannotatedParam,DfaNullableToNotNullParam
+  def testUTest08(): Unit = {
+    importProject(null)
+
+    doTestCreateNewTest(
+      "org.example.MyClass",
+      "src/test/scala/org/example/MyClassTest.scala",
+      "org.example.MyClassTest",
+      """package org.example
+        |
+        |import utest._
+        |
+        |object MyClassTest extends TestSuite {
+        |  override val tests: Tests = Tests {
+        |
+        |  }
+        |}""".stripMargin
+    )
+  }
+
+  def testUTest09(): Unit = {
+    importProject(null)
+
+    doTestCreateNewTest(
+      "org.example.MyClass",
+      "src/test/scala/org/example/MyClassTest.scala",
+      "org.example.MyClassTest",
+      """package org.example
+        |
+        |import utest._
+        |
+        |class MyClassTest extends TestSuite {
+        |  override val tests: Tests = Tests {
+        |
+        |  }
+        |}""".stripMargin
+    )
+
+    doTestCreateNewTest(
+      "org.example.MyClass",
+      ScalaTestCreator.MockTestDialogData(
+        testClassName = Some("MyClassTest2"),
+        selectedTestedMethodsNames = Some(Seq(
+          "myMethod1",
+          "myMethod2",
+        ))
+      ),
+      ExpectedTestResult(
+        "src/test/scala/org/example/MyClassTest2.scala",
+        "org.example.MyClassTest2",
+        """package org.example
+          |
+          |import utest._
+          |
+          |class MyClassTest2 extends TestSuite {
+          |  override val tests: Tests = Tests {
+          |    test("myMethod1") {}
+          |
+          |    test("myMethod2") {}
+          |  }
+          |}""".stripMargin
+      )
+    )
+  }
+
+  private def doTestCreateNewTest(
+    mainClassFqn: String,
+    testFramework: TestFramework,
+    expectedTestFileRelativePath: String,
+    expectedTestClassFqn: String,
+  ): Unit = doTestCreateNewTest(
+    mainClassFqn = mainClassFqn,
+    testDialogMockData = ScalaTestCreator.MockTestDialogData(
+      selectedTestFramework = Some(testFramework)
+    ),
+    expectedTestResult = ExpectedTestResult(
+      createdTestFileRelativePath = expectedTestFileRelativePath,
+      createdTestClassFqn = expectedTestClassFqn,
+      createdTestFileText = null
+    )
+  )
+
   private def doTestCreateNewTest(
     mainClassFqn: String,
     expectedTestFileRelativePath: String,
     expectedTestClassFqn: String,
-    testFramework: TestFramework = new ScalaTestTestFramework
+    @Language("Scala")
+    expectedTestFileText: String
+  ): Unit =     doTestCreateNewTest(
+    mainClassFqn = mainClassFqn,
+    testDialogMockData = ScalaTestCreator.MockTestDialogData(),
+    ExpectedTestResult(
+      createdTestFileRelativePath = expectedTestFileRelativePath,
+      createdTestClassFqn = expectedTestClassFqn,
+      createdTestFileText = expectedTestFileText
+    )
+  )
+
+  private case class ExpectedTestResult(
+    createdTestFileRelativePath: String,
+    createdTestClassFqn: String,
+    @Language("Scala")
+    createdTestFileText: String
+  )
+
+  //noinspection DfaNullableToUnannotatedParam,DfaNullableToNotNullParam
+  private def doTestCreateNewTest(
+    mainClassFqn: String,
+    testDialogMockData: ScalaTestCreator.MockTestDialogData,
+    expectedTestResult: ExpectedTestResult
   ): Unit = {
     val (psiFile, editor) = findFileForClassAndOpenEditor(mainClassFqn)
 
@@ -90,12 +204,18 @@ class ScalaTestCreatorInSbtProjectsTest extends SbtExternalSystemImportingTestLi
 
     val allSourceFilesBefore = getAllSourceFiles(projectRoot)
 
-    createTest(editor, psiFile, testFramework, testClassName = expectedTestClassFqn.split('.').last)
+    createTest(editor, psiFile, testDialogMockData)
 
     val allSourceFilesAfter = getAllSourceFiles(projectRoot)
 
     val createdSourceFiles = allSourceFilesAfter.diff(allSourceFilesBefore)
     val createdSourceFilesPaths = createdSourceFiles.map(TestUtils.getPathRelativeToProject(_, getMyProject))
+
+    val ExpectedTestResult(
+      expectedTestFileRelativePath,
+      expectedTestClassFqn,
+      expectedTestFileText,
+    ) = expectedTestResult
 
     assertCollectionEquals(
       s"Expected single test file to be created at '$expectedTestFileRelativePath', but got these new source files",
@@ -105,6 +225,15 @@ class ScalaTestCreatorInSbtProjectsTest extends SbtExternalSystemImportingTestLi
 
     val testClass = findClass(getMyProject, expectedTestClassFqn)
     assertNotNull(s"Expected test class '$expectedTestClassFqn' to be created", testClass)
+
+    if (expectedTestFileText != null) {
+      val createdTestFile = createdSourceFiles.head
+      val createdTestDocument = FileDocumentManager.getInstance().getDocument(createdTestFile)
+      assertEquals(
+        expectedTestFileText,
+        createdTestDocument.getText()
+      )
+    }
 
     // Cleanup just in case to avoid strange test exceptions in tearDown
     closeAllOpenEditors(getMyProject)
@@ -128,14 +257,9 @@ class ScalaTestCreatorInSbtProjectsTest extends SbtExternalSystemImportingTestLi
   private def createTest(
     editor: Editor,
     psiFile: PsiFile,
-    testFramework: TestFramework,
-    testClassName: String
+    testDialogMockData: ScalaTestCreator.MockTestDialogData
   ): Unit = {
     // Set up mock test dialog data
-    val testDialogMockData = ScalaTestCreator.MockTestDialogData(
-      selectedTestFramework = testFramework,
-      testClassName = testClassName
-    )
     getMyProject.putUserData(ScalaTestCreator.MockTestDialogDataKey, testDialogMockData)
 
     try {

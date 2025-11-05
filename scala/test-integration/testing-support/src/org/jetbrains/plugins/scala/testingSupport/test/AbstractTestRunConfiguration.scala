@@ -14,12 +14,11 @@ import com.intellij.openapi.options.{SettingsEditor, SettingsEditorGroup}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
 import com.intellij.psi.search.{GlobalSearchScope, GlobalSearchScopes}
-import com.intellij.util.keyFMap.KeyFMap
 import com.intellij.util.xmlb.XmlSerializer
 import com.intellij.util.xmlb.annotations.Transient
 import org.jdom.Element
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.extensions.LoggerExt
+import org.jetbrains.plugins.scala.extensions.{LoggerExt, ObjectExt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt}
@@ -31,6 +30,7 @@ import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
 import org.jetbrains.sbt.SbtUtil.SbtProjectUriAndId
 
 import java.{util => ju}
+import scala.annotation.tailrec
 import scala.beans.BeanProperty
 import scala.jdk.CollectionConverters._
 
@@ -142,21 +142,53 @@ abstract class AbstractTestRunConfiguration(
     }
 
   @Nullable
-  protected[test] def getClazz(path: String): PsiClass = {
+  private def findBaseTestSuiteClass(testClassFqn: String): PsiClass = {
+    val classes = findClassInReadAction(testClassFqn)
+
+    // base test suite can only be a class or a trait, not an object
+    val nonObjects = classes.filterNot(_.is[ScObject])
+    if (nonObjects.nonEmpty) nonObjects(0)
+    else null
+  }
+
+  @Nullable
+  protected[test] def findValidTestSuiteClassOrObject(testClassFqn: String): PsiClass = {
+    val classes = findClassInReadAction(testClassFqn).toSeq
+    findValidTestSuiteClassOrObject(classes, checkBaseTestSuiteIfAmbigous = true)
+  }
+
+  @tailrec
+  private def findValidTestSuiteClassOrObject(classes: Seq[PsiClass], checkBaseTestSuiteIfAmbigous: Boolean): PsiClass = {
+    val (objects, nonObjects) = classes.partition(_.is[ScObject])
+
+    if (objects.nonEmpty && nonObjects.nonEmpty && checkBaseTestSuiteIfAmbigous) {
+      // If both companion class and object exist, we need to make sure we use the one that actually extends the base test suite
+      // This can happen, for example, in uTest.
+      // Even if the actual test suite is "object", the "testClassFqn" used to represent it will be the qualified name of the companion class (without trailing `$`)
+      // This is how it's done in the uTest itself.
+      val suiteClass = getSuiteClass.toOption
+      val classesWithValidBaseSuite = classes.filter(c => suiteClass.forall(base => validityChecker.isValidSuite(c, base)))
+      findValidTestSuiteClassOrObject(classesWithValidBaseSuite, checkBaseTestSuiteIfAmbigous = false)
+    }
+    else if (objects.nonEmpty)
+      objects.head
+    else if (nonObjects.nonEmpty)
+      nonObjects.head
+    else
+      null
+  }
+
+  private def findClassInReadAction(testClassFqn: String): Array[PsiClass] = {
     val scope = configurationScope
-    val classes = ReadAction
-      .nonBlocking[Array[PsiClass]](() => ScalaPsiManager.instance(project).getCachedClasses(scope, path))
+    ReadAction
+      .nonBlocking[Array[PsiClass]](() => ScalaPsiManager.instance(project).getCachedClasses(scope, testClassFqn))
       .expireWhen(() => project.isDisposed)
       .executeSynchronously()
-    val (objects, nonObjects) = classes.partition(_.isInstanceOf[ScObject])
-    if (nonObjects.nonEmpty) nonObjects(0)
-    else if (objects.nonEmpty) objects(0)
-    else null
   }
 
   // TODO: when checking suite on validity we search inheritors here and in validation, extra work
   protected[test] def getSuiteClass: Either[RuntimeConfigurationException, PsiClass] = {
-    val suiteClasses = suitePaths.map(getClazz).filter(_ != null)
+    val suiteClasses = suitePaths.map(findBaseTestSuiteClass).filter(_ != null)
 
     if (suiteClasses.isEmpty)
       Left(configurationException(TestingSupportBundle.message("test.framework.is.not.specified", testFramework.getName)))

@@ -27,7 +27,11 @@ import org.jetbrains.plugins.scala.testingSupport.test.utest.UTestTestFramework
 import javax.swing.Icon
 import scala.jdk.CollectionConverters.IterableHasAsScala
 
-// TODO: split providers by test frameworks, if some logic should be reused, just move to some base/utility classes
+/**
+ * ATTENTION: despite the name "ScalaTest*" this line marker provider is applicable for all test frameworks
+ *
+ * @todo split providers by test frameworks, if some logic should be reused, just move to some base/utility classes
+ */
 class ScalaTestRunLineMarkerProvider extends TestRunLineMarkerProvider {
 
   /**
@@ -36,7 +40,7 @@ class ScalaTestRunLineMarkerProvider extends TestRunLineMarkerProvider {
    *  - [[org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestReporterWithLocation]]
    *  - [[org.jetbrains.plugins.scala.testingSupport.locationProvider.ScalaTestLocationProvider]]
    *
-   * for uTest  location hint format see
+   * for uTest location hint format see
    *  - [[org.jetbrains.plugins.scala.testingSupport.uTest.UTestReporter]]
    */
   override def getInfo(element: PsiElement): RunLineMarkerContributor.Info =
@@ -66,7 +70,8 @@ class ScalaTestRunLineMarkerProvider extends TestRunLineMarkerProvider {
 
   private def infoForClass(clazz: PsiClass): Option[RunLineMarkerContributor.Info] = {
     val framework = TestFrameworks.detectFramework(clazz)
-    if (framework == null || !framework.isTestClass(clazz)) return None
+    if (framework == null || !framework.isTestClass(clazz))
+      return None
 
     val url = framework match {
       case _: ScalaTestTestFramework =>
