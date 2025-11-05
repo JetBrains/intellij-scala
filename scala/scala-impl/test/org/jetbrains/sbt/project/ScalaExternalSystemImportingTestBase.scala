@@ -1,16 +1,15 @@
 package org.jetbrains.sbt.project
 
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
-import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.util.io.NioFiles
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.platform.externalSystem.testFramework.ExternalSystemImportingTestCase
 import com.intellij.pom.java.LanguageLevel
 import junit.framework.TestCase.assertNotNull
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
-import org.jetbrains.plugins.scala.extensions.inWriteAction
+import org.jetbrains.plugins.scala.extensions.{PathExt, inWriteAction}
 
-import java.io.File
-import java.nio.file.Path
+import java.nio.file.{Files, Path}
 
 abstract class ScalaExternalSystemImportingTestBase extends ExternalSystemImportingTestCase {
 
@@ -50,29 +49,29 @@ abstract class ScalaExternalSystemImportingTestBase extends ExternalSystemImport
    */
   protected def copyTestProjectToTemporaryDir: Boolean = false
 
-  protected final lazy val getTestProjectPath: Path = getTestProjectDir.toPath
-
   /**
-   * - Same as [[getTestDataProjectPath]] but as a File when [[copyTestProjectToTemporaryDir]] is false<br>
-   * - Temp project directory when [[copyTestProjectToTemporaryDir]] is true
+   * Same as [[getTestDataProjectPath]] when [[copyTestProjectToTemporaryDir]] is `false`,
+   * temp project directory when [[copyTestProjectToTemporaryDir]] is `true`.
    */
-  private final lazy val getTestProjectDir: File = {
-    val originalTestDataProjectDir = new File(getTestDataProjectPath)
+  protected final lazy val getTestProjectPath: Path = {
+    val originalTestDataProjectDir = Path.of(getTestDataProjectPath)
     if (!copyTestProjectToTemporaryDir)
       originalTestDataProjectDir
     else {
-      val deleteOnExit = true
-      FileUtil.createTempDirectory(s"temp_projects/${originalTestDataProjectDir.getName}", "", deleteOnExit)
+      val projectName = originalTestDataProjectDir.getFileName.toString
+      val tmpPath = Files.createTempDirectory(projectName).toRealPath()
+      Runtime.getRuntime.addShutdownHook(new Thread(() => NioFiles.deleteRecursively(tmpPath)))
+      tmpPath / projectName
     }
   }
 
   override protected def setUpInWriteAction(): Unit = {
-    val originalTestDataProjectDir = new File(getTestDataProjectPath)
+    val originalTestDataProjectDir = Path.of(getTestDataProjectPath)
     val testProjectPath = getTestProjectPath
 
     if (copyTestProjectToTemporaryDir) {
       println(s"Test project copied to the temporary directory: $testProjectPath")
-      FileUtil.copyDir(originalTestDataProjectDir, testProjectPath.toFile)
+      NioFiles.copyRecursively(originalTestDataProjectDir, testProjectPath)
     }
 
     setProjectRoot(testProjectPath)
