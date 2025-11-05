@@ -3,11 +3,11 @@ package org.jetbrains.plugins.scala.uast
 import com.intellij.platform.uast.testFramework.common.RenderLogTestBase
 import com.intellij.psi.PsiElement
 import com.intellij.testFramework.EqualsToFile
-
-import java.io.File
 import org.jetbrains.uast._
 import org.jetbrains.uast.visitor.AbstractUastVisitor
 import org.junit.Assert
+
+import _root_.java.nio.file.Path
 
 class SimpleScalaRenderingLogTest
     extends AbstractUastFixtureTest
@@ -59,14 +59,14 @@ class SimpleScalaRenderingLogTest
 
   def testComplexSample3(): Unit = doComplexTest()
 
-  private def getTestFile(testName: String, ext: String) = {
+  private def getTestFile(testName: String, ext: String): Path = {
 
     def substringBeforeLast(str: String, delimiter: Char): String = {
       val index = str.lastIndexOf(delimiter)
       if (index == -1) str else str.substring(0, index)
     }
 
-    new File(getTestDataPath(), substringBeforeLast(testName, '.') + '.' + ext)
+    Path.of(getTestDataPath, substringBeforeLast(testName, '.') + '.' + ext)
   }
 
   override def check(testName: String,
@@ -77,12 +77,12 @@ class SimpleScalaRenderingLogTest
 
     EqualsToFile.assertEqualsToFile(
       "Render string",
-      renderFile,
+      renderFile.toFile,
       file.asRenderString()
     )
     EqualsToFile.assertEqualsToFile(
       "Log string",
-      logFile,
+      logFile.toFile,
       UastUtils.asRecursiveLogString(file)
     )
 
