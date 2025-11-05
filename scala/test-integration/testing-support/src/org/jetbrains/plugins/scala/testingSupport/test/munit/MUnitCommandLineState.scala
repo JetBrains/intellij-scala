@@ -16,7 +16,6 @@ import org.jetbrains.plugins.scala.testingSupport.test.munit.MUnitCommandLineSta
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.{AllInPackageTestData, TestConfigurationData}
 import org.jetbrains.plugins.scala.testingSupport.test.utils.RawProcessOutputDebugLogger
 
-import java.io.File
 import scala.jdk.CollectionConverters.SeqHasAsJava
 
 /**
@@ -55,7 +54,7 @@ private class MUnitCommandLineState(
   // no fork supported for now
   override def getForkMode: String = JUnitConfiguration.FORK_NONE
 
-  override def passForkMode(forkMode: String, tempFile: File, parameters: JavaParameters): Unit = ()
+  override def passForkMode(forkMode: String, tempFile: java.io.File, parameters: JavaParameters): Unit = ()
 
   override def passTempFile(parametersList: ParametersList, tempFilePath: String): Unit =
     parametersList.add("@" + tempFilePath)

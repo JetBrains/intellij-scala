@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala.project
 
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileListener, VirtualFileSystem}
 
-import java.io.File
-
 class AbsentLocalFile(url: String, path: String) extends VirtualFile {
   override def getName = throw new UnsupportedOperationException()
 
@@ -72,5 +70,5 @@ object AbsentLocalFileSystem extends VirtualFileSystem {
 
   override def deleteFile(requestor: AnyRef, vFile: VirtualFile): Unit = throw new UnsupportedOperationException()
 
-  override def extractPresentableUrl(path: String): String = path.replace('/', File.separatorChar)
+  override def extractPresentableUrl(path: String): String = path.replace('/', java.io.File.separatorChar)
 }
