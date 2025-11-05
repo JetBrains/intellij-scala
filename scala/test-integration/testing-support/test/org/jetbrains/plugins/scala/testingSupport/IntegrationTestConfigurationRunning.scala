@@ -56,16 +56,20 @@ trait IntegrationTestConfigurationRunning {
   }
 
   def assertExitCode(expectedCode: Int, runResult: TestRunResult): Unit =
-    assertExitCode(expectedCode, runResult.processExitCode)
+    try assertExitCode(expectedCode, runResult.processExitCode) catch {
+      case e: AssertionError =>
+        System.err.println(s"Process output:\n${runResult.processOutput.text}")
+        throw e
+    }
 
   def assertExitCode(expectedCode: Int, actualCode: Int): Unit = {
     // return code on Unix/Linux program is a single byte; it has a value between 0 and 255
     // -1 becomes 255, -2 becomes 254, etc...
     val expectedCodeFixed =
-    if (SystemInfo.isUnix)
-      expectedCode.toByte & 0xFF
-    else
-      expectedCode
+      if (SystemInfo.isUnix)
+        expectedCode.toByte & 0xFF
+      else
+        expectedCode
     Assert.assertEquals(
       "Test runner process terminated with unexpected error code",
       expectedCodeFixed,

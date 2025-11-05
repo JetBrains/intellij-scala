@@ -5,14 +5,13 @@ package test.utest
 import com.intellij.execution.actions.RunConfigurationProducer
 import com.intellij.execution.configurations.ConfigurationFactory
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.extensions.{&, Parent, PsiElementExt}
+import org.jetbrains.plugins.scala.extensions.{&, IterableOnceExt, Parent, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScTuplePattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScArguments
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestConfigurationProducer.CreateFromContextInfo
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestConfigurationProducer.CreateFromContextInfo._
 import org.jetbrains.plugins.scala.testingSupport.test._
@@ -101,17 +100,11 @@ final class UTestConfigurationProducer extends AbstractTestConfigurationProducer
   override def getTestClassWithTestName(location: PsiElementLocation): Option[ClassWithTestName] = {
     val element = location.getPsiElement
 
-    //first, check that containing type definition is a uTest suite
-    // TODO: eliminate code duplication
-    var containingObject: ScTypeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition], false)
-    if (containingObject == null)
+    val containingDefinition = element.parentsInFile.filterByType[ScTypeDefinition].find(UTestTestFramework.isValidUTestSuiteCandidate).orNull
+    if (containingDefinition == null)
       return None
-    while (!containingObject.isInstanceOf[ScObject] && PsiTreeUtil.getParentOfType(containingObject, classOf[ScTypeDefinition], true) != null) {
-      containingObject = PsiTreeUtil.getParentOfType(containingObject, classOf[ScTypeDefinition], true)
-    }
-    //this is checked once we provide a concrete class for test run
-    //    if (!containingObject.isInstanceOf[ScObject]) return fail
-    if (!suitePaths.exists(suitePath => TestConfigurationUtil.isInheritor(containingObject, suitePath)))
+
+    if (!suitePaths.exists(suitePath => TestConfigurationUtil.isInheritor(containingDefinition, suitePath)))
       return None
 
     import TestNodeProvider._
@@ -131,7 +124,7 @@ final class UTestConfigurationProducer extends AbstractTestConfigurationProducer
     }
     //it is also possible that element is on left-hand of test suite definition
     val testName = testNameOpt.orElse(TestNodeProvider.getUTestLeftHandTestDefinition(element).flatMap(getTestSuiteName))
-    Some(ClassWithTestName(containingObject, testName))
+    Some(ClassWithTestName(containingDefinition, testName))
   }
 }
 
