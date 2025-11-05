@@ -39,6 +39,9 @@ class JdkScalaCompatibilityCheckerTest:
     Array(JavaVersion.compose(27), ScalaVersion(ScalaLanguageLevel.Scala_2_13, "17"), None),
     Array(JavaVersion.compose(27), ScalaVersion(ScalaLanguageLevel.Scala_2_13, "16"), Some(ScalaVersion(ScalaLanguageLevel.Scala_2_13, "17"))),
     Array(JavaVersion.compose(27), ScalaVersion(ScalaLanguageLevel.Scala_3_7,  "1"), None),
+    // There are no minimum Scala versions for Scala 3.8+
+    Array(JavaVersion.compose(11), ScalaVersion(ScalaLanguageLevel.Scala_3_8, "0"), None),
+    Array(JavaVersion.compose(21), ScalaVersion(ScalaLanguageLevel.Scala_3_8,  "1"), None),
   )
 
   @Test
@@ -55,7 +58,9 @@ class JdkScalaCompatibilityCheckerTest:
     Array(JavaVersion.compose(21), ScalaVersion(ScalaLanguageLevel.Scala_3_3,  "0"),  Some(JavaVersion.compose(20))),
     Array(JavaVersion.compose(25), ScalaVersion(ScalaLanguageLevel.Scala_2_12, "19"), Some(JavaVersion.compose(24))),
     Array(JavaVersion.compose(23), ScalaVersion(ScalaLanguageLevel.Scala_3_4,  "0"),  None),
-    Array(JavaVersion.compose(20), ScalaVersion(ScalaLanguageLevel.Scala_2_13, "6"), None)
+    Array(JavaVersion.compose(20), ScalaVersion(ScalaLanguageLevel.Scala_2_13, "6"), None),
+    Array(JavaVersion.compose(11), ScalaVersion(ScalaLanguageLevel.Scala_3_8, "0"), None),
+    Array(JavaVersion.compose(21), ScalaVersion(ScalaLanguageLevel.Scala_3_8,  "1"), None),
   )
 
   @Test
@@ -64,3 +69,17 @@ class JdkScalaCompatibilityCheckerTest:
   def testHighestCompatibleJdkForScala(javaVersion: JavaVersion, scalaVersion: ScalaVersion, expected: Option[JavaVersion]): Unit =
     val highestCompatibleVersion = JdkScalaCompatibilityChecker.getHighestCompatibleJdkForScala(javaVersion, scalaVersion)
     assertEquals(expected, highestCompatibleVersion)
+
+  private def testDataMinimumJdkRequiredForScala: Array[AnyRef] = Array(
+    Array(JavaVersion.compose(11), ScalaVersion(ScalaLanguageLevel.Scala_3_8,  "0"), Some(JavaVersion.compose(17))),
+    Array(JavaVersion.compose(8), ScalaVersion(ScalaLanguageLevel.Scala_3_8,  "0"), Some(JavaVersion.compose(17))),
+    Array(JavaVersion.compose(17), ScalaVersion(ScalaLanguageLevel.Scala_3_8,  "0"), None),
+    Array(JavaVersion.compose(21), ScalaVersion(ScalaLanguageLevel.Scala_3_8,  "0"), None)
+  )
+
+  @Test
+  @Parameters(method = "testDataMinimumJdkRequiredForScala")
+  @TestCaseName("{method}[javaVersion = {0}, scalaVersion = {1}, expected = {2}]")
+  def testMinimumJdkRequiredForScala(javaVersion: JavaVersion, scalaVersion: ScalaVersion, expected: Option[JavaVersion]): Unit =
+    val minRequired = JdkScalaCompatibilityChecker.getMinimumJdkRequiredForScala(javaVersion, scalaVersion)
+    assertEquals(expected, minRequired)
