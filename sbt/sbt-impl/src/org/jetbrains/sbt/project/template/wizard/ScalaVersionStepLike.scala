@@ -27,7 +27,7 @@ import scala.collection.immutable.ListSet
 
 trait ScalaVersionStepLike extends IndentationSyntaxStepLike with AsynchronousVersionsDownloading { self: NewProjectWizardStep =>
 
-  protected def selections: ScalaModuleBuilderSelections =
+  protected val selections: ScalaModuleBuilderSelections =
     ScalaModuleBuilderSelections.default
 
   protected def defaultAvailableScalaVersions: Seq[String]
