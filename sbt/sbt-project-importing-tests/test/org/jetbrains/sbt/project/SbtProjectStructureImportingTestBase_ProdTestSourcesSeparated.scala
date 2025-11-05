@@ -27,7 +27,7 @@ import java.net.URI
  * @see [[SbtProjectStructureImportingTest]]
  */
 @Category(Array(classOf[SlowTests]))
-abstract class SbtProjectStructureImportingTestBase_ProdTestSourcesSeparated extends SbtProjectStructureImportingLike {
+/*abstract*/ class SbtProjectStructureImportingTestBase_ProdTestSourcesSeparated extends SbtProjectStructureImportingLike {
 
   import ProjectStructureDsl._
 
@@ -35,14 +35,22 @@ abstract class SbtProjectStructureImportingTestBase_ProdTestSourcesSeparated ext
     val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
     runSimpleTest("simple", "2.13", scalaLibraries)
 
-    // Adding the assertion here not to create a separate heavy test for such a tiny check
+    // Adding some extra assertions here not to create a separate heavy test for such a tiny check
     // org.jetbrains.plugins.scala.project.ProjectExt#modulesWithScala
+    assertModulesWithScala(Seq("simple.test", "simple.main"))
+
+    assertErrorOutputHasNotFailedProjectImport()
+  }
+
+  private def assertModulesWithScala(expectedModuleNames: Seq[String]): Unit = {
     Assert.assertEquals(
-      "modulesWithScala should return list of non *-build modules",
-      Seq("simple.test", "simple.main"),
+      "`modulesWithScala` should return list of non *-build modules",
+      expectedModuleNames,
       getMyProject.modulesWithScala.map(_.getName),
     )
+  }
 
+  private def assertErrorOutputHasNotFailedProjectImport(): Unit = {
     val expectedLineInProcessOutput = "[error] Some error message which shouldn't fail the whole build, see SCL-21478 and SCL-13038"
     assertTrue(
       s"Can't find this line in sbt process output during sbt structure extraction:\n$expectedLineInProcessOutput",
@@ -1267,11 +1275,7 @@ abstract class SbtProjectStructureImportingTestBase_ProdTestSourcesSeparated ext
       getMyProject.modulesWithScala.map(_.getName).sorted,
     )
 
-    val expectedLineInProcessOutput = "[error] Some error message which shouldn't fail the whole build, see SCL-21478 and SCL-13038"
-    assertTrue(
-      s"Can't find this line in sbt process output during sbt structure extraction:\n$expectedLineInProcessOutput",
-      SbtProjectResolver.processOutputOfLatestStructureDump.contains(expectedLineInProcessOutput)
-    )
+    assertErrorOutputHasNotFailedProjectImport()
 
     assertDirectoryCompletionVariantsForProjectPaths(
       DefaultSbtContentRootsScala3,

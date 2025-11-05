@@ -825,10 +825,17 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   }
 
   private def createLibrary(module: sbtStructure.ModuleData, resolved: Boolean)(using context: ImportContext): LibraryNode = {
-    val result = new LibraryNode(getNameForLibrary(module.id), resolved)
+    val sbtModuleId = module.id
+
+    val result = new LibraryNode(getNameForLibrary(sbtModuleId), resolved)
     result.addPaths(esProjectData.LibraryPathType.BINARY, module.binaries.map(_.toPath.toCanonicalPath.toString).toSeq)
     result.addPaths(esProjectData.LibraryPathType.SOURCE, module.sources.map(_.toPath.toCanonicalPath.toString).toSeq)
     result.addPaths(esProjectData.LibraryPathType.DOC, module.docs.map(_.toPath.toCanonicalPath.toString).toSeq)
+
+    result.data.setGroup(sbtModuleId.organization)
+    result.data.setArtifactId(sbtModuleId.name)
+    result.data.setVersion(sbtModuleId.revision)
+
     result
   }
 
