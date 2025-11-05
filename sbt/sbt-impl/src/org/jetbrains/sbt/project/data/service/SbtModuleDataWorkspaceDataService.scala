@@ -1,12 +1,12 @@
 package org.jetbrains.sbt.project.data.service
 
-import com.intellij.entities.{ModuleExtensionWorkspaceEntityKt, SbtEntitySource, SbtModuleEntity}
+import com.intellij.entities.{ModuleExtensionWorkspaceEntityModifications, SbtEntitySource, SbtModuleEntityBuilder, SbtModuleEntityModifications}
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.model.{DataNode, Key}
 import com.intellij.openapi.externalSystem.service.project.manage.WorkspaceDataService
 import com.intellij.openapi.project.Project
 import com.intellij.platform.backend.workspace.WorkspaceModel
-import com.intellij.platform.workspace.jps.entities.{ModuleEntityAndExtensions, ModuleId}
+import com.intellij.platform.workspace.jps.entities.{ModuleEntityModifications, ModuleId}
 import com.intellij.platform.workspace.storage.MutableEntityStorage
 import org.jetbrains.sbt.SbtUtil.EntityStorageOps
 import org.jetbrains.sbt.WorkspaceModelUtil
@@ -37,8 +37,8 @@ class SbtModuleDataWorkspaceDataService extends WorkspaceDataService[SbtModuleDa
           .foreach { moduleEntity =>
             val sbtModuleData = dataNode.getData
             val newEntity = createSbtModuleEntity(sbtModuleData, project)
-            ModuleEntityAndExtensions.modifyModuleEntity(mutableStorage, moduleEntity, builder => {
-              ModuleExtensionWorkspaceEntityKt.setModuleExtensionWorkspaceEntity(builder, newEntity)
+            ModuleEntityModifications.modifyModuleEntity(mutableStorage, moduleEntity, builder => {
+              ModuleExtensionWorkspaceEntityModifications.setModuleExtensionWorkspaceEntity(builder, newEntity)
               kotlin.Unit.INSTANCE
             })
           }
@@ -46,7 +46,7 @@ class SbtModuleDataWorkspaceDataService extends WorkspaceDataService[SbtModuleDa
     }
   }
 
-  private def createSbtModuleEntity(sbtModuleData: SbtModuleData, project: Project): SbtModuleEntity.Builder = {
+  private def createSbtModuleEntity(sbtModuleData: SbtModuleData, project: Project): SbtModuleEntityBuilder = {
     val vfUrlManager = WorkspaceModel.getInstance(project).getVirtualFileUrlManager
 
     val sbtModuleDataUri = sbtModuleData.buildURI.toString
@@ -55,7 +55,7 @@ class SbtModuleDataWorkspaceDataService extends WorkspaceDataService[SbtModuleDa
 
     val baseDirectoryVirtualFileUrl = vfUrlManager.fromPath(sbtModuleData.baseDirectory.toString)
 
-    WorkspaceEntitiesCompanionProxy.SbtModuleEntityCompanion.create(sbtModuleData.id, sbtModuleDataUri, baseDirectoryVirtualFileUrl, entitySource)
+    SbtModuleEntityModifications.createSbtModuleEntity(sbtModuleData.id, sbtModuleDataUri, baseDirectoryVirtualFileUrl, entitySource)
   }
 }
 

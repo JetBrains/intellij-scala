@@ -242,7 +242,7 @@ class EnumResolveTest extends SimpleResolveTestBase {
       """
         |enum Foo(x: Int):
         |  def foo: Int = x
-        |  case Bar
+        |  case Bar extends Foo(1)
         |
         |""".stripMargin
     )

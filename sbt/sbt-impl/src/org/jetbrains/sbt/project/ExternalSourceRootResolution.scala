@@ -2,14 +2,15 @@ package org.jetbrains.sbt
 package project
 
 import com.intellij.openapi.externalSystem.model.ExternalSystemException
-import com.intellij.openapi.externalSystem.model.project.{ExternalSystemSourceType, ModuleData}
+import com.intellij.openapi.externalSystem.model.project.{ExternalSystemSourceType, ModuleData as ESModuleData}
 import com.intellij.openapi.roots.DependencyScope
-import org.jetbrains.plugins.scala.extensions.{PathExt, RichFile}
+import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.sbt.project.SbtProjectResolver.ImportContext
+import org.jetbrains.sbt.project.SbtProjectResolver.ImportContext.given
 import org.jetbrains.sbt.project.data.*
 import org.jetbrains.sbt.project.sources.SharedSourcesModuleType
-import org.jetbrains.sbt.structure as sbtStructure
-import org.jetbrains.sbt.structure.{Dependencies, ProjectData, ProjectDependencyData}
+import org.jetbrains.sbt.project.structure.data as sbtStructure
+import org.jetbrains.sbt.project.structure.data.{Dependencies, ProjectData, ProjectDependencyData}
 
 import java.net.URI
 import java.nio.file.Path
@@ -21,7 +22,7 @@ import scala.reflect.ClassTag
  */
 trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsResolution =>
 
-  type ModuleDataNodeType = Node[? <: ModuleData]
+  type ModuleDataNodeType = Node[? <: ESModuleData]
 
   protected sealed abstract class ModuleSourceSet(val parent: ModuleDataNodeType)
   protected case class PrentModuleSourceSet(override val parent: ModuleDataNodeType) extends ModuleSourceSet(parent)
@@ -34,10 +35,10 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
     defaultModuleFilesDirectory: String,
     separateProdTestSources: Boolean,
     buildProjectsGroups: Seq[BuildProjectsGroup]
-  ): Unit = {
+  )(using context: ImportContext): Unit = {
     // The parent "standard" modules are created with the content root node set to the project base.
     // We need to collect all parent bases to avoid creating a shared sources parent module in the same directory.
-    val parentModulesBases = projectToSourceSet.map(_._1.base.path).toSeq
+    val parentModulesBases = projectToSourceSet.map(_._1.base.toPath.toCanonicalPath.toString).toSeq
     val createSourceModule: (SharedSourcesGroup, Seq[LibraryNode], String, Seq[BuildProjectsGroup]) => ModuleDataNodeType =
       // note: we know that if separateProdTestSources are enabled, projectToSourceSet values will be of type CompleteModuleSourceSet
       // and if not, values will be of type PrentModuleSourceSet
@@ -92,7 +93,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
     libraryNodes: Seq[LibraryNode],
     defaultModuleFilesDirectory: String,
     buildProjectsGroups: Seq[BuildProjectsGroup]
-  ): ModuleDataNodeType = {
+  )(using context: ImportContext): ModuleDataNodeType = {
     val projects = rootGroup.projects
 
     val sharedSourceModuleNode: ModuleDataNodeType = {
@@ -186,7 +187,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
     defaultModuleFilesDirectory: String,
     buildProjectsGroups: Seq[BuildProjectsGroup],
     parentModulesBases: Seq[String]
-  ): ModuleDataNodeType = {
+  )(using ImportContext): ModuleDataNodeType = {
     val projects = rootGroup.projects
     val (parentModule, sharedSourcesMainModule, sharedSourcesTestModule) = {
       val representativeProject = representativeProjectIn(projects)
@@ -497,7 +498,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
     ownerProjectsIds: Seq[String],
     sourceRootsWithType: Seq[(SourceRoot, ExternalSystemSourceType)],
     allSourceModules: Seq[ModuleDataNodeType]
-  ): Option[SbtSourceSetModuleNode] = {
+  )(using ImportContext): Option[SbtSourceSetModuleNode] = {
     val groupPath = group.base.toCanonicalPath.toString
 
     val internalModuleName = s"${group.name}.$sourceSetName"
@@ -605,7 +606,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
   private def getManagedSourceRootsFromRepresentativeProjectToIncludeAsBaseModelSourceRoots(
     rootGroup: SharedSourcesGroup,
     representativeProject: ProjectData
-  ): Set[SourceRoot] = {
+  )(using context: ImportContext): Set[SourceRoot] = {
     val rootGroupBase = rootGroup.base
     val representativeProjectBase = representativeProject.base
 
@@ -799,7 +800,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
     mapToSharedSourcesGroup(rootsWithBasePath.toSeq, isStandardBase = true) ++ mapToSharedSourcesGroup(groupedDanglingRoots, isStandardBase = false)
   }
 
-  private def sourceRootsIn(project: sbtStructure.ProjectData): Seq[SourceRoot] = {
+  private def sourceRootsIn(project: sbtStructure.ProjectData)(using context: ImportContext): Seq[SourceRoot] = {
     val relevantScopes = Set("compile", "test", "it")
 
     val relevantConfigurations = project.configurations.filter(it => relevantScopes.contains(it.id))
@@ -807,7 +808,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
     relevantConfigurations.flatMap { configuration =>
       def createRoot(kind: SourceRoot.Kind)(directory: sbtStructure.DirectoryData): SourceRoot = {
         val scope = if (configuration.id == "compile") SourceRoot.Scope.Compile else SourceRoot.Scope.Test
-        SourceRoot(scope, kind, directory.file.canonicalFile.toPath, directory.managed)
+        SourceRoot(scope, kind, directory.file.toPath, directory.managed)
       }
 
       val sourceRoots = configuration.sources.map(createRoot(SourceRoot.Kind.Sources))

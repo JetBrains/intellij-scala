@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.compiler.data.CompileOrder
 import org.jetbrains.plugins.scala.extensions.{PathExt, RichFile, inWriteAction}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.external.JdkByName
-import org.jetbrains.sbt.{Sbt, SbtVersion}
+import org.jetbrains.sbt.{Sbt, SbtBundle, SbtVersion}
 import org.junit.Assert
 import org.junit.Assert.{assertEquals, assertTrue}
 import org.junit.experimental.categories.Category
@@ -242,7 +242,7 @@ final class SbtProjectStructureImportingTest extends SbtProjectStructureImportin
 
       modules += new module("unmanagedDependency") {
         lazy val unmanagedLibrary: library = new library(s"sbt: ${Sbt.UnmanagedLibraryName}") {
-          libClasses += (getTestProjectDir / "lib" / "unmanaged.jar").getAbsolutePath
+          libClasses += (getTestProjectPath / "lib" / "unmanaged.jar").toCanonicalPath.toString
         }
 
         libraries := Seq(unmanagedLibrary)
@@ -548,7 +548,7 @@ final class SbtProjectStructureImportingTest extends SbtProjectStructureImportin
    */
   def testSCL13600(): Unit = runTest(
     new project("root") {
-      val buildURI: URI = getTestProjectDir.getCanonicalFile.toURI
+      val buildURI: URI = getTestProjectPath.toCanonicalPath.toUri
 
       val rootC1: module = new module("Build C1 Name") {
         sbtProjectId := "root"
@@ -645,7 +645,7 @@ final class SbtProjectStructureImportingTest extends SbtProjectStructureImportin
 
   def testSCL14635(): Unit = runTest(
     new project("SCL-14635") {
-      private val buildURI: URI = getTestProjectDir.getCanonicalFile.toURI
+      private val buildURI: URI = getTestProjectPath.toCanonicalPath.toUri
 
       private val sbtIdeaPluginGroup = Array("sbtIdeaPlugin")
       private val sbtIdeSettingsGroup = Array("sbt-ide-settings")
@@ -1140,7 +1140,7 @@ final class SbtProjectStructureImportingTest extends SbtProjectStructureImportin
 
   def testMultiBuildProjectWithSpecialCharactersInRootProjectNames(): Unit = runTest(
     new project("ro//o/t\\") {
-      val buildURI: URI = getTestProjectDir.getCanonicalFile.toURI
+      val buildURI: URI = getTestProjectPath.toCanonicalPath.toUri
 
       val rootC1: module = new module("Build__1_N_ame") {
         sbtProjectId := "root"
@@ -1173,7 +1173,7 @@ final class SbtProjectStructureImportingTest extends SbtProjectStructureImportin
         lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
         libraries := scalaLibraries
 
-        val buildURI: URI = getTestProjectDir.getCanonicalFile.toURI
+        val buildURI: URI = getTestProjectPath.toCanonicalPath.toUri
 
         lazy val c1: module = new module("c1") {
           contentRoots := Seq(getProjectPath + "/c1")
@@ -1224,7 +1224,7 @@ final class SbtProjectStructureImportingTest extends SbtProjectStructureImportin
       lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
       libraries := scalaLibraries
 
-      val buildURI: URI = getTestProjectDir.getCanonicalFile.toURI
+      val buildURI: URI = getTestProjectPath.toCanonicalPath.toUri
 
       lazy val c1: module = new module("c1") {
         contentRoots := Seq(getProjectPath + "/c1")
@@ -1370,4 +1370,7 @@ final class SbtProjectStructureImportingTest extends SbtProjectStructureImportin
         modules := Seq(root, project1, project2)
       }
     )
+
+  override protected def runTest(expected: project): Unit =
+    runTest(expected, identity, mutedNotificationTitles = Seq(SbtBundle.message("sbt.legacy.modules.layout.notification.title")))
 }

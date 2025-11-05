@@ -56,7 +56,7 @@ abstract class ScalaExternalSystemImportingTestBase extends ExternalSystemImport
    * - Same as [[getTestDataProjectPath]] but as a File when [[copyTestProjectToTemporaryDir]] is false<br>
    * - Temp project directory when [[copyTestProjectToTemporaryDir]] is true
    */
-  protected final lazy val getTestProjectDir: File = {
+  private final lazy val getTestProjectDir: File = {
     val originalTestDataProjectDir = new File(getTestDataProjectPath)
     if (!copyTestProjectToTemporaryDir)
       originalTestDataProjectDir

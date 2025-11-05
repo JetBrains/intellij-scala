@@ -5,19 +5,24 @@ import com.intellij.psi.JavaCompilerConfigurationProxy
 import com.intellij.testFramework.IdeaTestUtil
 import org.jetbrains.plugins.scala.compiler.CompilerMessagesUtil.assertNoErrorsOrWarnings
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
-import org.jetbrains.plugins.scala.{CompilationTests_IDEA, CompilationTests_Zinc, ScalaVersion}
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsJUnit4Runner, RunWithJdkVersions, RunWithScalaVersions, TestJdkVersion, TestScalaVersion}
+import org.jetbrains.plugins.scala.{CompilationTests_IDEA, CompilationTests_Zinc}
 import org.junit.Assert.{assertEquals, assertNotNull}
+import org.junit.Test
 import org.junit.experimental.categories.Category
+import org.junit.runner.RunWith
 
 import java.net.URLClassLoader
 import scala.jdk.CollectionConverters._
 
+@RunWith(classOf[MultipleScalaVersionsJUnit4Runner])
+@RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Latest))
+@RunWithJdkVersions(Array(TestJdkVersion.JDK_1_8, TestJdkVersion.JDK_11, TestJdkVersion.JDK_17))
 abstract class JavacOptionsTestBase(
   override protected val incrementalityType: IncrementalityType
-) extends ScalaCompilerTestBase with JdkVersionDiscovery {
+) extends ScalaCompilerTestBase {
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
-
+  @Test
   def testJavacOptions_Parameters(): Unit = {
     IdeaTestUtil.setProjectLanguageLevel(getProject, LanguageLevel.JDK_1_8)
     JavaCompilerConfigurationProxy.setAdditionalOptions(getProject, getModule, java.util.Collections.singletonList("-parameters"))
@@ -45,6 +50,7 @@ abstract class JavacOptionsTestBase(
     assertEquals("Wrong compiled parameter name in class 'org.example.Foo'", "email", fooParameter)
   }
 
+  @Test
   def testJavacOptions_NoParameters(): Unit = {
     IdeaTestUtil.setProjectLanguageLevel(getProject, LanguageLevel.JDK_1_8)
     JavaCompilerConfigurationProxy.setAdditionalOptions(getProject, getModule, java.util.Collections.emptyList())

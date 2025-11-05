@@ -32,10 +32,23 @@ final class SbtExtraControls {
     (_ => SbtUtil.openSeparateMainTestModulesBlogPost()): ActionListener
   )
   private val separateProdTestModulesWarning: JBLabel = new JBLabel(AllIcons.General.Warning)
-  separateProdTestModulesWarning.setToolTipText(SbtBundle.message("separate.prod.test.modules.warning.text"))
+
+  private val separateProdTestModulesReloadComment = {
+    val label = new JBLabel(SbtBundle.message("separate.prod.test.modules.comment"))
+    label.setFont(ComponentPanelBuilder.getCommentFont(label.getFont)): @nowarn("cat=deprecation")
+    label.setForeground(JBUI.CurrentTheme.ContextHelp.FOREGROUND)
+    label
+  }
+
+  private val separateProdTestModulesWarningComment = {
+    val label = new JBLabel(SbtBundle.message("separate.prod.test.modules.warning.text"))
+    label.setForeground(JBColor.orange)
+    label
+  }
+
   val separateProdTestModules: JCheckBoxPanel = ct(
     boxLabel = SbtBundle.message("separate.prod.test.modules"),
-    comment = SbtBundle.message("separate.prod.test.modules.comment"),
+    comments = Seq(separateProdTestModulesReloadComment, separateProdTestModulesWarningComment),
     extraComponents = Seq(readMoreLink, separateProdTestModulesWarning)
   )
   val useSeparateCompilerOutputPaths: JCheckBoxPanel = ct(boxLabel = SbtBundle.message("use.separate.compiler.output.paths"), tooltip = SbtBundle.message("use.separate.compiler.output.paths.tooltip"))
@@ -87,14 +100,14 @@ final class SbtExtraControls {
     useSeparateCompilerOutputPaths.box.addActionListener(refreshOutputPathsWarningActionListener(_))
     useSbtShellForBuildCheckBox.box.addActionListener(refreshOutputPathsWarningActionListener(_))
 
-    separateProdTestModulesWarning.setVisible(shouldMainTestModeWarningBeVisible)
-    separateProdTestModules.box.addActionListener((_: ActionEvent) => refreshMainMainTestModeWarning())
+    Seq(separateProdTestModulesWarning, separateProdTestModulesWarningComment).foreach(_.setVisible(shouldMainTestModeWarningBeVisible))
+    separateProdTestModules.box.addActionListener((_: ActionEvent) => refreshMainMainTestModeWarnings())
   }
 
   private def withExtensions(
     component: JCheckBox,
     @Nls @Nullable tooltip: String,
-    @Nls @Nullable comment: String,
+    comments: Seq[JBLabel],
     betaBadge: Boolean,
     extraComponents: Seq[JComponent]
   ): JPanel = {
@@ -114,23 +127,30 @@ final class SbtExtraControls {
     }
     extraComponents.foreach(addToPanel)
 
-    if (comment != null) {
-      panelWithComment(component, panel, comment)
+    if (comments.nonEmpty) {
+      panelWithComments(component, panel, comments)
     } else {
       panel
     }
   }
 
-  private def panelWithComment(checkBox: JCheckBox, parentPanel: JPanel, @Nls text: String): JPanel = {
-    val panel = new JPanel(new GridLayoutManager(2, 2, JBUI.emptyInsets(), 0, 0))
+  private def panelWithComments(checkBox: JCheckBox, parentPanel: JPanel, comments: Seq[JBLabel]): JPanel = {
+    val panel = new JPanel(new GridLayoutManager(comments.size + 1, 2, JBUI.emptyInsets(), 0, 0))
     panel.add(parentPanel, gc(0, 0, 1, 1))
 
-    val comment = new JBLabel(text)
-    comment.setFont(ComponentPanelBuilder.getCommentFont(comment.getFont)): @nowarn("cat=deprecation")
-    comment.setForeground(JBUI.CurrentTheme.ContextHelp.FOREGROUND)
     val leftOffset = UIUtil.getCheckBoxTextHorizontalOffset(checkBox)
-    comment.setBorder(JBUI.Borders.emptyLeft(leftOffset))
-    panel.add(comment, gc(1, 0, 1, 1))
+    comments.zipWithIndex.foreach { case (label, index) =>
+      label.setBorder(JBUI.Borders.emptyLeft(leftOffset))
+      val gc  = new GridConstraints(
+        index + 1, 0, 1, 1,
+        GridConstraints.ANCHOR_WEST,
+        GridConstraints.FILL_NONE,
+        GridConstraints.SIZEPOLICY_FIXED,
+        GridConstraints.SIZEPOLICY_FIXED,
+        null, null, new Dimension(500, -1), 0, false
+      )
+      panel.add(label, gc)
+    }
 
     panel
   }
@@ -138,24 +158,26 @@ final class SbtExtraControls {
   private def ct(
     @Nls boxLabel: String,
     @Nls @Nullable tooltip: String = null,
-    @Nls @Nullable comment: String = null,
+    comments: Seq[JBLabel] = Nil,
     betaBadge: Boolean = false,
     extraComponents: Seq[JComponent] = Seq.empty
   ): JCheckBoxPanel = {
     val box = new JCheckBox(boxLabel)
-    val panel = withExtensions(box, tooltip, comment, betaBadge, extraComponents)
+    val panel = withExtensions(box, tooltip, comments, betaBadge, extraComponents)
     new JCheckBoxPanel(box, panel)
   }
 
   private def refreshOutputPathsWarning(): Unit =
     useSeparateCompilerOutputPathsWarning.setVisible(shouldOutputPathsWarningBeVisible)
 
-  private def refreshMainMainTestModeWarning(): Unit =
+  private def refreshMainMainTestModeWarnings(): Unit = {
     separateProdTestModulesWarning.setVisible(shouldMainTestModeWarningBeVisible)
+    separateProdTestModulesWarningComment.setVisible(shouldMainTestModeWarningBeVisible)
+  }
 
   def refreshCheckboxesConstraints(): Unit = {
     refreshOutputPathsWarning()
-    refreshMainMainTestModeWarning()
+    refreshMainMainTestModeWarnings()
   }
 
   private def refreshOutputPathsWarningActionListener(@unused e: ActionEvent): Unit = {

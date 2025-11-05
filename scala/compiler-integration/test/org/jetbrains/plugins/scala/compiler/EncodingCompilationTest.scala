@@ -3,27 +3,35 @@ package org.jetbrains.plugins.scala.compiler
 import org.jetbrains.plugins.scala.compiler.CompilerMessagesUtil.{assertCompilingScalaSources, assertNoErrorsOrWarnings}
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettingsProfile
-import org.jetbrains.plugins.scala.{CompilationTests_IDEA, CompilationTests_Zinc, ScalaVersion}
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsJUnit4Runner, RunWithJdkVersions, RunWithScalaVersions, TestJdkVersion, TestScalaVersion}
+import org.jetbrains.plugins.scala.{CompilationTests_IDEA, CompilationTests_Zinc}
+import org.junit.Test
 import org.junit.experimental.categories.Category
+import org.junit.runner.RunWith
 
 import scala.jdk.CollectionConverters._
 
-abstract class EncodingCompilationTestBase(override val incrementalityType: IncrementalityType) extends ScalaCompilerTestBase with JdkVersionDiscovery {
+@RunWith(classOf[MultipleScalaVersionsJUnit4Runner])
+@RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Latest))
+@RunWithJdkVersions(Array(TestJdkVersion.JDK_1_8, TestJdkVersion.JDK_11, TestJdkVersion.JDK_17))
+abstract class EncodingCompilationTestBase(override val incrementalityType: IncrementalityType) extends ScalaCompilerTestBase {
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
-
+  @Test
   def testEncoding1(): Unit = {
     runEncodingTest(Seq("-encoding", "UTF-8"))
   }
 
+  @Test
   def testEncoding2(): Unit = {
     runEncodingTest(Seq("--encoding", "UTF-8"))
   }
 
+  @Test
   def testEncoding3(): Unit = {
     runEncodingTest(Seq("-encoding:UTF-8"))
   }
 
+  @Test
   def testEncoding4(): Unit = {
     runEncodingTest(Seq("--encoding:UTF-8"))
   }

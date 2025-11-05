@@ -6,15 +6,22 @@ import com.intellij.openapi.roots.ModuleRootModificationUtil
 import com.intellij.testFramework.{CompilerTester, IndexingTestUtil}
 import junit.framework.TestCase.{assertEquals, assertNotNull}
 import org.jetbrains.plugins.scala.CompilationTests_Zinc
-import org.jetbrains.plugins.scala.compiler.SbtProjectCompilationTestBase
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
+import org.jetbrains.plugins.scala.compiler.{JdkVersionParameters, SbtProjectCompilationTestBase}
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
+import org.junit.Test
 import org.junit.experimental.categories.Category
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 @Category(Array(classOf[CompilationTests_Zinc]))
-abstract class PolyglotSbtCompilationTestBase(separateModules: Boolean)
+@RunWith(classOf[Parameterized])
+abstract class PolyglotSbtCompilationTestBase(jdkVersion: TestJdkVersion, separateModules: Boolean)
   extends SbtProjectCompilationTestBase(separateProdAndTestSources = separateModules) {
+
+  override protected def jdkVersionForTest: TestJdkVersion = jdkVersion
 
   private var module1: Module = _
 
@@ -89,6 +96,7 @@ abstract class PolyglotSbtCompilationTestBase(separateModules: Boolean)
     super.tearDown()
   }
 
+  @Test
   def testPolyglotCompilation(): Unit = {
     assertEquals(IncrementalityType.SBT, ScalaCompilerConfiguration.instanceIn(getMyProject).incrementalityType)
     compiler.make()
@@ -103,6 +111,12 @@ abstract class PolyglotSbtCompilationTestBase(separateModules: Boolean)
   }
 }
 
-class PolyglotSbtCompilationTest extends PolyglotSbtCompilationTestBase(separateModules = false)
+class PolyglotSbtCompilationTest(jdkVersion: TestJdkVersion)
+  extends PolyglotSbtCompilationTestBase(jdkVersion, separateModules = false)
 
-class PolyglotSbtCompilationWithSeparateModulesTest extends PolyglotSbtCompilationTestBase(separateModules = true)
+private object PolyglotSbtCompilationTest extends JdkVersionParameters
+
+class PolyglotSbtCompilationWithSeparateModulesTest(jdkVersion: TestJdkVersion)
+  extends PolyglotSbtCompilationTestBase(jdkVersion, separateModules = true)
+
+private object PolyglotSbtCompilationWithSeparateModulesTest extends JdkVersionParameters

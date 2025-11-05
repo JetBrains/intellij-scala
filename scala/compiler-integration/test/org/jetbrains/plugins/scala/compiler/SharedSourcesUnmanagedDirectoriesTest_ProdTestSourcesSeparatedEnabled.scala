@@ -6,13 +6,21 @@ import org.jetbrains.plugins.scala.CompilationTests_Zinc
 import org.jetbrains.plugins.scala.compiler.CompilerMessagesUtil.assertNoErrorsOrWarnings
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
 import org.junit.Assert.{assertNotNull, assertNull}
+import org.junit.Test
 import org.junit.experimental.categories.Category
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 import scala.jdk.CollectionConverters._
 
 @Category(Array(classOf[CompilationTests_Zinc]))
-class SharedSourcesUnmanagedDirectoriesTest_ProdTestSourcesSeparatedEnabled extends SbtProjectCompilationTestBase(separateProdAndTestSources = true) {
+@RunWith(classOf[Parameterized])
+class SharedSourcesUnmanagedDirectoriesTest_ProdTestSourcesSeparatedEnabled(jdkVersion: TestJdkVersion)
+  extends SbtProjectCompilationTestBase(separateProdAndTestSources = true) {
+
+  override protected def jdkVersionForTest: TestJdkVersion = jdkVersion
 
   private var module1Main: Module = _
   private var module1Test: Module = _
@@ -70,6 +78,7 @@ class SharedSourcesUnmanagedDirectoriesTest_ProdTestSourcesSeparatedEnabled exte
     compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
   }
 
+  @Test
   def testSharedSourcesOnlyCompiledToOwnerModules(): Unit = {
     val messages1 = compiler.make().asScala.toSeq
     assertNoErrorsOrWarnings(messages1)
@@ -88,3 +97,5 @@ class SharedSourcesUnmanagedDirectoriesTest_ProdTestSourcesSeparatedEnabled exte
     }
   }
 }
+
+private object SharedSourcesUnmanagedDirectoriesTest_ProdTestSourcesSeparatedEnabled extends JdkVersionParameters

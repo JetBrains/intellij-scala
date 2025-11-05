@@ -54,16 +54,21 @@ class CaseClassAndCompanionMembersInjector extends SyntheticMembersInjector {
             case Some(constr: ScPrimaryConstructor) =>
 
               val paramString = asFunctionParameters(constr.effectiveParameterClauses, defaultExpressionString)
+              val modifiersString = if (constr.isInScala3File) makeModifierText(constr) else ""
 
-              Some(makeModifierText(constr) + "def " + Apply + typeParamsDefinition + paramString + ": " + className + typeArgs + " = throw new Error()")
+              val applyMethodText =
+                modifiersString +
+                  "def " + Apply + typeParamsDefinition + paramString + ": " + className + typeArgs + " = throw new Error()"
+
+              Some(applyMethodText)
             case None => None
           }
         }
 
         apply.toList ::: unapply.toList
 
-      case cls: ScClass if cls.isCase                    => copyMethodText(cls) ::: scala3AccessorMethods(cls)
-      case _                                             => Seq.empty
+      case cls: ScClass if cls.isCase => copyMethodText(cls) ::: scala3AccessorMethods(cls)
+      case _                          => Seq.empty
     }
   }
   private def hasCopyMethod(psiClass: PsiClass) = psiClass match {
@@ -72,7 +77,7 @@ class CaseClassAndCompanionMembersInjector extends SyntheticMembersInjector {
   }
 
   override def injectSupers(source: ScTypeDefinition): Seq[String] = source match {
-    case ObjectWithCaseClassCompanion(obj, cc) if obj.isSyntheticObject =>
+    case ObjectWithCaseClassCompanion(obj, cc) if obj.isSyntheticObject && !obj.isInScala3File =>
       val effectiveParamClauses = cc.constructor.map(_.effectiveParameterClauses).getOrElse(Seq.empty)
       val extendsFunction = cc.typeParameters.isEmpty && effectiveParamClauses.size == 1
       if (extendsFunction) {

@@ -5,9 +5,10 @@ import com.intellij.openapi.roots.CompilerModuleExtension
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.testFramework.CompilerTester
 import org.jetbrains.jps.util.JpsPathUtil
-import org.jetbrains.plugins.scala.SlowTests
+import org.jetbrains.plugins.scala.SlowTests2
 import org.jetbrains.plugins.scala.extensions.{PathExt, inWriteAction}
 import org.jetbrains.plugins.scala.project.ModuleExt
+import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.experimental.categories.Category
@@ -18,9 +19,11 @@ import java.nio.file.{Files, Path}
 import scala.jdk.CollectionConverters._
 import scala.util.Using
 
-@Category(Array(classOf[SlowTests]))
+@Category(Array(classOf[SlowTests2]))
 @RunWith(classOf[JUnit4])
 class ClashingOutputDirectoriesTest extends SbtProjectCompilationTestBase(separateProdAndTestSources = true) {
+
+  override protected def jdkVersionForTest: TestJdkVersion = TestJdkVersion.JDK_17
 
   @Test
   def outputDirectoriesClash(): Unit = {

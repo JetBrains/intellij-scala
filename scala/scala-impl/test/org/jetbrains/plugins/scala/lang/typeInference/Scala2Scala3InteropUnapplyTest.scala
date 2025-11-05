@@ -39,7 +39,7 @@ class Scala2Scala3InteropUnapplyTest extends MultiScalaModulesInsightFixtureTest
       |""".stripMargin,
     """
       |object Blub {
-      |  TestCaseClass(true, Seq(1)) match {
+      |  TestCaseClass(true, 1) match {
       |    case TestCaseClass(a, b) =>
       |      val x: Boolean = a
       |      val y: Int = b

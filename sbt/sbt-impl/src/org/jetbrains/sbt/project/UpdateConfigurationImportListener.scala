@@ -1,15 +1,12 @@
 package org.jetbrains.sbt.project
 
-import com.intellij.ide.trustedProjects.TrustedProjects
 import com.intellij.openapi.externalSystem.model.ExternalSystemDataKeys
-import com.intellij.openapi.externalSystem.service.project.manage.ProjectDataImportListener
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.extensions.invokeWhenSmart
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.sbt.project.MigrateConfigurationsDialogWrapper.ModuleConfigurationExt
 import org.jetbrains.sbt.project.SbtMigrateConfigurationsAction.{ModuleConfiguration, ModuleHeuristicResult, getConfigurationToHeuristicResult}
-import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.project.settings.ShouldUpdateRunConfigurations
 
 import scala.compiletime.uninitialized
@@ -18,7 +15,7 @@ import scala.compiletime.uninitialized
  * Project import listener created to detect whether a notification with an update configuration action should be displayed.
  * The notification is displayed only once for non-new sbt projects.
  */
-class UpdateConfigurationImportListener(project: Project) extends ProjectDataImportListener {
+class UpdateConfigurationImportListener(project: Project) extends SbtProjectDataImportListener(project) {
 
   private var separateProdTestSources: Boolean = uninitialized
 
@@ -56,12 +53,6 @@ class UpdateConfigurationImportListener(project: Project) extends ProjectDataImp
 
       UpdateConfigurationImportListener.update(isDowngrading, project)
     }
-  }
-
-  private def isListenerAllowed(projectPath: String): Boolean = {
-    val isTrustedProject = TrustedProjects.isProjectTrusted(project)
-    val isPreview = SbtUtil.isPreview(project, projectPath)
-    SbtUtil.isSbtProject(project) && isTrustedProject && !isPreview
   }
 
   // ScalaCompilerConfiguration.separateProdTestSources was initially created to record whether a project was imported

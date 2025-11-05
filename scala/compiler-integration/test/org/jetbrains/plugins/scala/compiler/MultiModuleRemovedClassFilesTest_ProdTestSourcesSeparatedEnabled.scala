@@ -8,14 +8,22 @@ import org.jetbrains.plugins.scala.compiler.CompilerMessagesUtil.assertNoErrorsO
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
 import org.junit.Assert.assertNotNull
+import org.junit.Test
 import org.junit.experimental.categories.Category
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 import java.nio.file.Path
 import scala.jdk.CollectionConverters._
 
 @Category(Array(classOf[CompilationTests_Zinc]))
-class MultiModuleRemovedClassFilesTest_ProdTestSourcesSeparatedEnabled extends SbtProjectCompilationTestBase(separateProdAndTestSources = true) {
+@RunWith(classOf[Parameterized])
+class MultiModuleRemovedClassFilesTest_ProdTestSourcesSeparatedEnabled(jdkVersion: TestJdkVersion)
+  extends SbtProjectCompilationTestBase(separateProdAndTestSources = true) {
+
+  override protected def jdkVersionForTest: TestJdkVersion = jdkVersion
 
   private var module1Main: Module = _
   private var module1Test: Module = _
@@ -57,7 +65,8 @@ class MultiModuleRemovedClassFilesTest_ProdTestSourcesSeparatedEnabled extends S
     compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
   }
 
-  def testRemoveDependencyClassFile(): Unit = {
+  @Test
+  def removeDependencyClassFile(): Unit = {
     val messages1 = compiler.make().asScala.toSeq
     assertNoErrorsOrWarnings(messages1)
 
@@ -76,5 +85,6 @@ class MultiModuleRemovedClassFilesTest_ProdTestSourcesSeparatedEnabled extends S
     val messages2 = compiler.make().asScala.toSeq
     assertNoErrorsOrWarnings(messages2)
   }
-
 }
+
+private object MultiModuleRemovedClassFilesTest_ProdTestSourcesSeparatedEnabled extends JdkVersionParameters

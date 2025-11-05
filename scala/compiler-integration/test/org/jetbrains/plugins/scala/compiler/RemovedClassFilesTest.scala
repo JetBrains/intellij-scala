@@ -1,20 +1,24 @@
 package org.jetbrains.plugins.scala.compiler
 
 import com.intellij.openapi.vfs.VfsUtil
+import org.jetbrains.plugins.scala.CompilationTests_Zinc
 import org.jetbrains.plugins.scala.compiler.CompilerMessagesUtil.{assertCompilingScalaSources, assertNoErrorsOrWarnings}
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.extensions.inWriteAction
-import org.jetbrains.plugins.scala.{CompilationTests_Zinc, ScalaVersion}
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsJUnit4Runner, RunWithJdkVersions, RunWithScalaVersions, TestJdkVersion, TestScalaVersion}
 import org.junit.Assert.assertTrue
+import org.junit.Test
 import org.junit.experimental.categories.Category
+import org.junit.runner.RunWith
 
 import java.nio.file.{Files, Path}
 import scala.jdk.CollectionConverters._
 
 @Category(Array(classOf[CompilationTests_Zinc]))
-class RemovedClassFilesTest extends ScalaCompilerTestBase with JdkVersionDiscovery {
-
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
+@RunWith(classOf[MultipleScalaVersionsJUnit4Runner])
+@RunWithScalaVersions(Array(TestScalaVersion.Scala_2_13))
+@RunWithJdkVersions(Array(TestJdkVersion.JDK_1_8, TestJdkVersion.JDK_11, TestJdkVersion.JDK_17))
+class RemovedClassFilesTest extends ScalaCompilerTestBase {
 
   override protected def incrementalityType: IncrementalityType = IncrementalityType.SBT
 
@@ -27,6 +31,7 @@ class RemovedClassFilesTest extends ScalaCompilerTestBase with JdkVersionDiscove
     addFileToProjectSources("E.scala", "class E")
   }
 
+  @Test
   def testRemoveAllClassFilesAndCompileAgain(): Unit = {
     val messages1 = compiler.make().asScala.toSeq
     assertNoErrorsOrWarnings(messages1)
@@ -50,6 +55,7 @@ class RemovedClassFilesTest extends ScalaCompilerTestBase with JdkVersionDiscove
     assertTrue("Not all source files were recompiled", recompiled)
   }
 
+  @Test
   def testRemoveTwoClassFilesAndCompileAgain(): Unit = {
     val messages1 = compiler.make().asScala.toSeq
     assertNoErrorsOrWarnings(messages1)
@@ -76,6 +82,7 @@ class RemovedClassFilesTest extends ScalaCompilerTestBase with JdkVersionDiscove
     assertTrue(correct)
   }
 
+  @Test
   def testRemoveClassFileAndEditDependentSource(): Unit = {
     val messages1 = compiler.make().asScala.toSeq
     assertNoErrorsOrWarnings(messages1)

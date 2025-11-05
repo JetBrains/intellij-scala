@@ -8,15 +8,34 @@ import org.hamcrest.CoreMatchers.{containsString, not}
 import org.hamcrest.MatcherAssert.assertThat
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
 import org.jetbrains.plugins.scala.{CompilationTests_IDEA, CompilationTests_Zinc}
+import org.junit.Test
 import org.junit.experimental.categories.Category
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 import scala.jdk.CollectionConverters._
 
-abstract class MacroCompilationErrorSourcePathTestBase(incrementalityType: IncrementalityType) extends SbtProjectCompilationTestBase {
+@RunWith(classOf[Parameterized])
+class MacroCompilationErrorSourcePathTest(jdkVersion: TestJdkVersion) extends SbtProjectCompilationTestBase {
 
-  def testMacroCompilationErrorSourcePath(): Unit = {
-    setUpSbtProject(incrementalityType)
+  override protected def jdkVersionForTest: TestJdkVersion = jdkVersion
+
+  @Test
+  @Category(Array(classOf[CompilationTests_Zinc]))
+  def macroCompilationErrorSourcePath_Zinc(): Unit = {
+    runMacroCompilationErrorSourcePathTest(IncrementalityType.SBT)
+  }
+
+  @Test
+  @Category(Array(classOf[CompilationTests_IDEA]))
+  def macroCompilationErrorSourcePath_IDEA(): Unit = {
+    runMacroCompilationErrorSourcePathTest(IncrementalityType.IDEA)
+  }
+
+  private def runMacroCompilationErrorSourcePathTest(incrementality: IncrementalityType): Unit = {
+    setUpSbtProject(incrementality)
 
     val messages = compiler.make().asScala.toSeq
     val errors = messages.filter(_.getCategory == CompilerMessageCategory.ERROR)
@@ -77,8 +96,4 @@ abstract class MacroCompilationErrorSourcePathTestBase(incrementalityType: Incre
   }
 }
 
-@Category(Array(classOf[CompilationTests_Zinc]))
-class MacroCompilationErrorSourcePathTest_Zinc extends MacroCompilationErrorSourcePathTestBase(IncrementalityType.SBT)
-
-@Category(Array(classOf[CompilationTests_IDEA]))
-class MacroCompilationErrorSourcePathTest_IDEA extends MacroCompilationErrorSourcePathTestBase(IncrementalityType.IDEA)
+private object MacroCompilationErrorSourcePathTest extends JdkVersionParameters

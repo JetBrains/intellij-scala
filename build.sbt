@@ -130,7 +130,7 @@ lazy val scalaApi = newProject("scala-api", file("scala/scala-api"))
 
 lazy val workspaceEntities = newProjectWithKotlin("workspace-entities", file("sbt/sbt-impl/workspace-entities"))
   .settings(
-    Compile / unmanagedSourceDirectories ++= Seq(baseDirectory.value/"gen"),
+    Compile / unmanagedSourceDirectories ++= Seq(sourceDirectory.value / "gen"),
     scalaVersion := Versions.scala3Version,
     Compile / scalacOptions := globalScala3ScalacOptions
   )
@@ -399,7 +399,7 @@ lazy val sbtImpl =
     .settings(
       scalaVersion := Versions.scala3Version,
       Compile / scalacOptions := globalScala3ScalacOptions,
-      libraryDependencies += Dependencies.sbtStructureCore.exclude("org.scala-lang.modules", "scala-xml_3")
+//      libraryDependencies += Dependencies.sbtStructureCore.exclude("org.scala-lang.modules", "scala-xml_3")
     )
 
 lazy val sbtProjectImportingTests =

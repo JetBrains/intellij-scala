@@ -10,15 +10,22 @@ import org.jetbrains.plugins.scala.compiler.CompilerMessagesUtil.{assertCompilin
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.extensions.{PathExt, inWriteAction}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
 import org.jetbrains.sbt.SbtUtil
 import org.junit.Assert.{assertEquals, assertNotNull}
+import org.junit.Test
 import org.junit.experimental.categories.Category
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 import java.nio.file.Path
 import scala.jdk.CollectionConverters._
 
 @Category(Array(classOf[CompilationTests_Zinc]))
-class InterleavedCompilationTest extends SbtProjectCompilationTestBase {
+@RunWith(classOf[Parameterized])
+class InterleavedCompilationTest(jdkVersion: TestJdkVersion) extends SbtProjectCompilationTestBase {
+
+  override protected def jdkVersionForTest: TestJdkVersion = jdkVersion
 
   override def setUp(): Unit = {
     super.setUp()
@@ -43,7 +50,8 @@ class InterleavedCompilationTest extends SbtProjectCompilationTestBase {
     compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
   }
 
-  def testWeirdTrick(): Unit = {
+  @Test
+  def weirdTrick(): Unit = {
     runSbtCommand("clean")
 
     val messages1 = compiler.make().asScala.toSeq
@@ -79,7 +87,8 @@ class InterleavedCompilationTest extends SbtProjectCompilationTestBase {
     assertCompilingScalaSources(messages3, 1)
   }
 
-  def testUpdateTrick(): Unit = {
+  @Test
+  def updateTrick(): Unit = {
     val projectPath = Path.of(getProjectPath)
 
     val srcMainScalaPath = Path.of("src", "main", "scala")
@@ -129,5 +138,6 @@ class InterleavedCompilationTest extends SbtProjectCompilationTestBase {
 
     assertEquals(s"sbt $command did not finished with an error", 0, commandLine.createProcess().waitFor())
   }
-
 }
+
+private object InterleavedCompilationTest extends JdkVersionParameters

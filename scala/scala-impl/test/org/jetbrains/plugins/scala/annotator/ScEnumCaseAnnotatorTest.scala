@@ -216,4 +216,22 @@ class ScEnumCaseAnnotatorTest extends ScalaHighlightingTestBase {
       |}
       |""".stripMargin
   )()
+
+  def testParentHasRequiredParameter(): Unit =
+    doTest(
+      """
+        |enum Color(y: Int) {
+        |  case Green
+        |}
+        |""".stripMargin
+    )(Error("Green", "Explicit extends clause required because enum Color has constructor parameters"))
+
+  def testParentHasParameterWithDefault(): Unit =
+    doTest(
+      """
+        |enum Color(y: Int = 1) {
+        |  case Green
+        |}
+        |""".stripMargin
+    )()
 }

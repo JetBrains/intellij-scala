@@ -6,13 +6,20 @@ import org.jetbrains.plugins.scala.CompilationTests_Zinc
 import org.jetbrains.plugins.scala.compiler.CompilerMessagesUtil.assertNoErrorsOrWarnings
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
 import org.junit.Assert.{assertNotNull, assertNull}
+import org.junit.Test
 import org.junit.experimental.categories.Category
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 import scala.jdk.CollectionConverters._
 
 @Category(Array(classOf[CompilationTests_Zinc]))
-class SharedSourcesUnmanagedDirectoriesTest extends SbtProjectCompilationTestBase {
+@RunWith(classOf[Parameterized])
+class SharedSourcesUnmanagedDirectoriesTest(jdkVersion: TestJdkVersion) extends SbtProjectCompilationTestBase {
+
+  override protected def jdkVersionForTest: TestJdkVersion = jdkVersion
 
   private var module1: Module = _
 
@@ -58,6 +65,7 @@ class SharedSourcesUnmanagedDirectoriesTest extends SbtProjectCompilationTestBas
     compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
   }
 
+  @Test
   def testSharedSourcesOnlyCompiledToOwnerModules(): Unit = {
     val messages1 = compiler.make().asScala.toSeq
     assertNoErrorsOrWarnings(messages1)
@@ -71,3 +79,5 @@ class SharedSourcesUnmanagedDirectoriesTest extends SbtProjectCompilationTestBas
     assertNull("Shared class file found in module3, but it shouldn't", module3SharedClass)
   }
 }
+
+private object SharedSourcesUnmanagedDirectoriesTest extends JdkVersionParameters

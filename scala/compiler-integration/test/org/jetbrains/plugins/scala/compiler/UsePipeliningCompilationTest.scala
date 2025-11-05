@@ -5,31 +5,39 @@ import com.intellij.testFramework.CompilerTester
 import org.jetbrains.plugins.scala.compiler.CompilerMessagesUtil.assertNoErrorsOrWarnings
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
-import org.jetbrains.plugins.scala.{CompilationTests_IDEA, CompilationTests_Zinc, ScalaVersion}
+import org.jetbrains.plugins.scala.util.runners.{TestJdkVersion, TestScalaVersion}
+import org.jetbrains.plugins.scala.{CompilationTests_IDEA, CompilationTests_Zinc}
 import org.junit.Assert.assertNotNull
+import org.junit.Test
 import org.junit.experimental.categories.Category
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 import scala.jdk.CollectionConverters._
 
-abstract class UsePipeliningCompilationTestBase(incrementalityType: IncrementalityType) extends SbtProjectCompilationTestBase {
+@RunWith(classOf[Parameterized])
+class UsePipeliningCompilationTest(scalaVersion: TestScalaVersion, jdkVersion: TestJdkVersion)
+  extends SbtProjectCompilationTestBase {
+
+  override protected def jdkVersionForTest: TestJdkVersion = jdkVersion
 
   private var module1: Module = _
   private var module2: Module = _
   private var module3: Module = _
 
-  def testUsePipelining_Scala_2_12(): Unit = {
-    runUsePipeliningTest(ScalaVersion.Latest.Scala_2_12)
+  @Test
+  @Category(Array(classOf[CompilationTests_Zinc]))
+  def usePipelining_Zinc(): Unit = {
+    runUsePipeliningTest(IncrementalityType.SBT)
   }
 
-  def testUsePipelining_Scala_2_13(): Unit = {
-    runUsePipeliningTest(ScalaVersion.Latest.Scala_2_13)
+  @Test
+  @Category(Array(classOf[CompilationTests_IDEA]))
+  def usePipelining_IDEA(): Unit = {
+    runUsePipeliningTest(IncrementalityType.IDEA)
   }
 
-  def testUsePipelining_Scala_3(): Unit = {
-    runUsePipeliningTest(ScalaVersion.Latest.Scala_3_Next_RC)
-  }
-
-  private def runUsePipeliningTest(scalaVersion: ScalaVersion): Unit = {
+  private def runUsePipeliningTest(incrementality: IncrementalityType): Unit = {
     createProjectSubDirs("project", "module1/src/main/scala", "module2/src/main/scala", "module3/src/main/scala")
     createProjectSubFile("project/build.properties", "sbt.version=1.10.0")
     createProjectSubFile("module1/src/main/scala/Greeter.scala", "trait Greeter { def greeting: String }")
@@ -38,7 +46,7 @@ abstract class UsePipeliningCompilationTestBase(incrementalityType: Incrementali
     createProjectSubFile("module3/src/main/scala/GoodEveningGreeter.scala",
       """object GoodEveningGreeter extends Greeter { override def greeting: String = "Good evenging" }""")
     createProjectConfig(
-      s"""ThisBuild / scalaVersion := "${scalaVersion.minor}"
+      s"""ThisBuild / scalaVersion := "${scalaVersion.toProductionVersion.minor}"
          |ThisBuild / usePipelining := true
          |
          |lazy val root = project.in(file("."))
@@ -50,7 +58,7 @@ abstract class UsePipeliningCompilationTestBase(incrementalityType: Incrementali
     )
 
     importProject(false)
-    ScalaCompilerConfiguration.instanceIn(getMyProject).incrementalityType = incrementalityType
+    ScalaCompilerConfiguration.instanceIn(getMyProject).incrementalityType = incrementality
 
     val modules = ModuleManager.getInstance(getMyProject).getModules
     rootModule = modules.find(_.getName == "root").orNull
@@ -81,8 +89,17 @@ abstract class UsePipeliningCompilationTestBase(incrementalityType: Incrementali
   }
 }
 
-@Category(Array(classOf[CompilationTests_Zinc]))
-class UsePipeliningCompilationTest_Zinc extends UsePipeliningCompilationTestBase(IncrementalityType.SBT)
+private object UsePipeliningCompilationTest {
+  @Parameterized.Parameters(name = "{0}, {1}")
+  def parameters: java.util.Collection[Array[AnyRef]] = {
+    val scalaVersions = Seq(TestScalaVersion.Scala_2_12, TestScalaVersion.Scala_2_13, TestScalaVersion.Scala_3_Next_RC)
+    val jdkVersions = TestJdkVersion.values().toSeq
 
-@Category(Array(classOf[CompilationTests_IDEA]))
-class UsePipeliningCompilationTest_IDEA extends UsePipeliningCompilationTestBase(IncrementalityType.IDEA)
+    val combinations = for {
+      sv <- scalaVersions
+      jv <- jdkVersions
+    } yield Array[AnyRef](sv, jv)
+
+    combinations.asJavaCollection
+  }
+}

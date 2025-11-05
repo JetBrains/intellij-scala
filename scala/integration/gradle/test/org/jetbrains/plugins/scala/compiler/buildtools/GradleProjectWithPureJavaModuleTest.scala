@@ -12,19 +12,24 @@ import org.jetbrains.plugins.gradle.settings.GradleProjectSettings
 import org.jetbrains.plugins.gradle.util.GradleConstants
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
-import org.jetbrains.plugins.scala.compiler.{CompileServerTestUtil, JdkVersionDiscovery}
+import org.jetbrains.plugins.scala.compiler.{CompileServerTestUtil, JdkVersionParameters}
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.project.gradle.GradleTestUtil
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
+import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
 import org.jetbrains.plugins.scala.{CompilationTests_IDEA, CompilationTests_Zinc}
 import org.junit.Assert.{assertNotNull, assertTrue}
+import org.junit.Test
 import org.junit.experimental.categories.Category
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 import scala.compiletime.uninitialized
 import scala.jdk.CollectionConverters.*
 
-abstract class GradleProjectWithPureJavaModuleTestBase(incrementality: IncrementalityType) extends ExternalSystemImportingTestCase {
+@RunWith(classOf[Parameterized])
+class GradleProjectWithPureJavaModuleTest(jdkVersion: TestJdkVersion) extends ExternalSystemImportingTestCase {
 
   private var gradleSdk: Sdk = uninitialized
 
@@ -53,8 +58,7 @@ abstract class GradleProjectWithPureJavaModuleTestBase(incrementality: Increment
     gradleSdk = SmartJDKLoader.getOrCreateJDK(LanguageLevel.JDK_17)
 
     sdk = {
-      val jdkVersion = JdkVersionDiscovery.discoveredJdk
-      val res = SmartJDKLoader.getOrCreateJDK(jdkVersion)
+      val res = SmartJDKLoader.getOrCreateJDK(jdkVersion.toProductionVersion)
       val settings = ScalaCompileServerSettings.getInstance()
       settings.COMPILE_SERVER_SDK = res.getName
       settings.USE_DEFAULT_SDK = false
@@ -123,7 +127,19 @@ abstract class GradleProjectWithPureJavaModuleTestBase(incrementality: Increment
     super.tearDown()
   }
 
-  def testImportAndCompile(): Unit = {
+  @Category(Array(classOf[CompilationTests_Zinc]))
+  @Test
+  def importAndCompile_Zinc(): Unit = {
+    runImportAndCompileTest(IncrementalityType.SBT)
+  }
+
+  @Category(Array(classOf[CompilationTests_IDEA]))
+  @Test
+  def importAndCompile_IDEA(): Unit = {
+    runImportAndCompileTest(IncrementalityType.IDEA)
+  }
+
+  private def runImportAndCompileTest(incrementality: IncrementalityType): Unit = {
     importProject(false)
 
     ScalaCompilerConfiguration.instanceIn(getMyProject).incrementalityType = incrementality
@@ -159,8 +175,4 @@ abstract class GradleProjectWithPureJavaModuleTestBase(incrementality: Increment
   }
 }
 
-@Category(Array(classOf[CompilationTests_IDEA]))
-class GradleProjectWithPureJavaModuleTest_IDEA extends GradleProjectWithPureJavaModuleTestBase(IncrementalityType.IDEA)
-
-@Category(Array(classOf[CompilationTests_Zinc]))
-class GradleProjectWithPureJavaModuleTest_Zinc extends GradleProjectWithPureJavaModuleTestBase(IncrementalityType.SBT)
+private object GradleProjectWithPureJavaModuleTest extends JdkVersionParameters

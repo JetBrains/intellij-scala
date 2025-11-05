@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<idea-plugin package="org.jetbrains.plugins.scala.copyright">
+<idea-plugin>
     <dependencies>
         <plugin id="com.intellij.copyright"/>
     </dependencies>

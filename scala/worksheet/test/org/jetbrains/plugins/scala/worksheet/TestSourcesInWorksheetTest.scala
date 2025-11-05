@@ -6,20 +6,27 @@ import com.intellij.openapi.vfs.{VirtualFile, VirtualFileUtil}
 import com.intellij.testFramework.{CompilerTester, EdtTestUtil}
 import junit.framework.TestCase.assertEquals
 import org.jetbrains.plugins.scala.WorksheetEvaluationTests
-import org.jetbrains.plugins.scala.compiler.{CompilerMessagesUtil, SbtProjectCompilationTestBase}
+import org.jetbrains.plugins.scala.compiler.{CompilerMessagesUtil, JdkVersionParameters, SbtProjectCompilationTestBase}
+import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType.ReplRunType
 import org.jetbrains.plugins.scala.worksheet.settings.persistent.WorksheetFilePersistentSettings
+import org.junit.Test
 import org.junit.experimental.categories.Category
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import scala.jdk.CollectionConverters._
 
 @Category(Array(classOf[WorksheetEvaluationTests]))
-class TestSourcesInWorksheetTest extends SbtProjectCompilationTestBase(separateProdAndTestSources = true) {
+@RunWith(classOf[Parameterized])
+class TestSourcesInWorksheetTest(jdkVersion: TestJdkVersion) extends SbtProjectCompilationTestBase(separateProdAndTestSources = true) {
+
+  override protected def jdkVersionForTest: TestJdkVersion = jdkVersion
 
   override def runInDispatchThread(): Boolean = false
 
@@ -72,6 +79,7 @@ class TestSourcesInWorksheetTest extends SbtProjectCompilationTestBase(separateP
     EdtTestUtil.runInEdtAndWait(() => super.tearDown())
   }
 
+  @Test
   def testSourcesInWorksheet(): Unit = {
     val messages = compiler.rebuild().asScala.toSeq
     CompilerMessagesUtil.assertNoErrorsOrWarnings(messages)
@@ -105,3 +113,5 @@ class TestSourcesInWorksheetTest extends SbtProjectCompilationTestBase(separateP
          |val capitalized: String = This Is A Sentence!""".stripMargin, resultText)
   }
 }
+
+private object TestSourcesInWorksheetTest extends JdkVersionParameters

@@ -1,4 +1,4 @@
-<idea-plugin package="org.jetbrains.plugins.scala.textAnalysis">
+<idea-plugin>
     <dependencies>
         <plugin id="tanvd.grazi"/>
         <module name="scalaCommunity.intelliLang" />

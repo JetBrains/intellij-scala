@@ -1,19 +1,24 @@
 package org.jetbrains.plugins.scala.compiler
 
+import org.jetbrains.plugins.scala.CompilationTests_Zinc
 import org.jetbrains.plugins.scala.compiler.CompilerMessagesUtil.{assertCompilingScalaSources, assertNoErrorsOrWarnings}
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
-import org.jetbrains.plugins.scala.{CompilationTests_Zinc, ScalaVersion}
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsJUnit4Runner, RunWithJdkVersions, RunWithScalaVersions, TestJdkVersion, TestScalaVersion}
+import org.junit.Test
 import org.junit.experimental.categories.Category
+import org.junit.runner.RunWith
 
 import scala.jdk.CollectionConverters._
 
 @Category(Array(classOf[CompilationTests_Zinc]))
-class VeryLongClassNameTest extends ScalaCompilerTestBase with JdkVersionDiscovery {
-
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
+@RunWith(classOf[MultipleScalaVersionsJUnit4Runner])
+@RunWithScalaVersions(Array(TestScalaVersion.Scala_2_13))
+@RunWithJdkVersions(Array(TestJdkVersion.JDK_1_8, TestJdkVersion.JDK_11, TestJdkVersion.JDK_17))
+class VeryLongClassNameTest extends ScalaCompilerTestBase {
 
   override protected def incrementalityType: IncrementalityType = IncrementalityType.SBT
 
+  @Test
   def testVertLongClassFileName(): Unit = {
     addFileToProjectSources("LongNames.scala",
       """object LongNames {

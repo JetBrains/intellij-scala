@@ -8,7 +8,7 @@ import com.intellij.platform.workspace.storage.MutableEntityStorage
 import com.intellij.platform.workspace.storage.url.VirtualFileUrl
 import org.jetbrains.bazel.config.BazelProjectPropertiesKt
 import org.jetbrains.bazel.sync.ProjectPostSyncHook
-import org.jetbrains.bazel.sdkcompat.workspacemodel.entities.ScalaAddendumEntityKt
+import org.jetbrains.bazel.workspacemodel.entities.ScalaAddendumEntityKt
 import org.jetbrains.plugins.scala.compiler.data.CompileOrder
 import org.jetbrains.plugins.scala.project.ModuleEntityExt
 import org.jetbrains.plugins.scala.project.external.ScalaSdkUtils

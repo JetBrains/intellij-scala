@@ -2,11 +2,14 @@ package org.jetbrains.sbt.project
 
 import com.intellij.openapi.externalSystem.model.project.ExternalSystemSourceType
 import com.intellij.openapi.util.io.FileUtil
-import org.jetbrains.plugins.scala.extensions.{PathExt, RichFile}
+import com.intellij.platform.eel.EelDescriptor
+import org.jetbrains.plugins.scala.extensions.PathExt
+import org.jetbrains.sbt.project.SbtProjectResolver.ImportContext.given
 import org.jetbrains.sbt.project.SbtProjectResolver.{CompileScope, ImportContext, IntegrationTestScope, TestScope}
 import org.jetbrains.sbt.project.data.ContentRootNode
-import org.jetbrains.sbt.structure.DirectoryData
-import org.jetbrains.sbt.{Sbt, SbtUtil, structure as sbtStructure}
+import org.jetbrains.sbt.project.structure.data as sbtStructure
+import org.jetbrains.sbt.project.structure.data.DirectoryData
+import org.jetbrains.sbt.{Sbt, SbtUtil}
 
 import java.nio.file.Path
 import scala.collection.mutable
@@ -20,7 +23,7 @@ trait ContentRootsResolution { self: ExternalSourceRootResolution =>
   // ! For legacy mode
 
   protected def createLegacyContentRoot(project: sbtStructure.ProjectData)(implicit context: ImportContext): ContentRootNode = {
-    val contentRootNode = new ContentRootNode(project.base.path)
+    val contentRootNode = new ContentRootNode(project.base.toPath.toCanonicalPath.toString)
     storeExcludedPathsInContentRoot(contentRootNode, project)
 
     val productionSources = getProductionSources(project)
@@ -44,7 +47,7 @@ trait ContentRootsResolution { self: ExternalSourceRootResolution =>
   // ! For main/test modules mode
 
   protected def createParentContentRoot(projectData: sbtStructure.ProjectData)(implicit context: ImportContext): ContentRootNode = {
-    val contentRootNode = new ContentRootNode(projectData.base.path)
+    val contentRootNode = new ContentRootNode(projectData.base.toPath.toCanonicalPath.toString)
     storeExcludedPathsInContentRoot(contentRootNode, projectData)
     contentRootNode
   }
@@ -77,6 +80,8 @@ trait ContentRootsResolution { self: ExternalSourceRootResolution =>
     projectsGrouped: Seq[BuildProjectsGroup],
     groupedSharedRoots: Seq[SharedSourcesGroup]
   )(implicit context: ImportContext): Map[sbtStructure.ProjectData, ProjectSourcesDetails] = {
+    given EelDescriptor = context.eelDescriptor
+
     val projects = projectsGrouped.flatMap(group => group.projects :+ group.rootProject)
 
     val sharedSourcesPaths = getSharedSourcesPath(groupedSharedRoots)
@@ -261,11 +266,11 @@ trait ContentRootsResolution { self: ExternalSourceRootResolution =>
     }
   }
 
-  private def managedDirectories(dirs: Seq[sbtStructure.DirectoryData]): Seq[String] =
-    dirs.filter(_.managed).map(_.file.canonicalPath)
+  private def managedDirectories(dirs: Seq[sbtStructure.DirectoryData])(using context: ImportContext): Seq[String] =
+    dirs.filter(_.managed).map(_.file.toPath.toCanonicalPath.toString)
 
-  private def unmanagedDirectories(dirs: Seq[sbtStructure.DirectoryData]): Seq[String] =
-    dirs.filterNot(_.managed).map(_.file.canonicalPath)
+  private def unmanagedDirectories(dirs: Seq[sbtStructure.DirectoryData])(using context: ImportContext): Seq[String] =
+    dirs.filterNot(_.managed).map(_.file.toPath.toCanonicalPath.toString)
 
   private def getProductionSources(project: sbtStructure.ProjectData)(implicit context: ImportContext): Seq[DirectoryData] =
     validSourceRootPathsIn(project, CompileScope)(_.sources)
@@ -304,7 +309,7 @@ trait ContentRootsResolution { self: ExternalSourceRootResolution =>
     if (context.useSeparateProdTestSources)
       directoryData
     else
-      directoryData.filterNot(_.file.isOutsideOf(project.base))
+      directoryData.filterNot(_.file.toPath.isOutsideOf(project.base.toPath))
   }
 
 

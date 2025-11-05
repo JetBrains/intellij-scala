@@ -14,18 +14,23 @@ import org.jetbrains.plugins.scala.CompilationTests_Zinc
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.compiler.CompilerMessagesUtil.assertNoErrorsOrWarnings
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
-import org.jetbrains.plugins.scala.compiler.{CompileServerTestUtil, JdkVersionDiscovery}
+import org.jetbrains.plugins.scala.compiler.{CompileServerTestUtil, JdkVersionParameters}
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.project.gradle.GradleTestUtil
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
+import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
+import org.junit.Test
 import org.junit.experimental.categories.Category
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 import scala.compiletime.uninitialized
 import scala.jdk.CollectionConverters.*
 
 @Category(Array(classOf[CompilationTests_Zinc]))
-class GroovyMixedGradleCompilationTest extends ExternalSystemImportingTestCase {
+@RunWith(classOf[Parameterized])
+class GroovyMixedGradleCompilationTest(jdkVersion: TestJdkVersion) extends ExternalSystemImportingTestCase {
 
   private var gradleSdk: Sdk = uninitialized
 
@@ -56,8 +61,7 @@ class GroovyMixedGradleCompilationTest extends ExternalSystemImportingTestCase {
     gradleSdk = SmartJDKLoader.getOrCreateJDK(LanguageLevel.JDK_17)
 
     sdk = {
-      val jdkVersion = JdkVersionDiscovery.discoveredJdk
-      val res = SmartJDKLoader.getOrCreateJDK(jdkVersion)
+      val res = SmartJDKLoader.getOrCreateJDK(jdkVersion.toProductionVersion)
       val settings = ScalaCompileServerSettings.getInstance()
       settings.COMPILE_SERVER_SDK = res.getName
       settings.USE_DEFAULT_SDK = false
@@ -162,6 +166,7 @@ class GroovyMixedGradleCompilationTest extends ExternalSystemImportingTestCase {
     super.tearDown()
   }
 
+  @Test
   def testMixedGroovyCompilation(): Unit = {
     assertEquals(IncrementalityType.SBT, ScalaCompilerConfiguration.instanceIn(getMyProject).incrementalityType)
     val messages = compiler.make().asScala.toSeq
@@ -176,3 +181,5 @@ class GroovyMixedGradleCompilationTest extends ExternalSystemImportingTestCase {
     assertNotNull(s"Could not find class file for $name", file)
   }
 }
+
+private object GroovyMixedGradleCompilationTest extends JdkVersionParameters

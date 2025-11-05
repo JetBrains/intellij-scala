@@ -34,12 +34,12 @@ class SbtScalaSdkDataService extends ScalaAbstractProjectDataService[SbtScalaSdk
        * because all modules already depend on scala3-module in the Scala3 project itself
        * So scalaInstance is reported for modules only as compiler which should be used to compile sources
        */
-      Option(scalaVersion).foreach(ScalaSdkUtils.configureScalaSdk(
+      scalaVersion.foreach(ScalaSdkUtils.configureScalaSdk(
         module,
         _,
-        scalacClasspath.asScala.toSeq.map(_.toPath),
-        scaladocExtraClasspath.asScala.toSeq.map(_.toPath),
-        Option(compilerBridgeBinaryJar).map(_.toPath),
+        scalacClasspath.map(_.toPath),
+        scaladocExtraClasspath.map(_.toPath),
+        compilerBridgeBinaryJar.map(_.toPath),
         sdkPrefix = SbtProjectSystem.Id.getReadableName,
         modelsProvider
       ))

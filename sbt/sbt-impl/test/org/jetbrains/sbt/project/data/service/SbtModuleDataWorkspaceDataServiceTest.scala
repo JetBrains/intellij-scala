@@ -32,7 +32,7 @@ class SbtModuleDataWorkspaceDataServiceTest extends SbtModuleDataServiceTestCase
         projectURI := c1URI
         moduleFileDirectoryPath := getProject.getBasePath + "/c1"
         externalConfigPath := getProject.getBasePath + "/c1"
-        arbitraryNodes += new SbtModuleNode(SbtModuleData(moduleId, buildURI, Path.of(getProject.getBasePath).toFile))
+        arbitraryNodes += new SbtModuleNode(SbtModuleData(moduleId, buildURI, Path.of(getProject.getBasePath)))
       }
       val c1NestedModule: javaModule = new javaModule {
         val moduleId: String = ModuleNode.combinedId("project1", Option(c1URI))
@@ -41,7 +41,7 @@ class SbtModuleDataWorkspaceDataServiceTest extends SbtModuleDataServiceTestCase
         projectURI := c1URI
         moduleFileDirectoryPath := getProject.getBasePath + "/c1/project1"
         externalConfigPath := getProject.getBasePath + "/c1/project1"
-        arbitraryNodes += new SbtModuleNode(SbtModuleData(moduleId, c1URI, Path.of(getProject.getBasePath, "c1", "project1").toFile))
+        arbitraryNodes += new SbtModuleNode(SbtModuleData(moduleId, c1URI, Path.of(getProject.getBasePath, "c1", "project1")))
       }
 
       val root: javaModule = new javaModule {
@@ -52,7 +52,7 @@ class SbtModuleDataWorkspaceDataServiceTest extends SbtModuleDataServiceTestCase
         projectURI := buildURI
         moduleFileDirectoryPath := getProject.getBasePath
         externalConfigPath := getProject.getBasePath
-        arbitraryNodes += new SbtModuleNode(SbtModuleData(moduleId, buildURI, Path.of(getProject.getBasePath).toFile))
+        arbitraryNodes += new SbtModuleNode(SbtModuleData(moduleId, buildURI, Path.of(getProject.getBasePath)))
       }
       val rootNestedModule: javaModule = new javaModule {
         val moduleId: String = ModuleNode.combinedId("project1", Option(buildURI))
@@ -61,7 +61,7 @@ class SbtModuleDataWorkspaceDataServiceTest extends SbtModuleDataServiceTestCase
         projectURI := buildURI
         moduleFileDirectoryPath := getProject.getBasePath + "/project1"
         externalConfigPath := getProject.getBasePath + "/project1"
-        arbitraryNodes += new SbtModuleNode(SbtModuleData(moduleId, buildURI, Path.of(getProject.getBasePath, "project1").toFile))
+        arbitraryNodes += new SbtModuleNode(SbtModuleData(moduleId, buildURI, Path.of(getProject.getBasePath, "project1")))
       }
 
       modules ++= Seq(c1, root, rootNestedModule, c1NestedModule)

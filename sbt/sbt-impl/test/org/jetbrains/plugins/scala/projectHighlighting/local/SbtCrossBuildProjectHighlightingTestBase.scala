@@ -7,8 +7,6 @@ import com.intellij.testFramework.InspectionsKt
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.{ScalaAccessCanBeTightenedInspection, ScalaUnusedDeclarationInspection}
 import org.jetbrains.plugins.scala.projectHighlighting.base.SbtProjectHighlightingLocalProjectsTestBase
 import org.jetbrains.plugins.scala.projectHighlighting.reporter.HighlightingProgressReporter
-import org.jetbrains.plugins.scala.settings.BackReferencesFromSharedSources
-import org.jetbrains.plugins.scala.util.RevertableChange
 
 abstract class SbtCrossBuildProjectHighlightingTestBase extends SbtProjectHighlightingLocalProjectsTestBase {
 
@@ -25,18 +23,6 @@ abstract class SbtCrossBuildProjectHighlightingTestBase extends SbtProjectHighli
     //NOTE: java UnusedDeclarationInspection requires some special initialization in tests unlike most of the inspections
     val javaUnusedDeclarationInspection = new UnusedDeclarationInspection(true)
     InspectionsKt.enableInspectionTool(getProject, javaUnusedDeclarationInspection, getTestRootDisposable)
-  }
-
-  protected def withEnabledBackReferencesFromSharedSources(enabled: Boolean)(body: => Any): Unit = {
-    val revertible = RevertableChange.withModifiedScalaProjectSettings[Boolean](
-      getProject,
-      _ => BackReferencesFromSharedSources.isEnabled,
-      (_ , _) => (),
-      enabled
-    )
-    revertible.run {
-      body
-    }
   }
 
   override protected def highlightSingleFile(
