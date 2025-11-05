@@ -15,25 +15,26 @@ import com.intellij.ui.dsl.builder.{BottomGap, Panel, Row, RowLayout}
 import com.intellij.ui.dsl.gridLayout.HorizontalAlign
 import com.intellij.util.lang.JavaVersion
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.sbt.project.template.wizard.buildSystem.{startJdkDownloadIfNeeded => startJdkDownload}
+import org.jetbrains.plugins.scala.extensions.*
+import org.jetbrains.sbt.project.template.wizard.buildSystem.startJdkDownloadIfNeeded as startJdkDownload
 import org.jetbrains.plugins.scala.project.Versions
 import org.jetbrains.plugins.scala.util.AsynchronousVersionsDownloading
 import org.jetbrains.sbt.project.template.SComboBox
+import org.jetbrains.sbt.project.template.wizard.ScalaVersionStepLike.ScalaJdkValidationContext
 import org.jetbrains.sbt.project.template.wizard.kotlin_interop.KotlinInteropUtils
 import org.jetbrains.sbt.{SbtBundle, SbtVersion}
 
 import java.lang
 import java.util.concurrent.atomic.AtomicBoolean
-import kotlin.Unit.{INSTANCE => KUnit}
+import kotlin.Unit.INSTANCE as KUnit
 import kotlin.jvm.functions
 import scala.annotation.nowarn
 import scala.collection.immutable.ListSet
 
-//TODO Add a Scala combobox (and all related functionality, such as downloading) to this step so that everything needed
-// for sbt is in one place.
-abstract class SbtNewProjectWizardStep(parent: NewProjectWizardStep) extends AbstractNewProjectWizardStep(parent)
-  with AsynchronousVersionsDownloading {
+abstract class SbtNewProjectWizardStep(parent: NewProjectWizardStep)
+  extends AbstractNewProjectWizardStep(parent)
+  with AsynchronousVersionsDownloading
+  with ScalaVersionStepLike {
 
   protected val defaultAvailableSbtVersions: ListSet[SbtVersion]
 
@@ -87,6 +88,13 @@ abstract class SbtNewProjectWizardStep(parent: NewProjectWizardStep) extends Abs
     startJdkDownload(sdkDownloadTask, project)
   }
 
+  protected def setUpScalaUIWithJDKValidation(panel: Panel): Unit =
+    setUpScalaUI(
+      panel,
+      downloadSourcesCheckbox = true,
+      jdkValidationCtx = Some(ScalaJdkValidationContext(jdkIntentProperty, () => getExpectedJavaSdkVersion))
+    )
+
   protected def setupJavaSdkUI(builder: Panel): Unit = {
     builder.row(JavaUiBundle.message("label.project.wizard.new.project.jdk"), (row: Row) => {
       val jdkComboBoxCell = ProjectWizardJdkComboBoxKt.projectWizardJdkComboBox(
@@ -94,7 +102,14 @@ abstract class SbtNewProjectWizardStep(parent: NewProjectWizardStep) extends Abs
         row,
         jdkIntentProperty,
         { (_: Sdk) => lang.Boolean.TRUE },
-        (javaVersion: JavaVersion, _: String) => jdkWithSbtValidation(javaVersion)
+        (javaVersion: JavaVersion, _: String) =>
+          val validationErrors = Seq(
+            jdkWithSbtValidation(javaVersion),
+            jdkWithScalaValidation(javaVersion)
+          ).filter(_ != null)
+
+          if (validationErrors.isEmpty) null
+          else validationErrors.mkString("<html>", "<br>", "</html>")
       )
       jdkComboBoxCell
         .validationRequestor(new DialogValidationRequestor() {
@@ -103,6 +118,7 @@ abstract class SbtNewProjectWizardStep(parent: NewProjectWizardStep) extends Abs
             validate.invoke()
         })
         .validationRequestor(RequestorsKt.getWHEN_PROPERTY_CHANGED.invoke(sbtVersionProperty))
+        .validationRequestor(RequestorsKt.getWHEN_PROPERTY_CHANGED.invoke(scalaVersionProperty))
         .validationRequestor(RequestorsKt.getWHEN_PROPERTY_CHANGED.invoke(jdkIntentProperty))
 
       jdkComboBox = jdkComboBoxCell.getComponent
@@ -118,6 +134,19 @@ abstract class SbtNewProjectWizardStep(parent: NewProjectWizardStep) extends Abs
     val highestCompatibleJdk = JdkSbtCompatibilityChecker.getHighestCompatibleJdkForSbt(javaVersion, sbtVersion)
     highestCompatibleJdk.map { version =>
       SbtBundle.message("sbt.incompatible.versions.message", sbtVersion.minor, version.toFeatureString)
+    }.orNull
+  }
+
+  @Nullable
+  private def jdkWithScalaValidation(javaVersion: JavaVersion): String = {
+    if (javaVersion == null) return null
+    val scalaVersion = getScalaVersion match {
+      case Some(version) => version
+      case None => return null
+    }
+    val highestCompatibleJdk = JdkScalaCompatibilityChecker.getHighestCompatibleJdkForScala(javaVersion, scalaVersion)
+    highestCompatibleJdk.map { version =>
+      SbtBundle.message("scala.incompatible.versions.message", scalaVersion.minor, version.toFeatureString)
     }.orNull
   }
 
