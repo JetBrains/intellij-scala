@@ -3,13 +3,12 @@ package org.jetbrains.plugins.scala.uast
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
-import org.jetbrains.plugins.scala.extensions.inReadAction
+import org.jetbrains.plugins.scala.extensions.{PathExt, inReadAction}
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
-
-import java.io.File
 import org.jetbrains.uast._
 import org.jetbrains.uast.visitor.AbstractUastVisitor
 
+import _root_.java.nio.file.Path
 import scala.collection.mutable
 import scala.reflect.ClassTag
 
@@ -23,8 +22,8 @@ abstract class AbstractUastFixtureTest
 
   override def getTestDataPath: String = super.getTestDataPath + "../../uast/testdata/uast"
 
-  protected def getTestFile(testName: String): File =
-    new File(getTestDataPath, testName + ".scala")
+  protected def getTestFile(testName: String): Path =
+    Path.of(getTestDataPath, testName + ".scala")
 
   protected def check(testName: String, file: UFile): Unit
 
@@ -33,9 +32,9 @@ abstract class AbstractUastFixtureTest
     checkCallback: (String, UFile) => Unit = check
   ): Unit = {
     val testFile = getTestFile(testName)
-    if (!testFile.exists())
+    if (!testFile.exists)
       throw new IllegalStateException(s"File does not exist: $testFile")
-    val psiFile = myFixture.configureByFile(testFile.getPath)
+    val psiFile = myFixture.configureByFile(testFile.toString)
     inReadAction {
       psiFile.convertWithParentTo[UElement]() match {
         case Some(uFile: UFile) => checkCallback(testName, uFile)
