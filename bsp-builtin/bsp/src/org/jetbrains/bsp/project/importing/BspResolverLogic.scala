@@ -653,10 +653,28 @@ private[importing] object BspResolverLogic {
       .stripSuffix(jarSuffix)
       .stripSuffixes(sourcesSuffixes)
       .stripSuffix(javadocSuffix)
+
+  /**
+   * Example: {{{
+   *    // Input 1 : org/scalameta/munit_3/1.2.1/munit_3-1.2.1.jar
+   *    // Input 2 : org/scalameta/munit_3/1.2.1/munit_3-1.2.1-sources.jar
+   *    // Input 2 : org/scalameta/munit_3/1.2.1/munit_3-1.2.1-javadoc.jar
+   *
+   *    // Output  : org/scalameta/munit_3/1.2.1/munit_3-1.2.1
+   * }}}
+   */
   private def libraryPrefix(path: Path): Option[String] =
     if (path.getFileName.toString.endsWith(jarSuffix))
       Option(stripSuffixes(path.toCanonicalPath.toString))
-    else None
+    else
+      None
+
+  /**
+   * Example: {{{
+   *   // Input  : munit_3-1.2.1-sources.jar
+   *   // Output : munit_3-1.2.1
+   * }}}
+   */
   private def libraryName(path: Path): String =
     stripSuffixes(path.getFileName.toString)
 
@@ -689,6 +707,7 @@ private[importing] object BspResolverLogic {
         Some(moduleNode)
       }
 
+    // TODO: The flat map below is cursed! It's too huge and imposible to follow. Refactor it!
     val projectLibraryDependencies: Map[TestClassId, LibraryData] =
       projectModules.modules.toSet
         .flatMap((m: ModuleDescription) =>
