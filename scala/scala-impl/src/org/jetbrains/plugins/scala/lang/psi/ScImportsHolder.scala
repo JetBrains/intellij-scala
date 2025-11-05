@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer.I
 import org.jetbrains.plugins.scala.editor.importOptimizer._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.incremental
+import org.jetbrains.plugins.scala.incremental.Highlighting.builtInHighlightingDisabledIn
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
@@ -105,7 +106,7 @@ trait ScImportsHolder extends ScImportsOrExportsHolder {
     if (lastParent != null) {
       val prevImports = previousImports(lastParent)
 
-      if (!incremental.Highlighting.enabledIn(getProject)) {
+      if (!builtInHighlightingDisabledIn(getProject) && !incremental.Highlighting.enabledIn(getProject)) {
         //Resolve all references in previous import expressions in direct order to avoid SOE
         prevImports.foreach { importStmt =>
           ProgressManager.checkCanceled()
