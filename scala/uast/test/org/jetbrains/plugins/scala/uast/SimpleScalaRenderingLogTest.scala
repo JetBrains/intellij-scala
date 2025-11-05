@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.uast
 
 import com.intellij.platform.uast.testFramework.common.RenderLogTestBase
 import com.intellij.psi.PsiElement
-import com.intellij.testFramework.EqualsToFile
+import org.jetbrains.plugins.scala.util.EqualsToFile
 import org.jetbrains.uast._
 import org.jetbrains.uast.visitor.AbstractUastVisitor
 import org.junit.Assert
@@ -77,12 +77,12 @@ class SimpleScalaRenderingLogTest
 
     EqualsToFile.assertEqualsToFile(
       "Render string",
-      renderFile.toFile,
+      renderFile,
       file.asRenderString()
     )
     EqualsToFile.assertEqualsToFile(
       "Log string",
-      logFile.toFile,
+      logFile,
       UastUtils.asRecursiveLogString(file)
     )
 
