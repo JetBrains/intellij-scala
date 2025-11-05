@@ -100,7 +100,7 @@ abstract class ScalaTestingTestCase
     }
 
   protected def getSingleConfigurationFromContext(context: ConfigurationContext): ConfigurationFromContext = {
-    val configurationsFromContext = context.getConfigurationsFromContext.asScala.toSeq
+    val configurationsFromContext = Option(context.getConfigurationsFromContext).toSeq.flatMap(_.asScala)
     configurationsFromContext match {
       case Seq() =>
         fail(s"No configuration created from context: $context").asInstanceOf[Nothing]
@@ -115,6 +115,42 @@ abstract class ScalaTestingTestCase
              |${multipleConfigs.map(_.toString).mkString("\n")}""".stripMargin
         ).asInstanceOf[Nothing]
     }
+  }
+
+  protected def assertNoConfigurationCreatedAtCaret(location: CaretLocation): Unit =
+    inReadAction {
+      val psiElement = findPsiElement(location, getProject, srcPath)
+      if (psiElement == null)
+        return // good: no element -> no configuration created
+
+      val context: ConfigurationContext = new ConfigurationContext(psiElement)
+      val configurationsFromContext = Option(context.getConfigurationsFromContext).toSeq.flatMap(_.asScala)
+      val relevantConfigs = configurationsFromContext.filter(_.isProducedBy(configurationProducer.getClass))
+
+      if (relevantConfigs.nonEmpty) {
+        fail(
+          s"""Expected no run configuration to be created at location $location, but found ${relevantConfigs.size} configuration(s):
+             |${relevantConfigs.map(_.toString).mkString("\n")}""".stripMargin
+        )
+      }
+    }
+
+  protected def assertNoConfigurationCreatedInTheBeginningOfEachLineInFile(fileName: String): Unit = {
+    val lineCount = numberOfLinesInTestFile(fileName)
+    for (line <- 0 until lineCount) {
+      assertNoConfigurationCreatedAtCaret(loc(fileName, line, 0))
+    }
+  }
+
+  private def numberOfLinesInTestFile(fileName: String): Int = {
+    import com.intellij.openapi.editor.Document
+    import com.intellij.openapi.fileEditor.FileDocumentManager
+
+    val vFile = findTestFile(srcPath, fileName)
+    val document: Document = inReadAction {
+      FileDocumentManager.getInstance().getDocument(vFile)
+    }
+    document.getLineCount
   }
 
   protected final def runTestFromConfig(

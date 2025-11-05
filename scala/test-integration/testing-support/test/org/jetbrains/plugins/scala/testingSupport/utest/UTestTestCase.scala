@@ -12,8 +12,12 @@ abstract class UTestTestCase extends ScalaTestingTestCase {
 
   def uTestVersion: Version
 
+  override protected def buildVersionsDetailsMessage: String =
+    super.buildVersionsDetailsMessage + s", uTest: ${uTestVersion.presentation}"
+
   override protected def additionalLibraries: Seq[LibraryLoader] = Seq(
-    IvyManagedLoader("com.lihaoyi" %% "utest" % uTestVersion.presentation)
+    // transitive also fetches the "portable scala" library that used in the uTest runners (org.jetbrains.plugins.scala.testingSupport.uTest.UTestSuiteRunner)
+    IvyManagedLoader(("com.lihaoyi" %% "utest" % uTestVersion.presentation).transitive())
   )
 
   override protected lazy val configurationProducer: AbstractTestConfigurationProducer[_] =

@@ -32,9 +32,7 @@ trait RunConfigurationCreationOps extends ScalaSdkOwner {
     project: Project,
     srcDir: Path,
   ): PsiElement = {
-    val nioFile = srcDir / caretLocation.fileName
-    val vFile = LocalFileSystem.getInstance.refreshAndFindFileByNioFile(nioFile)
-
+    val vFile = findTestFile(srcDir, caretLocation.fileName)
     val myManager = PsiManager.getInstance(project)
 
     inReadAction {
@@ -43,6 +41,11 @@ trait RunConfigurationCreationOps extends ScalaSdkOwner {
       val lineStartOffset = document.getLineStartOffset(caretLocation.line)
       psiFile.findElementAt(lineStartOffset + caretLocation.column)
     }
+  }
+
+  protected final def findTestFile(srcDir: Path, testFileName: String): VirtualFile = {
+    val nioFile = srcDir / testFileName
+    LocalFileSystem.getInstance.refreshAndFindFileByNioFile(nioFile)
   }
 
   protected final def findPsiElement(

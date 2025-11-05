@@ -29,7 +29,7 @@ import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestConfiguration
 import org.jetbrains.plugins.scala.testingSupport.test.munit.MUnitUtils
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestUtil
 import org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2Util
-import org.jetbrains.plugins.scala.testingSupport.test.utest.UTestConfigurationProducer
+import org.jetbrains.plugins.scala.testingSupport.test.utest.{UTestConfigurationProducer, UTestTestFramework}
 
 import java.util.Collections
 import java.{util => ju}
@@ -62,6 +62,9 @@ class TestNodeProvider extends FileStructureNodeProvider[TreeElement] {
         }
         result.map(_.asJava).getOrElse(emptyList)
 
+      // Hangle uTest (`val tests = Tests { ... }`)
+      // TODO: This doesn't work, seemingly for many years
+      //  Fix and cover with tests like org.jetbrains.plugins.scala.testingSupport.scalatest.base.fileStructureView.FlatSpecFileStructureViewTest
       case valElement: Value =>
         def tryTupledId(psiElement: PsiElement): ju.Collection[TreeElement] =
           TestNodeProvider.getUTestLeftHandTestDefinition(psiElement) match {
@@ -70,11 +73,13 @@ class TestNodeProvider extends FileStructureNodeProvider[TreeElement] {
           }
 
         valElement.getValue match {
+          //val tests = ...
           case valDef: ScPatternDefinition =>
             valDef.getLastChild match {
               case testCall: ScMethodCall =>
                 TestNodeProvider.extractUTest(testCall, testCall.getProject)
-              case _ => tryTupledId(valElement.element)
+              case _ =>
+                tryTupledId(valElement.element)
             }
           case named: ScNamedElement =>
             tryTupledId(named.nameId)
@@ -135,7 +140,7 @@ object TestNodeProvider {
 
   private def extractTestViewElementPatternDef(pDef: ScPatternDefinition, clazz: ScTypeDefinition): Option[Test] = {
     import org.jetbrains.plugins.scala.testingSupport.test.TestConfigurationUtil.isInheritor
-    if (isInheritor(clazz, "utest.framework.TestSuite") && pDef.getLastChild.is[ScMethodCall]) {
+    if (isInheritor(clazz, UTestTestFramework.BaseTestSuiteFqn) && pDef.getLastChild.is[ScMethodCall]) {
       val methodCall = pDef.getLastChild.asInstanceOf[ScMethodCall]
       checkScMethodCall(methodCall, "apply")
       None
@@ -480,6 +485,7 @@ object TestNodeProvider {
   }
 
   //-----uTest-----
+  //TODO: it seems broken for the latest verison of uTest (0.9.1)
   private def extractUTest(expr: ScMethodCall, project: Project): ju.Collection[TreeElement] = {
     def extractUTestInner(expr: PsiElement, project: Project): Option[TreeElement] = {
       if (isUTestInfixExpr(expr)) {

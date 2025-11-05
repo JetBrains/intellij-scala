@@ -7,6 +7,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.psi.{PsiClass, PsiFile, PsiPackage}
+import com.intellij.refactoring.util.classMembers.MemberInfo
 import com.intellij.testIntegration.createTest.{CreateTestAction, CreateTestDialog}
 import com.intellij.testIntegration.{JavaTestCreator, TestFramework}
 import com.intellij.util.IncorrectOperationException
@@ -14,6 +15,13 @@ import org.jetbrains.annotations.{Nls, TestOnly}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.testingSupport.ScalaTestCreator._
 
+import java.util
+import scala.jdk.CollectionConverters.SeqHasAsJava
+
+/**
+ * @see [[org.jetbrains.plugins.scala.testingSupport.ScalaTestGenerator]]
+ * @note The class is tested in org.jetbrains.plugins.scala.testingSupport.ScalaTestCreatorInSbtProjectsTest
+ */
 class ScalaTestCreator extends JavaTestCreator {
 
   override def createTest(project: Project, editor: Editor, file: PsiFile): Unit = {
@@ -70,11 +78,27 @@ object ScalaTestCreator {
         super.suggestTestClassName(targetClass)
     }
 
-    override def getSelectedTestFrameworkDescriptor: TestFramework =
-      getMockTestData(project)(_.selectedTestFramework).getOrElse(super.getSelectedTestFrameworkDescriptor)
+    override def getSelectedTestFrameworkDescriptor: TestFramework = {
+      val mock = getMockTestData(project)(_.selectedTestFramework).flatten
+      mock.getOrElse(super.getSelectedTestFrameworkDescriptor)
+    }
 
-    override def getClassName: String =
-      getMockTestData(project)(_.testClassName).getOrElse(super.getClassName)
+    override def getSelectedMethods: util.Collection[MemberInfo] = {
+      getMockTestData(project)(_.selectedTestedMethodsNames).flatten match {
+        case Some(methodNames) =>
+          val psiMethods = methodNames.flatMap { name =>
+            this.targetClass.findMethodsByName(name, false).toSeq
+          }
+          psiMethods.map(new MemberInfo(_)).asJava
+        case None =>
+          super.getSelectedMethods
+      }
+    }
+
+    override def getClassName: String = {
+      val mock = getMockTestData(project)(_.testClassName).flatten
+      mock.getOrElse(super.getClassName)
+    }
 
     override def showAndGet(): Boolean = {
       if (ApplicationManager.getApplication.isUnitTestMode) {
@@ -88,8 +112,9 @@ object ScalaTestCreator {
 
   @TestOnly
   case class MockTestDialogData(
-    selectedTestFramework: TestFramework,
-    testClassName: String
+    selectedTestFramework: Option[TestFramework] = None,
+    testClassName: Option[String] = None,
+    selectedTestedMethodsNames: Option[Seq[String]] = None
   )
 
   @TestOnly

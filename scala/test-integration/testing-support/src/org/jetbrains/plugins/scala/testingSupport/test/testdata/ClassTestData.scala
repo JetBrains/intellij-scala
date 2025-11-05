@@ -22,7 +22,7 @@ class ClassTestData(config: AbstractTestRunConfiguration) extends TestConfigurat
   override def getKind: TestKind = TestKind.CLAZZ
 
   @Nullable
-  protected[test] def getClassPathClazz: PsiClass = config.getClazz(testClassPath)
+  protected[test] def getClassPathClazz: PsiClass = config.findValidTestSuiteClassOrObject(testClassPath)
 
   override def checkSuiteAndTestName: CheckResult =
     for {
@@ -47,7 +47,8 @@ class ClassTestData(config: AbstractTestRunConfiguration) extends TestConfigurat
     if (isDumb) return Map(testClassPath -> Set[String]())
     val clazz = getClassPathClazz
     if (clazz == null) throw executionException(TestingSupportBundle.message("test.run.config.test.class.not.found", testClassPath))
-    if (config.isInvalidSuite(clazz)) throw executionException(TestingSupportBundle.message("test.config.clazz.is.not.a.valid.test.suite", clazz))
+    if (config.isInvalidSuite(clazz))
+      throw executionException(TestingSupportBundle.message("test.config.clazz.is.not.a.valid.test.suite", clazz))
     Map(clazz.qualifiedName -> Set[String]())
   }
 

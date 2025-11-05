@@ -11,19 +11,26 @@ import scala.collection.immutable
 
 trait SuiteValidityChecker {
   def isValidSuite(clazz: PsiClass, suiteClass: PsiClass): Boolean
+
+  private[test]
+  def isValidClassPublic(clazz: PsiClass): Boolean
 }
 
 class SuiteValidityCheckerBase extends SuiteValidityChecker {
 
-  override def isValidSuite(clazz: PsiClass, suiteClass: PsiClass): Boolean = inReadAction {
+  override def isValidSuite(clazz: PsiClass, baseTestSuiteClass: PsiClass): Boolean = inReadAction {
     isValidClass(clazz) &&
       !isAbstract(clazz) &&
       hasSuitableConstructor(clazz) &&
-      ScalaPsiUtil.isInheritorDeep(clazz, suiteClass)
+      ScalaPsiUtil.isInheritorDeep(clazz, baseTestSuiteClass)
   }
 
   protected def isValidClass(clazz: PsiClass): Boolean =
     clazz.is[ScClass]
+
+  private[test]
+  override final def isValidClassPublic(clazz: PsiClass): Boolean =
+    isValidClass(clazz)
 
   private def isAbstract(clazz: PsiClass): Boolean = {
     val list: PsiModifierList = clazz.getModifierList

@@ -4,6 +4,7 @@ package testingSupport.test
 import com.intellij.lang.Language
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.{PsiClass, PsiElement}
+import com.intellij.testIntegration.createTest.CreateTestDialog
 import org.jetbrains.plugins.scala.extensions.LoggerExt
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
@@ -39,6 +40,8 @@ abstract class AbstractTestFramework extends JavaTestFrameworkBridge {
     }
   }
 
+  override final def isTestClass(clazz: PsiElement): Boolean = super.isTestClass(clazz)
+
   override final def isTestClass(clazz: PsiClass, canBePotential: Boolean): Boolean = {
     val definition: ScTemplateDefinition = clazz match {
       case PsiClassWrapper(definition)  => definition
@@ -65,8 +68,14 @@ abstract class AbstractTestFramework extends JavaTestFrameworkBridge {
     }
   }
 
-  /** @return template file name from scala/scala-impl/resources/fileTemplates/code, used in "create test dialog" */
+  /**
+   * @return template file name from scala/scala-impl/resources/fileTemplates/code, used in "create test dialog".<br>
+   *         For example, "uTest Object" (will be converted to "uTest Object.scala.ft")
+   * @note if you need more context from "Create Test Dialog"
+   *       override AbstractTestFramework#testFileTemplateName(CreateTestDialog) isntead
+   */
   def testFileTemplateName: String = "ScalaTest Class"
+  def testFileTemplateName(dialog: CreateTestDialog): String = testFileTemplateName
 }
 
 object AbstractTestFramework {
