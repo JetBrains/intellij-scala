@@ -10,7 +10,6 @@ import org.jetbrains.java.decompiler.main.extern.{IBytecodeProvider, IFernflower
 import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.lang.psi.api.ScFile
 
-import java.io.File
 import java.util.jar.Manifest
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.MapHasAsJava
@@ -33,7 +32,7 @@ private class ScalaDecompilerServiceImpl extends ScalaDecompilerService {
       }
       val options: Map[String, AnyRef] = getFernflowerDecompilerOptions
       val decompiler = new BaseDecompiler(provider, saver, options.asJava, new IdeaLogger())
-      mappings.foreach { case (path, _) => decompiler.addSource(new File(path)) }
+      mappings.foreach { case (path, _) => decompiler.addSource(new java.io.File(path)) }
       decompiler.decompileContext()
       Success(saver.result)
     } catch {
