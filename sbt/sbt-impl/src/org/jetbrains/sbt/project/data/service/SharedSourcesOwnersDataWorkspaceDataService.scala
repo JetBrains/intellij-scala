@@ -1,6 +1,6 @@
 package org.jetbrains.sbt.project.data.service
 
-import com.intellij.entities.{ModuleExtensionWorkspaceEntityModifications, SharedSourcesOwnersEntityBuilder, SharedSourcesOwnersEntityModifications}
+import com.intellij.entities.{ModuleExtensionWorkspaceEntityModifications, SharedSourcesOwnersEntityBuilder, SharedSourcesOwnersEntityModifications, SharedSourcesOwnersEntitySource}
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.model.{DataNode, Key}
 import com.intellij.openapi.externalSystem.service.project.manage.WorkspaceDataService
@@ -46,7 +46,7 @@ class SharedSourcesOwnersDataWorkspaceDataService extends WorkspaceDataService[S
   }
 
   private def createSharedSourcesOwnersEntity(ownerModulesIds: JList[String]): SharedSourcesOwnersEntityBuilder = {
-    val entitySource = WorkspaceEntitiesCompanionProxy.SharedSourcesOwnersEntitySource
+    val entitySource = SharedSourcesOwnersEntitySource.INSTANCE
     SharedSourcesOwnersEntityModifications.createSharedSourcesOwnersEntity(ownerModulesIds, entitySource)
   }
 }
