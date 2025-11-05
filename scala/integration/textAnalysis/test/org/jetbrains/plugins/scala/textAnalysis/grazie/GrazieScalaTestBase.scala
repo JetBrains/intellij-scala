@@ -25,7 +25,6 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.util.TestUtils
 
-import java.io.File
 import java.nio.file.{Files, Path}
 import scala.annotation.nowarn
 import scala.jdk.CollectionConverters.*
@@ -43,7 +42,7 @@ abstract class GrazieScalaTestBase extends ScalaLightCodeInsightFixtureTestCase:
   protected val enableGrazieChecker: Boolean = false
 
   override def getTestDataPath: String =
-    File(TestUtils.getTestDataPath + "/../../integration/textAnalysis/testData").getCanonicalPath
+    Path.of(TestUtils.getTestDataPath + "/../../integration/textAnalysis/testData").toCanonicalPath.toString
 
   override def setUp(): Unit =
     super.setUp()
