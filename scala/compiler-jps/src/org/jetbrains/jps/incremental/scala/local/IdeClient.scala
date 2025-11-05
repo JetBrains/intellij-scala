@@ -2,6 +2,7 @@ package org.jetbrains.jps.incremental.scala
 package local
 
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.util.lang.JavaVersion
 import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.incremental.CompileContext
@@ -149,7 +150,20 @@ abstract class IdeClient(compilerName: String,
     val elementTypePattern = text.contains("error while loading ElementType") && text.contains("class file /modules/java.base/java/lang/annotation/ElementType.class is broken")
     val case3 = (accessFlagPattern || elementTypePattern) && text.contains("bad constant pool index: 0 at")
 
-    case1 || case2 || case3
+    case1 || case2 || case3 || isScala3_8JdkVersionError(context, text)
+  }
+
+  /**
+   * Checks whether the given text contains a known Scala 3.8 and JDK < 17 compatibility error pattern.
+   */
+  private def isScala3_8JdkVersionError(context: CompileContext, text: String): Boolean = {
+    val global = context.getProjectDescriptor.getModel.getGlobal
+    val compileServerSdk = SettingsManager.getGlobalSettings(global).getCompileServerSdk
+    if (compileServerSdk == null) return false
+
+    // Additional validation to be more sure the Scala/JDK incompatibility note is shown for the right combination
+    val isBelow17 = Try(JavaVersion.parse(compileServerSdk)).toOption.exists(_.feature < 17)
+    isBelow17 && text.contains("java.lang.UnsupportedClassVersionError: dotty/tools/xsbt/CompilerBridge has been compiled by a more recent version of the Java Runtime")
   }
 }
 
