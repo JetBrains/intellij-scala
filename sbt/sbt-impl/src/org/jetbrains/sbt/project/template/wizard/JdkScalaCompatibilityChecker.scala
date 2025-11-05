@@ -74,6 +74,7 @@ object JdkScalaCompatibilityChecker:
   )
 
   private def isScala3Lts(v: ScalaVersion): Boolean = v.languageLevel.getVersion.startsWith("3.3")
+  private def isScala3_8Plus(v: ScalaVersion): Boolean = v.languageLevel >= ScalaLanguageLevel.Scala_3_8
   private def isScala2_13(v: ScalaVersion): Boolean = v.languageLevel.getVersion.startsWith("2.13")
   private def isScala2_12(v: ScalaVersion): Boolean = v.languageLevel.getVersion.startsWith("2.12")
   private def isScala2_11(v: ScalaVersion): Boolean = v.languageLevel.getVersion.startsWith("2.11")
@@ -112,14 +113,21 @@ object JdkScalaCompatibilityChecker:
     }
   }
 
+  private def isScalaAndJdkVersionCompatible(jdk: JavaVersion, scalaVersion: ScalaVersion): Boolean =
+    getMinimumJdkRequiredForScala(jdk, scalaVersion).isEmpty &&
+      getMinimumScalaToJdkCompatibleVersion(jdk, scalaVersion).isEmpty
+
   /**
-   * @param strict if `true`, JDK versions below 1.8 or >= 26 are treated as incompatible
+   * Returns the minimum required JDK version if the current JDK is incompatible with the given Scala version.
+   *
+   * Currently, it handles the special case where Scala 3.8+ requires JDK 17 or higher.
+   * See: [[https://www.scala-lang.org/news/next-scala-lts-jdk.html]]
+   *
+   * @return the minimum JDK version required for compatibility, or `None` if the current JDK is enough.
    */
-  private def isScalaAndJdkVersionCompatible(jdk: JavaVersion, scalaVersion: ScalaVersion, strict: Boolean = false): Boolean = {
-    val isOutsideOfRange = jdk < JDK_8 || jdk >= JavaVersion.compose(26)
-    if (strict && isOutsideOfRange) false
-    else getMinimumScalaToJdkCompatibleVersion(jdk, scalaVersion).isEmpty
-  }
+  def getMinimumJdkRequiredForScala(jdk: JavaVersion, scalaVersion: ScalaVersion): Option[JavaVersion] =
+    val required = if (isScala3_8Plus(scalaVersion)) Some(JavaVersion.compose(17)) else None
+    required.filter(jdk < _)
 
   /**
    * Determines the highest JDK version that is compatible with the given Scala version.
