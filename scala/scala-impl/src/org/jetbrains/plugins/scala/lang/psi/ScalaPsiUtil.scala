@@ -1115,7 +1115,18 @@ object ScalaPsiUtil {
   }
 
   /**
-   * If `param` is a synthetic parameter with a corresponding real parameter, return Some(realParameter), otherwise None
+   * If `param` is a synthetic parameter with a corresponding real parameter, return Some(realParameter), otherwise None<br>
+   *
+   * @example
+   * For example for a case class the compiler will generate a synthetic `apply` method in the companion object: {{{
+   *   case class MyCaseClass(name: String)
+   *   // SYNTHETIC CODE BELOW:
+   *   object MyCaseClass {
+   *     def apply(name: String): MyCaseClass = new MyCaseClass(name)
+   *   }
+   * }}}
+   * And if we resolve refere `MyCaseClass("42")` we resolve to the `name` parameter of the `apply` method, not the constructor.
+   * In some places we need to get the real parameter, not the synthetic one.
    */
   def parameterForSyntheticParameter(
     param: ScParameter,
