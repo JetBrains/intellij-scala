@@ -116,7 +116,7 @@
                                 order="first" id="sbtPackageSearchDependencyCompletionContributor"/>
         <completion.contributor language="any"
                                 implementationClass="org.jetbrains.sbt.language.completion.ScalaVersionCompletionContributor"
-                                order="first" id="scalaVersionCompletionContributor"/>
+                                order="first, after ml_context" id="scalaVersionCompletionContributor"/>
         <completion.contributor language="Scala"
                                 implementationClass="org.jetbrains.sbt.language.completion.SbtScalacOptionsCompletionContributor"
                                 order="first, before scalaVersionCompletionContributor" id="sbtScalacOptionsCompletionContributor"/>
