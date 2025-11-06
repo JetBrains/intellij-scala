@@ -74,7 +74,8 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
 
     var typeMismatchShown = false
 
-    val firstExcessiveArgument = problems.filterByType[ExcessArgument].map(_.argument).minByOption(_.getTextOffset)
+    val excessiveArguments = problems.filterByType[ExcessArgument].map(_.argument)
+    val firstExcessiveArgument = excessiveArguments.minByOption(_.getTextOffset)
     firstExcessiveArgument.foreach { argument =>
       val range =
         if (inDesugaring) argument.getTextRange
@@ -83,7 +84,7 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
           opening.map(e => new TextRange(e.getTextOffset, argument.getTextOffset + 1)).getOrElse(argument.getTextRange)
         }
 
-      val fixes = new AddParametersQuickfix :: ref.toList.flatMap(createFixesByUsages)
+      val fixes = AddParametersQuickfix.from(call).toList ::: ref.toList.flatMap(createFixesByUsages)
       val message = elem.fold(ScalaBundle.message("annotator.error.too.many.arguments")) { elem =>
         ScalaBundle.message("annotator.error.too.many.arguments.method", nameWithSignature(elem))
       }
