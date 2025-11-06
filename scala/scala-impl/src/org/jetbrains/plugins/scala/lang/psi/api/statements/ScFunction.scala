@@ -25,9 +25,10 @@ import javax.swing.Icon
 
 /**
  * Represents Scala's internal function definitions and declarations
+ * This includes secondary constructors `def this() = this(42)`
  */
 trait ScFunction
-    extends ScalaPsiElement
+  extends ScalaPsiElement
     with ScMember
     with ScMember.WithBaseIconProvider
     with ScParameterOwner
