@@ -10,6 +10,9 @@ import org.jetbrains.plugins.scala.lang.psi.light.ScPrimaryConstructorWrapper
 
 import scala.collection.immutable.ArraySeq
 
+/**
+ * @note Secondary constructor is represented by [[org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction]]
+ */
 trait ScPrimaryConstructor extends ScMember with ScMethodLike {
 
   /**
