@@ -144,10 +144,16 @@ abstract class SbtNewProjectWizardStep(parent: NewProjectWizardStep)
       case Some(version) => version
       case None => return null
     }
-    val highestCompatibleJdk = JdkScalaCompatibilityChecker.getHighestCompatibleJdkForScala(javaVersion, scalaVersion)
-    highestCompatibleJdk.map { version =>
-      SbtBundle.message("scala.incompatible.versions.message", scalaVersion.minor, version.toFeatureString)
-    }.orNull
+    val minRequiredJdk = JdkScalaCompatibilityChecker.getMinimumJdkRequiredForScala(javaVersion, scalaVersion)
+    minRequiredJdk match {
+      case Some(jdk) =>
+        SbtBundle.message("scala.incompatible.versions.jdk.too.low.message", scalaVersion.minor, jdk.toFeatureString)
+      case None =>
+        val highestCompatibleJdk = JdkScalaCompatibilityChecker.getHighestCompatibleJdkForScala(javaVersion, scalaVersion)
+        highestCompatibleJdk.map { version =>
+          SbtBundle.message("scala.incompatible.versions.message", scalaVersion.minor, version.toFeatureString)
+        }.orNull
+    }
   }
 
   @Nullable
