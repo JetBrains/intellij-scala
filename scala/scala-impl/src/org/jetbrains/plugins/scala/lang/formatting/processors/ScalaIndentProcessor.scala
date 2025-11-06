@@ -415,7 +415,21 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
         } else {
           Indent.getContinuationWithoutFirstIndent
         }
-      case _: ScParameters | _: ScParameterClause | _: ScPattern | _: ScTemplateParents |
+
+      case _: ScNamedTuplePattern | _: ScTuplePattern | _: ScPatternArgumentList=>
+        // Closing `)` should not be aligned with the pattern components (SCL-24596)
+        // Examples:
+        // val (           |   val (           |    val MyCaseClass(
+        //   a,            |     named1 = a,   |      a,
+        //   b,            |     named2 = b,   |      b,
+        // ) = (1, 2)      |   ) = (1, 2)      |    ) = instance
+        // (It's same for `val` pattern definitions and patterns with `case`)
+        val isRight = childPsi.getNextSibling == null
+        if (isRight) Indent.getNoneIndent
+        else Indent.getContinuationWithoutFirstIndent
+      case _: ScPattern =>
+        Indent.getContinuationWithoutFirstIndent
+      case _: ScParameters | _: ScParameterClause | _: ScTemplateParents |
            _: ScExpression | _: ScTypeElement | _: ScTypes =>
         Indent.getContinuationWithoutFirstIndent
       case _: ScArgumentExprList =>
