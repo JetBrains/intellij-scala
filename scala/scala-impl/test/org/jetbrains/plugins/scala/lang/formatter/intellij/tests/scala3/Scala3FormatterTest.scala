@@ -744,12 +744,12 @@ class Scala3FormatterTest extends Scala3FormatterBaseTest {
       """ val (
         |x =
         |_
-        |  ) = ???
+        |) = ???
         |""".stripMargin,
       """val (
         |  x =
         |    _
-        |  ) = ???
+        |) = ???
         |""".stripMargin
     )
   }
@@ -823,4 +823,124 @@ class Scala3FormatterTest extends Scala3FormatterBaseTest {
         |  case Leaf(elem: T)
         |""".stripMargin
     )
+
+  // Similar to org.jetbrains.plugins.scala.lang.formatter.intellij.tests.ScalaBugsTest.testMultilineDestructionBasedValDefinition
+  def testMultilinePatternsWithParentheses_InValDefinition(): Unit = {
+    doTextTest(
+      """case class MyCaseClass(param1: Int, param2: Int)
+        |
+        |def valDefinitions(): Unit = {
+        |  // Tuple
+        |  val (
+        |    a,
+        |    b,
+        |  ) = (1, 2)
+        |
+        |  val (
+        |    a: Int,
+        |    b: Int,
+        |  ) = (1, 2)
+        |
+        |  val
+        |  (
+        |    aa,
+        |    bb,
+        |  ) = (1, 2)
+        |
+        |  val (
+        |    aaa,
+        |    (
+        |      bbb,
+        |      ccc
+        |    )
+        |  ) = (1, (2, 3))
+        |
+        |  // Named tuple
+        |  val (
+        |    value1 = v1,
+        |    value2 = v2
+        |  ) = (value1 = 42, value2 = 23)
+        |
+        |  // Case class
+        |  val MyCaseClass(
+        |    x,
+        |    y,
+        |  ) = MyCaseClass(1, 2)
+        |
+        |  // Case class / named args
+        |  val MyCaseClass(
+        |    param1 = xxx,
+        |    param2 = yyy,
+        |  ) = MyCaseClass(1, 2)
+        |}
+        |""".stripMargin
+    )
+  }
+
+  // NOTE: this is different from e.g. Scalafmt, but definitely better then it was before SCL-24596
+  def testMultilinePatternsWithParentheses(): Unit = {
+    doTextTest(
+      """package injection
+        |
+        |case class MyCaseClass(param1: Int, param2: Int)
+        |
+        |def matchExpression(): Unit = {
+        |  // Tuple
+        |  (1, 2) match {
+        |    case (
+        |      a,
+        |      b
+        |    ) =>
+        |      ???
+        |  }
+        |
+        |  (1, 2) match {
+        |    case (
+        |      aa,
+        |      bb
+        |    ) =>
+        |      ???
+        |  }
+        |
+        |  (1, (2, 3)) match {
+        |    case (
+        |      aaa,
+        |      (
+        |        bbb,
+        |        cc
+        |      )
+        |    ) =>
+        |      ???
+        |  }
+        |
+        |  // Named tuple
+        |  (value1 = 42, value2 = 23) match {
+        |    case (
+        |      value1 = v1,
+        |      value2 = v2
+        |    ) =>
+        |      ???
+        |  }
+        |
+        |  // Case class
+        |  MyCaseClass(1, 2) match {
+        |    case MyCaseClass(
+        |      x,
+        |      y
+        |    ) =>
+        |      ???
+        |  }
+        |
+        |  // Case class / named args
+        |  MyCaseClass(1, 2) match {
+        |    case MyCaseClass(
+        |      param1 = xxx,
+        |      param2 = yyy
+        |    ) =>
+        |      ???
+        |  }
+        |}
+        |""".stripMargin
+    )
+  }
 }

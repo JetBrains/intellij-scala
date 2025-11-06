@@ -3812,4 +3812,26 @@ final class ScalaBugsTest extends AbstractScalaFormatterTestBase {
         |""".stripMargin
     )
   }
+
+  // Also see Scala 3 version org.jetbrains.plugins.scala.lang.formatter.intellij.tests.scala3.Scala3FormatterTest.testMultilineDestructionBasedValDefinition_WithNamedTuples
+  def testMultilineDestructionBasedValDefinition(): Unit = {
+    doTextTest(
+      """case class MyCaseClass(x: Int, y: Int, z: Int)
+        |
+        |object Example {
+        |  val (
+        |    a,
+        |    b,
+        |    c,
+        |  ) = (1, 2, 3)
+        |
+        |  val MyCaseClass(
+        |    a,
+        |    b,
+        |    c,
+        |  ) = MyCaseClass(1, 2, 3)
+        |}
+        |""".stripMargin
+    )
+  }
 }
