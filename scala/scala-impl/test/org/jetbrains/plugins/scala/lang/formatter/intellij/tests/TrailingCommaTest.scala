@@ -198,13 +198,13 @@ abstract class TrailingCommaTestBase extends AbstractScalaFormatterTestBase {
     withoutComma =
       """(Seq(): Any) match {
         |  case (1, 2, 3
-        |    ) =>
+        |  ) =>
         |  case _ =>
         |}""".stripMargin,
     withComma =
       """(Seq(): Any) match {
         |  case (1, 2, 3,
-        |    ) =>
+        |  ) =>
         |  case _ =>
         |}""".stripMargin
   )
@@ -389,7 +389,7 @@ class TrailingCommaTest_Scala3 extends TrailingCommaTestBase {
         |
         |val (x = x, y = _, ) = ???
         |val (x = x, y = 1,
-        |  ) = ???
+        |) = ???
       """.stripMargin
     doTextTest(before)
   }
@@ -415,9 +415,9 @@ class TrailingCommaTest_Scala3 extends TrailingCommaTestBase {
   def testAddRemove_NamedTuplePattern(): Unit = testAddRemove(
     withoutComma =
       """val (x = x, y = _
-        |  ) = ???""".stripMargin,
+        |) = ???""".stripMargin,
     withComma =
       """val (x = x, y = _,
-        |  ) = ???""".stripMargin,
+        |) = ???""".stripMargin,
   )
 }
