@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.annotator.quickfix
 
 import org.jetbrains.plugins.scala.codeInspection.ScalaAnnotatorQuickFixTestBase
 
-class AddParametersIntentionTest extends ScalaAnnotatorQuickFixTestBase {
+class AddParametersQuickFixTest extends ScalaAnnotatorQuickFixTestBase {
 
   override protected def description: String = ???
 
@@ -176,6 +176,36 @@ class AddParametersIntentionTest extends ScalaAnnotatorQuickFixTestBase {
        |  def test(a: Int): Int => Int = 0
        |
        |  test(1)(2,$CARET 3)
+       |}
+       |""".stripMargin,
+    "Add parameter(s) to method"
+  )
+
+  def testFiddlingIn(): Unit = testQuickFix(
+    s"""
+       |class A
+       |class B
+       |class C
+       |class D
+       |class X
+       |
+       |object Foo {
+       |  def test(b: B, x: X): Foo = 0
+       |
+       |  test(new A, new B, ${CARET}new C, new D)
+       |}
+       |""".stripMargin,
+    s"""
+       |class A
+       |class B
+       |class C
+       |class D
+       |class X
+       |
+       |object Foo {
+       |  def test(arg1: A, b: B, x: X, arg2: D)${CARET}: Foo = 0
+       |
+       |  test(new A, new B, new C, new D)
        |}
        |""".stripMargin,
     "Add parameter(s) to method"
