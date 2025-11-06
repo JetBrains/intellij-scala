@@ -67,7 +67,7 @@ object IntellijSdkSubsetInfo {
       "lib/jps-model.jar",
       "lib/forms_rt.jar",
       "lib/idea_rt.jar",
-      "lib/module-intellij.libraries.asm.jar",
+      "lib/intellij.libraries.asm.jar",
 
       //If you need any extra plugin dependencies, add the jars here
       "plugins/java/lib/jps-builders.jar",

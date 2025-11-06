@@ -12,7 +12,6 @@ import org.jetbrains.plugins.scala.util.TestUtils.ExpectedResultFromLastComment
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
-import scala.annotation.nowarn
 
 abstract class ScalaRenameTestBase extends ScalaLightCodeInsightFixtureTestCase {
   val caretMarker = "/*caret*/"
@@ -31,7 +30,7 @@ abstract class ScalaRenameTestBase extends ScalaLightCodeInsightFixtureTestCase 
     assert(offset != caretMarker.length, "Not specified caret marker in test case. Use /*caret*/ in scala file for this.")
     getEditor.getCaretModel.moveToOffset(offset)
     val element = TargetElementUtil.findTargetElement(
-      InjectedLanguageUtil.getEditorForInjectedLanguageNoCommit(getEditor, scalaFile): @nowarn("cat=deprecation"),
+      InjectedLanguageUtil.getEditorForInjectedLanguageNoCommit(getEditor, scalaFile),
       TargetElementUtil.REFERENCED_ELEMENT_ACCEPTED | TargetElementUtil.ELEMENT_NAME_ACCEPTED)
     assert(element != null, "Reference is not specified.")
     val searchInComments = element.getText.contains("Comments")

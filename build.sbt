@@ -184,7 +184,9 @@ lazy val uast = newProject(
 ).dependsOn(
   scalaImpl % "test->test;compile->compile",
 ).settings(
-  intellijPlugins += "JUnit".toPlugin
+  intellijPlugins += "JUnit".toPlugin,
+  resolvers += Versions.intellijRepository_ForManagedIntellijDependencies,
+  libraryDependencies += Dependencies.intellijUastTestFramework % Test
 )
 
 lazy val worksheet =
@@ -305,6 +307,11 @@ lazy val scalaImpl: sbt.Project =
       libraryDependencies ++= DependencyGroups.scalaCommunity,
 
       libraryDependencies ++= Seq(
+        Dependencies.intellijTestFrameworkCore % Test,
+        Dependencies.intellijTestFrameworkCommon % Test,
+        Dependencies.intellijTestFramework % Test,
+        Dependencies.intellijJavaTestFrameworkShared % Test,
+        Dependencies.intellijJavaTestFramework % Test,
         //for ExternalSystemTestCase and ExternalSystemImportingTestCase
         Dependencies.intellijExternalSystemTestFramework % Test,
         Dependencies.slf4jApi % Test,
@@ -442,7 +449,9 @@ lazy val debugger =
       scalaImpl % "test->test;compile->compile",
       compilerIntegration % "test->test;compile->compile"
     ).settings(
-      packageMethod := PackagingMethod.PluginModule("scalaCommunity.debugger")
+      packageMethod := PackagingMethod.PluginModule("scalaCommunity.debugger"),
+      resolvers += Versions.intellijRepository_ForManagedIntellijDependencies,
+      libraryDependencies += Dependencies.intellijDebuggerTestFramework % Test
     )
 
 

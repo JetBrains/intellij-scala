@@ -19,7 +19,7 @@ private[completion] sealed abstract class Consumer(originalResultSet: Completion
   }
 
   final def runRemainingContributors(parameters: CompletionParameters): Unit = {
-    resultSet.runRemainingContributors(parameters, this, true)
+    resultSet.runRemainingContributors(parameters, this)
   }
 
   override final def consume(result: CompletionResult): Unit = {

@@ -34,6 +34,7 @@ import org.jetbrains.plugins.scala.statistics.ScalaDebuggerUsagesCollector
 
 import java.util.Collections
 import javax.swing.Icon
+import scala.annotation.nowarn
 
 class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", DebuggerBundle.message("line.breakpoints.tab.title")) {
 
@@ -164,7 +165,7 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Debug
                   val highlighter = breakpointImpl.getHighlighter
                   if (highlighter != null)
                     highlighter.dispose()
-                  breakpointImpl.updateUI()
+                  breakpointImpl.updateUI(): @nowarn("cat=deprecation")
                 })
                 .coalesceBy(lineBp)
                 .inSmartMode(project)

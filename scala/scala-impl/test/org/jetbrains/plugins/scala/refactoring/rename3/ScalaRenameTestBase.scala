@@ -17,7 +17,6 @@ import org.jetbrains.plugins.scala.util.WriteCommandActionEx
 
 import java.nio.file.Path
 import java.util
-import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
 abstract class ScalaRenameTestBase extends ScalaLightCodeInsightFixtureTestCase {
@@ -115,7 +114,7 @@ abstract class ScalaRenameTestBase extends ScalaLightCodeInsightFixtureTestCase 
     FileDocumentManager.getInstance.saveAllDocuments()
 
     val element = TargetElementUtil.findTargetElement(
-      InjectedLanguageUtil.getEditorForInjectedLanguageNoCommit(editor, file): @nowarn("cat=deprecation"),
+      InjectedLanguageUtil.getEditorForInjectedLanguageNoCommit(editor, file),
       TargetElementUtil.REFERENCED_ELEMENT_ACCEPTED | TargetElementUtil.ELEMENT_NAME_ACCEPTED)
     assert(element != null, "Reference is not specified.")
     val searchInComments = element.getText != null && element.getText.contains("Comments")
