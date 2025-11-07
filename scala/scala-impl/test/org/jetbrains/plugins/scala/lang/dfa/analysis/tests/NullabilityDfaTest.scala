@@ -19,7 +19,7 @@ class NullabilityDfaTest extends ScalaDfaTestBase {
         |}
         |""".stripMargin
     })(
-      "x" -> npeOnInvocation.alwaysMessage,
+      "toString" -> npeOnInvocation.alwaysMessage,
     "x != null" -> ConditionAlwaysFalse,
     )
 
@@ -39,7 +39,7 @@ class NullabilityDfaTest extends ScalaDfaTestBase {
       |}
       |""".stripMargin
   })(
-    "x"-> npeOnInvocation.alwaysMessage,
+    "toString"-> npeOnInvocation.alwaysMessage,
   )
 
   @Test
@@ -67,7 +67,7 @@ class NullabilityDfaTest extends ScalaDfaTestBase {
       |x.toString()
       |""".stripMargin
   })(
-    "x" -> npeOnInvocation.sometimesMessage
+    "toString" -> npeOnInvocation.sometimesMessage
   )
 
   @Test
