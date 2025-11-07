@@ -487,3 +487,33 @@ class CopyJavaToScalaTest extends CopyPasteTestBase {
     )
   }
 }
+
+class CopyJavaToScalaTest_Scala3 extends CopyJavaToScalaTest {
+  override def supportedIn(version: ScalaVersion): Boolean = version.isScala3
+
+  def testImportedAddedAfterJavaConversion(): Unit = doTest(
+    s"""
+      |import java.net.URI;
+      |import java.net.IDN;
+      |
+      |${START}public class JavaTest {
+      |    void test(URI uri, IDN idn) {}
+      |}$END
+      |
+      |""".stripMargin,
+    s"""
+      |object Outer:
+      |  object Inner:
+      |    $CARET
+      |""".stripMargin,
+    """import java.net.{IDN, URI}
+      |
+      |object Outer:
+      |  object Inner:
+      |    class JavaTest {
+      |      def test(uri: URI, idn: IDN): Unit = {
+      |      }
+      |    }
+      |""".stripMargin,
+  )
+}

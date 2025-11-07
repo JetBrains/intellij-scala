@@ -11,6 +11,7 @@ import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.util.concurrency.annotations.RequiresEdt
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.editor.copy.Scala3IndentationBasedSyntaxCopyPastePreProcessor.AfterIndentOffsetAdjuster
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.dependency.{Dependency, DependencyPath}
 import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
@@ -33,10 +34,10 @@ final class Associations private(override val associations: Array[Association])
 
   override def toString = s"Associations(${associations.mkString("Array(", ", ", ")")})"
 
-  def restore(segment: Segment)
+  def restore(segment: Segment, adjuster: AfterIndentOffsetAdjuster)
              (filter: Seq[Binding] => Seq[Binding])
              (implicit project: Project, file: PsiFile): Unit = {
-    val bindings = getBindingsForOffset(segment.getStartOffset)
+    val bindings = getBindingsForOffset(segment.getStartOffset)(file, adjuster)
     val bindingsDistinct = bindings.distinct
     val bindingsToRestore = filter(bindingsDistinct)
 
@@ -55,7 +56,7 @@ final class Associations private(override val associations: Array[Association])
   }
 
   private def getBindingsForOffset(offset: Int)
-                                  (implicit file: PsiFile): Seq[Binding] = for {
+                                  (implicit file: PsiFile, adjuster: AfterIndentOffsetAdjuster): Seq[Binding] = for {
     association <- associations.toSeq
     reference <- referenceFor(association, offset)
 
@@ -64,10 +65,10 @@ final class Associations private(override val associations: Array[Association])
   } yield Binding(reference, path)
 
   @RequiresEdt
-  private[scala] def restoreOnUiThread(segment: Segment)
+  private[scala] def restoreOnUiThread(segment: Segment, adjuster: AfterIndentOffsetAdjuster)
                                       (filter: Seq[Binding] => Seq[Binding])
                                       (implicit project: Project, file: PsiFile): Unit = {
-
+    implicit val adjuster0: AfterIndentOffsetAdjuster = adjuster
     val bindings = {
       var result: Seq[Binding] = Seq.empty
       val title = ScalaBundle.message("processing.imports.title")
@@ -103,7 +104,7 @@ final class Associations private(override val associations: Array[Association])
 
   private def getBindingsForOffsetUnderProgress(indicator: com.intellij.openapi.progress.ProgressIndicator)
                                                (offset: Int)
-                                               (implicit file: PsiFile): Seq[Binding] = {
+                                               (implicit file: PsiFile, adjuster: AfterIndentOffsetAdjuster): Seq[Binding] = {
     val size = associations.length
     associations.zipWithIndex.toSeq.flatMap { case (association, index) =>
       indicator.checkCanceled()
@@ -184,11 +185,12 @@ object Associations extends AssociationsData.Companion(classOf[Associations], "S
       }
   }
 
-  def restoreFor(movedElement: PsiElement): Unit = {
+  def restoreFor(movedElement: PsiElement): Unit = restoreFor(movedElement, AfterIndentOffsetAdjuster.empty)
+  def restoreFor(movedElement: PsiElement, adjuster: AfterIndentOffsetAdjuster): Unit = {
     val associations = Data(movedElement)
     if (associations != null) {
       try {
-        associations.restore(movedElement.getTextRange)(identity)(movedElement.getProject, movedElement.getContainingFile)
+        associations.restore(movedElement.getTextRange, adjuster)(identity)(movedElement.getProject, movedElement.getContainingFile)
       } finally {
         Data(movedElement) = null
       }
@@ -266,9 +268,9 @@ object Associations extends AssociationsData.Companion(classOf[Associations], "S
   }
 
   private def referenceFor(association: Association, offset: Int)
-                          (implicit file: PsiFile): Option[ScReference] = {
+                          (implicit file: PsiFile, adjuster: AfterIndentOffsetAdjuster): Option[ScReference] = {
     val Association(path, range) = association
-    val shiftedRange = range.shiftRight(offset)
+    val shiftedRange = adjuster.adjust(range.shiftRight(offset), base = offset)
 
     for {
       leafElement <- Option(file.findElementAt(shiftedRange.getStartOffset))

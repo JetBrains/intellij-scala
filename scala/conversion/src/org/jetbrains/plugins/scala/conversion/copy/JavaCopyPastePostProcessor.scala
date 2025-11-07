@@ -11,6 +11,7 @@ import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import org.jetbrains.plugins.scala.conversion.ast.{IntermediateNode, LiteralExpression, MainConstruction, TypedElement}
 import org.jetbrains.plugins.scala.conversion.copy.ScalaPasteFromJavaDialog.CopyFrom
+import org.jetbrains.plugins.scala.editor.copy.Scala3IndentationBasedSyntaxCopyPastePreProcessor.AfterIndentOffsetAdjuster
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.refactoring._
@@ -32,7 +33,7 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Converte
                                       (implicit file: PsiFile, editor: Editor): Option[ConvertedCode] = {
     if (DumbService.getInstance(file.getProject).isDumb) return None
     if (!ScalaProjectSettings.getInstance(file.getProject).isEnableJavaToScalaConversion ||
-      !file.isInstanceOf[PsiJavaFile]) return None
+      !file.is[PsiJavaFile]) return None
 
     if (!ProjectManager.getInstance.getOpenProjects.exists(_.hasScala)) return None // SCL-21511
 
@@ -113,6 +114,8 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Converte
 
     if (!showDialog || ScalaPasteFromJavaDialog.showAndGet(CopyFrom.JavaFile, project)) {
       val shiftedAssociations = inWriteAction {
+        // clear the offset adjuster because after we paste the converted text, its content is not valid anymore
+        val _ = AfterIndentOffsetAdjuster.extractFromUserData(file)
         performePaste(editor, bounds, text, project)
 
         val markedAssociations = associations.toSeq.zipMapped { dependency =>

@@ -4,6 +4,7 @@ import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.editorActions.CopyPastePreProcessor
 import com.intellij.openapi.editor.{Caret, Editor, RawText}
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.{Key, TextRange, UserDataHolder}
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil
@@ -24,6 +25,8 @@ import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.IndentUtil
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaFileType}
 
+import scala.collection.immutable.SortedMap
+
 class Scala3IndentationBasedSyntaxCopyPastePreProcessor extends CopyPastePreProcessor {
   override def requiresAllDocumentsToBeCommitted(editor: Editor, project: Project): Boolean = false
 
@@ -42,6 +45,8 @@ class Scala3IndentationBasedSyntaxCopyPastePreProcessor extends CopyPastePreProc
 
     val caret = editor.getCaretModel.getCurrentCaret
     val elementAtCaret = findElementAtCaret_WithFixedEOF(file, editor.getDocument, editor.getSelectionModel.getSelectionStart)
+    if (elementAtCaret == null)
+      return text
     val elementAtCaretOrCommonParent = getElementAtCaretOrCommonParentForSelection(elementAtCaret, file, caret)
     if (elementAtCaretOrCommonParent == null)
       return text
@@ -78,6 +83,10 @@ class Scala3IndentationBasedSyntaxCopyPastePreProcessor extends CopyPastePreProc
     val targetIndentShouldBeNotSmallerThenCaretIndent =
       caretPosition.is[CaretPosition.InTheMiddleBodyIndentationBased]
 
+    val adjustmentBuilder = SortedMap.newBuilder[Int, Int]
+    var currentOriginalOffset = 0
+    var currentAdjustment = 0
+
     def fixIndent(line: String): String = {
       val lineIndentWhitespace = line.takeWhile(c => c == ' ' || c == '\t')
       val lineIndentSize = IndentUtil.calcIndent(lineIndentWhitespace, tabSize)
@@ -86,7 +95,14 @@ class Scala3IndentationBasedSyntaxCopyPastePreProcessor extends CopyPastePreProc
       val newIndentSize = targetCaretIndentSize + indentDiffFixed
       val lineWithoutOriginalIndent = line.stripPrefix(lineIndentWhitespace)
       val indentPrefix = if (useTabCharacter) "\t" * (newIndentSize / tabSize) else " " * newIndentSize
-      indentPrefix + lineWithoutOriginalIndent
+      val result = indentPrefix + lineWithoutOriginalIndent
+      if (currentOriginalOffset > 0) {
+        // don't adjust the first line as it will not be indented
+        currentAdjustment += result.length - line.length
+        adjustmentBuilder += -currentOriginalOffset -> currentAdjustment
+      }
+      currentOriginalOffset += line.length
+      result
     }
 
     // align all lines with caret indentation
@@ -94,6 +110,9 @@ class Scala3IndentationBasedSyntaxCopyPastePreProcessor extends CopyPastePreProc
       .linesWithSeparators
       .map(fixIndent)
       .mkString("")
+
+    val adjuster = new AfterIndentOffsetAdjuster(adjustmentBuilder.result())
+    file.putUserData(AfterIndentOffsetAdjusterKey, adjuster)
 
     // don't add redundant indentation for the first line, as caret is already located at this position
     textWithFixedIndent.stripPrefix(caretIndentWhitespace)
@@ -205,5 +224,36 @@ object Scala3IndentationBasedSyntaxCopyPastePreProcessor {
       ScalaTokenTypes.COMMENTS_TOKEN_SET.contains(elementType) ||
       ScalaDocElementTypes.AllElementAndTokenTypes.contains(elementType)
     elementTypeMatches && elementAtCaret.getTextRange.containsOffset(caret.getSelectionStart)
+  }
+
+  private val AfterIndentOffsetAdjusterKey: Key[AfterIndentOffsetAdjuster] = Key.create("Scala3IndentationBasedSyntaxCopyPastePreProcessor.AfterIndentOffsetAdjuster")
+
+  /**
+   * After the pre-processor ran, the offset in [[org.jetbrains.plugins.scala.lang.refactoring.Associations]]
+   * are no longer valid, because the indentations moved the marked references around.
+   * This Adjuster stores the margins added by the indentations and can be used to adjust the offsets.
+   * The preprocesser stores the adjuster in the psiFile as userdata. Use [[AfterIndentOffsetAdjuster.extractFromUserData]] to retrieve it.
+   */
+  final class AfterIndentOffsetAdjuster private[Scala3IndentationBasedSyntaxCopyPastePreProcessor](reverseLineStartOffsetToIndentOffset: SortedMap[Int, Int]) {
+    /**
+     *
+     * @param offset the offset to be adjusted
+     * @param base the offset-difference between the original from which the adjuster was created and the offset in the first parameter
+     */
+    def adjust(offset: Int, base: Int): Int =
+      reverseLineStartOffsetToIndentOffset.minAfter(-(offset - base)) match {
+        case Some((_, adjustment)) => offset + adjustment
+        case None => offset
+      }
+
+    def adjust(range: TextRange, base: Int): TextRange =
+      TextRange.create(adjust(range.getStartOffset, base), adjust(range.getEndOffset, base))
+  }
+
+  object AfterIndentOffsetAdjuster {
+    val empty = new AfterIndentOffsetAdjuster(SortedMap.empty)
+    def extractFromUserData(holder: UserDataHolder): AfterIndentOffsetAdjuster =
+      try Option(holder.getUserData(AfterIndentOffsetAdjusterKey)).getOrElse(empty)
+      finally holder.putUserData(AfterIndentOffsetAdjusterKey, null)
   }
 }
