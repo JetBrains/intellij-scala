@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala.conversion.copy
 
 import com.intellij.codeInsight.CodeInsightSettings
-import com.intellij.openapi.editor.richcopy.settings.RichCopySettings
 import com.intellij.openapi.editor.{Editor, RangeMarker}
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.util.{Ref, TextRange}
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.editor.copy.Scala3IndentationBasedSyntaxCopyPastePreProcessor.AfterIndentOffsetAdjuster
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.refactoring._
 import org.jetbrains.plugins.scala.settings._
@@ -54,8 +54,8 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
       return
 
     PsiDocumentManager.getInstance(project).commitAllDocuments()
-
-    associations.restoreOnUiThread(bounds) {
+    val adjuster = AfterIndentOffsetAdjuster.extractFromUserData(file)
+    associations.restoreOnUiThread(bounds, adjuster) {
       case bindings if setting == ASK =>
         val bindingsSorted = bindings.filterNot(_.path.isEmpty).sortBy(_.path)
         val bindingsUnique = bindingsSorted.distinctBy(b => (b.path, b.aliasName))

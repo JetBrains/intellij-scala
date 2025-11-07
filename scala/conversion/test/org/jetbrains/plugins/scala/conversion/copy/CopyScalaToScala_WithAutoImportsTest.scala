@@ -247,6 +247,88 @@ class CopyScalaToScala_WithAutoImportsTest_Scala3 extends CopyScalaToScala_WithA
         |}""".stripMargin
     )
   }
+
+  // SCL-22851
+  def testAddImportsOnPaste_IntoBracedBlock(): Unit = {
+    doTest(
+      s"""import java.{util => a}
+         |import scala.collection.immutable.{IndexedSeq => b}
+         |import scala.collection.mutable.{ArraySeq => c}
+         |import scala.util.{Random => d}
+         |import java.util.{Deque => e}
+         |
+         |//noinspection ReferenceMustBePrefixed,ScalaUnusedExpression
+         |${START}trait Example {
+         |  null: a.ArrayList[Int]
+         |  null: b[Int]
+         |  null: c[Int]
+         |  null: d
+         |  null: e[Int]
+         |}$END
+         |""".stripMargin,
+      s"""
+         |object Outer {
+         |  $CARET
+         |}
+         |""".stripMargin,
+      """import java.util as a
+        |import java.util.Deque as e
+        |import scala.collection.immutable.IndexedSeq as b
+        |import scala.collection.mutable.ArraySeq as c
+        |import scala.util.Random as d
+        |
+        |object Outer {
+        |  trait Example {
+        |    null: a.ArrayList[Int]
+        |    null: b[Int]
+        |    null: c[Int]
+        |    null: d
+        |    null: e[Int]
+        |  }
+        |}
+        |""".stripMargin
+    )
+  }
+
+
+  def testAddImportsOnPaste_IntoIndentedBlock(): Unit = {
+    doTest(
+      s"""import java.{util => a}
+         |import scala.collection.immutable.{IndexedSeq => b}
+         |import scala.collection.mutable.{ArraySeq => c}
+         |import scala.util.{Random => d}
+         |import java.util.{Deque => e}
+         |
+         |//noinspection ReferenceMustBePrefixed,ScalaUnusedExpression
+         |${START}trait Example {
+         |  null: a.ArrayList[Int]
+         |  null: b[Int]
+         |  null: c[Int]
+         |  null: d
+         |  null: e[Int]
+         |}$END
+         |""".stripMargin,
+      s"""
+         |object Outer:
+         |  $CARET
+         |""".stripMargin,
+      """import java.util as a
+        |import java.util.Deque as e
+        |import scala.collection.immutable.IndexedSeq as b
+        |import scala.collection.mutable.ArraySeq as c
+        |import scala.util.Random as d
+        |
+        |object Outer:
+        |  trait Example {
+        |    null: a.ArrayList[Int]
+        |    null: b[Int]
+        |    null: c[Int]
+        |    null: d
+        |    null: e[Int]
+        |  }
+        |""".stripMargin
+    )
+  }
 }
 
 class CopyScalaToScala_WithAutoImportsTest_Scala3_AskOnPaste extends CopyPasteTestBase {
