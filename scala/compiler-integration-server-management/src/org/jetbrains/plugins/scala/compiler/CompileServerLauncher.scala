@@ -371,6 +371,12 @@ object CompileServerLauncher {
     sdk.flatMap(JDK.fromSdk)
   }
 
+  def compileServerJdkFeatureVersion(project: Project): Option[Int] =
+    for {
+      jdk <- compileServerJdk(project).toOption
+      version <- jdk.version
+    } yield version.getMaxLanguageLevel.feature()
+
   /**
    * NOTE: extra classpath for JPS process is defined in a differ place in `compiler-integration.xml` in `compileServer.plugin` extension
    */

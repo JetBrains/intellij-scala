@@ -8,7 +8,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiDocumentManager
 import org.jetbrains.plugins.scala.extensions.{ThrowableExt, _}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.plugins.scala.worksheet.WorksheetBundle
+import org.jetbrains.plugins.scala.worksheet.{WorksheetBundle, WorksheetUtils}
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetDiffSplitters.SimpleWorksheetSplitter
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterBase.InputOutputFoldingInfo
 import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetDiffSplitters, WorksheetFoldGroup}
@@ -36,7 +36,7 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
   override def internalError(ex: Throwable): Unit =
     invokeLater {
       inWriteAction {
-        val fullErrorMessage = internalErrorMessage(ex)
+        val fullErrorMessage = internalErrorMessage(ex, prependCompatibilityWarning = true)
         if (alreadyContainsInternalErrors(viewerDocument)) {
           simpleAppend(viewerDocument, "\n" + fullErrorMessage)
         } else {
@@ -51,9 +51,17 @@ abstract class WorksheetEditorPrinterBase(protected val originalEditor: Editor,
   private final def alreadyContainsInternalErrors(document: Document): Boolean =
     document.getCharsSequence.startsWith(internalErrorPrefix)
 
-  protected final def internalErrorMessage(ex: Throwable): String = {
+  protected final def internalErrorMessage(ex: Throwable, prependCompatibilityWarning: Boolean = false): String = {
     val stacktraceText = ex.stackTraceText
-    val reason = if(stacktraceText == null) "" else s":\n$stacktraceText"
+    val reason =
+      if (stacktraceText == null) ""
+      else {
+        val textWithOptionalJdkWarning =
+          if (prependCompatibilityWarning) WorksheetUtils.prependWithJdkCompatibilityWarning(stacktraceText, project)
+          else stacktraceText
+
+        s":\n$textWithOptionalJdkWarning"
+      }
     s"$internalErrorPrefix$reason"
   }
 

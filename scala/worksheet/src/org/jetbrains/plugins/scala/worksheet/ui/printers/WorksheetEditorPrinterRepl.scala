@@ -269,7 +269,8 @@ final class WorksheetEditorPrinterRepl private[printers](
       buffer.append(buildNewLines(linesBetween))
       buffer.append(text)
     }
-    buffer.toString()
+    val bufferText = buffer.toString()
+    WorksheetUtils.prependWithJdkCompatibilityWarning(bufferText, project)
   }
 
   private def buildFoldingInfo(inputLines: InputLinesInfo, outputLines: OutputLinesInfo) =
