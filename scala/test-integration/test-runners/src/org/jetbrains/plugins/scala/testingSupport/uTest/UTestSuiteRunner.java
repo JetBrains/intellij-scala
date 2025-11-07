@@ -70,24 +70,34 @@ public final class UTestSuiteRunner  {
     testSuitesLatch.countDown();
   }
 
-  private void doRunTestSuite(String classFqn, Collection<UTestPath> tests) throws UTestRunExpectedError {
-    final Class<?> clazz = getTestClass(classFqn);
-    final Object testObject = getTestObject(classFqn);
+  /**
+   * @param testClassFqn class name of the "class", NOT the companion "object" (this doesn't contain $ unless it's explicitly defined in the class name).<br>
+   *                 Regardless of whether the test is defined as "class" or as "object" this name always represents the class.
+   */
+  private void doRunTestSuite(String testClassFqn, Collection<UTestPath> tests) throws UTestRunExpectedError {
+    final Object testObject = loadTestModule(testClassFqn);
 
+    final Class<?> testObjectClass = testObject.getClass();
     final Collection<UTestPath> testsToRun = !tests.isEmpty()
-            ? tests
-            : Collections.singletonList(UTestUtils.findTestsNode(clazz));
+        ? tests
+        : Collections.singletonList(UTestUtils.findTestsNode(testObjectClass, testClassFqn));
 
     final Method testsMethod = testsToRun.iterator().next().getMethod();
-    final UTestPath testsMethodPath = UTestPath.getMethodPath(classFqn, testsMethod);
-    final Tests testHolder = getTestsTreeHolder(clazz, testsMethod);
+    final UTestPath testsMethodPath = UTestPath.getMethodPath(testClassFqn, testsMethod);
+
+    final Tests testHolder = getTestsTreeHolder(testObject, testsMethod, testClassFqn);
 
     List<UTestPath> leafTests = collectLeafTestsToRun(testsToRun, testHolder.nameTree());
     Map<UTestPath, Integer> childrenCount = getChildrenCountMap(leafTests);
 
     //open all leaf tests and their outer scopes
     // TODO: do not open all leaves at once cause it visually looks like we run all tests in parallel, which is wrong
+    //  It could be achieved using special TC service messages like ##teamcity[suiteTreeStarted, ##teamcity[suiteTreeEnded or something like that...
+    //  (see example in com.intellij.junit4.JUnit4TestListener.sendTree(org.junit.runner.Description)
+    //  However UTest currently lacks API to report "test started" event. It only supports
+    //  "onComplete" callback in utest.TestRunner.runAsync
     for (UTestPath leafTest : leafTests)
+      // Report that tests are started => IntelliJ will create test nodes in the test tree view
       if (!reporter.isStarted(leafTest))
         reporter.reportTestStarted(leafTest);
 
@@ -98,10 +108,10 @@ public final class UTestSuiteRunner  {
               : Collections.emptyList();
 
       runAsync(testObject, testHolder, treeList, ((result, finishedTestPath) -> {
-        UTestPath absolutePath = testsMethodPath.append(finishedTestPath);
-        boolean isLeafTest = leafTests.contains(absolutePath);
+        UTestPath absoluteFinishedTestPath = testsMethodPath.append(finishedTestPath);
+        boolean isLeafTest = leafTests.contains(absoluteFinishedTestPath);
         if (isLeafTest) {
-          boolean isClassSuiteFinished = reporter.reportTestFinished(absolutePath, result, childrenCount);
+          boolean isClassSuiteFinished = reporter.reportTestFinished(absoluteFinishedTestPath, result, childrenCount);
           if (isClassSuiteFinished)
             testSuiteFinished();
         }
@@ -118,11 +128,11 @@ public final class UTestSuiteRunner  {
     return leaves;
   }
 
-  private Tests getTestsTreeHolder(Class<?> clazz, Method testMethod) throws UTestRunExpectedError {
+  private Tests getTestsTreeHolder(Object testObject, Method testMethod, String debugTestClassName) throws UTestRunExpectedError {
     try {
-      return (Tests) testMethod.invoke(null);
+      return (Tests) testMethod.invoke(testObject);
     } catch (IllegalAccessException | InvocationTargetException e) {
-      throw expectedError(e.getClass().getSimpleName() + " on test initialization for " + clazz.getName() + ": " + e.getMessage());
+      throw expectedError(e.getClass().getSimpleName() + " on test initialization for " + debugTestClassName + ": " + e.getMessage());
     }
   }
 
@@ -142,15 +152,44 @@ public final class UTestSuiteRunner  {
     }
   }
 
-  private Object getTestObject(String className) throws UTestRunExpectedError {
+  /**
+   * @return An instance from `MODULE$` if the test was defined as "object" (in pre-0.9 style).<br>
+   * Or a newly created instance of a class if the test was defined as a "class" (in 0.9 style)
+   */
+  private Object loadTestModule(String className) throws UTestRunExpectedError {
     try {
-      Class<?> testObjClass = Class.forName(className + "$");
-      return testObjClass.getField("MODULE$").get(null);
+      return loadTestModuleTryingDifferentVersions(className);
     } catch (ClassNotFoundException e) {
       throw expectedError(e.getClass().getSimpleName() + " for " + className + ": " + e.getMessage());
-    } catch (IllegalAccessException | NoSuchFieldException e) {
+    } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
       throw expectedError(e.getClass().getSimpleName() + " for instance field of " + className + ": " + e.getMessage());
     }
+  }
+
+  private Object loadTestModuleTryingDifferentVersions(String className) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    try {
+      return loadTestModule_Since_uTest_0_9(className);
+    } catch (ReflectiveOperationException e) {
+      return loadTestModule_Before_uTest_0_9(className);
+    }
+  }
+
+  private static final String PlatformShimsFqn_Before_0_9 = "utest.PlatformShims";
+  private static final String PlatformShimsFqn_Since_0_9 = "utest.framework.PlatformShims";
+
+  private Object loadTestModule_Since_uTest_0_9(String className) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException  {
+    ClassLoader selfClassLoader = this.getClass().getClassLoader();
+    Class<?> platformShimsClass = selfClassLoader.loadClass(PlatformShimsFqn_Since_0_9);
+    Method loadModuleMethod = platformShimsClass.getMethod("loadModule", String.class, ClassLoader.class);
+    return loadModuleMethod.invoke(null, className, selfClassLoader);
+  }
+
+  // utest.framework.PlatformShims in 0.9 was utest.PlatformShims in 0.8.x
+  private Object loadTestModule_Before_uTest_0_9(String className) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    ClassLoader selfClassLoader = this.getClass().getClassLoader();
+    Class<?> platformShimsClass = selfClassLoader.loadClass(PlatformShimsFqn_Before_0_9);
+    Method loadModuleMethod = platformShimsClass.getMethod("loadModule", String.class, ClassLoader.class);
+    return loadModuleMethod.invoke(null, className, selfClassLoader);
   }
 
   private void runAsync(

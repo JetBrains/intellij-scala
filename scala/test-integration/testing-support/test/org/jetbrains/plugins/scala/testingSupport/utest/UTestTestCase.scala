@@ -3,22 +3,33 @@ package org.jetbrains.plugins.scala.testingSupport.utest
 import com.intellij.execution.actions.RunConfigurationProducer
 import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
+import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.testingSupport.ScalaTestingTestCase
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestConfigurationProducer
 import org.jetbrains.plugins.scala.testingSupport.test.utest.UTestConfigurationProducer
 
 abstract class UTestTestCase extends ScalaTestingTestCase {
-  private val LatestUtestVersion = "0.8.1"
 
-  override protected def additionalLibraries: Seq[LibraryLoader] = {
-    IvyManagedLoader("com.lihaoyi" %% "utest" % LatestUtestVersion) :: Nil
-  }
+  def uTestVersion: Version
+
+  override protected def buildVersionsDetailsMessage: String =
+    super.buildVersionsDetailsMessage + s", uTest: ${uTestVersion.presentation}"
+
+  override protected def additionalLibraries: Seq[LibraryLoader] = Seq(
+    // transitive also fetches the "portable scala" library that used in the uTest runners (org.jetbrains.plugins.scala.testingSupport.uTest.UTestSuiteRunner)
+    IvyManagedLoader(("com.lihaoyi" %% "utest" % uTestVersion.presentation).transitive())
+  )
 
   override protected lazy val configurationProducer: AbstractTestConfigurationProducer[_] =
     RunConfigurationProducer.getInstance(classOf[UTestConfigurationProducer])
 
-  protected val testSuiteSecondPrefix = "import utest.framework.TestSuite"
-
   // TestRunnerUtil.unescapeTestNam is not used in UTestRunner
   override protected def unescapeTestName(str: String): String = str
+}
+
+object UTestTestCase {
+  object LatestVersions {
+    val UTest_0_8: Version = Version("0.8.9")
+    val UTest_0_9: Version = Version("0.9.1")
+  }
 }

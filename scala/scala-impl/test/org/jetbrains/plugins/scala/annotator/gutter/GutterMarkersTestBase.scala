@@ -4,6 +4,7 @@ import com.intellij.codeInsight.daemon.GutterMark
 import com.intellij.codeInsight.daemon.LineMarkerInfo.LineMarkerGutterIconRenderer
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
+import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.{NonNullObjectExt, TextRangeExt}
 import org.jetbrains.plugins.scala.{ScalaBundle, TypecheckerTests}
@@ -11,24 +12,33 @@ import org.junit.Assert
 import org.junit.Assert.{assertEquals, assertTrue, fail}
 import org.junit.experimental.categories.Category
 
+import scala.annotation.unused
 import scala.jdk.CollectionConverters.ListHasAsScala
 
 @Category(Array(classOf[TypecheckerTests]))
 abstract class GutterMarkersTestBase extends ScalaFixtureTestCase {
 
+  protected def findAllGuttersSuitableForThisTest: Seq[GutterMark] =
+    myFixture.findAllGutters.asScala.toSeq.filterNot(ignoreGutterInTest)
+
+  protected def findGuttersAtCaretSuitableForThisTest: Seq[GutterMark] =
+    myFixture.findGuttersAtCaret().asScala.toSeq.filterNot(ignoreGutterInTest)
+
+  protected def ignoreGutterInTest(@unused marker: GutterMark): Boolean = false
+
   protected def doTestNoLineMarkersAtCaret(fileText: String): Unit =
     doTest(fileText) {
-      val gutters = myFixture.findGuttersAtCaret().asScala.toSeq
+      val gutters = findGuttersAtCaretSuitableForThisTest
       assertNoGutters(gutters, s"no gutters expected at caret, but got:")
     }
 
   protected def doTestNoLineMarkers(fileText: String, fileExtension: String = "scala"): Unit =
     doTest(fileText, fileExtension) {
-      val gutters = myFixture.findAllGutters().asScala.toSeq
+      val gutters = findAllGuttersSuitableForThisTest
       assertNoGutters(gutters, "no gutters expected, but got:")
     }
 
-  private def assertNoGutters(gutters: Seq[GutterMark], baseMessage: String): Unit = {
+  protected def assertNoGutters(gutters: Seq[GutterMark], baseMessage: String): Unit = {
     if (gutters.nonEmpty) {
       val guttersText = guttersDebugText(gutters)
       assertEquals(baseMessage, "", guttersText)
@@ -65,7 +75,7 @@ abstract class GutterMarkersTestBase extends ScalaFixtureTestCase {
     assertTrue("Tooltip text expected", expectedTooltipParts.nonEmpty)
 
     doTest(fileText) {
-      val gutters = myFixture.findGuttersAtCaret().asScala.toSeq
+      val gutters = findGuttersAtCaretSuitableForThisTest
       gutters match {
         case Seq(marker) =>
           val actualTooltip = marker.getTooltipText
@@ -85,7 +95,7 @@ abstract class GutterMarkersTestBase extends ScalaFixtureTestCase {
     assertTrue("Tooltips expected", expectedTooltips.nonEmpty)
 
     doTest(fileText) {
-      val markers = myFixture.findGuttersAtCaret().asScala.toSeq
+      val markers = findGuttersAtCaretSuitableForThisTest
       val actualTooltips = markers.map(_.getTooltipText)
 
       val errorMsg =
@@ -98,7 +108,7 @@ abstract class GutterMarkersTestBase extends ScalaFixtureTestCase {
     }
   }
 
-  protected def doTestAllGuttersShort(fileText: String, expectedGutters: Seq[ExpectedGutter], fileExtension: String = "scala"): Unit = {
+  protected def doTestAllGuttersShort(@Language("Scala") fileText: String, expectedGutters: Seq[ExpectedGutter], fileExtension: String = "scala"): Unit = {
     val expectedGuttersSortedText = guttersDebugText(expectedGutters.sorted)
     doTestAllGuttersShortWithText(
       fileText,
@@ -107,9 +117,9 @@ abstract class GutterMarkersTestBase extends ScalaFixtureTestCase {
     )
   }
 
-  protected def doTestAllGuttersShortWithText(fileText: String, expectedGuttersSortedText: String, fileExtension: String = "scala"): Unit =
+  protected def doTestAllGuttersShortWithText(@Language("Scala") fileText: String, expectedGuttersSortedText: String, fileExtension: String = "scala"): Unit =
     doTest(fileText, fileExtension) {
-      val gutters0 = myFixture.findAllGutters().asScala.toSeq
+      val gutters0 = findAllGuttersSuitableForThisTest
       val gutters = gutters0.map(toFullExpectedGutter)
       val guttersShort = gutters.map(g => g.copy(tooltipContent = extractFirstParagraph(g.tooltipContent).getOrElse(g.tooltipContent)))
 
@@ -121,7 +131,7 @@ abstract class GutterMarkersTestBase extends ScalaFixtureTestCase {
   /** Use this if gutter html content is too complex to directly test it via assertEquals */
   protected def doTestAllGuttersParts(fileText: String, expectedGutters: Seq[ExpectedGutterParts], fileExtension: String = "scala"): Unit =
     doTest(fileText, fileExtension) {
-      val gutters0 = myFixture.findAllGutters().asScala.toSeq
+      val gutters0 = findAllGuttersSuitableForThisTest
       val gutters = gutters0.map(toFullExpectedGutter)
 
       val guttersSorted = gutters.sorted

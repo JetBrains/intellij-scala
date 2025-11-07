@@ -1,9 +1,21 @@
 package org.jetbrains.plugins.scala.intelliLang.injection
 
+import org.intellij.lang.annotations.Language
+
 abstract class InjectionInBodyTestBase extends ScalaLanguageInjectionTestBase {
 
   protected val Quotes: String = "\"\"\""
   protected lazy val LanguageAnnotationDef: String = scalaInjectionTestFixture.LanguageAnnotationDef
+
+  override protected def setUp(): Unit = {
+    super.setUp()
+
+    // NOTE: this doesn't mean that language injection won't work in the test.
+    // I set "caresAboutInjection" to false not to mute the behavior ofCodeInsightTestFixtureImpl.setupEditorForInjectedLanguage.
+    // That method replaces the fixture file and editor with the injected file editor window and synthetic file.
+    // We don't rely on that functionality and search injections by ourselves
+    myFixture.setCaresAboutInjection(false)
+  }
 
   protected def doTestInBody(languageId: String, classBody: String, injectedFileExpectedText: String): Unit = {
     val classBodyWithIndent = classBody.replaceAll("\n", "\n  ")
@@ -15,7 +27,11 @@ abstract class InjectionInBodyTestBase extends ScalaLanguageInjectionTestBase {
     scalaInjectionTestFixture.doTest(languageId, text, injectedFileExpectedText)
   }
 
-  protected def doAnnotationTestInBody(languageId: String, classBody: String, injectedFileExpectedText: String): Unit = {
+  protected def doAnnotationTestInBody(
+    languageId: String,
+    @Language("Scala") classBody: String,
+    injectedFileExpectedText: String
+  ): Unit = {
     val classBodyWithIndent = classBody.replaceAll("\n", "\n  ")
     val text =
       s"""$LanguageAnnotationDef

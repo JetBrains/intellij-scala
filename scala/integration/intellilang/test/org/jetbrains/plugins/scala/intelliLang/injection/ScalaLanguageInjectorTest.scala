@@ -2,12 +2,16 @@ package org.jetbrains.plugins.scala.intelliLang.injection
 
 import com.intellij.patterns.compiler.PatternCompilerImpl.LazyPresentablePattern
 import org.intellij.plugins.intelliLang.inject.config.{BaseInjection, InjectionPlace}
-import org.jetbrains.plugins.scala.intelliLang.injection.InjectionTestUtils._
-import org.junit.Assert._
+import org.jetbrains.plugins.scala.ScalaVersion
+import org.jetbrains.plugins.scala.intelliLang.injection.InjectionTestUtils.*
+import org.junit.Assert.*
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
-class ScalaLanguageInjectorTest extends InjectionInBodyTestBase {
+class ScalaLanguageInjectorTest_Scala2 extends InjectionInBodyTestBase {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version == ScalaVersion.Latest.Scala_2_13
 
   ////////////////////////////////////////
   // @Language annotation injection tests
@@ -25,17 +29,118 @@ class ScalaLanguageInjectorTest extends InjectionInBodyTestBase {
     doAnnotationTestInBody(ScalaLangId, body, expected)
   }
 
-  //todo: it doesn't work
   def testAnnotationInjection_Scala3Language(): Unit = {
     val body =
       raw"""def foo(@Language("Scala 3") param: String): Unit = ???
-           |foo("enum MyEnum ${CARET}{ case A, B; case C } ; given value: String = ???")
+           |foo("enum MyEnum $CARET{ case A, B; case C } ; given value: String = ???")
            |""".stripMargin
 
     val expected =
       """enum MyEnum { case A, B; case C } ; given value: String = ???"""
 
     doAnnotationTestInBody(Scala3LangId, body, expected)
+  }
+
+  def testAnnotationInjection_InClassConstructor(): Unit = {
+    doAnnotationTestInBody(
+      ScalaLangId,
+      s"""class MyClass(
+         |  @Language("Scala") param: String
+         |)
+         |
+         |new MyClass("${CARET}val x = 0")
+         |""".stripMargin,
+      "val x = 0"
+    )
+  }
+
+  def testAnnotationInjection_InClassConstructor_JavaClass(): Unit = {
+    getFixture.addFileToProject("MyJavaClass.java",
+      //language=Java
+      """public class MyJavaClass {
+        |    MyJavaClass(@Language("Scala") String param) {
+        |    }
+        |}
+        |""".stripMargin
+    )
+    doAnnotationTestInBody(
+      ScalaLangId,
+      s"""new MyJavaClass("val x = 0")""",
+      "val x = 0"
+    )
+  }
+
+  def testAnnotationInjection_InClassSecondaryConstructor(): Unit = {
+    doAnnotationTestInBody(
+      ScalaLangId,
+      s"""class MyClass(
+         |  @Language("Scala") param: String
+         |) {
+         |  def this(@Language("Scala") param: String, x: Int) = this(param)
+         |}
+         |
+         |new MyClass("${CARET}val x = 0", 42)
+         |""".stripMargin,
+      "val x = 0"
+    )
+  }
+
+  def testAnnotationInjection_InApplyMethod(): Unit = {
+    doAnnotationTestInBody(
+      ScalaLangId,
+      s"""class MyClass(
+         |  param: String
+         |)
+         |
+         |object MyClass {
+         |  def apply(@Language("Scala") param: String): MyClass = ???
+         |}
+         |
+         |MyClass("${CARET}val x = 0")
+         |""".stripMargin,
+      "val x = 0"
+    )
+  }
+
+  def testAnnotationInjection_InCaseClassConstructor_CalledViaNew(): Unit = {
+    doAnnotationTestInBody(
+      ScalaLangId,
+      s"""case class MyCaseClass(
+         |  @Language("Scala") param: String
+         |)
+         |
+         |new MyCaseClass("${CARET}val x = 0")
+         |""".stripMargin,
+      "val x = 0"
+    )
+  }
+
+  def testAnnotationInjection_InCaseClassSecondaryConstructor_CalledViaNew(): Unit = {
+    doAnnotationTestInBody(
+      ScalaLangId,
+      s"""case class MyCaseClass(
+         |  @Language("Scala") param: String
+         |) {
+         |  def this(@Language("Scala") param: String, x: Int) = this(param)
+         |}
+         |
+         |new MyCaseClass("${CARET}val x = 0", 42)
+         |""".stripMargin,
+      "val x = 0"
+    )
+  }
+
+  def testAnnotationInjection_InCaseClassConstructor_CalledViaApply(): Unit = {
+    doAnnotationTestInBody(
+      ScalaLangId,
+      s"""case class MyCaseClass(
+         |  @Language("Scala") param: String
+         |)
+         |
+         |MyCaseClass("${CARET}val x = 0")
+         |""".stripMargin,
+      "val x = 0"
+    )
   }
 
   ////////////////////////////////////////
@@ -113,18 +218,68 @@ class ScalaLanguageInjectorTest extends InjectionInBodyTestBase {
   }
 
   //TODO: s trip margin + pattern not supported yet
-//  def test PatternInjection_Multiline_WithMargins(): Unit = {
-//    val body =
-//      s"""${Quotes}hello
-//         |  |  world
-//         |  |!$Quotes.stripMargin.r
-//         |""".stripMargin
-//
-//    val expected =
-//      """hello
-//        |  world
-//        |!""".stripMargin
-//
-//    doTestInBody(RegexpLangId, body, expected)
-//  }
+  //  def test PatternInjection_Multiline_WithMargins(): Unit = {
+  //    val body =
+  //      s"""${Quotes}hello
+  //         |  |  world
+  //         |  |!$Quotes.stripMargin.r
+  //         |""".stripMargin
+  //
+  //    val expected =
+  //      """hello
+  //        |  world
+  //        |!""".stripMargin
+  //
+  //    doTestInBody(RegexpLangId, body, expected)
+  //  }
+}
+
+class ScalaLanguageInjectorTest_Scala3 extends ScalaLanguageInjectorTest_Scala2 {
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version == ScalaVersion.Latest.Scala_3
+
+
+  def testAnnotationInjection_InClassConstructor_CalledViaUniversalApply(): Unit = {
+    doAnnotationTestInBody(
+      ScalaLangId,
+      s"""class MyClass(
+         |  @Language("Scala") param: String
+         |)
+         |
+         |MyClass("${CARET}val x = 0")
+         |""".stripMargin,
+      "val x = 0"
+    )
+  }
+
+  def testAnnotationInjection_InClassSecondaryConstructor_CalledViaUniversalApply(): Unit = {
+    doAnnotationTestInBody(
+      ScalaLangId,
+      s"""class MyClass(
+         |  @Language("Scala") param: String
+         |) {
+         |  def this(@Language("Scala") param: String, x: Int) = this(param)
+         |}
+         |
+         |MyClass("${CARET}val x = 0", 42)
+         |""".stripMargin,
+      "val x = 0"
+    )
+  }
+
+  def testAnnotationInjection_InClassConstructor_JavaClass_CalledViaUniversalApply(): Unit = {
+    getFixture.addFileToProject("MyJavaClass.java",
+      //language=Java
+      """public class MyJavaClass {
+        |    MyJavaClass(@Language("Scala") String param) {
+        |    }
+        |}
+        |""".stripMargin
+    )
+    doAnnotationTestInBody(
+      ScalaLangId,
+      s"""MyJavaClass("val x = 0")""",
+      "val x = 0"
+    )
+  }
 }

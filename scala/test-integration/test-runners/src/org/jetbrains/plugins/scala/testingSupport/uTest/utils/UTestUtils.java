@@ -17,10 +17,9 @@ public class UTestUtils {
      * @return test node matching `override val tests: Tests` method of a test suite
      */
     @NotNull
-    public static UTestPath findTestsNode(Class<?> clazz) throws UTestRunExpectedError {
-        Method method = findTestDefinitionMethod(clazz);
-        String className = clazz.getName();
-        return new UTestPath(className, method);
+    public static UTestPath findTestsNode(Class<?> testClass, String testClassFqn) throws UTestRunExpectedError {
+        Method method = findTestDefinitionMethod(testClass);
+        return new UTestPath(testClassFqn, method);
     }
 
     public static Method findTestDefinitionMethod(Class<?> clazz) throws UTestRunExpectedError {
@@ -35,8 +34,7 @@ public class UTestUtils {
     private static boolean isTestDefinitionMethod(Method m) {
         return m.getReturnType().equals(Tests.class)
                 && m.getName().equals("tests")
-                && m.getParameterTypes().length == 0
-                && Modifier.isStatic(m.getModifiers());
+                && m.getParameterTypes().length == 0;
     }
 
     public static Class<?> findClass(String classFqn) throws UTestRunExpectedError {

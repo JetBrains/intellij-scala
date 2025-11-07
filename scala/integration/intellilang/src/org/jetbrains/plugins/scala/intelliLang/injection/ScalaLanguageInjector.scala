@@ -4,32 +4,33 @@ import com.intellij.lang.Language
 import com.intellij.lang.injection.{MultiHostInjector, MultiHostRegistrar}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.Key
-import com.intellij.psi._
+import com.intellij.psi.*
 import org.apache.commons.lang3.StringUtils
 import org.intellij.plugins.intelliLang.Configuration
 
-import java.{util => ju}
-import org.intellij.plugins.intelliLang.inject._
+import java.util as ju
+import org.intellij.plugins.intelliLang.inject.*
 import org.intellij.plugins.intelliLang.inject.config.BaseInjection
 import org.intellij.plugins.intelliLang.inject.java.JavaLanguageInjectionSupport
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.*
 import org.jetbrains.plugins.scala.incremental.Highlighting.ElementHighlightingExt
 import org.jetbrains.plugins.scala.intelliLang.injection.ScalaInjectionInfosCollector.InjectionSplitResult
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.readAttribute
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScReference}
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScInterpolatedStringLiteral, ScPrimaryConstructor, ScReference}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.*
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedPatternPrefix
 import org.jetbrains.plugins.scala.patterns.ScalaElementPatternImpl
-import org.jetbrains.plugins.scala.settings._
+import org.jetbrains.plugins.scala.settings.*
 
 import scala.annotation.tailrec
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 final class ScalaLanguageInjector extends MultiHostInjector {
 
@@ -448,32 +449,51 @@ private object ScalaLanguageInjector {
     if (shouldAvoidResolve)
       return None
 
-    def getParameter(methodInv: MethodInvocation, index: Int): Option[PsiElement & PsiAnnotationOwner] = {
-      if (index == -1) None else {
-        val refOpt = methodInv.getEffectiveInvokedExpr.asOptionOf[ScReferenceExpression]
-        refOpt.flatMap { ref =>
-          ref.resolve().toOption match {
-            case Some(f: ScFunction) =>
-              val parameters = f.parameters
-              parameters.lift(index)
-            case Some(m: PsiMethod) =>
-              val parameters = m.parameters
-              parameters.lift(index).safeMap(_.getModifierList)
-            case _ => None
-          }
-        }
+    def getParameter(methodInv: MethodInvocation, index: Int): Option[AnnotationOwner] = {
+      if (index == -1) None
+      else {
+        val ref = methodInv.getEffectiveInvokedExpr.asOptionOf[ScReferenceExpression]
+        ref.flatMap(getParameters(_, index))
       }
     }
+
+    def getConstructorParameter(cCall: ScConstructorInvocation, index: Int): Option[AnnotationOwner] = {
+      if (index == -1) None
+      else cCall.reference.flatMap(getParameters(_, index))
+    }
+
+    def getParameters(callReference: PsiReference, index: Int): Option[AnnotationOwner] =
+      if (index == -1) None
+      else {
+        val resolved = callReference.resolve()
+        resolved.toOption match {
+          case Some(c: ScPrimaryConstructor) =>
+            c.parameters.lift(index)
+          case Some(f: ScFunction) =>
+            f.parameters.lift(index)
+              // handle synthetic parameters like case class "apply" methods calls
+              .map(p => ScalaPsiUtil.parameterForSyntheticParameter(p).getOrElse(p))
+          case Some(m: PsiMethod) =>
+            // Java definitions PSI elements keep annotations in the modifiers list element (unlike in Scala)
+            m.parameters.lift(index).safeMap(_.getModifierList)
+          case _ =>
+            None
+        }
+      }
 
     argument.getParent match {
       case args: ScArgumentExprList =>
         args.getParent match {
-          case call: ScMethodCall => getParameter(call, args.exprs.indexOf(argument))
+          case call: ScMethodCall =>
+            getParameter(call, args.exprs.indexOf(argument))
+          case cCall: ScConstructorInvocation =>
+            getConstructorParameter(cCall, args.exprs.indexOf(argument))
           case _ => None
         }
       case tuple: ScTuple if tuple.isCall =>
         getParameter(tuple.getContext.asInstanceOf[ScInfixExpr], tuple.exprs.indexOf(argument))
-      case infix: ScInfixExpr => getParameter(infix, 0)
+      case infix: ScInfixExpr =>
+        getParameter(infix, 0)
       case _ => None
     }
   }

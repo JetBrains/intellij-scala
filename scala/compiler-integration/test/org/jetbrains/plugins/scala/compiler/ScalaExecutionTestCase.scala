@@ -8,6 +8,7 @@ import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.EdtTestUtil
+import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, LibraryLoader, ScalaSDKLoader, SmartJDKLoader}
 import org.jetbrains.plugins.scala.base.{ScalaSdkOwner, SourceRootTestUtil}
 import org.jetbrains.plugins.scala.extensions.PathExt
@@ -92,12 +93,7 @@ trait ScalaExecutionTestCase extends ExecutionTestCase with ScalaSdkOwner {
     Files.createDirectories(checksumsPath)
 
     sourceFiles.foreach { case (filePath, fileContents) =>
-      val path = srcPath.resolve(filePath)
-      if (!path.exists || Files.readString(path) != fileContents) {
-        Files.createDirectories(path.getParent)
-        val bytes = fileContents.getBytes(StandardCharsets.UTF_8)
-        Files.write(path, bytes)
-      }
+      ensureFileExistsAndHasContent(filePath, fileContents)
     }
 
     super.setUp()
@@ -113,6 +109,15 @@ trait ScalaExecutionTestCase extends ExecutionTestCase with ScalaSdkOwner {
 
     LocalFileSystem.getInstance().refreshNioFiles(srcPath.children().asJava)
     compileProject()
+  }
+
+  private def ensureFileExistsAndHasContent(relativePath: String, fileContent: String): Unit = {
+    val absolutePath = srcPath.resolve(relativePath)
+    if (!absolutePath.exists || Files.readString(absolutePath) != fileContent) {
+      Files.createDirectories(absolutePath.getParent)
+      val bytes = fileContent.getBytes(StandardCharsets.UTF_8)
+      Files.write(absolutePath, bytes)
+    }
   }
 
   override protected def tearDown(): Unit = {
@@ -191,8 +196,20 @@ trait ScalaExecutionTestCase extends ExecutionTestCase with ScalaSdkOwner {
     params
   }
 
-  protected def addSourceFile(path: String, contents: String): Unit = {
-    sourceFiles.update(path, contents)
+  protected def addSourceFile(relativePath: String, contents: String): Unit = {
+    sourceFiles.update(relativePath, contents)
+  }
+
+  protected def addSourceFileImmediately(relativePath: String, contents: String): Unit = {
+    ensureFileExistsAndHasContent(relativePath, contents)
+  }
+
+  protected def addScalaSourceFile(relativePath: String, @Language("Scala") contents: String): Unit = {
+    this.addSourceFile(relativePath, contents)
+  }
+
+  protected def addScalaSourceFileImmediately(relativePath: String, @Language("Scala") contents: String): Unit = {
+    this.addSourceFileImmediately(relativePath, contents)
   }
 
   protected def assertEquals[A, B](expected: A, actual: B)(implicit ev: A <:< B): Unit = {

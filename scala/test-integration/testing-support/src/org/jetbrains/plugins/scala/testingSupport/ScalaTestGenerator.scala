@@ -4,7 +4,6 @@ import com.intellij.codeInsight.CodeInsightUtil
 import com.intellij.ide.fileTemplates.{FileTemplate, FileTemplateManager, FileTemplateUtil}
 import com.intellij.java.JavaBundle
 import com.intellij.openapi.diagnostic.ControlFlowException
-import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.ex.IdeDocumentHistory
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
@@ -18,19 +17,25 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.ScalaFormatterUtil
 import org.jetbrains.plugins.scala.lang.parser.parsing.statements.Def
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.refactoring.extractTrait.ExtractSuperUtil
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestUtil
+import org.jetbrains.plugins.scala.testingSupport.test.utest.UTestTestFramework
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestFramework, TestConfigurationUtil}
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
 
 import java.util.Properties
 import scala.jdk.CollectionConverters._
 
+/**
+ * @see [[org.jetbrains.plugins.scala.testingSupport.ScalaTestCreator]]
+ * @note The class is indirectly tested in org.jetbrains.plugins.scala.testingSupport.ScalaTestCreatorInSbtProjectsTest
+ * @todo cover the whole functionality with tests
+ */
 class ScalaTestGenerator extends TestGenerator {
 
   import ScalaTestGenerator._
@@ -59,7 +64,7 @@ class ScalaTestGenerator extends TestGenerator {
   private def createTestFileFromTemplate(dialog: CreateTestDialog, project: Project): PsiFile = {
     //copy-paste from JavaTestGenerator
     val templateName = dialog.getSelectedTestFrameworkDescriptor match {
-      case f: AbstractTestFramework => f.testFileTemplateName
+      case f: AbstractTestFramework => f.testFileTemplateName(dialog)
       case _ => ScalaFileTemplateUtil.SCALA_CLASS
     }
     val fileTemplate = FileTemplateManager.getInstance(project).getCodeTemplate(templateName)
@@ -70,7 +75,8 @@ class ScalaTestGenerator extends TestGenerator {
     if (targetClass != null && targetClass.isValid)
       properties.setProperty(FileTemplate.ATTRIBUTE_CLASS_NAME, targetClass.getQualifiedName)
     try {
-      FileTemplateUtil.createFromTemplate(fileTemplate, dialog.getClassName, properties, dialog.getTargetDirectory) match {
+      val createdElement = FileTemplateUtil.createFromTemplate(fileTemplate, dialog.getClassName, properties, dialog.getTargetDirectory)
+      createdElement match {
         case file: PsiFile => file
         case _ => null
       }
@@ -85,13 +91,18 @@ class ScalaTestGenerator extends TestGenerator {
     IdeDocumentHistory.getInstance(project).includeCurrentPlaceAsChangePlace()
 
     val file = createTestFileFromTemplate(dialog, project)
-    if (file == null) return file
+    if (file == null)
+      return file
+
     val typeDefinition = file.depthFirst().filterByType[ScTypeDefinition].next()
-    val fqName = dialog.getSuperClassName
-    if (fqName != null) {
-      val psiClass = ElementScope(project).getCachedClass(fqName)
-      addSuperClass(typeDefinition, psiClass, fqName)
+
+    // Add missing import for the base test class name
+    val testSuperClassName = dialog.getSuperClassName
+    if (testSuperClassName != null) {
+      val psiClass = ElementScope(project).getCachedClass(testSuperClassName)
+      addSuperClassIfMissing(typeDefinition, psiClass, testSuperClassName)
     }
+
     val positionElement = typeDefinition.extendsBlock.templateBody.map(_.getFirstChild).getOrElse(typeDefinition)
     CodeInsightUtil.positionCursor(project, file, positionElement)
 
@@ -105,10 +116,14 @@ class ScalaTestGenerator extends TestGenerator {
     file
   }
 
-  private def addSuperClass(typeDefinition: ScTypeDefinition, psiClass: Option[PsiClass], fqName: String) = {
+  private def addSuperClassIfMissing(typeDefinition: ScTypeDefinition, psiClass: Option[PsiClass], fqName: String): Unit = {
     val extendsBlock = typeDefinition.extendsBlock
 
-    def addExtendsRef(refName: String) = {
+    // If the file template already contains a base test class, don't add it
+    if (extendsBlock.templateBody.nonEmpty)
+      return
+
+    def addExtendsRef(refName: String): PsiElement = {
       val (extendsToken, classParents) = createClassTemplateParents(refName, typeDefinition)(typeDefinition.getManager)
       val extendsAdded = extendsBlock.addBefore(extendsToken, extendsBlock.getFirstChild)
       val res = extendsBlock.addAfter(classParents, extendsAdded)
@@ -170,10 +185,7 @@ class ScalaTestGenerator extends TestGenerator {
     } else if (isInheritor(typeDef, "org.specs2.mutable.SpecificationLike")) {
       generateSpecs2BeforeAndAfter(generateBefore, generateAfter, typeDef, body)
       generateSpecs2MutableSpecificationMethods(methods, body, className)
-    } else if (isInheritor(typeDef, "utest.framework.TestSuite")) {
-      val file = typeDef.getContainingFile
-      assert(file.isInstanceOf[ScalaFile])
-      file.asInstanceOf[ScalaFile].addImportForPath("utest._")
+    } else if (isInheritor(typeDef, UTestTestFramework.BaseTestSuiteFqn)) {
       generateUTestMethods(methods, body)
     }
   }
@@ -387,15 +399,21 @@ object ScalaTestGenerator {
   }
 
   private def generateUTestMethods(methods: Seq[MemberInfo], templateBody: ScTemplateBody): Unit = {
-    import templateBody.projectContext
-    val normalIndent = ScalaFormatterUtil.getNormalIndentString(projectContext)
-    templateBody.addBefore(createElementWithContext("val tests = TestSuite{}", templateBody, null)(Def.parse(_)), templateBody.getLastChild)
-    if (methods.nonEmpty) {
-      val methodStrings = methods.map(m => s"$normalIndent${m.nameQuoted} - {}\n")
-      val methodsConcat = methodStrings.mkString("\n")
-      val result = s"val methodsTests = TestSuite{\n$methodsConcat}"
-      templateBody.addBefore(createElementWithContext(result, templateBody, null)(Def.parse(_)), templateBody.getLastChild)
+    val methodsBodyText = if (methods.isEmpty)
+      ""
+    else {
+      // NOTE 1: the indent will be adjusted according to the actual the code style by the platform after a test file is created
+      // NOTE 2: only the latest syntax is supported (the ancient syntax with dash is explicitly not supported to simplify maintenance)
+      val testsForMethods = methods.map(m => s"""  test(\"${m.name}\") {}""")
+      s"${testsForMethods.mkString("\n\n")}"
     }
+
+    val testsValDefinitionText =
+      s"""override val tests: Tests = Tests {
+         |$methodsBodyText
+         |}""".stripMargin
+    val testsValDefinition = createElementWithContext[ScPatternDefinition](testsValDefinitionText, templateBody, null)(Def.parse(_))
+    templateBody.addBefore(testsValDefinition, templateBody.getLastChild)
   }
 
   private implicit class StringOps(private val str: String) extends AnyVal {

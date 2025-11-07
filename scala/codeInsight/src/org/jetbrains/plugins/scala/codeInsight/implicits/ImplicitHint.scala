@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.codeInsight.implicits
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.{ControlFlowException, Logger}
+import com.intellij.openapi.editor
 import com.intellij.openapi.editor.{Editor, InlayModel}
 import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiElement
@@ -22,14 +23,14 @@ object ImplicitHint {
 
   def isImplicitHint(inlay: Inlay): Boolean = inlay.getUserData(ElementKey) != null
 
-  def addTo(hint: Hint, model: InlayModel): Inlay = {
+  def addTo(hint: Hint, model: InlayModel): Option[Inlay] = {
     import hint._
 
     val offset = position.getOffset(hint.element)
 
     val existingInlays = model.getInlineElementsInRange(offset, offset).asScala.filter(isImplicitHint)
 
-    val inlay = {
+    val inlay: editor.Inlay[TextPartsHintRenderer] = {
       val renderer = new TextPartsHintRenderer(parts, menu, hint.corners) {
         override protected def getMargin(editor: Editor): Insets = margin.getOrElse(EmptyInsets)
       }
@@ -38,6 +39,9 @@ object ImplicitHint {
       }
       model.addInlineElement(offset + offsetDelta, relatesToPrecedingElement, renderer)
     }
+    // Some editors might not support inlay hints
+    if (inlay == null)
+      return None
 
     if (existingInlays.nonEmpty) {
       // InlayImpl.myOriginalOffset is used solely for inlay sorting by InlayModelImpl
@@ -55,7 +59,7 @@ object ImplicitHint {
     }
 
     inlay.putUserData(ElementKey, element)
-    inlay
+    Some(inlay)
   }
 
   private val myOriginalOffsetField: Option[Field] = try {
