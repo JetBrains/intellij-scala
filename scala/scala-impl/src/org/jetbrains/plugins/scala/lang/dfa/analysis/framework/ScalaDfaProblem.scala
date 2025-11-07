@@ -6,12 +6,16 @@ import com.intellij.codeInspection.dataFlow.jvm.problems.IndexOutOfBoundsProblem
 import com.intellij.codeInspection.dataFlow.lang.UnsatisfiedConditionProblem
 import com.intellij.codeInspection.dataFlow.memory.DfaMemoryState
 import com.intellij.codeInspection.dataFlow.value.{DerivedVariableDescriptor, DfaValue}
+import com.intellij.psi.PsiElement
 import com.intellij.util.ThreeState
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaDfaResult.ProblemOccurrence
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScParenthesizedElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScReferenceExpression}
+
+import scala.annotation.tailrec
 
 sealed trait ScalaDfaProblem extends UnsatisfiedConditionProblem {
   def problemOccurrenceWith(failed: ThreeState, value: DfaValue, state: DfaMemoryState): ProblemOccurrence =
@@ -22,7 +26,7 @@ sealed trait ScalaDfaProblem extends UnsatisfiedConditionProblem {
 object ScalaDfaProblem {
   trait WithKind extends ScalaDfaProblem {
     def problemKind: ScalaDfaProblemKind[_]
-    def problemElement: ScExpression
+    def problemElement: PsiElement
 
     override def registerTo(holder: ProblemsHolder, occurrence: ProblemOccurrence): Unit = {
       @Nls
@@ -57,7 +61,7 @@ object ScalaCollectionAccessProblem {
 }
 
 
-final case class ScalaNullAccessProblem(override val problemElement: ScExpression,
+final case class ScalaNullAccessProblem(override val problemElement: PsiElement,
                                         override val problemKind: ScalaDfaProblemKind[ScalaNullAccessProblem])
   extends ScalaDfaProblem with ScalaDfaProblem.WithKind
 {
@@ -75,11 +79,23 @@ final case class ScalaNullAccessProblem(override val problemElement: ScExpressio
 
 object ScalaNullAccessProblem {
   trait Factory { this: ScalaDfaProblemKind[ScalaNullAccessProblem] =>
-    def create(problemElement: ScExpression): ScalaNullAccessProblem = ScalaNullAccessProblem(problemElement, this)
+    def create(problemElement: PsiElement): ScalaNullAccessProblem = ScalaNullAccessProblem(problemElement, this)
   }
   type ProblemWithFactory = ScalaDfaProblemKind[ScalaNullAccessProblem] with Factory
 
-  val npeOnInvocation: ProblemWithFactory = new ScalaDfaProblemKind(ScalaBundle.message("method.invocation.might.produce.nullpointerexception"))( ScalaBundle.message("method.invocation.will.produce.nullpointerexception")) with Factory
+  val npeOnInvocation: ProblemWithFactory = new ScalaDfaProblemKind(ScalaBundle.message("method.invocation.might.produce.nullpointerexception"))( ScalaBundle.message("method.invocation.will.produce.nullpointerexception")) with Factory {
+    override def create(problemElement: PsiElement): ScalaNullAccessProblem = {
+      @tailrec
+      def findElementToAnnotate(e: PsiElement): PsiElement = {
+        e.getParent match {
+          case ref: ScReferenceExpression if ref.qualifier.contains(e) => ref.nameId
+          case ScParenthesizedElement(expr) => findElementToAnnotate(expr)
+          case _ => e
+        }
+      }
+      super.create(findElementToAnnotate(problemElement))
+    }
+  }
   val nullableToNotNullParam: ProblemWithFactory = new ScalaDfaProblemKind(ScalaBundle.message("nullable.to.notnull.param.sometimes.message"))(ScalaBundle.message("nullable.to.notnull.param.always.message")) with Factory
   val nullableToUnannotatedParam: ProblemWithFactory = new ScalaDfaProblemKind(ScalaBundle.message("nullable.to.unannotated.param.sometimes.message"))(ScalaBundle.message("nullable.to.unannotated.param.always.message")) with Factory
 
