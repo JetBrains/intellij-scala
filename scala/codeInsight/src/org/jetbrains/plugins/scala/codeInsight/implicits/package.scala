@@ -21,9 +21,10 @@ package object implicits {
         .asScala
         .filter(ScalaImplicitHintKey.isIn)
 
-    def add(hint: Hint): Unit = Option(
-      ImplicitHint.addTo(hint, model)).foreach(_.putUserData(ScalaImplicitHintKey, true)
-    )
+    def add(hint: Hint): Unit = {
+      val inlay = ImplicitHint.addTo(hint, model)
+      inlay.foreach(_.putUserData(ScalaImplicitHintKey, true))
+    }
   }
 
   class ShortcutManager {
