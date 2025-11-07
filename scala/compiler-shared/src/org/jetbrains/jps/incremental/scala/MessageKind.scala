@@ -3,7 +3,10 @@ package org.jetbrains.jps.incremental.scala
 /**
  * Corresponds to [[org.jetbrains.jps.incremental.messages.BuildMessage.Kind]], but avoids linking against JPS code.
  */
-sealed trait MessageKind extends Product with Serializable
+sealed trait MessageKind extends Product with Serializable {
+  def isErrorOrWarning: Boolean =
+    this == MessageKind.Error || this == MessageKind.Warning
+}
 
 object MessageKind {
   case object Error extends MessageKind
