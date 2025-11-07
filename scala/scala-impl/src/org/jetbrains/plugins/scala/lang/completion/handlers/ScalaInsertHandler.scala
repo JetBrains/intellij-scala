@@ -103,7 +103,7 @@ object ScalaInsertHandler {
 
       val element = context
         .getFile
-        .findElementAt(context.getStartOffset + 2)
+        .findElementAt(context.getStartOffset + 1)
 
       val maybeBlock = element.getNode.getElementType match {
         case `tIDENTIFIER` =>

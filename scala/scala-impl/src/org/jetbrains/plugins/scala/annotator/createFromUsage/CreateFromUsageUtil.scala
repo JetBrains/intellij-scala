@@ -87,15 +87,18 @@ object CreateFromUsageUtil {
     }
   }
 
-  def addParametersToTemplate(elem: PsiElement, builder: TemplateBuilder): Unit = {
-    elem.depthFirst().filterByType[ScParameter].foreach { parameter =>
-      val id = parameter.getNameIdentifier
-      builder.replaceElement(id, id.getText)
+  def addParametersToTemplate(elem: PsiElement, builder: TemplateBuilder, paramFilter: ScParameter => Boolean = _ => true): Unit = {
+    elem.depthFirst()
+      .filterByType[ScParameter]
+      .filter(paramFilter)
+      .foreach { parameter =>
+        val id = parameter.getNameIdentifier
+        builder.replaceElement(id, id.getText)
 
-      parameter.paramType.foreach { it =>
-        builder.replaceElement(it, it.getText)
+        parameter.paramType.foreach { it =>
+          builder.replaceElement(it, it.getText)
+        }
       }
-    }
   }
 
   def addTypeParametersToTemplate(elem: PsiElement, builder: TemplateBuilder): Unit = {
