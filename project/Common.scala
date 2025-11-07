@@ -170,7 +170,8 @@ object Common {
       //"com.intellij.dev".toPlugin,
 
       "org.jetbrains.kotlin".toPlugin
-    )
+    ),
+    Test / javaOptions += "-Didea.log.leaked.projects.in.tests=false"
   )
 
   def newPlainScalaProject(projectName: String, base: File): Project =
