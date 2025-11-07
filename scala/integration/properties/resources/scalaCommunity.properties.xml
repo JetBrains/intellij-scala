@@ -7,7 +7,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <completion.contributor language="Properties"
                                 implementationClass="org.jetbrains.sbt.language.completion.SbtVersionCompletionContributor"
-                                order="first" id="sbtVersionCompletionContributor"/>
+                                order="first, after ml_context" id="sbtVersionCompletionContributor"/>
     </extensions>
 
 </idea-plugin>

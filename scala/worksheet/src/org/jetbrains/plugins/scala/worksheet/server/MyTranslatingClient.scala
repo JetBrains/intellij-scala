@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.incremental.scala.{Client, DummyClient, MessageKind}
 import org.jetbrains.plugins.scala.extensions.LoggerExt
 import org.jetbrains.plugins.scala.util.ScalaPluginUtils
+import org.jetbrains.plugins.scala.worksheet.WorksheetUtils
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetDefaultSourcePreprocessor
 import org.jetbrains.plugins.scala.worksheet.server.MyTranslatingClient.Log
 import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.WorksheetEvaluation
@@ -79,7 +80,12 @@ private class MyTranslatingClient(
 
     val category = toCompilerMessageCategory(kind)
 
-    val message = new CompilerMessageImpl(project, category, finalText, worksheet, line1, column1, null)
+    val textWithOptionalJdkWarning =
+      if (kind.isErrorOrWarning && finalText != null) {
+        WorksheetUtils.prependWithJdkCompatibilityWarning(finalText, project)
+      } else finalText
+
+    val message = new CompilerMessageImpl(project, category, textWithOptionalJdkWarning, worksheet, line1, column1, null)
     worksheetEvaluation.message(message)
   }
 
