@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.testingSupport
 
 import com.intellij.ide.util.PsiNavigationSupport
+import com.intellij.openapi.application.impl.NonBlockingReadActionImpl
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditorManager}
 import com.intellij.openapi.project.Project
@@ -265,6 +266,10 @@ class ScalaTestCreatorInSbtProjectsTest extends SbtExternalSystemImportingTestLi
     try {
       val testCreator = new ScalaTestCreator()
       testCreator.createTest(getMyProject, editor, psiFile)
+
+      // Wait for any background tasks (like dialog disposal) to complete before proceeding with test validation
+      // ATTENTION: this is needed to avoid flaky NPE exception (like WI-75722 and KTIJ-9718)
+      NonBlockingReadActionImpl.waitForAsyncTaskCompletion()
     } finally {
       // Cleanup mock data
       getMyProject.putUserData(ScalaTestCreator.MockTestDialogDataKey, null)
