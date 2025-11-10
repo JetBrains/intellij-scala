@@ -7,7 +7,8 @@ import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScContextBound, ScInfixTypeElement, ScParameterizedTypeElement, ScParenthesisedTypeElement, ScSimpleTypeElement, ScTypeArgs}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScContextBound, ScInfixTypeElement, ScParameterizedTypeElement, ScParenthesisedTypeElement, ScSimpleTypeElement, ScTypeArgs, ScTypeLambdaTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.types.TypeIsNotStable
@@ -76,6 +77,10 @@ object ScSimpleTypeElementAnnotator extends ElementAnnotator[ScSimpleTypeElement
           }
         //Allow unapplied type constructors as a rhs of type alias in Scala 3
         case ta: ScTypeAlias if ta.isInScala3File => false
+        //Example: type E = [X] =>> Either // ~ type E = [X] =>> [L, R] =>> Either[L, R]
+        case tl: ScTypeLambdaTypeElement if tl.isInScala3File => false
+        //Example: type MyAlias[F[_] <: Option] = String
+        case tp: ScTypeParam if tp.isInScala3File => false
         case _ =>
           //SCL-19477, this code is OK, no need in type argument
           //def f[T]: "42" = ???
