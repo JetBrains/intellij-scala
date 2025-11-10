@@ -129,10 +129,10 @@
           </hspacer>
         </children>
       </grid>
-      <component id="5f198" class="javax.swing.JLabel" binding="myPerformanceGuidelines">
+      <component id="5f198" class="javax.swing.JLabel" binding="myPerformanceGuidelines" custom-create="true">
         <constraints>
-          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="9" fill="0" indent="0" use-parent-layout="false">
-            <maximum-size width="1000" height="-1"/>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false">
+            <preferred-size width="1000" height="-1"/>
           </grid>
         </constraints>
         <properties>
