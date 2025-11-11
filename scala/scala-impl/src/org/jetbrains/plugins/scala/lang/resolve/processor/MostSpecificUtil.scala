@@ -54,14 +54,22 @@ class MostSpecificUtil(
       noImplicit = true
     ).map(_.repr)
 
-  private def toInnerSRR(r: ScalaResolveResult, withSubst: Boolean = false): InnerScalaResolveResult[ScalaResolveResult] =
+  private def toInnerSRR(
+    r:         ScalaResolveResult,
+    withSubst: Boolean = false
+  ): InnerScalaResolveResult[ScalaResolveResult] = {
+    val subst =
+      if (withSubst) r.substitutor
+      else           r.implicitScopeType.fold(ScSubstitutor.empty)(ScSubstitutor.apply)
+
     InnerScalaResolveResult(
       r.element,
       implicitConversionClass(r),
       r,
-      if (withSubst) r.substitutor else ScSubstitutor.empty,
+      subst,
       implicitCase = true
     )
+  }
 
   def nextMostSpecific(rest: Iterable[ScalaResolveResult]): Option[ScalaResolveResult] = {
     nextMostSpecificGeneric(rest.map(toInnerSRR(_))).map(_.repr)
