@@ -124,12 +124,23 @@ UI Designer uses different border class in internal mode, see `com.intellij.uiDe
    6. Reload the project structure
    7. It should be fixed now! Run the main run configuration (`scalaCommunity` or `scalaUltimate`)
 
+## Improving performance
+- **Ensure there's enough memory** \
+  To view the current memory usage, right-click the status bar and enable *Memory Indicator* (or *Find Action* "CPU and Memory Live Charts"). If necessary, use *Help | Change Memory Settings* to increase the maximum heap size.
+- **Make code highlighting-friendly** \
+  In the same way code has runtime performance, code has compile-time performance. "The laws of highlighting," just as the laws of physics, are real and should be respected for highlighting to be efficient. Please see the guidelines for [how to make code highlighting-friendly](https://youtrack.jetbrains.com/issue/SCL-24113).
+- **Try *Incremental Highlighting***  \
+  When using the built-in highlighting, you can enable *Settings | Languages | Scala | Editor | Incremental highlighting* to [highlight only what's visible](https://youtrack.jetbrains.com/issue/SCL-23216). (Double-press Esc to highlight the entire file.) This helps reduce CPU, RAM, and battery use, especially in large complex files, and also increase responsiveness.
+- **Use compiler-based highlighting without inspections** \
+  Using *Settings | Languages | Scala | Editor | Error highlighting: Compiler* helps with false errors in complex code, but in normal cases it's usually slower and consumes more resources. However, if you also *Disable built-in inspections*, this can help with CPU, RAM, and battery use in cases challenging for the built-in type inference.
+- **Capture CPU and memory snapshots** \
+  Sometimes, performance issues are inherent and depend on the code. Other times, the cause is an inefficiency in the algorithms. Follow the guidelines for [reporting performance problems](https://intellij-support.jetbrains.com/hc/en-us/articles/207241235-Reporting-performance-problems) to capture CPU and memory snapshots and post them to the [issue tracker](https://youtrack.jetbrains.com/issues/SCL#newissue), which can help us diagnose and fix the issue.
+- **Profile the plugin** \
+  You can use a Java profiler, such as YourKit. Besides, there is a "Scala plugin profiler" tool window to track invocations of methods with `@Cached*` or `@Measure` annotations (from `org.jetbrains.plugins.scala.macroAnnotations` package) in real time. The tool window is available in [internal mode](https://plugins.jetbrains.com/docs/intellij/enabling-internal.html) or if `-Dinternal.profiler.tracing=true` is passed to IDEA using [custom VM options](https://www.jetbrains.com/help/idea/tuning-the-ide.html#procedure-jvm-options)
+- **Get in touch** \
+  If you have any questions, we'd be glad to answer them in the [Scala plugin discord channel](https://discord.gg/aUKpZzeHCK).
+
 ## Other
-### Investigation performance issues
-- YourKit
-- There is a "Scala plugin profiler" tool window to track invocations of methods with `@Cached*` or `@Measure` annotations (from `org.jetbrains.plugins.scala.macroAnnotations` package) in real time. The tool window is available in [internal mode](https://plugins.jetbrains.com/docs/intellij/enabling-internal.html) or if `-Dinternal.profiler.tracing=true` is passed to IDEA using [custom VM options](https://www.jetbrains.com/help/idea/tuning-the-ide.html#procedure-jvm-options)
-
-
 ### Generating test coverage reports
 
 You might want to generate a test coverage report for a given package. It can be done by running for example the following:
