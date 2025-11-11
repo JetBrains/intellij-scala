@@ -30,7 +30,8 @@ class ScalaDocTagMarkerBlockProvider extends MarkerBlockProvider[MarkerProcessor
     }
   }
 
-  override def interruptsParagraph(position: LookaheadText#Position, markdownConstraints: MarkdownConstraints): Boolean = {
-    markdownConstraints.is[ScalaDocMarkdownConstraints] && markdownConstraints.asInstanceOf[ScalaDocMarkdownConstraints].overridesTag
+  override def interruptsParagraph(position: LookaheadText#Position, markdownConstraints: MarkdownConstraints): Boolean = markdownConstraints match {
+    case c :ScalaDocMarkdownConstraints => c.overridesTag
+    case _ => false
   }
 }

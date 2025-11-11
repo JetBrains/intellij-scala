@@ -12,7 +12,6 @@ class ScalaDocMarkerProcessor(productionHolder: ProductionHolder, constraints: M
   extends CommonMarkMarkerProcessor(productionHolder, constraints) {
 
   private val markerBlockProviders = ju.List.of(
-    new CodeBlockProvider,
     new HorizontalRuleProvider,
     new CodeFenceProvider,
     new ScalaDocCodeFenceProvider,
