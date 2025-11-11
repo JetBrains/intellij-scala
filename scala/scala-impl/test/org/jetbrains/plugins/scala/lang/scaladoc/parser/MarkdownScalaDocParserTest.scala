@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.scaladoc.parser
 
-import com.intellij.psi.impl.DebugUtil.{checkTreeStructure, psiToString}
+import com.intellij.psi.impl.DebugUtil.psiToString
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.extensions.{PsiNamedElementExt, StringExt}
 import org.jetbrains.plugins.scala.lang.parser.scala3.SimpleScala3ParserTestBase
@@ -1427,6 +1427,70 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |            ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
       |          ScPsiDocToken(DOC_COMMENT_DATA)(' with the closure of user-main applied to all arguments.')
       |          ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_END)('*/')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  def testIndentedTagValue(): Unit = checkTree(
+    """
+      |/**
+      | * @param parameter1        description
+      | * @param parameter2        description
+      | * @param parameterFieldVal description
+      | * @param parameterFieldVar description
+      | */
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  DocComment
+      |    ScPsiDocToken(DOC_COMMENT_START)('/**')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    DocTag
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      ScPsiDocToken(DOC_TAG_NAME)('@param')
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      ScalaDocTagValue: parameter1
+      |        ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('parameter1')
+      |      ScDocParagraph
+      |        ScPsiDocToken(DOC_WHITESPACE)('        ')
+      |        ScPsiDocToken(DOC_COMMENT_DATA)('description')
+      |        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    DocTag
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      ScPsiDocToken(DOC_TAG_NAME)('@param')
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      ScalaDocTagValue: parameter2
+      |        ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('parameter2')
+      |      ScDocParagraph
+      |        ScPsiDocToken(DOC_WHITESPACE)('        ')
+      |        ScPsiDocToken(DOC_COMMENT_DATA)('description')
+      |        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    DocTag
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      ScPsiDocToken(DOC_TAG_NAME)('@param')
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      ScalaDocTagValue: parameterFieldVal
+      |        ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('parameterFieldVal')
+      |      ScDocParagraph
+      |        ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |        ScPsiDocToken(DOC_COMMENT_DATA)('description')
+      |        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    DocTag
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      ScPsiDocToken(DOC_TAG_NAME)('@param')
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      ScalaDocTagValue: parameterFieldVar
+      |        ScPsiDocToken(DOC_TAG_VALUE_TOKEN)('parameterFieldVar')
+      |      ScDocParagraph
+      |        ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |        ScPsiDocToken(DOC_COMMENT_DATA)('description')
+      |        ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |    ScPsiDocToken(DOC_COMMENT_END)('*/')
       |  PsiWhiteSpace('\n')
       |""".stripMargin
