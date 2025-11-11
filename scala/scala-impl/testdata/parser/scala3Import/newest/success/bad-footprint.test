@@ -218,22 +218,15 @@ ScalaFile
               ScPsiDocToken(DOC_COMMENT_DATA)('If ')
               DocSyntaxElement 8
                 ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
-                ScPsiDocToken(DOC_COMMENT_DATA)('X ')
-                ScPsiDocToken(DOC_COMMENT_DATA)('=')
-                ScPsiDocToken(DOC_COMMENT_DATA)(' (n1 : T1, ..., ni : Ti)')
+                ScPsiDocToken(DOC_COMMENT_DATA)('X = (n1 : T1, ..., ni : Ti)')
                 ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
               ScPsiDocToken(DOC_COMMENT_DATA)(' then ')
               DocSyntaxElement 8
                 ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
-                ScPsiDocToken(DOC_COMMENT_DATA)('Map[X, F] ')
-                ScPsiDocToken(DOC_COMMENT_DATA)('=')
-                ScPsiDocToken(DOC_COMMENT_DATA)(' ')
+                ScPsiDocToken(DOC_COMMENT_DATA)('Map[X, F] = ')
                 ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
-              ScPsiDocToken(DOC_COMMENT_DATA)('(n1 : F[T1], ..., ni : F[Ti])')
-              DocSyntaxElement 8
-                ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
-                ScPsiDocToken(DOC_COMMENT_DATA)('.')
-                ScPsiDocToken(DOC_WHITESPACE)('\n   ')
+              ScPsiDocToken(DOC_COMMENT_DATA)('(n1 : F[T1], ..., ni : F[Ti])`.')
+              ScPsiDocToken(DOC_WHITESPACE)('\n   ')
             ScPsiDocToken(DOC_COMMENT_END)('*/')
           PsiWhiteSpace('\n  ')
           AnnotationsList

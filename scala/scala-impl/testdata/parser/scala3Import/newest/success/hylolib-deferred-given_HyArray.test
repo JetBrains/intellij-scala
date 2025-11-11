@@ -1513,8 +1513,6 @@ ScalaFile
               DocTag
                 ScPsiDocToken(DOC_WHITESPACE)(' ')
                 ScPsiDocToken(DOC_TAG_NAME)('@requires')
-                PsiErrorElement:Unknown tag: @requires
-                  <empty list>
                 ScPsiDocToken(DOC_WHITESPACE)('\n    ')
                 ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
                 ScDocParagraph
@@ -1539,8 +1537,6 @@ ScalaFile
               DocTag
                 ScPsiDocToken(DOC_WHITESPACE)(' ')
                 ScPsiDocToken(DOC_TAG_NAME)('@complexity')
-                PsiErrorElement:Unknown tag: @complexity
-                  <empty list>
                 ScPsiDocToken(DOC_WHITESPACE)('\n    ')
                 ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
                 ScDocParagraph
@@ -1622,8 +1618,6 @@ ScalaFile
               DocTag
                 ScPsiDocToken(DOC_WHITESPACE)(' ')
                 ScPsiDocToken(DOC_TAG_NAME)('@requires')
-                PsiErrorElement:Unknown tag: @requires
-                  <empty list>
                 ScPsiDocToken(DOC_WHITESPACE)('\n    ')
                 ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
                 ScDocParagraph
@@ -1648,8 +1642,6 @@ ScalaFile
               DocTag
                 ScPsiDocToken(DOC_WHITESPACE)(' ')
                 ScPsiDocToken(DOC_TAG_NAME)('@complexity')
-                PsiErrorElement:Unknown tag: @complexity
-                  <empty list>
                 ScPsiDocToken(DOC_WHITESPACE)('\n    ')
                 ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
                 ScDocParagraph

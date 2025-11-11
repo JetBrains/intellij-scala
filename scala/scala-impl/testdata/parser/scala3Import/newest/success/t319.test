@@ -90,9 +90,7 @@ ScalaFile
             ScPsiDocToken(DOC_COMMENT_START)('/**')
             ScDocParagraph
               ScPsiDocToken(DOC_WHITESPACE)(' ')
-              ScPsiDocToken(DOC_COMMENT_DATA)('def functor(x: A): B { type T ')
-              ScPsiDocToken(DOC_HEADER 256)('=')
-              ScPsiDocToken(DOC_COMMENT_DATA)(' x.T }')
+              ScPsiDocToken(DOC_COMMENT_DATA)('def functor(x: A): B { type T = x.T }')
               ScPsiDocToken(DOC_WHITESPACE)(' ')
             ScPsiDocToken(DOC_COMMENT_END)('*/')
           PsiWhiteSpace('\n  ')
@@ -264,11 +262,7 @@ ScalaFile
             ScPsiDocToken(DOC_COMMENT_START)('/**')
             ScDocParagraph
               ScPsiDocToken(DOC_WHITESPACE)(' ')
-              ScPsiDocToken(DOC_COMMENT_DATA)('val b: B { type T ')
-              ScPsiDocToken(DOC_HEADER 256)('=')
-              ScPsiDocToken(DOC_COMMENT_DATA)(' String } ')
-              ScPsiDocToken(DOC_HEADER 256)('=')
-              ScPsiDocToken(DOC_COMMENT_DATA)(' functor(a)')
+              ScPsiDocToken(DOC_COMMENT_DATA)('val b: B { type T = String } = functor(a)')
               ScPsiDocToken(DOC_WHITESPACE)(' ')
             ScPsiDocToken(DOC_COMMENT_END)('*/')
           PsiWhiteSpace('\n  ')
