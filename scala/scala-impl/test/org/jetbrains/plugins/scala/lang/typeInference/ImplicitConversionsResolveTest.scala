@@ -182,4 +182,39 @@ class ImplicitConversionsScala3ResolveTest extends ScalaLightCodeInsightFixtureT
       |}
       |""".stripMargin
   )
+
+  def testSCL23772(): Unit = checkTextHasNoErrors(
+    """
+      |trait Task[T]
+      |
+      |trait Init[ScopeType] {
+      |  trait Initialize[T]
+      |  object Initialize {
+      |    implicit final class JoinInitSeq[T](s: Seq[Initialize[T]]) {
+      |      def join: Initialize[Seq[T]] = ???
+      |    }
+      |  }
+      |}
+      |
+      |object Def extends Init[String]
+      |
+      |object Scoped {
+      |  trait ScopingSetting
+      |
+      |  implicit final class RichTaskSeq[T](keys: Seq[Def.Initialize[Task[T]]]) {
+      |    def join: Def.Initialize[Task[Seq[T]]] = ???
+      |  }
+      |}
+      |
+      |object Example3 {
+      |    val seq1: Seq[Def.Initialize[Task[Unit]] with Scoped.ScopingSetting] = ???
+      |    val seq2: Seq[Def.Initialize[Task[Unit]]] = seq1
+      |    val seq3: Seq[Scoped.ScopingSetting] = seq1
+      |
+      |    seq1.join // BAD
+      |    seq2.join
+      |}
+      |
+      |""".stripMargin
+  )
 }
