@@ -77,11 +77,17 @@ abstract class SbtProjectWithPureJavaModuleTestBase(jdkVersion: TestJdkVersion, 
     val modules = ModuleManager.getInstance(getMyProject).getModules
     compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
 
+    val jdk21warnings = Set(
+      "scala: source value 8 is obsolete and will be removed in a future release",
+      "scala: target value 8 is obsolete and will be removed in a future release",
+      "scala: To suppress warnings about obsolete options, use -Xlint:-options"
+    )
+
     val messages = compiler.make()
     val errorsAndWarnings = messages.asScala.filter { message =>
       val category = message.getCategory
       category == CompilerMessageCategory.ERROR || category == CompilerMessageCategory.WARNING
-    }
+    }.filterNot(msg => jdk21warnings.exists(prefix => msg.getMessage.startsWith(prefix)))
 
     assertTrue(
       s"Expected no compilation errors or warnings, got: ${errorsAndWarnings.mkString(System.lineSeparator())}",
