@@ -69,42 +69,42 @@ ScalaFile
           ScPsiDocToken(DOC_COMMENT_DATA)('A base class consisting of')
           ScPsiDocToken(DOC_WHITESPACE)('\n ')
           ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+        ScPsiDocToken(DOC_WHITESPACE)('   ')
         ScDocList
-          ScPsiDocToken(DOC_WHITESPACE)('   ')
           ScDocListItem
-            ScPsiDocToken(DOC_LIST_ITEM_HEAD)('-')
-            ScPsiDocToken(DOC_WHITESPACE)(' ')
-            ScPsiDocToken(DOC_COMMENT_DATA)('a root trait (i.e. abstract class) ')
-            DocSyntaxElement 8
-              ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
-              ScPsiDocToken(DOC_COMMENT_DATA)('Exp' with an ')
-              ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
-            ScPsiDocToken(DOC_COMMENT_DATA)('eval' function')
-            ScPsiDocToken(DOC_WHITESPACE)('\n ')
-            ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-          ScPsiDocToken(DOC_WHITESPACE)('   ')
+            ScPsiDocToken(DOC_LIST_ITEM_HEAD)('- ')
+            ScDocParagraph
+              ScPsiDocToken(DOC_COMMENT_DATA)('a root trait (i.e. abstract class) ')
+              DocSyntaxElement 8
+                ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                ScPsiDocToken(DOC_COMMENT_DATA)('Exp' with an ')
+                ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+              ScPsiDocToken(DOC_COMMENT_DATA)('eval' function')
+              ScPsiDocToken(DOC_WHITESPACE)('\n ')
+              ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+              ScPsiDocToken(DOC_WHITESPACE)('   ')
           ScDocListItem
-            ScPsiDocToken(DOC_LIST_ITEM_HEAD)('-')
-            ScPsiDocToken(DOC_WHITESPACE)(' ')
-            ScPsiDocToken(DOC_COMMENT_DATA)('an abstract type ')
-            DocSyntaxElement 8
-              ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
-              ScPsiDocToken(DOC_COMMENT_DATA)('exp' bounded by ')
-              ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
-            ScPsiDocToken(DOC_COMMENT_DATA)('Exp'')
-            ScPsiDocToken(DOC_WHITESPACE)('\n ')
-            ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-          ScPsiDocToken(DOC_WHITESPACE)('   ')
+            ScPsiDocToken(DOC_LIST_ITEM_HEAD)('- ')
+            ScDocParagraph
+              ScPsiDocToken(DOC_COMMENT_DATA)('an abstract type ')
+              DocSyntaxElement 8
+                ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                ScPsiDocToken(DOC_COMMENT_DATA)('exp' bounded by ')
+                ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+              ScPsiDocToken(DOC_COMMENT_DATA)('Exp'')
+              ScPsiDocToken(DOC_WHITESPACE)('\n ')
+              ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+              ScPsiDocToken(DOC_WHITESPACE)('   ')
           ScDocListItem
-            ScPsiDocToken(DOC_LIST_ITEM_HEAD)('-')
-            ScPsiDocToken(DOC_WHITESPACE)(' ')
-            ScPsiDocToken(DOC_COMMENT_DATA)('a concrete instance class ')
-            DocSyntaxElement 8
-              ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
-              ScPsiDocToken(DOC_COMMENT_DATA)('Num' of ')
-              ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
-            ScPsiDocToken(DOC_COMMENT_DATA)('Exp' for numeric literals')
-            ScPsiDocToken(DOC_WHITESPACE)('\n ')
+            ScPsiDocToken(DOC_LIST_ITEM_HEAD)('- ')
+            ScDocParagraph
+              ScPsiDocToken(DOC_COMMENT_DATA)('a concrete instance class ')
+              DocSyntaxElement 8
+                ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                ScPsiDocToken(DOC_COMMENT_DATA)('Num' of ')
+                ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+              ScPsiDocToken(DOC_COMMENT_DATA)('Exp' for numeric literals')
+              ScPsiDocToken(DOC_WHITESPACE)('\n ')
         ScPsiDocToken(DOC_COMMENT_END)('*/')
       PsiWhiteSpace('\n')
       AnnotationsList
@@ -512,11 +512,8 @@ ScalaFile
         ScPsiDocToken(DOC_COMMENT_START)('/**')
         ScDocParagraph
           ScPsiDocToken(DOC_WHITESPACE)(' ')
-          ScPsiDocToken(DOC_COMMENT_DATA)('Operation extension: An extension of ')
-          DocSyntaxElement 8
-            ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
-            ScPsiDocToken(DOC_COMMENT_DATA)('Base' with 'show' methods.')
-            ScPsiDocToken(DOC_WHITESPACE)('\n ')
+          ScPsiDocToken(DOC_COMMENT_DATA)('Operation extension: An extension of `Base' with 'show' methods.')
+          ScPsiDocToken(DOC_WHITESPACE)('\n ')
         ScPsiDocToken(DOC_COMMENT_END)('*/')
       PsiWhiteSpace('\n')
       AnnotationsList
@@ -696,11 +693,8 @@ ScalaFile
         ScPsiDocToken(DOC_COMMENT_START)('/**')
         ScDocParagraph
           ScPsiDocToken(DOC_WHITESPACE)(' ')
-          ScPsiDocToken(DOC_COMMENT_DATA)('Operation extension: An extension of ')
-          DocSyntaxElement 8
-            ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
-            ScPsiDocToken(DOC_COMMENT_DATA)('BasePlus' with 'show' methods.')
-            ScPsiDocToken(DOC_WHITESPACE)('\n ')
+          ScPsiDocToken(DOC_COMMENT_DATA)('Operation extension: An extension of `BasePlus' with 'show' methods.')
+          ScPsiDocToken(DOC_WHITESPACE)('\n ')
         ScPsiDocToken(DOC_COMMENT_END)('*/')
       PsiWhiteSpace('\n')
       AnnotationsList
