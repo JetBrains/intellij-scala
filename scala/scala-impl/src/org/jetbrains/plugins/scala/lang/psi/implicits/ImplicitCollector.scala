@@ -877,11 +877,11 @@ class ImplicitCollector(
       )
 
     val shouldApplyToLeadingImplicits =
-       !checkFast &&
-         isImplicitConversion &&
-         place.isInScala3File &&
-         nonValueFunctionTypes.hasLeadingImplicitClause &&
-         hasExplicitClause(c)
+      !checkFast &&
+        isImplicitConversion &&
+        place.isInScala3File &&
+        nonValueFunctionTypes.hasLeadingImplicitClause &&
+        hasExplicitClause(c)
 
     val appliedToLeadingImplicits =
       if (shouldApplyToLeadingImplicits) {

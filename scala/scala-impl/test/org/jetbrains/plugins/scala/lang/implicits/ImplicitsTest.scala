@@ -3,8 +3,6 @@ package org.jetbrains.plugins.scala.lang.implicits
 import com.intellij.testFramework.EditorTestUtil._
 import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase
 
-import scala.jdk.CollectionConverters.ListHasAsScala
-
 class ImplicitsTest extends TypeInferenceTestBase {
 
   def testSCL7955(): Unit = doTest(
