@@ -124,4 +124,10 @@ class WorksheetEclipseModeIntegrationTest extends WorksheetIntegrationBaseTest {
   TestScalaVersion.Scala_2_13_0
 ))
 @RunWithJdkVersions(Array(TestJdkVersion.JDK_11))
-class WorksheetEclipseModeIntegrationTest_OldScalaVersions extends WorksheetEclipseModeIntegrationTest
+class WorksheetEclipseModeIntegrationTest_OldScalaVersions extends WorksheetEclipseModeIntegrationTest {
+  @Test
+  override def testAllInOne(): Unit = {
+    fetchJLineForScala_2_13_0()
+    super.testAllInOne()
+  }
+}
