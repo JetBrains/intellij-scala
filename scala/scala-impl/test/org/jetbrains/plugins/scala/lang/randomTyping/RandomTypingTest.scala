@@ -10,7 +10,10 @@ import org.jetbrains.plugins.scala.lang.parser.scala3.imported.Scala3ImportedPar
 import org.jetbrains.plugins.scala.lang.randomTyping.RandomTypingTest._
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.{RandomTypingTests, ScalaVersion}
+import org.junit.Test
 import org.junit.experimental.categories.Category
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 import java.nio.file.Path
 import scala.collection.immutable.ArraySeq
@@ -56,6 +59,7 @@ class RandomTypingTest_in_Scala2 extends RandomTypingTestBase(TestUtils.getTestD
 //  }
 }
 
+@RunWith(classOf[JUnit4])
 abstract class RandomTypingTestBase(testFilePath: String) extends EditorActionTestBase {
   val timeoutInMs = 40 * 60 * 1000
   val logging = false
@@ -65,6 +69,7 @@ abstract class RandomTypingTestBase(testFilePath: String) extends EditorActionTe
 
   def ignoredFiles: Set[String] = Set.empty
 
+  @Test
   def test_all_files(): Unit = {
     val random = new Random
 
