@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration,
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.MarkersUtils
 import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers._
-import org.jetbrains.plugins.scala.util.dependencymanager.TestDependencyManager
+import org.jetbrains.plugins.scala.util.dependencymanager.TestDependencyManagers
 import org.jetbrains.plugins.scala.util.runners._
 import org.jetbrains.plugins.scala.worksheet.WorksheetFile
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult
@@ -265,7 +265,7 @@ abstract class WorksheetIntegrationBaseTest
        * see org.jetbrains.plugins.scala.console.configuration.ScalaSdkJLineFixer for the details
        */
       import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
-      TestDependencyManager.resolve("jline" % "jline" % "2.14.6")
+      TestDependencyManagers.IgnoringAllScalaArtifacts.resolve("jline" % "jline" % "2.14.6")
     }
   }
 }

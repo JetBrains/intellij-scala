@@ -134,7 +134,13 @@ abstract class DependencyManagerBase {
       }
       ivyResolversFiltered.foreach { resolver =>
         mainChainResolver.add(resolver)
-        //to avoid errors like "unknown resolver: central"
+        // Add resolver manually o avoid errors like "unknown resolver: central"
+        // NOTE: still some errors in the stdout are possible
+        // They are printed by org.apache.ivy.core.settings.IvySettings.getResolver.
+        // For example,
+        //   "unknown resolver null" - When it can't read the "artifact.resolver" in the XML file and falls back to "resolver".
+        //                             Ideally, it just should silently fall back and not report the error in this case
+        //   "unknown resolver sbt-chain" - (not yet sure why)
         ivySettings.addResolver(resolver)
       }
       ivySettings.configureDefaultVersionMatcher()
