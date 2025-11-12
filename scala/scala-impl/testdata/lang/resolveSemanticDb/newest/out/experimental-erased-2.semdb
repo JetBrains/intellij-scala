@@ -5,5 +5,7 @@ Document tests/pos/experimental-erased-2.scala
 (2:8..2:18) scala/annotation/
 (2:19..2:31) scala/annotation/experimental#
 (4:2..4:14) scala/annotation/experimental#
-(6:31..6:40) scala/package.Exception#
+(6:24..6:33) scala/package.Exception#
+(6:43..6:54) scala/compiletime/
+(6:55..6:61) scala/compiletime/Erased#
 

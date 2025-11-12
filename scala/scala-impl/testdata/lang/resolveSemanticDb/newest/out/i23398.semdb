@@ -1,0 +1,24 @@
+Document tests/pos/i23398.scala
+(2:8..2:13) scala/
+(2:14..2:22) scala/language.
+(2:23..2:35) scala/language.experimental.
+(2:36..2:40) scala/language.experimental.into.
+(3:8..3:18) scala/Conversion.
+(5:19..5:22) scala/Int#
+(7:7..7:17) scala/Conversion#
+(7:18..7:21) scala/Int#
+(7:23..7:26) _empty_/Foo# -> 5:12
+(7:30..7:33) _empty_/Foo.
+(9:16..9:20) scala/Conversion.into#
+(9:21..9:24) _empty_/Foo# -> 5:12
+(9:29..9:30) _empty_/i23398$package.takeFoo().(f) -> 9:13
+(10:29..10:33) scala/Conversion.into#
+(10:34..10:37) _empty_/Foo# -> 5:12
+(10:42..10:43) _empty_/i23398$package.inlineTakeFoo().(f) -> 10:26
+(11:36..11:40) scala/Conversion.into#
+(11:41..11:44) _empty_/Foo# -> 5:12
+(11:49..11:50) _empty_/i23398$package.takeInlineFoo().(f) -> 11:33
+(14:12..14:19) _empty_/i23398$package.takeFoo(). -> 9:5
+(15:12..15:25) _empty_/i23398$package.inlineTakeFoo(). -> 10:12
+(16:12..16:25) _empty_/i23398$package.takeInlineFoo(). -> 11:12
+

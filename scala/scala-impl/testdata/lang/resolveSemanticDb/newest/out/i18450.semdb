@@ -1,0 +1,6 @@
+Document tests/pos/i18450.scala
+(4:17..4:23) scala/Predef.String#
+(6:13..6:14) _empty_/C#f(). -> 5:9
+(14:20..14:21) _empty_/C#f(). -> 5:9
+(15:7..15:9) _empty_/C#f(). -> 5:9
+

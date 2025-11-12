@@ -27,5 +27,5 @@ Document tests/pos/ord-over-tracked.scala
 (14:13..14:18) scala/Array.
 (14:19..14:20) _empty_/D.
 (15:14..15:20) _empty_/`ord-over-tracked$package`.mySort(). -> 11:5
-(15:21..15:24) local3 -> 14:7
+(15:21..15:24) local5 -> 14:7
 

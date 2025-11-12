@@ -5,20 +5,20 @@ Document tests/pos/i5938.scala
 (1:36..1:53) scala/language.experimental.erasedDefinitions.
 (3:8..3:19) scala/compiletime/
 (3:20..3:30) scala/compiletime/package$package.summonFrom().
-(4:8..4:19) scala/compiletime/
-(4:20..4:31) scala/compiletime/package$package.erasedValue().
-(10:13..10:17) _empty_/Link# -> 6:7
-(10:18..10:19) _empty_/i5938$package.link().[T] -> 8:29
-(12:21..12:22) local0 -> 10:21
-(12:26..12:31) local1 -> 12:14
-(18:32..18:36) _empty_/Link# -> 6:7
-(18:37..18:40) _empty_/Foo# -> 16:7
-(18:42..18:45) _empty_/i5938$package.Bar. -> 21:17
-(18:54..18:65) scala/compiletime/package$package.erasedValue().
-(22:12..22:16) scala/Unit#
-(25:21..25:24) scala/App#
-(26:13..26:17) _empty_/i5938$package.link(). -> 8:24
-(26:18..26:21) _empty_/Foo# -> 16:7
-(27:3..27:6) _empty_/Test.bar. -> 26:7
-(27:7..27:10) _empty_/i5938$package.Bar.baz(). -> 22:7
+(9:13..9:17) _empty_/Link# -> 5:7
+(9:18..9:19) _empty_/i5938$package.link().[T] -> 7:29
+(11:21..11:22) local0 -> 9:21
+(11:26..11:31) local1 -> 11:14
+(17:32..17:36) _empty_/Link# -> 5:7
+(17:37..17:40) _empty_/Foo# -> 15:7
+(17:42..17:45) _empty_/i5938$package.Bar. -> 20:17
+(17:54..17:58) scala/caps/
+(17:59..17:65) scala/caps/unsafe.
+(17:66..17:83) scala/caps/unsafe.unsafeErasedValue().
+(21:12..21:16) scala/Unit#
+(24:21..24:24) scala/App#
+(25:13..25:17) _empty_/i5938$package.link(). -> 7:24
+(25:18..25:21) _empty_/Foo# -> 15:7
+(26:3..26:6) _empty_/Test.bar. -> 25:7
+(26:7..26:10) _empty_/i5938$package.Bar.baz(). -> 21:7
 

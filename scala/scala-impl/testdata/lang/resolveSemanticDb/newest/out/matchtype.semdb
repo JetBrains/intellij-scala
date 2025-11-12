@@ -3,8 +3,9 @@ Document tests/pos/matchtype.scala
 (1:14..1:22) scala/language.
 (1:23..1:35) scala/language.experimental.
 (1:36..1:53) scala/language.experimental.erasedDefinitions.
-(2:8..2:19) scala/compiletime/
-(2:20..2:31) scala/compiletime/package$package.erasedValue().
+(2:8..2:12) scala/caps/
+(2:13..2:19) scala/caps/unsafe.
+(2:20..2:37) scala/caps/unsafe.unsafeErasedValue().
 (3:8..3:19) scala/compiletime/
 (3:20..3:23) scala/compiletime/ops/
 (3:24..3:27) scala/compiletime/ops/int.
@@ -21,18 +22,18 @@ Document tests/pos/matchtype.scala
 (12:23..12:26) _empty_/Test.Len# -> 10:8
 (12:27..12:29) local1 -> 12:15
 (15:13..15:16) _empty_/Test.Len# -> 10:8
-(16:21..16:32) scala/compiletime/package$package.erasedValue().
+(16:21..16:32) scala/caps/unsafe.unsafeErasedValue().
 (16:33..16:35) _empty_/Test.T2# -> 15:8
 (18:13..18:14) scala/compiletime/ops/int.S#
-(20:22..20:33) scala/compiletime/package$package.erasedValue().
+(20:22..20:33) scala/caps/unsafe.unsafeErasedValue().
 (20:34..20:36) _empty_/Test.T1# -> 18:8
 (22:18..22:19) scala/compiletime/ops/int.S#
 (22:20..22:21) scala/compiletime/ops/int.S#
 (22:22..22:23) scala/compiletime/ops/int.S#
-(22:31..22:42) scala/compiletime/package$package.erasedValue().
+(22:31..22:42) scala/caps/unsafe.unsafeErasedValue().
 (22:43..22:45) _empty_/Test.T2# -> 15:8
 (23:18..23:20) _empty_/Test.T2# -> 15:8
-(23:23..23:34) scala/compiletime/package$package.erasedValue().
+(23:23..23:34) scala/caps/unsafe.unsafeErasedValue().
 (23:35..23:36) scala/compiletime/ops/int.S#
 (23:37..23:38) scala/compiletime/ops/int.S#
 (23:39..23:40) scala/compiletime/ops/int.S#
@@ -40,7 +41,7 @@ Document tests/pos/matchtype.scala
 (25:27..25:28) _empty_/Test.Head#[X] -> 25:13
 (26:21..26:23) local2 -> 26:11
 (29:18..29:21) scala/Int#
-(29:24..29:35) scala/compiletime/package$package.erasedValue().
+(29:24..29:35) scala/caps/unsafe.unsafeErasedValue().
 (29:36..29:40) _empty_/Test.Head# -> 25:8
 (29:42..29:45) scala/Int#
 (29:47..29:53) scala/Predef.String#
@@ -79,12 +80,12 @@ Document tests/pos/matchtype.scala
 (47:36..47:38) local11 -> 47:16
 (47:40..47:42) local12 -> 47:22
 (50:18..50:24) scala/Predef.String#
-(50:27..50:38) scala/compiletime/package$package.erasedValue().
+(50:27..50:38) scala/caps/unsafe.unsafeErasedValue().
 (50:39..50:43) _empty_/Test.Elem# -> 37:8
 (50:45..50:51) scala/Predef.String#
 (50:53..50:56) scala/Int#
 (51:18..51:21) scala/Int#
-(51:24..51:35) scala/compiletime/package$package.erasedValue().
+(51:24..51:35) scala/caps/unsafe.unsafeErasedValue().
 (51:36..51:41) _empty_/Test.Elem1# -> 45:8
 (51:43..51:49) scala/Predef.String#
 (51:51..51:54) scala/Int#
@@ -92,10 +93,10 @@ Document tests/pos/matchtype.scala
 (53:24..53:30) scala/Predef.String#
 (53:32..53:35) scala/Int#
 (53:37..53:44) scala/Boolean#
-(53:52..53:63) scala/compiletime/package$package.erasedValue().
+(53:52..53:63) scala/caps/unsafe.unsafeErasedValue().
 (53:64..53:70) scala/Predef.String#
 (54:18..54:24) scala/Predef.String#
-(54:27..54:38) scala/compiletime/package$package.erasedValue().
+(54:27..54:38) scala/caps/unsafe.unsafeErasedValue().
 (54:39..54:43) _empty_/Test.Elem# -> 37:8
 (54:45..54:51) scala/Predef.String#
 (54:53..54:56) scala/Int#
@@ -104,10 +105,10 @@ Document tests/pos/matchtype.scala
 (55:25..55:31) scala/Predef.String#
 (55:33..55:36) scala/Int#
 (55:38..55:45) scala/Boolean#
-(55:53..55:64) scala/compiletime/package$package.erasedValue().
+(55:53..55:64) scala/caps/unsafe.unsafeErasedValue().
 (55:65..55:68) scala/Int#
 (56:18..56:21) scala/Int#
-(56:24..56:35) scala/compiletime/package$package.erasedValue().
+(56:24..56:35) scala/caps/unsafe.unsafeErasedValue().
 (56:36..56:41) _empty_/Test.Elem1# -> 45:8
 (56:43..56:49) scala/Predef.String#
 (56:51..56:54) scala/Int#
@@ -116,10 +117,10 @@ Document tests/pos/matchtype.scala
 (57:24..57:30) scala/Predef.String#
 (57:32..57:35) scala/Int#
 (57:37..57:44) scala/Boolean#
-(57:52..57:63) scala/compiletime/package$package.erasedValue().
+(57:52..57:63) scala/caps/unsafe.unsafeErasedValue().
 (57:64..57:71) scala/Boolean#
 (58:18..58:25) scala/Boolean#
-(58:28..58:39) scala/compiletime/package$package.erasedValue().
+(58:28..58:39) scala/caps/unsafe.unsafeErasedValue().
 (58:40..58:44) _empty_/Test.Elem# -> 37:8
 (58:46..58:52) scala/Predef.String#
 (58:54..58:57) scala/Int#
@@ -128,12 +129,12 @@ Document tests/pos/matchtype.scala
 (60:25..60:35) scala/Tuple$package.EmptyTuple#
 (60:38..60:44) scala/Predef.String#
 (60:46..60:49) scala/Int#
-(60:54..60:65) scala/compiletime/package$package.erasedValue().
+(60:54..60:65) scala/caps/unsafe.unsafeErasedValue().
 (60:67..60:73) scala/Predef.String#
 (60:75..60:78) scala/Int#
 (61:19..61:25) scala/Predef.String#
 (61:27..61:30) scala/Int#
-(61:34..61:45) scala/compiletime/package$package.erasedValue().
+(61:34..61:45) scala/caps/unsafe.unsafeErasedValue().
 (61:46..61:52) _empty_/Test.Concat# -> 32:8
 (61:53..61:63) scala/Tuple$package.EmptyTuple#
 (61:66..61:72) scala/Predef.String#
@@ -143,7 +144,7 @@ Document tests/pos/matchtype.scala
 (62:35..62:42) scala/Boolean#
 (62:46..62:52) scala/Predef.String#
 (62:54..62:57) scala/Int#
-(62:62..62:73) scala/compiletime/package$package.erasedValue().
+(62:62..62:73) scala/caps/unsafe.unsafeErasedValue().
 (62:74..62:81) scala/Boolean#
 (62:82..62:84) scala/`*:`#
 (62:85..62:92) scala/Boolean#
@@ -156,7 +157,7 @@ Document tests/pos/matchtype.scala
 (63:37..63:39) scala/`*:`#
 (63:41..63:47) scala/Predef.String#
 (63:49..63:52) scala/Int#
-(63:56..63:67) scala/compiletime/package$package.erasedValue().
+(63:56..63:67) scala/caps/unsafe.unsafeErasedValue().
 (63:68..63:74) _empty_/Test.Concat# -> 32:8
 (63:76..63:83) scala/Boolean#
 (63:85..63:92) scala/Boolean#
@@ -166,7 +167,7 @@ Document tests/pos/matchtype.scala
 (64:28..64:35) scala/Boolean#
 (64:37..64:43) scala/Predef.String#
 (64:45..64:48) scala/Int#
-(64:52..64:63) scala/compiletime/package$package.erasedValue().
+(64:52..64:63) scala/caps/unsafe.unsafeErasedValue().
 (64:64..64:70) _empty_/Test.Concat# -> 32:8
 (64:72..64:79) scala/Boolean#
 (64:81..64:88) scala/Boolean#
@@ -183,7 +184,7 @@ Document tests/pos/matchtype.scala
 (65:55..65:58) scala/Int#
 (65:59..65:61) scala/`*:`#
 (65:62..65:72) scala/Tuple$package.EmptyTuple#
-(65:76..65:87) scala/compiletime/package$package.erasedValue().
+(65:76..65:87) scala/caps/unsafe.unsafeErasedValue().
 (65:89..65:96) scala/Boolean#
 (65:98..65:105) scala/Boolean#
 (65:107..65:113) scala/Predef.String#

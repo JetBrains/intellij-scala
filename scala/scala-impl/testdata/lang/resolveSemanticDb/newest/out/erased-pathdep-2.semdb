@@ -1,0 +1,12 @@
+Document tests/pos/erased-pathdep-2.scala
+(7:13..7:16) _empty_/Bar# -> 21:7
+(7:20..7:23) _empty_/Foo# -> 16:7
+(9:25..9:26) _empty_/Test.F# -> 7:8
+(10:16..10:17) _empty_/Test.A#f. -> 9:22
+(10:18..10:19) _empty_/Foo#X# -> 17:8
+(11:18..11:19) _empty_/Test.A#f. -> 9:22
+(11:20..11:21) _empty_/Foo#X# -> 17:8
+(18:13..18:16) _empty_/Bar# -> 21:7
+(21:19..21:22) _empty_/Foo# -> 16:7
+(22:12..22:18) scala/Predef.String#
+

@@ -22,86 +22,79 @@ final class BitArray private (
 
   /** Reserves enough storage to store `n` elements in `this`. */
   def reserveCapacity(n: Int, assumeUniqueness: Boolean = false): BitArray =
-    if (n == 0) {
+    if n == 0 then
       this
-    } else {
+    else
       val k = 1 + ((n - 1) >> 5)
-      if (assumeUniqueness) {
+      if assumeUniqueness then
         _bits = _bits.reserveCapacity(k, assumeUniqueness)
         this
-      } else {
+      else
         new BitArray(_bits.reserveCapacity(k), _count)
-      }
-    }
 
   /** Adds a new element at the end of the array. */
   def append(bit: Boolean, assumeUniqueness: Boolean = false): BitArray =
     val result = if assumeUniqueness && (count < capacity) then this else copy(count + 1)
     val p = BitArray.Position(count)
-    if (p.bucket >= _bits.count) {
+    if p.bucket >= _bits.count then
       result._bits = _bits.append(if bit then 1 else 0)
-    } else {
+    else
       result.setValue(bit, p)
-    }
     result._count += 1
     result
 
   /** Removes and returns the last element, or returns `None` if the array is empty. */
   def popLast(assumeUniqueness: Boolean = false): (BitArray, Option[Boolean]) =
-    if (isEmpty) {
+    if isEmpty then
       (this, None)
-    } else {
+    else
       val result = if assumeUniqueness then this else copy()
       val bit = result.at(BitArray.Position(count))
       result._count -= 1
       (result, Some(bit))
-    }
 
   /** Removes all elements in the array, keeping allocated storage iff `keepStorage` is true. */
   def removeAll(
       keepStorage: Boolean = false,
       assumeUniqueness: Boolean = false
   ): BitArray =
-    if (isEmpty) {
+    if isEmpty then
       this
-    } else if (keepStorage) {
+    else if keepStorage then
       val result = if assumeUniqueness then this else copy()
       result._bits.removeAll(keepStorage, assumeUniqueness = true)
       result._count = 0
       result
-    } else {
+    else
       BitArray()
-    }
 
   /** Returns `true` iff all elements in `this` are `false`. */
   def allFalse: Boolean =
-    if (isEmpty) {
+    if isEmpty then
       true
-    } else {
+    else
       val k = (count - 1) >> 5
       def loop(i: Int): Boolean =
-        if (i == k) {
+        if i == k then
           val m = (1 << (count & 31)) - 1
           (_bits.at(k) & m) == 0
-        } else if (_bits.at(i) != 0) {
+        else if _bits.at(i) != 0 then
           false
-        } else {
+        else
           loop(i + 1)
-        }
       loop(0)
-    }
 
   /** Returns `true` iff all elements in `this` are `true`. */
   def allTrue: Boolean =
-    if (isEmpty) {
+    if isEmpty then {
       true
     } else {
       val k = (count - 1) >> 5
       def loop(i: Int): Boolean =
-        if (i == k) {
+        if i == k then {
           val m = (1 << (count & 31)) - 1
           (_bits.at(k) & m) == m
-        } else if (_bits.at(i) != ~0) {
+        } else if _bits.at(i) != ~0 then {
           false
         } else {
           loop(i + 1)
@@ -136,14 +129,14 @@ final class BitArray private (
       assumeUniqueness: Boolean = false
   ): BitArray =
     require(this.count == other.count)
-    if (isEmpty) {
+    if isEmpty then {
       this
     } else {
       val result = if assumeUniqueness then this else copy()
       var u = assumeUniqueness
       val k = (count - 1) >> 5
 
-      for (i <- 0 until k) {
+      for i <- 0 until k do {
         result._bits = result._bits.modifyAt(
           i, (n) => operation(n, other._bits.at(n)),
           assumeUniqueness = u
@@ -184,7 +177,7 @@ final class BitArray private (
     *   O(1).
     */
   def positionAfter(p: BitArray.Position): BitArray.Position =
-    if (p.offsetInBucket == 63) {
+    if p.offsetInBucket == 63 then {
       BitArray.Position(p.bucket + 1, 0)
     } else {
       BitArray.Position(p.bucket, p.offsetInBucket + 1)
@@ -244,7 +237,7 @@ final class BitArray private (
 
   /** Returns an independent copy of `this`. */
   def copy(minimumCapacity: Int = 0): BitArray =
-    if (minimumCapacity > capacity) {
+    if minimumCapacity > capacity then {
       // If the requested capacity on the copy is greater than what we have, `reserveCapacity` will
       // create an independent value.
       reserveCapacity(minimumCapacity)
@@ -313,7 +306,7 @@ object BitArray {
   /** Creates an array with the given `bits`. */
   def apply[T](bits: Boolean*): BitArray =
     var result = new BitArray(HyArray[Int](), 0)
-    for (b <- bits) result = result.append(b, assumeUniqueness = true)
+    for b <- bits do result = result.append(b, assumeUniqueness = true)
     result
 
 }
@@ -664,7 +657,6 @@ ScalaFile
             IfStatement
               PsiElement(if)('if')
               PsiWhiteSpace(' ')
-              PsiElement(()('(')
               InfixExpression
                 ReferenceExpression: n
                   PsiElement(identifier)('n')
@@ -674,20 +666,14 @@ ScalaFile
                 PsiWhiteSpace(' ')
                 IntegerLiteral
                   PsiElement(integer)('0')
-              PsiElement())(')')
               PsiWhiteSpace(' ')
-              BlockExpression
-                PsiElement({)('{')
-                PsiWhiteSpace('\n      ')
-                ThisReference
-                  PsiElement(this)('this')
-                PsiWhiteSpace('\n    ')
-                PsiElement(})('}')
-              PsiWhiteSpace(' ')
+              PsiElement(then)('then')
+              PsiWhiteSpace('\n      ')
+              ThisReference
+                PsiElement(this)('this')
+              PsiWhiteSpace('\n    ')
               PsiElement(else)('else')
-              PsiWhiteSpace(' ')
               BlockExpression
-                PsiElement({)('{')
                 PsiWhiteSpace('\n      ')
                 ScPatternDefinition: k
                   AnnotationsList
@@ -735,13 +721,11 @@ ScalaFile
                 IfStatement
                   PsiElement(if)('if')
                   PsiWhiteSpace(' ')
-                  PsiElement(()('(')
                   ReferenceExpression: assumeUniqueness
                     PsiElement(identifier)('assumeUniqueness')
-                  PsiElement())(')')
                   PsiWhiteSpace(' ')
+                  PsiElement(then)('then')
                   BlockExpression
-                    PsiElement({)('{')
                     PsiWhiteSpace('\n        ')
                     AssignStatement
                       ReferenceExpression: _bits
@@ -767,45 +751,36 @@ ScalaFile
                     PsiWhiteSpace('\n        ')
                     ThisReference
                       PsiElement(this)('this')
-                    PsiWhiteSpace('\n      ')
-                    PsiElement(})('}')
-                  PsiWhiteSpace(' ')
+                  PsiWhiteSpace('\n      ')
                   PsiElement(else)('else')
-                  PsiWhiteSpace(' ')
-                  BlockExpression
-                    PsiElement({)('{')
-                    PsiWhiteSpace('\n        ')
-                    ScNewTemplateDefinition: <anonymous>
-                      PsiElement(new)('new')
-                      PsiWhiteSpace(' ')
-                      ExtendsBlock
-                        TemplateParents
-                          ConstructorInvocation
-                            SimpleType: BitArray
-                              CodeReferenceElement: BitArray
-                                PsiElement(identifier)('BitArray')
-                            ArgumentList
-                              PsiElement(()('(')
-                              MethodCall
-                                ReferenceExpression: _bits.reserveCapacity
-                                  ReferenceExpression: _bits
-                                    PsiElement(identifier)('_bits')
-                                  PsiElement(.)('.')
-                                  PsiElement(identifier)('reserveCapacity')
-                                ArgumentList
-                                  PsiElement(()('(')
-                                  ReferenceExpression: k
-                                    PsiElement(identifier)('k')
-                                  PsiElement())(')')
-                              PsiElement(,)(',')
-                              PsiWhiteSpace(' ')
-                              ReferenceExpression: _count
-                                PsiElement(identifier)('_count')
-                              PsiElement())(')')
-                    PsiWhiteSpace('\n      ')
-                    PsiElement(})('}')
-                PsiWhiteSpace('\n    ')
-                PsiElement(})('}')
+                  PsiWhiteSpace('\n        ')
+                  ScNewTemplateDefinition: <anonymous>
+                    PsiElement(new)('new')
+                    PsiWhiteSpace(' ')
+                    ExtendsBlock
+                      TemplateParents
+                        ConstructorInvocation
+                          SimpleType: BitArray
+                            CodeReferenceElement: BitArray
+                              PsiElement(identifier)('BitArray')
+                          ArgumentList
+                            PsiElement(()('(')
+                            MethodCall
+                              ReferenceExpression: _bits.reserveCapacity
+                                ReferenceExpression: _bits
+                                  PsiElement(identifier)('_bits')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('reserveCapacity')
+                              ArgumentList
+                                PsiElement(()('(')
+                                ReferenceExpression: k
+                                  PsiElement(identifier)('k')
+                                PsiElement())(')')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: _count
+                              PsiElement(identifier)('_count')
+                            PsiElement())(')')
           PsiWhiteSpace('\n\n  ')
           ScFunctionDefinition: append
             DocComment
@@ -954,7 +929,6 @@ ScalaFile
               IfStatement
                 PsiElement(if)('if')
                 PsiWhiteSpace(' ')
-                PsiElement(()('(')
                 InfixExpression
                   ReferenceExpression: p.bucket
                     ReferenceExpression: p
@@ -970,69 +944,60 @@ ScalaFile
                       PsiElement(identifier)('_bits')
                     PsiElement(.)('.')
                     PsiElement(identifier)('count')
-                PsiElement())(')')
                 PsiWhiteSpace(' ')
-                BlockExpression
-                  PsiElement({)('{')
-                  PsiWhiteSpace('\n      ')
-                  AssignStatement
-                    ReferenceExpression: result._bits
-                      ReferenceExpression: result
-                        PsiElement(identifier)('result')
-                      PsiElement(.)('.')
-                      PsiElement(identifier)('_bits')
-                    PsiWhiteSpace(' ')
-                    PsiElement(=)('=')
-                    PsiWhiteSpace(' ')
-                    MethodCall
-                      ReferenceExpression: _bits.append
-                        ReferenceExpression: _bits
-                          PsiElement(identifier)('_bits')
-                        PsiElement(.)('.')
-                        PsiElement(identifier)('append')
-                      ArgumentList
-                        PsiElement(()('(')
-                        IfStatement
-                          PsiElement(if)('if')
-                          PsiWhiteSpace(' ')
-                          ReferenceExpression: bit
-                            PsiElement(identifier)('bit')
-                          PsiWhiteSpace(' ')
-                          PsiElement(then)('then')
-                          PsiWhiteSpace(' ')
-                          IntegerLiteral
-                            PsiElement(integer)('1')
-                          PsiWhiteSpace(' ')
-                          PsiElement(else)('else')
-                          PsiWhiteSpace(' ')
-                          IntegerLiteral
-                            PsiElement(integer)('0')
-                        PsiElement())(')')
-                  PsiWhiteSpace('\n    ')
-                  PsiElement(})('}')
-                PsiWhiteSpace(' ')
-                PsiElement(else)('else')
-                PsiWhiteSpace(' ')
-                BlockExpression
-                  PsiElement({)('{')
-                  PsiWhiteSpace('\n      ')
+                PsiElement(then)('then')
+                PsiWhiteSpace('\n      ')
+                AssignStatement
+                  ReferenceExpression: result._bits
+                    ReferenceExpression: result
+                      PsiElement(identifier)('result')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('_bits')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
                   MethodCall
-                    ReferenceExpression: result.setValue
-                      ReferenceExpression: result
-                        PsiElement(identifier)('result')
+                    ReferenceExpression: _bits.append
+                      ReferenceExpression: _bits
+                        PsiElement(identifier)('_bits')
                       PsiElement(.)('.')
-                      PsiElement(identifier)('setValue')
+                      PsiElement(identifier)('append')
                     ArgumentList
                       PsiElement(()('(')
-                      ReferenceExpression: bit
-                        PsiElement(identifier)('bit')
-                      PsiElement(,)(',')
-                      PsiWhiteSpace(' ')
-                      ReferenceExpression: p
-                        PsiElement(identifier)('p')
+                      IfStatement
+                        PsiElement(if)('if')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: bit
+                          PsiElement(identifier)('bit')
+                        PsiWhiteSpace(' ')
+                        PsiElement(then)('then')
+                        PsiWhiteSpace(' ')
+                        IntegerLiteral
+                          PsiElement(integer)('1')
+                        PsiWhiteSpace(' ')
+                        PsiElement(else)('else')
+                        PsiWhiteSpace(' ')
+                        IntegerLiteral
+                          PsiElement(integer)('0')
                       PsiElement())(')')
-                  PsiWhiteSpace('\n    ')
-                  PsiElement(})('}')
+                PsiWhiteSpace('\n    ')
+                PsiElement(else)('else')
+                PsiWhiteSpace('\n      ')
+                MethodCall
+                  ReferenceExpression: result.setValue
+                    ReferenceExpression: result
+                      PsiElement(identifier)('result')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('setValue')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: bit
+                      PsiElement(identifier)('bit')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: p
+                      PsiElement(identifier)('p')
+                    PsiElement())(')')
               PsiWhiteSpace('\n    ')
               InfixExpression
                 ReferenceExpression: result._count
@@ -1119,30 +1084,23 @@ ScalaFile
             IfStatement
               PsiElement(if)('if')
               PsiWhiteSpace(' ')
-              PsiElement(()('(')
               ReferenceExpression: isEmpty
                 PsiElement(identifier)('isEmpty')
-              PsiElement())(')')
               PsiWhiteSpace(' ')
-              BlockExpression
-                PsiElement({)('{')
-                PsiWhiteSpace('\n      ')
-                Tuple
-                  PsiElement(()('(')
-                  ThisReference
-                    PsiElement(this)('this')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  ReferenceExpression: None
-                    PsiElement(identifier)('None')
-                  PsiElement())(')')
-                PsiWhiteSpace('\n    ')
-                PsiElement(})('}')
-              PsiWhiteSpace(' ')
+              PsiElement(then)('then')
+              PsiWhiteSpace('\n      ')
+              Tuple
+                PsiElement(()('(')
+                ThisReference
+                  PsiElement(this)('this')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: None
+                  PsiElement(identifier)('None')
+                PsiElement())(')')
+              PsiWhiteSpace('\n    ')
               PsiElement(else)('else')
-              PsiWhiteSpace(' ')
               BlockExpression
-                PsiElement({)('{')
                 PsiWhiteSpace('\n      ')
                 ScPatternDefinition: result
                   AnnotationsList
@@ -1239,8 +1197,6 @@ ScalaFile
                         PsiElement(identifier)('bit')
                       PsiElement())(')')
                   PsiElement())(')')
-                PsiWhiteSpace('\n    ')
-                PsiElement(})('}')
           PsiWhiteSpace('\n\n  ')
           ScFunctionDefinition: removeAll
             DocComment
@@ -1316,31 +1272,24 @@ ScalaFile
             IfStatement
               PsiElement(if)('if')
               PsiWhiteSpace(' ')
-              PsiElement(()('(')
               ReferenceExpression: isEmpty
                 PsiElement(identifier)('isEmpty')
-              PsiElement())(')')
               PsiWhiteSpace(' ')
-              BlockExpression
-                PsiElement({)('{')
-                PsiWhiteSpace('\n      ')
-                ThisReference
-                  PsiElement(this)('this')
-                PsiWhiteSpace('\n    ')
-                PsiElement(})('}')
-              PsiWhiteSpace(' ')
+              PsiElement(then)('then')
+              PsiWhiteSpace('\n      ')
+              ThisReference
+                PsiElement(this)('this')
+              PsiWhiteSpace('\n    ')
               PsiElement(else)('else')
               PsiWhiteSpace(' ')
               IfStatement
                 PsiElement(if)('if')
                 PsiWhiteSpace(' ')
-                PsiElement(()('(')
                 ReferenceExpression: keepStorage
                   PsiElement(identifier)('keepStorage')
-                PsiElement())(')')
                 PsiWhiteSpace(' ')
+                PsiElement(then)('then')
                 BlockExpression
-                  PsiElement({)('{')
                   PsiWhiteSpace('\n      ')
                   ScPatternDefinition: result
                     AnnotationsList
@@ -1414,22 +1363,15 @@ ScalaFile
                   PsiWhiteSpace('\n      ')
                   ReferenceExpression: result
                     PsiElement(identifier)('result')
-                  PsiWhiteSpace('\n    ')
-                  PsiElement(})('}')
-                PsiWhiteSpace(' ')
+                PsiWhiteSpace('\n    ')
                 PsiElement(else)('else')
-                PsiWhiteSpace(' ')
-                BlockExpression
-                  PsiElement({)('{')
-                  PsiWhiteSpace('\n      ')
-                  MethodCall
-                    ReferenceExpression: BitArray
-                      PsiElement(identifier)('BitArray')
-                    ArgumentList
-                      PsiElement(()('(')
-                      PsiElement())(')')
-                  PsiWhiteSpace('\n    ')
-                  PsiElement(})('}')
+                PsiWhiteSpace('\n      ')
+                MethodCall
+                  ReferenceExpression: BitArray
+                    PsiElement(identifier)('BitArray')
+                  ArgumentList
+                    PsiElement(()('(')
+                    PsiElement())(')')
           PsiWhiteSpace('\n\n  ')
           ScFunctionDefinition: allFalse
             DocComment
@@ -1475,23 +1417,16 @@ ScalaFile
             IfStatement
               PsiElement(if)('if')
               PsiWhiteSpace(' ')
-              PsiElement(()('(')
               ReferenceExpression: isEmpty
                 PsiElement(identifier)('isEmpty')
-              PsiElement())(')')
               PsiWhiteSpace(' ')
-              BlockExpression
-                PsiElement({)('{')
-                PsiWhiteSpace('\n      ')
-                BooleanLiteral
-                  PsiElement(true)('true')
-                PsiWhiteSpace('\n    ')
-                PsiElement(})('}')
-              PsiWhiteSpace(' ')
+              PsiElement(then)('then')
+              PsiWhiteSpace('\n      ')
+              BooleanLiteral
+                PsiElement(true)('true')
+              PsiWhiteSpace('\n    ')
               PsiElement(else)('else')
-              PsiWhiteSpace(' ')
               BlockExpression
-                PsiElement({)('{')
                 PsiWhiteSpace('\n      ')
                 ScPatternDefinition: k
                   AnnotationsList
@@ -1561,7 +1496,6 @@ ScalaFile
                   IfStatement
                     PsiElement(if)('if')
                     PsiWhiteSpace(' ')
-                    PsiElement(()('(')
                     InfixExpression
                       ReferenceExpression: i
                         PsiElement(identifier)('i')
@@ -1571,10 +1505,9 @@ ScalaFile
                       PsiWhiteSpace(' ')
                       ReferenceExpression: k
                         PsiElement(identifier)('k')
-                    PsiElement())(')')
                     PsiWhiteSpace(' ')
+                    PsiElement(then)('then')
                     BlockExpression
-                      PsiElement({)('{')
                       PsiWhiteSpace('\n          ')
                       ScPatternDefinition: m
                         AnnotationsList
@@ -1647,15 +1580,12 @@ ScalaFile
                         PsiWhiteSpace(' ')
                         IntegerLiteral
                           PsiElement(integer)('0')
-                      PsiWhiteSpace('\n        ')
-                      PsiElement(})('}')
-                    PsiWhiteSpace(' ')
+                    PsiWhiteSpace('\n        ')
                     PsiElement(else)('else')
                     PsiWhiteSpace(' ')
                     IfStatement
                       PsiElement(if)('if')
                       PsiWhiteSpace(' ')
-                      PsiElement(()('(')
                       InfixExpression
                         MethodCall
                           ReferenceExpression: _bits.at
@@ -1674,38 +1604,29 @@ ScalaFile
                         PsiWhiteSpace(' ')
                         IntegerLiteral
                           PsiElement(integer)('0')
-                      PsiElement())(')')
                       PsiWhiteSpace(' ')
-                      BlockExpression
-                        PsiElement({)('{')
-                        PsiWhiteSpace('\n          ')
-                        BooleanLiteral
-                          PsiElement(false)('false')
-                        PsiWhiteSpace('\n        ')
-                        PsiElement(})('}')
-                      PsiWhiteSpace(' ')
+                      PsiElement(then)('then')
+                      PsiWhiteSpace('\n          ')
+                      BooleanLiteral
+                        PsiElement(false)('false')
+                      PsiWhiteSpace('\n        ')
                       PsiElement(else)('else')
-                      PsiWhiteSpace(' ')
-                      BlockExpression
-                        PsiElement({)('{')
-                        PsiWhiteSpace('\n          ')
-                        MethodCall
-                          ReferenceExpression: loop
-                            PsiElement(identifier)('loop')
-                          ArgumentList
-                            PsiElement(()('(')
-                            InfixExpression
-                              ReferenceExpression: i
-                                PsiElement(identifier)('i')
-                              PsiWhiteSpace(' ')
-                              ReferenceExpression: +
-                                PsiElement(identifier)('+')
-                              PsiWhiteSpace(' ')
-                              IntegerLiteral
-                                PsiElement(integer)('1')
-                            PsiElement())(')')
-                        PsiWhiteSpace('\n        ')
-                        PsiElement(})('}')
+                      PsiWhiteSpace('\n          ')
+                      MethodCall
+                        ReferenceExpression: loop
+                          PsiElement(identifier)('loop')
+                        ArgumentList
+                          PsiElement(()('(')
+                          InfixExpression
+                            ReferenceExpression: i
+                              PsiElement(identifier)('i')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: +
+                              PsiElement(identifier)('+')
+                            PsiWhiteSpace(' ')
+                            IntegerLiteral
+                              PsiElement(integer)('1')
+                          PsiElement())(')')
                 PsiWhiteSpace('\n      ')
                 MethodCall
                   ReferenceExpression: loop
@@ -1715,8 +1636,6 @@ ScalaFile
                     IntegerLiteral
                       PsiElement(integer)('0')
                     PsiElement())(')')
-                PsiWhiteSpace('\n    ')
-                PsiElement(})('}')
           PsiWhiteSpace('\n\n  ')
           ScFunctionDefinition: allTrue
             DocComment
@@ -1762,10 +1681,10 @@ ScalaFile
             IfStatement
               PsiElement(if)('if')
               PsiWhiteSpace(' ')
-              PsiElement(()('(')
               ReferenceExpression: isEmpty
                 PsiElement(identifier)('isEmpty')
-              PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(then)('then')
               PsiWhiteSpace(' ')
               BlockExpression
                 PsiElement({)('{')
@@ -1848,7 +1767,6 @@ ScalaFile
                   IfStatement
                     PsiElement(if)('if')
                     PsiWhiteSpace(' ')
-                    PsiElement(()('(')
                     InfixExpression
                       ReferenceExpression: i
                         PsiElement(identifier)('i')
@@ -1858,7 +1776,8 @@ ScalaFile
                       PsiWhiteSpace(' ')
                       ReferenceExpression: k
                         PsiElement(identifier)('k')
-                    PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    PsiElement(then)('then')
                     PsiWhiteSpace(' ')
                     BlockExpression
                       PsiElement({)('{')
@@ -1942,7 +1861,6 @@ ScalaFile
                     IfStatement
                       PsiElement(if)('if')
                       PsiWhiteSpace(' ')
-                      PsiElement(()('(')
                       InfixExpression
                         MethodCall
                           ReferenceExpression: _bits.at
@@ -1964,7 +1882,8 @@ ScalaFile
                             PsiElement(identifier)('~')
                           IntegerLiteral
                             PsiElement(integer)('0')
-                      PsiElement())(')')
+                      PsiWhiteSpace(' ')
+                      PsiElement(then)('then')
                       PsiWhiteSpace(' ')
                       BlockExpression
                         PsiElement({)('{')
@@ -2481,10 +2400,10 @@ ScalaFile
               IfStatement
                 PsiElement(if)('if')
                 PsiWhiteSpace(' ')
-                PsiElement(()('(')
                 ReferenceExpression: isEmpty
                   PsiElement(identifier)('isEmpty')
-                PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(then)('then')
                 PsiWhiteSpace(' ')
                 BlockExpression
                   PsiElement({)('{')
@@ -2584,7 +2503,6 @@ ScalaFile
                   ForStatement
                     PsiElement(for)('for')
                     PsiWhiteSpace(' ')
-                    PsiElement(()('(')
                     Enumerators
                       Generator
                         ReferencePattern: i
@@ -2601,7 +2519,8 @@ ScalaFile
                           PsiWhiteSpace(' ')
                           ReferenceExpression: k
                             PsiElement(identifier)('k')
-                    PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    PsiElement(do)('do')
                     PsiWhiteSpace(' ')
                     BlockExpression
                       PsiElement({)('{')
@@ -3060,7 +2979,6 @@ ScalaFile
             IfStatement
               PsiElement(if)('if')
               PsiWhiteSpace(' ')
-              PsiElement(()('(')
               InfixExpression
                 ReferenceExpression: p.offsetInBucket
                   ReferenceExpression: p
@@ -3073,7 +2991,8 @@ ScalaFile
                 PsiWhiteSpace(' ')
                 IntegerLiteral
                   PsiElement(integer)('63')
-              PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(then)('then')
               PsiWhiteSpace(' ')
               BlockExpression
                 PsiElement({)('{')
@@ -3833,7 +3752,6 @@ ScalaFile
             IfStatement
               PsiElement(if)('if')
               PsiWhiteSpace(' ')
-              PsiElement(()('(')
               InfixExpression
                 ReferenceExpression: minimumCapacity
                   PsiElement(identifier)('minimumCapacity')
@@ -3843,7 +3761,8 @@ ScalaFile
                 PsiWhiteSpace(' ')
                 ReferenceExpression: capacity
                   PsiElement(identifier)('capacity')
-              PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(then)('then')
               PsiWhiteSpace(' ')
               BlockExpression
                 PsiElement({)('{')
@@ -4767,7 +4686,6 @@ ScalaFile
               ForStatement
                 PsiElement(for)('for')
                 PsiWhiteSpace(' ')
-                PsiElement(()('(')
                 Enumerators
                   Generator
                     ReferencePattern: b
@@ -4777,7 +4695,8 @@ ScalaFile
                     PsiWhiteSpace(' ')
                     ReferenceExpression: bits
                       PsiElement(identifier)('bits')
-                PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(do)('do')
                 PsiWhiteSpace(' ')
                 AssignStatement
                   ReferenceExpression: result

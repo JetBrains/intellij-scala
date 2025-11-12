@@ -982,6 +982,13 @@ object AfterUpdateDottyVersionScript {
         |i6199c.scala
         |i6199b.scala
         |i21981.orig.scala
+        |
+        |# Scala 3.7.4
+        |cc-use-alternatives.scala
+        |erased-pathdep-1.scala
+        |i23489.scala
+        |t5031_2.scala
+        |t8367.scala
         |""".stripMargin.trim
     )
   }

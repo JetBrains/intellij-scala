@@ -1,0 +1,45 @@
+Document tests/pos/simple-tuple-extract.scala
+(3:12..3:15) scala/Int#
+(3:17..3:23) scala/Predef.String#
+(3:25..3:31) scala/AnyRef#
+(4:15..4:18) scala/Int#
+(4:23..4:29) scala/Predef.String#
+(7:21..7:23) _empty_/Test#f1(). -> 3:7
+(18:5..18:6) local0 -> 7:10
+(18:7..18:8) scala/Int#`+`(+4).
+(18:9..18:10) local1 -> 7:13
+(18:11..18:17) java/lang/String#length().
+(18:20..18:21) scala/Int#`+`(+4).
+(18:22..18:23) local2 -> 7:16
+(18:24..18:32) scala/Any#toString().
+(18:33..18:39) java/lang/String#length().
+(24:21..24:23) _empty_/Test#f1(). -> 3:7
+(25:5..25:6) local3 -> 24:13
+(25:7..25:13) java/lang/String#length().
+(25:16..25:17) scala/Int#`+`(+4).
+(25:18..25:19) local4 -> 24:16
+(25:20..25:28) scala/Any#toString().
+(25:29..25:35) java/lang/String#length().
+(27:23..27:25) _empty_/Test#f1(). -> 3:7
+(28:5..28:7) local5 -> 27:10
+(28:8..28:9) scala/Int#`+`(+4).
+(28:10..28:12) local6 -> 27:17
+(28:13..28:21) scala/Any#toString().
+(28:22..28:28) java/lang/String#length().
+(30:22..30:24) _empty_/Test#f1(). -> 3:7
+(31:5..31:7) local7 -> 30:10
+(31:8..31:9) scala/Int#`+`(+4).
+(34:21..34:23) _empty_/Test#f1(). -> 3:7
+(35:5..35:6) local8 -> 34:13
+(35:7..35:13) java/lang/String#length().
+(35:16..35:17) scala/Int#`+`(+4).
+(38:18..38:20) _empty_/Test#f2(). -> 4:7
+(39:5..39:6) local9 -> 38:10
+(39:7..39:8) scala/Int#`+`(+4).
+(39:9..39:10) local10 -> 38:13
+(39:11..39:17) java/lang/String#length().
+(42:18..42:20) _empty_/Test#f2(). -> 4:7
+(43:5..43:6) local11 -> 42:13
+(43:7..43:13) java/lang/String#length().
+(43:16..43:17) scala/Int#`+`(+4).
+

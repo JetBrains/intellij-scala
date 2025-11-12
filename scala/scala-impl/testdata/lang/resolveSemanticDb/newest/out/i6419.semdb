@@ -11,6 +11,4 @@ Document tests/pos/i6419.scala
 (6:5..6:8) local0 -> 5:59
 (9:19..9:23) scala/Unit#
 (10:5..10:8) _empty_/Foo#foo(). -> 4:14
-(13:19..13:23) scala/Unit#
-(14:5..14:8) _empty_/Foo#foo(). -> 4:14
 

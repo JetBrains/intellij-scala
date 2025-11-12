@@ -1,0 +1,21 @@
+package scalaql
+import scalaql.fixture.*
+-----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: scalaql
+      PsiElement(identifier)('scalaql')
+    PsiWhiteSpace('\n')
+    ScImportStatement
+      PsiElement(import)('import')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: scalaql.fixture
+          CodeReferenceElement: scalaql
+            PsiElement(identifier)('scalaql')
+          PsiElement(.)('.')
+          PsiElement(identifier)('fixture')
+        PsiElement(.)('.')
+        PsiElement(*)('*')

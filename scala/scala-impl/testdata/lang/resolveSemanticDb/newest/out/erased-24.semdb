@@ -1,0 +1,25 @@
+Document tests/pos/erased-24.scala
+(7:18..7:23) scala/Array#
+(7:24..7:30) scala/Predef.String#
+(7:34..7:38) scala/Unit#
+(8:5..8:12) scala/Predef.println(+1).
+(8:13..8:16) _empty_/Test.fun(). -> 11:7
+(8:21..8:24) _empty_/Bar# -> 25:7
+(11:23..11:26) _empty_/Foo# -> 20:7
+(11:29..11:32) _empty_/Test.fun().(foo) -> 11:18
+(11:33..11:34) _empty_/Foo#X# -> 21:8
+(12:10..12:22) scala/Any#asInstanceOf().
+(12:23..12:26) _empty_/Test.fun().(foo) -> 11:18
+(12:27..12:28) _empty_/Foo#X# -> 21:8
+(15:24..15:27) _empty_/Foo# -> 20:7
+(15:41..15:44) _empty_/Test.fun2().(foo) -> 15:19
+(15:45..15:46) _empty_/Foo#B# -> 22:8
+(15:49..15:52) _empty_/Test.fun2().(bar) -> 15:36
+(15:53..15:54) _empty_/Bar#X# -> 26:8
+(16:10..16:22) scala/Any#asInstanceOf().
+(16:23..16:26) _empty_/Test.fun2().(bar) -> 15:36
+(16:27..16:28) _empty_/Bar#X# -> 26:8
+(22:13..22:16) _empty_/Bar# -> 25:7
+(25:19..25:22) _empty_/Foo# -> 20:7
+(26:12..26:18) scala/Predef.String#
+

@@ -1,0 +1,20 @@
+Document tests/pos/into-expr.scala
+(4:8..4:16) scala/language.
+(4:17..4:29) scala/language.experimental.
+(4:30..4:34) scala/language.experimental.into.
+(5:8..5:18) scala/Conversion.
+(8:15..8:19) scala/Conversion.into#
+(8:20..8:24) _empty_/Expr# -> 7:6
+(9:16..9:20) scala/Conversion.into#
+(9:21..9:25) _empty_/Expr# -> 7:6
+(9:32..9:36) scala/Conversion.into#
+(9:37..9:41) _empty_/Expr# -> 7:6
+(10:17..10:20) scala/Int#
+(11:8..11:12) _empty_/Expr.
+(13:7..13:17) scala/Conversion#
+(13:18..13:21) scala/Int#
+(13:23..13:28) _empty_/Expr.Const# -> 10:8
+(13:32..13:37) _empty_/Expr.Const.
+(16:3..16:6) _empty_/Expr.Add.
+(16:10..16:13) _empty_/Expr.Neg.
+

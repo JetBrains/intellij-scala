@@ -1,0 +1,259 @@
+
+def kek(t: Table, ids: t.Id*) = ???
+
+trait Table {
+  type Id = String
+}
+
+object Table1 extends Table {
+  val id: Id = "table1_id"
+}
+
+class Table2() extends Table {
+  val id: Id = "table2_id"
+}
+
+val x = kek(Table1, Table1.id)
+val y = kek(Table2(), Table2().id)
+-----
+ScalaFile
+  ScFunctionDefinition: kek
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('kek')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: t
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('t')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: Table
+              CodeReferenceElement: Table
+                PsiElement(identifier)('Table')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        Parameter: ids
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('ids')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: t.Id
+              CodeReferenceElement: t.Id
+                CodeReferenceElement: t
+                  PsiElement(identifier)('t')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Id')
+            PsiElement(identifier)('*')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Table
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Table')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Id
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Id')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: Table1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Table1')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Table
+            CodeReferenceElement: Table
+              PsiElement(identifier)('Table')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: id
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: id
+              PsiElement(identifier)('id')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Id
+            CodeReferenceElement: Id
+              PsiElement(identifier)('Id')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          StringLiteral
+            PsiElement(string content)('"table1_id"')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: Table2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Table2')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Table
+            CodeReferenceElement: Table
+              PsiElement(identifier)('Table')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: id
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: id
+              PsiElement(identifier)('id')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Id
+            CodeReferenceElement: Id
+              PsiElement(identifier)('Id')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          StringLiteral
+            PsiElement(string content)('"table2_id"')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: x
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: x
+        PsiElement(identifier)('x')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: kek
+        PsiElement(identifier)('kek')
+      ArgumentList
+        PsiElement(()('(')
+        ReferenceExpression: Table1
+          PsiElement(identifier)('Table1')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: Table1.id
+          ReferenceExpression: Table1
+            PsiElement(identifier)('Table1')
+          PsiElement(.)('.')
+          PsiElement(identifier)('id')
+        PsiElement())(')')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: y
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: y
+        PsiElement(identifier)('y')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: kek
+        PsiElement(identifier)('kek')
+      ArgumentList
+        PsiElement(()('(')
+        MethodCall
+          ReferenceExpression: Table2
+            PsiElement(identifier)('Table2')
+          ArgumentList
+            PsiElement(()('(')
+            PsiElement())(')')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: Table2().id
+          MethodCall
+            ReferenceExpression: Table2
+              PsiElement(identifier)('Table2')
+            ArgumentList
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiElement(.)('.')
+          PsiElement(identifier)('id')
+        PsiElement())(')')
