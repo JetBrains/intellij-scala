@@ -360,8 +360,8 @@ object AfterUpdateDottyVersionScript {
 
       val blacklist = loadBlacklist(repo)
       var atLeastOneFileProcessed = false
-      for (file <- allFilesIn(srcDir) if acceptFile(file) if !blacklist.contains(file.getFileName.toString))  {
-        val target = failDataPath / file.toString.substring(srcDir.toString.length).replace(".scala", "++++test")
+      for (file <- allFilesIn(srcDir) if acceptFile(file) if !blacklist.contains(file.getFileName.toString)) {
+        val target = failDataPath / replaceLast(file.toString.substring(srcDir.toString.length), ".scala", "++++test")
         val content = readFile(file)
           .replaceAll("[-]{5,}", "+") // <- some test files have comment lines with dashes which confuse junit
 
@@ -402,6 +402,12 @@ object AfterUpdateDottyVersionScript {
         throw new AssertionError("No files were processed")
 
       extractRanges(repo, tempRangeSourceDir)
+    }
+
+    private def replaceLast(string: String, target: String, replacement: String): String = {
+      val index = string.lastIndexOf(target)
+      if (index == -1) return string
+      string.substring(0, index) ++ replacement
     }
 
     /**
