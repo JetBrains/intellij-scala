@@ -142,7 +142,7 @@ object SmartJDKLoader {
     JavaSdk.getInstance.createJdk(jdkName, pathOption.get, false)
   }
 
-  private def discoverJDK(jdkVersion: JavaSdkVersion): Option[Path] =
+  def discoverJDK(jdkVersion: JavaSdkVersion): Option[Path] =
     discoverJre(jdkPaths, jdkVersion)
 
   private def discoverJre(paths: Seq[String], jdkVersion: JavaSdkVersion): Option[Path] = {

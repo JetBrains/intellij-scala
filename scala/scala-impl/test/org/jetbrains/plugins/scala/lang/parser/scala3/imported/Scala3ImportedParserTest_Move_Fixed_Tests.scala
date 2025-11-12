@@ -4,18 +4,8 @@ import com.intellij.psi.impl.DebugUtil.psiToString
 import org.jetbrains.plugins.scala.extensions.{PathExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Ignore
-import org.junit.runner.RunWith
-import org.junit.runners.Suite
 
 import java.nio.file.{Files, Path, StandardCopyOption, StandardOpenOption}
-
-@Ignore("For local running only")
-@RunWith(classOf[Suite])
-@Suite.SuiteClasses(Array(
-  classOf[Scala3ImportedParserTest_Move_Fixed_Tests_LTS],
-  classOf[Scala3ImportedParserTest_Move_Fixed_Tests_Newest]
-))
-class Scala3ImportedParserTest_Move_Fixed_Tests
 
 @Ignore("For local running only")
 class Scala3ImportedParserTest_Move_Fixed_Tests_LTS
