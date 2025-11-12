@@ -1,0 +1,41 @@
+package scalaql
+
+class forbiddenInheritance extends scala.annotation.StaticAnnotation
+-----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: scalaql
+      PsiElement(identifier)('scalaql')
+    PsiWhiteSpace('\n\n')
+    ScClass: forbiddenInheritance
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('forbiddenInheritance')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            SimpleType: scala.annotation.StaticAnnotation
+              CodeReferenceElement: scala.annotation.StaticAnnotation
+                CodeReferenceElement: scala.annotation
+                  CodeReferenceElement: scala
+                    PsiElement(identifier)('scala')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('annotation')
+                PsiElement(.)('.')
+                PsiElement(identifier)('StaticAnnotation')

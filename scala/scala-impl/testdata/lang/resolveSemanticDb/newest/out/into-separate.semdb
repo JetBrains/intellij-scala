@@ -1,0 +1,29 @@
+Document tests/pos/into-separate/Test_2.scala
+(3:8..3:16) scala/language.
+(3:17..3:29) scala/language.experimental.
+(3:30..3:34) scala/language.experimental.into.
+(6:9..6:19) scala/Conversion#
+(6:20..6:23) scala/Int#
+(6:25..6:26) test/C# -> 6:7
+(6:30..6:31) test/C# -> 6:7
+(8:12..8:13) test/T# -> 5:12
+(9:3..9:4) test/Test.f(). -> 8:7
+(11:26..11:36) scala/Conversion#
+(11:37..11:43) scala/Predef.String#
+(11:45..11:52) test/Keyword# -> 8:12
+(11:56..11:63) test/Keyword# -> 8:12
+(13:21..13:24) scala/Predef.Set.
+(13:25..13:32) test/Keyword# -> 8:12
+(14:18..14:29) test/Test.dclKeywords. -> 13:7
+(14:30..14:31) scala/collection/immutable/SetOps#`+`().
+(14:37..14:38) scala/collection/immutable/SetOps#`+`().
+(14:46..14:47) scala/collection/immutable/SetOps#`+`().
+
+Document tests/pos/into-separate/classes_1.scala
+(3:8..3:16) scala/language.
+(3:17..3:29) scala/language.experimental.
+(3:30..3:34) scala/language.experimental.into.
+(6:12..6:15) scala/Int#
+(6:25..6:26) test/T# -> 5:12
+(8:25..8:31) scala/Predef.String#
+

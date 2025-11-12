@@ -2,20 +2,23 @@ Document tests/pos/into-sam.scala
 (4:8..4:16) scala/language.
 (4:17..4:29) scala/language.experimental.
 (4:30..4:34) scala/language.experimental.into.
-(6:21..6:27) scala/Predef.String#
-(8:7..8:17) scala/Conversion#
-(8:18..8:24) scala/Predef.String#
-(8:26..8:30) _empty_/Text# -> 6:7
-(8:34..8:38) _empty_/Text# -> 6:7
-(10:12..10:15) scala/Int#
-(10:25..10:29) _empty_/Text# -> 6:7
-(10:32..10:36) scala/Unit#
-(11:10..11:14) _empty_/Text# -> 6:7
-(11:18..11:22) scala/Unit#
-(11:25..11:26) _empty_/Test.f(). -> 10:7
-(14:23..14:27) _empty_/Text# -> 6:7
-(14:30..14:34) scala/Unit#
-(16:10..16:17) _empty_/Test.ConvArg# -> 13:9
-(16:20..16:21) _empty_/Test.f(). -> 10:7
-(18:3..18:4) _empty_/Test.x. -> 16:7
+(5:8..5:18) scala/Conversion.
+(7:21..7:27) scala/Predef.String#
+(9:7..9:17) scala/Conversion#
+(9:18..9:24) scala/Predef.String#
+(9:26..9:30) _empty_/Text# -> 7:7
+(9:34..9:38) _empty_/Text# -> 7:7
+(11:12..11:15) scala/Int#
+(11:20..11:24) scala/Conversion.into#
+(11:25..11:29) _empty_/Text# -> 7:7
+(11:33..11:37) scala/Unit#
+(12:10..12:14) _empty_/Text# -> 7:7
+(12:18..12:22) scala/Unit#
+(12:25..12:26) _empty_/Test.f(). -> 11:7
+(15:18..15:22) scala/Conversion.into#
+(15:23..15:27) _empty_/Text# -> 7:7
+(15:31..15:35) scala/Unit#
+(17:10..17:17) _empty_/Test.ConvArg# -> 14:9
+(17:20..17:21) _empty_/Test.f(). -> 11:7
+(19:3..19:4) _empty_/Test.x. -> 17:7
 

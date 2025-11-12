@@ -34,9 +34,9 @@ Document tests/pos/i22070/macro.scala
 (15:48..15:55) scala/collection/IterableOnceOps#foreach().
 (16:13..16:18) local2 -> 13:15
 (16:13..16:18) scala/IArray$package.IArray.apply(+7).
-(16:19..16:22) local5
+(16:19..16:22) local6 -> 15:63
 (16:24..16:34) _empty_/Featureful#toFeatures(). -> 2:7
-(16:35..16:38) local6
+(16:35..16:38) local5 -> 15:58
 (16:39..16:51) scala/Any#asInstanceOf().
 (17:11..17:17) scala/IArray$package.IArray.
 (17:18..17:23) scala/IArray$package.IArray.empty().

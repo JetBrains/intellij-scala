@@ -16,5 +16,5 @@ Document tests/pos/caps-universal.scala
 (6:24..6:31) scala/annotation/retains#
 (6:32..6:36) scala/caps/
 (6:37..6:40) scala/caps/cap.
-(6:44..6:47) _empty_/`caps-universal$package`.foo. -> 5:5
+(6:49..6:52) _empty_/`caps-universal$package`.foo. -> 5:5
 

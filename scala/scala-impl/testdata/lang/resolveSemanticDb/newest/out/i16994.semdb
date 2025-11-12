@@ -6,5 +6,5 @@ Document tests/pos/i16994.scala
 (2:21..2:33) scala/collection/IterableOps#zipWithIndex().
 (2:34..2:41) scala/collection/IterableOnceOps#foreach().
 (2:46..2:48) _empty_/i16994$package.ZZ# -> 1:6
-(2:56..2:57) local2
+(2:56..2:57) local2 -> 2:43
 

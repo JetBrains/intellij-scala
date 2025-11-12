@@ -24,6 +24,14 @@ type Bound5 <: FP5
 type Node6   = NodeK { type FBound <: Bound6 }
 type Bound6 <: FP6
 type FP6     = Fixed[Node6]
+
+// type X^
+// type Y^
+// type Z >: X <: Y
+// val Z
+
+
+// type C <:
 -----
 ScalaFile
   ScTrait: NodeK
@@ -525,3 +533,13 @@ ScalaFile
           CodeReferenceElement: Node6
             PsiElement(identifier)('Node6')
         PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  PsiComment(comment)('// type X^')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// type Y^')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// type Z >: X <: Y')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// val Z')
+  PsiWhiteSpace('\n\n\n')
+  PsiComment(comment)('// type C <:')

@@ -22,10 +22,12 @@
 [156,156]: Template
 [156,156]: DefDef
 [156,156]: TypeTree
-[182,214]: DefDef
+[182,193]: Ident
+[197,214]: DefDef
 [210,210]: TypeTree
 [213,214]: Number
-[218,241]: TypeDef
-[218,218]: Template
-[218,218]: DefDef
-[218,218]: TypeTree
+[218,229]: Ident
+[233,241]: TypeDef
+[233,233]: Template
+[233,233]: DefDef
+[233,233]: TypeTree

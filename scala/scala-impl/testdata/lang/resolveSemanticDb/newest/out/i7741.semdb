@@ -5,7 +5,5 @@ Document tests/pos/i7741.scala
 (1:36..1:53) scala/language.experimental.erasedDefinitions.
 (4:6..4:12) scala/native#
 (4:28..4:32) scala/Unit#
-(7:28..7:31) scala/Int#
-(7:34..7:37) scala/Int#
-(10:19..10:22) scala/Int#
+(7:19..7:22) scala/Int#
 

@@ -27,7 +27,7 @@ Document tests/pos/22219b.scala
 (17:18..17:20) scala/Predef.ArrowAssoc#`->`().
 (18:7..18:14) scala/collection/immutable/List#foreach().
 (19:7..19:13) scala/Predef.summon().
-(19:14..19:20) local1
+(19:14..19:20) local2 -> 18:24
 (19:26..19:29) scala/`<:<`#
 (19:30..19:41) _empty_/`22219b$package`.MonthNumber# -> 1:6
 
