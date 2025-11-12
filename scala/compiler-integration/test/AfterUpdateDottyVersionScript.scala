@@ -1,12 +1,15 @@
 import com.intellij.openapi.progress.EmptyProgressIndicator
+import com.intellij.openapi.projectRoots.JavaSdkVersion
 import com.intellij.openapi.roots.CompilerModuleExtension
-import com.intellij.openapi.util.io.FileUtilRt
+import com.intellij.openapi.util.io.{FileUtilRt, NioFiles}
 import com.intellij.platform.templates.github.{DownloadUtil, ZipUtil => GithubZipUtil}
 import com.intellij.pom.java.LanguageLevel
 import junit.framework.TestCase
+import junitparams.JUnitParamsRunner
+import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.compiler.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.extensions.PathExt
-import org.jetbrains.plugins.scala.lang.parser.scala3.imported.{Scala3ImportedParserTestConfig, Scala3ImportedParserTest_Move_Fixed_Tests}
+import org.jetbrains.plugins.scala.lang.parser.scala3.imported.{Scala3ImportedParserTestConfig, Scala3ImportedParserTest_Move_Fixed_Tests_LTS, Scala3ImportedParserTest_Move_Fixed_Tests_Newest}
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ReferenceComparisonTestBase.disambiguatedStoreFileNameForUppercaseNames
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb._
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.configurations._
@@ -15,13 +18,16 @@ import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.jetbrains.sbt.lang.completion.UpdateScalacOptionsInfo
 import org.junit.Assert.{assertEquals, assertTrue, fail}
-import org.junit.runner.JUnitCore
+import org.junit.runner.{Computer, JUnitCore, RunWith, Runner}
 import org.junit.runners.MethodSorters
+import org.junit.runners.model.{FrameworkMethod, RunnerBuilder}
 import org.junit.{FixMethodOrder, Ignore, Test}
 
 import java.io.PrintWriter
+import java.lang.annotation.Annotation
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path, Paths, StandardCopyOption}
+import scala.annotation.tailrec
 import scala.io.Source
 import scala.jdk.CollectionConverters.ListHasAsScala
 import scala.sys.process.Process
@@ -53,8 +59,10 @@ class AfterUpdateDottyVersionScript {
   @Test def test_3_Scala3ImportedParserTest_Import_FromDottyDirectory_Newest(): Unit =
     runScript(Script.FromTestCase(classOf[Scala3ImportedParserTest_Import_FromDottyDirectory_Newest]))
 
-  @Test def test_4_Scala3ImportedParserTest_Move_Fixed_Tests(): Unit =
-    runJUnit4Script(classOf[Scala3ImportedParserTest_Move_Fixed_Tests])
+  @Test def test_4_Scala3ImportedParserTest_Move_Fixed_Tests(): Unit = {
+    runJUnit4ParameterizedScript(classOf[Scala3ImportedParserTest_Move_Fixed_Tests_LTS])
+    runJUnit4ParameterizedScript(classOf[Scala3ImportedParserTest_Move_Fixed_Tests_Newest])
+  }
 
   /**
    * NOTE:
@@ -88,11 +96,12 @@ class AfterUpdateDottyVersionScript {
 
 object AfterUpdateDottyVersionScript {
   private val scala3_repo_lts_branch = "lts-3.3"
-  private val scala3_repo_newest_branch = "release-3.7.1"
+  private val scala3_repo_newest_branch = "release-3.7.4"
 
   class ScalaRepository private (branch: String) {
     lazy val path: Path =
-      Paths.get(System.getProperty("java.io.tmpdir")) / s"aftertupdate-dotty-version-script-repo-download-$branch"
+      Paths.get(System.getProperty("java.io.tmpdir")).toRealPath() / s"aftertupdate-dotty-version-script-repo-download-$branch"
+    NioFiles.deleteRecursively(path)
 
     lazy val `pos-from-tasty.blacklist`: Path = {
       val blackList = path.resolve("compiler/test/dotc/pos-from-tasty.blacklist")
@@ -144,11 +153,41 @@ object AfterUpdateDottyVersionScript {
 
   private var someTestAlreadyFailed = false
 
-  private def runJUnit4Script(testClass: Class[?]): Unit = {
-    val result = JUnitCore.runClasses(testClass)
+  private def findAnnotation[T <: Annotation](klass: Class[_], annotationClass: Class[T]): Option[T] = {
+    @tailrec
+    def inner(c: Class[_]): Annotation = c.getAnnotation(annotationClass) match {
+      case null =>
+        c.getSuperclass match {
+          case null => null
+          case parent => inner(parent)
+        }
+      case annotation => annotation
+    }
+
+    Option(inner(klass).asInstanceOf[T])
+  }
+
+  private def runJUnit4ParameterizedScript(testClass: Class[?]): Unit = {
+    findAnnotation(testClass, classOf[RunWith]) match {
+      case Some(annotation) =>
+        val correct = annotation.value() == classOf[JUnitParamsRunner]
+        if (!correct) {
+          sys.error(s"The test class ${testClass.getName} must be annotated with `@RunWith(classOf[JUnitParamsRunner])`")
+        }
+      case None =>
+        sys.error(s"The test class ${testClass.getName} must be annotated with `@RunWith(classOf[JUnitParamsRunner])`")
+    }
+
+    // A hack to ignore the @Ignore annotation, otherwise the test class would not be executed by the JUnit 4 machinery.
+    val computer = new Computer() {
+      override def getRunner(builder: RunnerBuilder, testClass: Class[_]): Runner = new JUnitParamsRunner(testClass) {
+        override def isIgnored(child: FrameworkMethod): Boolean = false
+      }
+    }
+
+    val result = JUnitCore.runClasses(computer, testClass)
     result.getFailures.asScala.headOption match {
-      case Some(failure) =>
-        throw failure.getException
+      case Some(failure) => throw failure.getException
       case None =>
     }
   }
@@ -701,13 +740,18 @@ object AfterUpdateDottyVersionScript {
   }
 
   private def runSbt(cmdline: String, dir: Path): Unit = {
+    val jdkDirectory = SmartJDKLoader.discoverJDK(JavaSdkVersion.JDK_17) match {
+      case Some(directory) => directory
+      case None => sys.error("JDK 17 must be installed on the machine")
+    }
+
     println(
       s"""### Running sbt command: $cmdline
          |### in directory: $dir""".stripMargin
     )
     val isWindows = System.getProperty("os.name").toLowerCase.contains("win")
     val sbtExecutable = if (isWindows) "sbt.bat" else "sbt"
-    val process = Process(sbtExecutable :: cmdline :: Nil, dir.toFile)
+    val process = Process(sbtExecutable :: "--java-home" :: jdkDirectory.toCanonicalPath.toString :: cmdline :: Nil, dir.toFile)
     val sc2 = process.!
     assert(sc2 == 0, s"sbt failed with exit code $sc2")
   }
