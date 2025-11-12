@@ -1,4 +1,4 @@
-//> using options "-Xprint:typer"
+//> using options "-Vprint:typer"
 
 class myAnnot[T]() extends annotation.Annotation
 
@@ -16,7 +16,7 @@ ScalaFile
     PsiWhiteSpace(' ')
     ScDirectiveToken(tDIRECTIVE_KEY)('options')
     PsiWhiteSpace(' ')
-    ScDirectiveToken(tDIRECTIVE_VALUE)('"-Xprint:typer"')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('"-Vprint:typer"')
   PsiWhiteSpace('\n\n')
   ScClass: myAnnot
     AnnotationsList

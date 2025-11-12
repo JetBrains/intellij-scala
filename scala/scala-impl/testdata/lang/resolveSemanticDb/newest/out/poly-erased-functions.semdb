@@ -8,7 +8,9 @@ Document tests/pos/poly-erased-functions.scala
 (8:23..8:24) local12 -> 8:13
 (8:36..8:39) scala/Int#
 (8:44..8:45) local13 -> 8:20
-(14:23..14:24) _empty_/Test.A# -> 10:16
+(10:19..10:30) scala/compiletime/
+(10:31..10:37) scala/compiletime/Erased#
+(14:23..14:24) _empty_/Test.A# -> 10:9
 (14:29..14:30) local20 -> 14:13
 (14:35..14:36) local22 -> 14:26
 

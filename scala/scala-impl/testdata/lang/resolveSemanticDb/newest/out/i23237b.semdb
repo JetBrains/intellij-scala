@@ -1,0 +1,50 @@
+Document tests/pos/i23237b.scala
+(2:28..2:33) scala/Float#
+(2:38..2:43) scala/Float#
+(3:28..3:33) scala/Float#
+(3:38..3:43) scala/Float#
+(3:48..3:53) scala/Float#
+(3:58..3:63) scala/Float#
+(5:19..5:23) _empty_/types.vec2# -> 2:20
+(5:28..5:33) scala/Float#
+(5:38..5:43) scala/Float#
+(5:46..5:50) _empty_/types.vec4# -> 3:20
+(5:53..5:57) _empty_/types.vec4. -> 4:10
+(5:58..5:60) _empty_/types.vec4.apply().(xy) -> 5:15
+(5:61..5:62) _empty_/types.vec2#x. -> 2:25
+(5:64..5:66) _empty_/types.vec4.apply().(xy) -> 5:15
+(5:67..5:68) _empty_/types.vec2#y. -> 2:35
+(5:70..5:71) _empty_/types.vec4.apply().(z) -> 5:25
+(5:73..5:74) _empty_/types.vec4.apply().(w) -> 5:35
+(7:33..7:35) _empty_/types.Shader#[In] -> 7:22
+(7:39..7:42) _empty_/types.Shader#[Out] -> 7:26
+(9:34..9:36) _empty_/types.Shader.apply().[In] -> 9:22
+(9:40..9:43) _empty_/types.Shader.apply().[Out] -> 9:26
+(9:46..9:52) _empty_/types.Shader# -> 7:15
+(9:53..9:55) _empty_/types.Shader.apply().[In] -> 9:22
+(9:57..9:60) _empty_/types.Shader.apply().[Out] -> 9:26
+(9:64..9:65) _empty_/types.Shader.apply().(f) -> 9:31
+(10:29..10:31) _empty_/types.Shader.apply(+1).[In] -> 10:22
+(10:35..10:39) scala/Unit#
+(10:42..10:48) _empty_/types.Shader# -> 7:15
+(10:49..10:51) _empty_/types.Shader.apply(+1).[In] -> 10:22
+(10:53..10:57) scala/Unit#
+(10:64..10:65) _empty_/types.Shader.apply(+1).(f) -> 10:26
+(11:31..11:34) scala/Any#
+(11:37..11:43) _empty_/types.Shader# -> 7:15
+(11:44..11:48) scala/Unit#
+(11:50..11:54) scala/Unit#
+(11:62..11:66) scala/Unit#
+(11:71..11:75) _empty_/types.Shader.apply(+2).(body) -> 11:22
+(13:8..13:13) _empty_/types. -> 1:8
+(16:26..16:30) _empty_/types.vec2# -> 2:20
+(18:24..18:30) _empty_/types.Shader# -> 7:15
+(18:31..18:38) _empty_/GLSLEnvTests#FragEnv# -> 16:14
+(18:40..18:44) _empty_/types.vec4# -> 3:20
+(19:5..19:11) _empty_/types.Shader. -> 8:10
+(20:15..20:18) local0 -> 19:14
+(20:19..20:21) _empty_/GLSLEnvTests#FragEnv#UV. -> 16:22
+(21:7..21:11) _empty_/types.vec4. -> 4:10
+(21:12..21:15) local0 -> 19:14
+(21:16..21:18) _empty_/GLSLEnvTests#FragEnv#UV. -> 16:22
+

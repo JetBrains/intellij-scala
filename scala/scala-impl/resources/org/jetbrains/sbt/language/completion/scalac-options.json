@@ -614,7 +614,7 @@
     "2.13": ["dynamics", "existentials", "experimental.macros", "higherKinds", "implicitConversions", "postfixOps", "reflectiveCalls"],
     "3.5": ["adhocExtensions", "deprecated.symbolLiterals", "dynamics", "experimental.betterMatchTypeExtractors", "experimental.captureChecking", "experimental.clauseInterleaving", "experimental.dependent", "experimental.erasedDefinitions", "experimental.fewerBraces", "experimental.genericNumberLiterals", "experimental.into", "experimental.macros", "experimental.modularity", "experimental.namedTuples", "experimental.namedTypeArguments", "experimental.pureFunctions", "experimental.saferExceptions", "help", "implicitConversions", "noAutoTupling", "postfixOps", "strictEquality", "unsafeNulls"],
     "3.6": ["adhocExtensions", "deprecated.symbolLiterals", "dynamics", "experimental.betterFors", "experimental.betterMatchTypeExtractors", "experimental.captureChecking", "experimental.clauseInterleaving", "experimental.dependent", "experimental.erasedDefinitions", "experimental.fewerBraces", "experimental.genericNumberLiterals", "experimental.into", "experimental.macros", "experimental.modularity", "experimental.namedTuples", "experimental.namedTypeArguments", "experimental.pureFunctions", "experimental.saferExceptions", "help", "implicitConversions", "noAutoTupling", "postfixOps", "strictEquality", "unsafeNulls"],
-    "3.7": ["adhocExtensions", "deprecated.symbolLiterals", "dynamics", "experimental.captureChecking", "experimental.dependent", "experimental.erasedDefinitions", "experimental.genericNumberLiterals", "experimental.into", "experimental.macros", "experimental.modularity", "experimental.namedTypeArguments", "experimental.packageObjectValues", "experimental.pureFunctions", "experimental.saferExceptions", "help", "implicitConversions", "noAutoTupling", "postfixOps", "strictEquality", "unsafeNulls"]
+    "3.7": ["adhocExtensions", "deprecated.symbolLiterals", "dynamics", "experimental.captureChecking", "experimental.dependent", "experimental.erasedDefinitions", "experimental.genericNumberLiterals", "experimental.into", "experimental.macros", "experimental.modularity", "experimental.namedTypeArguments", "experimental.packageObjectValues", "experimental.pureFunctions", "experimental.saferExceptions", "experimental.separationChecking", "help", "implicitConversions", "noAutoTupling", "postfixOps", "strictEquality", "unsafeNulls"]
   },
   "descriptions": {
     "2.13": "Enable or disable language features",
@@ -824,10 +824,11 @@
 
   },
   "descriptions": {
+    "3.3": "Quit REPL after evaluating the init script.",
     "3.7": "Quit REPL after evaluating the init script."
   },
   "flag": "--repl-quit-after-init",
-  "scalaVersions": ["3.7"]
+  "scalaVersions": ["3.3", "3.7"]
 }, {
   "argType": "No",
   "choices": {
@@ -1942,6 +1943,17 @@
 
   },
   "descriptions": {
+    "3.3": "Warn when a method calls itself with a default argument.",
+    "3.7": "Warn when a method calls itself with a default argument."
+  },
+  "flag": "-Wrecurse-with-default",
+  "scalaVersions": ["3.3", "3.7"]
+}, {
+  "argType": "No",
+  "choices": {
+
+  },
+  "descriptions": {
     "3.5": "Ensure safe initialization of objects.",
     "3.6": "Ensure safe initialization of objects.",
     "3.7": "Ensure safe initialization of objects."
@@ -1981,10 +1993,11 @@
   },
   "descriptions": {
     "2.13": "Warn when a standard interpolator uses toString. [false]",
+    "3.3": "Warn a standard interpolator used toString on a reference type.",
     "3.7": "Warn a standard interpolator used toString on a reference type."
   },
   "flag": "-Wtostring-interpolated",
-  "scalaVersions": ["2.13", "3.7"]
+  "scalaVersions": ["2.13", "3.3", "3.7"]
 }, {
   "argType": "No",
   "choices": {
@@ -2024,7 +2037,7 @@
     "2.13": ["explicits", "implicits", "imports", "linted", "locals", "nowarn", "params", "patvars", "privates", "synthetics"],
     "3.1": ["all", "nowarn"],
     "3.2": ["all", "nowarn"],
-    "3.3": ["all", "explicits", "implicits", "imports", "linted", "locals", "nowarn", "params", "privates", "strict-no-implicit-warn", "unsafe-warn-patvars"],
+    "3.3": ["all", "explicits", "implicits", "imports", "linted", "locals", "nowarn", "params", "patvars", "privates", "strict-no-implicit-warn", "unsafe-warn-patvars"],
     "3.4": ["all", "explicits", "implicits", "imports", "linted", "locals", "nowarn", "params", "privates", "strict-no-implicit-warn", "unsafe-warn-patvars"],
     "3.5": ["all", "explicits", "implicits", "imports", "linted", "locals", "nowarn", "params", "privates", "strict-no-implicit-warn", "unsafe-warn-patvars"],
     "3.6": ["all", "explicits", "implicits", "imports", "linted", "locals", "nowarn", "params", "privates", "strict-no-implicit-warn", "unsafe-warn-patvars"],
@@ -2057,6 +2070,16 @@
   },
   "flag": "-Wvalue-discard",
   "scalaVersions": ["2.13", "3.3", "3.4", "3.5", "3.6", "3.7"]
+}, {
+  "argType": "No",
+  "choices": {
+
+  },
+  "descriptions": {
+    "3.7": "Warn if function arrow was used instead of context literal ?=>."
+  },
+  "flag": "-Wwrong-arrow",
+  "scalaVersions": ["3.7"]
 }, {
   "argType": "No",
   "choices": {
@@ -2441,7 +2464,7 @@
   "choices": {
     "2.11": ["adapted-args", "by-name-right-associative", "delayedinit-select", "doc-detached", "inaccessible", "infer-any", "missing-interpolator", "nullary-override", "nullary-unit", "option-implicit", "package-object-classes", "poly-implicit-overload", "private-shadow", "stars-align", "type-parameter-shadow", "unsound-match"],
     "2.12": ["adapted-args", "by-name-right-associative", "constant", "delayedinit-select", "deprecation", "doc-detached", "inaccessible", "infer-any", "int-div-to-float", "missing-interpolator", "nullary-override", "nullary-unit", "option-implicit", "package-object-classes", "poly-implicit-overload", "private-shadow", "stars-align", "type-parameter-shadow", "unsound-match", "unused"],
-    "2.13": ["adapted-args", "arg-discard", "byname-implicit", "cloneable", "constant", "delayedinit-select", "deprecation", "doc-detached", "eta-sam", "eta-zero", "implicit-not-found", "implicit-recursion", "inaccessible", "infer-any", "int-div-to-float", "missing-interpolator", "nonlocal-return", "nullary-unit", "numeric-methods", "option-implicit", "package-object-classes", "pattern-shadow", "poly-implicit-overload", "private-shadow", "recurse-with-default", "serial", "stars-align", "strict-unsealed-patmat", "type-parameter-shadow", "unit-special", "universal-methods", "unused", "valpattern"],
+    "2.13": ["adapted-args", "arg-discard", "byname-implicit", "cloneable", "constant", "delayedinit-select", "deprecation", "doc-detached", "eta-sam", "eta-zero", "implicit-not-found", "implicit-recursion", "inaccessible", "infer-any", "infer-structural", "int-div-to-float", "missing-interpolator", "nonlocal-return", "nullary-unit", "numeric-methods", "option-implicit", "overload", "package-object-classes", "pattern-shadow", "poly-implicit-overload", "private-shadow", "recurse-with-default", "serial", "stars-align", "strict-unsealed-patmat", "type-parameter-shadow", "unit-special", "universal-methods", "unused", "valpattern"],
     "3.3": ["all", "private-shadow", "type-parameter-shadow"]
   },
   "descriptions": {
@@ -3246,7 +3269,7 @@
 }, {
   "argType": "Multiple",
   "choices": {
-    "2.13": ["any2stringadd", "case-apply-copy-access", "case-companion-function", "case-copy-by-name", "double-definitions", "implicit-resolution", "infer-override", "leading-infix", "package-prefix-implicits", "string-context-scope", "unicode-escapes-raw", "v2.13.13", "v2.13.14", "v2.13.15"]
+    "2.13": ["any2stringadd", "case-apply-copy-access", "case-companion-function", "case-copy-by-name", "double-definitions", "eta-expand-always", "implicit-resolution", "infer-override", "leading-infix", "no-infer-structural", "package-prefix-implicits", "string-context-scope", "unicode-escapes-raw", "v2.13.13", "v2.13.14", "v2.13.15", "v2.13.17"]
   },
   "descriptions": {
     "2.13": "Enable Scala 3 features under -Xsource:3: `-Xsource-features:help` for details."
@@ -4357,6 +4380,16 @@
   "flag": "-Yide-debug",
   "scalaVersions": ["2.11", "2.12", "2.13"]
 }, {
+  "argType": "No",
+  "choices": {
+
+  },
+  "descriptions": {
+    "3.7": "Allows to rewrite the implicit keywords to their scala-3 given counterparts. Does not adjust imports. Use in conjunction with --rewrite."
+  },
+  "flag": "-Yimplicit-to-given",
+  "scalaVersions": ["3.7"]
+}, {
   "argType": "Multiple",
   "choices": {
 
@@ -4729,6 +4762,16 @@
   "flag": "-Ymacro-no-expand",
   "scalaVersions": ["2.11", "2.12"]
 }, {
+  "argType": "OneSeparate",
+  "choices": {
+
+  },
+  "descriptions": {
+    "3.7": "Specify the magic header comment that marks the start of the actual code in generated wrapper scripts. Example: -Ymagic-offset-header:SOURCE_CODE_START. Then, in the source, the magic comment `///SOURCE_CODE_START:<ORIGINAL_FILE_PATH>` marks the start of user code. The comment should be suffixed by `:<ORIGINAL_FILE_PATH>` to indicate the original file."
+  },
+  "flag": "-Ymagic-offset-header",
+  "scalaVersions": ["3.7"]
+}, {
   "argType": "No",
   "choices": {
 
@@ -4956,6 +4999,16 @@
   },
   "flag": "-Yno-predef",
   "scalaVersions": ["2.11", "2.12", "2.13", "3.0", "3.1", "3.2", "3.3", "3.4", "3.5", "3.6", "3.7"]
+}, {
+  "argType": "No",
+  "choices": {
+
+  },
+  "descriptions": {
+    "3.7": "Do not patch stdlib files (temporary and only to be used for the stdlib migration)"
+  },
+  "flag": "-Yno-stdlib-patches",
+  "scalaVersions": ["3.7"]
 }, {
   "argType": "No",
   "choices": {
@@ -7152,7 +7205,7 @@
     "2.13": ["dynamics", "existentials", "experimental.macros", "higherKinds", "implicitConversions", "postfixOps", "reflectiveCalls"],
     "3.5": ["adhocExtensions", "deprecated.symbolLiterals", "dynamics", "experimental.betterMatchTypeExtractors", "experimental.captureChecking", "experimental.clauseInterleaving", "experimental.dependent", "experimental.erasedDefinitions", "experimental.fewerBraces", "experimental.genericNumberLiterals", "experimental.into", "experimental.macros", "experimental.modularity", "experimental.namedTuples", "experimental.namedTypeArguments", "experimental.pureFunctions", "experimental.saferExceptions", "help", "implicitConversions", "noAutoTupling", "postfixOps", "strictEquality", "unsafeNulls"],
     "3.6": ["adhocExtensions", "deprecated.symbolLiterals", "dynamics", "experimental.betterFors", "experimental.betterMatchTypeExtractors", "experimental.captureChecking", "experimental.clauseInterleaving", "experimental.dependent", "experimental.erasedDefinitions", "experimental.fewerBraces", "experimental.genericNumberLiterals", "experimental.into", "experimental.macros", "experimental.modularity", "experimental.namedTuples", "experimental.namedTypeArguments", "experimental.pureFunctions", "experimental.saferExceptions", "help", "implicitConversions", "noAutoTupling", "postfixOps", "strictEquality", "unsafeNulls"],
-    "3.7": ["adhocExtensions", "deprecated.symbolLiterals", "dynamics", "experimental.captureChecking", "experimental.dependent", "experimental.erasedDefinitions", "experimental.genericNumberLiterals", "experimental.into", "experimental.macros", "experimental.modularity", "experimental.namedTypeArguments", "experimental.packageObjectValues", "experimental.pureFunctions", "experimental.saferExceptions", "help", "implicitConversions", "noAutoTupling", "postfixOps", "strictEquality", "unsafeNulls"]
+    "3.7": ["adhocExtensions", "deprecated.symbolLiterals", "dynamics", "experimental.captureChecking", "experimental.dependent", "experimental.erasedDefinitions", "experimental.genericNumberLiterals", "experimental.into", "experimental.macros", "experimental.modularity", "experimental.namedTypeArguments", "experimental.packageObjectValues", "experimental.pureFunctions", "experimental.saferExceptions", "experimental.separationChecking", "help", "implicitConversions", "noAutoTupling", "postfixOps", "strictEquality", "unsafeNulls"]
   },
   "descriptions": {
     "2.11": "Enable or disable language features: `_' for all, `-language:help' to list",
@@ -7553,10 +7606,11 @@
 
   },
   "descriptions": {
+    "3.3": "Quit REPL after evaluating the init script.",
     "3.7": "Quit REPL after evaluating the init script."
   },
   "flag": "-repl-quit-after-init",
-  "scalaVersions": ["3.7"]
+  "scalaVersions": ["3.3", "3.7"]
 }, {
   "argType": "No",
   "choices": {

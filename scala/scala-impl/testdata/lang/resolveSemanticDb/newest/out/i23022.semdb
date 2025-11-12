@@ -1,0 +1,11 @@
+Document tests/pos/i23022.scala
+(4:29..4:35) scala/Predef.String#
+(4:38..4:44) scala/Option#
+(4:45..4:48) scala/Any#
+(4:52..4:55) scala/Predef.`???`().
+(6:15..6:18) scala/Any#
+(7:11..7:17) scala/Predef.String#
+(9:12..9:17) _empty_/ExtractorWithImplicit#Yikes. -> 3:10
+(9:24..9:27) scala/Predef.`???`().
+(10:23..10:26) scala/Predef.`???`().
+

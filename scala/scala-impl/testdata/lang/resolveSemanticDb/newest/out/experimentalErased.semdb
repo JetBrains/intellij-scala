@@ -5,9 +5,12 @@ Document tests/pos/experimentalErased.scala
 (2:8..2:18) scala/annotation/
 (2:19..2:31) scala/annotation/experimental#
 (4:2..4:14) scala/annotation/experimental#
+(5:19..5:30) scala/compiletime/
+(5:31..5:37) scala/compiletime/Erased#
+(7:19..7:30) scala/compiletime/
+(7:31..7:37) scala/compiletime/Erased#
 (9:2..9:14) scala/annotation/experimental#
 (14:2..14:14) scala/annotation/experimental#
-(19:2..19:14) scala/annotation/experimental#
-(20:20..20:23) scala/Int#
-(22:20..22:23) scala/Int#
+(15:20..15:23) scala/Int#
+(17:20..17:23) scala/Int#
 

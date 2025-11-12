@@ -79,8 +79,9 @@ Document tests/pos/i11864.scala
 (42:35..42:36) _empty_/CallbackTo.MapGuard#[A] -> 42:17
 (43:33..43:41) _empty_/CallbackTo.MapGuard# -> 42:8
 (43:42..43:43) _empty_/CallbackTo.MapGuard().[A] -> 43:27
-(43:47..43:58) scala/compiletime/
-(43:59..43:70) scala/compiletime/package$package.erasedValue().
+(43:47..43:51) scala/caps/
+(43:52..43:58) scala/caps/unsafe.
+(43:59..43:76) scala/caps/unsafe.unsafeErasedValue().
 (45:26..45:30) scala/package.List#
 (45:31..45:32) _empty_/CallbackTo.traverse().[A] -> 45:16
 (45:36..45:46) _empty_/CallbackTo# -> 36:13

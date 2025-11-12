@@ -1,0 +1,28 @@
+Document tests/pos/i23496/BaseLineSpec_2.scala
+(2:8..2:15) scalaql/ -> 1:9
+(2:16..2:23) scalaql/fixture/ -> 1:17
+
+Document tests/pos/i23496/Query_1.scala
+(3:8..3:13) scala/
+(3:14..3:24) scala/annotation/
+(3:25..3:34) scala/annotation/unchecked/
+(3:35..3:52) scala/annotation/unchecked/uncheckedVariance#
+
+Document tests/pos/i23496/ScalaqlSyntax_1.scala
+(1:9..1:16) scalaql/ -> 1:9
+(3:2..3:9) scalaql/ -> 1:9
+(3:10..3:30) scalaql/forbiddenInheritance# -> 3:7
+
+Document tests/pos/i23496/annotations_1.scala
+(3:36..3:41) scala/
+(3:42..3:52) scala/annotation/
+(3:53..3:69) scala/annotation/StaticAnnotation#
+
+Document tests/pos/i23496/fixture_2.scala
+(1:9..1:16) scalaql/ -> 1:9
+
+Document tests/pos/i23496/package.scala_1.scala
+(1:8..1:15) scalaql/ -> 1:9
+(1:16..1:22) scalaql/syntax/ -> 1:17
+(3:32..3:45) scalaql/syntax/ScalaqlSyntax# -> 4:7
+

@@ -10,7 +10,7 @@ Document tests/pos/named-tuples1.scala
 (10:22..10:25) scala/collection/immutable/List#map().
 (10:26..10:27) scala/NamedTuple.apply(+1).
 (12:3..12:9) scala/Predef.assert(+1).
-(12:10..12:14) local2 -> 10:7
+(12:10..12:14) local3 -> 10:7
 (12:15..12:18) scala/collection/IterableOnceOps#sum().
 (12:19..12:21) scala/Int#`==`(+3).
 
