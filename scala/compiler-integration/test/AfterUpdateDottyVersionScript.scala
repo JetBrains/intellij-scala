@@ -101,9 +101,11 @@ object AfterUpdateDottyVersionScript {
   private val scala3_repo_newest_branch = "release-3.7.4"
 
   class ScalaRepository private (branch: String) {
-    lazy val path: Path =
-      Paths.get(System.getProperty("java.io.tmpdir")).toRealPath() / s"aftertupdate-dotty-version-script-repo-download-$branch"
-    NioFiles.deleteRecursively(path)
+    lazy val path: Path = {
+      val res = Paths.get(System.getProperty("java.io.tmpdir")).toRealPath() / s"after-update-dotty-version-script-repo-download-$branch"
+      NioFiles.deleteRecursively(res)
+      res
+    }
 
     lazy val `pos-from-tasty.blacklist`: Path = {
       val blackList = path.resolve("compiler/test/dotc/pos-from-tasty.blacklist")
