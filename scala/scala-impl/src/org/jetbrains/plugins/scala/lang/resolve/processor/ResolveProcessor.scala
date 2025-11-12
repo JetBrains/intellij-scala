@@ -201,7 +201,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
       type FooType = Long
     }
      */
-    res.filter {
+    val filteredTypeDefs = res.filter {
       case r @ ScalaResolveResult(_: ScTypeAlias | _: ScClass | _: ScTrait, _) =>
         res.foldLeft(true) {
           case (false, _) => false
@@ -212,6 +212,8 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
         }
       case _ => true
     }
+
+    filterShadowedDefinitions(filteredTypeDefs)
   }
 
   object ScalaNameHint extends NameHint {
