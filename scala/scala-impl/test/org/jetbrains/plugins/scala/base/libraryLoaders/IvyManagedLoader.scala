@@ -7,7 +7,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
 import com.intellij.testFramework.PsiTestUtil
 import org.jetbrains.plugins.scala.DependencyManagerBase.{DependencyDescription, ResolvedDependency, Types}
-import org.jetbrains.plugins.scala.util.dependencymanager.TestDependencyManager
+import org.jetbrains.plugins.scala.util.dependencymanager.TestDependencyManagers
 
 import scala.collection.mutable
 
@@ -87,7 +87,7 @@ object IvyManagedLoader {
   ] = mutable.Map()
 
   def apply(dependencies: DependencyDescription*): IvyManagedLoader =
-    new IvyManagedLoader(TestDependencyManager, dependencies: _*)
+    new IvyManagedLoader(TestDependencyManagers.IgnoringAllScalaArtifacts, dependencies: _*)
 
   def apply(dependencyManager: DependencyManagerBase, dependencies: DependencyDescription*): IvyManagedLoader =
     new IvyManagedLoader(dependencyManager, dependencies: _*)

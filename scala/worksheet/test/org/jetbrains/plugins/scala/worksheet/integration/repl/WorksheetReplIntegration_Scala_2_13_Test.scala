@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.worksheet.integration.repl
 import com.intellij.testFramework.IndexingTestUtil
 import org.jetbrains.plugins.scala.util.RevertableChange.withModifiedRegistryValue
 import org.jetbrains.plugins.scala.util.assertions.StringAssertions._
-import org.jetbrains.plugins.scala.util.dependencymanager.TestDependencyManager
 import org.jetbrains.plugins.scala.util.runners._
 import org.jetbrains.plugins.scala.worksheet.WorksheetUtils
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult.WorksheetRunError
