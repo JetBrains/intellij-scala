@@ -335,7 +335,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         }
       case (_, ScalaDocElementTypes.DOC_LIST_ITEM | ScalaDocElementTypes.DOC_LIST, _, _) =>
         Spacing.getReadOnlySpacing
-      case (ScalaDocTokenType.DOC_LIST_ITEM_HEAD, _, _, _) if scalaSettings.SD_ALIGN_LIST_ITEM_CONTENT =>
+      case (ScalaDocTokenType.DOC_LIST_ITEM_HEAD, _, _, _) if scalaSettings.SD_ALIGN_LIST_ITEM_CONTENT  && !leftPsi.getText.last.isWhitespace =>
         WITH_SPACING
       case (ScalaDocTokenType.DOC_TAG_NAME, _, _, _) =>
         if (nodeTextStartsWith(rightNode, fileText, ' ')) WITH_SPACING

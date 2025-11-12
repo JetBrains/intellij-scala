@@ -27,6 +27,8 @@ private class ScaladocMarkdownParsing(builder: MkBuilder) extends ScalaDocElemen
 
   private val elementsHandlingInnerWs = Set(
     MarkdownElementTypes.CODE_FENCE,
+    MarkdownElementTypes.ORDERED_LIST,
+    MarkdownElementTypes.UNORDERED_LIST,
   )
 
   private val elementsHandlingPrevWs = Set(
@@ -316,9 +318,6 @@ private class ScaladocMarkdownParsing(builder: MkBuilder) extends ScalaDocElemen
       treeIt.advance()
     }
   }
-
-  private def textOf(it: MkTreeIt): String =
-    builder.content.substring(it.currentStartOffset, it.currentEndOffset)
 }
 
 object ScaladocMarkdownParsing {
@@ -474,7 +473,6 @@ object ScaladocMarkdownParsing {
   private final class MkTreeIt(private var idx: Int, list: ju.List[ASTNode], val parent: Option[MkTreeIt]) {
     private var processesChildren: Boolean = false
 
-    def index: Int = idx
     def current: ASTNode = list.get(idx)
     def currentNodeType: org.intellij.markdown.IElementType = current.getType
     def currentStartOffset: Int = current.getStartOffset

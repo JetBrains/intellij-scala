@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing.TagNames
-import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocListItem, ScDocTag}
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocListItem, ScDocParagraph, ScDocTag}
 
 import java.util
 import scala.collection.mutable.ArrayBuffer
@@ -74,26 +74,31 @@ private class ScalaDocBlockBuilder(
   private def createAlignmentFor(node: ASTNode): Alignment = {
     node.getPsi match {
       case _: ScDocListItem if ss.SD_ALIGN_LIST_ITEM_CONTENT => createAlignment(true)
+      case _: ScDocParagraph if node.getTreeParent.getElementType == ScalaDocElementTypes.DOC_LIST_ITEM => createAlignment(true)
       case _ => null
     }
   }
 
-  private def calcChildAlignment(parent: ASTNode, child: ASTNode, sharedAlignment: Alignment): Alignment =
-    parent.getPsi match {
-      case _: ScDocListItem if scalaSettings.SD_ALIGN_LIST_ITEM_CONTENT =>
-        val doNotAlignInListItem = child.getElementType match {
-          case ScalaDocTokenType.DOC_LIST_ITEM_HEAD |
-               ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS |
-               ScalaDocTokenType.DOC_WHITESPACE |
-               ScalaDocTokenType.DOC_INNER_CODE_TAG |
-               ScalaDocElementTypes.DOC_LIST => true
-          case _ => false
-        }
-        if (doNotAlignInListItem) null
-        else sharedAlignment
-      case _ =>
+  private def calcChildAlignment(parent: ASTNode, child: ASTNode, sharedAlignment: Alignment): Alignment = {
+    val parentPsi = parent.getPsi
+    val isInListItem = parentPsi.is[ScDocListItem] ||
+      (parentPsi.is[ScDocParagraph] && parent.getTreeParent.getElementType == ScalaDocElementTypes.DOC_LIST_ITEM)
+    if (isInListItem && scalaSettings.SD_ALIGN_LIST_ITEM_CONTENT) {
+      val doNotAlignInListItem = child.getElementType match {
+        case ScalaDocTokenType.DOC_LIST_ITEM_HEAD |
+             ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS |
+             ScalaDocTokenType.DOC_WHITESPACE |
+             ScalaDocTokenType.DOC_INNER_CODE_TAG |
+             ScalaDocElementTypes.DOC_PARAGRAPH |
+             ScalaDocElementTypes.DOC_LIST => true
+        case _ => false
+      }
+      if (doNotAlignInListItem) null
+      else sharedAlignment
+    } else {
         sharedAlignment
     }
+  }
 
   private def addScalaDocCommentSubBlocks(docCommentNode: ASTNode, subBlocks: util.ArrayList[Block]): Unit = {
     val node = docCommentNode
