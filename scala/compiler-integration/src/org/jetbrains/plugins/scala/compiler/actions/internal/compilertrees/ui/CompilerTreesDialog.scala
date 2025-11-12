@@ -177,6 +177,7 @@ object CompilerTreesDialog {
     "<artifact>",
     "<bridge>",
     "<empty>",
+    "<caseaccessor>",
     "<paramaccessor>",
     "<stable>",
     "<static>",
