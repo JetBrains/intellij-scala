@@ -34,6 +34,8 @@ import scala.sys.process.Process
 import scala.util.Using
 
 /**
+ * Try running this script soon after a new Scala LTS or Scala Next version has been made public.
+ *
  * NOTE: tests are used instead of `main` method,
  * because `BasePlatformTestCase` contains logic to run IDEA instance, to which we delegate some logic
  *
