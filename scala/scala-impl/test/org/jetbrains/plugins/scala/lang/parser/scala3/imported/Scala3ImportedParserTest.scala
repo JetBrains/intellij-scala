@@ -6,14 +6,13 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.impl.DebugUtil.psiToString
 import com.intellij.psi.{PsiElement, PsiErrorElement, PsiFile}
 import org.jetbrains.plugins.scala.Scala3Language
-import org.jetbrains.plugins.scala.base.{NoSdkFileSetTestBase, ScalaFileSetTestCase}
+import org.jetbrains.plugins.scala.base.NoSdkFileSetTestBase
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.project.ScalaFeatures
 
 import java.nio.file.Path
-import scala.annotation.nowarn
 
 abstract class Scala3ImportedParserTestBase(
   override val config: Scala3ImportedParserTestConfig,
@@ -141,15 +140,16 @@ sealed trait ImportedParserTestUtil {
   }
 }
 
-@nowarn("cat=deprecation")
-private[imported] class Scala3ImportedParserTestBase_UsedAsScript(
+abstract class Scala3ImportedParserTestBase_UsedAsScript(
   override val config: Scala3ImportedParserTestConfig,
   override val runOnSucceedDirectory: Boolean
-) extends ScalaFileSetTestCase("/" + (if (runOnSucceedDirectory) config.successDataDirectory else config.failDataDirectory))
-  with ImportedParserTestUtil {
-  override protected def getLanguage: Language = Scala3Language.INSTANCE
+) extends NoSdkFileSetTestBase with ImportedParserTestUtil {
+  override protected val relativeTestDataPath: Path = {
+    val path = if (runOnSucceedDirectory) config.successDataDirectory else config.failDataDirectory
+    Path.of(path)
+  }
 
-  override protected def baseTestDataPath: Path = Path.of(getTestDataPath)
+  override protected def language: Language = Scala3Language.INSTANCE
 
   override protected def shouldPass = true
 }

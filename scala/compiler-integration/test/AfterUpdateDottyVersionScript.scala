@@ -3,7 +3,7 @@ import com.intellij.openapi.roots.CompilerModuleExtension
 import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.platform.templates.github.{DownloadUtil, ZipUtil => GithubZipUtil}
 import com.intellij.pom.java.LanguageLevel
-import junit.framework.{TestCase, TestFailure, TestResult, TestSuite}
+import junit.framework.TestCase
 import org.jetbrains.plugins.scala.compiler.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.lang.parser.scala3.imported.{Scala3ImportedParserTestConfig, Scala3ImportedParserTest_Move_Fixed_Tests}
@@ -23,7 +23,7 @@ import java.io.PrintWriter
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path, Paths, StandardCopyOption}
 import scala.io.Source
-import scala.jdk.CollectionConverters.{EnumerationHasAsScala, ListHasAsScala}
+import scala.jdk.CollectionConverters.ListHasAsScala
 import scala.sys.process.Process
 import scala.util.Using
 
@@ -54,7 +54,7 @@ class AfterUpdateDottyVersionScript {
     runScript(Script.FromTestCase(classOf[Scala3ImportedParserTest_Import_FromDottyDirectory_Newest]))
 
   @Test def test_4_Scala3ImportedParserTest_Move_Fixed_Tests(): Unit =
-    runScript(Script.FromTestSuite(Scala3ImportedParserTest_Move_Fixed_Tests.suite()))
+    runJUnit4Script(classOf[Scala3ImportedParserTest_Move_Fixed_Tests])
 
   /**
    * NOTE:
@@ -144,6 +144,15 @@ object AfterUpdateDottyVersionScript {
 
   private var someTestAlreadyFailed = false
 
+  private def runJUnit4Script(testClass: Class[?]): Unit = {
+    val result = JUnitCore.runClasses(testClass)
+    result.getFailures.asScala.headOption match {
+      case Some(failure) =>
+        throw failure.getException
+      case None =>
+    }
+  }
+
   private def runScript(script: Script): Unit = {
     if (someTestAlreadyFailed) {
       fail("Previous step failed. Skipping current step.")
@@ -159,19 +168,6 @@ object AfterUpdateDottyVersionScript {
         result.getFailures.asScala.headOption match {
           case Some(failure) =>
             throw failure.getException
-          case None =>
-        }
-
-      case Script.FromTestSuite(suite) =>
-        val result = new TestResult
-        suite.run(result)
-        result.stop()
-
-        val problems = (result.errors().asScala.toList ++ result.failures().asScala.toList)
-          .asInstanceOf[List[TestFailure]] // It can't be compiled on TC by some reason. So we need asInstanceOf here.
-        problems.headOption match {
-          case Some(problem) =>
-            throw problem.thrownException()
           case None =>
         }
     } catch {
@@ -702,7 +698,6 @@ object AfterUpdateDottyVersionScript {
   sealed trait Script
   object Script {
     final case class FromTestCase(clazz: Class[_ <: TestCase]) extends Script
-    final case class FromTestSuite(suite: TestSuite) extends Script
   }
 
   private def runSbt(cmdline: String, dir: Path): Unit = {
