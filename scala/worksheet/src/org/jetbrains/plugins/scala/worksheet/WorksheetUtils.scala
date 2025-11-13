@@ -10,7 +10,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.concurrency.annotations.RequiresEdt
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.annotations.TestOnly
-import org.jetbrains.jps.incremental.scala.utils.ScalaJDKValidation
+import org.jetbrains.jps.incremental.scala.utils.ScalaJDKIncompatibilityDetector
 import org.jetbrains.jps.model.java.JavaSourceRootType
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
@@ -70,10 +70,10 @@ object WorksheetUtils {
 
   /**
    *
-   * @see [[org.jetbrains.jps.incremental.scala.utils.ScalaJDKValidation.prependWithJdkCompatibilityWarning]]
+   * @see [[org.jetbrains.jps.incremental.scala.utils.ScalaJDKIncompatibilityDetector.prependWithWarning]]
    */
   private[worksheet] def prependWithJdkCompatibilityWarning(text: String, project: Project): String = {
     val jdkFeature = CompileServerLauncher.compileServerJdkFeatureVersion(project)
-    ScalaJDKValidation.prependWithJdkCompatibilityWarning(text, jdkFeature)
+    ScalaJDKIncompatibilityDetector.prependWithWarning(text, jdkFeature)
   }
 }

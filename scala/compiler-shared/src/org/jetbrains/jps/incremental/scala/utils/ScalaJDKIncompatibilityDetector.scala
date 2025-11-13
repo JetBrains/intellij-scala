@@ -1,13 +1,13 @@
 package org.jetbrains.jps.incremental.scala.utils
 
-object ScalaJDKValidation {
+object ScalaJDKIncompatibilityDetector {
 
   /**
    * Prepend warning information to the given text if it detects a possible Scala/JDK compatibility issue.
    *
    * @return the updated text with a JDK compatibility warning prepended, or the original text if no issues are detected.
    */
-  def prependWithJdkCompatibilityWarning(text: String, jdkFeatureVersion: Option[Int]): String =
+  def prependWithWarning(text: String, jdkFeatureVersion: Option[Int]): String =
     if (containsScalaJdkCompatibilityError(text, jdkFeatureVersion)) {
       s"""Incompatible JDK version for Scala.
          |
