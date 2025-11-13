@@ -4,7 +4,7 @@ import com.intellij.codeInspection.options.OptPane
 import com.intellij.codeInspection.options.OptPane.{checkbox, pane}
 import com.intellij.codeInspection.{LocalInspectionTool, LocalQuickFix, ProblemsHolder}
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.annotator.quickfix.AddCaseToGeneratorQuickfix
 import org.jetbrains.plugins.scala.codeInspection.source3.Source3Inspection._
@@ -20,11 +20,11 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
+import org.jetbrains.sbt.language.SbtLanguage
 
 import scala.beans.BeanProperty
 
 class Source3Inspection extends LocalInspectionTool {
-
   @BeanProperty final var convertWildcardUnderscore: Boolean = true
   @BeanProperty final var addGeneratorCase: Boolean = true
   @BeanProperty final var convertWildcardImport: Boolean = true
@@ -33,82 +33,88 @@ class Source3Inspection extends LocalInspectionTool {
   @BeanProperty final var convertNamedWildcardPattern: Boolean = true
   @BeanProperty final var convertCompoundTypes: Boolean = true
 
+  override def isAvailableForFile(file: PsiFile): Boolean = {
+    file.isSource3Enabled && {
+      // sbt uses -Xsource:3 for the .scala files under project/
+      // but not for build.sbt files. So we exclude all sbt files from this inspection.
+      // See also the discussion here: https://youtrack.jetbrains.com/issue/SCL-24570
+      !file.getLanguage.is(SbtLanguage.INSTANCE)
+    }
+  }
+
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = { element =>
-    if (element.getContainingFile.isSource3Enabled) {
+    lazy val scala3ImportsAllowed = !ScalaCodeStyleSettings.getInstance(element.getProject).isForceScala2ImportSyntaxInSource3
 
-      lazy val scala3ImportsAllowed = !ScalaCodeStyleSettings.getInstance(element.getProject).isForceScala2ImportSyntaxInSource3()
+    val features = element.features
 
-      val features = element.features
-
-      element match {
-        case ScWildcardTypeElementUnderscore(wildcardTypeElement, underscore) if convertWildcardUnderscore && features.`? as wildcard marker` =>
-          holder.registerProblem(
-            underscore,
-            getDisplayName,
-            createReplacingQuickFix(wildcardTypeElement, ScalaInspectionBundle.message("replace.with.questionmark")) { e =>
-              ScalaPsiElementFactory.createTypeElementFromText(e.getText.replaceFirst("_", "?"), e, null)
+    element match {
+      case ScWildcardTypeElementUnderscore(wildcardTypeElement, underscore) if convertWildcardUnderscore && features.`? as wildcard marker` =>
+        holder.registerProblem(
+          underscore,
+          getDisplayName,
+          createReplacingQuickFix(wildcardTypeElement, ScalaInspectionBundle.message("replace.with.questionmark")) { e =>
+            ScalaPsiElementFactory.createTypeElementFromText(e.getText.replaceFirst("_", "?"), e, null)
+          }
+        )
+      case gen@ScGenerator(pattern, _) if addGeneratorCase && features.`case in pattern bindings` && gen.caseKeyword.isEmpty &&
+        generatorType(gen).exists(ty => !pattern.isIrrefutableFor(ty)) =>
+        holder.registerProblem(
+          pattern,
+          getDisplayName,
+          LocalQuickFix.from(new AddCaseToGeneratorQuickfix(gen)),
+        )
+      case ElementType(ScalaTokenTypes.tUNDER) if scala3ImportsAllowed && convertWildcardImport && isUpgradableImportWildcard(element) =>
+        holder.registerProblem(
+          element,
+          getDisplayName,
+          createReplacingQuickFix(element, ScalaInspectionBundle.message("replace.with.star")) { underscore =>
+            ScalaPsiElementFactory.createImportFromText("import a.*", underscore.getContext, null).lastLeaf
+          }
+        )
+      case ElementType(ScalaTokenTypes.tFUNTYPE) if scala3ImportsAllowed && convertImportAlias && features.`Scala 3 renaming imports` && element.getParent.is[ScImportSelector] =>
+        holder.registerProblem(
+          element,
+          getDisplayName,
+          createReplacingQuickFix(element, ScalaInspectionBundle.message("replace.with.as")) { arrow =>
+            ScalaPsiElementFactory.createImportFromText("import a.{x as y}", arrow.getContext, null)
+              .importExprs.head.selectors.head.findFirstChildByType(ScalaTokenType.AsKeyword).get
+          }
+        )
+      case typed@ScTypedExpression.sequenceArg(seqArg) if convertVarArgSplices && features.`Scala 3 vararg splice syntax` &&
+        seqArg.getFirstChild.elementType == ScalaTokenTypes.tUNDER =>
+        holder.registerProblem(
+          seqArg,
+          getDisplayName,
+          createReplacingQuickFix(typed, ScalaInspectionBundle.message("replace.with.star")) { typed =>
+            val innerText = typed.expr match {
+              case _: ScInfixExpr | _: ScPostfixExpr | _: ScPrefixExpr => s"(${typed.expr.getText})"
+              case expr if expr.getText.endsWith("_") => typed.expr.getText + " "
+              case _ => typed.expr.getText
             }
-          )
-        case gen@ScGenerator(pattern, _) if addGeneratorCase && features.`case in pattern bindings` && gen.caseKeyword.isEmpty &&
-          generatorType(gen).exists(ty => !pattern.isIrrefutableFor(ty)) =>
-          holder.registerProblem(
-            pattern,
-            getDisplayName,
-            LocalQuickFix.from(new AddCaseToGeneratorQuickfix(gen)),
-          )
-        case ElementType(ScalaTokenTypes.tUNDER) if scala3ImportsAllowed && convertWildcardImport && isUpgradableImportWildcard(element) =>
-          holder.registerProblem(
-            element,
-            getDisplayName,
-            createReplacingQuickFix(element, ScalaInspectionBundle.message("replace.with.star")) { underscore =>
-              ScalaPsiElementFactory.createImportFromText("import a.*", underscore.getContext, null).lastLeaf
-            }
-          )
-        case ElementType(ScalaTokenTypes.tFUNTYPE) if scala3ImportsAllowed && convertImportAlias && features.`Scala 3 renaming imports` && element.getParent.is[ScImportSelector] =>
-          holder.registerProblem(
-            element,
-            getDisplayName,
-            createReplacingQuickFix(element, ScalaInspectionBundle.message("replace.with.as")) { arrow =>
-              ScalaPsiElementFactory.createImportFromText("import a.{x as y}", arrow.getContext, null)
-                .importExprs.head.selectors.head.findFirstChildByType(ScalaTokenType.AsKeyword).get
-            }
-          )
-        case typed@ScTypedExpression.sequenceArg(seqArg) if convertVarArgSplices && features.`Scala 3 vararg splice syntax` &&
-          seqArg.getFirstChild.elementType == ScalaTokenTypes.tUNDER =>
-          holder.registerProblem(
-            seqArg,
-            getDisplayName,
-            createReplacingQuickFix(typed, ScalaInspectionBundle.message("replace.with.star")) { typed =>
-              val innerText = typed.expr match {
-                case _: ScInfixExpr | _: ScPostfixExpr | _: ScPrefixExpr => s"(${typed.expr.getText})"
-                case expr if expr.getText.endsWith("_") => typed.expr.getText + " "
-                case _ => typed.expr.getText
-              }
-              ScalaPsiElementFactory.createExpressionWithContextFromText(s"call($innerText*)", typed.getContext, typed)
-                .asInstanceOf[ScMethodCall].argumentExpressions.head
-            }
-          )
-        case named@ScNamingPattern(seqWildcard: ScSeqWildcardPattern) if convertNamedWildcardPattern &&
-          features.`Scala 3 vararg splice syntax` && seqWildcard.isWildcard =>
-          holder.registerProblem(
-            named,
-            getDisplayName,
-            createReplacingQuickFix(named, ScalaInspectionBundle.message("replace.with.name.followed.by.star", named.name)) { named =>
-              ScalaPsiElementFactory.createPatternFromTextWithContext(s"Seq(${named.name}*)", named.getContext, named)
-                .asInstanceOf[ScConstructorPattern].args.patterns.head
-            }
-          )
-        case withKw@ElementType(ScalaTokenTypes.kWITH) & Parent(compoundType: ScCompoundTypeElement) if convertCompoundTypes &&
-          features.`& instead of with` && !compoundType.getParent.is[ScTypePattern] =>
-          holder.registerProblem(
-            withKw,
-            getDisplayName,
-            createReplacingQuickFix(withKw, ScalaInspectionBundle.message("replace.with.and.char")) { withKw =>
-              ScalaPsiElementFactory.createIdentifier("&")(withKw).getPsi
-            }
-          )
-        case _ =>
-      }
+            ScalaPsiElementFactory.createExpressionWithContextFromText(s"call($innerText*)", typed.getContext, typed)
+              .asInstanceOf[ScMethodCall].argumentExpressions.head
+          }
+        )
+      case named@ScNamingPattern(seqWildcard: ScSeqWildcardPattern) if convertNamedWildcardPattern &&
+        features.`Scala 3 vararg splice syntax` && seqWildcard.isWildcard =>
+        holder.registerProblem(
+          named,
+          getDisplayName,
+          createReplacingQuickFix(named, ScalaInspectionBundle.message("replace.with.name.followed.by.star", named.name)) { named =>
+            ScalaPsiElementFactory.createPatternFromTextWithContext(s"Seq(${named.name}*)", named.getContext, named)
+              .asInstanceOf[ScConstructorPattern].args.patterns.head
+          }
+        )
+      case withKw@ElementType(ScalaTokenTypes.kWITH) & Parent(compoundType: ScCompoundTypeElement) if convertCompoundTypes &&
+        features.`& instead of with` && !compoundType.getParent.is[ScTypePattern] =>
+        holder.registerProblem(
+          withKw,
+          getDisplayName,
+          createReplacingQuickFix(withKw, ScalaInspectionBundle.message("replace.with.and.char")) { withKw =>
+            ScalaPsiElementFactory.createIdentifier("&")(withKw).getPsi
+          }
+        )
+      case _ =>
     }
   }
 

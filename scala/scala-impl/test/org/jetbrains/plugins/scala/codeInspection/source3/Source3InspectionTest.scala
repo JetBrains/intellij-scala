@@ -1,11 +1,14 @@
 package org.jetbrains.plugins.scala.codeInspection.source3
 
 import com.intellij.codeInspection.LocalInspectionTool
-import org.jetbrains.plugins.scala.ScalaVersion
+import com.intellij.openapi.fileTypes.LanguageFileType
+import org.jetbrains.plugins.scala.{ScalaFileType, ScalaVersion}
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.sbt.SbtHighlightingUtil
+import org.jetbrains.sbt.language.SbtFileType
 
-abstract class Source3InspectinTestBase(source3Flag: String) extends ScalaInspectionTestBase {
+abstract class Source3InspectionTestBase(source3Flag: String) extends ScalaInspectionTestBase {
   override def setUp(): Unit = {
     super.setUp()
     val defaultProfile = ScalaCompilerConfiguration.instanceIn(myFixture.getProject).defaultProfile
@@ -22,7 +25,9 @@ abstract class Source3InspectinTestBase(source3Flag: String) extends ScalaInspec
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[Source3Inspection]
 
   override protected val description = "Scala 2 syntax with -Xsource:3"
+}
 
+abstract class Source3InspectionTests(source3Flag: String) extends Source3InspectionTestBase(source3Flag) {
   def test_wildcard_replacement(): Unit = {
     val selectedText = s"val x: ${START}_$END <: Any = 1"
     checkTextHasError(selectedText)
@@ -161,7 +166,22 @@ abstract class Source3InspectinTestBase(source3Flag: String) extends ScalaInspec
   }
 
   def test_compound_type_in_pattern(): Unit = checkTextHasNoErrors("??? match { case x: A with B => }")
+
+  def test_in_sbt_file(): Unit = checkTextHasNoErrors("val x = 1")
 }
 
-class Source3InspectionTest extends Source3InspectinTestBase("-Xsource:3")
-class Source3CrossInspectionTest extends Source3InspectinTestBase("-Xsource:3-cross")
+class Source3InspectionTest extends Source3InspectionTests("-Xsource:3")
+class Source3CrossInspectionTest extends Source3InspectionTests("-Xsource:3-cross")
+
+class Source3InspectionInSbtTest extends Source3InspectionTestBase("-Xsource:3") {
+  protected override def fileType: LanguageFileType = SbtFileType
+
+  override def setUp(): Unit = {
+    super.setUp()
+    SbtHighlightingUtil.enableHighlightingOutsideBuildModule(getProject)
+  }
+
+  // SCL-24570
+  def test_no_inspection_in_sbt_file(): Unit =
+    checkTextHasNoErrors("Seq(1, 2) match { case Seq(1, rest@_*) => rest }")
+}
