@@ -232,13 +232,16 @@ object Scala3IndentationBasedSyntaxCopyPastePreProcessor {
    * After the pre-processor ran, the offset in [[org.jetbrains.plugins.scala.lang.refactoring.Associations]]
    * are no longer valid, because the indentations moved the marked references around.
    * This Adjuster stores the margins added by the indentations and can be used to adjust the offsets.
-   * The preprocesser stores the adjuster in the psiFile as userdata. Use [[AfterIndentOffsetAdjuster.extractFromUserData]] to retrieve it.
+   * The preprocesser stores the adjuster in the psiFile as userdata. Use [[AfterIndentOffsetAdjuster.getAndClearFromUserdata]] to retrieve it.
+   *
+   * @note Irg don't stone me for this... but I couldn't think of a different way to do this...
+   *       maybe we could merge the Preprocessor into the postprocessor, but that would have required way more work...
    */
   final class AfterIndentOffsetAdjuster private[Scala3IndentationBasedSyntaxCopyPastePreProcessor](reverseLineStartOffsetToIndentOffset: SortedMap[Int, Int]) {
     /**
-     *
      * @param offset the offset to be adjusted
      * @param base the offset-difference between the original from which the adjuster was created and the offset in the first parameter
+     * @return the adjusted offset
      */
     def adjust(offset: Int, base: Int): Int =
       reverseLineStartOffsetToIndentOffset.minAfter(-(offset - base)) match {
@@ -252,7 +255,7 @@ object Scala3IndentationBasedSyntaxCopyPastePreProcessor {
 
   object AfterIndentOffsetAdjuster {
     val empty = new AfterIndentOffsetAdjuster(SortedMap.empty)
-    def extractFromUserData(holder: UserDataHolder): AfterIndentOffsetAdjuster =
+    def getAndClearFromUserdata(holder: UserDataHolder): AfterIndentOffsetAdjuster =
       try Option(holder.getUserData(AfterIndentOffsetAdjusterKey)).getOrElse(empty)
       finally holder.putUserData(AfterIndentOffsetAdjusterKey, null)
   }
