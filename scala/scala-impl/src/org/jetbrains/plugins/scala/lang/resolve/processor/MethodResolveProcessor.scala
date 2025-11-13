@@ -8,11 +8,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameterClause, TypeParamIdOwner}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.{ApplicabilityCheckResult, Expression}
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -572,53 +571,11 @@ object MethodResolveProcessor {
     }
   }
 
-  private def filterShadowedDefinitions(input: Set[ScalaResolveResult]): Set[ScalaResolveResult] = {
-    def hasParametersOrTypeParameters(srr: ScalaResolveResult, f: ScFunction): Boolean =
-      f.parameterClausesWithExtension(srr.exportedInExtension).nonEmpty|| f.typeParametersWithExtension().nonEmpty
-
-    //We want to leave only fields and properties from inherited classes, this is important, because
-    //field in base class is shadowed by private field from inherited class
-    val inputWithoutShadowed = input.filter { r =>
-      r.element match {
-        case f: ScFunction if hasParametersOrTypeParameters(r, f) => true
-        case b: ScTypedDefinition =>
-          b.nameContext match {
-            case m: ScMember =>
-              val cls1 = m.containingClass
-
-              if (cls1 == null) true
-              else {
-                input.forall { r2 =>
-                  r2.element match {
-                    case f: ScFunction if hasParametersOrTypeParameters(r2, f) => true
-                    case b2: ScTypedDefinition =>
-                      b2.nameContext match {
-                        case m2: ScMember =>
-                          val cls2 = m2.containingClass
-                          if (cls2 == null) true
-                          else cls1.sameOrInheritor(cls2)
-                        case _ => true
-                      }
-                    case _ => true
-                  }
-                }
-              }
-            case _ => true
-          }
-        case _ => true
-      }
-    }
-
-    inputWithoutShadowed
-  }
-
   private def candidates(
     proc:  MethodResolveProcessor,
     input: Set[ScalaResolveResult],
   ): Set[ScalaResolveResult] = {
     import proc.{candidates => _, _}
-
-    val withoutShadowed = filterShadowedDefinitions(input)
     val maxArgClauseIdx = argumentClauses.size - 1
 
     @tailrec
@@ -678,7 +635,7 @@ object MethodResolveProcessor {
         applicableForCurrentClause
     }
 
-    candidatesForArgClause(withoutShadowed, 0)
+    candidatesForArgClause(input, 0)
   }
 
   private def candidates(
@@ -688,7 +645,7 @@ object MethodResolveProcessor {
     argClauseIdx:    Int,
     useExpectedType: Boolean = true
   ): Set[ScalaResolveResult] = {
-    import proc.{candidates => _, argumentClauses =>_, _}
+    import proc.{argumentClauses => _, candidates => _, _}
 
     def applicableResults(cands: Set[(ScalaResolveResult, Boolean)]): Set[ScalaResolveResult] =
       cands.collect { case (srr, _) if srr.isApplicable(withExpectedType = useExpectedType) => srr }

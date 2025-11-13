@@ -9,10 +9,10 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeProjection
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticFunction, SyntheticClasses}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers._
@@ -367,5 +367,47 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
       case des =>
         des.processDeclarations(BaseProcessor.this, stateWithSubst, null, place)
     }
+  }
+
+  protected def filterShadowedDefinitions[CC[X] <: collection.IterableOps[X, CC, CC[X]]](input: CC[ScalaResolveResult]): CC[ScalaResolveResult] = {
+    if (input.sizeIs <= 1) return input
+
+    def hasParametersOrTypeParameters(srr: ScalaResolveResult, f: ScFunction): Boolean =
+      f.parameterClausesWithExtension(srr.exportedInExtension).nonEmpty|| f.typeParametersWithExtension().nonEmpty
+
+    //We want to leave only fields and properties from inherited classes, this is important, because
+    //field in base class is shadowed by private field from inherited class
+    val inputWithoutShadowed = input.filter { r =>
+      r.element match {
+        case f: ScFunction if hasParametersOrTypeParameters(r, f) => true
+        case b: ScTypedDefinition =>
+          b.nameContext match {
+            case m: ScMember =>
+              val cls1 = m.containingClass
+
+              if (cls1 == null) true
+              else {
+                input.forall { r2 =>
+                  r2.element match {
+                    case f: ScFunction if hasParametersOrTypeParameters(r2, f) => true
+                    case b2: ScTypedDefinition =>
+                      b2.nameContext match {
+                        case m2: ScMember =>
+                          val cls2 = m2.containingClass
+                          if (cls2 == null) true
+                          else cls1.sameOrInheritor(cls2)
+                        case _ => true
+                      }
+                    case _ => true
+                  }
+                }
+              }
+            case _ => true
+          }
+        case _ => true
+      }
+    }
+
+    inputWithoutShadowed
   }
 }
