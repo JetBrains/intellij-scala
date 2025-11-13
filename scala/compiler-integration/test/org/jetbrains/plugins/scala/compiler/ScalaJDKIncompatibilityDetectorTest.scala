@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala.compiler
 
 import com.intellij.openapi.compiler.CompilerMessageCategory
 import org.jetbrains.jps.incremental.scala.utils.ScalaJDKIncompatibilityDetector
-import org.jetbrains.plugins.scala.DependencyManagerBase
-import org.jetbrains.plugins.scala.DependencyManagerBase.MavenResolver
 import org.jetbrains.plugins.scala.util.runners._
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -16,6 +14,8 @@ import scala.jdk.CollectionConverters._
  * is added to the compiler messages when incompatible Scala/JDK versions are detected.
  *
  * @see [[org.jetbrains.jps.incremental.scala.utils.ScalaJDKIncompatibilityDetector]]
+ * @note The test cases (Scala/JDK versions) are the same as in [[ScalaJDKIncompatibilityWorksheetTest]].
+ *       Keep both test classes synchronized when adding, removing, or updating versions.
  */
 @RunWith(classOf[MultipleScalaVersionsJUnit4Runner])
 abstract class ScalaJdkIncompatibilityTestBase extends ScalaCompilerTestBase {
@@ -65,10 +65,5 @@ class Scala3_3_0 extends ScalaJdkIncompatibilityTestBase
 @RunWithScalaVersions(Array(TestScalaVersion.Scala_3_8_Nightly))
 @RunWithJdkVersions(Array(TestJdkVersion.JDK_1_8, TestJdkVersion.JDK_11))
 class Scala3Nightly extends ScalaJdkIncompatibilityTestBase  {
-  object DependencyManagerWithNightly extends DependencyManagerBase {
-    override protected def resolvers: Seq[DependencyManagerBase.Resolver] =
-      super.resolvers :+ MavenResolver("scala-maven-nightlies", "https://repo.scala-lang.org/artifactory/maven-nightlies")
-  }
-
-  override protected def dependencyManager: DependencyManagerBase = DependencyManagerWithNightly
+  override def useDependencyManagerWithNightlies: Boolean = true
 }

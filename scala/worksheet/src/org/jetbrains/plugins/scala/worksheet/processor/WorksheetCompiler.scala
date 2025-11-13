@@ -165,7 +165,11 @@ class WorksheetCompiler(
 
     val logUnexpectedException: Throwable => Unit = ex => {
       val message = s"Unexpected exception occurred during worksheet execution, ${errorDetails(module).mkString(", ")}, ${runType.getName}, $makeType"
-      Log.error(new RuntimeException(message, ex)) // wrap into extra exception to conveniently track the logging place
+      val exc = new RuntimeException(message, ex)
+      if (ApplicationManager.getApplication.isUnitTestMode)
+        Log.warn(exc) // to not throw TestLoggerAssertionError before printing the error message to the worksheet output
+      else
+        Log.error(exc) // wrap into an extra exception to conveniently track the logging place
     }
     val progressTitle = WorksheetBundle.message("worksheet.compilation", worksheetFile.getName)
     //on auto-run (interactive mode) do not show error messages in build tool window (via CompilerTask)
