@@ -56,4 +56,20 @@ class Scala3DocumentationProviderTest_Markdown
       HtmlSpacesComparisonMode.DontIgnore,
     )
   }
+
+  def testQuoteOnly(): Unit = {
+
+    doGenerateRenderedDocBodyTest(
+      s"""
+         |/**
+         | * > quote only
+         | */
+         |class ${|}Foo
+         |""".stripMargin,
+      s"""
+         |<div class='content'><blockquote><p>quote only</p></blockquote></div>
+         |""".stripMargin,
+      HtmlSpacesComparisonMode.DontIgnore,
+    )
+  }
 }
