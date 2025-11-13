@@ -370,6 +370,8 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
   }
 
   protected def filterShadowedDefinitions[CC[X] <: collection.IterableOps[X, CC, CC[X]]](input: CC[ScalaResolveResult]): CC[ScalaResolveResult] = {
+    if (input.sizeIs <= 1) return input
+
     def hasParametersOrTypeParameters(srr: ScalaResolveResult, f: ScFunction): Boolean =
       f.parameterClausesWithExtension(srr.exportedInExtension).nonEmpty|| f.typeParametersWithExtension().nonEmpty
 
