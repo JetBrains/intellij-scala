@@ -11,8 +11,9 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion
 import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{Sc3TypedPattern, ScCaseClause, ScPattern, ScTypedPattern}
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -81,7 +82,8 @@ package object clauses {
 
     for {
       (element, components: ClassPatternComponents) <- pairs
-      (pattern, ScSimpleTypeElement.unwrapped(codeReference)) <- findTypeElement(element)
+      (pattern, typeElement) <- findTypeElement(element)
+      codeReference <- getCodeReference(typeElement)
 
       replacement = createPatternFromTextWithContext(
         components.presentablePatternText(Right(codeReference)),
@@ -89,6 +91,12 @@ package object clauses {
         pattern
       )
     } pattern.replace(replacement)
+  }
+
+  private def getCodeReference(typeElement: ScTypeElement): Option[ScStableCodeReference] = typeElement match {
+    case ScSimpleTypeElement.unwrapped(ref) => Some(ref)
+    case ScInfixTypeElement(_, ref, _) => Some(ref)
+    case _ => None
   }
 
   private[clauses] def expectedMatchType(`match`: ScMatch) =

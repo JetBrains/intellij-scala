@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
+import com.intellij.idea.TestFor
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaClausesCompletionTestBase
 import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
 import org.junit.Test
@@ -208,5 +209,47 @@ class Scala3ClausesCompletionTest extends ScalaClausesCompletionTestBase {
          |
          |  def fold[B](f: A => B, g: (B, B) => B): B = ???
          |""".stripMargin,
+  )
+
+  @Test
+  @TestFor(issues = Array("SCL-24609"))
+  def testSealedTraitWithOperatorNames(): Unit = doMatchCompletionTest(
+    fileText =
+      s"""sealed trait MyMarker
+         |
+         |case class Node(left: Int, right: Node) extends MyMarker
+         |infix case class NodeInfix(left: Int, right: Node) extends MyMarker
+         |case class :=[K, V](key: K, value: V) extends MyMarker
+         |case class -->(from: Int, to: Int) extends MyMarker
+         |case class @@[A, T](value: A, tag: T) extends MyMarker
+         |case class +:[A](head: A, tail: List[A]) extends MyMarker
+         |case class @:@[A, T]() extends MyMarker
+         |
+         |object Foo:
+         |  def test(x: MyMarker): Unit =
+         |    x $CARET
+         """.stripMargin,
+    resultText =
+      s"""sealed trait MyMarker
+         |
+         |case class Node(left: Int, right: Node) extends MyMarker
+         |infix case class NodeInfix(left: Int, right: Node) extends MyMarker
+         |case class :=[K, V](key: K, value: V) extends MyMarker
+         |case class -->(from: Int, to: Int) extends MyMarker
+         |case class @@[A, T](value: A, tag: T) extends MyMarker
+         |case class +:[A](head: A, tail: List[A]) extends MyMarker
+         |case class @:@[A, T]() extends MyMarker
+         |
+         |object Foo:
+         |  def test(x: MyMarker): Unit =
+         |    x match
+         |      case Node(left, right) => $START$CARET???$END
+         |      case NodeInfix(left, right) => ???
+         |      case :=(key, value) => ???
+         |      case -->(from, to) => ???
+         |      case @@(value, tag) => ???
+         |      case +:(head, tail) => ???
+         |      case @:@() => ???
+         """.stripMargin
   )
 }

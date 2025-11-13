@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ExtractorMatch
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScSimpleTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScConstructorOwner, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaTypePresentation}
@@ -57,7 +57,8 @@ sealed abstract class ClassPatternComponents(`class`: PsiClass,
     val suggestedName = reference.map {
       _.getParent match {
         case simple: ScSimpleTypeElement => simple
-        case parent => throw new IllegalArgumentException(s"Simple type expected, actual `${parent.getClass}`: ${parent.getText}")
+        case infix: ScInfixTypeElement => infix
+        case parent => throw new IllegalArgumentException(s"Simple or infix type expected, actual `${parent.getClass}`: ${parent.getText}")
       }
     }.flatMap {
       _.`type`()

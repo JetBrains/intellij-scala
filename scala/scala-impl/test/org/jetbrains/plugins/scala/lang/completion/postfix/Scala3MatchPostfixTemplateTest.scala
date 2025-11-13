@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.completion.postfix
 
+import com.intellij.idea.TestFor
 import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion, WithIndexingMode}
@@ -37,6 +38,11 @@ final class Scala3MatchPostfixTemplateTest extends PostfixTemplateTest {
   @WithIndexingMode(mode = IndexingMode.SMART, reason = "exhaustive match needs type inference")
   @Test
   def testExhaustiveSealed(): Unit = doTest()
+
+  @WithIndexingMode(mode = IndexingMode.SMART, reason = "exhaustive match needs type inference")
+  @Test
+  @TestFor(issues = Array("SCL-24609"))
+  def testExhaustiveSealed2(): Unit = doTest()
 
   @WithIndexingMode(mode = IndexingMode.SMART, reason = "exhaustive match needs type inference")
   @Test
