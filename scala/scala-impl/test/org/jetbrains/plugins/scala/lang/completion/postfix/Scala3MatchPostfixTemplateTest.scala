@@ -41,7 +41,7 @@ final class Scala3MatchPostfixTemplateTest extends PostfixTemplateTest {
 
   @WithIndexingMode(mode = IndexingMode.SMART, reason = "exhaustive match needs type inference")
   @Test
-  @TestFor(issues = Array("SCL-24609"))
+  @TestFor(issues = Array("SCL-24607", "SCL-24609"))
   def testExhaustiveSealed2(): Unit = doTest()
 
   @WithIndexingMode(mode = IndexingMode.SMART, reason = "exhaustive match needs type inference")

@@ -25,10 +25,10 @@ case class @:@[A, T]() extends MyMarker
 object Foo:
   def foo(x: MyMarker) = x match
     case Node(left, right) =>
-    case NodeInfix(left, right) =>
-    case :=(key, value) =>
-    case -->(from, to) =>
-    case @@(value, tag) =>
-    case +:(head, tail) =>
+    case left NodeInfix right =>
+    case key := value =>
+    case from --> to =>
+    case value @@ tag =>
+    case head +: tail =>
     case @:@() =>
 end Foo

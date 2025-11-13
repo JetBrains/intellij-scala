@@ -110,6 +110,7 @@ object PatternGenerationStrategy {
     override def patterns: Seq[PatternComponents] = namedInheritors.map {
       case enumCase: ScEnumSingletonCase => new StablePatternComponents(enumCase)
       case scalaObject: ScObject => new StablePatternComponents(scalaObject)
+      case InfixCaseClassPatternComponents(components) => components
       case CaseClassPatternComponents(components) => components
       case psiClass => new TypedPatternComponents(psiClass)
     } ++ (if (isExhaustive) None else Some(WildcardPatternComponents))

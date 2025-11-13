@@ -4,13 +4,16 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
+import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ExtractorMatch
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScSimpleTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScStableCodeReference}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScConstructorOwner, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaTypePresentation}
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester.{UniqueNameSuggester, suggestNamesByType}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 sealed abstract class PatternComponents {
 
@@ -89,6 +92,39 @@ final class TypedPatternComponents(`class`: PsiClass) extends ClassPatternCompon
 
   override def presentablePatternText(reference: Either[String, ScStableCodeReference]): String =
     namedPatternText(reference)
+}
+
+final class InfixCaseClassPatternComponents private(
+  `class`: ScConstructorOwner,
+  private val firstParameter: ScClassParameter,
+  private val secondParameter: ScClassParameter
+) extends ClassPatternComponents(`class`) {
+  override def presentablePatternText(reference: Either[String, ScStableCodeReference]): String =
+    s"${firstParameter.name} ${super.presentablePatternText(reference)} ${secondParameter.name}"
+}
+
+object InfixCaseClassPatternComponents {
+  def unapply(`class`: ScConstructorOwner): Option[InfixCaseClassPatternComponents] = for {
+    constructor <- `class`.constructor
+    if `class`.isCase && isInfixLike(`class`)
+    (firstParameter, secondParameter) <- InfixParams.unapply(constructor)
+  } yield new InfixCaseClassPatternComponents(`class`, firstParameter, secondParameter)
+
+  private def isInfixLike(`class`: ScConstructorOwner): Boolean =
+    ScalaNamesUtil.isOperatorName(`class`.name) || `class`.hasModifierPropertyScala(ScalaModifier.INFIX)
+
+  private object InfixParams {
+    def unapply(constructor: ScPrimaryConstructor): Option[(ScClassParameter, ScClassParameter)] =
+      constructor.effectiveParameterClauses match {
+        case Seq(clause) =>
+          clause.effectiveParameters match {
+            case Seq(firstParameter: ScClassParameter, secondParameter: ScClassParameter) =>
+              Some((firstParameter, secondParameter))
+            case _ => None
+          }
+        case _ => None
+      }
+  }
 }
 
 final class CaseClassPatternComponents private(`class`: ScConstructorOwner,

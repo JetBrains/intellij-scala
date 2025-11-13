@@ -148,6 +148,7 @@ object CaseClauseCompletionContributor {
         case _ =>
           findTargetDefinitions(`class`).map {
             case scalaObject: ScObject => new StablePatternComponents(scalaObject)
+            case InfixCaseClassPatternComponents(components) => components
             case CaseClassPatternComponents(components) => components
             case PhysicalExtractorPatternComponents(components) => components
             case psiClass => new TypedPatternComponents(psiClass)

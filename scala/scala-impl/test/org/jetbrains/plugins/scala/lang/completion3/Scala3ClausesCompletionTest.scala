@@ -212,7 +212,51 @@ class Scala3ClausesCompletionTest extends ScalaClausesCompletionTestBase {
   )
 
   @Test
-  @TestFor(issues = Array("SCL-24609"))
+  @TestFor(issues = Array("SCL-24607"))
+  def testCompleteClauseOperatorNameWithUsingClause(): Unit = doClauseCompletionTest(
+    fileText =
+      s"""sealed trait Foo
+         |
+         |final case class @@(using value: String, tag: Int) extends Foo
+         |
+         |Option.empty[Foo].map {
+         |  c$CARET
+         |}""".stripMargin,
+    resultText =
+      s"""sealed trait Foo
+         |
+         |final case class @@(using value: String, tag: Int) extends Foo
+         |
+         |Option.empty[Foo].map {
+         |  case @@() => $CARET
+         |}""".stripMargin,
+    itemText = "@@()"
+  )
+
+  @Test
+  @TestFor(issues = Array("SCL-24607"))
+  def testCompleteClauseOperatorNameWithUsingClause2(): Unit = doClauseCompletionTest(
+    fileText =
+      s"""sealed trait Foo
+         |
+         |final case class @@(flag: Boolean, count: Long)(using value: String, tag: Int) extends Foo
+         |
+         |Option.empty[Foo].map {
+         |  c$CARET
+         |}""".stripMargin,
+    resultText =
+      s"""sealed trait Foo
+         |
+         |final case class @@(flag: Boolean, count: Long)(using value: String, tag: Int) extends Foo
+         |
+         |Option.empty[Foo].map {
+         |  case @@(flag, count) => $CARET
+         |}""".stripMargin,
+    itemText = "@@(flag, count)"
+  )
+
+  @Test
+  @TestFor(issues = Array("SCL-24607", "SCL-24609"))
   def testSealedTraitWithOperatorNames(): Unit = doMatchCompletionTest(
     fileText =
       s"""sealed trait MyMarker
@@ -244,11 +288,11 @@ class Scala3ClausesCompletionTest extends ScalaClausesCompletionTestBase {
          |  def test(x: MyMarker): Unit =
          |    x match
          |      case Node(left, right) => $START$CARET???$END
-         |      case NodeInfix(left, right) => ???
-         |      case :=(key, value) => ???
-         |      case -->(from, to) => ???
-         |      case @@(value, tag) => ???
-         |      case +:(head, tail) => ???
+         |      case left NodeInfix right => ???
+         |      case key := value => ???
+         |      case from --> to => ???
+         |      case value @@ tag => ???
+         |      case head +: tail => ???
          |      case @:@() => ???
          """.stripMargin
   )

@@ -434,7 +434,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
   )
 
   @Test
-  @TestFor(issues = Array("SCL-24609"))
+  @TestFor(issues = Array("SCL-24607", "SCL-24609"))
   def testCompleteClauseOperatorNameWithTwoTypeParams(): Unit = doClauseCompletionTest(
     fileText =
       s"""sealed trait Foo
@@ -450,9 +450,97 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
          |final case class @@[A, T](value: A, tag: T) extends Foo
          |
          |Option.empty[Foo].map {
+         |  case value @@ tag => $CARET
+         |}""".stripMargin,
+    itemText = "value @@ tag"
+  )
+
+  @Test
+  @TestFor(issues = Array("SCL-24607"))
+  def testCompleteClauseOperatorNameWithMultipleClauses(): Unit = doClauseCompletionTest(
+    fileText =
+      s"""sealed trait Foo
+         |
+         |final case class @@(value: String, tag: Int)() extends Foo
+         |
+         |Option.empty[Foo].map {
+         |  c$CARET
+         |}""".stripMargin,
+    resultText =
+      s"""sealed trait Foo
+         |
+         |final case class @@(value: String, tag: Int)() extends Foo
+         |
+         |Option.empty[Foo].map {
          |  case @@(value, tag) => $CARET
          |}""".stripMargin,
     itemText = "@@(value, tag)"
+  )
+
+  @Test
+  @TestFor(issues = Array("SCL-24607"))
+  def testCompleteClauseOperatorNameWithMultipleClauses2(): Unit = doClauseCompletionTest(
+    fileText =
+      s"""sealed trait Foo
+         |
+         |final case class @@(value: String, tag: Int)(flag: Boolean) extends Foo
+         |
+         |Option.empty[Foo].map {
+         |  c$CARET
+         |}""".stripMargin,
+    resultText =
+      s"""sealed trait Foo
+         |
+         |final case class @@(value: String, tag: Int)(flag: Boolean) extends Foo
+         |
+         |Option.empty[Foo].map {
+         |  case @@(value, tag) => $CARET
+         |}""".stripMargin,
+    itemText = "@@(value, tag)"
+  )
+
+  @Test
+  @TestFor(issues = Array("SCL-24607"))
+  def testCompleteClauseOperatorNameWithImplicitClause(): Unit = doClauseCompletionTest(
+    fileText =
+      s"""sealed trait Foo
+         |
+         |final case class @@(implicit value: String, tag: Int) extends Foo
+         |
+         |Option.empty[Foo].map {
+         |  c$CARET
+         |}""".stripMargin,
+    resultText =
+      s"""sealed trait Foo
+         |
+         |final case class @@(implicit value: String, tag: Int) extends Foo
+         |
+         |Option.empty[Foo].map {
+         |  case @@() => $CARET
+         |}""".stripMargin,
+    itemText = "@@()"
+  )
+
+  @Test
+  @TestFor(issues = Array("SCL-24607"))
+  def testCompleteClauseOperatorNameWithImplicitClause2(): Unit = doClauseCompletionTest(
+    fileText =
+      s"""sealed trait Foo
+         |
+         |final case class @@(flag: Boolean, count: Long)(implicit value: String, tag: Int) extends Foo
+         |
+         |Option.empty[Foo].map {
+         |  c$CARET
+         |}""".stripMargin,
+    resultText =
+      s"""sealed trait Foo
+         |
+         |final case class @@(flag: Boolean, count: Long)(implicit value: String, tag: Int) extends Foo
+         |
+         |Option.empty[Foo].map {
+         |  case @@(flag, count) => $CARET
+         |}""".stripMargin,
+    itemText = "@@(flag, count)"
   )
 
   @Test
@@ -873,7 +961,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
   )
 
   @Test
-  @TestFor(issues = Array("SCL-24609"))
+  @TestFor(issues = Array("SCL-24607", "SCL-24609"))
   def testSealedTraitWithOperatorNames(): Unit = doMatchCompletionTest(
     fileText =
       s"""sealed trait MyMarker
@@ -905,10 +993,10 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
          |  def test(x: MyMarker): Unit = {
          |    x match {
          |      case Node(left, right) => $START$CARET???$END
-         |      case :=(key, value) => ???
-         |      case -->(from, to) => ???
-         |      case @@(value, tag) => ???
-         |      case +:(head, tail) => ???
+         |      case key := value => ???
+         |      case from --> to => ???
+         |      case value @@ tag => ???
+         |      case head +: tail => ???
          |      case @:@() => ???
          |    }
          |  }
@@ -1210,13 +1298,14 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
   }
 
   @Test
+  @TestFor(issues = Array("SCL-24607"))
   def testList(): Unit = doMatchCompletionTest(
     fileText =
       s"""(_: List[String]) m$CARET
          """.stripMargin,
     resultText =
       s"""(_: List[String]) match {
-         |  case ::(head, next) => $START$CARET???$END
+         |  case head :: next => $START$CARET???$END
          |  case Nil => ???
          |}
         """.stripMargin
