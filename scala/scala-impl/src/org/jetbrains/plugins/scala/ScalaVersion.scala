@@ -129,6 +129,9 @@ object LatestScalaVersions {
   // Scala Next RC
   val Scala_3_Next_RC: ScalaVersion = Scala_3_7
 
+  // Scala 3 Nightly version
+  val Scala_3_8_Nightly: ScalaVersion = new ScalaVersion(ScalaLanguageLevel.Scala_3_8, "0-RC1-bin-20250916-eb1bb73-NIGHTLY")
+
   val allScala2: Seq[ScalaVersion] = Seq(
     Scala_2_9,
     Scala_2_10,

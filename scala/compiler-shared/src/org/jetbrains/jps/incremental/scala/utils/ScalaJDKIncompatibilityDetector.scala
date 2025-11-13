@@ -2,6 +2,15 @@ package org.jetbrains.jps.incremental.scala.utils
 
 object ScalaJDKIncompatibilityDetector {
 
+  val JdkCompatibilityWarningPrefix: String =
+    s"""Incompatible JDK version for Scala.
+       |
+       |The compiler has encountered an error that is likely caused by incompatible Scala and JDK versions.
+       |Please check the official compatibility table: https://docs.scala-lang.org/overviews/jdk-compatibility/overview.html#scala-compatibility-table
+       |You may need to update either your Scala or JDK version to resolve this issue.
+       |
+       |""".stripMargin
+
   /**
    * Prepend warning information to the given text if it detects a possible Scala/JDK compatibility issue.
    *
@@ -9,14 +18,7 @@ object ScalaJDKIncompatibilityDetector {
    */
   def prependWithWarning(text: String, jdkFeatureVersion: Option[Int]): String =
     if (containsScalaJdkCompatibilityError(text, jdkFeatureVersion)) {
-      s"""Incompatible JDK version for Scala.
-         |
-         |The compiler has encountered an error that is likely caused by incompatible Scala and JDK versions.
-         |Please check the official compatibility table: https://docs.scala-lang.org/overviews/jdk-compatibility/overview.html#scala-compatibility-table
-         |You may need to update either your Scala or JDK version to resolve this issue.
-         |
-         |$text
-         |""".stripMargin
+      JdkCompatibilityWarningPrefix + text
     } else {
       text
     }
@@ -27,7 +29,7 @@ object ScalaJDKIncompatibilityDetector {
    * @param text the error message text to analyze.
    */
   private def containsScalaJdkCompatibilityError(text: String, jdkFeatureVersion: Option[Int]): Boolean = {
-    // Error indicating JDK incompatibility with Scala 2.11.x or 2.12.x (e.g., Scala 2.11.0  & JDK 25)
+    // Error indicating JDK incompatibility with Scala 2.11.x or 2.12.x (e.g., Scala 2.12.0  & JDK 25)
     val case1 = text.contains("scala.reflect.internal.MissingRequirementError: object java.lang.Object in compiler mirror not found") &&
       text.contains("scala.reflect.internal.MissingRequirementError$.signal")
 
@@ -51,7 +53,7 @@ object ScalaJDKIncompatibilityDetector {
     // Additional validation to be more sure the Scala/JDK incompatibility note is shown for the right combination
     val isBelow17 = jdkFeatureVersion.exists(_ < 17)
     val regex = """java\.lang\.UnsupportedClassVersionError:.*has been compiled by a more recent version of the Java Runtime \(class file version 61.0\)""".r
-    val methodCheck = text.contains("ava.base/java.lang.ClassLoader.defineClass(ClassLoader.java:1022)")
+    val methodCheck = text.contains("java.lang.ClassLoader.defineClass")
     isBelow17 && regex.findFirstIn(text).isDefined && methodCheck
   }
 }
