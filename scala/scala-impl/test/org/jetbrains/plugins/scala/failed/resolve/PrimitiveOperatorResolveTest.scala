@@ -1,25 +1,6 @@
 package org.jetbrains.plugins.scala.failed.resolve
 
 class PrimitiveOperatorResolveTest extends FailedResolveCaretTestBase {
-
-  def testSCL9645(): Unit = {
-    doResolveCaretTest(
-      """
-        |class Base[+T](final val value: T)
-        |
-        |class Derived[+T](value: T) extends Base(value)
-        |
-        |abstract class Container[+E] {
-        |  def element: E
-        |}
-        |
-        |object Test {
-        |  val c: Container[Derived[Int]] = ???
-        |  c.element.value <caret>* 2
-        |}
-      """.stripMargin)
-  }
-
   def testSCL11547(): Unit = {
     doResolveCaretTest(
       """

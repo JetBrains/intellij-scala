@@ -36,4 +36,22 @@ class StableDefResolveTest extends SimpleResolveTestBase {
          |}
          |""".stripMargin)
   }
+
+  def testSCL9645(): Unit = {
+    doResolveTest(
+      s"""
+         |class Base[+T](final val value: T)
+         |
+         |class Derived[+T](value: T) extends Base(value)
+         |
+         |abstract class Container[+E] {
+         |  def element: E
+         |}
+         |
+         |object Test {
+         |  val c: Container[Derived[Int]] = ???
+         |  c.element.value ${REFSRC}* 2
+         |}
+       """.stripMargin)
+  }
 }
