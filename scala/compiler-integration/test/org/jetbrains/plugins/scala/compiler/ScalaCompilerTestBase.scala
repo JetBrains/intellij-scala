@@ -10,6 +10,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs._
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework._
+import org.jetbrains.plugins.scala.DependencyManagerBase.MavenResolver
 import org.jetbrains.plugins.scala.base.SourceRootTestUtil
 
 import java.nio.file.{Files, Path}
@@ -106,7 +107,16 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
   protected val includeCompilerAsLibrary: Boolean = false
   protected def compilerBridgeBinaryJar: Option[Path] = None
 
-  protected def dependencyManager: DependencyManagerBase = DependencyManager
+  private object DependencyManagerWithNightly extends DependencyManagerBase {
+    override protected def resolvers: Seq[DependencyManagerBase.Resolver] =
+      super.resolvers :+ MavenResolver("scala-maven-nightlies", "https://repo.scala-lang.org/artifactory/maven-nightlies")
+  }
+
+  protected def useDependencyManagerWithNightlies: Boolean = false
+
+  private val dependencyManager: DependencyManagerBase =
+    if (useDependencyManagerWithNightlies) DependencyManagerWithNightly
+    else DependencyManager
 
   override protected def librariesLoaders: Seq[LibraryLoader] = Seq(
     ScalaSDKLoader(
