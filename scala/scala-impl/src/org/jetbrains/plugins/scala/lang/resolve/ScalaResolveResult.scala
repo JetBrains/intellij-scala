@@ -427,7 +427,7 @@ object ScalaResolveResult {
           val maybeType = qualifierType.orElse(fromType).map(_.widen)
           maybeType.getOrElse(api.Nothing) match {
             case qualType if !isPredef && resolveResult.importsUsed.isEmpty =>
-              qualType.extractDesignated(expandAliases = false).flatMap {
+              qualType.extractDesignated(expandAliases = true).flatMap {
                 case clazz: PsiClass => Some(clazz)
                 case Typeable(tp) => tp.extractClass
                 case _ => None
