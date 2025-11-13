@@ -25,7 +25,8 @@ case class ScalaSDKLoader(
   includeScalaLibraryTransitiveDependencies: Boolean = true,
   includeScalaLibraryFilesInSdk: Boolean = true,
   includeScalaLibrarySources: Boolean = false,
-  compilerBridgeBinaryJar: Option[Path] = None
+  compilerBridgeBinaryJar: Option[Path] = None,
+  dependencyManager: DependencyManagerBase = DependencyManager
 ) extends LibraryLoader {
 
   import DependencyManagerBase._
@@ -55,12 +56,12 @@ case class ScalaSDKLoader(
     val sourceDependency = scalaLibraryDescription % Types.SRC
     val sourceDependencyActual = if (includeScalaLibraryTransitiveDependencies) sourceDependency.transitive() else sourceDependency
 
-    val resolved = DependencyManager.resolve(sourceDependencyActual)
+    val resolved = dependencyManager.resolve(sourceDependencyActual)
     // This second pass is necessary to resolve Scala 2 library sources, when it's a transitive dependency of a Scala 3 library.
     // For some reason, if I tell Ivy to download dependency sources and set transitive="true" it doesn't download sources for transitive dependencies.
     // Instead, it downloads regular class file jars.
     // As a workaround, I do another pass where I download sources for each such class files jar file independently, non-transitively.
-    val resolvedSecondPass = if (resolved.size == 1) resolved else resolved.map(_.info).map(d => DependencyManager.resolveSingle(d.sources()))
+    val resolvedSecondPass = if (resolved.size == 1) resolved else resolved.map(_.info).map(d => dependencyManager.resolveSingle(d.sources()))
     resolvedSecondPass.map(_.file).map(findJarFile)
   }
 
@@ -72,7 +73,7 @@ case class ScalaSDKLoader(
 
   override final def init(implicit module: Module, version: ScalaVersion): Unit = {
     val dependencies = binaryDependencies
-    val resolved = DependencyManager.resolve(dependencies: _*)
+    val resolved = dependencyManager.resolve(dependencies: _*)
 
     if (version.isScala3)
       assertTrue(
