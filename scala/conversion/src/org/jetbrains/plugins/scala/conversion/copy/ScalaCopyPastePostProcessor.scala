@@ -54,7 +54,7 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
       return
 
     PsiDocumentManager.getInstance(project).commitAllDocuments()
-    val adjuster = AfterIndentOffsetAdjuster.extractFromUserData(file)
+    val adjuster = AfterIndentOffsetAdjuster.getAndClearFromUserdata(file)
     associations.restoreOnUiThread(bounds, adjuster) {
       case bindings if setting == ASK =>
         val bindingsSorted = bindings.filterNot(_.path.isEmpty).sortBy(_.path)
