@@ -10,7 +10,7 @@ import scala.math.Ordered.orderingToOrdered
  * Scala/JDK compatibility checker created based on
  * [[https://docs.scala-lang.org/overviews/jdk-compatibility/overview.html#scala-compatibility-table]]
  *
- * It mirrors the logic written in [[JdkSbtCompatibilityChecker]].
+ * It's similar to [[JdkSbtCompatibilityChecker]].
  */
 object JdkScalaCompatibilityChecker:
   private val JDK_8 = JavaVersion.compose(8)
@@ -73,11 +73,11 @@ object JdkScalaCompatibilityChecker:
     )
   )
 
-  private def isScala3Lts(v: ScalaVersion): Boolean = v.languageLevel.getVersion.startsWith("3.3")
+  private def isScala3Lts(v: ScalaVersion): Boolean = v.languageLevel == ScalaLanguageLevel.Scala_3_3
   private def isScala3_8Plus(v: ScalaVersion): Boolean = v.languageLevel >= ScalaLanguageLevel.Scala_3_8
-  private def isScala2_13(v: ScalaVersion): Boolean = v.languageLevel.getVersion.startsWith("2.13")
-  private def isScala2_12(v: ScalaVersion): Boolean = v.languageLevel.getVersion.startsWith("2.12")
-  private def isScala2_11(v: ScalaVersion): Boolean = v.languageLevel.getVersion.startsWith("2.11")
+  private def isScala2_13(v: ScalaVersion): Boolean = v.languageLevel == ScalaLanguageLevel.Scala_2_13
+  private def isScala2_12(v: ScalaVersion): Boolean = v.languageLevel == ScalaLanguageLevel.Scala_2_12
+  private def isScala2_11(v: ScalaVersion): Boolean = v.languageLevel == ScalaLanguageLevel.Scala_2_11
 
   private def minimumRequiredScala(scalaMinVersions: ScalaMinimumsPerJdk, scalaVersion: ScalaVersion): Option[ScalaVersion] =
     if (isScala3Lts(scalaVersion)) scalaMinVersions.scala3Lts
