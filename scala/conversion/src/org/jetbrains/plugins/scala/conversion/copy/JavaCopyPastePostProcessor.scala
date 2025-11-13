@@ -115,7 +115,7 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Converte
     if (!showDialog || ScalaPasteFromJavaDialog.showAndGet(CopyFrom.JavaFile, project)) {
       val shiftedAssociations = inWriteAction {
         // clear the offset adjuster because after we paste the converted text, its content is not valid anymore
-        val _ = AfterIndentOffsetAdjuster.extractFromUserData(file)
+        val _ = AfterIndentOffsetAdjuster.getAndClearFromUserdata(file)
         performePaste(editor, bounds, text, project)
 
         val markedAssociations = associations.toSeq.zipMapped { dependency =>
