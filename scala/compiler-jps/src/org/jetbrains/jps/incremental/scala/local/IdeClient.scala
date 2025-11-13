@@ -10,7 +10,7 @@ import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage, Fi
 import org.jetbrains.jps.incremental.scala.Client.PosInfo
 import org.jetbrains.jps.incremental.scala.model.JpsSbtExtensionService
 import org.jetbrains.jps.incremental.scala.remote.{CompileServerMetrics, SerializablePath}
-import org.jetbrains.jps.incremental.scala.utils.ScalaJDKValidation
+import org.jetbrains.jps.incremental.scala.utils.ScalaJDKIncompatibilityDetector
 import org.jetbrains.jps.model.module.JpsModule
 import org.jetbrains.plugins.scala.compiler.{CompilationUnitId, CompilerEvent}
 import org.jetbrains.plugins.scala.util.CompilationId
@@ -33,7 +33,7 @@ abstract class IdeClient(compilerName: String,
     val Client.ClientMsg(kind, text, source, pointer, _, _, _) = msg
     val textWithOptionalJdkWarning =
       if (kind.isErrorOrWarning) {
-        ScalaJDKValidation.prependWithJdkCompatibilityWarning(text, getJdkFeatureVersion)
+        ScalaJDKIncompatibilityDetector.prependWithWarning(text, getJdkFeatureVersion)
       } else text
 
     if (kind == MessageKind.Error) {
