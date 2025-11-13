@@ -72,4 +72,22 @@ class Scala3DocumentationProviderTest_Markdown
       HtmlSpacesComparisonMode.DontIgnore,
     )
   }
+
+  def testCodeBlockOnly(): Unit = {
+    doGenerateRenderedDocBodyTest(
+      s"""
+         |/**
+         | * ```
+         | * code
+         | * ```
+         | */
+         |class ${|}Foo
+         |""".stripMargin,
+      s"""
+         |<div class='content'><pre><code>
+         |code</code></pre></div>
+         |""".stripMargin,
+      HtmlSpacesComparisonMode.DontIgnore,
+    )
+  }
 }
