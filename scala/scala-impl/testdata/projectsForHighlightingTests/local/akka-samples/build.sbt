@@ -2,13 +2,16 @@ ThisBuild / organization := "com.typesafe.akka.samples"
 
 ThisBuild / name := "akka-samples"
 
-ThisBuild / scalaVersion := "2.12.2"
-val akkaVersion = "2.5.4"
+ThisBuild / scalaVersion := "2.12.20"
+
+val akkaCamelVersion = "2.5.32"
+val akkaVersion = "2.5.32"
+val camelVersion = "2.17.7"
 
 ThisBuild / libraryDependencies ++= Seq(
-  "com.typesafe.akka" %% "akka-camel" % akkaVersion,
-  "org.apache.camel" % "camel-jetty" % "2.17.7",
-  "org.apache.camel" % "camel-quartz" % "2.17.7",
+  "com.typesafe.akka" %% "akka-camel" % akkaCamelVersion,
+  "org.apache.camel" % "camel-jetty" % camelVersion,
+  "org.apache.camel" % "camel-quartz" % camelVersion,
   "org.slf4j" % "slf4j-api" % "1.7.23",
   "ch.qos.logback" % "logback-classic" % "1.2.3",
   "com.typesafe.akka" %% "akka-actor" % akkaVersion,
