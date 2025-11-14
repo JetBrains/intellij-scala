@@ -23,53 +23,79 @@ import scala.annotation.tailrec
 import scala.collection.mutable
 
 final class AddParametersQuickfix(argExprList: SmartPsiElementPointer[ScArgumentExprList]) extends BaseIntentionAction {
-  override def invoke(project: Project, editor: Editor, psiFile: PsiFile): Unit =
-    addParameterFix(editor, psiFile).foreach(_.apply())
+  // We calculate _isAvailable when creating the quickfix because we need to search for the function definition,
+  // which is not superfast. And isAvailable is supposed to run on the edt
+  private val (_isAvailable, text) = {
+    getInfo.map { case (argList, clause, fun) =>
+      val arguments = argList.exprs
+      val parameters = clause.parameters
+      val addMultiple = arguments.length - parameters.length >= 2
+      val text = fun.name match {
+        case null =>
+          if (addMultiple) ScalaBundle.message("add.parameters.to.method")
+          else ScalaBundle.message("add.parameter.to.method")
+        case name =>
+          if (addMultiple) ScalaBundle.message("add.parameters.to.method.named", name)
+          else ScalaBundle.message("add.parameter.to.method.named", name)
+      }
+      (true, text)
+    }.getOrElse((false, ScalaBundle.message("add.parameters.to.method")))
+  }
 
   override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean =
-    addParameterFix(editor, file).isDefined
+    file.isValid && _isAvailable
 
-  override def getFamilyName: String = ScalaBundle.message("add.parameter.to.method.family.name")
+  override def getFamilyName: String = ScalaBundle.message("add.parameters.to.method")
 
-  override def getText: String = ScalaBundle.message("add.parameter.to.method")
+  override def getText: String = text
 
-  private def addParameterFix(editor: Editor, file: PsiFile): Option[() => Unit] = {
-    if (!file.isValid) return None
+  override def invoke(project: Project, editor: Editor, psiFile: PsiFile): Unit = {
+    for ((argList, clause, _) <- getInfo if psiFile.isValid) {
+      IntentionPreviewUtils.write { () =>
+        if (!IntentionPreviewUtils.isIntentionPreviewActive) {
+          implicit val tpc: TypePresentationContext = clause
+          implicit val pCtx: ProjectContext = clause
+          val arguments = argList.exprs
+          val parameters = clause.parameters
+
+          val injectionPositions = findInjectionPositions(arguments, parameters)
+          val newParamTexts = generateNewParameterTexts(injectionPositions, parameters.map(_.name))
+          val newClauseText = createNewClauseText(clause, newParamTexts)
+          val newClause = clause.replace(createClauseFromText(newClauseText, clause.getParent)).asInstanceOf[ScParameterClause]
+
+          val isNewParam = injectionPositions.map { case (_, _, idx) => idx }.toSet
+          val builder = new TemplateBuilderImpl(newClause)
+          addParametersToTemplate(newClause, builder, p => isNewParam(newClause.parameters.indexOf(p)))
+          CodeInsightUtilCore.forcePsiPostprocessAndRestoreElement(newClause)
+          TemplateUtils.positionCursorAndStartTemplate(newClause, builder.buildTemplate(), editor)
+        }
+      }
+    }
+  }
+
+  private def getInfo: Option[(ScArgumentExprList, ScParameterClause, ScFunction)] = {
     val argExprList = this.argExprList.getElement
     if (argExprList == null || !argExprList.isValid || argExprList.isBlockArgs) return None
 
     val methodCall = PsiTreeUtil.getParentOfType(argExprList, classOf[ScMethodCall])
 
     // Find the actual function and the parameter clause that corresponds to the edited argument list
-    val clause = findParamList(methodCall) match {
-      case Some(clause) if !clause.hasRepeatedParam => clause
+    val (fun, clause) = findParamList(methodCall) match {
+      case Some((fun, clause)) if !clause.hasRepeatedParam => (fun, clause)
       case _ => return None
     }
-    implicit val tpc: TypePresentationContext = clause
-    implicit val pCtx: ProjectContext = clause
 
     val arguments = argExprList.exprs
     val parameters = clause.parameters
 
-    if (arguments.length <= parameters.length || !clause.isValid || !clause.isPhysical) return None
-
-    Some(() => IntentionPreviewUtils.write { () =>
-      if (!IntentionPreviewUtils.isIntentionPreviewActive) {
-        val injectionPositions = findInjectionPositions(arguments, parameters)
-        val newParamTexts = generateNewParameterTexts(injectionPositions, parameters.map(_.name))
-        val newClauseText = createNewClauseText(clause, newParamTexts)
-        val newClause     = clause.replace(createClauseFromText(newClauseText, clause.getParent)).asInstanceOf[ScParameterClause]
-
-        val isNewParam = injectionPositions.map { case (_, _, idx) => idx }.toSet
-        val builder = new TemplateBuilderImpl(newClause)
-        addParametersToTemplate(newClause, builder, p => isNewParam(newClause.parameters.indexOf(p)))
-        CodeInsightUtilCore.forcePsiPostprocessAndRestoreElement(newClause)
-        TemplateUtils.positionCursorAndStartTemplate(newClause, builder.buildTemplate(), editor)
-      }
-    })
+    if (arguments.length > parameters.length && clause.isValid && clause.isPhysical) {
+      Some((argExprList, clause, fun))
+    } else {
+      None
+    }
   }
 
-  private def findParamList(call: ScMethodCall): Option[ScParameterClause] = {
+  private def findParamList(call: ScMethodCall): Option[(ScFunction, ScParameterClause)] = {
     // Walk down via getEffectiveInvokedExpr until we reach a ScMethodCall
     // that actually resolves to a function.
     @tailrec
@@ -87,11 +113,11 @@ final class AddParametersQuickfix(argExprList: SmartPsiElementPointer[ScArgument
           }
       }
 
-    findFun(call, 0).flatMap {
-      case (fun, idx) =>
-        val clauses = fun.paramClauses.clauses
-        clauses.lift(idx)
-    }
+    for {
+      (fun, idx) <- findFun(call, 0)
+      clauses = fun.paramClauses.clauses
+      clause <- clauses.lift(idx)
+    } yield (fun, clause)
   }
 
   /**
