@@ -73,7 +73,7 @@ class Scala3DocumentationProviderTest_Markdown
     )
   }
 
-  def testCodeBlockOnly(): Unit = {
+  def testCodeBlockOnly(): Unit =
     doGenerateRenderedDocBodyTest(
       s"""
          |/**
@@ -89,5 +89,91 @@ class Scala3DocumentationProviderTest_Markdown
          |""".stripMargin,
       HtmlSpacesComparisonMode.DontIgnore,
     )
-  }
+
+  def testOldCodeBlockOnly(): Unit =
+    doGenerateRenderedDocBodyTest(
+      s"""
+         |/**
+         | * {{{
+         | * code
+         | * }}}
+         | */
+         |class ${|}Foo
+         |""".stripMargin,
+      s"""
+         |<div class='content'><pre><code>
+         |code</code></pre></div>
+         |""".stripMargin,
+      HtmlSpacesComparisonMode.DontIgnore,
+    )
+
+  def testHeaderOnly(): Unit =
+    doGenerateRenderedDocBodyTest(
+      s"""
+         |/**
+         | * # Header
+         | */
+         |class ${|}Foo
+         |""".stripMargin,
+      s"""
+         |<div class='content'><h1>Header</h1></div>
+         |""".stripMargin,
+      HtmlSpacesComparisonMode.DontIgnore,
+    )
+
+  def testNestedQuotes(): Unit =
+    doGenerateRenderedDocBodyTest(
+      s"""
+         |/**
+         | * > a
+         | * > > b
+         | * > > > c
+         | * >
+         | * > d
+         | * > > > e
+         | * > >
+         | * > > f
+         | */
+         |class ${|}Foo
+         |""".stripMargin,
+      s"""
+         |<div class='content'><blockquote><p>a</p><blockquote><p>b</p><blockquote><p>c</p></blockquote></blockquote><p>d</p><blockquote><blockquote><p>e</p></blockquote><p>f</p></blockquote></blockquote></div>
+         |""".stripMargin,
+      HtmlSpacesComparisonMode.DontIgnore,
+    )
+
+  def testReturn(): Unit =
+    doGenerateRenderedDocBodyTest(
+      s"""
+         |/**
+         | * @return A first line
+         | *         then a second line that is actually on the same line
+         | *         # not a header
+         | *
+         | *         Then a new paragraph.
+         | *         > abc
+         | *         > > def
+         | *
+         | * > actually a quote
+         | * >> nested quote
+         | *
+         | * # a header
+         | *
+         | * ```
+         | * code block
+         | * ```
+         | */
+         |class ${|}Foo
+         |""".stripMargin,
+      s"""
+         |<table class='sections'><tr><td valign='top' class='section'><p>Returns:</td><td valign='top'><span><span></span>A first line
+         |        then a second line that is actually on the same line
+         |        # not a header<p>Then a new paragraph.
+         |        &gt; abc
+         |        &gt; &gt; def</p><blockquote><p>actually a quote</p><blockquote><p>nested quote</p></blockquote></blockquote><h1>a header</h1><pre><code>
+         |code block</code></pre></span></td></table>
+         |""".stripMargin,
+      HtmlSpacesComparisonMode.DontIgnore,
+    )
+
 }
