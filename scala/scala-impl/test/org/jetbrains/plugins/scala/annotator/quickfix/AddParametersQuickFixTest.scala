@@ -23,7 +23,7 @@ class AddParametersQuickFixTest extends ScalaAnnotatorQuickFixTestBase {
        |  doSomething(true, false)
        |}
     """.stripMargin,
-    "Add parameter(s) to method"
+    "Add parameter to method 'doSomething'"
   )
 
   def test2ArgsToMunch(): Unit = testQuickFix(
@@ -41,7 +41,7 @@ class AddParametersQuickFixTest extends ScalaAnnotatorQuickFixTestBase {
        |  doSomething(true, 2, false)
        |}
     """.stripMargin,
-    "Add parameter(s) to method"
+    "Add parameters to method 'doSomething'"
   )
 
   def testListArg(): Unit = testQuickFix(
@@ -63,7 +63,7 @@ class AddParametersQuickFixTest extends ScalaAnnotatorQuickFixTestBase {
        |  doSomething(true, list)
        |}
     """.stripMargin,
-    "Add parameter(s) to method"
+    "Add parameter to method 'doSomething'"
   )
 
   def testCaseClassArg(): Unit = testQuickFix(
@@ -85,7 +85,7 @@ class AddParametersQuickFixTest extends ScalaAnnotatorQuickFixTestBase {
        |  doSomething(true, Foo(1))
        |}
     """.stripMargin,
-    "Add parameter(s) to method"
+    "Add parameter to method 'doSomething'"
   )
 
   def testNoArgYet(): Unit = testQuickFix(
@@ -103,7 +103,7 @@ class AddParametersQuickFixTest extends ScalaAnnotatorQuickFixTestBase {
        |  doSomething(true)
        |}
     """.stripMargin,
-    "Add parameter(s) to method"
+    "Add parameter to method 'doSomething'"
   )
 
   def testFunType(): Unit = testQuickFix(
@@ -127,7 +127,7 @@ class AddParametersQuickFixTest extends ScalaAnnotatorQuickFixTestBase {
        |  doSomething(true, r, Foo(1), 1)
        |}
     """.stripMargin,
-    "Add parameter(s) to method"
+    "Add parameters to method 'doSomething'"
   )
 
   def testMultipleParamLists(): Unit = testQuickFix(
@@ -145,7 +145,7 @@ class AddParametersQuickFixTest extends ScalaAnnotatorQuickFixTestBase {
        |  test(3)(3, 3)
        |}
        |""".stripMargin,
-    "Add parameter(s) to method"
+    "Add parameter to method 'test'"
   )
 
   def testMultipleParamListsWithApply(): Unit = testQuickFix(
@@ -167,7 +167,7 @@ class AddParametersQuickFixTest extends ScalaAnnotatorQuickFixTestBase {
        |  (test(1)(2)(3))(4, 4)
        |}
        |""".stripMargin,
-    "Add parameter(s) to method"
+    "Add parameter to method 'apply'"
   )
 
   def testReturnedLambda(): Unit = checkIsNotAvailable(
@@ -178,7 +178,7 @@ class AddParametersQuickFixTest extends ScalaAnnotatorQuickFixTestBase {
        |  test(1)(2,$CARET 3)
        |}
        |""".stripMargin,
-    "Add parameter(s) to method"
+    "Add parameters to method"
   )
 
   def testFiddlingIn(): Unit = testQuickFix(
@@ -208,6 +208,6 @@ class AddParametersQuickFixTest extends ScalaAnnotatorQuickFixTestBase {
        |  test(new A, new B, new C, new D)
        |}
        |""".stripMargin,
-    "Add parameter(s) to method"
+    "Add parameters to method 'test'"
   )
 }
