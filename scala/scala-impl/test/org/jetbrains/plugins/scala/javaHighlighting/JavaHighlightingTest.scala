@@ -58,7 +58,7 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
         |    }
         |}
       """.stripMargin
-    assertNoErrors(scala, java, "Test")
+    assertNoErrorsInJava(scala, java, "Test")
   }
 
   def testSCL12286(): Unit = {
@@ -143,7 +143,7 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
         |    }
         |}
       """.stripMargin
-    assertNoErrors(scala, java, "SCL8823")
+    assertNoErrorsInJava(scala, java, "SCL8823")
   }
 
 
@@ -282,7 +282,6 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
   }
 
   def testMultipleThrowStatements(): Unit = {
-    val scala = ""
     val java =
       """
         |import scala.concurrent.Await;
@@ -304,7 +303,7 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
         |}
       """.stripMargin
 
-    assertNoErrors(scala, java, javaClassName = "ThrowsJava")
+    assertNoErrorsInJava(java, javaClassName = "ThrowsJava")
   }
 
   def testThrowsWithTypeArgError(): Unit = {
@@ -350,7 +349,6 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
 
 
   def testOverrideFinal(): Unit = {
-    val scala = ""
     val java =
       """
         |import scala.Function1;
@@ -365,11 +363,10 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
         |}
       """.stripMargin
 
-    assertNoErrors(scala, java, "Future")
+    assertNoErrorsInJava(java, "Future")
   }
 
   def testSCL5617Option(): Unit = {
-    val scala = ""
     val java =
       """
         |import scala.Function1;
@@ -393,7 +390,7 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
         |
       """.stripMargin
 
-    assertNoErrors(scala, java, "SCL5617")
+    assertNoErrorsInJava(java, "SCL5617")
   }
 
   def testCaseClassImplement(): Unit = {
@@ -405,7 +402,7 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
         |}
       """.stripMargin
 
-    assertNoErrors(scala, java, javaClassName = "CaseClassExtended")
+    assertNoErrorsInJava(scala, java, javaClassName = "CaseClassExtended")
   }
 
   def testOverrideDefaultWithStaticSCL8861(): Unit = {
@@ -429,7 +426,7 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
         |
         |}
       """.stripMargin
-    assertNoErrors(scala, java, "SCL8861")
+    assertNoErrorsInJava(scala, java, "SCL8861")
   }
 
   def testClassParameterJava(): Unit = {
@@ -471,7 +468,7 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
         |}
       """.stripMargin
 
-    assertNoErrors(scala, java, "JavaInheritor")
+    assertNoErrorsInJava(scala, java, "JavaInheritor")
   }
 
   def testSCL3390ParamAccessorJava(): Unit = {
@@ -689,7 +686,7 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
 
   //SCL-9412
   def testConstructorReturnTypeNull(): Unit = {
-    assertNoErrors(
+    assertNoErrorsInJava(
       """class ScalaClass1(val s: String) {
         |  def this(i: Integer) = this(i.toString)
         |}
@@ -718,7 +715,7 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
   }
 
   def testUsingMixedInMethodsInClass(): Unit = {
-    assertNoErrors(
+    assertNoErrorsInJava(
       """trait MyTrait1 {
         |  def fooFromTrait1: Int
         |  def fooFromTrait2: Int
@@ -756,7 +753,7 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
   }
 
   def testUsingMixedInMethodsInObject(): Unit = {
-    assertNoErrors(
+    assertNoErrorsInJava(
       """trait MyTrait1 {
         |  def fooFromTrait1: Int
         |  def fooFromTrait2: Int
@@ -819,7 +816,7 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
   }
 
   def testUsingMixedInMethodsInObjectWithCompanionClass(): Unit = {
-    assertNoErrors(
+    assertNoErrorsInJava(
       """trait MyTrait1 {
         |  def fooFromTrait1: Int
         |  def fooFromTrait2: Int
@@ -885,7 +882,7 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
   }
 
   def testUsingMixedInMethods_AllInOneMix(): Unit = {
-    assertNoErrors(
+    assertNoErrorsInJava(
       """trait MyTrait0  {
         |  def fooFromMyTrait0Abstract(): Unit
         |  def fooFromMyTrait0Concrete(): Unit = ???
@@ -1140,7 +1137,7 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
         |
       """.stripMargin
 
-    assertNoErrors(scala, java, "Bug10232")
+    assertNoErrorsInJava(scala, java, "Bug10232")
   }
 
   def testSCL10236(): Unit = {
@@ -1174,7 +1171,7 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
         |}
       """.stripMargin
 
-    assertNoErrors(scala, java, "Bug10236")
+    assertNoErrorsInJava(scala, java, "Bug10236")
   }
 
   def testOptionApply(): Unit = {
@@ -1396,7 +1393,7 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
         |abstract class AbstractTestClass extends TestTrait
       """.stripMargin
 
-    assertNoErrors(scala, java, "JavaTestClass")
+    assertNoErrorsInJava(scala, java, "JavaTestClass")
   }
 
   def testSCL11863(): Unit = {
@@ -1419,7 +1416,7 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
         |    }
         |}""".stripMargin
 
-    assertNoErrors(scala, java, "JavaTestClass")
+    assertNoErrorsInJava(scala, java, "JavaTestClass")
   }
 
   def testSCL11914(): Unit = {
@@ -1438,7 +1435,7 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
         |  }
         |}
       """.stripMargin
-    assertNoErrors(scala, java, "Bar")
+    assertNoErrorsInJava(scala, java, "Bar")
   }
 
   def testSealedInheritors(): Unit = {
@@ -1484,7 +1481,7 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
         |}
       """.stripMargin
 
-    assertNoErrors(scalaText, javaText, "JavaTest")
+    assertNoErrorsInJava(scalaText, javaText, "JavaTest")
   }
 
   def testOverrideParameterTypeWithWildcard(): Unit = {
@@ -1617,7 +1614,7 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
         |}
       """.stripMargin
 
-    assertNoErrors(scala, java, "ExtendTrait")
+    assertNoErrorsInJava(scala, java, "ExtendTrait")
   }
 
   def testExistentialArgType(): Unit = {
@@ -1721,7 +1718,7 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
         |}
         |""".stripMargin
 
-    assertNoErrors(scala, java, "Test")
+    assertNoErrorsInJava(scala, java, "Test")
   }
 
   def testSCL17466(): Unit = {

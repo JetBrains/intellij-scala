@@ -32,7 +32,8 @@ abstract class JavaHighlightingTestBase extends ScalaHighlightingTestBase {
     @Language("JAVA") javaFileText: String,
     javaClassName: String
   ): List[Message] = {
-    if (myFilesCreated) throw new AssertionError("Don't add files 2 times in a single test")
+    if (myFilesCreated)
+      throw new AssertionError("Don't add files 2 times in a single test")
 
     myFixture.addFileToProject("dummy.scala", scalaFileText)
     val myFile: PsiFile = myFixture.addFileToProject(javaClassName + JavaFileType.DOT_DEFAULT_EXTENSION, javaFileText)
@@ -56,7 +57,7 @@ abstract class JavaHighlightingTestBase extends ScalaHighlightingTestBase {
     assertMessagesTextImpl("", actualMessages)
   }
 
-  protected def assertNoErrors(
+  protected def assertNoErrorsInJava(
     @Language("Scala") scalaFileText: String,
     @Language("JAVA") javaFileText: String,
     javaClassName: String
@@ -106,7 +107,7 @@ abstract class JavaHighlightingTestBase extends ScalaHighlightingTestBase {
     }
   }
 
-  protected def addDummyJavaFile(javaFileText: String): Unit = {
+  protected def addDummyJavaFile(@Language("JAVA") javaFileText: String): Unit = {
     myFixture.addFileToProject("dummy.java", javaFileText)
   }
 }
