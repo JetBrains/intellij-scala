@@ -25,15 +25,16 @@ import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.project.external.{JdkByHome, JdkByName, SdkReference}
 import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
 import org.jetbrains.sbt.SbtUtil.*
+import org.jetbrains.sbt.process.ProcessOutputCollector.PrintProcessOutputOnFailurePropertyName
+import org.jetbrains.sbt.process.SbtRunner
 import org.jetbrains.sbt.project.SbtProjectResolver.*
 import org.jetbrains.sbt.project.SbtProjectResolver.ImportContext.given
 import org.jetbrains.sbt.project.data.*
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.project.settings.*
-import org.jetbrains.sbt.project.structure.SbtStructureDump.PrintProcessOutputOnFailurePropertyName
 import org.jetbrains.sbt.project.structure.data.*
 import org.jetbrains.sbt.project.structure.data.XmlDeserializer.deserialize
-import org.jetbrains.sbt.project.structure.{Play2OldStructureAdapter, SbtStructureDump, data as sbtStructure}
+import org.jetbrains.sbt.project.structure.{Play2OldStructureAdapter, SbtStructureDumper, data as sbtStructure}
 import org.jetbrains.sbt.resolvers.{SbtIvyResolver, SbtMavenResolver, SbtResolver}
 import org.jetbrains.sbt.{RichBoolean, Sbt, SbtBundle, SbtUtil, SbtVersion, usingTempFile}
 
@@ -55,7 +56,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
   private val log = Logger.getInstance(getClass)
 
-  @volatile private var activeProcessDumper: Option[SbtStructureDump] = None
+  @volatile private var activeProcessDumper: Option[SbtStructureDumper] = None
 
   override def resolveProjectInfo(
     taskId: ExternalSystemTaskId,
@@ -177,56 +178,60 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     def doDumpStructure(structureFile: Path): Try[(Elem, BuildMessages)] = {
       val structureFilePath = normalizePath(structureFile)
 
-      val dumper = new SbtStructureDump()
+      val dumper =
+        if useShellImport then SbtStructureDumper.FromShell()
+        else SbtStructureDumper.FromProcess()
+
       activeProcessDumper = Option(dumper)
 
       val messageResult: Try[BuildMessages] = {
-        if (useShellImport) {
-          val messagesF = dumper.dumpFromShell(
-            project,
-            sbtVersion,
-            structureFilePath,
-            options,
-            reporter,
-            settings.preferScala2,
-            settings.generateManagedSourcesDuringProjectSync
-          )
-          Try {
-            val testTimeout =
-              if (isUnitTestMode) SbtStructureDump.MaxImportDurationInUnitTests
-              else Duration.Inf // TODO some kind of timeout / cancel mechanism
+        dumper match {
+          case sd: SbtStructureDumper.FromShell =>
+            val messagesF = sd.dumpFromShell(
+              project,
+              sbtVersion,
+              structureFilePath,
+              options,
+              reporter,
+              settings.preferScala2,
+              settings.generateManagedSourcesDuringProjectSync
+            )
+            Try {
+              val testTimeout =
+                if (isUnitTestMode) SbtRunner.MaxImportDurationInUnitTests
+                else Duration.Inf // TODO some kind of timeout / cancel mechanism
 
-            try Await.result(messagesF, testTimeout)
-            catch {
-              case _: TimeoutException if isUnitTestMode =>
-                throw new TimeoutException(s"sbt-shell import hasn't finished in ${SbtStructureDump.MaxImportDurationInUnitTests}")
+              try Await.result(messagesF, testTimeout)
+              catch {
+                case _: TimeoutException if isUnitTestMode =>
+                  throw new TimeoutException(s"sbt-shell import hasn't finished in ${SbtRunner.MaxImportDurationInUnitTests}")
+              }
             }
-          }
-        }
-        else {
-          val sbtStructureJar = settings
-            .customSbtStructureFile
-            .map(_.toPath)
-            .orElse(SbtUtil.getSbtStructureJar(sbtVersion))
-            .getOrElse(throw new ExternalSystemException(s"Could not find sbt-structure-extractor for sbt version $sbtVersion"))
 
-          log.debug(s"sbtStructureJar: $sbtStructureJar")
-          // TODO add error/warning messages during dump, report directly
-          dumper.dumpFromProcess(
-            indicator,
-            projectRoot,
-            structureFilePath,
-            options,
-            settings.vmExecutable.toPath,
-            settings.vmOptions,
-            settings.sbtOptions,
-            settings.userSetEnvironment,
-            sbtLauncher,
-            sbtStructureJar,
-            settings.preferScala2,
-            settings.passParentEnvironment,
-            settings.generateManagedSourcesDuringProjectSync
-          )
+          case pd: SbtStructureDumper.FromProcess =>
+            val sbtStructureJar = settings
+              .customSbtStructureFile
+              .map(_.toPath)
+              .orElse(SbtUtil.getSbtStructureJar(sbtVersion))
+              .getOrElse(throw new ExternalSystemException(s"Could not find sbt-structure-extractor for sbt version $sbtVersion"))
+
+            log.debug(s"sbtStructureJar: $sbtStructureJar")
+            // TODO add error/warning messages during dump, report directly
+            pd.dumpFromProcess(
+              indicator,
+              projectRoot,
+              structureFilePath,
+              options,
+              settings.vmExecutable.toPath,
+              settings.vmOptions,
+              settings.sbtOptions,
+              settings.userSetEnvironment,
+              sbtLauncher,
+              sbtStructureJar,
+              settings.preferScala2,
+              settings.passParentEnvironment,
+              settings.generateManagedSourcesDuringProjectSync
+            )
         }
       }
       activeProcessDumper = None

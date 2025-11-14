@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.build.BuildMessages
 import org.jetbrains.sbt.buildinfo.BuildInfo
 import org.jetbrains.sbt.icons.Icons
-import org.jetbrains.sbt.project.structure.SbtStructureDump
+import org.jetbrains.sbt.process.SbtRunner
 import org.jetbrains.sbt.project.{SbtExternalSystemManager, SbtProjectSystem}
 import org.jetbrains.sbt.{SbtBundle, SbtUtil, SbtVersionCapabilities}
 
@@ -109,7 +109,7 @@ private final class SbtGenerateManagedSourcesAction extends AnAction(
           tmpPluginsSbtFile.toFile.deleteOnExit()
 
           val generateCommand = "show " + SbtUtil.sbtStructureGlobalCommand("ideaGenerateAllManagedSources", sbtVersion)
-          val sbtResult = new SbtStructureDump().runSbt(
+          val sbtResult = SbtRunner().runSbt(
             indicator,
             projectBasePath,
             settings.vmExecutable.toPath,
