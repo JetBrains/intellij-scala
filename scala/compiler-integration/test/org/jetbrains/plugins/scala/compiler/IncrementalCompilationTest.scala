@@ -247,7 +247,7 @@ class IncrementalIdeaCompilationTest
   extends IncrementalCompilationTestBase(IncrementalityType.IDEA, useCompileServer = false)
 
 @Category(Array(classOf[CompilationTests_Zinc]))
-abstract class IncrementalSbtOnServerCompilationTest
+class IncrementalSbtOnServerCompilationTest
   extends IncrementalCompilationTestBase(IncrementalityType.SBT, useCompileServer = true) {
 
   @Test
@@ -293,15 +293,6 @@ abstract class IncrementalSbtOnServerCompilationTest
     assertThat("App recompiled", appTsAfter, everyValueGreaterThanIn(appTsBefore))
   }
 }
-
-@RunWithJdkVersions(Array(TestJdkVersion.JDK_1_8))
-class IncrementalSbtOnServerCompilationTest_JDK_8 extends IncrementalSbtOnServerCompilationTest
-
-@RunWithJdkVersions(Array(TestJdkVersion.JDK_11))
-class IncrementalSbtOnServerCompilationTest_JDK_11 extends IncrementalSbtOnServerCompilationTest
-
-@RunWithJdkVersions(Array(TestJdkVersion.JDK_17))
-class IncrementalSbtOnServerCompilationTest_JDK_17 extends IncrementalSbtOnServerCompilationTest
 
 @Category(Array(classOf[CompilationTests_Zinc]))
 @RunWithJdkVersions(Array(TestJdkVersion.JDK_17))
