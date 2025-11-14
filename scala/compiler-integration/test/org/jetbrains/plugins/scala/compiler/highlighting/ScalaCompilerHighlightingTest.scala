@@ -128,6 +128,61 @@ class ScalaCompilerHighlightingTest_2_13 extends ScalaCompilerHighlightingTestBa
   def testCompilationWithParserError_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
     runTestCompilationWithParserError()
   }
+
+  protected def runTestTooManyParameter(): Unit = {
+    @Language("Scala")
+    val fileText =
+      """
+        |object Test {
+        |  def test1(i: Int): Unit = ()
+        |  def test2(i: Int): Unit = ()
+        |
+        |  test1(1)
+        |  test1(1, 2)
+        |  test1(1, 2, 3)
+        |
+        |  test2(1)
+        |  test2(1, 2)
+        |  test2(1, 2, 3)
+        |}
+        |""".stripMargin
+
+    runTestCase(
+      "tooMany.scala",
+      fileText,
+      expectedResult = expectedResult(
+        ExpectedHighlighting(
+          severity = HighlightSeverity.ERROR,
+          range = Some(TextRange.create(100,101)),
+          quickFixDescriptions = Seq("Add parameter to method 'test1'"),
+          msgPrefix = "too many arguments (found 2, expected 1) for method test1: (i: Int): Unit"
+        ),
+        ExpectedHighlighting(
+          severity = HighlightSeverity.ERROR,
+          range = Some(TextRange.create(114,115)),
+          quickFixDescriptions = Seq("Add parameters to method 'test1'"),
+          msgPrefix = "too many arguments (found 3, expected 1) for method test1: (i: Int): Unit"
+        ),
+        ExpectedHighlighting(
+          severity = HighlightSeverity.ERROR,
+          range = Some(TextRange.create(143,144)),
+          quickFixDescriptions = Seq("Add parameter to method 'test2'"),
+          msgPrefix = "too many arguments (found 2, expected 1) for method test2: (i: Int): Unit"
+        ),
+        ExpectedHighlighting(
+          severity = HighlightSeverity.ERROR,
+          range = Some(TextRange.create(157,158)),
+          quickFixDescriptions = Seq("Add parameters to method 'test2'"),
+          msgPrefix = "too many arguments (found 3, expected 1) for method test2: (i: Int): Unit"
+        ),
+      )
+    )
+  }
+
+  def testTooManyParameter(): Unit = runTestTooManyParameter()
+  def testTooManyParameter_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
+    runTestTooManyParameter()
+  }
 }
 
 class ScalaCompilerHighlightingTest_3_0 extends ScalaCompilerHighlightingTest_3 {
@@ -827,6 +882,61 @@ abstract class ScalaCompilerHighlightingTest_3 extends ScalaCompilerHighlighting
         ),
       )
     )
+  }
+
+  protected def runTestTooManyParameter(): Unit = {
+    @Language("Scala")
+    val fileText =
+      """
+        |object Test {
+        |  def test1(i: Int): Unit = ()
+        |  def test2(i: Int): Unit = ()
+        |
+        |  test1(1)
+        |  test1(1, 2)
+        |  test1(1, 2, 3)
+        |
+        |  test2(1)
+        |  test2(1, 2)
+        |  test2(1, 2, 3)
+        |}
+        |""".stripMargin
+
+    runTestCase(
+      "tooMany.scala",
+      fileText,
+      expectedResult = expectedResult(
+        ExpectedHighlighting(
+          severity = HighlightSeverity.ERROR,
+          range = Some(TextRange.create(97,101)),
+          quickFixDescriptions = Seq("Add parameter to method 'test1'"),
+          msgPrefix = "Found:"
+        ),
+        ExpectedHighlighting(
+          severity = HighlightSeverity.ERROR,
+          range = Some(TextRange.create(111,118)),
+          quickFixDescriptions = Seq("Add parameters to method 'test1'"),
+          msgPrefix = "Found:"
+        ),
+        ExpectedHighlighting(
+          severity = HighlightSeverity.ERROR,
+          range = Some(TextRange.create(140,144)),
+          quickFixDescriptions = Seq("Add parameter to method 'test2'"),
+          msgPrefix = "Found:"
+        ),
+        ExpectedHighlighting(
+          severity = HighlightSeverity.ERROR,
+          range = Some(TextRange.create(154,161)),
+          quickFixDescriptions = Seq("Add parameters to method 'test2'"),
+          msgPrefix = "Found:"
+        ),
+      )
+    )
+  }
+
+  def testTooManyParameter(): Unit = runTestTooManyParameter()
+  def testTooManyParameter_UseCompilerRangesDisabled(): Unit = withUseCompilerRangesDisabled {
+    runTestTooManyParameter()
   }
 }
 

@@ -22,7 +22,8 @@ import org.jetbrains.annotations.{Nls, Nullable}
 import org.jetbrains.jps.incremental.scala.Client.PosInfo
 import org.jetbrains.plugins.scala.annotator.UnresolvedReferenceFixProvider
 import org.jetbrains.plugins.scala.annotator.element.ScTemplateDefinitionAnnotator
-import org.jetbrains.plugins.scala.autoImport.quickFix.{CBHSuggestionToImport, ImportCBHSuggestionFix, ScalaAddImportAction, ScalaImportElementFix}
+import org.jetbrains.plugins.scala.annotator.quickfix.AddParametersQuickfix
+import org.jetbrains.plugins.scala.autoImport.quickFix.{CBHSuggestionToImport, ImportCBHSuggestionFix}
 import org.jetbrains.plugins.scala.caches.ModTracker.anyScalaPsiChange
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHints
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
@@ -32,7 +33,7 @@ import org.jetbrains.plugins.scala.compiler.highlighting.ExternalHighlighting.Ra
 import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt, Parent, PsiElementExt, executeOnPooledThread, invokeLater}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed.UnusedImportReportedByCompilerKey
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportOrExportStmt, ScImportSelector}
@@ -44,7 +45,7 @@ import org.jetbrains.plugins.scala.util.CompilationId
 import java.util.Collections
 import java.util.concurrent.Callable
 import java.util.function.Consumer
-import scala.annotation.nowarn
+import scala.annotation.{nowarn, tailrec}
 import scala.jdk.CollectionConverters._
 
 @Service(Array(Service.Level.PROJECT))
@@ -300,6 +301,25 @@ private final class ExternalHighlightersService(project: Project) { self =>
             case _ => standardBuilder
           }
         } else standardBuilder
+
+      {
+        // There are multiple errors that can occur which indicate a missing parameter,
+        // so we just always add the AddParametersQuickfix (the quickfix itself is pretty conservative when it will appear)
+        @tailrec
+        def findArgumentList(e: PsiElement): Option[ScArgumentExprList] = {
+          PsiTreeUtil.getParentOfType(e, classOf[ScArgumentExprList]) match {
+            case null => None
+            case args if args.getTextRange.contains(highlightRange) => Some(args)
+            case args => findArgumentList(args)
+          }
+        }
+        val argList = findArgumentList(psiFile.findElementAt(highlightRange.getStartOffset))
+
+        for (argList <- argList) {
+          val quickfix = new AddParametersQuickfix(argList.createSmartPointer)
+          highlightInfo.registerFix(quickfix, null, null, argList.getTextRange, null)
+        }
+      }
 
       registerImportFixesFromMessage(highlighting.message, highlightRange, psiFile, highlightInfo)
 
