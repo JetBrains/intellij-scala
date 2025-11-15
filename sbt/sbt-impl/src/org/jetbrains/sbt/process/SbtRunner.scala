@@ -112,13 +112,13 @@ final class SbtRunner(processOutputCollector: Option[ProcessOutputCollector] = N
     val allSbtLauncherArgs = sbtOpts.collect { case a: SbtLauncherOption => a.value } ++ sbtLauncherArgs
     val processCommandsRaw =
       List(
-        SbtUtil.normalizePath(vmExecutable),
+        vmExecutable.toString,
         "-Djline.terminal=jline.UnsupportedTerminal",
         "-Dsbt.log.noformat=true",
         "-Dfile.encoding=UTF-8"
       ) ++
         allOpts ++
-        List("-jar", SbtUtil.normalizePath(sbtLauncher)) ++
+        List("-jar", sbtLauncher.toString) ++
         allSbtLauncherArgs // :+ "--debug"
 
     val processCommands = processCommandsRaw.filterNot(_.isEmpty)
@@ -129,21 +129,21 @@ final class SbtRunner(processOutputCollector: Option[ProcessOutputCollector] = N
     val resultMessages = Try {
       // Will be replaced with eel API soon.
       val parentEnvironmentType = if (passParentEnvironment) GeneralCommandLine.ParentEnvironmentType.CONSOLE else ParentEnvironmentType.NONE
-      val generalCommandLine = new GeneralCommandLine(processCommands.asJava)
-        .withParentEnvironmentType(parentEnvironmentType)
-      val processBuilder = generalCommandLine.toProcessBuilder
-      processBuilder.directory(directory.toFile)
-      processBuilder.environment().putAll(environment.asJava)
       // It is required due to #SCL-19498
-      processBuilder.environment().put("HISTCONTROL", "ignorespace")
-      val procString = processBuilder.command().asScala.mkString(" ")
+      val fullEnvironment = environment + ("HISTCONTROL" -> "ignorespace")
+      val commandLine =
+        new GeneralCommandLine(processCommands.asJava)
+          .withParentEnvironmentType(parentEnvironmentType)
+          .withWorkingDirectory(directory)
+          .withEnvironment(fullEnvironment.asJava)
+      val procString = commandLine.getCommandLineString
       reporter.log(procString)
 
       Log.debugSafe(
         s"""processBuilder.start()
-           |  command line: ${processBuilder.command().asScala.mkString(" ")}""".stripMargin
+           |  command line: $procString""".stripMargin
       )
-      processBuilder.start()
+      commandLine.createProcess()
     }
       .flatMap { process =>
         Using.resource(new PrintWriter(new BufferedWriter(new OutputStreamWriter(process.getOutputStream, StandardCharsets.UTF_8)))) { writer =>
