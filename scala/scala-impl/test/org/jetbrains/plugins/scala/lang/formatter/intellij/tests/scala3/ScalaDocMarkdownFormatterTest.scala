@@ -62,4 +62,155 @@ class ScalaDocMarkdownFormatterTest extends AbstractScalaFormatterTestBase {
       | */
       |""".stripMargin
   )
+
+  def test_code_fence(): Unit = doTextTest(
+    """
+      |/**
+      | * ```scala
+      | * def test =
+      | *   val x = 1 + 1
+      | *   println(x)
+      | *
+      | *     object Test
+      | * ```
+      | *
+      | *    ```
+      | *      val x = 1 + 1
+      | *    ```
+      | */
+      |""".stripMargin,
+    // This formatting looks strange, but is basically what scaladoc does as well when parsing the code.
+    """
+      |/**
+      | * ```scala
+      | * def test =
+      | *   val x = 1 + 1
+      | *   println(x)
+      | *
+      | *     object Test
+      | * ```
+      | *
+      | * ```
+      | *      val x = 1 + 1
+      | * ```
+      | */
+      |""".stripMargin
+  )
+
+  def test_header(): Unit = doTextTest(
+    """
+      |/**
+      | *  # Header 1
+      | *   ##  Header 2
+      | *    ###   Header 3
+      | */
+      |""".stripMargin,
+    """
+      |/**
+      | * # Header 1
+      | * ##  Header 2
+      | * ###   Header 3
+      | */
+      |""".stripMargin
+  )
+
+
+  def test_header_underlined(): Unit = doTextTest(
+    """
+      |/**
+      | *  Header
+      | *   ======
+      | *
+      | *    Header
+      | *  ------
+      | */
+      |""".stripMargin,
+    """
+      |/**
+      | * Header
+      | * ======
+      | *
+      | * Header
+      | * ------
+      | */
+      |""".stripMargin
+  )
+
+  def test_formats(): Unit = doTextTest(
+    """
+      |/**
+      | *  *a test*
+      | *   _another test_
+      | *  **yet another test**
+      | */
+      |""".stripMargin,
+    """
+      |/**
+      | * *a test*
+      | * _another test_
+      | * **yet another test**
+      | */
+      |""".stripMargin
+  )
+
+  def test_quotes(): Unit = doTextTest(
+    """
+      |/**
+      | *  > a
+      | * > > b
+      | *    > > > c
+      | * >
+      | * > d
+      | *  > > > e
+      | * > >
+      | *     > > f
+      | */
+      |""".stripMargin,
+    """
+      |/**
+      | * > a
+      | * > > b
+      | * > > > c
+      | * >
+      | * > d
+      | * > > > e
+      | * > >
+      | * > > f
+      | */
+      |""".stripMargin,
+  )
+
+  def test_return_simple(): Unit = doTextTest(
+    """
+      |/**
+      | *   @return    some text
+      | *  some text on next line
+      | */""".stripMargin,
+    """
+      |/**
+      | * @return some text
+      | *         some text on next line
+      | */""".stripMargin
+  )
+
+  def test_return_all(): Unit = doTextTest(
+    """
+      |/**
+      | * @return # Header
+      | *      ## no header
+      | *  some text
+      | *
+      | * more  text
+      | */
+      |""".stripMargin,
+    """
+      |/**
+      | * @return # Header
+      | *         ## no header
+      | *         some text
+      | *
+      | *         more  text
+      | */
+      |""".stripMargin
+  )
 }

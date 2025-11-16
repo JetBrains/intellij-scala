@@ -84,25 +84,36 @@ class _ScalaDocMarkdownLexer extends LexerBase {
    */
   private def startNewMarkdownLine(): Boolean = {
     // Check for @-directives.
-    // First, find the first non-whitespace character after `offset`:
+    // First, find the first non-whitespace, non-newline character after `offset`:
     val firstNonWhitespaceIndex = (offset until originalEndOffset)
-      .find(!originalBuffer.charAt(_).isWhitespace)
+      .find { idx =>
+        val c = originalBuffer.charAt(idx)
+        c == '\n' || !c.isWhitespace
+      }
 
     firstNonWhitespaceIndex.exists { index =>
-      originalBuffer.charAt(index) == '@' && {
-        val nextIndex = index + 1
-        if (nextIndex < originalEndOffset && !originalBuffer.charAt(nextIndex).isWhitespace) {
-
-          if (index > offset) {
-            myState = _ScalaDocMarkdownLexer.AT_DIRECTIVE_WS_START
-          } else {
-            myState = _ScalaDocMarkdownLexer.AT_DIRECTIVE
-          }
-
+      originalBuffer.charAt(index) match {
+        case c if c != '\n' && originalBuffer.charAt(offset).isWhitespace =>
+          // The line started with whitespaces followed by something else than a newline.
+          // Make sure that these whitespaces become their own token.
+          myState = _ScalaDocMarkdownLexer.WS_AFTER_LEADING_ASTERISK
           true
-        } else {
+        case '@' =>
+          val nextIndex = index + 1
+          if (nextIndex < originalEndOffset && !originalBuffer.charAt(nextIndex).isWhitespace) {
+
+            if (index > offset) {
+              myState = _ScalaDocMarkdownLexer.AT_DIRECTIVE_WS_START
+            } else {
+              myState = _ScalaDocMarkdownLexer.AT_DIRECTIVE
+            }
+
+            true
+          } else {
+            false
+          }
+        case _ =>
           false
-        }
       }
     }
     // For now, we won't deal with values in @-directives at all
@@ -186,10 +197,7 @@ class _ScalaDocMarkdownLexer extends LexerBase {
           offset = nextChar
           if (!startNewMarkdownLine()) unpauseDelegate()
         }
-      case _ScalaDocMarkdownLexer.LEADING_ASTERISK =>
-        offset = tokenEnd
-        if (!startNewMarkdownLine()) unpauseDelegate()
-      case _ScalaDocMarkdownLexer.START =>
+      case _ScalaDocMarkdownLexer.LEADING_ASTERISK | _ScalaDocMarkdownLexer.WS_AFTER_LEADING_ASTERISK | _ScalaDocMarkdownLexer.START =>
         offset = tokenEnd
         if (!startNewMarkdownLine()) unpauseDelegate()
       case _ScalaDocMarkdownLexer.END => offset = originalEndOffset
@@ -243,18 +251,20 @@ object _ScalaDocMarkdownLexer {
   private val DELEGATE = 1
   private val LINE_SPACE = 2
   private val LEADING_ASTERISK = 3
-  private val END = 4
+  private val WS_AFTER_LEADING_ASTERISK = 4
+  private val END = 5
 
-  private val AT_DIRECTIVE_WS_START = 5
-  private val AT_DIRECTIVE = 6
-  private val AT_DIRECTIVE_WS_VALUE = 7
-  private val AT_DIRECTIVE_VALUE = 8
+  private val AT_DIRECTIVE_WS_START = 6
+  private val AT_DIRECTIVE = 7
+  private val AT_DIRECTIVE_WS_VALUE = 8
+  private val AT_DIRECTIVE_VALUE = 9
 
-  private val MACRO_WS_VALUE = 9
-  private val MACRO_VALUE = 10
+  private val MACRO_WS_VALUE = 10
+  private val MACRO_VALUE = 11
 
   private def isWhitespaceState(state: Int): Boolean = {
     state == LINE_SPACE ||
+      state == WS_AFTER_LEADING_ASTERISK ||
       state == AT_DIRECTIVE_WS_START ||
       state == AT_DIRECTIVE_WS_VALUE ||
       state == MACRO_WS_VALUE
