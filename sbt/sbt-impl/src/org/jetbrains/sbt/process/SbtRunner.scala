@@ -8,6 +8,8 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.util.SystemInfo
+import com.intellij.platform.eel.EelDescriptor
+import com.intellij.platform.eel.provider.{EelNioBridgeServiceKt, EelProviderUtil}
 import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import org.jetbrains.annotations.{Nls, NonNls}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
@@ -110,24 +112,27 @@ final class SbtRunner(processOutputCollector: Option[ProcessOutputCollector] = N
     val allOpts = SbtUtil.collectAllOptionsFromJava(directory, vmOptions, passParentEnvironment, environment0) ++ sbtOpts.collect { case a: JvmOptionGlobal => a.value }
 
     val allSbtLauncherArgs = sbtOpts.collect { case a: SbtLauncherOption => a.value } ++ sbtLauncherArgs
-    val processCommandsRaw =
-      List(
-        vmExecutable.toString,
-        "-Djline.terminal=jline.UnsupportedTerminal",
-        "-Dsbt.log.noformat=true",
-        "-Dfile.encoding=UTF-8"
-      ) ++
-        allOpts ++
-        List("-jar", sbtLauncher.toString) ++
-        allSbtLauncherArgs // :+ "--debug"
 
-    val processCommands = processCommandsRaw.filterNot(_.isEmpty)
 
     val dumpTaskId = EventId(s"dump:${UUID.randomUUID()}")
     reporter.startTask(dumpTaskId, None, reportMessage, startTime)
 
     val resultMessages = Try {
-      // Will be replaced with eel API soon.
+      validateAllPathsHaveTheSameEelDescriptor(directory, vmExecutable, sbtLauncher)
+
+      val processCommandsRaw =
+        List(
+          vmExecutable.toLocalPath,
+          "-Djline.terminal=jline.UnsupportedTerminal",
+          "-Dsbt.log.noformat=true",
+          "-Dfile.encoding=UTF-8"
+        ) ++
+          allOpts ++
+          List("-jar", sbtLauncher.toLocalPath) ++
+          allSbtLauncherArgs // :+ "--debug"
+
+      val processCommands = processCommandsRaw.filterNot(_.isEmpty)
+
       val parentEnvironmentType = if (passParentEnvironment) GeneralCommandLine.ParentEnvironmentType.CONSOLE else ParentEnvironmentType.NONE
       // It is required due to #SCL-19498
       val fullEnvironment = environment + ("HISTCONTROL" -> "ignorespace")
@@ -343,6 +348,30 @@ final class SbtRunner(processOutputCollector: Option[ProcessOutputCollector] = N
   private def ignoreInShellHistory(command: String): String = command.prependedAll(" ")
 
   private def isUnitTestMode: Boolean = ApplicationManager.getApplication.isUnitTestMode
+
+  private def validateAllPathsHaveTheSameEelDescriptor(paths: Path*): Unit =
+    if paths.isEmpty then return
+    val descriptor = paths.head.eelDescriptor
+    val allEqual = paths.forall(_.eelDescriptor == descriptor)
+    if !allEqual then
+      throw IllegalStateException(
+        s"""The paths:
+           |${paths.mkString(", ")}
+           |are not compatible. They point to paths in different (virtual) machines.
+           |Please check your project configuration, sbt settings and project JDK settings.
+           |""".stripMargin
+      )
+
+  extension (path: Path)
+    //noinspection ApiStatus
+    //noinspection UnstableApiUsage,ApiStatus
+    def eelDescriptor: EelDescriptor = EelProviderUtil.getEelDescriptor(path)
+
+    /**
+     * A machine-specific local path translated via the eel API.
+     */
+    //noinspection ApiStatus
+    def toLocalPath: String = EelNioBridgeServiceKt.asEelPath(path).toString
 
 end SbtRunner
 
