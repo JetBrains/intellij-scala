@@ -8,8 +8,6 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.util.SystemInfo
-import com.intellij.platform.eel.EelDescriptor
-import com.intellij.platform.eel.provider.{EelNioBridgeServiceKt, EelProviderUtil}
 import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import org.jetbrains.annotations.{Nls, NonNls}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
@@ -19,7 +17,7 @@ import org.jetbrains.sbt.actions.GenerateManagedSourcesReporter
 import org.jetbrains.sbt.project.SbtProjectResolver.ImportCancelledException
 import org.jetbrains.sbt.project.structure.SbtOption.{JvmOptionGlobal, SbtLauncherOption}
 import org.jetbrains.sbt.project.structure.{ListenerAdapter, OutputType}
-import org.jetbrains.sbt.{SbtBundle, SbtUtil}
+import org.jetbrains.sbt.{SbtBundle, SbtUtil, eelDescriptor, asLocalPath}
 
 import java.io.{BufferedWriter, OutputStreamWriter, PrintWriter}
 import java.nio.charset.StandardCharsets
@@ -122,13 +120,13 @@ final class SbtRunner(processOutputCollector: Option[ProcessOutputCollector] = N
 
       val processCommandsRaw =
         List(
-          vmExecutable.toLocalPath,
+          vmExecutable.asLocalPath,
           "-Djline.terminal=jline.UnsupportedTerminal",
           "-Dsbt.log.noformat=true",
           "-Dfile.encoding=UTF-8"
         ) ++
           allOpts ++
-          List("-jar", sbtLauncher.toLocalPath) ++
+          List("-jar", sbtLauncher.asLocalPath) ++
           allSbtLauncherArgs // :+ "--debug"
 
       val processCommands = processCommandsRaw.filterNot(_.isEmpty)
@@ -361,17 +359,6 @@ final class SbtRunner(processOutputCollector: Option[ProcessOutputCollector] = N
            |Please check your project configuration, sbt settings and project JDK settings.
            |""".stripMargin
       )
-
-  extension (path: Path)
-    //noinspection ApiStatus
-    //noinspection UnstableApiUsage,ApiStatus
-    def eelDescriptor: EelDescriptor = EelProviderUtil.getEelDescriptor(path)
-
-    /**
-     * A machine-specific local path translated via the eel API.
-     */
-    //noinspection ApiStatus
-    def toLocalPath: String = EelNioBridgeServiceKt.asEelPath(path).toString
 
 end SbtRunner
 
