@@ -78,6 +78,9 @@ private class ScaladocMarkdownParsing(builder: MkBuilder, content: String) exten
       case MarkdownElementTypes.CODE_FENCE => visitCodeFence(elementTy, treeIt)
       case MarkdownElementTypes.PARAGRAPH => visitParagraph(elementTy, treeIt)
       case MarkdownElementTypes.BLOCK_QUOTE => visitBlockQuote(elementTy, treeIt)
+      case MarkdownElementTypes.ATX_1 | MarkdownElementTypes.ATX_2 | MarkdownElementTypes.ATX_3 |
+           MarkdownElementTypes.ATX_4 | MarkdownElementTypes.ATX_5 | MarkdownElementTypes.ATX_6 =>
+        visitHeading(elementTy, treeIt)
       case _ =>
         ensureBuilderInPosition(treeIt.currentStartOffset)
 
@@ -268,6 +271,25 @@ private class ScaladocMarkdownParsing(builder: MkBuilder, content: String) exten
       childIt.advance()
     }
 
+    ensureBuilderInPosition(endOffset)
+    marker.done(elementTy)
+  }
+
+  private def visitHeading(elementTy: IElementType, treeIt: MkTreeIt): Unit = {
+    ensureBuilderInPosition(treeIt.currentStartOffset)
+
+    val childIt = treeIt.startIterateCurrentChildren()
+
+    if (childIt.currentNodeType == MarkdownTokenTypes.WHITE_SPACE) {
+      // for some reason a header element also encloses the whitespace befor the #
+      // so try to split it off here
+      ensureBuilderInPosition(childIt.currentEndOffset, ScalaDocTokenType.DOC_WHITESPACE)
+      childIt.advance()
+    }
+
+    val endOffset = treeIt.currentEndOffset
+    val marker = builder.mark()
+    visitRest(childIt)
     ensureBuilderInPosition(endOffset)
     marker.done(elementTy)
   }

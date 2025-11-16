@@ -121,6 +121,25 @@ class Scala3DocumentationProviderTest_Markdown
       HtmlSpacesComparisonMode.DontIgnore,
     )
 
+  def testHeaders(): Unit =
+    doGenerateRenderedDocBodyTest(
+      s"""
+         |/**
+         | * # a
+         | * ## b
+         | * ### c
+         | * #### d
+         | * ##### e
+         | * ###### f
+         | */
+         |class ${|}Foo
+         |""".stripMargin,
+      s"""
+         |<div class='content'><h1>a</h1><h2>b</h2><h3>c</h3><h4>d</h4><h5>e</h5><h6>f</h6></div>
+         |""".stripMargin,
+      HtmlSpacesComparisonMode.DontIgnore,
+    )
+
   def testNestedQuotes(): Unit =
     doGenerateRenderedDocBodyTest(
       s"""
@@ -186,6 +205,20 @@ class Scala3DocumentationProviderTest_Markdown
          |""".stripMargin,
       """
         |<table class='sections'><tr><td valign='top' class='section'><p>Returns:</td><td valign='top'><span><span></span><blockquote>a quote</blockquote></span></td></table>
+        |""".stripMargin,
+      HtmlSpacesComparisonMode.DontIgnore,
+    )
+
+  def test_return_header(): Unit =
+    doGenerateRenderedDocBodyTest(
+      s"""
+         |/**
+         | * @return # a header
+         | */
+         |class ${|}Foo
+         |""".stripMargin,
+      """
+        |<table class='sections'><tr><td valign='top' class='section'><p>Returns:</td><td valign='top'><span><span></span><h1>a header</h1></span></td></table>
         |""".stripMargin,
       HtmlSpacesComparisonMode.DontIgnore,
     )
