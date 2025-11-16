@@ -22,7 +22,7 @@ import scala.collection.immutable.ArraySeq
 import scala.jdk.CollectionConverters.ListHasAsScala
 
 
-private class ScaladocMarkdownParsing(builder: MkBuilder) extends ScalaDocElementTypes {
+private class ScaladocMarkdownParsing(builder: MkBuilder, content: String) extends ScalaDocElementTypes {
   import builder.ensureBuilderInPosition
 
   private val elementsHandlingInnerWs = Set(
@@ -39,6 +39,9 @@ private class ScaladocMarkdownParsing(builder: MkBuilder) extends ScalaDocElemen
     MarkdownElementTypes.CODE_BLOCK,
     ScalaDocTagMarkerBlock.TAG_BLOCK,
   )
+
+  private def nodeText(node: ASTNode): String =
+    content.substring(node.getStartOffset, node.getEndOffset)
 
   def visitNode(treeIt: MkTreeIt): Unit = {
     assert(!treeIt.ended)
@@ -224,10 +227,15 @@ private class ScaladocMarkdownParsing(builder: MkBuilder) extends ScalaDocElemen
     // also eat eol and whitespaces of the parents
     @tailrec
     def eat(it: MkTreeIt): Unit = {
+      // The Markdown parser classifies parts of the > > > of a nested quote as whitespace,
+      // but we don't want to consume those in the preceding paragraph.
+      def isBlockquoteWhitespace(node: ASTNode): Boolean =
+        it.parent.exists(_.currentNodeType == MarkdownElementTypes.BLOCK_QUOTE) &&
+          nodeText(node).contains('>')
       it.peek() match {
         case Some(node) =>
           val ty = node.getType
-          if (ty == MarkdownTokenTypes.WHITE_SPACE || ty == MarkdownTokenTypes.EOL) {
+          if ((ty == MarkdownTokenTypes.WHITE_SPACE || ty == MarkdownTokenTypes.EOL) && !isBlockquoteWhitespace(node)) {
             it.advance()
             visitNode(it)
             eat(it)
@@ -249,7 +257,17 @@ private class ScaladocMarkdownParsing(builder: MkBuilder) extends ScalaDocElemen
   private def visitBlockQuote(elementTy: IElementType, treeIt: MkTreeIt): Unit = {
     val marker = builder.mark()
     val endOffset = treeIt.currentEndOffset
-    visitRest(treeIt.startIterateCurrentChildren())
+    val childIt = treeIt.startIterateCurrentChildren()
+
+    while (!childIt.ended) {
+      if (childIt.currentNodeType == MarkdownTokenTypes.WHITE_SPACE) {
+        ensureBuilderInPosition(childIt.currentEndOffset, ScalaDocTokenType.DOC_BLOCKQUOTE)
+      } else {
+        visitNode(childIt)
+      }
+      childIt.advance()
+    }
+
     ensureBuilderInPosition(endOffset)
     marker.done(elementTy)
   }
@@ -337,7 +355,7 @@ object ScaladocMarkdownParsing {
     if (builder.getTokenType == ScalaDocTokenType.DOC_COMMENT_START) {
       builder.advanceLexer()
     }
-    val parsing = new ScaladocMarkdownParsing(builder)
+    val parsing = new ScaladocMarkdownParsing(builder, content)
     parsing.visitNode(MkTreeIt(mkRootNode))
 
     if (!builder.eof()) {

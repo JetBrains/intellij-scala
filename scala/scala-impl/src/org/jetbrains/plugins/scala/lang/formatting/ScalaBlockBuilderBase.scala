@@ -20,6 +20,7 @@ abstract class ScalaBlockBuilderBase(
 
   protected final def subBlock(
     node: ASTNode,
+    @Nullable
     lastNode: ASTNode = null,
     @Nullable
     alignment: Alignment = null,
