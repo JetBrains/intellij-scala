@@ -33,4 +33,33 @@ class ScalaDocMarkdownFormatterTest extends AbstractScalaFormatterTestBase {
       | */
       |""".stripMargin
   )
+
+  def test_ordered_list(): Unit = doTextTest(
+    """
+      |/**
+      | * An list:
+      | * 1. Item 1
+      | * 2. Item 2
+      | *    Let's do more
+      | *    1. oho ! sublist
+      | *    2. another one
+      | * Should be indented
+      | * 3. Item 3
+      | * Still part of 3
+      | */
+      |""".stripMargin,
+    """
+      |/**
+      | * An list:
+      | * 1. Item 1
+      | * 2. Item 2
+      | *    Let's do more
+      | *    1. oho ! sublist
+      | *    2. another one
+      | *       Should be indented
+      | * 3. Item 3
+      | *    Still part of 3
+      | */
+      |""".stripMargin
+  )
 }

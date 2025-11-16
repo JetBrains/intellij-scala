@@ -42,6 +42,7 @@ private class ScalaDocBlockBuilder(
   commonSettings,
   scalaSettings
 ) {
+  private lazy val isMarkdown = parentBlock.node.getPsi.asOptionOf[ScDocComment].exists(_.isMarkdownComment)
 
   def buildSubBlocks: util.ArrayList[Block] = {
     if (parentBlock.lastNode != null)
@@ -89,8 +90,8 @@ private class ScalaDocBlockBuilder(
              ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS |
              ScalaDocTokenType.DOC_WHITESPACE |
              ScalaDocTokenType.DOC_INNER_CODE_TAG |
-             ScalaDocElementTypes.DOC_PARAGRAPH |
-             ScalaDocElementTypes.DOC_LIST => true
+             ScalaDocElementTypes.DOC_PARAGRAPH => true
+        case ScalaDocElementTypes.DOC_LIST if !isMarkdown => true
         case _ => false
       }
       if (doNotAlignInListItem) null
