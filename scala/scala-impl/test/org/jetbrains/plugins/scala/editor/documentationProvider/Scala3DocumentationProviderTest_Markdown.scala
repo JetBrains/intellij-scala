@@ -176,4 +176,17 @@ class Scala3DocumentationProviderTest_Markdown
       HtmlSpacesComparisonMode.DontIgnore,
     )
 
+  def test_return_quote(): Unit =
+    doGenerateRenderedDocBodyTest(
+      s"""
+         |/**
+         | * @return > a quote
+         | */
+         |class ${|}Foo
+         |""".stripMargin,
+      """
+        |<table class='sections'><tr><td valign='top' class='section'><p>Returns:</td><td valign='top'><span><span></span><blockquote>a quote</blockquote></span></td></table>
+        |""".stripMargin,
+      HtmlSpacesComparisonMode.DontIgnore,
+    )
 }
