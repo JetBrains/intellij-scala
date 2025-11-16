@@ -21,7 +21,24 @@ import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
 import scala.jdk.CollectionConverters.ListHasAsScala
 
-
+/**
+ *
+ * @note Regarding block quotes:
+ *
+ *       Block quotes are extremely annoying!
+ *       In the Markdown tree there are MarkdownElementTypes.BLOCK_QUOTE and MarkdownTokenTypes.BLOCK_QUOTES.
+ *       And Bonus: Whitespace tokens can also sometimes be blockquote tokens!
+ *       The element types are fairly straight forward and do what you would expect.
+ *       But the tokens can come in different forms:
+ *       1. At the beginning of a quote element: be careful here, because it also consumes the following whitespace
+ *          but only in the Markdown tree! on the token level the whitespace comes as a separate token.
+ *       2. Within a paragraph after newline: These eat their preceding (!) whitespaces
+ *       3. Before a nested quote element to pad the parent quote elements.
+ *          And surprise motherfucker! Here they are whitespace tokens, because why the fuck not!
+ *
+ *       Note that _ScalaDocMarkdownLexer makes sure that quotes can only eat their preceding whitespaces
+ *       and not their following. Also, they will not eat the whitespaces at the beginning of the line.
+ */
 private class ScaladocMarkdownParsing(builder: MkBuilder, content: String) extends ScalaDocElementTypes {
   import builder.ensureBuilderInPosition
 
@@ -33,7 +50,6 @@ private class ScaladocMarkdownParsing(builder: MkBuilder, content: String) exten
 
   private val elementsHandlingPrevWs = Set(
     MarkdownElementTypes.PARAGRAPH,
-    MarkdownElementTypes.BLOCK_QUOTE,
     MarkdownElementTypes.ORDERED_LIST,
     MarkdownElementTypes.UNORDERED_LIST,
     MarkdownElementTypes.CODE_BLOCK,
@@ -42,6 +58,10 @@ private class ScaladocMarkdownParsing(builder: MkBuilder, content: String) exten
 
   private def nodeText(node: ASTNode): String =
     content.substring(node.getStartOffset, node.getEndOffset)
+
+  private def isBlockquoteWhitespace(node: ASTNode): Boolean =
+    node.getType == MarkdownTokenTypes.WHITE_SPACE &&
+      nodeText(node).contains('>')
 
   def visitNode(treeIt: MkTreeIt): Unit = {
     assert(!treeIt.ended)
@@ -64,6 +84,16 @@ private class ScaladocMarkdownParsing(builder: MkBuilder, content: String) exten
       case MarkdownTokenTypes.CODE_FENCE_CONTENT =>
         // just make everything code content, including the initial ws
         ensureBuilderInPosition(treeIt.currentEndOffset, elementTy)
+      case MarkdownTokenTypes.BLOCK_QUOTE =>
+        // For some reason the blockquote token not only eats the > but also the preceding and following whitespaces
+        // We can't do anything about the preceding ws, because they also belong to the token in the lexer...
+        // The following ws, though, is its own token, so split that at least off
+        //ensureBuilderInPosition(treeIt.currentStartOffset)
+        assert(builder.getTokenType == ScalaDocTokenType.DOC_BLOCKQUOTE)
+        builder.advanceLexer()
+        if (builder.getTokenType == ScalaDocTokenType.DOC_WHITESPACE) {
+          builder.advanceLexer()
+        }
       case _ if !treeIt.currentHasChildren =>
         ensureBuilderInPosition(treeIt.currentStartOffset)
 
@@ -232,9 +262,6 @@ private class ScaladocMarkdownParsing(builder: MkBuilder, content: String) exten
     def eat(it: MkTreeIt): Unit = {
       // The Markdown parser classifies parts of the > > > of a nested quote as whitespace,
       // but we don't want to consume those in the preceding paragraph.
-      def isBlockquoteWhitespace(node: ASTNode): Boolean =
-        it.parent.exists(_.currentNodeType == MarkdownElementTypes.BLOCK_QUOTE) &&
-          nodeText(node).contains('>')
       it.peek() match {
         case Some(node) =>
           val ty = node.getType
@@ -258,19 +285,11 @@ private class ScaladocMarkdownParsing(builder: MkBuilder, content: String) exten
   }
 
   private def visitBlockQuote(elementTy: IElementType, treeIt: MkTreeIt): Unit = {
+    // what's different here to the default is that we don't want to ensure the position here
+    // that's because the blockquote token will do that
     val marker = builder.mark()
     val endOffset = treeIt.currentEndOffset
-    val childIt = treeIt.startIterateCurrentChildren()
-
-    while (!childIt.ended) {
-      if (childIt.currentNodeType == MarkdownTokenTypes.WHITE_SPACE) {
-        ensureBuilderInPosition(childIt.currentEndOffset, ScalaDocTokenType.DOC_BLOCKQUOTE)
-      } else {
-        visitNode(childIt)
-      }
-      childIt.advance()
-    }
-
+    visitRest(treeIt.startIterateCurrentChildren())
     ensureBuilderInPosition(endOffset)
     marker.done(elementTy)
   }
@@ -329,6 +348,10 @@ private class ScaladocMarkdownParsing(builder: MkBuilder, content: String) exten
       // Tokens
       //case MarkdownTokenTypes.EMPH => ScalaDocTokenType.DOC_ITALIC_TAG
       //case MarkdownTokenTypes.BACKTICK => ScalaDocTokenType.DOC_MONOSPACE_TAG
+      case MarkdownTokenTypes.BLOCK_QUOTE => ScalaDocTokenType.DOC_BLOCKQUOTE
+      case MarkdownTokenTypes.WHITE_SPACE if builder.getTokenType == ScalaDocTokenType.DOC_BLOCKQUOTE && isBlockquoteWhitespace(treeIt.current) =>
+        builder.advanceLexer()
+        return None
       case MarkdownTokenTypes.WHITE_SPACE if builder.rawLookup(-1) == ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS =>
         ScalaDocTokenType.DOC_WHITESPACE
 
