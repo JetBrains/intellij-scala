@@ -6,7 +6,7 @@ import org.jetbrains.sbtidea.download.idea.IntellijVersionUtils
 import sbt.*
 
 object Versions {
-  val scalaVersion: String = "2.13.17"
+  val scalaVersion: String = "2.13.18"
   val scala3Version: String = "3.7.4"
 
   // ATTENTION: when updating `sbtVersion` also update it in `org.jetbrains.sbt.SbtVersion.Latest`
