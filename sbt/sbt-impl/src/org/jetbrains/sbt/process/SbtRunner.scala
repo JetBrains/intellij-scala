@@ -8,6 +8,8 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.util.SystemInfo
+import com.intellij.platform.eel.provider.utils.EelPathUtils
+import com.intellij.platform.eel.provider.utils.EelPathUtils.TransferTarget
 import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import org.jetbrains.annotations.{Nls, NonNls}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
@@ -17,7 +19,7 @@ import org.jetbrains.sbt.actions.GenerateManagedSourcesReporter
 import org.jetbrains.sbt.project.SbtProjectResolver.ImportCancelledException
 import org.jetbrains.sbt.project.structure.SbtOption.{JvmOptionGlobal, SbtLauncherOption}
 import org.jetbrains.sbt.project.structure.{ListenerAdapter, OutputType}
-import org.jetbrains.sbt.{SbtBundle, SbtUtil, eelDescriptor, asLocalPath}
+import org.jetbrains.sbt.{SbtBundle, SbtUtil, asLocalPath, eelDescriptor}
 
 import java.io.{BufferedWriter, OutputStreamWriter, PrintWriter}
 import java.nio.charset.StandardCharsets
@@ -111,12 +113,15 @@ final class SbtRunner(processOutputCollector: Option[ProcessOutputCollector] = N
 
     val allSbtLauncherArgs = sbtOpts.collect { case a: SbtLauncherOption => a.value } ++ sbtLauncherArgs
 
+    //noinspection ApiStatus,UnstableApiUsage
+    val transferredSbtLauncher =
+      EelPathUtils.transferLocalContentToRemote(sbtLauncher, TransferTarget.Temporary(directory.eelDescriptor))
 
     val dumpTaskId = EventId(s"dump:${UUID.randomUUID()}")
     reporter.startTask(dumpTaskId, None, reportMessage, startTime)
 
     val resultMessages = Try {
-      validateAllPathsHaveTheSameEelDescriptor(directory, vmExecutable, sbtLauncher)
+      validateAllPathsHaveTheSameEelDescriptor(directory, vmExecutable, transferredSbtLauncher)
 
       val processCommandsRaw =
         List(
