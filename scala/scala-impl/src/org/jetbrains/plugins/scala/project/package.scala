@@ -371,6 +371,11 @@ package object project {
         _.properties.compilerBridgeBinaryJar
       }
 
+    def replClasspath: ReplClasspath = module.scalaSdk
+      .fold(throw new ScalaSdkNotConfiguredException(module)) {
+        _.properties.replClasspath
+      }
+
     def literalTypesEnabled: Boolean =
       scalaModuleSettings.exists(_.literalTypesEnabled)
 

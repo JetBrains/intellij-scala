@@ -11,12 +11,12 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.libraries.Library
 import org.jetbrains.plugins.gradle.model.data.{GradleSourceSetData, ScalaModelData}
 import org.jetbrains.plugins.gradle.util.{GradleConstants, GradleUtil}
-import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.project.*
 import org.jetbrains.plugins.scala.project.external.{ScalaAbstractProjectDataService, ScalaSdkUtils}
 
 import java.nio.file.Path
 import java.util
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 class ScalaGradleDataService extends ScalaAbstractProjectDataService[ScalaModelData, Library](ScalaModelData.KEY) {
 
@@ -90,7 +90,7 @@ class ScalaGradleDataService extends ScalaAbstractProjectDataService[ScalaModelD
     module: Module,
     compilerClasspath: Seq[Path]
   )(implicit project: Project, modelsProvider: IdeModifiableModelsProvider): Unit = {
-    import LibraryExt._
+    import LibraryExt.*
     val scalaLibrariesInCompilerClasspath = compilerClasspath.map(_.getFileName.toString).filter(isRuntimeLibrary)
     val compilerVersion = scalaLibrariesInCompilerClasspath.flatMap(runtimeVersion).headOption
     compilerVersion match {
@@ -115,12 +115,15 @@ class ScalaGradleDataService extends ScalaAbstractProjectDataService[ScalaModelD
         }
       } else None
 
+    val replClasspath = ScalaSdkUtils.resolveReplClasspath(compilerVersion)
+
     ScalaSdkUtils.configureScalaSdk(
       module,
       compilerVersion,
       compilerClasspath,
       scaladocExtraClasspath = Nil,
       compilerBridgeBinaryJar,
+      replClasspath,
       sdkPrefix = GradleExternalSystemReadableName,
       modelsProvider
     )

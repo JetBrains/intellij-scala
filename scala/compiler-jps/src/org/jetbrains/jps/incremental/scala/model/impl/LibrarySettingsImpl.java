@@ -28,6 +28,12 @@ public class LibrarySettingsImpl extends JpsElementBase<LibrarySettingsImpl> imp
     return url == null ? null : JpsPathUtil.urlToNioPath(url);
   }
 
+  @Override
+  public Path[] getReplClasspath() {
+    String[] classpath = myState.getReplClasspath();
+    return classpath == null ? new Path[0] : toPaths(classpath);
+  }
+
   private static Path[] toPaths(String[] urls) {
     return Arrays.stream(urls).map(JpsPathUtil::urlToNioPath).toArray(Path[]::new);
   }

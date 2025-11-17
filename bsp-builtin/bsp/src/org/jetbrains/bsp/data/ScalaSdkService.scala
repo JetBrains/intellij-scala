@@ -46,6 +46,7 @@ class ScalaSdkService extends ScalaAbstractProjectDataService[ScalaSdkData, Libr
     if ScalaLanguageLevel.findByVersion(scalaVersion).isDefined
   } {
     val compilerBridgeBinaryJar = ScalaSdkUtils.resolveCompilerBridgeJar(scalaVersion)
+    val replClasspath = ScalaSdkUtils.resolveReplClasspath(scalaVersion)
     ScalaSdkUtils.configureScalaSdk(
       module,
       scalaVersion,
@@ -55,6 +56,7 @@ class ScalaSdkService extends ScalaAbstractProjectDataService[ScalaSdkData, Libr
       //  see https://github.com/build-server-protocol/build-server-protocol/issues/229
       scaladocExtraClasspath = Nil,
       compilerBridgeBinaryJar = compilerBridgeBinaryJar,
+      replClasspath = replClasspath,
       BSP.Name,
       modelsProvider
     )

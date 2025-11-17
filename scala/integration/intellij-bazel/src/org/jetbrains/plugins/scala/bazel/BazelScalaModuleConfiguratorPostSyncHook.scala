@@ -10,8 +10,8 @@ import org.jetbrains.bazel.config.BazelProjectPropertiesKt
 import org.jetbrains.bazel.sync.ProjectPostSyncHook
 import org.jetbrains.bazel.workspacemodel.entities.ScalaAddendumEntityKt
 import org.jetbrains.plugins.scala.compiler.data.CompileOrder
-import org.jetbrains.plugins.scala.project.ModuleEntityExt
 import org.jetbrains.plugins.scala.project.external.ScalaSdkUtils
+import org.jetbrains.plugins.scala.project.{ModuleEntityExt, ReplClasspath}
 
 import java.nio.file.Path
 import kotlin.coroutines.Continuation
@@ -45,6 +45,7 @@ class BazelScalaModuleConfiguratorPostSyncHook extends ProjectPostSyncHook {
               .toSeq,
             scaladocExtraClasspath = Nil,
             compilerBridgeBinaryJar = None,
+            replClasspath = ReplClasspath.Bundled,
             sdkPrefix = "Bazel",
             storage = storage,
             project = project,

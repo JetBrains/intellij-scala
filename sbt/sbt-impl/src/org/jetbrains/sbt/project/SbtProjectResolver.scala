@@ -21,8 +21,8 @@ import org.jetbrains.plugins.scala.*
 import org.jetbrains.plugins.scala.build.*
 import org.jetbrains.plugins.scala.compiler.data.CompileOrder
 import org.jetbrains.plugins.scala.extensions.PathExt
-import org.jetbrains.plugins.scala.project.Version
-import org.jetbrains.plugins.scala.project.external.{JdkByHome, JdkByName, SdkReference}
+import org.jetbrains.plugins.scala.project.{ReplClasspath, Version}
+import org.jetbrains.plugins.scala.project.external.{JdkByHome, JdkByName, ScalaSdkUtils, SdkReference}
 import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
 import org.jetbrains.sbt.SbtUtil.*
 import org.jetbrains.sbt.process.ProcessOutputCollector.PrintProcessOutputOnFailurePropertyName
@@ -763,11 +763,14 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   }
 
   protected def createScalaSdkData(scala: Option[ScalaData])(using context: ImportContext): ScalaSdkNode = {
+    val replClasspath = scala.map(_.version).map(ScalaSdkUtils.resolveReplClasspath).getOrElse(ReplClasspath.Bundled)
+
     val data = SbtScalaSdkData(
       scalaVersion = scala.map(_.version),
       scalacClasspath = scala.fold(Seq.empty[Path])(_.allCompilerJars.map(_.toPath)),
       scaladocExtraClasspath = scala.fold(Seq.empty[Path])(_.extraJars.map(_.toPath)),
       compilerBridgeBinaryJar = scala.flatMap(_.compilerBridgeBinaryJar.map(_.toPath)),
+      replClasspath = replClasspath
     )
     new ScalaSdkNode(data)
   }

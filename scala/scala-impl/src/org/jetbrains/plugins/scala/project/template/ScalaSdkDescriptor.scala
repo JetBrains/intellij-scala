@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.project.template
 
-import org.jetbrains.plugins.scala.project.Version
+import org.jetbrains.plugins.scala.project.{ReplClasspath, Version}
 
 import java.nio.file.Path
 
@@ -18,6 +18,7 @@ final case class ScalaSdkDescriptor(version: Option[String], // Why is it Option
                                     sourceFiles: Seq[Path],
                                     docFiles: Seq[Path],
                                     compilerBridgeJar: Option[Path],
+                                    replClasspath: Option[ReplClasspath],
                                     systemRoot: Option[Path] = None)
   extends Ordered[ScalaSdkDescriptor] {
 

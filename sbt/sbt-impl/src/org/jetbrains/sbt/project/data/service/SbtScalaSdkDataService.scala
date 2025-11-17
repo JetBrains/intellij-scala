@@ -5,6 +5,7 @@ import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.libraries.Library
+import org.jetbrains.plugins.scala.project.ReplClasspath
 import org.jetbrains.plugins.scala.project.external.{ScalaAbstractProjectDataService, ScalaSdkUtils}
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.data.SbtScalaSdkData
@@ -23,7 +24,7 @@ class SbtScalaSdkDataService extends ScalaAbstractProjectDataService[SbtScalaSdk
     for {
       dataNode <- dataToImport
       module <- modelsProvider.getIdeModuleByNode(dataNode)
-      SbtScalaSdkData(scalaVersion, scalacClasspath, scaladocExtraClasspath, compilerBridgeBinaryJar) = dataNode.getData
+      SbtScalaSdkData(scalaVersion, scalacClasspath, scaladocExtraClasspath, compilerBridgeBinaryJar, replClasspath) = dataNode.getData
     } {
       /*
        * Reminder: SbtModuleExtData is built based on `show scalaInstance` sbt command result.
@@ -40,6 +41,7 @@ class SbtScalaSdkDataService extends ScalaAbstractProjectDataService[SbtScalaSdk
         scalacClasspath.map(_.toPath),
         scaladocExtraClasspath.map(_.toPath),
         compilerBridgeBinaryJar.map(_.toPath),
+        ReplClasspath.fromPaths(replClasspath.map(_.toPath)),
         sdkPrefix = SbtProjectSystem.Id.getReadableName,
         modelsProvider
       ))
