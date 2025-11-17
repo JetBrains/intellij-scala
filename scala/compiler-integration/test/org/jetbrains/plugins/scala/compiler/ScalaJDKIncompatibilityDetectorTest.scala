@@ -60,9 +60,7 @@ class Scala2_12 extends ScalaJdkIncompatibilityTestBase
 @RunWithJdkVersions(Array(TestJdkVersion.JDK_21))
 class Scala3_3_0 extends ScalaJdkIncompatibilityTestBase
 
-// Scala 3.8 nightly with JDK 11/15/16 caught by ScalaJDKValidation.isScala3_8JdkVersionError
-// TODO use Scala 3.8 release when available
-@RunWithScalaVersions(Array(TestScalaVersion.Scala_3_8_Nightly))
+@RunWithScalaVersions(Array(TestScalaVersion.Scala_3_8))
 @RunWithJdkVersions(Array(TestJdkVersion.JDK_1_8, TestJdkVersion.JDK_11))
 class Scala3Nightly extends ScalaJdkIncompatibilityTestBase  {
   override def useDependencyManagerWithNightlies: Boolean = true
