@@ -80,6 +80,7 @@ object ILoopWrapperFactoryHandler {
   private final val ILoopWrapper300Impl    = "ILoopWrapper300Impl"
   private final val ILoopWrapper312Impl    = "ILoopWrapper312Impl"
   private final val ILoopWrapper330Impl    = "ILoopWrapper330Impl"
+  private final val ILoopWrapper38Impl     = "ILoopWrapper38Impl"
 
   private def wrapperClassNameFor(version: ScalaVersion): String = {
     val versionStr = version.value.presentation
@@ -96,8 +97,10 @@ object ILoopWrapperFactoryHandler {
         ILoopWrapper300Impl
       else if (versionStr.startsWith("3.1.2") || versionStr.startsWith("3.1.3") || versionStr.startsWith("3.2"))
         ILoopWrapper312Impl
-      else
+      else if (versionStr.startsWith("3.3") || versionStr.startsWith("3.4") || versionStr.startsWith("3.5") || versionStr.startsWith("3.6") || versionStr.startsWith("3.7"))
         ILoopWrapper330Impl
+      else
+        ILoopWrapper38Impl
     }
     // note: lexicographic comparison is used, but it should work fine
     else if (version.value >= Version("2.12.13")) ILoopWrapper212_13Impl
