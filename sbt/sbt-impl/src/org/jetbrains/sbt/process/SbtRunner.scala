@@ -131,7 +131,7 @@ final class SbtRunner(processOutputCollector: Option[ProcessOutputCollector] = N
           "-Dfile.encoding=UTF-8"
         ) ++
           allOpts ++
-          List("-jar", sbtLauncher.asLocalPath) ++
+          List("-jar", transferredSbtLauncher.asLocalPath) ++
           allSbtLauncherArgs // :+ "--debug"
 
       val processCommands = processCommandsRaw.filterNot(_.isEmpty)
