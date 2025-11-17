@@ -26,6 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 
 import scala.annotation.tailrec
 import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 
 package object ml {
 
@@ -92,7 +93,7 @@ package object ml {
       val wordsIterator = for {
         namePart <- NonNamePattern.split(name).iterator
         if isMeaningful(namePart)
-        word <- NameUtilCore.nameToWords(namePart).iterator
+        word <- NameUtilCore.nameToWordList(namePart).asScala.iterator
         if isMeaningful(word)
       } yield word
 
