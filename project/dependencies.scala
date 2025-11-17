@@ -6,7 +6,7 @@ import org.jetbrains.sbtidea.download.idea.IntellijVersionUtils
 import sbt.*
 
 object Versions {
-  val scalaVersion: String = "2.13.17"
+  val scalaVersion: String = "2.13.18"
   val scala3Version: String = "3.7.4"
 
   // ATTENTION: when updating `sbtVersion` also update it in `org.jetbrains.sbt.SbtVersion.Latest`
@@ -20,7 +20,7 @@ object Versions {
    * ATTENTION: check the comment in [[Common.newProjectWithKotlin]] when updating this version.
    *            update `since-build` in plugin.xml if there are binary incompatible changes after update
    */
-  val intellijVersion = "253.28294.130"
+  val intellijVersion = "253.28294.150"
 
   def isNightlyIntellijVersion: Boolean = intellijVersion.count(_ == '.') == 1
 
