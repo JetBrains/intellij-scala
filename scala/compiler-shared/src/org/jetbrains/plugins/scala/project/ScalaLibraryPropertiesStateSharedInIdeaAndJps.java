@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.project;
 
 import com.intellij.util.ArrayUtil;
+import com.intellij.util.xmlb.Constants;
 import com.intellij.util.xmlb.annotations.Tag;
 import com.intellij.util.xmlb.annotations.XCollection;
 import org.jetbrains.annotations.Nullable;
@@ -25,16 +26,25 @@ public abstract class ScalaLibraryPropertiesStateSharedInIdeaAndJps {
     @Nullable
     protected final String compilerBridgeBinaryJar;
 
+    @Tag("repl-classpath")
+    @XCollection(
+            elementName = Constants.ENTRY,
+            valueAttributeName = "url"
+    )
+    protected final String[] replClasspath;
+
     public ScalaLibraryPropertiesStateSharedInIdeaAndJps() {
-        this(ArrayUtil.EMPTY_STRING_ARRAY, null);
+        this(ArrayUtil.EMPTY_STRING_ARRAY, null, ArrayUtil.EMPTY_STRING_ARRAY);
     }
 
     public ScalaLibraryPropertiesStateSharedInIdeaAndJps(
             String[] compilerClasspath,
-            @Nullable String compilerBridgeBinaryJar
+            @Nullable String compilerBridgeBinaryJar,
+            String[] replClasspath
     ) {
         this.compilerClasspath = compilerClasspath;
         this.compilerBridgeBinaryJar = compilerBridgeBinaryJar;
+        this.replClasspath = replClasspath;
     }
 
 
@@ -47,6 +57,10 @@ public abstract class ScalaLibraryPropertiesStateSharedInIdeaAndJps {
         return compilerBridgeBinaryJar;
     }
 
+    public final String[] getReplClasspath() {
+        return replClasspath;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -54,14 +68,16 @@ public abstract class ScalaLibraryPropertiesStateSharedInIdeaAndJps {
 
         ScalaLibraryPropertiesStateSharedInIdeaAndJps that = (ScalaLibraryPropertiesStateSharedInIdeaAndJps) o;
         return Arrays.equals(compilerClasspath, that.compilerClasspath) &&
-                Objects.equals(compilerBridgeBinaryJar, that.compilerBridgeBinaryJar);
+                Objects.equals(compilerBridgeBinaryJar, that.compilerBridgeBinaryJar) &&
+                Arrays.equals(replClasspath, that.replClasspath);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(
                 Arrays.hashCode(compilerClasspath),
-                compilerBridgeBinaryJar
+                compilerBridgeBinaryJar,
+                Arrays.hashCode(replClasspath)
         );
     }
 }

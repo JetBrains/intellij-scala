@@ -185,6 +185,12 @@ class ScalaConsoleRunConfiguration(
 
     new JavaParameters().tap { params =>
       params.getClassPath.addScalaCompilerClassPath(module)
+      module.replClasspath match {
+        case ReplClasspath.Bundled =>
+        case ReplClasspath.Provided(classpath) =>
+          params.getClassPath.addAllFiles(classpath.map(_.toFile).asJava)
+      }
+
       params.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS)
 
       params.getVMParametersList.addParametersString(javaOptions)

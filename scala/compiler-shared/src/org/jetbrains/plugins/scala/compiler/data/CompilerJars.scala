@@ -17,7 +17,8 @@ case class CompilerJars(
   libraryJars: Seq[Path],
   compilerJars: Seq[Path],
   compilerJar: Path,
-  customCompilerBridgeJar: Option[Path]
+  customCompilerBridgeJar: Option[Path],
+  replClasspath: Seq[Path]
 ) {
 
   lazy val hasScala3: Boolean =

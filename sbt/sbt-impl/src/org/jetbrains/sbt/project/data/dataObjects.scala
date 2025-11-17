@@ -5,6 +5,7 @@ import com.intellij.openapi.externalSystem.model.{Key, ProjectKeys}
 import com.intellij.serialization.PropertyMapping
 import org.jetbrains.annotations.{Nls, NotNull, Nullable}
 import org.jetbrains.plugins.scala.compiler.data.CompileOrder
+import org.jetbrains.plugins.scala.project.ReplClasspath
 import org.jetbrains.plugins.scala.project.external.SdkReference
 import org.jetbrains.sbt.RichSeq
 import org.jetbrains.sbt.project.SbtProjectSystem
@@ -262,7 +263,8 @@ class SbtScalaSdkData private (
   @NotNull val scaladocExtraClasspath: java.util.List[java.io.File],
   @Nullable val _scaladocExtraClasspathPaths: java.util.List[PathData],
   @Nullable val compilerBridgeBinaryJar: java.io.File,
-  @Nullable val _compilerBridgeBinaryJarPath: PathData
+  @Nullable val _compilerBridgeBinaryJarPath: PathData,
+  @Nullable val replClasspath: java.util.List[PathData]
 ) extends AbstractExternalEntityData(SbtProjectSystem.Id) with Equals:
 
   /**
@@ -276,7 +278,8 @@ class SbtScalaSdkData private (
     scaladocExtraClasspath = java.util.Collections.emptyList(),
     _scaladocExtraClasspathPaths = null,
     compilerBridgeBinaryJar = null,
-    _compilerBridgeBinaryJarPath = null
+    _compilerBridgeBinaryJarPath = null,
+    replClasspath = null
   )
 
   //noinspection InstanceOf
@@ -288,11 +291,12 @@ class SbtScalaSdkData private (
         this.scalaVersionValue == that.scalaVersionValue &&
         this.scalacClasspathValue == that.scalacClasspathValue &&
         this.scaladocExtraClasspathValue == that.scaladocExtraClasspathValue &&
-        this.compilerBridgeBinaryJarValue == that.compilerBridgeBinaryJarValue
+        this.compilerBridgeBinaryJarValue == that.compilerBridgeBinaryJarValue &&
+        this.replClasspathValue == that.replClasspathValue
     case _ => false
 
   override def hashCode(): Int =
-    Objects.hash(scalaVersionValue, scalacClasspathValue, scaladocExtraClasspathValue, compilerBridgeBinaryJarValue)
+    Objects.hash(scalaVersionValue, scalacClasspathValue, scaladocExtraClasspathValue, compilerBridgeBinaryJarValue, replClasspathValue)
 
   private def scalaVersionValue: Option[String] = Option(scalaVersion)
 
@@ -310,6 +314,9 @@ class SbtScalaSdkData private (
     Option(_compilerBridgeBinaryJarPath)
       .orElse(Option(compilerBridgeBinaryJar).map(f => PathData(f.toPath)))
 
+  private def replClasspathValue: Seq[PathData] =
+    Option(replClasspath).map(_.asScala.toSeq).toSeq.flatten
+
 end SbtScalaSdkData
 
 object SbtScalaSdkData:
@@ -319,7 +326,8 @@ object SbtScalaSdkData:
     scalaVersion: Option[String],
     scalacClasspath: Seq[Path] = Seq.empty,
     scaladocExtraClasspath: Seq[Path] = Seq.empty,
-    compilerBridgeBinaryJar: Option[Path] = Option.empty
+    compilerBridgeBinaryJar: Option[Path] = Option.empty,
+    replClasspath: ReplClasspath = ReplClasspath.Bundled
   ): SbtScalaSdkData =
     new SbtScalaSdkData(
       scalaVersion = scalaVersion.orNull,
@@ -328,11 +336,12 @@ object SbtScalaSdkData:
       scaladocExtraClasspath = scaladocExtraClasspath.map(_.toFile).asJava,
       _scaladocExtraClasspathPaths = scaladocExtraClasspath.map(PathData.apply).asJava,
       compilerBridgeBinaryJar = compilerBridgeBinaryJar.map(_.toFile).orNull,
-      _compilerBridgeBinaryJarPath = compilerBridgeBinaryJar.map(PathData.apply).orNull
+      _compilerBridgeBinaryJarPath = compilerBridgeBinaryJar.map(PathData.apply).orNull,
+      replClasspath = replClasspath.asPaths.map(PathData.apply).asJava
     )
 
-  def unapply(data: SbtScalaSdkData): Some[(Option[String], Seq[PathData], Seq[PathData], Option[PathData])] =
-    Some((data.scalaVersionValue, data.scalacClasspathValue, data.scaladocExtraClasspathValue, data.compilerBridgeBinaryJarValue))
+  def unapply(data: SbtScalaSdkData): Some[(Option[String], Seq[PathData], Seq[PathData], Option[PathData], Seq[PathData])] =
+    Some((data.scalaVersionValue, data.scalacClasspathValue, data.scaladocExtraClasspathValue, data.compilerBridgeBinaryJarValue, data.replClasspathValue))
 
 end SbtScalaSdkData
 
