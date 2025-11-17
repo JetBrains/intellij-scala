@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.project;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.xmlb.annotations.Tag;
 import com.intellij.util.xmlb.annotations.XCollection;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -21,16 +22,17 @@ public final class ScalaLibraryPropertiesState extends ScalaLibraryPropertiesSta
     private final String[] scaladocExtraClasspath;
 
     public ScalaLibraryPropertiesState() {
-        this(ScalaLanguageLevel.getDefault(), ArrayUtil.EMPTY_STRING_ARRAY, ArrayUtil.EMPTY_STRING_ARRAY, null);
+        this(ScalaLanguageLevel.getDefault(), ArrayUtil.EMPTY_STRING_ARRAY, ArrayUtil.EMPTY_STRING_ARRAY, null, ArrayUtil.EMPTY_STRING_ARRAY);
     }
 
     public ScalaLibraryPropertiesState(
             ScalaLanguageLevel languageLevel,
             String[] compilerClasspath,
             String[] scaladocExtraClasspath,
-            String compilerBridgeBinaryJar
+            String compilerBridgeBinaryJar,
+            String[] replClasspath
     ) {
-        super(compilerClasspath, compilerBridgeBinaryJar);
+        super(compilerClasspath, compilerBridgeBinaryJar, replClasspath);
 
         this.languageLevel = languageLevel;
         this.scaladocExtraClasspath = scaladocExtraClasspath;
@@ -53,7 +55,8 @@ public final class ScalaLibraryPropertiesState extends ScalaLibraryPropertiesSta
         return languageLevel == that.languageLevel &&
                 Arrays.equals(compilerClasspath, that.compilerClasspath) &&
                 Arrays.equals(scaladocExtraClasspath, that.scaladocExtraClasspath) &&
-                Objects.equals(compilerBridgeBinaryJar, that.compilerBridgeBinaryJar);
+                Objects.equals(compilerBridgeBinaryJar, that.compilerBridgeBinaryJar) &&
+                Arrays.equals(replClasspath, that.replClasspath);
     }
 
     @Override
@@ -62,7 +65,8 @@ public final class ScalaLibraryPropertiesState extends ScalaLibraryPropertiesSta
                 languageLevel,
                 Arrays.hashCode(compilerClasspath),
                 Arrays.hashCode(scaladocExtraClasspath),
-                compilerBridgeBinaryJar
+                compilerBridgeBinaryJar,
+                Arrays.hashCode(replClasspath)
         );
     }
 }

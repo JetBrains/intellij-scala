@@ -8,4 +8,5 @@ import java.nio.file.Path;
 public interface LibrarySettings extends JpsElement {
   Path[] getCompilerClasspath();
   @Nullable Path getCompilerBridgeJar();
+  Path[] getReplClasspath();
 }

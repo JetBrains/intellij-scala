@@ -210,18 +210,19 @@ object CompilerDataFactory
   }
 
   private def compilerJarsInSdk(sdk: JpsLibrary): Either[CompilerJarsResolveError, CompilerJars] = {
-    val (compilerClasspathJars, compilerBridgeJar)  = compilerData(sdk)
-    CompilerJarsFactory.fromFiles(compilerClasspathJars, compilerBridgeJar)
+    val (compilerClasspathJars, compilerBridgeJar, replClasspath)  = compilerData(sdk)
+    CompilerJarsFactory.fromFiles(compilerClasspathJars, compilerBridgeJar, replClasspath)
   }
 
-  private def compilerData(sdk: JpsLibrary): (Seq[Path], Option[Path]) =
+  private def compilerData(sdk: JpsLibrary): (Seq[Path], Option[Path], Seq[Path]) =
     sdk.getProperties match {
       case settings: LibrarySettings =>
         val classpath = settings.getCompilerClasspath.toSeq
         val bridge = Option(settings.getCompilerBridgeJar)
-        (classpath, bridge)
+        val replClasspath = settings.getReplClasspath.toSeq
+        (classpath, bridge, replClasspath)
       case _ =>
-        (Seq.empty, None)
+        (Seq.empty, None, Seq.empty)
     }
 
   private def toErrorMessage(error: CompilerJarsResolveError, scalaSdk: JpsLibrary, module: JpsModule): String = {

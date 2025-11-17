@@ -153,7 +153,7 @@ private final class DocumentCompiler(project: Project) {
       val arguments = DocumentCompilationArguments(
         sbtData = sbtData,
         compilerData = CompilerData(
-          compilerJars = CompilerJarsFactory.fromFiles(compilerClasspath, module.customScalaCompilerBridgeJar).toOption,
+          compilerJars = CompilerJarsFactory.fromFiles(compilerClasspath, module.customScalaCompilerBridgeJar, module.replClasspath.asPaths).toOption,
           javaHome = Some(findJdk),
           incrementalType = IncrementalityType.IDEA
         ),

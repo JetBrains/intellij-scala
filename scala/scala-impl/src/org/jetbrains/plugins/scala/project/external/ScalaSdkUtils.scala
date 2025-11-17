@@ -9,7 +9,7 @@ import com.intellij.platform.workspace.jps.entities.{LibraryEntity, ModuleEntity
 import com.intellij.platform.workspace.storage.MutableEntityStorage
 import org.jetbrains.plugins.scala.DependencyManager
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
-import org.jetbrains.plugins.scala.project.{LibraryBase, LibraryEntityExt, LibraryExt, ModuleEntityExt, MutableEntityStorageExt, ScalaLibraryProperties, ScalaLibraryType, Version}
+import org.jetbrains.plugins.scala.project.{LibraryBase, LibraryEntityExt, LibraryExt, ModuleEntityExt, MutableEntityStorageExt, ReplClasspath, ScalaLibraryProperties, ScalaLibraryType, Version}
 
 import java.nio.file.Path
 import scala.jdk.CollectionConverters.IteratorHasAsScala
@@ -23,6 +23,7 @@ object ScalaSdkUtils {
     scalacClasspath: Seq[Path],
     scaladocExtraClasspath: Seq[Path],
     compilerBridgeBinaryJar: Option[Path],
+    replClasspath: ReplClasspath,
     sdkPrefix: String,
     modelsProvider: IdeModifiableModelsProvider
   ): Unit = {
@@ -37,7 +38,8 @@ object ScalaSdkUtils {
         library,
         scalacClasspath,
         scaladocExtraClasspath,
-        compilerBridgeBinaryJar
+        compilerBridgeBinaryJar,
+        replClasspath
       ),
       addToModule = (library: Library) => modelsProvider.getModifiableRootModel(module).addLibraryEntry(library)
     )
@@ -49,6 +51,7 @@ object ScalaSdkUtils {
     scalacClasspath: Seq[Path],
     scaladocExtraClasspath: Seq[Path],
     compilerBridgeBinaryJar: Option[Path],
+    replClasspath: ReplClasspath,
     sdkPrefix: String,
     storage: MutableEntityStorage,
     project: Project,
@@ -64,7 +67,8 @@ object ScalaSdkUtils {
         storage,
         scalacClasspath,
         scaladocExtraClasspath,
-        compilerBridgeBinaryJar
+        compilerBridgeBinaryJar,
+        replClasspath
       ),
       addToModule = (library: LibraryEntity) => module.addLibraryDependency(storage, library)
     )
@@ -96,6 +100,7 @@ object ScalaSdkUtils {
     compilerClasspath: Seq[Path],
     scaladocExtraClasspath: Seq[Path],
     compilerBridgeBinaryJar: Option[Path],
+    replClasspath: ReplClasspath
   ): Unit = {
     val modifiableModel = modelsProvider.getModifiableLibraryModel(library).asInstanceOf[LibraryEx.ModifiableModelEx]
     doEnsureScalaLibraryIsConvertedToScalaSdk(
@@ -104,7 +109,8 @@ object ScalaSdkUtils {
       properties => modifiableModel.setProperties(properties),
       compilerClasspath,
       scaladocExtraClasspath,
-      compilerBridgeBinaryJar
+      compilerBridgeBinaryJar,
+      replClasspath
     )
   }
 
@@ -114,6 +120,7 @@ object ScalaSdkUtils {
     compilerClasspath: Seq[Path],
     scaladocExtraClasspath: Seq[Path],
     compilerBridgeBinaryJar: Option[Path],
+    replClasspath: ReplClasspath
   ): Unit =
     doEnsureScalaLibraryIsConvertedToScalaSdk(
       library,
@@ -121,7 +128,8 @@ object ScalaSdkUtils {
       library.setScalaProperties(_, storage),
       compilerClasspath,
       scaladocExtraClasspath,
-      compilerBridgeBinaryJar
+      compilerBridgeBinaryJar,
+      replClasspath
     )
 
   private def doEnsureScalaLibraryIsConvertedToScalaSdk(
@@ -131,8 +139,9 @@ object ScalaSdkUtils {
     compilerClasspath: Seq[Path],
     scaladocExtraClasspath: Seq[Path],
     compilerBridgeBinaryJar: Option[Path],
+    replClasspath: ReplClasspath
   ): Unit = {
-    val properties = ScalaLibraryProperties(library.libraryVersion, compilerClasspath, scaladocExtraClasspath, compilerBridgeBinaryJar)
+    val properties = ScalaLibraryProperties(library.libraryVersion, compilerClasspath, scaladocExtraClasspath, compilerBridgeBinaryJar, replClasspath)
     if (!library.isScalaSdk) {
       setScalaSdkKind
     }
@@ -146,6 +155,14 @@ object ScalaSdkUtils {
       .flatMap(dep => DependencyManager.resolveSafe(dep).toOption)
       .flatMap(_.headOption)
       .map(_.file)
+
+  def resolveReplClasspath(scalaVersion: String): ReplClasspath = {
+    val version = Version(scalaVersion)
+    if (version.major(2) < Version("3.8")) return ReplClasspath.Bundled
+    val dep = ("org.scala-lang" % "scala3-repl_3" % scalaVersion).transitive()
+    val paths = DependencyManager.resolveSafe(dep).toOption.toSeq.flatten.map(_.file)
+    ReplClasspath.Provided(paths)
+  }
 
   def compilerBridgeName(scalaVersion: String): Option[String] = {
     val version = Version(scalaVersion)

@@ -143,7 +143,7 @@ object ILoopWrapperFactoryHandler {
         .map(_.getParent.getParent.resolve("worksheet-repl-interface").resolve("impls.jar"))
         .toSeq
 
-    val jars = wrapperImplsJar ++ compilerJars.allJars
+    val jars = wrapperImplsJar ++ compilerJars.allJars ++ compilerJars.replClasspath
     val replInterfaceLoader = classOf[ILoopWrapper].getClassLoader
     new URLClassLoader(jars.map(_.toUri.toURL).toArray, replInterfaceLoader)
   }

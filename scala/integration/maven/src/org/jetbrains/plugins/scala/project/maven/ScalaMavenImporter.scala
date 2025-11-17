@@ -7,27 +7,27 @@ import com.intellij.platform.workspace.jps.entities.LibraryRoot.InclusionOptions
 import com.intellij.platform.workspace.jps.entities.{LibraryEntity, LibraryRoot, ModuleEntity}
 import com.intellij.platform.workspace.storage.MutableEntityStorage
 import com.intellij.util.JavaCoroutines
-import org.jetbrains.plugins.scala.project.external.CompanionProxyUtils.LibraryRootTypeIdCompanion
-import kotlin.coroutines.Continuation
 import org.jdom.Element
 import org.jetbrains.idea.maven.importing.MavenWorkspaceConfigurator.{AdditionalFolder, FolderType, FoldersContext, MutableModelContext}
 import org.jetbrains.idea.maven.importing.{MavenApplicableConfigurator, MavenWorkspaceConfigurator}
 import org.jetbrains.idea.maven.model.{MavenArtifact, MavenArtifactInfo, MavenPlugin}
-import org.jetbrains.idea.maven.project._
+import org.jetbrains.idea.maven.project.*
 import org.jetbrains.idea.maven.server.{MavenArtifactResolutionRequest, MavenEmbedderWrapper}
 import org.jetbrains.idea.maven.utils.MavenJDOMUtil
 import org.jetbrains.jps.model.serialization.SerializationConstants
 import org.jetbrains.plugins.scala.compiler.data.CompileOrder
-import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.extensions.*
+import org.jetbrains.plugins.scala.project.*
+import org.jetbrains.plugins.scala.project.external.CompanionProxyUtils.LibraryRootTypeIdCompanion
 import org.jetbrains.plugins.scala.project.external.ScalaSdkUtils
-import org.jetbrains.plugins.scala.project.maven.ScalaMavenImporter._
+import org.jetbrains.plugins.scala.project.maven.ScalaMavenImporter.*
 
 import java.nio.file.Path
 import java.util
 import java.util.stream.Stream
+import kotlin.coroutines.Continuation
 import scala.annotation.nowarn
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.util.Try
 
 final class ScalaMavenImporter extends MavenApplicableConfigurator(PluginGroupId, PluginArtifactId)
@@ -140,7 +140,11 @@ final class ScalaMavenImporter extends MavenApplicableConfigurator(PluginGroupId
         compilerClasspathFull.find(_.getFileName.toString == bridgeJarName)
       }
 
-      val classpath = compilerClasspathFull.diff(compilerBridgeBinaryJar.toSeq)
+      val replClasspath = ScalaSdkUtils.resolveReplClasspath(compilerVersion)
+
+      val toRemove = compilerBridgeBinaryJar.toSeq ++ replClasspath.asPaths
+
+      val classpath = compilerClasspathFull.diff(toRemove)
 
       ScalaSdkUtils.configureScalaSdk(
         module,
@@ -148,6 +152,7 @@ final class ScalaMavenImporter extends MavenApplicableConfigurator(PluginGroupId
         classpath,
         scaladocExtraClasspath = Nil,
         compilerBridgeBinaryJar,
+        replClasspath,
         sdkPrefix = "Maven",
         storage,
         project,

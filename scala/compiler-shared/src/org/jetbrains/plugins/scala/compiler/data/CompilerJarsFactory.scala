@@ -19,14 +19,16 @@ object CompilerJarsFactory {
   def fromFiles(
     compilerClasspathJars: Seq[Path],
     compilerBridgeJar: Option[Path],
+    replClasspath: Seq[Path]
   ): Either[CompilerJarsResolveError, CompilerJars] = {
     val withName = JarUtil.collectJars(compilerClasspathJars)
-    fromJarFiles(withName, compilerBridgeJar)
+    fromJarFiles(withName, compilerBridgeJar, replClasspath)
   }
 
   private def fromJarFiles(
     compilerClasspathJars: Seq[JarFileWithName],
-    compilerBridgeJar: Option[Path]
+    compilerBridgeJar: Option[Path],
+    replClasspath: Seq[Path]
   ): Either[CompilerJarsResolveError, CompilerJars] = {
     val ioFiles = compilerClasspathJars.map(_.file)
     val isScala3 = containsScala3(ioFiles)
@@ -52,7 +54,8 @@ object CompilerJarsFactory {
       libraryJars = libraryJars.map(_.file),
       compilerJars = compilerJars.map(_.file),
       compilerJar = compilerJar.file,
-      compilerBridgeJar
+      customCompilerBridgeJar = compilerBridgeJar,
+      replClasspath = replClasspath
     )
   }
 

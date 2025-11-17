@@ -15,11 +15,13 @@ object CompilerData {
   def serialize(data: CompilerData): Seq[String] = {
     val compilerJarPaths = data.compilerJars.map(jars => pathsToString(jars.allJars))
     val customCompilerBridgeJarPath = data.compilerJars.flatMap(_.customCompilerBridgeJar.map(pathToString))
+    val replClasspath = data.compilerJars.map(jars => pathsToString(jars.replClasspath))
     val javaHomePath = data.javaHome.map(pathToString)
 
     Seq(
       optionToString(compilerJarPaths),
       optionToString(customCompilerBridgeJarPath),
+      optionToString(replClasspath),
       optionToString(javaHomePath),
       data.incrementalType.name()
     )
@@ -28,13 +30,15 @@ object CompilerData {
   def deserialize(strings: Seq[String]): Either[String, (CompilerData, Seq[String])] = strings match {
     case StringToOption(compilerJarPaths) +:
       StringToOption(customCompilerBridgeJarPath) +:
+      StringToOption(optReplClasspath) +:
       StringToOption(javaHomePath) +:
       incrementalTypeName +:
       tail =>
       val compilerJars = compilerJarPaths.map {
         case StringToPaths(files) =>
           val compilerBridgeJar = customCompilerBridgeJarPath.map(StringToPath)
-          CompilerJarsFactory.fromFiles(files, compilerBridgeJar) match {
+          val replClasspath = optReplClasspath.map(StringToPaths).getOrElse(Seq.empty)
+          CompilerJarsFactory.fromFiles(files, compilerBridgeJar, replClasspath) match {
             case Left(resolveError) => return Left(s"Couldn't extract compiler jars from: ${files.mkString(";")}\n$resolveError")
             case Right(jars) => jars
           }

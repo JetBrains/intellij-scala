@@ -106,10 +106,10 @@ class SdkSelectionDialogWrapper(contextDirectory: VirtualFile) extends DialogWra
 
   private def onDownload(): Unit = {
     val resolvedScalaVersion = new ScalaVersionDownloadingDialog(this.getContentPanel).showAndGetSelected()
-    resolvedScalaVersion.foreach { case ScalaVersionResolveResult(version, compilerJars, librarySourcesJars, compilerBridgeJar) =>
+    resolvedScalaVersion.foreach { case ScalaVersionResolveResult(version, compilerJars, librarySourcesJars, compilerBridgeJar, replClasspath) =>
       val libraryJars = compilerJars.filter(f => ScalaLibraryFileNames.exists(f.getFileName.toString.startsWith(_)))
       val scaladocExtraClasspath = Nil // TODO SCL-17219
-      val sdkDescriptor = ScalaSdkDescriptor(Some(version), None, compilerJars, scaladocExtraClasspath, libraryJars, librarySourcesJars, Nil /*docs are not downloaded*/, compilerBridgeJar)
+      val sdkDescriptor = ScalaSdkDescriptor(Some(version), None, compilerJars, scaladocExtraClasspath, libraryJars, librarySourcesJars, Nil /*docs are not downloaded*/, compilerBridgeJar, Some(replClasspath))
       closeDialogGracefully(Some(sdkDescriptor))
     }
   }

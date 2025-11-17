@@ -57,6 +57,7 @@ final class ScalaLibraryType extends LibraryType[ScalaLibraryProperties](ScalaLi
         // NOTE: currently do not support editing scaladocExtraClasspathFrom UI, so just propagate old settings
         properties.scaladocExtraClasspath.map(ScalaLibraryProperties.fileToUrl).toArray,
         form.compilerBridgeBinaryJar.orNull,
+        properties.replClasspath.asPaths.map(ScalaLibraryProperties.fileToUrl).toArray
       )
     }
 }
@@ -89,7 +90,7 @@ object ScalaLibraryType {
     override def getDefaultLevel = projectRoot.LibrariesContainer.LibraryLevel.GLOBAL
 
     private def createNewScalaLibrary(descriptor: ScalaSdkDescriptor) = {
-      val ScalaSdkDescriptor(version, _, compilerClasspath, scaladocExtraClasspath, libraryFiles, sourceFiles, docFiles, compilerBridgeJar, _) = descriptor
+      val ScalaSdkDescriptor(version, _, compilerClasspath, scaladocExtraClasspath, libraryFiles, sourceFiles, docFiles, compilerBridgeJar, optReplClasspath, _) = descriptor
 
       val compilerBridge = compilerBridgeJar.orElse {
         ProgressManager.getInstance().runProcessWithProgressSynchronously(
@@ -100,10 +101,19 @@ object ScalaLibraryType {
         )
       }
 
+      val replClasspath = optReplClasspath.orElse {
+        ProgressManager.getInstance().runProcessWithProgressSynchronously(
+          () => version.map(ScalaSdkUtils.resolveReplClasspath),
+          ScalaBundle.message("resolving.scala.repl.classpath"),
+          true,
+          null
+        )
+      }.getOrElse(ReplClasspath.Bundled)
+
       new NewLibraryConfiguration(
         "scala-sdk-" + version.getOrElse(Version.Default),
         ScalaLibraryType(),
-        ScalaLibraryProperties(version, compilerClasspath, scaladocExtraClasspath, compilerBridge)
+        ScalaLibraryProperties(version, compilerClasspath, scaladocExtraClasspath, compilerBridge, replClasspath)
       ) {
         override def addRoots(editor: libraryEditor.LibraryEditor): Unit = {
           addRootsInner(libraryFiles, OrderRootType.CLASSES)(editor)

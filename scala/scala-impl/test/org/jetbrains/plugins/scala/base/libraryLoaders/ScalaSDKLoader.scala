@@ -7,7 +7,7 @@ import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
 import com.intellij.testFramework.PsiTestUtil
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PathExt, inWriteAction}
 import org.jetbrains.plugins.scala.project.external.ScalaSdkUtils
-import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaLibraryProperties, ScalaLibraryType, template}
+import org.jetbrains.plugins.scala.project.{ModuleExt, ReplClasspath, ScalaLibraryProperties, ScalaLibraryType, template}
 import org.jetbrains.plugins.scala.{DependencyManager, DependencyManagerBase, ScalaVersion}
 import org.junit.Assert._
 
@@ -71,6 +71,9 @@ case class ScalaSDKLoader(
     else None
   }
 
+  private def resolveReplClasspath(version: ScalaVersion): ReplClasspath =
+    ScalaSdkUtils.resolveReplClasspath(version.minor)
+
   override final def init(implicit module: Module, version: ScalaVersion): Unit = {
     val dependencies = binaryDependencies
     val resolved = dependencyManager.resolve(dependencies: _*)
@@ -92,6 +95,8 @@ case class ScalaSDKLoader(
 
     // Manually resolve a compiler bridge only if it hasn't been provided. This allows testing with a custom bridge.
     val compilerBridge = compilerBridgeBinaryJar.orElse(resolveCompilerBridge(version))
+
+    val replClasspath = resolveReplClasspath(version)
 
     assertTrue(
       s"Some SDK jars were resolved but for some reason do not exist:\n$resolvedMissing",
@@ -149,7 +154,7 @@ case class ScalaSDKLoader(
 
     inWriteAction {
       val version = Artifact.ScalaCompiler.versionOf(compilerFile)
-      val properties = ScalaLibraryProperties(version, compilerClasspath, Seq.empty, compilerBridge)
+      val properties = ScalaLibraryProperties(version, compilerClasspath, Seq.empty, compilerBridge, replClasspath)
 
       val editor = new ExistingLibraryEditor(library, null)
       editor.setType(ScalaLibraryType())
