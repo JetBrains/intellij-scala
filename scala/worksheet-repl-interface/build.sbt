@@ -83,7 +83,8 @@ lazy val impls =
       worksheetReplInterfaceImpl_2_13_12,
       worksheetReplInterfaceImpl_3_0_0,
       worksheetReplInterfaceImpl_3_1_2,
-      worksheetReplInterfaceImpl_3_3_0
+      worksheetReplInterfaceImpl_3_3_0,
+      worksheetReplInterfaceImpl_3_8
     )
 
 def worksheetReplInterfaceImplCommonSettings(scalaVer: String): Seq[Setting[?]] = Seq(
@@ -159,3 +160,12 @@ lazy val worksheetReplInterfaceImpl_3_3_0: Project =
   Project("worksheet-repl-interface-impl_3_3_0", file("impls/impl_3_3_0"))
     .dependsOn(replInterface)
     .settings(worksheetReplInterfaceImplCommonSettings("3.3.1"))
+
+lazy val worksheetReplInterfaceImpl_3_8: Project =
+  Project("worksheet-repl-interface-impl_3_8", file("impls/impl_3_8"))
+    .dependsOn(replInterface)
+    .settings(worksheetReplInterfaceImplCommonSettings("3.8.0-RC1"))
+    .settings(
+      libraryDependencies += "org.scala-lang" %% "scala3-repl" % scalaVersion.value,
+      Compile / scalacOptions := Seq("--release", "17")
+    )
