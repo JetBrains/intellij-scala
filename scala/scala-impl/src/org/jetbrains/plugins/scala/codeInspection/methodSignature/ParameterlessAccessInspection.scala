@@ -64,7 +64,7 @@ object ParameterlessAccessInspection {
     override def isAvailableForFile(file: PsiFile): Boolean =
       !file.isScala3 && super.isAvailableForFile(file)
 
-    // might have been eta-expanded to () => A, so don't worn.
+    // might have been eta-expanded to () => A, so don't warn.
     // this avoids false positives. To be more accurate, we would need an 'etaExpanded'
     // flag in ScalaResolveResult.
     override protected def collect(expression: ScExpression,
