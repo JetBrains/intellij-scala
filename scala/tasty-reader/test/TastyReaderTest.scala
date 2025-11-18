@@ -256,7 +256,7 @@ class TastyReaderTest extends TestCase {
   private def normaliseTastyContent(tastyContent: String): String =
     tastyContent
       .replace("_root_.", "")
-      .replace("java.lang.", "")
+      .replaceAll("java.lang.(?!Boolean|Long|Float|Double|String)", "")
       .replace("scala.Predef.", "")
       .replaceAll("scala\\.(?!\\w+\\.(?!type))", "")
       .replaceAll("\\w+\\.this\\.(?!type)", "")

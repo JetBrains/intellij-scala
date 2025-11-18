@@ -886,6 +886,10 @@ class ScalaSigPrinter(builder: StringBuilder) {
       // NaNs cannot be compared directly
       case d: Double if java.lang.Double.isNaN(d) => "_root_.java.lang.Double.NaN"
       case f: Float  if java.lang.Float.isNaN(f)  => "_root_.java.lang.Float.NaN"
+
+      // As in scala.Char
+      case c: Char if c == java.lang.Character.MIN_VALUE  => "_root_.java.lang.Character.MIN_VALUE"
+      case c: Char if c == java.lang.Character.MAX_VALUE  => "_root_.java.lang.Character.MAX_VALUE"
     }
 
     private val literalText: PartialFunction[Any, String] = {
