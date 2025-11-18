@@ -643,8 +643,8 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
         } else if (base.startsWith("_root_.scala.Tuple") && base != "_root_.scala.Tuple1" && !base.substring(18).contains(".")) { // TODO use regex
           val s = arguments.map(it => simple(textOfType(it))).mkString("(", ", ", ")")
           if (parens > 1) "(" + s + ")" else s
-        } else if (base.startsWith("_root_.scala.Function") || base.startsWith("_root_.scala.ContextFunction")) {
-          val arrow = if (base.startsWith("_root_.scala.Function")) " => " else " ?=> "
+        } else if (base.startsWith("_root_.scala.Function") || base.startsWith("_root_.scala.ImpureFunction") || base.startsWith("_root_.scala.ContextFunction")) {
+          val arrow = if (base.startsWith("_root_.scala.Function") || base.startsWith("_root_.scala.ImpureFunction")) " => " else " ?=> "
           val s = (if (arguments.length == 2) simple(textOfType(arguments.head, parens = 2)) else arguments.init.map(it => simple(textOfType(it))).mkString("(", ", ", ")")) + arrow + simple(textOfType(arguments.last))
           if (parens > 0) "(" + s + ")" else s
         } else {
