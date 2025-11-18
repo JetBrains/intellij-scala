@@ -284,14 +284,33 @@ object MethodResolveProcessor {
 
     def checkFunctionReference(fun: PsiNamedElement, isPolymorphic: Boolean): ApplicabilityCheckResult = {
       def default(): ApplicabilityCheckResult = {
+        val canBeNullaryMethodApplication = {
+          //We can only invoke empty-paren methods as parameterless
+          // 1. in scala 2 (where it is a compiler warning)
+          // 2. if it is a Java method (defined in java or overriding one)
+          !fun.isInScala3File ||  // 1.
+            fun
+              .asOptionOf[ScFunction]
+              .forall(
+                _.superMethods.exists(
+                  !_.is[ScFunction] // 2.
+                )
+              )
+        }
+
         fun match {
-          case _: ScFunction if c.functionParamClauses.isEmpty ||
-            c.functionParamClauses.head.parameters.isEmpty ||
-            isUnderscore => ApplicabilityCheckResult(problems.result())
-          case fun: ScFun if fun.paramClauses == Seq() || fun.paramClauses == Seq(Seq()) || isUnderscore =>
+          case _: ScFunction
+            if c.functionParamClauses.isEmpty ||
+              (c.functionParamClauses.head.parameters.isEmpty && canBeNullaryMethodApplication) ||
+              isUnderscore => ApplicabilityCheckResult(problems.result())
+          case fun: ScFun
+            if fun.paramClauses == Seq() ||
+              (fun.paramClauses == Seq(Seq()) && canBeNullaryMethodApplication) ||
+              isUnderscore =>
             addExpectedTypeProblems()
-          case method: PsiMethod if method.parameters.isEmpty ||
-            isUnderscore =>
+          case method: PsiMethod
+            if (method.parameters.isEmpty && canBeNullaryMethodApplication) ||
+              isUnderscore =>
             addExpectedTypeProblems()
           case _ =>
             problems += MissedParametersClause(null)
@@ -870,7 +889,7 @@ object MethodResolveProcessor {
     if (argumentClauses.isEmpty && typeArgElements.isEmpty || r.name == CommonNames.Apply)
       noExpansion
     else {
-      val hasParams          = r.elementHasParameters
+      val hasParams          = r.elementHasParameters || r.element.asOptionOf[ScFunction].exists(_.hasEmptyParenSuperMethod)
       val mismatchedTypeArgs = !r.elementHasTypeParameters && typeArgElements.nonEmpty
 
       r.element match {
