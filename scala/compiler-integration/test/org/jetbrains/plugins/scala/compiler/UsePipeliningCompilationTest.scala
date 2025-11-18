@@ -5,13 +5,13 @@ import com.intellij.testFramework.CompilerTester
 import org.jetbrains.plugins.scala.compiler.CompilerMessagesUtil.assertNoErrorsOrWarnings
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
-import org.jetbrains.plugins.scala.util.runners.{TestJdkVersion, TestScalaVersion}
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, TestJdkVersion, TestScalaVersion}
 import org.jetbrains.plugins.scala.{CompilationTests_IDEA, CompilationTests_Zinc}
 import org.junit.Assert.assertNotNull
 import org.junit.Test
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
+import org.junit.runners.{JUnit4, Parameterized}
 
 import scala.jdk.CollectionConverters._
 
@@ -92,8 +92,10 @@ class UsePipeliningCompilationTest(scalaVersion: TestScalaVersion, jdkVersion: T
 private object UsePipeliningCompilationTest {
   @Parameterized.Parameters(name = "{0}, {1}")
   def parameters: java.util.Collection[Array[AnyRef]] = {
-    val scalaVersions = Seq(TestScalaVersion.Scala_2_12, TestScalaVersion.Scala_2_13, TestScalaVersion.Scala_3_Next_RC)
-    val jdkVersions = TestJdkVersion.values().toSeq
+    val scalaVersions = Seq(TestScalaVersion.Scala_2_12, TestScalaVersion.Scala_2_13)
+    val registry = MultipleScalaVersionsRunner.filterJdkVersionRegistry
+    val jdkFilter = (version: TestJdkVersion) => registry.forall(_ == version)
+    val jdkVersions = TestJdkVersion.values().toSeq.filter(jdkFilter)
 
     val combinations = for {
       sv <- scalaVersions
@@ -103,3 +105,6 @@ private object UsePipeliningCompilationTest {
     combinations.asJavaCollection
   }
 }
+
+@RunWith(classOf[JUnit4])
+class UsePipeliningCompilationTest_Scala_Next_RC extends UsePipeliningCompilationTest(TestScalaVersion.Scala_3_Next_RC, TestJdkVersion.JDK_17)

@@ -37,6 +37,7 @@ class WorksheetPlainCompileOnServerRunOnServerIntegrationTest_Scala_3_LTS_RC_All
     with WorksheetPlainIntegrationTestBase_Scala_3_LTS_RC_AllInOne
 
 @RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Next_RC))
+@RunWithJdkVersions(Array(TestJdkVersion.JDK_17))
 class WorksheetPlainCompileOnServerRunOnServerIntegrationTest_Scala_3_Next_RC_AllInOne
   extends CompileOnServerRunOnServerTestBase
     with WorksheetPlainIntegrationTestBase_Scala_3_Next_RC_AllInOne
@@ -46,9 +47,13 @@ class WorksheetPlainCompileOnServerRunOnServerIntegrationTest_Scala_3_Next_RC_Al
   TestScalaVersion.Scala_3_1,
   TestScalaVersion.Scala_3_2,
   TestScalaVersion.Scala_3_3,
-  TestScalaVersion.Scala_3_Latest_RC,
-  TestScalaVersion.Scala_3_Next_RC
+  TestScalaVersion.Scala_3_Latest_RC
 ))
 class WorksheetPlainCompileOnServerRunOnServerIntegrationTest_Scala_3_BracelessSyntax
   extends CompileOnServerRunOnServerTestBase
     with WorksheetPlainIntegrationTestBase_Scala_3_BracelessSyntax
+
+@RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Next_RC))
+@RunWithJdkVersions(Array(TestJdkVersion.JDK_17))
+class WorksheetPlainCompileOnServerRunOnServerIntegrationTest_Scala_3_BracelessSyntax_Next_RC
+  extends WorksheetPlainCompileOnServerRunOnServerIntegrationTest_Scala_3_BracelessSyntax

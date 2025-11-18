@@ -36,7 +36,6 @@ import java.nio.file.{Files, Path}
   TestScalaVersion.Scala_3_6,
   TestScalaVersion.Scala_3_7,
   TestScalaVersion.Scala_3_Latest_RC,
-  TestScalaVersion.Scala_3_Next_RC
 ))
 abstract class IncrementalCompilationTestBase(
   override protected val incrementalityType: IncrementalityType,
@@ -242,9 +241,19 @@ class IncrementalIdeaOnServerCompilationTest
   extends IncrementalCompilationTestBase(IncrementalityType.IDEA, useCompileServer = true)
 
 @Category(Array(classOf[CompilationTests_IDEA]))
+@RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Next_RC))
+@RunWithJdkVersions(Array(TestJdkVersion.JDK_17))
+class IncrementalIdeaOnServerCompilationTest_Scala_3_Next_RC extends IncrementalIdeaOnServerCompilationTest
+
+@Category(Array(classOf[CompilationTests_IDEA]))
 @RunWithJdkVersions(Array(TestJdkVersion.JDK_17))
 class IncrementalIdeaCompilationTest
   extends IncrementalCompilationTestBase(IncrementalityType.IDEA, useCompileServer = false)
+
+@Category(Array(classOf[CompilationTests_IDEA]))
+@RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Next_RC))
+@RunWithJdkVersions(Array(TestJdkVersion.JDK_17))
+class IncrementalIdeaCompilationTest_Scala_3_Next_RC extends IncrementalIdeaCompilationTest
 
 @Category(Array(classOf[CompilationTests_Zinc]))
 class IncrementalSbtOnServerCompilationTest
@@ -295,7 +304,17 @@ class IncrementalSbtOnServerCompilationTest
 }
 
 @Category(Array(classOf[CompilationTests_Zinc]))
+@RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Next_RC))
+@RunWithJdkVersions(Array(TestJdkVersion.JDK_17))
+class IncrementalSbtOnServerCompilationTest_Scala_3_Next_RC extends IncrementalSbtOnServerCompilationTest
+
+@Category(Array(classOf[CompilationTests_Zinc]))
 @RunWithJdkVersions(Array(TestJdkVersion.JDK_17))
 class IncrementalSbtCompilationTest extends IncrementalSbtOnServerCompilationTest {
   override protected val useCompileServer: Boolean = false
 }
+
+@Category(Array(classOf[CompilationTests_Zinc]))
+@RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Next_RC))
+@RunWithJdkVersions(Array(TestJdkVersion.JDK_17))
+class IncrementalSbtCompilationTest_Scala_Next_RC extends IncrementalSbtCompilationTest
