@@ -34,7 +34,7 @@ class MultipleScalaVersionsRunner(private val myTest: Test, klass: Class[_]) ext
     super.filter(filter)
 }
 
-private object MultipleScalaVersionsRunner {
+object MultipleScalaVersionsRunner {
 
   private val DefaultScalaVersionsToRun: Seq[TestScalaVersion] =
     Seq(
