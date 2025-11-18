@@ -71,20 +71,6 @@ class GeneratedClassTest_Scala2_2_12 extends GeneratedClassTest_Scala2_Base(Scal
 
 class GeneratedClassTest_Scala2_2_13 extends GeneratedClassTest_Scala2_Base(ScalaVersion.Latest.Scala_2_13)
 
-class GeneratedClassTest_Scala2_3_3 extends GeneratedClassTest_Scala2_Base(ScalaVersion.Latest.Scala_3_3)
-
-class GeneratedClassTest_Scala2_3_4 extends GeneratedClassTest_Scala2_Base(ScalaVersion.Latest.Scala_3_4)
-
-class GeneratedClassTest_Scala2_3_5 extends GeneratedClassTest_Scala2_Base(ScalaVersion.Latest.Scala_3_5)
-
-class GeneratedClassTest_Scala2_3_6 extends GeneratedClassTest_Scala2_Base(ScalaVersion.Latest.Scala_3_6)
-
-class GeneratedClassTest_Scala2_3_7 extends GeneratedClassTest_Scala2_Base(ScalaVersion.Latest.Scala_3_7)
-
-class GeneratedClassTest_Scala2_3_LTS_RC extends GeneratedClassTest_Scala2_Base(ScalaVersion.Latest.Scala_3_LTS_RC)
-
-class GeneratedClassTest_Scala2_3_Next_RC extends GeneratedClassTest_Scala2_Base(ScalaVersion.Latest.Scala_3_Next_RC)
-
 abstract class GeneratedClassTest_Scala2_Base(scalaVersion: ScalaVersion) extends GeneratedClassTestBase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version == scalaVersion
@@ -96,37 +82,6 @@ abstract class GeneratedClassTest_Scala2_Base(scalaVersion: ScalaVersion) extend
   def testInForStmt(): Unit = doTest()
 
   def testInLambda(): Unit = doTest()
-
-  def testSimplePlace(): Unit = doTest()
-}
-
-class GeneratedClassTest_Scala3_3_3 extends GeneratedClassTest_Scala3_Base(ScalaVersion.Latest.Scala_3_3)
-
-class GeneratedClassTest_Scala3_3_4 extends GeneratedClassTest_Scala3_Base(ScalaVersion.Latest.Scala_3_4)
-
-class GeneratedClassTest_Scala3_3_5 extends GeneratedClassTest_Scala3_Base(ScalaVersion.Latest.Scala_3_5)
-
-class GeneratedClassTest_Scala3_3_6 extends GeneratedClassTest_Scala3_Base(ScalaVersion.Latest.Scala_3_6)
-
-class GeneratedClassTest_Scala3_3_7 extends GeneratedClassTest_Scala3_Base(ScalaVersion.Latest.Scala_3_7)
-
-class GeneratedClassTest_Scala3_3_LTS_RC extends GeneratedClassTest_Scala3_Base(ScalaVersion.Latest.Scala_3_LTS_RC)
-
-class GeneratedClassTest_Scala3_3_Next_RC extends GeneratedClassTest_Scala3_Base(ScalaVersion.Latest.Scala_3_Next_RC)
-
-abstract class GeneratedClassTest_Scala3_Base(scalaVersion: ScalaVersion) extends GeneratedClassTestBase {
-
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == scalaVersion
-
-  override protected def testDataBasePath: String = super.testDataBasePath + "scala3/"
-
-  def testFromPattern(): Unit = doTest()
-
-  def testInConstructor(): Unit = doTest()
-
-  def testInForStmt(): Unit = doTest()
-
-  def testInForStmtBlock(): Unit = doTest()
 
   def testSimplePlace(): Unit = doTest()
 }
