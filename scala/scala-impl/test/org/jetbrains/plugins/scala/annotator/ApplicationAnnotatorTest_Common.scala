@@ -372,7 +372,11 @@ class ApplicationAnnotatorTest_3 extends ApplicationAnnotatorTest_Common {
     // (See SCL-19504 for the details)
     // We might consider rewriting it as Annotator, or disabling it in Scala 2 and implementing similar logic in annotator for Scala 3
     // This is something to be discussed
-    assertMessagesText(EmptyTrailingParametersClausesCode, "")
+    assertMessagesText(EmptyTrailingParametersClausesCode,
+    """Error(foo1,Method foo1 must be called with () argument)
+      |Error(foo2,Missing arguments for method foo2)
+      |Error(foo3,Missing arguments for method foo3)
+      |""".stripMargin)
   }
 
   override def testNonApplicable_Int(): Unit = {

@@ -23,6 +23,16 @@ package object statements {
   }
 
   implicit class ScFunctionExt(private val function: ScFunction) extends AnyVal {
+    def hasEmptyParenSuperMethod: Boolean = {
+      //Invoking parameterless method as empty-paren is allowed, if:
+      //1. Target method overrides a java method
+      //2. Target method overrides an empty-paren scala method (only in Scala 2)
+      function.superMethods.exists {
+        case f: ScFunction       => f.parameterListCount == 1 && f.parameters.isEmpty && !function.isInScala3File
+        case superMethodFromJava => true
+      }
+    }
+
     def parameterClausesWithExtension(owner: Option[ScExtension] = None): Seq[ScParameterClause] =
       owner
         .orElse(function.extensionMethodOwner)
