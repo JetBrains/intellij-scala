@@ -738,9 +738,24 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
       case FALSEconst => "false"
       case BYTEconst | SHORTconst | INTconst => node.value.toString
       case LONGconst => s"${node.value}L"
-      case FLOATconst => s"${intBitsToFloat(node.value.toInt)}F"
-      case DOUBLEconst => s"${longBitsToDouble(node.value)}D"
-      case CHARconst => "'" + escape(node.value.toChar.toString) + "'"
+      case FLOATconst => intBitsToFloat(node.value.toInt) match {
+        case f if f.isPosInfinity => "_root_.java.lang.Float.POSITIVE_INFINITY"
+        case f if f.isNegInfinity => "_root_.java.lang.Float.NEGATIVE_INFINITY"
+        case f if f.isNaN  => "_root_.java.lang.Float.NaN"
+        case f => s"${f}F"
+      }
+      case DOUBLEconst => longBitsToDouble(node.value)  match {
+        case d if d.isPosInfinity => "_root_.java.lang.Double.POSITIVE_INFINITY"
+        case d if d.isNegInfinity => "_root_.java.lang.Double.NEGATIVE_INFINITY"
+        case d if d.isNaN  => "_root_.java.lang.Double.NaN"
+        case d => s"${d}D"
+      }
+      case CHARconst =>
+        node.value.toChar match {
+          case Char.MinValue => "_root_.java.lang.Character.MIN_VALUE"
+          case Char.MaxValue => "_root_.java.lang.Character.MAX_VALUE"
+          case c => "'" + escape(c.toString) + "'"
+        }
       case STRINGconst => "\"" + escape(node.name) + "\""
       case NULLconst => "null"
       case _ => ""
