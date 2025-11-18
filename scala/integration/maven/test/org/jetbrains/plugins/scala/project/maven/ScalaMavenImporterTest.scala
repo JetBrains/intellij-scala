@@ -88,7 +88,7 @@ abstract class ScalaMavenImporterTest
   private def getTestProjectDirVFile: VirtualFile =
     VirtualFileManager.getInstance().findFileByNioPath(getTestProjectDir)
 
-  private def runImportingTest(expected: project): Unit = {
+  protected def runImportingTest(expected: project): Unit = {
     val pomFile = getTestProjectDir.resolve("pom.xml")
 
     val pomVFile = VirtualFileManager.getInstance().findFileByNioPath(pomFile)
