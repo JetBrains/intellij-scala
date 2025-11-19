@@ -50,8 +50,8 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
     val revertable =
       CompilerTestUtil.withEnabledCompileServer(useCompileServer) |+|
         CompilerTestUtil.withCompileServerJdk(compileServerJdk) |+|
-        CompilerTestUtil.withForcedJdkForBuildProcess(buildProcessJdk) |+|
-        RevertableChange.withApplicationSettingsSaving
+        CompilerTestUtil.withForcedJdkForBuildProcess(buildProcessJdk)
+        //RevertableChange.withApplicationSettingsSaving
     revertable.applyChange(getTestRootDisposable)
 
     // uncomment to enable debugging of compile server in tests

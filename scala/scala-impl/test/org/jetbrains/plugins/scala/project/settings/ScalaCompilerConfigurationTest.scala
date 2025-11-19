@@ -92,6 +92,11 @@ class ScalaCompilerConfigurationTest extends JavaModuleTestCase with ScalaSdkOwn
   }
 
   @Test
+  def dummyFailingTest(): Unit = {
+    assertTrue(false)
+  }
+
+  @Test
   def readComponentStateFromDisk(): Unit = {
     FixtureRuleKt.runInLoadComponentStateMode(getProject, () => {
       StoreUtil.saveSettings(getProject, true)
