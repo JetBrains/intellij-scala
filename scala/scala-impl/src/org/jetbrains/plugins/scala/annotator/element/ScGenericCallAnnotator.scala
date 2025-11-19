@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.annotator.element
 
-import com.intellij.psi.{PsiClass, PsiMethod, PsiNamedElement, PsiTypeParameterListOwner}
+import com.intellij.psi.impl.light.LightDefaultConstructor
+import com.intellij.psi.{PsiMethod, PsiNamedElement, PsiTypeParameterListOwner}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, _}
@@ -9,9 +10,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScGenericCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ApplyOrUpdateInvocation
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.MethodInvocationImpl.ConstructorlessJavaClass
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types.api.{PsiTypeParametersExt, TypeParameter, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, DefaultTypeParameterMismatch, TypePresentationContext}
@@ -53,7 +54,7 @@ object ScGenericCallAnnotator extends ElementAnnotator[ScGenericCall] {
         }
 
         f match {
-          case typeParamOwner: PsiNamedElement with ScTypeParametersOwner if !isKindProjector(genCall) =>
+          case typeParamOwner: PsiNamedElement if (typeParamOwner.isInstanceOf[ScTypeParametersOwner]  || typeParamOwner.is[LightDefaultConstructor]) && !isKindProjector(genCall) =>
             val typeParams = f match {
               case ScalaConstructor(cons) =>
                 cons
@@ -66,7 +67,10 @@ object ScGenericCallAnnotator extends ElementAnnotator[ScGenericCall] {
                   case fun: ScFunction =>
                     val extension = fun.extensionMethodOwner.orElse(rr.exportedInExtension).filter(_ => !rr.isExtensionCall)
                     extension.fold(fun.typeParameters)(_.typeParameters)
-                  case _ => typeParamOwner.typeParameters
+                  case lCons: LightDefaultConstructor =>
+                    lCons.containingClass.getTypeParameters.toSeq
+                  case t: ScTypeParametersOwner => t.typeParameters
+                  case _ => Seq.empty
                 }
 
                 if (tparams.isEmpty) typeParamsFromInnerApplyCall(rr)
@@ -75,24 +79,6 @@ object ScGenericCallAnnotator extends ElementAnnotator[ScGenericCall] {
 
             val stringPresentation = s"method ${typeParamOwner.name}"
             implicit val tpc: TypePresentationContext = typeParamOwner
-
-            ScParameterizedTypeElementAnnotator.annotateTypeArgs[ScTypeElement](
-              typeParams,
-              genCall.arguments,
-              genCall.typeArgs.getTextRange,
-              rr.substitutor,
-              stringPresentation,
-              _.`type`()
-            )
-          // Special case for Java classes
-          case psiClass: PsiClass if psiClass.constructors.isEmpty =>
-            val clsTypeParameters =
-              if (psiClass.hasTypeParameters)
-                psiClass.getTypeParameters.toSeq
-              else Seq.empty
-            val typeParams = clsTypeParameters.map(TypeParameter.apply)
-            val stringPresentation = psiClass.name
-            implicit val tpc: TypePresentationContext = psiClass.element
 
             ScParameterizedTypeElementAnnotator.annotateTypeArgs[ScTypeElement](
               typeParams,

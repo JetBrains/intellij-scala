@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.{PsiClass, PsiElement, PsiMethod, PsiTypeParameter}
+import com.intellij.psi.{PsiElement, PsiMethod}
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedWithRecursionGuard}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, MacroInvocationContext, ScalaMacroEvaluator}
@@ -15,8 +15,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUs
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility._
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ParameterizedType, TypeParameter, UndefinedType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScProjectionType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ParameterizedType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
@@ -27,7 +27,6 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor._
 import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 
-import kotlin.reflect.jvm.internal.impl.load.java.structure.JavaTypeParameter
 import scala.annotation.tailrec
 
 abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(node) with MethodInvocation {
@@ -348,15 +347,13 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
         isFun && isPostfixOrPrefix
     }
 
-    val maybeTuple: Option[(ScType, Seq[Parameter], Option[ScTypePolymorphicType])] = invokedNonValueType match {
+    val maybeTuple = invokedNonValueType match {
       case pTpe @ ScTypePolymorphicType(ScMethodType(returnType, parameters, _), _) =>
         Option((returnType, parameters, Option(pTpe)))
       case pTpe @ ScTypePolymorphicType(FunctionTypeParameters(returnType, parameters), _) =>
         Option((returnType, parameters, Option(pTpe)))
       case ScMethodType(returnType, parameters, _)      => Option((returnType, parameters, None))
       case ty if resolveResultIsPostfixOrPrefixFunction => Option((ty, Seq.empty, None))
-      case ConstructorlessJavaClass(des, clsTypeParameters) =>
-        Some((des, Seq(), Some(ScTypePolymorphicType(ScMethodType(des, Seq.empty), clsTypeParameters.map(TypeParameter.apply)))))
       case _ => None
     }
 
@@ -545,24 +542,5 @@ object MethodInvocationImpl {
     problems:                Seq[ApplicabilityProblem] = Seq.empty
   ) extends InvocationData {
     override def target: Option[ScalaResolveResult] = None
-  }
-
-  object ConstructorlessJavaClass {
-    // This should only hold for Java classes without constructor -> using default
-    def unapply(typeRes: ScType): Option[(ScDesignatorType, Seq[PsiTypeParameter])] = {
-      typeRes match {
-        case des: ScDesignatorType =>
-          des.element match {
-            case psiClass: PsiClass if psiClass.constructors.isEmpty =>
-              val clsTypeParameters =
-                if (psiClass.hasTypeParameters)
-                  psiClass.getTypeParameters.toSeq
-                else Seq.empty
-              Some(des, clsTypeParameters)
-            case _ => None
-          }
-        case _ => None
-      }
-    }
   }
 }
