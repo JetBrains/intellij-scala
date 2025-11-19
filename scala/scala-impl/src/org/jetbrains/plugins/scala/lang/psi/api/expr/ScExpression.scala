@@ -469,7 +469,7 @@ object ScExpression {
     def widenLiteralType(expr: ScExpression, expectedType: Option[ScType]): ScType = {
       implicit val context: Context = Context(expr)
 
-      def isLiteralType(tp: ScType) = tp.removeAliasDefinitions().isInstanceOf[ScLiteralType]
+      def isLiteralType(tp: ScType) = tp.removeAliasDefinitions().is[ScLiteralType]
 
       scType match {
         case lt: ScLiteralType if !expr.literalTypesEnabled && !expectedType.exists(isLiteralType) =>

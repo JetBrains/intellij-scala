@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.annotator.element
 
-import com.intellij.psi.{PsiMethod, PsiNamedElement, PsiTypeParameterListOwner}
+import com.intellij.psi.{PsiClass, PsiMethod, PsiNamedElement, PsiTypeParameterListOwner}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, _}
@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ApplyOrUpdateInvocation
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.MethodInvocationImpl.ConstructorlessJavaClass
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types.api.{PsiTypeParametersExt, TypeParameter, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, DefaultTypeParameterMismatch, TypePresentationContext}
@@ -74,6 +75,24 @@ object ScGenericCallAnnotator extends ElementAnnotator[ScGenericCall] {
 
             val stringPresentation = s"method ${typeParamOwner.name}"
             implicit val tpc: TypePresentationContext = typeParamOwner
+
+            ScParameterizedTypeElementAnnotator.annotateTypeArgs[ScTypeElement](
+              typeParams,
+              genCall.arguments,
+              genCall.typeArgs.getTextRange,
+              rr.substitutor,
+              stringPresentation,
+              _.`type`()
+            )
+          // Special case for Java classes
+          case psiClass: PsiClass if psiClass.constructors.isEmpty =>
+            val clsTypeParameters =
+              if (psiClass.hasTypeParameters)
+                psiClass.getTypeParameters.toSeq
+              else Seq.empty
+            val typeParams = clsTypeParameters.map(TypeParameter.apply)
+            val stringPresentation = psiClass.name
+            implicit val tpc: TypePresentationContext = psiClass.element
 
             ScParameterizedTypeElementAnnotator.annotateTypeArgs[ScTypeElement](
               typeParams,
