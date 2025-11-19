@@ -125,7 +125,8 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
         case (_: ScGiven, _: ScGiven) => true
         case _ => false
       }
-      def nameMatch = matchTextOrVariable(Option(typedef.nameId), Option(other.nameId), handler)
+      def nameMatch = if(typedef.isInstanceOf[ScGiven] || other.isInstanceOf[ScGiven]) true else
+        matchTextOrVariable(Option(typedef.nameId), Option(other.nameId), handler)
       def typeParamsMatch = matchInAnyOrder(ArraySeq.unsafeWrapArray(typedef.getTypeParameters), ArraySeq.unsafeWrapArray(other.getTypeParameters))
       def constructorsMatch = (typedef, other) match {
         case (typedef: ScConstructorOwner, other: ScConstructorOwner) =>
@@ -419,12 +420,20 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
 
     context.pushResult()
     try {
-      def typeMatch = globalVisitor.`match`(constrInvocation.typeElement, other.typeElement)
+      val typeMatch = globalVisitor.`match`(constrInvocation.typeElement, other.typeElement)
       def argsMatch = constrInvocation.arguments.isEmpty || matchSequentially(constrInvocation.arguments, other.arguments)
       globalVisitor.setResult(typeMatch && argsMatch)
     } finally {
       scopeMatch(constrInvocation, isTypedVar, other, Some(other.typeElement), constrInvocation)
     }
+  }
+
+  override def visitParameterizedTypeElement(parameterized: ScParameterizedTypeElement): Unit = {
+    val other = globalVisitor.getElement.asInstanceOf[ScParameterizedTypeElement]
+
+    def elementMatch = globalVisitor.`match`(parameterized.typeElement, other.typeElement)
+    def parametersMatch = matchSequentially(parameterized.typeArgList.typeArgs, other.typeArgList.typeArgs)
+    globalVisitor.setResult(elementMatch && parametersMatch)
   }
 
   override def visitParameters(parameters: ScParameters): Unit = {
