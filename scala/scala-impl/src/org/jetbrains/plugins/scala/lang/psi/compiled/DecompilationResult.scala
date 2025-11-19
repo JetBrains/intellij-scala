@@ -16,13 +16,13 @@ import scala.util.control.NonFatal
 private sealed trait DecompilationResult {
   val isScala: Boolean
   val sourceName: String
+  def compilerOptions: CompilerOptions
   val timeStamp: Long
 }
 
 private sealed trait ScalaDecompilationResult extends DecompilationResult {
   override val isScala = true
-  override val sourceName: String
-  def sourceText: (String, CompilerOptions)
+  def sourceText: String
 }
 
 private object DecompilationResult {
@@ -32,26 +32,28 @@ private object DecompilationResult {
       outputStream.writeBoolean(isScala)
       outputStream.writeUTF(sourceName)
       outputStream.writeLong(timeStamp)
+      outputStream.writeBoolean(compilerOptions.kindProjector)
     }
   }
 
   private case class NonScala(override val timeStamp: Long) extends WritableResult {
     override val isScala: Boolean = false
     override val sourceName: String = ""
+    override def compilerOptions: CompilerOptions = CompilerOptions.Default
   }
 
-  private case class PartialScala(override val sourceName: String, override val timeStamp: Long) extends WritableResult {
+  private case class PartialScala(override val sourceName: String, compilerOptions: CompilerOptions, override val timeStamp: Long) extends WritableResult {
     override val isScala: Boolean = true
   }
 
-  private case class Full(override val sourceName: String, override val sourceText: (String, CompilerOptions), override val timeStamp: Long) extends ScalaDecompilationResult
+  private case class Full(override val sourceName: String, override val compilerOptions: CompilerOptions, override val sourceText: String, override val timeStamp: Long) extends ScalaDecompilationResult
 
-  private case class Lazy(override val sourceName: String, override val timeStamp: Long, sourceTextComputation: () => (String, CompilerOptions)) extends ScalaDecompilationResult {
-    override lazy val sourceText: (String, CompilerOptions) = sourceTextComputation()
+  private case class Lazy(override val sourceName: String, override val compilerOptions: CompilerOptions, override val timeStamp: Long, sourceTextComputation: () => String) extends ScalaDecompilationResult {
+    override lazy val sourceText: String = sourceTextComputation()
   }
 
   private def toWritable(decompilationResult: DecompilationResult): WritableResult = decompilationResult match {
-    case result: ScalaDecompilationResult => PartialScala(result.sourceName, result.timeStamp)
+    case result: ScalaDecompilationResult => PartialScala(result.sourceName, result.compilerOptions, result.timeStamp)
     case _                                => NonScala(decompilationResult.timeStamp)
   }
 
@@ -74,7 +76,7 @@ private object DecompilationResult {
 
   private[compiled] def sourceNameAndText(file: VirtualFile, bytes: Array[Byte] = null): Option[(String, String)] =
     tryDecompile(file, bytes).map { result =>
-      (result.sourceName, result.sourceText._1)
+      (result.sourceName, result.sourceText)
     }
 
   private[compiled] def tryDecompile(file: VirtualFile, bytes: Array[Byte] = null): Option[ScalaDecompilationResult] = {
@@ -107,11 +109,11 @@ private object DecompilationResult {
     val result: DecompilationResult = cachedFromFileAttributes match {
       case Some(nonScala: NonScala) =>
         nonScala
-      case Some(PartialScala(sourceName, _)) =>
-        Lazy(sourceName, timeStamp, () => sourceNameAndText(file, content).map(t => (t._2, t._3)).getOrElse(("", CompilerOptions.Default)))
+      case Some(PartialScala(sourceName, compilerOptions, _)) =>
+        Lazy(sourceName, compilerOptions, timeStamp, () => sourceNameAndText(file, content).map(_._2).getOrElse(""))
       case None =>
         val recomputedResult = sourceNameAndText(file, content) match {
-          case Some((sourceName, sourceText, compilerOptions)) => Full(sourceName, (sourceText, compilerOptions), timeStamp)
+          case Some((sourceName, sourceText, compilerOptions)) => Full(sourceName, compilerOptions, sourceText, timeStamp)
           case None                           => NonScala(timeStamp)
         }
 
@@ -152,8 +154,9 @@ private object DecompilationResult {
     val isScala = inputStream.readBoolean()
     val sourceName = inputStream.readUTF()
     val timeStamp = inputStream.readLong()
+    val compilerOptions = CompilerOptions(kindProjector = inputStream.readBoolean())
     Some {
-      if (isScala) PartialScala(sourceName, timeStamp)
+      if (isScala) PartialScala(sourceName, compilerOptions, timeStamp)
       else NonScala(timeStamp)
     }
   } catch {
