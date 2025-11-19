@@ -9,6 +9,7 @@ import com.intellij.structuralsearch.impl.matcher.compiler.GlobalCompilingVisito
 import com.intellij.structuralsearch.impl.matcher.compiler.{GlobalCompilingVisitor, WordOptimizer}
 import com.intellij.structuralsearch.impl.matcher.handlers.{MatchingHandler, SubstitutionHandler, TopLevelMatchingHandler}
 import com.intellij.structuralsearch.impl.matcher.strategies.MatchingStrategy
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScReferencePattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScNamedTupleTypeComponent, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScConstructorInvocation, ScReference}
@@ -16,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScForBin
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatternDefinition, ScTypeAlias, ScValueDeclaration, ScVariableDeclaration, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGivenDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.structuralSearch.filter.{AcceptAllFilter, CaseClauseFilter, FunctionFilter, MethodInvocationFilter, TypeAliasFilter, TypeDefinitionFilter, TypeElementFilter, TypeParamFilter, ValVarFilter}
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
@@ -240,7 +241,7 @@ class ScalaCompilingVisitor(globalVisitor: GlobalCompilingVisitor) extends Scala
     }
 
     override def visitTypeDefinition(typedef: ScTypeDefinition): Unit = {
-      if (!handleWord(typedef.name, OccurenceKind.CODE, globalVisitor.getContext)) return
+      if (!typedef.is[ScGivenDefinition] && !handleWord(typedef.name, OccurenceKind.CODE, globalVisitor.getContext)) return
       super.visitTypeDefinition(typedef)
     }
   }
