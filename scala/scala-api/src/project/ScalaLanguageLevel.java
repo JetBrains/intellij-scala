@@ -36,11 +36,14 @@ public enum ScalaLanguageLevel implements Ordered<ScalaLanguageLevel> {
     Scala_3_3("3.3"),
     Scala_3_4("3.4"),
     Scala_3_5("3.5"),
-    // not yet released scala versions
-    // (added in order Scala SDK is properly created for new major release candidate versions of the scala compiler)
     Scala_3_6("3.6"),
     Scala_3_7("3.7"),
-    Scala_3_8("3.8")
+    // not yet released scala versions
+    // (added in order Scala SDK is properly created for new major release candidate versions of the scala compiler)
+    Scala_3_8("3.8"),
+    Scala_3_9("3.9"),
+    Scala_3_10("3.10"),
+    Scala_3_11("3.11")
     ;
 
     public boolean isScala3() {
@@ -56,7 +59,7 @@ public enum ScalaLanguageLevel implements Ordered<ScalaLanguageLevel> {
 
     //TODO: Consider unifying hardcoded Scala 3 versions used throughout the project
     // https://youtrack.jetbrains.com/issue/SCL-22545
-    public static final ScalaLanguageLevel latestPublishedVersion = Scala_3_5;
+    public static final ScalaLanguageLevel latestPublishedVersion = Scala_3_7;
     public static final ScalaLanguageLevel[] publishedVersions;
 
     static {
