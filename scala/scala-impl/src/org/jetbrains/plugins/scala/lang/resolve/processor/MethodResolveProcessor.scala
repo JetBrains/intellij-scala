@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.resolve.processor
 
 import com.intellij.psi._
+import com.intellij.psi.impl.light.LightDefaultConstructor
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base._
@@ -137,8 +138,9 @@ class MethodResolveProcessor(
             (ref.getParent.is[ScMethodCall, ScGenericCall]) =>
           // process constructor proxies
           val constructors = cls.constructors match {
-            case Seq() => Seq(namedElement)
-            case c => c
+            case Seq() =>
+              LightDefaultConstructor.create(cls).toOption.toSeq
+            case other => other
           }
 
           val withAccessibilityCheck =
