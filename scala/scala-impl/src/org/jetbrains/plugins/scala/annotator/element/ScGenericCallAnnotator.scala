@@ -91,7 +91,7 @@ object ScGenericCallAnnotator extends ElementAnnotator[ScGenericCall] {
                 psiClass.getTypeParameters.toSeq
               else Seq.empty
             val typeParams = clsTypeParameters.map(TypeParameter.apply)
-            val stringPresentation = s"javaClass ${psiClass.element}"
+            val stringPresentation = psiClass.name
             implicit val tpc: TypePresentationContext = psiClass.element
 
             ScParameterizedTypeElementAnnotator.annotateTypeArgs[ScTypeElement](

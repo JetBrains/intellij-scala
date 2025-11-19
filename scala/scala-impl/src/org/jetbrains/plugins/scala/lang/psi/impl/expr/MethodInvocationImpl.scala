@@ -356,7 +356,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
       case ScMethodType(returnType, parameters, _)      => Option((returnType, parameters, None))
       case ty if resolveResultIsPostfixOrPrefixFunction => Option((ty, Seq.empty, None))
       case ConstructorlessJavaClass(des, clsTypeParameters) =>
-        Some((des, Seq(), Some(ScTypePolymorphicType(des, clsTypeParameters.map(TypeParameter.apply)))))
+        Some((des, Seq(), Some(ScTypePolymorphicType(ScMethodType(des, Seq.empty), clsTypeParameters.map(TypeParameter.apply)))))
       case _ => None
     }
 
