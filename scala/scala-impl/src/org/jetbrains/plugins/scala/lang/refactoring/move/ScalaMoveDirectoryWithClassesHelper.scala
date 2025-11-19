@@ -93,7 +93,7 @@ class ScalaMoveDirectoryWithClassesHelper extends MoveDirectoryWithClassesHelper
       case _ => false
     })
     CommonMoveUtil.retargetUsages(usageInfosToProcess.toArray(UsageInfo.EMPTY_ARRAY), oldToNewMap)
-    ContainerUtil.filter(usages, usageInfosToProcess.contains)
+    ContainerUtil.filter(usages, !usageInfosToProcess.contains(_))
   }
 
   private def isUnderRefactoring(element: PsiElement, directoriesToMove: Array[PsiDirectory]): Boolean =
