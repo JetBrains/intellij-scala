@@ -32,24 +32,24 @@ object CompilerTestUtil {
     }
   }
 
-  def withEnabledCompileServer(enable: Boolean): RevertableChange = {
-    def settings = compileServerSettings
-    val r1 = RevertableChange.withModifiedSetting[Boolean](
-      settings.COMPILE_SERVER_ENABLED,
-      settings.COMPILE_SERVER_ENABLED = _,
-      enable
-    )
-    val r2 = RevertableChange.withModifiedSetting[Boolean](
-      settings.COMPILE_SERVER_SHUTDOWN_IDLE,
-      settings.COMPILE_SERVER_SHUTDOWN_IDLE = _,
-      true
-    )
-    val r3 = RevertableChange.withModifiedSetting[Int](
-      settings.COMPILE_SERVER_SHUTDOWN_DELAY,
-      settings.COMPILE_SERVER_SHUTDOWN_DELAY = _,
-      30
-    )
-    r1 |+| r2 |+| r3
+  def withEnabledCompileServer(enable: Boolean): RevertableChange = new RevertableChange {
+    private var settingsBefore: ScalaCompileServerSettings = _
+    private lazy val settings: ScalaCompileServerSettings = compileServerSettings
+
+    override def applyChange(): Unit = {
+      settingsBefore = XmlSerializerUtil.createCopy(settings)
+
+      settings.COMPILE_SERVER_ENABLED = enable
+      settings.COMPILE_SERVER_SHUTDOWN_IDLE = true
+      settings.COMPILE_SERVER_SHUTDOWN_DELAY = 30
+
+      com.intellij.compiler.CompilerTestUtil.saveApplicationComponent(settings)
+    }
+
+    override def revertChange(): Unit = {
+      XmlSerializerUtil.copyBean(settingsBefore, settings)
+      com.intellij.compiler.CompilerTestUtil.saveApplicationComponent(settings)
+    }
   }
 
   def withForcedJdkForBuildProcess(jdk: Sdk): RevertableChange = new RevertableChange {
@@ -74,19 +74,22 @@ object CompilerTestUtil {
       }
   }
 
-  def withCompileServerJdk(sdk: Sdk): RevertableChange = {
-    val settings = compileServerSettings
-    val r1 = RevertableChange.withModifiedSetting[Boolean](
-      settings.USE_DEFAULT_SDK,
-      settings.USE_DEFAULT_SDK = _,
-      false
-    )
-    val r2 = RevertableChange.withModifiedSetting[String](
-      settings.COMPILE_SERVER_SDK,
-      settings.COMPILE_SERVER_SDK = _,
-      sdk.getName
-    )
-    r1 |+| r2
+  def withCompileServerJdk(sdk: Sdk): RevertableChange = new RevertableChange {
+    private var settingsBefore: ScalaCompileServerSettings = _
+    private lazy val settings = compileServerSettings
+
+    override def applyChange(): Unit = {
+      settingsBefore = XmlSerializerUtil.createCopy(settings)
+
+      settings.USE_DEFAULT_SDK = false
+      settings.COMPILE_SERVER_SDK = sdk.getName
+      com.intellij.compiler.CompilerTestUtil.saveApplicationComponent(settings)
+    }
+
+    override def revertChange(): Unit = {
+      XmlSerializerUtil.copyBean(settingsBefore, settings)
+      com.intellij.compiler.CompilerTestUtil.saveApplicationComponent(settings)
+    }
   }
 
   private def withErrorsFromCompiler(project: Project, enabled: Boolean): RevertableChange = {
