@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.refactoring.move.directory
 
+import com.intellij.idea.TestFor
 import com.intellij.openapi.vfs.{VirtualFileEvent, VirtualFileListener, VirtualFileManager}
 import junit.framework.TestCase.assertFalse
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsJUnit4Runner, RunWithScalaVersions, TestScalaVersion}
@@ -17,6 +18,11 @@ import scala.annotation.nowarn
 class ScalaMoveDirectoryWithClassesTest extends ScalaMoveDirectoryWithClassesTestBase {
   @Test
   def testRenamePackage(): Unit = doRenamePackageTest("pack1", "pack1.pack2")
+
+  @Test
+  @TestFor(issues = Array("SCL-24393"))
+  def testRenamePackageInJavaProject(): Unit =
+    doRenamePackageTest("com.something.sub.mypackage", "com.something.mypackage")
 
   @Test
   def testRenamePackageUp(): Unit = doRenamePackageTest("pack1.pack2", "pack1")
