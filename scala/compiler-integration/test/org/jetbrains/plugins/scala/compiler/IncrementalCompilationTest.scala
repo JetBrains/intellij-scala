@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.compiler
 
 import com.intellij.openapi.roots.CompilerModuleExtension
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.VfsTestUtil
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
@@ -19,24 +18,6 @@ import java.nio.file.{Files, Path}
 
 @RunWith(classOf[MultipleScalaVersionsJUnit4Runner])
 @RunWithJdkVersions(Array(TestJdkVersion.JDK_1_8, TestJdkVersion.JDK_11, TestJdkVersion.JDK_17))
-@RunWithScalaVersions(Array(
-  TestScalaVersion.Scala_2_10_6,
-  TestScalaVersion.Scala_2_10,
-  TestScalaVersion.Scala_2_11_0,
-  TestScalaVersion.Scala_2_11,
-  TestScalaVersion.Scala_2_12_0,
-  TestScalaVersion.Scala_2_12,
-  TestScalaVersion.Scala_2_13,
-  TestScalaVersion.Scala_3_0,
-  TestScalaVersion.Scala_3_1,
-  TestScalaVersion.Scala_3_2,
-  TestScalaVersion.Scala_3_3,
-  TestScalaVersion.Scala_3_4,
-  TestScalaVersion.Scala_3_5,
-  TestScalaVersion.Scala_3_6,
-  TestScalaVersion.Scala_3_7,
-  TestScalaVersion.Scala_3_Latest_RC,
-))
 abstract class IncrementalCompilationTestBase(
   override protected val incrementalityType: IncrementalityType,
   override protected val useCompileServer: Boolean
@@ -236,27 +217,105 @@ abstract class IncrementalCompilationTestBase(
   }
 }
 
+// IDEA incremental compiler running in the Scala Compile Server
+
 @Category(Array(classOf[CompilationTests_IDEA]))
-class IncrementalIdeaOnServerCompilationTest
+abstract class IncrementalIdeaOnServerCompilationTest
   extends IncrementalCompilationTestBase(IncrementalityType.IDEA, useCompileServer = true)
+
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_2_10_6,
+  TestScalaVersion.Scala_2_10,
+  TestScalaVersion.Scala_2_11_0,
+  TestScalaVersion.Scala_2_11,
+  TestScalaVersion.Scala_2_12_0
+))
+class IncrementalIdeaOnServerCompilationTest_LegacyScalaVersions extends IncrementalIdeaOnServerCompilationTest
+
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_2_12,
+  TestScalaVersion.Scala_2_13
+))
+class IncrementalIdeaOnServerCompilationTest_Scala_2 extends IncrementalIdeaOnServerCompilationTest
+
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_3_0,
+  TestScalaVersion.Scala_3_1,
+  TestScalaVersion.Scala_3_2
+))
+class IncrementalIdeaOnServerCompilationTest_Scala_3_Pre_LTS extends IncrementalIdeaOnServerCompilationTest
+
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_3_3,
+  TestScalaVersion.Scala_3_Latest_RC
+))
+class IncrementalIdeaOnServerCompilationTest_Scala_3_LTS extends IncrementalIdeaOnServerCompilationTest
+
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_3_4,
+  TestScalaVersion.Scala_3_5,
+  TestScalaVersion.Scala_3_6,
+  TestScalaVersion.Scala_3_7
+))
+class IncrementalIdeaOnServerCompilationTest_Scala_3_Post_LTS extends IncrementalIdeaOnServerCompilationTest
 
 @Category(Array(classOf[CompilationTests_IDEA]))
 @RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Next_RC))
 @RunWithJdkVersions(Array(TestJdkVersion.JDK_17))
 class IncrementalIdeaOnServerCompilationTest_Scala_3_Next_RC extends IncrementalIdeaOnServerCompilationTest
 
+// IDEA incremental compiler running in the JPS build process
+
 @Category(Array(classOf[CompilationTests_IDEA]))
 @RunWithJdkVersions(Array(TestJdkVersion.JDK_17))
-class IncrementalIdeaCompilationTest
+abstract class IncrementalIdeaCompilationTest
   extends IncrementalCompilationTestBase(IncrementalityType.IDEA, useCompileServer = false)
+
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_2_10_6,
+  TestScalaVersion.Scala_2_10,
+  TestScalaVersion.Scala_2_11_0,
+  TestScalaVersion.Scala_2_11,
+  TestScalaVersion.Scala_2_12_0
+))
+class IncrementalIdeaCompilationTest_LegacyScalaVersions extends IncrementalIdeaCompilationTest
+
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_2_12,
+  TestScalaVersion.Scala_2_13
+))
+class IncrementalIdeaCompilationTest_Scala_2 extends IncrementalIdeaCompilationTest
+
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_3_0,
+  TestScalaVersion.Scala_3_1,
+  TestScalaVersion.Scala_3_2
+))
+class IncrementalIdeaCompilationTest_Scala_3_Pre_LTS extends IncrementalIdeaCompilationTest
+
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_3_3,
+  TestScalaVersion.Scala_3_Latest_RC
+))
+class IncrementalIdeaCompilationTest_Scala_3_LTS extends IncrementalIdeaCompilationTest
+
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_3_4,
+  TestScalaVersion.Scala_3_5,
+  TestScalaVersion.Scala_3_6,
+  TestScalaVersion.Scala_3_7
+))
+class IncrementalIdeaCompilationTest_Scala_3_Post_LTS extends IncrementalIdeaCompilationTest
 
 @Category(Array(classOf[CompilationTests_IDEA]))
 @RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Next_RC))
 @RunWithJdkVersions(Array(TestJdkVersion.JDK_17))
 class IncrementalIdeaCompilationTest_Scala_3_Next_RC extends IncrementalIdeaCompilationTest
 
+// SBT incremental compiler running in the Scala Compile Server
+
 @Category(Array(classOf[CompilationTests_Zinc]))
-class IncrementalSbtOnServerCompilationTest
+abstract class IncrementalSbtOnServerCompilationTest
   extends IncrementalCompilationTestBase(IncrementalityType.SBT, useCompileServer = true) {
 
   @Test
@@ -303,18 +362,92 @@ class IncrementalSbtOnServerCompilationTest
   }
 }
 
-@Category(Array(classOf[CompilationTests_Zinc]))
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_2_10_6,
+  TestScalaVersion.Scala_2_10,
+  TestScalaVersion.Scala_2_11_0,
+  TestScalaVersion.Scala_2_11,
+  TestScalaVersion.Scala_2_12_0
+))
+class IncrementalSbtOnServerCompilationTest_LegacyScalaVersions extends IncrementalSbtOnServerCompilationTest
+
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_2_12,
+  TestScalaVersion.Scala_2_13
+))
+class IncrementalSbtOnServerCompilationTest_Scala_2 extends IncrementalSbtOnServerCompilationTest
+
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_3_0,
+  TestScalaVersion.Scala_3_1,
+  TestScalaVersion.Scala_3_2
+))
+class IncrementalSbtOnServerCompilationTest_Scala_3_Pre_LTS extends IncrementalSbtOnServerCompilationTest
+
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_3_3,
+  TestScalaVersion.Scala_3_Latest_RC
+))
+class IncrementalSbtOnServerCompilationTest_Scala_3_LTS extends IncrementalSbtOnServerCompilationTest
+
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_3_4,
+  TestScalaVersion.Scala_3_5,
+  TestScalaVersion.Scala_3_6,
+  TestScalaVersion.Scala_3_7
+))
+class IncrementalSbtOnServerCompilationTest_Scala_3_Post_LTS extends IncrementalSbtOnServerCompilationTest
+
+@Category(Array(classOf[CompilationTests_IDEA]))
 @RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Next_RC))
 @RunWithJdkVersions(Array(TestJdkVersion.JDK_17))
 class IncrementalSbtOnServerCompilationTest_Scala_3_Next_RC extends IncrementalSbtOnServerCompilationTest
 
+// SBT incremental compiler running in the JPS build process
+
 @Category(Array(classOf[CompilationTests_Zinc]))
 @RunWithJdkVersions(Array(TestJdkVersion.JDK_17))
-class IncrementalSbtCompilationTest extends IncrementalSbtOnServerCompilationTest {
+abstract class IncrementalSbtCompilationTest extends IncrementalSbtOnServerCompilationTest {
   override protected val useCompileServer: Boolean = false
 }
 
-@Category(Array(classOf[CompilationTests_Zinc]))
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_2_10_6,
+  TestScalaVersion.Scala_2_10,
+  TestScalaVersion.Scala_2_11_0,
+  TestScalaVersion.Scala_2_11,
+  TestScalaVersion.Scala_2_12_0
+))
+class IncrementalSbtCompilationTest_LegacyScalaVersions extends IncrementalSbtCompilationTest
+
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_2_12,
+  TestScalaVersion.Scala_2_13
+))
+class IncrementalSbtCompilationTest_Scala_2 extends IncrementalSbtCompilationTest
+
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_3_0,
+  TestScalaVersion.Scala_3_1,
+  TestScalaVersion.Scala_3_2
+))
+class IncrementalSbtCompilationTest_Scala_3_Pre_LTS extends IncrementalSbtCompilationTest
+
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_3_3,
+  TestScalaVersion.Scala_3_Latest_RC
+))
+class IncrementalSbtCompilationTest_Scala_3_LTS extends IncrementalSbtCompilationTest
+
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_3_4,
+  TestScalaVersion.Scala_3_5,
+  TestScalaVersion.Scala_3_6,
+  TestScalaVersion.Scala_3_7
+))
+class IncrementalSbtCompilationTest_Scala_3_Post_LTS extends IncrementalSbtCompilationTest
+
+@Category(Array(classOf[CompilationTests_IDEA]))
 @RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Next_RC))
 @RunWithJdkVersions(Array(TestJdkVersion.JDK_17))
-class IncrementalSbtCompilationTest_Scala_Next_RC extends IncrementalSbtCompilationTest
+class IncrementalSbtCompilationTest_Scala_3_Next_RC extends IncrementalSbtCompilationTest
