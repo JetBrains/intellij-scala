@@ -41,9 +41,9 @@ final class ScClsFileViewProvider(
 
   private def sourceName: String = decompilationResult.sourceName
 
-  override def getContents: String = decompilationResult.sourceText._1
+  override def getContents: String = decompilationResult.sourceText
 
-  private def compilerOptions: CompilerOptions = decompilationResult.sourceText._2
+  private def compilerOptions: CompilerOptions = decompilationResult.compilerOptions
 
   override def createFile(
     project: Project,
