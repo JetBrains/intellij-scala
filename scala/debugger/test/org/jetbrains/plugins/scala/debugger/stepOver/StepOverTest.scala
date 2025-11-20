@@ -105,6 +105,10 @@ class StepOverTest_3_RC extends StepOverTest_3 {
 
 class StepOverTest_3_Next_RC extends StepOverTest_3 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_Next_RC
+
+  override def testAccessorInDelayedInit(): Unit = {
+    stepOverTest()(1, 2, 3, 4, 0)
+  }
 }
 
 abstract class StepOverTest extends ScalaDebuggerTestCase {
