@@ -303,9 +303,9 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
   }
 
   /**
-   * If method resolves to synthetic copy/apply method of an enum case,
+   * If a method resolves to synthetic copy/apply method of an enum case,
    * widen its return type to the underlying type as long as it is
-   * compatible with expected type.
+   * compatible with the expected type.
    */
   private def widenEnumCaseCopyOrApplyMethod(
     tpe:       ScType,
@@ -337,14 +337,17 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
 
     if (fromMacroExpansion.isDefined) return fromMacroExpansion
 
-    def resolveResultIsPostfixOrPrefixFunction = maybeResolveResult.exists {
+    def resolveResultIsPostfixPrefixOrEmptyParenFunction = maybeResolveResult.exists {
       rr =>
         val e = rr.element
 
         def isFun             = e.isInstanceOf[ScFun] || e.is[ScFunction]
         def isPostfixOrPrefix = isInstanceOf[ScPrefixExpr] || isInstanceOf[ScPostfixExpr]
 
-        isFun && isPostfixOrPrefix
+        isFun && isPostfixOrPrefix || {
+          val fn = e.asOptionOf[ScFunction].filterNot(_.name == CommonNames.Apply)
+          fn.exists(_.hasEmptyParenSuperMethod)
+        }
     }
 
     val maybeTuple = invokedNonValueType match {
@@ -352,9 +355,9 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
         Option((returnType, parameters, Option(pTpe)))
       case pTpe @ ScTypePolymorphicType(FunctionTypeParameters(returnType, parameters), _) =>
         Option((returnType, parameters, Option(pTpe)))
-      case ScMethodType(returnType, parameters, _)      => Option((returnType, parameters, None))
-      case ty if resolveResultIsPostfixOrPrefixFunction => Option((ty, Seq.empty, None))
-      case _ => None
+      case ScMethodType(returnType, parameters, _)                => Option((returnType, parameters, None))
+      case ty if resolveResultIsPostfixPrefixOrEmptyParenFunction => Option((ty, Seq.empty, None))
+      case _                                                      => None
     }
 
     maybeTuple.map {

@@ -9,7 +9,7 @@ import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.highlightImplicitView
 import org.jetbrains.plugins.scala.annotator.createFromUsage._
-import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
+import org.jetbrains.plugins.scala.annotator.quickfix.{AddCallParenthesesQuickFix, ReportHighlightingErrorQuickFix}
 import org.jetbrains.plugins.scala.annotator.{ScalaAnnotationHolder, UnresolvedReferenceFixProvider}
 import org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.codeInspection.varCouldBeValInspection.ValToVarQuickFix
@@ -39,7 +39,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocResolvableCodeRef
 // TODO unify with ScMethodInvocationAnnotator and ScConstructorInvocationAnnotator
 object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
 
-  //By default unresolved scaladoc links are marked as Warnings, which wont be detected in project highlighting tests
+  //By default, unresolved scaladoc links are marked as Warnings, which won't be detected in project highlighting tests
   //This flag allows us to automatically test ScalaDoc links resolution during project highlights tests
   @TestOnly var HighlightUnresolvedScalaDocLinksAsErrors = false
 
@@ -108,21 +108,29 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
               case _: ScGenericCall =>
               case _: MethodInvocation =>
               case _ if !reference.is[ScInterpolatedPatternPrefix] =>
-                // TODO: In Scala 3 many of the reported problems here are wrong.
-                //       But missing empty argument lists are not reported at all.
-                //       We already disabled ParameterlessAccessInspection.EmptyParenMethod for Scala 3 because
-                //       it's not really a simple code style problem but a full fledged compiler error,
-                //       that should (?) be listed in the list of problems here.
-                //       When that has been implemented it should get a custom error message alá "Missing empty argument list"
-                //       and offer the quickfix AddCallParenthesesQuickFix, that we already refactored out of ParameterlessAccessInspection.
-                //       See SCL-22178 and SCL-22179
                 r.problems.foreach {
                   case MissedParametersClause(_) =>
-                    holder.createErrorAnnotation(
-                      reference,
-                      ScalaBundle.message("annotator.error.missing.arguments.for.method", nameWithSignature(f)),
-                      createFixesByUsages(reference)
-                    )
+                    val hasSingleEmptyNonImplicitClause =
+                      f match {
+                        case fn: ScFunction =>
+                          val nonImplicitClauses = fn.effectiveParameterClauses.filterNot(_.isImplicit)
+                          nonImplicitClauses.size == 1 && nonImplicitClauses.head.parameters.isEmpty
+                        case _ => false
+                      }
+
+                    if (hasSingleEmptyNonImplicitClause) {
+                      holder.createErrorAnnotation(
+                        reference.nameId,
+                        ScalaBundle.message("method.must.be.called.with.empty.arg.clause", reference.refName),
+                        new AddCallParenthesesQuickFix(reference)
+                      )
+                    } else {
+                      holder.createErrorAnnotation(
+                        reference,
+                        ScalaBundle.message("annotator.error.missing.arguments.for.method", nameWithSignature(f)),
+                        createFixesByUsages(reference)
+                      )
+                    }
                   case _ =>
                 }
               case _ =>

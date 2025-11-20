@@ -160,6 +160,8 @@ trait OverridingAnnotator {
     import quickfix.ModifierQuickFix._
 
     val memberNameId = namedElement.nameId
+    val isInScala3   = namedElement.isInScala3File
+
     if (superSignaturesWithSelfType.isEmpty) {
       if (member.hasModifierProperty(OVERRIDE)) {
         holder.createErrorAnnotation(
@@ -342,12 +344,12 @@ trait OverridingAnnotator {
 
         actualType.conforms(actualBase) || ((actualBase, actualType, namedElement) match {
           /* 5.1.3.3 M defines a parameterless method and M′ defines a method with an empty parameter list () or vice versa. */
-          case (ParameterizedType(des, args), _, _: ScFunction) if des.canonicalText == "_root_.scala.Function0" =>
+          case (ParameterizedType(des, args), _, _: ScFunction) if des.canonicalText == "_root_.scala.Function0" && !isInScala3 =>
             actualType.conforms(args.head)
           case (aType, ParameterizedType(des, args), _: ScFunction) if des.canonicalText == "_root_.scala.Function0" =>
             aType.conforms(args.head)
           case (ParameterizedType(des, args), _, patOrClassParam) =>
-            if (des.canonicalText == "_root_.scala.Function0" && allowEmptyParens(patOrClassParam))
+            if (des.canonicalText == "_root_.scala.Function0" && allowEmptyParens(patOrClassParam) && !isInScala3)
               actualType.conforms(args.head)
             // @BeanProperty setter SCL-14462
             else if (des.canonicalText == "_root_.scala.Function1" && isBeanProperty(patOrClassParam))
