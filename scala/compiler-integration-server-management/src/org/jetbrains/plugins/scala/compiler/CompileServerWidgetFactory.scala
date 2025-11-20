@@ -25,6 +25,8 @@ private final class CompileServerWidgetFactory extends StatusBarWidgetFactory {
     canBeEnabled(project)
   }
 
+  override def isEnabledByDefault: Boolean = false
+
   private def canBeEnabled(project: Project): Boolean =
     ScalaCompileServerSettings.getInstance().COMPILE_SERVER_ENABLED && project.hasScala
 }
