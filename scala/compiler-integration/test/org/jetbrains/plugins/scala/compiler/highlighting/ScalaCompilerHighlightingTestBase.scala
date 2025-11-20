@@ -79,7 +79,7 @@ abstract class ScalaCompilerHighlightingTestBase
                             expectedResult: ExpectedResult): Unit = {
     @tailrec
     def rec(attemptsLeft: Int): Unit = {
-      Thread.sleep(3_000)
+      Thread.sleep(500)
       val actualResult = fetchHighlightInfos(virtualFile)
       try {
         assertThat(actualResult, expectedResult)
@@ -92,7 +92,7 @@ abstract class ScalaCompilerHighlightingTestBase
           }
       }
     }
-    rec(20)
+    rec(120)
   }
 
   protected def fetchHighlightInfos(virtualFile: VirtualFile): Seq[HighlightInfo] = invokeAndWait {
