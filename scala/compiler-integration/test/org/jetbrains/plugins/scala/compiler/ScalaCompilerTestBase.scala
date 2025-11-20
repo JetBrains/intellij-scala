@@ -12,6 +12,7 @@ import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework._
 import org.jetbrains.plugins.scala.DependencyManagerBase.MavenResolver
 import org.jetbrains.plugins.scala.base.SourceRootTestUtil
+import org.jetbrains.plugins.scala.util.CompilerTestUtil.{applyEnabledCompileServerSettings, withModifiedCompileServerSettings}
 
 import java.nio.file.{Files, Path}
 //noinspection ApiStatus
@@ -47,11 +48,13 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
   override def setUpProject(): Unit = {
     super.setUpProject()
 
-    val revertable =
-      CompilerTestUtil.withEnabledCompileServer(useCompileServer) |+|
-        CompilerTestUtil.withCompileServerJdk(compileServerJdk) |+|
-        CompilerTestUtil.withForcedJdkForBuildProcess(buildProcessJdk) |+|
-        RevertableChange.withApplicationSettingsSaving
+    val modifiedCompileServerSettings = withModifiedCompileServerSettings { settings =>
+      applyEnabledCompileServerSettings(settings, useCompileServer)
+      // required for setting up the compile server JDK
+      settings.USE_DEFAULT_SDK = false
+      settings.COMPILE_SERVER_SDK = compileServerJdk.getName
+    }
+    val revertable = modifiedCompileServerSettings |+| CompilerTestUtil.withForcedJdkForBuildProcess(buildProcessJdk)
     revertable.applyChange(getTestRootDisposable)
 
     // uncomment to enable debugging of compile server in tests
