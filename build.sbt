@@ -560,12 +560,21 @@ lazy val repackagedZinc =
 lazy val compilerShared =
   newPlainScalaProject("compiler-shared", file("scala/compiler-shared"))
     .dependsOn(scalaLanguageUtilsRt)
+    .enablePlugins(BuildInfoPlugin)
     .withJpsSharedClasspath
     .settings(
       scalaVersion := Versions.scala3Version,
       (Compile / javacOptions) := outOfIDEAProcessJavacOptions,
       (Compile / scalacOptions) := outOfIDEAProcessScala3ScalacOptions,
       packageMethod := PackagingMethod.Standalone("lib/compiler-shared.jar", static = true)
+    )
+    .settings(
+      buildInfoPackage := "org.jetbrains.plugins.scala.compiler.buildinfo",
+      buildInfoKeys := Seq(
+        "sbtVersion" -> Versions.sbtVersion,
+        "zincVersion" -> Versions.zincVersion
+      ),
+      buildInfoOptions += BuildInfoOption.ConstantValue
     )
 
 lazy val jps =
