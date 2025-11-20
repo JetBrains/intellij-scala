@@ -67,6 +67,8 @@ private object ScalaLanguageSubstitutor {
     val end = path.indexOf("-sources.jar!/")
     if (end == -1)
       return false
+    if (path.contains("scala-library-3.8.")) // TODO Generalize, SCL-18956
+      return true
     val suffixIdx = path.lastIndexOf(Scala3LibNameSuffix, end)
     if (suffixIdx == -1)
       return false
