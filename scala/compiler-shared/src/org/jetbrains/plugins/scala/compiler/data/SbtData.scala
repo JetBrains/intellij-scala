@@ -1,12 +1,6 @@
 package org.jetbrains.plugins.scala.compiler.data
 
-import org.jetbrains.plugins.scala.util.JarManifestUtils
-
 import java.nio.file.{Files, Path, Paths}
-import java.security.MessageDigest
-import scala.io.Source
-import scala.util.Using
-import scala.util.control.NonFatal
 
 case class SbtData(sbtInterfaceJar: Path,
                    compilerInterfaceJar: Path,
@@ -95,51 +89,10 @@ object SbtData {
     for {
       sbtHome <- Either.cond(Files.exists(pluginJpsRoot), pluginJpsRoot, "Scala plugin jps directory does not exist: " + pluginJpsRoot)
       Jars(sbtInterfaceJar, compilerInterfaceJar, compilerBridges) = Jars.fromPluginJpsDirectory(sbtHome)
-      sbtVersion <- readSbtVersionFrom(sbtInterfaceJar)
     } yield {
-      val checksum = encodeHex(md5(compilerBridges.scala._2_10))
-      val interfacesHome = compilerInterfacesDir(systemRootDir).resolve(sbtVersion + "-idea-" + checksum)
+      import org.jetbrains.plugins.scala.compiler.buildinfo.BuildInfo.{sbtVersion, zincVersion}
+      val directoryName = s"scala-compiler-bridges_${sbtVersion}_$zincVersion"
+      val interfacesHome = compilerInterfacesDir(systemRootDir).resolve(directoryName)
       SbtData(sbtInterfaceJar, compilerInterfaceJar, compilerBridges, interfacesHome, javaClassVersion)
     }
-
-  private def readSbtVersionFrom(sbtInterfaceJar: Path): Either[String, String] = {
-    val attributeName = "Implementation-Version"
-    try {
-      JarManifestUtils.readManifestAttribute(sbtInterfaceJar, attributeName) match {
-        case Some(version) => Right(version)
-        case None => Left(s"Unable to read attribute '$attributeName' from jar manifest, attribute missing")
-      }
-    } catch {
-      case NonFatal(t) => Left(s"Unable to read sbt version from JVM classpath:\n$t")
-    }
-  }
-
-  private def md5(file: Path): Array[Byte] = {
-    val md = MessageDigest.getInstance("MD5")
-    val fileName = file.getFileName.toString
-    val isSource = fileName.endsWith(".java") || fileName.endsWith(".scala")
-    if (isSource) {
-      Using.resource(Source.fromInputStream(Files.newInputStream(file), "UTF-8")) { source =>
-        val text = source.mkString.replace("\r", "")
-        md.digest(text.getBytes("UTF8"))
-      }
-    } else {
-      val bytes = Files.readAllBytes(file)
-      md.digest(bytes)
-    }
-  }
-
-  private val HexChars = Array('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F')
-
-  private def encodeHex(bytes: Array[Byte]): String = {
-    val out = new StringBuilder(bytes.length * 2)
-    var i = 0
-    while (i < bytes.length) {
-      val b = bytes(i)
-      out.append(HexChars((b >> 4) & 0xF))
-      out.append(HexChars(b & 0xF))
-      i += 1
-    }
-    out.toString()
-  }
 }
