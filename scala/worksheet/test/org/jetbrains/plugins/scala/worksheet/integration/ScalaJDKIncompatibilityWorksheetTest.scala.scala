@@ -63,8 +63,7 @@ class WorksheetPlain_Scala3_3_0 extends ScalaJdkCompatibilityWorksheetPlainBase
 
 @RunWithScalaVersions(Array(TestScalaVersion.Scala_3_8))
 @RunWithJdkVersions(Array(TestJdkVersion.JDK_1_8, TestJdkVersion.JDK_11))
-class WorksheetPlain_Scala3_8_Nightly extends ScalaJdkCompatibilityWorksheetPlainBase {
-  override protected def useDependencyManagerWithNightlies = true
+class WorksheetPlain_Scala3_8 extends ScalaJdkCompatibilityWorksheetPlainBase {
   override protected def validateErrorInViewerText = true
 }
 
@@ -78,6 +77,4 @@ class WorksheetRepl_Scala3_3_0 extends ScalaJdkCompatibilityWorksheetReplBase
 
 @RunWithScalaVersions(Array(TestScalaVersion.Scala_3_8))
 @RunWithJdkVersions(Array(TestJdkVersion.JDK_1_8, TestJdkVersion.JDK_11))
-class WorksheetRepl_Scala3_8_Nightly extends ScalaJdkCompatibilityWorksheetReplBase {
-  override protected def useDependencyManagerWithNightlies = true
-}
+class WorksheetRepl_Scala3_8 extends ScalaJdkCompatibilityWorksheetReplBase
