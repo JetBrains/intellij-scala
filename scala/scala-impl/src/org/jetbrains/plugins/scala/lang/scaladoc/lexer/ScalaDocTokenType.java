@@ -62,9 +62,9 @@ public interface ScalaDocTokenType {
   IElementType DOC_AUTOLINK = new ScalaDocElementType("DOC_AUTOLINK");
   IElementType DOC_HORIZONTAL_RULE = new ScalaDocElementType("DOC_HORIZONTAL_RULE");
   IElementType DOC_HTML_TAG = new ScalaDocElementType("DOC_HTML_TAG");
-  IElementType DOC_LEFT_BRACKET = new ScalaDocElementType("[");
-  IElementType DOC_RIGHT_BRACKET = new ScalaDocElementType("]");
-  IElementType DOC_MD_ASTERISKS = new ScalaDocElementType("*");
+  IElementType DOC_LEFT_BRACKET = new ScalaDocElementType("DOC_LEFT_BRACKET");
+  IElementType DOC_RIGHT_BRACKET = new ScalaDocElementType("DOC_RIGHT_BRACKET");
+  IElementType DOC_MD_ASTERISKS = new ScalaDocElementType("DOC_MD_ASTERISKS");
 
   IElementType DOC_COMMENT_BAD_CHARACTER = new ScalaDocElementType("DOC_COMMENT_BAD_CHARACTER");
 
