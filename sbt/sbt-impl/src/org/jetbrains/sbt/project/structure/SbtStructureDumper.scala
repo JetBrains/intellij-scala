@@ -2,13 +2,11 @@ package org.jetbrains.sbt.project.structure
 
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
-import com.intellij.platform.eel.provider.utils.EelPathUtils
-import com.intellij.platform.eel.provider.utils.EelPathUtils.TransferTarget
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}
 import org.jetbrains.sbt.process.{ProcessOutputCollector, SbtRunner}
 import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication}
-import org.jetbrains.sbt.{SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabilities, asLocalPath, eelDescriptor}
+import org.jetbrains.sbt.{SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabilities, asLocalPath}
 
 import java.nio.file.Path
 import java.util.UUID
@@ -111,12 +109,7 @@ object SbtStructureDumper:
       ).mkString(s"set $SeqFqn(", ",", ")")
 
       val maybePreferScala2Command = if (preferScala2) "preferScala2" else ""
-
-      //noinspection ApiStatus,UnstableApiUsage
-      val transferredSbtStructureJar =
-        EelPathUtils.transferLocalContentToRemote(sbtStructureJar, TransferTarget.Temporary(directory.eelDescriptor))
-
-      val applyStateTransformersCommand = s"""apply -cp "${transferredSbtStructureJar.asLocalPath}" "org.jetbrains.sbt.CreateTasks" "sbt.jetbrains.LogDownloadArtifacts""""
+      val applyStateTransformersCommand = s"""apply -cp "${SbtUtil.normalizePath(sbtStructureJar)}" "org.jetbrains.sbt.CreateTasks" "sbt.jetbrains.LogDownloadArtifacts""""
 
       val sbtCommandsString = buildSbtCompositeCommand(Seq(
         setCommands,
