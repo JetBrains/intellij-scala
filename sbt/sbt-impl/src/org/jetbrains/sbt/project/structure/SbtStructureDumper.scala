@@ -2,7 +2,6 @@ package org.jetbrains.sbt.project.structure
 
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.io.FileUtil
 import com.intellij.platform.eel.provider.utils.EelPathUtils
 import com.intellij.platform.eel.provider.utils.EelPathUtils.TransferTarget
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
@@ -46,7 +45,7 @@ object SbtStructureDumper:
         s"""${scopedSbtSetting("_root_.org.jetbrains.sbt.StructureKeys.sbtStructureOptions", "_root_.sbt.Global", sbtVersion)} := $optionsString""",
         s"""${scopedSbtSetting("_root_.org.jetbrains.sbt.StructureKeys.generateManagedSourcesDuringStructureDump", "_root_.sbt.Global", sbtVersion)} := $generateManagedSources"""
       ).mkString(s"set $SeqFqn(", ",", ")")
-      val dumpStructureToCommand = s"${SbtUtil.sbtStructureGlobalCommand("dumpStructureTo", sbtVersion)} ${normalizedLocalPath(structureFile)}"
+      val dumpStructureToCommand = s"${SbtUtil.sbtStructureGlobalCommand("dumpStructureTo", sbtVersion)} ${structureFile.asLocalPath}"
 
       // SCL-22858 compiler bytecode indices are disabled in sbt shell
       val ideaPortSetting = ""
@@ -110,7 +109,7 @@ object SbtStructureDumper:
       val setCommands = Seq(
         """historyPath := None""",
         s"""shellPrompt := { _ => "" }""",
-        s"""${scopedSbtSetting("""SettingKey[_root_.scala.Option[_root_.sbt.File]]("sbtStructureOutputFile")""", "_root_.sbt.Global", sbtVersion)} := _root_.scala.Some(_root_.sbt.file("${normalizedLocalPath(transferredStructureFile)}"))""",
+        s"""${scopedSbtSetting("""SettingKey[_root_.scala.Option[_root_.sbt.File]]("sbtStructureOutputFile")""", "_root_.sbt.Global", sbtVersion)} := _root_.scala.Some(_root_.sbt.file("${transferredStructureFile.asLocalPath}"))""",
         s"""${scopedSbtSetting("""SettingKey[_root_.java.lang.String]("sbtStructureOptions")""", "_root_.sbt.Global", sbtVersion)} := $optString""",
         s"""${scopedSbtSetting("""SettingKey[_root_.scala.Boolean]("generateManagedSourcesDuringStructureDump")""", "_root_.sbt.Global", sbtVersion)} := $generateManagedSources"""
       ).mkString(s"set $SeqFqn(", ",", ")")
@@ -120,7 +119,7 @@ object SbtStructureDumper:
       val transferredSbtStructureJar =
         EelPathUtils.transferLocalContentToRemote(sbtStructureJar, TransferTarget.Temporary(directory.eelDescriptor))
 
-      val applyStateTransformersCommand = s"""apply -cp "${normalizedLocalPath(transferredSbtStructureJar)}" "org.jetbrains.sbt.CreateTasks" "sbt.jetbrains.LogDownloadArtifacts""""
+      val applyStateTransformersCommand = s"""apply -cp "${transferredSbtStructureJar.asLocalPath}" "org.jetbrains.sbt.CreateTasks" "sbt.jetbrains.LogDownloadArtifacts""""
 
       val sbtCommandsString = buildSbtCompositeCommand(Seq(
         setCommands,
@@ -146,7 +145,6 @@ object SbtStructureDumper:
       copyFileContentsIfNeeded(transferredStructureFile, structureFile)
 
       buildMessages
-    end dumpFromProcess
 
     private def copyFileContentsIfNeeded(remotePath: Path, localPath: Path): Unit =
       import java.io.PrintWriter
@@ -160,9 +158,6 @@ object SbtStructureDumper:
             reader.lines().forEach(writer.println(_))
 
   end FromProcess
-
-  private def normalizedLocalPath(path: Path): String =
-    FileUtil.toSystemIndependentName(path.asLocalPath)
 
   private def buildSbtCompositeCommand(commands: Seq[String]): String =
     commands.filter(_.nonEmpty).mkString(";", ";", "")
