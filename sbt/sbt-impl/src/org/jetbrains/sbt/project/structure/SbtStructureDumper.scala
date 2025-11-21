@@ -10,7 +10,7 @@ import org.jetbrains.sbt.process.{ProcessOutputCollector, SbtRunner}
 import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication}
 import org.jetbrains.sbt.{SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabilities, asLocalPath, eelDescriptor}
 
-import java.nio.file.{Files, Path}
+import java.nio.file.Path
 import java.util.UUID
 import scala.concurrent.Future
 import scala.util.Try
@@ -82,7 +82,6 @@ object SbtStructureDumper:
 
     override def cancel(): Unit = runner.cancel()
 
-    //noinspection ApiStatus,UnstableApiUsage
     def dumpFromProcess(
       indicator: ProgressIndicator,
       directory: Path,
@@ -102,20 +101,18 @@ object SbtStructureDumper:
 
       val sbtVersion = SbtUtil.detectSbtVersion(directory, sbtLauncher)
 
-      val transferredStructureFile =
-        EelPathUtils.transferLocalContentToRemote(structureFile, TransferTarget.Temporary(directory.eelDescriptor))
-
       val SeqFqn = SbtVersionCapabilities.collectionsSeqClassFqn(sbtVersion)
       val setCommands = Seq(
         """historyPath := None""",
         s"""shellPrompt := { _ => "" }""",
-        s"""${scopedSbtSetting("""SettingKey[_root_.scala.Option[_root_.sbt.File]]("sbtStructureOutputFile")""", "_root_.sbt.Global", sbtVersion)} := _root_.scala.Some(_root_.sbt.file("${transferredStructureFile.asLocalPath}"))""",
+        s"""${scopedSbtSetting("""SettingKey[_root_.scala.Option[_root_.sbt.File]]("sbtStructureOutputFile")""", "_root_.sbt.Global", sbtVersion)} := _root_.scala.Some(_root_.sbt.file("${structureFile.asLocalPath}"))""",
         s"""${scopedSbtSetting("""SettingKey[_root_.java.lang.String]("sbtStructureOptions")""", "_root_.sbt.Global", sbtVersion)} := $optString""",
         s"""${scopedSbtSetting("""SettingKey[_root_.scala.Boolean]("generateManagedSourcesDuringStructureDump")""", "_root_.sbt.Global", sbtVersion)} := $generateManagedSources"""
       ).mkString(s"set $SeqFqn(", ",", ")")
 
       val maybePreferScala2Command = if (preferScala2) "preferScala2" else ""
 
+      //noinspection ApiStatus,UnstableApiUsage
       val transferredSbtStructureJar =
         EelPathUtils.transferLocalContentToRemote(sbtStructureJar, TransferTarget.Temporary(directory.eelDescriptor))
 
@@ -128,7 +125,7 @@ object SbtStructureDumper:
         SbtUtil.sbtStructureGlobalCommand("dumpStructure", sbtVersion)
       ))
 
-      val buildMessages = runner.runSbt(
+      runner.runSbt(
         indicator,
         directory,
         vmExecutable,
@@ -141,11 +138,6 @@ object SbtStructureDumper:
         SbtBundle.message("sbt.extracting.project.structure.from.sbt"),
         passParentEnvironment
       )
-
-      if structureFile != transferredStructureFile then
-        Files.copy(transferredSbtStructureJar, structureFile)
-
-      buildMessages
 
   end FromProcess
 
