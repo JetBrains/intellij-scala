@@ -67,7 +67,7 @@ private object ScalaLanguageSubstitutor {
     val end = path.indexOf("-sources.jar!/")
     if (end == -1)
       return false
-    if (path.contains("scala-library-3.8.")) // TODO Generalize, SCL-18956
+    if (ScalaLibrary_3_8_plus.findFirstIn(path).isDefined) // TODO Generalize, SCL-18956
       return true
     val suffixIdx = path.lastIndexOf(Scala3LibNameSuffix, end)
     if (suffixIdx == -1)
@@ -99,4 +99,6 @@ private object ScalaLanguageSubstitutor {
    */
   private val SemVerSimplifiedRegex: Regex =
     raw"\d+\.\d+(\.\d+)?(?:-[\w\d-]+(\.[\w\d-]+)*)?(?:\+[\w\d-]+(\.[\w\d-]+)*)?".r
+
+  private val ScalaLibrary_3_8_plus: Regex = raw"scala-library-3\.(?:[89]|\d{2,})\.\d+".r
 }
