@@ -25,16 +25,15 @@ import org.jetbrains.plugins.scala.project.{ReplClasspath, Version}
 import org.jetbrains.plugins.scala.project.external.{JdkByHome, JdkByName, ScalaSdkUtils, SdkReference}
 import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
 import org.jetbrains.sbt.SbtUtil.*
-import org.jetbrains.sbt.process.ProcessOutputCollector.PrintProcessOutputOnFailurePropertyName
-import org.jetbrains.sbt.process.SbtRunner
 import org.jetbrains.sbt.project.SbtProjectResolver.*
 import org.jetbrains.sbt.project.SbtProjectResolver.ImportContext.given
 import org.jetbrains.sbt.project.data.*
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.project.settings.*
+import org.jetbrains.sbt.project.structure.SbtStructureDump.PrintProcessOutputOnFailurePropertyName
 import org.jetbrains.sbt.project.structure.data.*
 import org.jetbrains.sbt.project.structure.data.XmlDeserializer.deserialize
-import org.jetbrains.sbt.project.structure.{Play2OldStructureAdapter, SbtStructureDumper, data as sbtStructure}
+import org.jetbrains.sbt.project.structure.{Play2OldStructureAdapter, SbtStructureDump, data as sbtStructure}
 import org.jetbrains.sbt.resolvers.{SbtIvyResolver, SbtMavenResolver, SbtResolver}
 import org.jetbrains.sbt.{RichBoolean, Sbt, SbtBundle, SbtUtil, SbtVersion, usingTempFile}
 
@@ -56,7 +55,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
   private val log = Logger.getInstance(getClass)
 
-  @volatile private var activeProcessDumper: Option[SbtStructureDumper] = None
+  @volatile private var activeProcessDumper: Option[SbtStructureDump] = None
 
   override def resolveProjectInfo(
     taskId: ExternalSystemTaskId,
@@ -176,60 +175,58 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val options = getSbtStructureDumpOptions(settings)
 
     def doDumpStructure(structureFile: Path): Try[(Elem, BuildMessages)] = {
-      val dumper =
-        if useShellImport then SbtStructureDumper.FromShell()
-        else SbtStructureDumper.FromProcess()
+      val structureFilePath = normalizePath(structureFile)
 
+      val dumper = new SbtStructureDump()
       activeProcessDumper = Option(dumper)
 
       val messageResult: Try[BuildMessages] = {
-        dumper match {
-          case sd: SbtStructureDumper.FromShell =>
-            val messagesF = sd.dumpFromShell(
-              project,
-              sbtVersion,
-              structureFile,
-              options,
-              reporter,
-              settings.preferScala2,
-              settings.generateManagedSourcesDuringProjectSync
-            )
-            Try {
-              val testTimeout =
-                if (isUnitTestMode) SbtRunner.MaxImportDurationInUnitTests
-                else Duration.Inf // TODO some kind of timeout / cancel mechanism
+        if (useShellImport) {
+          val messagesF = dumper.dumpFromShell(
+            project,
+            sbtVersion,
+            structureFilePath,
+            options,
+            reporter,
+            settings.preferScala2,
+            settings.generateManagedSourcesDuringProjectSync
+          )
+          Try {
+            val testTimeout =
+              if (isUnitTestMode) SbtStructureDump.MaxImportDurationInUnitTests
+              else Duration.Inf // TODO some kind of timeout / cancel mechanism
 
-              try Await.result(messagesF, testTimeout)
-              catch {
-                case _: TimeoutException if isUnitTestMode =>
-                  throw new TimeoutException(s"sbt-shell import hasn't finished in ${SbtRunner.MaxImportDurationInUnitTests}")
-              }
+            try Await.result(messagesF, testTimeout)
+            catch {
+              case _: TimeoutException if isUnitTestMode =>
+                throw new TimeoutException(s"sbt-shell import hasn't finished in ${SbtStructureDump.MaxImportDurationInUnitTests}")
             }
+          }
+        }
+        else {
+          val sbtStructureJar = settings
+            .customSbtStructureFile
+            .map(_.toPath)
+            .orElse(SbtUtil.getSbtStructureJar(sbtVersion))
+            .getOrElse(throw new ExternalSystemException(s"Could not find sbt-structure-extractor for sbt version $sbtVersion"))
 
-          case pd: SbtStructureDumper.FromProcess =>
-            val sbtStructureJar = settings
-              .customSbtStructureFile
-              .map(_.toPath)
-              .orElse(SbtUtil.getSbtStructureJar(sbtVersion))
-              .getOrElse(throw new ExternalSystemException(s"Could not find sbt-structure-extractor for sbt version $sbtVersion"))
-
-            log.debug(s"sbtStructureJar: $sbtStructureJar")
-            // TODO add error/warning messages during dump, report directly
-            pd.dumpFromProcess(
-              indicator,
-              projectRoot,
-              structureFile,
-              options,
-              settings.vmExecutable.toPath,
-              settings.vmOptions,
-              settings.sbtOptions,
-              settings.userSetEnvironment,
-              sbtLauncher,
-              sbtStructureJar,
-              settings.preferScala2,
-              settings.passParentEnvironment,
-              settings.generateManagedSourcesDuringProjectSync
-            )
+          log.debug(s"sbtStructureJar: $sbtStructureJar")
+          // TODO add error/warning messages during dump, report directly
+          dumper.dumpFromProcess(
+            indicator,
+            projectRoot,
+            structureFilePath,
+            options,
+            settings.vmExecutable.toPath,
+            settings.vmOptions,
+            settings.sbtOptions,
+            settings.userSetEnvironment,
+            sbtLauncher,
+            sbtStructureJar,
+            settings.preferScala2,
+            settings.passParentEnvironment,
+            settings.generateManagedSourcesDuringProjectSync
+          )
         }
       }
       activeProcessDumper = None
@@ -294,16 +291,16 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       val structureFilePath = getStructureFilePath(projectRoot)
       val StructureFileReuseMode(readStructureFile, writeStructureFile) = getStructureFileReuseMode
 
-      if (readStructureFile && structureFilePath.exists(_.exists)) {
+      if (readStructureFile && structureFilePath.exists) {
         val reuseWarning = s"sbt reload skipped: using existing structure file: $structureFilePath"
         log.warn(reuseWarning)
         //noinspection ReferencePassedToNls (this branch is only triggered when registry was explicitly modified, so it's not i18-ed)
         reporter.log(reuseWarning)
-        val elem = XML.load(structureFilePath.get.toUri.toURL)
+        val elem = XML.load(structureFilePath.toUri.toURL)
         Try((elem, BuildMessages.empty))
-      } else if (writeStructureFile && structureFilePath.nonEmpty) {
+      } else if (writeStructureFile) {
         log.warn(s"reused structure file created: $structureFilePath")
-        doDumpStructure(structureFilePath.get)
+        doDumpStructure(structureFilePath)
       } else {
         usingTempFile("sbt-structure", Some(".xml")) { structureFile =>
           doDumpStructure(structureFile)
@@ -312,13 +309,13 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     }
   }
 
-  private def getStructureFilePath(projectRoot: Path): Option[Path] =
-    Option(System.getProperty("sbt.project.structure.location"))
-      .map(Path.of(_))
-      .map:
-        case dir if !dir.isAbsolute => projectRoot.resolve(dir).toCanonicalPath
-        case dir => dir
-      .map(_ / s"sbt-structure-reused-${projectRoot.getFileName.toString}.xml")
+  private def getStructureFilePath(projectRoot: Path): Path = {
+    var structureFileFolder = Path.of(Option(System.getProperty("sbt.project.structure.location")).getOrElse(FileUtil.getTempDirectory))
+    if (!structureFileFolder.isAbsolute) {
+      structureFileFolder = projectRoot.resolve(structureFileFolder).toCanonicalPath
+    }
+    structureFileFolder / s"sbt-structure-reused-${projectRoot.getFileName.toString}.xml"
+  }
 
   //noinspection NameBooleanParameters
   private def getStructureFileReuseMode: StructureFileReuseMode =
