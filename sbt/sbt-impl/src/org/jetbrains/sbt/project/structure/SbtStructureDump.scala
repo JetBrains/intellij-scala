@@ -1,4 +1,4 @@
-package org.jetbrains.sbt.process
+package org.jetbrains.sbt.project.structure
 
 import com.intellij.build.events.impl.{FailureResultImpl, SkippedResultImpl, SuccessResultImpl}
 import com.intellij.execution.configurations.GeneralCommandLine
@@ -7,6 +7,7 @@ import com.intellij.execution.process.OSProcessHandler
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import org.jetbrains.annotations.{Nls, NonNls}
@@ -15,26 +16,175 @@ import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}
 import org.jetbrains.plugins.scala.extensions.LoggerExt
 import org.jetbrains.sbt.actions.GenerateManagedSourcesReporter
 import org.jetbrains.sbt.project.SbtProjectResolver.ImportCancelledException
-import org.jetbrains.sbt.project.structure.SbtOption.{JvmOptionGlobal, SbtLauncherOption}
-import org.jetbrains.sbt.project.structure.{ListenerAdapter, OutputType}
-import org.jetbrains.sbt.{SbtBundle, SbtUtil}
+import org.jetbrains.sbt.project.structure.SbtOption.*
+import org.jetbrains.sbt.project.structure.SbtStructureDump.*
+import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication}
+import org.jetbrains.sbt.{SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabilities}
 
 import java.io.{BufferedWriter, OutputStreamWriter, PrintWriter}
-import java.nio.charset.StandardCharsets
+import java.nio.charset.{Charset, StandardCharsets}
 import java.nio.file.Path
 import java.util.UUID
+import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicBoolean
-import scala.concurrent.TimeoutException
-import scala.concurrent.duration.{FiniteDuration, given}
+import scala.collection.mutable
+import scala.concurrent.Future
+import scala.concurrent.duration.{DurationInt, FiniteDuration}
 import scala.jdk.CollectionConverters.*
 import scala.util.{Failure, Success, Try, Using}
 
-final class SbtRunner(processOutputCollector: Option[ProcessOutputCollector] = None):
-  import SbtRunner.*
+class SbtStructureDump {
 
   private val cancellationFlag: AtomicBoolean = new AtomicBoolean(false)
 
+  // in failed tests we would like to see sbt process output
+  private val processOutputBuilder = new mutable.StringBuilder
+  def processOutput: String = processOutputBuilder.mkString
+
   def cancel(): Unit = cancellationFlag.set(true)
+
+  def dumpFromShell(
+    project: Project,
+    sbtVersion: SbtVersion,
+    structureFilePath: String,
+    options: Seq[String],
+    reporter: BuildReporter,
+    preferScala2: Boolean,
+    generateManagedSources: Boolean
+  ): Future[BuildMessages] = {
+    reporter.start()
+
+    val optionsString = makeOptionsStringLiteral(options)
+    val SeqFqn = SbtVersionCapabilities.collectionsSeqClassFqn(sbtVersion)
+    val setCommands = Seq(
+      s"""${scopedSbtSetting("_root_.org.jetbrains.sbt.StructureKeys.sbtStructureOptions", "_root_.sbt.Global", sbtVersion)} := $optionsString""",
+      s"""${scopedSbtSetting("_root_.org.jetbrains.sbt.StructureKeys.generateManagedSourcesDuringStructureDump", "_root_.sbt.Global", sbtVersion)} := $generateManagedSources"""
+    ).mkString(s"set $SeqFqn(", ",", ")")
+    val dumpStructureToCommand = s"${SbtUtil.sbtStructureGlobalCommand("dumpStructureTo", sbtVersion)} $structureFilePath"
+
+    // SCL-22858 compiler bytecode indices are disabled in sbt shell
+    val ideaPortSetting = ""
+
+    val maybePreferScala2Command = if (preferScala2) "preferScala2" else ""
+    val sbtCommand = buildSbtCompositeCommand(Seq(
+      "reload",
+      setCommands,
+      maybePreferScala2Command,
+      dumpStructureToCommand,
+      s"session clear-all $ideaPortSetting"
+    ))
+
+    val shell = SbtShellCommunication.forProject(project)
+    val optProcessOutputBuilder = setUpProcessOutputCollection()
+    val aggregator = shell.messageAggregatorForSync(
+      reporter,
+      EventId(s"dump:${UUID.randomUUID()}"),
+      optProcessOutputBuilder,
+      startMessage = SbtBundle.message("sbt.extracting.project.structure.from.sbt.shell"),
+      finishMessage = SbtBundle.message("sbt.project.structure.extracted")
+    )
+
+    val isSbtVersionOutdated = SbtProcessManager.forProject(project).isSbtVersionOutdated
+    if (isSbtVersionOutdated) {
+      shell.commandAfterSoftRestart(sbtCommand, BuildMessages.empty, aggregator)
+    } else {
+      shell.command(sbtCommand, BuildMessages.empty, aggregator)
+    }
+  }
+
+  def dumpFromProcess(
+    indicator: ProgressIndicator,
+    directory: Path,
+    structureFilePath: String,
+    options: Seq[String],
+    vmExecutable: Path,
+    vmOptions: Seq[String],
+    sbtOptions: Seq[String],
+    environment: Map[String, String],
+    sbtLauncher: Path,
+    sbtStructureJar: Path,
+    preferScala2: Boolean,
+    passParentEnvironment: Boolean,
+    generateManagedSources: Boolean
+  )(implicit reporter: BuildReporter): Try[BuildMessages] = {
+    val optString = makeOptionsStringLiteral(options)
+
+    val sbtVersion = SbtUtil.detectSbtVersion(directory, sbtLauncher)
+
+    val SeqFqn = SbtVersionCapabilities.collectionsSeqClassFqn(sbtVersion)
+    val setCommands = Seq(
+      """historyPath := None""",
+      s"""shellPrompt := { _ => "" }""",
+      s"""${scopedSbtSetting("""SettingKey[_root_.scala.Option[_root_.sbt.File]]("sbtStructureOutputFile")""", "_root_.sbt.Global", sbtVersion)} := _root_.scala.Some(_root_.sbt.file("$structureFilePath"))""",
+      s"""${scopedSbtSetting("""SettingKey[_root_.java.lang.String]("sbtStructureOptions")""", "_root_.sbt.Global", sbtVersion)} := $optString""",
+      s"""${scopedSbtSetting("""SettingKey[_root_.scala.Boolean]("generateManagedSourcesDuringStructureDump")""", "_root_.sbt.Global", sbtVersion)} := $generateManagedSources"""
+    ).mkString(s"set $SeqFqn(", ",", ")")
+
+    val maybePreferScala2Command = if (preferScala2) "preferScala2" else ""
+    val applyStateTransformersCommand = s"""apply -cp "${SbtUtil.normalizePath(sbtStructureJar)}" "org.jetbrains.sbt.CreateTasks" "sbt.jetbrains.LogDownloadArtifacts""""
+
+    val sbtCommandsString = buildSbtCompositeCommand(Seq(
+      setCommands,
+      applyStateTransformersCommand,
+      maybePreferScala2Command,
+      SbtUtil.sbtStructureGlobalCommand("dumpStructure", sbtVersion)
+    ))
+
+    runSbt(
+      indicator,
+      directory,
+      vmExecutable,
+      vmOptions,
+      environment,
+      sbtLauncher,
+      sbtOptions,
+      sbtLauncherArgs = Seq.empty,
+      sbtCommandsString,
+      SbtBundle.message("sbt.extracting.project.structure.from.sbt"),
+      passParentEnvironment
+    )
+  }
+
+  private def buildSbtCompositeCommand(commands: Seq[String]): String =
+    commands.filter(_.nonEmpty).mkString(";", ";", "")
+
+  private def makeOptionsStringLiteral(options: Seq[String]): String =
+    options.mkString("\"", ", ", "\"")
+
+  /**
+   * This is a workaround for [[https://github.com/sbt/sbt/issues/5128]] (tested for sbt 1.4.9)
+   *
+   * The bug is reproduced on Teamcity, on Windows agents:
+   * ProjectImportingTest is stuck indefinitely when the test is run from sbt.<br>
+   * It's also reproduces locally when running the test from sbt.<br>
+   * But for some reason is not reproduced when running from IDEA test runners<br>
+   *
+   * Environment variables which have to be mocked are inferred from methods in
+   * `lmcoursier.internal.shaded.coursier.paths.CoursierPaths` (version 2.0.6)
+   *
+   * @see [[https://github.com/sbt/sbt/issues/5128]]
+   * @see [[https://github.com/dirs-dev/directories-jvm/issues/49]]
+   * @see [[https://github.com/ScoopInstaller/Main/pull/878/files]]
+   */
+  private def defaultCoursierDirectoriesAsEnvVariables(): Seq[(String, String)] = {
+    val LocalAppData = System.getenv("LOCALAPPDATA")
+    val AppData = System.getenv("APPDATA")
+
+    val CoursierLocalAppDataHome = LocalAppData + "/Coursier"
+    val CoursierAppDataHome = AppData + "/Coursier"
+
+    Seq(
+      // these 2 variables seems to be enough for the workaround
+      ("COURSIER_CACHE", CoursierLocalAppDataHome + "/cache/v1"),
+      ("COURSIER_CONFIG_DIR", CoursierAppDataHome + "/config"),
+      // these 2 variables seems to be optional, but we set them just in cause
+      // they might be accessed in some unpredictable cases
+      ("COURSIER_JVM_CACHE", CoursierLocalAppDataHome + "/cache/jvm"),
+      ("COURSIER_DATA_DIR", CoursierLocalAppDataHome + "/data"),
+      // this also looks like an optional in 1.4.9, but setting it just in case
+      ("COURSIER_HOME", CoursierLocalAppDataHome),
+    )
+  }
 
   /**
    * Runs sbt via the `java -jar sbt-launch.jar` mechanism.
@@ -53,18 +203,19 @@ final class SbtRunner(processOutputCollector: Option[ProcessOutputCollector] = N
    * @note If any of the options or commands arguments also refer to filesystem paths, it is up to the caller to
    *       translate these paths to the required target machine. The options and commands are passed as provided and
    *       not interpreted in any way.
-   * @param indicator             The required progress indicator instance
-   * @param directory             The working directory of the JVM process to be spawned
-   * @param vmExecutable          The path to the JDK `java` executable
-   * @param vmOptions             JDK VM options passed directly to the `java` process
-   * @param environment0          Environment variables to be provided to the `java` process
-   * @param sbtLauncher           A path to the sbt launcher jar
-   * @param sbtOptions            A list of options to be provided to sbt
-   * @param sbtLauncherArgs       A list of extra launcher arguments to be provided during sbt startup
-   * @param sbtCommands           A list of sbt commands to be executed by the spawned sbt process
-   * @param reportMessage         A description message to be provided to the reporting mechanism (usually shown to the end user)
+   *
+   * @param indicator The required progress indicator instance
+   * @param directory The working directory of the JVM process to be spawned
+   * @param vmExecutable The path to the JDK `java` executable
+   * @param vmOptions JDK VM options passed directly to the `java` process
+   * @param environment0 Environment variables to be provided to the `java` process
+   * @param sbtLauncher A path to the sbt launcher jar
+   * @param sbtOptions A list of options to be provided to sbt
+   * @param sbtLauncherArgs A list of extra launcher arguments to be provided during sbt startup
+   * @param sbtCommands A list of sbt commands to be executed by the spawned sbt process
+   * @param reportMessage A description message to be provided to the reporting mechanism (usually shown to the end user)
    * @param passParentEnvironment Include the environment variables available to IntelliJ IDEA when starting the process
-   * @param reporter              A build reported instance for flexibly reporting different aspects of the status of the sbt process
+   * @param reporter A build reported instance for flexibly reporting different aspects of the status of the sbt process
    * @return A set of messages (success or failure) reported by the execution of the sbt process.
    */
   @RequiresBackgroundThread
@@ -119,7 +270,7 @@ final class SbtRunner(processOutputCollector: Option[ProcessOutputCollector] = N
       ) ++
         allOpts ++
         List("-jar", SbtUtil.normalizePath(sbtLauncher)) ++
-        allSbtLauncherArgs // :+ "--debug"
+        allSbtLauncherArgs// :+ "--debug"
 
     val processCommands = processCommandsRaw.filterNot(_.isEmpty)
 
@@ -182,6 +333,9 @@ final class SbtRunner(processOutputCollector: Option[ProcessOutputCollector] = N
     resultMessages
   }
 
+  // Due to #SCL-19498 it is needed to prepend each command with empty space at the beginning
+  private def ignoreInShellHistory(command: String): String = command.prependedAll(" ")
+
   private def handle(process: Process,
                      dumpTaskId: EventId,
                      reporter: BuildReporter,
@@ -216,7 +370,7 @@ final class SbtRunner(processOutputCollector: Option[ProcessOutputCollector] = N
       }
     }
 
-    val optProcessOutputBuilder = processOutputCollector.map(_.processOutputBuilder)
+    val optProcessOutputBuilder = setUpProcessOutputCollection()
 
     val processListener: (OutputType, String) => Unit = (typ, line) => {
       optProcessOutputBuilder.foreach { builder =>
@@ -240,7 +394,7 @@ final class SbtRunner(processOutputCollector: Option[ProcessOutputCollector] = N
       }
     }
 
-    val handler = new OSProcessHandler(process, "sbt import", StandardCharsets.UTF_8)
+    val handler = new OSProcessHandler(process, "sbt import", Charset.forName("UTF-8"))
     // TODO: rewrite this code, do not use try, throw
     val result = Try {
       handler.addProcessListener(new ListenerAdapter(processListener))
@@ -282,12 +436,41 @@ final class SbtRunner(processOutputCollector: Option[ProcessOutputCollector] = N
     result
   }
 
+  /**
+   * Sets up a [[StringBuilder]] for collecting the raw process output such that it can be examined in tests.
+   * @return [[Some]] if the process output should be collected, [[None]] otherwise.
+   */
+  private def setUpProcessOutputCollection(): Option[StringBuilder] = {
+    val collectProcessOutput = isUnitTestMode || java.lang.Boolean.getBoolean(PrintProcessOutputOnFailurePropertyName)
+    Log.debug(s"collectProcessOutput = $collectProcessOutput")
+    processOutputBuilder.clear()
+    if (collectProcessOutput) Some(processOutputBuilder) else None
+  }
+}
+
+object SbtStructureDump {
+
+  private val Log = Logger.getInstance(classOf[SbtStructureDump])
+
+  private val SBT_PROCESS_CHECK_TIMEOUT_MS = 100
+
+  // NOTE: if this is a first run of sbt with a particular version on current machine
+  // sbt import will take some time because it will have to download quite a lot of dependencies
+  private[project] val MaxImportDurationInUnitTests: FiniteDuration = 10.minutes
+
+  val PrintProcessOutputOnFailurePropertyName = "sbt.import.print.process.output.on.failure"
+
+  private def dontPrintErrorsAndWarningsToConsoleDuringTests: Boolean =
+    System.getProperty("sbt.structure.dump.dontPrintErrorsAndWarningsToConsoleDuringTests") == "true"
+
+  private def isUnitTestMode: Boolean = ApplicationManager.getApplication.isUnitTestMode
+
   private def reportEvent(messages: BuildMessages,
                           text: String): BuildMessages = {
 
     if (isUnitTestMode && !dontPrintErrorsAndWarningsToConsoleDuringTests) {
       val isErrorOrWarning = text.startsWith("[warn]") || text.startsWith("[error]")
-      if (isErrorOrWarning) {
+      if (isErrorOrWarning){
         System.err.println(text)
       }
     }
@@ -301,57 +484,11 @@ final class SbtRunner(processOutputCollector: Option[ProcessOutputCollector] = N
     } else messages
   }
 
-  private def dontPrintErrorsAndWarningsToConsoleDuringTests: Boolean =
-    System.getProperty("sbt.structure.dump.dontPrintErrorsAndWarningsToConsoleDuringTests") == "true"
-
-  /**
-   * This is a workaround for [[https://github.com/sbt/sbt/issues/5128]] (tested for sbt 1.4.9)
-   *
-   * The bug is reproduced on Teamcity, on Windows agents:
-   * ProjectImportingTest is stuck indefinitely when the test is run from sbt.<br>
-   * It's also reproduces locally when running the test from sbt.<br>
-   * But for some reason is not reproduced when running from IDEA test runners<br>
-   *
-   * Environment variables which have to be mocked are inferred from methods in
-   * `lmcoursier.internal.shaded.coursier.paths.CoursierPaths` (version 2.0.6)
-   *
-   * @see [[https://github.com/sbt/sbt/issues/5128]]
-   * @see [[https://github.com/dirs-dev/directories-jvm/issues/49]]
-   * @see [[https://github.com/ScoopInstaller/Main/pull/878/files]]
-   */
-  private def defaultCoursierDirectoriesAsEnvVariables(): Seq[(String, String)] = {
-    val LocalAppData = System.getenv("LOCALAPPDATA")
-    val AppData = System.getenv("APPDATA")
-
-    val CoursierLocalAppDataHome = LocalAppData + "/Coursier"
-    val CoursierAppDataHome = AppData + "/Coursier"
-
-    Seq(
-      // these 2 variables seems to be enough for the workaround
-      ("COURSIER_CACHE", CoursierLocalAppDataHome + "/cache/v1"),
-      ("COURSIER_CONFIG_DIR", CoursierAppDataHome + "/config"),
-      // these 2 variables seems to be optional, but we set them just in cause
-      // they might be accessed in some unpredictable cases
-      ("COURSIER_JVM_CACHE", CoursierLocalAppDataHome + "/cache/jvm"),
-      ("COURSIER_DATA_DIR", CoursierLocalAppDataHome + "/data"),
-      // this also looks like an optional in 1.4.9, but setting it just in case
-      ("COURSIER_HOME", CoursierLocalAppDataHome),
-    )
+  private def scopedSbtSetting(setting: String, scope: String, sbtVersion: SbtVersion): String = {
+    val supportsSlashSyntax = SbtVersionCapabilities.isSlashSyntaxSupported(sbtVersion)
+    if (supportsSlashSyntax)
+      s"($scope / $setting)"
+    else
+      s"$setting in $scope"
   }
-
-  // Due to #SCL-19498 it is needed to prepend each command with empty space at the beginning
-  private def ignoreInShellHistory(command: String): String = command.prependedAll(" ")
-
-  private def isUnitTestMode: Boolean = ApplicationManager.getApplication.isUnitTestMode
-
-end SbtRunner
-
-object SbtRunner:
-  private val Log: Logger = Logger.getInstance(classOf[SbtRunner])
-
-  private val SBT_PROCESS_CHECK_TIMEOUT_MS = 100
-
-  // NOTE: if this is a first run of sbt with a particular version on current machine
-  // sbt import will take some time because it will have to download quite a lot of dependencies
-  private[sbt] val MaxImportDurationInUnitTests: FiniteDuration = 10.minutes
-
+}
