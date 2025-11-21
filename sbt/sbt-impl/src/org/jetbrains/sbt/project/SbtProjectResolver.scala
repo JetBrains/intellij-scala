@@ -15,6 +15,7 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.registry.RegistryManager
 import com.intellij.platform.eel.EelDescriptor
 import com.intellij.platform.eel.provider.EelProviderUtil
+import com.intellij.platform.eel.provider.utils.EelPathUtils
 import com.intellij.util.SystemProperties
 import org.jetbrains.annotations.{ApiStatus, NonNls, Nullable, TestOnly}
 import org.jetbrains.plugins.scala.*
@@ -248,7 +249,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
           else if (Files.size(structureFile) <= 0)
             failure(SbtBundle.message("sbt.import.message.structure.file.is.empty", structureFile.toCanonicalPath.toString))
           else Try {
-            val elem = XML.load(structureFile.toUri.toURL)
+            val elem = withLocalPathOrTemporaryCopy(structureFile)(f => XML.load(f.toUri.toURL))
             (elem, messages)
           }
         }
@@ -294,16 +295,16 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       val structureFilePath = getStructureFilePath(projectRoot)
       val StructureFileReuseMode(readStructureFile, writeStructureFile) = getStructureFileReuseMode
 
-      if (readStructureFile && structureFilePath.exists(_.exists)) {
+      if (readStructureFile && structureFilePath.exists) {
         val reuseWarning = s"sbt reload skipped: using existing structure file: $structureFilePath"
         log.warn(reuseWarning)
         //noinspection ReferencePassedToNls (this branch is only triggered when registry was explicitly modified, so it's not i18-ed)
         reporter.log(reuseWarning)
-        val elem = XML.load(structureFilePath.get.toUri.toURL)
+        val elem = XML.load(structureFilePath.toUri.toURL)
         Try((elem, BuildMessages.empty))
-      } else if (writeStructureFile && structureFilePath.nonEmpty) {
+      } else if (writeStructureFile) {
         log.warn(s"reused structure file created: $structureFilePath")
-        doDumpStructure(structureFilePath.get)
+        doDumpStructure(structureFilePath)
       } else {
         usingTempFile("sbt-structure", Some(".xml")) { structureFile =>
           doDumpStructure(structureFile)
@@ -312,13 +313,24 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     }
   }
 
-  private def getStructureFilePath(projectRoot: Path): Option[Path] =
-    Option(System.getProperty("sbt.project.structure.location"))
-      .map(Path.of(_))
-      .map:
-        case dir if !dir.isAbsolute => projectRoot.resolve(dir).toCanonicalPath
-        case dir => dir
-      .map(_ / s"sbt-structure-reused-${projectRoot.getFileName.toString}.xml")
+  private def withLocalPathOrTemporaryCopy[A](path: Path)(action: Path => A): A =
+    //noinspection ApiStatus,UnstableApiUsage
+    val (f, release) =
+      if EelPathUtils.isPathLocal(path) then (path, () => ())
+      else
+        val tmpFile = Files.createTempFile("sbt-structure-eel-copy-", ".xml")
+        Files.copy(path, tmpFile)
+        (tmpFile, () => Files.delete(tmpFile))
+    try action(f)
+    finally release()
+
+  private def getStructureFilePath(projectRoot: Path): Path = {
+    var structureFileFolder = Path.of(Option(System.getProperty("sbt.project.structure.location")).getOrElse(FileUtil.getTempDirectory))
+    if (!structureFileFolder.isAbsolute) {
+      structureFileFolder = projectRoot.resolve(structureFileFolder).toCanonicalPath
+    }
+    structureFileFolder / s"sbt-structure-reused-${projectRoot.getFileName.toString}.xml"
+  }
 
   //noinspection NameBooleanParameters
   private def getStructureFileReuseMode: StructureFileReuseMode =
