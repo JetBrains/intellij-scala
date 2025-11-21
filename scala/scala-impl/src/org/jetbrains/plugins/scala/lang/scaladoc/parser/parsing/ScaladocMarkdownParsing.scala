@@ -8,6 +8,7 @@ import org.intellij.markdown
 import org.intellij.markdown.ast.ASTNode
 import org.intellij.markdown.parser.MarkdownParser
 import org.intellij.markdown.{MarkdownElementType, MarkdownElementTypes, MarkdownTokenTypes}
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilderImpl
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableIdForImport
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
@@ -63,6 +64,10 @@ private class ScaladocMarkdownParsing(builder: MkBuilder, content: String) exten
     node.getType == MarkdownTokenTypes.WHITE_SPACE &&
       nodeText(node).contains('>')
 
+  private def afterLeadingAsteriskOrBlockquote(@Nullable ty: IElementType): Boolean = {
+    ty == ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS || ty == ScalaDocTokenType.DOC_BLOCKQUOTE
+  }
+
   def visitNode(treeIt: MkTreeIt): Unit = {
     assert(!treeIt.ended)
     val tpe = treeIt.currentNodeType
@@ -91,7 +96,11 @@ private class ScaladocMarkdownParsing(builder: MkBuilder, content: String) exten
         //ensureBuilderInPosition(treeIt.currentStartOffset)
         assert(builder.getTokenType == ScalaDocTokenType.DOC_BLOCKQUOTE)
         builder.advanceLexer()
-        if (builder.getTokenType == ScalaDocTokenType.DOC_WHITESPACE) {
+        def nextTreeElementIsWsOrEOL = treeIt.peek().exists { e =>
+          val ty = e.getType
+          ty == MarkdownTokenTypes.EOL || ty == MarkdownTokenTypes.WHITE_SPACE
+        }
+        if (builder.getTokenType == ScalaDocTokenType.DOC_WHITESPACE && !nextTreeElementIsWsOrEOL) {
           builder.advanceLexer()
         }
       case _ if !treeIt.currentHasChildren =>
@@ -207,10 +216,21 @@ private class ScaladocMarkdownParsing(builder: MkBuilder, content: String) exten
 
   private def visitCodeFence(elementTy: IElementType, treeIt: MkTreeIt): Unit = {
     val childIt = treeIt.startIterateCurrentChildren()
+    @tailrec
     def splitWsFromFenceBorder(wsType: IElementType): Unit = {
-      if (builder.getTokenType == ScalaDocTokenType.DOC_WHITESPACE) {
-        builder.remapCurrentToken(wsType)
-        builder.advanceLexer()
+      builder.getTokenType match {
+        case ScalaDocTokenType.DOC_WHITESPACE =>
+          if (builder.rawLookup(1) == ScalaDocTokenType.DOC_BLOCKQUOTE) {
+            builder.advanceLexer()
+            splitWsFromFenceBorder(wsType)
+          } else {
+            builder.remapCurrentToken(wsType)
+            builder.advanceLexer()
+          }
+        case ScalaDocTokenType.DOC_BLOCKQUOTE =>
+          builder.advanceLexer()
+          splitWsFromFenceBorder(wsType)
+        case _ =>
       }
     }
     assert(childIt.currentNodeType == MarkdownTokenTypes.CODE_FENCE_START)
@@ -223,6 +243,16 @@ private class ScaladocMarkdownParsing(builder: MkBuilder, content: String) exten
       if (childIt.currentNodeType == MarkdownTokenTypes.CODE_FENCE_END) {
         splitWsFromFenceBorder(ScalaDocTokenType.DOC_INNER_CODE)
         ensureBuilderInPosition(childIt.currentEndOffset, ScalaDocTokenType.DOC_INNER_CLOSE_CODE_TAG)
+      } else if (childIt.currentNodeType == MarkdownTokenTypes.WHITE_SPACE) {
+        // there will only be whitespace if it is followed by a quote token
+        def isQuoteOrWsAndNextIsQuote = {
+          val ty = builder.getTokenType
+          ty == ScalaDocTokenType.DOC_BLOCKQUOTE ||
+            ty == ScalaDocTokenType.DOC_WHITESPACE && builder.rawLookup(1) == ScalaDocTokenType.DOC_BLOCKQUOTE
+        }
+        while (isQuoteOrWsAndNextIsQuote) {
+          builder.advanceLexer()
+        }
       } else {
         visitNode(childIt)
       }
@@ -352,7 +382,7 @@ private class ScaladocMarkdownParsing(builder: MkBuilder, content: String) exten
       case MarkdownTokenTypes.WHITE_SPACE if builder.getTokenType == ScalaDocTokenType.DOC_BLOCKQUOTE && isBlockquoteWhitespace(treeIt.current) =>
         builder.advanceLexer()
         return None
-      case MarkdownTokenTypes.WHITE_SPACE if builder.rawLookup(-1) == ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS =>
+      case MarkdownTokenTypes.WHITE_SPACE if afterLeadingAsteriskOrBlockquote(builder.rawLookup(-1)) =>
         ScalaDocTokenType.DOC_WHITESPACE
 
       // Remains
