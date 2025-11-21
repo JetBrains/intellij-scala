@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionTypeFactory.{extra
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, Context, ScLiteralType, ScParameterizedType, ScType, ScalaType, api}
 import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 import scala.annotation.tailrec
 import scala.reflect.ClassTag
@@ -137,7 +138,7 @@ object TupleType {
         extractMember(pTy.designator).flatMap { tupleClass =>
           tupleClass.qualifiedNameOpt.flatMap {
             case fqn if TupleN.isTupleNFqn(fqn) => Some(pTy.typeArguments -> None)
-            case fqn if fqn == TupleHList.ConsClassFqn =>
+            case fqn if fqn == TupleHList.ConsClassFqn && !ScalaApplicationSettings.getInstance.PRECISE_TEXT =>
               val result = Seq.newBuilder[ScType]
               @tailrec
               def addToResult(tail: ParameterizedType): Option[ScType] = tail.typeArguments match {
