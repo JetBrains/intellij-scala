@@ -15,7 +15,6 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.registry.RegistryManager
 import com.intellij.platform.eel.EelDescriptor
 import com.intellij.platform.eel.provider.EelProviderUtil
-import com.intellij.platform.eel.provider.utils.EelPathUtils
 import com.intellij.util.SystemProperties
 import org.jetbrains.annotations.{ApiStatus, NonNls, Nullable, TestOnly}
 import org.jetbrains.plugins.scala.*
@@ -177,6 +176,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val options = getSbtStructureDumpOptions(settings)
 
     def doDumpStructure(structureFile: Path): Try[(Elem, BuildMessages)] = {
+      val structureFilePath = normalizePath(structureFile)
+
       val dumper =
         if useShellImport then SbtStructureDumper.FromShell()
         else SbtStructureDumper.FromProcess()
@@ -189,7 +190,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
             val messagesF = sd.dumpFromShell(
               project,
               sbtVersion,
-              structureFile,
+              structureFilePath,
               options,
               reporter,
               settings.preferScala2,
@@ -219,7 +220,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
             pd.dumpFromProcess(
               indicator,
               projectRoot,
-              structureFile,
+              structureFilePath,
               options,
               settings.vmExecutable.toPath,
               settings.vmOptions,
@@ -249,7 +250,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
           else if (Files.size(structureFile) <= 0)
             failure(SbtBundle.message("sbt.import.message.structure.file.is.empty", structureFile.toCanonicalPath.toString))
           else Try {
-            val elem = withLocalPathOrTemporaryCopy(structureFile)(f => XML.load(f.toUri.toURL))
+            val elem = XML.load(structureFile.toUri.toURL)
             (elem, messages)
           }
         }
@@ -312,17 +313,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       }
     }
   }
-
-  private def withLocalPathOrTemporaryCopy[A](path: Path)(action: Path => A): A =
-    //noinspection ApiStatus,UnstableApiUsage
-    val (f, release) =
-      if EelPathUtils.isPathLocal(path) then (path, () => ())
-      else
-        val tmpFile = Files.createTempFile("sbt-structure-eel-copy-", ".xml")
-        Files.copy(path, tmpFile)
-        (tmpFile, () => Files.delete(tmpFile))
-    try action(f)
-    finally release()
 
   private def getStructureFilePath(projectRoot: Path): Path = {
     var structureFileFolder = Path.of(Option(System.getProperty("sbt.project.structure.location")).getOrElse(FileUtil.getTempDirectory))
