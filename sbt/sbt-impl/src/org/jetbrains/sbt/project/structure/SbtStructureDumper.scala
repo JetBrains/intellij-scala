@@ -10,7 +10,7 @@ import org.jetbrains.sbt.process.{ProcessOutputCollector, SbtRunner}
 import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication}
 import org.jetbrains.sbt.{SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabilities, asLocalPath, eelDescriptor}
 
-import java.nio.file.Path
+import java.nio.file.{Files, Path}
 import java.util.UUID
 import scala.concurrent.Future
 import scala.util.Try
@@ -142,20 +142,10 @@ object SbtStructureDumper:
         passParentEnvironment
       )
 
-      copyFileContentsIfNeeded(transferredStructureFile, structureFile)
+      if structureFile != transferredStructureFile then
+        Files.copy(transferredSbtStructureJar, structureFile)
 
       buildMessages
-
-    private def copyFileContentsIfNeeded(remotePath: Path, localPath: Path): Unit =
-      import java.io.PrintWriter
-      import java.nio.charset.StandardCharsets.UTF_8
-      import java.nio.file.Files
-      import java.nio.file.StandardOpenOption.*
-      import scala.util.Using
-      if remotePath != localPath then
-        Using.resource(Files.newBufferedReader(remotePath, UTF_8)): reader =>
-          Using.resource(PrintWriter(Files.newBufferedWriter(localPath, UTF_8, CREATE, TRUNCATE_EXISTING, WRITE))): writer =>
-            reader.lines().forEach(writer.println(_))
 
   end FromProcess
 
