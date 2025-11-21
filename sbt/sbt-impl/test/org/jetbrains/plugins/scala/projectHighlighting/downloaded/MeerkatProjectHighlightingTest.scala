@@ -85,9 +85,6 @@ class MeerkatProjectHighlightingTest extends GithubSbtAllProjectHighlightingTest
     "src/main/scala/org/meerkat/parsers/package.scala" -> Set(
       (4162, 4227), // Expression of type Parsers.AbstractNonterminal[this.V] doesn't conform to expected type Parsers.AbstractNonterminal[T]
     ),
-    "src/main/scala/org/meerkat/util/RegularExpression.scala" -> Set(
-      (2543, 2551), // Cannot resolve overloaded method 'toString'
-    ),
     "src/test/scala/org/meerkat/parsers/examples/Example1.scala" -> Set(
       (1739, 1740), // Cannot resolve symbol ~
       (1761, 1764), // Cannot resolve overloaded method 'syn'
