@@ -1,20 +1,17 @@
-//noinspection ApiStatus,UnstableApiUsage
 package org.jetbrains.sbt
 
 import com.intellij.platform.eel.EelDescriptor
-import com.intellij.platform.eel.provider.{EelNioBridgeServiceKt, EelProviderUtil, LocalEelDescriptor}
+import com.intellij.platform.eel.provider.{EelNioBridgeServiceKt, EelProviderUtil}
 
 import java.nio.file.Path
 
 extension (path: Path)
+  //noinspection ApiStatus
+  //noinspection UnstableApiUsage,ApiStatus
   def eelDescriptor: EelDescriptor = EelProviderUtil.getEelDescriptor(path)
 
   /**
    * A machine-specific local path translated via the eel API.
    */
-  def asLocalPath: String =
-    val eelPath = EelNioBridgeServiceKt.asEelPath(path)
-    if eelPath.getDescriptor == LocalEelDescriptor.INSTANCE then
-      path.toString
-    else
-      eelPath.toString
+  //noinspection ApiStatus
+  def asLocalPath: String = EelNioBridgeServiceKt.asEelPath(path).toString
