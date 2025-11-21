@@ -156,16 +156,19 @@ class ScalaDocMarkdownFormatterTest extends AbstractScalaFormatterTestBase {
   def test_quotes(): Unit = doTextTest(
     """
       |/**
-      | *  > a
-      | * > > b
-      | *    > > > c
+      | * > a
+      | * >> b
+      | * >>> c
       | * >
       | * > d
-      | *  > > > e
-      | * > >
-      | *     > > f
+      | * >>> e
+      | * >>
+      | * >> f
       | */
-      |""".stripMargin,
+      |""".stripMargin
+  )
+
+  def test_quotes_with_ws(): Unit = doTextTest(
     """
       |/**
       | * > a
@@ -177,7 +180,22 @@ class ScalaDocMarkdownFormatterTest extends AbstractScalaFormatterTestBase {
       | * > >
       | * > > f
       | */
-      |""".stripMargin,
+      |""".stripMargin
+  )
+
+  def test_quotes_with_two_ws(): Unit = doTextTest(
+    """
+      |/**
+      | * > a
+      | * >  > b
+      | * >  >  > c
+      | * >
+      | * > d
+      | * >  >  > e
+      | * >  >
+      | * >  > f
+      | */
+      |""".stripMargin
   )
 
   def test_return_simple(): Unit = doTextTest(
