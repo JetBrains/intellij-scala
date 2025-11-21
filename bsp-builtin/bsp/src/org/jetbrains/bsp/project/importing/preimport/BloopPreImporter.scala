@@ -8,17 +8,18 @@ import org.jetbrains.bsp.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}
 import org.jetbrains.plugins.scala.extensions.invokeAndWait
 import org.jetbrains.sbt.SbtUtil.{detectSbtVersion, sbtVersionParam}
-import org.jetbrains.sbt.process.SbtRunner
 import org.jetbrains.sbt.project.SbtExternalSystemManager
+import org.jetbrains.sbt.project.structure.SbtStructureDump
 import org.jetbrains.sbt.{Sbt, SbtUtil, SbtVersion}
 
 import java.nio.file.Path
 import scala.util.Try
 
-class BloopPreImporter(runSbt: (SbtRunner, ProgressIndicator) => Try[BuildMessages]) extends PreImporter {
-  private val runner = new SbtRunner()
-  override def cancel(): Unit = runner.cancel()
-  def run(indicator: ProgressIndicator): Try[BuildMessages] = runSbt(runner, indicator)
+class BloopPreImporter(dumper: SbtStructureDump, runDump: (SbtStructureDump, ProgressIndicator) => Try[BuildMessages])
+  extends PreImporter {
+
+  override def cancel(): Unit = dumper.cancel()
+  def run(indicator: ProgressIndicator): Try[BuildMessages] = runDump(dumper, indicator)
 }
 object BloopPreImporter {
   def apply(baseDir: Path, jdk: Sdk)(implicit reporter: BuildReporter): BloopPreImporter = {
@@ -52,12 +53,13 @@ object BloopPreImporter {
     val vmArgs = SbtExternalSystemManager.getVmOptions(Seq.empty, jdkHome) ++ upgradeParam
 
     try {
-      val runDump = (runner: SbtRunner, indicator: ProgressIndicator) => runner.runSbt(
+      val dumper = new SbtStructureDump()
+      val runDump = (dumper: SbtStructureDump, indicator: ProgressIndicator) => dumper.runSbt(
         indicator, baseDir, jdkExe, vmArgs,
         Map.empty, sbtLauncher, Seq.empty, sbtLauncherArgs, sbtCommands,
         BspBundle.message("bsp.resolver.creating.bloop.configuration.from.sbt"), passParentEnvironment = true
       )
-      new BloopPreImporter(runDump)
+      new BloopPreImporter(dumper, runDump)
     } finally {
       settingsFile.delete()
     }
