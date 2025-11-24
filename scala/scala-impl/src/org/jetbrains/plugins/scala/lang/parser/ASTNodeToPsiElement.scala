@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base._
 import org.jetbrains.plugins.scala.lang.psi.impl.base.literals._
 import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types._
+import org.jetbrains.plugins.scala.lang.psi.impl.base.types.cc.ScCaptureSetImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.xml._
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScParameterTypeImpl
@@ -152,6 +153,9 @@ object ASTNodeToPsiElement {
       /* Type patterns */
       case TYPE_PATTERN => new ScTypePatternImpl(node)
       case REFINEMENT => new ScRefinementImpl(node)
+
+      /* Capture set */
+      case CAPTURE_SET => new ScCaptureSetImpl(node)
 
       /* XML */
       case XML_EXPR => new ScXmlExprImpl(node)
