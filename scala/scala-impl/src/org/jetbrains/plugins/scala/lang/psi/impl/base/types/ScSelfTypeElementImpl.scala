@@ -55,6 +55,7 @@ class ScSelfTypeElementImpl private(stub: ScSelfTypeElementStub, node: ASTNode)
           case _ =>
         }
         case p: ScParameterizedTypeElement => fillNames(p.typeElement)
+        case ct: ScCaptureTypeElement => fillNames(ct.innerElement)
         case c: ScCompoundTypeElement =>
           c.components.foreach(fillNames)
         case _ => //do nothing

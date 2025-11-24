@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGiven
 import org.jetbrains.plugins.scala.util.GeneratedParameterizedTestFactory.SingleCodeTestData
 import org.jetbrains.plugins.scala.util.GeneratedSimpleParameterizedTest
 
-class GenerateGivenNameTest extends GeneratedSimpleParameterizedTest(ScalaVersion.Latest.Scala_3_6) {
+class GenerateGivenNameTest extends GeneratedSimpleParameterizedTest(ScalaVersion.Latest.Scala_3_8) {
 
   override type TD = GenerateGivenNameTest.GivenNameTestData
 
@@ -379,6 +379,20 @@ object GenerateGivenNameTest {
       "given Test[a]",
       "given_Test_a"
     ),
+
+    //////////////////// CaptureType /////////////////
+    //GivenNameTestData(
+    //  """
+    //    |given (A^) = ???
+    //    |""".stripMargin,
+    //  "given_A"
+    //),
+    //GivenNameTestData(
+    //  """
+    //    |given (A^{cap}) = ???
+    //    |""".stripMargin,
+    //  "given_A"
+    //),
   )
 
   abstract class GivenNameTestData extends SingleCodeTestData {

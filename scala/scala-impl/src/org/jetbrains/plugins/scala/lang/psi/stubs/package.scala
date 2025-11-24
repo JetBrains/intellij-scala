@@ -4,7 +4,7 @@ import com.intellij.psi.CommonClassNames.JAVA_LANG_OBJECT
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import com.intellij.util.ArrayUtil.EMPTY_STRING_ARRAY
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScCompoundTypeElement, ScDesugarizableTypeElement, ScInfixTypeElement, ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement, ScTypeProjection}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScCaptureTypeElement, ScCompoundTypeElement, ScDesugarizableTypeElement, ScInfixTypeElement, ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement, ScTypeProjection}
 import org.jetbrains.plugins.scala.util.CommonQualifiedNames.AnyRefFqn
 
 package object stubs {
@@ -19,6 +19,8 @@ package object stubs {
       case i: ScInfixTypeElement => Array(i.operation.getText)
       case c: ScCompoundTypeElement =>
         c.components.toArray.flatMap(classNames)
+      case ct: ScCaptureTypeElement =>
+        classNames(ct.innerElement)
       case d: ScDesugarizableTypeElement =>
         d.computeDesugarizedType match {
           case Some(tp) => classNames(tp)

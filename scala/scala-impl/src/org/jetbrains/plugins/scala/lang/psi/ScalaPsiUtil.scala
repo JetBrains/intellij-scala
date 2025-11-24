@@ -1461,15 +1461,17 @@ object ScalaPsiUtil {
 
     val viewsTexts = views.map {
       case ParameterDescriptor(tparam, typeElement, index, _) =>
-        val needParenthesis = typeElement match {
+        @tailrec
+        def needParenthesis(typeElement: ScTypeElement): Boolean = typeElement match {
           case _: ScCompoundTypeElement |
                _: ScInfixTypeElement |
                _: ScFunctionalTypeElement |
                _: ScExistentialTypeElement => true
+          case ct: ScCaptureTypeElement => needParenthesis(ct.innerElement)
           case _ => false
         }
         import typeElement.projectContext
-        s"ev$$$index: ${tparam.name} $functionArrow ${typeElement.getText.parenthesize(needParenthesis)}"
+        s"ev$$$index: ${tparam.name} $functionArrow ${typeElement.getText.parenthesize(needParenthesis(typeElement))}"
     }
 
     val bounds = for {
@@ -1797,6 +1799,7 @@ object ScalaPsiUtil {
           .map(transformInner)
           .mkString("_" /* this is stupid, no idea why this is added */, "_", "")
       case ScCompoundTypeElement(tes, _) => tes.headOption.fold("")(transformInner)
+      case ct: ScCaptureTypeElement => transform(isRoot)(ct.innerElement)
       case ScMatchTypeElement(te, _) => transform(isRoot)(te)
       case ScFunctionalTypeElement(pte: ScParenthesisedTypeElement, retTe) if pte.innerElement.isEmpty => retTe.fold("")(transform(isRoot))
       case ScFunctionalTypeElement(argTe, retTe) => transformInner(argTe) + "_to_" + retTe.fold("")(transform(isRoot))
