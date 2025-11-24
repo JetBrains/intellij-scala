@@ -56,6 +56,7 @@ object ScalaTokenType {
   val ImplicitFunctionArrow     = new ScalaTokenType("?=>") // TODO: rename to context function arrow?
   val PureFunctionArrow         = new ScalaTokenType("->")
   val ImplicitPureFunctionArrow = new ScalaTokenType("?->")
+  val CaptureOperator           = new ScalaTokenType("^")
 
   object IsTemplateDefinition {
 
