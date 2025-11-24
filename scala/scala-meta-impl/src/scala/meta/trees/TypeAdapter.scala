@@ -58,6 +58,8 @@ trait TypeAdapter {
           m.Type.Tuple(t.components.map(toType).toList)
         case t: ScWildcardTypeElement =>
           m.Type.Placeholder(typeBounds(t))
+        case ct: ScCaptureTypeElement =>
+          toType(ct.innerElement)
         case t: ScCompoundTypeElement =>
           t.components
             .dropRight(1)

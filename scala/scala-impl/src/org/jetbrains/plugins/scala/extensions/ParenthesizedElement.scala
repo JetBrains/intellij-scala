@@ -156,7 +156,8 @@ object ParenthesizedElement {
          _: ScTupleTypeElement |
          _: ScParenthesisedTypeElement => 0
     case _: ScAnnotTypeElement         => 1
-    case _: ScCompoundTypeElement      => 2
+    case _: ScCompoundTypeElement |
+         _: ScCaptureTypeElement       => 2
     case _: ScInfixTypeElement         => 3
     case _: ScExistentialTypeElement   => 4
     case _: ScWildcardTypeElement      => 5
