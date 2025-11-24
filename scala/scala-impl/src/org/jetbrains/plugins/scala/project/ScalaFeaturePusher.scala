@@ -55,7 +55,9 @@ object ScalaFeaturePusher {
         Option(file.getUserData(IndexingDataKeys.VIRTUAL_FILE))
           .flatMap(vFile => if (vFile.isDirectory) Some(vFile) else Option(vFile.getParent))
           .flatMap(getFeatures)
-      }
+      }.orElse(
+        getFeatures(file.getVirtualFile)
+      )
 
   def getFeatures(file: VirtualFile): Option[ScalaFeatures] =
     Option(key.getPersistentValue(file)).map(ScalaFeatures.deserializeFromInt(_))

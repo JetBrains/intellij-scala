@@ -456,6 +456,13 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       case _ =>
     }
 
+    // capture sets take precedence above most stuff
+    rightElementType match {
+      case ScalaElementType.CAPTURE_SET => return WITHOUT_SPACING
+      case ScalaTokenType.CaptureOperator => return WITHOUT_SPACING
+      case _ =>
+    }
+
     def isParenthesis(psi: PsiElement): Boolean = psi.is[ScParenthesizedElement]
 
     if (leftElementType == tLPARENTHESIS && isParenthesis(leftPsiParent)) {
