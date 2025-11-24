@@ -1,21 +1,44 @@
 package org.jetbrains.plugins.scala.lang.randomTyping
 
 import com.intellij.psi.PsiDocumentManager
+import com.intellij.testFramework.TestLoggerKt
+import com.intellij.util.lang.CompoundRuntimeException
 import com.intellij.util.ui.EDT
-import org.codehaus.groovy.tools.shell.util.Preferences.getEditor
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
 import org.jetbrains.plugins.scala.extensions.{StringExt, inWriteCommandAction}
 
 import scala.collection.mutable
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 import scala.util.Random
 
 abstract class RandomTypingTestBase extends EditorActionTestBase {
   def logging = false
 
-  protected def log(s: Any): Unit =
+  protected final def log(s: Any): Unit =
     if (logging) println(s)
 
-  def typeRandomly(targetText: String, random: Random): Unit = {
+
+  def typeRandomly(targetText: String, seed: Int, targetTextOrigin: String = getTestName(false)): Unit = {
+    println(s"Testing(seed = $seed) $targetTextOrigin")
+
+    try {
+      typeRandomly(targetText, new Random(seed))
+      TestLoggerKt.getErrorLog.takeLoggedErrors().forEach(throw _)
+    } catch {
+      case e: Throwable =>
+        def ignoreException(e: Throwable): Boolean = e match {
+          case e: CompoundRuntimeException => e.getExceptions.asScala.forall(ignoreException)
+          case e if e.getMessage == "Assertion failed: Caret model is in its update process. All requests are illegal at this point." => true
+          case e if e.getMessage.startsWith("nonempty text is not covered by block") => true
+          case _ => false
+        }
+        if (!ignoreException(e)) {
+          throw new Exception(s"Exception while typing $targetTextOrigin with seed $seed", e)
+        }
+    }
+  }
+
+  private def typeRandomly(targetText: String, random: Random): Unit = {
     assert(!hasCodePointsSpanningMultipleChars(targetText))
     val psiDocumentManager = PsiDocumentManager.getInstance(getProject)
     def commit(): Unit = {
