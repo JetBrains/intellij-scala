@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScConstructo
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScGuard, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterType, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAliasDeclaration, ScTypeAliasDefinition, ScValueOrVariable, ScValueOrVariableDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScExportStmt, ScImportExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypeBoundsOwner}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
@@ -96,7 +96,10 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
     variableNode.getParent match {
       case ref: ScReferenceExpression if ref.qualifier.nonEmpty => false
       case parent => parent.getParent match {
-        case _: ScImportExpr => false
+        case grandParent: ScImportExpr => grandParent.getParent match {
+          case _: ScExportStmt => true
+          case _ => false
+        }
         case grandParent: ScSimpleTypeElement =>
           grandParent.getParent match {
             case _: ScParameterType => false
@@ -173,6 +176,9 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
               case expr => expr
             }
             unwrapMethodName(methodInv.getInvokedExpr).getText
+          case exportStmt: ScExportStmt =>
+            if (exportStmt.importExprs.size == 1) exportStmt.importExprs.head.getText
+            else super.getTypedVarString(exportStmt)
           case _ =>
             super.getTypedVarString(element)
         }

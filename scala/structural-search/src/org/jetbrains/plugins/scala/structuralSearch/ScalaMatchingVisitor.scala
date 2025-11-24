@@ -163,7 +163,10 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     def parentsMatch = matchInAnyOrder(extractConstructorInvocations(extBlock), extractConstructorInvocations(other))
     def functionsMatch = matchInAnyOrder(extBlock.functions, other.functions)
     def classesMatch = matchInAnyOrder(extBlock.typeDefinitions, other.typeDefinitions)
-    globalVisitor.setResult(parentsMatch && functionsMatch && classesMatch && primaryConstrBodyMatch(extBlock.templateBody, other.templateBody))
+    def exportsMatch = matchInAnyOrder(
+      extBlock.templateBody.map(_.getExportStatements).getOrElse(Seq.empty),
+      other.templateBody.map(_.getExportStatements).getOrElse(Seq.empty))
+    globalVisitor.setResult(parentsMatch && functionsMatch && classesMatch && exportsMatch && primaryConstrBodyMatch(extBlock.templateBody, other.templateBody))
   }
 
   private def primaryConstrBodyMatch(templBody: Option[ScTemplateBody], other: Option[ScTemplateBody]) = {
@@ -184,7 +187,8 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     val other = globalVisitor.getElement.asInstanceOf[ScTemplateBody]
     def functionsMatch = matchInAnyOrder(templBody.functions, other.functions)
     def classesMatch = matchInAnyOrder(templBody.typeDefinitions, other.typeDefinitions)
-    globalVisitor.setResult(functionsMatch && classesMatch && primaryConstrBodyMatch(Some(templBody), Some(other)))
+    def exportsMatch = matchSequentially(templBody.getExportStatements, other.getExportStatements)
+    globalVisitor.setResult(functionsMatch && classesMatch && primaryConstrBodyMatch(Some(templBody), Some(other)) && exportsMatch)
   }
 
   private def matchEnumCase(enCase: ScEnumCase, other: ScEnumCase): Unit = {
