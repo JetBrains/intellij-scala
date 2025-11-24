@@ -54,7 +54,7 @@ object ScGenericCallAnnotator extends ElementAnnotator[ScGenericCall] {
         }
 
         f match {
-          case typeParamOwner: PsiNamedElement if (typeParamOwner.isInstanceOf[ScTypeParametersOwner]  || typeParamOwner.is[LightDefaultConstructor]) && !isKindProjector(genCall) =>
+          case typeParamOwner: PsiNamedElement with PsiTypeParameterListOwner if !isKindProjector(genCall) =>
             val typeParams = f match {
               case ScalaConstructor(cons) =>
                 cons
@@ -69,8 +69,7 @@ object ScGenericCallAnnotator extends ElementAnnotator[ScGenericCall] {
                     extension.fold(fun.typeParameters)(_.typeParameters)
                   case lCons: LightDefaultConstructor =>
                     lCons.containingClass.getTypeParameters.toSeq
-                  case t: ScTypeParametersOwner => t.typeParameters
-                  case _ => Seq.empty
+                  case _ => typeParamOwner.getTypeParameters.toSeq
                 }
 
                 if (tparams.isEmpty) typeParamsFromInnerApplyCall(rr)
