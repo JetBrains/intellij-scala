@@ -84,27 +84,12 @@ abstract class RandomTypingFileTestBase(testFilePath: String) extends RandomTypi
   private val separatorRegex = raw"\n-{5,}".r
 
   def typeRandomly(file: Path, seed: Int): Unit = {
-    println(s"Testing(seed = $seed) ${file.toAbsolutePath}")
     val targetText = {
       val text = file.readAllBytesToString().withNormalizedSeparator
       separatorRegex.findFirstMatchIn(text)
         .fold(text)(m => text.substring(0, m.start))
     }
 
-    try {
-      typeRandomly(targetText, new Random(seed))
-      TestLoggerKt.getErrorLog.takeLoggedErrors().forEach(throw _)
-    } catch {
-      case e: Throwable =>
-        def ignoreException(e: Throwable): Boolean = e match {
-          case e: CompoundRuntimeException => e.getExceptions.asScala.forall(ignoreException)
-          case e if e.getMessage == "Assertion failed: Caret model is in its update process. All requests are illegal at this point." => true
-          case e if e.getMessage.startsWith("nonempty text is not covered by block") => true
-          case _ => false
-        }
-        if (!ignoreException(e)) {
-          throw new Exception(s"Exception while typing ${file.toAbsolutePath} with seed $seed", e)
-        }
-    }
+    typeRandomly(targetText, seed, file.toAbsolutePath.toString)
   }
 }

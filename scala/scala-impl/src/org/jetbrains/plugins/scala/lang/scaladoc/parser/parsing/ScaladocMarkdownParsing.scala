@@ -394,7 +394,7 @@ private class ScaladocMarkdownParsing(builder: MkBuilder, content: String) exten
       // Tokens
       //case MarkdownTokenTypes.EMPH => ScalaDocTokenType.DOC_ITALIC_TAG
       //case MarkdownTokenTypes.BACKTICK => ScalaDocTokenType.DOC_MONOSPACE_TAG
-      case MarkdownTokenTypes.BLOCK_QUOTE => ScalaDocTokenType.DOC_BLOCKQUOTE
+      case MarkdownTokenTypes.BLOCK_QUOTE if builder.getTokenType == ScalaDocTokenType.DOC_BLOCKQUOTE => ScalaDocTokenType.DOC_BLOCKQUOTE
       case MarkdownTokenTypes.WHITE_SPACE if builder.getTokenType == ScalaDocTokenType.DOC_BLOCKQUOTE && isBlockquoteWhitespace(treeIt.current) =>
         ScalaDocTokenType.DOC_WHITESPACE
       case MarkdownTokenTypes.WHITE_SPACE if afterLeadingAsteriskOrBlockquote(builder.rawLookup(-1)) =>
