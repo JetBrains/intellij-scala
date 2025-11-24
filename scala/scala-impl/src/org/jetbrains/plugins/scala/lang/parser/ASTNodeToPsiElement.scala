@@ -61,6 +61,7 @@ object ASTNodeToPsiElement {
       case MATCH_TYPE => new ScMatchTypeElementImpl(node)
       case POLY_FUNCTION_TYPE => new ScPolyFunctionTypeElementImpl(node)
       case DEPENDENT_FUNCTION_TYPE => new ScDependentFunctionTypeElementImpl(node)
+      case CAPTURE_TYPE => new ScCaptureTypeElementImpl(node)
 
       /* Type parts */
       case TYPE_ARGS => new ScTypeArgsImpl(node)

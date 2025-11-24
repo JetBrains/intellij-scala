@@ -187,6 +187,7 @@ object ScalaElementType {
   val MATCH_TYPE: ScTypeElementType = new ScTypeElementType("match type")
   val POLY_FUNCTION_TYPE: ScTypeElementType = new ScTypeElementType("poly function type")
   val DEPENDENT_FUNCTION_TYPE: ScTypeElementType = new ScTypeElementType("dependent function type")
+  val CAPTURE_TYPE: ScTypeElementType = new ScTypeElementType("capture type")
 
   /** ********************************************************************************** */
   /** ************************************ TYPE PARTS ********************************** */
