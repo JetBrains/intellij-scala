@@ -298,4 +298,109 @@ class CaptureCheckingParserTest extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  def test_capture_set_on_functions(): Unit = checkTree(
+    """
+      |x: Int ->{} Int
+      |x: Int ?->{cap} Int
+      |x: Int =>{this, x} Int
+      |x: Int ?=>{bullshit{{} x} haha()} Int
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  TypedExpression
+      |    ReferenceExpression: x
+      |      PsiElement(identifier)('x')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    FunctionalType: Int ->{} Int
+      |      SimpleType: Int
+      |        CodeReferenceElement: Int
+      |          PsiElement(identifier)('Int')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(->)('->')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        PsiElement(})('}')
+      |      PsiWhiteSpace(' ')
+      |      SimpleType: Int
+      |        CodeReferenceElement: Int
+      |          PsiElement(identifier)('Int')
+      |  PsiWhiteSpace('\n')
+      |  TypedExpression
+      |    ReferenceExpression: x
+      |      PsiElement(identifier)('x')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    FunctionalType: Int ?->{cap} Int
+      |      SimpleType: Int
+      |        CodeReferenceElement: Int
+      |          PsiElement(identifier)('Int')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(?->)('?->')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        PsiElement(identifier)('cap')
+      |        PsiElement(})('}')
+      |      PsiWhiteSpace(' ')
+      |      SimpleType: Int
+      |        CodeReferenceElement: Int
+      |          PsiElement(identifier)('Int')
+      |  PsiWhiteSpace('\n')
+      |  TypedExpression
+      |    ReferenceExpression: x
+      |      PsiElement(identifier)('x')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    FunctionalType: Int =>{this, x} Int
+      |      SimpleType: Int
+      |        CodeReferenceElement: Int
+      |          PsiElement(identifier)('Int')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(=>)('=>')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        PsiElement(this)('this')
+      |        PsiElement(,)(',')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(identifier)('x')
+      |        PsiElement(})('}')
+      |      PsiWhiteSpace(' ')
+      |      SimpleType: Int
+      |        CodeReferenceElement: Int
+      |          PsiElement(identifier)('Int')
+      |  PsiWhiteSpace('\n')
+      |  TypedExpression
+      |    ReferenceExpression: x
+      |      PsiElement(identifier)('x')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    FunctionalType: Int ?=>{bullshit{{} x} haha()} Int
+      |      SimpleType: Int
+      |        CodeReferenceElement: Int
+      |          PsiElement(identifier)('Int')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(?=>)('?=>')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        PsiElement(identifier)('bullshit')
+      |        PsiElement({)('{')
+      |        PsiElement({)('{')
+      |        PsiElement(})('}')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(identifier)('x')
+      |        PsiElement(})('}')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(identifier)('haha')
+      |        PsiElement(()('(')
+      |        PsiElement())(')')
+      |        PsiElement(})('}')
+      |      PsiWhiteSpace(' ')
+      |      SimpleType: Int
+      |        CodeReferenceElement: Int
+      |          PsiElement(identifier)('Int')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
 }

@@ -299,6 +299,10 @@ object ScalaElementType {
 
   val REFINEMENT: ScalaElementType = new ScalaElementType("refinement")
 
+  /** ************************************ Capture Setn ******************************* */
+
+  val CAPTURE_SET: ScalaElementType = new ScalaElementType("capture set")
+
   /** ************************************* XML ************************************ */
 
   val XML_EXPR: ScalaElementType = new ScalaElementType("Xml expr")

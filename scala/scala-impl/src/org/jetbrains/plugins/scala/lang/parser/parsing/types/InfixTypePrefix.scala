@@ -5,6 +5,7 @@ import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.PureFunctionArrow
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.types.cc.CaptureSet
 import org.jetbrains.plugins.scala.lang.parser.util.InScala3
 
 /**
@@ -22,7 +23,8 @@ object InfixTypePrefix {
       PureFunctionArrow.remapCurrentToken()
       builder.getTokenType match {
         case ScalaTokenTypes.tFUNTYPE | ScalaTokenType.ImplicitFunctionArrow | ScalaTokenType.PureFunctionArrow | ScalaTokenType.ImplicitPureFunctionArrow =>
-          builder.advanceLexer()
+          builder.advanceLexer() //Ate => or ?=> or -> os ?->
+          CaptureSet()
           Type(star, isPattern)
           rollbackMarker.drop()
           marker.done(ScalaElementType.DEPENDENT_FUNCTION_TYPE)
@@ -56,6 +58,7 @@ object InfixTypePrefix {
       builder.getTokenType match {
         case ScalaTokenTypes.tFUNTYPE | ScalaTokenType.ImplicitFunctionArrow | ScalaTokenType.PureFunctionArrow | ScalaTokenType.ImplicitPureFunctionArrow =>
           builder.advanceLexer() //Ate => or ?=> or -> os ?->
+          CaptureSet()
           if (!Type(star, isPattern)) builder.error(ScalaBundle.message("wrong.type"))
           marker.done(ScalaElementType.TYPE)
         case ScalaTokenTypes.kFOR_SOME =>
