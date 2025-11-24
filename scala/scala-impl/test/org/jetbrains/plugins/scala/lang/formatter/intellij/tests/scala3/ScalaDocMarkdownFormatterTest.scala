@@ -198,6 +198,36 @@ class ScalaDocMarkdownFormatterTest extends AbstractScalaFormatterTestBase {
       |""".stripMargin
   )
 
+  def test_quote_content(): Unit = doTextTest(
+    """
+      |/**
+      | * >
+      | * > > quoted quote
+      | * >
+      | * > *quoted italic*
+      | * >
+      | * > 1. aaa
+      | * > 2. bbb
+      | * >
+      | * > - ccc
+      | * > - ddd
+      | * >
+      | * > # Header
+      | * > ## Header 2
+      | * >
+      | * > `code`
+      | * > ``co`de``
+      | * >
+      | * > ```scala
+      | * > val x = 1
+      | * >
+      | * > def test =
+      | * >   println(x)
+      | * > ```
+      | */
+      |""".stripMargin
+  )
+
   def test_return_simple(): Unit = doTextTest(
     """
       |/**

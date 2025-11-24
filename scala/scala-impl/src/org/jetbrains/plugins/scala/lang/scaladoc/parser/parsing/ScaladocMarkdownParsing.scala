@@ -96,11 +96,24 @@ private class ScaladocMarkdownParsing(builder: MkBuilder, content: String) exten
         //ensureBuilderInPosition(treeIt.currentStartOffset)
         assert(builder.getTokenType == ScalaDocTokenType.DOC_BLOCKQUOTE)
         builder.advanceLexer()
-        def nextTreeElementIsWsOrEOL = treeIt.peek().exists { e =>
+        def nextTreeElementIsWsOrEOLOrHandlesWs = treeIt.peek().exists { e =>
           val ty = e.getType
-          ty == MarkdownTokenTypes.EOL || ty == MarkdownTokenTypes.WHITE_SPACE
+          ty == MarkdownTokenTypes.EOL || ty == MarkdownTokenTypes.WHITE_SPACE || elementsHandlingPrevWs.contains(ty)
         }
-        if (builder.getTokenType == ScalaDocTokenType.DOC_WHITESPACE && !nextTreeElementIsWsOrEOL) {
+        if (builder.getTokenType == ScalaDocTokenType.DOC_WHITESPACE && !nextTreeElementIsWsOrEOLOrHandlesWs) {
+          builder.advanceLexer()
+        }
+      case MarkdownTokenTypes.WHITE_SPACE =>
+        // We will arrive here when the whitespace is either following the asterisk at the beginning of the line
+        // or the whitespace will actually be a blockquote token that the Markdown parser produces to pad already opened quotes
+        // we want to eat all blockquote tokens and whitespace tokens until the end of the Markdown token node
+        def isQuoteOrWs = {
+          val ty = builder.getTokenType
+          ty == ScalaDocTokenType.DOC_BLOCKQUOTE ||
+            ty == ScalaDocTokenType.DOC_WHITESPACE
+        }
+
+        while (isQuoteOrWs && builder.currentPositionInContent + builder.getTokenText.length <= treeIt.currentEndOffset) {
           builder.advanceLexer()
         }
       case _ if !treeIt.currentHasChildren =>
@@ -244,7 +257,10 @@ private class ScaladocMarkdownParsing(builder: MkBuilder, content: String) exten
         splitWsFromFenceBorder(ScalaDocTokenType.DOC_INNER_CODE)
         ensureBuilderInPosition(childIt.currentEndOffset, ScalaDocTokenType.DOC_INNER_CLOSE_CODE_TAG)
       } else if (childIt.currentNodeType == MarkdownTokenTypes.WHITE_SPACE) {
-        // there will only be whitespace if it is followed by a quote token
+        // this is a special handling for the initial whitespaces in a quoted code block
+        // Before fence content, the Markdown parser will produce a whitespace token that contains a quote followed by a whitespace
+        // before the next token is the actual content.
+        // We want the last whitespace to belong to the code content not the quote token.
         def isQuoteOrWsAndNextIsQuote = {
           val ty = builder.getTokenType
           ty == ScalaDocTokenType.DOC_BLOCKQUOTE ||
@@ -316,7 +332,7 @@ private class ScaladocMarkdownParsing(builder: MkBuilder, content: String) exten
 
   private def visitBlockQuote(elementTy: IElementType, treeIt: MkTreeIt): Unit = {
     // what's different here to the default is that we don't want to ensure the position here
-    // that's because the blockquote token will do that
+    // because the blockquote token will do that
     val marker = builder.mark()
     val endOffset = treeIt.currentEndOffset
     visitRest(treeIt.startIterateCurrentChildren())
@@ -380,8 +396,7 @@ private class ScaladocMarkdownParsing(builder: MkBuilder, content: String) exten
       //case MarkdownTokenTypes.BACKTICK => ScalaDocTokenType.DOC_MONOSPACE_TAG
       case MarkdownTokenTypes.BLOCK_QUOTE => ScalaDocTokenType.DOC_BLOCKQUOTE
       case MarkdownTokenTypes.WHITE_SPACE if builder.getTokenType == ScalaDocTokenType.DOC_BLOCKQUOTE && isBlockquoteWhitespace(treeIt.current) =>
-        builder.advanceLexer()
-        return None
+        ScalaDocTokenType.DOC_WHITESPACE
       case MarkdownTokenTypes.WHITE_SPACE if afterLeadingAsteriskOrBlockquote(builder.rawLookup(-1)) =>
         ScalaDocTokenType.DOC_WHITESPACE
 
@@ -501,6 +516,8 @@ object ScaladocMarkdownParsing {
 
   private class MkBuilder(base: PsiBuilder, val content: String, val lineOffsetMapping: Seq[Int]) extends PsiBuilderAdapter(base) {
     private var curLine = 0
+
+    def currentPositionInContent: Int = getCurrentOffset - lineOffsetMapping(curLine)
 
     def ensureBuilderInPosition(position: Int, iType: IElementType = null, splitWs: Boolean = false): Unit = {
       val target = position + lineOffsetMapping(curLine)
