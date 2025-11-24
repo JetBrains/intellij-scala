@@ -1795,7 +1795,7 @@ ScalaFile
                         ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
                         ScPsiDocToken(DOC_WHITESPACE)('\n   ')
                         ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-                        ScPsiDocToken(DOC_WHITESPACE)('   ')
+                    ScPsiDocToken(DOC_WHITESPACE)('   ')
                     ScDocListItem
                       ScPsiDocToken(DOC_LIST_ITEM_HEAD)('2. ')
                       ScDocParagraph

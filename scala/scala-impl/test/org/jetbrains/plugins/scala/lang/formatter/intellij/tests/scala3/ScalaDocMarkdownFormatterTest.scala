@@ -261,4 +261,38 @@ class ScalaDocMarkdownFormatterTest extends AbstractScalaFormatterTestBase {
       | */
       |""".stripMargin
   )
+
+  def test_param_simple(): Unit = doTextTest(
+    """
+      |/**
+      | * @param   p  some description
+      | *           with multiple lines
+      | */
+      |""".stripMargin,
+    """
+      |/**
+      | * @param p some description
+      | *          with multiple lines
+      | */
+      |""".stripMargin
+  )
+
+  def test_note(): Unit = doTextTest(
+    """
+      |/**
+      | * @note   some description
+      | *           with multiple lines
+      | *
+      | *   other paragraph
+      | */
+      |""".stripMargin,
+    """
+      |/**
+      | * @note some description
+      | *       with multiple lines
+      | *
+      | *       other paragraph
+      | */
+      |""".stripMargin
+  )
 }

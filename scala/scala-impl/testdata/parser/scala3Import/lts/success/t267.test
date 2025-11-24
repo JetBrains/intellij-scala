@@ -82,7 +82,7 @@ ScalaFile
               ScPsiDocToken(DOC_COMMENT_DATA)('eval' function')
               ScPsiDocToken(DOC_WHITESPACE)('\n ')
               ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-              ScPsiDocToken(DOC_WHITESPACE)('   ')
+            ScPsiDocToken(DOC_WHITESPACE)('   ')
           ScDocListItem
             ScPsiDocToken(DOC_LIST_ITEM_HEAD)('- ')
             ScDocParagraph
@@ -94,7 +94,7 @@ ScalaFile
               ScPsiDocToken(DOC_COMMENT_DATA)('Exp'')
               ScPsiDocToken(DOC_WHITESPACE)('\n ')
               ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-              ScPsiDocToken(DOC_WHITESPACE)('   ')
+            ScPsiDocToken(DOC_WHITESPACE)('   ')
           ScDocListItem
             ScPsiDocToken(DOC_LIST_ITEM_HEAD)('- ')
             ScDocParagraph
