@@ -21,7 +21,6 @@ class MillTest extends TextToTextTestBase(
     "mill.define.EnclosingClass", // Predef.Class
     "mill.define.EvaluatorProxy", // Predef.Map
     "mill.define.InputImpl", // immutable.Seq[_root_.mill.define.Task[?]] vs Nil.type
-    "mill.define.Mirrors", // Predef.String
     "mill.define.Target", // extends Task, NamedTask
     "mill.define.TargetImpl", // extends Task, Target
     "mill.define.TaskModule", // extends BaseClass, Module
