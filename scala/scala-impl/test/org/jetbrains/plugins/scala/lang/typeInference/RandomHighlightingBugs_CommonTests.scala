@@ -1,11 +1,9 @@
 package org.jetbrains.plugins.scala.lang.typeInference
 
-import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.annotator.ScalaHighlightingTestLike
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 
-trait RandomHighlightingBugs_CommonTests {
-  self: ScalaLightCodeInsightFixtureTestCase with ScalaHighlightingTestLike =>
+trait RandomHighlightingBugs_CommonTests extends ScalaLightCodeInsightFixtureTestCase with ScalaHighlightingTestLike {
 
   object SCL24453 {
     val CommonDefinitions: String =
@@ -74,4 +72,24 @@ trait RandomHighlightingBugs_CommonTests {
 
   def test_SCL24453_1(): Unit
   def test_SCL24453_2(): Unit
+
+  //SCL-24679, SCL-24453
+  def testAllowEffectivelyFinalLazyValsInStableReferences(): Unit = checkTextHasNoErrors(
+    """import scala.language.implicitConversions
+      |import MyObject.myLazyVal1
+      |
+      |trait MyTrait {
+      |  val value: String = ???
+      |  lazy val lazyValue: String = ???
+      |  type MyType1
+      |  type MyType2 = String
+      |}
+      |
+      |object MyObject {
+      |  lazy val myLazyVal1: MyTrait = ???
+      |  ??? : myLazyVal1.type
+      |  ??? : myLazyVal1.value.type
+      |}
+      |""".stripMargin
+  )
 }
