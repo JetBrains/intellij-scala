@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParame
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScDerivesClause, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScCaptureTypeElementImpl
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api._
 
 class ScalaRecursiveElementVisitor extends ScalaElementVisitor with PsiRecursiveVisitor {
@@ -183,6 +184,7 @@ abstract class ScalaElementVisitor extends PsiElementVisitor {
   def visitAnnotTypeElement(annot: ScAnnotTypeElement): Unit = visitTypeElement(annot)
   def visitTypeVariableTypeElement(tvar: ScTypeVariableTypeElement): Unit = visitTypeElement(tvar)
   def visitTypeLambdaTypeElement(lambda: ScTypeLambdaTypeElement): Unit = visitTypeElement(lambda)
+  def visitCaptureTypeElement(captureType: ScCaptureTypeElement): Unit = visitTypeElement(captureType)
   def visitContextBound(contextBound: ScContextBound): Unit = visitScalaElement(contextBound)
 
   //scaladoc

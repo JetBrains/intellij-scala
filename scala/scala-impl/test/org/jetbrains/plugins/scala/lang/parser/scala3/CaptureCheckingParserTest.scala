@@ -5,6 +5,178 @@ import org.jetbrains.plugins.scala.ScalaVersion
 class CaptureCheckingParserTest extends SimpleScala3ParserTestBase {
   override protected def scalaVersion: ScalaVersion = ScalaVersion.Latest.Scala_3_8
 
+  def test_capture_type(): Unit = checkTree(
+    """
+      |x: A^
+      |x: A^{}
+      |x: left ^ right
+      |x: left ^ (right)
+      |x: left ^ 1
+      |x: left ^ "literal"
+      |x: (left^) ^ right
+      |x: arg^ -> ret
+      |x: arg^ ?-> ret
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  TypedExpression
+      |    ReferenceExpression: x
+      |      PsiElement(identifier)('x')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    CaptureType: A^
+      |      SimpleType: A
+      |        CodeReferenceElement: A
+      |          PsiElement(identifier)('A')
+      |      PsiElement(^)('^')
+      |  PsiWhiteSpace('\n')
+      |  TypedExpression
+      |    ReferenceExpression: x
+      |      PsiElement(identifier)('x')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    CaptureType: A^{}
+      |      SimpleType: A
+      |        CodeReferenceElement: A
+      |          PsiElement(identifier)('A')
+      |      PsiElement(^)('^')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |  TypedExpression
+      |    ReferenceExpression: x
+      |      PsiElement(identifier)('x')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    InfixType: left ^ right
+      |      SimpleType: left
+      |        CodeReferenceElement: left
+      |          PsiElement(identifier)('left')
+      |      PsiWhiteSpace(' ')
+      |      CodeReferenceElement: ^
+      |        PsiElement(identifier)('^')
+      |      PsiWhiteSpace(' ')
+      |      SimpleType: right
+      |        CodeReferenceElement: right
+      |          PsiElement(identifier)('right')
+      |  PsiWhiteSpace('\n')
+      |  TypedExpression
+      |    ReferenceExpression: x
+      |      PsiElement(identifier)('x')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    InfixType: left ^ (right)
+      |      SimpleType: left
+      |        CodeReferenceElement: left
+      |          PsiElement(identifier)('left')
+      |      PsiWhiteSpace(' ')
+      |      CodeReferenceElement: ^
+      |        PsiElement(identifier)('^')
+      |      PsiWhiteSpace(' ')
+      |      TypeInParenthesis: (right)
+      |        PsiElement(()('(')
+      |        SimpleType: right
+      |          CodeReferenceElement: right
+      |            PsiElement(identifier)('right')
+      |        PsiElement())(')')
+      |  PsiWhiteSpace('\n')
+      |  TypedExpression
+      |    ReferenceExpression: x
+      |      PsiElement(identifier)('x')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    InfixType: left ^ 1
+      |      SimpleType: left
+      |        CodeReferenceElement: left
+      |          PsiElement(identifier)('left')
+      |      PsiWhiteSpace(' ')
+      |      CodeReferenceElement: ^
+      |        PsiElement(identifier)('^')
+      |      PsiWhiteSpace(' ')
+      |      LiteralType: 1
+      |        IntegerLiteral
+      |          PsiElement(integer)('1')
+      |  PsiWhiteSpace('\n')
+      |  TypedExpression
+      |    ReferenceExpression: x
+      |      PsiElement(identifier)('x')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    InfixType: left ^ "literal"
+      |      SimpleType: left
+      |        CodeReferenceElement: left
+      |          PsiElement(identifier)('left')
+      |      PsiWhiteSpace(' ')
+      |      CodeReferenceElement: ^
+      |        PsiElement(identifier)('^')
+      |      PsiWhiteSpace(' ')
+      |      LiteralType: "literal"
+      |        StringLiteral
+      |          PsiElement(string content)('"literal"')
+      |  PsiWhiteSpace('\n')
+      |  TypedExpression
+      |    ReferenceExpression: x
+      |      PsiElement(identifier)('x')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    InfixType: (left^) ^ right
+      |      TypeInParenthesis: (left^)
+      |        PsiElement(()('(')
+      |        CaptureType: left^
+      |          SimpleType: left
+      |            CodeReferenceElement: left
+      |              PsiElement(identifier)('left')
+      |          PsiElement(^)('^')
+      |        PsiElement())(')')
+      |      PsiWhiteSpace(' ')
+      |      CodeReferenceElement: ^
+      |        PsiElement(identifier)('^')
+      |      PsiWhiteSpace(' ')
+      |      SimpleType: right
+      |        CodeReferenceElement: right
+      |          PsiElement(identifier)('right')
+      |  PsiWhiteSpace('\n')
+      |  TypedExpression
+      |    ReferenceExpression: x
+      |      PsiElement(identifier)('x')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    FunctionalType: arg^ -> ret
+      |      CaptureType: arg^
+      |        SimpleType: arg
+      |          CodeReferenceElement: arg
+      |            PsiElement(identifier)('arg')
+      |        PsiElement(^)('^')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(->)('->')
+      |      PsiWhiteSpace(' ')
+      |      SimpleType: ret
+      |        CodeReferenceElement: ret
+      |          PsiElement(identifier)('ret')
+      |  PsiWhiteSpace('\n')
+      |  TypedExpression
+      |    ReferenceExpression: x
+      |      PsiElement(identifier)('x')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    FunctionalType: arg^ ?-> ret
+      |      CaptureType: arg^
+      |        SimpleType: arg
+      |          CodeReferenceElement: arg
+      |            PsiElement(identifier)('arg')
+      |        PsiElement(^)('^')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(?->)('?->')
+      |      PsiWhiteSpace(' ')
+      |      SimpleType: ret
+      |        CodeReferenceElement: ret
+      |          PsiElement(identifier)('ret')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
   def test_pure_function(): Unit = checkTree(
     """
       |// pure function
