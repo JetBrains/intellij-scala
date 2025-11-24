@@ -193,7 +193,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     val tps = if (t.typeParameters.isEmpty) "" else t.typeParameters.map(textOf).mkString("[", ", ", "]")
     val bounds = textOfBoundsIn(t)
     val rhs = t match {
-      case definition: ScTypeAliasDefinition => " = " + textOf(definition.aliasedType)
+      case definition: ScTypeAliasDefinition if !(normalize && definition.isOpaque) => " = " + textOf(definition.aliasedType)
       case _ => ""
     }
     annotations + "\n" + indent + "  " + modifiers + "type " + name + tps + bounds + rhs + "\n"
@@ -249,7 +249,10 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
   }
 
   private def textWithQualifiers(expr: ScExpression): String =
-    expr.getText.replaceAll("""(?<!\.|\w)Array\(""", "_root_.scala.Array(") // TODO Resolve references
+    expr.getText // TODO Use AST
+      .replaceAll("""(?<!\.|\w)Array\(""", "_root_.scala.Array(")
+      .replaceAll("""([a-z]+)(?<! n|cat|origin|msg|explain|serialCommandExec)=(?=\S)""", "$1 = ")
+      .replace("\"\"\"", "\"")
 
   private def textOf(ml: ScModifierList): String = {
     def scope = ml.getParent match {
