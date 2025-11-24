@@ -8,7 +8,8 @@ trait ScFunctionalTypeElement extends ScDesugarizableToParametrizedTypeElement {
 
   def paramTypeElement: ScTypeElement = findChild[ScTypeElement].get
 
-  def isContext: Boolean = findFirstChildByType(ScalaTokenType.ImplicitFunctionArrow).nonEmpty
+  def isContext: Boolean = findFirstChildByType(ScalaTokenType.ContextFunctionArrowTokenSet).nonEmpty
+  def isPure: Boolean = findFirstChildByType(ScalaTokenType.PureFunctionArrowTokenSet).nonEmpty
 
   def returnTypeElement: Option[ScTypeElement] = findChildren[ScTypeElement] match {
     case Seq(_) => None

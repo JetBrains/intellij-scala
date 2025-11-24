@@ -76,6 +76,14 @@ trait ScalaPsiElement extends PsiElement
     Option(node).map(_.getPsi)
   }
 
+  def findFirstChildByType(set: tree.TokenSet): Option[PsiElement] = {
+    var node = getNode.getFirstChildNode
+    while (node != null && !set.contains(node.getElementType)) {
+      node = node.getTreeNext
+    }
+    Option(node).map(_.getPsi)
+  }
+
   def findFirstChildByTypeScala[T <: PsiElement](t: tree.IElementType): Option[T] =
     findFirstChildByType(t).map(_.asInstanceOf[T])
 

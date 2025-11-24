@@ -3,11 +3,12 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.types
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
+import org.jetbrains.plugins.scala.lang.parser.parsing.base.PureFunctionArrow
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.util.InScala3
 
 /**
- * [[InfixTypePrefix]] ::= [[InfixType]] ( ((‘=>’ | '?=>') [[Type]])
+ * [[InfixTypePrefix]] ::= [[InfixType]] ( ((‘=>’ | '?=>' | '->' | '?->') [[Type]])
  *                                         | [[ExistentialClause]]
  *                                         | [[MatchTypeSuffix]] )
  *                       | [[DepFunParams]] '=>' [[Type]]
@@ -18,8 +19,9 @@ object InfixTypePrefix {
 
     val rollbackMarker = builder.mark()
     if (builder.isScala3 && DepFunParams()) {
+      PureFunctionArrow.remapCurrentToken()
       builder.getTokenType match {
-        case ScalaTokenTypes.tFUNTYPE | ScalaTokenType.ImplicitFunctionArrow =>
+        case ScalaTokenTypes.tFUNTYPE | ScalaTokenType.ImplicitFunctionArrow | ScalaTokenType.PureFunctionArrow | ScalaTokenType.ImplicitPureFunctionArrow =>
           builder.advanceLexer()
           Type(star, isPattern)
           rollbackMarker.drop()
@@ -50,9 +52,10 @@ object InfixTypePrefix {
         givenMarker.done(ScalaElementType.TYPE_IN_PARENTHESIS)
       }
 
+      PureFunctionArrow.remapCurrentToken()
       builder.getTokenType match {
-        case ScalaTokenTypes.tFUNTYPE | ScalaTokenType.ImplicitFunctionArrow =>
-          builder.advanceLexer() //Ate => or ?=>
+        case ScalaTokenTypes.tFUNTYPE | ScalaTokenType.ImplicitFunctionArrow | ScalaTokenType.PureFunctionArrow | ScalaTokenType.ImplicitPureFunctionArrow =>
+          builder.advanceLexer() //Ate => or ?=> or -> os ?->
           if (!Type(star, isPattern)) builder.error(ScalaBundle.message("wrong.type"))
           marker.done(ScalaElementType.TYPE)
         case ScalaTokenTypes.kFOR_SOME =>

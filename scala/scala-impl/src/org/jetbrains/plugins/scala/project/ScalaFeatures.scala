@@ -60,6 +60,7 @@ trait ScalaFeatures extends Any {
   def `new context bounds and givens`: Boolean
   def noUnicodeEscapesInRawStrings: Boolean
   def `supports 'into' modifier`: Boolean
+  def `supports capture checking`: Boolean
 }
 
 object ScalaFeatures {
@@ -112,6 +113,8 @@ object ScalaFeatures {
       `in >= 2.12.16 or 2.13.9 or 3` || `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`
     def `case in pattern bindings`: Boolean =
       `in >= 2.12.15 or 2.13.7 or 3` || `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`
+    def `supports capture checking`: Boolean =
+      languageLevel >= ScalaLanguageLevel.Scala_3_8
 
     //SCL-22468
     def `Scala 3 Irrefutable Patterns`: Boolean =
@@ -192,6 +195,7 @@ object ScalaFeatures {
     override def `named tuples`: Boolean                         = delegate.`named tuples`
     override def `new context bounds and givens`: Boolean        = delegate.`named tuples`
     override def `supports 'into' modifier`: Boolean             = delegate.`supports 'into' modifier`
+    override def `supports capture checking`: Boolean            = delegate.`supports capture checking`
   }
 
   private val minorVersion6  = Version("6")
