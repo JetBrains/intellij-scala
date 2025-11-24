@@ -516,7 +516,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
   }
 
   private def isStableLazyVal(valDef: ScPatternDefinition): Boolean =
-    valDef.hasFinalModifier ||
+    valDef.isEffectivelyFinal ||
       valDef.isTopLevel || // top level `lazy val x = 1` is effectively final
       !valDef.isInScala3File || // in scala2 lazy val can be referenced with `.type` even without an explicit type
       valDef.typeElement.exists(_.isSingleton)
