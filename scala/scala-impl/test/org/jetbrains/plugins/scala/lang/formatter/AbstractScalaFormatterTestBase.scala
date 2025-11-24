@@ -8,7 +8,8 @@ import com.intellij.openapi.editor.impl.DocumentImpl
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.codeStyle.CodeStyleManager
-import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiFileFactory}
+import com.intellij.psi.impl.file.PsiDirectoryFactory
+import com.intellij.psi.{PsiDirectory, PsiDocumentManager, PsiElement, PsiFile, PsiFileFactory}
 import com.intellij.testFramework.LightIdeaTestCase
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.annotations.Nullable
@@ -16,6 +17,7 @@ import org.jetbrains.plugins.scala.extensions.{CharSeqExt, IteratorExt, PathExt,
 import org.jetbrains.plugins.scala.lang.formatter.AbstractScalaFormatterTestBase._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.processors.ScalaFmtPreFormatProcessor
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.project.{ScalaFeaturePusher, ScalaFeatures}
 import org.jetbrains.plugins.scala.util.{MarkersUtils, TestUtils}
 import org.jetbrains.plugins.scala.{LatestScalaVersions, NlsString, Scala3Language, ScalaLanguage, ScalaVersion}
 import org.junit.Assert._
@@ -109,9 +111,12 @@ abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
   private def doTextTest(action: Action, text: String, textAfter: String): Unit =
     doTextTest(TestData(text, textAfter, tempFileName, action, 1, checkAfterEachIteration = false))
 
-  private def initFile(fileName: String, text: String): PsiFile =
-    PsiFileFactory.getInstance(project)
+  private def initFile(fileName: String, text: String): PsiFile = {
+    val file = PsiFileFactory.getInstance(project)
       .createFileFromText(fileName, language, text, true, false)
+    ScalaFeaturePusher.setFeatures(file.getVirtualFile, ScalaFeatures.onlyByVersion(version))
+    file
+  }
 
   /**
    * For a given selection create all possible selections text ranges with borders leaf elements ranges borders.
