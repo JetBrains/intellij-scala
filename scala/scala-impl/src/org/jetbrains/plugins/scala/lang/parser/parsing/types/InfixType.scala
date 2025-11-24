@@ -4,9 +4,10 @@ import com.intellij.lang.PsiBuilder
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.Associativity
+import org.jetbrains.plugins.scala.lang.parser.parsing.base.PureFunctionArrow
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.util.PrecedenceClimbingInfixParsingRule
 
@@ -176,6 +177,7 @@ trait InfixType {
           typeVariables ||
           builder.getTokenText != "|") &&
           !(inContextBound && builder.features.`new context bounds and givens` && builder.getTokenText == "as") &&
+          !(!isPattern && builder.features.`new context bounds and givens` && PureFunctionArrow.isTokenText(builder.getTokenText)) &&
           super.shouldContinue
 
     private def parseTypeVariable(): Boolean =

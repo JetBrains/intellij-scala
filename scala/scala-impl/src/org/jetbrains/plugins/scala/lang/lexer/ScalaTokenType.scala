@@ -54,6 +54,8 @@ object ScalaTokenType {
   val WildcardTypeQuestionMark  = new ScalaTokenType("?")
   val TypeLambdaArrow           = new ScalaTokenType("=>>")
   val ImplicitFunctionArrow     = new ScalaTokenType("?=>") // TODO: rename to context function arrow?
+  val PureFunctionArrow         = new ScalaTokenType("->")
+  val ImplicitPureFunctionArrow = new ScalaTokenType("?->")
 
   object IsTemplateDefinition {
 
@@ -68,4 +70,7 @@ object ScalaTokenType {
     def unapply(elementType: IElementType): Boolean =
       tokenSet.contains(elementType)
   }
+
+  val ContextFunctionArrowTokenSet = TokenSet.create(ImplicitFunctionArrow, ImplicitPureFunctionArrow)
+  val PureFunctionArrowTokenSet = TokenSet.create(PureFunctionArrow, ImplicitPureFunctionArrow)
 }
