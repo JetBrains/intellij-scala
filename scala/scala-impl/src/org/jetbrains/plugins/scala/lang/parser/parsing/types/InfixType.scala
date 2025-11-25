@@ -177,7 +177,7 @@ trait InfixType {
           typeVariables ||
           builder.getTokenText != "|") &&
           !(inContextBound && builder.features.`new context bounds and givens` && builder.getTokenText == "as") &&
-          !(!isPattern && builder.features.`new context bounds and givens` && PureFunctionArrow.isTokenText(builder.getTokenText)) &&
+          !(!isPattern && builder.features.`parses capture checking` && PureFunctionArrow.isTokenText(builder.getTokenText)) &&
           super.shouldContinue
 
     private def parseTypeVariable(): Boolean =
