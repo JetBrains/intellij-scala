@@ -65,7 +65,10 @@ object ScalaFeaturePusher {
             val isIn3_8StdLibSource =
               ScalaLanguageSubstitutor.isInSourceJar(path) &&
                 ScalaLanguageSubstitutor.looksLikeScala3LibSourcesJar(path)
-            Option.when(isIn3_8StdLibSource)(ScalaFeatures.onlyByVersion(ScalaVersion.Latest.Scala_3_8))
+            Option.when(isIn3_8StdLibSource)(
+              ScalaFeatures.onlyByVersion(ScalaVersion.Latest.Scala_3_8)
+                .copy(ScalaVersion.Latest.Scala_3_8, hasCaptureCheckingEnabled = true)
+            )
           }
         }
       }

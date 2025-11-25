@@ -60,7 +60,7 @@ trait ScalaFeatures extends Any {
   def `new context bounds and givens`: Boolean
   def noUnicodeEscapesInRawStrings: Boolean
   def `supports 'into' modifier`: Boolean
-  def `supports capture checking`: Boolean
+  def `parses capture checking`: Boolean
 }
 
 object ScalaFeatures {
@@ -101,6 +101,8 @@ object ScalaFeatures {
 
     def hasPreviewFlag: Boolean = Bits.previewFlag.read(bits)
 
+    def hasCaptureCheckingEnabled: Boolean = Bits.hasCaptureCheckingEnabled.read(bits)
+
     def `& instead of with`: Boolean = `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`
     def `Scala 3 vararg splice syntax`: Boolean = `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`
     // wildcards import are bugged in 2.12.14 and 2.13.6
@@ -113,8 +115,8 @@ object ScalaFeatures {
       `in >= 2.12.16 or 2.13.9 or 3` || `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`
     def `case in pattern bindings`: Boolean =
       `in >= 2.12.15 or 2.13.7 or 3` || `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`
-    def `supports capture checking`: Boolean =
-      languageLevel >= ScalaLanguageLevel.Scala_3_8
+    def `parses capture checking`: Boolean =
+      hasCaptureCheckingEnabled
 
     //SCL-22468
     def `Scala 3 Irrefutable Patterns`: Boolean =
@@ -150,6 +152,7 @@ object ScalaFeatures {
       hasTrailingCommasEnabled:       Boolean = this.hasTrailingCommasEnabled,
       hasUnderscoreWildcardsDisabled: Boolean = this.hasUnderscoreWildcardsDisabled,
       hasPreviewFlag:                 Boolean = this.hasPreviewFlag,
+      hasCaptureCheckingEnabled:      Boolean = this.hasCaptureCheckingEnabled
     ): SerializableScalaFeatures =
       ScalaFeatures(
         version = version,
@@ -163,6 +166,7 @@ object ScalaFeatures {
         hasTrailingCommasEnabled = hasTrailingCommasEnabled,
         hasUnderscoreWildcardsDisabled = hasUnderscoreWildcardsDisabled,
         hasPreviewFlag = hasPreviewFlag,
+        hasCaptureCheckingEnabled = hasCaptureCheckingEnabled,
       )
 
     def serializeToInt: Int = bits
@@ -195,7 +199,7 @@ object ScalaFeatures {
     override def `named tuples`: Boolean                         = delegate.`named tuples`
     override def `new context bounds and givens`: Boolean        = delegate.`named tuples`
     override def `supports 'into' modifier`: Boolean             = delegate.`supports 'into' modifier`
-    override def `supports capture checking`: Boolean            = delegate.`supports capture checking`
+    override def `parses capture checking`: Boolean            = delegate.`parses capture checking`
   }
 
   private val minorVersion6  = Version("6")
@@ -221,6 +225,7 @@ object ScalaFeatures {
     hasTrailingCommasEnabled: Boolean,
     hasUnderscoreWildcardsDisabled: Boolean,
     hasPreviewFlag: Boolean,
+    hasCaptureCheckingEnabled: Boolean,
   ): SerializableScalaFeatures = {
 
     val languageLevel = version.languageLevel
@@ -268,6 +273,7 @@ object ScalaFeatures {
       `in >= 2.12.16 or 2.13.9 or 3` = `in >= 2.12.16 or 2.13.9 or 3`,
       usingInArgumentsEnabled = usingInArgumentsEnabled,
       noUnicodeEscapesInRawStrings = noUnicodeEscapesInRawStrings,
+      hasCaptureCheckingEnabled = hasCaptureCheckingEnabled,
     )
   }
 
@@ -310,6 +316,7 @@ object ScalaFeatures {
       hasTrailingCommasEnabled = version >= ScalaVersion_2_12_2,
       hasUnderscoreWildcardsDisabled = false,
       hasPreviewFlag = false,
+      hasCaptureCheckingEnabled = false,
     )
 
   val CreatedWithScalaFeatures: Key[ScalaFeatures] =
@@ -391,6 +398,7 @@ object ScalaFeatures {
     `in >= 2.12.16 or 2.13.9 or 3`:                 Boolean,
     usingInArgumentsEnabled:                        Boolean,
     noUnicodeEscapesInRawStrings:                   Boolean,
+    hasCaptureCheckingEnabled:                      Boolean,
   ): SerializableScalaFeatures = {
     val bits = Ref.create[Int]
 
@@ -412,6 +420,7 @@ object ScalaFeatures {
     Bits.`in >= 2.12.16 or 2.13.9 or 3`.write(bits, `in >= 2.12.16 or 2.13.9 or 3`)
     Bits.usingInArgumentsEnabled.write(bits, usingInArgumentsEnabled)
     Bits.noUnicodeEscapesInRawStrings.write(bits, noUnicodeEscapesInRawStrings)
+    Bits.hasCaptureCheckingEnabled.write(bits, hasCaptureCheckingEnabled)
 
     new SerializableScalaFeatures(bits.get())
   }
@@ -440,6 +449,7 @@ object ScalaFeatures {
 
     val usingInArgumentsEnabled = bool("usingInArgumentsEnabled")
     val noUnicodeEscapesInRawStrings = bool("noUnicodeEscapesInRawStrings")
+    val hasCaptureCheckingEnabled = bool("hasCaptureCheckingEnabled")
 
     override val version: Int = finishAndMakeVersion()
   }

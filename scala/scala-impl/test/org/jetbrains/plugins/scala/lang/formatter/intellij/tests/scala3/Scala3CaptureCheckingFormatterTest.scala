@@ -1,9 +1,20 @@
 package org.jetbrains.plugins.scala.lang.formatter.intellij.tests.scala3
 
+import com.intellij.psi.PsiFile
+import org.jetbrains.plugins.scala.project.{ScalaFeaturePusher, ScalaFeatures}
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 class Scala3CaptureCheckingFormatterTest extends Scala3FormatterBaseTest {
   override protected def version: ScalaVersion = LatestScalaVersions.Scala_3_8
+
+  override protected def initFile(fileName: String, text: String): PsiFile = {
+    val file = super.initFile(fileName, text)
+    ScalaFeaturePusher.setFeatures(file.getVirtualFile,
+      ScalaFeatures.onlyByVersion(version)
+        .copy(version, hasCaptureCheckingEnabled = true)
+    )
+    file
+  }
 
   def test_capture_type(): Unit =
     doTextTest(

@@ -169,6 +169,13 @@ private class ScalaModuleSettings private(
       case YnoPredefOrNoImports(imports)                         => imports
     }
 
+  val hasCaptureCheckingEnabled: Boolean =
+    additionalCompilerOptions.exists {
+      case "-language:experimental.captureChecking" => true
+      case "-Yexplicit-nulls" => true
+      case _ => false
+    }
+
   def isSource3: Boolean = source3Options.isSource3Enabled
 
   val features: SerializableScalaFeatures =
@@ -184,6 +191,7 @@ private class ScalaModuleSettings private(
       hasTrailingCommasEnabled = isTrailingCommasEnabled,
       hasUnderscoreWildcardsDisabled = kindProjectorUnderscorePlaceholdersEnabled || YKindProjectorUnderscoresOptionEnabled,
       hasPreviewFlag = hasPreviewFlag,
+      hasCaptureCheckingEnabled = hasCaptureCheckingEnabled,
     )
 
   lazy val externalSystemId: Option[String] =

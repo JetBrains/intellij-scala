@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 object PureFunctionArrow {
   def remapCurrentToken()(implicit builder: ScalaPsiBuilder): Boolean = {
-    builder.getTokenType == ScalaTokenTypes.tIDENTIFIER && builder.features.`supports capture checking` && (
+    builder.getTokenType == ScalaTokenTypes.tIDENTIFIER && builder.features.`parses capture checking` && (
       builder.getTokenText match {
         case "->" =>
           builder.remapCurrentToken(ScalaTokenType.PureFunctionArrow)
