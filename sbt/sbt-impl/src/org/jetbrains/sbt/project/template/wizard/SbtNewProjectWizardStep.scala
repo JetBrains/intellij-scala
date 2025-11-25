@@ -11,7 +11,7 @@ import com.intellij.openapi.projectRoots.{JavaSdkVersion, Sdk}
 import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.openapi.ui.validation.{DialogValidationRequestor, RequestorsKt}
 import com.intellij.ui.components.JBCheckBox
-import com.intellij.ui.dsl.builder.{BottomGap, Panel, Row, RowLayout}
+import com.intellij.ui.dsl.builder.{BottomGap, ComboBoxKt, Panel, Row, RowLayout}
 import com.intellij.ui.dsl.gridLayout.HorizontalAlign
 import com.intellij.util.lang.JavaVersion
 import org.jetbrains.annotations.Nullable
@@ -27,9 +27,11 @@ import org.jetbrains.sbt.{SbtBundle, SbtVersion}
 import java.lang
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.Unit.INSTANCE as KUnit
+import java.util.{List => JList}
 import kotlin.jvm.functions
 import scala.annotation.nowarn
 import scala.collection.immutable.ListSet
+import scala.jdk.CollectionConverters.*
 
 abstract class SbtNewProjectWizardStep(parent: NewProjectWizardStep)
   extends AbstractNewProjectWizardStep(parent)
@@ -48,6 +50,11 @@ abstract class SbtNewProjectWizardStep(parent: NewProjectWizardStep)
   protected def jdkIntent: Option[ProjectWizardJdkIntent] = Option(jdkIntentProperty.get())
 
   protected final val isSbtVersionManuallySelected: AtomicBoolean = new AtomicBoolean(false)
+  /**
+   * Prevents auto-adjusting the JDK if the user explicitly picked some JDK when Scala 3.8+ is selected.
+   * Resets when switching to an older Scala version.
+   */
+  private val hasUserSelectedJdkForScala38Plus = new AtomicBoolean(false)
   private val isSbtLoading = new AtomicBoolean(false)
 
   protected lazy val sbtVersionComboBox: SComboBox[SbtVersion] = createSComboBoxWithSearchingListRenderer(defaultAvailableSbtVersions, None, isSbtLoading)
@@ -88,12 +95,34 @@ abstract class SbtNewProjectWizardStep(parent: NewProjectWizardStep)
     startJdkDownload(sdkDownloadTask, project)
   }
 
-  protected def setUpScalaUIWithJDKValidation(panel: Panel): Unit =
+  protected def setUpScalaUIWithJDKValidation(panel: Panel): Unit = {
     setUpScalaUI(
       panel,
       downloadSourcesCheckbox = true,
       jdkValidationCtx = Some(ScalaJdkValidationContext(jdkIntentProperty, () => getExpectedJavaSdkVersion))
     )
+
+    scalaVersionComboBox.addActionListener { _ =>
+      getScalaVersionIfAtLeast3_8 match
+        case Some(_) =>
+          val minJdk = 17
+          val isJdkIncompatible = getExpectedJavaSdkVersion.exists(_.getMaxLanguageLevel.feature < minJdk)
+
+          val needAdjust = isJdkIncompatible && !hasUserSelectedJdkForScala38Plus.get()
+          if (needAdjust) {
+            def findCompatibleJdk[T <: ProjectWizardJdkIntent](jdks: JList[T]): Option[T] =
+              jdks.asScala
+                .filter(_.getJavaVersion.feature >= minJdk)
+                .maxByOption(_.getJavaVersion.feature)
+
+            val suitableJdk = findCompatibleJdk(jdkComboBox.getRegistered).orElse(findCompatibleJdk(jdkComboBox.getDetectedJDKs))
+            suitableJdk.foreach(jdkIntentProperty.set)
+          }
+        case _ =>
+          // For Scala < 3.8, clear the tracking flag to allow re-adjusting the JDK if Scala 3.8+ is selected later.
+          hasUserSelectedJdkForScala38Plus.set(false)
+    }
+  }
 
   protected def setupJavaSdkUI(builder: Panel): Unit = {
     builder.row(JavaUiBundle.message("label.project.wizard.new.project.jdk"), (row: Row) => {
@@ -121,6 +150,12 @@ abstract class SbtNewProjectWizardStep(parent: NewProjectWizardStep)
         .validationRequestor(RequestorsKt.getWHEN_PROPERTY_CHANGED.invoke(scalaVersionProperty))
         .validationRequestor(RequestorsKt.getWHEN_PROPERTY_CHANGED.invoke(jdkIntentProperty))
 
+      ComboBoxKt.whenItemChangedFromUi(jdkComboBoxCell, null, _ =>
+        getScalaVersionIfAtLeast3_8.foreach { _ =>
+          hasUserSelectedJdkForScala38Plus.set(true)
+        }
+        KUnit
+      )
       jdkComboBox = jdkComboBoxCell.getComponent
 
       KUnit
