@@ -14,16 +14,17 @@ import scala.annotation.tailrec
 /*
  * StableId ::= id
  *            | Path '.' id
+ *            | Path '.' 'this'
  *            | [id '.'] 'super' [ClassQualifier] '.' id
  */
 
-object StableId {
-  def apply(element: IElementType, forImport: Boolean = false)(implicit builder: ScalaPsiBuilder): Boolean = {
+abstract class StableId(val forImport: Boolean = false, val forCaptureSet: Boolean = false) {
+  def apply(element: IElementType)(implicit builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark()
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER =>
         builder.advanceLexer()
-        if (builder.getTokenType == tDOT && !shouldStopBeforeDot(forImport)(builder)) {
+        if (builder.getTokenType == tDOT && !shouldStopBeforeDot()(builder)) {
           val nm = marker.precede
           if (builder.lookAhead(tDOT, kTHIS) || builder.lookAhead(tDOT, kSUPER))
             marker.done(REFERENCE)
@@ -31,9 +32,9 @@ object StableId {
             marker.done(element)
           builder.advanceLexer() // ate dot
           builder.getTokenType match {
-            case ScalaTokenTypes.tIDENTIFIER => parseQualId(nm, element, forImport)
-            case ScalaTokenTypes.kTHIS => parseThisReference(nm, element, forImport)
-            case ScalaTokenTypes.kSUPER => parseSuperReference(nm, element, forImport)
+            case ScalaTokenTypes.tIDENTIFIER => parseQualId(nm, element)
+            case ScalaTokenTypes.kTHIS => parseThisReference(nm, element)
+            case ScalaTokenTypes.kSUPER => parseSuperReference(nm, element)
             case _ =>
               builder error ErrMsg("identifier.expected")
               nm.done(element)
@@ -43,8 +44,8 @@ object StableId {
           marker.done(element)
           true
         }
-      case ScalaTokenTypes.kTHIS => parseThisReference(marker, element, forImport)
-      case ScalaTokenTypes.kSUPER => parseSuperReference(marker, element, forImport)
+      case ScalaTokenTypes.kTHIS => parseThisReference(marker, element)
+      case ScalaTokenTypes.kSUPER => parseSuperReference(marker, element)
       case _ =>
         marker.drop()
         false
@@ -52,7 +53,7 @@ object StableId {
     }
   }
 
-  def parseThisReference(marker: PsiBuilder.Marker, element: IElementType, forImport: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = {
+  def parseThisReference(marker: PsiBuilder.Marker, element: IElementType)(implicit builder: ScalaPsiBuilder): Boolean = {
     val nm = marker.precede()
     builder.advanceLexer()
     if (builder.getTokenType != tDOT) {
@@ -62,10 +63,10 @@ object StableId {
       return true
     }
     marker.done(THIS_REFERENCE)
-    parseEndIdentifier(nm, element, forImport)
+    parseEndIdentifier(nm, element)
   }
 
-  def parseSuperReference(marker: PsiBuilder.Marker, element: IElementType, forImport: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = {
+  def parseSuperReference(marker: PsiBuilder.Marker, element: IElementType)(implicit builder: ScalaPsiBuilder): Boolean = {
     val nm = marker.precede()
     builder.advanceLexer()
     if (builder.getTokenType != tDOT && builder.getTokenType != tLSQBRACKET) {
@@ -76,7 +77,7 @@ object StableId {
     }
     parseClassQualifier()
     marker.done(SUPER_REFERENCE)
-    parseEndIdentifier(nm, element, forImport)
+    parseEndIdentifier(nm, element)
   }
 
   def parseClassQualifier()(implicit builder: ScalaPsiBuilder): Unit = {
@@ -101,7 +102,7 @@ object StableId {
 
 
   // For endings of 'this' and 'super' references
-  def parseEndIdentifier(nm: PsiBuilder.Marker, element: IElementType, forImport: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = {
+  def parseEndIdentifier(nm: PsiBuilder.Marker, element: IElementType)(implicit builder: ScalaPsiBuilder): Boolean = {
     if (builder.getTokenType != ScalaTokenTypes.tDOT) {
       builder.error(ErrMsg("dot.expected"))
     }
@@ -112,11 +113,11 @@ object StableId {
       return true
     }
     builder.advanceLexer()
-    if (builder.getTokenType == tDOT && !shouldStopBeforeDot(forImport)) {
+    if (builder.getTokenType == tDOT && !shouldStopBeforeDot()) {
       val nm1 = nm.precede()
       nm.done(element)
       builder.advanceLexer()
-      parseQualId(nm1, element, forImport)
+      parseQualId(nm1, element)
     } else {
       nm.done(element)
       true
@@ -125,25 +126,25 @@ object StableId {
 
   // Begins from next id (not form dot)
   @tailrec
-  def parseQualId(marker: PsiBuilder.Marker, element: IElementType, forImport: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = {
+  final def parseQualId(marker: PsiBuilder.Marker, element: IElementType)(implicit builder: ScalaPsiBuilder): Boolean = {
     if (builder.getTokenType != tIDENTIFIER) {
       builder.error(ErrMsg("identifier.expected"))
       marker.done(element)
       return true
     }
     builder.advanceLexer() // ate identifier
-    if (builder.getTokenType == tDOT && !builder.lookAhead(tDOT, kTYPE) && !shouldStopBeforeDot(forImport)) {
+    if (builder.getTokenType == tDOT && !builder.lookAhead(tDOT, kTYPE) && !shouldStopBeforeDot()) {
       val nm = marker.precede
       marker.done(element)
       builder.advanceLexer() // ate dot
-      parseQualId(nm, element, forImport)
+      parseQualId(nm, element)
     } else {
       marker.done(element)
       true
     }
   }
 
-  private def shouldStopBeforeDot(forImport: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = {
+  private def shouldStopBeforeDot()(implicit builder: ScalaPsiBuilder): Boolean = {
     val s3f = builder.features
     val lookAhead = builder.lookAhead(1)
     lookAhead match {
@@ -156,8 +157,19 @@ object StableId {
             builder.advanceLexer()
             builder.getTokenText == "as"
           })
+      case `tIDENTIFIER` | ScalaTokenType.AsKeyword | ScalaTokenType.ReadOnlyCapabilityKeyword if forCaptureSet =>
+        builder.predict { builder =>
+          val ty = builder.getTokenText
+          ty == "as" || ty == "rd"
+        }
       case InBracelessScala3(`tIDENTIFIER`) => builder.isOutdentHere
       case _ => false
     }
   }
 }
+
+object StableId extends StableId(forImport = false, forCaptureSet = false)
+
+object StableIdForImport extends StableId(forImport = true)
+
+object StableIdForCaptureSet extends StableId(forCaptureSet = true)

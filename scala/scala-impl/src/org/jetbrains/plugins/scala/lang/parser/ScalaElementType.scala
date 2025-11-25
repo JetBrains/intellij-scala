@@ -303,6 +303,8 @@ object ScalaElementType {
   /** ************************************ Capture Setn ******************************* */
 
   val CAPTURE_SET: ScalaElementType = new ScalaElementType("capture set")
+  val CAPTURE_REF: ScalaElementType = new ScalaElementType("capture ref")
+  val CAPTURE_FILTER: ScalaElementType = new ScalaElementType("capture filter")
 
   /** ************************************* XML ************************************ */
 
