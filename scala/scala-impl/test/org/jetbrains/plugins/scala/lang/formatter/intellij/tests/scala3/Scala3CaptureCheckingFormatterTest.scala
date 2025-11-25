@@ -57,4 +57,26 @@ class Scala3CaptureCheckingFormatterTest extends Scala3FormatterBaseTest {
         |x: A ?->{a} B
         |""".stripMargin
     )
+
+  def test_capture_set(): Unit =
+    doTextTest(
+      """
+        |x: A^{  id  .  id  .  rd  }
+        |x: A^{  id  .  this  .  this  .  super  .  id  }
+        |x: A^{  super  [  x  .  y  ]  .  id  }
+        |x: A^{  this  .  id  .  id  .  as  [  x  ]  .  rd  }
+        |x: A^{  this  *  }
+        |x: A^{  this  *  .  as  [  x  ]  }
+        |x: A^{  this  *  .  rd  }
+        |""".stripMargin,
+      """
+        |x: A^{id.id.rd}
+        |x: A^{id.this.this.super.id}
+        |x: A^{super[x.y].id}
+        |x: A^{this.id.id.as[x].rd}
+        |x: A^{this*}
+        |x: A^{this*.as[x]}
+        |x: A^{this*.rd}
+        |""".stripMargin
+    )
 }
