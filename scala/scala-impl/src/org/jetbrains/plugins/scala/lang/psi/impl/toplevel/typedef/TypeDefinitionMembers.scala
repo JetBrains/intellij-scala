@@ -47,7 +47,7 @@ object TypeDefinitionMembers {
 
   object TermNodes extends MixinNodes[TermSignature](TermsCollector)
 
-  //we need to have separate map for stable elements to avoid recursion processing declarations from imports
+  //we need to have a separate map for stable elements to avoid recursion processing declarations from imports
   object StableNodes extends MixinNodes[TermSignature](StableTermsCollector)
 
   def getSignatures(clazz: PsiClass, withSupers: Boolean): TermNodes.Map =

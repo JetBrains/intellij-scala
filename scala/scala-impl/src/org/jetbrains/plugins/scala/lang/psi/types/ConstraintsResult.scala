@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.types
 
 import com.intellij.openapi.util.Ref
 import org.jetbrains.plugins.scala.extensions.{NonNullObjectExt, ObjectExt}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamId
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{TypeParamId, TypeParamIdOwner}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith, Stop}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
@@ -36,7 +36,7 @@ object ConstraintsResult {
      * a call, since only that one widens.
      */
     def toSubst(implicit ctx: ProjectContext): Option[ScSubstitutor] = result match {
-      case ConstraintSystem(subst) => Some(subst)
+      case ConstraintSystem(subst) => subst.toOption
       case _                       => None
     }
 
@@ -79,13 +79,21 @@ sealed trait ConstraintSystem extends ConstraintsResult {
 
   def withTypeParamId(id: Long): ConstraintSystem
 
-  def withLower(id: Long, lower: ScType, variance: Variance = Contravariant)(implicit context: Context): ConstraintSystem
+  def withLower[T: TypeParamId](
+    typeParameter: T,
+    lower:         ScType,
+    variance:      Variance = Contravariant
+  )(implicit context: Context): ConstraintSystem
 
-  def withUpper(id: Long, upper: ScType, variance: Variance = Covariant)(implicit context: Context): ConstraintSystem
+  def withUpper[T: TypeParamId](
+    typeParameter: T,
+    upper:         ScType,
+    variance:      Variance = Covariant
+  )(implicit context: Context): ConstraintSystem
 
   def +(constraints: ConstraintSystem)(implicit context: Context): ConstraintSystem
 
-  def isApplicable(id: Long): Boolean
+  def isApplicable[T: TypeParamId](tp: T): Boolean
 
   def removeTypeParamIds(ids: Set[Long]): ConstraintSystem
 
@@ -116,6 +124,7 @@ sealed trait ConstraintSystem extends ConstraintsResult {
 object ConstraintSystem {
 
   val empty: ConstraintSystem = ConstraintSystemImpl(
+    LongMap.empty,
     LongMap.empty,
     LongMap.empty,
     Set.empty
@@ -150,11 +159,12 @@ object ConstraintSystem {
     }
 }
 
-private final case class ConstraintSystemImpl(upperMap: LongMap[Set[ScType]],
-                                              lowerMap: LongMap[Set[ScType]],
-                                              additionalIds: Set[Long])
-  extends ConstraintSystem {
-
+private final case class ConstraintSystemImpl(
+  upperMap:              LongMap[Set[ScType]],
+  lowerMap:              LongMap[Set[ScType]],
+  constrainedTypeParams: LongMap[TypeParameter],
+  additionalIds:         Set[Long]
+) extends ConstraintSystem {
   import ConstraintSystem._
   import ConstraintSystemImpl._
 
@@ -176,17 +186,21 @@ private final case class ConstraintSystemImpl(upperMap: LongMap[Set[ScType]],
     }
   }
 
-  override def isApplicable(id: Long): Boolean =
+  override def isApplicable[T: TypeParamId](tp: T): Boolean = {
+    val id = tp.typeParamId
     upperMap.contains(id) || lowerMap.contains(id)
+  }
 
   override def isEmpty: Boolean = upperMap.isEmpty && lowerMap.isEmpty
 
   override def +(constraints: ConstraintSystem)(implicit context: Context): ConstraintSystem = constraints match {
-    case ConstraintSystemImpl(otherUpperMap, otherLowerMap, otherAdditionalIds) => ConstraintSystemImpl(
-      upperMap.merge(otherUpperMap)(isAny),
-      lowerMap.merge(otherLowerMap)(isNothing),
-      additionalIds ++ otherAdditionalIds
-    )
+    case ConstraintSystemImpl(otherUpperMap, otherLowerMap, otherConstrained, otherAdditionalIds) =>
+      ConstraintSystemImpl(
+        upperMap.merge(otherUpperMap)(isAny),
+        lowerMap.merge(otherLowerMap)(isNothing),
+        constrainedTypeParams ++ otherConstrained,
+        additionalIds ++ otherAdditionalIds
+      )
     case multi: MultiConstraintSystem => multi + this
   }
 
@@ -194,20 +208,60 @@ private final case class ConstraintSystemImpl(upperMap: LongMap[Set[ScType]],
     additionalIds = additionalIds + id
   )
 
-  override def withLower(id: Long, rawLower: ScType, variance: Variance)(implicit context: Context): ConstraintSystem =
+  override def withLower[T: TypeParamId](
+    typeParameterLike: T,
+    rawLower:          ScType,
+    variance:          Variance
+  )(implicit context: Context): ConstraintSystem =
     computeLower(variance, rawLower) match {
-      case None => this
-      case Some(lower) => copy(lowerMap = lowerMap.update(id, lower))
+      case None        => this
+      case Some(lower) =>
+        val id = typeParameterLike.typeParamId
+
+        val updatedConstrained = typeParameterLike.toTypeParameter match {
+          case None => constrainedTypeParams
+          case Some(tp) =>
+            if (!constrainedTypeParams.contains(id)) constrainedTypeParams.updated(id, tp)
+            else                                     constrainedTypeParams
+        }
+
+        copy(
+          lowerMap              = lowerMap.update(id, lower),
+          constrainedTypeParams = updatedConstrained
+        )
     }
 
-  override def withUpper(id: Long, rawUpper: ScType, variance: Variance)(implicit context: Context): ConstraintSystem =
+  override def withUpper[T: TypeParamId](
+    typeParameterLike: T,
+    rawUpper:          ScType,
+    variance:          Variance
+  )(implicit context: Context): ConstraintSystem =
     computeUpper(variance, rawUpper) match {
-      case None => this
-      case Some(upper) => copy(upperMap = upperMap.update(id, upper))
+      case None        => this
+      case Some(upper) =>
+        val id = typeParameterLike.typeParamId
+
+        val updatedConstrained = typeParameterLike.toTypeParameter match {
+          case None => constrainedTypeParams
+          case Some(tp) =>
+            if (!constrainedTypeParams.contains(id)) constrainedTypeParams.updated(id, tp)
+            else                                     constrainedTypeParams
+        }
+
+        copy(
+          upperMap              = upperMap.update(id, upper),
+          constrainedTypeParams = updatedConstrained
+        )
     }
 
-  override def substitutionBounds(canThrowSCE: Boolean, checkWeak: Boolean, widenInferredTypeArguments: Boolean)
-                                 (implicit projectContext: ProjectContext, context: Context): Option[SubstitutionBounds] =
+  override def substitutionBounds(
+    canThrowSCE:                Boolean,
+    checkWeak:                  Boolean,
+    widenInferredTypeArguments: Boolean
+  )(implicit
+    projectContext: ProjectContext,
+    context:        Context
+  ): Option[SubstitutionBounds] =
     cachedBoundsFor(canThrowSCE, checkWeak, widenInferredTypeArguments) {
       substitutionBoundsImpl(canThrowSCE, checkWeak, widenInferredTypeArguments)
     }
@@ -217,11 +271,17 @@ private final case class ConstraintSystemImpl(upperMap: LongMap[Set[ScType]],
     lowerMap = lowerMap.removeIds(ids)
   )
 
-  private def substitutionBoundsImpl(canThrowSCE: Boolean, checkWeak: Boolean, widenInferredTypeArguments: Boolean)
-                                    (implicit projectContext: ProjectContext, context: Context): Option[SubstitutionBounds] = {
+  private def substitutionBoundsImpl(
+    canThrowSCE:                Boolean,
+    checkWeak:                  Boolean,
+    widenInferredTypeArguments: Boolean
+  )(implicit
+    projectContext: ProjectContext,
+    context:        Context
+  ): Option[SubstitutionBounds] = {
     var tvMap = LongMap.empty[ScType]
-    var lMap = LongMap.empty[ScType]
-    var uMap = LongMap.empty[ScType]
+    var lMap  = LongMap.empty[ScType]
+    var uMap  = LongMap.empty[ScType]
 
     def solve(visited: Set[Long])
              (id: Long): Boolean = {
@@ -284,6 +344,9 @@ private final case class ConstraintSystemImpl(upperMap: LongMap[Set[ScType]],
         // that, which [[Widening.widenInferred]] takes care of.
         // Corresponds to `ConstraintHandling.instanceType` in the Scala 3 compiler.
         if (widenInferredTypeArguments && instantiatedFromBelow) {
+          val correspondingTypeParam = constrainedTypeParams.get(id)
+          val tpUpperBound           = correspondingTypeParam.map(_.upperType)
+          //TODO
           tvMap.get(id).foreach { inferred =>
             tvMap += ((id, Widening.widenInferred(inferred, uMap.get(id))))
           }
@@ -307,19 +370,20 @@ private final case class ConstraintSystemImpl(upperMap: LongMap[Set[ScType]],
                        (set: Set[ScType]): Option[Boolean] = {
     def predicate(flag: Ref[Boolean])
                  (`type`: ScType): Boolean = {
-      def innerBreak[T](owner: T)
-                       (visited: Long => Boolean)
-                       (implicit evidence: TypeParamId[T]) = evidence.typeParamId(owner) match {
-        case id if visited(id) =>
+
+      def innerBreak[T: TypeParamId](
+        owner: T
+      )(visited: T => Boolean
+      ) =
+        if (visited(owner)) {
           flag.set(true)
-          break(id)
-        case _ => false
-      }
+          break(owner.typeParamId)
+        } else false
 
       `type`.visitRecursively {
-        case tpt: TypeParameterType if innerBreak(tpt)(additionalIds.contains) => return false
-        case UndefinedType(tp, _) if innerBreak(tp)(isApplicable) => return false
-        case _ =>
+        case tpt: TypeParameterType if innerBreak(tpt)(t => additionalIds.contains(t.typeParamId)) => return false
+        case UndefinedType(tp, _) if innerBreak(tp)(isApplicable)                                  => return false
+        case _                                                                                     => ()
       }
 
       true
@@ -452,8 +516,8 @@ private object ConstraintSystemImpl {
 private final case class MultiConstraintSystem(impls: Set[ConstraintSystemImpl])
   extends ConstraintSystem {
 
-  override def isApplicable(id: Long): Boolean = impls.exists {
-    _.isApplicable(id)
+  override def isApplicable[T: TypeParamId](tp: T): Boolean = impls.exists {
+    _.isApplicable(tp)
   }
 
   override def isEmpty: Boolean = impls.forall {
@@ -464,12 +528,20 @@ private final case class MultiConstraintSystem(impls: Set[ConstraintSystemImpl])
     _.withTypeParamId(id)
   }
 
-  override def withLower(id: Long, lower: ScType, variance: Variance)(implicit context: Context): ConstraintSystem = map {
-    _.withLower(id, lower, variance)
+  override def withLower[T: TypeParamId](
+    typeParameter: T,
+    lower:         ScType,
+    variance:      Variance
+  )(implicit context: Context): ConstraintSystem = map {
+    _.withLower(typeParameter, lower, variance)
   }
 
-  override def withUpper(id: Long, upper: ScType, variance: Variance)(implicit context: Context): ConstraintSystem = map {
-    _.withUpper(id, upper, variance)
+  override def withUpper[T: TypeParamId](
+    typeParameter: T,
+    upper:         ScType,
+    variance:      Variance
+  )(implicit context: Context): ConstraintSystem = map {
+    _.withUpper(typeParameter, upper, variance)
   }
 
   override def substitutionBounds(canThrowSCE: Boolean, checkWeak: Boolean, widenInferredTypeArguments: Boolean)

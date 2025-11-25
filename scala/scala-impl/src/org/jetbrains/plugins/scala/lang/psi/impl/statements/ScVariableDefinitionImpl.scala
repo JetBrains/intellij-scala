@@ -36,8 +36,10 @@ final class ScVariableDefinitionImpl private[psi] (
 
   override def `type`(): TypeResult = typeElement match {
     case Some(te) => te.`type`()
-    case None => expr.map(_.`type`().map(Widening.widenInferredDefinitionType(_, Widening.DefinitionKind.Var))).
-      getOrElse(Failure(ScalaBundle.message("cannot.infer.type.without.an.expression")))
+    case None => expr match {
+      case None             => Failure(ScalaBundle.message("cannot.infer.type.without.an.expression"))
+      case Some(expression) => expression.`type`().map(Widening.widenInferredDefinitionType(_, Widening.DefinitionKind.Var))
+    }
   }
 
   override def typeElement: Option[ScTypeElement] = byPsiOrStub(findChild[ScTypeElement])(_.typeElement)

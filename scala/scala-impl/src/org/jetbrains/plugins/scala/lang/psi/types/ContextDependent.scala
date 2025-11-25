@@ -24,6 +24,7 @@ private class ContextDependent[A] private (stateToValue: Map[SeqMap[ScTypeAliasD
       override def isScala3: Boolean = context.isScala3
 
       override def toString: String = context.toString
+
     })
 
     (value, new ContextDependent[A](stateToValue.updated(state, value)))

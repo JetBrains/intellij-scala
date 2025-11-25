@@ -546,14 +546,14 @@ object MethodResolveProcessor {
                 currentClauseTypeParamsSubst.isApplicableToTypeParam(typeParamId)) {
                 val typeParamValue = currentClauseTypeParamsSubst(TypeParameterType(typeParam))
                 uSubst = uSubst
-                  .withLower(typeParamId, typeParamValue)
-                  .withUpper(typeParamId, typeParamValue)
+                  .withLower(typeParam, typeParamValue)
+                  .withUpper(typeParam, typeParamValue)
               }
 
               if (!lowerType.isNothing) {
                 candidateSubstitutor(newSubstitutor(lowerType)) match {
                   case lower if !lower.hasRecursiveTypeParameters(typeParamIds) =>
-                    uSubst = uSubst.withLower(typeParamId, lower)
+                    uSubst = uSubst.withLower(typeParam, lower)
                       .withTypeParamId(typeParamId)
                   case _ =>
                 }
@@ -562,7 +562,7 @@ object MethodResolveProcessor {
               if (!upperType.isAny) {
                 candidateSubstitutor(newSubstitutor(upperType)) match {
                   case upper if !upper.hasRecursiveTypeParameters(typeParamIds) =>
-                    uSubst = uSubst.withUpper(typeParamId, upper)
+                    uSubst = uSubst.withUpper(typeParam, upper)
                       .withTypeParamId(typeParamId)
                   case _ =>
                 }

@@ -206,7 +206,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     this.returnType.exists(hasUnitRT)
   }
 
-  override def hasParameterClause: Boolean = this.effectiveParameterClauses.nonEmpty
+  override def hasParameterClause: Boolean = effectiveParameterClauses.nonEmpty
 
   override def parameterListCount: Int = paramClauses.clauses.length
 
@@ -543,6 +543,18 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
 }
 
 object ScFunctionImpl {
+
+  @tailrec
+  private def hasParameterClauseImpl(function: ScFunction): Boolean = {
+    if (function.effectiveParameterClauses.nonEmpty) return true
+
+    function.superMethod match {
+      case Some(fun: ScFunction) => hasParameterClauseImpl(fun)
+      case Some(_: PsiMethod) => true
+      case None => false
+    }
+  }
+
   @tailrec
   private def isJavaVarargs(fun: ScFunction): Boolean = {
     if (fun.hasAnnotation("scala.annotation.varargs")) true

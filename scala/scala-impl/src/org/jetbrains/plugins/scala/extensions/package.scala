@@ -1078,6 +1078,17 @@ package object extensions {
         member.hasAnnotation("kotlin.Deprecated")
   }
 
+  val transparentTraitsFqns: Set[String] =
+    Set(
+      "scala.Any",
+      "scala.AnyVal",
+      "scala.Matchable",
+      "scala.Product",
+      "java.lang.Object",
+      "java.lang.Comparable",
+      "java.io.Serializable",
+    )
+
   implicit class PsiClassExt(val clazz: PsiClass) extends AnyVal {
     def directInheritorsOfSealed: Iterable[PsiClass] =
       if (!isSealed) Iterable.empty
@@ -1093,6 +1104,11 @@ package object extensions {
         clazz.asInstanceOf[ScModifierListOwner].hasModifierPropertyScala("sealed")
       case _ => false
     }
+
+    def isTransparentTrait: Boolean =
+      clazz.hasModifierPropertyScala(ScalaModifier.TRANSPARENT) ||
+        clazz.hasAnnotation("scala.annotation.transparentTrait") ||
+        transparentTraitsFqns.contains(clazz.qualifiedName)
 
     /**
       * The second match branch is for Java only.
@@ -1331,7 +1347,7 @@ package object extensions {
       hasModifierPropertyScala(FINAL)
 
     /**
-      * Second match branch is for Java only.
+      * The second match branch is for Java only.
       */
     def hasModifierPropertyScala(name: String): Boolean = member match {
       case member: ScModifierListOwner => member.hasModifierPropertyScala(name)

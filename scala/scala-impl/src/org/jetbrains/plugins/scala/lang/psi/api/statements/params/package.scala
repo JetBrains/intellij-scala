@@ -74,11 +74,13 @@ package object params {
   implicit class TypeParamIdOwner[T](private val t: T) extends AnyVal {
     def typeParamId(implicit ev: TypeParamId[T]): Long = ev.typeParamId(t)
     def typeParamName(implicit ev: TypeParamId[T]): Option[String] = ev.typeParamName(t)
+    def toTypeParameter(implicit ev: TypeParamId[T]): Option[TypeParameter] = ev.toTypeParameter(t)
   }
 
   trait TypeParamId[-T] {
     def typeParamId(t: T): Long
     def typeParamName(t: T): Option[String]
+    def toTypeParameter(t: T): Option[TypeParameter] = None
   }
 
   object TypeParamId {
@@ -90,6 +92,9 @@ package object params {
       }
 
       override def typeParamName(t: PsiTypeParameter): Option[String] = Option(t).map(_.name)
+
+      override def toTypeParameter(t: PsiTypeParameter): Option[TypeParameter] =
+        t.toOption.map(TypeParameter.apply)
     }
 
     implicit val typeParam: TypeParamId[TypeParameter] = new TypeParamId[TypeParameter] {
@@ -98,6 +103,8 @@ package object params {
 
       override def typeParamName(t: TypeParameter): Option[String] =
         Option(t.name)
+
+      override def toTypeParameter(t: TypeParameter): Option[TypeParameter] = t.toOption
     }
 
     implicit val typeParamType: TypeParamId[TypeParameterType] = new TypeParamId[TypeParameterType] {
@@ -106,6 +113,9 @@ package object params {
 
       override def typeParamName(t: TypeParameterType): Option[String] =
         Option(t.name)
+
+      override def toTypeParameter(t: TypeParameterType): Option[TypeParameter] =
+        t.typeParameter.toOption
     }
 
     implicit val long: TypeParamId[Long] = new TypeParamId[Long] {

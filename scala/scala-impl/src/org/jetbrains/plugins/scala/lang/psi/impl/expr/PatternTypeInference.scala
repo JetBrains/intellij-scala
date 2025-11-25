@@ -272,7 +272,9 @@ object PatternTypeInference {
     boundSubst:  ScSubstitutor = ScSubstitutor.empty
   ): ConstraintSystem = {
     val id = tvar.typeParamId
-    constraints.withLower(id, boundSubst(param.lowerType)).withUpper(id, boundSubst(param.upperType))
+    constraints
+      .withLower(tvar, boundSubst(param.lowerType))
+      .withUpper(tvar, boundSubst(param.upperType))
   }
 
   /**

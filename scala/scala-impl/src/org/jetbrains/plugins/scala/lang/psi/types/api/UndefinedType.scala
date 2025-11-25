@@ -34,12 +34,11 @@ trait UndefinedType extends NonValueType with LeafType {
         case _ if falseUndef                                   => constraints
         case UndefinedType(_, thatLevel) if thatLevel == level => constraints
         case UndefinedType(tp, thatLevel) if thatLevel > level =>
-          constraints.withUpper(tp.typeParamId, this)
+          constraints.withUpper(tp, this)
         case that: UndefinedType if that.level < level =>
-          constraints.withUpper(typeParameter.typeParamId, that)
+          constraints.withUpper(typeParameter, that)
         case that =>
-          val id = typeParameter.typeParamId
-          constraints.withLower(id, that).withUpper(id, that)
+          constraints.withLower(typeParameter, that).withUpper(typeParameter, that)
       }
 }
 

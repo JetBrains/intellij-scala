@@ -39,8 +39,8 @@ trait TypeVariableUnification { self: ScalaConformance with ProjectContextOwner 
 
     def addBound(constraints: ConstraintSystem, bound: ScType): ConstraintSystem =
       boundKind match {
-        case Bound.Lower       => constraints.withLower(tvDes.typeParamId, bound)
-        case Bound.Upper       => constraints.withUpper(tvDes.typeParamId, bound)
+        case Bound.Lower       => constraints.withLower(tvDes, bound)
+        case Bound.Upper       => constraints.withUpper(tvDes, bound)
         case Bound.Equivalence => addParam(tvDes, bound, constraints)
       }
 

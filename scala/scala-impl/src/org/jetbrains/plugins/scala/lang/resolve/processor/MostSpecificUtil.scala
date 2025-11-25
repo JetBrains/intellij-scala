@@ -267,7 +267,7 @@ class MostSpecificUtil(
                     case lower if lower.isNothing || lower.hasRecursiveTypeParameters(typeParamIds) =>
                     case lower =>
                       u =
-                        u.withLower(typeParamId, uSubst(lower))
+                        u.withLower(tp, uSubst(lower))
                           .withTypeParamId(typeParamId)
                   }
 
@@ -275,7 +275,7 @@ class MostSpecificUtil(
                     case upper if upper.isAny || upper.hasRecursiveTypeParameters(typeParamIds) =>
                     case upper =>
                       u =
-                        u.withUpper(typeParamId, uSubst(upper))
+                        u.withUpper(tp, uSubst(upper))
                           .withTypeParamId(typeParamId)
                   }
                 }

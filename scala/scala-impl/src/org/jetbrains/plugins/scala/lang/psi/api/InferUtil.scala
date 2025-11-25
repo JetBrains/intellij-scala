@@ -769,15 +769,15 @@ object InferUtil {
 
       var result = un
 
-      if (un.isApplicable(typeParamId) || !substedLower.isNothing) {
+      if (un.isApplicable(typeParameter) || !substedLower.isNothing) {
         if (!substedLower.isNothing && !hasRecursiveTypeParams(substedLower)) {
           result = result
-            .withLower(typeParamId, substedLower)
+            .withLower(typeParameter, substedLower)
             .withTypeParamId(typeParamId)
         }
         if (!substedUpper.isAny && !hasRecursiveTypeParams(substedUpper)) {
           result = result
-            .withUpper(typeParamId, substedUpper)
+            .withUpper(typeParameter, substedUpper)
             .withTypeParamId(typeParamId)
         }
 
@@ -798,13 +798,13 @@ object InferUtil {
         if (!hasRecursiveTypeParams(substedTypeParameter)) {
           upperTypeParamId.foreach { id =>
             result = result
-              .withLower(id, substedTypeParameter)
+              .withLower(typeParameter, substedTypeParameter)
               .withTypeParamId(id)
           }
 
           lowerTypeParamId.foreach { id =>
             result = result
-              .withUpper(id, substedTypeParameter)
+              .withUpper(typeParameter, substedTypeParameter)
               .withTypeParamId(id)
           }
         }
@@ -911,7 +911,7 @@ object InferUtil {
               else
                 typeParams.filter(tp =>
                   tp.varianceInType(retType).isContravariant &&
-                    !newConstraints.isApplicable(tp.typeParamId)
+                    !newConstraints.isApplicable(tp)
                 )
 
             val contrSubst = ScSubstitutor.bind(notInferred)(tp => unSubst(tp.upperType))

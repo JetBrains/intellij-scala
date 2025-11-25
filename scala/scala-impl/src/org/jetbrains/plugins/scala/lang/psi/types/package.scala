@@ -179,7 +179,7 @@ package object types {
 
     /**
       * Returns named element associated with type.
-      * If withoutAliases is true expands alias definitions first
+      * If withoutAliases is true, expands alias definitions first
       *
       * @param expandAliases need to expand alias or not
       * @return element and substitutor
@@ -193,8 +193,6 @@ package object types {
       new DesignatorExtractor(expandAliases, needSubstitutor = false)
         .extractFrom(scType).map(_._1)
     }
-
-
 
     def extractClassType(implicit context: Context): Option[(PsiClass, ScSubstitutor)] = {
       new ClassTypeExtractor(needSubstitutor = true)
@@ -338,6 +336,90 @@ package object types {
     def widenIfLiteral: ScType = scType match {
       case litTy: ScLiteralType => litTy.wideType
       case _                    => scType
+    }
+
+    /**
+     * Widen inferred type `scType` with an expected type `pt` using the following rules:
+     * 1. If `scType` is a [[ScLiteralType]] or a [[ScOrType]] containing literals,
+     *    widen all literals, unless the result does not conform to `pt`.
+     * 2. If `scType` is a [[ScOrType]], replace it with its join, unless it does not conform to `pt`
+     * 3. If `scType` is a [[ScAndType]] with one or more of its operands designated to transparent traits,
+     *    drop as many of them as possible, as long as the result still conforms to `pt`
+     */
+    def widenInferredType(
+      widenLiterals: Boolean        = true,
+      pt:            Option[ScType] = None
+    )(implicit ctx: Context): ScType = {
+      val withoutLiterals = scType match {
+        case lit: ScLiteralType if !widenLiterals || !lit.allowWiden => lit.blockWiden
+        case other                                                   => ScLiteralType.widenRecursive(other)
+      }
+
+      val join = withoutLiterals match {
+        case orType: ScOrType =>
+          val res = orType.join
+
+          if (pt.forall(res.conforms)) res
+          else                         orType
+        case other => other
+      }
+
+      val dropTransparent = join.dropTransparentTraits(pt)
+
+      dropTransparent
+    }
+
+    def underlyingClassRef(implicit context: Context): Option[PsiClass] =
+      scType match {
+        case DesignatorOwner(cls: PsiClass)     => cls.toOption
+        case AliasType(_, _, Right(tpe), false) => tpe.underlyingClassRef
+        case ParameterizedType(des, _)          => des.underlyingClassRef
+        case _                                  => None
+      }
+
+    def isTransparent(implicit context: Context): Boolean = scType match {
+      case ScAndType(lhs, rhs) => lhs.isTransparent && rhs.isTransparent
+      case tpe                 => tpe.underlyingClassRef.exists(_.isTransparentTrait)
+    }
+
+    /**
+     * If `scType` is an intersection type such as:
+     * some (but not all) of the operands are types designated to transparent traits,
+     * replace as many such operands with Any as possible (so that the result still conforms to `pt`).
+     */
+    def dropTransparentTraits(pt: Option[ScType])(implicit ctx: Context): ScType = {
+      val mustKeep = scala.collection.mutable.Set.empty[ScType]
+      val dropped  = scala.collection.mutable.ArrayDeque.empty[ScType]
+
+      def dropOneOperand(tpe: ScType): ScType = tpe match {
+        case ScAndType(lhs, rhs) =>
+          val dropLhs = dropOneOperand(lhs)
+
+          if (dropLhs ne lhs) ScAndType(dropLhs, rhs)
+          else {
+            val dropRhs = dropOneOperand(rhs)
+            if (dropRhs ne rhs) ScAndType(lhs, dropRhs)
+            else                tpe
+          }
+        case tpe if tpe.isTransparent && !mustKeep.contains(tpe) =>
+          dropped.append(tpe)
+          Any(scType.projectContext)
+        case _ => tpe
+      }
+
+      @tailrec
+      def recur(tpe: ScType): ScType = {
+        val tryDropOne = dropOneOperand(tpe)
+
+        if (tryDropOne eq tpe)                   tpe
+        else if (pt.forall(tryDropOne.conforms)) recur(tryDropOne)
+        else {
+          mustKeep.add(dropped.removeLast())
+          recur(tpe)
+        }
+      }
+
+      recur(scType)
     }
   }
 

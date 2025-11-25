@@ -20,7 +20,12 @@ final class ScalaTypeSystem private (implicit override val projectContext: Proje
 }
 
 object ScalaTypeSystem {
-  def instance(implicit projectContext: ProjectContext): ScalaTypeSystem = cachedInUserData("instance", projectContext.project, ProjectRootManager.getInstance(projectContext)) {
-    new ScalaTypeSystem
-  }
+  def instance(implicit projectContext: ProjectContext): ScalaTypeSystem =
+    cachedInUserData(
+      "instance",
+      projectContext.project,
+      ProjectRootManager.getInstance(projectContext)
+    ) {
+      new ScalaTypeSystem
+    }
 }

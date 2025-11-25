@@ -41,17 +41,22 @@ final class ScPatternDefinitionImpl private[psi](stub: ScPropertyStub[ScPatternD
   override def `type`(): TypeResult = typeElement match {
     case Some(te) => te.`type`()
     case _ =>
-      expr.toRight {
-        new Failure(NlsString(ScalaBundle.message("cannot.infer.type.without.an.expression")))
-      }.flatMap {
-        _.`type`()
-      }.map { ty =>
-        val definitionKind: Widening.DefinitionKind =
-          if (this.hasFinalModifier && !hasModifierPropertyScala(ScalaModifier.LAZY)) Widening.DefinitionKind.ConstantVal
-          else Widening.DefinitionKind.Val
+      expr
+        .toRight(
+          new Failure(
+            NlsString(
+              ScalaBundle.message("cannot.infer.type.without.an.expression")
+            )
+          )
+        )
+        .flatMap(_.`type`())
+        .map { ty =>
+          val definitionKind: Widening.DefinitionKind =
+            if (this.hasFinalModifier && !hasModifierPropertyScala(ScalaModifier.LAZY)) Widening.DefinitionKind.ConstantVal
+            else Widening.DefinitionKind.Val
 
-        Widening.widenInferredDefinitionType(ty, definitionKind)
-      }
+          Widening.widenInferredDefinitionType(ty, definitionKind)
+        }
   }
 
   override def expr: Option[ScExpression] = byPsiOrStub(findChild[ScExpression])(_.bodyExpression)

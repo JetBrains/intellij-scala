@@ -145,23 +145,23 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
         case _ =>
             (lhs, rhs) match {
             case (l: UndefinedType, r: UndefinedType) =>
-              val lId = l.typeParameter.typeParamId
-              val rId = r.typeParameter.typeParamId
+              val lTParam = l.typeParameter
+              val rTParam = r.typeParameter
 
               if (r.isWrappedExistential) {
                 constraints =
                   constraints
-                    .withLower(lId, r.typeParameter.lowerType)
-                    .withUpper(lId, r.typeParameter.upperType)
+                    .withLower(lTParam, r.typeParameter.lowerType)
+                    .withUpper(lTParam, r.typeParameter.upperType)
               } else if (l.isWrappedExistential) {
                 constraints =
                   constraints
-                    .withLower(rId, l.typeParameter.lowerType)
-                    .withUpper(rId, l.typeParameter.upperType)
+                    .withLower(rTParam, l.typeParameter.lowerType)
+                    .withUpper(rTParam, l.typeParameter.upperType)
               } else
                 constraints =
-                  if (r.level > l.level)      constraints.withUpper(rId, l)
-                  else if (l.level > r.level) constraints.withUpper(lId, r)
+                  if (r.level > l.level)      constraints.withUpper(rTParam, l)
+                  else if (l.level > r.level) constraints.withUpper(lTParam, r)
                   else                        constraints
             case (UndefinedType(typeParameter, _), rt) =>
               constraints = addParam(typeParameter, rt, constraints)
@@ -189,14 +189,12 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
 
     private implicit val projectContext: ProjectContext = l.projectContext
 
-    private def addBounds(typeParameter: TypeParameter, `type`: ScType): Unit = {
-      val name = typeParameter.typeParamId
+    private def addBounds(typeParameter: TypeParameter, `type`: ScType): Unit =
       constraints = constraints
-        .withLower(name, `type`, variance = Invariant)
-        .withUpper(name, `type`, variance = Invariant)
-    }
+        .withLower(typeParameter, `type`, variance = Invariant)
+        .withUpper(typeParameter, `type`, variance = Invariant)
 
-    def checkArrayArgs(leftArg: ScType, rightArg: ScType): ConstraintsResult = {
+    private def checkArrayArgs(leftArg: ScType, rightArg: ScType): ConstraintsResult = {
 
       (leftArg, rightArg) match {
         case (ScAbstractType(_, lower, upper), right) =>
@@ -267,7 +265,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
     trait UndefinedSubstVisitor extends ScalaTypeVisitor {
       override def visitUndefinedType(u: UndefinedType): Unit = l match {
         case HKAbstract() => result = constraints
-        case _            => result = constraints.withUpper(u.typeParameter.typeParamId, l)
+        case _            => result = constraints.withUpper(u.typeParameter, l)
       }
     }
 
@@ -987,7 +985,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
         case DesignatorOwner(ta: ScTypeAlias) if p.typeArguments.size == 1 =>
           val containingClassName = Option(ta.containingClass).map(_.qualifiedName).orNull
 
-          if (containingClassName == "scala.compiletime.ops.int" && ta.name == "S") {
+          if (ta.name == "S" && containingClassName == "scala.compiletime.ops.int") {
             r match {
               case ScLiteralType(ScIntegerLiteralImpl.Value(int)) if int > 0 =>
                 val tvar = p.typeArguments.head
@@ -1124,7 +1122,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
               } else result = retryTypeParamsConformance(lhs, l, r, constraints)
             case (UndefinedType(_, _), UndefinedType(typeParameter, _)) =>
               if (TypeVariableUnification.unifiableKinds(p, p2)) {
-                constraints = constraints.withUpper(typeParameter.typeParamId, des1)
+                constraints = constraints.withUpper(typeParameter, des1)
 
                 result = checkParameterizedType(
                   typeParameter.typeParameters,
@@ -1269,7 +1267,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
 
         if (!tparam.lowerType.is[UndefinedType])
           constraints = constraints
-            .withLower(tparam.typeParamId, tparam.lowerType)
+            .withLower(tparam, tparam.lowerType)
       }
 
       val skolemizeExistentialsOnTheRight = r match {
@@ -1535,18 +1533,18 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
     override def visitUndefinedType(u: UndefinedType): Unit = {
       val rightVisitor = new ValDesignatorSimplification {
         override def visitUndefinedType(u2: UndefinedType): Unit = {
-          val uId  = u.typeParameter.typeParamId
-          val u2Id = u2.typeParameter.typeParamId
+          val uTypeParam  = u.typeParameter
+          val u2TypeParam = u2.typeParameter
 
           if (u2.isWrappedExistential) {
-            result = constraints.withLower(uId, u2.typeParameter.lowerType)
+            result = constraints.withLower(uTypeParam, u2.typeParameter.lowerType)
           } else if (u.isWrappedExistential) {
-            result = constraints.withUpper(u2Id, u.typeParameter.upperType)
+            result = constraints.withUpper(u2TypeParam, u.typeParameter.upperType)
           } else {
             result = if (u2.level > u.level) {
-              constraints.withUpper(u2Id, u)
+              constraints.withUpper(u2TypeParam, u)
             } else if (u.level > u2.level) {
-              constraints.withUpper(uId, u2)
+              constraints.withUpper(uTypeParam, u2)
             } else {
               constraints
             }
@@ -1556,17 +1554,16 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
 
       r.visitType(rightVisitor)
       if (result == null) {
-        val id = u.typeParameter.typeParamId
-
+        val tp = u.typeParameter
         // Note that the lower bound is recorded as is. Widening of an inferred type argument only
         // happens once all the bounds are known, see [[ConstraintSystem.substitutionBounds]].
-        val withLower = constraints.withLower(id, r)
+        val withLower = constraints.withLower(tp, r)
 
         result = {
           // A type parameter that asks for a singleton type must not be widened, which the declared
           // bound expresses on its own, so it is recorded rather than kept on the side, SCL-21053
-          val upperType = u.typeParameter.upperType
-          if (Widening.isSingletonBounded(upperType)) withLower.withUpper(id, upperType)
+          val upperType = tp.upperType
+          if (Widening.isSingletonBounded(upperType)) withLower.withUpper(tp, upperType)
           else withLower
         }
       }
@@ -1740,8 +1737,8 @@ private object ScalaConformance {
       case HKAbstract() => constraints
       case _ =>
         constraints
-          .withUpper(typeParameter.typeParamId, bound, variance = Invariant)
-          .withLower(typeParameter.typeParamId, bound, variance = Invariant)
+          .withUpper(typeParameter, bound, variance = Invariant)
+          .withLower(typeParameter, bound, variance = Invariant)
     }
 
   private[psi] sealed trait Bound
