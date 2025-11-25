@@ -48,7 +48,7 @@ object CompoundType extends Type {
           } else compoundMarker.drop()
 
           if (
-            builder.features.`supports capture checking` &&
+            builder.features.`parses capture checking` &&
             {
               val ty = builder.getTokenType
               ty == ScalaTokenTypes.tIDENTIFIER || ty == ScalaTokenType.CaptureOperator
