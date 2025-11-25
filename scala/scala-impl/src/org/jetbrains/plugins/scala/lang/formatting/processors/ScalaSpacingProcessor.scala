@@ -460,6 +460,12 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     rightElementType match {
       case ScalaElementType.CAPTURE_SET => return WITHOUT_SPACING
       case ScalaTokenType.CaptureOperator => return WITHOUT_SPACING
+      case ScalaTokenType.ReachCapabilityStar => return WITHOUT_SPACING
+      case _ =>
+    }
+
+    leftElementType match {
+      case ScalaTokenType.ReachCapabilityStar => return WITHOUT_SPACING
       case _ =>
     }
 
