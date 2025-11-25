@@ -148,9 +148,10 @@ object SmartJDKLoader {
   private def discoverJre(paths: Seq[String], jdkVersion: JavaSdkVersion): Option[Path] = {
     val versionMajor = jdkVersion.ordinal().toString
     val versionStrings = Seq(s"1.$versionMajor", s"-$versionMajor", s"jdk$versionMajor")
+    val fromTcSbtEnv = sys.env.get(s"TC_SBT_TEST_JDK_$versionMajor")
     val fromEnv = sys.env.get(jdkVersion.toString).orElse(sys.env.get(s"${jdkVersion}_0"))
     val fromEnv64 = sys.env.get(s"${jdkVersion}_x64").orElse(sys.env.get(s"${jdkVersion}_0_x64")) // teamcity style
-    val priorityPaths = Seq(currentJava(versionMajor), fromEnv.orElse(fromEnv64)).flatten.map(Path.of(_))
+    val priorityPaths = Seq(fromTcSbtEnv, currentJava(versionMajor), fromEnv.orElse(fromEnv64)).flatten.map(Path.of(_))
 
     priorityPaths.headOption
       .orElse {
