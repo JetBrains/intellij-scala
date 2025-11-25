@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.types.cc
 
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
@@ -11,13 +12,33 @@ object CaptureSet extends ParsingRule {
     if (builder.getTokenType == ScalaTokenTypes.tLBRACE) {
       val marker = builder.mark()
       builder.advanceLexer()
-      ParserUtils.parseLoopUntilRBrace(braceReported = true) {
-        // parse anything except braces. Let parseLoopUntilRBrace handle them
-        while ({
-          val ty = builder.getTokenType
-          ty != ScalaTokenTypes.tLBRACE && ty != ScalaTokenTypes.tRBRACE
-        }) {
-          builder.advanceLexer()
+
+      if (builder.getTokenType == ScalaTokenTypes.tRBRACE) {
+        builder.advanceLexer()
+      } else {
+        ParserUtils.parseLoopUntilRBrace(braceReported = true) {
+          while({
+            CaptureRef()
+            val nextToken = builder.getTokenType
+            if (nextToken == ScalaTokenTypes.tCOMMA) {
+              builder.advanceLexer()
+              true
+            } else {
+              if (nextToken != ScalaTokenTypes.tRBRACE) {
+                builder.error(ScalaBundle.message("comma.or.rbrace.expected"))
+
+                if (nextToken == ScalaTokenTypes.tLBRACE) {
+                  // if we find a '{' let parseLoopUntilRBrace handle it
+                  false
+                } else {
+                  builder.advanceLexer()
+                  true
+                }
+              } else {
+                false
+              }
+            }
+          }) ()
         }
       }
       marker.done(ScalaElementType.CAPTURE_SET)

@@ -24,7 +24,7 @@ object Path {
       thisMarker.done(THIS_REFERENCE)
       if (builder.lookAhead(tDOT, tIDENTIFIER)) {
         builder.advanceLexer()
-        StableId.parseQualId(nm, element, forImport = false)
+        StableId.parseQualId(nm, element)
       } else {
         nm.drop()
       }

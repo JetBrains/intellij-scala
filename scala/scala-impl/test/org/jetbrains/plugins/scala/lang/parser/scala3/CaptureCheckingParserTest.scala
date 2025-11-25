@@ -475,8 +475,8 @@ class CaptureCheckingParserTest extends SimpleScala3ParserTestBase {
     """
       |x: Int ->{} Int
       |x: Int ?->{cap} Int
-      |x: Int =>{this, x} Int
-      |x: Int ?=>{bullshit{{} x} haha()} Int
+      |x: Int =>{blub, x} Int
+      |x: Int ?=>{} Int
       |""".stripMargin,
     """
       |ScalaFile
@@ -513,7 +513,9 @@ class CaptureCheckingParserTest extends SimpleScala3ParserTestBase {
       |      PsiElement(?->)('?->')
       |      CaptureSet
       |        PsiElement({)('{')
-      |        PsiElement(identifier)('cap')
+      |        CaptureRef
+      |          CodeReferenceElement: cap
+      |            PsiElement(identifier)('cap')
       |        PsiElement(})('}')
       |      PsiWhiteSpace(' ')
       |      SimpleType: Int
@@ -525,7 +527,7 @@ class CaptureCheckingParserTest extends SimpleScala3ParserTestBase {
       |      PsiElement(identifier)('x')
       |    PsiElement(:)(':')
       |    PsiWhiteSpace(' ')
-      |    FunctionalType: Int =>{this, x} Int
+      |    FunctionalType: Int =>{blub, x} Int
       |      SimpleType: Int
       |        CodeReferenceElement: Int
       |          PsiElement(identifier)('Int')
@@ -533,10 +535,14 @@ class CaptureCheckingParserTest extends SimpleScala3ParserTestBase {
       |      PsiElement(=>)('=>')
       |      CaptureSet
       |        PsiElement({)('{')
-      |        PsiElement(this)('this')
+      |        CaptureRef
+      |          CodeReferenceElement: blub
+      |            PsiElement(identifier)('blub')
       |        PsiElement(,)(',')
       |        PsiWhiteSpace(' ')
-      |        PsiElement(identifier)('x')
+      |        CaptureRef
+      |          CodeReferenceElement: x
+      |            PsiElement(identifier)('x')
       |        PsiElement(})('}')
       |      PsiWhiteSpace(' ')
       |      SimpleType: Int
@@ -548,7 +554,7 @@ class CaptureCheckingParserTest extends SimpleScala3ParserTestBase {
       |      PsiElement(identifier)('x')
       |    PsiElement(:)(':')
       |    PsiWhiteSpace(' ')
-      |    FunctionalType: Int ?=>{bullshit{{} x} haha()} Int
+      |    FunctionalType: Int ?=>{} Int
       |      SimpleType: Int
       |        CodeReferenceElement: Int
       |          PsiElement(identifier)('Int')
@@ -556,22 +562,578 @@ class CaptureCheckingParserTest extends SimpleScala3ParserTestBase {
       |      PsiElement(?=>)('?=>')
       |      CaptureSet
       |        PsiElement({)('{')
-      |        PsiElement(identifier)('bullshit')
-      |        PsiElement({)('{')
-      |        PsiElement({)('{')
-      |        PsiElement(})('}')
-      |        PsiWhiteSpace(' ')
-      |        PsiElement(identifier)('x')
-      |        PsiElement(})('}')
-      |        PsiWhiteSpace(' ')
-      |        PsiElement(identifier)('haha')
-      |        PsiElement(()('(')
-      |        PsiElement())(')')
       |        PsiElement(})('}')
       |      PsiWhiteSpace(' ')
       |      SimpleType: Int
       |        CodeReferenceElement: Int
       |          PsiElement(identifier)('Int')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  def test_capture_set(): Unit = checkTree(
+    """
+      |x: A^{}
+      |x: A^{id}
+      |x: A^{id.id}
+      |x: A^{id, id, id.id}
+      |x: A^{id.id.rd}
+      |x: A^{id.id.as[B]}
+      |x: A^{id.id.as[B].rd}
+      |x: A^{id.id*}
+      |x: A^{id.id*.rd}
+      |x: A^{id.id*.as[B]}
+      |x: A^{id.id*.as[B].rd}
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  TypedExpression
+      |    ReferenceExpression: x
+      |      PsiElement(identifier)('x')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    CaptureType: A^{}
+      |      SimpleType: A
+      |        CodeReferenceElement: A
+      |          PsiElement(identifier)('A')
+      |      PsiElement(^)('^')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |  TypedExpression
+      |    ReferenceExpression: x
+      |      PsiElement(identifier)('x')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    CaptureType: A^{id}
+      |      SimpleType: A
+      |        CodeReferenceElement: A
+      |          PsiElement(identifier)('A')
+      |      PsiElement(^)('^')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        CaptureRef
+      |          CodeReferenceElement: id
+      |            PsiElement(identifier)('id')
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |  TypedExpression
+      |    ReferenceExpression: x
+      |      PsiElement(identifier)('x')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    CaptureType: A^{id.id}
+      |      SimpleType: A
+      |        CodeReferenceElement: A
+      |          PsiElement(identifier)('A')
+      |      PsiElement(^)('^')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        CaptureRef
+      |          CodeReferenceElement: id.id
+      |            CodeReferenceElement: id
+      |              PsiElement(identifier)('id')
+      |            PsiElement(.)('.')
+      |            PsiElement(identifier)('id')
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |  TypedExpression
+      |    ReferenceExpression: x
+      |      PsiElement(identifier)('x')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    CaptureType: A^{id, id, id.id}
+      |      SimpleType: A
+      |        CodeReferenceElement: A
+      |          PsiElement(identifier)('A')
+      |      PsiElement(^)('^')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        CaptureRef
+      |          CodeReferenceElement: id
+      |            PsiElement(identifier)('id')
+      |        PsiElement(,)(',')
+      |        PsiWhiteSpace(' ')
+      |        CaptureRef
+      |          CodeReferenceElement: id
+      |            PsiElement(identifier)('id')
+      |        PsiElement(,)(',')
+      |        PsiWhiteSpace(' ')
+      |        CaptureRef
+      |          CodeReferenceElement: id.id
+      |            CodeReferenceElement: id
+      |              PsiElement(identifier)('id')
+      |            PsiElement(.)('.')
+      |            PsiElement(identifier)('id')
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |  TypedExpression
+      |    ReferenceExpression: x
+      |      PsiElement(identifier)('x')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    CaptureType: A^{id.id.rd}
+      |      SimpleType: A
+      |        CodeReferenceElement: A
+      |          PsiElement(identifier)('A')
+      |      PsiElement(^)('^')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        CaptureRef
+      |          CodeReferenceElement: id.id
+      |            CodeReferenceElement: id
+      |              PsiElement(identifier)('id')
+      |            PsiElement(.)('.')
+      |            PsiElement(identifier)('id')
+      |          PsiElement(.)('.')
+      |          PsiElement(rd)('rd')
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |  TypedExpression
+      |    ReferenceExpression: x
+      |      PsiElement(identifier)('x')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    CaptureType: A^{id.id.as[B]}
+      |      SimpleType: A
+      |        CodeReferenceElement: A
+      |          PsiElement(identifier)('A')
+      |      PsiElement(^)('^')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        CaptureRef
+      |          CodeReferenceElement: id.id
+      |            CodeReferenceElement: id
+      |              PsiElement(identifier)('id')
+      |            PsiElement(.)('.')
+      |            PsiElement(identifier)('id')
+      |          CaptureFilter
+      |            PsiElement(.)('.')
+      |            PsiElement(as)('as')
+      |            PsiElement([)('[')
+      |            CodeReferenceElement: B
+      |              PsiElement(identifier)('B')
+      |            PsiElement(])(']')
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |  TypedExpression
+      |    ReferenceExpression: x
+      |      PsiElement(identifier)('x')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    CaptureType: A^{id.id.as[B].rd}
+      |      SimpleType: A
+      |        CodeReferenceElement: A
+      |          PsiElement(identifier)('A')
+      |      PsiElement(^)('^')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        CaptureRef
+      |          CodeReferenceElement: id.id
+      |            CodeReferenceElement: id
+      |              PsiElement(identifier)('id')
+      |            PsiElement(.)('.')
+      |            PsiElement(identifier)('id')
+      |          CaptureFilter
+      |            PsiElement(.)('.')
+      |            PsiElement(as)('as')
+      |            PsiElement([)('[')
+      |            CodeReferenceElement: B
+      |              PsiElement(identifier)('B')
+      |            PsiElement(])(']')
+      |          PsiElement(.)('.')
+      |          PsiElement(rd)('rd')
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |  TypedExpression
+      |    ReferenceExpression: x
+      |      PsiElement(identifier)('x')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    CaptureType: A^{id.id*}
+      |      SimpleType: A
+      |        CodeReferenceElement: A
+      |          PsiElement(identifier)('A')
+      |      PsiElement(^)('^')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        CaptureRef
+      |          CodeReferenceElement: id.id
+      |            CodeReferenceElement: id
+      |              PsiElement(identifier)('id')
+      |            PsiElement(.)('.')
+      |            PsiElement(identifier)('id')
+      |          PsiElement(*)('*')
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |  TypedExpression
+      |    ReferenceExpression: x
+      |      PsiElement(identifier)('x')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    CaptureType: A^{id.id*.rd}
+      |      SimpleType: A
+      |        CodeReferenceElement: A
+      |          PsiElement(identifier)('A')
+      |      PsiElement(^)('^')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        CaptureRef
+      |          CodeReferenceElement: id.id
+      |            CodeReferenceElement: id
+      |              PsiElement(identifier)('id')
+      |            PsiElement(.)('.')
+      |            PsiElement(identifier)('id')
+      |          PsiElement(*)('*')
+      |          PsiElement(.)('.')
+      |          PsiElement(rd)('rd')
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |  TypedExpression
+      |    ReferenceExpression: x
+      |      PsiElement(identifier)('x')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    CaptureType: A^{id.id*.as[B]}
+      |      SimpleType: A
+      |        CodeReferenceElement: A
+      |          PsiElement(identifier)('A')
+      |      PsiElement(^)('^')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        CaptureRef
+      |          CodeReferenceElement: id.id
+      |            CodeReferenceElement: id
+      |              PsiElement(identifier)('id')
+      |            PsiElement(.)('.')
+      |            PsiElement(identifier)('id')
+      |          PsiElement(*)('*')
+      |          CaptureFilter
+      |            PsiElement(.)('.')
+      |            PsiElement(as)('as')
+      |            PsiElement([)('[')
+      |            CodeReferenceElement: B
+      |              PsiElement(identifier)('B')
+      |            PsiElement(])(']')
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |  TypedExpression
+      |    ReferenceExpression: x
+      |      PsiElement(identifier)('x')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    CaptureType: A^{id.id*.as[B].rd}
+      |      SimpleType: A
+      |        CodeReferenceElement: A
+      |          PsiElement(identifier)('A')
+      |      PsiElement(^)('^')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        CaptureRef
+      |          CodeReferenceElement: id.id
+      |            CodeReferenceElement: id
+      |              PsiElement(identifier)('id')
+      |            PsiElement(.)('.')
+      |            PsiElement(identifier)('id')
+      |          PsiElement(*)('*')
+      |          CaptureFilter
+      |            PsiElement(.)('.')
+      |            PsiElement(as)('as')
+      |            PsiElement([)('[')
+      |            CodeReferenceElement: B
+      |              PsiElement(identifier)('B')
+      |            PsiElement(])(']')
+      |          PsiElement(.)('.')
+      |          PsiElement(rd)('rd')
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  def test_incomplete_capture_set(): Unit = checkTree(
+    """
+      |x: A^{.}
+      |x: A^{,}
+      |x: A^{, id}
+      |x: A^{.rd}
+      |x: A^{.as[x]}
+      |x: A^{id.}
+      |x: A^{id.as}
+      |x: A^{id.as[}
+      |x: A^{id.as[]}
+      |x: A^{id.as[x}
+      |x: A^{id.as[x].}
+      |x: A^{id id}
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  TypedExpression
+      |    ReferenceExpression: x
+      |      PsiElement(identifier)('x')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    CaptureType: A^{.}
+      |      SimpleType: A
+      |        CodeReferenceElement: A
+      |          PsiElement(identifier)('A')
+      |      PsiElement(^)('^')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        CaptureRef
+      |          PsiErrorElement:Capture reference expected
+      |            <empty list>
+      |          PsiElement(.)('.')
+      |          PsiErrorElement:'as' or 'rd' expected
+      |            <empty list>
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |  TypedExpression
+      |    ReferenceExpression: x
+      |      PsiElement(identifier)('x')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    CaptureType: A^{,}
+      |      SimpleType: A
+      |        CodeReferenceElement: A
+      |          PsiElement(identifier)('A')
+      |      PsiElement(^)('^')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        PsiErrorElement:Capture reference expected
+      |          <empty list>
+      |        PsiElement(,)(',')
+      |        PsiErrorElement:Capture reference expected
+      |          <empty list>
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |  TypedExpression
+      |    ReferenceExpression: x
+      |      PsiElement(identifier)('x')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    CaptureType: A^{, id}
+      |      SimpleType: A
+      |        CodeReferenceElement: A
+      |          PsiElement(identifier)('A')
+      |      PsiElement(^)('^')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        PsiErrorElement:Capture reference expected
+      |          <empty list>
+      |        PsiElement(,)(',')
+      |        PsiWhiteSpace(' ')
+      |        CaptureRef
+      |          CodeReferenceElement: id
+      |            PsiElement(identifier)('id')
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |  TypedExpression
+      |    ReferenceExpression: x
+      |      PsiElement(identifier)('x')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    CaptureType: A^{.rd}
+      |      SimpleType: A
+      |        CodeReferenceElement: A
+      |          PsiElement(identifier)('A')
+      |      PsiElement(^)('^')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        CaptureRef
+      |          PsiErrorElement:Capture reference expected
+      |            <empty list>
+      |          PsiElement(.)('.')
+      |          PsiElement(rd)('rd')
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |  TypedExpression
+      |    ReferenceExpression: x
+      |      PsiElement(identifier)('x')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    CaptureType: A^{.as[x]}
+      |      SimpleType: A
+      |        CodeReferenceElement: A
+      |          PsiElement(identifier)('A')
+      |      PsiElement(^)('^')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        CaptureRef
+      |          PsiErrorElement:Capture reference expected
+      |            <empty list>
+      |          CaptureFilter
+      |            PsiElement(.)('.')
+      |            PsiElement(as)('as')
+      |            PsiElement([)('[')
+      |            CodeReferenceElement: x
+      |              PsiElement(identifier)('x')
+      |            PsiElement(])(']')
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |  TypedExpression
+      |    ReferenceExpression: x
+      |      PsiElement(identifier)('x')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    CaptureType: A^{id.}
+      |      SimpleType: A
+      |        CodeReferenceElement: A
+      |          PsiElement(identifier)('A')
+      |      PsiElement(^)('^')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        CaptureRef
+      |          CodeReferenceElement: id.
+      |            CodeReferenceElement: id
+      |              PsiElement(identifier)('id')
+      |            PsiElement(.)('.')
+      |            PsiErrorElement:Identifier expected
+      |              <empty list>
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |  TypedExpression
+      |    ReferenceExpression: x
+      |      PsiElement(identifier)('x')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    CaptureType: A^{id.as}
+      |      SimpleType: A
+      |        CodeReferenceElement: A
+      |          PsiElement(identifier)('A')
+      |      PsiElement(^)('^')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        CaptureRef
+      |          CodeReferenceElement: id
+      |            PsiElement(identifier)('id')
+      |          PsiElement(.)('.')
+      |          PsiElement(as)('as')
+      |          PsiErrorElement:'[' expected
+      |            <empty list>
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |  TypedExpression
+      |    ReferenceExpression: x
+      |      PsiElement(identifier)('x')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    CaptureType: A^{id.as[}
+      |      SimpleType: A
+      |        CodeReferenceElement: A
+      |          PsiElement(identifier)('A')
+      |      PsiElement(^)('^')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        CaptureRef
+      |          CodeReferenceElement: id
+      |            PsiElement(identifier)('id')
+      |          PsiElement(.)('.')
+      |          PsiElement(as)('as')
+      |          PsiElement([)('[')
+      |          PsiErrorElement:Wrong qualified identifier
+      |            <empty list>
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |  TypedExpression
+      |    ReferenceExpression: x
+      |      PsiElement(identifier)('x')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    CaptureType: A^{id.as[]}
+      |      SimpleType: A
+      |        CodeReferenceElement: A
+      |          PsiElement(identifier)('A')
+      |      PsiElement(^)('^')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        CaptureRef
+      |          CodeReferenceElement: id
+      |            PsiElement(identifier)('id')
+      |          PsiElement(.)('.')
+      |          PsiElement(as)('as')
+      |          PsiElement([)('[')
+      |          PsiErrorElement:Wrong qualified identifier
+      |            <empty list>
+      |          PsiElement(])(']')
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |  TypedExpression
+      |    ReferenceExpression: x
+      |      PsiElement(identifier)('x')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    CaptureType: A^{id.as[x}
+      |      SimpleType: A
+      |        CodeReferenceElement: A
+      |          PsiElement(identifier)('A')
+      |      PsiElement(^)('^')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        CaptureRef
+      |          CodeReferenceElement: id
+      |            PsiElement(identifier)('id')
+      |          CaptureFilter
+      |            PsiElement(.)('.')
+      |            PsiElement(as)('as')
+      |            PsiElement([)('[')
+      |            CodeReferenceElement: x
+      |              PsiElement(identifier)('x')
+      |            PsiErrorElement:']' expected
+      |              <empty list>
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |  TypedExpression
+      |    ReferenceExpression: x
+      |      PsiElement(identifier)('x')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    CaptureType: A^{id.as[x].}
+      |      SimpleType: A
+      |        CodeReferenceElement: A
+      |          PsiElement(identifier)('A')
+      |      PsiElement(^)('^')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        CaptureRef
+      |          CodeReferenceElement: id
+      |            PsiElement(identifier)('id')
+      |          CaptureFilter
+      |            PsiElement(.)('.')
+      |            PsiElement(as)('as')
+      |            PsiElement([)('[')
+      |            CodeReferenceElement: x
+      |              PsiElement(identifier)('x')
+      |            PsiElement(])(']')
+      |          PsiElement(.)('.')
+      |          PsiErrorElement:'rd' expected
+      |            <empty list>
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |  TypedExpression
+      |    ReferenceExpression: x
+      |      PsiElement(identifier)('x')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    CaptureType: A^{id id}
+      |      SimpleType: A
+      |        CodeReferenceElement: A
+      |          PsiElement(identifier)('A')
+      |      PsiElement(^)('^')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        CaptureRef
+      |          CodeReferenceElement: id
+      |            PsiElement(identifier)('id')
+      |        PsiErrorElement:',' or '}' expected
+      |          <empty list>
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(identifier)('id')
+      |        PsiErrorElement:Capture reference expected
+      |          <empty list>
+      |        PsiElement(})('}')
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )

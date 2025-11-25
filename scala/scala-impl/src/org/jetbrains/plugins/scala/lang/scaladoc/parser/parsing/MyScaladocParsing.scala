@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.TokenSets.TokenSetExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.PsiBuilderExt
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.{ScalaPsiBuilder, ScalaPsiBuilderImpl}
-import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableId
+import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableIdForImport
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType._
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScalaDocSyntaxElementType
@@ -323,7 +323,7 @@ class MyScaladocParsing(private val builder: PsiBuilder,
           builder.advanceLexer()
         if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER && !isEndOfComment) {
           val psiBuilder = mkScalaPsiBuilder(builder, isScala3 = false)
-          StableId(DOC_CODE_LINK_VALUE, forImport = true)(psiBuilder)
+          StableIdForImport(DOC_CODE_LINK_VALUE)(psiBuilder)
         }
       case DOC_MONOSPACE_TAG =>
         parseUntilAndConvertToData(monospaceEndTokenSet)
@@ -483,7 +483,7 @@ class MyScaladocParsing(private val builder: PsiBuilder,
           builder.advanceLexer()
 
         val psiBuilder = mkScalaPsiBuilder(builder, isScala3 = false)
-        StableId(DOC_TAG_VALUE_TOKEN, forImport = true)(psiBuilder)
+        StableIdForImport(DOC_TAG_VALUE_TOKEN)(psiBuilder)
       case _ => // do nothing
     }
 
@@ -528,7 +528,7 @@ class MyScaladocParsing(private val builder: PsiBuilder,
       case TagNames.Throws =>
         consumeWhiteSpaces()
         val psiBuilder = mkScalaPsiBuilder(builder, isScala3 = false)
-        StableId(DOC_TAG_VALUE_TOKEN, forImport = true)(psiBuilder)
+        StableIdForImport(DOC_TAG_VALUE_TOKEN)(psiBuilder)
       case TagNames.Param | TagNames.TypeParam | TagNames.Define =>
         if (builder.lookAhead(DOC_WHITESPACE, DOC_TAG_VALUE_TOKEN)) {
           builder.advanceLexer() // ate space
