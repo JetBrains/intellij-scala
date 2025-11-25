@@ -111,7 +111,7 @@ abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
   private def doTextTest(action: Action, text: String, textAfter: String): Unit =
     doTextTest(TestData(text, textAfter, tempFileName, action, 1, checkAfterEachIteration = false))
 
-  private def initFile(fileName: String, text: String): PsiFile = {
+  protected def initFile(fileName: String, text: String): PsiFile = {
     val file = PsiFileFactory.getInstance(project)
       .createFileFromText(fileName, language, text, true, false)
     ScalaFeaturePusher.setFeatures(file.getVirtualFile, ScalaFeatures.onlyByVersion(version))
