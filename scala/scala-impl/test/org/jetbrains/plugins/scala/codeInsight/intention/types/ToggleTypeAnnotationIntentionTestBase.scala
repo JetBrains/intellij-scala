@@ -281,7 +281,7 @@ abstract class ToggleTypeAnnotationIntentionTestBase extends ScalaIntentionTestB
   )
 
   def testAddTypeAnnotationToUnderscoreParameter_CaretAfterUnderscore(): Unit = doTest(
-    s"""Seq(1, 2).map(_${CARET}.toString)""",
+    s"""Seq(1, 2).map(_$CARET.toString)""",
     s"""Seq(1, 2).map((_: Int)$CARET.toString)""",
   )
 
@@ -292,7 +292,7 @@ abstract class ToggleTypeAnnotationIntentionTestBase extends ScalaIntentionTestB
 
   def testRemoveTypeAnnotationToUnderscoreParameter_CaretAfterUnderscoreSection(): Unit = doTest(
     s"""Seq(1, 2).map((_: Int$CARET).toString)""",
-    s"""Seq(1, 2).map(_${CARET}.toString)""",
+    s"""Seq(1, 2).map(_$CARET.toString)""",
   )
 
   def testRemoveTypeAnnotationToUnderscoreParameter_CaretInTheMiddleOfUnderscoreSection(): Unit = doTest(
@@ -311,7 +311,7 @@ abstract class ToggleTypeAnnotationIntentionTestBase extends ScalaIntentionTestB
   )
 
   def testAddTypeAnnotationToLambdaParameter_CaretAfterParameterName(): Unit = doTest(
-    s"""Seq(1, 2).map(x${CARET} => x.toString)""",
+    s"""Seq(1, 2).map(x$CARET => x.toString)""",
     s"""Seq(1, 2).map((x: Int)$CARET => x.toString)""",
   )
 
@@ -493,5 +493,45 @@ abstract class ToggleTypeAnnotationIntentionTestBase extends ScalaIntentionTestB
   def testRemoveTypeAnnotationFromWildcardPattern_InValDefinition(): Unit = doTest(
     s"""val (v1, ${CARET}v2: String) = (1, "42")""".stripMargin,
     s"""val (v1, ${CARET}v2) = (1, "42")""".stripMargin,
+  )
+
+  def testTypeAliasInRefinementWithPotentialNameCollision_CompoundTypeWithRefinement(): Unit = doTest(
+    s"""object Parsers {
+       |  trait Builder
+       |
+       |
+       |  val value1$CARET = (??? : {
+       |    type Builder = Parsers.Builder
+       |  })
+       |}
+       |""".stripMargin,
+    s"""object Parsers {
+       |  trait Builder
+       |
+       |
+       |  val value1$CARET: {type Builder = Parsers.Builder} = (??? : {
+       |    type Builder = Parsers.Builder
+       |  })
+       |}
+       |""".stripMargin
+  )
+
+  def testTypeAliasInRefinementWithPotentialNameCollision_NewTemplateDefinition(): Unit = doTest(
+    s"""object Parsers {
+       |  trait Builder
+       |
+       |  val value2$CARET = new AnyRef {
+       |    type Builder = Parsers.Builder
+       |  }
+       |}
+       |""".stripMargin,
+    s"""object Parsers {
+       |  trait Builder
+       |
+       |  val value2$CARET: Object {type Builder = Parsers.Builder} = new AnyRef {
+       |    type Builder = Parsers.Builder
+       |  }
+       |}
+       |""".stripMargin
   )
 }

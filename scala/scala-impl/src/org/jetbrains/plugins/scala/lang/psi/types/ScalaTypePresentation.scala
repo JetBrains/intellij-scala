@@ -31,6 +31,14 @@ trait ScalaTypePresentation extends TypePresentation {
 
   import ScalaTypePresentation._
 
+  // Implementation note:
+  // Currently, this method has a lot of inner local methods that take `tpc: TypePresentationContext` implicit parameter as a context.
+  // This is needed because in general case when we render part of a type, it might need to change the representation context.
+  // (For example, when rendering members of a compound/structural type refinements (SCL-24691)).
+  // However, this approach is fragile - if we introduce a new local method, you must remember to get the implicit parameter in it.
+  // Otherwise, there is a risk of using the original type presentation context of `typeText`.
+  // Ideally, we need to rewrite it in some other way.
+  // For example, we could extract all local methods and pass other shared parameters explicitly or implicitly.
   override def typeText(
     `type`: ScType,
     nameRenderer: NameRenderer,
@@ -39,24 +47,32 @@ trait ScalaTypePresentation extends TypePresentation {
     val textEscaper: TextEscaper = nameRenderer
     val boundsRenderer = new TypeBoundsRenderer(textEscaper)
 
-    def typesText(types: Iterable[ScType]): String = types
+    def typesText(types: Iterable[ScType])
+                 (implicit tpc: TypePresentationContext): String = types
       .map(innerTypeText(_))
       .commaSeparated(model = Model.Parentheses)
 
     def typeTail(need: Boolean) = if (need) ObjectTypeSuffix else ""
 
-    def typeParametersText(paramsOwner: ScTypeParametersOwner, substitutor: ScSubstitutor): String = paramsOwner.typeParameters match {
+    def typeParametersText(paramsOwner: ScTypeParametersOwner, substitutor: ScSubstitutor)
+                          (implicit tpc: TypePresentationContext): String = paramsOwner.typeParameters match {
       case Seq()  => ""
       case params => params.map(typeParamText(_, substitutor)).commaSeparated(model = Model.SquareBrackets)
     }
 
-    def typeParamText(param: ScTypeParam, substitutor: ScSubstitutor): String = {
+    def typeParamText(
+      param: ScTypeParam,
+      substitutor: ScSubstitutor
+    )(implicit tpc: TypePresentationContext): String = {
       val typeRenderer: TypeRenderer = t => typeText(substitutor(t), nameRenderer, options)
       val typeParamsRenderer = new TypeParamsRenderer(typeRenderer, boundsRenderer)
       typeParamsRenderer.render(param)
     }
 
-    def projectionTypeText(projType: ScProjectionType, needDotType: Boolean): String = {
+    def projectionTypeText(
+      projType: ScProjectionType,
+      needDotType: Boolean
+    )(implicit tpc: TypePresentationContext): String = {
       val e = projType.actualElement
 
       def checkIfStable(element: PsiElement): Boolean = element match {
@@ -85,10 +101,14 @@ trait ScalaTypePresentation extends TypePresentation {
         if (options.renderProjectionTypeName) nameRenderer.renderName(e)
         else nameRenderer.escapeName(refName)
 
-      if (tpc.nameResolvesTo(refName + typeTailForProjection, e))
-        // if the reference can be resolved from the context, we do not render a redundant context prefix
+      val isElementResolvedFromContextWithoutQualifier = tpc.nameResolvesTo(refName + typeTailForProjection, e)
+      if (isElementResolvedFromContextWithoutQualifier) {
+        // If the reference can be resolved from the context, we do not render a redundant context prefix (qualifier)
+        // NOTE: this logic might be fragile. It heavily depends on the carefully passed type presentation context (tpc).
+        // If a wrong presentation context is passed, this logic might wrongfully remove the qualifier leading to various bugs during type inference.
+        // Such as Cycles (e.g. StackOverflowError) or just incorrectly-inferred type from a wrong context.
         escapedName + typeTailForProjection
-      else
+      } else
         projType.projected match {
           case ScDesignatorType(pack: PsiPackage) =>
             nameRenderer.renderNameWithPoint(pack) + escapedName
@@ -111,22 +131,45 @@ trait ScalaTypePresentation extends TypePresentation {
         }
     }
 
-    def compoundTypeText(compType: ScCompoundType): String = {
+    def compoundTypeText(compType: ScCompoundType)
+                        (implicit tpc: TypePresentationContext): String = {
       val ScCompoundType(comps, signatureMap, typeMap) = compType
-      def typeText0(tp: ScType) = innerTypeText(tp)
 
-      val componentsText = if (comps.isEmpty || comps == Seq(projectContext.stdTypes.AnyRef)) Nil else Seq(comps.map {
-        case tp@FunctionType(_, _) => "(" + innerTypeText(tp) + ")"
-        case tp => innerTypeText(tp)
-      }.mkString(tpc.compoundTypeSeparatorText))
+      val allSignatures = signatureMap ++ typeMap
 
-      val declsTexts = (signatureMap ++ typeMap).flatMap {
+      def typeText0(tp: ScType, presentationContextElement: PsiNamedElement): String = {
+        // We update the presentation context only when we know it's psi-based
+        // Otherwise we assume that the presentation context is "Empty", meaning that all the types should be fully-qualified.
+        // In this case the `result` of `nameResolvesTo` doesn't matter; we assume that it will be false for all types.
+        // This logic was primarily added to adress SCL-24691
+        val tpcNew = tpc match {
+          case _: TypePresentationContext.PsiBased =>
+            TypePresentationContext(presentationContextElement)
+          case _ =>
+            tpc
+        }
+        innerTypeText(tp)(tpcNew)
+      }
+
+      val componentsText: Seq[String] =
+        if (comps.isEmpty || comps == Seq(projectContext.stdTypes.AnyRef))
+          Nil
+        else {
+          val compsTexts = comps.map {
+            case tp@FunctionType(_, _) => "(" + innerTypeText(tp) + ")"
+            case tp => innerTypeText(tp)
+          }
+          val compsText = compsTexts.mkString(tpc.compoundTypeSeparatorText)
+          Seq(compsText)
+        }
+
+      val declsTexts = allSignatures.flatMap {
         case (s: TermSignature, returnType: ScType) if s.namedElement.is[ScFunction] =>
           val function = s.namedElement.asInstanceOf[ScFunction]
           val substitutor = s.substitutor
 
           val paramClauses: String = {
-            val typeRenderer: TypeRenderer = t => typeText0(substitutor(t))
+            val typeRenderer: TypeRenderer = t => typeText0(substitutor(t), function)
             val paramRenderer = new ParameterRenderer(
               typeRenderer,
               ModifiersRenderer.SimpleText(textEscaper),
@@ -142,7 +185,7 @@ trait ScalaTypePresentation extends TypePresentation {
             paramsRenderer.renderClauses(function)
           }
 
-          val retType = if (!compType.equiv(returnType)) typeText0(substitutor(returnType)) else s"this$ObjectTypeSuffix"
+          val retType = if (!compType.equiv(returnType)) typeText0(substitutor(returnType), function) else s"this$ObjectTypeSuffix"
 
           val typeParameters = typeParametersText(function, substitutor)
 
@@ -157,13 +200,22 @@ trait ScalaTypePresentation extends TypePresentation {
           }
 
           named.map { typedDefinition =>
-            (if (typedDefinition.isVar) "var" else "val") + s" ${typedDefinition.name}${if (typedDefinition.name.lastOption.exists(c => !c.isLetterOrDigit && c != '`')) " " else ""}: ${typeText0(substitutor(returnType))}"
+            val needSpaceAfterName = typedDefinition.name.lastOption.exists(c => !c.isLetterOrDigit && c != '`')
+            val spaceAfterName = if (needSpaceAfterName) " " else ""
+            val keyword = if (typedDefinition.isVar) "var" else "val"
+            val typeAnnotation = s"${typeText0(substitutor(returnType), s.namedElement)}"
+            keyword + s" ${typedDefinition.name}$spaceAfterName: $typeAnnotation"
           }
         case (_: String, signature: TypeAliasSignature) =>
           val alias = signature.typeAlias
           val defnText: String =
-            if (signature.isDefinition) s" = ${typeText0(signature.upperBound)}"
-            else boundsRenderer.lowerBoundText(signature.lowerBound)(typeText0) + boundsRenderer.upperBoundText(signature.upperBound)(typeText0)
+            if (signature.isDefinition)
+              s" = ${typeText0(signature.upperBound, alias)}"
+            else {
+              val lowerBoundText = boundsRenderer.lowerBoundText(signature.lowerBound)(typeText0(_, alias))
+              val upperBoundText = boundsRenderer.upperBoundText(signature.upperBound)(typeText0(_, alias))
+              lowerBoundText + upperBoundText
+            }
 
           val typeParameters = typeParametersText(alias, signature.substitutor)
           Some(s"type ${signature.name}$typeParameters$defnText")
@@ -176,7 +228,8 @@ trait ScalaTypePresentation extends TypePresentation {
     }
 
     @tailrec
-    def existentialTypeText(existentialType: ScExistentialType, checkWildcard: Boolean, stable: Boolean): String = {
+    def existentialTypeText(existentialType: ScExistentialType, checkWildcard: Boolean, stable: Boolean)
+                           (implicit tpc: TypePresentationContext): String = {
       def existentialArgWithBounds(wildcard: ScExistentialArgument, name: String): String = {
         val argsText = wildcard.typeParameters.map(_.name) match {
           case Seq() => ""
@@ -258,7 +311,9 @@ trait ScalaTypePresentation extends TypePresentation {
       }
     }
 
-    def parameterizedTypeText(p: ParameterizedType)(printArgsFun: ScType => String): String = p match {
+    def parameterizedTypeText(p: ParameterizedType)
+                             (printArgsFun: ScType => String)
+                             (implicit tpc: TypePresentationContext): String = p match {
       case ParameterizedType(InfixDesignator(op), Seq(left, right)) if !ScalaApplicationSettings.PRECISE_TEXT && tpc.infixTypesConsiderPrecedence.isDefined => // SCL-21179
         val opRendered =
           if (options.renderInfixType) nameRenderer.renderName(op)
@@ -268,7 +323,8 @@ trait ScalaTypePresentation extends TypePresentation {
         innerTypeText(des) + typeArgs.map(printArgsFun(_)).commaSeparated(model = Model.SquareBrackets)
     }
 
-    def infixTypeText(infix: Infix, opRendered: String, left: ScType, right: ScType, printArgsFun: ScType => String): String = {
+    def infixTypeText(infix: Infix, opRendered: String, left: ScType, right: ScType, printArgsFun: ScType => String)
+                     (implicit tpc: TypePresentationContext): String = {
       def toInfix(ty: ScType): Option[Infix] = {
         ty match {
           case ParameterizedType(InfixDesignator(newOp), _) => Some(Infix(newOp.name))
@@ -287,7 +343,8 @@ trait ScalaTypePresentation extends TypePresentation {
       s"$leftOp $opRendered $rightOp"
     }
 
-    def textOf(params: Seq[ScType]) = params match {
+    def textOf(params: Seq[ScType])
+              (implicit tpc: TypePresentationContext)= params match {
       case Seq(fun@FunctionType(_, _)) => innerTypeText(fun).parenthesize()
       case Seq(tup@TupleType(_)) => innerTypeText(tup).parenthesize()
       case Seq(mt: ScMatchType) => innerTypeText(mt).parenthesize()
@@ -299,7 +356,7 @@ trait ScalaTypePresentation extends TypePresentation {
       t: ScType,
       needDotType: Boolean = true,
       checkWildcard: Boolean = false
-    ): String = t match {
+    )(implicit tpc: TypePresentationContext): String = t match {
       case stdType: StdType if options.renderStdTypes =>
         stdType.extractClass match {
           case Some(clazz) => nameRenderer.renderName(clazz)

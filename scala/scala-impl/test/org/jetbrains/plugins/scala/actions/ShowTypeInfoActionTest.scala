@@ -356,4 +356,28 @@ class ShowTypeInfoActionTest_Scala3 extends ShowTypeInfoActionTest_Scala2 {
        |""".stripMargin,
     "a.<wbr>type"
   )
+
+  def testTypeAliasInRefinementWithPotentialNameCollision_CompoundTypeWithRefinement(): Unit = doShowTypeInfoTest(
+    s"""object Parsers {
+       |  trait Builder
+       |
+       |  val value1$CARET = (??? : {
+       |    type Builder = Parsers.Builder
+       |  })
+       |}
+       |""".stripMargin,
+    "{ type Builder = Parsers.<wbr>Builder }"
+  )
+
+  def testTypeAliasInRefinementWithPotentialNameCollision_NewTemplateDefinition(): Unit = doShowTypeInfoTest(
+    s"""object Parsers {
+       |  trait Builder
+       |
+       |  val value2$CARET = new AnyRef {
+       |    type Builder = Parsers.Builder
+       |  }
+       |}
+       |""".stripMargin,
+    "Object { type Builder = Parsers.<wbr>Builder }"
+  )
 }
