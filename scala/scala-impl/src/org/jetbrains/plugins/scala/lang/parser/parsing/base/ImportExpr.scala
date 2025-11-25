@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.base
 
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
-import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType}
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.parsing.types.{InfixType, StableId}
+import org.jetbrains.plugins.scala.lang.parser.parsing.types.{InfixType, StableIdForImport}
+import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType}
 
 /*
  *  ImportExpr ::= StableId  '.'  (id | '_'  | ImportSelectors)
@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.{InfixType, StableI
 object ImportExpr extends ParsingRule {
   override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val importExprMarker = builder.mark()
-    if (!StableId(ScalaElementType.REFERENCE, forImport = true)) {
+    if (!StableIdForImport(ScalaElementType.REFERENCE)) {
       builder error ErrMsg("identifier.expected")
       importExprMarker.drop()
       return true

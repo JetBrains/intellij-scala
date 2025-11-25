@@ -16,32 +16,32 @@ import scala.annotation.tailrec
 object QualId extends ParsingRule {
 
   override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
-    parseNext(builder.mark())
-    true
+    parseNext(builder.mark(), hadOneRef = false)
   }
 
   @tailrec
-  private def parseNext(qualMarker: PsiBuilder.Marker)(implicit builder: ScalaPsiBuilder): Unit = {
+  private def parseNext(qualMarker: PsiBuilder.Marker, hadOneRef: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = {
     //parsing td identifier
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER =>
         builder.advanceLexer() //Ate identifier
         //Look for dot
         builder.getTokenType match {
-          case ScalaTokenTypes.tDOT => {
-            val newMarker = qualMarker.precede
+          case ScalaTokenTypes.tDOT =>
+            val newMarker = qualMarker.precede()
             qualMarker.done(ScalaElementType.REFERENCE)
             builder.advanceLexer() //Ate dot
             //recursively parse qualified identifier
-            parseNext(newMarker)
-          }
+            parseNext(newMarker, hadOneRef = true)
           case _ =>
             //It's OK, let's close marker
             qualMarker.done(ScalaElementType.REFERENCE)
+            true
         }
       case _ =>
         builder error ScalaBundle.message("wrong.qual.identifier")
         qualMarker.drop()
+        hadOneRef
     }
   }
 }
