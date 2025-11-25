@@ -51,8 +51,9 @@ final class ScalaLanguageSubstitutor extends LanguageSubstitutor {
   }
 }
 
-private object ScalaLanguageSubstitutor {
-
+// todo: make private again
+object ScalaLanguageSubstitutor {
+  // todo: should return a data class with all the knowledge we can gather from the path
   /**
    * @example
    *  - scala3-library_3-3.0.0-sources.jar
@@ -64,7 +65,7 @@ private object ScalaLanguageSubstitutor {
    */
   @TestOnly
   def looksLikeScala3LibSourcesJar(path: String): Boolean = {
-    val end = path.indexOf("-sources.jar!/")
+    val end = path.indexOf(SourceJarSuffix)
     if (end == -1)
       return false
     if (ScalaLibrary_3_8_plus.findFirstIn(path).isDefined) // TODO Generalize, SCL-18956
@@ -86,7 +87,15 @@ private object ScalaLanguageSubstitutor {
     SemVerSimplifiedRegex.matches(libraryNameWithVersion)
   }
 
+  def isInSourceJar(path: String): Boolean =
+    path.contains(SourceJarSuffix)
+
+  def looksLikeScala3_8LibSourcesJar(path: String): Boolean =
+    ScalaLibrary_3_8_plus.findFirstIn(path).isDefined
+
   private val Scala3LibNameSuffix = "_3-"
+
+  private val SourceJarSuffix = "-sources.jar!/"
 
   /**
    * See [[https://semver.org/]] for the format of library version.<br>
