@@ -1,14 +1,20 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.types.cc
 
+import com.intellij.lang.PsiBuilder
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
+import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType}
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.QualId
-import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableIdForCaptureSet
+import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableId
+
+import scala.annotation.tailrec
 
 /**
+ * SimpleRef   ::=  id
+ *               |  [id ‘.’] ‘this’
+ *               |  [id ‘.’] ‘super’ [ClassQualifier] ‘.’ id
  * CaptureRef  ::=  { SimpleRef ‘.’ } SimpleRef [‘*’] [CapFilter] [‘.’ ‘rd’] -- under captureChecking
  * CapFilter   ::=  ‘.’ ‘as’ ‘[’ QualId ’]’                                  -- under captureChecking
  */
@@ -16,7 +22,7 @@ object CaptureRef extends ParsingRule {
 
   override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark()
-    if (!StableIdForCaptureSet(ScalaElementType.REFERENCE)) {
+    if (!parseSimpleRef()) {
       builder.error(ScalaBundle.message("capture.reference.expected"))
       if (builder.getTokenType != ScalaTokenTypes.tDOT) {
         marker.drop()
@@ -33,6 +39,79 @@ object CaptureRef extends ParsingRule {
 
     marker.done(ScalaElementType.CAPTURE_REF)
     true
+  }
+
+  private def parseSimpleRef()(implicit builder: ScalaPsiBuilder): Boolean = {
+    @tailrec
+    def parseNext(marker: PsiBuilder.Marker, parseDot: Boolean, hadOne: Boolean): Boolean = {
+      if (parseDot) {
+        if (builder.getTokenType != ScalaTokenTypes.tDOT) {
+          marker.drop()
+          true
+        } else {
+          val rollBackMarker = builder.mark()
+          builder.advanceLexer()
+
+          builder.getTokenText match {
+            case "rd" | "as" =>
+              rollBackMarker.rollbackTo()
+              marker.drop()
+              true
+            case _ =>
+              rollBackMarker.drop()
+              parseNext(marker, parseDot = false, hadOne)
+          }
+        }
+      } else {
+        builder.getTokenType match {
+          case ScalaTokenTypes.tIDENTIFIER =>
+            builder.advanceLexer()
+            marker.done(ScalaElementType.REFERENCE)
+            parseNext(marker.precede(), parseDot = true, hadOne = true)
+          case ScalaTokenTypes.kTHIS =>
+            builder.advanceLexer()
+            marker.done(ScalaElementType.THIS_REFERENCE)
+            parseNext(marker.precede(), parseDot = true, hadOne = true)
+          case ScalaTokenTypes.kSUPER =>
+            // parse super[X].id or super.id
+            builder.advanceLexer()
+            val token = builder.getTokenType
+            if (token != ScalaTokenTypes.tDOT && token != ScalaTokenTypes.tLSQBRACKET) {
+              builder.error(ErrMsg("dot.or.cq.expected"))
+              marker.done(ScalaElementType.SUPER_REFERENCE)
+              return true
+            }
+            StableId.parseClassQualifier()
+            marker.done(ScalaElementType.SUPER_REFERENCE)
+
+            if (builder.getTokenType == ScalaTokenTypes.tDOT) {
+              builder.advanceLexer() // eat .
+            } else {
+              builder.error(ErrMsg("dot.expected"))
+            }
+
+            val refMarker = marker.precede()
+            if (builder.getTokenType != ScalaTokenTypes.tIDENTIFIER) {
+              builder.error(ErrMsg("identifier.expected"))
+              refMarker.done(ScalaElementType.REFERENCE)
+              return true
+            }
+            builder.advanceLexer() // eat identifier
+            refMarker.done(ScalaElementType.REFERENCE)
+            parseNext(refMarker.precede(), parseDot = true, hadOne = true)
+          case _ =>
+            if (hadOne) {
+              builder.error(ErrMsg("identifier.expected"))
+              marker.done(ScalaElementType.REFERENCE)
+            } else {
+              marker.drop()
+            }
+            hadOne
+        }
+      }
+    }
+
+    parseNext(builder.mark(), parseDot = false, hadOne = false)
   }
 
   private def parseCaptureFilter()(implicit builder: ScalaPsiBuilder): Boolean = {
