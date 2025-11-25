@@ -9,7 +9,8 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{FilePropertyKey, FilePropertyKeyImpl, PsiFile}
 import com.intellij.util.indexing.IndexingDataKeys
 import org.jetbrains.annotations.TestOnly
-import org.jetbrains.plugins.scala.ScalaLanguage
+import org.jetbrains.plugins.scala.{ScalaLanguage, ScalaVersion}
+import org.jetbrains.plugins.scala.lang.parser.ScalaLanguageSubstitutor
 import org.jetbrains.plugins.scala.project.ScalaFeaturePusher.{SerializedScalaFeatures, isScalaLike}
 import org.jetbrains.plugins.scala.project.ScalaFeatures.SerializableScalaFeatures
 
@@ -55,9 +56,19 @@ object ScalaFeaturePusher {
         Option(file.getUserData(IndexingDataKeys.VIRTUAL_FILE))
           .flatMap(vFile => if (vFile.isDirectory) Some(vFile) else Option(vFile.getParent))
           .flatMap(getFeatures)
-      }.orElse(
-        getFeatures(file.getVirtualFile)
-      )
+      }.orElse {
+        Option(file.getVirtualFile).flatMap { vFile =>
+          getFeatures(vFile).orElse {
+            // todo: this is a quick hack for idea253 release
+            //       it should be improved by having a comprehensive return value from ScalaLanguageSubstitutor
+            val path = vFile.getPath
+            val isIn3_8StdLibSource =
+              ScalaLanguageSubstitutor.isInSourceJar(path) &&
+                ScalaLanguageSubstitutor.looksLikeScala3LibSourcesJar(path)
+            Option.when(isIn3_8StdLibSource)(ScalaFeatures.onlyByVersion(ScalaVersion.Latest.Scala_3_8))
+          }
+        }
+      }
 
   def getFeatures(file: VirtualFile): Option[ScalaFeatures] =
     Option(key.getPersistentValue(file)).map(ScalaFeatures.deserializeFromInt(_))
