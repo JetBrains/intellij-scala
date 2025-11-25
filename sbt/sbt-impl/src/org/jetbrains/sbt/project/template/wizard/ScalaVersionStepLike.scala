@@ -16,7 +16,7 @@ import org.jetbrains.sbt.project.template.wizard.kotlin_interop.KotlinInteropUti
 import org.jetbrains.plugins.scala.extensions.applyTo
 import org.jetbrains.plugins.scala.{ScalaVersion, isUnitTestMode}
 import org.jetbrains.plugins.scala.project.template.{IndentationSyntaxStepLike, ScalaVersionDownloadingDialog}
-import org.jetbrains.plugins.scala.project.{Version, Versions}
+import org.jetbrains.plugins.scala.project.{ScalaLanguageLevel, Version, Versions}
 import org.jetbrains.plugins.scala.util.AsynchronousVersionsDownloading
 import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.project.template.wizard.ScalaVersionStepLike.ScalaJdkValidationContext
@@ -44,6 +44,9 @@ trait ScalaVersionStepLike extends IndentationSyntaxStepLike with AsynchronousVe
     val scalaVersionStr = scalaVersionProperty.get()
     ScalaVersion.fromString(scalaVersionStr)
   }
+
+  protected def getScalaVersionIfAtLeast3_8: Option[ScalaVersion] =
+    getScalaVersion.filter(_.languageLevel >= ScalaLanguageLevel.Scala_3_8)
 
   private def downloadScalaVersions(disposable: Disposable): Unit = {
     val scalaDownloadVersions: ProgressIndicator => Seq[Version] = indicator => {
