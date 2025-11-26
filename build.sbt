@@ -1016,7 +1016,7 @@ lazy val runtimeDependencies = project.in(file("target/tools/runtime-dependencie
     ideSkipProject := true,
     packageMethod := PackagingMethod.DepsOnly(),
     dynamicDependencies := Seq(
-      binaryDep("org.scala-sbt", "sbt-launch", Versions.sbtVersion) -> "launcher/sbt-launch.jar",
+      binaryDep("org.scala-sbt", "sbt-launch", "1.11.5") -> "launcher/sbt-launch.jar",
       binaryDep("org.scala-sbt", "util-interface", Versions.sbtVersion) -> "lib/jps/sbt-interface.jar",
       binaryDep("org.scala-sbt", "compiler-interface", Versions.zincVersion) -> "lib/jps/compiler-interface.jar",
 
