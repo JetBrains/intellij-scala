@@ -588,6 +588,7 @@
         <fileBasedIndex implementation="org.jetbrains.plugins.scala.autoImport.ImportOrderingIndexer"/>
 
         <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.lang.formatting.ReformatOnCompileTask"/>
+        <lang.formatter.restriction implementation="org.jetbrains.plugins.scala.lang.formatting.ScalaLanguageFormattingRestriction" />
 
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings"/>
 
