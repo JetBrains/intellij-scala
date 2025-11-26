@@ -744,6 +744,10 @@ object ScalaPsiUtil {
           .orElse(typeDefinition.fakeCompanionModule)
     }
 
+  /**
+   * @return companion object if `class` is a class/trait/enum<br>
+   *         companion class/trait/enum if `class` is an object
+   */
   def getCompanionModule(`class`: PsiClass): Option[ScTypeDefinition] =
     `class` match {
       case typeDefinition: ScTypeDefinition => getCompanionModule(typeDefinition)

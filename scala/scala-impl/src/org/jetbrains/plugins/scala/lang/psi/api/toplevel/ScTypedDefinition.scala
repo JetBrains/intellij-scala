@@ -24,7 +24,7 @@ trait ScTypedDefinition extends ScNamedElement with Typeable {
   def isVar: Boolean = false
   def isVal: Boolean = false
 
-  // TODO Add ScMember.isAbstract, also see isAbstarct in ScValue / ScVariable
+  // TODO Add ScMember.isAbstract, also see isAbstract in ScValue / ScVariable
   def isAbstractMember: Boolean = nameContext match {
     case _: ScFunctionDefinition | _: ScPatternDefinition | _: ScVariableDefinition => false
     case _: ScClassParameter => false

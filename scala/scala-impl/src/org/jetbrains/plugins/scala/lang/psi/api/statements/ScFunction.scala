@@ -120,7 +120,12 @@ trait ScFunction
   /** PsiMethod wrappers for java compatibility
     * @return Empty array, if containing class is null.
     */
-  def getFunctionWrappers(isStatic: Boolean, isAbstract: Boolean, cClass: Option[PsiClass] = None): Seq[ScFunctionWrapper]
+  def getFunctionWrappers(
+    isStatic: Boolean,
+    isAbstract: Boolean,
+    isExportForwarder: Boolean,
+    cClass: Option[PsiClass] = None
+  ): Seq[ScFunctionWrapper]
 
   override def parameters: Seq[ScParameter] = paramClauses.params
 

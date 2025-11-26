@@ -96,7 +96,8 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
     val names = mutable.HashSet.empty[String]
     val result = mutable.ArrayBuffer(getConstructors.toSeq: _*)
 
-    allSignatures.foreach { signature =>
+    val signatures: Iterator[TermSignature] = allSignatures
+    signatures.foreach { signature =>
       this.processWrappersForSignature(
         signature,
         isStatic = false,
@@ -104,8 +105,10 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
       )(result.+=(_), names.+=(_))
     }
 
+    // Add synthetic static forwarder methods from the companion object to companion class/trait
+    val companion = ScalaPsiUtil.getCompanionModule(this)
     for {
-      companion <- ScalaPsiUtil.getCompanionModule(this).iterator
+      companion <- companion.iterator
       if addFromCompanion(companion)
 
       signature <- companion.allSignatures
@@ -114,7 +117,6 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
       isStatic = true,
       isInterface = false
     )(method => if (!names.contains(method.getName)) result += method)
-
 
     result.toArray
   }
@@ -542,7 +544,7 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
     for {
       firstSuper  <- superTypes.headOption
       cls         <- firstSuper.extractClass
-      if !cls.is[ScTrait]
+      if !cls.isInterface // filters out scala traits and java interfaces
     } yield cls
 
   override def injectedParentTraitConstructorCalls: collection.Set[(ScPrimaryConstructor, ScSubstitutor)] = {
@@ -630,7 +632,4 @@ object ScTemplateDefinitionImpl {
       Path(clazz.name, Option(clazz.qualifiedName), kind)
     }
   }
-
-  private def isNullOrLineTerminator(node: ASTNode): Boolean =
-    node == null || isLineTerminator(node.getPsi)
 }

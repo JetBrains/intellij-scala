@@ -20,6 +20,28 @@ import java.util
 import scala.jdk.CollectionConverters._
 
 abstract class ScalaSuppressByLineCommentFix(key: HighlightDisplayKey) extends SuppressByCommentFix(key, classOf[ScalaPsiElement]) {
+
+  override def getPriority: Int = {
+    // I chose a random "large enough" number as a baseline
+    val DefaultPriority = 1000
+
+    // Reminder:
+    //   Quick-fixes with BIGGER priorities will appear LAST
+    //   Quick-fixes with the same priority will be sorted alphabetically
+    this match {
+      case _: ScalaSuppressForFileFix =>
+        DefaultPriority
+      case _: ScalaSuppressForClassFix =>
+        DefaultPriority - 10
+      case _: ScalaSuppressForDefinitionFix =>
+        DefaultPriority - 20
+      case _: ScalaSuppressForStatementFix =>
+        DefaultPriority - 30
+      case _ =>
+        DefaultPriority
+    }
+  }
+
   //noinspection ApiStatus,UnstableApiUsage
   protected final def createComment(project: Project): PsiComment = {
     val text: String = SuppressionUtilCore.SUPPRESS_INSPECTIONS_TAG_NAME + " " + key.getID

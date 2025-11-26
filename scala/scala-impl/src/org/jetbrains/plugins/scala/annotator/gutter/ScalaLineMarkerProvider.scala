@@ -201,30 +201,35 @@ final class ScalaLineMarkerProvider extends LineMarkerProviderDescriptor {
                                       result: ju.Collection[_ >: LineMarkerInfo[_]]): Unit = {
     import scala.jdk.CollectionConverters._
 
-    elements.asScala.filter(_.isValid).filter(_.isVisible).flatMap { element =>
+    val markersSam = elements.asScala.filter(_.isValid).filter(_.isVisible).flatMap { element =>
       getImplementsSAMTypeMarker(element).map(augmentSeparatorInfo(element, _))
-    }.foreach(result.add)
+    }
+    markersSam.foreach(result.add)
 
     if (!OverriddenOption.isEnabled && !ImplementedOption.isEnabled) {
       return
     }
 
     ApplicationManager.getApplication.assertReadAccessAllowed()
-    elements.asScala.filter(_.isVisible).collect {
-      case ident if ident.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER => ident
-    }.flatMap { identifier =>
+
+    val identifiers = elements.asScala.filter(_.isVisible).filter(_.elementType == ScalaTokenTypes.tIDENTIFIER)
+    val markers = identifiers.flatMap { identifier =>
       ProgressManager.checkCanceled()
       val context = identifier.parent match {
         case Some(_: ScPattern | _: ScFieldId) => namedParent(identifier)
         case other                             => other
       }
 
+      // Note, this logic is used during line mergers collection
+      // When you click on the line marker, a different logic will be used to navigate to the overriding / implementing element
+      // See org.jetbrains.plugins.scala.annotator.gutter.ScalaInheritorsLineMarkerNavigator
       context match {
         case Some(tDef: ScTypeDefinition)                      => collectInheritingClassesMarker(tDef)
         case Some(member: ScMember) if member.isDefinedInClass => collectOverriddenMemberMarker(member, identifier)
         case _                                                 => None
       }
-    }.foreach(result.add)
+    }
+    markers.foreach(result.add)
   }
 
   override def getName: String = ScalaBundle.message("scala.line.markers")
@@ -291,6 +296,14 @@ private object GutterUtil {
         case _                                => ScalaBundle.message("multiple.overriding.tooltip")
       }
     }
+
+    override def getCommonIconAlignment(infos: ju.List[_ <: MergeableLineMarkerInfo[_]]): GutterIconRenderer.Alignment =
+      infos.get(0) match {
+        case that: ArrowUpOrDownLineMarkerInfo =>
+          that.alignment
+        case _ =>
+          super.getCommonIconAlignment(infos)
+      }
 
     override def getElementPresentation(element: PsiElement): String =
       presentationParent.fold(super.getElementPresentation(element))(

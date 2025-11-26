@@ -58,7 +58,7 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
         |    }
         |}
       """.stripMargin
-    assertNoErrors(scala, java, "Test")
+    assertNoErrorsInJava(scala, java, "Test")
   }
 
   def testSCL12286(): Unit = {
@@ -143,7 +143,7 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
         |    }
         |}
       """.stripMargin
-    assertNoErrors(scala, java, "SCL8823")
+    assertNoErrorsInJava(scala, java, "SCL8823")
   }
 
 
@@ -282,7 +282,6 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
   }
 
   def testMultipleThrowStatements(): Unit = {
-    val scala = ""
     val java =
       """
         |import scala.concurrent.Await;
@@ -304,7 +303,7 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
         |}
       """.stripMargin
 
-    assertNoErrors(scala, java, javaClassName = "ThrowsJava")
+    assertNoErrorsInJava(java, javaClassName = "ThrowsJava")
   }
 
   def testThrowsWithTypeArgError(): Unit = {
@@ -350,7 +349,6 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
 
 
   def testOverrideFinal(): Unit = {
-    val scala = ""
     val java =
       """
         |import scala.Function1;
@@ -365,11 +363,10 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
         |}
       """.stripMargin
 
-    assertNoErrors(scala, java, "Future")
+    assertNoErrorsInJava(java, "Future")
   }
 
   def testSCL5617Option(): Unit = {
-    val scala = ""
     val java =
       """
         |import scala.Function1;
@@ -393,7 +390,7 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
         |
       """.stripMargin
 
-    assertNoErrors(scala, java, "SCL5617")
+    assertNoErrorsInJava(java, "SCL5617")
   }
 
   def testCaseClassImplement(): Unit = {
@@ -405,7 +402,7 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
         |}
       """.stripMargin
 
-    assertNoErrors(scala, java, javaClassName = "CaseClassExtended")
+    assertNoErrorsInJava(scala, java, javaClassName = "CaseClassExtended")
   }
 
   def testOverrideDefaultWithStaticSCL8861(): Unit = {
@@ -429,7 +426,7 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
         |
         |}
       """.stripMargin
-    assertNoErrors(scala, java, "SCL8861")
+    assertNoErrorsInJava(scala, java, "SCL8861")
   }
 
   def testClassParameterJava(): Unit = {
@@ -471,7 +468,7 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
         |}
       """.stripMargin
 
-    assertNoErrors(scala, java, "JavaInheritor")
+    assertNoErrorsInJava(scala, java, "JavaInheritor")
   }
 
   def testSCL3390ParamAccessorJava(): Unit = {
@@ -687,25 +684,291 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
     assertNothing(errorsFromJavaCode(scalaCode, javaCode, "Pair"))
   }
 
+  //SCL-9412
   def testConstructorReturnTypeNull(): Unit = {
-    val scalaCode =
-      """
-        |class Scala(val s: String) {
+    assertNoErrorsInJava(
+      """class ScalaClass1(val s: String) {
         |  def this(i: Integer) = this(i.toString)
         |}
-      """.stripMargin
-    val javaCode =
-      """
-        |import java.util.stream.Stream;
+        |
+        |class ScalaClass2(val s: String) {
+        |  def this(i: Int) = this(i.toString)
+        |}
+        |""".stripMargin,
+      """import java.util.stream.Stream;
         |
         |public class SCL9412 {
-        |    Stream<Scala> testScala() {
-        |        return Stream.of(1).map(Scala::new);
+        |    void testScala() {
+        |        Stream.of(1).map(ScalaClass1::new);
+        |        Stream.of(1).map(ScalaClass2::new);
+        |
+        |        new ScalaClass1("42");
+        |        new ScalaClass1(42);
+        |
+        |        new ScalaClass2("42");
+        |        new ScalaClass2(42);
         |    }
         |}
-      """.stripMargin
+        |""".stripMargin,
+      "SCL9412"
+    )
+  }
 
-    assertNothing(errorsFromJavaCode(scalaCode, javaCode, "SCL9412"))
+  def testUsingMixedInMethodsInClass(): Unit = {
+    assertNoErrorsInJava(
+      """trait MyTrait1 {
+        |  def fooFromTrait1: Int
+        |  def fooFromTrait2: Int
+        |  def fooFromTrait3: Int = ???
+        |}
+        |
+        |trait MyTrait2 extends MyTrait1 {
+        |  override def fooFromTrait2: Int = ???
+        |}
+        |
+        |abstract class MyAbstractClass {
+        |  def fooFromAbstractClass1: Int
+        |  def fooFromAbstractClass2: Int = ???
+        |}
+        |
+        |class MyClass extends MyAbstractClass with MyTrait2 {
+        |  override def fooFromTrait1: Int = ???
+        |
+        |  override def fooFromAbstractClass1: Int = ???
+        |}
+        |""".stripMargin,
+      """public class MyJava {
+        |    public static void main(String[] args) {
+        |        MyClass myClass = new MyClass();
+        |        myClass.fooFromTrait1();
+        |        myClass.fooFromTrait2();
+        |        myClass.fooFromTrait3();
+        |        myClass.fooFromAbstractClass1();
+        |        myClass.fooFromAbstractClass2();
+        |    }
+        |}
+        |""".stripMargin,
+      javaClassName = "MyJava"
+    )
+  }
+
+  def testUsingMixedInMethodsInObject(): Unit = {
+    assertNoErrorsInJava(
+      """trait MyTrait1 {
+        |  def fooFromTrait1: Int
+        |  def fooFromTrait2: Int
+        |  def fooFromTrait3: Int = ???
+        |}
+        |
+        |trait MyTrait2 extends MyTrait1 {
+        |  override def fooFromTrait2: Int = ???
+        |}
+        |
+        |abstract class MyAbstractClass {
+        |  def fooFromAbstractClass1: Int
+        |  def fooFromAbstractClass2: Int = ???
+        |}
+        |
+        |object MyObject extends MyAbstractClass with MyTrait2 with MyJavaInterface {
+        |  override def fooFromTrait1: Int = ???
+        |
+        |  override def fooFromAbstractClass1: Int = ???
+        |}
+        |
+        |class MyBaseClass {
+        |  def fooFromBaseClass: Int = ???
+        |}
+        |
+        |class MyObjectWithCompanionClass2
+        |object MyObjectWithCompanionClass2 extends MyBaseClass
+        |""".stripMargin,
+      """public class MyJava {
+        |    public static void main(String[] args) {
+        |        MyObject$.MODULE$.fooFromTrait1();
+        |        MyObject$.MODULE$.fooFromTrait2();
+        |        MyObject$.MODULE$.fooFromTrait3();
+        |        MyObject$.MODULE$.fooFromAbstractClass1();
+        |        MyObject$.MODULE$.fooFromAbstractClass2();
+        |        MyObject$.MODULE$.fooFromJavaInterface();
+        |        MyObject$.MODULE$.fooFromJavaInterfaceWithDefault();
+        |
+        |        MyObject.fooFromTrait1();
+        |        MyObject.fooFromTrait2();
+        |        MyObject.fooFromTrait3();
+        |        MyObject.fooFromAbstractClass1();
+        |        MyObject.fooFromAbstractClass2();
+        |        MyObject.fooFromJavaInterface();
+        |        MyObject.fooFromJavaInterfaceWithDefault();
+        |
+        |        MyObjectWithCompanionClass2.fooFromBaseClass();
+        |        MyObjectWithCompanionClass2$.MODULE$.fooFromBaseClass();
+        |    }
+        |}
+        |
+        |interface MyJavaInterface {
+        |    void fooFromJavaInterface();
+        |    default void fooFromJavaInterfaceWithDefault() {
+        |    }
+        |}
+        |""".stripMargin,
+      javaClassName = "MyJava"
+    )
+  }
+
+  def testUsingMixedInMethodsInObjectWithCompanionClass(): Unit = {
+    assertNoErrorsInJava(
+      """trait MyTrait1 {
+        |  def fooFromTrait1: Int
+        |  def fooFromTrait2: Int
+        |  def fooFromTrait3: Int = ???
+        |}
+        |
+        |trait MyTrait2 extends MyTrait1 {
+        |  override def fooFromTrait2: Int = ???
+        |}
+        |
+        |abstract class MyAbstractClass {
+        |  def fooFromAbstractClass1: Int
+        |  def fooFromAbstractClass2: Int = ???
+        |}
+        |
+        |class MyObjectWithCompanionClass
+        |object MyObjectWithCompanionClass extends MyAbstractClass with MyTrait2 with MyJavaInterface {
+        |  override def fooFromTrait1: Int = ???
+        |
+        |  override def fooFromAbstractClass1: Int = ???
+        |
+        |  override def fooFromJavaInterface(): Unit = ???
+        |}
+        |
+        |class MyBaseClass {
+        |  def fooFromBaseClass: Int = ???
+        |}
+        |
+        |class MyObjectWithCompanionClass2
+        |object MyObjectWithCompanionClass2 extends MyBaseClass
+        |""".stripMargin,
+      """public class MyJava {
+        |    public static void main(String[] args) {
+        |        MyObjectWithCompanionClass$.MODULE$.fooFromTrait1();
+        |        MyObjectWithCompanionClass$.MODULE$.fooFromTrait2();
+        |        MyObjectWithCompanionClass$.MODULE$.fooFromTrait3();
+        |        MyObjectWithCompanionClass$.MODULE$.fooFromAbstractClass1();
+        |        MyObjectWithCompanionClass$.MODULE$.fooFromAbstractClass2();
+        |        MyObjectWithCompanionClass$.MODULE$.fooFromJavaInterface();
+        |        MyObjectWithCompanionClass$.MODULE$.fooFromJavaInterfaceWithDefault();
+        |
+        |        MyObjectWithCompanionClass.fooFromTrait1();
+        |        MyObjectWithCompanionClass.fooFromTrait2();
+        |        MyObjectWithCompanionClass.fooFromTrait3();
+        |        MyObjectWithCompanionClass.fooFromAbstractClass1();
+        |        MyObjectWithCompanionClass.fooFromAbstractClass2();
+        |        MyObjectWithCompanionClass.fooFromJavaInterface();
+        |        MyObjectWithCompanionClass.fooFromJavaInterfaceWithDefault();
+        |
+        |        MyObjectWithCompanionClass2.fooFromBaseClass();
+        |        MyObjectWithCompanionClass2$.MODULE$.fooFromBaseClass();
+        |    }
+        |}
+        |
+        |interface MyJavaInterface {
+        |    void fooFromJavaInterface();
+        |    default void fooFromJavaInterfaceWithDefault() {
+        |    }
+        |}
+        |""".stripMargin,
+      javaClassName = "MyJava"
+    )
+  }
+
+  def testUsingMixedInMethods_AllInOneMix(): Unit = {
+    assertNoErrorsInJava(
+      """trait MyTrait0  {
+        |  def fooFromMyTrait0Abstract(): Unit
+        |  def fooFromMyTrait0Concrete(): Unit = ???
+        |}
+        |
+        |trait MyTrait extends MyJavaInterface with MyTrait0 {
+        |  def fooFromMyTraitAbstract(): Unit
+        |  def fooFromMyTraitConcrete(): Unit = ???
+        |
+        |  override def fooFromJavaInterface2(): Unit = ???
+        |}
+        |
+        |class ScalaClass extends AnyRef with MyTrait with MyJavaInterface {
+        |  def fooInObject(): Unit = ???
+        |  override def fooFromMyTraitAbstract(): Unit = ???
+        |  override def fooFromJavaInterface(): Unit = ???
+        |  override def fooFromMyTrait0Abstract(): Unit = ???
+        |}
+        |
+        |object ScalaObject extends AnyRef with MyTrait with MyJavaInterface {
+        |  def fooInObject(): Unit = ???
+        |  override def fooFromMyTraitAbstract(): Unit = ???
+        |  override def fooFromJavaInterface(): Unit = ???
+        |  override def fooFromMyTrait0Abstract(): Unit = ???
+        |}
+        |
+        |class ScalaClassWithCompanionObject
+        |object ScalaClassWithCompanionObject extends AnyRef with MyTrait with MyJavaInterface {
+        |  def fooInObject(): Unit = ???
+        |  override def fooFromMyTraitAbstract(): Unit = ???
+        |  override def fooFromJavaInterface(): Unit = ???
+        |  override def fooFromMyTrait0Abstract(): Unit = ???
+        |}
+        |""".stripMargin,
+      """public class JavaClass {
+        |    public static void main(String[] args) {
+        |        ScalaObject.fooInObject();
+        |        ScalaObject.fooFromMyTraitAbstract();
+        |        ScalaObject.fooFromMyTrait0Abstract();
+        |        ScalaObject.fooFromMyTraitConcrete();
+        |        ScalaObject.fooFromMyTrait0Concrete();
+        |        ScalaObject.fooFromJavaInterface();
+        |        ScalaObject.fooFromJavaInterfaceWithDefault();
+        |
+        |        ScalaObject$.MODULE$.fooInObject();
+        |        ScalaObject$.MODULE$.fooFromMyTraitAbstract();
+        |        ScalaObject$.MODULE$.fooFromMyTrait0Abstract();
+        |        ScalaObject$.MODULE$.fooFromMyTraitConcrete();
+        |        ScalaObject$.MODULE$.fooFromMyTrait0Concrete();
+        |        ScalaObject$.MODULE$.fooFromJavaInterface();
+        |        ScalaObject$.MODULE$.fooFromJavaInterfaceWithDefault();
+        |
+        |        new ScalaClass().fooInObject();
+        |        new ScalaClass().fooFromMyTraitAbstract();
+        |        new ScalaClass().fooFromMyTrait0Abstract();
+        |        new ScalaClass().fooFromMyTraitConcrete();
+        |        new ScalaClass().fooFromMyTrait0Concrete();
+        |        new ScalaClass().fooFromJavaInterface();
+        |        new ScalaClass().fooFromJavaInterfaceWithDefault();
+        |
+        |        ScalaClassWithCompanionObject.fooInObject();
+        |        ScalaClassWithCompanionObject.fooFromMyTraitAbstract();
+        |        ScalaClassWithCompanionObject.fooFromMyTrait0Abstract();
+        |        ScalaClassWithCompanionObject.fooFromMyTraitConcrete();
+        |        ScalaClassWithCompanionObject.fooFromMyTrait0Concrete();
+        |        ScalaClassWithCompanionObject.fooFromJavaInterface();
+        |        ScalaClassWithCompanionObject.fooFromJavaInterfaceWithDefault();
+        |
+        |        ScalaClassWithCompanionObject$.MODULE$.fooInObject();
+        |        ScalaClassWithCompanionObject$.MODULE$.fooFromMyTraitAbstract();
+        |        ScalaClassWithCompanionObject$.MODULE$.fooFromMyTrait0Abstract();
+        |        ScalaClassWithCompanionObject$.MODULE$.fooFromMyTraitConcrete();
+        |        ScalaClassWithCompanionObject$.MODULE$.fooFromMyTrait0Concrete();
+        |        ScalaClassWithCompanionObject$.MODULE$.fooFromJavaInterface();
+        |        ScalaClassWithCompanionObject$.MODULE$.fooFromJavaInterfaceWithDefault();
+        |    }
+        |}
+        |
+        |interface MyJavaInterface {
+        |    void fooFromJavaInterface();
+        |    void fooFromJavaInterface2();
+        |    default void fooFromJavaInterfaceWithDefault() {}
+        |}
+        |""".stripMargin,
+      javaClassName = "JavaClass"
+    )
   }
 
   def testHigherKinded(): Unit = {
@@ -874,7 +1137,7 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
         |
       """.stripMargin
 
-    assertNoErrors(scala, java, "Bug10232")
+    assertNoErrorsInJava(scala, java, "Bug10232")
   }
 
   def testSCL10236(): Unit = {
@@ -908,7 +1171,7 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
         |}
       """.stripMargin
 
-    assertNoErrors(scala, java, "Bug10236")
+    assertNoErrorsInJava(scala, java, "Bug10236")
   }
 
   def testOptionApply(): Unit = {
@@ -1130,7 +1393,7 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
         |abstract class AbstractTestClass extends TestTrait
       """.stripMargin
 
-    assertNoErrors(scala, java, "JavaTestClass")
+    assertNoErrorsInJava(scala, java, "JavaTestClass")
   }
 
   def testSCL11863(): Unit = {
@@ -1153,7 +1416,7 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
         |    }
         |}""".stripMargin
 
-    assertNoErrors(scala, java, "JavaTestClass")
+    assertNoErrorsInJava(scala, java, "JavaTestClass")
   }
 
   def testSCL11914(): Unit = {
@@ -1172,7 +1435,7 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
         |  }
         |}
       """.stripMargin
-    assertNoErrors(scala, java, "Bar")
+    assertNoErrorsInJava(scala, java, "Bar")
   }
 
   def testSealedInheritors(): Unit = {
@@ -1218,7 +1481,7 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
         |}
       """.stripMargin
 
-    assertNoErrors(scalaText, javaText, "JavaTest")
+    assertNoErrorsInJava(scalaText, javaText, "JavaTest")
   }
 
   def testOverrideParameterTypeWithWildcard(): Unit = {
@@ -1351,7 +1614,7 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
         |}
       """.stripMargin
 
-    assertNoErrors(scala, java, "ExtendTrait")
+    assertNoErrorsInJava(scala, java, "ExtendTrait")
   }
 
   def testExistentialArgType(): Unit = {
@@ -1455,7 +1718,7 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
         |}
         |""".stripMargin
 
-    assertNoErrors(scala, java, "Test")
+    assertNoErrorsInJava(scala, java, "Test")
   }
 
   def testSCL17466(): Unit = {
