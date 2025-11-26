@@ -8,13 +8,13 @@ import com.intellij.psi.{PsiElement, PsiMethod, PsiNamedElement, PsiPackage}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction, ScTypeAlias, ScValueDeclaration}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValueDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.impl.{DefinitionInstruction, ReadWriteVariableInstruction}
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.DfaEngine
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.ReachingDefinitions._
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticNamedElement
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticFunction, SyntheticNamedElement}
 
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
@@ -65,7 +65,7 @@ object ReachingDefinitionsCollector {
     }
     import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createDeclarationFromText, createExpressionWithContextFromText}
     val resolvesAtNewPlace = element match {
-      case _: PsiMethod | _: ScFun =>
+      case _: PsiMethod | _: ScSyntheticFunction =>
         checkResolve(createExpressionWithContextFromText(element.name + " _", place.getContext, place).getFirstChild)
       case _: ScObject =>
         checkResolve(createExpressionWithContextFromText(element.name, place.getContext, place))

@@ -5,9 +5,10 @@ import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiMethodExt, PsiParam
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFun, ScFunction}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
@@ -92,7 +93,7 @@ object MethodTypeProvider {
       }
     else ScMethodType(rtpe, Seq.empty)
 
-  implicit def fromScFun(f: ScFun): ScalaMethodTypeProvider[ScFun] =
+  implicit def fromScFun(f: ScSyntheticFunction): ScalaMethodTypeProvider[ScSyntheticFunction] =
     ScFunProvider(f)
 
   implicit def fromScMethodLike(ml: ScMethodLike): ScalaMethodTypeProvider[ScMethodLike] = ml match {
@@ -107,8 +108,8 @@ object MethodTypeProvider {
     }
   }
 
-  private case class ScFunProvider(override val element: ScFun)
-    extends ScalaMethodTypeProvider[ScFun] {
+  private case class ScFunProvider(override val element: ScSyntheticFunction)
+    extends ScalaMethodTypeProvider[ScSyntheticFunction] {
 
     override def typeParameters: Seq[PsiTypeParameter] = element.typeParameters
 
