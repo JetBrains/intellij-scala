@@ -73,7 +73,7 @@ object ScalaClassNameCompletionContributor {
 
     def isValidClass(`class`: PsiClass): Boolean =
       isValidAndAccessible(`class`) &&
-        (!annotationsOnly || `class`.isAnnotationType) &&
+        (!annotationsOnly || `class`.annotationType) &&
         isApplicable(`class`) &&
         !isExcluded(`class`)
 

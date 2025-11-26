@@ -1140,6 +1140,11 @@ package object extensions {
       res.toVector
     }
 
+    def annotationType: Boolean = clazz match {
+      case td: ScTypeDefinition => td.annotationType
+      case cls => cls.isAnnotationType
+    }
+
     def processWrappersForSignature(
       signature:     TermSignature,
       isStatic:      Boolean,
