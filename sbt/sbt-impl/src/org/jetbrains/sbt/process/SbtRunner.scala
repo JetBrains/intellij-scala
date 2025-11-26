@@ -14,7 +14,7 @@ import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import org.jetbrains.annotations.{Nls, NonNls}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}
-import org.jetbrains.plugins.scala.extensions.LoggerExt
+import org.jetbrains.plugins.scala.extensions.{LoggerExt, PathExt}
 import org.jetbrains.sbt.actions.GenerateManagedSourcesReporter
 import org.jetbrains.sbt.project.SbtProjectResolver.ImportCancelledException
 import org.jetbrains.sbt.project.structure.SbtOption.{JvmOptionGlobal, SbtLauncherOption}
@@ -327,25 +327,22 @@ final class SbtRunner(processOutputCollector: Option[ProcessOutputCollector] = N
    * @see [[https://github.com/dirs-dev/directories-jvm/issues/49]]
    * @see [[https://github.com/ScoopInstaller/Main/pull/878/files]]
    */
-  private def defaultCoursierDirectoriesAsEnvVariables(): Seq[(String, String)] = {
+  private def defaultCoursierDirectoriesAsEnvVariables(): Seq[(String, String)] =
     val LocalAppData = System.getenv("LOCALAPPDATA")
     val AppData = System.getenv("APPDATA")
 
-    val CoursierLocalAppDataHome = LocalAppData + "/Coursier"
-    val CoursierAppDataHome = AppData + "/Coursier"
+    val CoursierLocalAppDataHome = Path.of(LocalAppData, "Coursier")
+    val CoursierAppDataHome = Path.of(AppData, "Coursier")
 
     Seq(
-      // these 2 variables seems to be enough for the workaround
-      ("COURSIER_CACHE", CoursierLocalAppDataHome + "/cache/v1"),
-      ("COURSIER_CONFIG_DIR", CoursierAppDataHome + "/config"),
-      // these 2 variables seems to be optional, but we set them just in cause
-      // they might be accessed in some unpredictable cases
-      ("COURSIER_JVM_CACHE", CoursierLocalAppDataHome + "/cache/jvm"),
-      ("COURSIER_DATA_DIR", CoursierLocalAppDataHome + "/data"),
-      // this also looks like an optional in 1.4.9, but setting it just in case
-      ("COURSIER_HOME", CoursierLocalAppDataHome),
-    )
-  }
+      ("COURSIER_CACHE", CoursierLocalAppDataHome / "cache" / "v1"),
+      ("COURSIER_ARCHIVE_CACHE", CoursierLocalAppDataHome / "cache" / "arc"),
+      ("COURSIER_JVM_CACHE", CoursierLocalAppDataHome / "cache" / "jvm"),
+      ("COURSIER_CONFIG_DIR", CoursierAppDataHome / "config"),
+      ("COURSIER_DATA_DIR", CoursierLocalAppDataHome / "data"),
+      ("SCALA_CLI_CONFIG", CoursierAppDataHome / "config" / "secrets" / "config.json")
+    ).map((env, path) => (env, path.toCanonicalPath.toString))
+  end defaultCoursierDirectoriesAsEnvVariables
 
   // Due to #SCL-19498 it is needed to prepend each command with empty space at the beginning
   private def ignoreInShellHistory(command: String): String = command.prependedAll(" ")
