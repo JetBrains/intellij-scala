@@ -820,7 +820,7 @@ object ScalaPositionManager {
         ProgressManager.checkCanceled()
         val parentsOnTheLine = element.withParentsInFile.takeWhile(e => e.getTextOffset > startLine).toIndexedSeq
         val anon = parentsOnTheLine.collectFirst {
-          case e if isLambda(e) => e
+          case e if isLambda(e, typeAware(e)) => e
           case newTd: ScNewTemplateDefinition if generatesAnonClass(newTd) => newTd
         }
         val filteredParents = parentsOnTheLine.reverse.filter {
@@ -844,8 +844,8 @@ object ScalaPositionManager {
       .executeSynchronously()
   }
 
-  def isLambda(element: PsiElement): Boolean = {
-    isGenerateAnonfun211(element) && !isInsideMacro(element)
+  def isLambda(element: PsiElement, typeAware: Boolean = true): Boolean = {
+    isGenerateAnonfun211(element, typeAware) && (!typeAware || !isInsideMacro(element))
   }
 
   def lambdasOnLine(file: PsiFile, lineNumber: Int): Seq[PsiElement] =
@@ -853,7 +853,7 @@ object ScalaPositionManager {
 
   def filterLambdasOnLine(file: PsiFile, lineNumber: Int, positions: Seq[PsiElement]): Seq[PsiElement] = {
     val document = file.getFileDocument
-    positions.filter(isLambda).filter {
+    positions.filter(e => isLambda(e, typeAware(e))).filter {
       case f: ScFunctionExpr =>
         f.result.exists { body =>
           val range = body.getTextRange
