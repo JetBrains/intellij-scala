@@ -49,29 +49,30 @@ object TypePresentationContext {
     override lazy val infixTypesConsiderPrecedence: Option[Boolean] = place.containingFile.map(_.isInScala3File)
   }
 
-  implicit def psiElementPresentationContext(place: PsiElement): TypePresentationContext = new PsiBased(place)
+  implicit def psiElementPresentationContext(place: PsiElement): PsiBased = new PsiBased(place)
 
-  val emptyContext: TypePresentationContext = new TypePresentationContext {
-    override def nameResolvesTo(name: String, target: PsiElement): Boolean = false
+  abstract class EmptyPresentationContext extends TypePresentationContext {
+    override final def nameResolvesTo(name: String, target: PsiElement): Boolean = false
+  }
+
+  val emptyContext: EmptyPresentationContext = new EmptyPresentationContext {
     override def compoundTypeWithAndToken: Boolean = false
     override def infixTypesConsiderPrecedence: Option[Boolean] = None
   }
 
-  private val scala2EmptyContext: TypePresentationContext = new TypePresentationContext {
-    override def nameResolvesTo(name: String, target: PsiElement): Boolean = false
+  private val scala2EmptyContext: EmptyPresentationContext = new EmptyPresentationContext {
     override def compoundTypeWithAndToken: Boolean = false
     override def infixTypesConsiderPrecedence: Option[Boolean] = Some(false)
   }
 
-  private val scala3EmptyContext: TypePresentationContext = new TypePresentationContext {
-    override def nameResolvesTo(name: String, target: PsiElement): Boolean = false
+  private val scala3EmptyContext: EmptyPresentationContext = new EmptyPresentationContext {
     override def compoundTypeWithAndToken: Boolean = true
     override def infixTypesConsiderPrecedence: Option[Boolean] = Some(true)
   }
 
-  def emptyContextIn(scala3: Boolean): TypePresentationContext =
+  def emptyContextIn(scala3: Boolean): EmptyPresentationContext =
     if (scala3) scala3EmptyContext else scala2EmptyContext
 
-  def emptyContextIn(scalaVersion: ScalaVersion): TypePresentationContext =
+  def emptyContextIn(scalaVersion: ScalaVersion): EmptyPresentationContext =
     emptyContextIn(scala3 = scalaVersion.isScala3)
 }
