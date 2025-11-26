@@ -141,7 +141,7 @@ trait ScalaTypePresentation extends TypePresentation {
         // We update the presentation context only when we know it's psi-based
         // Otherwise we assume that the presentation context is "Empty", meaning that all the types should be fully-qualified.
         // In this case the `result` of `nameResolvesTo` doesn't matter; we assume that it will be false for all types.
-        // This logic was primarily added to adress SCL-24691
+        // This logic was primarily added to address SCL-24691
         val tpcNew = tpc match {
           case _: TypePresentationContext.PsiBased =>
             TypePresentationContext(presentationContextElement)
