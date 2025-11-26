@@ -207,7 +207,7 @@ class ScConstructorInvocationImpl(node: ASTNode)
           resolve.foreach {
             case r @ ScalaResolveResult(constr: PsiMethod, subst) =>
               builder += workWithResolveResult(constr, r, subst, s, ref)
-            case ScalaResolveResult(clazz: PsiClass, subst) if !clazz.is[ScTemplateDefinition] && clazz.isAnnotationType =>
+            case ScalaResolveResult(clazz: PsiClass, subst) if !clazz.is[ScTemplateDefinition] && clazz.annotationType =>
               val params = clazz.getMethods.iterator.flatMap {
                 case p: PsiAnnotationMethod =>
                   val paramType = subst(p.getReturnType.toScType())

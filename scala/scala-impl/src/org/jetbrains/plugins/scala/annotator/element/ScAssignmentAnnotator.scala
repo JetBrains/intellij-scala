@@ -49,7 +49,7 @@ object ScAssignmentAnnotator extends ElementAnnotator[ScAssignment] {
               case _: ScFunction => holder.createErrorAnnotation(element, reassignementToVal)
               case method: PsiMethod if method.getParameterList.getParametersCount == 0 =>
                 method.containingClass match {
-                  case c: PsiClass if c.isAnnotationType => //do nothing
+                  case c: PsiClass if c.annotationType => //do nothing
                   case _ => holder.createErrorAnnotation(element, reassignementToVal)
                 }
               case v: ScValue =>

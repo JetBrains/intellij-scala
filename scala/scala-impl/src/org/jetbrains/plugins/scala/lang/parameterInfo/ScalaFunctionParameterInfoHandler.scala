@@ -581,7 +581,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
               resultBuilder += ((new PhysicalMethodSignature(function, subst), i))
             }
           }
-        case annotation: PsiClass if annotation.isAnnotationType =>
+        case annotation: PsiClass if annotation.annotationType =>
           val seq = annotation.getMethods.toSeq.collect {
             case method: PsiAnnotationMethod =>
               (method.name, method.getReturnType.toScType(), method.getDefaultValue)

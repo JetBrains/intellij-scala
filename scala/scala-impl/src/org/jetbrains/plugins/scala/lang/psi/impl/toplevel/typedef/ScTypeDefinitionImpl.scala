@@ -9,10 +9,11 @@ import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScTypeDefinitionFactory
-import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.{ScalaBundle, incremental}
 import org.jetbrains.plugins.scala.caches.stats.Tracer
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, CacheInUserData, ModTracker, cached, cachedInUserData, cachedWithRecursionGuard}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.incremental.Highlighting.builtInHighlightingDisabledIn
 import org.jetbrains.plugins.scala.lang.TokenSets.TYPE_DEFINITIONS
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiImplementationHelper
@@ -71,9 +72,19 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
       case c: PsiClassType => c
     }.toArray
 
-  override def isAnnotationType: Boolean =
+  // For Scala PSI
+  override def annotationType: Boolean =
     elementScope.getCachedClass("scala.annotation.Annotation")
       .exists(isInheritor(_, checkDeep = true))
+
+  // For Java PSI
+  // com.intellij.psi.util.MainMethodSearcherBase calls this method on classes before checking hasMainMethod or findMainInClass,
+  // which triggers type inference and interferes with incremental highlighting.
+  override def isAnnotationType: Boolean = {
+    if (builtInHighlightingDisabledIn(getProject) || incremental.Highlighting.enabledIn(getProject)) return false
+
+    annotationType
+  }
 
   override final def `type`(): TypeResult = getTypeWithProjections(thisProjections = true)
 

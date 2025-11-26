@@ -88,7 +88,7 @@ class ScAnnotationImpl private(stub: ScAnnotationStub, node: ASTNode)
         // the branch should be actual for any annotation @Test or @Order(42)
         val target = st.reference.map(_.resolve())
         target.orNull match {
-          case clazz: PsiClass if clazz.isAnnotationType =>
+          case clazz: PsiClass if clazz.annotationType =>
             clazz
           case _ => null
         }

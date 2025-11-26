@@ -77,6 +77,8 @@ trait ScTypeDefinition extends ScTemplateDefinition
   def fakeCompanionModule: Option[ScObject]
 
   override def showAsInheritor: Boolean = true
+
+  def annotationType: Boolean = false
 }
 
 object ScTypeDefinition {

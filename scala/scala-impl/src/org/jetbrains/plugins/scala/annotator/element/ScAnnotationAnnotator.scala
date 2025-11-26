@@ -4,6 +4,7 @@ import com.intellij.openapi.project.DumbAware
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.template.PrivateBeanProperty
 import org.jetbrains.plugins.scala.annotator.{ScalaAnnotationHolder, isDumbMode}
+import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.types.Context
 
@@ -19,7 +20,7 @@ object ScAnnotationAnnotator extends ElementAnnotator[ScAnnotation] with DumbAwa
       for {
         tpe <- element.typeElement.`type`().toOption
         cls <- tpe.extractClass
-        if !cls.isAnnotationType
+        if !cls.annotationType
       } holder.createErrorAnnotation(element.annotationExpr, ScalaBundle.message("annotator.error.annotation.type.expected"))
     }
   }
