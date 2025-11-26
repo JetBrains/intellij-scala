@@ -450,7 +450,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
     moduleNode.add(new SbtDisplayModuleNameNode(group.name))
     moduleNode.add(new SharedSourcesOwnersNode(SharedSourcesOwnersData(ownerProjectsIds)))
 
-    val contentRootNode = new ContentRootNode(groupBase.toCanonicalPath.toString)
+    val contentRootNode = new ContentRootNode(groupBase)
     group.sourceRoots.foreach { root =>
       val esSourceType = calculateEsSourceType(root)
       contentRootNode.storePath(esSourceType, root.directory.toCanonicalPath.toString)
@@ -477,7 +477,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
     )
     val shouldCreateContentRoot = !parentModulesBases.contains(group.base.toCanonicalPath.toString)
     if (shouldCreateContentRoot && group.hasStandardBasePath) {
-      val contentRootNode = new ContentRootNode(group.base.toCanonicalPath.toString)
+      val contentRootNode = new ContentRootNode(group.base)
       contentRootNode.storePath(ExternalSystemSourceType.EXCLUDED, (group.base / "target").toCanonicalPath.toString)
       moduleNode.add(contentRootNode)
     }
@@ -520,11 +520,11 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
     // it is not needed to care about excluded because it is not possible to have excluded type see #calculateEsSourceType
     val sourceRoots = sourceRootsWithType
       .filter { case (_, sourceType) => isApplicableSource(sourceType) }
-      .map { case (root, sourceType) => (root.directory.toCanonicalPath.toString, sourceType) }
+      .map { case (root, sourceType) => (root.directory, sourceType) }
 
     if (sourceRoots.nonEmpty) {
       // Hardcode src/main or src/test base directories, only when the shared sources group was derived from the base paths
-      val sourceRootBaseDirs = if (group.hasStandardBasePath) Seq(s"$groupPath/src/$sourceSetName") else Seq.empty
+      val sourceRootBaseDirs = if (group.hasStandardBasePath) Seq(Path.of(groupPath, "src", sourceSetName.toString)) else Seq.empty
       val contentRootNodes = createContentRootNodes(sourceRootBaseDirs, sourceRoots)
       moduleNode.addAll(contentRootNodes)
     } else {

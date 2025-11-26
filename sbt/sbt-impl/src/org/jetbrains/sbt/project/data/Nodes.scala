@@ -3,10 +3,13 @@ package project.data
 
 import com.intellij.openapi.externalSystem.model.project.*
 import com.intellij.openapi.externalSystem.model.{DataNode, Key, ProjectKeys}
+import org.jetbrains.annotations.ApiStatus
+import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.sbt.project.module.{SbtNestedModuleData, SbtSourceSetData}
 import org.jetbrains.sbt.project.{SbtProjectSystem, SharedSourcesOwnersData, SourceSetType}
 
 import java.net.URI
+import java.nio.file.Path
 
 class ProjectNode(override val data: ProjectData)
   extends Node[ProjectData] {
@@ -92,12 +95,27 @@ object ModuleSdkNode {
 
 class ContentRootNode(override val data: ContentRootData)
   extends Node[ContentRootData] {
+
+  @deprecated(message = "Use new ContentRootNode(path: Path) instead", since = "2026.1")
+  @Deprecated(since = "2026.1", forRemoval = true)
+  @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
   def this(path: String) = {
     this(new ContentRootData(SbtProjectSystem.Id, path))
   }
 
+  def this(path: Path) = {
+    this(new ContentRootData(SbtProjectSystem.Id, path.toCanonicalPath.toString))
+  }
+
+  @deprecated(message = "Use storeNioPaths instead", since = "2026.1")
+  @Deprecated(since = "2026.1", forRemoval = true)
+  @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
   def storePaths(sourceType: ExternalSystemSourceType, paths: Seq[String]): Unit = {
     paths.foreach(data.storePath(sourceType, _))
+  }
+
+  def storeNioPaths(sourceType: ExternalSystemSourceType, paths: Seq[Path]): Unit = {
+    paths.foreach(p => data.storePath(sourceType, p.toCanonicalPath.toString))
   }
 
   override protected def key: Key[ContentRootData] = ProjectKeys.CONTENT_ROOT

@@ -1243,7 +1243,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
    *                  It's a workaround for [[https://youtrack.jetbrains.com/issue/SCL-24181]]
    */
   private def createBuildContentRoot(buildProjectDirRoot: Path, isPreview: Boolean): ContentRootNode = {
-    val result = new ContentRootNode(buildProjectDirRoot.toCanonicalPath.toString)
+    val result = new ContentRootNode(buildProjectDirRoot)
 
     // Remove this workaround when https://youtrack.jetbrains.com/issue/IJPL-201546/WorkspaceModel-storage-inconsistency is fixed
     val sourceDirs =
@@ -1255,8 +1255,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       buildProjectDirRoot / Sbt.ProjectDirectory / Sbt.TargetDirectory,
     )
 
-    result.storePaths(esProjectData.ExternalSystemSourceType.SOURCE, sourceDirs.map(_.toCanonicalPath.toString))
-    result.storePaths(esProjectData.ExternalSystemSourceType.EXCLUDED, excludedDirs.map(_.toCanonicalPath.toString))
+    result.storeNioPaths(esProjectData.ExternalSystemSourceType.SOURCE, sourceDirs)
+    result.storeNioPaths(esProjectData.ExternalSystemSourceType.EXCLUDED, excludedDirs)
 
     result
   }

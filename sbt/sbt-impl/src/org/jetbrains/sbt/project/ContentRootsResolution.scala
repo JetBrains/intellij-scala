@@ -1,15 +1,14 @@
 package org.jetbrains.sbt.project
 
 import com.intellij.openapi.externalSystem.model.project.ExternalSystemSourceType
-import com.intellij.openapi.util.io.FileUtil
 import com.intellij.platform.eel.EelDescriptor
 import org.jetbrains.plugins.scala.extensions.PathExt
+import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.project.SbtProjectResolver.ImportContext.given
 import org.jetbrains.sbt.project.SbtProjectResolver.{CompileScope, ImportContext, IntegrationTestScope, TestScope}
 import org.jetbrains.sbt.project.data.ContentRootNode
 import org.jetbrains.sbt.project.structure.data as sbtStructure
 import org.jetbrains.sbt.project.structure.data.DirectoryData
-import org.jetbrains.sbt.{Sbt, SbtUtil}
 
 import java.nio.file.Path
 import scala.collection.mutable
@@ -23,7 +22,7 @@ trait ContentRootsResolution { self: ExternalSourceRootResolution =>
   // ! For legacy mode
 
   protected def createLegacyContentRoot(project: sbtStructure.ProjectData)(implicit context: ImportContext): ContentRootNode = {
-    val contentRootNode = new ContentRootNode(project.base.toPath.toCanonicalPath.toString)
+    val contentRootNode = new ContentRootNode(project.base.toPath)
     storeExcludedPathsInContentRoot(contentRootNode, project)
 
     val productionSources = getProductionSources(project)
@@ -31,15 +30,15 @@ trait ContentRootsResolution { self: ExternalSourceRootResolution =>
     val testSources = getTestSources(project)
     val testResources = getTestResources(project)
 
-    contentRootNode.storePaths(ExternalSystemSourceType.SOURCE, unmanagedDirectories(productionSources))
-    contentRootNode.storePaths(ExternalSystemSourceType.SOURCE_GENERATED, managedDirectories(productionSources))
-    contentRootNode.storePaths(ExternalSystemSourceType.RESOURCE, unmanagedDirectories(productionResources))
-    contentRootNode.storePaths(ExternalSystemSourceType.RESOURCE_GENERATED, managedDirectories(productionResources))
+    contentRootNode.storeNioPaths(ExternalSystemSourceType.SOURCE, unmanagedDirectories(productionSources))
+    contentRootNode.storeNioPaths(ExternalSystemSourceType.SOURCE_GENERATED, managedDirectories(productionSources))
+    contentRootNode.storeNioPaths(ExternalSystemSourceType.RESOURCE, unmanagedDirectories(productionResources))
+    contentRootNode.storeNioPaths(ExternalSystemSourceType.RESOURCE_GENERATED, managedDirectories(productionResources))
 
-    contentRootNode.storePaths(ExternalSystemSourceType.TEST, unmanagedDirectories(testSources))
-    contentRootNode.storePaths(ExternalSystemSourceType.TEST_GENERATED, managedDirectories(testSources))
-    contentRootNode.storePaths(ExternalSystemSourceType.TEST_RESOURCE, unmanagedDirectories(testResources))
-    contentRootNode.storePaths(ExternalSystemSourceType.TEST_RESOURCE_GENERATED, managedDirectories(testResources))
+    contentRootNode.storeNioPaths(ExternalSystemSourceType.TEST, unmanagedDirectories(testSources))
+    contentRootNode.storeNioPaths(ExternalSystemSourceType.TEST_GENERATED, managedDirectories(testSources))
+    contentRootNode.storeNioPaths(ExternalSystemSourceType.TEST_RESOURCE, unmanagedDirectories(testResources))
+    contentRootNode.storeNioPaths(ExternalSystemSourceType.TEST_RESOURCE_GENERATED, managedDirectories(testResources))
 
     contentRootNode
   }
@@ -47,12 +46,12 @@ trait ContentRootsResolution { self: ExternalSourceRootResolution =>
   // ! For main/test modules mode
 
   protected def createParentContentRoot(projectData: sbtStructure.ProjectData)(implicit context: ImportContext): ContentRootNode = {
-    val contentRootNode = new ContentRootNode(projectData.base.toPath.toCanonicalPath.toString)
+    val contentRootNode = new ContentRootNode(projectData.base.toPath)
     storeExcludedPathsInContentRoot(contentRootNode, projectData)
     contentRootNode
   }
 
-  private case class ExternalSystemSourceData(projectData: sbtStructure.ProjectData, path: String, sourceType: ExternalSystemSourceType)
+  private case class ExternalSystemSourceData(projectData: sbtStructure.ProjectData, path: Path, sourceType: ExternalSystemSourceType)
 
   /**
    * Represents resolved source roots and base directories for both main and test scope in a project.
@@ -65,10 +64,10 @@ trait ContentRootsResolution { self: ExternalSourceRootResolution =>
    *
    */
   protected case class ProjectSourcesDetails(
-    mainSourceRoots: Seq[(String, ExternalSystemSourceType)],
-    testSourceRoots: Seq[(String, ExternalSystemSourceType)],
-    mainSourceBaseDirectories: Seq[String],
-    testSourceBaseDirectories: Seq[String],
+    mainSourceRoots: Seq[(Path, ExternalSystemSourceType)],
+    testSourceRoots: Seq[(Path, ExternalSystemSourceType)],
+    mainSourceBaseDirectories: Seq[Path],
+    testSourceBaseDirectories: Seq[Path],
     canCreateParentContentRoot: Boolean
   )
 
@@ -108,26 +107,26 @@ trait ContentRootsResolution { self: ExternalSourceRootResolution =>
       val testBase = group.base / "src" / "test"
       val actualBases = Seq(mainBase, testBase).filter(base => group.sourceRoots.exists(_.directory.isUnder(base)))
       group.base +: actualBases
-    }.map(SbtUtil.normalizePath)
+    }
 
     // The mainSourceDirectories/testSourceDirectories values are derived from the sourceDirectory sbt key.
     // In the ideal/default case, for example, the mainSourceDirectories value is src/main, and it contains source paths like scala, java, etc.
     // However, users might modify the sourceDirectory key, making it the same as another project's source directory (as is present in https://github.com/scala/scala3)
     // or within the same project but in a different scope. This is why it's necessary to collect already reserved base source directories to prevent duplicates.
-    val alreadyUsedSourceBaseDirs = mutable.HashSet.empty[String]
+    val alreadyUsedSourceBaseDirs = mutable.HashSet.empty[Path]
     // See org.jetbrains.sbt.project.ContentRootsResolution.ProjectSourcesDetails.canCreateParentContentRoot
     val alreadyUsedProjectBaseDirs = mutable.HashSet.empty[Path]
     projects.map { project =>
       val sources = projectToSources.getOrElse(project, Seq.empty)
 
-      def getSourceRoots(sourceTypeFilter: ExternalSystemSourceType => Boolean): Seq[(String, ExternalSystemSourceType)] =
+      def getSourceRoots(sourceTypeFilter: ExternalSystemSourceType => Boolean): Seq[(Path, ExternalSystemSourceType)] =
         sources.filter(source => sourceTypeFilter(source.sourceType)).map { case ExternalSystemSourceData(_, path, sourceType) => (path, sourceType) }
 
       val mainSources = getSourceRoots(s => !s.isTest && !s.isExcluded)
       val testSources = getSourceRoots(_.isTest)
 
-      def getValidSourceBaseDirs(sourceBaseDirs: Seq[Path]): Seq[String] =
-        sourceBaseDirs.map(SbtUtil.normalizePath)
+      def getValidSourceBaseDirs(sourceBaseDirs: Seq[Path]): Seq[Path] =
+        sourceBaseDirs
           .filterNot(uniqueSourcesPaths.contains)
           .filterNot(alreadyUsedSourceBaseDirs.contains)
           .filterNot(sharedSourcesBaseDirs.contains)
@@ -169,14 +168,13 @@ trait ContentRootsResolution { self: ExternalSourceRootResolution =>
     sources.sortBy(source => sourceTypePriorityMap.getOrElse(source.sourceType, Int.MaxValue))
   }
 
-  private def getSharedSourcesPath(sharedRoots: Seq[SharedSourcesGroup]): Set[String] =
-    sharedRoots.flatMap(_.sourceRoots)
-      .map(sr => FileUtil.toSystemIndependentName(sr.directory.toCanonicalPath.toString)).toSet
+  private def getSharedSourcesPath(sharedRoots: Seq[SharedSourcesGroup]): Set[Path] =
+    sharedRoots.flatMap(_.sourceRoots).map(_.directory).toSet
 
   private def resolveExternalSystemSources(
     isMainScope: Boolean,
     project: sbtStructure.ProjectData,
-    sharedSourcesPaths: Set[String],
+    sharedSourcesPaths: Set[Path],
   )(implicit context: ImportContext): Seq[ExternalSystemSourceData] = {
     val sources =
       if (isMainScope) getProductionSources(project)
@@ -229,8 +227,8 @@ trait ContentRootsResolution { self: ExternalSourceRootResolution =>
    *                             - `.../target/.../src_managed/main`
    */
   protected def createContentRootNodes(
-    sourceRootBaseDirs: Seq[String],
-    sourceRoots: Seq[(String, ExternalSystemSourceType)],
+    sourceRootBaseDirs: Seq[Path],
+    sourceRoots: Seq[(Path, ExternalSystemSourceType)],
   ): Seq[ContentRootNode] = {
     val _sourceRootBaseDirs = sourceRootBaseDirs.map((_, None))
     val _sourceRoots = sourceRoots.map { case (path, sourceType) => (path, Some(sourceType)) }
@@ -240,11 +238,11 @@ trait ContentRootsResolution { self: ExternalSourceRootResolution =>
       val suitableContentRootNode = findContentRootContainingPath(contentRootNodes, sourceRootPath)
       suitableContentRootNode match {
         case Some(contentRootNode) if sourceType.nonEmpty =>
-          contentRootNode.storePath(sourceType.get, sourceRootPath)
+          contentRootNode.storePath(sourceType.get, sourceRootPath.toCanonicalPath.toString)
           contentRootNodes
         case None =>
           val node = new ContentRootNode(sourceRootPath)
-          sourceType.foreach(node.storePath(_, sourceRootPath))
+          sourceType.foreach(node.storePath(_, sourceRootPath.toCanonicalPath.toString))
           contentRootNodes :+ node
         case _ => contentRootNodes
       }
@@ -258,19 +256,17 @@ trait ContentRootsResolution { self: ExternalSourceRootResolution =>
     !allSourceTypes.exists(sourceType => contentRootNode.data.getPaths(sourceType).asScala.nonEmpty)
   }
 
-  private def findContentRootContainingPath(contentRoots: Seq[ContentRootNode], path: String): Option[ContentRootNode] = {
-    val dir = Path.of(path)
+  private def findContentRootContainingPath(contentRoots: Seq[ContentRootNode], dir: Path): Option[ContentRootNode] =
     contentRoots.find { contentRoot =>
       val contentRootDir = Path.of(contentRoot.data.getRootPath)
       dir.isUnder(contentRootDir, strict = false)
     }
-  }
 
-  private def managedDirectories(dirs: Seq[sbtStructure.DirectoryData])(using context: ImportContext): Seq[String] =
-    dirs.filter(_.managed).map(_.file.toPath.toCanonicalPath.toString)
+  private def managedDirectories(dirs: Seq[sbtStructure.DirectoryData])(using context: ImportContext): Seq[Path] =
+    dirs.filter(_.managed).map(_.file.toPath)
 
-  private def unmanagedDirectories(dirs: Seq[sbtStructure.DirectoryData])(using context: ImportContext): Seq[String] =
-    dirs.filterNot(_.managed).map(_.file.toPath.toCanonicalPath.toString)
+  private def unmanagedDirectories(dirs: Seq[sbtStructure.DirectoryData])(using context: ImportContext): Seq[Path] =
+    dirs.filterNot(_.managed).map(_.file.toPath)
 
   private def getProductionSources(project: sbtStructure.ProjectData)(implicit context: ImportContext): Seq[DirectoryData] =
     validSourceRootPathsIn(project, CompileScope)(_.sources)
