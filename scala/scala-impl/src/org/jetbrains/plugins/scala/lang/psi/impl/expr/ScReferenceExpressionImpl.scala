@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaElementVisitor, ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionWithContextFromText, createReferenceExpressionFromText}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType, ScThisType}
@@ -329,7 +330,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     val extensionOwner           = srr.exportedInExtension
 
     val inner: ScType = srr match {
-      case ScalaResolveResult(fun: ScFun, s) =>
+      case ScalaResolveResult(fun: ScSyntheticFunction, s) =>
         fun.polymorphicType(s)
       //prevent infinite recursion for recursive pattern reference
       case ScalaResolveResult(self: ScSelfTypeElement, _) =>

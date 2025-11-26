@@ -20,7 +20,8 @@ import org.jetbrains.plugins.scala.lang.psi.adapters.PsiClassAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction, ScPatternDefinition, ScTypeAlias}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatternDefinition, ScTypeAlias}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.PsiClassFake
@@ -104,8 +105,12 @@ object SyntheticNamedElement {
 }
 
 
-final class ScSyntheticTypeParameter(override val name: String, override val owner: ScFun)
-  extends SyntheticNamedElement(name)(owner.projectContext) with ScTypeParam with PsiClassFake {
+final class ScSyntheticTypeParameter(
+  override val name: String,
+  override val owner: ScSyntheticFunction
+) extends SyntheticNamedElement(name)(owner.projectContext)
+  with ScTypeParam
+  with PsiClassFake {
 
   override def nameId: PsiElement = null
 
@@ -214,13 +219,26 @@ final class ScSyntheticClass(
   }
 }
 
+/**
+ * Represents synthetic functions from Any and AnyRef that are not PsiMembers and are not visible from Java.
+ * For example, `==`, `!=`, `##`, `instanceOf` / `asInstanceOf`, `eq`, `+`, etc....
+ * see [[SyntheticClasses.registerClasses]] to see the full list of such functions)
+ *
+ * Note, the methods do have some analogy in JVM, but they are represented by a different name or even not by a method at all.
+ * For example:
+ *  - `==` ~ `equals` method
+ *  - `synchronized` ~ java synchronized block
+ *  - `isInstanceOf` ~ `instanceOf` operator in java
+ *  - etc...
+ */
 sealed class ScSyntheticFunction(
   val name: String,
-  override val retType: ScType,
-  override val paramClauses: Seq[Seq[Parameter]],
+  val retType: ScType,
+  val paramClauses: Seq[Seq[Parameter]],
   typeParameterNames: Seq[String]
 )(implicit projectContext: ProjectContext)
-  extends SyntheticNamedElement(name) with ScFun {
+  extends SyntheticNamedElement(name)
+  with ScTypeParametersOwner {
 
   private var containingSyntheticClass: Option[ScSyntheticClass] = None
 

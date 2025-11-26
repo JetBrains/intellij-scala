@@ -266,7 +266,7 @@ object MethodResolveProcessor {
           problems += ExpectedTypeMismatch //do not check expected types for more than one param clauses
           Nothing
         case f: ScFunction => substitutor(f.returnType.getOrNothing)
-        case f: ScFun      => substitutor(f.retType)
+        case f: ScSyntheticFunction      => substitutor(f.retType)
         case m: PsiMethod  =>
           Option(m.getReturnType)
             .map(rt => substitutor(rt.toScType()))
@@ -303,7 +303,7 @@ object MethodResolveProcessor {
             if c.functionParamClauses.isEmpty ||
               (c.functionParamClauses.head.parameters.isEmpty && canBeNullaryMethodApplication) ||
               isUnderscore => ApplicabilityCheckResult(problems.result())
-          case fun: ScFun
+          case fun: ScSyntheticFunction
             if fun.paramClauses == Seq() ||
               (fun.paramClauses == Seq(Seq()) && canBeNullaryMethodApplication) ||
               isUnderscore =>
@@ -333,7 +333,7 @@ object MethodResolveProcessor {
             m.methodTypeProvider(ref.elementScope)
               .polymorphicType(dropExtensionClauses = c.shouldDropExtensionClauses)
               .toOption
-          case fun: ScFun   => fun.polymorphicType().toOption
+          case fun: ScSyntheticFunction   => fun.polymorphicType().toOption
           case _            => None
         }
 
@@ -369,7 +369,7 @@ object MethodResolveProcessor {
       fun match {
         case _: ScFunction if c.functionParamClauses.isEmpty =>
           return addExpectedTypeProblems()
-        case fun: ScFun if fun.paramClauses.isEmpty =>
+        case fun: ScSyntheticFunction if fun.paramClauses.isEmpty =>
           return addExpectedTypeProblems()
         case _ =>
       }

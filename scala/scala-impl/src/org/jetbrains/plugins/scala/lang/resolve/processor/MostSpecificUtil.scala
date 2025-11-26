@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, TypeParamIdOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Nothing, _}
@@ -177,10 +178,10 @@ class MostSpecificUtil(
       params.lastOption.exists(_.isRepeated)
 
     def isJavaMethod(m: PsiNamedElement): Boolean =
-      !(m.is[ScFunction] || m.isInstanceOf[ScFun] || m.is[ScPrimaryConstructor])
+      !m.is[ScFunction, ScSyntheticFunction, ScPrimaryConstructor]
 
     (lhs.element, rhs.element) match {
-      case (lhsElement @ (_: PsiMethod | _: ScFun), rhsElement @ (_: PsiMethod | _: ScFun)) =>
+      case (lhsElement @ (_: PsiMethod | _: ScSyntheticFunction), rhsElement @ (_: PsiMethod | _: ScSyntheticFunction)) =>
         val lhsType   = lhs.substitutor(getType(lhsElement, lhs.implicitCase))
         val lhsParams = lhs.paramsOrCandidateType(lhsType, undefine = false)
         val rhsType   = rhs.substitutor(getType(rhsElement, rhs.implicitCase))
@@ -442,7 +443,7 @@ class MostSpecificUtil(
         m.methodTypeProvider(scope).polymorphicType(
           dropExtensionClauses = true, //@TODO: should probably be srr.isExtensionCall
         )
-      case fun: ScFun => fun.polymorphicType()
+      case fun: ScSyntheticFunction => fun.polymorphicType()
       case refPatt: ScReferencePattern => refPatt.getParent /*id list*/ .getParent match {
         case pd: ScPatternDefinition if PsiTreeUtil.isContextAncestor(pd, place, true) =>
           pd.declaredType.getOrElse(Nothing)

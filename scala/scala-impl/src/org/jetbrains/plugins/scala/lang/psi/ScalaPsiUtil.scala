@@ -23,7 +23,6 @@ import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.LatestScalaVersions.Scala_2_12
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt, _}
 import org.jetbrains.plugins.scala.externalLibraries.bm4.Implicit0Binding
@@ -47,7 +46,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScControlFlowOwner, ScPackageLike, ScalaFile, ScalaPsiElement, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ApplyOrUpdateInvocation
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticClass, ScSyntheticFunction}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiElementFactory}
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
@@ -1338,7 +1337,7 @@ object ScalaPsiUtil {
       case _: ScFunctionDefinition => true
       case f: ScFunctionDeclaration if f.isNative => true
       case _: ScFunctionDeclaration => false
-      case _: ScFun => true
+      case _: ScSyntheticFunction => true
       case Constructor.ofClass(c) if c.isInterface => false
       case method: PsiMethod if !method.hasAbstractModifier && !method.isConstructor => true
       case method: PsiMethod if method.hasModifierProperty(PsiModifier.NATIVE) => true

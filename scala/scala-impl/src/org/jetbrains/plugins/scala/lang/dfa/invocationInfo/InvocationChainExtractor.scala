@@ -4,7 +4,8 @@ import com.intellij.psi.PsiMethod
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.ArgumentFactory.{buildAllArguments, insertThisArgToArgList}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScParameterOwner}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScParameterOwner
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.annotation.tailrec
@@ -38,7 +39,7 @@ object InvocationChainExtractor {
 
     val (restArgs, followingCalls) = target match {
       case Some(ScalaResolveResult(scalaFunction: ScParameterOwner, _)) => rest.splitAt(scalaFunction.allClauses.length - 1)
-      case Some(ScalaResolveResult(syntheticFunction: ScFun, _)) => rest.splitAt(syntheticFunction.paramClauses.length - 1)
+      case Some(ScalaResolveResult(syntheticFunction: ScSyntheticFunction, _)) => rest.splitAt(syntheticFunction.paramClauses.length - 1)
       case Some(ScalaResolveResult(_: PsiMethod, _)) => (Nil, rest)
       case _ => rest.span(_._2.isEmpty)
     }

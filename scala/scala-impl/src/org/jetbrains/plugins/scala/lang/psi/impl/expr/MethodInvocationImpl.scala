@@ -10,9 +10,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.InferUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumClassCase, ScFun, ScFunction, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumClassCase, ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility._
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScProjectionType}
@@ -341,7 +342,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
       rr =>
         val e = rr.element
 
-        def isFun             = e.isInstanceOf[ScFun] || e.is[ScFunction]
+        def isFun = e.is[ScSyntheticFunction, ScFunction]
         def isPostfixOrPrefix = isInstanceOf[ScPrefixExpr] || isInstanceOf[ScPostfixExpr]
 
         isFun && isPostfixOrPrefix || {

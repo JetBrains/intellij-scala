@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackageLike
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScTypeAlias, ScValueOrVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -141,7 +141,7 @@ object ComparisonSymbol {
         case f: PsiField if f.hasModifierProperty(PsiModifier.FINAL) => add(".")
         //case c: PsiClass if c.isInterface && isInImport => add(".")
         case _: PsiClass | _: PsiType | _: ScTypeAlias | _: ScSyntheticClass => add("#")
-        case _: PsiField | _ : ScFun | _: PsiMethod | _: ScValueOrVariable => add("().")
+        case _: PsiField | _ : ScSyntheticFunction | _: PsiMethod | _: ScValueOrVariable => add("().")
         case _ => add(".")
       }
 

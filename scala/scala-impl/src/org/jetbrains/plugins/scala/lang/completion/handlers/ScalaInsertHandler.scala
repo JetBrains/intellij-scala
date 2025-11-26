@@ -6,18 +6,19 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil.getParentOfType
 import org.jetbrains.plugins.scala.codeInspection.redundantBlock.RedundantBlockInspection.isRedundantBlock
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.completion.{InsertionContextExt, ScalaBasicCompletionProvider}
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
+import org.jetbrains.plugins.scala.lang.completion.{InsertionContextExt, ScalaBasicCompletionProvider}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.tIDENTIFIER
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction, ScTypeAlias}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createReferenceFromText}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedExpressionPrefix
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 import scala.annotation.tailrec
@@ -52,7 +53,7 @@ object ScalaInsertHandler {
       }
     case method: PsiMethod =>
       (method.getParameterList.getParametersCount, isParameterless(method))
-    case fun: ScFun =>
+    case fun: ScSyntheticFunction =>
       if (fun.paramClauses.isEmpty) (-1, false)
       else (fun.paramClauses.head.length, false)
     case _ => (0, true)
@@ -328,12 +329,12 @@ final class ScalaInsertHandler extends InsertHandler[ScalaLookupItem] {
         }
         return
       case _: PsiMethod if item.isInImport => moveCaretIfNeeded()
-      case _: ScFun if item.isInImport => moveCaretIfNeeded()
+      case _: ScSyntheticFunction if item.isInImport => moveCaretIfNeeded()
       case fun: ScFunction if fun.name == "classOf" && fun.containingClass != null &&
         fun.containingClass.qualifiedName == "scala.Predef" =>
         context.setAddCompletionChar(false)
         insertIfNeeded(placeInto = true, openChar = '[', closeChar = ']', withSpace = false, withSomeNum = true)
-      case method@(_: PsiMethod | _: ScFun) =>
+      case method@(_: PsiMethod | _: ScSyntheticFunction) =>
         if (completionChar != '[') {
           val (count, isAccessor) = getItemParametersAndAccessorStatus(method)
           if (count == 0 && !isAccessor) {
