@@ -27,7 +27,7 @@ public class ScalaTestFailureLocationFilter implements Filter {
 //  private final static Pattern fqnPattern = Pattern.compile("(\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*\\.)+\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*");
 
   //See org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestReporterWithLocation.apply
-  private final static String testFailureLocationPrefix = "ScalaTestFailureLocation: ";
+  private final static String SCALA_TEST_FAILURE_LOCATION = "ScalaTestFailureLocation: ";
 
   public ScalaTestFailureLocationFilter(@NotNull final Project project, @NotNull final GlobalSearchScope scope) {
     myCache = new ExceptionInfoCache(project, scope);
@@ -37,7 +37,14 @@ public class ScalaTestFailureLocationFilter implements Filter {
   @Override
   public Result applyFilter(String line, int entireLength) {
     Project myProject = myCache.getProject();
-    if (!line.startsWith(testFailureLocationPrefix)) return null;
+
+    //Examples of the line we are looking for:
+    //   ScalaTestFailureLocation: org.example.MyTest1 at (MyTest1.scala:31)
+    //   ScalaTestFailureLocation: bug.TestSpec at (TestSpec.scala:11)
+    //   ScalaTestFailureLocation: org.scalatest.matchers.MatchersHelper$ at (TestSpec.scala:8)
+    if (!line.startsWith(SCALA_TEST_FAILURE_LOCATION))
+      return null;
+
     final int atKeywordLocation = line.indexOf(" at ");
     if (atKeywordLocation < 0) return null;
     //get class name and make sure it is a fqn
@@ -54,7 +61,14 @@ public class ScalaTestFailureLocationFilter implements Filter {
 
     //NOTE: class name can be empty (see examples in SCL-21627 and https://github.com/scalatest/scalatest/issues/2286)
     //in this case only file name will be used during resolution under the hood
-    final String className = line.substring(testFailureLocationPrefix.length(), atKeywordLocation).trim();
+    //
+    //Example: `ScalaTestFailureLocation: org.example.MyTest1 at (MyTest1.scala:31)` -> `org.example.MyTest1`
+    int classNameStartIndex = SCALA_TEST_FAILURE_LOCATION.length();
+    int classNameEndIndex = atKeywordLocation;
+    final String className = classNameEndIndex > classNameStartIndex
+      ? line.substring(classNameStartIndex, classNameEndIndex).trim()
+      : "";
+
     final var resolutionResult = myCache.resolveClassOrFile(className, fileName);
 
     final var virtualFiles = resolutionResult.getClasses().keySet().stream().toList();
