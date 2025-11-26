@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.structuralSearch
 
 import com.intellij.codeInsight.template.{TemplateContextType, TemplateManager}
 import com.intellij.lang.Language
+import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.impl.source.tree.LeafPsiElement
@@ -18,6 +19,7 @@ import com.intellij.util.SmartList
 import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.plugins.scala.codeInsight.template.impl.{Scala3FileTemplateContextType, ScalaFileTemplateContextType}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
+import org.jetbrains.plugins.scala.incremental.Highlighting.builtInHighlightingDisabledIn
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScConstructorInvocation, ScReference, ScStableCodeReference}
@@ -31,15 +33,18 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.structuralSearch.ScalaStructuralSearchProfile.REPLACEMENT_CONTEXT
 import org.jetbrains.plugins.scala.structuralSearch.predicates.ScExprTypePredicate
 import org.jetbrains.plugins.scala.structuralSearch.replace.ScalaReplacementBuilder
-import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
+import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage, incremental}
 
 import java.{lang, util}
 
 final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
   override protected def getVarPrefixes: Array[String] = Array("__$_")
 
-  override def isMyLanguage(@NotNull language: Language): Boolean =
+  override def isMyLanguage(@NotNull language: Language): Boolean = {
+    if (ProjectManager.getInstance.getOpenProjects.exists(project => builtInHighlightingDisabledIn(project) || incremental.Highlighting.enabledIn(project))) return false
+
     language == ScalaLanguage.INSTANCE || language == Scala3Language.INSTANCE
+  }
 
   override def getContext(pattern: String, @Nullable language: Language, contextId: String): String =
     StructuralSearchProfile.PATTERN_PLACEHOLDER
