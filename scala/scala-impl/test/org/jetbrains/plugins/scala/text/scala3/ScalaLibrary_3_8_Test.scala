@@ -50,8 +50,6 @@ class ScalaLibrary_3_8_Test extends TextToTextTestBase(
     "scala.annotation.elidable", // MinValue/MaxValue
     "scala.caps.Pure", // N/A | { this: _root_.scala.caps.Pure => }
     "scala.collection.IndexedSeqSlidingIterator", // { def hasNext: _root_.scala.Boolean = ???; def next(): C = ??? } | N/A
-    "scala.collection.Searching", // final class | class (extends AnyVal)
-    "scala.collection.SeqFactory", // final class | class (extends AnyVal)
     "scala.collection.concurrent.INode", // Object | AnyRef
     "scala.collection.convert.StreamExtensions", // self type, private type
     "scala.collection.convert.impl.IteratorStepperBase", // final var Int | 16
@@ -64,7 +62,6 @@ class ScalaLibrary_3_8_Test extends TextToTextTestBase(
     "scala.concurrent.SyncChannel", // private type | N/A
     "scala.io.AnsiColor", // Escape \u001b
     "scala.io.Position", // 31 - LINE_BITS
-    "scala.jdk.FunctionWrappers", // final class | class (extends AnyVal)
     "scala.math.Numeric", // private type | N/A
     "scala.quoted.FromExpr", // scala.collection.immutable.Seq | scala.Seq
     "scala.quoted.runtime.QuoteMatching", // ? <: _root_.scala.AnyKind | ?
