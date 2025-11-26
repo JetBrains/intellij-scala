@@ -1,16 +1,15 @@
 package org.jetbrains.sbt.shell.testSettingsQueryHandler
 
+import com.intellij.execution.process.OSProcessHandler
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.testFramework.fixtures.IdeaTestFixtureFactory
 import org.jetbrains.plugins.scala.SlowTests2
+import org.jetbrains.plugins.scala.build.BuildMessages
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.SbtUtil.SbtProjectUriAndId
 import org.jetbrains.sbt.project.SbtProjectStructureImportingLike
 import org.jetbrains.sbt.shell.testSettingsQueryHandler.SbtProjectPlatformTestCase.ProcessLogger
 import org.jetbrains.sbt.shell.testSettingsQueryHandler.SettingQueryHandlerTestBase.{SbtSetCommand, SbtSetCommandSettingPath}
-import com.intellij.execution.process.OSProcessHandler
-import org.jetbrains.plugins.scala.build.BuildMessages
-import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication, SettingQueryHandler}
 import org.jetbrains.sbt.{SbtVersion, SbtVersionCapabilities}
 import org.junit.Assert.assertNotNull
@@ -43,9 +42,8 @@ abstract class SettingQueryHandlerTestBase extends SbtProjectStructureImportingL
 
   protected val DefaultCommandWaitTimeout: FiniteDuration = 60.seconds
 
-  private lazy val testProjectUri: String = s"file:${getTestProjectPath.toCanonicalPath.toString}/"
   private lazy val sbtProjectUriAndId = SbtProjectUriAndId(
-    uri = testProjectUri,
+    uri = getTestProjectPath.toUri.toString,
     id = "scalaTest"
   )
 
