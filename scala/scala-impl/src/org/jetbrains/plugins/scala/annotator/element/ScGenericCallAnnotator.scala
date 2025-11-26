@@ -71,8 +71,8 @@ object ScGenericCallAnnotator extends ElementAnnotator[ScGenericCall] {
                   case lCons: LightDefaultConstructor =>
                     lCons.containingClass.getTypeParameters.toSeq
                   case jmethod: PsiMethod =>
-                    (if (jmethod.isConstructor) jmethod.containingClass.getTypeParameters.toSeq else Seq()) ++
-                      jmethod.getTypeParameters.toSeq
+                    if (jmethod.isConstructor) jmethod.containingClass.getTypeParameters.toSeq
+                    else jmethod.getTypeParameters.toSeq
                   case _ => typeParamOwner.getTypeParameters.toSeq
                 }
 
