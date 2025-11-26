@@ -59,7 +59,7 @@ private[scala] object AnonymousFunction {
     isGenerateAnonfun211(elem) && isInsideSuperCall(containingClass)
   }
 
-  def isGenerateAnonfun211(elem: PsiElement): Boolean = {
+  def isGenerateAnonfun211(elem: PsiElement, typeAware: Boolean = true): Boolean = {
     def isGenerateAnonfunWithCache: Boolean = {
       if (elem == null || !elem.isValid || DumbService.isDumb(elem.getProject)) false
       else cachedInUserData("isGenerateAnonfun211.isAnonfunCached", elem, BlockModificationTracker(elem)) {
@@ -86,7 +86,7 @@ private[scala] object AnonymousFunction {
       }
     }
 
-    isGenerateAnonfunSimple || isPartialFunction(elem) || isGenerateAnonfunWithCache
+    isGenerateAnonfunSimple || isPartialFunction(elem) || (typeAware && isGenerateAnonfunWithCache)
   }
 
   def generatesAnonClass(newTd: ScNewTemplateDefinition): Boolean = {

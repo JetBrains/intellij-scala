@@ -20,7 +20,7 @@ import com.intellij.xdebugger.{XDebuggerUtil, XSourcePosition}
 import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.java.debugger.breakpoints.properties.JavaLineBreakpointProperties
 import org.jetbrains.plugins.scala.ScalaLanguage
-import org.jetbrains.plugins.scala.debugger.{DebuggerBundle, ScalaLambdaSourcePosition, ScalaPositionManager, ScalaSourcePositionWithWholeLineHighlighted}
+import org.jetbrains.plugins.scala.debugger.{DebuggerBundle, ScalaLambdaSourcePosition, ScalaPositionManager, ScalaSourcePositionWithWholeLineHighlighted, typeAware}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -108,7 +108,7 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Debug
 
   private def findContainingDefinition(elem: PsiElement, lambdas: Seq[PsiElement]): Option[PsiElement] =
     elem.withParentsInFile.collect {
-      case c if ScalaPositionManager.isLambda(c) => c
+      case c if ScalaPositionManager.isLambda(c, typeAware(c)) => c
       case m: PsiMethod => m
       case tb: ScTemplateBody => tb
       case ed: ScEarlyDefinitions => ed
