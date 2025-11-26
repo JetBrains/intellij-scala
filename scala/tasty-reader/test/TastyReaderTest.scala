@@ -117,6 +117,7 @@ class TastyReaderTest extends TestCase {
   def testTypeDefinitionQualifier(): Unit = doTest("typeDefinition/Qualifier")
   def testTypeDefinitionSelfType(): Unit = doTest("typeDefinition/SelfType")
   def testTypeDefinitionTrait(): Unit = doTest("typeDefinition/Trait")
+  def testTypeDefinitionValueClass(): Unit = doTest("typeDefinition/ValueClass")
   def testTypeDefinitionScl24154(): Unit = doTest("typeDefinition/DerivationApi")
   def testTypesAnd(): Unit = doTest("types/And")
   //  def testTypesAnnotated(): Unit = doTest("types/Annotated") // SCL-21207

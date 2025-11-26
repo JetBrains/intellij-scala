@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScExtension, ScFunction, ScFunctionDefinition, ScTypeAlias, ScTypeAliasDefinition, ScValue, ScValueOrVariable, ScValueOrVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScGiven, ScGivenDefinition, ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement, ScPackaging, ScTypeBoundsOwner, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType.isValueClass
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
@@ -33,7 +34,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
 
     val modifiers = {
       val s = textOf(cls.getModifierList)
-      if (normalize && cls.isInstanceOf[ScClass] && cls.hasModifierProperty("implicit")) s.replace("final ", "") else s
+      if (normalize && cls.isInstanceOf[ScClass] && (cls.hasModifierProperty("implicit") || isValueClass(cls))) s.replace("final ", "") else s
     }
 
     val keyword = cls match {
