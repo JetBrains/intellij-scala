@@ -45,7 +45,7 @@ class ScalaAnnotatedMembersSearcher extends QueryExecutor[PsiMember, AnnotatedEl
 
   override def execute(p: AnnotatedElementsSearch.Parameters, consumer: Processor[_ >: PsiMember]): Boolean = {
     val annotationClass: PsiClass = p.getAnnotationClass
-    assert(annotationClass.isAnnotationType, "Annotation type should be passed to annotated members search")
+    assert(annotationClass.annotationType, "Annotation type should be passed to annotated members search")
     val annotationFQN = annotationClass.qualifiedName
     assert(annotationFQN != null, "Annotation qualifier can't be null")
 

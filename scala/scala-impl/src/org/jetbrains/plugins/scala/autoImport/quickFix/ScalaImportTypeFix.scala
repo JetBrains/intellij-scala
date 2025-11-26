@@ -184,7 +184,7 @@ object ScalaImportTypeFix {
     case _ => false
   }
 
-  private def isAnnotation(cls: PsiClass): Boolean = cls.isAnnotationType
+  private def isAnnotation(cls: PsiClass): Boolean = cls.annotationType
 
   private def isCaseOrInScala3File(cls: ScClass): Boolean =
     cls.isCase || cls.isInScala3File

@@ -91,7 +91,7 @@ private class ScalaBasicCompletionProvider extends CompletionProvider[Completion
         val defaultLookupElements = processor.lookupElements().filter {
           case ScalaLookupItem(_, clazz: PsiClass) =>
             !classNameCompletion &&
-              (!annotationsOnly || clazz.isAnnotationType)
+              (!annotationsOnly || clazz.annotationType)
           case _ => !annotationsOnly
         }.map {
           case ScalaLookupItem(item, clazz: PsiClass) =>
@@ -100,7 +100,7 @@ private class ScalaBasicCompletionProvider extends CompletionProvider[Completion
                 .filter { _ =>
                   // Create Universal Apply lookup elements only for non-abstract classes
                   !clazz.hasAbstractModifier &&
-                    !clazz.isAnnotationType &&
+                    !clazz.annotationType &&
                     (clazz.is[ScClass] || !clazz.isInstanceOf[ScalaPsiElement] && clazz.getClassKind == JvmClassKind.CLASS)
                 }
             ).fold(item: LookupElement) { constructor =>
@@ -151,7 +151,7 @@ private class ScalaBasicCompletionProvider extends CompletionProvider[Completion
                     case ScalaLookupItem(item, cls: ScClass)
                       // do not add annotations, abstract classes or duplicates
                       if lookupStrings.add(item.getLookupString) &&
-                        !cls.isAnnotationType &&
+                        !cls.annotationType &&
                         !cls.hasAbstractModifier =>
                       constructor(cls).createLookupElement(item.isRenamed)
                   }

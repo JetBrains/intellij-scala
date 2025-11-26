@@ -534,7 +534,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
         scType <- typeable.`type`().toOption
         (clazz, subst) <- scType.extractClassType
       } {
-        if (!clazz.is[ScTemplateDefinition] && clazz.isAnnotationType) {
+        if (!clazz.is[ScTemplateDefinition] && clazz.annotationType) {
           proc match {
             case completionProcessor: CompletionProcessor =>
               if (index == 0) {
