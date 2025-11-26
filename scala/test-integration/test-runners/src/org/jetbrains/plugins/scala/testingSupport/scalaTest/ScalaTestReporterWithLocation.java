@@ -122,10 +122,14 @@ public class ScalaTestReporterWithLocation implements Reporter {
 
                     String className = stackTraceElement != null ? stackTraceElement.getClassName() : null;
                     if (fileNameAndLineNumber instanceof Some && className != null) {
-                        //NOTE: it's a workaround for SCL-21627 and https://github.com/scalatest/scalatest/issues/2286
-                        // "org.scalatest.Assertions" means that stack trace item with original test position was not properly detected
-                        boolean isAcceptableClassName = !className.equals("org.scalatest.Assertions");
-                        String optionalClassPrefix = isAcceptableClassName ? className + " " : "";
+                        //NOTE: it's a workaround for SCL-21627 and SCL-24693.
+                        //The common issue in ScalaTest is https://github.com/scalatest/scalatest/issues/2286.
+                        //If the stack trace element contains "org.scalatest.Assertions" or "org.scalatest.matchers.*"
+                        //we assume that Scalatest could not properly detect the original test position.
+                        boolean scalaTestFailedToDetectTestSourcePosition =
+                          className.equals("org.scalatest.Assertions") ||
+                            className.startsWith("org.scalatest.matchers.");
+                        String optionalClassPrefix = !scalaTestFailedToDetectTestSourcePosition ? className + " " : "";
                         failureLocation = "\nScalaTestFailureLocation: " + optionalClassPrefix + "at ("  + fileNameAndLineNumber.get() + ")";
                     }
                 }
