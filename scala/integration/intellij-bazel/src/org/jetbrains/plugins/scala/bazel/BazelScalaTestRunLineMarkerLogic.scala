@@ -4,16 +4,13 @@ import com.intellij.execution.PsiLocation
 import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.bazel.java.ui.gutters.BazelJavaRunLineMarkerContributor
-import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.extensions.{&, Parent}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScDerivesClauseOwner, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestConfigurationProducer
-
-import java.util
 
 /**
  * Utilities inside contain logic for running entire test classes and individual tests from ScalaTest and ZIO-test via Bazel.
@@ -24,36 +21,10 @@ import java.util
  *       Still, it's convenient to keep all test-related logic in a separate place.
  */
 private object BazelScalaTestRunLineMarkerLogic {
-  private val TEST_ARG = "-t"
+  private val TestArg = "-t"
 
   def shouldAddMarker(psiElement: PsiElement): Boolean =
     isTestClassOrMethod(psiElement)
-
-  def getSingleTestFilter(psiElement: PsiElement): String =
-    getTestClass(psiElement).map(_.qualifiedName).orNull
-
-  /**
-   * To run individual tests like:<br>
-   * `bazel test --test_filter=MyTestSuite --test_arg=-t --test_arg="test name"`
-   */
-  def getExtraProgramArguments(psiElement: PsiElement): util.List[String] = {
-    val testElement = psiElement.getParent
-    val empty: util.List[String] = util.List.of()
-    val params = testElement match {
-      case _: ScClass => empty
-      case _: ScFunctionDefinition => getTestName(testElement)
-      case _ if testElement.getParent.is[ScInfixExpr] =>
-        val expr = testElement.getParent.asInstanceOf[ScInfixExpr]
-        if (expr.operation.equals(testElement)) {
-          getTestName(expr)
-        } else {
-          empty
-        }
-      case _: ScReferenceExpression if testElement.getParent.is[ScMethodCall] => getTestName(testElement)
-      case _ => empty
-    }
-    params
-  }
 
   private def isTestClassOrMethod(psiElement: PsiElement): Boolean =
     psiElement match {
@@ -67,16 +38,48 @@ private object BazelScalaTestRunLineMarkerLogic {
         false
     }
 
-  private def getTestClass(psiElement: PsiElement): Option[ScDerivesClauseOwner] =
-    Option(PsiTreeUtil.getParentOfType(psiElement, classOf[ScClass], classOf[ScObject]))
+  def getSingleTestFilter(psiElement: PsiElement): String =
+    getTestClass(psiElement).map(_.qualifiedName).orNull
 
-  private def getTestName(psiElement: PsiElement): util.List[String] =
-    getScalaTestName(psiElement)
-      .orElse(getZioTestName(psiElement))
-      .map(escape)
-      .getOrElse(util.List.of[String]())
+  private def getTestClass(psiElement: PsiElement): Option[ScDerivesClauseOwner] = {
+    val parentClassOfObject = PsiTreeUtil.getParentOfType(psiElement, classOf[ScClass], classOf[ScObject])
+    Option(parentClassOfObject)
+  }
 
-  private def getScalaTestName(psiElement: PsiElement): Option[String] =
+  /**
+   * To run individual tests like:<br>
+   * `bazel test --test_filter=MyTestSuite --test_arg=-t --test_arg="test name"`
+   */
+  def getExtraProgramArguments(psiElement: PsiElement): Seq[String] = {
+    val testElement = psiElement.getParent
+    val testName = getTestName(testElement)
+    // Use the test name as a single extra parameter
+    testName.toSeq
+  }
+
+  private def getTestName(testElement: PsiElement): Option[String] = testElement match {
+    case _: ScClass =>
+      None
+    case f: ScFunctionDefinition =>
+      getTestNameImpl(f)
+    case Parent(infix: ScInfixExpr) =>
+      if (infix.operation.equals(testElement))
+        getTestNameImpl(infix)
+      else
+        None
+    case (_: ScReferenceExpression) & Parent(_: ScMethodCall) =>
+      getTestNameImpl(testElement)
+    case _ =>
+      None
+  }
+
+  private def getTestNameImpl(psiElement: PsiElement): Option[String] = {
+    val scalaTestName = getScalaTestTestName(psiElement)
+    val testName = scalaTestName.orElse(getZioTestTestName(psiElement))
+    testName.map(escape)
+  }
+
+  private def getScalaTestTestName(psiElement: PsiElement): Option[String] =
     for {
       testClass <- getTestClass(psiElement)
       location <- Option(PsiLocation.fromPsiElement(testClass.getProject, psiElement))
@@ -89,7 +92,7 @@ private object BazelScalaTestRunLineMarkerLogic {
    *
    * @see https://github.com/zio/zio-intellij/blob/idea252.x/src/main/scala/zio/intellij/testsupport/package.scala#L34-L45
    */
-  private def getZioTestName(psiElement: PsiElement): Option[String] =
+  private def getZioTestTestName(psiElement: PsiElement): Option[String] =
     psiElement.getParent match {
       case m: ScMethodCall =>
         m.argumentExpressions.headOption.flatMap {
@@ -99,13 +102,11 @@ private object BazelScalaTestRunLineMarkerLogic {
       case _ => None
     }
 
-  private def escape(testName: String): util.List[String] =
-    util.List.of(
-      testName.split("\n")
-        // Scalatest names can contain spaces, so the name needs to be quoted
-        // This means we need to escape " in the test name
-        .map(name => name.replace("\"", "\\\""))
-        .map(name => s"$TEST_ARG \"$name\"")
-        .mkString(" ")
-    )
+  private def escape(testName: String): String =
+    testName.split("\n")
+      // Scalatest names can contain spaces, so the name needs to be quoted
+      // This means we need to escape " in the test name
+      .map(name => name.replace("\"", "\\\""))
+      .map(name => s"$TestArg \"$name\"")
+      .mkString(" ")
 }

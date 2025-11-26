@@ -4,6 +4,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.bazel.java.ui.gutters.BazelJavaRunLineMarkerContributor
 
 import java.util
+import scala.jdk.CollectionConverters.SeqHasAsJava
 
 /**
  *  - Inherits logic for running scala from BazelJavaRunLineMarkerContributor
@@ -18,5 +19,5 @@ class BazelScalaRunLineMarkerContributor extends BazelJavaRunLineMarkerContribut
     BazelScalaTestRunLineMarkerLogic.getSingleTestFilter(psiElement)
 
   override def getExtraProgramArguments(psiElement: PsiElement): util.List[String] =
-    BazelScalaTestRunLineMarkerLogic.getExtraProgramArguments(psiElement)
+    BazelScalaTestRunLineMarkerLogic.getExtraProgramArguments(psiElement).asJava
 }
