@@ -4,8 +4,9 @@ import ch.epfl.scala.bsp4j
 import ch.epfl.scala.bsp4j.{BuildServerCapabilities, InitializeBuildResult}
 import com.intellij.execution.process.OSProcessUtil
 import com.intellij.notification.NotificationType
-import com.intellij.openapi.application.PathManager
+import com.intellij.openapi.application.{ApplicationManager, PathManager}
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.util.SystemInfo
 import com.intellij.util.concurrency.AppExecutorUtil
 import org.eclipse.lsp4j.jsonrpc.{Launcher, ResponseErrorException}
 import org.jetbrains.bsp._
@@ -59,7 +60,9 @@ class BspSession private(bspPID: Long,
 
   private val queuePause = 10.millis
   private val queueTimeout = 1.second
-  private val sessionTimeout = 20.seconds
+  private val sessionTimeout: FiniteDuration =
+    if (ApplicationManager.getApplication.isUnitTestMode && SystemInfo.isWindows) 5.minutes
+    else 20.seconds
 
   private val queueProcessor = AppExecutorUtil.getAppScheduledExecutorService
     .scheduleWithFixedDelay(() => nextQueuedCommand(), queuePause.toMillis, queuePause.toMillis, TimeUnit.MILLISECONDS)
