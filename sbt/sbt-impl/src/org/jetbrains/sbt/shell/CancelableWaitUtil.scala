@@ -38,6 +38,7 @@ object CancelableWaitUtil {
         }
       } catch {
         case _: TimeoutException => wait()
+        case exc: Exception      => Failure(exc)
       }
     }
     
