@@ -8,6 +8,7 @@ import org.jetbrains.sbt.project.{ProjectStructureTestUtils, ScalaSdkExpectedCla
 import org.junit.Assert
 
 import java.nio.file.{Files, Path}
+import scala.jdk.CollectionConverters.MapHasAsScala
 
 /**
  * See also [[ProjectStructureTestUtils]]
@@ -15,8 +16,12 @@ import java.nio.file.{Files, Path}
 object MavenProjectStructureTestUtils {
 
   private lazy val mavenRepositoryRoot: String = {
+    // Maven options stored in `MAVEN_OPTS` environment variable
+    // They contain the extra VM options that will be passed to Maven JVM process.
+    // Example on TeamCity:
+    // env.MAVEN_OPTS=-Dmaven.repo.local=/mnt/cache/.m2/repository
+    // env.MAVEN_OPTS=-Dmaven.repo.local=/mnt/cache/.m2
     val mavenOpts = MavenUtil.getPropertiesFromMavenOpts
-    //example: -Dmaven.repo.local=/mnt/cache/.m2
     val mavenRootFromMavenOpts = Option(mavenOpts.get("maven.repo.local"))
 
     val mavenRoot = mavenRootFromMavenOpts.getOrElse {
@@ -25,15 +30,60 @@ object MavenProjectStructureTestUtils {
 
     val repositoryRoot = mavenRoot.replace("\\", "/").stripSuffix("/repository") ++ "/repository"
     println(
-      s"""### Detected maven repository root: $repositoryRoot
+      s"""###
+         |### Detected maven repository root: $repositoryRoot
          |### mavenRootFromMavenOpts: $mavenRootFromMavenOpts
+         |###
+         |${DebugInfoUtils.buildRelatedEnvVarsAndPropertiesDebugInfo.prefixEveryLine("### ")}
+         |###
          |""".stripMargin.trim
     )
     repositoryRoot
   }
 
-  //NOTE: if this doesn't work for some reason, also consider using
-  //org.jetbrains.idea.maven.utils.MavenUtil.resolveMavenHomeDirectory (it doesn't respect MAVEN_OPTS though)
+  private implicit class StringOps(private val value: String) extends AnyVal {
+    def prefixEveryLine(prefix: String): String =
+      value.linesIterator.map(prefix + _).mkString("\n")
+  }
+
+  private object DebugInfoUtils {
+
+    def buildRelatedEnvVarsAndPropertiesDebugInfo: String = {
+      val EnvVarsAndProperties(envVars, properties) = getAllEnvironmentVariablesAndPropertiesMentioningMaven
+      s"""Related environment variables:
+         |${envVars.map(presentKeyValue).mkString("\n")}
+         |
+         |Related properties:
+         |${properties.map(presentKeyValue).mkString("\n")}
+         |""".stripMargin
+        .trim
+        // Allow only a single blank line between text blocks (required if env vars / properties are empty)
+        .replaceAll("\n\n+", "\n\n")
+    }
+
+    private def presentKeyValue(tuple: (String, String)): String =
+      s"${tuple._1}=${tuple._2}"
+
+    private case class EnvVarsAndProperties(envVars: Seq[(String, String)], properties: Seq[(String, String)])
+
+    private def getAllEnvironmentVariablesAndPropertiesMentioningMaven: EnvVarsAndProperties = {
+      val relevantEnvs: Seq[(String, String)] =
+        System.getenv().asScala.toSeq.filter { case (key, _: String) => containsMavenWord(key) }
+      val relevantProperties: Seq[(String, String)] =
+        System.getProperties.asScala.toSeq.collect { case (key: String, value: String) if containsMavenWord(key) => key -> value }
+
+      EnvVarsAndProperties(relevantEnvs, relevantProperties)
+    }
+
+    private def containsMavenWord(key: String): Boolean =
+      key.toLowerCase.contains("maven")
+  }
+
+  /**
+   * @note IF this doesn't work for some reason, also consider using:<br>
+   *       [[org.jetbrains.idea.maven.utils.MavenUtil.resolveMavenHomeDirectory]]<br>
+   *       (Though, it doesn't respect MAVEN_OPTS)
+   */
   private def mavenHomeDirectoryFromUserHome: String = {
     val userHome = SystemProperties.getUserHome
     Assert.assertNotNull("user.home property is not set", userHome)
