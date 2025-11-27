@@ -47,7 +47,7 @@ object Versions {
   val junitInterfaceVersion: String = "0.13.3"
 
   val bspVersion = "2.1.0-M3"
-  val sbtStructureVersion: String = "2025.3.1"
+  val sbtStructureVersion: String = "2025.3.5"
   val sbtIdeaShellVersion: String = "2025.2.0"
   val compilerIndicesVersion = "1.0.16"
 
