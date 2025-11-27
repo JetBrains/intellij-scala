@@ -24,15 +24,16 @@ import org.jetbrains.plugins.scala.project.{LibraryExt, ModuleExt, ProjectExt, S
 import org.jetbrains.plugins.scala.util.teamcity.TeamcityUtils
 import org.jetbrains.sbt.DslUtils.MatchType
 import org.jetbrains.sbt.SbtSourceSetUtil.SbtSourceSetModuleExt
-import org.jetbrains.sbt.project.ProjectStructureDsl._
+import org.jetbrains.sbt.project.ProjectStructureDsl.*
 import org.jetbrains.sbt.project.ProjectStructureMatcher.AttributeMatchType
 import org.jetbrains.sbt.project.utils.ProjectStructureComparisonContext.AssertionFailStrategy
 import org.jetbrains.sbt.project.utils.{MacroSubstitutor, ProjectStructureComparisonContext, ScalaCliStructureHelper}
 import org.junit.Assert.{assertFalse, assertNotNull, assertTrue, fail}
 import org.junit.{Assert, ComparisonFailure}
 
+import java.io.File
 import java.nio.file.Path
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 trait ProjectStructureMatcher {
 
@@ -472,12 +473,24 @@ trait ProjectStructureMatcher {
   // @dancingrobot84
   private def assertLibraryFilesEqual(lib: Library, fileType: roots.OrderRootType)(expectedFiles: Seq[String])(mt: Option[MatchType])
                                      (implicit compareContext: ProjectStructureComparisonContext): Unit = {
-    val expectedNormalized = expectedFiles.map(normalizePathSeparators)
-    val actualNormalised = lib.getFiles(fileType).flatMap(f => Option(PathUtil.getLocalPath(f))).toSeq.map(normalizePathSeparators)
+    val expectedNormalized = expectedFiles.map(normalizePath)
+    val actualNormalised = lib.getFiles(fileType).flatMap(f => Option(PathUtil.getLocalPath(f))).toSeq.map(normalizePath)
     assertMatch("Library file", expectedNormalized, actualNormalised)(mt)
   }
 
-  private def normalizePathSeparators(path: String): String = path.replace("\\", "/")
+  private def normalizePath(path: String): String = {
+    // Get a canonical path to resolve symlinks and test the real path.
+    // This can matter e.g., on TeamCity agents where some paths can be symlyncs to other.
+    // For example, on the agents the `/home/builduser/.m2` file is a symlink to `/mnt/cache/.m2`.
+    // In the expected data we read the MAVEN_OPTS env var (that equals to `/mnt/cache/.m2`).
+    // But Maven can report the `/home/builduser/.m2` (without canonicalization) as the actual path.
+    // If we don't do this here, we could get test failures.
+    //
+    // ATTENTION: We might need to review this approach once we run the tests for WSL on Windows agents.
+    val pathCanonical = new File(path).getCanonicalPath
+    // Normalize separators to have the same expected data on Unix and Windows
+    pathCanonical.replace("\\", "/")
+  }
 
   private def assertLibraryScalaSdk(expectedLibrary: library, actualLibrary0: Library)
                                    (implicit compareContext: ProjectStructureComparisonContext): Unit = {
@@ -493,8 +506,8 @@ trait ProjectStructureMatcher {
         assertEquals("Scala SDK language level", expectedScalaSdk.languageLevel, sdkProperties.languageLevel)
 
         def testClasspath(name: String, expectedClasspathStr: Seq[String], actualClasspathFile: Seq[Path]): Unit = {
-          val expectedClassPathNorm = expectedClasspathStr.map(normalizePathSeparators).sorted.mkString("\n")
-          val actualClasspathNorm = actualClasspathFile.map(_.toCanonicalPath.toString).map(normalizePathSeparators).sorted.mkString("\n")
+          val expectedClassPathNorm = expectedClasspathStr.map(normalizePath).sorted.mkString("\n")
+          val actualClasspathNorm = actualClasspathFile.map(_.toCanonicalPath.toString).map(normalizePath).sorted.mkString("\n")
           assertEquals(name, expectedClassPathNorm, actualClasspathNorm)
         }
 
