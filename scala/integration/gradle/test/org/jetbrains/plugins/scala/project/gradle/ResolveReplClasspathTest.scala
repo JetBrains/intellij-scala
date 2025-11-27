@@ -86,5 +86,5 @@ class ResolveReplClasspathTest extends ExternalSystemImportingTestCase:
     assertTrue("The REPL classpath was not configured correctly", replClasspath.isInstanceOf[ReplClasspath.Provided])
     val paths = replClasspath.asPaths
     assertTrue("The REPL classpath is empty", paths.nonEmpty)
-    val scala3ReplJar = paths.find(_.getFileName.toString == "scala3-repl_3-3.8.0-RC1.jar")
+    val scala3ReplJar = paths.find(_.getFileName.toString == s"scala3-repl_3-$scalaVersion.jar")
     assertTrue("Could not find the scala3-repl_3 jar on the REPL classpath", scala3ReplJar.isDefined)
