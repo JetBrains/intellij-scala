@@ -106,7 +106,7 @@ abstract class SbtNewProjectWizardStep(parent: NewProjectWizardStep)
       getScalaVersionIfAtLeast3_8 match
         case Some(_) =>
           val minJdk = 17
-          val isJdkIncompatible = getExpectedJavaSdkVersion.exists(_.getMaxLanguageLevel.feature < minJdk)
+          val isJdkIncompatible = getExpectedJavaSdkVersion.exists(_.getMaxLanguageLevel.feature < minJdk) || isNoJdkSelected
 
           val needAdjust = isJdkIncompatible && !hasUserSelectedJdkForScala38Plus.get()
           if (needAdjust) {
@@ -209,6 +209,9 @@ abstract class SbtNewProjectWizardStep(parent: NewProjectWizardStep)
       versionString <- Option(intent.getVersionString)
       javaSdkVersion <- Option(JavaSdkVersion.fromVersionString(versionString))
     } yield javaSdkVersion
+
+  private def isNoJdkSelected: Boolean =
+    jdkIntent.contains(ProjectWizardJdkIntent.NoJdk.INSTANCE)
 
   protected final def downloadSbtVersions(disposable: Disposable): Unit = {
     val sbtDownloadVersions: ProgressIndicator => Seq[SbtVersion] = indicator => loadSbtVersions(indicator)
