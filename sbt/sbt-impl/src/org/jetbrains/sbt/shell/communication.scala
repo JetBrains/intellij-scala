@@ -441,6 +441,41 @@ final class SbtShellCommunication(project: Project) {
 
       newMessages
   }
+
+  private class CommandListener[A](default: A, aggregator: EventAggregator[A], project: Project)
+    extends LineListener with ProjectShellModeProvider(project) {
+
+    private val promise = Promise[A]()
+    private var a: A = default
+
+    private def aggregate(event: ShellEvent): Unit = {
+      a = aggregator(a, event)
+    }
+
+    def future: Future[A] = promise.future
+
+    def started(): Unit =
+      aggregate(TaskStart)
+
+    override def processTerminated(event: ProcessEvent): Unit = {
+      processTerminated()
+    }
+
+    def processTerminated(): Unit = {
+      aggregate(ProcessTerminated)
+      promise.complete(Failure(new RuntimeException("Sbt shell terminated before command is finished")))
+    }
+
+    override def onLine(text: String): Unit =
+      if (!promise.isCompleted && promptReady(text, isNewShell)) {
+        aggregate(TaskComplete)
+        promise.complete(Success(a))
+      }
+      else if (promptError(text))
+        aggregate(ErrorWaitForInput)
+      else
+        aggregate(Output(text))
+  }
 }
 
 object SbtShellCommunication {
@@ -565,41 +600,6 @@ private[shell] object SbtShellLifecycle {
       case (ShuttingDown, _)                 => logProhibitedTransition()
     }
   }
-}
-
-private[shell] class CommandListener[A](default: A, aggregator: EventAggregator[A], project: Project)
-  extends LineListener with ProjectShellModeProvider(project) {
-
-  private val promise = Promise[A]()
-  private var a: A = default
-
-  private def aggregate(event: ShellEvent): Unit = {
-    a = aggregator(a, event)
-  }
-
-  def future: Future[A] = promise.future
-
-  def started(): Unit =
-    aggregate(TaskStart)
-
-  override def processTerminated(event: ProcessEvent): Unit = {
-    processTerminated()
-  }
-
-  def processTerminated(): Unit = {
-    aggregate(ProcessTerminated)
-    promise.complete(Failure(new RuntimeException("Sbt shell terminated before command is finished")))
-  }
-
-  override def onLine(text: String): Unit =
-    if (!promise.isCompleted && promptReady(text, isNewShell)) {
-      aggregate(TaskComplete)
-      promise.complete(Success(a))
-    }
-    else if (promptError(text))
-      aggregate(ErrorWaitForInput)
-    else
-      aggregate(Output(text))
 }
 
 /**
