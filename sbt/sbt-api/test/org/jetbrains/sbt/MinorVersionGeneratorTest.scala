@@ -13,7 +13,7 @@ class MinorVersionGeneratorTest {
       SbtVersion("1.7.0"),
       SbtVersion("1.11.5"),
 
-      SbtVersion("2.0.0-RC6"),
+      SbtVersion("2.0.0-RC7"),
 
       SbtVersion("2.1.0-RC3"),
       SbtVersion("2.1.2"),
@@ -37,7 +37,7 @@ class MinorVersionGeneratorTest {
       "1.11.4",
       "1.11.5",
 
-      "2.0.0-RC6",
+      "2.0.0-RC7",
 
       "2.1.0-RC3",
       "2.1.0",
