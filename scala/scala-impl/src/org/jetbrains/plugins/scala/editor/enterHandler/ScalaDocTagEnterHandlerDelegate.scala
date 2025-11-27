@@ -8,7 +8,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.editor.{DocumentExt, EditorExt}
-import org.jetbrains.plugins.scala.extensions.{ElementType, PsiElementExt, inWriteAction}
+import org.jetbrains.plugins.scala.extensions.{ElementType, ObjectExt, PsiElementExt, inWriteAction}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocTag
@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocTag
 class ScalaDocTagEnterHandlerDelegate extends EnterHandlerDelegateAdapter {
 
   override def postProcessEnter(file: PsiFile, editor: Editor, dataContext: DataContext): Result = {
-    if (!file.isInstanceOf[ScalaFile] || !editor.inDocComment(editor.offset))
+    if (!file.is[ScalaFile] || !editor.inDocComment(editor.offset))
       return Result.Continue
 
     val document = editor.getDocument
