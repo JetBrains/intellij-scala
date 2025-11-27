@@ -9,9 +9,9 @@ import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import java.awt.Point
 
 private object VisibleRange {
-  private val VISIBLE_RANGE_KEY = Key.create[TextRange]("editor_visible_range")
+  private[incremental] val VISIBLE_RANGE_KEY = Key.create[TextRange]("editor_visible_range")
 
-  private val EXACT_VISIBLE_RANGE_KEY = Key.create[TextRange]("editor_exact_visible_range")
+  private[incremental] val EXACT_VISIBLE_RANGE_KEY = Key.create[TextRange]("editor_exact_visible_range")
 
   private def lookaround: Int = Registry.intValue("scala.incremental.highlighting.lookaround")
 
