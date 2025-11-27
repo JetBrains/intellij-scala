@@ -397,7 +397,7 @@ object MethodResolveProcessor {
     ): ApplicabilityCheckResult = {
       //if we are processing constructor proxies, take class type parameters into account
       val typeParamsWithCls = element match {
-        case Constructor.ofClass(cls) => typeParams ++ cls.getTypeParameters.toSeq
+        case Constructor.ofClass(cls) => cls.getTypeParameters.toSeq
         case fun: ScFunction          =>
           if (c.isExtensionCall) typeParams
           else                   fun.typeParametersWithExtension(c.exportedInExtension)

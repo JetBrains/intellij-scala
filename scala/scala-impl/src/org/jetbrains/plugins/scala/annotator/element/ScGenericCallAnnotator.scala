@@ -1,21 +1,19 @@
 package org.jetbrains.plugins.scala.annotator.element
 
-import com.intellij.psi.impl.compiled.ClsMethodImpl
 import com.intellij.psi.impl.light.LightDefaultConstructor
-import com.intellij.psi.{PsiMethod, PsiNamedElement, PsiTypeParameter, PsiTypeParameterListOwner}
+import com.intellij.psi.{PsiMethod, PsiNamedElement, PsiTypeParameterListOwner}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, _}
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScalaConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.{JavaConstructor, ScalaConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScGenericCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ApplyOrUpdateInvocation
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
-import org.jetbrains.plugins.scala.lang.psi.types.api.{PsiTypeParametersExt, TypeParameter, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{PsiTypeParametersExt, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, DefaultTypeParameterMismatch, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
@@ -70,10 +68,8 @@ object ScGenericCallAnnotator extends ElementAnnotator[ScGenericCall] {
                     extension.fold(fun.typeParameters)(_.typeParameters)
                   case lCons: LightDefaultConstructor =>
                     lCons.containingClass.getTypeParameters.toSeq
-                  case jmethod: PsiMethod =>
-                    if (jmethod.isConstructor) jmethod.containingClass.getTypeParameters.toSeq
-                    else jmethod.getTypeParameters.toSeq
-                  case _ => typeParamOwner.getTypeParameters.toSeq
+                  case JavaConstructor(cons) => cons.containingClass.getTypeParameters.toSeq
+                  case _                     => typeParamOwner.getTypeParameters.toSeq
                 }
 
                 if (tparams.isEmpty) typeParamsFromInnerApplyCall(rr)

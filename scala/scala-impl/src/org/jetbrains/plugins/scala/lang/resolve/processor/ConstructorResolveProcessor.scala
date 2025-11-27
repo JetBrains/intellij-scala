@@ -1,9 +1,12 @@
 package org.jetbrains.plugins.scala.lang.resolve.processor
 
 import com.intellij.psi._
+import com.intellij.psi.impl.light.LightDefaultConstructor
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAliasDeclaration, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScConstructorOwner
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
@@ -11,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateEx
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult}
 
 class ConstructorResolveProcessor(
-  constr:          PsiElement,
+  constructorRef:  ScStableCodeReference,
   refName:         String,
   args:            List[Seq[Expression]],
   typeArgs:        Seq[ScTypeElement],
@@ -19,7 +22,7 @@ class ConstructorResolveProcessor(
   shapeResolve:    Boolean,
   allConstructors: Boolean
 ) extends MethodResolveProcessor(
-  constr,
+  constructorRef,
   refName,
   args,
   typeArgs,
@@ -31,8 +34,7 @@ class ConstructorResolveProcessor(
 
   override protected def execute(namedElement: PsiNamedElement)
                                 (implicit state: ResolveState): Boolean = {
-    val fromType = state.fromType
-
+    val fromType           = state.fromType
     val defaultSubstitutor = state.substitutorWithThisType
 
     if (nameMatches(namedElement)) {
@@ -42,29 +44,32 @@ class ConstructorResolveProcessor(
       def constructorIsAccessible(constructor: PsiMethod) =
         isAccessible(constructor, ref)
 
-      def constructors(clazz: PsiClass, substitutor: ScSubstitutor) =
-        clazz.constructors.filter {
-          case constructor if accessibility =>
-            constructorIsAccessible(constructor)
-          case _ => true
-        }.map {
-          (_, substitutor, Some(namedElement))
+      def constructors(cls: PsiClass, substitutor: ScSubstitutor) = {
+        val allConstructors = cls match {
+          case scCls: ScConstructorOwner => scCls.constructors
+          case javaCls                   =>
+            val explicitConstructors = javaCls.constructors
+
+            if (explicitConstructors.isEmpty) LightDefaultConstructor.create(javaCls).toOption.toSeq
+            else                              explicitConstructors
         }
 
-      def orDefault(tuples: Seq[(PsiNamedElement, ScSubstitutor, Option[PsiNamedElement])] = Seq.empty
-                   ): Seq[(PsiNamedElement, ScSubstitutor, Option[PsiNamedElement])] =
-        tuples match {
-          case Seq() => Seq((namedElement, defaultSubstitutor, None))
-        case seq => seq
+        allConstructors.collect {
+          case cons if accessibility && constructorIsAccessible(cons) =>
+            (cons, substitutor, Some(namedElement))
+        }
       }
 
+      def orDefault(
+        tuples: Seq[(PsiNamedElement, ScSubstitutor, Option[PsiNamedElement])] = Seq.empty
+      ): Seq[(PsiNamedElement, ScSubstitutor, Option[PsiNamedElement])] =
+        if (tuples.isEmpty) Seq((namedElement, defaultSubstitutor, None))
+        else                tuples
+
       val tuples = namedElement match {
-        case clazz: PsiClass =>
-          orDefault(constructors(clazz, defaultSubstitutor))
-        case _: ScTypeAliasDeclaration =>
-          orDefault()
-        case definition: ScTypeAliasDefinition if definition.isEffectivelyOpaque =>
-          orDefault()
+        case clazz: PsiClass           => orDefault(constructors(clazz, defaultSubstitutor))
+        case _: ScTypeAliasDeclaration => orDefault()
+        case definition: ScTypeAliasDefinition if definition.isEffectivelyOpaque => orDefault()
         case definition: ScTypeAliasDefinition =>
           val result = definition.aliasedType.toOption.toSeq flatMap {
             _.extractClassType
@@ -91,8 +96,8 @@ class ConstructorResolveProcessor(
             state.importsUsed,
             state.renamed,
             parentElement = parentElement,
-            fromType = fromType,
-            isAccessible = elementIsAccessible)
+            fromType      = fromType,
+            isAccessible  = elementIsAccessible)
       })
     }
 
@@ -110,6 +115,7 @@ class ConstructorResolveProcessor(
       )
 
     val candidates = super.candidatesS
+
     candidates.toSeq match {
       case _ if allConstructors => candidates
       case Seq()                => Set.empty

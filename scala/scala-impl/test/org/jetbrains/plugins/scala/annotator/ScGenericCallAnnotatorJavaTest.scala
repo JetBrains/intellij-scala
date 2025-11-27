@@ -62,7 +62,9 @@ class ScGenericCallAnnotatorJavaTest extends JavaHighlightingTestBase {
   def testJavaTypedConstructorSuc(): Unit = {
     val scala =
       """val _ = MyJavaClass("a")
+        |val _ = new MyJavaClass("a")
         |val _ = MyJavaClass[String, Int, String]("a")
+        |val _ = new MyJavaClass[String, Int, String]("a")
         |""".stripMargin
 
     addDummyJavaFile(javaTypedConstr)

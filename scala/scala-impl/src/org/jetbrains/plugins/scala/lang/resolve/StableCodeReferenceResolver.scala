@@ -17,12 +17,14 @@ class StableCodeReferenceResolver(
     val refName = ref.refName
 
     val proc = if (ref.isConstructorReference && !noConstructorResolve) {
-      val constr = ref.getConstructorInvocation.get
-      val typeArgs = constr.typeArgList.map(_.typeArgs).getOrElse(Seq())
+      val constr   = ref.getConstructorInvocation.get
+      val typeArgs = constr.typeArgList.map(_.typeArgs).getOrElse(Seq.empty)
+
       val effectiveArgs = constr.arguments.toList.map(_.exprs) match {
         case List() => List(List())
-        case x => x
+        case x      => x
       }
+
       new ConstructorResolveProcessor(ref, refName, effectiveArgs, typeArgs, kinds, shapeResolve, allConstructorResults)
     } else ref.getContext match {
       //last ref may import many elements with the same name
