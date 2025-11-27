@@ -7,6 +7,7 @@ import com.intellij.codeInsight.highlighting.BraceMatchingUtil
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.highlighter.HighlighterIterator
 import com.intellij.openapi.editor.{Document, Editor}
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
@@ -378,6 +379,10 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
       return false
     }
 
+    if (handleScalaDocLineDeletion(deletedChar, document, offset, editor)) {
+      return true
+    }
+
     if (CodeInsightSettings.getInstance.AUTOINSERT_PAIR_BRACKET) {
       handleAutoInsertBraces(deletedChar, offset, scalaFile, document, editor)
     }
@@ -387,6 +392,47 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
     }
 
     false
+  }
+
+  private val scalaDocLineDeletionPrefixRegex = raw"\s*(\*?)".r
+  private val scalaDocDeIndentPrefixRegex = raw"\s*\*\s(\s+)".r
+  private def handleScalaDocLineDeletion(c: Char, document: Document, offset: Int, editor: Editor): Boolean = {
+    if (c != ' ' && c != '\t' && c != '*') {
+      return false
+    }
+
+    if (!editor.inDocComment(offset)) {
+      return false
+    }
+
+    val lineNum = document.getLineNumber(offset)
+
+    if (lineNum <= 0) {
+      return false
+    }
+
+    val lineStart = document.getLineStartOffset(lineNum)
+    val beforeCaret = document.getText(
+      TextRange.create(lineStart, offset)
+    )
+
+    beforeCaret match {
+      case scalaDocLineDeletionPrefixRegex(asterisk) if asterisk.isEmpty || (c != '*') =>
+        // after having already deleted a character we are here:
+        //  *<caret>
+        // or on an empty line after deleting the asterisk...
+        // ... in any case, just delete everything before the caret
+        document.deleteString(lineStart - 1, offset)
+        false
+      case scalaDocDeIndentPrefixRegex(indentWs) =>
+        // only delete to the beginning of the line after the asterisk
+        //  *    <caret>
+        //    ^ delete to here
+        document.deleteString(offset - indentWs.length, offset)
+        false
+      case _ =>
+        true
+    }
   }
 
   private def handleAutoInsertBraces(deletedChar: Char, offset: Int, file: ScFile, document: Document, editor: Editor): Unit = {
