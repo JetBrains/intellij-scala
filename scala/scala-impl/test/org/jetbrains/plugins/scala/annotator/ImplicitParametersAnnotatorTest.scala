@@ -4,6 +4,7 @@ package annotator
 import org.jetbrains.plugins.scala.annotator.template.ImplicitParametersAnnotator
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
+import org.jetbrains.plugins.scala.project.ScalaFeatures
 import org.junit.experimental.categories.Category
 
 abstract class ImplicitParametersAnnotatorTestBase extends AnnotatorTestBase[ImplicitArgumentsOwner] {
@@ -350,7 +351,7 @@ class ImplicitParametersAnnotatorTest extends ImplicitParametersAnnotatorTestBas
 }
 
 class ImplicitParametersAnnotatorTest_Scala3 extends ImplicitParametersAnnotatorTestBase {
-  override def scalaVersion = ScalaVersion.Latest.Scala_3_4
+  override def scalaCodeParsingFeatures: ScalaFeatures = ScalaFeatures.onlyByVersion(ScalaVersion.Latest.Scala_3_4)
 
   // SCL-21490
   def testGivenPatternsInFor(): Unit = {

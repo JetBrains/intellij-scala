@@ -1,9 +1,10 @@
 package org.jetbrains.plugins.scala.lang.parser.scala3
 
-import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
+import org.jetbrains.plugins.scala.ScalaVersion
+import org.jetbrains.plugins.scala.project.ScalaFeatures
 
 class Scala3_6_NewGivensParserTest extends SimpleScala3ParserTestBase {
-  override protected def scalaVersion: ScalaVersion = LatestScalaVersions.Scala_3_6
+  override def scalaCodeParsingFeatures: ScalaFeatures = ScalaFeatures.onlyByVersion(ScalaVersion.Latest.Scala_3_6)
 
   def testSimpleEmptyType(): Unit = checkTree(
     "given Ord[Int]",

@@ -6,35 +6,13 @@ import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.project.ScalaFeatures.SerializableScalaFeatures
 import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures}
 
 import scala.reflect.ClassTag
 
 trait ScalaCodeParsing {
 
-  protected def scalaVersion: ScalaVersion = ScalaVersion.default
-  protected def scalaCodeParsingFeatures: SerializableScalaFeatures = ScalaFeatures.onlyByVersion(scalaVersion)
-
-  private def checkedScalaCodeParsingFeatures: SerializableScalaFeatures = {
-    assert(scalaCodeParsingFeatures.languageLevel == scalaVersion.languageLevel)
-    scalaCodeParsingFeatures
-  }
-
-  def parseScalaFile(
-    @InputLanguage("Scala") text: String,
-    scalaVersion: ScalaVersion,
-  )(implicit project: ProjectContext): ScalaFile = {
-    val features = ScalaFeatures.onlyByVersion(scalaVersion)
-    parseScalaFile(text, features, enableEventSystem = false)
-  }
-
-  def parseScalaFile(
-    @InputLanguage("Scala") text: String,
-    enableEventSystem: Boolean = false
-  )(implicit project: ProjectContext): ScalaFile = {
-    parseScalaFile(text, checkedScalaCodeParsingFeatures, enableEventSystem)
-  }
+  protected def scalaCodeParsingFeatures: ScalaFeatures = ScalaFeatures.onlyByVersion(ScalaVersion.default)
 
   def parseScalaFileAndGetCaretPosition(
     @InputLanguage("Scala") text: String,
@@ -47,18 +25,15 @@ trait ScalaCodeParsing {
 
   def parseScalaFile(
     @InputLanguage("Scala") text: String,
-    scalaFeatures: ScalaFeatures,
+    scalaFeatures: ScalaFeatures = scalaCodeParsingFeatures,
+    enableEventSystem: Boolean = false
   )(implicit project: ProjectContext): ScalaFile = {
-    parseScalaFile(text, scalaFeatures, enableEventSystem = false)
-  }
-
-
-  def parseScalaFile(
-    @InputLanguage("Scala") text: String,
-    scalaFeatures: ScalaFeatures,
-    enableEventSystem: Boolean,
-  )(implicit project: ProjectContext): ScalaFile = {
-    ScalaPsiElementFactory.createScalaFileFromText(text, scalaFeatures, eventSystemEnabled = enableEventSystem, shouldTrimText = false)
+    ScalaPsiElementFactory.createScalaFileFromText(
+      text,
+      scalaFeatures,
+      eventSystemEnabled = enableEventSystem,
+      shouldTrimText = false
+    )
   }
 
   implicit class ScalaCode(@InputLanguage("Scala") private val text: String) {

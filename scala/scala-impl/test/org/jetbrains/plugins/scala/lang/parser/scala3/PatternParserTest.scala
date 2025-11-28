@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala.lang.parser.scala3
 
 import org.jetbrains.plugins.scala.ScalaVersion
+import org.jetbrains.plugins.scala.project.ScalaFeatures
 
 
 class PatternParserTest extends SimpleScala3ParserTestBase {
-  override protected def scalaVersion: ScalaVersion = ScalaVersion.Latest.Scala_3_7
+  override def scalaCodeParsingFeatures: ScalaFeatures = ScalaFeatures.onlyByVersion(ScalaVersion.Latest.Scala_3_7)
 
   def test_named_constructor_arg_patterns(): Unit = checkTree(
     """

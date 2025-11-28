@@ -7,16 +7,18 @@ import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, S
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
+import org.jetbrains.plugins.scala.project.ScalaFeatures
 import org.jetbrains.plugins.scala.util.assertions.MatcherAssertionsExt
 import org.jetbrains.plugins.scala.{ScalaVersion, TypecheckerTests}
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[TypecheckerTests]))
-trait ScParameterizedTypeElementAnnotatorTestBase extends SimpleTestCase {
-  protected def scalaVersion: ScalaVersion
+abstract class ScParameterizedTypeElementAnnotatorTestBase(scalaCodeParsingVersion: ScalaVersion) extends SimpleTestCase {
+
+  final override def scalaCodeParsingFeatures: ScalaFeatures = ScalaFeatures.onlyByVersion(scalaCodeParsingVersion)
 
   def messages(code: String): List[Message] = {
-    val file: ScalaFile = parseScalaFile(code, scalaVersion)
+    val file: ScalaFile = parseScalaFile(code)
     messagesForParameterizedTypeElements(file)
   }
 }
@@ -33,10 +35,8 @@ object ScParameterizedTypeElementAnnotatorTestBase {
   }
 }
 
-class ScParameterizedTypeElementAnnotatorTest_scala_2 extends ScParameterizedTypeElementAnnotatorTestBase {
+class ScParameterizedTypeElementAnnotatorTest_scala_2 extends ScParameterizedTypeElementAnnotatorTestBase(ScalaVersion.Latest.Scala_2) {
   import Message._
-
-  override protected val scalaVersion: ScalaVersion = ScalaVersion.default
 
   def testTooFewTypeParameter(): Unit = {
     assertMessagesInAllContexts("Test[Int]")(
@@ -347,9 +347,7 @@ class ScParameterizedTypeElementAnnotatorTest_scala_2 extends ScParameterizedTyp
   }
 }
 
-class ScParameterizedTypeElementAnnotatorTest_scala_3 extends ScParameterizedTypeElementAnnotatorTestBase {
-  override protected val scalaVersion: ScalaVersion = ScalaVersion.Latest.Scala_3
-
+class ScParameterizedTypeElementAnnotatorTest_scala_3 extends ScParameterizedTypeElementAnnotatorTestBase(ScalaVersion.Latest.Scala_3) {
   def testTypeLambdaAsTypeConstuctor(): Unit = assertNothing(messages(
     """
       |trait List[A]

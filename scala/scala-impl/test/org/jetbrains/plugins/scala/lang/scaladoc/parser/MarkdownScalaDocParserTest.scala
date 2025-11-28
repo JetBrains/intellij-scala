@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.lang.scaladoc.parser
 
 import com.intellij.psi.impl.DebugUtil.psiToString
-import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.extensions.{PsiNamedElementExt, StringExt}
 import org.jetbrains.plugins.scala.lang.parser.scala3.SimpleScala3ParserTestBase
+import org.jetbrains.plugins.scala.project.ScalaFeatures
 import org.junit.Assert.assertEquals
 
 class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
@@ -17,12 +17,12 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
 
   def checkBoth(scala3Code: String, scala2Code: String, expected: String): Unit = {
     checkWhitespaceTokensOnlyContainWhitespacs(expected)
-    val scala3File = parseScalaFile(scala3Code, ScalaVersion.Latest.Scala_3)
+    val scala3File = parseScalaFile(scala3Code, ScalaFeatures.defaultScala3)
     val scala3Tree = psiToString(scala3File, true).replace(": " + scala3File.name, "")
     assertEquals(expected.trim, scala3Tree.trim.withNormalizedSeparator)
     assert(!scala3Tree.contains("('')"))
 
-    val scala2File = parseScalaFile(scala2Code, ScalaVersion.Latest.Scala_2)
+    val scala2File = parseScalaFile(scala2Code, ScalaFeatures.defaultScala2)
     val scala2Tree = psiToString(scala2File, true).replace(": " + scala2File.name, "")
     val transformed = transformScala2TreeToScala3Tree(scala2Tree)
     assertEquals(expected.trim, transformed.trim.withNormalizedSeparator)

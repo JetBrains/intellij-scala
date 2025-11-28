@@ -9,10 +9,10 @@ package org.jetbrains.plugins.scala.base
  *       If test are run in following order: A, C, B, then project will not be reused between A and B.
  *       (This is because under the hood IntelliJ platform uses a singleton for storing current test project)
  */
-case class SharedTestProjectToken(value: Option[AnyRef])
+case class SharedTestProjectToken(value: Option[Any])
 
 object SharedTestProjectToken {
-  def apply(value: AnyRef): SharedTestProjectToken =
+  def apply(value: Any): SharedTestProjectToken =
     new SharedTestProjectToken(Some(value))
 
   val DoNotShare: SharedTestProjectToken =

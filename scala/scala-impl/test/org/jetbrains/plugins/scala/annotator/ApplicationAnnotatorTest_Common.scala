@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.annotator
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.annotator.Message.Error
+import org.jetbrains.plugins.scala.project.ScalaFeatures
 
 abstract class ApplicationAnnotatorTest_Common extends ApplicationAnnotatorTestBase {
   import Message._
@@ -348,20 +349,16 @@ abstract class ApplicationAnnotatorTest_Common extends ApplicationAnnotatorTestB
   }
 }
 
-class ApplicationAnnotatorTest_2_11 extends ApplicationAnnotatorTest_Common {
-  override protected def scalaVersion: ScalaVersion = ScalaVersion.Latest.Scala_2_12
-}
-
 class ApplicationAnnotatorTest_2_12 extends ApplicationAnnotatorTest_Common {
-  override protected def scalaVersion: ScalaVersion = ScalaVersion.Latest.Scala_2_12
+  override def scalaCodeParsingFeatures: ScalaFeatures = ScalaFeatures.onlyByVersion(ScalaVersion.Latest.Scala_2_12)
 }
 
 class ApplicationAnnotatorTest_2_13 extends ApplicationAnnotatorTest_Common {
-  override protected def scalaVersion: ScalaVersion = ScalaVersion.Latest.Scala_2_13
+  override def scalaCodeParsingFeatures: ScalaFeatures = ScalaFeatures.onlyByVersion(ScalaVersion.Latest.Scala_2_13)
 }
 
 class ApplicationAnnotatorTest_3 extends ApplicationAnnotatorTest_Common {
-  override protected def scalaVersion: ScalaVersion = ScalaVersion.Latest.Scala_3
+  override def scalaCodeParsingFeatures: ScalaFeatures = ScalaFeatures.onlyByVersion(ScalaVersion.Latest.Scala_3)
 
   override def testEmptyTrailingParametersClauses(): Unit = {
     //TODO: this test has wrong expected test data

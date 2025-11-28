@@ -6,6 +6,7 @@ import junitparams.naming.TestCaseName
 import junitparams.{JUnitParamsRunner, Parameters}
 import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken, SimpleTestCase}
 import org.jetbrains.plugins.scala.extensions.BooleanExt
+import org.jetbrains.plugins.scala.project.ScalaFeatures
 import org.jetbrains.plugins.scala.util.GeneratedParameterizedTestFactory.SingleCodeTestData
 import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers
 import org.jetbrains.plugins.scala.{ScalaFileType, ScalaVersion}
@@ -17,8 +18,8 @@ import scala.annotation.unused
 @RunWith(classOf[JUnitParamsRunner])
 abstract class GeneratedSimpleParameterizedTest(minScalaVersion: ScalaVersion)
   extends SimpleTestCase with GeneratedParameterizedTestFactory {
-  
-  override protected def scalaVersion: ScalaVersion = minScalaVersion
+
+  override def scalaCodeParsingFeatures: ScalaFeatures = ScalaFeatures.onlyByVersion(minScalaVersion)
 
   @unused("used reflectively by the @Parameters annotation")
   private def testParameters: Array[AnyRef] = testParametersImpl
