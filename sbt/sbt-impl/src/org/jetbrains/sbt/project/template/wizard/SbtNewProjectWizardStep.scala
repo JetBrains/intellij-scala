@@ -102,14 +102,15 @@ abstract class SbtNewProjectWizardStep(parent: NewProjectWizardStep)
       jdkValidationCtx = Some(ScalaJdkValidationContext(jdkIntentProperty, () => getExpectedJavaSdkVersion))
     )
 
+    // Auto-select JDK 17+ for Scala 3.8+ if the current JDK is < 17 or "No JDK" is selected
     scalaVersionComboBox.addActionListener { _ =>
       getScalaVersionIfAtLeast3_8 match
         case Some(_) =>
           val minJdk = 17
           val isJdkIncompatible = getExpectedJavaSdkVersion.exists(_.getMaxLanguageLevel.feature < minJdk) || isNoJdkSelected
 
-          val needAdjust = isJdkIncompatible && !hasUserSelectedJdkForScala38Plus.get()
-          if (needAdjust) {
+          val needJdkAdjust = isJdkIncompatible && !hasUserSelectedJdkForScala38Plus.get()
+          if (needJdkAdjust) {
             def findCompatibleJdk[T <: ProjectWizardJdkIntent](jdks: JList[T]): Option[T] =
               jdks.asScala
                 .filter(_.getJavaVersion.feature >= minJdk)
