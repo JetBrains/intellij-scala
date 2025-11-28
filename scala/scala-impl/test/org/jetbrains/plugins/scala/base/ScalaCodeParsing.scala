@@ -12,7 +12,32 @@ import scala.reflect.ClassTag
 
 trait ScalaCodeParsing {
 
-  protected def scalaCodeParsingFeatures: ScalaFeatures = ScalaFeatures.onlyByVersion(ScalaVersion.default)
+  protected def scalaCodeParsingFeatures: ScalaFeatures =
+    ScalaFeatures.onlyByVersion(
+      this match {
+        case sdkOwner: ScalaSdkOwner => sdkOwner.version
+        case _ => ScalaVersion.default
+      }
+    )
+
+  private def checkedCodeParsingFeatures: ScalaFeatures = this match {
+    case sdkOwner: ScalaSdkOwner =>
+      val features = scalaCodeParsingFeatures
+      assert(
+        sdkOwner.version.languageLevel == features.languageLevel,
+        s"""
+           |Test class ${getClass.getName} inherits both from ScalaSdkOwner and ScalaCodeParsing.
+           |In this case sdkOwner.version and scalaCodeParsingFeatures need to have the same language level
+           |to prevent unexpected behaviour.
+           |
+           |If you really need to parse a file in a different version, explicitly pass the appropriate ScalaFeatures
+           |to the parseScalaFile method.
+           |""".stripMargin,
+      )
+      features
+    case _ =>
+      scalaCodeParsingFeatures
+  }
 
   def parseScalaFileAndGetCaretPosition(
     @InputLanguage("Scala") text: String,
@@ -25,7 +50,7 @@ trait ScalaCodeParsing {
 
   def parseScalaFile(
     @InputLanguage("Scala") text: String,
-    scalaFeatures: ScalaFeatures = scalaCodeParsingFeatures,
+    scalaFeatures: ScalaFeatures = checkedCodeParsingFeatures,
     enableEventSystem: Boolean = false
   )(implicit project: ProjectContext): ScalaFile = {
     ScalaPsiElementFactory.createScalaFileFromText(
