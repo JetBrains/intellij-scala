@@ -4,8 +4,8 @@ import com.intellij.execution.RunnerAndConfigurationSettings
 import com.intellij.execution.testframework.AbstractTestProxy
 import com.intellij.openapi.project.Project
 import com.intellij.testFramework.UsefulTestCase
-import org.jetbrains.plugins.scala.configurations.TestLocation
-import org.jetbrains.plugins.scala.configurations.TestLocation.CaretLocation
+import org.jetbrains.plugins.scala.configurations.{RunConfigCreationContext, RunConfigCreationLocation}
+import org.jetbrains.plugins.scala.configurations.RunConfigCreationLocation.CaretLocation
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.junit.Assert._
 
@@ -31,19 +31,44 @@ trait IntegrationTest extends UsefulTestCase
   }
 
   def runTestByLocation(
-    testLocation: TestLocation,
+    testLocation: RunConfigCreationLocation,
     assertConfig: RunnerAndConfigurationSettings => Unit,
     assertTestTree: AbstractTestProxy => Unit,
   )(implicit testOptions: TestRunOptions): Unit =
     runTestByLocation(
-      testLocation,
+      RunConfigCreationContext(testLocation),
+      assertConfig,
+      assertTestTree,
+    )(testOptions)
+
+  def runTestByLocation(
+    testLocation: RunConfigCreationLocation,
+    assertConfig: RunnerAndConfigurationSettings => Unit,
+    assertTestTree: AbstractTestProxy => Unit,
+    assertProcessOutput: ProcessOutput => Unit
+  )(implicit testOptions: TestRunOptions): Unit = {
+    runTestByLocation(
+      RunConfigCreationContext(testLocation),
+      assertConfig,
+      assertTestTree,
+      assertProcessOutput
+    )(testOptions)
+  }
+
+  def runTestByLocation(
+    context: RunConfigCreationContext,
+    assertConfig: RunnerAndConfigurationSettings => Unit,
+    assertTestTree: AbstractTestProxy => Unit,
+  )(implicit testOptions: TestRunOptions): Unit =
+    runTestByLocation(
+      context,
       assertConfig,
       assertTestTree,
       IgnoreProcessOutput
     )(testOptions)
 
   def runTestByLocation(
-    testLocation: TestLocation,
+    context: RunConfigCreationContext,
     assertConfig: RunnerAndConfigurationSettings => Unit,
     assertTestTree: AbstractTestProxy => Unit,
     assertProcessOutput: ProcessOutput => Unit
@@ -56,27 +81,39 @@ trait IntegrationTest extends UsefulTestCase
     }
 
     runTestByLocation2(
-      testLocation,
+      context,
       assertConfig,
       assertTestResult
     )(testOptions)
   }
 
   def runTestByLocation2(
-    testLocation: TestLocation,
+    testLocation: RunConfigCreationLocation,
+    assertConfig: RunnerAndConfigurationSettings => Unit,
+    assertTestResult: TestRunResult => Unit
+  )(implicit testOptions: TestRunOptions): Unit = {
+    runTestByLocation2(
+      RunConfigCreationContext(testLocation),
+      assertConfig,
+      assertTestResult
+    )(testOptions)
+  }
+
+  def runTestByLocation2(
+    context: RunConfigCreationContext,
     assertConfig: RunnerAndConfigurationSettings => Unit,
     assertTestResult: TestRunResult => Unit
   )(implicit testOptions: TestRunOptions): Unit = {
     try {
-      val runConfig = createTestFromLocation(testLocation)
+      val runConfig = createTestFromLocation(context)
       assertConfig(runConfig)
       runTestByLocation3(runConfig, assertTestResult)(testOptions)
     } catch {
       case ex: AssertionError =>
-        val filePath = testLocation match {
+        val filePath = context.location match {
           case CaretLocation(fileName, _, _) => Some(srcPath.resolve(fileName))
-          case TestLocation.CaretLocation2(virtualVile, _, _) => Some(virtualVile.toNioPath)
-          case TestLocation.PsiElementLocation(psiElement) => Option(psiElement.getContainingFile).map(_.getVirtualFile.toNioPath)
+          case RunConfigCreationLocation.CaretLocation2(virtualVile, _, _) => Some(virtualVile.toNioPath)
+          case RunConfigCreationLocation.PsiElementLocation(psiElement) => Option(psiElement.getContainingFile).map(_.getVirtualFile.toNioPath)
           case _ => None
         }
         filePath.foreach(f => System.err.println(s"Test file path: ${f.toCanonicalPath}"))
@@ -111,8 +148,8 @@ trait IntegrationTest extends UsefulTestCase
     caretLocation: CaretLocation,
     assertConfigurationCheck: RunnerAndConfigurationSettings => Unit
   ): Unit = {
-    val config1 = createTestFromCaretLocation(caretLocation)
-    val config2 = createTestFromCaretLocation(caretLocation)
+    val config1 = createTestFromLocation(caretLocation)
+    val config2 = createTestFromLocation(caretLocation)
     assertConfigurationCheck(config1)
     assertConfigurationCheck(config2)
     assertEquals(config1.getName, config2.getName)
