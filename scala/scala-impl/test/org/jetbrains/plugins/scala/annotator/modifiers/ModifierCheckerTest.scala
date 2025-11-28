@@ -245,7 +245,7 @@ class ModifierCheckerTest_Scala_3 extends ModifierCheckerTest_Scala_2 {
   import Message._
 
   override protected def scalaVersion = ScalaVersion.Latest.Scala_3_7
-  override protected def scalaFeatures: SerializableScalaFeatures = super.scalaFeatures.copy(scalaVersion, hasPreviewFlag = true)
+  override protected def scalaCodeParsingFeatures: SerializableScalaFeatures = super.scalaCodeParsingFeatures.copy(scalaVersion, hasPreviewFlag = true)
 
   override protected def messages(@Language(value = "Scala 3") code: String) =
     super.messages(code)

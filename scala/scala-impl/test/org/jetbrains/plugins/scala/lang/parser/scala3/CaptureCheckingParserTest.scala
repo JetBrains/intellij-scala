@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.project.ScalaFeatures
 
 class CaptureCheckingParserTest extends SimpleScala3ParserTestBase {
-  override def scalaFeatures: ScalaFeatures.SerializableScalaFeatures =
+  override def scalaCodeParsingFeatures: ScalaFeatures.SerializableScalaFeatures =
     ScalaFeatures.custom(ScalaVersion.Latest.Scala_3_8, hasCaptureCheckingEnabled = true)
   //override protected def scalaVersion: ScalaVersion = ScalaVersion.Latest.Scala_3_8
 
