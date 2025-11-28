@@ -197,7 +197,8 @@ private class CommandTask(project: Project, command: String, projectTaskPromise:
     // TODO consider running module build tasks separately
     // may require collecting results individually and aggregating
     val id = UUID.randomUUID().toString
-    val commandFuture: Future[BuildMessages] = shell.command(command, id, BuildMessages.empty, resultAggregator)
+    val terminationMessage = "Sbt shell terminated before build command is finished"
+    val commandFuture: Future[BuildMessages] = shell.command(command, id, BuildMessages.empty, resultAggregator, Some(terminationMessage))
 
     // block thread to make indicator available :(
     val buildMessages = CancelableWaitUtil.waitForCancelable(

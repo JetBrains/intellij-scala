@@ -71,10 +71,11 @@ object SbtStructureDumper:
       )
 
       val isSbtVersionOutdated = SbtProcessManager.forProject(project).isSbtVersionOutdated
+      val terminationMessage = "Sbt shell terminated before sync command is finished"
       if isSbtVersionOutdated then
-        shell.commandAfterSoftRestart(sbtCommand, BuildMessages.empty, aggregator)
+        shell.commandAfterSoftRestart(sbtCommand, BuildMessages.empty, aggregator, terminationMessage)
       else
-        shell.command(sbtCommand, BuildMessages.empty, aggregator)
+        shell.command(sbtCommand, BuildMessages.empty, aggregator, Some(terminationMessage))
 
   end FromShell
 
