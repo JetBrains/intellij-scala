@@ -79,7 +79,7 @@ class AutoBraceCompletionTest extends ScalaCompletionTestBase {
        |object Test {
        |  if (true)
        |    4
-       |    else $CARET
+       |  else $CARET
        |}
        |""".stripMargin,
     '\t'

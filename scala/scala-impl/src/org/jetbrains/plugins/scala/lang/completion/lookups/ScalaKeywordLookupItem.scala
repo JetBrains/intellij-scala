@@ -78,9 +78,14 @@ object ScalaKeywordLookupItem {
           caretModel.moveToOffset(endOffset + 1)
         }
 
+        // similar to ScalaTypedHandler.charTyped for keywords and FormatKeywordAfterEnterHandler
         keyword match {
-          case CASE =>
+          case CASE | CATCH | ELSE | FINALLY =>
             adjustLineIndent(targetRange)
+          case _ =>
+        }
+
+        keyword match {
           case MATCH | CATCH =>
             val caretOffset = caretModel.getOffset
 
