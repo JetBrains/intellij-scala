@@ -5,8 +5,7 @@ import org.jetbrains.plugins.scala.project.ScalaFeatures
 
 class CaptureCheckingParserTest extends SimpleScala3ParserTestBase {
   override def scalaFeatures: ScalaFeatures.SerializableScalaFeatures =
-    ScalaFeatures.onlyByVersion(ScalaVersion.Latest.Scala_3_8)
-      .copy(ScalaVersion.Latest.Scala_3_8, hasCaptureCheckingEnabled = true)
+    ScalaFeatures.custom(ScalaVersion.Latest.Scala_3_8, hasCaptureCheckingEnabled = true)
   //override protected def scalaVersion: ScalaVersion = ScalaVersion.Latest.Scala_3_8
 
   def test_capture_type(): Unit = checkTree(

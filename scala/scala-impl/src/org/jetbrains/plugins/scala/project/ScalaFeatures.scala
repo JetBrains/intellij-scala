@@ -319,6 +319,35 @@ object ScalaFeatures {
       hasCaptureCheckingEnabled = false,
     )
 
+  def custom(
+    version:                        ScalaVersion,
+    isSource3:                      Boolean = false,
+    isSource3UnicodeEscapesRaw:     java.lang.Boolean = null,
+    hasNoIndentFlag:                Boolean = false,
+    hasOldSyntaxFlag:               Boolean = false,
+    hasDeprecationFlag:             Boolean = false,
+    hasSourceFutureFlag:            Boolean = false,
+    hasMetaEnabled:                 Boolean = false,
+    hasTrailingCommasEnabled:       java.lang.Boolean = null,
+    hasUnderscoreWildcardsDisabled: Boolean = false,
+    hasPreviewFlag:                 Boolean = false,
+    hasCaptureCheckingEnabled:      Boolean = false
+  ): SerializableScalaFeatures =
+    ScalaFeatures(
+      version,
+      isSource3 = isSource3,
+      isSource3UnicodeEscapesRaw = Option(isSource3UnicodeEscapesRaw).fold(version.isScala3)(identity),
+      hasNoIndentFlag = hasNoIndentFlag,
+      hasOldSyntaxFlag = hasOldSyntaxFlag,
+      hasDeprecationFlag = hasDeprecationFlag,
+      hasSourceFutureFlag = hasSourceFutureFlag,
+      hasMetaEnabled = hasMetaEnabled,
+      hasTrailingCommasEnabled = Option(hasTrailingCommasEnabled).fold(version >= ScalaVersion_2_12_2)(identity),
+      hasUnderscoreWildcardsDisabled = hasUnderscoreWildcardsDisabled,
+      hasPreviewFlag = hasPreviewFlag,
+      hasCaptureCheckingEnabled = hasCaptureCheckingEnabled,
+    )
+
   val CreatedWithScalaFeatures: Key[ScalaFeatures] =
     Key.create[ScalaFeatures]("created.with.scala.features")
 
