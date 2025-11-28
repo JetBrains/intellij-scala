@@ -1,11 +1,9 @@
 package org.jetbrains.plugins.scala.testingSupport.junit
 
 import com.intellij.execution.RunnerAndConfigurationSettings
-import com.intellij.execution.actions.{ConfigurationContext, RunConfigurationProducer}
+import com.intellij.execution.configurations.RunConfiguration
 import com.intellij.execution.junit.{JUnitConfiguration, TestMethod}
 import com.intellij.execution.testframework.AbstractTestProxy
-import org.jetbrains.plugins.scala.configurations.TestLocation.CaretLocation
-import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.testingSupport.ScalaTestingTestCase
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
@@ -13,18 +11,7 @@ abstract class ScalaJUnitTestingTestCaseBase extends ScalaTestingTestCase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
 
-  //not required cause we've overridden `createTestFromCaretLocation`
-  override protected def configurationProducer: RunConfigurationProducer[_] = ???
-
-  override protected def createTestFromCaretLocation(caretLocation: CaretLocation): RunnerAndConfigurationSettings =
-    inReadAction {
-      val psiElement = findPsiElement(caretLocation, getProject, srcPath)
-      val context: ConfigurationContext = new ConfigurationContext(psiElement)
-      // automatically detects the preferable configuration producer and creates configuration
-      // TODO: remove `configurationProducer` from base class and rewrite base `createTestFromCaretLocation` to this implementation
-      //  It will be more close to what intellij does: it search for the appropriate configuration producer from the context automatically
-      context.getConfiguration
-    }
+  override protected val expectedDefaultRunConfigurationClass: Class[_ <: RunConfiguration] = classOf[JUnitConfiguration]
 
   protected def assertIsJUnitClassConfiguration(
     settings: RunnerAndConfigurationSettings,
