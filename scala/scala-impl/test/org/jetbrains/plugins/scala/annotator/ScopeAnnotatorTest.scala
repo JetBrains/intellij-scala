@@ -2,9 +2,9 @@ package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.lang.annotation.HighlightSeverity
 import org.intellij.lang.annotations.Language
-import org.jetbrains.plugins.scala.annotator.Message2.Error
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.project.ScalaFeatures
 import org.jetbrains.plugins.scala.{ScalaVersion, TypecheckerTests}
 import org.junit.Assert
 import org.junit.Assert.assertEquals
@@ -67,7 +67,7 @@ class ScopeAnnotatorTest_213 extends ScopeAnnotatorTestBase {
   // ("Foo is already defined as class Foo, object Foo in object Holder")
   // TODO Suggest "rename" quick fix
 
-  override protected def scalaVersion: ScalaVersion = ScalaVersion.Latest.Scala_2_13
+  override def scalaCodeParsingFeatures: ScalaFeatures = ScalaFeatures.onlyByVersion(ScalaVersion.Latest.Scala_2_13)
 
   def testEmpty(): Unit = {
     assertFine("")
@@ -730,7 +730,7 @@ class ScopeAnnotatorTest_213 extends ScopeAnnotatorTestBase {
 
 class ScopeAnnotatorTest_3 extends ScopeAnnotatorTest_213 {
 
-  override protected def scalaVersion: ScalaVersion = ScalaVersion.Latest.Scala_3
+  override def scalaCodeParsingFeatures: ScalaFeatures = ScalaFeatures.defaultScala3
 
   override protected def assertFine(@Language("Scala 3") code: String): Unit = super.assertFine(code)
   override protected def assertClashes(/*/*@Language("Scala 3")*/*/ code: String, expectedClashes: String*): Unit = super.assertClashes(code, expectedClashes: _*)

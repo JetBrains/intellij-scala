@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility
+import org.jetbrains.plugins.scala.project.ScalaFeatures
 import org.jetbrains.plugins.scala.util.assertions.MatcherAssertionsExt
 
 abstract class ConstructorInvocationAnnotatorTestBase extends AnnotatorSimpleTestCase {
@@ -470,7 +471,7 @@ abstract class ConstructorInvocationAnnotatorTestBase extends AnnotatorSimpleTes
 }
 
 class ConstructorInvocationAnnotatorTest_2_12 extends ConstructorInvocationAnnotatorTestBase {
-  override protected def scalaVersion: ScalaVersion = ScalaVersion.Latest.Scala_2_12
+  override def scalaCodeParsingFeatures: ScalaFeatures = ScalaFeatures.onlyByVersion(ScalaVersion.Latest.Scala_2_12)
 
   override def testEmptyTrailingParametersClauses(): Unit = {
     assertMessagesText(EmptyTrailingParametersClausesCode,
@@ -489,7 +490,7 @@ class ConstructorInvocationAnnotatorTest_2_12 extends ConstructorInvocationAnnot
 }
 
 class ConstructorInvocationAnnotatorTest_2_13 extends ConstructorInvocationAnnotatorTestBase {
-  override protected def scalaVersion: ScalaVersion = ScalaVersion.Latest.Scala_2_13
+  override def scalaCodeParsingFeatures: ScalaFeatures = ScalaFeatures.onlyByVersion(ScalaVersion.Latest.Scala_2_13)
 
   override def testEmptyTrailingParametersClauses(): Unit = {
     assertNoErrors(EmptyTrailingParametersClausesCode)
@@ -497,7 +498,7 @@ class ConstructorInvocationAnnotatorTest_2_13 extends ConstructorInvocationAnnot
 }
 
 class ConstructorInvocationAnnotatorTest_3 extends ConstructorInvocationAnnotatorTestBase {
-  override protected def scalaVersion: ScalaVersion = ScalaVersion.Latest.Scala_2_13
+  override def scalaCodeParsingFeatures: ScalaFeatures = ScalaFeatures.onlyByVersion(ScalaVersion.Latest.Scala_3)
 
   override def testEmptyTrailingParametersClauses(): Unit = {
     assertNoErrors(EmptyTrailingParametersClausesCode)

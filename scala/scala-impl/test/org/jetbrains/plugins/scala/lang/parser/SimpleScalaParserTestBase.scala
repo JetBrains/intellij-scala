@@ -7,8 +7,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 abstract class SimpleScalaParserTestBase extends SimpleTestCase with ScalaParserTestOps {
 
   override def parseText(text: String): ScalaFile =
-    parseScalaFile(text.withNormalizedSeparator, scalaVersion)
+    parseScalaFile(text.withNormalizedSeparator)
 
   override protected def sharedProjectToken: SharedTestProjectToken =
-    SharedTestProjectToken(scalaVersion)
+    SharedTestProjectToken(scalaCodeParsingFeatures)
 }

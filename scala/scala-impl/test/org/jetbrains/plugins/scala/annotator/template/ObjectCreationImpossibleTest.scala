@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala.annotator.template
 
 import org.intellij.lang.annotations.Language
-import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.annotator.element.ScTemplateDefinitionAnnotator
 import org.jetbrains.plugins.scala.annotator.element.ScTemplateDefinitionAnnotator._
 import org.jetbrains.plugins.scala.annotator.{AnnotatorTestBase, Message, ScalaAnnotationHolder}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.project.ScalaFeatures
 
 class ObjectCreationImpossibleTest extends AnnotatorTestBase[ScTemplateDefinition] {
   import Message._
@@ -93,7 +93,7 @@ class ObjectCreationImpossibleTest extends AnnotatorTestBase[ScTemplateDefinitio
 class EnumCaseCreationImpossibleTest extends AnnotatorTestBase[ScTemplateDefinition] {
   import Message._
 
-  override protected def scalaVersion: ScalaVersion = ScalaVersion.Latest.Scala_3
+  override def scalaCodeParsingFeatures: ScalaFeatures = ScalaFeatures.defaultScala3
 
   override protected def messages(@Language(value = "Scala 3", prefix = Prefix, suffix = Suffix) code: String): Option[List[Message]] =
     super.messages(code)

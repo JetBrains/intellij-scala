@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.annotator.element.ScTemplateDefinitionAnnotat
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, ScalaSDKLoader}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.project.ScalaFeatures
 
 abstract class NeedsToBeAbstractTestBase extends AnnotatorTestBase[ScTemplateDefinition] {
 
@@ -149,7 +150,7 @@ class NeedsToBeAbstractTest_WithScalaSdk extends NeedsToBeAbstractTestBase with 
 class NeedsToBeAbstractTest_Scala3 extends NeedsToBeAbstractTestBase {
   import Message._
 
-  override protected def scalaVersion: ScalaVersion = ScalaVersion.Latest.Scala_3
+  override def scalaCodeParsingFeatures: ScalaFeatures = ScalaFeatures.defaultScala3
 
   override protected def messages(@Language(value = "Scala 3", prefix = Prefix, suffix = Suffix) code: String): Option[List[Message]] =
     super.messages(code)

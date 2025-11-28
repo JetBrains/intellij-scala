@@ -1,9 +1,10 @@
 package org.jetbrains.plugins.scala.lang.parser.scala3
 
 import org.jetbrains.plugins.scala.ScalaVersion
+import org.jetbrains.plugins.scala.project.ScalaFeatures
 
 class TupleParserTest extends SimpleScala3ParserTestBase {
-  override protected def scalaVersion: ScalaVersion = ScalaVersion.Latest.Scala_3_5
+  override def scalaCodeParsingFeatures: ScalaFeatures = ScalaFeatures.onlyByVersion(ScalaVersion.Latest.Scala_3_5)
 
   def test_tuple_type_parsing(): Unit = checkTree(
     """

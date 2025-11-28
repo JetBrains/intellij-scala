@@ -4,9 +4,10 @@ import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.annotator.Message.Error
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.project.ScalaFeatures
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaVersion}
 
-abstract class AbsentTypeArgumentAnnotatorTestBase extends AnnotatorSimpleTestCase {
+abstract class AbsentTypeArgumentAnnotatorTestBase(scalaCodeParsingVersion: ScalaVersion) extends AnnotatorSimpleTestCase {
   import Message._
 
   private final val Prefix =
@@ -19,13 +20,13 @@ abstract class AbsentTypeArgumentAnnotatorTestBase extends AnnotatorSimpleTestCa
 
   private final val Suffix = "\n}"
 
-  protected def scalaVersion: ScalaVersion
+  final override def scalaCodeParsingFeatures: ScalaFeatures = ScalaFeatures.onlyByVersion(scalaCodeParsingVersion)
 
   protected def messagesInContext(@Language(value = "Scala", prefix = Prefix, suffix  = Suffix) code: String): List[Message] =
     messages(s"$Prefix$code$Suffix")
 
   protected def messages(@Language(value = "Scala") code: String): List[Message] = {
-    val file: ScalaFile = parseScalaFile(code, scalaVersion)
+    val file: ScalaFile = parseScalaFile(code)
 
     val annotator = new ScalaAnnotator()
     implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
@@ -153,8 +154,7 @@ abstract class AbsentTypeArgumentAnnotatorTestBase extends AnnotatorSimpleTestCa
   }
 }
 
-final class AbsentTypeArgumentAnnotatorTest_Scala2 extends AbsentTypeArgumentAnnotatorTestBase {
-  override protected def scalaVersion: ScalaVersion = ScalaVersion.Latest.Scala_2
+final class AbsentTypeArgumentAnnotatorTest_Scala2 extends AbsentTypeArgumentAnnotatorTestBase(ScalaVersion.Latest.Scala_2) {
 
   def test_TraitConstructor(): Unit = {
     //trait
@@ -164,9 +164,7 @@ final class AbsentTypeArgumentAnnotatorTest_Scala2 extends AbsentTypeArgumentAnn
   }
 }
 
-final class AbsentTypeArgumentAnnotatorTest_Scala3 extends AbsentTypeArgumentAnnotatorTestBase {
-  override protected def scalaVersion: ScalaVersion = ScalaVersion.Latest.Scala_3
-
+final class AbsentTypeArgumentAnnotatorTest_Scala3 extends AbsentTypeArgumentAnnotatorTestBase(ScalaVersion.Latest.Scala_3) {
   def testParameterlessFunctionWithStableReturnType(): Unit =
     assertNothing(messages(
       """object Wrapper2 {

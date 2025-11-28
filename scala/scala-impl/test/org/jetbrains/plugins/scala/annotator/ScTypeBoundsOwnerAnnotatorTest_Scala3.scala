@@ -6,10 +6,10 @@ import org.jetbrains.plugins.scala.annotator.element.ScTypeBoundsOwnerAnnotator
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.project.ScalaFeatures
 
 class ScTypeBoundsOwnerAnnotatorTest_Scala3 extends AnnotatorSimpleTestCase {
-
-  override protected def scalaVersion: ScalaVersion = ScalaVersion.Latest.Scala_3_LTS
+  override def scalaCodeParsingFeatures: ScalaFeatures = ScalaFeatures.onlyByVersion(ScalaVersion.Latest.Scala_3_LTS)
 
   //SCL-21814
   def testMatchTypes1(): Unit = assertNothing(

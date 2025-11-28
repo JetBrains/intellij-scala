@@ -277,8 +277,9 @@ object ScalaFeatures {
     )
   }
 
-  val default: SerializableScalaFeatures = onlyByVersion(ScalaVersion.Latest.Scala_2_13)
+  val defaultScala2: SerializableScalaFeatures = onlyByVersion(ScalaVersion.Latest.Scala_2_13)
   val defaultScala3: SerializableScalaFeatures = onlyByVersion(ScalaVersion.Latest.Scala_3)
+  val default: SerializableScalaFeatures = defaultScala2
 
   def defaultForLanguage(scalaLanguage: Language): SerializableScalaFeatures =
     if (scalaLanguage == Scala3Language.INSTANCE)

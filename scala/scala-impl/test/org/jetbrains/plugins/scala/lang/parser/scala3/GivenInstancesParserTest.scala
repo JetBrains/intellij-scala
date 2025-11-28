@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.parser.scala3
 
 import org.jetbrains.plugins.scala.ScalaVersion
+import org.jetbrains.plugins.scala.project.ScalaFeatures
 
 abstract class GivenOldSyntaxParserTestBase extends SimpleScala3ParserTestBase {
   def test_indentation(): Unit = checkTree(
@@ -1424,7 +1425,7 @@ abstract class GivenOldSyntaxParserTestBase extends SimpleScala3ParserTestBase {
 }
 
 class GivenOldSyntaxParserTest_WithoutNewSyntax extends GivenOldSyntaxParserTestBase {
-  override protected def scalaVersion: ScalaVersion = ScalaVersion.Latest.Scala_3_5
+  override def scalaCodeParsingFeatures: ScalaFeatures = ScalaFeatures.onlyByVersion(ScalaVersion.Latest.Scala_3_5)
 
   def test_incomplete_given_alias_declaration_without_type_annotation(): Unit = checkTree(
     """given value:
@@ -1935,7 +1936,7 @@ class GivenOldSyntaxParserTest_WithoutNewSyntax extends GivenOldSyntaxParserTest
 }
 
 class GivenOldSyntaxParserTest_WithNewSyntax extends GivenOldSyntaxParserTestBase {
-  override protected def scalaVersion: ScalaVersion = ScalaVersion.Latest.Scala_3_6
+  override def scalaCodeParsingFeatures: ScalaFeatures = ScalaFeatures.onlyByVersion(ScalaVersion.Latest.Scala_3_6)
 
   def test_incomplete_given_structural_instance_without_constructor_invocation(): Unit = checkTree(
     """given value: with MyTrait with {}
