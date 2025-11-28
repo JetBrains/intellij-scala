@@ -13,7 +13,7 @@ class GenerateGivenNameTest extends GeneratedSimpleParameterizedTest(ScalaVersio
   override type TD = GenerateGivenNameTest.GivenNameTestData
 
   override def runActualTest(td: TD): Unit = {
-    val tree = td.testCode.parse(this.scalaVersion)
+    val tree = td.testCode.parse()
 
     tree.hasParseError shouldBe false
 

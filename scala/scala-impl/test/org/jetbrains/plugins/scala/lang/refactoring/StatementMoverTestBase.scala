@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.base.{ScalaCodeParsing, ScalaLightCodeInsightFixtureTestCase}
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.refactoring.mock.EditorMock
+import org.jetbrains.plugins.scala.project.ScalaFeatures
 import org.junit.Assert._
 
 abstract class StatementMoverTestBase extends ScalaLightCodeInsightFixtureTestCase with ScalaCodeParsing {
@@ -24,7 +25,7 @@ abstract class StatementMoverTestBase extends ScalaLightCodeInsightFixtureTestCa
   private def isMoveActionAvailableWithScalaMover(code: String, direction: Direction): Boolean = {
     val offset = code.indexOf(|)
     val cleanCode = code.replace(|, "")
-    val file = cleanCode.parse(version)(getProject)
+    val file = cleanCode.parse(ScalaFeatures.onlyByVersion(version))(getProject)
     val editor = new EditorMock(cleanCode, offset)
 
     val scalaMover = new ScalaStatementMover()

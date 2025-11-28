@@ -49,7 +49,7 @@ abstract class ScopeAnnotatorTestBase extends SimpleTestCase {
   }
 
   protected def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message2] = {
-    val file = (Header + code).parse(scalaVersion)
+    val file = (Header + code).parse()
     implicit val mock: AnnotatorHolderExtendedMock = new AnnotatorHolderExtendedMock(file)
     file.depthFirst().foreach {
       ScopeAnnotator.annotateScope(_)
