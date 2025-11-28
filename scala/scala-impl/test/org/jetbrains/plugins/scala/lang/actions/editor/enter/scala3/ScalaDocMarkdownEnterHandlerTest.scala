@@ -137,7 +137,7 @@ class ScalaDocMarkdownEnterHandlerTest extends DoEditorStateTestOps {
     )
 
   def testMaxNumberOrderedList(): Unit =
-    doEnterTestWithAndWithoutTextAfterCaret(
+    doEnterTest(
       s"""
          |/**
          | * > 2147483647. suspicious xD$CARET
@@ -146,7 +146,22 @@ class ScalaDocMarkdownEnterHandlerTest extends DoEditorStateTestOps {
       s"""
          |/**
          | * > 2147483647. suspicious xD
-         | * >             $CARET
+         | * > $CARET
+         | */
+         |""".stripMargin,
+    )
+
+  def testMaxNumberOrderedListWithAfterText(): Unit =
+    doEnterTest(
+      s"""
+         |/**
+         | * > 2147483647. suspicious xD${CARET}abc
+         | */
+         |""".stripMargin,
+      s"""
+         |/**
+         | * > 2147483647. suspicious xD
+         | * >             ${CARET}abc
          | */
          |""".stripMargin,
     )
