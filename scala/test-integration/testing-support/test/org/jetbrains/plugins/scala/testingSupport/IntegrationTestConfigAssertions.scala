@@ -1,9 +1,10 @@
 package org.jetbrains.plugins.scala.testingSupport
 
 import com.intellij.execution.RunnerAndConfigurationSettings
+import com.intellij.execution.junit.JUnitConfiguration
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.{AllInPackageTestData, ClassTestData, SingleTestData}
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, SearchForTest}
-import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions.assertIsA
+import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions.ObjectOps
 import org.junit.Assert._
 import org.junit.ComparisonFailure
 
@@ -32,9 +33,15 @@ trait IntegrationTestConfigAssertions {
     packageName: String,
   ): Unit = {
     val config = configAndSettings.getConfiguration
-    val testConfig = config.asInstanceOf[AbstractTestRunConfiguration]
-    val packageData = assertIsA[AllInPackageTestData](testConfig.testConfigurationData)
-    assertEquals("package name are not equal", packageName, packageData.testPackagePath)
+
+    val actualConfigPackage = config match {
+      case c: JUnitConfiguration =>
+        c.getPersistentData.getPackageName
+      case c: AbstractTestRunConfiguration =>
+        c.testConfigurationData.assertInstanceOf[AllInPackageTestData].testPackagePath
+    }
+
+    assertEquals("package name are not equal", packageName, actualConfigPackage)
   }
 
   private def assertGeneratedConfigName(
