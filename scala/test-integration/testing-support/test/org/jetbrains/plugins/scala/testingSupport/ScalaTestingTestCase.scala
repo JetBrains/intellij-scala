@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.testingSupport
 
-import com.intellij.execution.actions.{ConfigurationContext, ConfigurationFromContext, RunConfigurationProducer}
-import com.intellij.execution.configurations.{ConfigurationType, JavaCommandLineState, RunnerSettings}
+import com.intellij.execution.actions.{ConfigurationContext, ConfigurationFromContext}
+import com.intellij.execution.configurations.{ConfigurationType, JavaCommandLineState, RunConfiguration, RunnerSettings}
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.impl.DefaultJavaProgramRunner
 import com.intellij.execution.process.{ProcessHandler, ProcessListener}
@@ -22,13 +22,14 @@ import com.intellij.util.concurrency.Semaphore
 import org.jetbrains.plugins.scala.TestingSupportTests
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.compiler.ScalaExecutionTestCase
-import org.jetbrains.plugins.scala.configurations.TestLocation.CaretLocation
+import org.jetbrains.plugins.scala.configurations.RunConfigCreationLocation.CaretLocation
 import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestRunConfiguration
 import org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2RunConfiguration
 import org.jetbrains.plugins.scala.testingSupport.test.utest.UTestRunConfiguration
 import org.jetbrains.plugins.scala.util.assertions.failWithCause
+import org.junit.Assert
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
 
@@ -47,7 +48,7 @@ abstract class ScalaTestingTestCase
     with ScalaSdkOwner
     with TestOutputMarkers {
 
-  protected def configurationProducer: RunConfigurationProducer[_]
+  protected def expectedDefaultRunConfigurationClass: Class[_ <: RunConfiguration]
 
   override def runInDispatchThread(): Boolean = false
 
@@ -105,10 +106,12 @@ abstract class ScalaTestingTestCase
       case Seq() =>
         fail(s"No configuration created from context: $context").asInstanceOf[Nothing]
       case Seq(config) =>
-        if (config.isProducedBy(configurationProducer.getClass))
-          config
-        else
-          fail(s"Configuration created from context $context was created from an unexpected producer. Configuration: $config").asInstanceOf[Nothing]
+        Assert.assertEquals(
+          s"Configuration created from context $context has unexpected class",
+          expectedDefaultRunConfigurationClass,
+          config.getConfiguration.getClass,
+        )
+        config
       case multipleConfigs =>
         fail(
           s"""Multiple configurations created from context: $context. Configurations:
@@ -125,7 +128,7 @@ abstract class ScalaTestingTestCase
 
       val context: ConfigurationContext = new ConfigurationContext(psiElement)
       val configurationsFromContext = Option(context.getConfigurationsFromContext).toSeq.flatMap(_.asScala)
-      val relevantConfigs = configurationsFromContext.filter(_.isProducedBy(configurationProducer.getClass))
+      val relevantConfigs = configurationsFromContext.filter(c => expectedDefaultRunConfigurationClass.isInstance(c.getConfiguration))
 
       if (relevantConfigs.nonEmpty) {
         fail(
@@ -294,19 +297,4 @@ abstract class ScalaTestingTestCase
 
     (processHandler.get, contentDescriptor.get)
   }
-}
-
-object ScalaTestingTestCase {
-  def getScalaTestTemplateConfig(project: Project): ScalaTestRunConfiguration =
-    ConfigurationType.CONFIGURATION_TYPE_EP.getExtensions.find(_.getId == "ScalaTestRunConfiguration").
-      map(_.getConfigurationFactories.head.createTemplateConfiguration(project)).get.asInstanceOf[ScalaTestRunConfiguration]
-
-  def getSpecs2TemplateConfig(project: Project): Specs2RunConfiguration =
-    ConfigurationType.CONFIGURATION_TYPE_EP.getExtensions.find(_.getId == "Specs2RunConfiguration").
-      map(_.getConfigurationFactories.head.createTemplateConfiguration(project)).get.asInstanceOf[Specs2RunConfiguration]
-
-  def getUTestTemplateConfig(project: Project): UTestRunConfiguration =
-    ConfigurationType.CONFIGURATION_TYPE_EP.getExtensions.find(_.getId == "uTestRunConfiguration").
-      map(_.getConfigurationFactories.head.createTemplateConfiguration(project)).get.asInstanceOf[UTestRunConfiguration]
-
 }
