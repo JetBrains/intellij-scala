@@ -26,9 +26,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScalaDocSyntaxElementType
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.IndentUtil
 import org.jetbrains.plugins.scala.util.MultilineStringUtil.{MultilineQuotesLength => QuotesLength}
+
+import scala.util.matching.Regex
 
 class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
   private val MarkdownDeletionChars: Set[Char] = Set('*', '_', '`')
@@ -379,7 +382,7 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
       return false
     }
 
-    if (handleScalaDocLineDeletion(deletedChar, document, offset, editor)) {
+    if (handleScalaDocLineDeletion(deletedChar, document, offset, file, editor)) {
       return true
     }
 
@@ -394,14 +397,29 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
     false
   }
 
-  private val scalaDocLineDeletionPrefixRegex = raw"\s*(\*?)".r
-  private val scalaDocDeIndentPrefixRegex = raw"\s*\*\s(\s+)".r
-  private def handleScalaDocLineDeletion(c: Char, document: Document, offset: Int, editor: Editor): Boolean = {
+  private case class ScalaDocLineRegex(
+    forLineDeletion: Regex,
+    forDeIndent: Regex,
+  )
+
+  private val lineRegexForStartsOnFirstLine = Map(
+    false -> ScalaDocLineRegex(
+      forLineDeletion = raw"\s*(\*?)".r,
+      forDeIndent = raw"\s*\*\s(\s+)".r
+    ),
+    true -> ScalaDocLineRegex(
+      forLineDeletion = raw"\s*(\*?)\s?".r,
+      forDeIndent = raw"\s*\*\s\s(\s+)".r
+    ),
+  )
+  private def handleScalaDocLineDeletion(c: Char, document: Document, offset: Int, file: PsiFile, editor: Editor): Boolean = {
     if (c != ' ' && c != '\t' && c != '*') {
       return false
     }
 
-    if (!editor.inDocComment(offset)) {
+    val elementAtCaret = file.findElementAt(offset)
+    val docComment = PsiTreeUtil.getParentOfType(elementAtCaret, classOf[ScDocComment])
+    if (docComment == null) {
       return false
     }
 
@@ -416,18 +434,23 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
       TextRange.create(lineStart, offset)
     )
 
+    val startsOnFirstLine = docComment.startsOnFirstLine
+    val lineRegex = lineRegexForStartsOnFirstLine(startsOnFirstLine)
+
     beforeCaret match {
-      case scalaDocLineDeletionPrefixRegex(asterisk) if asterisk.isEmpty || (c != '*') =>
+      case lineRegex.forLineDeletion(asterisk) if asterisk.isEmpty || (c != '*') =>
         // after having already deleted a character we are here:
         //  *<caret>
         // or on an empty line after deleting the asterisk...
+        // (or after one space more if your doc-comment started directly after /**)
         // ... in any case, just delete everything before the caret
         document.deleteString(lineStart - 1, offset)
         false
-      case scalaDocDeIndentPrefixRegex(indentWs) =>
+      case lineRegex.forDeIndent(indentWs) =>
         // only delete to the beginning of the line after the asterisk
         //  *    <caret>
         //    ^ delete to here
+        // (or one space more if your doc-comment started directly after /**)
         document.deleteString(offset - indentWs.length, offset)
         false
       case _ =>
