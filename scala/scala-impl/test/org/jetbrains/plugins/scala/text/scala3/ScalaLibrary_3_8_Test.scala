@@ -33,6 +33,7 @@ class ScalaLibrary_3_8_Test extends TextToTextTestBase(
   withSources = true,
   Set(
     "scala.Array", // from: Array[A] | Unit
+    "scala.AnyVal", // getClass()
     "scala.Boolean", // private (), override def getClass()
     "scala.Byte", // private (), override def getClass(), MinValue/MaxValue
     "scala.Char", // private (), override def getClass(), MinValue/MaxValue
@@ -69,7 +70,6 @@ class ScalaLibrary_3_8_Test extends TextToTextTestBase(
     "scala.quoted.runtime.QuoteMatching", // ? <: _root_.scala.AnyKind | ?
     "scala.quoted.runtime.QuoteUnpickler", // ? <: _root_.scala.AnyKind | ?
     "scala.reflect.ClassManifestDeprecatedApis", // scala.Predef.String | java.lang.String
-    "scala.runtime.ArrayCharSequence", // java.lang.String | scala.Predef.String
     "scala.sys.process.ProcessBuilderImpl", // ProcessBuilderImpl.this.IStreamBuilder | _root_.scala.sys.process.ProcessBuilder.IStreamBuilder
     "scala.sys.process.processInternal", // : Boolean | = props contains "scala.process.debug"
     "scala.util.PropertiesTrait", // java.lang.String | scala.Predef.String
