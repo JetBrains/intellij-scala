@@ -140,15 +140,14 @@ object SbtExternalSystemManager {
   private def getVmExecutable(projectJdkName: Option[String], settings: SbtSettings.State, sbtVersion: SbtVersion): Path = {
     val jdkTable = ProjectJdkTable.getInstance()
 
-    val customPath = settings.customVMPath
     val customVmExecutable =
-      if (customPath != null && JdkUtil.checkForJre(customPath)) {
-        Log.debug(s"Using Java from custom VM path: $customPath")
-
-        @NonNls val javaExe = if (SystemInfo.isWindows) "java.exe" else "java"
-        Some(Path.of(customPath) / "bin" / javaExe)
-      }
-      else None
+      Option(settings.customVMPath)
+        .map(Path.of(_))
+        .filter(JdkUtil.checkForJre)
+        .map: customPath =>
+          Log.debug(s"Using Java from custom VM path: $customPath")
+          @NonNls val javaExe = if SystemInfo.isWindows then "java.exe" else "java"
+          customPath / "bin" / javaExe
 
     val realExe = customVmExecutable
       .orElse {
