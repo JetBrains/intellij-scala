@@ -255,7 +255,7 @@ class ScGenericCallAnnotatorTest extends SimpleTestCase {
         |
         |""".stripMargin
 
-    val file: ScalaFile = (header + code).parse
+    val file: ScalaFile = (header + code).parse()
 
     implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
 

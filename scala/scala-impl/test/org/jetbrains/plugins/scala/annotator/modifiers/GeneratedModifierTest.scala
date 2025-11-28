@@ -25,7 +25,7 @@ class GeneratedModifierTest extends SimpleTestCase {
       path.readAllBytesToString(StandardCharsets.UTF_8)
     }
 
-    val file = text.parse
+    val file = text.parse()
     val allStmts = file.children.collect { case t: ScTypeDefinition => t }.toSeq
     assert(allStmts.size > 4000)
 

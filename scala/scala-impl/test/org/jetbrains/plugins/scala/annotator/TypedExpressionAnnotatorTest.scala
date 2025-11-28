@@ -41,7 +41,7 @@ class TypedExpressionAnnotatorTest extends SimpleTestCase {
 
 
   def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
-    val file = (Header + code).parse
+    val file = (Header + code).parse()
     val expression = file.depthFirst().findByType[ScTypedExpression].get
 
     implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)

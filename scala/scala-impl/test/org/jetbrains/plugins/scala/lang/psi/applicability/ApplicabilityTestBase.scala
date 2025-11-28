@@ -102,7 +102,7 @@ abstract class ApplicabilityTestBase extends SimpleTestCase {
   private def assertProblemsAre(preface: String, code: String)
                     (pattern: PartialFunction[List[ApplicabilityProblem], Unit]): Unit = {
     val line = if(preface.isEmpty) code else preface + "; " + code
-    val file = (Header + "\n" + line).parse
+    val file = (Header + "\n" + line).parse()
     Compatibility.seqClass = file.depthFirst().findByType[ScClass]
     try {
       val message = "\n\n             code: " + line +

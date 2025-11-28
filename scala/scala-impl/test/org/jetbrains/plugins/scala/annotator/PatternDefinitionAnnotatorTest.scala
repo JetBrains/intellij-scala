@@ -61,7 +61,7 @@ class PatternDefinitionAnnotatorTest extends SimpleTestCase {
   }
 
   def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
-    val file = (Header + code).parse
+    val file = (Header + code).parse()
     val annotator = new ScalaAnnotator() //new PatternDefinitionAnnotator() {}
     implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
 

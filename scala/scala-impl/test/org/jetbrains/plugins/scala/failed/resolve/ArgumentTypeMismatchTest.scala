@@ -45,7 +45,7 @@ class ArgumentTypeMismatchTest extends SimpleTestCase {
   )
 
   def messages(@Language(value = "Scala") code: String) = {
-    val file = code.parse
+    val file = code.parse()
     implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
 
     file.depthFirst().filterByType[ScalaPsiElement].foreach {

@@ -30,7 +30,7 @@ class OverrideSetterTest extends SimpleTestCase {
   }
 
   def messages(@Language(value = "Scala") code: String): List[Message] = {
-    val file = code.parse
+    val file = code.parse()
     val assignment = file.depthFirst().find(_.isInstanceOf[ScAssignment]).get.asInstanceOf[ScAssignment]
 
     implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)

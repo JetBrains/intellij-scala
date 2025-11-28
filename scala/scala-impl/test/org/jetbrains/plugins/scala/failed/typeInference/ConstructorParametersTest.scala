@@ -31,7 +31,7 @@ class ConstructorParametersTest extends SimpleTestCase {
 
 
   def messages(@Language(value = "Scala") code: String): List[Message] = {
-    val file: ScalaFile = code.parse
+    val file: ScalaFile = code.parse()
     implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
 
     val seq = file.depthFirst().findByType[ScClass]

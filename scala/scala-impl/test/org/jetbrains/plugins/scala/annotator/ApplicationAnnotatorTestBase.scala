@@ -30,7 +30,7 @@ object B extends B
   }
 
   def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
-    val file = (Header + code).parse(ctx)
+    val file = (Header + code).parse()(ctx)
 
     implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
 

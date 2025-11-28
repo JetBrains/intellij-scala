@@ -58,7 +58,7 @@ trait ScalaCodeParsing {
       text.replaceAll("""(?s)/\*.*?\*/""", "")
         .replaceAll("""(?m)//.*$""", "")
 
-    def parse(implicit project: ProjectContext): ScalaFile =
+    def parse()(implicit project: ProjectContext): ScalaFile =
       parseScalaFile(text)
 
     def parse(scalaVersion: ScalaVersion)(implicit project: ProjectContext): ScalaFile =
@@ -68,7 +68,7 @@ trait ScalaCodeParsing {
       parseScalaFile(text, enableEventSystem = true)
 
     def parse[T <: PsiElement : ClassTag](implicit project: ProjectContext): T =
-      parse(project).depthFirst().findByType[T].getOrElse {
+      parse()(project).depthFirst().findByType[T].getOrElse {
         throw new RuntimeException("Unable to find PSI element with type " +
           implicitly[ClassTag[T]].runtimeClass.getSimpleName)
       }
