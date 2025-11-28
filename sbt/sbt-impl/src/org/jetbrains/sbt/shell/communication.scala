@@ -84,11 +84,17 @@ final class SbtShellCommunication(project: Project) {
     command(cmd, new StringBuilder(), messageAggregator).map(_.toString())
 
   /** Queue an sbt command for execution in the sbt shell. */
-  def command[A](@NonNls cmd: String, default: A, eventHandler: EventAggregator[A]): Future[A] =
-    command(cmd, id = UUID.randomUUID().toString, default, eventHandler)
+  def command[A](@NonNls cmd: String, default: A, eventHandler: EventAggregator[A], terminationMessage: Option[String] = None): Future[A] =
+    command(cmd, id = UUID.randomUUID().toString, default, eventHandler, terminationMessage)
 
-  def command[A](@NonNls cmd: String, id: String, default: A, eventHandler: EventAggregator[A]): Future[A] = {
-    val listener = new CommandListener(default, eventHandler, project)
+  def command[A](
+    @NonNls cmd: String,
+    id: String,
+    default: A,
+    eventHandler: EventAggregator[A],
+    terminationMessage: Option[String]
+  ): Future[A] = {
+    val listener = new CommandListener(default, eventHandler, terminationMessage)
 
     // Prefix the command with a leading space.
     // In the "new" sbt shell (based on jline3 since sbt 1.4), lines that start with a space are excluded
@@ -130,6 +136,15 @@ final class SbtShellCommunication(project: Project) {
    */
   private def moveAccumulatedCommandsToStandardQueue(): Int =
     afterRestartCommands.drainTo(commands)
+
+  /**
+   * Sends "i" (ignore) to the sbt shell.
+   * Used to handle the interactive error prompt: "Project loading failed: (r)etry, (q)uit, (l)ast, or (i)gnore".
+   *
+   * @see [[org.jetbrains.sbt.shell.SbtProcessUtil.promptError]]
+   */
+  private def sendIgnore(): Unit =
+    send("i")
 
   /**
     * Send string directly to the shell without regarding the shell state.
@@ -265,9 +280,9 @@ final class SbtShellCommunication(project: Project) {
    * @return `Future[String]` containing the entire shell output
    */
   @RequiresBackgroundThread
-  def commandAfterSoftRestart[A](cmd: String, default: A, eventHandler: EventAggregator[A]): Future[A] = {
+  def commandAfterSoftRestart[A](cmd: String, default: A, eventHandler: EventAggregator[A], terminationMessage: String): Future[A] = {
     if (isEmptyingQueueRunning)
-      return command(cmd, default, eventHandler)
+      return command(cmd, default, eventHandler, Some(terminationMessage))
 
     val emptyingQueue = new CompletableFuture[Unit]()
 
@@ -279,7 +294,7 @@ final class SbtShellCommunication(project: Project) {
     emptyingQueueFuture.set(emptyingQueue)
 
     // The command is put on the `afterRestartCommands` queue
-    val commandResultFuture = command(cmd, default, eventHandler)
+    val commandResultFuture = command(cmd, default, eventHandler, Some(terminationMessage))
     try {
       waitForAllCommandsInQueueToFinish()
 
@@ -337,6 +352,8 @@ final class SbtShellCommunication(project: Project) {
       )
       emitShellStateEvent(shellEventBasedOnCommandsQueue())
       handler.addProcessListener(releaseCommandQueueListener)
+
+      handler.addProcessListener(new InitialErrorDetectorListener())
       startQueueProcessing(handler)
     }
   }
@@ -400,15 +417,11 @@ final class SbtShellCommunication(project: Project) {
         .status(BuildMessages.Canceled)
 
     case ErrorWaitForInput =>
-      // TODO right now it's not working anyway when reloading (see SCL-24349).
-      //  For building in the sbt shell it shouldn't occur.
       val msg = SbtBundle.message("sbt.import.errors.project.reload.aborted")
       val ex = new ExternalSystemException(msg)
 
       val result = new FailureResultImpl(msg, ex)
       reporter.finishTask(dumpTaskId, msg, result)
-
-      send("i" + System.lineSeparator)
 
       messages.addError(msg)
 
@@ -442,7 +455,24 @@ final class SbtShellCommunication(project: Project) {
       newMessages
   }
 
-  private class CommandListener[A](default: A, aggregator: EventAggregator[A], project: Project)
+  /**
+   * Listener that sends "i" (ignore) to the sbt shell when an interactive error prompt appears during startup.
+   * This is considered "initial" because it only works until the shell becomes ready.
+   * Handling of interactive error prompts during specific commands is managed by [[org.jetbrains.sbt.shell.CommandListener.onLine]].
+   *
+   * @see [[org.jetbrains.sbt.shell.SbtProcessUtil.promptError]]
+   */
+  private class InitialErrorDetectorListener extends LineListener with ProjectShellModeProvider(project) {
+    private var isReadyState: Boolean = false
+
+    override def onLine(line: String): Unit =
+      if (promptReady(line, isNewShell))
+        isReadyState = true
+      else if (!isReadyState && promptError(line))
+        sendIgnore()
+  }
+
+  private class CommandListener[A](default: A, aggregator: EventAggregator[A], terminationMessage: Option[String] = None)
     extends LineListener with ProjectShellModeProvider(project) {
 
     private val promise = Promise[A]()
@@ -463,7 +493,8 @@ final class SbtShellCommunication(project: Project) {
 
     def processTerminated(): Unit = {
       aggregate(ProcessTerminated)
-      promise.complete(Failure(new RuntimeException("Sbt shell terminated before command is finished")))
+      val message = terminationMessage.getOrElse("Sbt shell terminated before command is finished")
+      promise.complete(Failure(new RuntimeException(message)))
     }
 
     override def onLine(text: String): Unit =
@@ -471,10 +502,13 @@ final class SbtShellCommunication(project: Project) {
         aggregate(TaskComplete)
         promise.complete(Success(a))
       }
-      else if (promptError(text))
+      else if (promptError(text)) {
+        // When sbt displays an interactive error prompt, automatically send "i" (ignore) to continue
+        sendIgnore()
         aggregate(ErrorWaitForInput)
-      else
+      } else {
         aggregate(Output(text))
+      }
   }
 }
 
@@ -662,7 +696,7 @@ private[shell] object SbtProcessUtil {
     }
 
   def promptError(line: String): Boolean =
-    line.trim.endsWith("(r)etry, (q)uit, (l)ast, or (i)gnore?")
+    line.trim.contains("Project loading failed: (r)etry, (q)uit, (l)ast, or (i)gnore?")
 
   // sucky workaround for jdwp printing this line on the console when deactivating debugger
   def debuggerMessage(line: String): Boolean =
