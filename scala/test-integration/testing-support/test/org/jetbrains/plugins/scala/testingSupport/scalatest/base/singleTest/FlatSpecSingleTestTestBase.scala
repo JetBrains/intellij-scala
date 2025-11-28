@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.testingSupport.scalatest.base.singleTest
 
-import org.jetbrains.plugins.scala.configurations.TestLocation.CaretLocation
+import org.jetbrains.plugins.scala.configurations.RunConfigCreationLocation.CaretLocation
 import org.jetbrains.plugins.scala.testingSupport.scalatest.base.ScalaTestTestCase
 
 trait FlatSpecSingleTestTestBase extends ScalaTestTestCase {
