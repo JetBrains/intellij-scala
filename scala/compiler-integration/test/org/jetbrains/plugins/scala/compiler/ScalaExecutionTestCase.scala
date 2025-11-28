@@ -5,6 +5,7 @@ import com.intellij.execution.ExecutionTestCase
 import com.intellij.execution.configurations.JavaParameters
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.projectRoots.Sdk
+import com.intellij.openapi.util.io.NioFiles
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.EdtTestUtil
@@ -37,6 +38,8 @@ trait ScalaExecutionTestCase extends ExecutionTestCase with ScalaSdkOwner {
 
   private def versionSpecific: Path = Path.of(s"scala-${version.minor}")
 
+  // example:
+  // ./community/scala/scala-impl/testdata/testingSupport/ScalaTestWithJunitRunnerTest/scala-2.13.17
   private def testAppPath: Path = testDataPath.resolve(getClass.getSimpleName).resolve(versionSpecific)
 
   private def appOutputPath: Path = Path.of(s"${testAppPath}_out")
@@ -88,6 +91,12 @@ trait ScalaExecutionTestCase extends ExecutionTestCase with ScalaSdkOwner {
   }
 
   override protected def setUp(): Unit = {
+    // Make sure that the src and output dirs are clean before run, to avoid and collisions between previous test data state
+    // Note, we could do that in the end of the test in "tearDown",
+    // but it might just be helpful to leave them in place to inspect the created sources after local test execution
+    NioFiles.deleteRecursively(srcPath)
+    NioFiles.deleteRecursively(appOutputPath)
+
     Files.createDirectories(srcPath)
     Files.createDirectories(classFilesOutputPath)
     Files.createDirectories(checksumsPath)
