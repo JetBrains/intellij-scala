@@ -25,7 +25,7 @@ abstract class StatementMoverTestBase extends ScalaLightCodeInsightFixtureTestCa
   private def isMoveActionAvailableWithScalaMover(code: String, direction: Direction): Boolean = {
     val offset = code.indexOf(|)
     val cleanCode = code.replace(|, "")
-    val file = cleanCode.parse(ScalaFeatures.onlyByVersion(version))(getProject)
+    val file = cleanCode.parse()(getProject)
     val editor = new EditorMock(cleanCode, offset)
 
     val scalaMover = new ScalaStatementMover()
