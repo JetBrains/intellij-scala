@@ -10,8 +10,7 @@ import org.junit.Test
 @RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Latest))
 class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
 
-  /// INFIX
-
+  //region INFIX
   @Test
   def testInfixTopLevel(): Unit = doCompletionTest(
     fileText = s"in$CARET",
@@ -66,9 +65,9 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     resultText = s"infix type $CARET",
     item = "type"
   )
+  //endregion
 
-  /// INLINE
-
+  //region INLINE
   @Test
   def testInlineTopLevel(): Unit = doCompletionTest(
     fileText = s"in$CARET",
@@ -149,9 +148,9 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     fileText = s"def foo() = $CARET",
     item = "inline"
   )
+  //endregion
 
-  /// OPAQUE
-
+  //region OPAQUE
   @Test
   def testOpaqueTopLevel(): Unit = doCompletionTest(
     fileText = s"op$CARET",
@@ -199,9 +198,9 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     resultText = s"opaque type $CARET",
     item = "type"
   )
+  //endregion
 
-  /// OPEN
-
+  //region OPEN
   @Test
   def testOpenTopLevel(): Unit = doCompletionTest(
     fileText = s"op$CARET",
@@ -277,9 +276,9 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     resultText = s"open case class $CARET",
     item = "class"
   )
+  //endregion
 
-  /// TRANSPARENT
-
+  //region TRANSPARENT
   @Test
   def testTransparentTopLevel(): Unit = doCompletionTest(
     fileText = s"tr$CARET",
@@ -334,9 +333,9 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     resultText = s"transparent trait $CARET",
     item = "trait"
   )
+  //endregion
 
-  /// ENUM
-
+  //region ENUM
   @Test
   def testEnumTopLevel(): Unit = doCompletionTest(
     fileText = s"en$CARET",
@@ -372,9 +371,9 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
         item = "enum"
       )
     }
+  //endregion
 
-  /// EXTENSION
-
+  //region EXTENSION
   @Test
   def testExtensionTopLevel(): Unit = doCompletionTest(
     fileText = s"ex$CARET",
@@ -474,9 +473,9 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
          |  def $CARET""".stripMargin,
     item = "def"
   )
+  //endregion
 
-  /// DERIVES
-
+  //region DERIVES
   @Test
   def testDerivesClass(): Unit = doCompletionTest(
     fileText = s"class Test d$CARET",
@@ -577,9 +576,9 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     fileText = s"object Obj d$CARET derives",
     item = "derives"
   )
+  //endregion
 
-  /// if - THEN
-
+  //region if - THEN
   @Test
   def testThen(): Unit = doCompletionTest(
     fileText = s"if 1 == 2 t$CARET",
@@ -679,9 +678,9 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
          |""".stripMargin,
     item = "then"
   )
+  //endregion
 
-  /// if - then - ELSE
-
+  //region if - then - ELSE
   @Test
   def testElse(): Unit = doCompletionTest(
     fileText = s"if 1 == 2 then 7 e$CARET",
@@ -734,9 +733,9 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
          |""".stripMargin,
     item = "else"
   )
+  //endregion
 
-  /// while - DO
-
+  //region while - DO
   @Test
   def testDoInWhileLoop(): Unit = doCompletionTest(
     fileText = s"while 1 == 2 d$CARET",
@@ -815,9 +814,9 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
          |""".stripMargin,
     item = "do"
   )
+  //endregion
 
-  /// for - DO
-
+  //region for - DO
   @Test
   def testDoInForLoop(): Unit = doCompletionTest(
     fileText = s"for x <- 1 to 3 d$CARET",
@@ -908,9 +907,9 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
          |""".stripMargin,
     item = "do"
   )
+  //endregion
 
-  /// for - YIELD
-
+  //region for - YIELD
   @Test
   def testYieldInForLoop(): Unit = doCompletionTest(
     fileText = s"for x <- 1 to 3 y$CARET",
@@ -1001,9 +1000,9 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
          |""".stripMargin,
     item = "yield"
   )
+  //endregion
 
-  /// CASE toplevel
-
+  //region CASE toplevel
   @Test
   def testCaseTopLevel(): Unit = doCompletionTest(
     fileText =
@@ -1029,9 +1028,9 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
          |""".stripMargin,
     item = "case"
   )
+  //endregion
 
-  /// CASE in "quiet" try-catch
-
+  //region CASE in "quiet" try-catch
   private val throwingFunctionDefinition =
     s"""import java.io.*
        |
@@ -1140,9 +1139,9 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
          |""".stripMargin,
     item = "case"
   )
+  //endregion
 
-  /// USING
-
+  //region USING
   @Test
   def testNoCompletionUsingTopLevel(): Unit = checkNoBasicCompletion(
     fileText = s"u$CARET",
@@ -1233,9 +1232,9 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     resultText = s"given [T](using $CARET)",
     item = "using"
   )
+  //endregion
 
-  /// GIVEN
-
+  //region GIVEN
   @Test
   def testGivenTopLevel(): Unit = doCompletionTest(
     fileText = s"g$CARET",
@@ -1275,9 +1274,9 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     fileText = s"given pr$CARET",
     item = "private"
   )
+  //endregion
 
-  /// pattern-bound GIVEN
-
+  //region pattern-bound GIVEN
   @Test
   def testPatternBoundGivenInForOneLine(): Unit = doCompletionTest(
     fileText = s"for g$CARET",
@@ -1713,9 +1712,9 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
          |}""".stripMargin,
     item = "given"
   )
+  //endregion
 
-  /// GIVEN in import
-
+  //region GIVEN in import
   @Test
   def testGivenInSimpleImport(): Unit = doCompletionTest(
     fileText =
@@ -1890,9 +1889,9 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
          |""".stripMargin,
     item = "given"
   )
+  //endregion
 
-  /// given - WITH
-
+  //region given - WITH
   @Test
   def testWithOnGiven(): Unit = doCompletionTest(
     fileText =
@@ -1943,9 +1942,9 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
          |""".stripMargin,
     item = "with"
   )
+  //endregion
 
-  /// EXPORT
-
+  //region EXPORT
   @Test
   def testExportTopLevel(): Unit = doCompletionTest(
     fileText = s"ex$CARET",
@@ -1965,9 +1964,9 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
          |""".stripMargin,
     item = "export"
   )
+  //endregion
 
-  /// EXTENDS in enum cases
-
+  //region EXTENDS in enum cases
   @Test
   def testExtendsAfterEnumCase(): Unit = doCompletionTest(
     fileText =
@@ -2005,9 +2004,9 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
          |""".stripMargin,
     item = "extends"
   )
+  //endregion
 
-  /// members after annotation
-
+  //region members after annotation
   @Test
   def testDefAfterAnnotation(): Unit = doCompletionTest(
     fileText = s"""class Test { @deprecated $CARET}""".stripMargin,
@@ -2028,9 +2027,9 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     resultText = s"""class Test { @deprecated class $CARET}""".stripMargin,
     item = "class"
   )
+  //endregion
 
-  /// toplevel members
-
+  //region toplevel members
   @Test
   def testToplevelDef(): Unit = doCompletionTest(
     fileText = s"""$CARET""".stripMargin,
@@ -2051,9 +2050,9 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
     resultText = s"""class $CARET""".stripMargin,
     item = "class"
   )
+  //endregion
 
-  /// toplevel members after annotation
-
+  //region toplevel members after annotation
   @Test
   def testToplevelDefAfterAnnotation(): Unit = doCompletionTest(
     fileText = s"""@deprecated $CARET""".stripMargin,
@@ -2094,9 +2093,9 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
          |@deprecated def $CARET""".stripMargin,
     item = "def"
   )
+  //endregion
 
-  /// package
-
+  //region package
   @Test
   def testPackage(): Unit = doCompletionTest(
     fileText =
@@ -2139,5 +2138,6 @@ class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
          |""".stripMargin,
     item = "package"
   )
+  //endregion
 
 }
