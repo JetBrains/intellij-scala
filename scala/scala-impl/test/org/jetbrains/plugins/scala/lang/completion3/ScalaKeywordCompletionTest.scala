@@ -179,8 +179,7 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
     char = '('
   )
 
-  /// extends
-
+  //region extends
   @Test
   def testExtendsAsLastInFile(): Unit = doCompletionTest(
     fileText =
@@ -373,9 +372,9 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
          |""".stripMargin,
     item = "extends"
   )
+  //endregion
 
-  /// with
-
+  //region with
   @Test
   def testWithAsLastInFile(): Unit = doCompletionTest(
     fileText =
@@ -667,9 +666,241 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
          |""".stripMargin,
     item = "with"
   )
+  //endregion
+
+  //region fix-indent
+  //region if-else
+  @Test
+  def else_doNotChangeWhitespacesOnTheSameLine(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |def test(): Unit = {
+         |  if (true) {}   $CARET
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""
+         |def test(): Unit = {
+         |  if (true) {}   else $CARET
+         |}
+         |""".stripMargin,
+    item = "else",
+  )
+
+  @Test
+  def else_doNotChangeWhitespacesAfterBrace(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |def test(): Unit = {
+         |  if (true) {
+         |  }   $CARET
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""
+         |def test(): Unit = {
+         |  if (true) {
+         |  }   else $CARET
+         |}
+         |""".stripMargin,
+    item = "else",
+  )
+
+  @Test
+  def else_fixIndent(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |def test(): Unit = {
+         |  if (true) {
+         |  }
+         |      $CARET
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""
+         |def test(): Unit = {
+         |  if (true) {
+         |  }
+         |  else $CARET
+         |}
+         |""".stripMargin,
+    item = "else",
+  )
+
+  @Test
+  def else_fixIndent2(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |def test(): Unit = {
+         |  if (true)
+         |    println("yes")
+         |    $CARET
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""
+         |def test(): Unit = {
+         |  if (true)
+         |    println("yes")
+         |  else $CARET
+         |}
+         |""".stripMargin,
+    item = "else",
+  )
+
+  @Test
+  def else_fixIndent3(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |def test(): Unit = {
+         |  if (true)
+         |    println("yes")
+         |$CARET
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""
+         |def test(): Unit = {
+         |  if (true)
+         |    println("yes")
+         |  else $CARET
+         |}
+         |""".stripMargin,
+    item = "else",
+  )
+  //endregion
+
+  //region match-case
+  @Test
+  def matchCase_fixIndent(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |def test(): Unit = {
+         |  5 match {
+         |    case 1 => 2
+         |      $CARET
+         |  }
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""
+         |def test(): Unit = {
+         |  5 match {
+         |    case 1 => 2
+         |    case $CARET
+         |  }
+         |}
+         |""".stripMargin,
+    item = "case",
+  )
+
+  @Test
+  def matchCase_fixIndent2(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |def test(): Unit = {
+         |  5 match {
+         |    case 1 => 2
+         |$CARET
+         |  }
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""
+         |def test(): Unit = {
+         |  5 match {
+         |    case 1 => 2
+         |    case $CARET
+         |  }
+         |}
+         |""".stripMargin,
+    item = "case",
+  )
+  //endregion
+
+  //region try-finally
+  @Test
+  def tryFinally_doNotChangeWhitespacesOnTheSameLine(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |def test(): Unit = {
+         |  try {}   $CARET
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""
+         |def test(): Unit = {
+         |  try {}   finally $CARET
+         |}
+         |""".stripMargin,
+    item = "finally",
+  )
+
+  @Test
+  def tryFinally_doNotChangeWhitespacesAfterBrace(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |def test(): Unit = {
+         |  try {
+         |  }   $CARET
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""
+         |def test(): Unit = {
+         |  try {
+         |  }   finally $CARET
+         |}
+         |""".stripMargin,
+    item = "finally",
+  )
+
+  @Test
+  def tryFinally_fixIndent(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |def test(): Unit = {
+         |  try {
+         |  }
+         |      $CARET
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""
+         |def test(): Unit = {
+         |  try {
+         |  }
+         |  finally $CARET
+         |}
+         |""".stripMargin,
+    item = "finally",
+  )
+
+  @Test
+  def tryFinally_fixIndent2(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |def test(): Unit = {
+         |  try
+         |    println("yes")
+         |$CARET
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""
+         |def test(): Unit = {
+         |  try
+         |    println("yes")
+         |  finally $CARET
+         |}
+         |""".stripMargin,
+    item = "finally",
+  )
+  //endregion
+  //endregion
 }
 
-/** Version specific tests */
+/** Version-specific tests */
 
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_13
@@ -697,6 +928,7 @@ class ScalaKeywordCompletionTest_2_13 extends ScalaCompletionTestBase {
     item = "match"
   )
 
+  //region try-catch
   @Test
   def testCatch(): Unit = doCompletionTest(
     fileText =
@@ -707,6 +939,116 @@ class ScalaKeywordCompletionTest_2_13 extends ScalaCompletionTestBase {
          |}""".stripMargin,
     item = "catch"
   )
+
+  @Test
+  def tryCatch_doNotChangeWhitespacesOnTheSameLine(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |def test(): Unit = {
+         |  try {}   $CARET
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""
+         |def test(): Unit = {
+         |  try {}   catch {
+         |    case $CARET
+         |  }
+         |}
+         |""".stripMargin,
+    item = "catch",
+  )
+
+  @Test
+  def tryCatch_doNotChangeWhitespacesAfterBrace(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |def test(): Unit = {
+         |  try {
+         |  }   $CARET
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""
+         |def test(): Unit = {
+         |  try {
+         |  }   catch {
+         |    case $CARET
+         |  }
+         |}
+         |""".stripMargin,
+    item = "catch",
+  )
+
+  @Test
+  def tryCatch_fixIndent(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |def test(): Unit = {
+         |  try {
+         |  }
+         |      $CARET
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""
+         |def test(): Unit = {
+         |  try {
+         |  }
+         |  catch {
+         |    case $CARET
+         |  }
+         |}
+         |""".stripMargin,
+    item = "catch",
+  )
+
+  @Test
+  def tryCatch_fixIndent2(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |def test(): Unit = {
+         |  try
+         |    println("yes")
+         |    $CARET
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""
+         |def test(): Unit = {
+         |  try
+         |    println("yes")
+         |  catch {
+         |    case $CARET
+         |  }
+         |}
+         |""".stripMargin,
+    item = "catch",
+  )
+
+  @Test
+  def tryCatch_fixIndent3(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |def test(): Unit = {
+         |  try
+         |    println("yes")
+         |$CARET
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""
+         |def test(): Unit = {
+         |  try
+         |    println("yes")
+         |  catch {
+         |    case $CARET
+         |  }
+         |}
+         |""".stripMargin,
+    item = "catch",
+  )
+  //endregion
 }
 
 @RunWithScalaVersions(Array(
@@ -766,6 +1108,7 @@ class ScalaKeywordCompletionTest_3_Latest extends ScalaCompletionTestBase {
     item = "match"
   )
 
+  //region try-catch
   @Test
   def testCatch(): Unit = doCompletionTest(
     fileText =
@@ -803,6 +1146,89 @@ class ScalaKeywordCompletionTest_3_Latest extends ScalaCompletionTestBase {
          |}""".stripMargin,
     item = "catch"
   )
+
+  @Test
+  def tryCatch_doNotChangeWhitespacesOnTheSameLine(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |def test(): Unit = {
+         |  try {}   $CARET
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""
+         |def test(): Unit = {
+         |  try {}   catch
+         |    case $CARET
+         |}
+         |""".stripMargin,
+    item = "catch",
+  )
+
+  @Test
+  def tryCatch_doNotChangeWhitespacesAfterBrace(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |def test(): Unit = {
+         |  try {
+         |  }   $CARET
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""
+         |def test(): Unit = {
+         |  try {
+         |  }   catch
+         |    case $CARET
+         |}
+         |""".stripMargin,
+    item = "catch",
+  )
+
+  @Test
+  def tryCatch_fixIndent(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |def test(): Unit = {
+         |  try {
+         |  }
+         |      $CARET
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""
+         |def test(): Unit = {
+         |  try {
+         |  }
+         |  catch
+         |    case $CARET
+         |}
+         |""".stripMargin,
+    item = "catch",
+  )
+
+  @Test
+  def tryCatch_fixIndent2(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |def test(): Unit = {
+         |  try
+         |    println("yes")
+         |$CARET
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""
+         |def test(): Unit = {
+         |  try
+         |    println("yes")
+         |  catch
+         |    case $CARET
+         |}
+         |""".stripMargin,
+    item = "catch",
+  )
+  //endregion
 
   @Test
   def testWithInGivenDefinition(): Unit = doCompletionTest(
