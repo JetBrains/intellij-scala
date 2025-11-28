@@ -48,6 +48,14 @@ trait ScalaCodeParsing {
   def parseScalaFile(
     @InputLanguage("Scala") text: String,
     scalaFeatures: ScalaFeatures,
+  )(implicit project: ProjectContext): ScalaFile = {
+    parseScalaFile(text, scalaFeatures, enableEventSystem = false)
+  }
+
+
+  def parseScalaFile(
+    @InputLanguage("Scala") text: String,
+    scalaFeatures: ScalaFeatures,
     enableEventSystem: Boolean,
   )(implicit project: ProjectContext): ScalaFile = {
     ScalaPsiElementFactory.createScalaFileFromText(text, scalaFeatures, eventSystemEnabled = enableEventSystem, shouldTrimText = false)
@@ -61,8 +69,8 @@ trait ScalaCodeParsing {
     def parse()(implicit project: ProjectContext): ScalaFile =
       parseScalaFile(text)
 
-    def parse(scalaVersion: ScalaVersion)(implicit project: ProjectContext): ScalaFile =
-      parseScalaFile(text, scalaVersion)
+    def parse(parsingFeatures: ScalaFeatures)(implicit project: ProjectContext): ScalaFile =
+      parseScalaFile(text, parsingFeatures)
 
     def parseWithEventSystem(implicit project: ProjectContext): ScalaFile =
       parseScalaFile(text, enableEventSystem = true)

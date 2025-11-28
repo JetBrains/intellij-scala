@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.annotator.element.ElementAnnotator
 import org.jetbrains.plugins.scala.base.{SharedTestProjectToken, SimpleTestCase}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
+import org.jetbrains.plugins.scala.project.ScalaFeatures
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
 
@@ -27,7 +28,7 @@ abstract class AnnotatorTestBase[T <: ScalaPsiElement : reflect.ClassTag] extend
 
   protected def messages(@Language(value = "Scala", prefix = Prefix, suffix = Suffix) code: String): Option[List[Message]] = {
     val s: String = Prefix + code + Suffix
-    val file: ScalaFile = s.parse(scalaVersion)
+    val file: ScalaFile = s.parse()
     implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
 
     val errorElements = file.depthFirst().filterByType[PsiErrorElement].map(_.getText).toList
