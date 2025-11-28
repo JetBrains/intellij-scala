@@ -65,7 +65,8 @@ abstract class Specs2PackageTest extends Specs2TestCase {
     runTestByLocation(
       packageLoc(packageName),
       config => {
-        assertPackageConfigAndSettings(config, packageName, "Specs2 in 'testPackage'")
+        assertRunConfigTestPackage(config, packageName)
+        assertRunConfigName(config, "Specs2 in 'testPackage'")
       },
       root => {
         assertResultTreePathsEqualsUnordered(root)(Seq(
@@ -81,7 +82,8 @@ abstract class Specs2PackageTest extends Specs2TestCase {
     runTestByLocation(
       moduleLoc(getModule.getName),
       config => {
-        assertPackageConfigAndSettings(config, "", s"Specs2 in 'scala-${version.minor}'")
+        assertRunConfigTestPackage(config, "")
+        assertRunConfigName(config, s"Specs2 in 'scala-${version.minor}'")
       },
       root => {
         assertResultTreePathsEqualsUnordered(root)(Seq(
