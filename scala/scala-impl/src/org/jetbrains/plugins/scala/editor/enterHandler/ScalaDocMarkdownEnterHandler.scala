@@ -54,24 +54,23 @@ class ScalaDocMarkdownEnterHandler extends EnterHandlerDelegateAdapter {
       val caretAtEnd = caretOffset == lineEnd
       (currentLine, caretAtEnd)
     }
-    val rest = prevLine.stripPrefix(currentLine)
+    val prevLineWithoutCurrentLinePrefix = prevLine.stripPrefix(currentLine)
 
-    val quotePrefix = rest.takeWhile {
+    val quotePrefix = prevLineWithoutCurrentLinePrefix.takeWhile {
       case '>' | ' ' | '\t' => true
       case c => c.isWhitespace
     }
 
     inWriteAction {
       var inserted = 0
-      val afterQuotePrefix = rest.substring(quotePrefix.length)
+      val afterQuotePrefix = prevLineWithoutCurrentLinePrefix.substring(quotePrefix.length)
 
       val toInsert =
         if (afterQuotePrefix.startsWith("-")) {
           Some(if (caretAtEnd) "- " else "  ")
         } else {
-          val restRest = rest.substring(quotePrefix.length)
           for {
-            m <- numberedListRegex.findPrefixMatchOf(restRest)
+            m <- numberedListRegex.findPrefixMatchOf(afterQuotePrefix)
             num <- m.group(1).toIntOption
             if !caretAtEnd || num < Int.MaxValue
           } yield {
