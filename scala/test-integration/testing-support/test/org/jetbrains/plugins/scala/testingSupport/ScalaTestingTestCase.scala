@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.testingSupport
 
 import com.intellij.execution.actions.{ConfigurationContext, ConfigurationFromContext}
-import com.intellij.execution.configurations.{ConfigurationType, JavaCommandLineState, RunConfiguration, RunnerSettings}
+import com.intellij.execution.configurations.{JavaCommandLineState, RunConfiguration, RunnerSettings}
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.impl.DefaultJavaProgramRunner
 import com.intellij.execution.process.{ProcessHandler, ProcessListener}
@@ -12,22 +12,15 @@ import com.intellij.execution.testframework.sm.runner.ui.SMTRunnerConsoleView
 import com.intellij.execution.ui.{ExecutionConsole, RunContentDescriptor}
 import com.intellij.execution.{Executor, PsiLocation, RunnerAndConfigurationSettings}
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.module.ModuleManager
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.psi.PsiElement
-import com.intellij.psi.impl.file.PsiDirectoryFactory
 import com.intellij.testFramework.EdtTestUtil
 import com.intellij.util.concurrency.Semaphore
 import org.jetbrains.plugins.scala.TestingSupportTests
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.compiler.ScalaExecutionTestCase
+import org.jetbrains.plugins.scala.configurations.RunConfigCreationContext
 import org.jetbrains.plugins.scala.configurations.RunConfigCreationLocation.CaretLocation
 import org.jetbrains.plugins.scala.extensions.inReadAction
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestRunConfiguration
-import org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2RunConfiguration
-import org.jetbrains.plugins.scala.testingSupport.test.utest.UTestRunConfiguration
 import org.jetbrains.plugins.scala.util.assertions.failWithCause
 import org.junit.Assert
 import org.junit.Assert._
@@ -64,60 +57,54 @@ abstract class ScalaTestingTestCase
   protected def createPsiLocation(location: CaretLocation): PsiLocation[PsiElement] =
     createPsiLocation(location, myModule, srcPath)
 
-  override protected def createTestFromCaretLocation(caretLocation: CaretLocation): RunnerAndConfigurationSettings =
-    inReadAction {
-      val psiElement = findPsiElement(caretLocation, getProject, srcPath)
+  protected def selectSingleConfigurationOfExpectedTypeOrFail(
+    context: ConfigurationContext,
+    configCreationContext: RunConfigCreationContext
+  ): ConfigurationFromContext = {
+    val configurations: Seq[ConfigurationFromContext] =
+      Option(context.getConfigurationsFromContext).toSeq.flatMap(_.asScala)
 
-      createTestFromPsiElement(psiElement)
+    if (configurations.isEmpty) {
+      throw new AssertionError(s"No configuration created from context: $context")
     }
 
-  override protected def createTestFromPackage(packageName: String): RunnerAndConfigurationSettings =
-    inReadAction {
-      val psiPackage = ScalaPsiManager.instance(getProject).getCachedPackage(packageName)
-      val psiDirectory = psiPackage.map(_.getDirectories().head) match {
-        case Some(dir) => dir
-        case None =>
-          throw new RuntimeException(s"Failed to create run configuration for test from package $packageName")
-      }
-
-      createTestFromPsiElement(psiDirectory)
+    // If preferredConfigClass is set     : allow multiple run configurations created, but only a single configuration of the preferred class
+    // If preferredConfigClass is NOT set : don't allow multiple run configurations, even with different classes
+    val configurationsWithPreferredClassOrAll = configCreationContext.preferredConfigClass match {
+      case Some(preferredConfigClass) =>
+        configurations.filter(c => preferredConfigClass.isInstance(c.getConfiguration))
+      case _ =>
+        configurations
     }
 
-  override protected def createTestFromModule(moduleName: String): RunnerAndConfigurationSettings =
-    inReadAction {
-      val manager = ModuleManager.getInstance(ScalaTestingTestCase.this.getProject)
-      val module = manager.findModuleByName(moduleName)
-      val moduleRoot = ModuleRootManager.getInstance(module).getContentRoots.head
-      val directory = PsiDirectoryFactory.getInstance(getProject).createDirectory(moduleRoot)
+    selectSingleConfigurationOfExpectedTypeOrFail(configurationsWithPreferredClassOrAll, configCreationContext.preferredConfigClass)
+  }
 
-      createTestFromPsiElement(directory)
-    }
-
-  override protected def createTestFromPsiElement(psiElement: PsiElement): RunnerAndConfigurationSettings =
-    inReadAction {
-      val context: ConfigurationContext = new ConfigurationContext(psiElement)
-      val configurationFromContext = getSingleConfigurationFromContext(context)
-      configurationFromContext.getConfigurationSettings
-    }
-
-  protected def getSingleConfigurationFromContext(context: ConfigurationContext): ConfigurationFromContext = {
-    val configurationsFromContext = Option(context.getConfigurationsFromContext).toSeq.flatMap(_.asScala)
-    configurationsFromContext match {
-      case Seq() =>
-        fail(s"No configuration created from context: $context").asInstanceOf[Nothing]
+  private def selectSingleConfigurationOfExpectedTypeOrFail(
+    configurations: Seq[ConfigurationFromContext],
+    preferredClass: Option[Class[_ <: RunConfiguration]]
+  ): ConfigurationFromContext = {
+    configurations match {
       case Seq(config) =>
-        Assert.assertEquals(
-          s"Configuration created from context $context has unexpected class",
-          expectedDefaultRunConfigurationClass,
-          config.getConfiguration.getClass,
-        )
+        assertConfigurationType(config, preferredClass.getOrElse(expectedDefaultRunConfigurationClass))
         config
       case multipleConfigs =>
-        fail(
-          s"""Multiple configurations created from context: $context. Configurations:
+        // We show a hint about the preferred class only if it's set.
+        // Otherwise, don't remind about the expectedDefaultRunConfigurationClass as we don't expect multiple configurations even of different classes
+        val ofClassHint = preferredClass.map(clazz => s" of class $clazz").getOrElse("")
+        throw new AssertionError(
+          s"""Multiple run configurations of class$ofClassHint created when only a single one expected
              |${multipleConfigs.map(_.toString).mkString("\n")}""".stripMargin
-        ).asInstanceOf[Nothing]
+        )
     }
+  }
+
+  private def assertConfigurationType(config: ConfigurationFromContext, expectedConfigClass: Class[_ <: RunConfiguration]): Unit = {
+    Assert.assertEquals(
+      s"Created run configuration has an unexpected class",
+      expectedConfigClass,
+      config.getConfiguration.getClass,
+    )
   }
 
   protected def assertNoConfigurationCreatedAtCaret(location: CaretLocation): Unit =

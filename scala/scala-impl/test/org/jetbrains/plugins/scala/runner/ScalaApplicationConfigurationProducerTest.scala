@@ -9,8 +9,8 @@ import com.intellij.execution.impl.{RunConfigurationLevel, RunManagerImpl, Runne
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.configurations.TestLocation.{CaretLocation2, PsiElementLocation}
-import org.jetbrains.plugins.scala.configurations.{RunConfigurationCreationOps, TestLocation}
+import org.jetbrains.plugins.scala.configurations.RunConfigCreationLocation.{CaretLocation2, PsiElementLocation}
+import org.jetbrains.plugins.scala.configurations.{RunConfigurationCreationOps, RunConfigCreationLocation}
 import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers._
 import org.junit.Assert.{assertNotNull, assertNull, fail}
 import org.junit.ComparisonFailure
@@ -23,20 +23,20 @@ abstract class ScalaApplicationConfigurationProducerTestBase
 
   private def configurationProducer = ScalaApplicationConfigurationProducer()
 
-  protected def createConfiguration(location: TestLocation): ApplicationConfiguration = {
+  protected def createConfiguration(location: RunConfigCreationLocation): ApplicationConfiguration = {
     val context = configurationContext(location)
     val configuration = configurationProducer.createConfigurationFromContext(context)
     assertNotNull(s"no configuration created at location: $location", configuration)
     configuration.getConfiguration.asInstanceOf[ApplicationConfiguration]
   }
 
-  protected def findOrCreateConfiguration(location: TestLocation): ApplicationConfiguration = {
+  protected def findOrCreateConfiguration(location: RunConfigCreationLocation): ApplicationConfiguration = {
     val context = configurationContext(location)
     val configuration = configurationProducer.findOrCreateConfigurationFromContext(context)
     configuration.getConfiguration.asInstanceOf[ApplicationConfiguration]
   }
 
-  protected def configurationContext(location: TestLocation): ConfigurationContext = {
+  protected def configurationContext(location: RunConfigCreationLocation): ConfigurationContext = {
     val psiElement = location match {
       case loc: CaretLocation2         => findPsiElement(loc, getProject)
       case PsiElementLocation(element) => element
@@ -48,7 +48,7 @@ abstract class ScalaApplicationConfigurationProducerTestBase
   protected def configurationContext(psiElement: PsiElement): ConfigurationContext =
     new ConfigurationContext(psiElement)
 
-  protected def doTest(location: TestLocation, configName: String, mainClassName: String): ApplicationConfiguration = {
+  protected def doTest(location: RunConfigCreationLocation, configName: String, mainClassName: String): ApplicationConfiguration = {
     val configuration = createConfiguration(location)
     assertConfiguration(configuration, configName, mainClassName)
     configuration
@@ -68,7 +68,7 @@ abstract class ScalaApplicationConfigurationProducerTestBase
     configuration.checkClass()
   }
 
-  protected def assertNoConfiguration(testLocation: TestLocation): Unit = {
+  protected def assertNoConfiguration(testLocation: RunConfigCreationLocation): Unit = {
     val context = configurationContext(testLocation)
     val configuration = configurationProducer.createConfigurationFromContext(context)
     assertNull(s"no configuration is expected to be created at location: $testLocation", configuration)

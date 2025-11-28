@@ -45,7 +45,7 @@ abstract class MUnitGoToSourceTestBase extends MUnitTestCase {
   )
 
   def testGoTo_FunSuite(): Unit = {
-    val runConfig = createTestFromCaretLocation(loc(FileNameFunSuite, 2, 10))
+    val runConfig = createTestFromLocation(loc(FileNameFunSuite, 2, 10))
     val runResult = runTestFromConfig(runConfig)
     val testTreeRoot = runResult.requireTestTreeRoot
 
@@ -55,7 +55,7 @@ abstract class MUnitGoToSourceTestBase extends MUnitTestCase {
   }
 
   def testGoTo_ScalaCheckSuite(): Unit = {
-    val runConfig = createTestFromCaretLocation(loc(FileNameScalaCheckSuite, 4, 10))
+    val runConfig = createTestFromLocation(loc(FileNameScalaCheckSuite, 4, 10))
     val runResult = runTestFromConfig(runConfig)
     val testTreeRoot = runResult.requireTestTreeRoot
 
@@ -65,7 +65,7 @@ abstract class MUnitGoToSourceTestBase extends MUnitTestCase {
   }
 
   def testGoTo_EnsureAssertionFails(): Unit = ExceptionAssertions.assertException[java.lang.AssertionError] {
-    val runConfig = createTestFromCaretLocation(loc(FileNameFunSuite, 2, 10))
+    val runConfig = createTestFromLocation(loc(FileNameFunSuite, 2, 10))
     val runResult = runTestFromConfig(runConfig)
     val testTreeRoot = runResult.requireTestTreeRoot
     assertGoToSourceTest(testTreeRoot, TestNodePath("[root]"), GoToLocation(FileNameFunSuite, 5))

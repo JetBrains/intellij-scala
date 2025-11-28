@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.testingSupport.munit
 
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.{PsiDirectory, PsiManager}
-import org.jetbrains.plugins.scala.configurations.TestLocation.{CaretLocation, PackageLocation, PsiElementLocation}
+import org.jetbrains.plugins.scala.configurations.RunConfigCreationLocation.{CaretLocation, PackageLocation, PsiElementLocation}
 import org.jetbrains.plugins.scala.extensions.inReadAction
 
 abstract class MUnitShouldReplaceJUnitTestBase extends MUnitTestCase {
@@ -23,7 +23,7 @@ abstract class MUnitShouldReplaceJUnitTestBase extends MUnitTestCase {
   )
 
   /**
-   * NOTE: we just create configuration and expect that [[getSingleConfigurationFromContext]]
+   * NOTE: we just create configuration and expect that [[selectSingleConfigurationOfExpectedTypeOrFail]]
    * will ensure that there was only 1 configuration produced by all producers
    */
   def testCreateForCaretAtClass(): Unit = {
