@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.components.libextensions.ProgressIndicatorLog
 import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, withProgressSynchronouslyTry}
 import org.jetbrains.plugins.scala.project.external.ScalaSdkUtils
 import org.jetbrains.plugins.scala.project.template.Artifact.ScalaLibrary
-import org.jetbrains.plugins.scala.project.template.ScalaVersionDownloadingDialog.{ScalaVersionResolveResult, createScalaVersionResolveResult, preselectLatestScala2Version}
+import org.jetbrains.plugins.scala.project.template.ScalaVersionDownloadingDialog.{ScalaVersionResolveResult, createScalaVersionResolveResult, preselectLatestStableScalaVersion}
 import org.jetbrains.plugins.scala.project.{ReplClasspath, Version, Versions}
 import org.jetbrains.plugins.scala.{DependencyManagerBase, ScalaBundle, ScalaVersion}
 import org.jetbrains.sbt.project.template.SComboBox
@@ -30,7 +30,7 @@ final class ScalaVersionDownloadingDialog(parent: JComponent) extends VersionDia
     if (versions.nonEmpty) {
       val stringRepresentation = versions.map(_.presentation)
       myVersion.setItems(stringRepresentation.toArray)
-      preselectLatestScala2Version(myVersion, stringRepresentation)
+      preselectLatestStableScalaVersion(myVersion, stringRepresentation)
     }
     else
       Messages.showErrorDialog(
@@ -87,16 +87,15 @@ object ScalaVersionDownloadingDialog {
   )
 
   /**
-   * While Scala 3 support is WIP we do not want preselect Scala 3 version
-   * @param versions assumed to be sorted
+   * Preselects the latest stable Scala version in the given combo box - skipping RC versions.
    */
-  private def preselectLatestScala2Version(versionComboBox: SComboBox[String], versions: Seq[String]): Unit = {
-    val selectIndex = versions.indexWhere(v => !v.startsWith("3"))
+  private def preselectLatestStableScalaVersion(versionComboBox: SComboBox[String], versions: Seq[String]): Unit = {
+    val selectIndex = versions.indexWhere(v => !v.contains("RC"))
     if (selectIndex >= 0) {
       versionComboBox.setSelectedIndex(selectIndex)
 
       if (selectIndex > 0) {
-        // without this, Scala 3 versions will be hard to notice, because by default Swing scrolls to the selected item
+        // Scroll to the top to make the newest versions visible, as Swing otherwise scrolls to the selected item
         UiUtils.scrollToTheTop(versionComboBox)
       }
     }
