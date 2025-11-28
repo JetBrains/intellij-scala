@@ -93,7 +93,7 @@ class ValueClassAnnotatorTest extends SimpleTestCase with ScalaHighlightingTestL
   }
 
   def messages(@Language(value = "Scala") code: String): List[Message] = {
-    val file: ScalaFile = code.parse
+    val file: ScalaFile = code.parse()
     messagesFromScalaCode(file)
   }
 

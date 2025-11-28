@@ -79,7 +79,7 @@ class ScTypeBoundsOwnerAnnotatorTest_Scala3 extends AnnotatorSimpleTestCase {
   )
 
   def messages(@Language("Scala 3")code: String): List[Message] = {
-    val file: ScalaFile = code.parse
+    val file: ScalaFile = code.parse()
 
     implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
 

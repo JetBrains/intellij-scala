@@ -44,7 +44,7 @@ class B;
 
   def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
     val annotator = new ScalaAnnotator()
-    val file: ScalaFile = (Header + code).parse
+    val file: ScalaFile = (Header + code).parse()
     val mock = new AnnotatorHolderMock(file)
 
     file.depthFirst().foreach {annotateFun(_, annotator, mock)}

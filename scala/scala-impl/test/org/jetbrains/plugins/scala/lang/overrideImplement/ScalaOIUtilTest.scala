@@ -100,7 +100,7 @@ class ScalaOIUtilTest extends SimpleTestCase {
 
   private def unimplementedIn(@Language(value = "Scala", prefix = Prefix, suffix = Suffix) code: String) = {
     val text: String = "" + code + Suffix
-    val file: ScalaFile = text.parse
+    val file: ScalaFile = text.parse()
     val templateDefinitions: Seq[ScTemplateDefinition] = file.children.filterByType[ScTemplateDefinition].toSeq
     val lastDefinition: ScTemplateDefinition = templateDefinitions.last
     val members = ScalaOIUtil.getMembersToImplement(lastDefinition)

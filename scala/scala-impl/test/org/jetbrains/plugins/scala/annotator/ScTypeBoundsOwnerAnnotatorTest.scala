@@ -182,7 +182,7 @@ class ScTypeBoundsOwnerAnnotatorTest extends AnnotatorSimpleTestCase {
          |object Test {
          |  $code
          |}
-         |""".stripMargin.parse
+         |""".stripMargin.parse()
 
 
     implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
