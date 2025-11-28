@@ -19,16 +19,7 @@ trait IntegrationTestConfigAssertions {
     assertConfig(testClass, testNames, config.asInstanceOf[AbstractTestRunConfiguration])
   }
 
-  protected def assertPackageConfigAndSettings(
-    configAndSettings: RunnerAndConfigurationSettings,
-    packageName: String,
-    generatedConfigName: String
-  ): Unit = {
-    assertPackageConfigAndSettings(configAndSettings, packageName)
-    assertGeneratedConfigName(configAndSettings, generatedConfigName)
-  }
-
-  private def assertPackageConfigAndSettings(
+  protected def assertRunConfigTestPackage(
     configAndSettings: RunnerAndConfigurationSettings,
     packageName: String,
   ): Unit = {
@@ -44,7 +35,7 @@ trait IntegrationTestConfigAssertions {
     assertEquals("package name are not equal", packageName, actualConfigPackage)
   }
 
-  private def assertGeneratedConfigName(
+  protected def assertRunConfigName(
     configAndSettings: RunnerAndConfigurationSettings,
     expectedName: String
   ): Unit = {

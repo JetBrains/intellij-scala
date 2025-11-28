@@ -67,7 +67,8 @@ class ScalaTestWithJunitRunnerTest extends ScalaTestTestCase
     runTestByLocation(
       RunConfigCreationContext(packageLoc("org.example"), Some(classOf[JUnitConfiguration])),
       config => {
-        assertPackageConfigAndSettings(config, "org.example", "org.example in testRunAllInPackage_AsJunit")
+        assertRunConfigTestPackage(config, "org.example")
+        assertRunConfigName(config, "org.example in testRunAllInPackage_AsJunit")
       },
       root => {
         assertResultTreePathsEqualsUnordered(root)(Seq(
@@ -83,7 +84,8 @@ class ScalaTestWithJunitRunnerTest extends ScalaTestTestCase
     runTestByLocation(
       RunConfigCreationContext(packageLoc("org.example"), Some(classOf[ScalaTestRunConfiguration])),
       config => {
-        assertPackageConfigAndSettings(config, "org.example", "ScalaTests in 'example'")
+        assertRunConfigTestPackage(config, "org.example")
+        assertRunConfigName(config, "ScalaTests in 'example'")
       },
       root => {
         assertResultTreePathsEqualsUnordered(root)(Seq(

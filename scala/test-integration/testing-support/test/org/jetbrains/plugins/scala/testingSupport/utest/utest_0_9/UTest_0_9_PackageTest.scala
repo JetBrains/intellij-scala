@@ -55,7 +55,8 @@ trait UTest_0_9_PackageTest extends UTestTestCase {
     runTestByLocation(
       packageLoc(packageName),
       config => {
-        assertPackageConfigAndSettings(config, packageName, "UTests in 'myPackage'")
+        assertRunConfigTestPackage(config, packageName)
+        assertRunConfigName(config, "UTests in 'myPackage'")
       },
       root => {
         assertResultTreePathsEqualsUnordered(root)(Seq(
@@ -72,7 +73,8 @@ trait UTest_0_9_PackageTest extends UTestTestCase {
     runTestByLocation(
       moduleLoc(getModule.getName),
       config => {
-        assertPackageConfigAndSettings(config, "", s"UTests in 'scala-${version.minor}'")
+        assertRunConfigTestPackage(config, "")
+        assertRunConfigName(config, s"UTests in 'scala-${version.minor}'")
       },
       root => {
         assertResultTreePathsEqualsUnordered(root)(Seq(
