@@ -88,7 +88,8 @@ trait ScalaTestPackageTest extends ScalaTestTestCase {
     runTestByLocation(
       packageLoc(packageName1),
       config => {
-        assertPackageConfigAndSettings(config, packageName1, "ScalaTests in 'myPackage1'")
+        assertRunConfigTestPackage(config, packageName1)
+        assertRunConfigName(config, "ScalaTests in 'myPackage1'")
       },
       root => {
         assertResultTreePathsEqualsUnordered(root)(Seq(
@@ -102,7 +103,8 @@ trait ScalaTestPackageTest extends ScalaTestTestCase {
     runTestByLocation(
       packageLoc(packageNameEqualToReservedKeyword),
       config => {
-        assertPackageConfigAndSettings(config, packageNameEqualToReservedKeyword, "ScalaTests in 'type'")
+        assertRunConfigTestPackage(config, packageNameEqualToReservedKeyword)
+        assertRunConfigName(config, "ScalaTests in 'type'")
       },
       root => assertResultTreePathsEqualsUnordered(root)(Seq(
         TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", "Test3", "some test name")
@@ -114,7 +116,8 @@ trait ScalaTestPackageTest extends ScalaTestTestCase {
       moduleLoc(getModule.getName),
       config => {
         //TODO: the name shouldn't be `scala-2.13.10`, it should be the module name!
-        assertPackageConfigAndSettings(config, "", s"ScalaTests in 'scala-${version.minor}'")
+        assertRunConfigTestPackage(config, "")
+        assertRunConfigName(config, s"ScalaTests in 'scala-${version.minor}'")
       },
       root => assertResultTreePathsEqualsUnordered(root)(Seq(
         TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", "Test1", "Test1"),
@@ -133,7 +136,8 @@ trait ScalaTestPackageTest extends ScalaTestTestCase {
     runTestByLocation(
       packageLoc(packageName3),
       config => {
-        assertPackageConfigAndSettings(config, packageName3, "ScalaTests in 'myPackage3'")
+        assertRunConfigTestPackage(config, packageName3)
+        assertRunConfigName(config, "ScalaTests in 'myPackage3'")
       },
       root => {
         assertResultTreePathsEqualsUnordered(root)(Seq(
