@@ -14,11 +14,11 @@ import scala.reflect.ClassTag
 trait ScalaCodeParsing {
 
   protected def scalaVersion: ScalaVersion = ScalaVersion.default
-  protected def scalaFeatures: SerializableScalaFeatures = ScalaFeatures.onlyByVersion(scalaVersion)
+  protected def scalaCodeParsingFeatures: SerializableScalaFeatures = ScalaFeatures.onlyByVersion(scalaVersion)
 
-  private def thisScalaFeatures: SerializableScalaFeatures = {
-    assert(scalaFeatures.languageLevel == scalaVersion.languageLevel)
-    scalaFeatures
+  private def checkedScalaCodeParsingFeatures: SerializableScalaFeatures = {
+    assert(scalaCodeParsingFeatures.languageLevel == scalaVersion.languageLevel)
+    scalaCodeParsingFeatures
   }
 
   def parseScalaFile(
@@ -33,7 +33,7 @@ trait ScalaCodeParsing {
     @InputLanguage("Scala") text: String,
     enableEventSystem: Boolean = false
   )(implicit project: ProjectContext): ScalaFile = {
-    parseScalaFile(text, thisScalaFeatures, enableEventSystem)
+    parseScalaFile(text, checkedScalaCodeParsingFeatures, enableEventSystem)
   }
 
   def parseScalaFileAndGetCaretPosition(
