@@ -38,11 +38,6 @@ abstract class ScalaStructureViewTestBase extends ScalaLightCodeInsightFixtureTe
 
   override def isIconRequired: Boolean = true
 
-  override def setUp(): Unit = {
-    super.setUp()
-    IconUtils.registerIconLayersInIconManager()
-  }
-
   protected def check(@Language("Scala") code: String, nodes: Node*): Unit = {
     val structureView = createScalaStructureView(code)
     val model = structureView.getTreeModel
