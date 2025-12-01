@@ -11,7 +11,8 @@ class RandomHighlightingBugs_Scala3
     with ScalaHighlightingTestLike
     with RandomHighlightingBugs_CommonTests {
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
+  // 3.6 used for "deferred" givens primarily
+  override protected def supportedIn(version: ScalaVersion): Boolean = version > ScalaVersion.Latest.Scala_3_6
 
   override def test_SCL24453_1(): Unit = {
     getFixture.addFileToProject("definitions.scala", SCL24453.CommonDefinitions)
@@ -35,6 +36,27 @@ class RandomHighlightingBugs_Scala3
       // emulating the code produced by the decompiler, though it's invalid when in source code
       // In particular we are testing that the ` jdbcFoo ` symbol is resolved everywhere
       """Error(dbConfigLazy,Reference to non-final lazy value `dbConfigLazy` is not allowed here)
+        |""".stripMargin
+    )
+  }
+
+  def testSCL22079(): Unit = {
+    assertNoErrors(
+      """trait Repro:
+        |  trait Z[X[T] <: Y[T], Y[_]]
+        |
+        |  trait A[T]
+        |  type B[T] <: A[T]
+        |
+        |  given smth: Z[B, A]
+        |
+        |trait Repro2:
+        |  trait Z[X[T] <: Y[T], Y[_]]
+        |
+        |  trait A[T]
+        |  type B[T] <: A[T]
+        |
+        |  given smth: Z[B, A] = scala.compiletime.deferred
         |""".stripMargin
     )
   }

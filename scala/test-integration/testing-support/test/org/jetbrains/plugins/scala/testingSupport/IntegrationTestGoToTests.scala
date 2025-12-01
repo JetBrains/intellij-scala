@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.testFramework.UsefulTestCase
-import org.jetbrains.plugins.scala.configurations.TestLocation.CaretLocation
+import org.jetbrains.plugins.scala.configurations.RunConfigCreationLocation.CaretLocation
 import org.jetbrains.plugins.scala.extensions.{PsiNamedElementExt, inReadAction}
 import org.junit.Assert.{assertEquals, assertNotNull, fail}
 import org.junit.ComparisonFailure
@@ -44,7 +44,7 @@ trait IntegrationTestGoToTests extends UsefulTestCase
     testPath: TestNodePath,
     expectedLocation: GoToLocation
   )(implicit testOptions: TestRunOptions): Unit = {
-    val runConfig = createTestFromCaretLocation(caretLocation)
+    val runConfig = createTestFromLocation(caretLocation)
 
     assertConfiguration(runConfig)
 

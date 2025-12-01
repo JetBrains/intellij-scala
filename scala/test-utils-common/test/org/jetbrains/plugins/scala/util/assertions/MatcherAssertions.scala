@@ -42,6 +42,11 @@ trait MatcherAssertions extends FailableTest {
       Assert.fail(s"wrong object class\nexpected ${classTag.runtimeClass.getName}\nactual:${obj.getClass.getName}").asInstanceOf[Nothing]
     }
 
+  implicit class ObjectOps(private val value: Object) {
+    def assertInstanceOf[T](implicit classTag: ClassTag[T]): T =
+      assertIsA(value)(classTag)
+  }
+
   case class ContainsPattern(fragment: String) {
     def unapply(s: String): Boolean = s.contains(fragment)
   }
