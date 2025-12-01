@@ -204,6 +204,9 @@ object SdkSelectionDialogWrapper {
     } yield ()
   }
 
+  /**
+   * @return Left(duplicates) if there are some files with the same name (but potentially with different paths, for any reason)
+   */
   private def assertNoDuplicates(files: Seq[Path], componentName: NlsString): Either[DuplicatedFiles, Unit] = {
     val nameToFiles = files.groupBy(_.getFileName.toString)
     val duplicates = nameToFiles.filter(_._2.lengthCompare(1) > 0)
@@ -227,5 +230,4 @@ object SdkSelectionDialogWrapper {
     val title = CommonBundle.message("title.error")
     Messages.showErrorDialog(component, message, title)
   }
-
 }
