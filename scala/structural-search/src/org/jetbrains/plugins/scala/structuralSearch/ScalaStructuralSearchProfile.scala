@@ -2,15 +2,17 @@ package org.jetbrains.plugins.scala.structuralSearch
 
 import com.intellij.codeInsight.template.{TemplateContextType, TemplateManager}
 import com.intellij.lang.Language
-import com.intellij.openapi.project.ProjectManager
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.text.StringUtil
+import com.intellij.profile.codeInspection.ProjectInspectionProfileManager
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.{PsiElement, PsiElementVisitor, PsiFile}
 import com.intellij.structuralsearch.impl.matcher.compiler.GlobalCompilingVisitor
 import com.intellij.structuralsearch.impl.matcher.handlers.SubstitutionHandler
 import com.intellij.structuralsearch.impl.matcher.predicates.MatchPredicate
 import com.intellij.structuralsearch.impl.matcher.{CompiledPattern, GlobalMatchingVisitor, MatchContext}
+import com.intellij.structuralsearch.inspection.SSBasedInspection
 import com.intellij.structuralsearch.plugin.replace.impl.{ParameterInfo, ReplacementBuilder}
 import com.intellij.structuralsearch.plugin.replace.{ReplaceOptions, ReplacementInfo}
 import com.intellij.structuralsearch.plugin.ui.{Configuration, UIUtil}
@@ -40,10 +42,31 @@ import java.{lang, util}
 final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
   override protected def getVarPrefixes: Array[String] = Array("__$_")
 
-  override def isMyLanguage(@NotNull language: Language): Boolean = {
-    if (ProjectManager.getInstance.getOpenProjects.exists(project => builtInHighlightingDisabledIn(project) || incremental.Highlighting.enabledIn(project))) return false
-
+  override def isMyLanguage(@NotNull language: Language): Boolean =
     language == ScalaLanguage.INSTANCE || language == Scala3Language.INSTANCE
+
+  override def isMatchNode(element: PsiElement): Boolean = {
+    val project = element.getProject
+
+    // Structural search inspections might trigger type inference and interfere with incremental highlighting.
+    if (builtInHighlightingDisabledIn(project) || incremental.Highlighting.enabledIn(project)) {
+      if (hasStructuralSearchInspections(project))
+        return false
+    }
+
+    super.isMatchNode(element)
+  }
+
+  private def hasStructuralSearchInspections(project: Project) = {
+    val currentInspectionProfile = ProjectInspectionProfileManager.getInstance(project).getCurrentProfile
+    val structuralSearchInspection = SSBasedInspection.getStructuralSearchInspection(currentInspectionProfile)
+    structuralSearchInspection.getConfigurations.stream().anyMatch { configuration =>
+      val fileType = configuration.getFileType
+      fileType != null && isMyLanguage(fileType.getLanguage) && {
+        val tool = currentInspectionProfile.getToolsOrNull(configuration.getUuid, project)
+        tool != null && tool.isEnabled
+      }
+    }
   }
 
   override def getContext(pattern: String, @Nullable language: Language, contextId: String): String =
