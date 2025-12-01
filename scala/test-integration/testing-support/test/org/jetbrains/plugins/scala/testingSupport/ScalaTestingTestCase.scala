@@ -4,23 +4,20 @@ import com.intellij.execution.actions.{ConfigurationContext, ConfigurationFromCo
 import com.intellij.execution.configurations.{JavaCommandLineState, RunConfiguration, RunProfileState, RunnerSettings}
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.impl.DefaultJavaProgramRunner
-import com.intellij.execution.process.{BaseProcessHandler, ProcessHandler, ProcessListener}
-import com.intellij.execution.runners.{ExecutionEnvironment, ExecutionEnvironmentBuilder, ProgramRunner}
-import com.intellij.execution.target.local.{LocalTargetEnvironment, LocalTargetEnvironmentRequest}
-import com.intellij.execution.testframework.{AbstractTestProxy, SearchForTestsTask}
+import com.intellij.execution.process.{ProcessHandler, ProcessListener}
+import com.intellij.execution.runners.{ExecutionEnvironmentBuilder, ProgramRunner}
+import com.intellij.execution.testframework.AbstractTestProxy
 import com.intellij.execution.testframework.sm.runner.SMTRunnerEventsListener
 import com.intellij.execution.testframework.sm.runner.ui.SMTRunnerConsoleView
 import com.intellij.execution.ui.{ExecutionConsole, RunContentDescriptor}
-import com.intellij.execution.{Executor, JavaTestFrameworkRunnableState, PsiLocation, RunnerAndConfigurationSettings}
+import com.intellij.execution.{Executor, PsiLocation, RunnerAndConfigurationSettings}
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.progress.{EmptyProgressIndicator, ProgressManager}
 import com.intellij.psi.PsiElement
 import com.intellij.testFramework.EdtTestUtil
 import com.intellij.util.concurrency.Semaphore
 import org.jetbrains.plugins.scala.TestingSupportTests
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
-import org.jetbrains.plugins.scala.compiler.ScalaExecutionTestCase
+import org.jetbrains.plugins.scala.compiler.{ScalaExecutionTestCase, ScalaExecutionTestUtils}
 import org.jetbrains.plugins.scala.configurations.RunConfigCreationContext
 import org.jetbrains.plugins.scala.configurations.RunConfigCreationLocation.CaretLocation
 import org.jetbrains.plugins.scala.extensions.inReadAction
@@ -225,6 +222,11 @@ abstract class ScalaTestingTestCase
     val exitCode = Try(Await.result(exitCodeListener.exitCodeFuture, duration))
     // in case of unprocessed output we want to wait for the process end until the project is disposed
     handler.getProcessInput.flush()
+
+    if (!handler.isProcessTerminated) {
+      ScalaExecutionTestUtils.printThreadDumpAfterTimeout(handler)
+    }
+
     handler.destroyProcess()
     exitCode
   }
