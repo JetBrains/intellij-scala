@@ -6,6 +6,7 @@ import com.intellij.util.SystemProperties
 import org.apache.ivy.util.{AbstractMessageLogger, Message, MessageLogger}
 import org.jetbrains.plugins.scala.DependencyManagerBase.{DependencyDescription, ResolveFailure, ResolvedDependency, Types, UnresolvedDependency}
 import org.jetbrains.plugins.scala.extensions.{LoggerExt, PathExt}
+import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.project.template.{IvySdkChoice, ScalaSdkDescriptor, SdkChoice}
 import org.jetbrains.plugins.scala.{DependencyManagerBase, ScalaBundle}
 
@@ -76,10 +77,18 @@ private[repository] object IvyDetector extends ScalaSdkDetectorDependencyManager
       result.toOption.map(_.file)
     }
 
-    descriptor
-      .copy(compilerClasspath = compilerJars)
-      .withExtraLibraryFiles(scala2LibraryJar.toSeq)
-      .withExtraSourcesFiles(scala2LibrarySrcJar.toSeq)
+    val descriptor2 = descriptor.copy(compilerClasspath = compilerJars)
+
+    // Starting from Scala 3.8, we don't need to add a dependency on Scala 2 scala-library.jar.
+    // Library named in a Scala 2 style (`scala-library-3.8.0-RC2.jar`) will contain classes and tasty files from both Scala 2 and Scala 3 standard libraries
+    // Related: SCL-24684, SCL-24347
+    val majorScalaVersion = descriptor.version.map(Version(_)).map(_.major(2))
+    if (majorScalaVersion.exists(_ >= Version("3.8").major(2)))
+      descriptor2
+    else
+      descriptor2
+        .withExtraLibraryFiles(scala2LibraryJar.toSeq)
+        .withExtraSourcesFiles(scala2LibrarySrcJar.toSeq)
   }
 
   private def isOptionalDependency(unresolvedDependency: UnresolvedDependency): Boolean = {
