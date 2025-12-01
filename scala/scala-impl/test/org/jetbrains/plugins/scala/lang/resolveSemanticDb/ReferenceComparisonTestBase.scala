@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcesso
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ReferenceComparisonTestBase.RefInfo.{assignmentTarget, opaqueTarget, physicalRefTarget}
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ReferenceComparisonTestBase._
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.configurations.ReferenceComparisonTestConfig
-import org.jetbrains.plugins.scala.util.AliasExports._
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -240,7 +240,8 @@ object ReferenceComparisonTestBase {
                      resolved: Seq[ScalaResolveResult],
                      fileName: String,
                      problems: Option[String],
-                     isImplicit: Boolean)(implicit context: Context) {
+                     isImplicit: Boolean,
+                     isScalaDocRef: Boolean)(implicit context: Context) {
     override def toString: String = s"$name at $pos in $fileName"
 
     lazy val targets: Seq[RefTarget] = resolved
@@ -256,7 +257,11 @@ object ReferenceComparisonTestBase {
         Some(resultsWithProblems.map(rr => rr.problems.mkString(" and ") + s" for ${rr.name}").mkString(", "))
       else None
     }*/
-    def failedToResolve: Boolean = resolved.size != 1 || problems.nonEmpty
+    def failedToResolve: Boolean = {
+      resolved.isEmpty ||
+        (resolved.size > 1 && !isScalaDocRef) ||
+        problems.nonEmpty
+    }
   }
 
   object RefInfo {
@@ -269,7 +274,8 @@ object ReferenceComparisonTestBase {
         resolveResult,
         ref.getContainingFile.name,
         problems,
-        isImplicit = false
+        isImplicit = false,
+        isScalaDocRef = ref.parentOfType[ScDocComment].isDefined
       )(Context(ref))
     }
 
@@ -287,7 +293,8 @@ object ReferenceComparisonTestBase {
             Seq(rr),
             file.name,
             problems,
-            isImplicit = true
+            isImplicit = true,
+            isScalaDocRef = false,
           )(Context(iao)))
         }
       }
