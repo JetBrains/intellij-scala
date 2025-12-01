@@ -1,17 +1,20 @@
 package org.jetbrains.plugins.scala.testingSupport
 
 import com.intellij.execution.actions.{ConfigurationContext, ConfigurationFromContext}
-import com.intellij.execution.configurations.{JavaCommandLineState, RunConfiguration, RunnerSettings}
+import com.intellij.execution.configurations.{JavaCommandLineState, RunConfiguration, RunProfileState, RunnerSettings}
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.impl.DefaultJavaProgramRunner
-import com.intellij.execution.process.{ProcessHandler, ProcessListener}
-import com.intellij.execution.runners.{ExecutionEnvironmentBuilder, ProgramRunner}
-import com.intellij.execution.testframework.AbstractTestProxy
+import com.intellij.execution.process.{BaseProcessHandler, ProcessHandler, ProcessListener}
+import com.intellij.execution.runners.{ExecutionEnvironment, ExecutionEnvironmentBuilder, ProgramRunner}
+import com.intellij.execution.target.local.{LocalTargetEnvironment, LocalTargetEnvironmentRequest}
+import com.intellij.execution.testframework.{AbstractTestProxy, SearchForTestsTask}
 import com.intellij.execution.testframework.sm.runner.SMTRunnerEventsListener
 import com.intellij.execution.testframework.sm.runner.ui.SMTRunnerConsoleView
 import com.intellij.execution.ui.{ExecutionConsole, RunContentDescriptor}
-import com.intellij.execution.{Executor, PsiLocation, RunnerAndConfigurationSettings}
+import com.intellij.execution.{Executor, JavaTestFrameworkRunnableState, PsiLocation, RunnerAndConfigurationSettings}
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.progress.{EmptyProgressIndicator, ProgressManager}
 import com.intellij.psi.PsiElement
 import com.intellij.testFramework.EdtTestUtil
 import com.intellij.util.concurrency.Semaphore
@@ -265,7 +268,23 @@ abstract class ScalaTestingTestCase
       semaphore.up()
     }
 
-    executionEnvironment.getState match {
+    val state = executionEnvironment.getState
+    if (state != null) {
+      ensureWorkingDirectoryExists(state)
+    }
+
+    runner.execute(executionEnvironment)
+
+    semaphore.waitFor()
+
+    (processHandler.get, contentDescriptor.get)
+  }
+
+  private def ensureWorkingDirectoryExists(state: RunProfileState): Any = {
+    state match {
+      // Examples of such state:
+      //  - org.jetbrains.plugins.scala.testingSupport.test.ScalaTestFrameworkCommandLineState
+      //  - com.intellij.execution.junit.TestPackage
       case state: JavaCommandLineState =>
         Try {
           val workingDir = state.getJavaParameters.getWorkingDirectory
@@ -277,11 +296,5 @@ abstract class ScalaTestingTestCase
 
       case _ =>
     }
-
-    runner.execute(executionEnvironment)
-
-    semaphore.waitFor()
-
-    (processHandler.get, contentDescriptor.get)
   }
 }

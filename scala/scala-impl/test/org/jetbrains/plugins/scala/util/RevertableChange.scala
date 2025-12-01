@@ -1,16 +1,19 @@
 package org.jetbrains.plugins.scala.util
 
 import com.intellij.codeInsight.CodeInsightSettings
+import com.intellij.execution.testframework.SearchForTestsTask
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ex.{ApplicationEx, ApplicationManagerEx}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.Disposer
+import com.intellij.openapi.util.{Disposer, Key}
 import com.intellij.openapi.util.registry.{Registry, RegistryValue}
-import com.intellij.testFramework.UsefulTestCase
+import com.intellij.testFramework.{TestModeFlags, UsefulTestCase}
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerSettings, ScalaCompilerSettingsProfile}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.RevertableChange.CompositeRevertableChange
+
+import java.lang
 
 trait RevertableChange {
 
@@ -211,5 +214,13 @@ object RevertableChange {
     override def revertChange(): Unit = {
       profile.setSettings(oldSettings)
     }
+  }
+
+  def withModifiedTestModeFlag(key: Key[java.lang.Boolean], value: Boolean): RevertableChange = {
+    RevertableChange.withModifiedSetting[java.lang.Boolean](
+      TestModeFlags.is(key),
+      v => TestModeFlags.set(key, v),
+      value
+    )
   }
 }
