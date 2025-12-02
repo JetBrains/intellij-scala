@@ -1,10 +1,11 @@
-package org.jetbrains.plugins.scala
-package annotator
+package org.jetbrains.plugins.scala.annotator.withLibraryDependencies
 
 import org.jetbrains.plugins.scala.DependencyManagerBase._
+import org.jetbrains.plugins.scala.annotator.ScalaHighlightingTestBase
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
-class AkkaHttpHighlightingTest_2_12 extends ScalaHighlightingTestBase {
+class AkkaHttpHighlightingTest_Scala_2_12 extends ScalaHighlightingTestBase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
 

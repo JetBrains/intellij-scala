@@ -1,10 +1,10 @@
-package org.jetbrains.plugins.scala.annotator
+package org.jetbrains.plugins.scala.annotator.withLibraryDependencies
 
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
+import org.jetbrains.plugins.scala.annotator.ScalaHighlightingTestBase
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
-//TODO: move any highlighting tests with libraries to separate package
 class DoobieHighlightingTest_Scala3 extends ScalaHighlightingTestBase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean =
