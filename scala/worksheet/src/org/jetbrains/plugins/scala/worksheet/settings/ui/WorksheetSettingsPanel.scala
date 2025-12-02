@@ -137,6 +137,9 @@ private final class WorksheetSettingsPanel(
     root.add(new JLabel(WorksheetBundle.message("worksheet.settings.panel.run.type")))
     root.add(runTypeComboBox, wrap.growX())
 
+    //TODO: handle the case when WS is not in the main/test module
+    // also related to
+    // https://youtrack.jetbrains.com/issue/SCL-24317/Cant-create-Scala-Worksheet-in-sbt-root-project-dir-due-to-missing-Scala-SDK-in-the-parent-module
     root.add(new JLabel(WorksheetBundle.message("worksheet.settings.panel.use.class.path.of.module")))
     root.add(moduleComboBox, c.wrap().growX())
 
