@@ -1,12 +1,13 @@
 package org.jetbrains.plugins.scala.project.sdkdetect.repository
 
 import com.intellij.openapi.util.SystemInfo
+import com.intellij.openapi.util.io.NioFiles
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.util.system.CpuArch
 import junitparams.naming.TestCaseName
 import junitparams.{JUnitParamsRunner, Parameters}
-import org.apache.commons.io.FileUtils
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
+import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.junit.Assert._
 import org.junit.Test
@@ -54,8 +55,7 @@ class SystemDetectorIntegrationTest extends ScalaLightCodeInsightFixtureTestCase
   }
 
   private def testScalaVersion(scalaVersion: ScalaVersion): Unit = {
-    val baseTempDir = Files.createTempDirectory("system-detector-test-sdk-root")
-    baseTempDir.toFile.deleteOnExit()
+    val baseTempDir = Files.createTempDirectory("system-detector-test-sdk-root-")
 
     val scalaVersionStr = scalaVersion.minor
 
@@ -66,19 +66,19 @@ class SystemDetectorIntegrationTest extends ScalaLightCodeInsightFixtureTestCase
 
     val scalaSdkInnerDirNamePrefix = if (scalaVersion.isScala3) s"scala3-$scalaVersionStr" else s"scala-$scalaVersionStr"
 
-    val filesInDir = unzippedDir.toFile.listFiles()
+    val filesInDir = unzippedDir.children()
     // Examples:
     // scala-2.13.16
     // scala3-3.3.6
     // scala3-3.7.1-RC2-aarch64-apple-darwin
-    val scalaSdkRoot = filesInDir.find(f => f.isDirectory && f.getName.startsWith(scalaSdkInnerDirNamePrefix)).getOrElse {
+    val scalaSdkRoot = filesInDir.find(f => f.isDirectory && f.getFileName.toString.startsWith(scalaSdkInnerDirNamePrefix)).getOrElse {
       fail(
         s"""Scala SDK dir not found for version $scalaVersionStr in $unzippedDir. Existing files:
            |${filesInDir.mkString("\n")}""".stripMargin).asInstanceOf[Nothing]
     }
 
     try {
-      val scalaSdkRootVirtualFile = VirtualFileManager.getInstance().findFileByNioPath(scalaSdkRoot.toPath)
+      val scalaSdkRootVirtualFile = VirtualFileManager.getInstance().findFileByNioPath(scalaSdkRoot)
       SystemDetector.buildSdkDescriptor(Seq(scalaSdkRootVirtualFile)) match {
         case Right(_) => //all good
         case Left(errors) =>
@@ -90,8 +90,7 @@ class SystemDetectorIntegrationTest extends ScalaLightCodeInsightFixtureTestCase
       }
     } finally {
       // Clean up
-      FileUtils.deleteDirectory(unzippedDir.toFile)
-      Files.deleteIfExists(zipFile)
+      NioFiles.deleteRecursively(baseTempDir)
     }
   }
 
