@@ -7,6 +7,7 @@ import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditorManager}
 import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.openapi.module.{Module, ModuleUtilCore}
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.text.Strings
 import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
 import com.intellij.psi.{PsiDirectory, PsiManager}
 import com.intellij.testFramework.EditorTestUtil
@@ -113,7 +114,7 @@ trait ScalaFilePasteProviderInSbtProjectTestLike {
       newFileNames
     )
 
-    val fileContent = new String(newFiles.head.contentsToByteArray())
+    val fileContent = Strings.convertLineSeparators(new String(newFiles.head.contentsToByteArray()))
     assertEquals(
       "Newly created file content should equal to the pasted content",
       expectedFileText,
@@ -144,7 +145,7 @@ trait ScalaFilePasteProviderInSbtProjectTestLike {
   ): Unit = {
     val (expectedFileText, caretMarkerIdx) = MarkersUtils.extractCaretMarker(expectedFileTextWithCaret, Caret)
 
-    val fileContent = new String(expectedFile.contentsToByteArray())
+    val fileContent = Strings.convertLineSeparators(new String(expectedFile.contentsToByteArray()))
     assertEquals(
       "Existing file content should equal to the pasted content",
       expectedFileText,
