@@ -106,8 +106,7 @@ class SystemDetectorIntegrationTest extends ScalaLightCodeInsightFixtureTestCase
     val scalaVersion = version.minor
 
     if (version.isScala2) {
-      val archiveType = if (SystemInfo.isWindows) "msi" else "zip"
-      s"https://github.com/scala/scala/releases/download/v$scalaVersion/scala-$scalaVersion.$archiveType"
+      s"https://github.com/scala/scala/releases/download/v$scalaVersion/scala-$scalaVersion.zip"
     }
     else if (version < ScalaVersion.Latest.Scala_3_5.withMinor(0)) {
       // Scala 3.0-3.4 has generic binaries
