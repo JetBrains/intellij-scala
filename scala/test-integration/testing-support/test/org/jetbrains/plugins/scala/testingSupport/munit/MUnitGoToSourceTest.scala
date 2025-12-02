@@ -1,5 +1,8 @@
 package org.jetbrains.plugins.scala.testingSupport.munit
 
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.client.ClientSystemInfo
+import com.intellij.testFramework.common.ThreadLeakTracker
 import org.jetbrains.plugins.scala.util.assertions.ExceptionAssertions
 
 abstract class MUnitGoToSourceTestBase extends MUnitTestCase {
@@ -69,6 +72,18 @@ abstract class MUnitGoToSourceTestBase extends MUnitTestCase {
   }
 }
 
-class MUnit_0_7_GoToSourceTest extends MUnitGoToSourceTestBase with MUnit_0_7
+class MUnit_0_7_GoToSourceTest extends MUnitGoToSourceTestBase with MUnit_0_7 {
+  override protected def setUp(): Unit = {
+    super.setUp()
+
+    //noinspection ApiStatus,UnstableApiUsage
+    if (ClientSystemInfo.isWindows) {
+      ThreadLeakTracker.longRunningThreadCreated(
+        ApplicationManager.getApplication,
+        "JavaProcessMonitor"
+      )
+    }
+  }
+}
 
 class MUnit_1_0_GoToSourceTest extends MUnitGoToSourceTestBase with MUnit_1_0
