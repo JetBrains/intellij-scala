@@ -35,6 +35,7 @@ import org.jetbrains.plugins.scala.project.external.{JdkByName, SdkUtils}
 import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
 import org.jetbrains.sbt.SbtUtil.{detectSbtVersion as _, *}
 import org.jetbrains.sbt.buildinfo.BuildInfo
+import org.jetbrains.sbt.process.SbtRunner
 import org.jetbrains.sbt.project.SbtExternalSystemManager
 import org.jetbrains.sbt.project.settings.SbtExecutionSettings
 import org.jetbrains.sbt.project.structure.SbtOption.*
@@ -293,6 +294,10 @@ final class SbtProcessManager(project: Project) extends Disposable {
     pty.withWorkDirectory(commandLine.getWorkDirectory)
     pty.withEnvironment(commandLine.getEnvironment)
     pty.withEnvironment(environment.asJava)
+
+    if isUnitTestMode && SystemInfo.isWindows then
+      pty.withEnvironment(SbtRunner.defaultCoursierDirectoriesAsEnvVariables().asJava)
+
     pty.withParameters(commandLine.getParametersList.getList)
     val parentEnvironmentType = if (passParentEnvironment) commandLine.getParentEnvironmentType else ParentEnvironmentType.NONE
     pty.withParentEnvironmentType(parentEnvironmentType)

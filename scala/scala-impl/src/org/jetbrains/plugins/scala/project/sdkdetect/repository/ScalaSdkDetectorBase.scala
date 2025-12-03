@@ -43,11 +43,11 @@ abstract class ScalaSdkDetectorBase extends ScalaSdkDetector
     }
   }
 
-  private[project] def buildFromComponents(
+  private[repository] def buildFromComponents(
     components: Seq[ScalaSdkComponent],
     label: Option[String],
-    systemRoot: Option[Path] = None,
-    indicator: ProgressIndicator = new EmptyProgressIndicator
+    indicator: ProgressIndicator,
+    systemRoot: Option[Path] = None
   ): Either[Seq[CompilerClasspathResolveFailure], ScalaSdkDescriptor] = {
     val descriptorShort = buildFromComponentsShort(components, label).map(_.copy(systemRoot = systemRoot))
     val descriptorFull = descriptorShort.flatMap(resolveExtraRequiredJars(_)(indicator))
