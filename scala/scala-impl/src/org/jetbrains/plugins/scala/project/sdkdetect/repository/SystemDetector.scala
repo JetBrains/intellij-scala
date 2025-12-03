@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.project.sdkdetect.repository
 
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.openapi.progress.{EmptyProgressIndicator, ProgressIndicator}
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.plugins.scala.ScalaBundle
@@ -177,9 +177,7 @@ private[project] object SystemDetector extends ScalaSdkDetectorBase {
       (containsRequiredScalaLibraryJars(path) || findCompilerClasspathJar(path).isDefined)
   }
 
-  def buildSdkDescriptor(selectedFiles: Seq[VirtualFile]): Either[Seq[CompilerClasspathResolveFailure], ScalaSdkDescriptor] = {
-    val files = selectedFiles.map(_.toNioPath)
-
+  def buildSdkDescriptorFromFiles(files: Seq[Path], indicator: ProgressIndicator = new EmptyProgressIndicator()): Either[Seq[CompilerClasspathResolveFailure], ScalaSdkDescriptor] = {
     val systemRoot = files match {
       case Seq(f) if f.isDirectory => Some(f)
       case _ => None
@@ -188,7 +186,12 @@ private[project] object SystemDetector extends ScalaSdkDetectorBase {
     val (regularFiles, directories) = files.partition(_.isRegularFile)
     val allFiles = regularFiles ++ directories.flatMap(_.allFiles())
     val components = ScalaSdkComponent.fromFiles(allFiles)
-    buildFromComponents(components, None, systemRoot = systemRoot)
+    buildFromComponents(components, None, indicator = indicator, systemRoot = systemRoot)
+  }
+
+  def buildSdkDescriptor(selectedFiles: Seq[VirtualFile]): Either[Seq[CompilerClasspathResolveFailure], ScalaSdkDescriptor] = {
+    val files = selectedFiles.map(_.toNioPath)
+    buildSdkDescriptorFromFiles(files)
   }
 
   override protected def resolveExtraRequiredJarsScala3(descriptor: ScalaSdkDescriptor)
