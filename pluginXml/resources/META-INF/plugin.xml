@@ -20,7 +20,7 @@
     <name>Scala</name>
     <description>
         <![CDATA[
-        Adds support for the Scala language. The following features are available for free with IntelliJ IDEA Community Edition:
+        The plugin adds support for the Scala language. It enables multiple features such as:
         <br>
         <ul>
           <li>Coding assistance (highlighting, completion, formatting, refactorings, etc.)</li>
@@ -30,7 +30,7 @@
           <li>Scala debugger, worksheets and Ammonite scripts</li>
         </ul>
         <br>
-        Support for Play Framework, Akka and Scala.js is enabled in IntelliJ IDEA Ultimate.
+        Support for Play Framework, Akka and Scala.js is enabled in the Ultimate subscription.
       ]]>
     </description>
     <version>VERSION</version>
