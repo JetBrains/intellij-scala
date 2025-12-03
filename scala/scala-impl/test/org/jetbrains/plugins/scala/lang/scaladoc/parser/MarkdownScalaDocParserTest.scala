@@ -2268,4 +2268,104 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  // TODO: fix alt text
+  def test_ref_link(): Unit = checkTree(
+    """
+      |/**
+      | * [[ref.ref]]
+      | * [[ref.ref Some alt text]]
+      | */
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  DocComment
+      |    ScPsiDocToken(DOC_COMMENT_START)('/**')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    ScDocParagraph
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      DocSyntaxElement 64
+      |        ScPsiDocToken(DOC_LINK_TAG 64)('[[')
+      |        ASTWrapperPsiElement(SCALA_DOC_REFERENCE_LINK)
+      |          CodeReferenceElement (scalaDoc): ref.ref
+      |            CodeReferenceElement (scalaDoc): ref
+      |              PsiElement(identifier)('ref')
+      |            PsiElement(.)('.')
+      |            PsiElement(identifier)('ref')
+      |        ScPsiDocToken(DOC_LINK_CLOSE_TAG 0)(']]')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      DocSyntaxElement 64
+      |        ScPsiDocToken(DOC_LINK_TAG 64)('[[')
+      |        ASTWrapperPsiElement(SCALA_DOC_REFERENCE_LINK)
+      |          CodeReferenceElement (scalaDoc): ref.ref
+      |            CodeReferenceElement (scalaDoc): ref
+      |              PsiElement(identifier)('ref')
+      |            PsiElement(.)('.')
+      |            PsiElement(identifier)('ref')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(identifier)('Some')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(identifier)('alt')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(identifier)('text')
+      |        ScPsiDocToken(DOC_LINK_CLOSE_TAG 0)(']]')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_END)('*/')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  // TODO: fix alt text
+  def test_http_link(): Unit = checkTree(
+    """
+      |/**
+      | * [[http://google.com]]
+      | * [[http://google.com Some alt text]]
+      | * [[https://google.com]]
+      | * [[https://google.com Some alt text]]
+      | */
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  DocComment
+      |    ScPsiDocToken(DOC_COMMENT_START)('/**')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    ScDocParagraph
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      DocSyntaxElement 128
+      |        ScPsiDocToken(DOC_HTTP_LINK_TAG 128)('[[')
+      |        ScPsiDocToken(DOC_HTTP_LINK_VALUE)('http://google.com')
+      |        ScPsiDocToken(DOC_LINK_CLOSE_TAG 0)(']]')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      DocSyntaxElement 128
+      |        ScPsiDocToken(DOC_HTTP_LINK_TAG 128)('[[')
+      |        ScPsiDocToken(DOC_HTTP_LINK_VALUE)('http://google.com Some alt text')
+      |        ScPsiDocToken(DOC_LINK_CLOSE_TAG 0)(']]')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      DocSyntaxElement 128
+      |        ScPsiDocToken(DOC_HTTP_LINK_TAG 128)('[[')
+      |        ScPsiDocToken(DOC_HTTP_LINK_VALUE)('https://google.com')
+      |        ScPsiDocToken(DOC_LINK_CLOSE_TAG 0)(']]')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      DocSyntaxElement 128
+      |        ScPsiDocToken(DOC_HTTP_LINK_TAG 128)('[[')
+      |        ScPsiDocToken(DOC_HTTP_LINK_VALUE)('https://google.com Some alt text')
+      |        ScPsiDocToken(DOC_LINK_CLOSE_TAG 0)(']]')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_END)('*/')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
 }
