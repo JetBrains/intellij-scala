@@ -312,38 +312,6 @@ final class SbtRunner(processOutputCollector: Option[ProcessOutputCollector] = N
   private def dontPrintErrorsAndWarningsToConsoleDuringTests: Boolean =
     System.getProperty("sbt.structure.dump.dontPrintErrorsAndWarningsToConsoleDuringTests") == "true"
 
-  /**
-   * This is a workaround for [[https://github.com/sbt/sbt/issues/5128]] (tested for sbt 1.4.9)
-   *
-   * The bug is reproduced on Teamcity, on Windows agents:
-   * ProjectImportingTest is stuck indefinitely when the test is run from sbt.<br>
-   * It's also reproduces locally when running the test from sbt.<br>
-   * But for some reason is not reproduced when running from IDEA test runners<br>
-   *
-   * Environment variables which have to be mocked are inferred from methods in
-   * `lmcoursier.internal.shaded.coursier.paths.CoursierPaths` (version 2.0.6)
-   *
-   * @see [[https://github.com/sbt/sbt/issues/5128]]
-   * @see [[https://github.com/dirs-dev/directories-jvm/issues/49]]
-   * @see [[https://github.com/ScoopInstaller/Main/pull/878/files]]
-   */
-  private def defaultCoursierDirectoriesAsEnvVariables(): Seq[(String, String)] =
-    val LocalAppData = System.getenv("LOCALAPPDATA")
-    val AppData = System.getenv("APPDATA")
-
-    val CoursierLocalAppDataHome = Path.of(LocalAppData, "Coursier")
-    val CoursierAppDataHome = Path.of(AppData, "Coursier")
-
-    Seq(
-      ("COURSIER_CACHE", CoursierLocalAppDataHome / "cache" / "v1"),
-      ("COURSIER_ARCHIVE_CACHE", CoursierLocalAppDataHome / "cache" / "arc"),
-      ("COURSIER_JVM_CACHE", CoursierLocalAppDataHome / "cache" / "jvm"),
-      ("COURSIER_CONFIG_DIR", CoursierAppDataHome / "config"),
-      ("COURSIER_DATA_DIR", CoursierLocalAppDataHome / "data"),
-      ("SCALA_CLI_CONFIG", CoursierAppDataHome / "config" / "secrets" / "config.json")
-    ).map((env, path) => (env, path.toCanonicalPath.toString))
-  end defaultCoursierDirectoriesAsEnvVariables
-
   // Due to #SCL-19498 it is needed to prepend each command with empty space at the beginning
   private def ignoreInShellHistory(command: String): String = command.prependedAll(" ")
 
@@ -373,3 +341,34 @@ object SbtRunner:
   // sbt import will take some time because it will have to download quite a lot of dependencies
   private[sbt] val MaxImportDurationInUnitTests: FiniteDuration = 10.minutes
 
+  /**
+   * This is a workaround for [[https://github.com/sbt/sbt/issues/5128]] (tested for sbt 1.4.9)
+   *
+   * The bug is reproduced on Teamcity, on Windows agents:
+   * ProjectImportingTest is stuck indefinitely when the test is run from sbt.<br>
+   * It's also reproduces locally when running the test from sbt.<br>
+   * But for some reason is not reproduced when running from IDEA test runners<br>
+   *
+   * Environment variables which have to be mocked are inferred from methods in
+   * `lmcoursier.internal.shaded.coursier.paths.CoursierPaths` (version 2.0.6)
+   *
+   * @see [[https://github.com/sbt/sbt/issues/5128]]
+   * @see [[https://github.com/dirs-dev/directories-jvm/issues/49]]
+   * @see [[https://github.com/ScoopInstaller/Main/pull/878/files]]
+   */
+  private[sbt] def defaultCoursierDirectoriesAsEnvVariables(): Map[String, String] =
+    val LocalAppData = System.getenv("LOCALAPPDATA")
+    val AppData = System.getenv("APPDATA")
+
+    val CoursierLocalAppDataHome = Path.of(LocalAppData, "Coursier")
+    val CoursierAppDataHome = Path.of(AppData, "Coursier")
+
+    Map(
+      ("COURSIER_CACHE", CoursierLocalAppDataHome / "cache" / "v1"),
+      ("COURSIER_ARCHIVE_CACHE", CoursierLocalAppDataHome / "cache" / "arc"),
+      ("COURSIER_JVM_CACHE", CoursierLocalAppDataHome / "cache" / "jvm"),
+      ("COURSIER_CONFIG_DIR", CoursierAppDataHome / "config"),
+      ("COURSIER_DATA_DIR", CoursierLocalAppDataHome / "data"),
+      ("SCALA_CLI_CONFIG", CoursierAppDataHome / "config" / "secrets" / "config.json")
+    ).map((env, path) => (env, path.toCanonicalPath.toString))
+  end defaultCoursierDirectoriesAsEnvVariables
