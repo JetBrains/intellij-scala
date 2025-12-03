@@ -126,7 +126,7 @@ private class ScaladocMarkdownParsing(builder: MkBuilder, content: String) exten
       case MarkdownElementTypes.EMPH => visitBorderSyntaxElement(elementTy, treeIt, ScalaDocTokenType.DOC_ITALIC_TAG, ScalaDocTokenType.DOC_ITALIC_TAG, 1)
       case MarkdownElementTypes.STRONG => visitBorderSyntaxElement(elementTy, treeIt, ScalaDocTokenType.DOC_BOLD_TAG, ScalaDocTokenType.DOC_BOLD_TAG, 2)
       case MarkdownElementTypes.CODE_SPAN => visitBorderSyntaxElement(elementTy, treeIt, ScalaDocTokenType.DOC_MONOSPACE_TAG, ScalaDocTokenType.DOC_MONOSPACE_TAG, 1)
-      case WikiLinkParser.WIKI_LINK => visitBorderSyntaxElement(elementTy, treeIt, ScalaDocTokenType.DOC_LINK_TAG, ScalaDocTokenType.DOC_LINK_CLOSE_TAG, 2, ScalaDocElementTypes.SCALA_DOC_REFERENCE_LINK)
+      case WikiLinkParser.WIKI_LINK => visitWikiDocLink(treeIt)
       case MarkdownElementTypes.CODE_FENCE => visitCodeFence(elementTy, treeIt)
       case MarkdownElementTypes.PARAGRAPH => visitParagraph(elementTy, treeIt)
       case MarkdownElementTypes.BLOCK_QUOTE => visitBlockQuote(elementTy, treeIt)
@@ -225,6 +225,33 @@ private class ScaladocMarkdownParsing(builder: MkBuilder, content: String) exten
     ensureBuilderInPosition(treeIt.currentEndOffset, endTagType)
 
     marker.done(elementTy)
+  }
+
+  private def visitWikiDocLink(treeIt: MkTreeIt): Unit = {
+    val childIt = treeIt.startIterateCurrentChildren()
+    ensureBuilderInPosition(childIt.currentStartOffset)
+
+    val marker = builder.mark()
+
+    childIt.advance() // eat [
+    childIt.advance() // eat [
+
+    val textOffset = childIt.currentStartOffset
+    val text = nodeText(childIt.current)
+    val isHttpLink = text == "http" || text == "https"
+
+    val (elementType, refTegType) =
+      if (isHttpLink) (ScalaDocTokenType.DOC_HTTP_LINK_TAG, ScalaDocTokenType.DOC_HTTP_LINK_VALUE)
+      else (ScalaDocTokenType.DOC_LINK_TAG, ScalaDocElementTypes.SCALA_DOC_REFERENCE_LINK)
+
+    childIt.dropRest()
+
+    ensureBuilderInPosition(textOffset, elementType) // mark [[
+    ensureBuilderInPosition(treeIt.currentEndOffset - 2, refTegType) // mark the link content
+
+    ensureBuilderInPosition(treeIt.currentEndOffset, ScalaDocTokenType.DOC_LINK_CLOSE_TAG) // mark ]]
+
+    marker.done(elementType)
   }
 
   private def visitCodeFence(elementTy: IElementType, treeIt: MkTreeIt): Unit = {
