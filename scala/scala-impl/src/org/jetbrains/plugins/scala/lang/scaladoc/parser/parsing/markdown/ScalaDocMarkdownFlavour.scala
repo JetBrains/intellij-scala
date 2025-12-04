@@ -12,9 +12,10 @@ import org.intellij.markdown.html._
 import org.intellij.markdown.lexer.MarkdownLexer
 import org.intellij.markdown.parser.sequentialparsers.impl._
 import org.intellij.markdown.parser.sequentialparsers.{EmphasisLikeParser, SequentialParser, SequentialParserManager}
-import org.intellij.markdown.parser.{LinkMap, LookaheadText, MarkerProcessor, MarkerProcessorFactory, ProductionHolder}
+import org.intellij.markdown.parser.{LinkMap, LookaheadText, MarkerProcessorFactory, ProductionHolder}
 import org.intellij.markdown.{IElementType, MarkdownElementTypes, MarkdownTokenTypes}
 import org.jetbrains.plugins.scala.Scala3Language
+import org.jetbrains.plugins.scala.editor.documentationProvider.HtmlPsiUtils
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
 
 import java.net.URI
@@ -53,12 +54,15 @@ class ScalaDocMarkdownFlavour extends CommonMarkFlavourDescriptor {
         WikiLinkParser.WIKI_LINK -> new OpenCloseGeneratingProvider {
           override def openTag(visitor: HtmlGenerator#HtmlGeneratingVisitor, s: String, astNode: ASTNode): Unit = {
             val linkText = s.substring(astNode.getStartOffset+2, astNode.getEndOffset-2)
-            // TODO: label selection is kind of iffy.
-            val labelStart = linkText.lastIndexOf('.')
-            val label = if (labelStart > 0) linkText.substring(labelStart + 1) else linkText
-            val buffer = new java.lang.StringBuilder
-            DocumentationManagerUtil.createHyperlink(buffer, linkText, label, false)
-            val html = buffer.toString
+
+            val html =
+              if (linkText.startsWith("http:") || linkText.startsWith("https:")) {
+                HtmlPsiUtils.hyperLink(linkText, linkText)
+              } else {
+                val buffer = new java.lang.StringBuilder
+                DocumentationManagerUtil.createHyperlink(buffer, linkText, linkText, false)
+                buffer.toString
+              }
             visitor.consumeHtml(html)
           }
 
