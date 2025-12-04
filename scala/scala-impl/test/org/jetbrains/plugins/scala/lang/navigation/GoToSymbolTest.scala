@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.navigation
 
 import com.intellij.ide.actions.searcheverywhere.PSIPresentationBgRendererWrapper.ItemWithPresentation
-import com.intellij.ide.actions.searcheverywhere.{SearchEverywhereManager, SearchEverywhereManagerImpl, SearchEverywhereUI, SymbolSearchEverywhereContributor}
+import com.intellij.ide.actions.searcheverywhere.{SearchEverywhereFeature, SearchEverywhereManager, SearchEverywhereManagerImpl, SearchEverywhereUI, SymbolSearchEverywhereContributor}
 import com.intellij.openapi.actionSystem.impl.SimpleDataContext
 import com.intellij.openapi.actionSystem.{ActionUiKind, AnActionEvent, Presentation}
 import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
@@ -28,6 +28,11 @@ import scala.jdk.CollectionConverters._
  * See [[getGotoSymbolE2EResults]] comment for details
  */
 abstract class GoToSymbolTestBase extends ScalaLightCodeInsightFixtureTestCase {
+
+  override protected def setUp(): Unit = {
+    super.setUp()
+    SearchEverywhereFeature.INSTANCE.getAllRegistryKeys.forEach(setRegistryPropertyForTest(_, false.toString))
+  }
 
   /**
    * This method is more advanced alternative of [[myFixture.getGotoSymbolResults]].
