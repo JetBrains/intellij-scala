@@ -32,9 +32,6 @@ class AkkaTest extends TextToTextTestBase(
     "akka.io.TcpListener", // Cannot resolve Matchable
     "akka.io.UdpListener", // Cannot resolve Matchable
     "akka.stream.Supervision", // Excessive parentheses in compound type
-    "akka.stream.javadsl.FlowWithContext", // GraphDelegate is Any
-    "akka.stream.javadsl.SourceWithContext", // GraphDelegate is Any
-    "akka.stream.scaladsl.FlowWithContext", // GraphDelegate is Any
     "akka.stream.scaladsl.MergeHub", // Cannot resolve Event
     "akka.stream.scaladsl.SourceWithContext", // SourceShape is Any
     "akka.stream.stage.GraphStageLogic", // Excessive parentheses in function type
