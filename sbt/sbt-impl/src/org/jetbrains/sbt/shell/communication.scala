@@ -143,8 +143,16 @@ final class SbtShellCommunication(project: Project) {
    *
    * @see [[org.jetbrains.sbt.shell.SbtProcessUtil.promptError]]
    */
-  private def sendIgnore(): Unit =
-    send("i")
+  private def sendIgnore(): Unit = {
+    // Prior to sbt 1.4.0, the load failure command input required a newline.
+    // However, in newer versions, adding it unconditionally causes a double prompt to appear.
+    // See https://github.com/sbt/sbt/commit/5afc0f0fdfe4500770c000a02fa57c9b46e8de3c
+    val requiresNewLine = getRunningOrDetectedSbtVersion < SbtVersion("1.4.0")
+    val command =
+      if (requiresNewLine) "i" + System.lineSeparator
+      else "i"
+    send(command)
+  }
 
   /**
     * Send string directly to the shell without regarding the shell state.
