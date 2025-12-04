@@ -113,6 +113,71 @@ class Scala2UsedLocalDeclarationInspectionTest extends ScalaUnusedDeclarationIns
       |""".stripMargin
   )
 
+    def test_implicit_ClassTag_used_in_isInstanceOf(): Unit = checkHasErrorAroundCaret(
+    s"""import scala.reflect.ClassTag
+       |def foo[T](x: Any)(implicit c${CARET}t: ClassTag[T]): Boolean = x.isInstanceOf[T]
+       |foo[Int](42)
+       |""".stripMargin
+  )
+
+  def test_implicit_ClassTag_used_in_type_pattern(): Unit = checkTextHasNoErrors(
+    """import scala.reflect.ClassTag
+      |def foo[T](x: Any)(implicit ct: ClassTag[T]): Boolean = x match { case _: T => true; case _ => false }
+      |foo[Int](42)
+      |""".stripMargin
+  )
+
+  def test_implicit_ClassTag_from_def(): Unit = checkTextHasNoErrors(
+    """@scala.annotation.unused
+      |abstract class C {
+      |  import scala.reflect.ClassTag
+      |
+      |  type T
+      |  private implicit def tagT: ClassTag[T] = ???
+      |
+      |  def foo(x: Any): String = x match { case _: T => true; case _ => false }
+      |
+      |  foo(0)
+      |}
+      |""".stripMargin
+  )
+
+  def test_ClassTag_context_bound_used_in_type_pattern(): Unit = checkTextHasNoErrors(
+    """import scala.reflect.ClassTag
+      |def bar[T: ClassTag](x: Any): Boolean = x match {
+      |  case _: T => true
+      |  case _ => false
+      |}
+      |
+      |bar[Int](42)
+      |""".stripMargin
+  )
+
+  def test_used_contextBound(): Unit = {
+    checkHasErrorAroundCaret(
+      s"""import scala.reflect.ClassTag
+         |def bar[X: ClassTag, Y: Cla${CARET}ssTag](x: Any): Boolean = x match {
+         |  case _: X => true
+         |  case _ => false
+         |}
+         |
+         |bar[Int](42)
+         |""".stripMargin
+    )
+  }
+
+  def test_unused_contextBound_in_definition(): Unit = {
+    checkHasErrorAroundCaret(
+      s"""import scala.reflect.ClassTag
+         |def bar[X: Cla${CARET}ssTag](x: Any): Unit = {
+         |  val _: X = x
+         |}
+         |
+         |bar[Int](42)
+         |""".stripMargin
+    )
+  }
+
   def test_implicit_private_class_constructor_val_with_implicit_method_parameter(): Unit = checkTextHasNoErrors(
     """@scala.annotation.unused class A()(implicit private val i: Int) { A.b() }
       |object A { def b()(implicit i: Int): Int = i }

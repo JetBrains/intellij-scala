@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base.types
 
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 
 trait ScContextBound extends ScalaPsiElement with ScNamedElement {
@@ -16,6 +18,9 @@ trait ScContextBound extends ScalaPsiElement with ScNamedElement {
   def nameIdOpt: Option[PsiElement]
 
   def nameOpt: Option[String] = nameIdOpt.map(_.getText)
+
+  def parentTypeParam: Option[ScTypeParam] =
+    getContext.asOptionOf[ScTypeParam]
 }
 
 object ScContextBound {

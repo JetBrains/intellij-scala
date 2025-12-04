@@ -1,15 +1,15 @@
 package org.jetbrains.plugins.scala.lang.psi.api.statements
 
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.psi.{PsiElement, ResolveState}
+import com.intellij.psi.ResolveState
 import com.intellij.psi.scope.PsiScopeProcessor
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPathElement, ScReference}
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScContextBound
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
 
 trait ScParameterOwner extends ScalaPsiElement {
   def parameters: Seq[ScParameter]
@@ -87,7 +87,7 @@ object ScParameterOwner {
       new ScalaRecursiveElementVisitor {
         override def visitReference(ref: ScReference): Unit = {
           boundUsageFound =
-            contextBoundsNames.exists(name => ref.qualifier.exists(_.getText == name))
+            contextBoundsNames.exists(name => ref.qualifier.exists(_.textMatches(name)))
         }
       }
 
