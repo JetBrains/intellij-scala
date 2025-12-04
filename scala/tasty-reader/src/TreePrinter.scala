@@ -544,8 +544,8 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
 
   private def textOfType(node: Node, parens: Int = 0)(using parent: Option[Node] = None): String = {
     val withDotTypeSuffix =
-      parent.forall(_.is(SINGLETONtpt, APPLIEDtype))
-        && node.is(TERMREF, TERMREFsymbol, TERMREFdirect, SELECT)
+      parent.forall(_.is(SINGLETONtpt, APPLIEDtype)) && node.is(TERMREF, TERMREFsymbol, TERMREFdirect, SELECT) ||
+        parent.isEmpty && node.is(THIS)
 
     if (node.isSharedType) {
       val fromCache = sharedTypes.get(node.addr)
@@ -598,7 +598,8 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
         else if (qualifier == "_root_.`<empty>`")
           ""
         else
-          qualifier.split('.').last + ".this"
+          val typeSuffix = if (withDotTypeSuffix) ".type" else ""
+          qualifier.split('.').last + ".this" + typeSuffix
       case Node3(QUALTHIS, _, Seq(tail)) =>
         val qualifier = textOfType(tail)
         qualifier.split('.').last + ".this" // Simplify Foo.this in Foo?
