@@ -10,17 +10,19 @@ import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.highlighter.usages.ScalaHighlightImplicitUsagesHandler.TargetKind._
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScTypedPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScContextBound, ScSimpleTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.annotation.tailrec
@@ -53,20 +55,42 @@ object ImplicitUtil {
         .exists(matches)
 
     def refOrImplicitRefIn(usage: PsiElement): Option[PsiReference] = usage match {
-      case ref: ScReference if ref.bind().exists(isTarget)        => Option(ref)
-      case e: ScExpression if isImplicitConversionOrParameter(e)  => Option(ImplicitReference(e, targetImplicit))
-      case c: ScConstructorInvocation if implicitArgumentOf(c) => Option(ImplicitReference(c, targetImplicit))
-      case c: ScContextBound if isContextBound(c, targetImplicit) => Option(ImplicitReference(c, targetImplicit))
-      case _                                                      => None
+      case ref: ScReference if ref.bind().exists(isTarget)        => Some(ref)
+      case e: ScExpression if isImplicitConversionOrParameter(e)  => Some(ImplicitReference(e, targetImplicit))
+      case c: ScConstructorInvocation if implicitArgumentOf(c)    => Some(ImplicitReference(c, targetImplicit))
+      case c: ScContextBound if isContextBound(c, targetImplicit) => Some(ImplicitReference(c, targetImplicit))
+      case p@ScTypedPattern(Typeable(ty)) if targetsClassTagFor(ty) =>
+        // ClassTag/Manifest evidence used by type test pattern: `case _: T`
+        Some(ImplicitReference(p, targetImplicit))
+      case _ => None
+    }
+
+    private def targetsClassTagFor(testedType: ScType): Boolean = {
+      targetImplicit match {
+        case ImplicitSearchTarget(target) =>
+          val declaredTypeOfTarget = target match {
+            case p: ScParameter => p.insideParamType.toOption
+            case td: Typeable => td.`type`().toOption
+            case _ => None
+          }
+
+          declaredTypeOfTarget.exists {
+            case ParameterizedType(des, Seq(arg)) =>
+              des.extractClass.exists(_.qualifiedName == "scala.reflect.ClassTag") && arg.equiv(testedType)
+            case _ => false
+          }
+        case _ =>
+          false
+      }
     }
   }
 
   object ImplicitSearchTarget {
     def unapply(e: PsiElement): Option[PsiNamedElement] = e match {
-      case named: ScNamedElement       => namedKind.target(named)
-      case ref: ScReference            => refKind.target(ref)
-      case contextBoundElement(tp, te) => contextBoundKind.target(tp, te)
-      case _                           => None
+      case cb: ScContextBound    => contextBoundKind.target(cb)
+      case named: ScNamedElement => namedKind.target(named)
+      case ref: ScReference      => refKind.target(ref)
+      case _                     => None
     }
   }
 
@@ -147,25 +171,5 @@ object ImplicitUtil {
       ) {
     override def resolve(): PsiElement      = targetImplicit
     override def getVariants: Array[AnyRef] = Array.empty
-  }
-
-  object contextBoundElement {
-
-    def unapply(e: PsiElement): Option[(ScTypeParam, ScContextBound)] =
-      (for {
-        element <- NullSafe(e)
-        if ScalaPsiUtil.stub(e).isNull && e.getLanguage.isKindOf(ScalaLanguage.INSTANCE)
-
-        node <- NullSafe(e.getNode)
-        if node.getElementType == ScalaTokenTypes.tCOLON
-
-        parent = element.getParent
-        if parent.is[ScTypeParam]
-        typeParameter = parent.asInstanceOf[ScTypeParam]
-
-        sibling = element.getNextSiblingNotWhitespaceComment
-        if sibling.is[ScContextBound]
-        typeElement = sibling.asInstanceOf[ScContextBound]
-      } yield (typeParameter, typeElement)).toOption
   }
 }

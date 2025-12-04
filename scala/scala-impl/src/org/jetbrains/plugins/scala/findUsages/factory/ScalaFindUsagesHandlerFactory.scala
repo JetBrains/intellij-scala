@@ -19,7 +19,6 @@ import org.jetbrains.plugins.scala.lang.psi.light._
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.refactoring.rename.RenameSuperMembersUtil
 import org.jetbrains.plugins.scala.settings.CompilerIndicesSettings
-import org.jetbrains.plugins.scala.util.ImplicitUtil._
 
 class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerFactory { self =>
 
@@ -34,7 +33,6 @@ class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerF
       case _: ScContextBound         => true
       case _: PsiClassWrapper        => true
       case _: PsiMethodWrapper[_]    => true
-      case contextBoundElement(_, _) => true
       case _                         => false
     }
 
