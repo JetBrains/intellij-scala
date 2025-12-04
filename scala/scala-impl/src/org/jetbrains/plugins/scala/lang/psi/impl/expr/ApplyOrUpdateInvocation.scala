@@ -36,7 +36,8 @@ case class ApplyOrUpdateInvocation(
       expectedOption    = expectedType,
       isShapeResolve    = isShape,
       enableTupling     = true,
-      nameArgForDynamic = nameArgForDynamic
+      nameArgForDynamic = nameArgForDynamic,
+      isSubResolve      = true
     )
 
     val simpleCandidates = candidatesFromType(proc, targetType)

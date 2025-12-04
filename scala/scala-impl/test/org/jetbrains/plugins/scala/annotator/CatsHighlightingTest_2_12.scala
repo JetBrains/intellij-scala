@@ -97,4 +97,6 @@ class CatsHighlightingTest_2_12 extends ScalaHighlightingTestBase {
     """.stripMargin
   ))
 
+
+  def testFail(): Unit = ???
 }

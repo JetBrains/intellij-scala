@@ -81,7 +81,7 @@ class ForComprehensionHighlightingTest extends ForComprehensionHighlightingTestB
       """.stripMargin
 
     assertMatches(errorsFromScalaCode(code)) {
-      case Error("y <- Option(\"hello2\")", "Expression of type Option[String] doesn't conform to expected type Future[S_]") :: Nil =>
+      case Error("y <- Option(\"hello2\")", "Expression of type Option[String] doesn't conform to expected type Future[NotInferredS]") :: Nil =>
     }
   }
 
@@ -109,7 +109,7 @@ class ForComprehensionHighlightingTest extends ForComprehensionHighlightingTestB
       """.stripMargin
 
     assertMatches(errorsFromScalaCode(code)) {
-      case Error("x <- Seq(1, 2)", "Expression of type Seq[String] doesn't conform to expected type Option[B_]") :: Nil =>
+      case Error("x <- Seq(1, 2)", "Expression of type Seq[String] doesn't conform to expected type Option[NotInferredB]") :: Nil =>
     }
   }
 
@@ -154,7 +154,7 @@ class ForComprehensionHighlightingTest extends ForComprehensionHighlightingTestB
       """.stripMargin
 
     assertMatches(errorsFromScalaCode(code)) {
-      case Error("y <- l", "Expression of type List[String] doesn't conform to expected type Option[B_]") :: Nil =>
+      case Error("y <- l", "Expression of type List[String] doesn't conform to expected type Option[NotInferredB]") :: Nil =>
     }
   }
 
@@ -208,7 +208,7 @@ class ForComprehensionHighlightingTest extends ForComprehensionHighlightingTestB
       """.stripMargin
 
     assertMatches(errorsFromScalaCode(code)) {
-      case Error(_, "Expression of type List[Int] doesn't conform to expected type Option[B_]") :: Nil =>
+      case Error(_, "Expression of type List[Int] doesn't conform to expected type Option[NotInferredB]") :: Nil =>
     }
   }
 

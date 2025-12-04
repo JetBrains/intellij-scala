@@ -10,9 +10,11 @@ trait ExpectedTypes {
 
   def expectedExprType(expr: ScExpression, fromUnderscore: Boolean = true): Option[ParameterType]
 
-  def expectedExprTypes(expr: ScExpression,
-                        withResolvedFunction: Boolean = false,
-                        fromUnderscore: Boolean = true): Array[ParameterType]
+  def expectedExprTypes(
+    expr:                 ScExpression,
+    withResolvedFunction: Boolean = true,
+    fromUnderscore:       Boolean = true
+  ): Array[ParameterType]
 }
 
 object ExpectedTypes {
@@ -20,3 +22,4 @@ object ExpectedTypes {
 
   def instance(): ExpectedTypes = ApplicationManager.getApplication.getService(classOf[ExpectedTypes])
 }
+

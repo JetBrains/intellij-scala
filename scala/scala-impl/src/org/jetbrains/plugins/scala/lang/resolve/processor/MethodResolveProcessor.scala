@@ -44,7 +44,8 @@ class MethodResolveProcessor(
   val enableTupling:          Boolean                   = false,
   val noImplicitsForArgs:     Boolean                   = false,
   val selfConstructorResolve: Boolean                   = false,
-  val nameArgForDynamic:      Option[String]            = None
+  val nameArgForDynamic:      Option[String]            = None,
+  val isSubResolve:           Boolean                   = true
 ) extends ResolveProcessor(kinds, ref, refName) {
   def copy(
     ref:                    PsiElement                = ref,
@@ -60,7 +61,8 @@ class MethodResolveProcessor(
     enableTupling:          Boolean                   = enableTupling,
     noImplicitsForArgs:     Boolean                   = noImplicitsForArgs,
     selfConstructorResolve: Boolean                   = selfConstructorResolve,
-    nameArgForDynamic:      Option[String]            = nameArgForDynamic
+    nameArgForDynamic:      Option[String]            = nameArgForDynamic,
+    isSubResolve:           Boolean                   = isSubResolve
   ): MethodResolveProcessor = new MethodResolveProcessor(
     ref,
     refName,
@@ -75,7 +77,8 @@ class MethodResolveProcessor(
     enableTupling,
     noImplicitsForArgs,
     selfConstructorResolve,
-    nameArgForDynamic
+    nameArgForDynamic,
+    isSubResolve
   )
 
   private def isDynamic: Boolean                 = nameArgForDynamic.nonEmpty
@@ -191,6 +194,7 @@ object MethodResolveProcessor {
   private def problemsFor(
     place:                  PsiElement,
     c:                      ScalaResolveResult,
+    alts:                   Set[ScalaResolveResult],
     checkWithImplicits:     Boolean,
     ref:                    PsiElement,
     argumentClauses:        Seq[Seq[Expression]],
@@ -200,7 +204,8 @@ object MethodResolveProcessor {
     selfConstructorResolve: Boolean,
     isUnderscore:           Boolean,
     shapesOnly:             Boolean,
-    argClauseIdx:           Int
+    argClauseIdx:           Int,
+    isSubResolve:           Boolean
   ): ApplicabilityCheckResult = {
 
     implicit val projectContext: ProjectContext = c.element
@@ -249,12 +254,14 @@ object MethodResolveProcessor {
     })
 
     def addExpectedTypeProblems(): ApplicabilityCheckResult = {
-      if (expectedOption().isEmpty) {
+      val expectedO = expectedOption()
+
+      if (expectedO.isEmpty) {
         val problemsSeq = problems.result()
         return ApplicabilityCheckResult(problemsSeq)
       }
 
-      val expected = expectedOption().get
+      val expected = expectedO.get
 
       val retType: ScType = element match {
         case cons @ ScalaConstructor.in(td: ScTypeDefinition) =>
@@ -455,17 +462,18 @@ object MethodResolveProcessor {
               })
 
             (args, argClauseIdx + 1)
-          } else
-      (argumentClauses, argClauseIdx)
+          } else (argumentClauses, argClauseIdx)
 
         val argsApplicability =
           Compatibility.compatible(
             c,
+            alts.toSeq,
             substitutorWithExpected,
             argsWithDynamic,
             checkWithImplicits,
             shapesOnly,
             ref,
+            isSubResolve,
             argClauseIdxAdjusted
           )
 
@@ -947,6 +955,7 @@ object MethodResolveProcessor {
       val conformanceResult = problemsFor(
         getPlace,
         cand,
+        expandedInput.map(_._1),
         checkWithImplicits,
         ref,
         args,
@@ -956,7 +965,8 @@ object MethodResolveProcessor {
         selfConstructorResolve = selfConstructorResolve,
         isUnderscore           = isUnderscore,
         shapesOnly             = shapesOnly,
-        argClauseIdx           = argClauseIdx
+        argClauseIdx           = argClauseIdx,
+        isSubResolve           = proc.isSubResolve
       )
 
       val typeArgsSubst =

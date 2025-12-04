@@ -62,8 +62,8 @@ object ScFunctionExprAnnotator extends ElementAnnotator[ScFunctionExpr] {
 
     literal.expectedType() match {
       case Some(t @ FunctionType(_, _)) => Some(t)
-      case Some(t) => toSAMType(t, literal)
-      case _ => None
+      case Some(t)                      => toSAMType(t, literal)
+      case _                            => None
     }
   }
 

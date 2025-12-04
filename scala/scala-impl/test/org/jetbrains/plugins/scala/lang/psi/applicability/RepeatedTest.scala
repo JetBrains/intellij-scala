@@ -146,7 +146,7 @@ class RepeatedTest extends ApplicabilityTestBase {
 
   def testExpansionToSeq(): Unit = {
     assertProblems("(a: Seq[A])", "(Seq(A): _*)") {
-      case TypeMismatch(Expression("Seq(A): _*"), Type("Seq[Seq[A]]")) :: Nil =>
+      case ExpansionForNonRepeatedParameter(_) :: Nil =>
     }
   }
 

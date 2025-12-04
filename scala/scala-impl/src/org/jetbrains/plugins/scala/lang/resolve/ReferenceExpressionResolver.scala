@@ -80,7 +80,6 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
       case generic: ScGenericCall if typeArgs.isEmpty && generic.referencedExpr == ref =>
         getContextInfo(ref, generic, typeArgs = generic.arguments)
       case call: ScMethodCall if !call.isUpdateCall && call.getInvokedExpr == e =>
-
         ContextInfo(
           collectPossibleMethodCallArgs(call),
           typeArgs,
@@ -218,7 +217,8 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
         expectedOption,
         info.isUnderscore,
         isShapeResolve = shapesOnly,
-        enableTupling  = true
+        enableTupling  = true,
+        isSubResolve   = false
       )
 
     def resolveConstructorProxies(srrs: Array[ScalaResolveResult]): Array[ScalaResolveResult] = {

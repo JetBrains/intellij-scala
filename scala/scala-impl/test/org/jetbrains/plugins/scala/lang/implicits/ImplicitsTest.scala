@@ -173,4 +173,20 @@ class ImplicitsTest extends TypeInferenceTestBase {
          |//((String, Any)) => (String, A)
       """.stripMargin)
   }
+
+  def testSCL12180(): Unit = {
+    doTest(
+      s"""
+         |case class Foo(a: Long, b: Int)
+         |
+         |implicit class FooOps(val self: Foo.type) {
+         |  def apply(i: Int): Foo = {
+         |    Foo(i.toLong, i)
+         |  }
+         |}
+         |
+         |Foo.apply(${START}1$END)
+         |//Int
+      """.stripMargin)
+  }
 }

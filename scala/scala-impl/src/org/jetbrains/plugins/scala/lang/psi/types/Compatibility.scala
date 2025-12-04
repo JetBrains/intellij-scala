@@ -13,16 +13,18 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.MethodValueExtractor
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.{ImplicitArgumentsClause, SafeCheckException, extractImplicitParameterType}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ConstructorInvocationLike, JavaConstructor, ScConstructorInvocation, ScMethodLike, ScPrimaryConstructor, ScalaConstructor}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes.ParameterType
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScSimpleTypeElementImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ExpectedTypesImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, NamedTupleType, TupleType, TypeParameter, TypeParameterType, UndefinedType, Unit}
+import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -88,16 +90,22 @@ object Compatibility {
       case _ => None
     }
 
-    final case class OfType(tpe: ScType, place: Option[PsiElement])(implicit projectContext: ProjectContext, context: Context) extends Expression {
+    final case class OfType(
+      tpe:   ScType,
+      place: Option[PsiElement]
+    )(implicit
+      projectContext: ProjectContext,
+      context:        Context
+    ) extends Expression {
       private def default: ExpressionTypeResult = ExpressionTypeResult(Right(tpe))
 
       override def getTypeAfterImplicitConversion(
-        checkImplicits: Boolean,
-        isShape: Boolean,
-        expectedOption: Option[ScType],
+        checkImplicits:  Boolean,
+        isShape:         Boolean,
+        expectedOption:  Option[ScType],
         ignoreBaseTypes: Boolean,
-        fromUnderscore: Boolean
-      ): ExpressionTypeResult =
+        fromUnderscore:  Boolean
+      ): ExpressionTypeResult = {
         place.fold(default) { e =>
           if (isShape) ExpressionTypeResult(Right(api.Nothing))
           else if (!checkImplicits) default
@@ -121,6 +129,7 @@ object Compatibility {
               }.getOrElse(default)
             }
         }
+      }
     }
   }
 
@@ -258,7 +267,7 @@ object Compatibility {
     }
   }
 
-  private def seqTypeFor(expr: ScTypedExpression): Option[ScType] =
+  private def seqTypeFor(expr: PsiElement): Option[ScType] =
     seqClass.map(clazz =>
       if (ApplicationManager.getApplication.isUnitTestMode) ScDesignatorType(clazz)
       else throw new RuntimeException("Illegal state for seqClass variable")
@@ -380,6 +389,8 @@ object Compatibility {
     paramClauses.lift(paramClauseIdx)
   }
 
+
+
   /**
    * @param withImplicits            When true, try implicit conversions in case `arg.type <!:< param.type`
    * @param shapesOnly               When true, only calculate shapeTypes of argument expressions
@@ -391,6 +402,29 @@ object Compatibility {
     withImplicits:            Boolean,
     shapesOnly:               Boolean,
     approximateDependentsFor: Set[ScParameter] = Set.empty
+  )(implicit context: Context): ApplicabilityCheckResult =
+    checkMethodApplicability(
+      parameters,
+      Seq(parameters),
+      args,
+      withImplicits,
+      shapesOnly,
+      approximateDependentsFor,
+      isIncompleteExpectedType = false
+    )
+
+  /**
+   * @param alts Parameters of all overloaded alternatives, that are being currently examined
+   *             (used to define the expected type of argument)
+   */
+  def checkMethodApplicability(
+    parameters:               Seq[Parameter],
+    alts:                     Seq[Seq[Parameter]],
+    args:                     Seq[Expression],
+    withImplicits:            Boolean,
+    shapesOnly:               Boolean,
+    approximateDependentsFor: Set[ScParameter],
+    isIncompleteExpectedType: Boolean
   )(implicit context: Context): ApplicabilityCheckResult = {
 
     ProgressManager.checkCanceled()
@@ -431,21 +465,89 @@ object Compatibility {
     val matched              = Seq.newBuilder[(Parameter, ScExpression, ScType)]
     var defaultParameterUsed = false
 
+    def parameterToParameterType(p: Parameter, isSeqExpansion: Boolean): ParameterType = {
+      val tpe = p.psiParam.map { psi =>
+        if (isSeqExpansion)
+          seqTypeFor(psi) match {
+            case Some(stpe) => ScParameterizedType(stpe, Seq(p.expectedType))
+            case None       => p.expectedType
+          }
+        else p.expectedType
+      }.getOrElse(p.expectedType)
+
+      val typeElement = p.paramInCode.flatMap(_.typeElement)
+
+      (tpe, typeElement)
+    }
+
     def processParamConformance(
-      param: Parameter,
-      pt:    ScType,
-      arg:   Expression
+      param:          Parameter,
+      altParameters:  Seq[Parameter],
+      pt:             ScType,
+      arg:            Expression,
+      isSeqExpansion: Boolean
     ): List[ApplicabilityProblem] = {
-      val typeResult =
-        arg.getTypeAfterImplicitConversion(
+      def calculateArgumentType(): TypeResult = {
+        val altParameterTypes = altParameters.map(parameterToParameterType(_, isSeqExpansion)).toArray
+        val maybeFunctionExpr = arg.asOptionOf[ScFunctionExpr]
+
+        lazy val isFunctionExprArgToOverloadedAlternatives =
+          maybeFunctionExpr.exists { fn =>
+            altParameters.size >= 2 && {
+              val mergedPt = ExpectedTypesImpl.filterAlternatives(altParameterTypes.toSeq, fn)
+
+              mergedPt match {
+                case Some((FunctionType(_, params), _)) if !params.exists(_.isAny) => false
+                case _                                                             => true
+              }
+            }
+          }
+
+
+        def calculateArgType() = arg.getTypeAfterImplicitConversion(
           withImplicits, shapesOnly, Option(param.expectedType)
         ).tr
 
-      typeResult.toOption match {
+        if (shapesOnly) { calculateArgType()
+//        else if (isFunctionExprArgToOverloadedAlternatives) {
+//          val fn = maybeFunctionExpr.get
+//
+//          implicit val projectContext: ProjectContext = fn
+//          implicit val scope: ElementScope            = fn.elementScope
+//
+//          val paramTypes = fn.parameters.map { param =>
+//            param.typeElement match {
+//              case Some(te) => te.`type`().getOrAny
+//              case None     => Any
+//            }
+//          }
+//
+//          val knownType = FunctionType((Nothing, paramTypes))
+//          Right(knownType)
+        } else {
+          arg match {
+            case psiBased: ScExpression =>
+              val canCache = !isIncompleteExpectedType && ExpectedTypesImpl.canCacheTypeFor(psiBased)
+
+              ExpectedTypesImpl.withKnownExpectedTypes(
+                psiBased,
+                altParameterTypes,
+                canCache = canCache
+              ) {
+                calculateArgType()
+              }
+            case _ => calculateArgType()
+          }
+        }
+      }
+
+      val argTypeResult = calculateArgumentType()
+
+      argTypeResult.toOption match {
         case None => Nil
         case Some(exprType) =>
           val approximatedPt = approximateDependent(pt, approximateDependentsFor).getOrElse(pt)
-          val conforms = exprType.conforms(approximatedPt, ConstraintSystem.empty, checkWeak = true)
+          val conforms       = exprType.conforms(approximatedPt, ConstraintSystem.empty, checkWeak = true)
           matched.addOne(param, arg.scExpressionOrNull, exprType)
 
           conforms match {
@@ -458,18 +560,32 @@ object Compatibility {
       }
     }
 
-    def processUnnamedArg(arg: Expression): List[ApplicabilityProblem] = {
-      if (namedMode) {
-        List(PositionalAfterNamedArgument(arg.scExpressionOrNull))
-      } else {
-        val idx = used.indexOf(false)
+    def processUnnamedArg(
+      arg:            Expression,
+      isSeqExpansion: Boolean = false
+    ): List[ApplicabilityProblem] = {
+      if (namedMode) List(PositionalAfterNamedArgument(arg.scExpressionOrNull))
+      else {
+        val idx   = used.indexOf(false)
+        val param = parameters(idx)
 
         used(idx) = true
 
-        val param        = parameters(idx)
-        val expectedType = param.paramType
+        if (isSeqExpansion && !param.isRepeated)
+          List(ExpansionForNonRepeatedParameter(arg.scExpressionOrNull))
+        else {
+          val altParams = alts.flatMap(_.lift(idx))
 
-        processParamConformance(param, expectedType, arg)
+          val expectedType =
+            if (isSeqExpansion) {
+              seqTypeFor(arg.scExpressionOrNull) match {
+                case None       => param.paramType
+                case Some(stpe) => ScParameterizedType(stpe, Seq(param.paramType))
+              }
+            } else param.paramType
+
+          processParamConformance(param, altParams, expectedType, arg, isSeqExpansion)
+        }
       }
     }
 
@@ -493,32 +609,15 @@ object Compatibility {
 
       expressionWithSameIndex match {
         case Expression(expr: ScTypedExpression) if expr.isSequenceArg =>
-          seqTypeFor(expr) match {
-            case Some(stpe) =>
-              val idx = used.indexOf(false)
-              used(idx) = true
-              val param = parameters(idx)
-
-              if (!param.isRepeated) problems ::= ExpansionForNonRepeatedParameter(expr)
-
-              val expectedType         = ScParameterizedType(stpe, Seq(param.paramType))
-              val typeMismatchProblems = processParamConformance(param, expectedType, expr)
-
-              if (typeMismatchProblems.nonEmpty)
-                return ApplicabilityCheckResult(
-                  typeMismatchProblems,
-                  constraintAccumulator,
-                  defaultParameterUsed,
-                  matched.result()
-                )
-
-            case None => problems :::= processUnnamedArg(expr)
-          }
+          problems :::= processUnnamedArg(expr, isSeqExpansion = true)
         case Expression(assign@ScAssignment.Named(name)) =>
-          val index = parameters.indexWhere { p =>
-            ScalaNamesUtil.equivalent(p.name, name) ||
-              p.deprecatedName.exists(ScalaNamesUtil.equivalent(_, name))
-          }
+          def paramIndex(parameters: Seq[Parameter]): Int =
+            parameters.indexWhere { p =>
+              ScalaNamesUtil.equivalent(p.name, name) ||
+                p.deprecatedName.exists(ScalaNamesUtil.equivalent(_, name))
+            }
+
+          val index = paramIndex(parameters)
 
           if (index == -1 || used(index)) {
             def extractExpression(assign: ScAssignment): ScExpression =
@@ -558,7 +657,19 @@ object Compatibility {
                   ScParameterizedType(seqType, Seq(param.paramType))
                 }.getOrElse(param.paramType)
 
-                problems :::= processParamConformance(param, expectedType, expr)
+                val altParams = alts.flatMap { alt =>
+                  val altIndex = paramIndex(alt)
+                  alt.lift(altIndex)
+                }
+
+                problems :::=
+                  processParamConformance(
+                    param,
+                    altParams,
+                    expectedType,
+                    expr,
+                    isSeqExpansion = maybeSeqType.nonEmpty
+                  )
               case _ =>
                 return ApplicabilityCheckResult(
                   Seq(IncompleteCallSyntax(ScalaBundle.message("assignment.missing.right.side"))),
@@ -568,8 +679,7 @@ object Compatibility {
                 )
             }
           }
-        case expr: Expression =>
-          problems :::= processUnnamedArg(expr)
+        case expr: Expression => problems :::= processUnnamedArg(expr)
       }
       parameterIndex = parameterIndex + 1
     }
@@ -591,15 +701,35 @@ object Compatibility {
           matched.result()
         )
       }
+
       assert(parameters.last.isRepeated, "This case should have been handled by excessive check above")
 
-      val param = parameters.last
+      val param        = parameters.last
       val expectedType = param.paramType
 
       while (parameterIndex < args.length) {
         val expressionWithSameIndex = args(parameterIndex)
 
-        val typeMismatchProblem = processParamConformance(param, expectedType, expressionWithSameIndex)
+        val altParams = alts.flatMap { alt =>
+          if (parameterIndex < alt.length) alt(parameterIndex).toOption
+          else if (alt.last.isRepeated)    alt.last.toOption
+          else                             None
+        }
+
+        val isSeqExpansion = expressionWithSameIndex match {
+          case typed: ScTypedExpression => typed.isSequenceArg
+          case _                        => false
+        }
+
+        val typeMismatchProblem =
+          processParamConformance(
+            param,
+            altParams,
+            expectedType,
+            expressionWithSameIndex,
+            isSeqExpansion = isSeqExpansion
+          )
+
         if (typeMismatchProblem.nonEmpty) {
           return ApplicabilityCheckResult(
             typeMismatchProblem,
@@ -683,55 +813,45 @@ object Compatibility {
     )
   }
 
-  def compatible(
+  private case class ParametersInfo(
+    currentClause:      Seq[Parameter],
+    implicitParameters: Set[ScParameter]
+  )
+
+  private def srrToParametersInfo(
     srr:           ScalaResolveResult,
+    ref:           PsiElement,
     substitutor:   ScSubstitutor,
     argClauses:    Seq[Seq[Expression]],
-    withImplicits: Boolean,
-    shapesOnly:    Boolean,
-    ref:           PsiElement,
     argClauseIdx:  Int = 0
-  )(implicit context: Context): ApplicabilityCheckResult = {
-    val named = srr.element
-    val args  = argClauses.lift(argClauseIdx).getOrElse(Seq.empty)
+  ): Either[ApplicabilityProblem, ParametersInfo] = {
+    def noImplicits(parameters: Seq[Parameter]): ParametersInfo =
+      ParametersInfo(parameters, Set.empty)
 
-    def checkParameterListConformance(
-      parametersForCurrentClause: Seq[Parameter],
-      allImplicitParameters:      Set[ScParameter] = Set.empty,
-    ): ApplicabilityCheckResult =
-      checkMethodApplicability(
-        parametersForCurrentClause,
-        args,
-        withImplicits,
-        shapesOnly,
-        allImplicitParameters
-      )
-
-    named match {
+    srr.element match {
       case synthetic: ScSyntheticFunction =>
         val paramClauses = synthetic.paramClauses
 
-        if (paramClauses.isEmpty || argClauseIdx > 0)
-          return ApplicabilityCheckResult(DoesNotTakeParameters)
-
-        val parameters = paramClauses(argClauseIdx).map(p =>
-          p.copy(paramType = substitutor(p.paramType))
-        )
-
-        checkParameterListConformance(parameters)
+        if (paramClauses.isEmpty || argClauseIdx > 0) Left(DoesNotTakeParameters)
+        else {
+          val parameters = paramClauses(argClauseIdx).map(p =>
+            p.copy(paramType = substitutor(p.paramType))
+          )
+          Right(noImplicits(parameters))
+        }
       case fun: ScFunction =>
         val isDefinedOrExportedInExtension = fun.isExtensionMethod || srr.exportedInExtension.isDefined
 
         if (!fun.hasParameterClause && !isDefinedOrExportedInExtension) {
           if (argClauses == Seq(Seq.empty)) {
-            if (fun.hasEmptyParenSuperMethod) return ApplicabilityCheckResult(Seq.empty)
-            else                              return ApplicabilityCheckResult(DoesNotTakeParameters)
-          } else return ApplicabilityCheckResult(DoesNotTakeParameters)
+            if (fun.hasEmptyParenSuperMethod) return Right(noImplicits(Seq.empty))
+            else                              return Left(DoesNotTakeParameters)
+          } else return Left(DoesNotTakeParameters)
         }
 
         if (QuasiquoteInferUtil.isMetaQQ(fun) && ref.is[ScReferenceExpression]) {
           val params = QuasiquoteInferUtil.getMetaQQExpectedTypes(srr, ref.asInstanceOf[ScReferenceExpression])
-          return checkParameterListConformance(params)
+          return Right(noImplicits(params))
         }
 
         val isQualifiedExtensionCall = srr.isExtensionCall
@@ -766,6 +886,7 @@ object Compatibility {
         currentClause match {
           case Some(clause) =>
             val parameters = clause.effectiveParameters.map(toParameter(_, substitutor))
+
             val allImplicitParameters =
               clauses
                 .view
@@ -773,31 +894,97 @@ object Compatibility {
                 .filter(_.isImplicit)
                 .to(Set)
 
-            checkParameterListConformance(parameters, allImplicitParameters)
-          case None => ApplicabilityCheckResult(DoesNotTakeParameters)
+            Right(ParametersInfo(parameters, allImplicitParameters))
+          case None => Left(DoesNotTakeParameters)
         }
       case constructor: ScPrimaryConstructor =>
-        val parameters = constructor.effectiveFirstParameterSection.map(toParameter(_, substitutor))
-        checkParameterListConformance(parameters)
+        val clauses       = constructor.effectiveParameterClauses
+        val currentClause = correspondingParamClause(clauses, argClauses, argClauseIdx)
+        currentClause match {
+          case Some(clause) =>
+            val parameters = clause.effectiveParameters.map(toParameter(_, substitutor))
+
+            val allImplicitParameters =
+              clauses
+                .view
+                .flatMap(_.effectiveParameters)
+                .filter(_.isImplicit)
+                .to(Set)
+
+            Right(ParametersInfo(parameters, allImplicitParameters))
+          case None => Left(DoesNotTakeParameters)
+        }
       case method: PsiMethod =>
-        if (argClauseIdx > 0)
-          return ApplicabilityCheckResult(DoesNotTakeParameters)
+        if (argClauseIdx > 0) Left(DoesNotTakeParameters)
+        else {
+          val parameters = method.parameters.map(
+            param =>
+              Parameter(
+                substitutor(param.paramType()),
+                isRepeated = param.isVarArgs,
+                index = -1,
+                param.getName
+              )
+          )
 
-        val parameters = method.parameters.map(
-          param =>
-            Parameter(
-              substitutor(param.paramType()),
-              isRepeated = param.isVarArgs,
-              index = -1,
-              param.getName
-            )
-        )
+          Right(noImplicits(parameters))
+        }
+      case _ => Left(DoesNotTakeParameters)
+    }
+  }
 
-        checkParameterListConformance(parameters)
-      case unknown =>
-        val problem = InternalApplicabilityProblem(ScalaBundle.message("cannot.handle.compatibility.for", unknown))
-        LOG.error(problem.toString)
-        ApplicabilityCheckResult(Seq(problem))
+  def compatible(
+    srr:           ScalaResolveResult,
+    alts:          Seq[ScalaResolveResult],
+    substitutor:   ScSubstitutor,
+    argClauses:    Seq[Seq[Expression]],
+    withImplicits: Boolean,
+    shapesOnly:    Boolean,
+    ref:           PsiElement,
+    isSubResolve:  Boolean,
+    argClauseIdx:  Int = 0
+  )(implicit context: Context): ApplicabilityCheckResult = {
+    val args  = argClauses.lift(argClauseIdx).getOrElse(Seq.empty)
+
+    def parametersInfoOf(srr: ScalaResolveResult): Either[ApplicabilityProblem, ParametersInfo] =
+      srrToParametersInfo(
+        srr,
+        ref,
+        substitutor.followed(srr.substitutor),
+        argClauses,
+        argClauseIdx
+      )
+
+    val currentParametersInfo = parametersInfoOf(srr)
+
+    currentParametersInfo match {
+      case Left(problem) => ApplicabilityCheckResult(problem)
+      case Right(paramsInfo) =>
+
+        if (shapesOnly) {
+          //If we are checking shape application, we do not care about
+          //expected types inferred from alternatives.
+          checkMethodApplicability(
+            paramsInfo.currentClause,
+            args,
+            withImplicits,
+            shapesOnly,
+            paramsInfo.implicitParameters
+          )
+        } else {
+          val applicableAlts   = alts.flatMap(alt => parametersInfoOf(alt).toOption)
+          val altsParamClauses = applicableAlts.map(_.currentClause)
+
+          checkMethodApplicability(
+            paramsInfo.currentClause,
+            altsParamClauses,
+            args,
+            withImplicits,
+            shapesOnly,
+            paramsInfo.implicitParameters,
+            isSubResolve
+          )
+        }
     }
   }
 
@@ -1179,7 +1366,7 @@ object Compatibility {
    *   val s = f(1)
    * }}}
    * This is NOT an ambiguous overload as one might suspect,
-   * first alternative is deemed applicable by the compiler.
+   * the first alternative is deemed applicable by the compiler.
    *
    * @param tpe Return type of implicit currently undergoing a compatibility check
    * @return `tpe` with parameter-dependent types replaced with `UndefinedType`s,

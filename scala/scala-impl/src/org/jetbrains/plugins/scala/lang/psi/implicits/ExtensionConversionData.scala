@@ -42,7 +42,12 @@ object ExtensionConversionHelper {
         } yield resultType
     }
 
-  def extensionConversionCheck(data: ExtensionConversionData, candidate: ScalaResolveResult)(implicit context: Context): Option[ScalaResolveResult] = {
+  def extensionConversionCheck(
+    data:      ExtensionConversionData,
+    candidate: ScalaResolveResult
+  )(implicit
+    context: Context
+  ): Option[ScalaResolveResult] = {
     ProgressManager.checkCanceled()
     import data._
 
@@ -107,7 +112,8 @@ object ExtensionConversionHelper {
           refName            = refName,
           prevTypeInfo       = typeParams,
           kinds              = kinds,
-          noImplicitsForArgs = withoutImplicitsForArgs
+          noImplicitsForArgs = withoutImplicitsForArgs,
+          isSubResolve       = true
         )
       }
   }

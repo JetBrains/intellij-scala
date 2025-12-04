@@ -18,7 +18,7 @@ class AnnotatorHeavyTest extends ScalaHighlightingTestBase {
         |  }
         |}
       """.stripMargin,
-      Error("y <- Option(1)", "Expression of type Option[Int] doesn't conform to expected type Future[S_]")
+      Error("y <- Option(1)", "Expression of type Option[Int] doesn't conform to expected type Future[NotInferredS]")
     )
 
   def testSCL8983(): Unit =

@@ -17,7 +17,6 @@ class ImplicitsTest extends TypeInferenceTestBase {
 
   def testSCL3987(): Unit = doTest()
 
-
   def testSCL8831(): Unit = doTest()
 
   def testSCL9903(): Unit = doTest {
@@ -83,22 +82,6 @@ class ImplicitsTest extends TypeInferenceTestBase {
          |implicit def r[S, T](p: S)(implicit x: Z[T]): F[T] = new F[T]
          |val r: F[B] = ${START}new A$END
          |//F[B]
-      """.stripMargin)
-  }
-
-  def testSCL12180(): Unit = {
-    doTest(
-      s"""
-         |case class Foo(a: Long, b: Int)
-         |
-         |implicit class FooOps(val self: Foo.type) {
-         |  def apply(i: Int): Foo = {
-         |    Foo(i.toLong, i)
-         |  }
-         |}
-         |
-         |Foo.apply(${START}1$END)
-         |//Int
       """.stripMargin)
   }
 }
