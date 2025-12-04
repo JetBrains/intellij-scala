@@ -5,6 +5,7 @@ import com.intellij.openapi.editor.colors.{EditorColorsManager, TextAttributesKe
 import com.intellij.openapi.editor.richcopy.HtmlSyntaxInfoUtil
 import com.intellij.psi.{PsiClass, PsiElement}
 import org.apache.commons.text.StringEscapeUtils
+import org.apache.commons.text.StringEscapeUtils.escapeHtml4
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.highlighter.{DefaultHighlighter, ScalaColorsSchemeUtils}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
@@ -16,7 +17,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.StdType
  * @see [[com.intellij.codeInsight.documentation.DocumentationManagerUtil]]
  * @define anonymousClassNote None if the class is anonymous.
  */
-private [documentationProvider] object HtmlPsiUtils {
+object HtmlPsiUtils {
+  def hyperLink(href: String, label: String): String =
+    s"""<a href="${escapeHtml4(href)}">$label</a>""".stripMargin
 
   //TODO: unify with org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocContentGenerator.hyperLinkToPsi
   def psiElementLinkWithCodeTag(

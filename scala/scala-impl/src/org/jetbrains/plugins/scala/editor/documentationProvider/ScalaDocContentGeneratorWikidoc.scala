@@ -317,7 +317,7 @@ private class ScalaDocContentGeneratorWikidoc(
       nodesText(labelNodes.to(Iterable))
     else
       href
-    Some(hyperLink(href, label))
+    Some(HtmlPsiUtils.hyperLink(href, label))
   }
 
   private def visitLeafNode(result: StringBuilder, element: PsiElement): Unit =
@@ -455,9 +455,6 @@ object ScalaDocContentGeneratorWikidoc {
     DocumentationManagerUtil.createHyperlink(buffer, refText, label, plainLink)
     buffer.toString
   }
-
-  private def hyperLink(href: String, label: String): String =
-    s"""<a href="${escapeHtml4(href)}">$label</a>""".stripMargin
 
   /** @note I considered using some reddish, wavy underline, but looks like Java Swing HTML/CSS renderer does not support
    *        text-decorator-style & text-decorator-color, see [[javax.swing.text.html.CSS]]. So for now we use just text.
