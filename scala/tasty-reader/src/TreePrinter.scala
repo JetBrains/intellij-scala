@@ -55,6 +55,11 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
     defDef.contains(IMPLICIT) && (defDef.prevSibling.exists(isImplicitClass) || defDef.prevSiblings.slice(2, 3).exists(isImplicitClass)) // Sometimes there's no SYNTHETIC
   }
 
+  private def isValueClass0(template: Node): Boolean = template.children.dropWhile(_.is(TYPEPARAM, PARAM)).headOption.exists {
+    case Node3(APPLY, _, Seq(Node3(SELECTin, _, Seq(Node3(NEW, _, Seq(t @ Node3(IDENTtpt, Seq("AnyVal"), _))), _*)))) if textOfType(t) == "_root_.scala.AnyVal" => true
+    case _ => false
+  }
+
   private def isPseudoPrivateTypeAlias(typeDef: Node): Boolean = !typeDef.firstChild.is(TEMPLATE) && {
     val repr = if (typeDef.firstChild.is(LAMBDAtpt)) typeDef.firstChild else typeDef
     !repr.children.exists(_.is(TYPEBOUNDStpt)) && {
@@ -189,13 +194,14 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
     val isGivenClass = isGivenClass0(node)
     val isImplicitClass = isImplicitClass0(node)
     val isTypeMember = !template.is(TEMPLATE)
+    val isValueClass = !isTypeMember && isValueClass0(template)
     val isAnonymousGiven = (isGivenObject || isGivenClass) && name.startsWith("given_") // TODO common method
     val isPackageObject = isObject && name == ScalaBytecodeConstants.PackageObjectSingletonClassName
     readSourceFileAnnotationIn(node)
     textOfAnnotationIn(sb, indent, node, "\n")
     sb ++= indent
     modifiersIn(sb, if (isObject) node.prevSibling.getOrElse(node) else node,
-      if (isGivenClass) Set(GIVEN) else (if (isEnum) Set(ABSTRACT, SEALED, CASE, FINAL) else (if (isImplicitClass) Set(IMPLICIT, FINAL) else Set.empty)), isParameter = false, definition)
+      if (isGivenClass) Set(GIVEN) else (if (isEnum) Set(ABSTRACT, SEALED, CASE, FINAL) else (if (isImplicitClass) Set(IMPLICIT, FINAL) else (if (isValueClass) Set(FINAL) else Set.empty))), isParameter = false, definition)
     val modifiersEnd = sb.length
     if (isImplicitClass) {
       sb ++= "implicit "
@@ -538,8 +544,8 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
 
   private def textOfType(node: Node, parens: Int = 0)(using parent: Option[Node] = None): String = {
     val withDotTypeSuffix =
-      parent.forall(_.is(SINGLETONtpt, APPLIEDtype))
-        && node.is(TERMREF, TERMREFsymbol, TERMREFdirect, SELECT)
+      parent.forall(_.is(SINGLETONtpt, APPLIEDtype)) && node.is(TERMREF, TERMREFsymbol, TERMREFdirect, SELECT) ||
+        parent.isEmpty && node.is(THIS)
 
     if (node.isSharedType) {
       val fromCache = sharedTypes.get(node.addr)
@@ -592,7 +598,8 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
         else if (qualifier == "_root_.`<empty>`")
           ""
         else
-          qualifier.split('.').last + ".this"
+          val typeSuffix = if (withDotTypeSuffix) ".type" else ""
+          qualifier.split('.').last + ".this" + typeSuffix
       case Node3(QUALTHIS, _, Seq(tail)) =>
         val qualifier = textOfType(tail)
         qualifier.split('.').last + ".this" // Simplify Foo.this in Foo?

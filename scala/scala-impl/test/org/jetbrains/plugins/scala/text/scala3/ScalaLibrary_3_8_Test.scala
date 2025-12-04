@@ -15,17 +15,10 @@ class ScalaLibrary_3_8_Test extends TextToTextTestBase(
     "scala.collection.IndexedSeqView", // extends Id | Id[_root_.scala.Nothing]
     "scala.collection.IterableOnceOps", // "\"
     "scala.collection.SeqView", // extends Appended | Appended[_root_.scala.Nothing]
-    "scala.collection.concurrent.TrieMap", // TrieMap.this | TrieMap.this.type, SCL-24660
-    "scala.collection.convert.JavaCollectionWrappers", // JListWrapper.this | JListWrapper.this.type, SCL-24660
     "scala.collection.generic.IsIterableLowPriority", // Cannot resolve _root_.scala.collection.generic.IsMap
-    "scala.collection.immutable.HashSetBuilder", // HashSetBuilder.this | HashSetBuilder.this.type, SCL-24660
-    "scala.collection.immutable.MapBuilderImpl", // MapBuilderImpl.this | MapBuilderImpl.this.type, SCL-24660
     "scala.collection.immutable.NumericRange", // extends NumericRange | NumericRange[T]
-    "scala.collection.immutable.SetBuilderImpl", // SetBuilderImpl.this | SetBuilderImpl.this.type, SCL-24660
     "scala.collection.mutable.CheckedIndexedSeqView", // Id | Id[Nothing]
     "scala.collection.mutable.CollisionProofHashMap", // Cannot resolve CollisionProofHashMap.LLNode[K, V]
-    "scala.collection.mutable.ListMap", // ListMap.this | ListMap.this.type, SCL-24660
-    "scala.collection.mutable.UnrolledBuffer", // UnrolledBuffer.this | UnrolledBuffer.this.type, SCL-24660
     "scala.concurrent.impl.Promise", // ? => ? | Function1[?, ?]
     "scala.sys.BooleanProp", // extends PropImpl | _root_.scala.sys.PropImpl
     "scala.sys.process.ProcessImpl", // Unknown type
@@ -50,8 +43,6 @@ class ScalaLibrary_3_8_Test extends TextToTextTestBase(
     "scala.annotation.elidable", // MinValue/MaxValue
     "scala.caps.Pure", // N/A | { this: _root_.scala.caps.Pure => }
     "scala.collection.IndexedSeqSlidingIterator", // { def hasNext: _root_.scala.Boolean = ???; def next(): C = ??? } | N/A
-    "scala.collection.Searching", // final class | class (extends AnyVal)
-    "scala.collection.SeqFactory", // final class | class (extends AnyVal)
     "scala.collection.concurrent.INode", // Object | AnyRef
     "scala.collection.convert.StreamExtensions", // self type, private type
     "scala.collection.convert.impl.IteratorStepperBase", // final var Int | 16
@@ -64,7 +55,6 @@ class ScalaLibrary_3_8_Test extends TextToTextTestBase(
     "scala.concurrent.SyncChannel", // private type | N/A
     "scala.io.AnsiColor", // Escape \u001b
     "scala.io.Position", // 31 - LINE_BITS
-    "scala.jdk.FunctionWrappers", // final class | class (extends AnyVal)
     "scala.math.Numeric", // private type | N/A
     "scala.quoted.FromExpr", // scala.collection.immutable.Seq | scala.Seq
     "scala.quoted.runtime.QuoteMatching", // ? <: _root_.scala.AnyKind | ?
