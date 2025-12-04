@@ -10,6 +10,14 @@ trait This {
 
     type T = /**/Qualifier.this./**/C
   }
+
+  trait Foo {
+    def inferred: this.type
+  }
+
+  trait Bar extends Foo {
+    def inferred/**//*: this.type*/ = /**/this/*???*/
+  }
 }/**/
 object This1 {
   object This2
