@@ -294,7 +294,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
       case Node3(APPLY, _, Seq(Node3(SELECTin, _, Seq(Node3(NEW, _, Seq(tpe, _*)), _*)), _*)) => textOf(tpe)
       case Node3(APPLY, _, Seq(Node3(APPLY, _, Seq(Node3(SELECTin, _, Seq(Node3(NEW, _, Seq(tpe, _*)), _*)), _*)), _*)) => textOf(tpe)
       case Node3(APPLY, _, Seq(Node3(TYPEAPPLY, _, Seq(Node3(SELECTin, _, Seq(Node3(NEW, _, Seq(base @ Node1(IDENTtpt), _*)), _*)), arguments*)), _*)) =>
-        base.name + arguments.map(t => simple(textOfType(t))).mkString("[", ", ", "]")
+        simple(textOfType(base)) + arguments.map(t => simple(textOfType(t))).mkString("[", ", ", "]")
       case Node3(APPLY, _, Seq(Node3(TYPEAPPLY, _, Seq(Node3(SELECTin, _, Seq(Node3(NEW, _, Seq(tpe, _*)), _*)), _*)), _*)) => textOf(tpe)
       case Node3(APPLY, _, Seq(Node3(APPLY, _, Seq(Node3(TYPEAPPLY, _, Seq(Node3(SELECTin, _, Seq(Node3(NEW, _, Seq(tpe, _*)), _*)), _*)), _*)), _*)) => textOf(tpe)
     }.filter(s => s.nonEmpty && s != "_root_.java.lang.Object" && s != "_root_.scala.runtime.EnumValue" &&
