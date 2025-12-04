@@ -104,10 +104,10 @@ class BuildToolWindowReporter(project: Project,
   override def startTask(taskId: EventId, parent: Option[EventId], message: String, time: Long = System.currentTimeMillis()): Unit = {
     val startEvent =
       BuildEvents.getInstance().start()
-        .withId(buildId)
+        .withId(taskId)
         .withParentId(parent.orNull)
         .withTime(time)
-        .withMessage(SbtBundle.message("report.build.toolwindow.canceled"))
+        .withMessage(message)
         .build()
     viewManager.onEvent(buildId, startEvent)
   }
@@ -115,9 +115,9 @@ class BuildToolWindowReporter(project: Project,
   override def progressTask(taskId: EventId, total: Long, progress: Long, unit: String, message: String, time: Long = System.currentTimeMillis()): Unit = {
     val event =
       BuildEvents.getInstance().progress()
-        .withStartId(buildId)
+        .withStartId(taskId)
         .withTime(time)
-        .withMessage(SbtBundle.message("report.build.toolwindow.canceled"))
+        .withMessage(message)
         .withTotal(total)
         .withProgress(progress)
         .withUnit(if (unit == null) SbtBundle.message("report.build.toolwindow.items") else unit)
@@ -157,7 +157,7 @@ class BuildToolWindowReporter(project: Project,
       if (isStdout) ProcessOutputType.STDOUT
       else ProcessOutputType.STDERR
     BuildEvents.getInstance().output()
-      .withId(buildId)
+      .withParentId(buildId)
       .withMessage(msg.trim + System.lineSeparator())
       .withOutputType(outputType)
       .build()
