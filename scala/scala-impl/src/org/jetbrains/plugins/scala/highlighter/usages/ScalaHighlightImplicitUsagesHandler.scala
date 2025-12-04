@@ -10,10 +10,10 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.highlighter.usages.ScalaHighlightImplicitUsagesHandler.TargetKind
 import org.jetbrains.plugins.scala.incremental.Highlighting.ElementHighlightingExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScContextBound, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScContextBound
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScGiven, ScGivenDefinition, ScMember}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -90,9 +90,10 @@ object ScalaHighlightImplicitUsagesHandler {
       case _                                                 => None
     }
 
-    implicit val contextBoundKind: TargetKind[(ScTypeParam, ScContextBound)] = {
-      case (typeParam, cb) => contextBoundImplicitTarget(typeParam, cb.typeElement)
+    trait ContextBoundTargetKind extends TargetKind[ScContextBound] {
+      def target(t: ScContextBound): Option[ScParameter]
     }
+    implicit val contextBoundKind: ContextBoundTargetKind = contextBoundImplicitTarget
 
     private def target(named: PsiNamedElement): Option[PsiNamedElement] = named match {
       case _ if !named.isValid                             => None
@@ -113,9 +114,14 @@ object ScalaHighlightImplicitUsagesHandler {
         None
     }
 
-    private def contextBoundImplicitTarget(typeParam: ScTypeParam, typeElem: ScTypeElement): Option[ScParameter] = {
+    private def contextBoundImplicitTarget(cb: ScContextBound): Option[ScParameter] = {
+      val typeElem = cb.typeElement
       if (!typeElem.isValid) return None
 
+      val typeParam = cb.parentTypeParam match {
+        case Some(tp) => tp
+        case None => return None
+      }
       val methodLike = typeParam.getOwner match {
         case fun: ScFunction => Some(fun)
         case c: ScClass => c.constructor
