@@ -44,9 +44,8 @@ private final class SbtGenerateManagedSourcesAction extends AnAction(
         descriptor.setActivateToolWindowWhenFailed(true)
 
         {
-          val event = BuildEvents.getInstance().startBuild()
-            .withBuildDescriptor(descriptor)
-            .withMessage(SbtBundle.message("sbt.generate.managed.sources.action.title"))
+          val event = BuildEvents.getInstance()
+            .startBuild(SbtBundle.message("sbt.generate.managed.sources.action.title"), descriptor)
             .build()
           viewManager.onEvent(taskId, event)
         }
@@ -54,9 +53,9 @@ private final class SbtGenerateManagedSourcesAction extends AnAction(
         def reportFailure(@Nullable throwable: Throwable): Unit = {
           {
             val sbtOutput = reporter.outputLines.mkString(start = "", sep = System.lineSeparator(), end = System.lineSeparator())
-            val event = BuildEvents.getInstance().output()
+            val event = BuildEvents.getInstance()
+              .output(sbtOutput)
               .withId(taskId)
-              .withMessage(sbtOutput)
               .withOutputType(ProcessOutputType.STDOUT)
               .build()
             viewManager.onEvent(taskId, event)
@@ -65,11 +64,9 @@ private final class SbtGenerateManagedSourcesAction extends AnAction(
             val failureWord = SbtBundle.message("sbt.generate.managed.sources.task.result.failure")
             val failureMessage = SbtBundle.message("sbt.generate.managed.sources.task.result.failure.message")
             val failureResult = new FailureResultImpl(failureMessage, throwable)
-            val events = BuildEvents.getInstance().finishBuild()
-              .withStartBuildId(taskId)
+            val events = BuildEvents.getInstance()
+              .finishBuild(taskId, failureWord, failureResult)
               .withTime(System.currentTimeMillis())
-              .withMessage(failureWord)
-              .withResult(failureResult)
               .build()
             viewManager.onEvent(taskId, events)
           }
@@ -86,11 +83,9 @@ private final class SbtGenerateManagedSourcesAction extends AnAction(
             val notSupportedWord = SbtBundle.message("sbt.generate.managed.sources.action.not.supported")
             val notSupportedMessage = SbtBundle.message("sbt.generate.managed.sources.action.not.supported.message", sbtVersion.minor)
             val failureResult = new FailureResultImpl(notSupportedMessage)
-            val finishEvent = BuildEvents.getInstance().finishBuild()
-              .withStartBuildId(taskId)
+            val finishEvent = BuildEvents.getInstance()
+              .finishBuild(taskId, notSupportedWord, failureResult)
               .withTime(System.currentTimeMillis())
-              .withMessage(notSupportedWord)
-              .withResult(failureResult)
               .build()
             viewManager.onEvent(taskId, finishEvent)
             return
@@ -129,20 +124,18 @@ private final class SbtGenerateManagedSourcesAction extends AnAction(
             case Success(buildMessages) if buildMessages.status == BuildMessages.Canceled =>
               {
                 val canceledMessage = SbtBundle.message("sbt.generate.managed.sources.task.result.canceled.message")
-                val event = BuildEvents.getInstance().output()
+                val event = BuildEvents.getInstance()
+                  .output(canceledMessage)
                   .withId(taskId)
-                  .withMessage(canceledMessage)
                   .withOutputType(ProcessOutputType.STDOUT)
                   .build()
                 viewManager.onEvent(taskId, event)
               }
               {
                 val canceledWord = SbtBundle.message("sbt.generate.managed.sources.task.result.canceled")
-                val finishEvent = BuildEvents.getInstance().finishBuild()
-                  .withStartBuildId(taskId)
+                val finishEvent = BuildEvents.getInstance()
+                  .finishBuild(taskId, canceledWord, new SkippedResultImpl())
                   .withTime(System.currentTimeMillis())
-                  .withMessage(canceledWord)
-                  .withResult(new SkippedResultImpl())
                   .build()
                 viewManager.onEvent(taskId, finishEvent)
               }
@@ -164,19 +157,17 @@ private final class SbtGenerateManagedSourcesAction extends AnAction(
 
                   {
                     val output = lines.mkString(start = "", sep = System.lineSeparator(), end = System.lineSeparator())
-                    val event = BuildEvents.getInstance().output()
+                    val event = BuildEvents.getInstance()
+                      .output(output)
                       .withId(taskId)
-                      .withMessage(output)
                       .withOutputType(ProcessOutputType.STDOUT)
                       .build()
                     viewManager.onEvent(taskId, event)
                   }
                   {
-                    val successEvent = BuildEvents.getInstance().finishBuild()
-                      .withStartBuildId(taskId)
+                    val successEvent = BuildEvents.getInstance()
+                      .finishBuild(taskId, SbtBundle.message("sbt.generate.managed.sources.task.result.success"), new SuccessResultImpl())
                       .withTime(System.currentTimeMillis())
-                      .withMessage(SbtBundle.message("sbt.generate.managed.sources.task.result.success"))
-                      .withResult(new SuccessResultImpl())
                       .build()
                     viewManager.onEvent(taskId, successEvent)
                   }

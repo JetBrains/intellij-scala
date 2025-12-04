@@ -159,11 +159,10 @@ class SbtExecutionAware extends ExternalSystemExecutionAware {
     eventId: ProgressIndicator
   ): Unit = {
     val message = Option(progressIndicator.getText).getOrElse(SbtBundle.message("sbt.execution.jdk.being.resolved"))
-    val buildEvent = BuildEvents.getInstance().start()
-      .withId(eventId)
+    val buildEvent = BuildEvents.getInstance()
+      .start(eventId, message)
       .withParentId(task.getId)
       .withTime(System.currentTimeMillis())
-      .withMessage(message)
       .build()
     val notificationEvent = new ExternalSystemBuildEvent(task.getId, buildEvent)
     taskNotificationListener.onStatusChange(notificationEvent)
@@ -180,12 +179,10 @@ class SbtExecutionAware extends ExternalSystemExecutionAware {
       else new SuccessResultImpl()
 
     val message = Option(progressIndicator.getText).getOrElse(SbtBundle.message("sbt.execution.jdk.has.been.resolved"))
-    val buildEvent = BuildEvents.getInstance().finish()
-      .withStartId(eventId)
+    val buildEvent = BuildEvents.getInstance()
+      .finish(eventId, message, result)
       .withParentId(task.getId)
       .withTime(System.currentTimeMillis())
-      .withMessage(message)
-      .withResult(result)
       .build()
     val notificationEvent = new ExternalSystemBuildEvent(task.getId, buildEvent)
     taskNotificationListener.onStatusChange(notificationEvent)

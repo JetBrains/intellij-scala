@@ -1,22 +1,22 @@
 package org.jetbrains.plugins.scala.build
 
+import com.intellij.build.events.*
 import com.intellij.build.events.MessageEvent.Kind
-import com.intellij.build.events._
 import com.intellij.build.issue.BuildIssue
 import com.intellij.build.{FilePosition, SyncViewManager}
 import com.intellij.execution.process.ProcessOutputType
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.externalSystem.model.task.event.{Failure => ExternalSystemFailure, FailureResult => ExternalSystemFailureResult, SkippedResult => ExternalSystemSkippedResult, SuccessResult => ExternalSystemSuccessResult, _}
+import com.intellij.openapi.externalSystem.model.task.event.{Failure as ExternalSystemFailure, FailureResult as ExternalSystemFailureResult, SkippedResult as ExternalSystemSkippedResult, SuccessResult as ExternalSystemSuccessResult, *}
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListener}
 import com.intellij.pom.Navigatable
 import org.jetbrains.annotations.{Nls, Nullable}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
-import org.jetbrains.plugins.scala.build.ExternalSystemNotificationReporter._
+import org.jetbrains.plugins.scala.build.ExternalSystemNotificationReporter.*
 import org.jetbrains.sbt.SbtBundle
 
 import java.nio.file.Path
 import scala.collection.mutable
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.util.Random
 
 class ExternalSystemNotificationReporter(workingDir: String,
@@ -106,10 +106,9 @@ class ExternalSystemNotificationReporter(workingDir: String,
 
   private def onEvent(issue: BuildIssue, kind: Kind): Unit =
     viewManager.foreach { manager =>
-      val event = BuildEvents.getInstance().buildIssue()
+      val event = BuildEvents.getInstance()
+        .buildIssue(issue, kind)
         .withParentId(taskId)
-        .withIssue(issue)
-        .withKind(kind)
         .build()
       manager.onEvent(taskId, event)
     }

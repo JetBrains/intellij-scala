@@ -51,22 +51,23 @@ private final class CompilationChartsBuildToolWindowNodeFactory extends ProjectA
 
 //noinspection ApiStatus,UnstableApiUsage
 private object CompilationChartsBuildToolWindowNodeFactory {
-  def compilationChartsBuildEvent(buildId: AnyRef, component: JComponent): PresentableBuildEvent = BuildEvents.getInstance().presentable()
-    .withParentId(buildId)
-    .withTime(System.currentTimeMillis())
-    .withMessage(CompilerIntegrationBundle.message("compilation.charts.title"))
-    .withPresentationData(
-      new BuildEventPresentationData {
-        override def getNodeIcon: Icon = Icons.COMPILATION_CHARTS
+  def compilationChartsBuildEvent(buildId: AnyRef, component: JComponent): PresentableBuildEvent = {
+    val presentationData: BuildEventPresentationData = new BuildEventPresentationData {
+      override def getNodeIcon: Icon = Icons.COMPILATION_CHARTS
 
-        override lazy val getExecutionConsole: ExecutionConsole = new ExecutionConsole {
-          override def getComponent: JComponent = component
-          override def getPreferredFocusableComponent: JComponent = component
-          override def dispose(): Unit = ()
-        }
-
-        override def consoleToolbarActions(): ActionGroup = null
+      override lazy val getExecutionConsole: ExecutionConsole = new ExecutionConsole {
+        override def getComponent: JComponent = component
+        override def getPreferredFocusableComponent: JComponent = component
+        override def dispose(): Unit = ()
       }
-    )
-    .build()
+
+      override def consoleToolbarActions(): ActionGroup = null
+    }
+
+    BuildEvents.getInstance()
+      .presentable(CompilerIntegrationBundle.message("compilation.charts.title"), presentationData)
+      .withParentId(buildId)
+      .withTime(System.currentTimeMillis())
+      .build()
+  }
 }

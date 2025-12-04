@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.build
 
-import com.intellij.build.events.impl._
+import com.intellij.build.events.impl.*
 import com.intellij.build.events.{BuildEvent, BuildEvents, EventResult, MessageEvent}
 import com.intellij.build.{BuildViewManager, DefaultBuildDescriptor, FilePosition}
 import com.intellij.execution.process.ProcessOutputType
@@ -51,9 +51,8 @@ class BuildToolWindowReporter(project: Project,
 
     buildDescriptor.setActivateToolWindowWhenFailed(activateToolWindowWhenFailed)
     val startEvent =
-      BuildEvents.getInstance().startBuild()
-        .withBuildDescriptor(buildDescriptor)
-        .withMessage(SbtBundle.message("report.build.toolwindow.running"))
+      BuildEvents.getInstance()
+        .startBuild(SbtBundle.message("report.build.toolwindow.running"), buildDescriptor)
         .build()
     viewManager.onEvent(buildId, startEvent)
   }
@@ -70,54 +69,46 @@ class BuildToolWindowReporter(project: Project,
       }
 
     val finishEvent =
-      BuildEvents.getInstance().finishBuild()
-        .withStartBuildId(buildId)
+      BuildEvents.getInstance()
+        .finishBuild(buildId, resultMessage, result)
         .withTime(System.currentTimeMillis())
-        .withMessage(resultMessage)
-        .withResult(result)
         .build()
     viewManager.onEvent(buildId, finishEvent)
   }
 
   override def finishWithFailure(err: Throwable): Unit = {
     val finishEvent =
-      BuildEvents.getInstance().finishBuild()
-        .withStartBuildId(buildId)
+      BuildEvents.getInstance()
+        .finishBuild(buildId, SbtBundle.message("report.build.toolwindow.failed"), new FailureResultImpl(err))
         .withTime(System.currentTimeMillis())
-        .withMessage(SbtBundle.message("report.build.toolwindow.failed"))
-        .withResult(new FailureResultImpl(err))
         .build()
     viewManager.onEvent(buildId, finishEvent)
   }
 
   override def finishCanceled(): Unit = {
     val finishEvent =
-      BuildEvents.getInstance().finishBuild()
-        .withStartBuildId(buildId)
+      BuildEvents.getInstance()
+        .finishBuild(buildId, SbtBundle.message("report.build.toolwindow.canceled"), new SkippedResultImpl())
         .withTime(System.currentTimeMillis())
-        .withMessage(SbtBundle.message("report.build.toolwindow.canceled"))
-        .withResult(new SkippedResultImpl)
         .build()
     viewManager.onEvent(buildId, finishEvent)
   }
 
   override def startTask(taskId: EventId, parent: Option[EventId], message: String, time: Long = System.currentTimeMillis()): Unit = {
     val startEvent =
-      BuildEvents.getInstance().start()
-        .withId(taskId)
+      BuildEvents.getInstance()
+        .start(taskId, message)
         .withParentId(parent.orNull)
         .withTime(time)
-        .withMessage(message)
         .build()
     viewManager.onEvent(buildId, startEvent)
   }
 
   override def progressTask(taskId: EventId, total: Long, progress: Long, unit: String, message: String, time: Long = System.currentTimeMillis()): Unit = {
     val event =
-      BuildEvents.getInstance().progress()
-        .withStartId(taskId)
+      BuildEvents.getInstance()
+        .progress(taskId, message)
         .withTime(time)
-        .withMessage(message)
         .withTotal(total)
         .withProgress(progress)
         .withUnit(if (unit == null) SbtBundle.message("report.build.toolwindow.items") else unit)
@@ -126,10 +117,8 @@ class BuildToolWindowReporter(project: Project,
   }
 
   override def finishTask(taskId: EventId, message: String, result: EventResult, time: Long = System.currentTimeMillis()): Unit = {
-    val event = BuildEvents.getInstance().finish()
-      .withStartId(taskId)
-      .withMessage(message)
-      .withResult(result)
+    val event = BuildEvents.getInstance()
+      .finish(taskId, message, result)
       .withTime(time)
       .build()
     viewManager.onEvent(buildId, event)
@@ -156,9 +145,9 @@ class BuildToolWindowReporter(project: Project,
     val outputType =
       if (isStdout) ProcessOutputType.STDOUT
       else ProcessOutputType.STDERR
-    BuildEvents.getInstance().output()
+    BuildEvents.getInstance()
+      .output(msg.trim + System.lineSeparator())
       .withParentId(buildId)
-      .withMessage(msg.trim + System.lineSeparator())
       .withOutputType(outputType)
       .build()
   }

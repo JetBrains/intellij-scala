@@ -4,7 +4,7 @@ import com.intellij.build.events.{BuildEvent, BuildEvents, MessageEvent, Warning
 import com.intellij.build.{FilePosition, events}
 import com.intellij.execution.process.{AnsiEscapeDecoder, ProcessOutputTypes}
 import com.intellij.pom.Navigatable
-import com.intellij.task._
+import com.intellij.task.*
 import org.jetbrains.annotations.{Nls, Nullable}
 import org.jetbrains.plugins.scala.build.BuildMessages.{BuildStatus, Canceled, Error}
 
@@ -92,24 +92,21 @@ case object BuildMessages {
 
     position match {
       case None =>
-        BuildEvents.getInstance().message()
+        BuildEvents.getInstance()
+          .message(stripAnsiCodes(message), kind)
           .withParentId(parentId)
-          .withKind(kind)
           .withTime(eventTime)
           .withGroup(kindGroup)
-          .withMessage(stripAnsiCodes(message))
           .withDescription(details)
           .withNavigatable(navigatable.orNull)
           .build()
       case Some(filePosition) =>
-        BuildEvents.getInstance().fileMessage()
+        BuildEvents.getInstance()
+          .fileMessage(stripAnsiCodes(message), kind, filePosition)
           .withParentId(parentId)
-          .withKind(kind)
           .withTime(eventTime)
           .withGroup(kindGroup)
-          .withMessage(stripAnsiCodes(message))
           .withDescription(details)
-          .withFilePosition(filePosition)
           .build()
     }
   }
