@@ -69,13 +69,11 @@ class ScalaLibrary_3_8_Test extends TextToTextTestBase(
     case (Content.DecompiledVsSourceOutline, s) => s
       .replaceAll(raw"@_root_\.scala\.transient\s+", "")
       .replaceAll(raw"(?<=extends )_root_\.scala\.\*:\[.+], (?=_root_\.scala\.Product)", "") // class TupleN extends _root_.scala.*:[T1, _root_.scala.EmptyTuple.type]
-      .replaceAll(raw"(?<=extends )_root_\.scala\.annotation\.Annotation, (?=_root_\.scala\.annotation.(?:Constant|Static)Annotation)", "") // extends _root_.scala.annotation.Annotation, _root_.scala.annotation.ConstantAnnotation
     case (Content.SourceOutline, s) => s
       .replaceAll(raw"@_root_\.scala\.(?:transient|annotation\.internal\.preview|annotation\.internal\.sharable)\s+", "")
       .replaceAll(raw"(?<=@_root_\.scala\.specialized)\(.+?\)", "") // specialized | specialized(Specializable.Primitives)
       .replaceAll(raw"(?<=@_root_\.scala\.throws)\[_root_\.scala\.(\w+)]\(classOf\[\1]\)", "[_root_.java.lang.$1]") // java.lang.IndexOutOfBoundsException | scala.IndexOutOfBoundsException
       .replaceAll(raw"(?<=@_root_\.scala\.throws)\[_root_\.scala\.(\w+\.)([\w.]+)]\(classOf\[\2]\)", "[_root_.java.util.$1$2]") // java.util.concurrent.TimeoutException | scala.concurrent.TimeoutException
-      .replaceAll(raw"(?<=extends )_root_\.scala\.annotation\.Annotation, (?=_root_\.scala\.annotation.(?:Constant|Static)Annotation)", "") // extends _root_.scala.annotation.Annotation, _root_.scala.annotation.ConstantAnnotation
     case (_, s) => s
   }) {
 
