@@ -20,7 +20,6 @@ class AkkaTest extends TextToTextTestBase(
     "akka.dispatch.ExecutorServiceDelegate", // Cannot resolve
     "akka.event.Logging", // .type.type
     "akka.http.impl.engine.parsing.SpecializedHeaderValueParsers", // ContentLengthParser is Any
-    "akka.http.impl.engine.rendering.RenderSupport", // .Repr
     "akka.http.impl.model.parser.CacheControlHeader", // Any
     "akka.http.impl.model.parser.CommonRules", // Any
     "akka.http.impl.model.parser.ContentDispositionHeader", // Any

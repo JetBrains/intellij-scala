@@ -531,7 +531,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
     if (s4.nonEmpty) s4 else "Unknown" // TODO Remove when all types are supported
   }
 
-  private def withNonEmptyPrefixWithDot(prefixText: String, name: String): String = {
+  private def withNonEmptyPrefixWith(delimiter: String, prefixText: String, name: String): String = {
     val nameId = id(name)
     // The prefix be empty if it's an empty package.
     // For example if the type is located in the root package.
@@ -539,8 +539,11 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
     if (prefixText.isEmpty)
       nameId
     else
-      s"$prefixText.$nameId"
+      s"$prefixText$delimiter$nameId"
   }
+
+  private def delimiterAfter(prefix: Node): String =
+    if (prefix.isTypeTree || prefix.is(APPLIEDtype, TYPEREF, TYPEREFsymbol, TYPEREFdirect)) "#" else "."
 
   private def textOfType(node: Node, parens: Int = 0)(using parent: Option[Node] = None): String = {
     val withDotTypeSuffix =
@@ -573,7 +576,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
         }
       case Node3(TYPEREF, Seq(name), Seq(prefix)) =>
         val prefixText = textOfType(prefix)
-        withNonEmptyPrefixWithDot(prefixText, name)
+        withNonEmptyPrefixWith(delimiterAfter(prefix), prefixText, name)
       case Node3(TERMREF, Seq(name), Seq(prefix)) =>
         // TODO why there's "package" in some cases?
         val prefixText = textOfType(prefix)
@@ -581,7 +584,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
           name.endsWith(ScalaBytecodeConstants.TopLevelDefinitionsClassNameSuffix))
           prefixText
         else {
-          val prefixWithName = withNonEmptyPrefixWithDot(prefixText, name)
+          val prefixWithName = withNonEmptyPrefixWith(".", prefixText, name)
 
           // TODO Why there is sometimes no SINGLETONtpt? (add RHS?)
           val typeSuffix = if (withDotTypeSuffix) ".type" else ""
@@ -617,7 +620,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
           prefix
         else {
           // TODO rely on name kind
-          val part1 = withNonEmptyPrefixWithDot(prefix, name)
+          val part1 = withNonEmptyPrefixWith(tail.headOption.map(delimiterAfter).getOrElse(""), prefix, name)
           val part2 = if (withDotTypeSuffix) ".type" else ""
           part1 + part2
         }
