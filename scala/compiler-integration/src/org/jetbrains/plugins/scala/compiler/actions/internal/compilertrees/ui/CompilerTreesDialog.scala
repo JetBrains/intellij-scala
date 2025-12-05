@@ -34,18 +34,26 @@ final class CompilerTreesDialog(
 ) extends DialogWrapper(myProject) {
 
   private val propertyGraph: PropertyGraph = new PropertyGraph("internal.CompilerTreesDialog.propertyGraph", true)
+
   private val showEmptyPhasesProperty: GraphProperty[java.lang.Boolean] = propertyGraph.property(java.lang.Boolean.FALSE)
+  private val showTastyProperty: GraphProperty[java.lang.Boolean] = propertyGraph.property(java.lang.Boolean.TRUE)
+  private val showUncapturedMessagesProperty: GraphProperty[java.lang.Boolean] = propertyGraph.property(java.lang.Boolean.TRUE)
+
   private val lastSelectedPhaseProperty: GraphProperty[String] = propertyGraph.property(null)
   //proportion is in percents (0 - 100) (can't use float because `BindUtil` doesn't have `BindUtil.bindFloatStorage` and only has `BindUtil.bindIntStorage`
   private val proportionBetweenLeftAndRightPanelsProperty: GraphProperty[java.lang.Integer] = propertyGraph.property(30)
 
   //Binding some dialog-related settings to storage in order the appearance of the dialog looks similar next time the action is invoked
   BindUtil.bindBooleanStorage(showEmptyPhasesProperty, "internal.CompilerTreesDialog.showEmptyPhases")
+  BindUtil.bindBooleanStorage(showTastyProperty, "internal.CompilerTreesDialog.showTasty")
+  BindUtil.bindBooleanStorage(showUncapturedMessagesProperty, "internal.CompilerTreesDialog.showUncapturedMessages")
   BindUtil.bindStorage(lastSelectedPhaseProperty, "internal.CompilerTreesDialog.lastSelectedPhaseProperty")
   BindUtil.bindIntStorage(proportionBetweenLeftAndRightPanelsProperty, "internal.CompilerTreesDialog.proportionBetweenLeftAndRightPanelsProperty")
 
   private var myEditor: EditorEx = _
   private var myShowEmptyPhasesCb: JBCheckBox = _
+  private var myShowTastyCb: JBCheckBox = _
+  private var myShowUncapturedMessagesCb: JBCheckBox = _
   private var myTree: MyTree = _
 
   /**
@@ -62,33 +70,50 @@ final class CompilerTreesDialog(
   }
 
   private def bindPropertiesAndUiElements(): Unit = {
-    //binding "myShowEmptyPhasesCb" checkbox value to property
-    myShowEmptyPhasesCb.setSelected(showEmptyPhasesProperty.get())
-    myShowEmptyPhasesCb.addActionListener((_: ActionEvent) => {
-      val value = myShowEmptyPhasesCb.isSelected
-      showEmptyPhasesProperty.set(value)
-    })
-    showEmptyPhasesProperty.afterPropagation(() => {
-      val value = showEmptyPhasesProperty.get()
-      myShowEmptyPhasesCb.setSelected(value)
-      kotlin.Unit.INSTANCE
-    })
+    //binding checkboxes values to properties and tree updates
+    bindCheckboxToProperty(myShowEmptyPhasesCb, showEmptyPhasesProperty)
+    bindCheckboxToProperty(myShowTastyCb, showTastyProperty)
+    bindCheckboxToProperty(myShowUncapturedMessagesCb, showUncapturedMessagesProperty)
 
-    //binding "proportionBetweenLeftAndRightPanelsProperty" to splitter changes made by user in UI
+    //binding "proportionBetweenLeftAndRightPanelsProperty" to splitter changes made by a user in UI
     mySplitter.addPropertyChangeListener(e => {
       if ("proportion" == e.getPropertyName) {
         val newProportion = e.getNewValue.asInstanceOf[lang.Float]
         proportionBetweenLeftAndRightPanelsProperty.set((newProportion * 100).toInt)
       }
     })
+
+    // Apply initial filter settings to the tree
+    updateTreeNodesFilters()
   }
+
+  /** Bind a checkbox to a property: sync the initial state and update the tree on changes */
+  private def bindCheckboxToProperty(checkbox: JBCheckBox, property: GraphProperty[java.lang.Boolean]): Unit = {
+    checkbox.setSelected(property.get())
+    checkbox.addActionListener((_: ActionEvent) => {
+      property.set(checkbox.isSelected)
+
+      // In addition to binding the values, also update the tree filters
+      updateTreeNodesFilters()
+    })
+  }
+
+  /** Extract current display options from properties and update tree */
+  private def updateTreeNodesFilters(): Unit = {
+    myTree.updateNodesVisibility(displayOptions)
+  }
+
+  private def displayOptions: TreeDisplayOptions = TreeDisplayOptions(
+    showEmptyPhasesProperty.get(),
+    showTastyProperty.get(),
+    showUncapturedMessagesProperty.get()
+  )
 
   override protected def createCenterPanel: JComponent = {
     myEditor = createEditor(myCompilerTrees.allPhasesTextConcatenated)
     myTree = new MyTree(
       myCompilerTrees,
       onPhaseSelected = updateEditorText,
-      showEmptyPhasesProperty,
       lastSelectedPhaseProperty
     )
     TreeUIHelper.getInstance().installTreeSpeedSearch(myTree)
@@ -122,13 +147,15 @@ final class CompilerTreesDialog(
 
   private def updateEditorText(phaseWithText: PhaseWithTreeText): Unit = {
     inWriteAction {
-      val text = phaseWithText.treeText
+      val text = phaseWithText.phaseText
       val documentText = escapeSpecialXmlTagsFromCompilerTreeTExt(text)
       val document = myEditor.getDocument
       document.setText(documentText)
     }
   }
 
+  // Schematic example ofo the panel:
+  // Show: [x] Show empty phases [x] Show Tasty [ ] Show uncaptured messages
   private def createToolWindowPanel(tree: Tree): SimpleToolWindowPanel = {
     val toolWindowPanel = new SimpleToolWindowPanel(true, true)
 
@@ -136,8 +163,26 @@ final class CompilerTreesDialog(
 
     val toolBar = new JToolBar
     toolBar.setFloatable(false)
-    myShowEmptyPhasesCb = new JBCheckBox(CompilerIntegrationBundle.message("show.empty.phases"), false)
+    
+    val label = new javax.swing.JLabel(CompilerIntegrationBundle.message("show.label"))
+    toolBar.add(label)
+
+    // Add small spacing after label
+    toolBar.addSeparator(new java.awt.Dimension(5, 0))
+
+    // Add checkboxes in a row with proper spacing
+    myShowEmptyPhasesCb = new JBCheckBox(CompilerIntegrationBundle.message("show.empty.phases.short"), false)
     toolBar.add(myShowEmptyPhasesCb)
+
+    toolBar.addSeparator(new java.awt.Dimension(5, 0))
+
+    myShowTastyCb = new JBCheckBox(CompilerIntegrationBundle.message("show.tasty"), false)
+    toolBar.add(myShowTastyCb)
+
+    toolBar.addSeparator(new java.awt.Dimension(5, 0))
+
+    myShowUncapturedMessagesCb = new JBCheckBox(CompilerIntegrationBundle.message("show.other.output"), false)
+    toolBar.add(myShowUncapturedMessagesCb)
 
     toolWindowPanel.setToolbar(toolBar)
     toolWindowPanel
@@ -187,7 +232,7 @@ object CompilerTreesDialog {
     KnownSpecialHtmlTags.map(tag => (tag, s" $tag".r))
 
   /**
-   * The method makes scala compiler tree look closer to Scala code.
+   * The method makes the scala compiler tree look closer to Scala code.
    *
    * Scala compiler adds special XML tags for some constructs which is not valid Scala code.
    * We still want to parse as much as possible and highlight scala tokens - it makes the tree more readable

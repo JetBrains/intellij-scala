@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.compiler.actions.internal.compilertrees
 
 import org.jetbrains.jps.incremental.scala.{Client, MessageKind}
-import org.jetbrains.plugins.scala.compiler.actions.internal.compilertrees.CompilerTrees.PhaseWithTreeText
+import org.jetbrains.plugins.scala.compiler.actions.internal.compilertrees.CompilerTrees.{PhaseKind, PhaseWithTreeText}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 
 import scala.collection.mutable.ArrayBuffer
@@ -10,16 +10,28 @@ final class CompilerTrees(
   val phasesTrees: Seq[PhaseWithTreeText]
 ) {
   lazy val allPhasesTextConcatenated: String = phasesTrees
+    .filter(_.kind == PhaseKind.Regular)
     .map { pt =>
       s"""// Phase: ${pt.phase}
-         |${pt.treeText}""".stripMargin
+         |${pt.phaseText}""".stripMargin
     }
     .mkString("\n\n")
 }
 
 object CompilerTrees {
 
-  case class PhaseWithTreeText(phase: String, treeText: String)
+  sealed trait PhaseKind
+  object PhaseKind {
+    case object Regular extends PhaseKind
+    case object TastyOutput extends PhaseKind
+    case object UncapturedOutput extends PhaseKind
+  }
+
+  case class PhaseWithTreeText(
+    phase: String,
+    phaseText: String,
+    kind: PhaseKind = PhaseKind.Regular
+  )
 
   def parseFromCompilerMessages(
     messages: Seq[Client.ClientMsg],
@@ -34,7 +46,7 @@ object CompilerTrees {
   }
 
   /**
-   * In Scala 2 compiler tree messages are printed as warnings, without pointer to file position.<br>
+   * In Scala 2 compiler tree messages are printed as warnings, without a pointer to file position.<br>
    * It contains phase and tree in different warning messages.<br>
    * Between those messages there can be some other warning messages:
    *  - compiled file name (usually only after parser phase)
@@ -88,10 +100,48 @@ object CompilerTrees {
   private val Scala2TreePhaseOutputRegexp = """\[\[\s*syntax trees at end of\s+(.*?)]].*?""".r
 
   private def parseForScala3(messages: Seq[Client.ClientMsg]): CompilerTrees = {
-    val phaseToTreeText = messages.map(_.text).collect {
-      case Scala3TreePhaseOutputWithTreeRegexp(phaseText, treeText) =>
-        PhaseWithTreeText(phaseText.trim, treeText.trim)
+    val capturedWithPhases: Seq[(Client.ClientMsg, PhaseWithTreeText)] =
+      messages.collect {
+        case msg @ Client.ClientMsg(_, Scala3TreePhaseOutputWithTreeRegexp(phaseText, treeText), _, _, _, _, _) =>
+          (msg, PhaseWithTreeText(phaseText.trim, treeText.trim))
+      }
+
+    // Tasty output comes with 3 warning messages:
+    //     Warning: **** pickled info of class A
+    //     Warning: Header: ... Names ... Trees ... Positions ... Attributes
+    //     Warning: **** end of pickled info of class A
+    val tastyOutputMessagesWithPhases: Option[(Seq[Client.ClientMsg], Seq[PhaseWithTreeText])] =
+      TastyOutputParser.parse(messages)
+
+    val capturedMessages = capturedWithPhases.map(_._1).toSet ++
+      tastyOutputMessagesWithPhases.map(_._1).getOrElse(Seq.empty)
+    val phaseToTreeText = capturedWithPhases.map(_._2) ++
+      tastyOutputMessagesWithPhases.map(_._2).getOrElse(Seq.empty)
+
+    val uncapturedMessages = messages.filterNot(capturedMessages.contains)
+
+    // TODO: Currently it's expected that all the phases trees have a syntax similar to Scala
+    //  But it's not true to all the uncaptured output (Warning/Info/Errors)
+    //  Don't apply Scala syntax in the editor for the uncaptured output (see CompilerTreesDialog)
+    val syntheticOutputPhases: Seq[PhaseWithTreeText] =
+      buildSyntheticPhasesForUncapturedOutput(uncapturedMessages)
+
+    new CompilerTrees(phaseToTreeText ++ syntheticOutputPhases)
+  }
+
+  private def buildSyntheticPhasesForUncapturedOutput(uncapturedMessages: Seq[Client.ClientMsg]): Seq[PhaseWithTreeText] = {
+    val messagesByKind = uncapturedMessages
+      .groupBy(_.kind)
+      .toSeq
+      .sortBy(_._1.toString)
+
+    messagesByKind.flatMap { case (kind, messages) =>
+      val text = messages.map(_.text).mkString("\n")
+      if (text.nonEmpty)
+        // Example: "== WARNING Output =="
+        Some(PhaseWithTreeText(s"== ${kind.toString.toUpperCase} Output ==", text, PhaseKind.UncapturedOutput))
+      else
+        None
     }
-    new CompilerTrees(phaseToTreeText)
   }
 }
