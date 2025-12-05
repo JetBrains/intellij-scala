@@ -276,6 +276,7 @@ lazy val tastyReader = Project("tasty-reader", file("scala/tasty-reader"))
     libraryDependencies ++= Seq(
       Dependencies.junit % Test,
       Dependencies.junitInterface % Test,
+      Dependencies.jetbrainsAnnotations % Provided,
     )
   )
   .settings(compilationCacheSettings)

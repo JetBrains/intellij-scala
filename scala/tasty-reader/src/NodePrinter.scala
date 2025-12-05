@@ -18,6 +18,9 @@ import dotty.tools.tasty.TastyFormat
  *                       5:   TYPEDEF(146) 2 [MyClass]
  *                       ...
  *                     }}}
+ *
+ * @note It might happen that some sub-nodes are repeated in different places with different level of indentation.
+ *       This is because our Tasty reader inlines "shared nodes" (it's just how we need it for our internal needs)
  */
 class NodePrinter(
   printAddress: Boolean = false,

@@ -2,10 +2,12 @@ package org.jetbrains.plugins.scala.decompileToJava
 
 import com.intellij.ide.util.PsiNavigationSupport
 import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent, CommonDataKeys}
-import com.intellij.openapi.fileTypes.FileTypeRegistry
+import com.intellij.openapi.fileTypes.{FileType, FileTypeRegistry}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtilBase}
 import com.intellij.psi.{PsiClass, PsiClassOwner, PsiElement}
+import org.jetbrains.plugins.scala.decompileToJava.ShowDecompiledTastyAction.*
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.tasty.TastyFileType
 
 /**
@@ -22,24 +24,37 @@ class ShowDecompiledTastyAction extends AnAction(ScalaJavaDecompilerBundle.messa
   override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 
   override def update(e: AnActionEvent): Unit = {
-    val psiElement = getPsiElement(e)
-    val visible = psiElement.exists(_.getContainingFile.isInstanceOf[PsiClassOwner])
-    val enabled = visible && getOriginalFile(psiElement.orNull) != null
-    e.getPresentation.setVisible(visible)
-    e.getPresentation.setEnabled(enabled)
+    showVisibleAndEnabled(e)
   }
 
   override def actionPerformed(e: AnActionEvent): Unit = {
     val project = e.getProject
-    if (project == null) return
+    if (project == null)
+      return
 
-    val file = getOriginalFile(getPsiElement(e).orNull)
-    if (file == null) return
+    val tastyFile: VirtualFile = getOriginalTastyFile(e).orNull
+    if (tastyFile == null)
+      return
 
-    PsiNavigationSupport.getInstance().createNavigatable(project, file, -1).navigate(true)
+    PsiNavigationSupport.getInstance().createNavigatable(project, tastyFile, -1).navigate(true)
+  }
+}
+
+object ShowDecompiledTastyAction {
+
+  private[decompileToJava] def showVisibleAndEnabled(e: AnActionEvent): Unit = {
+    val psiElement = getPsiElement(e)
+
+    lazy val originalTastyFile = psiElement.flatMap(getOriginalTastyFile)
+
+    val visible = psiElement.exists(_.getContainingFile.is[PsiClassOwner])
+    val enabled = visible && originalTastyFile.isDefined
+
+    e.getPresentation.setVisible(visible)
+    e.getPresentation.setEnabled(enabled)
   }
 
-  private def getPsiElement(e: AnActionEvent): Option[PsiElement] = {
+  private[decompileToJava] def getPsiElement(e: AnActionEvent): Option[PsiElement] = {
     val project = e.getProject
     if (project == null) return None
 
@@ -53,9 +68,17 @@ class ShowDecompiledTastyAction extends AnAction(ScalaJavaDecompilerBundle.messa
     }
   }
 
-  private def getOriginalFile(psiElement: PsiElement): VirtualFile = {
+  private[decompileToJava] def getOriginalTastyFile(e: AnActionEvent): Option[VirtualFile] = {
+    val psiElement = getPsiElement(e)
+    psiElement.flatMap(getOriginalTastyFile)
+  }
+
+  private def getOriginalTastyFile(psiElement: PsiElement): Option[VirtualFile] =
+    getOriginalFileOfType(psiElement, TastyFileType)
+
+  private def getOriginalFileOfType(psiElement: PsiElement, fileType: FileType): Option[VirtualFile] = {
     val psiClass = PsiTreeUtil.getParentOfType(psiElement, classOf[PsiClass], false)
     val file = Option(psiClass).flatMap(cls => Option(cls.getOriginalElement.getContainingFile.getVirtualFile))
-    file.filter(FileTypeRegistry.getInstance.isFileOfType(_, TastyFileType)).orNull
+    file.filter(FileTypeRegistry.getInstance.isFileOfType(_, fileType))
   }
 }
