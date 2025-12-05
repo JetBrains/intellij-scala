@@ -16,7 +16,6 @@ class ScalaLibraryTest extends TextToTextTestBase(
     "scala.annotation.MacroAnnotation", // x$1.reflect.Definition
     "scala.annotation.MainAnnotation", // duplicate annotation
     "scala.annotation.newMain", // no annotation
-    "scala.annotation.RefiningAnnotation", // no extends Annotation
     "scala.quoted.FromExpr", // T is Nothing
     "scala.quoted.Quotes", // Cannot resolve java.nio.file.Path
     "scala.quoted.runtime.QuoteMatching", // no <: _root_.scala.AnyKind
