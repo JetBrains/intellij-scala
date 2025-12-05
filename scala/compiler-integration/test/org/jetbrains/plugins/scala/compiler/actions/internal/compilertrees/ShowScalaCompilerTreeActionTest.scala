@@ -65,21 +65,28 @@ abstract class ShowScalaCompilerTreeActionTestBase extends ScalaCompilerTestBase
     s"Tree placeholder $UniqueTrees"
   }
 
-  //Testing of exact trees might be too much:
-  //  - it can contain file-system dependent annotations with source file
-  //  - it can contain a of code
-  //So we are testing just that the trees are unique
+  /**
+   * Replaces the actual content of the trees with placeholders.
+   *
+   * Testing of exact trees might be too much because:
+   *   - it can contain file-system dependent annotations with source file
+   *   - it can contain a lot of code
+   *
+   * So, instead, we are testing just the fact that the trees are unique and replace the actual content with the placeholders
+   */
   private def replaceActualTreesWithPlaceholders(phasesWithTrees: Seq[PhaseWithTreeText]): Seq[PhaseWithTreeText] = {
-    phasesWithTrees.map { case PhaseWithTreeText(phase, treeText) =>
-      val treePlaceholder = if (treeText.nonEmpty) TreePlaceholderGenerator(treeText) else treeText
-      PhaseWithTreeText(phase, treePlaceholder)
-    }
+    phasesWithTrees.map(replaceActualTreeWithPlaceholder)
+  }
+
+  private def replaceActualTreeWithPlaceholder(phaseWithTree: PhaseWithTreeText): PhaseWithTreeText = {
+    val treePlaceholder = if (phaseWithTree.phaseText.nonEmpty) TreePlaceholderGenerator(phaseWithTree.phaseText) else phaseWithTree.phaseText
+    PhaseWithTreeText(phaseWithTree.phase, treePlaceholder)
   }
 
   private def buildTextForTests(trees: Seq[PhaseWithTreeText]): String =
     trees
       .map(pt => {
-        s"""PhaseWithTreeText("${pt.phase}", "${pt.treeText}")"""
+        s"""PhaseWithTreeText("${pt.phase}", "${pt.phaseText}")"""
       })
       .mkString("Seq(\n  ", ",\n  ", "\n)")
 
@@ -108,7 +115,6 @@ abstract class ShowScalaCompilerTreeActionTestBase extends ScalaCompilerTestBase
       |  }
       |}
       |""".stripMargin
-
 
   protected val CommonScala2AndScala3FileText_EmptyPackage =
     """class MyClass2""".stripMargin.trim
@@ -428,7 +434,9 @@ class ShowScalaCompilerTreeActionTest_Scala3 extends ShowScalaCompilerTreeAction
         PhaseWithTreeText("constructors", "Tree placeholder 10"),
         PhaseWithTreeText("MegaPhase{lambdaLift, elimStaticThis, countOuterAccesses}", "Tree placeholder 11"),
         PhaseWithTreeText("MegaPhase{dropOuterAccessors, checkNoSuperThis, flatten, transformWildcards, moveStatic, expandPrivate, restoreScopes, selectStatic, Collect entry points, collectSuperCalls, repeatableAnnotations}", "Tree placeholder 12"),
-        PhaseWithTreeText("genBCode", "")
+        PhaseWithTreeText("genBCode", ""),
+        PhaseWithTreeText("Tasty (class MyClass)", "Tree placeholder 13"),
+        PhaseWithTreeText("== WARNING Output ==", "Tree placeholder 14")
       )
     )
   }
@@ -459,7 +467,8 @@ class ShowScalaCompilerTreeActionTest_Scala3 extends ShowScalaCompilerTreeAction
         PhaseWithTreeText("constructors", "Tree placeholder 5"),
         PhaseWithTreeText("MegaPhase{lambdaLift, elimStaticThis, countOuterAccesses}", ""),
         PhaseWithTreeText("MegaPhase{dropOuterAccessors, checkNoSuperThis, flatten, transformWildcards, moveStatic, expandPrivate, restoreScopes, selectStatic, Collect entry points, collectSuperCalls, repeatableAnnotations}", ""),
-        PhaseWithTreeText("genBCode", "")
+        PhaseWithTreeText("genBCode", ""),
+        PhaseWithTreeText("Tasty (class MyClass2)", "Tree placeholder 6")
       )
     )
   }

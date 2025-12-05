@@ -102,7 +102,7 @@ final class ShowScalaCompilerTreeAction extends AnAction(CompilerIntegrationBund
     }
 
     //Show some trees even if there is a compilation error
-    val hasSomeNonEmptyTree = compilerTrees.phasesTrees.exists(_.treeText.nonEmpty)
+    val hasSomeNonEmptyTree = compilerTrees.phasesTrees.exists(_.phaseText.nonEmpty)
     if (hasSomeNonEmptyTree || ApplicationManager.getApplication.isUnitTestMode) {
       showCompilerTreesDialog(virtualFile, module , compilerTrees)
     }
@@ -180,7 +180,10 @@ object ShowScalaCompilerTreeAction {
       }
       val scalacOptionsToPrintTrees = getScalacOptionsToPrintCompilerTrees(module.languageLevel)
       val optionsNew = existingOptionsFiltered ++ scalacOptionsToPrintTrees
-      settings.copy(additionalCompilerOptions = optionsNew)
+      settings.copy(
+        // remove duplicates in case those options were already in the build, just to avoid redundant warnings from the compiler
+        additionalCompilerOptions = optionsNew.distinct
+      )
     }
 
     def run(): Unit = {
@@ -193,7 +196,7 @@ object ShowScalaCompilerTreeAction {
   private def getScalacOptionsToPrintCompilerTrees(languageLevel: Option[ScalaLanguageLevel]): Seq[String] =
     languageLevel match {
       case Some(value) if value.isScala3 =>
-        Seq("-Vprint:all")
+        Seq("-Vprint:all", "-Yprint-tasty")
       case Some(ScalaLanguageLevel.Scala_2_13) =>
         //NOTE: before Scala 2.13.11 only `_` is recognised `all` is supported only since 2.13.11
         //We use `_` to support all scala 2.13.x versions
