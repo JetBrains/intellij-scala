@@ -12,8 +12,6 @@ class CatsTest extends TextToTextTestBase(
   ),
   Seq("cats"), Set.empty, 1518,
   Set(
-    "cats.ApplicativeMonoid", // ApplySemigroup without qualifier
-    "cats.InvariantMonoidalMonoid", // InvariantSemigroupalSemigroup without qualifier
     "cats.laws.NonEmptyParallelLaws", // Order in type refinement
     "cats.laws.ParallelLaws", // Order in type refinement
     "cats.laws.discipline.NonEmptyParallelTests", // Order in type refinement

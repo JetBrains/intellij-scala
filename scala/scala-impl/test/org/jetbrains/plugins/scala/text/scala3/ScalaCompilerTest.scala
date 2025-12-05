@@ -17,8 +17,6 @@ class ScalaCompilerTest extends TextToTextTestBase(
     "dotty.tools.dotc.rewrites.Rewrites", // New error since Scala 3.3.4
     "dotty.tools.dotc.semanticdb.Scala3", // Order in enum
     "dotty.tools.dotc.transform.LambdaLift", // TODO Unknown type
-//    "dotty.tools.dotc.transform.init.Semantic", // Semantic.Cache.TreeWrapper is Any // No longer an error since Scala 3.3.1
-    "dotty.tools.dotc.transform.patmat.SpaceEngine", // New error since Scala 3.3.1
     "dotty.tools.dotc.transform.sjs.JSSymUtils", // TODO Enum cases in companion object
     "dotty.tools.dotc.typer.Applications", // Extra Nothing type argument in extends, different .this qualifier
     "dotty.tools.dotc.typer.Synthesizer", // TODO Enum cases in companion object

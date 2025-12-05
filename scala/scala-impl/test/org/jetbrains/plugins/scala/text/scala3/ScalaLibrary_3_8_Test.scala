@@ -20,7 +20,6 @@ class ScalaLibrary_3_8_Test extends TextToTextTestBase(
     "scala.collection.mutable.CheckedIndexedSeqView", // Id | Id[Nothing]
     "scala.collection.mutable.CollisionProofHashMap", // Cannot resolve CollisionProofHashMap.LLNode[K, V]
     "scala.concurrent.impl.Promise", // ? => ? | Function1[?, ?]
-    "scala.sys.BooleanProp", // extends PropImpl | _root_.scala.sys.PropImpl
     "scala.sys.process.ProcessImpl", // Unknown type
   ),
   withSources = true,
