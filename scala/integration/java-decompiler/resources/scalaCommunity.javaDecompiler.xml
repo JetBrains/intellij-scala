@@ -23,5 +23,12 @@
                 class="org.jetbrains.plugins.scala.decompileToJava.ShowDecompiledTastyAction">
             <add-to-group group-id="idea.java.decompiler.action.group" anchor="after" relative-to-action="Scala.DecompileToJava"/>
         </action>
+
+        <action id="Scala.DecompileTastyRaw"
+                class="org.jetbrains.plugins.scala.decompileToJava.ShowDecompiledTastyRawInternalAction"
+                internal="true"
+                description="Shows internal representation of the Tasty file (Trees and Name table)">
+            <add-to-group group-id="idea.java.decompiler.action.group" anchor="after" relative-to-action="Scala.DecompileTasty"/>
+        </action>
     </actions>
 </idea-plugin>

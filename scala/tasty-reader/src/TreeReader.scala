@@ -119,7 +119,13 @@ private class TreeReader(
 }
 
 object TreeReader {
+
   def treeFrom(bytes: Array[Byte]): Node = {
+    val treeAndTable = treeAndNameTableFrom(bytes)
+    treeAndTable._1
+  }
+
+  def treeAndNameTableFrom(bytes: Array[Byte]): (Node, NameTable) = {
     val in = new TastyReader(bytes)
 
     val header = new HeaderReader(in).readFullHeader()
@@ -142,7 +148,10 @@ object TreeReader {
       readPositions(in.subReader(positionSectionBegin, positionSectionEnd))
     }
 
-    new TreeReader(nameTable, positions).readTree(new TastyReader(bytes, astSectionBegin.index, astSectionEnd.index, astSectionBegin.index))
+    val treeReader = new TreeReader(nameTable, positions)
+    val tastyReader = new TastyReader(bytes, astSectionBegin.index, astSectionEnd.index, astSectionBegin.index)
+    val rootNode = treeReader.readTree(tastyReader)
+    (rootNode, nameTable)
   }
 
   private def readPositions(in: TastyReader): Map[Addr, Int] = {
