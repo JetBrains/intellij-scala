@@ -14,12 +14,8 @@ class AkkaTest extends TextToTextTestBase(
   ),
   Seq("akka"), Set("akka.parboiled2", "akka.persistence.journal.leveldb", "akka.remote.artery.aeron", "akka.remote.transport.netty") /* External references */ , 2582,
   Set(
-    "akka.actor.dungeon.Children", // Any
     "akka.actor.typed.internal.receptionist.Platform", // Match type case without qualifier
     "akka.dispatch.CachingConfig", // java.util.Map$.Entry
-    "akka.dispatch.ExecutorServiceDelegate", // Cannot resolve
-    "akka.event.Logging", // .type.type
-    "akka.http.impl.engine.parsing.SpecializedHeaderValueParsers", // ContentLengthParser is Any
     "akka.http.impl.model.parser.CacheControlHeader", // Any
     "akka.http.impl.model.parser.CommonRules", // Any
     "akka.http.impl.model.parser.ContentDispositionHeader", // Any
@@ -28,11 +24,7 @@ class AkkaTest extends TextToTextTestBase(
     "akka.http.scaladsl.server.Directive", // By-name function type parameter
     "akka.http.scaladsl.server.directives.BasicDirectives",
     "akka.http.scaladsl.server.util.BinaryPolyFunc", // Unknown
-    "akka.io.TcpListener", // Cannot resolve Matchable
-    "akka.io.UdpListener", // Cannot resolve Matchable
-    "akka.stream.Supervision", // Excessive parentheses in compound type
     "akka.stream.scaladsl.MergeHub", // Cannot resolve Event
-    "akka.stream.scaladsl.SourceWithContext", // SourceShape is Any
     "akka.stream.stage.GraphStageLogic", // Excessive parentheses in function type
   )
 )

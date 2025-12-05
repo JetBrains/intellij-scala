@@ -12,11 +12,6 @@ class ZioTest extends TextToTextTestBase(
   Set(
     "zio.Experimental", // Cannot resolve scala.runtime.$throws
     "zio.internal.stacktracer.SourceLocation", // Given without a name
-    "zio.metrics.jvm.BufferPools", // External library reference
-    "zio.metrics.jvm.GarbageCollector", // External library reference
-    "zio.metrics.jvm.MemoryAllocation", // External library reference
-    "zio.metrics.jvm.MemoryPools", // External library reference
-    "zio.stream.ZStreamPlatformSpecificConstructors", // .type.Emit
   ),
   withSources = true,
   Set(
