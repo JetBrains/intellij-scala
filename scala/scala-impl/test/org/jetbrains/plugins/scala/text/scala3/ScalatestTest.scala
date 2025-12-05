@@ -10,8 +10,6 @@ class ScalatestTest extends TextToTextTestBase(
   Seq("org.scalatest"), Set.empty, 660,
   Set(
     "org.scalatest.enablers.InspectorAsserting", // Tuple2 type argument
-    "org.scalatest.matchers.must.Matchers", // No this. prefix
-    "org.scalatest.matchers.should.Matchers", // No this. prefix
     "org.scalatest.tools.Framework", // Any
     "org.scalatest.tools.ScalaTestAntTask", // Cannot resolve reference
     "org.scalatest.tools.ScalaTestFramework", // Any
@@ -52,7 +50,9 @@ class ScalatestTest extends TextToTextTestBase(
     "org.scalatest.matchers.dsl.NotWord", // Expr[...]
     "org.scalatest.matchers.dsl.ResultOfNotWordForAny", // Expr[...]
     "org.scalatest.matchers.dsl.StartWithWord", // with Object { toString }
+    "org.scalatest.matchers.must.Matchers", // Multiple `extension`
     "org.scalatest.matchers.must.TypeMatcherMacro", // Cannot resolve x$1.reflect.Term
+    "org.scalatest.matchers.should.Matchers", // Multiple `extension`
     "org.scalatest.matchers.should.TypeMatcherMacro", // Cannot resolve x$1.reflect.Term
     "org.scalatest.tools.ArgsParser", // Predef.String
     "org.scalatest.tools.DiscoverySuite", // Predef.String

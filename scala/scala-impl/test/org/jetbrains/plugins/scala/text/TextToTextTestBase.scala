@@ -125,7 +125,7 @@ abstract class TextToTextTestBase(dependencies: Seq[DependencyDescription],
       val decompiledVsStub = transformed(Content.DecompiledVsStub, decompiled)
 
       if (classExceptions(cls.qualifiedName)) {
-        Assert.assertNotEquals(decompiledVsStub, stub, s"Expected to contain errors: ${cls.qualifiedName}")
+        Assert.assertNotEquals(s"Expected to contain errors: ${cls.qualifiedName}", decompiledVsStub, stub)
       } else {
         Assert.assertEquals(s"${cls.qualifiedName} [decompiled | stub]", decompiledVsStub, stub)
 
