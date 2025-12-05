@@ -19,6 +19,7 @@ class MillTest extends TextToTextTestBase(
     "mill.define.EnclosingClass", // Predef.Class
     "mill.define.EvaluatorProxy", // Predef.Map
     "mill.define.InputImpl", // immutable.Seq[_root_.mill.define.Task[?]] vs Nil.type
+    "mill.define.TargetImpl", // extends Task[T] vs Task
     "mill.define.Worker", // extends Task[T] vs Task
     "mill.define.internal.Cacher", // x$1.reflect.Symbol vs Any
     "mill.define.internal.CacherMacros", // Cannot resolve TypeRepr

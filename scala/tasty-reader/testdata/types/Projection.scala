@@ -40,4 +40,8 @@ trait Projection {
   class HKT[A[_]]
 
   type T10 = HKT[({ type λ[A] = Option[A] })#λ]
+
+  val v1: C1#C2 = ???
+
+  val v2/**//*: C1#C2*/ = /**/v1/*???*/
 }
