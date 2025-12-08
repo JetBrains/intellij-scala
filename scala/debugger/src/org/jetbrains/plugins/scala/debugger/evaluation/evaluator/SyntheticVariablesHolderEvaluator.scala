@@ -1,9 +1,8 @@
 package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 
 import com.intellij.debugger.JavaDebuggerBundle
-import com.intellij.debugger.engine.evaluation.EvaluateExceptionUtil
 import com.intellij.debugger.engine.evaluation.expression.CodeFragmentEvaluator
-import com.intellij.debugger.jdi.VirtualMachineProxyImpl
+import com.intellij.debugger.engine.evaluation.{EvaluateExceptionUtil, EvaluationContextImpl}
 import com.sun.jdi.{Type, Value, VirtualMachine}
 
 import scala.collection.mutable
@@ -11,8 +10,8 @@ import scala.collection.mutable
 class SyntheticVariablesHolderEvaluator(parentEvaluator: CodeFragmentEvaluator) extends CodeFragmentEvaluator(parentEvaluator) {
   private val mySyntheticLocals = mutable.HashMap[String, Value]()
 
-  override def getValue(localName: String, vm: VirtualMachineProxyImpl): Value = mySyntheticLocals.get(localName) match {
-    case None => parentEvaluator.getValue(localName, vm)
+  override def getValue(localName: String, context: EvaluationContextImpl): Value = mySyntheticLocals.get(localName) match {
+    case None => parentEvaluator.getValue(localName, context)
     case Some(v) => v
   }
 
