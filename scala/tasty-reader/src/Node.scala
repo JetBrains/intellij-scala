@@ -3,21 +3,19 @@ package org.jetbrains.plugins.scala.tasty.reader
 import dotty.tools.tasty.TastyBuffer.Addr
 import dotty.tools.tasty.TastyFormat
 
-class Node(val addr: Addr, val tag: Int, val names: Seq[String], children0: () => Seq[Node], val position: () => Option[Int]) {
+class Node(
+  val addr: Addr,
+  val tag: Int,
+  val names: Seq[String],
+  children0: () => Seq[Node],
+  val position: () => Option[Int]
+) {
   lazy val children: Seq[Node] = children0()
 
   def firstChild: Node = children.head
 
-  override def toString: String = toString(0)
-
-  protected def toString(indent: Int): String = {
-    val indentation = Iterator.fill(indent)(' ').mkString
-    val tagText = TastyFormat.astTagToString(tag)
-    val namesText = (if (names.nonEmpty) " " + names.mkString(", ") else "") + refName.fold("")(n => s" ($n)")
-    val selfText = indentation + tagText + namesText
-    val childrenText = children.map("\n" + _.toString(indent + 2)).mkString
-    selfText + childrenText
-  }
+  override def toString: String =
+    new NodePrinter().print(this)
 
   def name: String = names.head
 
