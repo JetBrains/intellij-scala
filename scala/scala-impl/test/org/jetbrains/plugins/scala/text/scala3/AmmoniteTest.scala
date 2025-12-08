@@ -10,7 +10,6 @@ class AmmoniteTest extends TextToTextTestBase(
   Seq("ammonite"), Set.empty, 161,
   Set(
     "ammonite.Main", // None without .type
-    "ammonite.interp.PredefInitialization", // FromJavaObject
     "ammonite.repl.Repl", // Unknown vs Any
   )
 )
