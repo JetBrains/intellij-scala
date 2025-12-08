@@ -576,7 +576,8 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
         }
       case Node3(TYPEREF, Seq(name), Seq(prefix)) =>
         val prefixText = textOfType(prefix)
-        withNonEmptyPrefixWith(delimiterAfter(prefix), prefixText, name)
+        val delimiter = if (prefixText.endsWith("$")) "." else delimiterAfter(prefix) // Foo[ModuleClass] name
+        withNonEmptyPrefixWith(delimiter, prefixText.stripSuffix("$"), name)
       case Node3(TERMREF, Seq(name), Seq(prefix)) =>
         // TODO why there's "package" in some cases?
         val prefixText = textOfType(prefix)
