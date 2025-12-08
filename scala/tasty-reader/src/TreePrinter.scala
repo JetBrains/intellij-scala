@@ -547,7 +547,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
 
   private def textOfType(node: Node, parens: Int = 0)(using parent: Option[Node] = None): String = {
     val withDotTypeSuffix =
-      parent.forall(_.is(SINGLETONtpt, APPLIEDtype)) && node.is(TERMREF, TERMREFsymbol, TERMREFdirect, SELECT) ||
+      parent.forall(_.is(SINGLETONtpt, APPLIEDtype, ANDtype, ORtype)) && node.is(TERMREF, TERMREFsymbol, TERMREFdirect, SELECT) ||
         parent.isEmpty && node.is(THIS)
 
     if (node.isSharedType) {

@@ -9,7 +9,6 @@ class AmmoniteTest extends TextToTextTestBase(
   ),
   Seq("ammonite"), Set.empty, 161,
   Set(
-    "ammonite.Main", // None without .type
     "ammonite.repl.Repl", // Unknown vs Any
   )
 )
