@@ -15,9 +15,7 @@ class AkkaTest extends TextToTextTestBase(
   Seq("akka"), Set("akka.parboiled2", "akka.persistence.journal.leveldb", "akka.remote.artery.aeron", "akka.remote.transport.netty") /* External references */ , 2582,
   Set(
     "akka.actor.typed.internal.receptionist.Platform", // Match type case without qualifier
-    "akka.http.impl.model.parser.CacheControlHeader", // Any
     "akka.http.impl.model.parser.CommonRules", // Any
-    "akka.http.impl.model.parser.ContentDispositionHeader", // Any
     "akka.http.impl.model.parser.SimpleHeaders", // .Out
     "akka.http.impl.util.JavaMapping", // Cannot resolve S, J
     "akka.http.scaladsl.server.Directive", // By-name function type parameter
