@@ -13,13 +13,18 @@ import scala.annotation.{switch, tailrec}
 import scala.collection.mutable
 
 /**
+ * The class contains logic to print Tasty internal presentation ([[Node]]) as a human-readable Scala source file with outlines.<br>
+ * The entry point is [[fileAndTextOf]] method.
+ *
  * https://youtrack.jetbrains.com/issue/SCL-19042/Indexing-read-.tasty-files-directly
  *
  * https://youtrack.jetbrains.com/issue/SCL-24777/Decompiler-tests-documentation
  *
- * Unit tests:        [[org.jetbrains.plugins.scala.tasty.reader.DecompilerTest3]]
- * Benchmarks:        [[org.jetbrains.plugins.scala.tasty.reader.DecompilerMain3]]
- * Integration tests: [[org.jetbrains.plugins.scala.text.scala3]]
+ * Unit tests:        [[org.jetbrains.plugins.scala.tasty.reader.DecompilerTest3]]<br>
+ * Benchmarks:        [[org.jetbrains.plugins.scala.tasty.reader.DecompilerMain3]]<br>
+ * Integration tests: [[org.jetbrains.plugins.scala.text.scala3]]<br>
+ *
+ * @see [[TreeReader]] ~ reading Tasty contnet to internal Node represenataion
  */
 class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, legacySyntax: Boolean = false) {
   private final val Indent = "  "

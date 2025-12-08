@@ -4,7 +4,16 @@ import dotty.tools.tasty.TastyBuffer.{Addr, NameRef}
 import dotty.tools.tasty.TastyFormat.*
 import dotty.tools.tasty.{TastyReader, UnpickleException}
 
-private class TreeReader(nameAtRef: NameTable, positions: Map[Addr, Int]) {
+/**
+ * This class contains logic to read binary content of a Tasty file into internal representation ([[Node]])<br>
+ * The entry point is [[treeFrom]] method.
+ *
+ * @see [[TreePrinter]] ~ printing Tasty content as Scala source code
+ */
+private class TreeReader(
+  nameAtRef: NameTable,
+  positions: Map[Addr, Int]
+) {
   private def readNat(in: TastyReader): Int = in.readNat()
 
   private def nameToString(name: Name): String = name.toString

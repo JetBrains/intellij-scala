@@ -2,6 +2,10 @@ package org.jetbrains.plugins.scala.tasty.reader
 
 import dotty.tools.tasty.UnpickleException
 
+/**
+ * @see [[TreeReader]]
+ * @see [[TreePrinter]]
+ */
 class TastyImpl {
   def read(bytes: Array[Byte]): Option[(String, String, CompilerOptions)] = {
     try {
