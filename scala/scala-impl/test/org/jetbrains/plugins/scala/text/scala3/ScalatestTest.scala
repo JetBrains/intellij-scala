@@ -57,6 +57,7 @@ class ScalatestTest extends TextToTextTestBase(
     "org.scalatest.tools.ArgsParser", // Predef.String
     "org.scalatest.tools.DiscoverySuite", // Predef.String
     "org.scalatest.tools.NestedSuiteElement", // Predef.String
+    "org.scalatest.tools.Runner", // Class[? <: AnyRef] | Class[?] (private[scalatest], FromJavaObject)
     "org.scalatest.tools.StringReporter", // Unicode \u001b char
     "org.scalatest.tools.SuiteElement", // Predef.String
     "org.scalatest.wordspec.AsyncWordSpecLike", // Expr[...]
