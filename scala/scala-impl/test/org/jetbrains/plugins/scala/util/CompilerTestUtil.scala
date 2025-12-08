@@ -20,15 +20,17 @@ object CompilerTestUtil {
     private var settingsBefore: ScalaCompileServerSettings = _
     private lazy val settings: ScalaCompileServerSettings = compileServerSettings
 
+    import com.intellij.java.testFramework.backend.{CompilerTestUtil => BackendCompilerTestUtil}
+
     override def applyChange(): Unit = {
       settingsBefore = XmlSerializerUtil.createCopy(settings)
       body(settings)
-      com.intellij.compiler.CompilerTestUtil.saveApplicationComponent(settings)
+      BackendCompilerTestUtil.saveApplicationComponent(settings)
     }
 
     override def revertChange(): Unit = {
       XmlSerializerUtil.copyBean(settingsBefore, settings)
-      com.intellij.compiler.CompilerTestUtil.saveApplicationComponent(settings)
+      BackendCompilerTestUtil.saveApplicationComponent(settings)
     }
   }
 

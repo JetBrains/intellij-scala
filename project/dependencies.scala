@@ -177,6 +177,7 @@ object Dependencies {
   val intellijTestFrameworkCommon: ModuleID = ("com.jetbrains.intellij.platform" % "test-framework-common" % Versions.intellijVersion_ForManagedIntellijDependencies).notTransitive()
   val intellijTestFramework: ModuleID = ("com.jetbrains.intellij.platform" % "test-framework" % Versions.intellijVersion_ForManagedIntellijDependencies).notTransitive()
   val intellijJavaTestFrameworkShared: ModuleID = ("com.jetbrains.intellij.java" % "java-test-framework-shared" % Versions.intellijVersion_ForManagedIntellijDependencies).notTransitive()
+  val intellijJavaTestFrameworkBackend: ModuleID = ("com.jetbrains.intellij.java" % "java-test-framework-backend" % Versions.intellijVersion_ForManagedIntellijDependencies).notTransitive()
   val intellijJavaTestFramework: ModuleID = ("com.jetbrains.intellij.java" % "java-test-framework" % Versions.intellijVersion_ForManagedIntellijDependencies).notTransitive()
   val intellijDebuggerTestFramework: ModuleID = ("com.jetbrains.intellij.platform" % "debugger-test-framework" % Versions.intellijVersion_ForManagedIntellijDependencies).notTransitive()
   val intellijMavenTestFramework: ModuleID = ("com.jetbrains.intellij.maven" % "maven-test-framework" % Versions.intellijVersion_ForManagedIntellijDependencies).notTransitive()

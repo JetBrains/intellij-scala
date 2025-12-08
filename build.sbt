@@ -311,6 +311,7 @@ lazy val scalaImpl: sbt.Project =
         Dependencies.intellijTestFrameworkCommon % Test,
         Dependencies.intellijTestFramework % Test,
         Dependencies.intellijJavaTestFrameworkShared % Test,
+        Dependencies.intellijJavaTestFrameworkBackend % Test,
         Dependencies.intellijJavaTestFramework % Test,
         Dependencies.intellijTeamCityTestFramework % Test,
         //for ExternalSystemTestCase and ExternalSystemImportingTestCase
