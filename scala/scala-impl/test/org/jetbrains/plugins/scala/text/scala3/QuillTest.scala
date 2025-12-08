@@ -29,7 +29,6 @@ class QuillTest extends TextToTextTestBase(
     "io.getquill.context.jdbc.Encoders", // Encoders.this vs JdbcContextTypes.this
     "io.getquill.metaprog.InjectableEagerPlanterExpr", // Function1
     "io.getquill.norm.SheathLeafClauses", // Cannot resolve reference
-    "io.getquill.parser.OperationsParser", // TODO > symbol
     "io.getquill.parser.ParserHelpers", // TODO using(x: Int, Long)
     "io.getquill.quat.QuatMakingBase", // $1n in extension, SCL-21551
   )
