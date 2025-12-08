@@ -17,62 +17,62 @@ class ScalaLibraryHighlightingTest_2_12 extends ScalaLibraryHighlightingTest {
 
   override protected def filesWithProblems: Map[String, Set[TextRange]] = Map(
     "scala/Predef.scala" -> Set(
-      (6390,6399), // Cannot resolve symbol `package`
+      (6399, 6408), // Cannot resolve symbol `package`
     ),
     "scala/StringContext.scala" -> Set(
-      (3206,3228), // Cannot resolve symbol InvalidEscapeException
-      (5955,5977), // Cannot resolve symbol InvalidEscapeException
+      (3215, 3237), // Cannot resolve symbol InvalidEscapeException
+      (5964, 5986), // Cannot resolve symbol InvalidEscapeException
     ),
     "scala/collection/CustomParallelizable.scala" -> Set(
-      (464,467), // Method 'par' overrides nothing
+      (473, 476), // Method 'par' overrides nothing
     ),
     "scala/collection/LinearSeqLike.scala" -> Set(
-      (2448,2459), // Recursive call not in tail position (in @tailrec annotated method)
+      (2457, 2468), // Recursive call not in tail position (in @tailrec annotated method)
     ),
     "scala/collection/immutable/HashMap.scala" -> Set(
-      (5538,5546), // Overriding type Int does not conform to base type () => Int
+      (5547, 5555), // Overriding type Int does not conform to base type () => Int
     ),
     "scala/collection/immutable/NumericRange.scala" -> Set(
-      (5831,5871), // No implicit arguments of type: Integral[A]
-      (5885,5915), // No implicit arguments of type: Integral[A]
-      (9741,9749), // Overriding type Int does not conform to base type () => Int
-      (9741,9749), // Overriding type Int does not conform to base type () => Int
+      (5840, 5880), // No implicit arguments of type: Integral[A]
+      (5894, 5924), // No implicit arguments of type: Integral[A]
+      (9750, 9758), // Overriding type Int does not conform to base type () => Int
+      (9750, 9758), // Overriding type Int does not conform to base type () => Int
     ),
     "scala/collection/mutable/ArrayLike.scala" -> Set(
-      (1680,1688), // Cannot resolve symbol getClass
+      (1689, 1697), // Cannot resolve symbol getClass
     ),
     "scala/collection/parallel/ParIterableLike.scala" -> Set(
-      (36189,36191), // Type mismatch, expected: T <:< (Nothing, Nothing), actual: T <:< (K, V)
+      (36198, 36200), // Type mismatch, expected: T <:< (Nothing, Nothing), actual: T <:< (K, V)
     ),
     "scala/concurrent/duration/DurationConversions.scala" -> Set(
-      (1420,1434), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
-      (1497,1511), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
-      (1568,1582), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
-      (1731,1746), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
-      (1810,1825), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
-      (1883,1898), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
-      (2047,2062), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
-      (2126,2141), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
-      (2199,2214), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
-      (2353,2363), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
-      (2502,2512), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
-      (2645,2653), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
-      (2783,2790), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
+      (1429, 1443), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
+      (1506, 1520), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
+      (1577, 1591), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
+      (1740, 1755), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
+      (1819, 1834), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
+      (1892, 1907), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
+      (2056, 2071), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
+      (2135, 2150), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
+      (2208, 2223), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
+      (2362, 2372), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
+      (2511, 2521), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
+      (2654, 2662), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
+      (2792, 2799), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
     ),
     "scala/reflect/ClassManifestDeprecatedApis.scala" -> Set(
-      (2714,2721), // Cannot resolve symbol subargs
-      (2947,2954), // Cannot resolve symbol subtype
+      (2723, 2730), // Cannot resolve symbol subargs
+      (2956, 2963), // Cannot resolve symbol subtype
     ),
     "scala/reflect/Manifest.scala" -> Set(
-      (3412,3420), // Overriding type Int does not conform to base type () => Int
-      (12563,12571), // Overriding type String does not conform to base type () => String
-      (14217,14225), // Overriding type Int does not conform to base type () => Int
+      (3421, 3429), // Overriding type Int does not conform to base type () => Int
+      (12572, 12580), // Overriding type String does not conform to base type () => String
+      (14226, 14234), // Overriding type Int does not conform to base type () => Int
     ),
     "scala/sys/BooleanProp.scala" -> Set(
-      (1735,1740), // Overriding type Unit does not conform to base type () => Unit
-      (1742,1748), // Overriding type Unit does not conform to base type () => Unit
-      (1750,1757), // Overriding type Unit does not conform to base type () => Unit
-      (1759,1765), // Overriding type Unit does not conform to base type () => Unit
+      (1744, 1749), // Overriding type Unit does not conform to base type () => Unit
+      (1751, 1757), // Overriding type Unit does not conform to base type () => Unit
+      (1759, 1766), // Overriding type Unit does not conform to base type () => Unit
+      (1768, 1774), // Overriding type Unit does not conform to base type () => Unit
     )
   )
 }
