@@ -4,13 +4,14 @@ import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.text.TextToTextTestBase
 
 class CirceTest extends TextToTextTestBase(
-  Seq(
+  dependencies = Seq(
     "io.circe" %% "circe-core" % "0.14.1",
     "io.circe" %% "circe-generic" % "0.14.1",
     "io.circe" %% "circe-parser" % "0.14.1",
   ),
-  Seq("io.circe"), Set.empty, 73,
-  Set(
+  packages = Seq("io.circe"),
+  minClassCount = 73,
+  classExceptions = Set(
     "io.circe.Encoder", // export (correct, see ScalaNamesValidator)
     "io.circe.LowPriorityDecoders", // export (correct, see ScalaNamesValidator)
     "io.circe.LowPriorityEncoders", // export (correct, see ScalaNamesValidator)

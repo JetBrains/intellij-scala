@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.text.TextToTextTestBase
 
 class AkkaTest extends TextToTextTestBase(
-  Seq(
+  dependencies = Seq(
     "com.typesafe.akka" %% "akka-actor" % "2.7.0",
     "com.typesafe.akka" %% "akka-actor-typed" % "2.7.0",
     "com.typesafe.akka" %% "akka-cluster" % "2.7.0",
@@ -12,8 +12,10 @@ class AkkaTest extends TextToTextTestBase(
     "com.typesafe.akka" %% "akka-persistence" % "2.7.0",
     "com.typesafe.akka" %% "akka-stream" % "2.7.0",
   ),
-  Seq("akka"), Set("akka.parboiled2", "akka.persistence.journal.leveldb", "akka.remote.artery.aeron", "akka.remote.transport.netty") /* External references */ , 2582,
-  Set(
+  packages = Seq("akka"),
+  packageExceptions = Set("akka.parboiled2", "akka.persistence.journal.leveldb", "akka.remote.artery.aeron", "akka.remote.transport.netty") /* External references */ ,
+  minClassCount = 2582,
+  classExceptions = Set(
     "akka.actor.typed.internal.receptionist.Platform", // Match type case without qualifier
     "akka.http.impl.model.parser.CommonRules", // Any
     "akka.http.impl.model.parser.SimpleHeaders", // .Out

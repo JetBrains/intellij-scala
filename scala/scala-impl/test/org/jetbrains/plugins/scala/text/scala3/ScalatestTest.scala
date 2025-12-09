@@ -4,18 +4,19 @@ import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.text.TextToTextTestBase
 
 class ScalatestTest extends TextToTextTestBase(
-  Seq(
+  dependencies = Seq(
     "org.scalatest" %% "scalatest" % "3.2.14"
   ),
-  Seq("org.scalatest"), Set.empty, 660,
-  Set(
+  packages = Seq("org.scalatest"),
+  minClassCount = 660,
+  classExceptions = Set(
     "org.scalatest.enablers.InspectorAsserting", // Tuple2 type argument
     "org.scalatest.tools.Framework", // Any
     "org.scalatest.tools.ScalaTestAntTask", // Cannot resolve reference
     "org.scalatest.tools.ScalaTestFramework", // Any
   ),
   withSources = true,
-  Set(
+  sourceExceptions = Set(
     "org.scalatest.Assertions", // Multiple `extension`
     "org.scalatest.Suite", //Class[? <: AnyRef] | Class[?]
     "org.scalatest.diagrams.DiagramsMacro", // Cannot resolve x$1.reflect.Term
