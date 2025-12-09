@@ -4,11 +4,12 @@ import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.text.TextToTextTestBase
 
 class MillTest extends TextToTextTestBase(
-  Seq(
+  dependencies = Seq(
     "com.lihaoyi" %% "mill-main" % "0.12.15",
   ),
-  Seq("mill"), Set.empty, 140,
-  Set(
+  packages = Seq("mill"),
+  minClassCount = 140,
+  classExceptions = Set(
     "mill.api.AggWrapper", // AggWrapper.this.
     "mill.api.Ctx", // IndexedSeq[`?$2`] forSome {type `?$2`}
     "mill.api.JsonFormatters", // Enum[`?$1`] forSome {type `?$1`}

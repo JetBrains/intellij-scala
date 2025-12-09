@@ -30,8 +30,10 @@ import scala.jdk.CollectionConverters.{ListHasAsScala, SeqHasAsJava}
 @RunWith(classOf[JUnit4])
 @Category(Array(classOf[TextToTextTests]))
 abstract class TextToTextTestBase(dependencies: Seq[DependencyDescription],
-                                  packages: Seq[String], packageExceptions: Set[String], minClassCount: Int,
-                                  classExceptions: Set[String],
+                                  packages: Seq[String],
+                                  packageExceptions: Set[String] = Set.empty,
+                                  minClassCount: Int,
+                                  classExceptions: Set[String] = Set.empty,
                                   withSources: Boolean = false,
                                   sourceExceptions: Set[String] = Set.empty,
                                   includeScalaReflect: Boolean = false,

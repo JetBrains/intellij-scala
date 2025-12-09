@@ -3,9 +3,10 @@ package org.jetbrains.plugins.scala.text.scala3
 import org.jetbrains.plugins.scala.text.TextToTextTestBase
 
 class ScalaCompilerTest extends TextToTextTestBase(
-  Seq.empty,
-  Seq("dotty", "scala.quoted.runtime.impl"), Set.empty, 919,
-  Set(
+  dependencies = Seq.empty,
+  packages = Seq("dotty", "scala.quoted.runtime.impl"),
+  minClassCount = 919,
+  classExceptions = Set(
     "dotty.tools.backend.jvm.BTypesFromSymbols", // New error since Scala 3.3.1
     "dotty.tools.backend.jvm.CodeGen", // New error since Scala 3.3.1
     "dotty.tools.backend.sjs.ScopedVar", // Cannot resolve AssignmentStackElement (private class)

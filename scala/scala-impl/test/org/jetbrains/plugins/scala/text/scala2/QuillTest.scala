@@ -4,12 +4,13 @@ import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.text.TextToTextTestBase
 
 class QuillTest extends TextToTextTestBase(
-  Seq(
+  dependencies = Seq(
     "io.getquill" %% "quill-sql" % "4.6.0",
     "io.getquill" %% "quill-jdbc-zio" % "4.6.0"
   ),
-  Seq("io.getquill"), Set.empty, 505,
-  Set(
+  packages = Seq("io.getquill"),
+  minClassCount = 505,
+  classExceptions = Set(
     "io.getquill.EntityQuery", // No parentheses for repeated function type
     "io.getquill.EntityQueryModel", // No parentheses for repeated function type
     "io.getquill.Insert", // No parentheses for repeated function type
