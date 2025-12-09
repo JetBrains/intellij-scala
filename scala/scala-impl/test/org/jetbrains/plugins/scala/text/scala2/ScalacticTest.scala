@@ -4,11 +4,12 @@ import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.text.TextToTextTestBase
 
 class ScalacticTest extends TextToTextTestBase(
-  Seq(
+  dependencies = Seq(
     "org.scalactic" %% "scalactic" % "3.2.14",
   ),
-  Seq("org.scalactic"), Set.empty, 170,
-  Set(
+  packages = Seq("org.scalactic"),
+  minClassCount = 170,
+  classExceptions = Set(
     "org.scalactic.Accumulation", // No parentheses for repeated function type
     "org.scalactic.FutureSugar", // No parentheses for repeated function type
     "org.scalactic.TrySugar", // No parentheses for repeated function type

@@ -4,11 +4,12 @@ import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.text.TextToTextTestBase
 
 class PlayTest extends TextToTextTestBase(
-  Seq(
+  dependencies = Seq(
     "com.typesafe.play" %% "play" % "2.9.6",
   ),
-  Seq("controllers", "models", "play", "views"), Set.empty, 605,
-  Set(
+  packages = Seq("controllers", "models", "play", "views"),
+  minClassCount = 605,
+  classExceptions = Set(
     "views.html.helper.form", // By-name function type parameter
     "views.html.helper.script", // By-name function type parameter
     "views.html.helper.style", // By-name function type parameter

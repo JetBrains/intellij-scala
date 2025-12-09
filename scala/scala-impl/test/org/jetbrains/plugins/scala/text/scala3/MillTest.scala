@@ -6,13 +6,13 @@ import org.jetbrains.plugins.scala.text.TextToTextTestBase.Content
 import org.jetbrains.plugins.scala.text.scala3.MillTest.ScaladocAnnotation
 
 class MillTest extends TextToTextTestBase(
-  Seq(
+  dependencies = Seq(
     "com.lihaoyi" %% "mill-main" % "0.13.0-M1-43-b217bc",
   ),
-  Seq("mill"), Set.empty, 134,
-  Set.empty,
+  packages = Seq("mill"),
+  minClassCount = 134,
   withSources = true,
-  Set(
+  sourceExceptions = Set(
     "mill.api.Result", // with Product with Serializable
     "mill.define.Command", // extends Task[T] vs Task
     "mill.define.InputImpl", // immutable.Seq[_root_.mill.define.Task[?]] vs Nil.type

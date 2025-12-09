@@ -5,9 +5,10 @@ import org.jetbrains.plugins.scala.text.TextToTextTestBase.Content
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 class ScalaLibrary_3_8_Test extends TextToTextTestBase(
-  Seq.empty,
-  Seq("scala"), Set.empty, 909,
-  Set(
+  dependencies = Seq.empty,
+  packages = Seq("scala"),
+  minClassCount = 909,
+  classExceptions = Set(
     "scala.EmptyTuple", // duplicate JARs in RC3
     "scala.NamedTuple", // def map[F[_]](f: [t] => t => F[t])
     "scala.NamedTupleDecomposition", // non-absolute paths in match types
@@ -29,7 +30,7 @@ class ScalaLibrary_3_8_Test extends TextToTextTestBase(
     "scala.sys.process.ProcessImpl", // Unknown type
   ),
   withSources = true,
-  Set(
+  sourceExceptions = Set(
     "scala.Array", // from: Array[A] | Unit
     "scala.AnyVal", // getClass()
     "scala.Boolean", // private (), override def getClass()
