@@ -150,10 +150,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     val name = if (isAnonymous) "" else f.name
     val tps = if (f.typeParameters.isEmpty) "" else f.typeParameters.map(textOf).mkString("[", ", ", "]")
     val clauses = f.paramClauses.clauses.map(textOf(_, inPrivateConstructor = false, inCaseClass = false)).mkString
-    val tpe = if (f.isConstructor) "" else (if (tps.isEmpty && clauses.isEmpty) spaceAfter(name) else "") + (if (isAnonymous && clauses.isEmpty && tps.isEmpty) "" else ": ") + {
-      val s = textOf(f.returnType)
-      if (normalize && f.getName == "toString" && f.isEmptyParen && !f.hasExplicitType && s == "_root_.scala.Predef.String") "_root_.java.lang.String" else s
-    }
+    val tpe = if (f.isConstructor) "" else (if (tps.isEmpty && clauses.isEmpty) spaceAfter(name) else "") + (if (isAnonymous && clauses.isEmpty && tps.isEmpty) "" else ": ") + textOf(f.returnType)
     val rhs = if (f.isInstanceOf[ScFunctionDefinition]) " = ???" else ""
     annotations + "\n" + indent + "  " + modifiers + keyword + name + tps + clauses + tpe + rhs + "\n"
   }

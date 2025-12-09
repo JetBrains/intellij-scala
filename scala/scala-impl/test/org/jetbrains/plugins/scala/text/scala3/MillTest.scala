@@ -15,9 +15,6 @@ class MillTest extends TextToTextTestBase(
   Set(
     "mill.api.Result", // with Product with Serializable
     "mill.define.Command", // extends Task[T] vs Task
-    "mill.define.Discover", // Predef.String
-    "mill.define.EnclosingClass", // Predef.Class
-    "mill.define.EvaluatorProxy", // Predef.Map
     "mill.define.InputImpl", // immutable.Seq[_root_.mill.define.Task[?]] vs Nil.type
     "mill.define.TargetImpl", // extends Task[T] vs Task
     "mill.define.Worker", // extends Task[T] vs Task
@@ -25,7 +22,7 @@ class MillTest extends TextToTextTestBase(
     "mill.define.internal.CacherMacros", // Cannot resolve TypeRepr
     "mill.define.internal.CrossMacros", // Cannot resolve TypeRepr
     "mill.define.internal.ShimService", // Quotes
-    "mill.main.VisualizeModule", // private type, scala.Seq
+    "mill.main.VisualizeModule", // private type
   ),
   transformed = {
     case (Content.DecompiledVsSourceOutline, s) => ScaladocAnnotation.replaceAllIn(s, "")

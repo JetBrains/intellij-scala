@@ -23,7 +23,6 @@ class ZioTest extends TextToTextTestBase(
     "zio.ZLogger", // izumi.reflect.macrortti
     "zio.internal.FiberRuntime", // x * y constant
     "zio.internal.LinkedQueue", // Int.MaxValue constant
-    "zio.internal.macros.LayerBuilder", // scala.List
     "zio.internal.macros.ZLayerDerivationMacros", // Expr[...]
     "zio.metrics.MetricPair", // private type alias
     "zio.stm.STM", // zio.BuildFrom vs BuildFromCompat.this.BuildFrom
