@@ -94,10 +94,9 @@ object Versions {
       // the exact test framework dependencies that match the exact nightly `intellijVersion`.
       TeamCityCommunityUtil.getBuildIdForVersionSafe(intellijVersion)
         .map { buildId =>
-          Resolver.url(
-            "teamcity-artifacts",
-            url(s"https://buildserver.labs.intellij.net/guestAuth/app/rest/builds/id:$buildId/artifacts/content/maven-artifacts")
-          )(Patterns(isMavenCompatible = true, artifactPatterns = "[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"))
+          val mavenArtifactsUrl = s"https://buildserver.labs.intellij.net/guestAuth/app/rest/builds/id:$buildId/artifacts/content/maven-artifacts"
+          val mavenArtifactPatterns = "[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"
+          Resolver.url("teamcity-artifacts", url(mavenArtifactsUrl))(Patterns(isMavenCompatible = true, artifactPatterns = mavenArtifactPatterns))
         }
     } else None
 
