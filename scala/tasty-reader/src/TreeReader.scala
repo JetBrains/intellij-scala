@@ -77,8 +77,10 @@ private class TreeReader(
     }
     else if (tag >= firstNatASTTreeTag) {
       tag match {
-        case IDENT | IDENTtpt | SELECT | SELECTtpt | TERMREF | TYPEREF | SELFDEF | NAMEDARG => names :+= readName(in)
-        case _ => nat = readNat(in)
+        case IDENT | IDENTtpt | SELECT | SELECTtpt | TERMREF | TYPEREF | SELFDEF | NAMEDARG =>
+          names :+= readName(in)
+        case _ =>
+          nat = readNat(in)
       }
       children = { val tree = readTree(in); () => Seq(tree) }
     }
@@ -86,14 +88,19 @@ private class TreeReader(
       children = { val tree = readTree(in); () => Seq(tree) }
     else if (tag >= firstNatTreeTag)
       tag match {
-        case TERMREFpkg | TYPEREFpkg | STRINGconst | IMPORTED => names :+= readName(in)
-        case CHARconst => value = in.readNat()
-        case BYTEconst | SHORTconst | INTconst | FLOATconst => value = in.readInt()
-        case LONGconst | DOUBLEconst => value = in.readLongInt()
-        case _ => nat = readNat(in)
+        case TERMREFpkg | TYPEREFpkg | STRINGconst | IMPORTED =>
+          names :+= readName(in)
+        case CHARconst =>
+          value = in.readNat()
+        case BYTEconst | SHORTconst | INTconst | FLOATconst =>
+          value = in.readInt()
+        case LONGconst | DOUBLEconst =>
+          value = in.readLongInt()
+        case _ =>
+          nat = readNat(in)
       }
 
-    tag match {
+    val result = tag match {
       case SHAREDtype =>
         val node = readTree(in.subReader(Addr(nat), in.endAddr)) // Cache?
         node.isSharedType = true
@@ -115,6 +122,7 @@ private class TreeReader(
         node.value = value
         node
     }
+    result
   }
 }
 
