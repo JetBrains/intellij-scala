@@ -251,6 +251,7 @@
         <notificationGroup id="scala.plugin.verifier" displayType="BALLOON" bundle="messages.ScalaBundle" key="scala.notification.group.id.plugin.verifier"/>
         <notificationGroup id="scala.plugin.updater" displayType="BALLOON" bundle="messages.ScalaBundle" key="scala.notification.group.id.plugin.updater"/>
         <notificationGroup id="scala3.disclaimer" displayType="BALLOON" bundle="messages.ScalaBundle" key="scala.notification.group.id.scala3.disclaimer"/>
+        <notificationGroup id="scala3.8.update.ide.disclaimer" displayType="STICKY_BALLOON" bundle="messages.ScalaBundle" key="scala.notification.group.id.scala3.8.update.ide.disclaimer"/>
         <notificationGroup id="scala.features.advertiser" displayType="STICKY_BALLOON" bundle="messages.ScalaBundle" key="scala.notification.group.id.features.advertiser"/>
         <!-- scalafmt notification groups -->
         <notificationGroup id="scalafmt" displayType="BALLOON" bundle="messages.ScalaBundle" key="scala.notification.group.id.scalafmt"/>
@@ -629,6 +630,8 @@
         <compilableFileTypesProvider implementation="org.jetbrains.plugins.scala.lang.psi.compiled.ScalaCompilableFileTypesProvider" />
 
         <psi.classFileDecompiler implementation="org.jetbrains.plugins.scala.lang.psi.compiled.ScClassFileDecompiler"/>
+
+        <editorNotificationProvider implementation="org.jetbrains.plugins.scala.components.Scala38UpdateIdeNotificationProvider"/>
 
         <!--
         Define extra classpath for JPS
@@ -2027,6 +2030,7 @@
         <postStartupActivity implementation="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtProjectListener"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.annotator.TypeMismatchTooltipsHandler"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.components.Scala3Disclaimer$ProjectListener"/>"
+        <postStartupActivity implementation="org.jetbrains.plugins.scala.components.Scala38UpdateIdeDisclaimer$ProjectActivity"/>
 
         <iconMapper mappingFile="ScalaIconMappings.json" />
 
@@ -2056,6 +2060,9 @@
     <projectListeners>
         <listener topic="com.intellij.openapi.project.DumbService$DumbModeListener"
                   class="org.jetbrains.plugins.scala.components.Scala3Disclaimer$DumbModeListener"/>
+
+        <listener topic="com.intellij.openapi.project.DumbService$DumbModeListener"
+                  class="org.jetbrains.plugins.scala.components.Scala38UpdateIdeDisclaimer$DumbModeListener"/>
 
         <listener topic="com.intellij.execution.ExecutionListener"
                   class="org.jetbrains.plugins.scala.runner.SyncOutputExecutionListener"/>

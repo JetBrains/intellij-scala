@@ -27,5 +27,6 @@ object ScalaNotificationGroups {
   def scalaPluginVerifier: NotificationGroup = manager.getNotificationGroup("scala.plugin.verifier")
   def scalaPluginUpdater: NotificationGroup = manager.getNotificationGroup("scala.plugin.updater")
   def scala3Disclaimer: NotificationGroup = manager.getNotificationGroup("scala3.disclaimer")
+  def scala38UpdateIdeDisclaimer: NotificationGroup = manager.getNotificationGroup("scala3.8.update.ide.disclaimer")
   def scalaFeaturesAdvertiser: NotificationGroup = manager.getNotificationGroup("scala.features.advertiser")
 }
