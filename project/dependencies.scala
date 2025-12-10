@@ -2,7 +2,7 @@ import LocalRepoPackager.sbtDep
 import coursier.core.Dependency
 import org.jetbrains.sbtidea.IntelliJPlatform.IdeaCommunity
 import org.jetbrains.sbtidea.download.BuildInfo
-import org.jetbrains.sbtidea.download.idea.IntellijVersionUtils
+import org.jetbrains.sbtidea.download.idea.{IntellijRepositories, IntellijVersionUtils}
 import sbt.*
 
 object Versions {
@@ -82,6 +82,31 @@ object Versions {
     //NOTE: try using "2.0" during local development when using `+publishLocal` in sbt-structure
     val structure_extractor_binary_2 = "2"
   }
+
+  // If this value gets initialized to `Some(resolver)` then it needs to be used and the versions of the test framework
+  // artifacts need to be equal to `intellijVersion`.
+  // Otherwise, they need to be equal to `intellijVersion_ForManagedIntellijDependencies`.
+  private val TeamCityArtifactsResolver: Option[Resolver] =
+    if (intellijRepository_ForManagedIntellijDependencies == IntellijRepositories.Nightly) {
+      // We're dealing with an `intellijVersion` which has test framework dependencies which need to be resolved
+      // from a nightly snapshot Maven repository. SNAPSHOT releases can be overwritten by newer releases, which end
+      // up breaking our build. To reduce the possibility of this, we add a special resolver which is able to find
+      // the exact test framework dependencies that match the exact nightly `intellijVersion`.
+      TeamCityCommunityUtil.getBuildIdForVersionSafe(intellijVersion)
+        .map { buildId =>
+          Resolver.url(
+            "teamcity-artifacts",
+            url(s"https://buildserver.labs.intellij.net/guestAuth/app/rest/builds/id:$buildId/artifacts/content/maven-artifacts")
+          )(Patterns(isMavenCompatible = true, artifactPatterns = "[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"))
+        }
+    } else None
+
+  val IntellijTestFrameworkArtifactsResolver: Resolver =
+    TeamCityArtifactsResolver.getOrElse(intellijRepository_ForManagedIntellijDependencies)
+
+  val IntellijTestFrameworkVersion: String =
+    if (TeamCityArtifactsResolver.isDefined) intellijVersion
+    else intellijVersion_ForManagedIntellijDependencies
 }
 
 object Dependencies {
@@ -173,22 +198,26 @@ object Dependencies {
       fileName == "junit4.jar"
   }
 
-  val intellijTestFrameworkCore: ModuleID = ("com.jetbrains.intellij.platform" % "test-framework-core" % Versions.intellijVersion_ForManagedIntellijDependencies).notTransitive()
-  val intellijTestFrameworkCommon: ModuleID = ("com.jetbrains.intellij.platform" % "test-framework-common" % Versions.intellijVersion_ForManagedIntellijDependencies).notTransitive()
-  val intellijTestFramework: ModuleID = ("com.jetbrains.intellij.platform" % "test-framework" % Versions.intellijVersion_ForManagedIntellijDependencies).notTransitive()
-  val intellijJavaTestFrameworkShared: ModuleID = ("com.jetbrains.intellij.java" % "java-test-framework-shared" % Versions.intellijVersion_ForManagedIntellijDependencies).notTransitive()
-  val intellijJavaTestFrameworkBackend: ModuleID = ("com.jetbrains.intellij.java" % "java-test-framework-backend" % Versions.intellijVersion_ForManagedIntellijDependencies).notTransitive()
-  val intellijJavaTestFramework: ModuleID = ("com.jetbrains.intellij.java" % "java-test-framework" % Versions.intellijVersion_ForManagedIntellijDependencies).notTransitive()
-  val intellijDebuggerTestFramework: ModuleID = ("com.jetbrains.intellij.platform" % "debugger-test-framework" % Versions.intellijVersion_ForManagedIntellijDependencies).notTransitive()
-  val intellijMavenTestFramework: ModuleID = ("com.jetbrains.intellij.maven" % "maven-test-framework" % Versions.intellijVersion_ForManagedIntellijDependencies).notTransitive()
-  val intellijEelJavaTestFramework: ModuleID = ("com.jetbrains.intellij.platform" % "test-framework-eel-java" % Versions.intellijVersion_ForManagedIntellijDependencies).notTransitive()
-  val intellijExternalSystemTestFramework: ModuleID = ("com.jetbrains.intellij.platform" % "external-system-test-framework" % Versions.intellijVersion_ForManagedIntellijDependencies).notTransitive()
+  val intellijTestFrameworkCore: ModuleID = ("com.jetbrains.intellij.platform" % "test-framework-core" % IntellijTestFrameworkVersion).notTransitive()
+  val intellijTestFrameworkCommon: ModuleID = ("com.jetbrains.intellij.platform" % "test-framework-common" % IntellijTestFrameworkVersion).notTransitive()
+  val intellijTestFramework: ModuleID = ("com.jetbrains.intellij.platform" % "test-framework" % IntellijTestFrameworkVersion).notTransitive()
+  val intellijJavaTestFrameworkShared: ModuleID = ("com.jetbrains.intellij.java" % "java-test-framework-shared" % IntellijTestFrameworkVersion).notTransitive()
+  val intellijJavaTestFrameworkBackend: ModuleID = ("com.jetbrains.intellij.java" % "java-test-framework-backend" % IntellijTestFrameworkVersion).notTransitive()
+  val intellijJavaTestFramework: ModuleID = ("com.jetbrains.intellij.java" % "java-test-framework" % IntellijTestFrameworkVersion).notTransitive()
+  val intellijDebuggerTestFramework: ModuleID = ("com.jetbrains.intellij.platform" % "debugger-test-framework" % IntellijTestFrameworkVersion).notTransitive()
+  val intellijMavenTestFramework: ModuleID = ("com.jetbrains.intellij.maven" % "maven-test-framework" % IntellijTestFrameworkVersion).notTransitive()
+  val intellijEelJavaTestFramework: ModuleID = ("com.jetbrains.intellij.platform" % "test-framework-eel-java" % IntellijTestFrameworkVersion).notTransitive()
+  val intellijExternalSystemTestFramework: ModuleID = ("com.jetbrains.intellij.platform" % "external-system-test-framework" % IntellijTestFrameworkVersion).notTransitive()
+
+  // The uast-test-framework can currently only be resolved from the SNAPSHOTS repository. It is not being published for every intellijVersion yet.
+  // This will hopefully change soon.
   val intellijUastTestFramework: ModuleID = ("com.jetbrains.intellij.platform" % "uast-test-framework" % Versions.intellijVersion_ForManagedIntellijDependencies).notTransitive()
-  val intellijTeamCityTestFramework: ModuleID = ("com.jetbrains.intellij.platform" % "test-framework-team-city" % Versions.intellijVersion_ForManagedIntellijDependencies).notTransitive()
+
+  val intellijTeamCityTestFramework: ModuleID = ("com.jetbrains.intellij.platform" % "test-framework-team-city" % IntellijTestFrameworkVersion).notTransitive()
   val slf4jApi: ModuleID = "org.slf4j" % "slf4j-api" % "2.0.17" // Necessary as a test dependency for the "external-system-test-framework".
-  val intellijIdeMetricsBenchmark: ModuleID = ("com.jetbrains.intellij.tools" % "ide-metrics-benchmark" % Versions.intellijVersion_ForManagedIntellijDependencies).notTransitive()
-  val intellijIdeMetricsCollector: ModuleID = ("com.jetbrains.intellij.tools" % "ide-metrics-collector" % Versions.intellijVersion_ForManagedIntellijDependencies).notTransitive()
-  val intellijIdeUtilCommon: ModuleID = ("com.jetbrains.intellij.tools" % "ide-util-common" % Versions.intellijVersion_ForManagedIntellijDependencies).notTransitive.notTransitive()
+  val intellijIdeMetricsBenchmark: ModuleID = ("com.jetbrains.intellij.tools" % "ide-metrics-benchmark" % IntellijTestFrameworkVersion).notTransitive()
+  val intellijIdeMetricsCollector: ModuleID = ("com.jetbrains.intellij.tools" % "ide-metrics-collector" % IntellijTestFrameworkVersion).notTransitive()
+  val intellijIdeUtilCommon: ModuleID = ("com.jetbrains.intellij.tools" % "ide-util-common" % IntellijTestFrameworkVersion).notTransitive.notTransitive()
 
   val coursierApi = "io.get-coursier" % "interface" % "1.0.28" excludeAll ExclusionRule(organization = "org.slf4j")
 }

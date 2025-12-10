@@ -324,7 +324,7 @@ lazy val scalaImpl: sbt.Project =
       ),
       // for dependency version completion/inspections
       libraryDependencies += Dependencies.coursierApi,
-      resolvers += Versions.intellijRepository_ForManagedIntellijDependencies,
+      resolvers += Versions.IntellijTestFrameworkArtifactsResolver,
       intellijPlugins += "JUnit".toPlugin,
       intellijPluginJars := intellijPluginJars.value.map { case PluginJars(descriptor, root, cp) =>
         PluginJars(descriptor, root, cp.filterNot(_.getName.contains("junit-jupiter-api")))
@@ -452,7 +452,7 @@ lazy val debugger =
       compilerIntegration % "test->test;compile->compile"
     ).settings(
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.debugger"),
-      resolvers += Versions.intellijRepository_ForManagedIntellijDependencies,
+      resolvers += Versions.IntellijTestFrameworkArtifactsResolver,
       libraryDependencies += Dependencies.intellijDebuggerTestFramework % Test
     )
 
@@ -884,7 +884,7 @@ lazy val mavenIntegration =
         Dependencies.intellijMavenTestFramework % Test,
         Dependencies.intellijEelJavaTestFramework % Test
       ),
-      resolvers += Versions.intellijRepository_ForManagedIntellijDependencies,
+      resolvers += Versions.IntellijTestFrameworkArtifactsResolver,
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.maven")
     )
 
