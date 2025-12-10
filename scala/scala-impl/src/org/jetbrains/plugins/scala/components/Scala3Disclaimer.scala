@@ -39,9 +39,12 @@ object Scala3Disclaimer {
       return // otherwise, it can lead to project leaks in tests
 
     if (!isShownIn(project) && project.hasScala3 && !ScalaPluginUpdater.pluginIsNightly) {
-      showDisclaimerIn(ScalaBundle.message("scala.3.support.is.experimental"),
-        configureUpdatesActionIn(project))
-      setShownIn(project)
+      if (!Scala38UpdateIdeDisclaimer.canBeShownIn(project)) {
+        // The Scala 3.8 disclaimer has priority. If that disclaimer can be shown, we don't want to show this one.
+        showDisclaimerIn(ScalaBundle.message("scala.3.support.is.experimental"),
+          configureUpdatesActionIn(project))
+        setShownIn(project)
+      }
     }
   }
 
