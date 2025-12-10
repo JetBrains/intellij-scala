@@ -48,11 +48,11 @@ private object MultipleScalaVersionsJUnit4Runner {
       throw new InvalidTestClassError(cls, java.util.List.of(notScalaSdkOwner))
     }
     val scalaSdkOwnerCls = cls.asInstanceOf[Class[? <: ScalaSdkOwner]]
-    val scalaVersions = MultipleScalaVersionsRunner.scalaVersionsToRun(scalaSdkOwnerCls)
+    val scalaVersions = MultipleScalaVersionsRunner.scalaVersionsToRun(scalaSdkOwnerCls).distinct
 
     val registryValue = MultipleScalaVersionsRunner.filterJdkVersionRegistry
     val jdkFilter = (version: TestJdkVersion) => registryValue.forall(_ == version)
-    val jdkVersions = MultipleScalaVersionsRunner.jdkVersionsToRun(scalaSdkOwnerCls).filter(jdkFilter)
+    val jdkVersions = MultipleScalaVersionsRunner.jdkVersionsToRun(scalaSdkOwnerCls).filter(jdkFilter).distinct
 
     for {
       sv <- scalaVersions
