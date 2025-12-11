@@ -101,7 +101,9 @@ abstract class TextToTextTestBase(dependencies: Seq[DependencyDescription],
 
     val total = classes.length
 
-    Assert.assertTrue(s"The number of classes: $total < $minClassCount", total >= minClassCount)
+    Assert.assertTrue(s"Too few classes: $total < $minClassCount", total >= minClassCount)
+    // TODO Enable after Scala 3.8 RC3 (duplicate JARs)
+    //Assert.assertTrue(s"Too many classes: $total > 1.1 * $minClassCount", total < 1.1D * minClassCount)
 
     Assert.assertEquals("Class not found", Set.empty, classExceptions -- classes.map(_.qualifiedName).toSet)
 

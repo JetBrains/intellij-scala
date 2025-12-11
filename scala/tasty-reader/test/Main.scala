@@ -131,7 +131,7 @@ object Main {
         }
       }
 
-      val sources = Repository + "/" + binaries.replace("/jars/", "/srcs/").replaceFirst("\\.jar$", "-sources.jar")
+      val sources = Repository + "/" + binaries.replaceFirst("/jars|bundles/", "/srcs/").replaceFirst("\\.jar$", "-sources.jar")
 
       if (mode == Mode.Parse && new File(sources).exists()) {
         println("Extracting sources:\t" + sources)
