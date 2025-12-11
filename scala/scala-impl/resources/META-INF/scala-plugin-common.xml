@@ -2104,11 +2104,21 @@
     </projectListeners>
     <actions>
         <action id="Scala.NewClass" class="org.jetbrains.plugins.scala.actions.NewScalaFileAction">
-            <add-to-group group-id="NewGroup" anchor="after" relative-to-action="NewGroup1"/>
+            <!--
+            Put the "Scala Class / File" action last in the "NewGroup1" group.
+            This group contains "NewClass" (Java Class) and potentially "CompactSourceFile" (hidden in most of the projects).
+            Other new actions, like "Kotlin Class/File" or "Groovy Class" are located in another group - "NewGroup" that is located after "NewGroup1".
+            As a result, "Scala Class/File" will always be present before "Kotlin Class/File", BUT only when Scala SDK is configured in the module (which is fine)
+            (this is controlled by the `NewScalaFileAction.isAvailable ` method)
+
+            Note: we can't use "before Kotlin.NewFile" because if the Kotlin plugin is disabled, Scala.NewClass will be moved ti the very bottom
+            -->
+            <add-to-group group-id="NewGroup1" anchor="last"/>
         </action>
         <action id="Scala.NewPackageObject" class="org.jetbrains.plugins.scala.actions.NewPackageObjectAction">
-            <add-to-group group-id="NewGroup" anchor="after" relative-to-action="Scala.NewClass"/>
+            <add-to-group group-id="NewGroup1" anchor="after" relative-to-action="Scala.NewClass"/>
         </action>
+
         <action id="Scala.EnableErrors" class="org.jetbrains.plugins.scala.actions.ToggleTypeAwareHighlightingAction"/>
         <action id="Scala.ShowImplicitConversions" class="org.jetbrains.plugins.scala.actions.implicitConversions.ShowImplicitConversionsAction">
             <keyboard-shortcut keymap="$default" first-keystroke="control shift Q"/>
