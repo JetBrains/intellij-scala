@@ -63,7 +63,7 @@ object IntellijSdkSubsetInfo {
       "lib/util.jar",
       "lib/util-8.jar",
       "lib/util_rt.jar",
-      "lib/protobuf.jar",
+      "lib/intellij.libraries.protobuf.jar",
       "lib/jps-model.jar",
       "lib/forms_rt.jar",
       "lib/idea_rt.jar",
