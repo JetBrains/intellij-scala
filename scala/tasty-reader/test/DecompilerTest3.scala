@@ -48,7 +48,7 @@ import scala.util.control.NonFatal
 // use Unit method result instead of Int
 // use objects instead of traits?
 // correspondence between parametric type definitions and type lambdas - which to use?
-class TastyReaderTest extends TestCase {
+class DecompilerTest3 extends TestCase {
 
   def testAnnotationMembers(): Unit = doTest("annotation/Members")
   def testAnnotationMultiple(): Unit = doTest("annotation/Multiple")
