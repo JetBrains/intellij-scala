@@ -68,7 +68,7 @@ object IntellijPlatformJars {
   val protobufJava: Path = {
     val result = Path.of(PathUtil.getJarPathForClass(classOf[com.google.protobuf.Message]))
     // example in 2021.2: <idea system dir>/lib/protobuf-java-3.15.8.jar
-    val Regex = raw"""^.*?/lib/protobuf.jar$$""".r
+    val Regex = raw"""^.*?/lib/intellij.libraries.protobuf.jar$$""".r
     result.systemIndependentPathString.toLowerCase match {
       case Regex() =>
       case _ =>
