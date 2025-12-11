@@ -190,6 +190,7 @@ object Common {
     ).settings(
       name := projectName,
       intellijMainJars ~= { _.filterNot(Dependencies.excludeJarsFromPlatformDependencies).filter(_.exists()) },
+      intellijTestJars ~= { _.filter(_.exists()) },
       intellijPlugins += "com.intellij.java".toPlugin,
       pathExcludeFilter := excludePathsFromPackage _
     )
