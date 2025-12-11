@@ -13,11 +13,11 @@ import scala.xml.{Elem, XML}
 // https://www.scala-sbt.org/1.x/docs/Organizing-Build.html#Organizing+the+build
 // TODO: Try referencing this object from the `teamcity` package sources in the Ultimate repo in some way.
 object TeamCityCommunityUtil {
-  private val TeamcityBaseUrl = "https://buildserver.labs.intellij.net"
-  private val RestBaseUrl = s"$TeamcityBaseUrl/guestAuth/app/rest"
-  private val BuildsBaseUrl = s"$RestBaseUrl/builds"
-  private val TRUNK_INSTALLERS = "ijplatform_master_Idea_Installers"
-  private val BUILD_TYPE_PATTERNS: Seq[String] =
+  val TeamcityBaseUrl = "https://buildserver.labs.intellij.net"
+  val RestBaseUrl = s"$TeamcityBaseUrl/guestAuth/app/rest"
+  val BuildsBaseUrl = s"$RestBaseUrl/builds"
+  val TRUNK_INSTALLERS = "ijplatform_master_Idea_Installers"
+  val BUILD_TYPE_PATTERNS: Seq[String] =
     "ijplatform_IjPlatform%s_Idea_InstallersForEapRelease" ::
       "ijplatform_IjPlatform%s_Idea_Installers" ::
       "ijplatform_master_Idea_InstallersForEapRelease" ::
@@ -74,7 +74,7 @@ object TeamCityCommunityUtil {
     }
   }
 
-  private final class BuildLocator(baseUrl: String = s"$BuildsBaseUrl/?locator=") {
+  final class BuildLocator(baseUrl: String = s"$BuildsBaseUrl/?locator=") {
     private val builder = new mutable.StringBuilder(baseUrl)
     def toUrl: URL = url(builder.toString())
     def getXml: Elem = XML.load(toUrl)
