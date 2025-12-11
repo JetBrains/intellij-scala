@@ -4,17 +4,18 @@ import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.text.TextToTextTestBase
 
 class ZioTest extends TextToTextTestBase(
-  Seq(
+  dependencies = Seq(
     "dev.zio" %% "zio" % "2.0.22",
     "dev.zio" %% "zio-streams" % "2.0.22",
   ),
-  Seq("zio"), Set.empty, 225,
-  Set(
+  packages = Seq("zio"),
+  minClassCount = 225,
+  classExceptions = Set(
     "zio.Experimental", // Cannot resolve scala.runtime.$throws
     "zio.internal.stacktracer.SourceLocation", // Given without a name
   ),
   withSources = true,
-  Set(
+  sourceExceptions = Set(
     "zio.Fiber", // case class extends Product & Serializable
     "zio.RuntimeFlag", // reference constants
     "zio.Scope", // private type alias
@@ -23,7 +24,6 @@ class ZioTest extends TextToTextTestBase(
     "zio.ZLogger", // izumi.reflect.macrortti
     "zio.internal.FiberRuntime", // x * y constant
     "zio.internal.LinkedQueue", // Int.MaxValue constant
-    "zio.internal.macros.LayerBuilder", // scala.List
     "zio.internal.macros.ZLayerDerivationMacros", // Expr[...]
     "zio.metrics.MetricPair", // private type alias
     "zio.stm.STM", // zio.BuildFrom vs BuildFromCompat.this.BuildFrom

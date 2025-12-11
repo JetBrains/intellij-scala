@@ -3,9 +3,10 @@ package org.jetbrains.plugins.scala.text.scala2
 import org.jetbrains.plugins.scala.text.TextToTextTestBase
 
 class ScalaReflectTest extends TextToTextTestBase(
-  Seq.empty,
-  Seq("scala.reflect"), Set.empty, 214,
-  Set(
+  dependencies = Seq.empty,
+  packages = Seq("scala.reflect"),
+  minClassCount = 214,
+  classExceptions = Set(
     "scala.reflect.api.TypeTags", // TypeTags.this. vs Universe.this
     "scala.reflect.internal.Definitions", // type NameTypeDefinitions.this.TermName in type refinement
     "scala.reflect.internal.Kinds", // No this. prefix for object

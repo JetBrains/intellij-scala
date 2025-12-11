@@ -4,11 +4,12 @@ import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.text.TextToTextTestBase
 
 class ScalaCompilerTest extends TextToTextTestBase(
-  Seq(
+  dependencies = Seq(
     "org.jline" % "jline" % "3.21.0",
   ),
-  Seq("scala.tools", "scala.reflect.quasiquotes", "scala.reflect.reify"), Set.empty, 694,
-  Set(
+  packages = Seq("scala.tools", "scala.reflect.quasiquotes", "scala.reflect.reify"),
+  minClassCount = 694,
+  classExceptions = Set(
     "scala.tools.nsc.CompilationUnits", // Reference to object without this. prefix
     "scala.tools.nsc.Global", // Reference to object without this. prefix
     "scala.tools.nsc.InterpreterLoop", // Standalone annotation

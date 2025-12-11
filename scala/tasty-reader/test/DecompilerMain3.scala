@@ -8,13 +8,13 @@ import scala.util.chaining.scalaUtilChainingOps
 /**
  * A helper to quickly assess the effect of non-trivial TreePrinter modifications.
  *
- * Although the corresponding code is tested both by the DecompilerTest (unit) and TextToTextTestBase (integration) tests,
+ * Although the corresponding code is tested both by the DecompilerTest3 (unit) and TextToTextTestBase (integration) tests,
  * the former rely on predefined test cases, while the latter only ensure correctness, without a diff.
  *
  * You may only want to use this if you intend to modify the decompiler implementation extensively.
  * First, you should run the TextToTextTestBase tests to download the Ivy artifacts and also to adjust the OutputDir.
  */
-object Main {
+object DecompilerMain3 {
   enum Mode { case Parse, Test, Benchmark }
 
   private val mode = Mode.Test
@@ -88,7 +88,7 @@ object Main {
     "org.tpolecat/doobie-free_3/jars/doobie-free_3-1.0.0-RC1.jar",
   )
 
-  // TODO check for lexer & parser errors and unresolved references
+  // Check for lexer & parser errors and unresolved references?
   def main(args: Array[String]): Unit = {
     assert(new File(OutputDir).getParentFile.exists)
 
@@ -131,7 +131,7 @@ object Main {
         }
       }
 
-      val sources = Repository + "/" + binaries.replace("/jars/", "/srcs/").replaceFirst("\\.jar$", "-sources.jar")
+      val sources = Repository + "/" + binaries.replaceFirst("/jars|bundles/", "/srcs/").replaceFirst("\\.jar$", "-sources.jar")
 
       if (mode == Mode.Parse && new File(sources).exists()) {
         println("Extracting sources:\t" + sources)
@@ -139,7 +139,7 @@ object Main {
           Iterator.continually(in.getNextEntry).takeWhile(_ != null).filter(_.getName.endsWith(".scala")).foreach { entry =>
             val file = new File(s"$OutputDir/${entry.getName}")
             file.getParentFile.mkdirs()
-            val s = new String(in.readAllBytes) // TODO store pre-compiled regex
+            val s = new String(in.readAllBytes) // Store pre-compiled regex?
               .replaceAll(raw"(?m)^\s*import.*?$$", "") // Import
               .replaceAll(raw"\s*//.*?\n", "") // Line comment
               .replaceAll(raw"(?s)/\*.*?\*/", "") // Block comment

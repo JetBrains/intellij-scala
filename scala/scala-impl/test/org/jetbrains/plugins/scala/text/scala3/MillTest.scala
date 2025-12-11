@@ -6,18 +6,15 @@ import org.jetbrains.plugins.scala.text.TextToTextTestBase.Content
 import org.jetbrains.plugins.scala.text.scala3.MillTest.ScaladocAnnotation
 
 class MillTest extends TextToTextTestBase(
-  Seq(
+  dependencies = Seq(
     "com.lihaoyi" %% "mill-main" % "0.13.0-M1-43-b217bc",
   ),
-  Seq("mill"), Set.empty, 134,
-  Set.empty,
+  packages = Seq("mill"),
+  minClassCount = 134,
   withSources = true,
-  Set(
+  sourceExceptions = Set(
     "mill.api.Result", // with Product with Serializable
     "mill.define.Command", // extends Task[T] vs Task
-    "mill.define.Discover", // Predef.String
-    "mill.define.EnclosingClass", // Predef.Class
-    "mill.define.EvaluatorProxy", // Predef.Map
     "mill.define.InputImpl", // immutable.Seq[_root_.mill.define.Task[?]] vs Nil.type
     "mill.define.TargetImpl", // extends Task[T] vs Task
     "mill.define.Worker", // extends Task[T] vs Task
@@ -25,7 +22,7 @@ class MillTest extends TextToTextTestBase(
     "mill.define.internal.CacherMacros", // Cannot resolve TypeRepr
     "mill.define.internal.CrossMacros", // Cannot resolve TypeRepr
     "mill.define.internal.ShimService", // Quotes
-    "mill.main.VisualizeModule", // private type, scala.Seq
+    "mill.main.VisualizeModule", // private type
   ),
   transformed = {
     case (Content.DecompiledVsSourceOutline, s) => ScaladocAnnotation.replaceAllIn(s, "")

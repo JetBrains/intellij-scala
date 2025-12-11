@@ -4,28 +4,21 @@ import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.text.TextToTextTestBase
 
 class ScalatestTest extends TextToTextTestBase(
-  Seq(
+  dependencies = Seq(
     "org.scalatest" %% "scalatest" % "3.2.14"
   ),
-  Seq("org.scalatest"), Set.empty, 660,
-  Set(
+  packages = Seq("org.scalatest"),
+  minClassCount = 660,
+  classExceptions = Set(
     "org.scalatest.enablers.InspectorAsserting", // Tuple2 type argument
     "org.scalatest.tools.Framework", // Any
     "org.scalatest.tools.ScalaTestAntTask", // Cannot resolve reference
     "org.scalatest.tools.ScalaTestFramework", // Any
   ),
   withSources = true,
-  Set(
+  sourceExceptions = Set(
     "org.scalatest.Assertions", // Multiple `extension`
-    "org.scalatest.AsyncSuperEngine", // Predef.Set
-    "org.scalatest.FixtureTestSuite", // Predef.Set
-    "org.scalatest.PathEngine", // scala.List
-    "org.scalatest.Suite", // Predef.String
-    "org.scalatest.SuperEngine", // Predef.Set
-    "org.scalatest.concurrent.PimpedThreadGroup", // scala.List
-    "org.scalatest.diagrams.DiagrammedApplyExpr", // scala.List
-    "org.scalatest.diagrams.DiagrammedSelectExpr", // scala.List
-    "org.scalatest.diagrams.DiagrammedSimpleExpr", // scala.List
+    "org.scalatest.Suite", //Class[? <: AnyRef] | Class[?]
     "org.scalatest.diagrams.DiagramsMacro", // Cannot resolve x$1.reflect.Term
     "org.scalatest.events.Event", // Object vs Any
     "org.scalatest.events.MotionToSuppress", // final case object
@@ -54,12 +47,8 @@ class ScalatestTest extends TextToTextTestBase(
     "org.scalatest.matchers.must.TypeMatcherMacro", // Cannot resolve x$1.reflect.Term
     "org.scalatest.matchers.should.Matchers", // Multiple `extension`
     "org.scalatest.matchers.should.TypeMatcherMacro", // Cannot resolve x$1.reflect.Term
-    "org.scalatest.tools.ArgsParser", // Predef.String
-    "org.scalatest.tools.DiscoverySuite", // Predef.String
-    "org.scalatest.tools.NestedSuiteElement", // Predef.String
     "org.scalatest.tools.Runner", // Class[? <: AnyRef] | Class[?] (private[scalatest], FromJavaObject)
     "org.scalatest.tools.StringReporter", // Unicode \u001b char
-    "org.scalatest.tools.SuiteElement", // Predef.String
     "org.scalatest.wordspec.AsyncWordSpecLike", // Expr[...]
   )
 )

@@ -5,9 +5,10 @@ import org.jetbrains.plugins.scala.text.TextToTextTestBase.Content
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 class ScalaLibrary_3_8_Test extends TextToTextTestBase(
-  Seq.empty,
-  Seq("scala"), Set.empty, 909,
-  Set(
+  dependencies = Seq.empty,
+  packages = Seq("scala"),
+  minClassCount = 909,
+  classExceptions = Set(
     "scala.EmptyTuple", // duplicate JARs in RC3
     "scala.NamedTuple", // def map[F[_]](f: [t] => t => F[t])
     "scala.NamedTupleDecomposition", // non-absolute paths in match types
@@ -29,7 +30,7 @@ class ScalaLibrary_3_8_Test extends TextToTextTestBase(
     "scala.sys.process.ProcessImpl", // Unknown type
   ),
   withSources = true,
-  Set(
+  sourceExceptions = Set(
     "scala.Array", // from: Array[A] | Unit
     "scala.AnyVal", // getClass()
     "scala.Boolean", // private (), override def getClass()
@@ -56,7 +57,7 @@ class ScalaLibrary_3_8_Test extends TextToTextTestBase(
     "scala.collection.immutable.Node", // 31 | (1 << BitPartitionSize) - 1
     "scala.collection.immutable.Stream", // \" | "
     "scala.concurrent.ExecutionContext", // \n in annotation
-    "scala.concurrent.Future", // java.lang.Class | scala.Predef.Class
+    "scala.concurrent.Future", // scala.concurrent.Future.never.type | never.this.type
     "scala.concurrent.SyncChannel", // private type | N/A
     "scala.io.AnsiColor", // Escape \u001b
     "scala.io.Position", // 31 - LINE_BITS
@@ -64,11 +65,8 @@ class ScalaLibrary_3_8_Test extends TextToTextTestBase(
     "scala.quoted.FromExpr", // scala.collection.immutable.Seq | scala.Seq
     "scala.quoted.runtime.QuoteMatching", // ? <: _root_.scala.AnyKind | ?
     "scala.quoted.runtime.QuoteUnpickler", // ? <: _root_.scala.AnyKind | ?
-    "scala.reflect.ClassManifestDeprecatedApis", // scala.Predef.String | java.lang.String
     "scala.sys.process.ProcessBuilderImpl", // ProcessBuilderImpl.this.IStreamBuilder | _root_.scala.sys.process.ProcessBuilder.IStreamBuilder
     "scala.sys.process.processInternal", // : Boolean | = props contains "scala.process.debug"
-    "scala.util.PropertiesTrait", // java.lang.String | scala.Predef.String
-    "scala.util.control.Exception", // scala.Predef.String | java.lang.String
   ),
   transformed = {
     case (Content.DecompiledVsSourceOutline, s) => s
@@ -80,7 +78,8 @@ class ScalaLibrary_3_8_Test extends TextToTextTestBase(
       .replaceAll(raw"(?<=@_root_\.scala\.throws)\[_root_\.scala\.(\w+)]\(classOf\[\1]\)", "[_root_.java.lang.$1]") // java.lang.IndexOutOfBoundsException | scala.IndexOutOfBoundsException
       .replaceAll(raw"(?<=@_root_\.scala\.throws)\[_root_\.scala\.(\w+\.)([\w.]+)]\(classOf\[\2]\)", "[_root_.java.util.$1$2]") // java.util.concurrent.TimeoutException | scala.concurrent.TimeoutException
     case (_, s) => s
-  }) {
+  },
+  aliasScala = false) {
 
   override protected def supportedIn(version: ScalaVersion) = version >= LatestScalaVersions.Scala_3_8
 

@@ -4,11 +4,10 @@ import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.text.TextToTextTestBase
 
 class JsoniterTest extends TextToTextTestBase(
-  Seq(
+  dependencies = Seq(
     "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-macros" % "2.35.1"
   ),
-  Seq("com.github.plokhotnyuk.jsoniter_scala"), Set.empty, 22,
-  Set.empty,
-  withSources = true,
-  Set.empty
+  packages = Seq("com.github.plokhotnyuk.jsoniter_scala"),
+  minClassCount = 22,
+  withSources = true
 )

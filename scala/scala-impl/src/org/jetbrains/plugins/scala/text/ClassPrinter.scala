@@ -48,7 +48,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
 
     val isGiven = cls.isInstanceOf[ScGiven]
 
-    val isAnonymous = isGiven && cls.name.startsWith("given_") // TODO .isAnonymous
+    val isAnonymous = isGiven && cls.name.startsWith("given_") // .isAnonymous?
 
     val name = if (isAnonymous) "" else cls.name
 
@@ -143,17 +143,14 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
 
   private def textOf(f: ScFunction, indent: String): String = {
     val isGiven = f.isInstanceOf[ScGiven]
-    val isAnonymous = isGiven && f.name.startsWith("given_") // TODO .isAnonymous
+    val isAnonymous = isGiven && f.name.startsWith("given_") // .isAnonymous?
     val annotations = f.annotations.map(a => "\n" + indent + "  " + textOf(a)).mkString
     val modifiers = textOf(f.getModifierList)
     val keyword = if (isGiven) "given " else "def "
     val name = if (isAnonymous) "" else f.name
     val tps = if (f.typeParameters.isEmpty) "" else f.typeParameters.map(textOf).mkString("[", ", ", "]")
     val clauses = f.paramClauses.clauses.map(textOf(_, inPrivateConstructor = false, inCaseClass = false)).mkString
-    val tpe = if (f.isConstructor) "" else (if (tps.isEmpty && clauses.isEmpty) spaceAfter(name) else "") + (if (isAnonymous && clauses.isEmpty && tps.isEmpty) "" else ": ") + {
-      val s = textOf(f.returnType)
-      if (normalize && f.getName == "toString" && f.isEmptyParen && !f.hasExplicitType && s == "_root_.scala.Predef.String") "_root_.java.lang.String" else s
-    }
+    val tpe = if (f.isConstructor) "" else (if (tps.isEmpty && clauses.isEmpty) spaceAfter(name) else "") + (if (isAnonymous && clauses.isEmpty && tps.isEmpty) "" else ": ") + textOf(f.returnType)
     val rhs = if (f.isInstanceOf[ScFunctionDefinition]) " = ???" else ""
     annotations + "\n" + indent + "  " + modifiers + keyword + name + tps + clauses + tpe + rhs + "\n"
   }

@@ -10,8 +10,8 @@ private class TermName(private val value: String) extends AnyVal {
   def asSimpleName: TermName = new TermName(value)
 }
 
-// TODO Read structure & tag instead of a plain String?
-// TODO Handle specific tags
+// Read structure & tag instead of a plain String?
+// Handle specific tags?
 object TermName {
   val EmptyTermName: TermName = new TermName("<empty>")
   def simpleNameKindOfTag(tag: Int)(name: TermName): TermName = new TermName(name.value + "$")
