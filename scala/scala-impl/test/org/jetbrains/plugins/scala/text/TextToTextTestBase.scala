@@ -123,7 +123,7 @@ abstract class TextToTextTestBase(dependencies: Seq[DependencyDescription],
 
       val decompiled = {
         val s1 = cls.getContainingFile.getText
-        // TODO Function type by-name parameters, SCL-21149
+        // Function type by-name parameters, SCL-21149
         val s2 = if (cls.qualifiedName.startsWith("scalaz.")) s1.replace("(=> ", "(").replace(", => ", ", ").replaceAll("\\((\\S+)\\) => ", "$1 => ") else s1
         s2.replaceAll("\\.super\\[.*?\\*/\\]\\.", ".this.")
       }

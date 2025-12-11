@@ -7,24 +7,6 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
 import scala.util.control.NonFatal
 
-// TODO Prettify and unify Scala 2 decompiler output, SCL-20672
-
-// self type class with
-
-// fix: final val v: 123 = ??? is not a constant
-// fix: private val parameters in value classes
-// fix: implicit implicit val x: Int, implicit val y: Int
-// fix: annotation on types
-// fix: qualified private abstract type is decompiled, without access modifier
-// fix: private type alias is decompiled
-// fix: custom self type names
-
-// Foo.this.A for type parameters
-// qualified private that is equivalent to private is decompiled?
-// literal types - annotations?
-// why private[Class1] def method1: Int is decompiled?
-// why private object PrivateObject is decompiled?
-
 class DecompilerTest2 extends TestCase {
 
   def testAnnotationMembers(): Unit = doTest("annotation/Members")
