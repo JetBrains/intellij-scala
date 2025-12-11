@@ -48,7 +48,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
 
     val isGiven = cls.isInstanceOf[ScGiven]
 
-    val isAnonymous = isGiven && cls.name.startsWith("given_") // TODO .isAnonymous
+    val isAnonymous = isGiven && cls.name.startsWith("given_") // .isAnonymous?
 
     val name = if (isAnonymous) "" else cls.name
 
@@ -143,7 +143,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
 
   private def textOf(f: ScFunction, indent: String): String = {
     val isGiven = f.isInstanceOf[ScGiven]
-    val isAnonymous = isGiven && f.name.startsWith("given_") // TODO .isAnonymous
+    val isAnonymous = isGiven && f.name.startsWith("given_") // .isAnonymous?
     val annotations = f.annotations.map(a => "\n" + indent + "  " + textOf(a)).mkString
     val modifiers = textOf(f.getModifierList)
     val keyword = if (isGiven) "given " else "def "

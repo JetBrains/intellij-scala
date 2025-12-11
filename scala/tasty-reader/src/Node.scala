@@ -31,13 +31,13 @@ class Node(val addr: Addr, val tag: Int, val names: Seq[String], children0: () =
 
   def is(tags: Int*): Boolean = tags.contains(tag)
 
-  // TODO use parameters in TreePrinter instead
-  // TODO private setter
+  // Use parameters in TreePrinter instead?
+  // private setter?
   var prevSibling: Option[Node] = None
 
   def nextSiblings: Iterator[Node] = Iterator.unfold(this)(_.nextSibling.map(x => (x, x)))
 
-  // TODO can we use only previousSibling?
+  // Can we use only previousSibling?
   var nextSibling: Option[Node] = None
 
   def prevSiblings: Iterator[Node] = Iterator.unfold(this)(_.prevSibling.map(x => (x, x)))
@@ -55,7 +55,7 @@ class Node(val addr: Addr, val tag: Int, val names: Seq[String], children0: () =
 
 private object Node {
 
-  // TODO use Product matches
+  // Use Product matches?
 
   object Node1 {
     def unapply(node: Node): Option[Int] = Some(node.tag)

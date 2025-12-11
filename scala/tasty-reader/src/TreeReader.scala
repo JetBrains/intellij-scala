@@ -86,10 +86,10 @@ private class TreeReader(nameAtRef: NameTable, positions: Map[Addr, Int]) {
 
     tag match {
       case SHAREDtype =>
-        val node = readTree(in.subReader(Addr(nat), in.endAddr)) // TODO cache?
+        val node = readTree(in.subReader(Addr(nat), in.endAddr)) // Cache?
         node.isSharedType = true
         node
-      case SHAREDterm => readTree(in.subReader(Addr(nat), in.endAddr)) // TODO cache?
+      case SHAREDterm => readTree(in.subReader(Addr(nat), in.endAddr)) // Cache?
       case INLINED => children().head
       case _ =>
         val node = new Node(addr, tag, names, children, () => positions.get(addr))
@@ -98,7 +98,7 @@ private class TreeReader(nameAtRef: NameTable, positions: Map[Addr, Int]) {
             val in0 = in.subReader(Addr(nat), in.endAddr)
             node.refTag = Some(in0.readByte())
             val length = in0.readNat()
-            node.refName = Some(readName(in0)) // TODO use as node name?
+            node.refName = Some(readName(in0)) // Use as node name?
             in0.goto(Addr(nat + length))
             node.refPrivate = in0.readByte() == PRIVATE;
           case _ =>
