@@ -2116,7 +2116,11 @@
             <add-to-group group-id="NewGroup1" anchor="last"/>
         </action>
         <action id="Scala.NewPackageObject" class="org.jetbrains.plugins.scala.actions.NewPackageObjectAction">
-            <add-to-group group-id="NewGroup1" anchor="after" relative-to-action="Scala.NewClass"/>
+            <!--
+            Put "Package Object" after "Java Class", "Scala Class/File" and "Kotlin Class/File", and before "Create New File"
+            NOTE: this action is not shown in Scala 3 projects (see `update` method)
+            -->
+            <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile"/>
         </action>
 
         <action id="Scala.EnableErrors" class="org.jetbrains.plugins.scala.actions.ToggleTypeAwareHighlightingAction"/>
