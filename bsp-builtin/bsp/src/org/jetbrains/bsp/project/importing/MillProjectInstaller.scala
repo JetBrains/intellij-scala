@@ -51,7 +51,7 @@ class MillProjectInstaller extends BspProjectInstallProvider {
   }
 
   private def isMillInstalled(workspace: Path): Boolean =
-    BspUtil.checkIfToolIsInstalled(workspace, "mill")
+    BspUtil.isToolInstalledCheckViaVersion(workspace, "mill")
 
   private def getMillFile(workspace: Path): Option[Path] =
     if (SystemInfo.isWindows) BspUtil.findFileByName(workspace, "mill.bat")
