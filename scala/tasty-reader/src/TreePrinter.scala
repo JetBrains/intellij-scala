@@ -1009,7 +1009,7 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
           }
           if (!definition.exists(isGivenClass0)) {
             templateValueParam.foreach { valueParam =>
-              if (!valueParam.contains(LOCAL)) {
+              if (!valueParam.contains(LOCAL) || valueParam.contains(PROTECTED)) {
                 textOfAnnotationIn(sb, "", valueParam, " ")
                 val sb1 = new StringBuilder() // Reuse?
                 val isPrivate = valueParam.contains(PRIVATE)
@@ -1099,7 +1099,11 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
         sb ++= "private "
       }
     } else if (node.contains(PROTECTED)) {
-      sb ++= "protected "
+      if (node.contains(LOCAL)) {
+        sb ++= "protected[this] "
+      } else {
+        sb ++= "protected "
+      }
     } else {
       node.children.foreach {
         case Node3(tag @ (PRIVATEqualified | PROTECTEDqualified), _, Seq(qualifier)) =>

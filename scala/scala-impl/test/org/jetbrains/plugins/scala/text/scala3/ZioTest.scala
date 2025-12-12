@@ -32,7 +32,6 @@ class ZioTest extends TextToTextTestBase(
     "zio.internal.macros.ZLayerDerivationMacros", // Expr[...]
     "zio.metrics.MetricPair", // private type alias
     "zio.stm.STM", // zio.BuildFrom vs BuildFromCompat.this.BuildFrom
-    "zio.stm.ZSTM", // protected vs private[this]
     "zio.stream.ZChannel", // zio.EnvironmentTag vs VersionSpecific.this.EnvironmentTag
   )
 )

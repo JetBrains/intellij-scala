@@ -21,26 +21,38 @@ trait Qualifier {
 
   protected[member] def protectedDef: Int = ???
 
+  protected[this] def protectedThisDef: Int = ???
+
   private[member] val privateVal: Int = ???
 
   protected[member] val protectedVal: Int = ???
+
+  protected[this] val protectedThisVal: Int = ???
 
   private[member] var privateVar: Int = ???
 
   protected[member] var protectedVar: Int = ???
 
+  protected[this] var protectedThisVar: Int = ???
+
   private[member] type PrivateAbstractType
 
   protected[member] type ProtectedAbstractType
+
+  protected[this] type ProtectedThisAbstractType
 
   private[member] type PrivateTypeAlias = Int
 
   protected[member] type ProtectedTypeAlias = Int
 
+  protected[this] type ProtectedThisTypeAlias = Int
+
   extension (i: Int)
     private[member] def privateExtensionMethod: Unit = ???
 
     protected[member] def protectedExtensionMethod: Unit = ???
+
+    protected[this] def protectedThisExtensionMethod: Unit = ???
 
   trait T1
 
