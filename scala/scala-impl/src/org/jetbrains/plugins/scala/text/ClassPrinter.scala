@@ -34,7 +34,9 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
 
     val modifiers = {
       val s = textOf(cls.getModifierList)
-      if (normalize && cls.isInstanceOf[ScClass] && (cls.hasModifierProperty("implicit") || isValueClass(cls))) s.replace("final ", "") else s
+      if (normalize && cls.isInstanceOf[ScClass] && (cls.hasModifierProperty("implicit") || isValueClass(cls))) s.replace("final ", "")
+      else if (normalize && cls.isInstanceOf[ScObject] && cls.hasModifierProperty("case")) s.replace("final ", "")
+      else s
     }
 
     val keyword = cls match {
