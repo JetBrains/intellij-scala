@@ -46,6 +46,7 @@ abstract class TextToTextTestBase(dependencies: Seq[DependencyDescription],
                                   minClassCount: Int,
                                   classExceptions: Set[String] = Set.empty,
                                   withSources: Boolean = false,
+                                  classesWithoutSource: Set[String] = Set.empty,
                                   sourceExceptions: Set[String] = Set.empty,
                                   includeScalaReflect: Boolean = false,
                                   includeScalaCompiler: Boolean = false,
@@ -145,8 +146,9 @@ abstract class TextToTextTestBase(dependencies: Seq[DependencyDescription],
         Assert.assertNotEquals(s"Expected to contain errors: ${cls.qualifiedName}", decompiledVsStub, stub)
       } else {
         Assert.assertEquals(s"${cls.qualifiedName} [decompiled | stub]", decompiledVsStub, stub)
+//        if (decompiledVsStub != stub) Console.err.println(s"\"${cls.qualifiedName}\", //")
 
-        if (withSources && !ClassesWithoutSource(cls.name)) {
+        if (withSources && !classesWithoutSource(cls.qualifiedName)) {
           val sourceCls = cls.getSourceMirrorClass.asInstanceOf[ScTypeDefinition]
           Assert.assertTrue(s"Must have a source: ${cls.qualifiedName}", sourceCls != cls)
           Assert.assertFalse(s"Must be in a source file: ${cls.qualifiedName}", sourceCls.isInCompiledFile)
@@ -164,6 +166,7 @@ abstract class TextToTextTestBase(dependencies: Seq[DependencyDescription],
               Assert.assertNotEquals(s"Expected to contain errors: ${cls.qualifiedName}", decompiledVsSourceOutline, sourceOutline)
             } else {
               Assert.assertEquals(s"${cls.qualifiedName} [decompiled | sourceOutline]", decompiledVsSourceOutline, sourceOutline)
+//              if (decompiledVsSourceOutline != sourceOutline) Console.err.println(s"\"${cls.qualifiedName}\", //")
             }
           }
         }
@@ -218,8 +221,6 @@ private object TextToTextTestBase {
     ("com.google.guava", "listenablefuture"),
     ("guru.nidi", "graphviz-java-min-deps")
   )
-
-  private val ClassesWithoutSource = Set("BuildInfo")
 
   sealed abstract class Content extends Product with Serializable
   object Content {
