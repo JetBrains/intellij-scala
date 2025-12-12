@@ -12,6 +12,15 @@ import java.lang.Float.intBitsToFloat
 import scala.annotation.{switch, tailrec}
 import scala.collection.mutable
 
+/**
+ * https://youtrack.jetbrains.com/issue/SCL-19042/Indexing-read-.tasty-files-directly
+ *
+ * https://youtrack.jetbrains.com/issue/SCL-24777/Decompiler-tests-documentation
+ *
+ * Unit tests:        [[org.jetbrains.plugins.scala.tasty.reader.DecompilerTest3]]
+ * Benchmarks:        [[org.jetbrains.plugins.scala.tasty.reader.DecompilerMain3]]
+ * Integration tests: [[org.jetbrains.plugins.scala.text.scala3]]
+ */
 class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, legacySyntax: Boolean = false) {
   private final val Indent = "  "
   private final val CompiledCode = "???"

@@ -18,7 +18,13 @@ import scala.annotation.{switch, tailrec}
 import scala.collection.mutable
 import scala.reflect.NameTransformer
 
-//This class is from scalap, refactored to work with new types
+/**
+ * https://youtrack.jetbrains.com/issue/SCL-24777/Decompiler-tests-documentation
+ *
+ * Unit tests:        [[org.jetbrains.plugins.scala.decompiler.DecompilerTest2]]
+ * Benchmarks:        [[org.jetbrains.plugins.scala.decompiler.DecompilerMain2]]
+ * Integration tests: [[org.jetbrains.plugins.scala.text.scala2]]
+ */
 class ScalaSigPrinter(builder: StringBuilder) {
   import ScalaSigPrinter._
 

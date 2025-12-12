@@ -26,7 +26,18 @@ import java.nio.file.Path
 import java.util.Collections
 import scala.jdk.CollectionConverters.{ListHasAsScala, SeqHasAsJava}
 
-// SCL-21078
+/**
+ * https://youtrack.jetbrains.com/issue/SCL-24777/Decompiler-tests-documentation
+ *
+ * https://youtrack.jetbrains.com/issue/SCL-21078/Text-to-text-tests-for-Scala-libraries
+ * https://youtrack.jetbrains.com/issue/SCL-23331/Compiler-to-decompiler-tests
+ *
+ * Implementation: [[org.jetbrains.plugins.scala.decompiler.scalasig.ScalaSigPrinter]]
+ * Unit tests:     [[org.jetbrains.plugins.scala.decompiler.DecompilerTest2]]
+ *
+ * Implementation: [[org.jetbrains.plugins.scala.tasty.reader.TreePrinter]]
+ * Unit tests:     [[org.jetbrains.plugins.scala.tasty.reader.DecompilerTest3]]
+ */
 @RunWith(classOf[JUnit4])
 @Category(Array(classOf[TextToTextTests]))
 abstract class TextToTextTestBase(dependencies: Seq[DependencyDescription],

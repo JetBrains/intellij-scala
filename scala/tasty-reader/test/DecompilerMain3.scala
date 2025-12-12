@@ -6,13 +6,15 @@ import java.util.jar.JarInputStream
 import scala.util.chaining.scalaUtilChainingOps
 
 /**
- * A helper to quickly assess the effect of non-trivial TreePrinter modifications.
+ * A helper to quickly assess the effect of non-trivial [[org.jetbrains.plugins.scala.tasty.reader.TreePrinter]] modifications.
  *
- * Although the corresponding code is tested both by the DecompilerTest3 (unit) and TextToTextTestBase (integration) tests,
+ * Although the corresponding code is tested both by the [[org.jetbrains.plugins.scala.tasty.reader.DecompilerTest3]] (unit) and [[org.jetbrains.plugins.scala.text.scala3]] (integration) tests,
  * the former rely on predefined test cases, while the latter only ensure correctness, without a diff.
  *
  * You may only want to use this if you intend to modify the decompiler implementation extensively.
- * First, you should run the TextToTextTestBase tests to download the Ivy artifacts and also to adjust the OutputDir.
+ * First, you should run the [[org.jetbrains.plugins.scala.text.scala3]] tests to download the Ivy artifacts and also to adjust the `OutputDir`.
+ *
+ * https://youtrack.jetbrains.com/issue/SCL-24777/Decompiler-tests-documentation
  */
 object DecompilerMain3 {
   enum Mode { case Parse, Test, Benchmark }
