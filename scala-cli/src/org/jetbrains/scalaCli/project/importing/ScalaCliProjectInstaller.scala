@@ -20,9 +20,9 @@ class ScalaCliProjectInstaller extends BspProjectInstallProvider {
   override def serverName: String = "Scala CLI"
 
   override def installCommand(workspace: Path): Try[Seq[String]] =
-    ScalaCliUtils.isScalaCliBundled(workspace) match {
-      case Some(isBundled) =>
-        Success(Seq(getScalaCliCommand(isBundled), "setup-ide", "."))
+    ScalaCliUtils.detectScalaCliInstallKind(workspace) match {
+      case Some(scalaCliInstallKind) =>
+        Success(Seq(getScalaCliCommand(scalaCliInstallKind), "setup-ide", "."))
       case None =>
         Failure(new IllegalStateException("Unable to install BSP, because Scala CLI is not installed"))
     }

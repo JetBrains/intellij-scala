@@ -6,49 +6,61 @@ import org.jetbrains.bsp.BspUtil
 
 import java.nio.file.Path
 
-object ScalaCliUtils {
+private object ScalaCliUtils {
   private val log = Logger.getInstance(getClass)
 
   def isScalaCliInstalled(workspace: Path): Boolean =
-    isScalaCliBundled(workspace).nonEmpty
+    detectScalaCliInstallKind(workspace).nonEmpty
 
+  /** Describes how Scala CLI is installed on the system. */
+  sealed trait ScalaCliInstallKind
+
+  private object ScalaCliInstallKind {
+    /** Scala CLI is available as part of the Scala distribution (available since Scala 3.5.0) */
+    case object Bundled extends ScalaCliInstallKind
+
+    /** Scala CLI is installed as a separate, standalone tool */
+    case object Standalone extends ScalaCliInstallKind
+  }
+  
   /**
-   * Determines if Scala CLI is bundled with the Scala distribution or installed as a standalone tool.
+   * Detects how and whether Scala CLI is installed.
    *
-   * @return Option indicating the status of Scala CLI:
-   *         - Some(true) if Scala CLI is bundled with Scala
-   *         - Some(false) if Scala CLI is installed standalone
-   *         - None if not installed
+   * @param workspace directory in which the installation is checked
+   * @return Some([[ScalaCliInstallKind]]) if Scala CLI is installed
+   *         or `None` if it's not.
    */
-  def isScalaCliBundled(workspace: Path): Option[Boolean] =
-    if (detectBundledScalaCli(workspace))
-      Some(true) // bundled with Scala
-    else if (BspUtil.checkIfToolIsInstalled(workspace, "scala-cli"))
-      Some(false) // standalone installation
+  def detectScalaCliInstallKind(workspace: Path): Option[ScalaCliInstallKind] =
+    if (isBundledScalaCliInstalled(workspace))
+      Some(ScalaCliInstallKind.Bundled)
+    else if (isScalaCliStandaloneInstalled(workspace))
+      Some(ScalaCliInstallKind.Standalone)
     else
-      None // not installed
+      None
+
+  private def isScalaCliStandaloneInstalled(workspace: Path): Boolean =
+    BspUtil.isToolInstalledCheckViaVersion(workspace, "scala-cli")
 
   /**
-   * If these are tests, the Scala CLI is not installed globally - the script is only available in the project root directory,
-   * so for this reason we have to change the way it is called.
-   *
-   * For Scala 3.5.0+, Scala CLI is bundled and can be invoked via `scala` command.
-   *
-   * @param isBundled whether Scala CLI is bundled with Scala distribution
+   * Returns the command used to invoke Scala CLI commands. It can be:
+   *  - Bundled with Scala ≥ 3.5.0: `scala`
+   *  - Standalone installation: `scala-cli`
+   *  - Unit test mode: `./scala-cli` (there is a script in the test project root, see [[org.jetbrains.scalaCli.project.NewScalaCliProjectWizardTest.installScalaCli]]
    */
-  def getScalaCliCommand(isBundled: Boolean): String =
+  def getScalaCliCommand(scalaCliInstallKind: ScalaCliInstallKind): String =
     if (ApplicationManager.getApplication.isUnitTestMode)
       "./scala-cli"
-    else if (isBundled)
-      "scala"
     else
-      "scala-cli"
+      scalaCliInstallKind match {
+        case ScalaCliInstallKind.Bundled => "scala"
+        case ScalaCliInstallKind.Standalone => "scala-cli"
+      }
 
   /**
    * Checks if Scala CLI is bundled with the scala installation by attempting to run `scala version --cli-version`.
    * Since Scala 3.5.0, Scala CLI has been included in the Scala distribution.
    */
-  private def detectBundledScalaCli(workspace: Path): Boolean = {
+  private def isBundledScalaCliInstalled(workspace: Path): Boolean = {
     val work = BspUtil.runCommand(workspace, "scala", "version", "--cli-version", "< /dev/null")
     work.fold(
       exc => {
