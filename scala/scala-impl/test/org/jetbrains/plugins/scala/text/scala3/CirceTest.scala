@@ -10,5 +10,17 @@ class CirceTest extends TextToTextTestBase(
     "io.circe" %% "circe-parser" % "0.14.1",
   ),
   packages = Seq("io.circe"),
-  minClassCount = 63
+  minClassCount = 63,
+  withSources = true,
+  classesWithoutSource = Set(
+    // Why are sources not found for these classes?
+    "io.circe.ProductCodecs",
+    "io.circe.ProductDecoders",
+    "io.circe.ProductEncoders",
+    "io.circe.TupleDecoders",
+    "io.circe.TupleEncoders",
+  ),
+  sourceExceptions = Set(
+    "io.circe.DerivedInstance", // TODO elemLabels | protected[this] val elemLabels
+  )
 )

@@ -15,6 +15,11 @@ class ZioTest extends TextToTextTestBase(
     "zio.internal.stacktracer.SourceLocation", // Given without a name
   ),
   withSources = true,
+  classesWithoutSource = Set(
+    "zio.BuildInfo",
+    "zio.internal.stacktracer.BuildInfo",
+    "zio.stream.BuildInfo",
+  ),
   sourceExceptions = Set(
     "zio.Fiber", // case class extends Product & Serializable
     "zio.RuntimeFlag", // reference constants
