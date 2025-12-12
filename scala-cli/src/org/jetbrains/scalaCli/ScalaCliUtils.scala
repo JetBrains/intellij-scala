@@ -64,7 +64,7 @@ private object ScalaCliUtils {
     val work = BspUtil.runCommand(workspace, "scala", "version", "--cli-version", "< /dev/null")
     work.fold(
       exc => {
-        log.error(s"The scala version with Scala CLI is not installed in $workspace - ${exc.getMessage}")
+        log.warn(s"The scala version with Scala CLI is not installed in $workspace - ${exc.getMessage}")
         false
       },
       _ => true
