@@ -7,6 +7,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiManager
 import com.intellij.ui.{EditorNotificationPanel, EditorNotificationProvider, InlineBanner}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.project.{ProjectExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaVersion}
 import org.jetbrains.sbt.language.SbtFile
 
@@ -21,8 +22,8 @@ final class Scala38UpdateIdeNotificationProvider extends EditorNotificationProvi
   ): java.util.function.Function[_ >: FileEditor, _ <: JComponent] = {
     if (!canBeShownAgain(project)) return null
 
-    Scala38UpdateIdeDisclaimer.highestScalaVersion(project) match {
-      case Some(version) if Scala38UpdateIdeDisclaimer.isScala38orLater(version) =>
+    highestScalaVersion(project) match {
+      case Some(version) if isScala38orLater(version) =>
         PsiManager.getInstance(project).findFile(file) match {
           case _: ScalaFile | _: SbtFile =>
             (_: FileEditor) => createPanel(project, version)
@@ -59,6 +60,12 @@ final class Scala38UpdateIdeNotificationProvider extends EditorNotificationProvi
     addDontShowAgainAction()
     panel
   }
+
+  private def highestScalaVersion(project: Project): Option[ScalaVersion] =
+    project.allScalaVersions.maxOption
+
+  private def isScala38orLater(scalaVersion: ScalaVersion): Boolean =
+    scalaVersion.languageLevel >= ScalaLanguageLevel.Scala_3_8
 }
 
 private object Scala38UpdateIdeNotificationProvider {
