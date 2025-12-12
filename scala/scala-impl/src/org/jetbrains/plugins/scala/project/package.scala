@@ -229,6 +229,9 @@ package object project {
       scalaModuleSettings.isDefined
 
     // TODO Generalize: hasScala(Version => Boolean), hasScala(_ >= Scala3)
+    def hasScala2: Boolean =
+      scalaModuleSettings.exists(_.scalaLanguageLevel.isScala2)
+
     def hasScala3: Boolean =
       scalaModuleSettings.exists(_.hasScala3)
 
