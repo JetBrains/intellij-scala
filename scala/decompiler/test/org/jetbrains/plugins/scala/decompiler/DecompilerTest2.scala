@@ -7,6 +7,13 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
 import scala.util.control.NonFatal
 
+/**
+ * https://youtrack.jetbrains.com/issue/SCL-24777/Decompiler-tests-documentation
+ *
+ * https://youtrack.jetbrains.com/issue/SCL-21045/Decompiler-unit-tests
+ *
+ * Integration tests: [[org.jetbrains.plugins.scala.text.scala2]]
+ */
 class DecompilerTest2 extends TestCase {
 
   def testAnnotationMembers(): Unit = doTest("annotation/Members")
