@@ -34,7 +34,10 @@ class NewPackageObjectAction extends LazyFileTemplateAction(
             .exists(_.nonEmpty)
 
     val module: Module = e.getDataContext.getData(PlatformCoreDataKeys.MODULE)
-    val isEnabled: Boolean = Option(module).exists(_.hasScala)
+    // Don't show "Package Object" in Scala 3 projects - in Scala 3 the preferable approach is to use top-level declarations.
+    // The package objects are primarily left for compatibility with Scala 2.
+    // So we don't encourage users to create package objects in Scala 3 projects.
+    val isEnabled: Boolean = Option(module).exists(_.hasScala2)
 
     e.getPresentation.setEnabled(hasPackage && isEnabled)
     e.getPresentation.setVisible(hasPackage && isEnabled)
