@@ -21,8 +21,6 @@ class ScalatestTest extends TextToTextTestBase(
     "org.scalatest.Suite", //Class[? <: AnyRef] | Class[?]
     "org.scalatest.diagrams.DiagramsMacro", // Cannot resolve x$1.reflect.Term
     "org.scalatest.events.Event", // Object vs Any
-    "org.scalatest.events.MotionToSuppress", // final case object
-    "org.scalatest.events.SeeStackDepthException", // final case object
     "org.scalatest.exceptions.NotSerializableWrapperException", // case class with Serializable
     "org.scalatest.matchers.AMatcher", // with Object { toString }
     "org.scalatest.matchers.AnMatcher", // with Object { toString }
