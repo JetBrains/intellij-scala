@@ -19,8 +19,5 @@ class CirceTest extends TextToTextTestBase(
     "io.circe.ProductEncoders",
     "io.circe.TupleDecoders",
     "io.circe.TupleEncoders",
-  ),
-  sourceExceptions = Set(
-    "io.circe.DerivedInstance", // TODO elemLabels | protected[this] val elemLabels
   )
 )
