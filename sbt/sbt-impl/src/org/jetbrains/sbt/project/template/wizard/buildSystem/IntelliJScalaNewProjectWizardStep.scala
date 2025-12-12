@@ -11,11 +11,12 @@ import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.openapi.ui.validation.DialogValidation
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.ui.dsl.builder.{Panel, Row}
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions.ObjectExt
-import org.jetbrains.plugins.scala.project.ScalaLibraryProperties
 import org.jetbrains.plugins.scala.project.template.{IndentationSyntaxStepLike, PackagePrefixStepLike, ScalaModuleBuilder, ScalaSDKStepLike}
+import org.jetbrains.plugins.scala.project.{ScalaLanguageLevel, ScalaLibraryProperties}
 import org.jetbrains.sbt.SbtBundle
-import org.jetbrains.sbt.project.template.wizard.ScalaNewProjectWizardMultiStep
+import org.jetbrains.sbt.project.template.wizard.{ScalaNewProjectWizardMultiStep, ScalaVersionValidation}
 
 import java.awt.event.ItemEvent
 import java.nio.file.Paths
@@ -111,6 +112,7 @@ final class IntelliJScalaNewProjectWizardStep(parent: ScalaNewProjectWizardMulti
               else
                 null
             }): DialogValidation)
+              .validationOnInput(() => scala38VersionValidation(comboBox))
           case _ =>
             row.cell(component)
         }
@@ -126,5 +128,21 @@ final class IntelliJScalaNewProjectWizardStep(parent: ScalaNewProjectWizardMulti
       case _ => false
     }
     setShowIndentationSyntaxCheckBox(show)
+  }
+
+  @Nullable
+  private def scala38VersionValidation(comboBox: JComboBox[_]): ValidationInfo = {
+    val selectedItem = comboBox.getSelectedItem
+    val languageLevel = selectedItem match {
+      case selected: LibraryEditor =>
+        selected.getProperties match {
+          case scalaProperties: ScalaLibraryProperties => Some(scalaProperties.languageLevel)
+          case _ => None
+        }
+      case _ => None
+    }
+    languageLevel
+      .flatMap(ScalaVersionValidation.showScala38Warning(_, comboBox))
+      .orNull
   }
 }

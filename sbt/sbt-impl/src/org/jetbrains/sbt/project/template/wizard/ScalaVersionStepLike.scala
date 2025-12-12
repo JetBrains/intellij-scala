@@ -3,14 +3,15 @@ package org.jetbrains.sbt.project.template.wizard
 import com.intellij.ide.wizard.NewProjectWizardStep
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.dsl.builder.{Panel, Row, RowLayout}
-import org.jetbrains.annotations.Nls
+import org.jetbrains.annotations.{Nls, Nullable}
 import org.jetbrains.plugins.scala.extensions.applyTo
-import org.jetbrains.plugins.scala.isUnitTestMode
 import org.jetbrains.plugins.scala.project.template.{IndentationSyntaxStepLike, ScalaVersionDownloadingDialog}
 import org.jetbrains.plugins.scala.project.{Version, Versions}
 import org.jetbrains.plugins.scala.util.AsynchronousVersionsDownloading
+import org.jetbrains.plugins.scala.{ScalaVersion, isUnitTestMode}
 import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.project.template.{SComboBox, ScalaModuleBuilderSelections}
 
@@ -57,6 +58,7 @@ trait ScalaVersionStepLike extends IndentationSyntaxStepLike with AsynchronousVe
     panel.row(scalaLabelText, (row: Row) => {
       row.layout(RowLayout.PARENT_GRID)
       row.cell(scalaVersionComboBox)
+        .validationOnInput(() => scala38VersionValidation())
       if (downloadSourcesCheckbox) {
         row.cell(downloadScalaSourcesCheckbox)
       }
@@ -65,6 +67,14 @@ trait ScalaVersionStepLike extends IndentationSyntaxStepLike with AsynchronousVe
     setupIndentationSyntaxUI(panel)
   }
 
+  @Nullable
+  private def scala38VersionValidation(): ValidationInfo = {
+    scalaVersionComboBox.getSelectedItemTyped
+      .flatMap(ScalaVersion.fromString)
+      .map(_.languageLevel)
+      .flatMap(ScalaVersionValidation.showScala38Warning(_, scalaVersionComboBox))
+      .orNull
+  }
 
   /**
    * Initializes selections and UI elements only once
