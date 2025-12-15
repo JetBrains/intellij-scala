@@ -57,7 +57,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
       !precursor.is[ScThisReference, ScSuperReference] &&
         !precursor.is[ScUnderscoreSection] && // TODO Highlight underscore rather than remainder, SCL-22148
         !precursor.asOptionOf[ScReferenceExpression].exists(_.resolve() != null) && // TODO Highlight expressions of non-inferred type? SCL-22150
-        precursor.`type`().isLeft
+        precursor.`type`(None).isLeft
     }
 
     if (!element.getUserData(ReferenceExpressionResolver.ConstructorProxyHolderKey)) {

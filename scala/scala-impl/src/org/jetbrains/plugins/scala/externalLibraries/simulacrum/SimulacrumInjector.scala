@@ -94,7 +94,7 @@ object SimulacrumInjector {
   }
 
   private[this] def adaptForProperType(m: ScFunction, properTpe: ScTypeParam): Seq[String] = {
-    val firstParamType = m.parameters.headOption.flatMap(_.`type`().toOption)
+    val firstParamType = m.parameters.headOption.flatMap(_.`type`(None).toOption)
 
     firstParamType match {
       case Some(TypeParameterType.ofPsi(`properTpe`)) => opsMethodName(m).map(methodText(m, _))
@@ -103,7 +103,7 @@ object SimulacrumInjector {
   }
 
   private[this] def adaptForAppliedType(m: ScFunction, tCons: ScTypeParam, liftedTypeParams: Seq[ScTypeParam]): Seq[String] = {
-    val firstParamType = m.parameters.headOption.flatMap(_.`type`().toOption)
+    val firstParamType = m.parameters.headOption.flatMap(_.`type`(None).toOption)
     val typeParamNames = m.typeParameters.map(tparam => tparam.name -> tparam).toMap
 
     def extractMethodTypeParameter(tpe: ScType): Boolean = tpe match {
@@ -143,7 +143,7 @@ object SimulacrumInjector {
     val subst = ScSubstitutor.bind(typeParamsMappings.keys.toList, typeParamsMappings.values.toList)
 
     def parameterText(p: ScParameter): String =
-      p.name + ": " + subst(p.`type`().getOrAny).canonicalText
+      p.name + ": " + subst(p.`type`(None).getOrAny).canonicalText
 
     def clauseText(p: ScParameterClause): String = {
       val parameters =

@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.expr
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
 class ScPostfixExprImpl(node: ASTNode) extends MethodInvocationImpl(node) with ScPostfixExpr {
@@ -15,5 +16,6 @@ class ScPostfixExprImpl(node: ASTNode) extends MethodInvocationImpl(node) with S
 
   override def toString: String = "PostfixExpression"
 
-  override protected def innerType: TypeResult = getEffectiveInvokedExpr.getNonValueType()
+  override protected def innerType(expectedType: Option[ScType]): TypeResult =
+    getEffectiveInvokedExpr.getNonValueType(expectedType)
 }

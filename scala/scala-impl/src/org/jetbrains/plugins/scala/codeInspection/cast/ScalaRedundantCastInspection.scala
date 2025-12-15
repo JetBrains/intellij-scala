@@ -18,9 +18,9 @@ class ScalaRedundantCastInspection extends LocalInspectionTool {
 
       call.referencedExpr.children.toList match {
         case List(left: ScExpression, ElementText("."), ElementText("asInstanceOf")) =>
-          for (actualType <- left.`type`().toOption;
+          for (actualType <- left.`type`(None).toOption;
                typeArgument <- call.arguments.headOption;
-               castType <- typeArgument.`type`().toOption if actualType.widen.equiv(castType)) {
+               castType <- typeArgument.`type`(None).toOption if actualType.widen.equiv(castType)) {
 
             val descriptor = {
               val range = new TextRange(left.getTextLength, call.getTextLength)

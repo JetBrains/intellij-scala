@@ -68,7 +68,7 @@ class ExpandPatternIntention extends PsiElementBaseIntentionAction {
       .flatMap {
         case typedPattern@ScTypedPatternLike.withNameId(typePattern, nameId) =>
           val patText = typePattern.typeElement
-            .`type`().toOption
+            .`type`(None).toOption
             .flatMap(nestedPatternText)
 
           patText.map { patText =>

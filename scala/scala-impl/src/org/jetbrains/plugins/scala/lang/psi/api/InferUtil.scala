@@ -569,7 +569,7 @@ object InferUtil {
         case _: ScObject |
              _: ScParameter |
              _: patterns.ScBindingPattern |
-             _: ScFieldId => element.asInstanceOf[Typeable].`type`().toOption
+             _: ScFieldId => element.asInstanceOf[Typeable].`type`(None).toOption
         case function: ScFunction =>
           val extensionOwner = result.exportedInExtension
           functionTypeNoImplicits(function, extensionOwner)
@@ -816,7 +816,7 @@ object InferUtil {
     while (idx >= 0) {
       val cl         = clauses(idx)
       val parameters = cl.parameters
-      val paramTypes = parameters.flatMap(_.`type`().toOption)
+      val paramTypes = parameters.flatMap(_.`type`(None).toOption)
 
       if (paramTypes.size != parameters.size) return None
       else                                    builder += paramTypes

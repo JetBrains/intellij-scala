@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScPropertyStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScPropertyElementType
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 import scala.annotation.nowarn
@@ -25,7 +26,7 @@ final class ScValueDeclarationImpl private[psi](stub: ScPropertyStub[ScValueDecl
 
   override def declaredElements: Seq[ScFieldId] = getIdList.fieldIds
 
-  override def `type`(): TypeResult = typeElement match {
+  override def `type`(expectedType: Option[ScType]): TypeResult = typeElement match {
     case Some(te) => te.`type`()
     case None => Failure(ScalaBundle.message("no.type.element.found", getText))
   }

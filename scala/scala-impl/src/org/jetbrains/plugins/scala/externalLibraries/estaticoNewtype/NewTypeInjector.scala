@@ -29,7 +29,7 @@ object NewTypeInjector {
       clazz.findAnnotationNoAliases("_root_.io.estatico.newtype.macros.newsubtype") != null
   }
 
-  private def mkCompanionMembers(clazz: ScClass): Seq[String] = clazz.parameters.headOption.flatMap(_.`type`().toOption).map { reprType =>
+  private def mkCompanionMembers(clazz: ScClass): Seq[String] = clazz.parameters.headOption.flatMap(_.`type`(None).toOption).map { reprType =>
     val (reprName, hasDifferentShape) = reprType match {
       case ParameterizedType(des, targs) => des.canonicalText -> (targs.map(_.canonicalText) != clazz.typeParameters.map(_.name))
       case t => t.canonicalText -> clazz.typeParameters.nonEmpty

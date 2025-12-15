@@ -60,7 +60,7 @@ private object ScLightParameter {
     implicit def elementScope: ElementScope = ElementScope(param)
 
     val paramType =
-      if (isJavaVarargs) param.`type`()
+      if (isJavaVarargs) param.`type`(None)
       else param.insideParamType
 
     paramType.map(substitutor) match {

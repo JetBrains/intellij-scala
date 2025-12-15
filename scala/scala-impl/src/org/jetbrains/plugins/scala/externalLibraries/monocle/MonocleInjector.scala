@@ -51,12 +51,12 @@ object MonocleInjector {
       case f: ScClassParameter if f.isCaseClassPrimaryParameter => f
     }.map { parameter =>
       val typeText = if (typeParametersText.isEmpty) {
-        parameter.`type`().toOption.map(_.canonicalText).getOrElse("Any")
+        parameter.`type`(None).toOption.map(_.canonicalText).getOrElse("Any")
       } else {
         parameter.typeElement.get.calcType.toString
       }
 
-      s"def $prefix${parameter.name}$typeParametersText: _root_.monocle.Lens[${clazz.`type`().getOrAny}, $typeText] = ???"
+      s"def $prefix${parameter.name}$typeParametersText: _root_.monocle.Lens[${clazz.`type`(None).getOrAny}, $typeText] = ???"
     }.toSeq
   }
 }

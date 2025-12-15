@@ -62,12 +62,12 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor wit
     }
   }
 
-  override protected def innerType: TypeResult = {
+  override protected def innerType(expectedType: Option[ScType]): TypeResult = {
     desugared() flatMap {
       case f: ScFunctionExpr => f.result
       case e => Some(e)
     } match {
-      case Some(newExpr) => newExpr.getNonValueType()
+      case Some(newExpr) => newExpr.getNonValueType(expectedType)
       case None => Failure(ScalaBundle.message("cannot.create.expression"))
     }
   }
@@ -324,7 +324,7 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor wit
 
       // add guards and assignment enumerators
       val filterFunc: String = if (forDisplay && compilerRewritesWithFilterToFilter) {
-        val rvalueType = rvalue.flatMap(_.`type`().toOption)
+        val rvalueType = rvalue.flatMap(_.`type`(None).toOption)
         def hasWithFilter = rvalueType.exists(hasMethod(_, "withFilter"))
         def hasFilter = rvalueType.exists(hasMethod(_, "filter"))
 

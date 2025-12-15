@@ -467,7 +467,7 @@ object TypeAdjuster {
       val incomingTypes =
         findIncomingExpressions(position)
           .filter(!_.isInstanceOf[PsiLiteral])
-          .flatMap(_.`type`().toOption)
+          .flatMap(_.`type`(None).toOption)
           .filter(!_.isAliasType)
 
       // Let's not search for type aliases if one of the incoming types is obviously something else

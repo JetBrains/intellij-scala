@@ -240,7 +240,7 @@ object ScalaRefactoringUtil {
       val text = s"$prefix$quote$rangeText$quote"
       createExpressionWithContextFromText(text, literalStart.getContext, literalStart) match {
         case newExpr: ScLiteral =>
-          val tpe = newExpr.getTypeWithoutImplicits(ignoreBaseType = true).getOrAny
+          val tpe = newExpr.getTypeWithoutImplicits(None, ignoreBaseType = true).getOrAny
           Some(newExpr, ArraySeq(tpe))
         case _ => None
       }
@@ -280,7 +280,7 @@ object ScalaRefactoringUtil {
     }
   }
 
-  private def typeWithoutExpected(expression: ScExpression): ScType = expression.`type`() match {
+  private def typeWithoutExpected(expression: ScExpression): ScType = expression.`type`(None) match {
     case Right(tpe) if FunctionType.isFunctionType(tpe) => tpe
     case _ =>
       def dummyFunctionText(needsParens: Boolean) =
@@ -298,7 +298,7 @@ object ScalaRefactoringUtil {
           .getOrElse(createFunction(true))
 
       Using.resource(SlowOperations.knownIssue("SCL-23056")) { _ =>
-        definitionWithoutType.`type`().getOrAny
+        definitionWithoutType.`type`(None).getOrAny
       }
   }
 

@@ -25,8 +25,8 @@ trait ExpressionTransformation { this: ScalaDfaControlFlowBuilder =>
   def transformExpression(expr: ScExpression, rreq: ResultReq): rreq.Result = {
     flow.startElement(expr)
 
-    lazy val from = expr.getNonValueType().toOption
-    lazy val to = expr.`type`().toOption
+    lazy val from = expr.getNonValueType(None).toOption
+    lazy val to = expr.`type`(None).toOption
 
     val result: rreq.Result = expr.implicitElement() match {
       case Some(element) =>
@@ -150,8 +150,8 @@ trait ExpressionTransformation { this: ScalaDfaControlFlowBuilder =>
     val thenResult = rreq.map(thenResultRaw) { result =>
       convertPrimitiveIfNeeded(
         result,
-        ifExpression.thenExpression.flatMap(_.`type`().toOption),
-        ifExpression.`type`().toOption,
+        ifExpression.thenExpression.flatMap(_.`type`(None).toOption),
+        ifExpression.`type`(None).toOption,
       )
     }
     //buildImplicitConversion(ifExpression.thenExpression, Some(returnType))
@@ -166,8 +166,8 @@ trait ExpressionTransformation { this: ScalaDfaControlFlowBuilder =>
         rreq.map(elseResultRaw) { result =>
           convertPrimitiveIfNeeded(
             result,
-            elseExpr.`type`().toOption,
-            ifExpression.`type`().toOption,
+            elseExpr.`type`(None).toOption,
+            ifExpression.`type`(None).toOption,
           )
         }
       case None =>
@@ -267,7 +267,7 @@ trait ExpressionTransformation { this: ScalaDfaControlFlowBuilder =>
     exceptionExpression match {
       case Some(exception) =>
         transformExpression(exception, ResultReq.None)
-        val psiType = exception.`type`().getOrAny.toPsiType
+        val psiType = exception.`type`(None).getOrAny.toPsiType
         throws(psiType.getCanonicalText, throwStatement)
         pushUnknownValue(rreq)
       case _ =>

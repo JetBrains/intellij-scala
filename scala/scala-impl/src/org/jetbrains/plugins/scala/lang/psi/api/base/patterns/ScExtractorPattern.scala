@@ -89,7 +89,7 @@ object ScExtractorPattern {
 
       final override def selectorType: Option[ScType] = returnType
       final override def matchedType: Option[ScType] =
-        targetFunction.parameters.find(!_.isImplicit).flatMap(_.`type`().toOption).map(substitutor)
+        targetFunction.parameters.find(!_.isImplicit).flatMap(_.`type`(None).toOption).map(substitutor)
 
       final override def isMacroExtractor: Boolean = targetFunction.is[ScMacroDefinition]
     }
@@ -140,14 +140,14 @@ object ScExtractorPattern {
     }
 
     final class TooBigCaseClass private[ScExtractorPattern](val clazz: ScClass, ssr: ScalaResolveResult, sty: Option[ScType], p: ScExtractorPattern) extends ExtractorTarget(ssr, sty, p) with WithExtractorMatches {
-      override def selectorType: Option[ScType] = clazz.`type`().toOption.map(substitutor)
+      override def selectorType: Option[ScType] = clazz.`type`(None).toOption.map(substitutor)
       override def matchedType: Option[ScType] = selectorType
 
       override lazy val extractorMatch: Some[ExtractorMatch] = {
         implicit val elementScope: ElementScope = pattern.elementScope
         val undefSubst = substitutor.followed(ScSubstitutor(ScThisType(clazz)))
         val params: Seq[ScParameter] = clazz.parameters
-        val types = params.map(_.`type`().getOrAny).map(undefSubst)
+        val types = params.map(_.`type`(None).getOrAny).map(undefSubst)
         def selectorType = this.selectorType.getOrElse(StdTypes.instance.Any)
 
         Some(

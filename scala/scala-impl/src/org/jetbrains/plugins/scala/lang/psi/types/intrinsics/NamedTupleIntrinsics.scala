@@ -108,7 +108,7 @@ object NamedTupleIntrinsics {
                   .map {
                     clause =>
                       val comps =
-                        clause.parameters.map(p => StringValue(p.name) -> subst(p.`type`().getOrNothing))
+                        clause.parameters.map(p => StringValue(p.name) -> subst(p.`type`(None).getOrNothing))
                       NamedTupleType(comps)
                   }
 

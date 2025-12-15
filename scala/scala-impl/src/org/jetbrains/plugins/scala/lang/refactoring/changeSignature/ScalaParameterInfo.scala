@@ -28,7 +28,7 @@ class ScalaParameterInfo(@BeanProperty var name: String,
         extends JavaParameterInfo {
 
   def this(p: ScParameter) = {
-    this(p.name, p.index, p.`type`().getOrAny, p.getProject, p.isRepeatedParameter, p.isCallByNameParameter,
+    this(p.name, p.index, p.`type`(None).getOrAny, p.getProject, p.isRepeatedParameter, p.isCallByNameParameter,
       keywordsAndAnnotations = ScalaParameterInfo.keywordsAndAnnotations(p))
   }
 

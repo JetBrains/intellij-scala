@@ -133,7 +133,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
 
     val expr = usage.expr
 
-    val paramTypes = expr.`type`() match {
+    val paramTypes = expr.`type`(None) match {
       case Right(FunctionType(_, pTypes)) => pTypes
       case _ => Seq.empty
     }

@@ -44,7 +44,7 @@ object MapGetOrElse extends SimplificationType() {
     }
     ScalaPsiElementFactory.createExpressionWithContextFromText(replacementText, qual.getContext) match {
       case ScMethodCall(ScMethodCall(_, Seq(firstArg)), _) =>
-        mapArgRetType.conforms(firstArg.`type`().getOrNothing.widenIfLiteral)
+        mapArgRetType.conforms(firstArg.`type`(None).getOrNothing.widenIfLiteral)
       case _ => false
     }
   }

@@ -155,7 +155,7 @@ final class ScProjectionType private(val projected: ScType,
 
     def checkDesignatorType(e: PsiNamedElement, other: ScType): ConstraintsResult = e match {
       case td: ScTypedDefinition if td.isStable =>
-        val tp = actualSubst(td.`type`().getOrAny)
+        val tp = actualSubst(td.`type`(None).getOrAny)
         tp match {
           case designatorOwner: DesignatorOwner if designatorOwner.isSingleton =>
             tp.equiv(other, constraints, falseUndef)
@@ -211,7 +211,7 @@ final class ScProjectionType private(val projected: ScType,
         element match {
           case _: ScObject                        => ConstraintsResult.Left
           case t: ScTypedDefinition if t.isStable =>
-            t.`type`() match {
+            t.`type`(None) match {
               case Right(singleton: DesignatorOwner) if singleton.isSingleton =>
                 val newSubst = actualSubst.followed(ScSubstitutor(projected))
                 r.equiv(newSubst(singleton), constraints, falseUndef)

@@ -13,5 +13,5 @@ class ScNamedTupleTypeComponentImpl(node: ASTNode) extends ScalaPsiElementImpl(n
 
   override protected val typeName: String = "NamedTupleTypeComponent"
 
-  override protected def innerType: TypeResult = this.flatMapType(typeElement)
+  override protected def innerType: TypeResult = this.flatMapType(typeElement, None)
 }

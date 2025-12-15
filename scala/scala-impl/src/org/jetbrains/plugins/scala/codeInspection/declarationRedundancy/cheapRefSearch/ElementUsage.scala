@@ -97,7 +97,7 @@ private final class ElementUsageWithKnownReference private(
 
       refExpr.getFirstChild match {
         case e: ScExpression =>
-          (e.`type`(), typeDef.`type`()) match {
+          (e.`type`(None), typeDef.`type`(None)) match {
             case (Right(t1), Right(t2)) => !t1.conforms(t2)
             case _ => false
           }
@@ -136,8 +136,8 @@ private final class ElementUsageWithKnownReference private(
       refElement match {
         case refExpr: ScReferenceExpression if refExpr.children.size > 1 =>
           val firstChild = refExpr.getFirstChild
-          val firstChildType = firstChild.asOptionOfUnsafe[Typeable].flatMap(_.`type`().toOption)
-          val targetContainerType = targetContainer.flatMap(_.`type`().toOption)
+          val firstChildType = firstChild.asOptionOfUnsafe[Typeable].flatMap(_.`type`(None).toOption)
+          val targetContainerType = targetContainer.flatMap(_.`type`(None).toOption)
 
           (firstChildType, targetContainerType) match {
             case (Some(t1), Some(t2)) => t1.equiv(t2)

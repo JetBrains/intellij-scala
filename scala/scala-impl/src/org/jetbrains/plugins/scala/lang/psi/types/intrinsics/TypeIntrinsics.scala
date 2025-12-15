@@ -38,7 +38,7 @@ object TypeIntrinsics {
         @tailrec
         def dealias(ty: ScType): ScType = substitutor(ty.removeAliasDefinitions()) match {
           case ScDesignatorType(ty: Typeable) if ty.is[ScBindingPattern, ScParameter, ScFieldId] =>
-            dealias(ty.`type`().getOrNothing)
+            dealias(ty.`type`(None).getOrNothing)
           //case undef: UndefinedType => dealias(undef.typeParameter.lowerType)
           case ScExistentialType(ty, _) => dealias(ty)
           case ty => ty

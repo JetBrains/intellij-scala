@@ -13,7 +13,7 @@ trait ScImportableDeclarationsOwner extends ScalaPsiElement {
    */
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement, place: PsiElement): Boolean =
     if (isStable) {
-      ScalaPsiUtil.processImportLastParent(processor, state, place, lastParent, `type`())
+      ScalaPsiUtil.processImportLastParent(processor, state, place, lastParent, `type`(None))
     } else true
 
 }

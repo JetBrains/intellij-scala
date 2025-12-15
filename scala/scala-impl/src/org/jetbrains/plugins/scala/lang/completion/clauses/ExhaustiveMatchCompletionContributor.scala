@@ -29,7 +29,7 @@ final class ExhaustiveMatchCompletionContributor extends ScalaCompletionContribu
       override protected def targetType(call: ScSugarCallExpr)
                                        (implicit place: PsiElement): Option[ScType] = call match {
         case _: ScPrefixExpr => None
-        case ScSugarCallExpr(operand, operation, _) if operation.isAncestorOf(place) => operand.`type`().toOption
+        case ScSugarCallExpr(operand, operation, _) if operation.isAncestorOf(place) => operand.`type`(None).toOption
         case _ => None
       }
 

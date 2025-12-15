@@ -163,7 +163,7 @@ object ScalaColorSchemeAnnotator {
             //org.jetbrains.plugins.scala.settings.ScalaProjectSettings.getAliasSemantics ise set to EXPORT (by default)
             Option(x.containingClass).foreach { c =>
               if (SCALA_PREDEFINED_OBJECTS.contains(c.qualifiedName)) {
-                x.`type`().foreach(annotateCollectionByType)
+                x.`type`(None).foreach(annotateCollectionByType)
               }
             }
           case _ =>

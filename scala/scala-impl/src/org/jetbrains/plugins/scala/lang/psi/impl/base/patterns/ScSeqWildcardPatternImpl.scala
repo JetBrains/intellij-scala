@@ -28,7 +28,7 @@ class ScSeqWildcardPatternImpl private(stub: ScBindingPatternStub[ScSeqWildcardP
   override def toString: String = "SequenceWildcardPattern: " + ifReadAllowed(name)("")
 
 
-  override def `type`(): TypeResult =
+  override def `type`(expectedType: Option[ScType]): TypeResult =
     this.expectedType match {
       case Some(x) => Right(x)
       case _ =>  Failure(ScalaBundle.message("no.expected.type.for.wildcard.naming"))
@@ -37,7 +37,7 @@ class ScSeqWildcardPatternImpl private(stub: ScBindingPatternStub[ScSeqWildcardP
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement,
                                    place: PsiElement): Boolean = {
     if (isStable) {
-      ScalaPsiUtil.processImportLastParent(processor, state, place, lastParent, `type`())
+      ScalaPsiUtil.processImportLastParent(processor, state, place, lastParent, `type`(None))
     } else true
   }
 

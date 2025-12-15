@@ -16,11 +16,12 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 class ScUnderscoreSectionImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScUnderscoreSection {
-  protected override def innerType: TypeResult = {
+  protected override def innerType(expectedType: Option[ScType]): TypeResult = {
+    //@TODO: propagate expected type
     bindingExpr match {
       case Some(ref: ScReferenceExpression) =>
         def fun(): TypeResult =
-          ref.getNonValueType().map {
+          ref.getNonValueType(None).map {
             case ScTypePolymorphicType(internalType, typeParameters) =>
               ScTypePolymorphicType(
                 ScMethodType(internalType, Nil),
@@ -36,12 +37,12 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScExpressionImplBase(node) 
             b.nameContext match {
               case _: ScValue | _: ScVariable if b.isClassMember => fun()
               case v: ScValue if v.hasModifierPropertyScala("lazy") => fun()
-              case _ => ref.getNonValueType()
+              case _ => ref.getNonValueType(None)
             }
           case Some(ScalaResolveResult(p: ScParameter, _)) if p.isCallByNameParameter => fun()
-          case _ => ref.getNonValueType()
+          case _ => ref.getNonValueType(None)
         }
-      case Some(expr) => expr.getNonValueType()
+      case Some(expr) => expr.getNonValueType(None)
       case None =>
         getContext match {
           case typed: ScTypedExpression =>
@@ -51,7 +52,7 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScExpressionImplBase(node) 
                   case Some(te) => return te.`type`()
                   case _        => return Failure(ScalaBundle.message("typed.statement.is.not.complete.for.underscore.section"))
                 }
-              case _ => return typed.`type`()
+              case _ => return typed.`type`(None)
             }
           case _ =>
         }

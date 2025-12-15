@@ -13,7 +13,7 @@ object RedundantCollectionConversion extends SimplificationType {
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     implicit val context: Context = Context(expr)
 
-    val typeAfterConversion = expr.`type`().getOrAny
+    val typeAfterConversion = expr.`type`(None).getOrAny
 
     // note:
     // will match <Seq(1, 2).to> and <Seq(1, 2).to[List]> but not <Seq(1, 2).to>[List]

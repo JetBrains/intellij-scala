@@ -136,7 +136,7 @@ object ScExtensionMethodMember {
    * Created by analogy with  [[org.jetbrains.plugins.scala.lang.psi.ScalaPsiPresentationUtils.methodPresentableText]]<br>
    * This text is presented in "override/implement" dialog
    */
-  private def extensionMethodPresentableText( 
+  private def extensionMethodPresentableText(
     signature: PhysicalMethodSignature,
   ): String = {
     assert(signature.isExtensionMethod)
@@ -165,7 +165,7 @@ sealed abstract class ScValueOrVariableMember[T <: ScValueOrVariable](
   override val substitutor: ScSubstitutor
 )(
   override val name: String = element.name,
-  override val scType: ScType = substitutor(element.`type`().getOrAny)
+  override val scType: ScType = substitutor(element.`type`(None).getOrAny)
 ) extends PsiElementClassMember[T](member, NlsString.force(s"$name: ${scType.presentableText(element, Context(element))}"))
   with ScalaFieldMember
 

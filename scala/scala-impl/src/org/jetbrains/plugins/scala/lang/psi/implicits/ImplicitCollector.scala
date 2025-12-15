@@ -519,7 +519,7 @@ class ImplicitCollector(
   private def simpleConformanceCheck(c: ScalaResolveResult): Option[ScalaResolveResult] = {
     val ty = c.element match {
       case param: ScParameter => param.insideParamType
-      case typeable: Typeable => typeable.`type`()
+      case typeable: Typeable => typeable.`type`(None)
       case _ => return None
     }
 

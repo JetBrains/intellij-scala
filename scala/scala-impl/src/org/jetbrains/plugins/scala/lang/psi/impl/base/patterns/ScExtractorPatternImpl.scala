@@ -13,16 +13,17 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 abstract class ScExtractorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPatternImpl with ScExtractorPattern {
-  override def `type`(): TypeResult =
+  override def `type`(expectedType: Option[ScType]): TypeResult =
     ref.bind() match {
       case Some(ScalaResolveResult(fun: ScFunction, _)) if fun.isUnapplyMethod && fun.parameters.count(!_.isImplicit) == 1 =>
-        val expectedType = this.expectedType
+        val pt = expectedType.orElse(this.expectedType)
+
         val subst =
-          expectedType.fold(
+          pt.fold(
             ScSubstitutor.empty
           )(PatternTypeInference.doTypeInference(this, _))
 
-        fun.paramClauses.clauses.head.parameters.head.`type`().map(subst)
+        fun.paramClauses.clauses.head.parameters.head.`type`(None).map(subst)
       case _ =>
         Failure(ScalaBundle.message("cannot.resolve.unknown.symbol"))
     }

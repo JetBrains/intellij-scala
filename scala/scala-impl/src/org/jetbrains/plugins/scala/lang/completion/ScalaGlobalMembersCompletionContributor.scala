@@ -41,7 +41,7 @@ final class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContr
         val finders = reference match {
           case Qualifier(place) =>
             place
-              .getTypeWithoutImplicits()
+              .getTypeWithoutImplicits(None)
               .toSeq
               .flatMap { originalType =>
                 ByTypeGlobalMembersFinder(

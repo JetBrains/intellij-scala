@@ -128,13 +128,13 @@ object FakePsiMethod {
 
       override def params: Array[Parameter] = Array.empty
 
-      override def retType: ScType = t.`type`().getOrAny
+      override def retType: ScType = t.`type`(None).getOrAny
     }
 
   def setter(t: ScTypedDefinition, name: String): FakePsiMethod =
     new FakePsiMethod(t, t.nameContext.asOptionOf[PsiMember], name) {
 
-      override def params: Array[Parameter] = Array(Parameter(t.`type`().getOrAny, isRepeated = false, index = 0))
+      override def params: Array[Parameter] = Array(Parameter(t.`type`(None).getOrAny, isRepeated = false, index = 0))
 
       override def retType: ScType = api.Unit(t.projectContext)
     }

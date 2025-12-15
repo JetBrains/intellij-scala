@@ -70,7 +70,7 @@ object ImplicitUtil {
         case ImplicitSearchTarget(target) =>
           val declaredTypeOfTarget = target match {
             case p: ScParameter => p.insideParamType.toOption
-            case td: Typeable => td.`type`().toOption
+            case td: Typeable => td.`type`(None).toOption
             case _ => None
           }
 

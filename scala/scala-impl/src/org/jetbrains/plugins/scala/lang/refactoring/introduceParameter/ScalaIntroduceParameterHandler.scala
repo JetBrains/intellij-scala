@@ -56,7 +56,7 @@ class ScalaIntroduceParameterHandler extends ScalaRefactoringActionHandler with 
     val namesAndTypes = input.map { v =>
       val elem = v.element
       val typeText = elem match {
-        case fun: ScFunction => fun.`type`().getOrAny.canonicalCodeText(method)
+        case fun: ScFunction => fun.`type`(None).getOrAny.canonicalCodeText(method)
         case _ => v.element.typeOfNamedElement().getOrElse(Any).canonicalCodeText(method)
       }
       s"${elem.name}: $typeText"
@@ -77,7 +77,7 @@ class ScalaIntroduceParameterHandler extends ScalaRefactoringActionHandler with 
       case _ => expr
     }
     ScalaPsiUtil.adjustTypes(toReturn, addImports = false)
-    (CodeStyleManager.getInstance(project).reformat(toReturn).asInstanceOf[ScExpression], expr.getTypeWithoutImplicits(ignoreBaseType = true).getOrAny)
+    (CodeStyleManager.getInstance(project).reformat(toReturn).asInstanceOf[ScExpression], expr.getTypeWithoutImplicits(None, ignoreBaseType = true).getOrAny)
   }
 
   private def invoke(file: ScalaFile)

@@ -14,7 +14,7 @@ object StringConcatenationExpression {
       None
   }
 
-  private def isString(exp: ScExpression): Boolean = exp.`type`().toOption.map(_.widen) match {
+  private def isString(exp: ScExpression): Boolean = exp.`type`(None).toOption.map(_.widen) match {
     case Some(ScDesignatorType(element)) => element.name == "String"
     case Some(ScProjectionType(ScDesignatorType(predef), ta: ScTypeAlias)) => predef.name == "Predef" && ta.name == "String"
     case _ => false

@@ -31,7 +31,7 @@ class ExtractorResolveProcessor(ref: ScReference,
         def resultsFor(unapplyName: String) = {
           val typeResult = state.fromType match {
             case Some(tp) => Right(ScProjectionType(tp, obj))
-            case _        => obj.`type`()
+            case _        => obj.`type`(None)
           }
 
           val processor = new CollectMethodsProcessor(ref, unapplyName)
@@ -89,7 +89,7 @@ class ExtractorResolveProcessor(ref: ScReference,
               val clauses    = fun.paramClauses.clauses
 
               if (clauses.nonEmpty && clauses.head.parameters.length == 1) {
-                val paramTpe = clauses.head.parameters.head.`type`()
+                val paramTpe = clauses.head.parameters.head.`type`(None)
                 paramTpe.exists(t => tp.conforms(subst(t)))
               } else false
             case _ => true

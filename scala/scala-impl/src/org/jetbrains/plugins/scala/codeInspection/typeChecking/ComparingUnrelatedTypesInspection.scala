@@ -143,7 +143,7 @@ class ComparingUnrelatedTypesInspection extends LocalInspectionTool {
         case _ => false
       }
       if (needHighlighting) {
-        Seq(left, right).map(_.`type`().map(_.tryExtractDesignatorSingleton)) match {
+        Seq(left, right).map(_.`type`(None).map(_.tryExtractDesignatorSingleton)) match {
           case Seq(Right(leftType), Right(rightType)) =>
             val isBuiltinOperation = isIdentityFunction(oper.refName) || !hasNonDefaultEquals(leftType)
             val comparability = checkComparability(leftType, rightType, isBuiltinOperation)
@@ -160,7 +160,7 @@ class ComparingUnrelatedTypesInspection extends LocalInspectionTool {
       // Seq("blub").contains(3)
       for {
         ParameterizedType(_, Seq(elemType)) <- receiverType(baseExpr, ref).map(_.tryExtractDesignatorSingleton)
-        argType <- arg.`type`().toOption
+        argType <- arg.`type`(None).toOption
         comparability = checkComparability(elemType, argType, isBuiltinOperation = !hasNonDefaultEquals(elemType))
         if comparability.shouldNotBeCompared
       } {
@@ -172,7 +172,7 @@ class ComparingUnrelatedTypesInspection extends LocalInspectionTool {
 
       // "blub".isInstanceOf[Integer]
       val qualType = call.referencedExpr match {
-        case ScReferenceExpression.withQualifier(q) => q.`type`().map(_.tryExtractDesignatorSingleton).toOption
+        case ScReferenceExpression.withQualifier(q) => q.`type`(None).map(_.tryExtractDesignatorSingleton).toOption
         case _ => None
       }
       val argType = call.arguments.headOption.flatMap(_.`type`().toOption)
@@ -208,5 +208,5 @@ class ComparingUnrelatedTypesInspection extends LocalInspectionTool {
 
   private def receiverType(expr: ScExpression, invoked: ScReferenceExpression): Option[ScType] =
     invoked.bind().flatMap(_.implicitType).
-      orElse(expr.`type`().toOption)
+      orElse(expr.`type`(None).toOption)
 }

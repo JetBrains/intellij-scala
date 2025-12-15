@@ -191,6 +191,7 @@ object MethodResolveProcessor {
   private def problemsFor(
     place:                  PsiElement,
     c:                      ScalaResolveResult,
+    alts:                   Set[ScalaResolveResult],
     checkWithImplicits:     Boolean,
     ref:                    PsiElement,
     argumentClauses:        Seq[Seq[Expression]],
@@ -259,7 +260,7 @@ object MethodResolveProcessor {
       val retType: ScType = element match {
         case cons @ ScalaConstructor.in(td: ScTypeDefinition) =>
           val bindTypeParamsSubst = ScSubstitutor.bind(td.typeParameters, cons.getConstructorTypeParameters)(TypeParameterType(_))
-          substitutor(bindTypeParamsSubst(td.`type`().getOrNothing))
+          substitutor(bindTypeParamsSubst(td.`type`(None).getOrNothing))
         case Constructor.ofClass(cls) =>
           substitutor(ScalaPsiUtil.constructTypeForPsiClass(cls)((tp, _) => TypeParameterType(tp)))
         case _: ScFunction if c.functionParamClauses.count(!_.isImplicit) > 1 =>
@@ -461,6 +462,7 @@ object MethodResolveProcessor {
         val argsApplicability =
           Compatibility.compatible(
             c,
+            alts.toSeq,
             substitutorWithExpected,
             argsWithDynamic,
             checkWithImplicits,
@@ -913,7 +915,7 @@ object MethodResolveProcessor {
                 case Some(tp) => ScProjectionType(tp, b).toOption
                 case None     => ScDesignatorType(b).toOption
               }
-            else b.`type`().toOption
+            else b.`type`(None).toOption
 
           tpe.map(applyOrUpdateMethodsFor).getOrElse(noExpansion)
         case b: PsiField => // See SCL-3055
@@ -947,6 +949,7 @@ object MethodResolveProcessor {
       val conformanceResult = problemsFor(
         getPlace,
         cand,
+        expandedInput.map(_._1),
         checkWithImplicits,
         ref,
         args,

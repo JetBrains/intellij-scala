@@ -28,7 +28,7 @@ trait ShapelessUtils {
   }
 
   private def extractFiledsFromClass(c: ScClass): Seq[(String, ScType)] = {
-    c.constructor.map(_.parameters.map(p=> (p.name, p.`type`().getOrAny))).getOrElse(Seq.empty)
+    c.constructor.map(_.parameters.map(p=> (p.name, p.`type`(None).getOrAny))).getOrElse(Seq.empty)
   }
 
   /**

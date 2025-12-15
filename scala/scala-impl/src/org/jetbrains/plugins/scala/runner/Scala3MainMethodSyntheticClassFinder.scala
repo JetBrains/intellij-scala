@@ -65,7 +65,7 @@ private final class Scala3MainMethodSyntheticClassFinder(project: Project)
     if (params.size == 1) {
       val param = params.head
       param.isVarArgs && {
-        val typ = param.`type`()
+        val typ = param.`type`(None)
         typ.exists(_.extractClass.exists(_.qualifiedName == "java.lang.String"))
       }
     } else {
@@ -74,7 +74,7 @@ private final class Scala3MainMethodSyntheticClassFinder(project: Project)
   }
 
   private def customParameter(param: ScParameter): CustomParameter = {
-    val typeText = param.`type`().fold(_ => "", _.presentableText(TypePresentationContext.emptyContextIn(scala3 = true), Context.Empty))
+    val typeText = param.`type`(None).fold(_ => "", _.presentableText(TypePresentationContext.emptyContextIn(scala3 = true), Context.Empty))
     CustomParameter(param.name, typeText, param.isVarArgs)
   }
 

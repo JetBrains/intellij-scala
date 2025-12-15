@@ -299,7 +299,7 @@ object ImplicitProcessor {
 
     @tailrec
     def collectTermsFromPath(path: ScType): Unit = {
-      def isValueAlias(pat: ScBindingPattern): Boolean = pat.`type`().exists {
+      def isValueAlias(pat: ScBindingPattern): Boolean = pat.`type`(None).exists {
         case downer: DesignatorOwner => downer.isSingleton
         case _                       => false
       }
@@ -344,8 +344,8 @@ object ImplicitProcessor {
       }
 
       tp match {
-        case ScDesignatorType(v: ScBindingPattern) => collectPartsTypeResult(v.`type`())
-        case ScDesignatorType(v: ScFieldId)        => collectPartsTypeResult(v.`type`())
+        case ScDesignatorType(v: ScBindingPattern) => collectPartsTypeResult(v.`type`(None))
+        case ScDesignatorType(v: ScFieldId)        => collectPartsTypeResult(v.`type`(None))
         case ScDesignatorType(p: ScParameter)      => collectPartsTypeResult(p.insideParamType)
         case ScCompoundType(comps, _, _)           => collectPartsIterable(comps)
         case ScAndType(lhs, rhs)                   => collectParts(lhs); collectParts(rhs)
@@ -390,8 +390,8 @@ object ImplicitProcessor {
           if (isAnchor(element)) collectTermsFromPath(projected)
 
           element match {
-            case v: ScBindingPattern         => collectPartsTypeResult(v.`type`().map(proj.actualSubst))
-            case v: ScFieldId                => collectPartsTypeResult(v.`type`().map(proj.actualSubst))
+            case v: ScBindingPattern         => collectPartsTypeResult(v.`type`(None).map(proj.actualSubst))
+            case v: ScFieldId                => collectPartsTypeResult(v.`type`(None).map(proj.actualSubst))
             case v: ScParameter              => collectPartsTypeResult(v.insideParamType.map(proj.actualSubst))
             case tdef: ScTypeAliasDefinition => collectTypeAliasDefinitionParts(tp, tdef)
             case v: ScTypeAliasDeclaration if v.isInScala3File => parts += tp

@@ -196,11 +196,11 @@ object ExtractorMatch {
     variants.flatMap {
       case ScalaResolveResult(fun: ScFunction, subst)
         if (!parameterless || fun.parameters.isEmpty) && fun.name == name =>
-        Seq(subst(fun.`type`().getOrAny))
+        Seq(subst(fun.`type`(None).getOrAny))
       case ScalaResolveResult(b: ScBindingPattern, subst) if b.name == name =>
-        Seq(subst(b.`type`().getOrAny))
+        Seq(subst(b.`type`(None).getOrAny))
       case ScalaResolveResult(param: ScClassParameter, subst) if param.name == name =>
-        Seq(subst(param.`type`().getOrAny))
+        Seq(subst(param.`type`(None).getOrAny))
       case _ => Seq.empty
     }.headOption
   }
@@ -423,7 +423,7 @@ object ExtractorMatch {
               case _ =>
                 ScSubstitutor.empty
             }
-            params.map(p => substitutor(p.`type`().getOrNothing))
+            params.map(p => substitutor(p.`type`(None).getOrNothing))
           case Some(extractorType) if hasOnlyOneParameter => Seq(extractorType)
           case Some(TupleType(comps)) => comps
           case _ =>
@@ -545,7 +545,7 @@ object ExtractorMatch {
               case _ =>
                 ScSubstitutor.empty
             }
-            params.map(p => substitutor(p.`type`().getOrNothing)) match {
+            params.map(p => substitutor(p.`type`(None).getOrNothing)) match {
               case comps :+ seqTy => (comps, seqTy)
               case comps => (comps, api.Nothing(place))
             }

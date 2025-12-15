@@ -72,7 +72,7 @@ class UnnecessaryPartialFunctionInspection extends LocalInspectionTool {
         case _: ScWildcardPattern              => true
         case typedPattern: ScTypedPatternLike  =>
           val patternType    = typedPattern.typePattern.map(_.typeElement.calcType)
-          val expressionType = caseClause.expr.flatMap(_.`type`().toOption)
+          val expressionType = caseClause.expr.flatMap(_.`type`(None).toOption)
           (patternType, expressionType) match {
             case (Some(inputType), Some(returnType)) =>
               conformsToExpectedType(inputType, returnType)

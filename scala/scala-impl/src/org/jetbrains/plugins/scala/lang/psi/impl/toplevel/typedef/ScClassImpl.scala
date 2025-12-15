@@ -163,7 +163,7 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
   override def psiFields: Array[PsiField] = {
     val fields = constructor match {
       case Some(constr) => constr.parameters.map { param =>
-        param.`type`() match {
+        param.`type`(None) match {
           case Right(tp: TypeParameterType) if tp.psiTypeParameter.findAnnotation("scala.specialized") != null =>
             val lightField = ScLightField(param.getName, tp, this, PsiModifier.PUBLIC, PsiModifier.FINAL)
             Option(lightField)

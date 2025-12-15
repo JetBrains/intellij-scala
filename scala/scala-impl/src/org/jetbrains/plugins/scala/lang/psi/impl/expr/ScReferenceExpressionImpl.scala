@@ -211,31 +211,31 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     }
   }
 
-  override def multiType: Array[TypeResult] = {
+  override def multiType(expectedType: Option[ScType]): Array[TypeResult] = {
     val buffer = mutable.ArrayBuffer[TypeResult]()
     val iterator = multiResolveScala(incomplete = false).iterator
     while (iterator.hasNext) {
-      buffer += convertBindToType(iterator.next())
+      buffer += convertBindToType(iterator.next(), expectedType)
     }
     buffer.toArray
   }
 
-  protected override def innerType: TypeResult = {
+  protected override def innerType(expectedType: Option[ScType]): TypeResult = {
     this.bind() match {
-      case Some(srr) => convertBindToType(srr)
+      case Some(srr) => convertBindToType(srr, expectedType)
       case _ if getContainingFile.asOptionOf[ScalaFile].exists(_.isMultipleDeclarationsAllowed) =>
         val priorDeclarations = multiResolveScala(false).filter(
           result => result.element.getContainingFile == getContainingFile && result.element.getTextOffset < getTextOffset
         )
 
-        if (priorDeclarations.nonEmpty) convertBindToType(priorDeclarations.maxBy(_.element.getTextOffset)) else resolveFailure
+        if (priorDeclarations.nonEmpty) convertBindToType(priorDeclarations.maxBy(_.element.getTextOffset), expectedType) else resolveFailure
       case _ => resolveFailure
     }
   }
 
   override def shapeType: TypeResult = {
     shapeResolve match {
-      case Array(bind) if bind.isApplicable() => convertBindToType(bind)
+      case Array(bind) if bind.isApplicable() => convertBindToType(bind, None)
       case _ => resolveFailure
     }
   }
@@ -244,7 +244,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     val buffer = mutable.ArrayBuffer[TypeResult]()
     val iterator = shapeResolve.iterator
     while (iterator.hasNext) {
-      buffer += convertBindToType(iterator.next())
+      buffer += convertBindToType(iterator.next(), None)
     }
     buffer.toArray
   }
@@ -318,7 +318,10 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     found
   }
 
-  private def convertBindToType(bind: ScalaResolveResult): TypeResult = {
+  private def convertBindToType(
+    bind:         ScalaResolveResult,
+    expectedType: Option[ScType]
+  ): TypeResult = {
     val srr = bind match {
       case ScalaResolveResult.ApplyMethodInnerResolve(inner) => inner
       case _                                                 => bind
@@ -350,7 +353,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
             case None => return Failure(ScalaBundle.message("no.declared.type.found"))
           }
           case _ =>
-            val result = r.intersectedReturnType.asTypeResult.orElse(refPatt.`type`())
+            val result = r.intersectedReturnType.asTypeResult.orElse(refPatt.`type`(None))
 
             result.map { tp =>
               if (isStableContext(tp) && refPatt.isStable) {
@@ -432,7 +435,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
           )
           .updateTypeOfDynamicCall(result.isDynamic)
       case ScalaResolveResult(param: ScParameter, s) if param.isRepeatedParameter =>
-        val computeType = param.`type`() match {
+        val computeType = param.`type`(expectedType) match {
           case Right(tp) => s(tp)
           case result => return result
         }
@@ -458,7 +461,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
                     processor.processType(tp, this)
                     val candidates = processor.candidates
                     if (candidates.length != 1) tail
-                    else convertBindToType(candidates(0)).getOrElse(tail)
+                    else convertBindToType(candidates(0), expectedType).getOrElse(tail)
                   } else tail
                 case _ => tail
               }
@@ -466,7 +469,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
           }
         } else tail
       case r @ ScalaResolveResult(f: ScFieldId, s) =>
-        val result = r.intersectedReturnType.asTypeResult.orElse(f.`type`())
+        val result = r.intersectedReturnType.asTypeResult.orElse(f.`type`(None))
 
         result.map { tp =>
           if (isStableContext(tp) && f.isStable) {
@@ -477,7 +480,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
           } else s(tp)
         }.getOrElse(return result)
       case ScalaResolveResult(typed: ScTypedDefinition, s) =>
-        typed.`type`() match {
+        typed.`type`(None) match {
           case Right(tp) => s(tp)
           case result => return result
         }
@@ -494,7 +497,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
       case ScalaResolveResult(field: PsiField, s) =>
         s(field.getType.toScType())
       case ScalaResolveResult(c: ScNamedTupleComponent, s) =>
-        c.`type`() match {
+        c.`type`(expectedType) match {
           case Right(tp) if c.is[ScNamedTupleExprComponent] =>
             // even (x = "x").x is String
             s(tp.widenIfLiteral)
@@ -520,7 +523,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
             case fieldId: ScFieldId => fieldId
             case parameter: ScParameter => parameter
           }.flatMap {
-            _.`type`().toOption
+            _.`type`(None).toOption
           }
 
           def removeTypeDesignator(`type`: ScType): ScType = {
@@ -536,7 +539,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
 
           def convertQualifier(jlClass: PsiClass): ScType = {
             val maybeType = maybeReference.flatMap {
-              _.`type`().toOption
+              _.`type`(None).toOption
             }
 
             val upperBound = maybeType.flatMap {
@@ -575,7 +578,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
       case None => //infix, prefix and postfix
         getContext match {
           case sugar: ScSugarCallExpr if sugar.operation == this =>
-            sugar.getBaseExpr.getNonValueType() match {
+            sugar.getBaseExpr.getNonValueType(expectedType) match {
               case Right(ScTypePolymorphicType(_, typeParams)) =>
                 inner match {
                   case ScTypePolymorphicType(internal, typeParams2) =>
@@ -588,11 +591,18 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
           case _ => default
         }
       case Some(qualifier) =>
-        qualifier.getNonValueType() match {
+        qualifier.getNonValueType(None) match {
           case Right(ScTypePolymorphicType(_, typeParams)) =>
             inner match {
               case ScTypePolymorphicType(internal, typeParams2) =>
-                return Right(ScalaPsiUtil.removeBadBounds(ScTypePolymorphicType(internal, unresolvedTypeParameters ++ typeParams ++ typeParams2)))
+                return Right(
+                  ScalaPsiUtil.removeBadBounds(
+                    ScTypePolymorphicType(
+                      internal,
+                      unresolvedTypeParameters ++ typeParams ++ typeParams2
+                    )
+                  )
+                )
               case _ =>
                 return Right(ScTypePolymorphicType(inner, unresolvedTypeParameters ++ typeParams))
             }
@@ -614,7 +624,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     }
 
     maybeExpression
-      .flatMap(_.getNonValueType().toOption)
+      .flatMap(_.getNonValueType(None).toOption)
       .collect {
         case ScTypePolymorphicType(_, parameters) => parameters
       }.getOrElse(Seq.empty)

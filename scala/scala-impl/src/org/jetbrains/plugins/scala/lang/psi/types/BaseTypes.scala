@@ -140,7 +140,7 @@ private class BaseTypesIterator(tp: ScType)(implicit context: Context) extends I
           // then William.this.type.baseType(trait Son)
           // should return Charles.this.Son not Charles#Son
           // (what `clazz.getTypeWithProjections()` returns)
-          clazz.`type`().toOption
+          clazz.`type`(None).toOption
         case tpt: TypeParameterType =>
           Some(tpt.upperType)
         case ScExistentialArgument(_, Nil, _, upper) =>

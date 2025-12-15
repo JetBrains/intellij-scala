@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScReferenceE
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScInterpolatedStringLiteralImpl.Log
 import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.escapers.{ScLiteralEscaper, ScLiteralRawEscaper}
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.scalaMeta.QuasiquoteInferUtil.{getMetaQQExprType, isMetaQQ}
 import org.jetbrains.plugins.scala.util.CommonQualifiedNames.StringContextCanonical
@@ -31,13 +32,14 @@ final class ScInterpolatedStringLiteralImpl(node: ASTNode,
 
   override def kind: Kind = Kind.fromPrefix(referenceText)
 
-  protected override def innerType: TypeResult =
-    desugaredExpression.fold(Failure(ScalaBundle.message("cannot.find.method.of.stringcontext", referenceText)): TypeResult) {
-      case (reference, _) if isMetaQQ(reference) =>
-        getMetaQQExprType(this)
+  protected override def innerType(expectedType: Option[ScType]): TypeResult =
+    desugaredExpression.fold(
+      Failure(ScalaBundle.message("cannot.find.method.of.stringcontext", referenceText)): TypeResult
+    ) {
+      case (reference, _) if isMetaQQ(reference) => getMetaQQExprType(this)
       case (reference, call) =>
         val typeProvider = InterpolatedStringMacroTypeProvider.getTypeProvider(reference)
-        typeProvider.fold(call.getNonValueType()) {
+        typeProvider.fold(call.getNonValueType(expectedType)) {
           _.inferExpressionType(this)
         }
     }

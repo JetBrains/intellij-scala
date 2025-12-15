@@ -18,7 +18,7 @@ abstract class ScLiteralImplBase(node: ASTNode,
 
   protected def fallbackType: ScType
 
-  override protected def innerType: result.TypeResult = Right(literalType)
+  override protected def innerType(expectedType: Option[ScType]): result.TypeResult = Right(literalType)
 
   override protected final def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitLiteral(this)

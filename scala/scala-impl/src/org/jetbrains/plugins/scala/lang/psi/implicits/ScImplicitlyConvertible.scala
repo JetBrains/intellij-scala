@@ -59,6 +59,6 @@ object ScImplicitlyConvertible {
   }
 
   private def findPlaceType(place: ScExpression, fromUnderscore: Boolean): Option[ScType] =
-    place.getTypeWithoutImplicits(fromUnderscore = fromUnderscore).toOption
+    place.getTypeWithoutImplicits(None, fromUnderscore = fromUnderscore).toOption
       .map(_.tryExtractDesignatorSingleton)
 }

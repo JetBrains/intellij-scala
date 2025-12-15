@@ -41,7 +41,7 @@ object ShapelessProductArgs extends ScalaMacroExpandable with ShapelessUtils {
         return None
     }
 
-    val argTypes = mc.argumentExpressions.map(_.`type`().getOrAny)
+    val argTypes = mc.argumentExpressions.map(_.`type`(None).getOrAny)
     val productType = hlistText(argTypes)
 
     val exprOfProductType = s"null: $productType" //to avoid type inference in dummy elements

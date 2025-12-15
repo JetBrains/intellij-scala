@@ -30,16 +30,16 @@ class ScNamingPatternImpl private(stub: ScBindingPatternStub[ScNamingPattern], n
   override def nameId: PsiElement = findChildByType[PsiElement](TokenSets.ID_SET)
 
   // seq-wildcard patterns are handled in ScSeqWildcardPattern
-  override def `type`(): TypeResult =
-    this.expectedType match {
-      case Some(expectedType) => named.`type`().map(expectedType.glb(_))
-      case _ => named.`type`()
+  override def `type`(expectedType: Option[ScType]): TypeResult =
+    expectedType.orElse(this.expectedType) match {
+      case Some(pt) => named.`type`(Option(pt)).map(pt.glb(_))
+      case _        => named.`type`(None)
     }
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement,
                                    place: PsiElement): Boolean = {
     if (isStable) {
-      ScalaPsiUtil.processImportLastParent(processor, state, place, lastParent, `type`())
+      ScalaPsiUtil.processImportLastParent(processor, state, place, lastParent, `type`(None))
     } else true
   }
 

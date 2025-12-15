@@ -26,7 +26,7 @@ object ClassesSpecialSupport {
     val regularClassInfo = for {
       regularClass <- findReturnedClassIfConstructorCall(invocationInfo)
       classParamValues <- mapArgumentValuesToClassParameters(argumentValues, regularClass.parameters)
-      returnType = scTypeToDfType(regularClass.`type`().getOrAny)
+      returnType = scTypeToDfType(regularClass.`type`(None).getOrAny)
     } yield (classParamValues, MethodEffect(factory.fromDfType(returnType), isPure = false, handledSpecially = true))
 
     caseClassInfo.orElse(regularClassInfo)

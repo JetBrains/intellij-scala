@@ -12,7 +12,7 @@ class ScNamedConstructorArgPatternImpl(node: ASTNode) extends ScalaPsiElementImp
   override def nameId: PsiElement = nameElement.orNull
   override def nameElement: Option[PsiElement] = findFirstChildByType(ScalaTokenTypes.tIDENTIFIER)
 
-  override def `type`(): TypeResult = this.flatMap(subPattern)(_.`type`())
+  override def `type`(expectedType: Option[ScType]): TypeResult = this.flatMap(subPattern)(_.`type`(None))
 
   override protected def isIrrefutableForImpl(scrutineeType: ScType, deep: Boolean): Boolean =
     !deep || subPattern.forall(_.isIrrefutableFor(scrutineeType, deep))

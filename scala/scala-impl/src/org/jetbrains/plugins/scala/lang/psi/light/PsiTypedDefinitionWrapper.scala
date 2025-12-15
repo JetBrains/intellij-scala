@@ -107,7 +107,7 @@ object PsiTypedDefinitionWrapper {
     else
       typedDefinition match {
       case param: ScParameter => param.insideParamType.getOrElse(AnyRef)
-      case other              => other.`type`().getOrElse(AnyRef)
+      case other              => other.`type`(None).getOrElse(AnyRef)
     }
   }
 }

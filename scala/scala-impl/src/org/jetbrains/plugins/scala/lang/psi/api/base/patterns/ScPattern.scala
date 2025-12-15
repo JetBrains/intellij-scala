@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec
 
@@ -58,8 +59,8 @@ object ScPattern {
       pattern.getContext match {
         case list: ScPatternList =>
           list.getContext match {
-            case _var: ScVariable => _var.`type`().toOption
-            case _val: ScValue    => _val.`type`().toOption
+            case _var: ScVariable => _var.`type`(None).toOption
+            case _val: ScValue    => _val.`type`(None).toOption
           }
         case argList: ScPatternArgumentList =>
           argList.getContext match {
@@ -126,7 +127,7 @@ object ScPattern {
           namedTuplePattern.expectedType.flatMap(handleNamedTupleSubpatternExpectedType)
         case clause: ScCaseClause => clause.getContext /*clauses*/ .getContext match {
           case matchStat: ScMatch => matchStat.expression match {
-            case Some(e) => Some(e.`type`().getOrAny)
+            case Some(e) => Some(e.`type`(None).getOrAny)
             case _       => None
           }
           case b: ScBlockExpr if b.getContext.is[ScCatchBlock] =>
@@ -149,7 +150,7 @@ object ScPattern {
         }
         case named: ScNamingPattern           => named.expectedType
         case _: ScGenerator                   => pattern.analogInDesugaredForExpr.flatMap(_.expectedType)
-        case forBinding: ScForBinding         => forBinding.expr.flatMap(_.`type`().toOption)
+        case forBinding: ScForBinding         => forBinding.expr.flatMap(_.`type`(None).toOption)
         case sc3TypedPattern: Sc3TypedPattern =>
           for {
             typePattern  <- sc3TypedPattern.typePattern

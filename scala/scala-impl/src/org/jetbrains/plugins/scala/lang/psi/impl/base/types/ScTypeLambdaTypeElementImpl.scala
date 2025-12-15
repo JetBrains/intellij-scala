@@ -16,7 +16,7 @@ class ScTypeLambdaTypeElementImpl(node: ASTNode)
     resultType.map(ScTypePolymorphicType(_, typeParameters.map(TypeParameter(_)), isLambdaTypeElement = true))
 
   override def resultTypeElement: Option[ScTypeElement] = findChild[ScTypeElement]
-  override def resultType: TypeResult                   = this.flatMapType(resultTypeElement)
+  override def resultType: TypeResult                   = this.flatMapType(resultTypeElement, None)
 
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit =
     visitor.visitTypeLambdaTypeElement(this)

@@ -37,7 +37,7 @@ class ScalaAnnotatedMembersSearcher extends QueryExecutor[PsiMember, AnnotatedEl
 
       ScLightField(
         anchor.name,
-        anchor.`type`().getOrAny,
+        anchor.`type`(None).getOrAny,
         containingTypeDef,
         javaModifiers.toSeq: _*
       )

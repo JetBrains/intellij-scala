@@ -84,8 +84,8 @@ private case class ThisTypeSubstitution(target: ScType, @Nullable seenFromClass:
     extractAll(target) match {
       case Some(pat: ScBindingPattern) =>
         if (visited.contains(pat)) false
-        else isMoreNarrow(pat.`type`().getOrAny, thisTp, visited + pat)
-      case Some(param: ScParameter)    => isMoreNarrow(param.`type`().getOrAny, thisTp, visited)
+        else isMoreNarrow(pat.`type`(None).getOrAny, thisTp, visited + pat)
+      case Some(param: ScParameter)    => isMoreNarrow(param.`type`(None).getOrAny, thisTp, visited)
       case Some(typeParam: PsiTypeParameter) =>
         if (visited.contains(typeParam)) false
         else target match {
@@ -110,7 +110,7 @@ private case class ThisTypeSubstitution(target: ScType, @Nullable seenFromClass:
           }
       case Some(td: ScTypeAliasDeclaration) => isMoreNarrow(td.upperBound.getOrAny, thisTp, visited)
       case Some(cl: PsiClass)               => isSameOrInheritor(cl, thisTp)
-      case Some(named: ScTypedDefinition)   => isMoreNarrow(named.`type`().getOrAny, thisTp, visited)
+      case Some(named: ScTypedDefinition)   => isMoreNarrow(named.`type`(None).getOrAny, thisTp, visited)
       case Some(compound: ScCompoundType)   => hasSameOrInheritor(compound, thisTp)
       case _                                => false
     }

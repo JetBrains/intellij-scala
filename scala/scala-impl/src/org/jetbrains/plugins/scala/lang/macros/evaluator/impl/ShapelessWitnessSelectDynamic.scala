@@ -13,17 +13,17 @@ object ShapelessWitnessSelectDynamic extends ScalaMacroTypeable with ShapelessUt
   override val boundMacro: Seq[MacroImpl] = MacroImpl("selectDynamic", "shapeless.Witness") :: Nil
 
   override def checkMacro(macros: ScFunction, context: MacroContext): Option[ScType] =
-    backtickedLiteralIn(context.place)
+    backtickedLiteralIn(context.place, context.expectedType)
       .flatMap(typeCarrierType(_, macros))
 
-  private def backtickedLiteralIn(e: PsiElement): Option[String] = {
+  private def backtickedLiteralIn(e: PsiElement, pt: Option[ScType]): Option[String] = {
     val ref = e match {
       case r: ScStableCodeReference => r
       case _ => return None
     }
     ref.refName match {
       case ScalaNamesUtil.BacktickedName(literalText) =>
-        createExpressionWithContextFromText(literalText, ref.getContext, ref).getNonValueType() match {
+        createExpressionWithContextFromText(literalText, ref.getContext, ref).getNonValueType(pt) match {
           case Right(ScLiteralType(value, _)) => Some(value.presentation)
           case _ => None
         }
@@ -39,6 +39,6 @@ object ShapelessWitnessSelectDynamic extends ScalaMacroTypeable with ShapelessUt
                   |  type ->>[V] = Field[V]
                   |}""".stripMargin
     val typeCarrier = createObjectWithContext(text, insertionPlace.getContext, insertionPlace)
-    typeCarrier.`type`().toOption
+    typeCarrier.`type`(None).toOption
   }
 }

@@ -64,7 +64,7 @@ trait ScParameter extends ScTypedDefinition
    * In `def fun(p: into[Int]*)` outsideParamType returns `Seq[into[Int]]` for p
    */
   def outsideParamType: TypeResult =
-    `type`() match {
+    `type`(None) match {
       case Right(tp) if isRepeatedParameter => Right(tp.tryWrapIntoSeqType)
       case f                                => f
     }
@@ -78,7 +78,7 @@ trait ScParameter extends ScTypedDefinition
    * In `def fun(p: into[Int]*) = p` outsideParamType returns `Seq[Int]` for p
    */
   def insideParamType: TypeResult =
-    `type`().map(_.removeInto()) match {
+    `type`(None).map(_.removeInto()) match {
       case Right(tp) if isRepeatedParameter => Right(tp.tryWrapIntoSeqType)
       case f                                => f
     }

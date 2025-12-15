@@ -14,7 +14,7 @@ class ScCompositePatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) w
 
   override def toString: String = "CompositePattern"
 
-  override def `type`(): TypeResult = {
+  override def `type`(expectedType: Option[ScType]): TypeResult = {
     this.expectedType match {
       case Some(expected) => Right(expected)
       case _              => Failure(ScalaBundle.message("cannot.define.expected.type"))

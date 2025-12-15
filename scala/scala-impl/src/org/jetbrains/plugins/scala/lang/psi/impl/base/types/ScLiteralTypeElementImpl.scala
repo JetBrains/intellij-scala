@@ -10,7 +10,7 @@ final class ScLiteralTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
   with types.ScLiteralTypeElement {
 
   override protected def innerType: result.TypeResult =
-    getLiteral.getNonValueType().map {
+    getLiteral.getNonValueType(None).map {
       case literalType: ScLiteralType => literalType.blockWiden
       case resultType => resultType
     }

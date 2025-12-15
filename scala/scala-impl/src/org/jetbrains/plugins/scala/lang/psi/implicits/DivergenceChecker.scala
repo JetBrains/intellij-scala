@@ -108,7 +108,7 @@ object DivergenceChecker {
       case ParameterizedType(designator, _) => Set(designator)
       case tp@ScDesignatorType(_: ScObject) => Set(tp)
       case ScDesignatorType(v: ScTypedDefinition) =>
-        val valueType: ScType = v.`type`().getOrAny
+        val valueType: ScType = v.`type`(None).getOrAny
         topLevelTypeConstructors(valueType)
       case ScCompoundType(comps, _, _) => comps.flatMap(topLevelTypeConstructors).toSet
       case _ => Set(tp)
@@ -122,7 +122,7 @@ object DivergenceChecker {
       case ScExistentialType(quant, _)   => 1 + complexity(quant)
       case ScDesignatorType(_: ScObject) => 1
       case ScDesignatorType(v: ScTypedDefinition) =>
-        val valueType: ScType = v.`type`().getOrAny
+        val valueType: ScType = v.`type`(None).getOrAny
         1 + complexity(valueType)
       case ScCompoundType(comps, _, _) => comps.foldLeft(0)(_ + complexity(_))
       case _                           => 1

@@ -9,11 +9,14 @@ import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 
 object result {
   trait Typeable {
-    def `type`(): TypeResult
+    def `type`(expectedType: Option[ScType] = getExpectedType): TypeResult
+//    def `type`(expectedType: Option[ScType]): TypeResult
+
+    def getExpectedType: Option[ScType] = None
   }
 
   object Typeable {
-    def unapply(typeable: Typeable): Option[ScType] = typeable.`type`().toOption
+    def unapply(typeable: Typeable): Option[ScType] = typeable.`type`(None).toOption
   }
 
   import scala.util.{Either, Left, Right}
@@ -50,8 +53,8 @@ object result {
       maybeElement.map(function)
         .getOrElse(Failure(ScalaBundle.message("no.element.found")))
 
-    def flatMapType[E <: ScalaPsiElement with Typeable](maybeElement: Option[E]): TypeResult =
-      flatMap(maybeElement)(_.`type`())
+    def flatMapType[E <: ScalaPsiElement with Typeable](maybeElement: Option[E], expectedType: Option[ScType]): TypeResult =
+      flatMap(maybeElement)(_.`type`(expectedType))
 
     private implicit def context: ProjectContext = typeable
   }

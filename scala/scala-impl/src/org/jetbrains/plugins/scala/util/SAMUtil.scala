@@ -71,11 +71,11 @@ object SAMUtil {
     def selfTypeValid(tdef: ScTemplateDefinition): Boolean =
       tdef.selfType match {
         case Some(selfParam: ScParameterizedType) =>
-          tdef.`type`() match {
+          tdef.`type`(None) match {
             case Right(classParamTp: ScParameterizedType) => selfParam.designator.conforms(classParamTp.designator)
             case _                                        => false
           }
-        case Some(selfTp) => tdef.`type`().exists(selfTp.conforms(_))
+        case Some(selfTp) => tdef.`type`(None).exists(selfTp.conforms(_))
         case _            => true
       }
 

@@ -1244,7 +1244,7 @@ object ScalaPsiElementFactory {
         val asterisk = if (param.isRepeatedParameter) "*" else ""
 
         val name = param.name
-        val tpe = param.`type`().map(substitutor).getOrAny
+        val tpe = param.`type`(None).map(substitutor).getOrAny
 
         if (param.isAnonymous)
           s"$arrow${tpe.canonicalText}"
@@ -1301,7 +1301,7 @@ object ScalaPsiElementFactory {
     val colon = this.colon(name)
     val typeText =
       if (needsInferType)
-        substitutor(variable.`type`().getOrAny).canonicalText
+        substitutor(variable.`type`(None).getOrAny).canonicalText
       else ""
     s"$overrideText$modifiersText$keyword$name$colon$typeText${body.map(x => " = " + x).getOrElse("")}"
   }

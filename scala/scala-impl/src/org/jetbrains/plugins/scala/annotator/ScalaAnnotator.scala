@@ -299,7 +299,7 @@ class ScalaAnnotator extends Annotator
                                (implicit holder: ScalaAnnotationHolder): Unit = {
     implicit val context: Context = Context(toHighlight)
 
-    typeable.`type`() match {
+    typeable.`type`(None) match {
       case Right(tp) =>
         ScalaType.expandAliases(tp) match {
           case Right(newTp) => checkVariance(newTp, variance, toHighlight, checkParentOf)

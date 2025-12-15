@@ -39,21 +39,21 @@ object CreateFromUsageUtil {
       case ScParenthesisedExpr(inner) =>
         nameAndTypeForArg(inner)
       case lit: ScLiteral =>
-        val tp = lit.`type`().getOrAny.widenIfLiteral
+        val tp = lit.`type`(None).getOrAny.widenIfLiteral
         (nameByType(tp), tp)
       case ref: ScReferenceExpression =>
-        (ref.refName, ref.`type`().getOrAny)
+        (ref.refName, ref.`type`(None).getOrAny)
       case ScAssignment(ref: ScReferenceExpression, value) =>
         val name = ref.getText
         val tp   = value.map(nameAndTypeForArg).map(_._2).asTypeResult.getOrAny
         (name, tp)
       case expr: ScExpression =>
-        val tp = expr.`type`().getOrAny
+        val tp = expr.`type`(None).getOrAny
         (nameByType(tp), tp)
       case bp: ScBindingPattern if !bp.isWildcard =>
-        (bp.name, bp.`type`().getOrAny)
+        (bp.name, bp.`type`(None).getOrAny)
       case p: ScPattern =>
-        val tp: ScType = p.`type`().getOrAny
+        val tp: ScType = p.`type`(None).getOrAny
         (nameByType(tp), tp)
       case _ =>
         ("value", Any)
@@ -135,7 +135,7 @@ object CreateFromUsageUtil {
   }
 
   def unapplyMethodTypeText(pattern: ScPattern): String = {
-    val types = CreateFromUsageUtil.patternArgs(pattern).map(_.`type`().getOrAny)
+    val types = CreateFromUsageUtil.patternArgs(pattern).map(_.`type`(None).getOrAny)
     val typesText = types.map(_.canonicalText).mkString(", ")
     types.size match {
       case 0 => "Boolean"
@@ -152,7 +152,7 @@ object InstanceOfClass {
     elem match {
       case ScExpression.Type(TypeAsClass(psiClass)) => Some(psiClass)
       case ResolvesTo(typed: ScTypedDefinition) =>
-        typed.`type`().toOption match {
+        typed.`type`(None).toOption match {
           case Some(TypeAsClass(psiClass)) => Some(psiClass)
           case _ => None
         }

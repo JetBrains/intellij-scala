@@ -8,9 +8,9 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ContextFunctionType, FunctionType, Singleton}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ContextFunctionType, FunctionType, Nothing, Singleton}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType, api}
+import org.jetbrains.plugins.scala.lang.psi.types.{FunctionLikeType, ScLiteralType, ScType, api}
 
 class ScFunctionExprImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFunctionExpr {
 
@@ -59,9 +59,24 @@ class ScFunctionExprImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
     case tpe => tpe
   }
 
-  protected override def innerType: TypeResult = {
-    val paramTypes      = parameters.map(_.`type`().getOrNothing)
-    val maybeResultType = result.map(r => widenSingletonsInRetType(r.`type`().getOrAny))
+  protected override def innerType(expectedType: Option[ScType]): TypeResult = {
+    val actualExpectedType = expectedType.orElse(this.expectedType())
+    val functionLike       = FunctionLikeType(this)
+
+    lazy val defaultPt = (parameters.map(_ => Nothing), Any)
+
+    val (paramsPt, resPt) = actualExpectedType match {
+      case Some(functionLike(_, res, params)) if params.length == parameters.length => (params, res)
+      case _                                                                        => defaultPt
+    }
+
+    val paramTypes = parameters.zip(paramsPt).map { case (param, pt) =>
+      param.`type`(Option(pt)).getOrNothing
+    }
+
+    val maybeResultType = result.map(
+      r => widenSingletonsInRetType(r.`type`(Option(resPt)).getOrAny)
+    )
 
     val functionTypeFactory =
       if (isContext) ContextFunctionType

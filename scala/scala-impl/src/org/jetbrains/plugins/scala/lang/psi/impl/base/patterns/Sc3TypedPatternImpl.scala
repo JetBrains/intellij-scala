@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.base.patterns
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{Sc3TypedPattern, ScPattern, ScTypePattern}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementImpl
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
 final class Sc3TypedPatternImpl(node: ASTNode)
@@ -14,10 +15,10 @@ final class Sc3TypedPatternImpl(node: ASTNode)
   override def pattern: ScPattern                 = findChild[ScPattern].get
   override def typePattern: Option[ScTypePattern] = findChild[ScTypePattern]
 
-  override def `type`(): TypeResult = {
+  override def `type`(expectedType: Option[ScType]): TypeResult = {
     for {
-      innerPatternType <- pattern.`type`()
-      typeElementType  <- this.flatMapType(typePattern.map(_.typeElement))
+      innerPatternType <- pattern.`type`(None)
+      typeElementType  <- this.flatMapType(typePattern.map(_.typeElement), None)
     } yield innerPatternType.glb(typeElementType)
   }
 

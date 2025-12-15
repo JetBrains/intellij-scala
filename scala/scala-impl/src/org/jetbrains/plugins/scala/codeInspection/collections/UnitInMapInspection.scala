@@ -25,7 +25,7 @@ final class UnitInMapInspection extends OperationOnCollectionInspection {
 
       for {
         expression <- body.calculateTailReturns
-        argumentType = arg.`type`().getOrAny
+        argumentType = arg.`type`(None).getOrAny
 
         quickFixes = if (isFixable(call)) Seq(new ChangeReferenceNameQuickFix(ref))
         else Seq.empty
@@ -67,7 +67,7 @@ object UnitInMapInspection {
 
     expression.getTextLength > 0 &&
       expression.isPhysical &&
-      expression.`type`().exists {
+      expression.`type`(None).exists {
         case scType@api.FunctionType(returnType, _) =>
           isUnitLike(returnType) &&
             argumentType.equiv(scType)

@@ -185,7 +185,7 @@ object ScImportOrExportImpl {
               .getInstance(project)
               //NOTE: note sure whether we need to take resolveScope from importsStmt and can't take it from importExpr
               .findPackageObjectByName(p.getQualifiedName, importOrExportStmt.resolveScope)
-              .flatMap(_.`type`().toOption)
+              .flatMap(_.`type`(None).toOption)
         case _ => ScSimpleTypeElementImpl.calculateReferenceType(qualifier).toOption
       }
 
@@ -242,7 +242,7 @@ object ScImportOrExportImpl {
                   return true
                 }
 
-                val adjustedElementType = implicitElement.`type`().map(state.substitutor)
+                val adjustedElementType = implicitElement.`type`(None).map(state.substitutor)
                 givenImports.conformingGivenSelector(adjustedElementType) match {
                   case Some(conformingGivenSelector) =>
                     val additionalImportsUsed = new ImportSelectorUsed(conformingGivenSelector)

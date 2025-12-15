@@ -168,7 +168,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     val annotations = v.annotations.map(a => "\n" + indent + "  " + textOf(a)).mkString
     val modifiers = textOf(v.getModifierList)
     val keyword = if (v.isInstanceOf[ScValue]) "val " else "var "
-    val symbolType = symbol.`type`()
+    val symbolType = symbol.`type`(None)
     val isConstant = (v.hasModifierPropertyScala("final") || v.hasModifierPropertyScala("inline")) && !v.hasExplicitType && !v.isAbstract && symbolType.exists(canBeTypeOfConstant)
     val name = symbol.name
     val tpe = if (isConstant) "" else (spaceAfter(name) + ": " + textOf(symbolType))
@@ -234,7 +234,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
       else ""
     val name = p.name
     val byName = if (p.isCallByNameParameter) "=> " else ""
-    val tpe = textOf(p.`type`())
+    val tpe = textOf(p.`type`(None))
     val isAnonymous = p.isAnonymous
     val repeated = if (p.isRepeatedParameter) "*" else ""
     val default = if (p.baseDefaultParam) " = ???" else ""

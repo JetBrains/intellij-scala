@@ -42,7 +42,7 @@ class ExpandedExtractorResolveProcessor(
           val parentImports = state.importsUsed
           val typez = state.fromType match {
             case Some(tp) => ScProjectionType(tp, bind)
-            case _        => bind.`type`().getOrAny
+            case _        => bind.`type`(None).getOrAny
           }
 
           var seq    = false

@@ -335,7 +335,7 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
         patternType(parenth.innerElement.orNull)
       case null => None
       case _: ScReferencePattern | _: ScWildcardPattern => Some(Any) //these only have expected type
-      case _ => pattern.`type`().toOption
+      case _ => pattern.`type`(None).toOption
     }
   }
 }

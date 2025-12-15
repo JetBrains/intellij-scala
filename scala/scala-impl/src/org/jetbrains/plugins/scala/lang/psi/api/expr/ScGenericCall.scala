@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.api.expr
 
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeArgs, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
@@ -19,7 +20,7 @@ trait ScGenericCall extends ScExpression {
 
   def shapeMultiResolve: Option[Array[ScalaResolveResult]]
 
-  def multiType: Array[TypeResult]
+  def multiType(expectedType: Option[ScType]): Array[TypeResult]
 
   def multiResolve: Option[Array[ScalaResolveResult]]
 

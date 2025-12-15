@@ -20,7 +20,7 @@ trait ScParameterClause extends ScalaPsiElement {
   //hack: no ClassParamList present at the moment
   def unsafeClassParameters: Seq[ScClassParameter] = effectiveParameters.asInstanceOf[Seq[ScClassParameter]]
 
-  def paramTypes: Seq[ScType] = parameters.map(_.`type`().getOrAny)
+  def paramTypes: Seq[ScType] = parameters.map(_.`type`(None).getOrAny)
 
   /**
    * Whether the parameters of this clause take contextual arguments and provide contextual values.

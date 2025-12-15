@@ -22,7 +22,7 @@ case class ScalaDfaVariableDescriptor(variable: PsiElement,
   }
 
   override def getDfType(qualifier: DfaVariableValue): DfType = variable match {
-    case typeable: Typeable => scTypeToDfType(typeable.`type`().getOrAny)
+    case typeable: Typeable => scTypeToDfType(typeable.`type`(None).getOrAny)
     case _ => DfType.TOP
   }
 }

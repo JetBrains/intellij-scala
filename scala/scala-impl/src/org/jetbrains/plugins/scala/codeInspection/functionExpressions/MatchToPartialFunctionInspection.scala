@@ -49,7 +49,7 @@ object MatchToPartialFunctionInspection {
     implicit val context: Context = Context(function)
 
     (function.parameters.head.typeElement.isEmpty ||
-      function.`type`().toOption.zip(function.expectedType()).exists {
+      function.`type`(None).toOption.zip(function.expectedType()).exists {
         case (actual, expected) => actual.equiv(expected)
       }) && checkSameResolve(function)
   }

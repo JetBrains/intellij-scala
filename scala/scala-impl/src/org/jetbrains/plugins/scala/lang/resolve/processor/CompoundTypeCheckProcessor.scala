@@ -134,9 +134,9 @@ class CompoundTypeCheckSignatureProcessor(s: TermSignature,
     namedElement match {
       case _: ScBindingPattern | _: ScFieldId | _: ScParameter =>
         val rt = subst(namedElement match {
-          case b: ScBindingPattern => b.`type`().getOrNothing
-          case f: ScFieldId => f.`type`().getOrNothing
-          case param: ScParameter => param.`type`().getOrNothing
+          case b: ScBindingPattern => b.`type`(None).getOrNothing
+          case f: ScFieldId => f.`type`(None).getOrNothing
+          case param: ScParameter => param.`type`(None).getOrNothing
         })
         val dcl: ScTypedDefinition = namedElement.asInstanceOf[ScTypedDefinition]
         val isVar = dcl.isVar

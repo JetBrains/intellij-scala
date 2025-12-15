@@ -227,7 +227,7 @@ final class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
           if (infix.left == ref && infix.isRightAssoc || infix.right == ref && infix.isLeftAssoc) {
             val expr = if (infix.isRightAssoc) infix.right else infix.left
             // e.g. `foo == bar` -> ref.expectedTypes() == Seq(Any), expr.`type`() == (foo/bar).type
-            val expectedTypes = ref.expectedTypes() ++ expr.`type`().toSeq.map(_.widen)
+            val expectedTypes = ref.expectedTypes() ++ expr.`type`(None).toSeq.map(_.widen)
             acceptTypes(expectedTypes.distinct, ref)
           }
         }
@@ -407,7 +407,7 @@ object ScalaSmartCompletionContributor {
           def checkTyped(typed: PsiNamedElement with Typeable): Unit = {
             if (!PsiTreeUtil.isContextAncestor(typed.nameContext, place, false) &&
               (originalPlace == null || !PsiTreeUtil.isContextAncestor(typed.nameContext, originalPlace, false)))
-              for (tt <- typed.`type`()) checkType(tt, ScSubstitutor.empty, checkForSecondCompletion)
+              for (tt <- typed.`type`(None)) checkType(tt, ScSubstitutor.empty, checkForSecondCompletion)
           }
 
           scalaLookupItem.getPsiElement match {
@@ -430,7 +430,7 @@ object ScalaSmartCompletionContributor {
                 case _ => false
               }
               if (!added) {
-                fun.`type`() match {
+                fun.`type`(None) match {
                   case Right(tp) => checkType(tp, infer, second, etaExpanded = true)
                   case _ =>
                 }
@@ -514,7 +514,7 @@ object ScalaSmartCompletionContributor {
                   val valueType = tp.extractDesignatorSingleton.getOrElse(tp)
                   valueType match {
                     case ScProjectionType(DesignatorOwner(enumeration@ScalaEnumeration(vals)), _) if isAccessible(enumeration) =>
-                      val applicableVals = vals.filter(v => isAccessible(v) && v.`type`().exists(_.conforms(valueType)))
+                      val applicableVals = vals.filter(v => isAccessible(v) && v.`type`(None).exists(_.conforms(valueType)))
                       val fields = applicableVals.flatMap(_.declaredElements)
                       val fieldsFiltered = fields.filterNot(isAccessibleWithoutExtraImports(_))
                       fieldsFiltered.foreach(field => applyVariant(createLookupElementWithPrefix(field, enumeration)))

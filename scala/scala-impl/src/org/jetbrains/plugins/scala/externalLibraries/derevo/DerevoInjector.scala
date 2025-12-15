@@ -156,7 +156,7 @@ class DerevoInjector extends SyntheticMembersInjector {
         m.firstChild
           .collect { case s: ScReferenceExpression => s }
           .toList
-          .flatMap(extractTypeclassTpeFromExpr(_, m.`type`().toOption))
+          .flatMap(extractTypeclassTpeFromExpr(_, m.`type`(None).toOption))
       case _ => None
     }
 

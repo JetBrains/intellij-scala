@@ -1617,7 +1617,7 @@ object ScalaPsiUtil {
     if (bindings.size == 1 && expr.contains(instance)) Option(bindings.head)
     else {
       for (bind <- bindings) {
-        if (bind.`type`().toOption == instance.`type`().toOption) return Option(bind)
+        if (bind.`type`(None).toOption == instance.`type`(None).toOption) return Option(bind)
       }
       None
     }

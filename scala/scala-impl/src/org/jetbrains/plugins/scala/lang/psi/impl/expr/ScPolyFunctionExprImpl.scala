@@ -57,11 +57,11 @@ class ScPolyFunctionExprImpl(node: ASTNode)
       }
     )
 
-  private val cachedDesugaredType: () => Option[ScType] =
+  private val cachedDesugaredType: Option[ScType] => Option[ScType] =
     cached(
       "ScPolyFunctionExpr#cachedDesugaredType",
       ModTracker.anyScalaPsiChange,
-      () => {
+      (expectedType: Option[ScType]) => {
         implicit val tpc: TypePresentationContext = this
 
         val typeParamsText = typeParametersClause.fold("") { tParamClause =>
@@ -78,7 +78,7 @@ class ScPolyFunctionExprImpl(node: ASTNode)
           case Some(InnermostElement(fn: ScFunctionExpr)) =>
             val text = fn.parameters.map { p =>
               val typeText = {
-                val text = p.`type`().getOrAny.presentableText
+                val text = p.`type`(None/*TODO*/).getOrAny.presentableText
                 if (text == "_") "_$0"
                 else             text
               }
@@ -87,7 +87,7 @@ class ScPolyFunctionExprImpl(node: ASTNode)
             }.mkString("(", ", ", ")")
 
             text ->
-              this.flatMapType(fn.result).getOrAny.presentableText(this, Context.Empty)
+              this.flatMapType(fn.result, None /*TODO*/).getOrAny.presentableText(this, Context.Empty)
           case _ => "()" -> "scala.Any"
         }
 
@@ -101,8 +101,8 @@ class ScPolyFunctionExprImpl(node: ASTNode)
       }
     )
 
-  protected override def innerType: TypeResult =
-    cachedDesugaredType().asTypeResult
+  protected override def innerType(expectedType: Option[ScType]): TypeResult =
+    cachedDesugaredType(expectedType).asTypeResult
 
   override def controlFlowScope: Option[ScalaPsiElement] = result
 

@@ -157,7 +157,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
       return null //no resolve during dumb mode or while synthetic classes is not registered
     }
     cachedInUserData("getReturnType", this, BlockModificationTracker(this)) {
-      val resultType = `type`().getOrAny match {
+      val resultType = `type`(None).getOrAny match {
         case FunctionType(rt, _) => rt
         case tp => tp
       }
@@ -362,7 +362,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
       annotations("scala.throws").headOption match {
         case Some(annotation) =>
           annotation.constructorInvocation.args.map(_.exprs).getOrElse(Seq.empty).flatMap {
-            _.`type`() match {
+            _.`type`(None) match {
               case Right(ParameterizedType(des, Seq(arg))) => des.extractClass match {
                 case Some(clazz) if clazz.qualifiedName == "java.lang.Class" =>
                   arg.toPsiType match {
@@ -379,7 +379,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     }
   }
 
-  override def `type`(): TypeResult = {
+  override def `type`(expectedType: Option[ScType]): TypeResult = {
     this.returnType match {
       case Right(tp) =>
         var res: TypeResult = Right(tp)
@@ -389,7 +389,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
           res match {
             case Right(t) =>
               val parameters = paramClauses.apply(i).effectiveParameters
-              val paramTypes = parameters.map(_.`type`().getOrNothing)
+              val paramTypes = parameters.map(_.`type`(None).getOrNothing)
               res = Right(FunctionType(t, paramTypes))
             case _ =>
           }
@@ -439,7 +439,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
       if (isStrictCheck) {
         // Compare parameter types "as written" to avoid resolving references and inferring types.in library sources
         parameters.length == f.parameters.length && parameters.zip(f.parameters).forall { case (paramFromStub, paramFromSource) =>
-          val typeTextFromStub = paramFromStub.`type`().toOption.map(_.presentableText(paramFromStub, Context(paramFromStub))).mkString
+          val typeTextFromStub = paramFromStub.`type`(None).toOption.map(_.presentableText(paramFromStub, Context(paramFromStub))).mkString
           val typeTextFromSource = paramFromSource.typeElement.map(ParenthesizedElement.getInnermostNonParen).map(_.getText).mkString
           typeTextFromStub == typeTextFromSource
         }

@@ -58,7 +58,7 @@ class ScGivenDefinitionImpl(
     typeElements
       .headOption
       .map(_.`type`())
-      .getOrElse(`type`())
+      .getOrElse(`type`(None))
 
   override protected def nameInner: String =
     nameElement

@@ -57,7 +57,7 @@ class TypeAnnotationRenderer(
 
       case givenDef: ScGivenDefinition => givenDef.givenType()
       case fun: ScFunction             => fun.returnType
-      case _                           => typed.`type`()
+      case _                           => typed.`type`(None)
     }
 
   private def decoratedParameterType(buffer: StringBuilder, param: ScParameter, typeText: String): Unit = {

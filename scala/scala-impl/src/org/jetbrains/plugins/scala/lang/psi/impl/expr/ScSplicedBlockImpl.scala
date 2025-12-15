@@ -5,6 +5,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.ToNullSafe
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScSplicedBlock
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
 class ScSplicedBlockImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScSplicedBlock {
   override protected val typeName: String = "Spliced Block"
@@ -20,4 +21,6 @@ class ScSplicedBlockImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
   override def isEnclosedByBraces: Boolean = true
 
   override def isEnclosedByColon: Boolean = false
+
+  override protected def innerType: TypeResult = innerType(None) //TODO
 }

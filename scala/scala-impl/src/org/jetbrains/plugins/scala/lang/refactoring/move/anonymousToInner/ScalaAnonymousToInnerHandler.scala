@@ -119,7 +119,7 @@ object ScalaAnonymousToInnerHandler {
       .filter(!anonClass.isAncestorOf(_))
       .distinct
     definitions
-      .map(d => new ScalaVariableData(d, true, d.`type`().getOrNothing))
+      .map(d => new ScalaVariableData(d, true, d.`type`(None).getOrNothing))
   }
 
   private case class DialogResult(className: String, variables: Seq[ScalaVariableData])

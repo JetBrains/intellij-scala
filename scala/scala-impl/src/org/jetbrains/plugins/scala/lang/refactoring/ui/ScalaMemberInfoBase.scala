@@ -75,7 +75,7 @@ object ScalaMemberInfoBase {
     implicit val context: Context = Context(elem)
 
     val typeText = elem match {
-      case typed: Typeable => ": " + typed.`type`().getOrAny.presentableText
+      case typed: Typeable => ": " + typed.`type`(None).getOrAny.presentableText
       case _ => ""
     }
     val keyword = elem.nameContext match {

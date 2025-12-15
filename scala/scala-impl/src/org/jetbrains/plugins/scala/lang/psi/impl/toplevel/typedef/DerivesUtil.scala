@@ -190,7 +190,7 @@ object DerivesUtil {
       isShapeResolve = false,
     )
 
-    val companionType = companion.`type`().getOrAny
+    val companionType = companion.`type`(None).getOrAny
 
     processor.processType(companionType, place, ScalaResolveState.empty)
     val candidatesWithoutImplicits = processor.candidatesS

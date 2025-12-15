@@ -86,7 +86,7 @@ class DuplicateMatch(pattern: DuplicatePattern, val candidates: Seq[PsiElement])
   private def typesEquiv(expr1: ScExpression, expr2: ScExpression) = {
     implicit val context: Context = Context(expr1)
 
-    (expr1.`type`(), expr2.`type`()) match {
+    (expr1.`type`(None), expr2.`type`(None)) match {
       case (Right(t1), Right(t2)) =>
         def extractFromSingletonType(t: ScType) = t match {
           case designatorOwner: DesignatorOwner if designatorOwner.isSingleton =>

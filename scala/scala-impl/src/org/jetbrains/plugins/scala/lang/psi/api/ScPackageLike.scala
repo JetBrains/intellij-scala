@@ -156,7 +156,7 @@ object ScPackageLike {
     place:      PsiElement
   ): Boolean = {
     val newState = `object`
-      .`type`()
+      .`type`(None)
       .fold(
         Function.const(state),
         state.withFromType

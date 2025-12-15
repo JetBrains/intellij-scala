@@ -29,14 +29,14 @@ class ScalaRedundantConversionInspection extends LocalInspectionTool {
     target match {
       case f: ScSyntheticFunction if f.name.startsWith("to") =>
         for {
-          leftType <- left.`type`().toOption
+          leftType <- left.`type`(None).toOption
           conversionType = f.retType if leftType.widen.equiv(conversionType)
         } registerProblem(element, left, conversionType.presentableText, offset, holder)
       case f: PsiMethod if f.name == "toString" &&
               f.getParameterList.getParametersCount == 0 &&
               (f.getTypeParameterList == null || f.getTypeParameterList.getTypeParameters.isEmpty) =>
         for {
-          leftType <- left.`type`().toOption
+          leftType <- left.`type`(None).toOption
           if conformsToTypeFromClass(leftType, "java.lang.String")(element, context)
         } registerProblem(element, left, "java.lang.String", offset, holder)
       case _ =>

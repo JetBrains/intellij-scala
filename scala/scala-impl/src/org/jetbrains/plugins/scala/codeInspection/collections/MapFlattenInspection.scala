@@ -31,8 +31,8 @@ object MapFlatten extends SimplificationType {
     implicit val context: Context = Context(expr)
 
     val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(text, expr.getContext, expr)
-    expr.`type`().exists { oldType =>
-      newExpr.`type`().exists { newType =>
+    expr.`type`(None).exists { oldType =>
+      newExpr.`type`(None).exists { newType =>
         oldType.equiv(newType)
       }
     }

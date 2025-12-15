@@ -28,9 +28,10 @@ class ScNamedTuplePatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
 
   override def subpatterns: Seq[ScPattern] = components.flatMap(_.subPattern)
 
-  override def `type`(): TypeResult = {
+  override def `type`(expectedType: Option[ScType]): TypeResult = {
+
     def transformComponent(comp: ScNamedTuplePatternComponent): (ScType, ScType) = {
-      val exprType = comp.flatMap(comp.subPattern)(_.`type`()).getOrNothing
+      val exprType = comp.flatMap(comp.subPattern)(_.`type`(None)).getOrNothing
       (comp.nameLiteralType.getOrNothing, exprType)
     }
 

@@ -51,7 +51,7 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
     setImplicitArguments(desugaredApply.toSeq.flatMap(_.findImplicitArguments))
   }
 
-  protected override def innerType: TypeResult = {
+  protected override def innerType(expectedType: Option[ScType]): TypeResult = {
     def filterTypeSignatures(aliases: Seq[ScTypeAlias]): Map[String, TypeAliasSignature] =
       aliases.flatMap { alias =>
         val sig = TypeAliasSignature(alias)
@@ -96,7 +96,7 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
     }
 
     desugaredApply match {
-      case Some(expr) => return expr.getNonValueType()
+      case Some(expr) => return expr.getNonValueType(expectedType)
       case _          =>
     }
 
@@ -200,7 +200,7 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
 
   override def getImplementsListTypes: Array[PsiClassType] = innerExtendsListTypes
 
-  override def getTypeWithProjections(thisProjections: Boolean = false): TypeResult = `type`() //no projections for new template definition
+  override def getTypeWithProjections(thisProjections: Boolean = false): TypeResult = `type`(None) //no projections for new template definition
 
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitNewTemplateDefinition(this)

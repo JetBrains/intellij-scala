@@ -80,7 +80,7 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
   }
 
   override def underscoreSectionWithoutType(underscore: ScUnderscoreSection): Boolean = {
-    addTypeAnnotation(underscore.`type`().toOption, underscore.getParent, underscore)
+    addTypeAnnotation(underscore.`type`(None).toOption, underscore.getParent, underscore)
     true
   }
 
@@ -159,7 +159,7 @@ object AddOnlyStrategy {
 
     val tps = types.flatMap(_.typeWithSuperTypes)
     tps.headOption.map { typeElement =>
-      val validVariants = tps.reverse.flatMap(_.`type`().toOption).map(ScTypeText(_))
+      val validVariants = tps.reverse.flatMap(_.`type`(None).toOption).map(ScTypeText(_))
       TypeAnnotationWithVariants(typeElement, validVariants)
     }
   }
@@ -177,7 +177,7 @@ object AddOnlyStrategy {
           implicit val ctx: Project = m.getProject
           Option(m.getReturnType).map(psiType => substitutor(psiType.toScType()))
         case t: ScTypedDefinition =>
-          t.`type`().toOption.map(substitutor)
+          t.`type`(None).toOption.map(substitutor)
         case _ => None
       }
     }
@@ -211,9 +211,9 @@ object AddOnlyStrategy {
         case function: ScFunctionDefinition =>
           function.returnType.toOption
         case value: ScPatternDefinition =>
-          value.`type`().toOption
+          value.`type`(None).toOption
         case variable: ScVariableDefinition =>
-          variable.`type`().toOption
+          variable.`type`(None).toOption
         case _ =>
           None
       }

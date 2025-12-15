@@ -49,7 +49,7 @@ object GlobalMemberOwner {
   private def typedDefSubstitutor(td: ScTypedDefinition, member: ScMember): ScSubstitutor = {
     val maybeSubstitutor =
       for {
-        valType        <- td.`type`().toOption
+        valType        <- td.`type`(None).toOption
         (clazz, subst) <- valType.extractClassType
       } yield MixinNodes.asSeenFromSubstitutor(clazz, member.containingClass).followed(subst)
 

@@ -42,7 +42,7 @@ object DynamicResolveProcessor {
       implicit val context: Context = Context(expression)
 
       expression.qualifier
-        .flatMap(_.getNonValueType().toOption)
+        .flatMap(_.getNonValueType(None).toOption)
         .exists(conformsToDynamic(_, expression.getResolveScope))
     }
   }

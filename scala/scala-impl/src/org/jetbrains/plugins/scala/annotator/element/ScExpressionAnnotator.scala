@@ -58,7 +58,7 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
         case Parent(_: ScTypedExpression) | Parent((_: ScParenthesisedExpr) & Parent(_: ScTypedExpression)) => ()
         // Highlight if-then with non-Unit expected type as incomplete rather than type mismatch, SCL-19447
         case it: ScIf if it.thenExpression.nonEmpty && it.elseExpression.isEmpty &&
-          typeAware && it.expectedType().exists(et => it.`type`().exists(!_.conforms(et))) =>
+          typeAware && it.expectedType().exists(et => it.`type`(None).exists(!_.conforms(et))) =>
           val offset = it.getTextOffset + it.getTextLength
 
           val builder =
@@ -72,7 +72,7 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
 
         // Highlight empty case clauses with non-Unit expected type as incomplete rather than type mismatch, SCL-19447
         case block: ScBlock if block.getParent.is[ScCaseClause] && block.exprs.isEmpty &&
-          typeAware && block.expectedType().exists(et => block.`type`().exists(!_.conforms(et))) =>
+          typeAware && block.expectedType().exists(et => block.`type`(None).exists(!_.conforms(et))) =>
 
           val builder =
             holder.newAnnotation(HighlightSeverity.ERROR, ScalaBundle.message("expression.expected"))
@@ -90,14 +90,32 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
   // TODO Can `type` do this automatically?
   def adjusted(tpe: ScType, expected: Option[ScType]): ScType = if (expected.exists(_.is[ScLiteralType])) tpe else tpe.widenIfLiteral
 
-  def isAggregate(e: ScExpression): Boolean = {
+  private def isAggregate(e: ScExpression): Boolean = {
     implicit val context: Context = Context(e)
 
     e match {
       case ScIf(_, thenExpr, elseExpr) =>
-        thenExpr.exists(_.`type`().exists(thenType => elseExpr.exists(_.`type`().exists(elseType => adjusted(thenType, e.expectedType()).equiv(adjusted(elseType, e.expectedType()))))))
+        thenExpr.exists(expr =>
+          expr.`type`(None).exists(thenType =>
+            elseExpr.exists(elseE =>
+              elseE.`type`(None).exists(elseType =>
+                adjusted(thenType, e.expectedType()).equiv(adjusted(elseType, e.expectedType()))
+              )
+            )
+          )
+        )
       case ScMatch(_, Seq(firstCase, otherCases @ _*)) if otherCases.nonEmpty && firstCase.resultExpr.isDefined && otherCases.forall(_.resultExpr.isDefined)=>
-        firstCase.expr.exists(_.`type`().exists(t0 => otherCases.forall(_.expr.exists(_.`type`().exists(tn => adjusted(t0, e.expectedType()).equiv(adjusted(tn, e.expectedType())))))))
+        firstCase.expr.exists(firstExpr =>
+          firstExpr.`type`(None).exists(
+            t0 => otherCases.forall(cse =>
+              cse.expr.exists(otherExpr =>
+                otherExpr.`type`(None).exists(tn =>
+                  adjusted(t0, e.expectedType()).equiv(adjusted(tn, e.expectedType()))
+                )
+              )
+            )
+          )
+        )
       case _ => false
     }
   }
@@ -249,7 +267,7 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
                   case Right(t: DesignatorOwner) if t.isSingleton =>
                     t.element.asOptionOf[ScTypeDefinition].flatMap(_.methodsByName("apply").nextOption()).map(_.method) match {
                       case Some(method: ScFunctionDefinition) =>
-                        val missingParameters = method.parameters.map(p => p.getName + ": " + p.`type`().getOrNothing.presentableText).mkString(", ")
+                        val missingParameters = method.parameters.map(p => p.getName + ": " + p.`type`(None).getOrNothing.presentableText).mkString(", ")
                         holder.createErrorAnnotation(target, ScalaBundle.message("annotator.error.unspecified.value.parameters", missingParameters))
                         return
                       case None => () // The type has no apply method

@@ -41,7 +41,7 @@ class ScReferencePatternImpl private(stub: ScBindingPatternStub[ScReferencePatte
 
   override def toString: String = "ReferencePattern: " + ifReadAllowed(name)("")
 
-  override def `type`(): TypeResult =
+  override def `type`(expectedType: Option[ScType]): TypeResult =
     this.expectedType match {
       case Some(x) => Right(x)
       case _       => Failure(ScalaBundle.message("cannot.define.expected.type"))
@@ -65,7 +65,7 @@ class ScReferencePatternImpl private(stub: ScBindingPatternStub[ScReferencePatte
     ScReferencePatternImpl.getNavigationElementForValOrVarId(this).getOrElse(this)
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement, place: PsiElement): Boolean = {
-    ScalaPsiUtil.processImportLastParent(processor, state, place, lastParent, `type`())
+    ScalaPsiUtil.processImportLastParent(processor, state, place, lastParent, `type`(None))
   }
 
   override def delete(): Unit = {

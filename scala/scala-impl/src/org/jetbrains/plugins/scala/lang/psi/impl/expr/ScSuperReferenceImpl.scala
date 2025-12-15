@@ -153,7 +153,7 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScExpressionImplBase(node) wit
     case None => ResolveUtils.enclosingTypeDef(this).map(_.extendsBlock.superTypes)
   }
 
-  protected override def innerType: TypeResult = Failure(ScalaBundle.message("cannot.infer.type.of.super.expression"))
+  protected override def innerType(expectedType: Option[ScType]): TypeResult = Failure(ScalaBundle.message("cannot.infer.type.of.super.expression"))
 
   override def toString = "SuperReference"
 }

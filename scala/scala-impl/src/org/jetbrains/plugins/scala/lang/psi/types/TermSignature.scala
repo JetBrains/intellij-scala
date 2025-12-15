@@ -307,7 +307,7 @@ object TermSignature {
     exportedInfo: Option[ExportedSigInfo] = None
   ): TermSignature = TermSignature(
     name,
-    Seq(() => definition.`type`().getOrAny),
+    Seq(() => definition.`type`(None).getOrAny),
     subst,
     definition,
     renamed,
@@ -390,7 +390,7 @@ object PhysicalMethodSignature {
   }
 
   private def scalaParamType(p: ScParameter): ScType = {
-    val typeElementType = p.`type`().getOrAny
+    val typeElementType = p.`type`(None).getOrAny
     implicit val scope: ElementScope = p.elementScope
 
     if (p.isRepeatedParameter)        typeElementType.tryWrapIntoSeqType

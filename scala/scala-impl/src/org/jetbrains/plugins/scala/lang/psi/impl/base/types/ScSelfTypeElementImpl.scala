@@ -27,19 +27,19 @@ class ScSelfTypeElementImpl private(stub: ScSelfTypeElementStub, node: ASTNode)
 
   override def nameId: PsiElement = findChildByType[PsiElement](TokenSets.SELF_TYPE_ID)
 
-  override def `type`(): TypeResult = {
+  override def `type`(expectedType: Option[ScType]): TypeResult = {
     val parent = PsiTreeUtil.getParentOfType(this, classOf[ScTemplateDefinition])
     assert(parent != null)
 
     typeElement match {
       case Some(ste) =>
         for {
-          templateType <- parent.`type`()
-          selfType     <- ste.`type`()
+          templateType <- parent.`type`(None)
+          selfType     <- ste.`type`(None)
         } yield
           if (this.isInScala3File) ScAndType(templateType, selfType)
           else                     ScCompoundType(Seq(templateType, selfType))
-      case None => parent.`type`()
+      case None => parent.`type`(None)
     }
   }
 

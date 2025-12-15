@@ -38,8 +38,8 @@ object NameSuggester {
     }
 
   private def collectTypes(expression: ScExpression): Seq[ScType] = {
-    val types = expression.`type`().toOption ++
-      expression.getTypeWithoutImplicits().toOption ++
+    val types = expression.`type`(None).toOption ++
+      expression.getTypeWithoutImplicits(None).toOption ++
       expression.getTypeIgnoreBaseType.toOption
 
     types.toSeq.sortWith {
@@ -137,7 +137,7 @@ object NameSuggester {
     val maybeName = typed.asOptionOf[ScGivenAliasDeclaration]
       .map(decl => ScalaPsiUtil.generateGivenName(decl.typeElement.toSeq: _*))
 
-    maybeName.toSeq ++ namesByTypes(typed.`type`().toSeq)
+    maybeName.toSeq ++ namesByTypes(typed.`type`(None).toSeq)
   }
 
   private def namesByExpression(expression: ScExpression): Seq[String] =

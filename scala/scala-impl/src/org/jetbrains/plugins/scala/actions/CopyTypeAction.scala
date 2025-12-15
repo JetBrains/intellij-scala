@@ -77,9 +77,9 @@ final class CopyTypeAction extends AnAction(ScalaBundle.message("copy.scala.type
   private def getElementTypePresentation(element: ScalaPsiElement with Typeable): Option[String] = {
     val typeResult = element match {
       case expr: ScExpression =>
-        expr.getTypeWithoutImplicits(ignoreBaseType = true)
+        expr.getTypeWithoutImplicits(None, ignoreBaseType = true)
       case _ =>
-        element.`type`()
+        element.`type`(None)
     }
     typeResult.toOption.map { typ =>
       implicit val tpc: TypePresentationContext = TypePresentationContext(element)

@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.statements
 import com.intellij.lang.ASTNode
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ifReadAllowed}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScBegin
@@ -16,7 +16,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.impl.canNotBeOverridden
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScPropertyStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScPropertyElementType
-import org.jetbrains.plugins.scala.lang.psi.types.ScLiteralType
+import org.jetbrains.plugins.scala.lang.psi.types.api.Any
+import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 import scala.annotation.nowarn
@@ -34,9 +35,9 @@ final class ScVariableDefinitionImpl private[psi] (
 
   override def isSimple: Boolean = pList.simplePatterns && bindings.size == 1
 
-  override def `type`(): TypeResult = typeElement match {
+  override def `type`(expectedType: Option[ScType]): TypeResult = typeElement match {
     case Some(te) => te.`type`()
-    case None => expr.map(_.`type`().map(ScLiteralType.widenRecursive)).
+    case None => expr.map(_.`type`(Any.toOption).map(ScLiteralType.widenRecursive)).
       getOrElse(Failure(ScalaBundle.message("cannot.infer.type.without.an.expression")))
   }
 

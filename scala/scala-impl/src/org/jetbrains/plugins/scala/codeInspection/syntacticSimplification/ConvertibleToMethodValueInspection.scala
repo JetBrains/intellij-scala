@@ -129,11 +129,11 @@ class ConvertibleToMethodValueInspection extends LocalInspectionTool {
     val newExpr = createExpressionWithContextFromText(newExprText, oldExpr.getContext, oldExpr)
     oldExpr.expectedType(fromUnderscore = false) match {
       case Some(expectedType) if FunctionType.isFunctionType(expectedType) =>
-        def conformsExpected(expr: ScExpression): Boolean = expr.`type`().getOrAny conforms expectedType
+        def conformsExpected(expr: ScExpression): Boolean = expr.`type`(None).getOrAny conforms expectedType
 
-        conformsExpected(oldExpr) && conformsExpected(newExpr) && oldExpr.`type`().getOrAny.conforms(newExpr.`type`().getOrNothing)
+        conformsExpected(oldExpr) && conformsExpected(newExpr) && oldExpr.`type`(None).getOrAny.conforms(newExpr.`type`(None).getOrNothing)
       case None if newExprText endsWith "_" =>
-        (oldExpr.`type`(), newExpr.`type`()) match {
+        (oldExpr.`type`(None), newExpr.`type`(None)) match {
           case (Right(oldType), Right(newType)) => oldType.equiv(newType)
           case _ => false
         }

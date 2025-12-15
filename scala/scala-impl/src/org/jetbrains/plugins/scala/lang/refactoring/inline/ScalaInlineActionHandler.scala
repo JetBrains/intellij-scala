@@ -111,7 +111,7 @@ abstract class ScalaInlineActionHandler extends InlineActionHandler {
     }
 
   protected def isFunctionalType(typedDef: ScTypedDefinition): Boolean =
-    FunctionType.unapply(typedDef.`type`().getOrAny).exists(_._2.nonEmpty) &&
+    FunctionType.unapply(typedDef.`type`(None).getOrAny).exists(_._2.nonEmpty) &&
       (typedDef match {
         case _: ScFunctionDeclaration | _: ScFunctionDefinition => false
         case _ => true

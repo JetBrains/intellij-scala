@@ -101,7 +101,7 @@ object ExtensionMethodData {
 
   def getPossibleExtensionMethods(expr: ScExpression): Map[GlobalExtensionMethod, ExtensionMethodApplication] =
     if (expr.isInScala3File) {
-      expr.getTypeWithoutImplicits().toOption match {
+      expr.getTypeWithoutImplicits(None).toOption match {
         case None => Map.empty
         case Some(originalType) =>
           val withSuperClasses = originalType.widen.extractClass match {

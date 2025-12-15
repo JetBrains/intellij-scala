@@ -97,7 +97,7 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
       case DoesNotTakeParameters =>
         val targetName = elem.map(_.name)
           .orElse {
-            call.getInvokedExpr.`type`().toOption.map("'" + _.presentableText + "'")
+            call.getInvokedExpr.`type`(None).toOption.map("'" + _.presentableText + "'")
           }
           .getOrElse(ScalaBundle.message("does.not.take.parameter.default.target"))
 
@@ -114,7 +114,7 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
         holder.createErrorAnnotation(usingKw, message)
       case TypeMismatch(expression, expectedType) =>
         if (countMatches && !typeMismatchShown) {
-          expression.`type`().foreach {
+          expression.`type`(None).foreach {
             registerTypeMismatchError(_, expectedType, expression)
           }
           typeMismatchShown = true

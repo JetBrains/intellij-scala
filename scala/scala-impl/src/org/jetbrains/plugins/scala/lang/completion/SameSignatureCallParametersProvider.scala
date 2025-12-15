@@ -185,8 +185,8 @@ object SameSignatureCallParametersProvider {
                          substitutor: ScSubstitutor): Boolean = {
       implicit val context: Context = Context(iconable)
 
-      val parameterType = substitutor(parameter.`type`().getOrAny)
-      typeable.`type`().getOrAny.conforms(parameterType)
+      val parameterType = substitutor(parameter.`type`(None).getOrAny)
+      typeable.`type`(None).getOrAny.conforms(parameterType)
     }
 
     final def icon: Icon = iconable.getIcon(0)

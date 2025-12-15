@@ -76,7 +76,7 @@ object Parameter {
 
   def apply(parameter: PsiParameter): Parameter = parameter match {
     case scParameter: ScParameter =>
-      val `type` = scParameter.`type`().getOrNothing
+      val `type` = scParameter.`type`(None).getOrNothing
 
       new Parameter(
         name = scParameter.name,
@@ -88,7 +88,7 @@ object Parameter {
         isByName = scParameter.isCallByNameParameter,
         index = scParameter.index,
         psiParam = Some(scParameter),
-        defaultType = scParameter.getDefaultExpression.flatMap(_.`type`().toOption)
+        defaultType = scParameter.getDefaultExpression.flatMap(_.`type`(None).toOption)
       )
     case _ =>
       val `type` = parameter.paramType(extractVarargComponent = false)

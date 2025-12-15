@@ -224,7 +224,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
         val result: TypeResult =
           e match {
             case p: ScParameter => p.insideParamType
-            case _ => e.`type`()
+            case _ => e.`type`(None)
           }
         result match {
           case Right(tp) => processTypeImpl(tp, place, state)
@@ -354,7 +354,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
         val typeResult: TypeResult =
           des match {
             case p: ScParameter => p.insideParamType
-            case _ => des.`type`()
+            case _ => des.`type`(None)
           }
 
         typeResult match {

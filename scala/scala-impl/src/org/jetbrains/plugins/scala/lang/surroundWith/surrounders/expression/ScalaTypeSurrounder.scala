@@ -13,7 +13,7 @@ class ScalaTypeSurrounder extends ScalaExpressionSurrounder {
     implicit val tpc: TypePresentationContext = TypePresentationContext(expression)
     implicit val context: Context = Context(expression)
 
-    val result = expression.`type`().getOrAny
+    val result = expression.`type`(None).getOrAny
     s"(${super.getTemplateAsString(elements)}: ${result.presentableText})"
   }
 

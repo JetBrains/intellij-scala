@@ -145,7 +145,7 @@ class ShowTypeInfoAction extends AnAction(
 
     val tpeText = tpe.presentableText
     val withoutAliases = Some(TypePresentation.withoutAliases(tpe))
-    val tpeWithoutImplicits = expr.getTypeWithoutImplicits().toOption
+    val tpeWithoutImplicits = expr.getTypeWithoutImplicits(None).toOption
     val tpeWithoutImplicitsText = tpeWithoutImplicits.map(_.presentableText)
     val expectedTypeText = expr.expectedType().map(_.presentableText)
     val nonSingletonTypeText = tpe.extractDesignatorSingleton.map(_.presentableText)
@@ -211,8 +211,8 @@ object ShowTypeInfoAction {
                         (implicit tpc: TypePresentationContext, context: Context): Option[String] = {
     val scType = elem.typeOfNamedElement(subst).orElse {
       elem match {
-        case under: ScUnderscoreSection => under.`type`().toOption
-        case under: ScWildcardPattern => under.`type`().toOption
+        case under: ScUnderscoreSection => under.`type`(None).toOption
+        case under: ScWildcardPattern => under.`type`(None).toOption
         case _ => None
       }
     }

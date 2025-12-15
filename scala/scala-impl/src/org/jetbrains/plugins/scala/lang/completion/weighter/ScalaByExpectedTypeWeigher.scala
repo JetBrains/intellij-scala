@@ -77,7 +77,7 @@ object ScalaByExpectedTypeWeigher {
           }
         }
         fun.returnType.toOption
-          .orElse(fun.`type`().toOption)
+          .orElse(fun.`type`(None).toOption)
           .map {
             substitution(_, undefineMethodTypeParams(fun))
           }
@@ -85,7 +85,7 @@ object ScalaByExpectedTypeWeigher {
         val substitutor = undefineMethodTypeParams(method)
         Some(substitution(method.getReturnType.toScType(), substitutor))
       case typed: ScTypedDefinition =>
-        typed.`type`().toOption
+        typed.`type`(None).toOption
           .map {
             substitution(_)
           }

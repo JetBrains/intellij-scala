@@ -11,7 +11,7 @@ final class ScNullLiteralImpl(node: ASTNode,
   extends ScLiteralImplBase(node, toString)
     with literals.ScNullLiteral {
 
-  override protected def innerType: Right[Nothing, ScType] = Right {
+  override protected def innerType(expectedType: Option[ScType]): Right[Nothing, ScType] = Right {
     wrappedValue(getValue).wideType(getProject)
   }
 

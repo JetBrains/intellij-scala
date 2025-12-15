@@ -36,17 +36,19 @@ trait ScExpression extends ScBlockStatement
 
   import ScExpression._
 
-  override def `type`(): TypeResult =
-    this.getTypeAfterImplicitConversion().tr
+  override def `type`(expectedType: Option[ScType]): TypeResult =
+    this.getTypeAfterImplicitConversion(expectedOption = expectedType).tr
+
+  override def getExpectedType: Option[ScType] = this.expectedType()
 
   override protected def updateImplicitArguments(): Unit = {
     if (ScUnderScoreSectionUtil.isUnderscoreFunction(this))
-      this.getTypeWithoutImplicits(fromUnderscore = true)
+      this.getTypeWithoutImplicits(None, fromUnderscore = true)
     else
-      `type`()
+      `type`(None)
   }
 
-  protected def innerType: TypeResult =
+  protected def innerType(expectedType: Option[ScType]): TypeResult =
     Failure(ScalaBundle.message("no.type.inferred", getText))
 
   def replaceExpression(expr: ScExpression, removeParenthesis: Boolean): ScExpression = {
@@ -110,7 +112,7 @@ trait ScExpression extends ScBlockStatement
     * @return mirror for this expression, in case if it exists
     */
   def getAdditionalExpression: Option[(ScExpression, ScType)] = {
-    `type`()
+    `type`(None)
     additionalExpression
   }
 
@@ -167,12 +169,12 @@ trait ScExpression extends ScBlockStatement
         if (isShape)
           Right(shape(this).getOrElse(Nothing))
         else
-          this.getTypeWithoutImplicits(ignoreBaseTypes, fromUnderscore)
+          this.getTypeWithoutImplicits(expectedOption, ignoreBaseTypes, fromUnderscore)
 
       val result = {
-        val expected = expectedOption.orElse(this.expectedType(fromUnderscore = fromUnderscore))
+//        val expected = expectedOption.orElse(this.expectedType(fromUnderscore = fromUnderscore))
 
-        (expected, initialType.toOption) match {
+        (expectedOption, initialType.toOption) match {
           case (Some(expType), Some(tp))
             if !tp.conforms(expType) =>
             //do not try implicit conversions for shape check or already correct type
@@ -206,7 +208,7 @@ object ScExpression {
   }
 
   object Type {
-    def unapply(exp: ScExpression): Option[ScType] = exp.`type`().toOption
+    def unapply(exp: ScExpression): Option[ScType] = exp.`type`(None).toOption
   }
 
   implicit class Ext(private val expr: ScExpression) extends AnyVal {
@@ -256,28 +258,29 @@ object ScExpression {
     def getTypeIgnoreBaseType: TypeResult = expr.getTypeAfterImplicitConversion(ignoreBaseTypes = true).tr
 
     def getNonValueType(
+      expectedType: Option[ScType],
       ignoreBaseType: Boolean = false,
-      fromUnderscore: Boolean = false
+      fromUnderscore: Boolean = false,
     ): TypeResult =
       cachedWithRecursionGuard(
         "getNonValueType",
         expr,
         Failure(NlsString.force("Recursive getNonValueType")),
         BlockModificationTracker(expr),
-        (ignoreBaseType, fromUnderscore)
+        (ignoreBaseType, fromUnderscore, expectedType)
       ) {
         ProgressManager.checkCanceled()
 
-        if (fromUnderscore) expr.innerType
+        if (fromUnderscore) expr.innerType(expectedType)
         else {
           val unders = ScUnderScoreSectionUtil.underscores(expr)
           if (unders.isEmpty)
-            expr.innerType
+            expr.innerType(expectedType)
           else {
             val params =
               unders.zipWithIndex.map {
                 case (u, index) =>
-                  val tpe = u.getNonValueType(ignoreBaseType).getOrAny.inferValueType.unpackedType
+                  val tpe = u.getNonValueType(expectedType, ignoreBaseType).getOrAny.inferValueType.unpackedType
                   Parameter(tpe, isRepeated = false, index = index)
               }
 
@@ -286,7 +289,8 @@ object ScExpression {
                 expr
                   .getTypeAfterImplicitConversion(
                     ignoreBaseTypes = ignoreBaseType,
-                    fromUnderscore = true
+                    fromUnderscore = true,
+                    expectedOption = expectedType
                   )
                   .tr
                   .getOrAny,
@@ -299,6 +303,7 @@ object ScExpression {
       }
 
     def getTypeWithoutImplicits(
+      expectedType:   Option[ScType],
       ignoreBaseType: Boolean = false,
       fromUnderscore: Boolean = false
     ): TypeResult =
@@ -307,7 +312,7 @@ object ScExpression {
         expr,
         Failure(NlsString.force("Recursive getTypeWithoutImplicits")),
         BlockModificationTracker(expr),
-        (ignoreBaseType, fromUnderscore)
+        (ignoreBaseType, fromUnderscore, expectedType)
       ) {
         ProgressManager.checkCanceled()
 
@@ -318,20 +323,27 @@ object ScExpression {
               Right(ScalaPsiElementFactory.createTypeFromText(s, expr, null).get)
             } else {
               CompilerType(expr) = None
-              getTypeWithoutImplicits0(ignoreBaseType, fromUnderscore)
+              getTypeWithoutImplicits0(ignoreBaseType, fromUnderscore, expectedType)
             }
           case None =>
-            getTypeWithoutImplicits0(ignoreBaseType, fromUnderscore)
+            getTypeWithoutImplicits0(ignoreBaseType, fromUnderscore, expectedType)
         }
       }
 
-    private def getTypeWithoutImplicits0(ignoreBaseType: Boolean, fromUnderscore: Boolean): TypeResult = {
+    private def getTypeWithoutImplicits0(
+      ignoreBaseType: Boolean,
+      fromUnderscore: Boolean,
+      pt:             Option[ScType]
+    ): TypeResult = {
       expr match {
         case literals.ScNullLiteral(typeWithoutImplicits) => Right(typeWithoutImplicits)
         case _ =>
-          val maybeNonValueType = expr.getNonValueType(ignoreBaseType, fromUnderscore)
+          val maybeNonValueType = expr.getNonValueType(pt, ignoreBaseType, fromUnderscore)
           maybeNonValueType.flatMap { nonValueType =>
-            val expectedType = this.expectedType(fromUnderscore = fromUnderscore)
+            val expectedType = pt.orElse(
+              this.expectedType(fromUnderscore = fromUnderscore)
+            )
+
             val widened      = nonValueType.widenLiteralType(expr, expectedType)
             val maybeSAMpt   = expectedType.flatMap(widened.expectedSAMType(expr, fromUnderscore, _))
 
@@ -721,5 +733,5 @@ object ExpectedType {
 }
 
 object NonValueType {
-  def unapply(e: ScExpression): Option[ScType] = e.getNonValueType().toOption
+  def unapply(e: ScExpression): Option[ScType] = e.getNonValueType(None).toOption
 }

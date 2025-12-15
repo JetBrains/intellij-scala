@@ -133,7 +133,7 @@ trait ScBindingPattern extends ScPattern with ScNamedElement with ScTypedDefinit
 
   override def aliasExport: Option[PsiNamedElement] =
     if (!hasStablePath(this)) None
-    else `type`().toOption.collect {
+    else `type`(None).toOption.collect {
       case ScDesignatorType(o: ScObject) if o.name == name => o
       case ScProjectionType(_, o: ScObject) if o.name == name => o
     }

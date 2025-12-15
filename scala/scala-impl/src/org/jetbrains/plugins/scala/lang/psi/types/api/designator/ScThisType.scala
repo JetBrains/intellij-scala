@@ -27,7 +27,7 @@ final case class ScThisType(override val element: ScTemplateDefinition) extends 
       case (_, ScDesignatorType(_: ScObject)) =>
         ConstraintsResult.Left
       case (_, ScDesignatorType(typed: ScTypedDefinition)) if typed.isStable =>
-        typed.`type`() match {
+        typed.`type`(None) match {
           case Right(tp: DesignatorOwner) if tp.isSingleton =>
             this.equiv(tp, constraints, falseUndef)
           case _ =>
@@ -35,7 +35,7 @@ final case class ScThisType(override val element: ScTemplateDefinition) extends 
         }
       case (_, ScProjectionType(_, _: ScObject)) => ConstraintsResult.Left
       case (_, p@ScProjectionType(tp, elem: ScTypedDefinition)) if elem.isStable =>
-        elem.`type`() match {
+        elem.`type`(None) match {
           case Right(singleton: DesignatorOwner) if singleton.isSingleton =>
             val newSubst = p.actualSubst.followed(ScSubstitutor(tp))
             this.equiv(newSubst(singleton), constraints, falseUndef)

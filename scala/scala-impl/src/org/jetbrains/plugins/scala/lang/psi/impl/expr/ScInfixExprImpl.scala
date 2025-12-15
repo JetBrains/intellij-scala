@@ -25,32 +25,34 @@ class ScInfixExprImpl(node: ASTNode) extends MethodInvocationImpl(node) with ScI
     case expression => Seq(expression)
   }
 
-  protected override def innerType: TypeResult = {
+  protected override def innerType(expectedType: Option[ScType]): TypeResult = {
     val ScInfixExpr(ElementText(baseText), operation, ElementText(argumentText)) = this
+
+    lazy val default = super.innerType(expectedType)
 
     import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionWithContextFromText
     operation.bind().collect {
       //this is assignment statement: x += 1 equals to x = x + 1
       case ScalaResolveResult(element, _) if element.name + "=" == operation.refName =>
         createExpressionWithContextFromText(s"$baseText = $baseText ${element.name} $argumentText",
-          getContext, this).`type`()
+          getContext, this).`type`(expectedType)
       case ScalaResolveResult(synth: ScSyntheticFunction, _) =>
         @tailrec
         def foldConstTypes(left: Option[ScType], right: Option[ScType]): TypeResult = (left, right) match {
           case (Some(ScLiteralType(valueLeft, _)), Some(ScLiteralType(valueRight, _))) =>
             Option(evaluateConstInfix(valueLeft.value, valueRight.value, synth.name))
-              .fold(super.innerType) { value =>
+              .fold(default) { value =>
                 Right(ScLiteralType(value)(synth.getProject))
               }
           case (Some(ScProjectionType(_, element: Typeable)), _) =>
-            foldConstTypes(element.`type`().toOption.filter(_.is[ScLiteralType]), right)
+            foldConstTypes(element.`type`(expectedType).toOption.filter(_.is[ScLiteralType]), right)
           case (_, Some(ScProjectionType(_, element: Typeable))) =>
-            foldConstTypes(left, element.`type`().toOption.filter(_.is[ScLiteralType]))
-          case _ => super.innerType
+            foldConstTypes(left, element.`type`(expectedType).toOption.filter(_.is[ScLiteralType]))
+          case _ => default
         }
 
-        foldConstTypes(left.getNonValueType().toOption, right.getNonValueType().toOption)
-    }.getOrElse(super.innerType)
+        foldConstTypes(left.getNonValueType(expectedType).toOption, right.getNonValueType(expectedType).toOption)
+    }.getOrElse(default)
   }
 
   override def toString: String = "InfixExpression"

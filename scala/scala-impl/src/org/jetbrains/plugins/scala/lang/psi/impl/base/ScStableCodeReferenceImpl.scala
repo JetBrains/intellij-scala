@@ -452,7 +452,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
             processor.candidates
         }
       case Some(thisQ: ScThisReference) =>
-        for (ttype <- thisQ.`type`()) processor.processType(ttype, this)
+        for (ttype <- thisQ.`type`(None)) processor.processType(ttype, this)
         processor.candidates
       case Some(superQ: ScSuperReference) =>
         ResolveUtils.processSuperReference(superQ, processor, this)
@@ -477,7 +477,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
           case obj: ScObject =>
             val fromType = r.fromType match {
               case Some(fType) => Right(ScProjectionType(fType, obj))
-              case _ => td.`type`().map(substitutor)
+              case _ => td.`type`(None).map(substitutor)
             }
             fromType match {
               case Right(qualType) =>

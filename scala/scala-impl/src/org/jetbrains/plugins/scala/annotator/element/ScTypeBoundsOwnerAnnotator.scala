@@ -47,10 +47,10 @@ object ScTypeBoundsOwnerAnnotator extends ElementAnnotator[ScTypeBoundsOwner] {
     element match {
       case ta: ScTypeAliasDefinition if ta.isOpaque =>
         for (at <- ta.aliasedType) {
-          for (lowerElement <- ta.lowerTypeElement; lower <- lowerElement.`type`().toOption if !lower.conforms(at)) {
+          for (lowerElement <- ta.lowerTypeElement; lower <- lowerElement.`type`(None).toOption if !lower.conforms(at)) {
             holder.createErrorAnnotation(element, ScalaBundle.message("lower.bound.conform.to.upper", at.presentableText, lower.presentableText))
           }
-          for (upperElement <- ta.upperTypeElement; upper <- upperElement.`type`().toOption if !at.conforms(upper)) {
+          for (upperElement <- ta.upperTypeElement; upper <- upperElement.`type`(None).toOption if !at.conforms(upper)) {
             holder.createErrorAnnotation(element, ScalaBundle.message("lower.bound.conform.to.upper", upper.presentableText, at.presentableText))
           }
         }

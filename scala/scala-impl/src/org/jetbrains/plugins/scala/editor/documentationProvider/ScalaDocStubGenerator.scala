@@ -135,7 +135,7 @@ object ScalaDocStubGenerator {
           for {
             arg <- annotation.constructorInvocation.args
             headExpr <- arg.exprs.headOption
-            headType <- headExpr.`type`()
+            headType <- headExpr.`type`(None)
           } headType match {
             case ParameterizedType(_, args) =>
               for {

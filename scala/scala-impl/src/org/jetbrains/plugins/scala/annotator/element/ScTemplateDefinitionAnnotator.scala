@@ -288,8 +288,8 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
     implicit val tpc: TypePresentationContext = TypePresentationContext(element)
     implicit val context: Context = Context(element)
 
-    element.selfTypeElement.flatMap(_.`type`().toOption).
-      orElse(element.`type`().toOption)
+    element.selfTypeElement.flatMap(_.`type`(None).toOption).
+      orElse(element.`type`(None).toOption)
       .foreach { ownType =>
 
         collectSuperRefs(element) {

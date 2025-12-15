@@ -372,7 +372,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
             isGrey = true
             appendFirst()
           } else {
-            val exprType = expr.`type`().getOrNothing
+            val exprType = expr.`type`(None).getOrNothing
             val getIt = used.indexOf(false)
             used(getIt) = true
             val param: (Parameter, String) = parameters(getIt)
@@ -407,7 +407,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
                   if (namedMode) buffer.append(namedPostfix)
                   assign.rightExpression match {
                     case Some(expr: ScExpression) =>
-                      for (exprType <- expr.`type`()) {
+                      for (exprType <- expr.`type`(None)) {
                         val paramType = subst(param._1.paramType)
                         if (!exprType.conforms(paramType)) isGrey = true
                       }
@@ -451,7 +451,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
           val paramType = subst(parameters.last._1.paramType)
           while (!isGrey && k < exprs.length.min(index)) {
             if (k < index) {
-              for (exprType <- exprs(k).`type`()) {
+              for (exprType <- exprs(k).`type`(None)) {
                 implicit val context: Context = Context(exprs(k))
 
                 if (!exprType.conforms(paramType)) isGrey = true
@@ -675,11 +675,11 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
                     effectiveParameterClauses.length >= count =>
                     resultBuilder += ((new PhysicalMethodSignature(function, subst.followed(collectSubstitutor(function))), count - 1))
                   case Some(ScalaResolveResult(function: ScFunction, _)) if function.effectiveParameterClauses.isEmpty =>
-                    function.`type`().foreach(collectForType)
+                    function.`type`(None).foreach(collectForType)
                   case _ =>
                     call match {
                       case invocation: MethodInvocation =>
-                        for (typez <- invocation.getEffectiveInvokedExpr.`type`()) //todo: implicit conversions
+                        for (typez <- invocation.getEffectiveInvokedExpr.`type`(None)) //todo: implicit conversions
                         {collectForType(typez)}
                       case _ =>
                     }
@@ -702,7 +702,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
                       resultBuilder += ((signature, 0))
                       resultBuilder ++= ScalaParameterInfoEnhancer.enhance(signature, args.arguments).map((_, 0))
                     case ScalaResolveResult(typed: ScTypedDefinition, subst: ScSubstitutor) =>
-                      val typez = subst(typed.`type`().getOrNothing) //todo: implicit conversions
+                      val typez = subst(typed.`type`(None).getOrNothing) //todo: implicit conversions
                       collectForType(typez)
                     case _ =>
                   }
@@ -711,7 +711,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
             case None =>
               call match {
                 case call: ScMethodCall =>
-                  for (typez <- call.getEffectiveInvokedExpr.`type`()) { //todo: implicit conversions
+                  for (typez <- call.getEffectiveInvokedExpr.`type`(None)) { //todo: implicit conversions
                     collectForType(typez)
                   }
               }

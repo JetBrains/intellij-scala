@@ -4,14 +4,15 @@ import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.ImplicitArgumentsClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 class ScParenthesisedExprImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScParenthesisedExpr {
 
-  protected override def innerType: TypeResult = {
+  protected override def innerType(expectedType: Option[ScType]): TypeResult = {
     innerElement match {
       case Some(x: ScExpression) =>
-        val res = x.getNonValueType()
+        val res = x.getNonValueType(expectedType)
         res
       case _ => Failure(ScalaBundle.message("no.expression.in.parentheses"))
     }

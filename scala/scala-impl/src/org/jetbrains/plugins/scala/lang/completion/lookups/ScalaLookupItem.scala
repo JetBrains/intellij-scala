@@ -149,7 +149,7 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
     import LookupItemPresentationUtil.{presentationStringForJavaType, presentationStringForScalaType}
     getPsiElement match {
       case fun: ScFunction =>
-        val scType = if (!etaExpanded) fun.returnType.getOrAny else fun.`type`().getOrAny
+        val scType = if (!etaExpanded) fun.returnType.getOrAny else fun.`type`(None).getOrAny
         presentationStringForScalaType(scType, substitutor)
       case fun: ScSyntheticFunction =>
         presentationStringForScalaType(fun.retType, substitutor)
@@ -168,7 +168,7 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
       case m: PsiMethod =>
         presentationStringForJavaType(m.getReturnType, substitutor)
       case t: Typeable =>
-        presentationStringForScalaType(t.`type`().getOrAny, substitutor)
+        presentationStringForScalaType(t.`type`(None).getOrAny, substitutor)
       case _ => ""
     }
   }

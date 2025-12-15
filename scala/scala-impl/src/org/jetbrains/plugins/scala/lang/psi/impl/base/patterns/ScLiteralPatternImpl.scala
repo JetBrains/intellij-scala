@@ -13,5 +13,5 @@ class ScLiteralPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
 
   override def toString: String = "LiteralPattern"
 
-  override def `type`(): TypeResult = getLiteral.`type`()
+  override def `type`(expectedType: Option[ScType]): TypeResult = getLiteral.`type`(expectedType)
 }

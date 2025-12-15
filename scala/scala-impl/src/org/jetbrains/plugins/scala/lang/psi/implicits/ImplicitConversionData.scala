@@ -120,7 +120,7 @@ object ImplicitConversionData {
   }
 
   def getPossibleConversions(expr: ScExpression): Map[GlobalImplicitConversion, ImplicitConversionApplication] =
-    expr.getTypeWithoutImplicits().toOption match {
+    expr.getTypeWithoutImplicits(None).toOption match {
       case None => Map.empty
       case Some(originalType) =>
         val withSuperClasses = originalType.widen.extractClass match {
@@ -148,7 +148,7 @@ object ImplicitConversionData {
       for {
         retType   <- function.returnType.toOption
         param <- function.parameters.headOption
-        paramType <- param.`type`().toOption
+        paramType <- param.`type`(None).toOption
       } yield {
         new RegularImplicitConversionData(function, paramType, retType, ScSubstitutor.empty)
       }
@@ -161,7 +161,7 @@ object ImplicitConversionData {
     val rawCheck: Option[ImplicitConversionData] = cachedInUserData("fromElementWithFunctionType.rawCheck", named, ModTracker.libraryAware(named), Tuple1(named)) {
       for {
         function1Type <- named.elementScope.cachedFunction1Type
-        elementType   <- named.`type`().toOption
+        elementType   <- named.`type`(None).toOption
         if elementType.conforms(function1Type)
       } yield {
         new ElementWithFunctionTypeData(named, elementType, ScSubstitutor.empty)
@@ -204,7 +204,7 @@ object ImplicitConversionData {
       }
       for {
         functionType <- element.elementScope.cachedFunction1Type
-        elementType <- element.`type`().toOption.map(substitutor.followed(undefiningSubst))
+        elementType <- element.`type`(None).toOption.map(substitutor.followed(undefiningSubst))
         (paramType, retType) <- extractFunctionTypeParameters(elementType, functionType)
       } yield (paramType, retType)
     }

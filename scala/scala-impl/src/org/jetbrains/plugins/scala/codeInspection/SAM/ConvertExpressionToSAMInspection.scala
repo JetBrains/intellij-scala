@@ -59,7 +59,7 @@ class ConvertExpressionToSAMInspection extends LocalInspectionTool {
           expr.depthFirst().exists(_.getNode.getElementType == ScalaTokenTypes.kRETURN)
         }
         fun.body match {
-          case Some(funBody) if fun.`type`().getOrAny.conforms(expected) && !containsReturn(funBody) =>
+          case Some(funBody) if fun.`type`(None).getOrAny.conforms(expected) && !containsReturn(funBody) =>
             lazy val replacement: String = {
               val res = new mutable.StringBuilder
               val isInfix = definition.parent.exists(_.is[ScInfixExpr])

@@ -55,7 +55,7 @@ object PatternTypeInference {
       case ScNamingPattern(named)           => getPatternType(named, scrutineeType)
       case ScTypedPatternLike(typePattern)  => emptySubst(typePattern.typeElement.`type`().getOrNothing)
       case ScParenthesisedPattern(inner)    => getPatternType(inner, scrutineeType)
-      case stable: ScStableReferencePattern => emptySubst(stable.`type`().getOrNothing)
+      case stable: ScStableReferencePattern => emptySubst(stable.`type`(None).getOrNothing)
       case extractor: ScExtractorPattern =>
         val unapplySrr = ExpandedExtractorResolveProcessor.resolveActualUnapply(extractor.ref, Some(scrutineeType))
 
@@ -64,7 +64,7 @@ object PatternTypeInference {
             val clsParent     = PsiTreeUtil.getContextOfType(pattern, true, classOf[ScTemplateDefinition]).toOption
             val withThisType  = clsParent.fold(ScSubstitutor.empty)(cls => ScSubstitutor(ScThisType(cls)))
             val combinedSubst = subst.followed(withThisType)
-            val maybeTpe      = fun.parameters.head.`type`().map(combinedSubst)
+            val maybeTpe      = fun.parameters.head.`type`(None).map(combinedSubst)
 
             maybeTpe match {
               case Right(tpe) =>
@@ -411,7 +411,7 @@ object PatternTypeInference {
     val maybeSubst =
       for {
         scrutinee    <- m.expression
-        scrutineeTpe <- scrutinee.`type`().toOption
+        scrutineeTpe <- scrutinee.`type`(None).toOption
         pattern      <- cc.pattern
       } yield PatternTypeInference.doTypeInference(pattern, scrutineeTpe)
 

@@ -492,7 +492,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
         @tailrec
         def traverseInvokedExprs(call: ScExpression, dropped: Int): Unit = call match {
           case mc: MethodInvocation =>
-            val tp            = mc.`type`().getOrAny
+            val tp            = mc.`type`(None).getOrAny
 
             val applyResolves = mc.resolveApplyOrUpdateMethod(
               mc,
@@ -532,7 +532,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
       )(
         isAcceptableConstructor: ScFunction => Boolean
       ): Unit = for {
-        scType <- typeable.`type`().toOption
+        scType <- typeable.`type`(None).toOption
         (clazz, subst) <- scType.extractClassType
       } {
         if (!clazz.is[ScTemplateDefinition] && clazz.annotationType) {
@@ -661,7 +661,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
     def processQualifier(qualifier: ScExpression): Array[ScalaResolveResult] = {
       ProgressManager.checkCanceled()
 
-      qualifier.getNonValueType() match {
+      qualifier.getNonValueType(None) match {
         case Right(tpt @ ScTypePolymorphicType(internal, tp)) if tp.nonEmpty &&
           !internal.is[ScMethodType, UndefinedType] /* optimization */ =>
           val substed = tpt.abstractOrLowerTypeSubstitutor(context)(internal)
@@ -671,7 +671,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
       }
 
       //if it's ordinary case
-      qualifier.`type`().toOption match {
+      qualifier.`type`(None).toOption match {
         case Some(tp) => processType(tp, qualifier)
         case _        => proc.candidates
       }

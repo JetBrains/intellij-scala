@@ -134,7 +134,7 @@ object MethodTypeProvider {
       val retType =
         returnType.getOrElse {
           element match {
-            case ScalaConstructor.in(tdef: ScTypeDefinition) => tdef.`type`().getOrAny
+            case ScalaConstructor.in(tdef: ScTypeDefinition) => tdef.`type`(None).getOrAny
             case _                                           => element.returnType.getOrAny
           }
         }
@@ -196,7 +196,7 @@ object MethodTypeProvider {
       constructMethodType(retType, clauses)
     }
 
-    private def containingClassType: ScType = element.containingClass.`type`().getOrAny
+    private def containingClassType: ScType = element.containingClass.`type`(None).getOrAny
   }
 
   private case class JavaMethodProvider(override val element: PsiMethod)

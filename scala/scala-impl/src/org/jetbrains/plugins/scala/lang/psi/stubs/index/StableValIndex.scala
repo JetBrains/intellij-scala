@@ -19,7 +19,7 @@ object StableValIndex {
     forClassFqn(className, scope)(c.getProject)
       .filter {
         case v: ScValue if v.declaredElements.size == 1 =>
-          v.`type`().toOption
+          v.`type`(None).toOption
             .flatMap(_.extractClass)
             .map(_.qualifiedName)
             .contains(className)

@@ -32,7 +32,7 @@ class ScTypedPatternImpl private(stub: ScBindingPatternStub[ScTypedPattern], nod
 
   override def toString: String = "TypedPattern: " + ifReadAllowed(name)("")
 
-  override def `type`(): TypeResult =
+  override def `type`(expectedType: Option[ScType]): TypeResult =
     typePattern match {
       case Some(tp) =>
         //TODO: aliases, wildcards
@@ -55,7 +55,7 @@ class ScTypedPatternImpl private(stub: ScBindingPatternStub[ScTypedPattern], nod
     lastParent: PsiElement,
     place:      PsiElement
   ): Boolean =
-    ScalaPsiUtil.processImportLastParent(processor, state, place, lastParent, `type`())
+    ScalaPsiUtil.processImportLastParent(processor, state, place, lastParent, `type`(None))
 
   override def getOriginalElement: PsiElement = super[ScTypedPattern].getOriginalElement
 }

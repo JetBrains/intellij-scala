@@ -49,7 +49,7 @@ final case class LightContextFunctionParameter(project: Project, syntheticName: 
 
   private val lock = new ReentrantLock()
 
-  override def `type`(): TypeResult = lock.withLock {
+  override def `type`(expectedType: Option[ScType]): TypeResult = lock.withLock {
     Right(rawType.updateRecursively {
       case abs: ScAbstractType => invariantTypeParameters.getOrElse(abs, UndefinedType(abs.typeParameter))
     })
@@ -89,7 +89,7 @@ final case class LightContextFunctionParameter(project: Project, syntheticName: 
     if (constraints.isEmpty)
       invariantTypeParameters.mapValuesInPlace { case (tpt, _) => subst(tpt) }
 
-    val newInstantiation = subst(`type`().getOrAny).inferValueType
+    val newInstantiation = subst(`type`(None).getOrAny).inferValueType
 
     if (!constraints.exists(_.equiv(newInstantiation)))
       constraints += newInstantiation
@@ -97,7 +97,7 @@ final case class LightContextFunctionParameter(project: Project, syntheticName: 
 
   def contextFunctionParameterType: TypeResult = lock.withLock {
     val result =
-      if (constraints.isEmpty) `type`().map(_.inferValueType)
+      if (constraints.isEmpty) `type`(None).map(_.inferValueType)
       else                     Right(constraints.reduceLeft(_ glb _))
 
     result

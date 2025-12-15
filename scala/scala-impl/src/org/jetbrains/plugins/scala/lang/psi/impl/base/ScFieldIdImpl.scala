@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScImportableDeclaration
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns.ScReferencePatternImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFieldIdStub
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
 class ScFieldIdImpl private(stub: ScFieldIdStub, node: ASTNode)
@@ -22,8 +23,8 @@ class ScFieldIdImpl private(stub: ScFieldIdStub, node: ASTNode)
 
   override def toString: String = "Field identifier: " + ifReadAllowed(name)("")
 
-  override def `type`(): TypeResult = getParent /*id list*/ .getParent match {
-    case typed: ScTypedDeclaration => typed.`type`()
+  override def `type`(expectedType: Option[ScType]): TypeResult = getParent /*id list*/ .getParent match {
+    case typed: ScTypedDeclaration => typed.`type`(None)
     //partial matching
   }
 

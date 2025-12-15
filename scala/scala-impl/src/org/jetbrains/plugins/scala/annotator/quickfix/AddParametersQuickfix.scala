@@ -149,7 +149,7 @@ final class AddParametersQuickfix(argExprList: SmartPsiElementPointer[ScArgument
   private def findInjectionPositions(arguments: Seq[ScExpression], parameters: Seq[ScParameter])
                                     (implicit projectContext: ProjectContext): Seq[(ScExpression, Option[ScParameter], Int)] = {
     val indexedArgs = (api.Nothing +: arguments.map(_.getTypeAfterImplicitConversion().tr.getOrNothing)).toArray
-    val indexedParams = (api.Any +: parameters.map(_.`type`().getOrAny)).toArray
+    val indexedParams = (api.Any +: parameters.map(_.`type`(None).getOrAny)).toArray
 
     case class Entry(cost: Int, path: List[(ScExpression, Option[ScParameter], Int)])
     val cache = mutable.Map.empty[(Int, Int), Entry]

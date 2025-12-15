@@ -33,7 +33,7 @@ private[declarationRedundancy] object SymbolEscaping {
 
     element match {
       case td: ScTypeDefinition =>
-        td.`type`() match {
+        td.`type`(None) match {
           case Right(tdType) =>
             val designatorType = tdType.asOptionOf[ScParameterizedType].map(_.designator).getOrElse(tdType)
             val escapeInfos = getEscapeInfosOfContainingClassAndCompanion(Option(td.containingClass).orElse(Some(td)))
@@ -116,7 +116,7 @@ private[declarationRedundancy] object SymbolEscaping {
         typeParam.upperTypeElement ++
         typeParam.lowerTypeElement ++
         typeParam.contextBounds.map(_.typeElement)
-    }.flatMap(_.`type`().toSeq)
+    }.flatMap(_.`type`(None).toSeq)
 
   final class EscapeInfo(val member: ScMember, val types: Seq[ScType])
 
@@ -184,19 +184,19 @@ private[declarationRedundancy] object SymbolEscaping {
           primaryConstructor.parameters.filterNot(p => isPrivateOrNonMember(p) && p.getDefaultExpression.isEmpty)
         }
 
-        val types = parametersThroughWhichTypeDefsCanEscape.flatMap(p => p.`type`().toSeq)
+        val types = parametersThroughWhichTypeDefsCanEscape.flatMap(p => p.`type`(None).toSeq)
 
         Seq(EscapeInfo(primaryConstructor, destructureAndFilter(types)))
 
       case function: ScFunction if !isPrivate(function) =>
 
-        val returnAndParameterTypes = function.`type`().toSeq
+        val returnAndParameterTypes = function.`type`(None).toSeq
         val types = returnAndParameterTypes ++ getTypeParameterTypes(function)
 
         Seq(EscapeInfo(function, destructureAndFilter(types)))
 
       case typeable: Typeable if !isPrivate(typeable) =>
-        val types = typeable.`type`().toSeq
+        val types = typeable.`type`(None).toSeq
         Seq(EscapeInfo(typeable, destructureAndFilter(types)))
 
       case _ => Seq.empty

@@ -44,7 +44,7 @@ private class ScImplicitFunctionListCellRenderer(actual: PsiNamedElement, place:
   override def getElementText(element: PsiNamedElement): String =
     element match {
       case method: ScFunction  => functionRenderer.render(method)
-      case b: ScBindingPattern => b.name + ": " + typeRenderer.render(b.`type`().getOrAny)
+      case b: ScBindingPattern => b.name + ": " + typeRenderer.render(b.`type`(None).getOrAny)
       case _                   => element.name
     }
 

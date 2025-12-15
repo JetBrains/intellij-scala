@@ -197,7 +197,7 @@ package object collections {
       import expr.projectContext
       implicit val context: Context = Context(expr)
 
-      expr.`type`() match {
+      expr.`type`(None) match {
         case Right(result) =>
           result match {
             case FunctionType(returnType, _) => returnType.conforms(api.Boolean)
@@ -422,7 +422,7 @@ package object collections {
   }
 
   private def isOfClassFrom(expr: ScExpression, patterns: Seq[String])(implicit context: Context): Boolean = {
-    val typ = expr.`type`().toOption
+    val typ = expr.`type`(None).toOption
     typ.exists(isOfClassFrom(_, patterns))
   }
 
@@ -454,7 +454,7 @@ package object collections {
     expr match {
       case Typeable(JavaArrayType(_)) => true
       case _ =>
-        val typ = expr.`type`().toOption
+        val typ = expr.`type`(None).toOption
         typ.exists { t =>
           val typeExtracted = t.tryExtractDesignatorSingleton
           isArray(typeExtracted) || isIArray(typeExtracted)
@@ -513,7 +513,7 @@ package object collections {
     case _                => false
   }
 
-  def withoutConversions(expr: ScExpression): Typeable = () => expr.getTypeWithoutImplicits()
+  def withoutConversions(expr: ScExpression): Typeable = expectedType => expr.getTypeWithoutImplicits(expectedType)
 
   private val sideEffectsCollectionMethods = Set("append", "appendAll", "clear", "insert", "insertAll",
     "prepend", "prependAll", "reduceToSize", "remove", "retain",

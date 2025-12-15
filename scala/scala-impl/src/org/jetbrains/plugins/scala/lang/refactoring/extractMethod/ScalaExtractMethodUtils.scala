@@ -229,7 +229,7 @@ object ScalaExtractMethodUtils {
       val endOffset = elements.last.getTextRange.getEndOffset
       definition.getTextOffset >= startOffset && definition.getTextOffset < endOffset
     } else false
-    val retType = definition.`type`().getOrNothing
+    val retType = definition.`type`(None).getOrNothing
     val tp = definition match {
       case fun: ScFunction if fun.paramClauses.clauses.isEmpty =>
         implicit val elementScope: ElementScope = definition.elementScope

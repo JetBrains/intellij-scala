@@ -82,7 +82,7 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
     annotationType
   }
 
-  override final def `type`(): TypeResult = getTypeWithProjections(thisProjections = true)
+  override final def `type`(expectedType: Option[ScType]): TypeResult = getTypeWithProjections(thisProjections = true)
 
   override final def getTypeWithProjections(thisProjections: Boolean): TypeResult = {
     val designator = containingClass match {

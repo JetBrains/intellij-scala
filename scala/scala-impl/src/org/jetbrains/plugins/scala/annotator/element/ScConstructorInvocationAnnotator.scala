@@ -172,7 +172,7 @@ object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorIn
       case ExcessArgument(_) =>  // simultaneously handled above
       case TypeMismatch(expression, expectedType) =>
         if (countMatches && !typeMismatchShown) {
-          expression.`type`().foreach {
+          expression.`type`(None).foreach {
             registerTypeMismatchError(_, expectedType, expression)
           }
           typeMismatchShown = true

@@ -24,7 +24,7 @@ trait ScBlock extends ScExpression
   with ScImportsHolder
   with ScOptionalBracesOwner
 {
-  protected override def innerType: TypeResult = {
+  protected override def innerType(expectedType: Option[ScType]): TypeResult = {
     if (hasCaseClauses) {
       val caseClauses = findChild[ScCaseClauses].get
       val clauses: Seq[ScCaseClause] = caseClauses.caseClauses
@@ -33,7 +33,7 @@ trait ScBlock extends ScExpression
       val iterator = clauses.iterator
       while (iterator.hasNext) {
         iterator.next().expr match {
-          case Some(e) => clausesTypes += e.`type`().getOrNothing
+          case Some(e) => clausesTypes += e.`type`(expectedType).getOrNothing
           case _ =>
         }
       }
@@ -53,7 +53,7 @@ trait ScBlock extends ScExpression
           if (throwable == null) return Failure(ScalaBundle.message("cannot.find.throwable.class"))
           return Right(ScParameterizedType(ScDesignatorType(fun), Seq(ScDesignatorType(throwable), clausesLubType)))
         case _ =>
-          val et = this.expectedType(fromUnderscore = false)
+          val et = expectedType.orElse(this.expectedType(fromUnderscore = false))
             .getOrElse(return Failure(ScalaBundle.message("cannot.infer.type.without.expected.type")))
 
           return et match {
@@ -66,14 +66,16 @@ trait ScBlock extends ScExpression
           }
       }
     }
+
     val inner = resultExpression match {
       case None =>
         ScalaPsiUtil.fileContext(this) match {
           case scalaFile: ScalaFile if scalaFile.isCompiled => Nothing
-          case _ => Unit
+          case _                                            => Unit
         }
-      case Some(e) => e.`type`().getOrAny
+      case Some(e) => e.`type`(expectedType).getOrAny
     }
+
     Right(inner)
   }
 

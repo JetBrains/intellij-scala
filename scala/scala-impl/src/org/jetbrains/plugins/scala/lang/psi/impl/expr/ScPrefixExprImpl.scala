@@ -20,8 +20,8 @@ class ScPrefixExprImpl(node: ASTNode) extends MethodInvocationImpl(node) with Sc
 
   override def toString: String = "PrefixExpression"
 
-  override protected def innerType: TypeResult = {
-    def default = getEffectiveInvokedExpr.getNonValueType()
+  override protected def innerType(expectedType: Option[ScType]): TypeResult = {
+    def default = getEffectiveInvokedExpr.getNonValueType(expectedType)
 
     operation.bind().collect {
       case ScalaResolveResult(synth: ScSyntheticFunction, _) =>
@@ -31,11 +31,11 @@ class ScPrefixExprImpl(node: ASTNode) extends MethodInvocationImpl(node) with Sc
             foldUnOpTypes(literal, synth.name)(getProject)
               .fold(default)(Right.apply)
           case Some(ScProjectionType(_, element: Typeable)) =>
-            fold(element.`type`().toOption.filter(_.isInstanceOf[ScLiteralType]))
+            fold(element.`type`(expectedType).toOption.filter(_.isInstanceOf[ScLiteralType]))
           case _ => default
         }
 
-        fold(operand.getNonValueType().toOption)
+        fold(operand.getNonValueType(expectedType).toOption)
     }.getOrElse(default)
   }
 

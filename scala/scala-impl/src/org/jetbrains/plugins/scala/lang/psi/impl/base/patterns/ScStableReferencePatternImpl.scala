@@ -23,5 +23,5 @@ final class ScStableReferencePatternImpl(node: ASTNode,
     false
   }
 
-  override def `type`(): TypeResult = this.flatMapType(referenceExpression)
+  override def `type`(expectedType: Option[ScType]): TypeResult = this.flatMapType(referenceExpression, None)
 }

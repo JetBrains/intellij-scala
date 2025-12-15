@@ -117,7 +117,7 @@ package object extensions {
           if (withExtension) fun.parameterClausesWithExtension().flatMap(_.parameters)
           else               fun.parameters
 
-        parameters.map(_.`type`().getOrNothing)
+        parameters.map(_.`type`(None).getOrNothing)
       case _ =>
         parameters.map(_.getType)
           .map(_.toScType())
@@ -128,7 +128,7 @@ package object extensions {
 
     def functionType(implicit scope: ElementScope, context: Context): Option[ScType] = repr match {
       case fun: ScFunction =>
-        fun.`type`().toOption
+        fun.`type`(None).toOption
       case method => // java method
         val returnType = Option(method.getReturnType).map(_.toScType())
         val paramTypes = method.parameters.map(_.getType.toScType())
@@ -645,14 +645,14 @@ package object extensions {
       val scope = scalaScope.getOrElse(elementScope)
       (element match {
         case Constructor(_)      => None
-        case e: ScFunction       => e.`type`().toOption
-        case e: ScBindingPattern => e.`type`().toOption
-        case e: ScFieldId        => e.`type`().toOption
+        case e: ScFunction       => e.`type`(None).toOption
+        case e: ScBindingPattern => e.`type`(None).toOption
+        case e: ScFieldId        => e.`type`(None).toOption
         case e: ScParameter      => e.outsideParamType.toOption
         case e: PsiMethod        => e.functionType(scope, context)
         case e: PsiVariable      => lift(e.getType)
         case e: ScTypeAliasDefinition if !e.isEffectivelyOpaque => e.aliasedType.toOption
-        case e: ScObject         => e.`type`().toOption
+        case e: ScObject         => e.`type`(None).toOption
         case _                   => None
       }).map(substitutor)
     }
@@ -1671,7 +1671,7 @@ package object extensions {
 
     def paramType(extractVarargComponent: Boolean = true, treatJavaObjectAsAny: Boolean = true): ScType = param match {
       case parameter: FakePsiParameter => parameter.parameter.paramType
-      case parameter: ScParameter => parameter.`type`().getOrAny
+      case parameter: ScParameter => parameter.`type`(None).getOrAny
       case _ =>
         val paramType = param.getType match {
           case arrayType: PsiArrayType if extractVarargComponent && param.isVarArgs =>

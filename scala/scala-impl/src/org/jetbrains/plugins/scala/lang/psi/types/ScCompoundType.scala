@@ -188,14 +188,14 @@ object ScCompoundType {
         case fun: ScFunction => signatureMapVal += ((TermSignature(fun), fun.returnType.getOrAny))
         case varDecl: ScVariable =>
           signatureMapVal ++= varDecl.declaredElements.map { e =>
-            (TermSignature(e), e.`type`().getOrAny)
+            (TermSignature(e), e.`type`(None).getOrAny)
           }
           signatureMapVal ++= varDecl.declaredElements.map { e =>
             (TermSignature.scalaSetter(e), api.Unit)
           }
         case valDecl: ScValue =>
           signatureMapVal ++= valDecl.declaredElements.map { e =>
-            (TermSignature(e), e.`type`().getOrAny)
+            (TermSignature(e), e.`type`(None).getOrAny)
           }
         case _ => ()
       }

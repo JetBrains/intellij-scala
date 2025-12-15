@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types.{Compatibility, Context, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.{Compatibility, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -25,13 +25,13 @@ class ScTryImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScTry wit
 
   override def finallyBlock: Option[ScFinallyBlock] = findChild[ScFinallyBlock]
 
-  protected override def innerType: TypeResult =
-    expression.map(_.`type`().flatMap { tryBlockType =>
-      val maybeExpression = catchBlock.flatMap(_.expression)
+  protected override def innerType(expectedType: Option[ScType]): TypeResult =
+    expression.map(_.`type`(expectedType).flatMap { tryBlockType =>
+      val catchBlockExpressions = catchBlock.flatMap(_.expression)
 
       val candidates = for {
-        expr <- maybeExpression.toSeq
-        (tp, processor) <- expr.`type`().toOption.zip(createProcessor(expr)).toSeq
+        expr <- catchBlockExpressions.toSeq
+        (tp, processor) <- expr.`type`(expectedType).toOption.zip(createProcessor(expr)).toSeq
         candidate <- {
           processor.processType(tp, expr)
           processor.candidates

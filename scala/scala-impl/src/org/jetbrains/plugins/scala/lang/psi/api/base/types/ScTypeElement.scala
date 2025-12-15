@@ -20,7 +20,7 @@ trait ScTypeElement extends ScalaPsiElement with Typeable {
     s"$typeName: $text"
   }
 
-  override def `type`(): TypeResult = getType
+  override def `type`(expectedType: Option[ScType] = None): TypeResult = getType
 
   def isSingleton: Boolean = false
 

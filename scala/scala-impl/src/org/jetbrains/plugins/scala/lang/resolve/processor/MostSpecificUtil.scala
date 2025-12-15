@@ -234,7 +234,7 @@ class MostSpecificUtil(
               params1.map(p => Expression(p.paramType, place)) ++
                 Seq.fill(numberOfRepeatedArgsPassed)(repeatedParamExpr)
 
-            Compatibility.checkConformance(params2, argExprs, checkImplicits)
+            Compatibility.checkConformance(params2, argExprs, checkImplicits)(lhsElement)
           case (Right(lhsType), Right(rhsType)) =>
             lhsType.conforms(rhsType, ConstraintSystem.empty) //todo: with implicits?
           case (Left(_), Right(_)) if !lhs.implicitCase => return false
@@ -449,10 +449,10 @@ class MostSpecificUtil(
           pd.declaredType.getOrElse(Nothing)
         case vd: ScVariableDefinition if PsiTreeUtil.isContextAncestor(vd, place, true) =>
           vd.declaredType.getOrElse(Nothing)
-        case _ => refPatt.`type`().getOrAny
+        case _ => refPatt.`type`(None).getOrAny
       }
       case param: ScParameter       => param.insideParamType.getOrAny
-      case typed: ScTypedDefinition => typed.`type`().getOrAny
+      case typed: ScTypedDefinition => typed.`type`(None).getOrAny
       case f: PsiField              => f.getType.toScType()
       case _                        => Nothing
     }

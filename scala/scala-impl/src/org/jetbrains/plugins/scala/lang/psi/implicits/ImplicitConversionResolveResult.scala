@@ -184,7 +184,7 @@ object ImplicitConversionResolveResult {
   }
 
   private[this] def expressionType(implicit place: ScExpression) =
-    place.getTypeWithoutImplicits()
+    place.getTypeWithoutImplicits(None)
       .map(_.tryExtractDesignatorSingleton)
       .toOption
 

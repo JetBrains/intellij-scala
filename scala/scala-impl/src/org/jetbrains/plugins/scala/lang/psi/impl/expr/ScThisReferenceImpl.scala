@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 class ScThisReferenceImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScThisReference {
 
-  protected override def innerType: TypeResult =
+  protected override def innerType(expectedType: Option[ScType]): TypeResult =
     refTemplate match {
       case Some(td) =>
         ScThisReferenceImpl.getThisTypeForTypeDefinition(td, this)

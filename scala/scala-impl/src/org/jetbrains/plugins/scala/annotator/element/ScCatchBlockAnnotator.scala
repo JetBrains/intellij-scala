@@ -30,7 +30,7 @@ object ScCatchBlockAnnotator extends ElementAnnotator[ScCatchBlock] {
         implicit val tpc: TypePresentationContext = TypePresentationContext(expr)
         implicit val context: Context = Context(expr)
 
-        val tp = expr.`type`().getOrAny
+        val tp = expr.`type`(None).getOrAny
         val throwable = ScalaPsiManager.instance(expr.getProject).getCachedClass(expr.resolveScope, "java.lang.Throwable").orNull
         if (throwable == null) return
         val throwableType = ScDesignatorType(throwable)

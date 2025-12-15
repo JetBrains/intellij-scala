@@ -87,12 +87,12 @@ object Declaration {
 
     override def hasUnitType: Boolean = element match {
       case f: ScFunction => f.hasUnitResultType
-      case v: Typeable => v.`type`().exists(_.isUnit)
+      case v: Typeable => v.`type`(None).exists(_.isUnit)
       case _ => false
     }
 
     override def typeMatches(patterns: collection.Set[String]): Boolean = element match {
-      case v: Typeable => v.`type`().exists(t => patterns.exists(matches(t, _)))
+      case v: Typeable => v.`type`(None).exists(t => patterns.exists(matches(t, _)))
       case _ => false
     }
 

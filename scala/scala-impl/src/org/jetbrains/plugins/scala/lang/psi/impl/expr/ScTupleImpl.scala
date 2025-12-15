@@ -3,33 +3,39 @@ package org.jetbrains.plugins.scala.lang.psi.impl.expr
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.types.ScLiteralType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Singleton, TupleType, Unit}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Singleton, TupleType, Unit}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 class ScTupleImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScTuple {
 
-  protected override def innerType: TypeResult =
-    Right(exprs.map(_.`type`().getOrAny) match {
-      case Seq() => Unit
-      case components =>
-        lazy val expectedComponents = this.expectedType() match {
-          case Some(TupleType(comps)) => comps
-          case _                      => Seq.empty
-        }
+  protected override def innerType(expectedType: Option[ScType]): TypeResult = {
+    val actualExpectedType = expectedType.orElse(this.expectedType())
 
-        val widenedComponents = components.zipWithIndex.map {
-          case (lit: ScLiteralType, idx) =>
-            val expectedComp   = expectedComponents.lift(idx)
-            val inferSingleton = expectedComp.exists(_.conforms(Singleton))
+    val expectedComponents = actualExpectedType match {
+      case Some(TupleType(comps)) if comps.size == exprs.size => comps
+      case _                                                  => exprs.map(_ => Any)
+    }
 
-            if (inferSingleton) lit
-            else                lit.widen
-          case (other, _) => other
-        }
+    val typedComponents = exprs.zip(expectedComponents).map { case (comp, pt) =>
+      val tpe = comp.`type`(expectedType = Option(pt)).getOrAny
+      tpe match {
+        case lit: ScLiteralType =>
+          val inferSingleton = pt.conforms(Singleton)
 
-        TupleType(widenedComponents, context = this)
-    })
+          if (inferSingleton) lit
+          else                lit.widen
+        case other => other
+      }
+    }
+
+    val res = typedComponents match {
+      case Seq()      => Unit
+      case components => TupleType(components, context = this)
+    }
+
+    Right(res)
+  }
 
   override def deleteChildInternal(child: ASTNode): Unit = {
     ScalaPsiUtil.deleteElementInCommaSeparatedList(this, child)

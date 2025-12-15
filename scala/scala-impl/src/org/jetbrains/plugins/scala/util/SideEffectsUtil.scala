@@ -93,13 +93,13 @@ object SideEffectsUtil {
             case (_: ScBindingPattern) & ScalaPsiUtil.inNameContext(pd: ScPatternDefinition)
               if pd.hasModifierProperty("lazy") => false
             case bp: ScBindingPattern =>
-              val tp = bp.`type`()
+              val tp = bp.`type`(None)
               !(asArg && FunctionType.isFunctionType(tp.getOrAny))
             case _: ScObject => true // not correct, but very likely that a lone object-ref has no sideeffect
             case p: ScParameter if p.isCallByNameParameter => false
             case p: ScParameter if !(asArg && FunctionType.isFunctionType(p.insideParamType.getOrAny)) => true
             case _: ScSyntheticFunction => true
-            case m: PsiMethod => methodHasNoSideEffects(m, ref.qualifier.flatMap(_.`type`().toOption))
+            case m: PsiMethod => methodHasNoSideEffects(m, ref.qualifier.flatMap(_.`type`(None).toOption))
             case _ => false
           })
         }
@@ -111,7 +111,7 @@ object SideEffectsUtil {
           case ref if hasImplicitConversion(ref) => false
           case ref if ref.refName.endsWith("_=") => false
           case ResolvesTo(fun: ScSyntheticFunction) => syntheticMethodHasNoSideEffects(fun)
-          case ResolvesTo(m: PsiMethod) => methodHasNoSideEffects(m, baseExpr.`type`().toOption)
+          case ResolvesTo(m: PsiMethod) => methodHasNoSideEffects(m, baseExpr.`type`(None).toOption)
           case _ => false
         }
         checkOperation &&
@@ -119,7 +119,7 @@ object SideEffectsUtil {
           argsHaveNoSideEffectInner(call, args, checkSubExpression)
       case call@ScMethodCall(baseExpr, args) =>
         val (checkQual, typeOfQual) = baseExpr match {
-          case ScReferenceExpression.withQualifier(qual) => (hasNoSideEffectsInner(qual), qual.`type`().toOption)
+          case ScReferenceExpression.withQualifier(qual) => (hasNoSideEffectsInner(qual), qual.`type`(None).toOption)
           case _ => (true, None)
         }
         val checkBaseExpr = baseExpr match {

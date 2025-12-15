@@ -51,7 +51,7 @@ object ScalaDfaTypeUtils {
     case boolean: ScBooleanLiteral => DfTypes.booleanValue(boolean.getValue)
     case char: ScCharLiteral => DfTypes.intValue(char.getValue.toInt)
     case string: ScStringLiteral =>
-      string.getNonValueType() match {
+      string.getNonValueType(None) match {
         case Right(ty) =>
           scTypeToDfType(ty) match {
             case refType: DfReferenceType => DfTypes.constant(string.getValue, refType)
@@ -127,7 +127,7 @@ object ScalaDfaTypeUtils {
 
   // Widen literal types
   def inferExpressionType(expression: ScExpression): ScType =
-    expression.`type`().getOrAny.widen
+    expression.`type`(None).getOrAny.widen
 
   def findArgumentsPrimitiveType(argumentValues: Map[Argument, DfaValue]): Option[String] = {
     argumentValues.filter(_._1.kind.is[ProperArgument]).values.headOption.map(_.getDfType) match {

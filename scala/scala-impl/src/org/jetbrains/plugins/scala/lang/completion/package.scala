@@ -108,7 +108,7 @@ package object completion {
           val resolveScope = typeable.resolveScope
           val cls = psiManager.getCachedClass(resolveScope, fqn).orNull
           cls != null &&
-            typeable.`type`().exists(_.conforms(ScDesignatorType(cls)))
+            typeable.`type`(None).exists(_.conforms(ScDesignatorType(cls)))
         case _ => false
       })
   }

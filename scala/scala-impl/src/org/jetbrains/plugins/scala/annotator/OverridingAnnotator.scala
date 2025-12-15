@@ -388,7 +388,7 @@ object OverridingAnnotator {
   def typeForSigElement(named: PsiNamedElement): Option[ScType] =
     named match {
       case cp: ScClassParameter => cp.outsideParamType.toOption
-      case t: Typeable          => t.`type`().toOption
+      case t: Typeable          => t.`type`(None).toOption
       case _                    => None
     }
 

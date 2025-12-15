@@ -91,8 +91,8 @@ trait FunctionAnnotator {
       def needsTypeAnnotation(): Unit = {
         val message = ScalaBundle.message("function.must.define.type.explicitly", function.name)
         val returnTypes = returnUsages.collect {
-          case retStmt: ScReturn  => retStmt.expr.flatMap(_.`type`().toOption).getOrElse(Any)
-          case expr: ScExpression => expr.`type`().getOrAny
+          case retStmt: ScReturn  => retStmt.expr.flatMap(_.`type`(None).toOption).getOrElse(Any)
+          case expr: ScExpression => expr.`type`(None).getOrAny
         }
         holder.createErrorAnnotation(
           usage.asInstanceOf[ScReturn].keyword,

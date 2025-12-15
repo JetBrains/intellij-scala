@@ -383,7 +383,7 @@ object MixinNodes {
       def returnType(e: PsiNamedElement): ScType = e match {
         case fn: ScFunction         => fn.returnType.getOrAny
         case m: PsiMethod           => m.getReturnType.toScType()(e.projectContext)
-        case tpd: ScTypedDefinition => tpd.`type`().getOrAny
+        case tpd: ScTypedDefinition => tpd.`type`(None).getOrAny
         case other                  => throw new IllegalArgumentException(s"Unexpected signature element of class ${other.getClass}")
       }
 
@@ -527,7 +527,7 @@ object MixinNodes {
               ScParameterizedType(ScalaType.designator(clazz), clazz.getTypeParameters.map(TypeParameterType(_)).toSeq)
 
           val classType = clazz match {
-            case td: ScTypeDefinition => td.`type`().getOrElse(default)
+            case td: ScTypeDefinition => td.`type`(None).getOrElse(default)
             case _                    => default
           }
           val supers: Seq[ScType] = {

@@ -210,7 +210,7 @@ trait ScopeAnnotator extends ElementAnnotator[ScalaPsiElement] {
       }
       //during erasure literal types collapse into widened types
       case lit: ScLiteralType => lit.wideType
-      case ScProjectionType(_, element: Typeable) => element.`type`().map {
+      case ScProjectionType(_, element: Typeable) => element.`type`(None).map {
         case literalType: ScLiteralType => literalType.widen
         case other => other
       }.getOrAny
@@ -241,7 +241,7 @@ trait ScopeAnnotator extends ElementAnnotator[ScalaPsiElement] {
     val `=>` = if (p.isCallByNameParameter) " => " else ""
     val `*` = if (p.isRepeatedParameter) "*" else ""
 
-    val paramType = p.`type`().getOrAny
+    val paramType = p.`type`(None).getOrAny
     val paramTypeExpanded = paramType.removeAliasDefinitions()(Context.Empty)
     val erasedType =
       if (eraseParamType) erased(paramTypeExpanded, forPresentableText)

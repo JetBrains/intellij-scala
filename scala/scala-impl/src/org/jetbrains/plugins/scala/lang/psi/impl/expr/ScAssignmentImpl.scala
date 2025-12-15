@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.Unit
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -17,14 +18,14 @@ import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolv
 
 class ScAssignmentImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScAssignment {
 
-  protected override def innerType: TypeResult = {
+  protected override def innerType(expectedType: Option[ScType]): TypeResult = {
     leftExpression match {
-      case call: ScMethodCall => call.`type`()
+      case call: ScMethodCall => call.`type`(expectedType)
       case _ =>
         resolveAssignment match {
           case Some(_) =>
             mirrorMethodCall match {
-              case Some(call) => call.`type`()
+              case Some(call) => call.`type`(expectedType)
               case None       => Right(Unit)
             }
           case _ => Right(Unit)

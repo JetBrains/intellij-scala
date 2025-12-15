@@ -54,7 +54,7 @@ object PatternGenerationStrategy {
         val membersNames = for {
           value <- values
           if isAccessible(value)
-          if value.`type`().exists(_.conforms(valueType))
+          if value.`type`(None).exists(_.conforms(valueType))
 
           declaredName <- value.declaredNames
         } yield declaredName

@@ -37,8 +37,8 @@ object IfElseToOption extends SimplificationType {
     inner.filterNot {
       case (in, out) =>
         // check if the value would be converted into a value type before being given into Option(...)
-        in.`type`().exists(_.conforms(anyRef)) &&
-          out.`type`().exists(!_.conforms(anyRef))
+        in.`type`(None).exists(_.conforms(anyRef)) &&
+          out.`type`(None).exists(!_.conforms(anyRef))
     }.map { case (x, _) =>
       val text = x.getText
       replace(expr)

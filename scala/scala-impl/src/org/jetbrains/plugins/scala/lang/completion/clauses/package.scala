@@ -100,7 +100,7 @@ package object clauses {
   }
 
   private[clauses] def expectedMatchType(`match`: ScMatch) =
-    `match`.expression.flatMap(_.`type`().toOption)
+    `match`.expression.flatMap(_.`type`(None).toOption)
 
   private[clauses] def expectedFunctionalType(block: ScBlockExpr) = block.expectedType().collect {
     case PartialFunctionType(_, targetType) => targetType

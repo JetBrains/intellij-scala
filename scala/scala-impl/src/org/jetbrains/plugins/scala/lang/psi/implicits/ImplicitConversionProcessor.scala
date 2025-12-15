@@ -39,7 +39,7 @@ final class ImplicitConversionProcessor(
     state: ResolveState
   ): Unit = {
     val subst: ScSubstitutor = state.substitutorWithThisType
-    val elemType             = subst(namedElement.`type`().getOrAny)
+    val elemType             = subst(namedElement.`type`(None).getOrAny)
 
     if (functionType.exists(elemType.conforms(_))) {
       addResult(

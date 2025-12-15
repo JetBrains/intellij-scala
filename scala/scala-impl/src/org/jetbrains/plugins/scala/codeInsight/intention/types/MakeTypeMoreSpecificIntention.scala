@@ -82,8 +82,8 @@ class MakeTypeMoreSpecificIntention extends AbstractTypeAnnotationIntention {
       for {
         body <- function.body
         if maybeEditor.isDefined
-        tp <- body.`type`()
-        declared <- typeElement.`type`()
+        tp <- body.`type`(None)
+        declared <- typeElement.`type`(None)
       } doTemplate(typeElement, declared, tp, function)
 
       true
@@ -94,8 +94,8 @@ class MakeTypeMoreSpecificIntention extends AbstractTypeAnnotationIntention {
       for {
         body <- value.expr
         if maybeEditor.isDefined
-        tp <- body.`type`()
-        declared <- typeElement.`type`()
+        tp <- body.`type`(None)
+        declared <- typeElement.`type`(None)
       } doTemplate(typeElement, declared, tp, value)
 
       true
@@ -106,8 +106,8 @@ class MakeTypeMoreSpecificIntention extends AbstractTypeAnnotationIntention {
       for {
         body <- variable.expr
         if maybeEditor.isDefined
-        tp <- body.`type`()
-        declared <- typeElement.`type`()
+        tp <- body.`type`(None)
+        declared <- typeElement.`type`(None)
       } doTemplate(typeElement, declared, tp, variable)
 
       true
@@ -130,7 +130,7 @@ object MakeTypeMoreSpecificIntention {
     val baseTypes = for {
       declared <- declTypeOpt
       expr <- exprOpt
-      tp <- expr.`type`().toOption
+      tp <- expr.`type`(None).toOption
     } yield {
       implicit val context: Context = Context(expr)
 

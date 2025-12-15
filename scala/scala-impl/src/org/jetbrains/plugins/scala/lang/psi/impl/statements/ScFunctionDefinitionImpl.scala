@@ -7,7 +7,7 @@ import com.intellij.psi._
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScFunctionDefinitionFactory
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cached}
-import org.jetbrains.plugins.scala.extensions.{StubBasedExt, ifReadAllowed}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, StubBasedExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.FUNCTION_DEFINITION
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, canNot
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFunctionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScFunctionElementType
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType.{ImplicitValueClass, ImplicitValueClassDumbMode}
+import org.jetbrains.plugins.scala.lang.psi.types.api.Any
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScLiteralType, api}
 import org.jetbrains.plugins.scala.util.UnloadableThreadLocal
@@ -155,12 +156,13 @@ private object ScFunctionDefinitionImpl {
       case None if !fun.hasAssign => Right(api.Unit)
       case None =>
         fun.body match {
-          case Some(b) =>
-            def rhsType = b.`type`().map(ScLiteralType.widenRecursive)
+          case Some(body) =>
+            def rhsType = body.`type`(Any.toOption).map(ScLiteralType.widenRecursive)
+
             if (fun.scalaLanguageLevel.exists(_.isScala3) && !fun.isExtensionMethod) fun.superMethod match {
               case Some(f: ScFunction) if f.getTypeParameters.length == fun.getTypeParameters.length =>
                 val superMethod = fun.superMethodCall
-                superMethod.`type`()
+                superMethod.`type`(None)
               case _ => rhsType
             }
             else rhsType

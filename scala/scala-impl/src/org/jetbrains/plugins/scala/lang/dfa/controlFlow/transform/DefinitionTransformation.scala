@@ -30,7 +30,7 @@ trait DefinitionTransformation  { this: ScalaDfaControlFlowBuilder =>
     } else {
       val binding = definition.bindings.head
       val descriptor = ScalaDfaVariableDescriptor(binding, None, isStable && binding.isStable)
-      val definedType = definition.`type`().getOrAny
+      val definedType = definition.`type`(None).getOrAny
 
       if (definition.expr.exists(canBeClassInstantiationExpression)) {
         assignVariableValueWithInstanceQualifier(descriptor, definition.expr, binding, definedType)

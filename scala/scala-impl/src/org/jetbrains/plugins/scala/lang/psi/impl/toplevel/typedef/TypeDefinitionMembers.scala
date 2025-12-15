@@ -511,7 +511,7 @@ object TypeDefinitionMembers {
             lit.psiElement match {
               case navigationElement@Some(named: ScNamedTupleComponent) =>
                 // We need the correct substitutor for `named`, so calculate that
-                val result = named.`type`().toOption.flatMap {
+                val result = named.`type`(None).toOption.flatMap {
                   rawType =>
                     val prepared = rawType.updateLeaves { case TypeParameterType(p) => UndefinedType(p) }
                     prepared.conformanceSubstitutor(compType)

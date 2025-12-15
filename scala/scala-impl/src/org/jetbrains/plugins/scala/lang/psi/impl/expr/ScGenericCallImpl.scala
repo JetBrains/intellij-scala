@@ -97,9 +97,9 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
     }
   })
 
-  protected override def innerType: TypeResult =
+  protected override def innerType(expectedType: Option[ScType]): TypeResult =
     polymorphicLambdaType().left.flatMap { _ =>
-      val typeResult = referencedExpr.getNonValueType()
+      val typeResult = referencedExpr.getNonValueType(expectedType)
       convertReferencedType(typeResult, isShape = false)
     }
 
@@ -107,7 +107,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
     polymorphicLambdaType().left.flatMap { _ =>
       val typeResult: TypeResult = referencedExpr match {
         case ref: ScReferenceExpression => ref.shapeType
-        case expr => expr.getNonValueType()
+        case expr => expr.getNonValueType(None)
       }
       convertReferencedType(typeResult, isShape = true)
     }
@@ -117,7 +117,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
     if (polyLambdaType.isLeft) {
       val typeResult: Array[TypeResult] = referencedExpr match {
         case ref: ScReferenceExpression => ref.shapeMultiType
-        case expr                       => Array(expr.getNonValueType())
+        case expr                       => Array(expr.getNonValueType(None))
       }
       typeResult.map(convertReferencedType(_, isShape = true))
     } else Array(polyLambdaType)
@@ -130,12 +130,12 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
     }
   }
 
-  override def multiType: Array[TypeResult] = {
+  override def multiType(expectedType: Option[ScType]): Array[TypeResult] = {
     val polyLambdaType = polymorphicLambdaType()
     if (polyLambdaType.isLeft) {
       val typeResult: Array[TypeResult] = referencedExpr match {
-        case ref: ScReferenceExpression => ref.multiType
-        case expr => Array(expr.getNonValueType())
+        case ref: ScReferenceExpression => ref.multiType(expectedType)
+        case expr => Array(expr.getNonValueType(expectedType))
       }
       typeResult.map(convertReferencedType(_, isShape = false))
     } else Array(polyLambdaType)

@@ -45,7 +45,7 @@ private object ScLightThrowsList {
 
     for {
       expression <- annotation.constructorInvocation.args.flatMap(_.exprs.headOption)
-      clazzType  <- expression.`type`().toOption //classOf[Exception]
+      clazzType  <- expression.`type`(None).toOption //classOf[Exception]
       exception  <- extractExceptionClassType(clazzType)
     } yield {
       exception

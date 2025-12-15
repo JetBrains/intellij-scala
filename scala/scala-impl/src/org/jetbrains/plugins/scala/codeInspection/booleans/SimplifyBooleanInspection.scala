@@ -71,7 +71,7 @@ object SimplifyBooleanUtil {
     import expr.projectContext
     implicit val context: Context = Context(expr)
 
-    expr.`type`().getOrAny.weakConforms(api.Boolean)
+    expr.`type`(None).getOrAny.weakConforms(api.Boolean)
   }
 
   private def getScExprChildren(expr: ScExpression) =  expr.children.collect { case expr: ScExpression => expr }.toList

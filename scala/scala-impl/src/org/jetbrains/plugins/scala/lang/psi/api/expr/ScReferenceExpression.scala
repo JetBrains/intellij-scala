@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.api.expr
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.base._
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -40,7 +41,7 @@ trait ScReferenceExpression extends ScExpression
    * Another usecase is when our type inference failed to decide to which method
    * we should resolve. If all methods has same result type, then we will give valid completion and resolve.
    */
-  def multiType: Array[TypeResult]
+  def multiType(expectedType: Option[ScType]): Array[TypeResult]
 
   /**
    * @return types in the same order as shapeResolve

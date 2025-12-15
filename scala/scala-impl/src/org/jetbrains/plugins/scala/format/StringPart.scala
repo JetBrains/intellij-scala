@@ -62,7 +62,7 @@ case class Injection(expression: ScExpression, specifier: Option[Specifier]) ext
 
   def format: String = specifier.map(_.format).getOrElse("")
 
-  def expressionType: Option[ScType] = expression.`type`().map(_.widen).toOption
+  def expressionType: Option[ScType] = expression.`type`(None).map(_.widen).toOption
 
   def isLiteral: Boolean = expression.is[ScLiteral]
 
