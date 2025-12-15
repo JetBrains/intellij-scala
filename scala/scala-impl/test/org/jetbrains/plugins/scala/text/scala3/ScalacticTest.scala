@@ -13,5 +13,10 @@ class ScalacticTest extends TextToTextTestBase(
     "org.scalactic.Accumulation", // No parentheses in repeated function type
     "org.scalactic.FutureSugar", // No parentheses in repeated function type
     "org.scalactic.TrySugar", // No parentheses for repeated function type
+  ),
+  withSources = true,
+  sourceExceptions = Set(
+    "org.scalactic.Every", // :\ | :\\ (in annotation)
+    "org.scalactic.anyvals.NonEmptyList", // :\ | :\\ (in annotation)
   )
 )
