@@ -43,7 +43,6 @@ class ScalaCompilerTest extends TextToTextTestBase(
     "scala.tools.nsc.typechecker.Typers", // Different .this qualifier
     "scala.tools.nsc.typechecker.Unapplies", // Reference to object without this. prefix
     "scala.tools.nsc.typechecker.splain.SplainErrors", // Cannot resolve reference
-    "scala.tools.nsc.util.WorkScheduler", // Excessive parentheses in function type
     "scala.tools.reflect.FormatInterpolator", // Reference to object without this. prefix
     "scala.tools.reflect.WrappedProperties", // Existential type
     "scala.reflect.quasiquotes.Parsers", // Reference to object without this. prefix

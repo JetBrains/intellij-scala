@@ -345,8 +345,8 @@ trait ScalaTypePresentation extends TypePresentation {
 
     def textOf(params: Seq[ScType])
               (implicit tpc: TypePresentationContext)= params match {
-      case Seq(fun@FunctionType(_, _)) => innerTypeText(fun).parenthesize()
-      case Seq(tup@TupleType(_)) => innerTypeText(tup).parenthesize()
+      case Seq(fun@FunctionType(_, _)) if !fun.isAliasType => innerTypeText(fun).parenthesize()
+      case Seq(tup@TupleType(_)) if !tup.isAliasType => innerTypeText(tup).parenthesize()
       case Seq(mt: ScMatchType) => innerTypeText(mt).parenthesize()
       case Seq(head) => innerTypeText(head)
       case _ => typesText(params)

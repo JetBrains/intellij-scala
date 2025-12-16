@@ -21,9 +21,7 @@ class AkkaTest extends TextToTextTestBase(
     "akka.http.impl.model.parser.SimpleHeaders", // HList type reduction
     "akka.http.impl.util.JavaMapping", // Cannot resolve S, J
     "akka.http.scaladsl.server.Directive", // By-name function type parameter, SCL-21149
-    "akka.http.scaladsl.server.directives.BasicDirectives", // (A) => B where A is FunctionN alias, SCL-24805
     "akka.http.scaladsl.server.util.BinaryPolyFunc", // Unknown
     "akka.stream.scaladsl.MergeHub", // private method references private class (skip private[OuterClass] methods?)
-    "akka.stream.stage.GraphStageLogic", // (A) => B where A is FunctionN alias, SCL-24805
   )
 )

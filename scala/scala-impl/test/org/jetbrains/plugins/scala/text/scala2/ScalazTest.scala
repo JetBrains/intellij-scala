@@ -13,7 +13,6 @@ class ScalazTest extends TextToTextTestBase(
   classExceptions = Set(
     "scalaz.Foralls", // Excessive parentheses in existential type
     "scalaz.FreeFunctions", // Tuple2
-    "scalaz.Heap", // Excessive parentheses in function type
     "scalaz.LanApply", // Any
     "scalaz.std.StringInstances", // No this. prefix for object
     "scalaz.syntax.ToApplicativeErrorOps", // Existential type

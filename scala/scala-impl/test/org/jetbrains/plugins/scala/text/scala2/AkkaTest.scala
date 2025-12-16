@@ -21,14 +21,12 @@ class AkkaTest extends TextToTextTestBase(
     "akka.http.impl.engine.rendering.HttpResponseRendererFactory", // No this. prefix for object
     "akka.http.impl.engine.server.HttpServerBluePrint", // Order in type refinement
     "akka.http.scaladsl.server.Directive", // By-name function type parameter
-    "akka.http.scaladsl.server.directives.BasicDirectives", // Excessive parentheses in function type
     "akka.stream.Supervision", // Excessive parentheses in compound type
     "akka.stream.impl.QueueSource", // Order in type refinement
     "akka.stream.impl.VirtualProcessor", // No this. prefix for object
     "akka.stream.impl.io.ConnectionSourceStage", // Order in type refinement
     "akka.stream.impl.io.compression.DeflateDecompressor", // inflating.type is Any
     "akka.stream.scaladsl.MergeHub", // Cannot resolve Event
-    "akka.stream.stage.GraphStageLogic", // Excessive parentheses in function type
   ),
   includeScalaReflect = true
 )

@@ -11,7 +11,6 @@ class ScalazTest extends TextToTextTestBase(
   packages = Seq("scalaz"),
   minClassCount = 1588,
   classExceptions = Set(
-    "scalaz.Heap", // Excessive parentheses in function type
     "scalaz.\\&/", // id$
     "scalaz.\\/", // id$
   )
