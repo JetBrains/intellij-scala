@@ -5,6 +5,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.extensions.ifReadAllowed
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGivenAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScFunctionDefinitionImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFunctionStub
@@ -17,6 +18,9 @@ class ScGivenAliasDefinitionImpl(
 ) extends ScFunctionDefinitionImpl(stub, nodeType, node)
     with ScGivenAliasDeclarationOrDefinitionImpl
     with ScGivenAliasDefinition {
+
+  override def acceptScala(visitor: ScalaElementVisitor): Unit =
+    visitor.visitGivenAliasDefinition(this)
 
   override def toString: String = "ScGivenAliasDefinition: " + ifReadAllowed(name)("")
 

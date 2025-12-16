@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.PARAM_CLAUSES
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
@@ -35,6 +36,9 @@ class ScGivenDefinitionImpl(
     with ScGivenImpl
     with ScGivenDefinition
     with ScNamedBeginImpl {
+
+  override def acceptScala(visitor: ScalaElementVisitor): Unit =
+    visitor.visitGivenDefinition(this)
 
   override protected def baseIcon: Icon = Icons.CLASS // todo: better icon ?
 
