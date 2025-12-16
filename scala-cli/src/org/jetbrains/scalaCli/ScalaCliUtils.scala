@@ -39,22 +39,30 @@ private object ScalaCliUtils {
       None
 
   private def isScalaCliStandaloneInstalled(workspace: Path): Boolean =
-    BspUtil.isToolInstalledCheckViaVersion(workspace, "scala-cli")
+    BspUtil.isToolInstalledCheckViaVersion(workspace, getScalaCliStandaloneCommand)
 
   /**
    * Returns the command used to invoke Scala CLI commands. It can be:
    *  - Bundled with Scala ≥ 3.5.0: `scala`
-   *  - Standalone installation: `scala-cli`
-   *  - Unit test mode: `./scala-cli` (there is a script in the test project root, see [[org.jetbrains.scalaCli.project.NewScalaCliProjectWizardTest.installScalaCli]]
+   *  - Standalone installation: `scala-cli` or `./scala-cli` in the unit test mode
+   *
+   * @see [[getScalaCliStandaloneCommand]]
    */
   def getScalaCliCommand(scalaCliInstallKind: ScalaCliInstallKind): String =
-    if (ApplicationManager.getApplication.isUnitTestMode)
-      "./scala-cli"
-    else
-      scalaCliInstallKind match {
-        case ScalaCliInstallKind.Bundled => "scala"
-        case ScalaCliInstallKind.Standalone => "scala-cli"
-      }
+    scalaCliInstallKind match {
+      case ScalaCliInstallKind.Bundled => "scala"
+      case ScalaCliInstallKind.Standalone => getScalaCliStandaloneCommand
+    }
+
+  /**
+   * The unit test mode requires `./scala-cli`,
+   * because instead of a global installation, there is a scala-cli script in the test project root.
+   *
+   * @see [[org.jetbrains.scalaCli.project.NewScalaCliProjectWizardTest.installScalaCli]]
+   */
+  private def getScalaCliStandaloneCommand: String =
+    if (ApplicationManager.getApplication.isUnitTestMode) "./scala-cli"
+    else "scala-cli"
 
   /**
    * Checks if Scala CLI is bundled with the scala installation by attempting to run `scala version --cli-version`.
