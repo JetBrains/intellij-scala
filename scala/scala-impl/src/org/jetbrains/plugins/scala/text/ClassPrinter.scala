@@ -14,7 +14,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.project.ScalaFeatures.forPsiOrDefault
+import org.jetbrains.plugins.scala.text.ClassPrinter.{Keywords, isIdentifier}
 
 class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivate: Boolean = true, normalize: Boolean = false) {
   def textOf(e: PsiElement): String = e match {
@@ -52,7 +54,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
 
     val isAnonymous = isGiven && cls.name.startsWith("given_") // .isAnonymous?
 
-    val name = if (isAnonymous) "" else cls.name
+    val name = if (isAnonymous) "" else normalized(cls.name)
 
     val tps = if (cls.typeParameters.isEmpty) "" else cls.typeParameters.map(textOf).mkString("[", ", ", "]")
 
@@ -149,7 +151,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     val annotations = f.annotations.map(a => "\n" + indent + "  " + textOf(a)).mkString
     val modifiers = textOf(f.getModifierList)
     val keyword = if (isGiven) "given " else "def "
-    val name = if (isAnonymous) "" else f.name
+    val name = if (isAnonymous) "" else normalized(f.name)
     val tps = if (f.typeParameters.isEmpty) "" else f.typeParameters.map(textOf).mkString("[", ", ", "]")
     val clauses = f.paramClauses.clauses.map(textOf(_, inPrivateConstructor = false, inCaseClass = false)).mkString
     val tpe = if (f.isConstructor) "" else (if (tps.isEmpty && clauses.isEmpty) spaceAfter(name) else "") + (if (isAnonymous && clauses.isEmpty && tps.isEmpty) "" else ": ") + textOf(f.returnType)
@@ -170,7 +172,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     val keyword = if (v.isInstanceOf[ScValue]) "val " else "var "
     val symbolType = symbol.`type`()
     val isConstant = (v.hasModifierPropertyScala("final") || v.hasModifierPropertyScala("inline")) && !v.hasExplicitType && !v.isAbstract && symbolType.exists(canBeTypeOfConstant)
-    val name = symbol.name
+    val name = normalized(symbol.name)
     val tpe = if (isConstant) "" else (spaceAfter(name) + ": " + textOf(symbolType))
     val rhs = if (isConstant) (" = " + v.asInstanceOf[ScValueOrVariableDefinition].expr.map(_.getText).getOrElse("")) else if (!v.isAbstract) " = ???" else ""
     annotations + "\n" + indent + "  " + modifiers + keyword + name + tpe + rhs + "\n"
@@ -192,7 +194,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
   private def textOf(t: ScTypeAlias, indent: String): String = {
     val annotations = t.annotations.map(a => "\n" + indent + "  " + textOf(a)).mkString
     val modifiers = textOf(t.getModifierList)
-    val name = t.name
+    val name = normalized(t.name)
     val tps = if (t.typeParameters.isEmpty) "" else t.typeParameters.map(textOf).mkString("[", ", ", "]")
     val bounds = textOfBoundsIn(t)
     val rhs = t match {
@@ -205,7 +207,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
   private def textOf(p: ScTypeParam): String = {
     val annotations = p.annotations.map(textOf).mkString(" ")
     val variance = if (p.isCovariant) "+" else if (p.isContravariant) "-" else ""
-    val name = p.name
+    val name = normalized(p.name)
     val clauses = p.typeParametersClause.map(_.typeParameters.map(textOf).mkString("[", ", ", "]")).mkString
     val typeBounds = textOfBoundsIn(p)
     val contextBound = p.contextBound.map(t => ": " + textOf(t)).mkString
@@ -232,7 +234,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     val keyword =
       if (withPrivate || !isPrivate(p)) if (p.isVal) (if (!normalize || !(inCaseClass && modifiers.isEmpty)) "val " else "") else if (p.isVar) "var " else ""
       else ""
-    val name = p.name
+    val name = normalized(p.name)
     val byName = if (p.isCallByNameParameter) "=> " else ""
     val tpe = textOf(p.`type`())
     val isAnonymous = p.isAnonymous
@@ -294,6 +296,36 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     case Right(t) => textOf(t)
   }
 
+  // Should be part of .name, SCL-21919
+  private def normalized(name: String): String = if (normalize && name.startsWith("`")) {
+    val unquoted = name.stripPrefix("`").stripSuffix("`")
+    if (!Keywords(unquoted) && isIdentifier(unquoted)) unquoted
+    else name
+  } else {
+    name
+  }
+
   private def spaceAfter(name: String): String =
     if (name.lastOption.exists(c => !c.isLetterOrDigit && c != '`')) " " else ""
+}
+
+private object ClassPrinter {
+  private val Keywords = Set(
+    ":", "=", "=>", "=>>", "?=>", "<-", "<:", "<%", ">:", "#", "@", "abstract", "case", "catch", "class", "def", "do", "else", "enum", "export", "extends", "extension",
+    "false", "final", "finally", "for", "forSome", "given", "if", "implicit", "import", "lazy", "macro", "match", "new", "null", "object", "override", "package",
+    "private", "protected", "return", "sealed", "super", "then", "this", "throw", "trait", "true", "try", "type", "val", "var", "while", "with", "yield",
+  )
+
+  private def isIdentifier(s: String): Boolean = s.nonEmpty && {
+    if (ScalaNamesUtil.isIdentifierStart(s(0))) {
+      val lastIdCharIdx = s.takeWhile(ScalaNamesUtil.isIdentifierPart).length - 1
+      if (lastIdCharIdx < 0 || lastIdCharIdx == s.length - 1) true
+      else if (s.charAt(lastIdCharIdx) != '_') false
+      else s.drop(lastIdCharIdx + 1).forall(ScalaNamesUtil.isOpCharacter)
+    } else if (ScalaNamesUtil.isOpCharacter(s(0))) {
+      s.forall(ScalaNamesUtil.isOpCharacter)
+    } else {
+      false
+    }
+  }
 }
