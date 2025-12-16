@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClause, ScParameters, ScTypeParamClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScDerivesClause, ScTemplateParents}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGiven, ScGivenAlias, ScGivenAliasDeclaration, ScGivenAliasDefinition, ScGivenDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScCaptureTypeElementImpl
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api._
 
@@ -160,7 +160,7 @@ abstract class ScalaElementVisitor extends PsiElementVisitor {
   def visitTypedExpr(stmt: ScTypedExpression): Unit = visitExpression(stmt)
   def visitTuple(tuple: ScTuple): Unit = visitExpression(tuple)
   def visitNamedTuple(tuple: ScNamedTuple): Unit = visitExpression(tuple)
-  def visitNamedTuplePattern(pattern: ScNamedTuplePattern) = visitPattern(pattern)
+  def visitNamedTuplePattern(pattern: ScNamedTuplePattern): Unit = visitPattern(pattern)
   def visitBlockExpression(block: ScBlockExpr): Unit = visitExpression(block)
   def visitUnderscoreExpression(under: ScUnderscoreSection): Unit = visitExpression(under)
   def visitConstrBlockExpr(constr: ScConstrBlockExpr): Unit = visitBlockExpression(constr)
@@ -186,6 +186,13 @@ abstract class ScalaElementVisitor extends PsiElementVisitor {
   def visitTypeLambdaTypeElement(lambda: ScTypeLambdaTypeElement): Unit = visitTypeElement(lambda)
   def visitCaptureTypeElement(captureType: ScCaptureTypeElement): Unit = visitTypeElement(captureType)
   def visitContextBound(contextBound: ScContextBound): Unit = visitScalaElement(contextBound)
+
+  // given
+  def visitGiven(g: ScGiven): Unit = visitScalaElement(g)
+  def visitGivenAlias(g: ScGivenAlias): Unit = visitGiven(g)
+  def visitGivenAliasDeclaration(g: ScGivenAliasDeclaration): Unit = visitGivenAlias(g)
+  def visitGivenAliasDefinition(g: ScGivenAliasDefinition): Unit = visitGivenAlias(g)
+  def visitGivenDefinition(g: ScGivenDefinition): Unit = visitGiven(g)
 
   //scaladoc
   // TODO visitScalaElement

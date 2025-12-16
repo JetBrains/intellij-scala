@@ -6,6 +6,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.extensions.{PsiMemberExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGivenAliasDefinition
@@ -20,6 +21,9 @@ class ScGivenAliasDefinitionImpl(
 ) extends ScFunctionDefinitionImpl(stub, nodeType, node)
   with ScGivenAliasDeclarationOrDefinitionImpl
   with ScGivenAliasDefinition {
+
+  override def acceptScala(visitor: ScalaElementVisitor): Unit =
+    visitor.visitGivenAliasDefinition(this)
 
   override def toString: String = "ScGivenAliasDefinition: " + ifReadAllowed(name)("")
 
