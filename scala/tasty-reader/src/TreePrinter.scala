@@ -1045,6 +1045,8 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
           }
           next = true
         }
+      case node @ Node1(PARAM) =>
+        templateValueParams.map(_.next())
       case _ =>
     }
     if (open) {

@@ -61,4 +61,8 @@ trait ContextBounds {
   type Argument[A] = [X] =>> Ordering[X]
 
   def argument[A: Argument[Int]]: Unit = ???
+
+  class ImplicitValParameter1[A: Ordering](implicit val x: Int, y: Int)
+
+  class ImplicitValParameter2[A: Ordering](implicit x: Int, val y: Int)
 }

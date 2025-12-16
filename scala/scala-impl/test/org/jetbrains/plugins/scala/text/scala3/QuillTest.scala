@@ -64,7 +64,6 @@ class QuillTest extends TextToTextTestBase(
     "io.getquill.generic.ElaborateStructure", // scala.quoted.Exp | scala.Any
     "io.getquill.generic.GenericDecoder", // scala.quoted.Exp | scala.Any
     "io.getquill.jdbczio.Quill", // io.getquill.context.qzio.ZioJdbcContext[_root_.io.getquill.PostgresDialect, N] | io.getquill.PostgresZioJdbcContext[N]
-    "io.getquill.metaprog.EagerListPlanterExpr", // TODO using tpe | using val tpe
     "io.getquill.metaprog.Extractors", // scala.quoted.Exp | scala.Any
     "io.getquill.metaprog.Is", // scala.quoted.Exp | scala.Nothing
     "io.getquill.metaprog.QuotationLotExpr", // Type inference discrepancies
