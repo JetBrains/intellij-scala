@@ -17,13 +17,13 @@ class AkkaTest extends TextToTextTestBase(
   minClassCount = 2582,
   classExceptions = Set(
     "akka.actor.typed.internal.receptionist.Platform", // Match type case without qualifier
-    "akka.http.impl.model.parser.CommonRules", // Any
-    "akka.http.impl.model.parser.SimpleHeaders", // .Out
+    "akka.http.impl.model.parser.CommonRules", // HList type reduction
+    "akka.http.impl.model.parser.SimpleHeaders", // HList type reduction
     "akka.http.impl.util.JavaMapping", // Cannot resolve S, J
-    "akka.http.scaladsl.server.Directive", // By-name function type parameter
-    "akka.http.scaladsl.server.directives.BasicDirectives",
+    "akka.http.scaladsl.server.Directive", // By-name function type parameter, SCL-21149
+    "akka.http.scaladsl.server.directives.BasicDirectives", // (A) => B where A is FunctionN alias, SCL-24805
     "akka.http.scaladsl.server.util.BinaryPolyFunc", // Unknown
-    "akka.stream.scaladsl.MergeHub", // Cannot resolve Event
-    "akka.stream.stage.GraphStageLogic", // Excessive parentheses in function type
+    "akka.stream.scaladsl.MergeHub", // private method references private class (skip private[OuterClass] methods?)
+    "akka.stream.stage.GraphStageLogic", // (A) => B where A is FunctionN alias, SCL-24805
   )
 )

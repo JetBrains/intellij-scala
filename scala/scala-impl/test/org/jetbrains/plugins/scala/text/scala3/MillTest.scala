@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.text.scala3
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.text.TextToTextTestBase
 import org.jetbrains.plugins.scala.text.TextToTextTestBase.Content
-import org.jetbrains.plugins.scala.text.scala3.MillTest.ScaladocAnnotation
 
 class MillTest extends TextToTextTestBase(
   dependencies = Seq(
@@ -25,11 +24,8 @@ class MillTest extends TextToTextTestBase(
     "mill.main.VisualizeModule", // private type
   ),
   transformed = {
-    case (Content.DecompiledVsSourceOutline, s) => ScaladocAnnotation.replaceAllIn(s, "")
+    case (Content.DecompiledVsSourceOutline, s) =>
+      s.replaceAll(" *@_root_.mill.moduledefs.Scaladoc\\(.*?\\)\n", "")
     case (_, s) => s
   }
 )
-
-private object MillTest {
-  private val ScaladocAnnotation = " *@_root_.mill.moduledefs.Scaladoc\\(.*?\\)\n".r
-}
