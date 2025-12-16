@@ -144,10 +144,12 @@ object BspUtil {
       .exists(x => !x.isDirectory && fileNames.contains(x.getFileName.toString))
 
   /**
+   * Checks whether a command-line tool is installed by invoking its version command.
    *
-   * @param directory where the tool installation will be checked
+   * @param directory directory in which the check will be executed
+   * @param toolCommand executable name (e.g. "scala-cli", "mill")
    */
-  def checkIfToolIsInstalled(directory: Path, toolCommand: String): Boolean = {
+  def isToolInstalledCheckViaVersion(directory: Path, toolCommand: String): Boolean = {
     val work = runCommand(directory, toolCommand, "version")
     work.fold(
       exc => {
