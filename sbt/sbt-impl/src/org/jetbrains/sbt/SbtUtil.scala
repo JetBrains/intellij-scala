@@ -27,7 +27,7 @@ import org.jetbrains.sbt.project.{SbtExternalSystemManager, SbtProjectSystem}
 import org.jetbrains.sbt.settings.SbtSettings
 
 import java.net.URI
-import java.nio.file.Path
+import java.nio.file.{Files, Path}
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.MapHasAsScala
 import scala.math.Ordering.Implicits.infixOrderingOps
@@ -396,4 +396,10 @@ object SbtUtil {
   val SeparateMainTestModulesBlogPostLink =
     "https://blog.jetbrains.com/scala/new-module-layout-for-sbt/"
 
+  def createTemporarySbtFile(content: String): Path = {
+    val tmpPluginsSbtFile = Files.createTempFile("idea", Sbt.Extension)
+    Files.writeString(tmpPluginsSbtFile, content)
+    tmpPluginsSbtFile.toFile.deleteOnExit()
+    tmpPluginsSbtFile
+  }
 }

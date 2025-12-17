@@ -92,16 +92,13 @@ private final class SbtGenerateManagedSourcesAction extends AnAction(
           }
 
           val repoPath = SbtUtil.normalizePath(SbtUtil.getRepoDir)
-          val pluginsSbt =
+          val tmpPluginsSbtFile = SbtUtil.createTemporarySbtFile(
             raw"""resolvers += MavenCache("Scala Plugin Bundled Repository", file(raw"$repoPath"))
                  |
                  |addSbtPlugin("org.jetbrains.scala" % "sbt-structure-extractor" % "${BuildInfo.sbtStructureVersion}", "$sbtStructurePluginBinVersion")
                  |""".stripMargin
-
-          val tmpPluginsSbtFile = Files.createTempFile("idea-gen-managed-sources", ".sbt")
-          Files.writeString(tmpPluginsSbtFile, pluginsSbt)
+          )
           val setupOptions = Seq(s"-addPluginSbtFile=${tmpPluginsSbtFile.toRealPath()}")
-          tmpPluginsSbtFile.toFile.deleteOnExit()
 
           val generateCommand = "show " + SbtUtil.sbtStructureGlobalCommand("ideaGenerateAllManagedSources", sbtVersion)
           val sbtResult = SbtRunner().runSbt(
