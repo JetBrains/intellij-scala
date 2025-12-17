@@ -109,7 +109,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     @Nullable val ideaProject: Project = taskId.findProject()
 
     val startTime = System.currentTimeMillis()
-    val structureDump = dumpStructure(projectRoot, sbtLauncher, context.sbtVersion, settings, ideaProject, indicator)
+    val useShellImport = settings.useShellForImport && ideaProject != null
+    val structureDump = dumpStructure(projectRoot, sbtLauncher, context.sbtVersion, settings, ideaProject, indicator, useShellImport)
 
     // side-effecty status reporting
     structureDump.foreach { _ =>
@@ -125,7 +126,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
             e => throw new IllegalStateException("Could not deserialize sbt structure data", e),
             identity
           )
-        convert(normalizePath(projectRoot), data, settings.jdk, settings, Option(ideaProject)).toDataNode
+        convert(normalizePath(projectRoot), data, settings.jdk, settings, Option(ideaProject), useShellImport).toDataNode
       }
       .recoverWith {
         case ImportCancelledException(cause) =>
@@ -168,11 +169,11 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     sbtVersion: SbtVersion,
     settings: SbtExecutionSettings,
     @Nullable project: Project,
-    indicator: ProgressIndicator
+    indicator: ProgressIndicator,
+    useShellImport: Boolean
   )(implicit reporter: BuildReporter, context: ImportContext): Try[(Elem, BuildMessages)] = {
     SbtProjectResolver.processOutputOfLatestStructureDump = ""
 
-    val useShellImport = settings.useShellForImport && project != null
     val options = getSbtStructureDumpOptions(settings)
 
     def doDumpStructure(structureFile: Path): Try[(Elem, BuildMessages)] = {
@@ -411,7 +412,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       None,
       projectToParentModule,
       buildProjectsGroup,
-      isPreview = true
+      isPreview = true,
+      useShellImport = false
     )
 
     projectNode
@@ -440,7 +442,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     data: sbtStructure.StructureData,
     settingsJdk: Option[String],
     settings: SbtExecutionSettings,
-    optIdeaProject: Option[Project]
+    optIdeaProject: Option[Project],
+    useShellImport: Boolean
   )(implicit context: ImportContext): Node[esProjectData.ProjectData] = {
 
     /**
@@ -513,7 +516,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
         data.localCachePath.map(_.toPath.toCanonicalPath.toString),
         projectToParentModule,
         buildProjectsGroups,
-        isPreview = false
+        isPreview = false,
+        useShellImport
       )
     val buildModules = data.builds.map(buildModuleForProject)
 
@@ -1166,7 +1170,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     localCachePath: Option[String],
     projectToParentModule: Map[ProjectData, ModuleDataNodeType],
     buildProjectsGroups: Seq[BuildProjectsGroup],
-    isPreview: Boolean
+    isPreview: Boolean,
+    useShellImport: Boolean
   )(implicit context: ImportContext): BuildModuleNodeWithBuildBaseDir = {
 
     extension (file: Path)
@@ -1216,10 +1221,40 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     result.add(createBuildContentRoot(buildProjectDirRoot, isPreview))
 
     val library = {
-      val classes = build.classes.filter(_.toPath.exists).map(_.toPath.toCanonicalPath.toString)
-      val docs = build.docs.filter(_.toPath.exists).map(_.toPath.toCanonicalPath.toString)
-      val sources = build.sources.filter(_.toPath.exists).map(_.toPath.toCanonicalPath.toString)
-      createModuleLevelDependency(Sbt.BuildLibraryPrefix + context.sbtVersion, classes, docs, sources, DependencyScope.PROVIDED, 0)(result)
+      def preparePaths(paths: Seq[InterpretablePath]): Seq[String] =
+        paths
+          .map(_.toPath)
+          .filter(_.exists)
+          .filter(path =>
+            /* When the import happens in the sbt shell or in the sbt process with sbt 1.5.0+, the sbt-structure jar is present on the classpath,
+            even though the user hasn't configured it. It's an existing, conceptual problem (SCL-24799).
+            The import in the sbt shell and the import in the sbt process with sbt 1.5.0+ are different:
+              + in the sbt shell - sbt-structure and sbt-idea-shell plugins are added using the `addSbtPlugin` command.
+              Configuring them this way results in a situation where, for example, if the user also adds the sbt-structure plugin with `addSbtPlugin`,
+              only a single sbt-structure jar will end up on the classpath. Moreover, if the user configures a higher version of the sbt-structure plugin,
+              it takes precedence and appears on the classpath, while the version configured by the Scala plugin is discarded.
+              Implementing a logic to ignore jars configured this way is non-trivial. For instance, if the user manually configures the sbt-structure plugin
+              with the same version used by the Scala plugin and does not have an internet connection, the only sbt-structure jar available would be
+              the one bundled in the Scala plugin. Therefore, we cannot simply ignore sbt-structure jars located in the plugin's repo directory
+              when importing this way.
+              + in the sbt process with sbt 1.5.0+ - sbt-structure jar is added via the `unmanagedJars` task.
+              This way, even if the user adds the `sbt-structure` plugin themselves, there will be two jars on the classpath -
+              one bundled in the Scala plugin and another from a different location (this one configured by the user).
+              Because of this, we can safely ignore the sbt-structure jar from the plugin's repo directory.
+            */
+            val isStructureJarInRepoDir = path.startsWith(getRepoDir) && path.nameContains("sbt-structure")
+            useShellImport || !isStructureJarInRepoDir
+          )
+          .map(_.toCanonicalPath.toString)
+
+      createModuleLevelDependency(
+        name = Sbt.BuildLibraryPrefix + context.sbtVersion,
+        classes = preparePaths(build.classes),
+        docs = preparePaths(build.docs),
+        sources = preparePaths(build.sources),
+        scope = DependencyScope.PROVIDED,
+        order = 0
+      )(result)
     }
 
     result.add(library)
