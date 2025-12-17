@@ -5,10 +5,10 @@ import org.jetbrains.plugins.scala.text.TextToTextTestBase
 
 class ScalatestTest extends TextToTextTestBase(
   dependencies = Seq(
-    "org.scalatest" %% "scalatest" % "3.2.14"
+    "org.scalatest" %% "scalatest" % "3.2.19"
   ),
   packages = Seq("org.scalatest"),
-  minClassCount = 677,
+  minClassCount = 678,
   classExceptions = Set(
     "org.scalatest.Suite", // Existential type
     "org.scalatest.enablers.InspectorAsserting", // Tuple2 type argument

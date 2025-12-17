@@ -8,7 +8,7 @@ class PlayTest extends TextToTextTestBase(
     "com.typesafe.play" %% "play" % "2.9.6",
   ),
   packages = Seq("controllers", "models", "play", "views"),
-  minClassCount = 620,
+  minClassCount = 628,
   classExceptions = Set(
     "play.api.mvc.ActionBuilder", // Extra [Nothing] type argument
     "play.api.mvc.DefaultActionBuilderImpl", // Extra [Nothing] type argument

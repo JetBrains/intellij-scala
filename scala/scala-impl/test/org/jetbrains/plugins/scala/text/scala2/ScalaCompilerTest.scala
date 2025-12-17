@@ -8,7 +8,7 @@ class ScalaCompilerTest extends TextToTextTestBase(
     "org.jline" % "jline" % "3.21.0",
   ),
   packages = Seq("scala.tools", "scala.reflect.quasiquotes", "scala.reflect.reify"),
-  minClassCount = 694,
+  minClassCount = 710,
   classExceptions = Set(
     "scala.tools.nsc.CompilationUnits", // Reference to object without this. prefix
     "scala.tools.nsc.Global", // Reference to object without this. prefix

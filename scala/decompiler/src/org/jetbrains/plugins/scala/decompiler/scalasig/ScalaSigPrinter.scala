@@ -125,7 +125,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
           printSymbolAttributes(a, onNewLine = true, indent())
           indent()
           printAlias(level, a)
-        case t: TypeSymbol if !t.isParam && !t.name.matches("_\\$\\d+") &&
+        case t: TypeSymbol if !t.isParam && !t.name.matches("(?:_|\\$qmark)\\$\\d+") &&
           !t.name.matches("\\?(\\d)+") =>
           // todo: type 0? found in Suite class from scalatest package. So this is quickfix,
           // todo: we need to find why such strange type is here
@@ -949,7 +949,7 @@ object ScalaSigPrinter {
 
   private val setterSuffix = "_$eq"
 
-  private val placeholderPattern = Pattern.compile("_\\$\\S?\\d+")
+  private val placeholderPattern = Pattern.compile("[_?]\\$\\S?\\d+")
 
   private val defaultParamMarker = "$default$"
 
@@ -970,10 +970,7 @@ object ScalaSigPrinter {
       else str
     }
 
-    def fixPlaceholderNames: String = {
-      if (str.indexOf('_') < 0) str //optimization
-      else placeholderPattern.matcher(str).replaceAll("_")
-    }
+    def fixPlaceholderNames: String = placeholderPattern.matcher(str).replaceAll("_")
 
     def escapeNonIdentifiers: String = {
       if (str == "<empty>") str

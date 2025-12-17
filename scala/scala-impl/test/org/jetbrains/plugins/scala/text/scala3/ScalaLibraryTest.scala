@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.text.TextToTextTestBase
 class ScalaLibraryTest extends TextToTextTestBase(
   dependencies = Seq.empty,
   packages = Seq("scala"),
-  minClassCount = 91,
+  minClassCount = 92,
   classExceptions = Set(
     "scala.Tuple", // _ in match types, SCL-23189
   ),

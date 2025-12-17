@@ -6,11 +6,11 @@ import org.jetbrains.plugins.scala.text.TextToTextTestBase.Content.{DecompiledVs
 
 class QuillTest extends TextToTextTestBase(
   dependencies = Seq(
-    "io.getquill" %% "quill-sql" % "4.6.0",
-    "io.getquill" %% "quill-jdbc-zio" % "4.6.0"
+    "io.getquill" %% "quill-sql" % "4.8.4",
+    "io.getquill" %% "quill-jdbc-zio" % "4.8.4"
   ),
   packages = Seq("io.getquill"),
-  minClassCount = 658,
+  minClassCount = 661,
   classExceptions = Set(
     "io.getquill.DynamicInsert", // No parentheses for repeated function type
     "io.getquill.EntityQueryModel", // No parentheses for repeated function type
@@ -42,7 +42,6 @@ class QuillTest extends TextToTextTestBase(
     "io.getquill.IdiomContext", // scala.Option | scala.Some
     "io.getquill.MirrorContextBase", // MirrorContextBase.this.QueryMirror | MirrorContextBase.this.RunQueryResult
     "io.getquill.StringCodec", // ... | Cannot resolve expression
-    "io.getquill.ast.Ast", // scala.Predef.String | scala.Any
     "io.getquill.ast.StatefulTransformerWithStack", // scala.Option | scala.None.type
     "io.getquill.context.BatchStatic", // io.getquill.ast.Ident | scala.Any
     "io.getquill.context.Execution", // scala.quoted.Expr | scala.Any
@@ -55,7 +54,6 @@ class QuillTest extends TextToTextTestBase(
     "io.getquill.context.ReflectivePathChainLookup", // scala.Option[java.lang.Object] | scala.Any
     "io.getquill.context.StaticState", // [?, ?, ?] | [_$1, _$2, _$3]]) forSome {type _$1; type _$2; type _$3}]
     "io.getquill.context.StaticSpliceMacro", // scala.Boolean | scala.Any
-    "io.getquill.context.sql.SqlQuery", // scala.Predef.String | scala.Any
     "io.getquill.context.sql.idiom.SqlIdiom", // SqlIdiom | SqlIdiom with _root_.java.lang.Object { def...
     "io.getquill.dsl.InfixDsl", // \" | " (in annotation)
     "io.getquill.generic.DeconstructElaboratedEntityLevels", // Multiple scala.quoted.Exp
@@ -98,8 +96,8 @@ class QuillTest extends TextToTextTestBase(
     "io.getquill.parser.ValueParser", // ?=> | N/A
     "io.getquill.sql.norm.QueryLevel", // N/A | with Product with Serializable
     "io.getquill.util.Format", // java.lang.Object | java.io.Serializable
+    "io.getquill.util.Interpolator2", // scala.|[T, (T, L)] | scala.Any
     "io.getquill.util.Load", // private | private[Load]
-    "io.getquill.util.Messages", // N/A | with Product with Serializable
   ),
   transformed = {
     case (DecompiledVsSourceOutline, s) =>

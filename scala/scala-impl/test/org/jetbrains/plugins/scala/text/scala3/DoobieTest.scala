@@ -5,14 +5,8 @@ import org.jetbrains.plugins.scala.text.TextToTextTestBase
 
 class DoobieTest extends TextToTextTestBase(
   dependencies = Seq(
-    "org.tpolecat" %% "doobie-core" % "1.0.0-RC1",
+    "org.tpolecat" %% "doobie-core" % "1.0.0-RC11",
   ),
   packages = Seq("doobie"),
-  minClassCount = 117,
-  classExceptions = Set(
-    "doobie.util.GetPlatform", // Cannot resolve p.MirroredElemTypes, scala.EmptyTuple
-    "doobie.util.PutPlatform", // Cannot resolve m.MirroredElemTypes, scala.EmptyTuple
-    "doobie.util.ReadPlatform", // EmptyTuple is Any
-    "doobie.util.WritePlatform", // EmptyTuple is Any
-  )
+  minClassCount = 124
 )

@@ -83,6 +83,7 @@ class DecompilerTest2 extends TestCase {
   def testTypesThis(): Unit = doTest("types/This")
   def testTypesTuple(): Unit = doTest("types/Tuple")
   def testTypesWildcard(): Unit = doTest("types/Wildcard")
+  def testTypesWildcard_3(): Unit = doTest("types/Wildcard_3")
   def testEmptyPackage(): Unit = doTest("EmptyPackage")
   def testNesting(): Unit = doTest("Nesting")
 

@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.text.TextToTextTestBase
 class ScalaReflectTest extends TextToTextTestBase(
   dependencies = Seq.empty,
   packages = Seq("scala.reflect"),
-  minClassCount = 214,
+  minClassCount = 217,
   classExceptions = Set(
     "scala.reflect.api.TypeTags", // TypeTags.this. vs Universe.this
     "scala.reflect.internal.Definitions", // type NameTypeDefinitions.this.TermName in type refinement

@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 class ScalaLibrary_3_8_Test extends TextToTextTestBase(
   dependencies = Seq.empty,
   packages = Seq("scala"),
-  minClassCount = 909,
+  minClassCount = 910,
   classExceptions = Set(
     "scala.EmptyTuple", // duplicate JARs in RC3
     "scala.NamedTuple", // def map[F[_]](f: [t] => t => F[t])
