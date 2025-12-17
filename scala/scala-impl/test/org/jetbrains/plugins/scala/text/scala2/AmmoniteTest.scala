@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.text.TextToTextTestBase
 
 class AmmoniteTest extends TextToTextTestBase(
   dependencies = Seq(
-    "com.lihaoyi" % "ammonite_2.13.16" % "3.0.2",
+    "com.lihaoyi" % "ammonite_2.13.18" % "3.0.6",
   ),
   packages = Seq("ammonite"),
   minClassCount = 156,

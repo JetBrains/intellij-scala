@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.text.TextToTextTestBase
 
 class ScalacheckTest extends TextToTextTestBase(
   dependencies = Seq(
-    "org.scalacheck" %% "scalacheck" % "1.17.0",
+    "org.scalacheck" %% "scalacheck" % "1.19.0",
   ),
   packages = Seq("org.scalacheck"),
   minClassCount = 38

@@ -5,14 +5,14 @@ import org.jetbrains.plugins.scala.text.TextToTextTestBase
 
 class ScalatestTest extends TextToTextTestBase(
   dependencies = Seq(
-    "org.scalatest" %% "scalatest" % "3.2.14"
+    "org.scalatest" %% "scalatest" % "3.2.19"
   ),
   packages = Seq("org.scalatest"),
-  minClassCount = 660,
+  minClassCount = 667,
   classExceptions = Set(
     "org.scalatest.enablers.InspectorAsserting", // Tuple2 type argument
-    "org.scalatest.tools.Framework", // Any
-    "org.scalatest.tools.ScalaTestAntTask", // Cannot resolve reference
+    "org.scalatest.tools.Framework", // extends _root_.sbt.testing.Framework (in source: extends SbtFramework)
+    "org.scalatest.tools.ScalaTestAntTask", // Cannot resolve org.apache.tools.ant.*
     "org.scalatest.tools.ScalaTestFramework", // Any
   ),
   withSources = true,

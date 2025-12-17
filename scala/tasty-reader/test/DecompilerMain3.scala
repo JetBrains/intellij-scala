@@ -19,7 +19,7 @@ import scala.util.chaining.scalaUtilChainingOps
 object DecompilerMain3 {
   enum Mode { case Parse, Test, Benchmark }
 
-  private val mode = Mode.Test
+  private val mode = Mode.Parse
 
   private val Home: String = System.getProperty("user.home")
 
@@ -27,53 +27,53 @@ object DecompilerMain3 {
   private val OutputDir = Home + "/IdeaProjects/scala-plugin-for-ultimate/community/scala/tasty-reader/target/comparison"
 
   private val Libraries = Seq(
-    "org.scala-lang/scala3-library_3/jars/scala3-library_3-3.3.0.jar",
-    "org.scala-lang/scala3-compiler_3/jars/scala3-compiler_3-3.3.0.jar",
+    "org.scala-lang/scala3-library_3/jars/scala3-library_3-3.3.7.jar",
+    "org.scala-lang/scala3-compiler_3/jars/scala3-compiler_3-3.3.7.jar",
 
-    "org.scalatest/scalatest-core_3/bundles/scalatest-core_3-3.2.14.jar",
-    "org.scalatest/scalatest-diagrams_3/bundles/scalatest-diagrams_3-3.2.14.jar",
-    "org.scalatest/scalatest-featurespec_3/bundles/scalatest-featurespec_3-3.2.14.jar",
-    "org.scalatest/scalatest-flatspec_3/bundles/scalatest-flatspec_3-3.2.14.jar",
-    "org.scalatest/scalatest-freespec_3/bundles/scalatest-freespec_3-3.2.14.jar",
-    "org.scalatest/scalatest-funspec_3/bundles/scalatest-funspec_3-3.2.14.jar",
-    "org.scalatest/scalatest-funsuite_3/bundles/scalatest-funsuite_3-3.2.14.jar",
-    "org.scalatest/scalatest-matchers-core_3/bundles/scalatest-matchers-core_3-3.2.14.jar",
-    "org.scalatest/scalatest-mustmatchers_3/bundles/scalatest-mustmatchers_3-3.2.14.jar",
-    "org.scalatest/scalatest-propspec_3/bundles/scalatest-propspec_3-3.2.14.jar",
-    "org.scalatest/scalatest-refspec_3/bundles/scalatest-refspec_3-3.2.14.jar",
-    "org.scalatest/scalatest-shouldmatchers_3/bundles/scalatest-shouldmatchers_3-3.2.14.jar",
-    "org.scalatest/scalatest-wordspec_3/bundles/scalatest-wordspec_3-3.2.14.jar",
+    "org.scalatest/scalatest-core_3/bundles/scalatest-core_3-3.2.19.jar",
+    "org.scalatest/scalatest-diagrams_3/bundles/scalatest-diagrams_3-3.2.19.jar",
+    "org.scalatest/scalatest-featurespec_3/bundles/scalatest-featurespec_3-3.2.19.jar",
+    "org.scalatest/scalatest-flatspec_3/bundles/scalatest-flatspec_3-3.2.19.jar",
+    "org.scalatest/scalatest-freespec_3/bundles/scalatest-freespec_3-3.2.19.jar",
+    "org.scalatest/scalatest-funspec_3/bundles/scalatest-funspec_3-3.2.19.jar",
+    "org.scalatest/scalatest-funsuite_3/bundles/scalatest-funsuite_3-3.2.19.jar",
+    "org.scalatest/scalatest-matchers-core_3/bundles/scalatest-matchers-core_3-3.2.19.jar",
+    "org.scalatest/scalatest-mustmatchers_3/bundles/scalatest-mustmatchers_3-3.2.19.jar",
+    "org.scalatest/scalatest-propspec_3/bundles/scalatest-propspec_3-3.2.19.jar",
+    "org.scalatest/scalatest-refspec_3/bundles/scalatest-refspec_3-3.2.19.jar",
+    "org.scalatest/scalatest-shouldmatchers_3/bundles/scalatest-shouldmatchers_3-3.2.19.jar",
+    "org.scalatest/scalatest-wordspec_3/bundles/scalatest-wordspec_3-3.2.19.jar",
 
-    "org.scalactic/scalactic_3/jars/scalactic_3-3.2.14.jar",
+    "org.scalactic/scalactic_3/jars/scalactic_3-3.2.19.jar",
 
-    "org.scalacheck/scalacheck_3/jars/scalacheck_3-1.17.0.jar",
+    "org.scalacheck/scalacheck_3/jars/scalacheck_3-1.19.0.jar",
 
-    "dev.zio/zio_3/jars/zio_3-2.0.2.jar",
-    "dev.zio/zio-streams_3/jars/zio-streams_3-2.0.2.jar",
-    "dev.zio/zio-stacktracer_3/jars/zio-stacktracer_3-2.0.2.jar",
+    "dev.zio/zio_3/jars/zio_3-2.1.23.jar",
+    "dev.zio/zio-streams_3/jars/zio-streams_3-2.1.23.jar",
+    "dev.zio/zio-stacktracer_3/jars/zio-stacktracer_3-2.1.23.jar",
 
-    "org.typelevel/cats-core_3/jars/cats-core_3-2.8.0.jar",
-    "org.typelevel/cats-effect_3/jars/cats-effect_3-3.3.14.jar",
-    "org.typelevel/cats-effect-kernel_3/jars/cats-effect-kernel_3-3.3.14.jar",
-    "org.typelevel/cats-effect-std_3/jars/cats-effect-std_3-3.3.14.jar",
-    "org.typelevel/cats-free_3/jars/cats-free_3-2.8.0.jar",
-    "org.typelevel/cats-kernel_3/jars/cats-kernel_3-2.8.0.jar",
-    "org.typelevel/cats-kernel-laws_3/jars/cats-kernel-laws_3-2.8.0.jar",
-    "org.typelevel/cats-laws_3/jars/cats-laws_3-2.8.0.jar",
+    "org.typelevel/cats-core_3/jars/cats-core_3-2.13.0.jar",
+    "org.typelevel/cats-effect_3/jars/cats-effect_3-3.6.3.jar",
+    "org.typelevel/cats-effect-kernel_3/jars/cats-effect-kernel_3-3.6.3.jar",
+    "org.typelevel/cats-effect-std_3/jars/cats-effect-std_3-3.6.3.jar",
+    "org.typelevel/cats-free_3/jars/cats-free_3-2.13.0.jar",
+    "org.typelevel/cats-kernel_3/jars/cats-kernel_3-2.13.0.jar",
+    "org.typelevel/cats-kernel-laws_3/jars/cats-kernel-laws_3-2.13.0.jar",
+    "org.typelevel/cats-laws_3/jars/cats-laws_3-2.13.0.jar",
 
-    "org.scalaz/scalaz-core_3/jars/scalaz-core_3-7.3.7.jar",
-    "org.scalaz/scalaz-effect_3/jars/scalaz-effect_3-7.3.7.jar",
+    "org.scalaz/scalaz-core_3/jars/scalaz-core_3-7.3.8.jar",
+    "org.scalaz/scalaz-effect_3/jars/scalaz-effect_3-7.3.8.jar",
 
-    "com.typesafe.akka/akka-actor_3/jars/akka-actor_3-2.7.0.jar",
-    "com.typesafe.akka/akka-actor-typed_3/jars/akka-actor-typed_3-2.7.0.jar",
-    "com.typesafe.akka/akka-coordination_3/jars/akka-coordination_3-2.7.0.jar",
-    "com.typesafe.akka/akka-cluster_3/jars/akka-cluster_3-2.7.0.jar",
-    "com.typesafe.akka/akka-http_3/jars/akka-http_3-10.5.0.jar",
-    "com.typesafe.akka/akka-http-core_3/jars/akka-http-core_3-10.5.0.jar",
-    "com.typesafe.akka/akka-persistence_3/jars/akka-persistence_3-2.7.0.jar",
-    "com.typesafe.akka/akka-parsing_3/jars/akka-parsing_3-10.5.0.jar",
-    "com.typesafe.akka/akka-remote_3/jars/akka-remote_3-2.7.0.jar",
-    "com.typesafe.akka/akka-stream_3/jars/akka-stream_3-2.7.0.jar",
+    "com.typesafe.akka/akka-actor_3/jars/akka-actor_3-2.8.8.jar",
+    "com.typesafe.akka/akka-actor-typed_3/jars/akka-actor-typed_3-2.8.8.jar",
+    "com.typesafe.akka/akka-coordination_3/jars/akka-coordination_3-2.8.8.jar",
+    "com.typesafe.akka/akka-cluster_3/jars/akka-cluster_3-2.8.8.jar",
+    "com.typesafe.akka/akka-http_3/jars/akka-http_3-10.5.3.jar",
+    "com.typesafe.akka/akka-http-core_3/jars/akka-http-core_3-10.5.3.jar",
+    "com.typesafe.akka/akka-persistence_3/jars/akka-persistence_3-2.8.8.jar",
+    "com.typesafe.akka/akka-parsing_3/jars/akka-parsing_3-10.5.3.jar",
+    "com.typesafe.akka/akka-remote_3/jars/akka-remote_3-2.8.8.jar",
+    "com.typesafe.akka/akka-stream_3/jars/akka-stream_3-2.8.8.jar",
 
     "com.typesafe.play/play_3/jars/play_3-2.9.0-M4.jar",
     "com.typesafe.play/play-configuration_3/jars/play-configuration_3-2.9.0-M4.jar",
@@ -81,13 +81,13 @@ object DecompilerMain3 {
     "com.typesafe.play/play-json_3/jars/play-json_3-2.10.0-RC7.jar",
     "com.typesafe.play/play-streams_3/jars/play-streams_3-2.9.0-M4.jar",
 
-    "co.fs2/fs2-core_3/jars/fs2-core_3-3.6.1.jar",
+    "co.fs2/fs2-core_3/jars/fs2-core_3-3.12.2.jar",
 
-    "io.getquill/quill-sql_3/jars/quill-sql_3-4.6.0.jar",
-    "io.getquill/quill-jdbc-zio_3/jars/quill-jdbc-zio_3-4.6.0.jar",
+    "io.getquill/quill-sql_3/jars/quill-sql_3-4.8.4.jar",
+    "io.getquill/quill-jdbc-zio_3/jars/quill-jdbc-zio_3-4.8.4.jar",
 
-    "org.tpolecat/doobie-core_3/jars/doobie-core_3-1.0.0-RC1.jar",
-    "org.tpolecat/doobie-free_3/jars/doobie-free_3-1.0.0-RC1.jar",
+    "org.tpolecat/doobie-core_3/jars/doobie-core_3-1.0.0-RC11.jar",
+    "org.tpolecat/doobie-free_3/jars/doobie-free_3-1.0.0-RC11.jar",
   )
 
   // Check for lexer & parser errors and unresolved references?

@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.text.TextToTextTestBase
 
 class ScalacticTest extends TextToTextTestBase(
   dependencies = Seq(
-    "org.scalactic" %% "scalactic" % "3.2.14",
+    "org.scalactic" %% "scalactic" % "3.2.19",
   ),
   packages = Seq("org.scalactic"),
   minClassCount = 170,

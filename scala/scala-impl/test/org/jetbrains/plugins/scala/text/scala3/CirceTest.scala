@@ -5,12 +5,12 @@ import org.jetbrains.plugins.scala.text.TextToTextTestBase
 
 class CirceTest extends TextToTextTestBase(
   dependencies = Seq(
-    "io.circe" %% "circe-core" % "0.14.1",
-    "io.circe" %% "circe-generic" % "0.14.1",
-    "io.circe" %% "circe-parser" % "0.14.1",
+    "io.circe" %% "circe-core" % "0.14.15",
+    "io.circe" %% "circe-generic" % "0.14.15",
+    "io.circe" %% "circe-parser" % "0.14.15",
   ),
   packages = Seq("io.circe"),
-  minClassCount = 63,
+  minClassCount = 87,
   withSources = true,
   classesWithoutSource = Set(
     // Why are sources not found for these classes?

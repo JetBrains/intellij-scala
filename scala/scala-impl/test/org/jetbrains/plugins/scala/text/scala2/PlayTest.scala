@@ -8,7 +8,7 @@ class PlayTest extends TextToTextTestBase(
     "com.typesafe.play" %% "play" % "2.9.6",
   ),
   packages = Seq("controllers", "models", "play", "views"),
-  minClassCount = 605,
+  minClassCount = 624,
   classExceptions = Set(
     "views.html.helper.form", // By-name function type parameter
     "views.html.helper.script", // By-name function type parameter
