@@ -115,6 +115,12 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
     correctIncrementalityType && correctCompileOrder
   }
 
+  /**
+   * @note We return a [[Set]] to make sure that the source file paths are deduplicated. If the same source is passed
+   *       to `scalac` multiple times in a given compilation scope, the compilation will fail with
+   *       `"Class/object is already defined as ..."`.
+   * @see [[https://youtrack.jetbrains.com/issue/SCL-8988 SCL-8988]]
+   */
   private def collectSources(
     context: CompileContext,
     chunk: ModuleChunk,

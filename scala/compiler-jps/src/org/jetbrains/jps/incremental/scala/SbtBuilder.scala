@@ -158,6 +158,12 @@ object SbtBuilder {
     builder.result()
   }
 
+  /**
+   * @note We return a [[Map]] to make sure that the source file paths are deduplicated. If the same source is passed
+   *       to `scalac` multiple times in a given compilation scope, the compilation will fail with
+   *       `"Class/object is already defined as ..."`.
+   * @see [[https://youtrack.jetbrains.com/issue/SCL-8988 SCL-8988]]
+   */
   private def collectCompilableFiles(context: CompileContext,
                                      chunk: ModuleChunk): Map[Path, BuildTarget[_ <: BuildRootDescriptor]] = {
     val presentableName = chunk.getPresentableShortName
