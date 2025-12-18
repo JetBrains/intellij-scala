@@ -75,7 +75,7 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
 
     val scalaSources = sources.filter(_.getFileName.toString.endsWith(".scala"))
 
-    ScalaBuilder.compile(context, chunk, sources, Seq.empty, modules, client) match {
+    ScalaBuilder.compile(context, chunk, sources.toSeq, Seq.empty, modules, client) match {
       case Left(CompilationDataFactory.NoCompilationData) =>
         JpsExitCode.NOTHING_DONE
       case Left(error) =>
@@ -115,11 +115,13 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
     correctIncrementalityType && correctCompileOrder
   }
 
-  private def collectSources(context: CompileContext,
-                             chunk: ModuleChunk,
-                             dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget]): Seq[Path] = {
+  private def collectSources(
+    context: CompileContext,
+    chunk: ModuleChunk,
+    dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget]
+  ): Set[Path] = {
 
-    val builder = Seq.newBuilder[Path]
+    val builder = Set.newBuilder[Path]
 
     val project = context.getProjectDescriptor
 
@@ -148,10 +150,9 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
       FileUtil.processFilesRecursively(tempRoot.getRootFile, file => checkAndCollectFile(file.toPath))
     }
 
-
-    //if no scala files to compile, return empty seq
+    // If there are no scala files to compile, return an empty set
     val result = builder.result()
-    if (!result.exists(_.getFileName.toString.endsWith(".scala"))) Seq.empty
+    if (!result.exists(_.getFileName.toString.endsWith(".scala"))) Set.empty
     else result
   }
 }

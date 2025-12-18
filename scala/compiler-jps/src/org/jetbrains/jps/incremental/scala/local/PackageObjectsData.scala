@@ -1,6 +1,7 @@
 package org.jetbrains.jps.incremental.scala
 package local
 
+import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.jps.incremental.CompileContext
 import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage}
 import org.jetbrains.jps.incremental.scala.remote.SerializablePath
@@ -22,8 +23,13 @@ class PackageObjectsData extends Serializable {
     packageObjectToBaseSources.update(packageObjectSerializable, packageObjectToBaseSources.getOrElse(packageObjectSerializable, Set.empty) + baseSourceSerializable)
   }
 
-  def invalidatedPackageObjects(sources: Seq[Path]): Set[Path] = synchronized {
-    sources.toSet[Path].flatMap(f => baseSourceToPackageObjects.getOrElse(SerializablePath(f), Set.empty)).map(_.toPath) -- sources
+  @deprecated(message = "Use invalidatedPackageObjects(sources: Set[Path]): Set[Path]", since = "2026.1")
+  @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
+  def invalidatedPackageObjects(sources: Seq[Path]): Set[Path] =
+    invalidatedPackageObjects(sources.toSet[Path])
+
+  def invalidatedPackageObjects(sources: Set[Path]): Set[Path] = synchronized {
+    sources.flatMap(f => baseSourceToPackageObjects.getOrElse(SerializablePath(f), Set.empty)).map(_.toPath) -- sources
   }
 
   def clear(): Unit = synchronized {
