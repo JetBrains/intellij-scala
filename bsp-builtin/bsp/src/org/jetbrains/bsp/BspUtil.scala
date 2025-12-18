@@ -150,7 +150,7 @@ object BspUtil {
    * @param toolCommand executable name (e.g. "scala-cli", "mill")
    */
   def isToolInstalledCheckViaVersion(directory: Path, toolCommand: String): Boolean = {
-    val work = runCommand(directory, toolCommand, "version")
+    val work = runCommand(directory, toolCommand, "--version")
     work.fold(
       exc => {
         log.error(s"The $toolCommand is not installed in $directory - ${exc.getMessage}")
