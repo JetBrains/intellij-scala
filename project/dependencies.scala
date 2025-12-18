@@ -20,7 +20,7 @@ object Versions {
    * ATTENTION: check the comment in [[Common.newProjectWithKotlin]] when updating this version.
    *            update `since-build` in plugin.xml if there are binary incompatible changes after update
    */
-  val intellijVersion = "253.29346.50"
+  val intellijVersion = "253.29346.138"
 
   def isNightlyIntellijVersion: Boolean = intellijVersion.count(_ == '.') == 1
 
