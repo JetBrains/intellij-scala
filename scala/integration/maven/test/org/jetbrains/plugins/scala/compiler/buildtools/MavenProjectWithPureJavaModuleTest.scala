@@ -180,16 +180,16 @@ class MavenProjectWithPureJavaModuleTest(jdkVersion: TestJdkVersion) extends Mav
       }
 
       val jdk21warnings = Set(
-        s"$name: source value 8 is obsolete and will be removed in a future release",
-        s"$name: target value 8 is obsolete and will be removed in a future release",
-        s"$name: To suppress warnings about obsolete options, use -Xlint:-options"
+        "source value 8 is obsolete and will be removed in a future release",
+        "target value 8 is obsolete and will be removed in a future release",
+        "To suppress warnings about obsolete options, use -Xlint:-options"
       )
 
       val messages = compiler.make()
       val errorsAndWarnings = messages.asScala.filter { message =>
         val category = message.getCategory
         category == CompilerMessageCategory.ERROR || category == CompilerMessageCategory.WARNING
-      }.filterNot(msg => jdk21warnings.exists(prefix => msg.getMessage.startsWith(prefix)))
+      }.filterNot(msg => jdk21warnings.exists(s => msg.getMessage.contains(s)))
 
       assertTrue(
         s"Expected no compilation errors or warnings, got: ${errorsAndWarnings.mkString(System.lineSeparator())}",
