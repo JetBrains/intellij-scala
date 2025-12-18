@@ -85,7 +85,8 @@ lazy val scalaCommunity: sbt.Project =
       pluginXml,
       scalaCli % "test->test;compile->compile",
       javaDecompilerIntegration % "test->test;compile->compile",
-      scalastyleIntegration
+      scalastyleIntegration,
+      intellijBazelIntegration,
     )
     .settings(MainProjectSettings)
     .settings(
@@ -102,10 +103,9 @@ lazy val scalaCommunity: sbt.Project =
         copyrightIntegration,
         devKitIntegration,
         featuresTrainerIntegration,
-        intellijBazelIntegration,
         junitIntegration,
         mlCompletionPropertiesIntegration,
-        runtimeDependencies
+        runtimeDependencies,
       ),
       // all sub-project tests need to be run within main project's classpath
       Test / definedTests := definedTests.all(definedTestsScopeFilter).value.flatten,
