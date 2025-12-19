@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScExtens
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportOrExportStmt, ScImportSelector, ScImportSelectors}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScConstructorOwner, ScDerivesClauseOwner, ScEnum, ScGiven, ScGivenDefinition, ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScConstructorOwner, ScDerivesClauseOwner, ScEnum, ScGiven, ScGivenAlias, ScGivenAliasDeclaration, ScGivenAliasDefinition, ScGivenDefinition, ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackageLike, ScalaElementVisitor, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.JavaIdentifier
 import org.jetbrains.plugins.scala.util.EnumSet.{EnumSet, EnumSetOps}
@@ -49,7 +49,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     }
   }
 
-  private def extractConstructorInvocations(extBlock: ScExtendsBlock): Seq[PsiElement] = {
+  private def extractConstructorInvocations(extBlock: ScExtendsBlock): Seq[ScConstructorInvocation] = {
     extBlock.templateParents.map(_.parentClauses).getOrElse(Seq())
   }
 
@@ -125,8 +125,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
         case (_: ScGiven, _: ScGiven) => true
         case _ => false
       }
-      def nameMatch = if(typedef.isInstanceOf[ScGiven] || other.isInstanceOf[ScGiven]) true else
-        matchTextOrVariable(Option(typedef.nameId), Option(other.nameId), handler)
+      def nameMatch = matchTextOrVariable(Option(typedef.nameId), Option(other.nameId), handler)
       def typeParamsMatch = matchInAnyOrder(ArraySeq.unsafeWrapArray(typedef.getTypeParameters), ArraySeq.unsafeWrapArray(other.getTypeParameters))
       def constructorsMatch = (typedef, other) match {
         case (typedef: ScConstructorOwner, other: ScConstructorOwner) =>
@@ -158,15 +157,19 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     }
   }
 
-  private def visitExtendsBlock(extBlock: ScExtendsBlock): Unit = {
-    val other = globalVisitor.getElement.asInstanceOf[ScExtendsBlock]
-    def parentsMatch = matchInAnyOrder(extractConstructorInvocations(extBlock), extractConstructorInvocations(other))
-    def functionsMatch = matchInAnyOrder(extBlock.functions, other.functions)
-    def classesMatch = matchInAnyOrder(extBlock.typeDefinitions, other.typeDefinitions)
+  private def visitExtendsBlock(pattern: ScExtendsBlock): Unit = {
+    val found = globalVisitor.getElement.asInstanceOf[ScExtendsBlock]
+    globalVisitor.setResult(matchExtendsBlock(pattern, found))
+  }
+
+  private def matchExtendsBlock(pattern: ScExtendsBlock, found: ScExtendsBlock): Boolean = {
+    def parentsMatch = matchInAnyOrder(extractConstructorInvocations(pattern), extractConstructorInvocations(found))
+    def functionsMatch = matchInAnyOrder(pattern.functions, found.functions)
+    def classesMatch = matchInAnyOrder(pattern.typeDefinitions, found.typeDefinitions)
     def exportsMatch = matchInAnyOrder(
-      extBlock.templateBody.map(_.getExportStatements).getOrElse(Seq.empty),
-      other.templateBody.map(_.getExportStatements).getOrElse(Seq.empty))
-    globalVisitor.setResult(parentsMatch && functionsMatch && classesMatch && exportsMatch && primaryConstrBodyMatch(extBlock.templateBody, other.templateBody))
+      pattern.templateBody.map(_.getExportStatements).getOrElse(Seq.empty),
+      found.templateBody.map(_.getExportStatements).getOrElse(Seq.empty))
+    parentsMatch && functionsMatch && classesMatch && exportsMatch && primaryConstrBodyMatch(pattern.templateBody, found.templateBody)
   }
 
   private def primaryConstrBodyMatch(templBody: Option[ScTemplateBody], other: Option[ScTemplateBody]) = {
@@ -309,6 +312,58 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
       globalVisitor.setResult(annotationsMatch && modifierMatch && nameMatch && typeParamsMatch && paramsMatch && rTypeMatch && bodyMatch)
     } finally {
       scopeMatch(fun, isTypedVar, other, Option(other.nameId), fun)
+    }
+  }
+
+  override def visitGiven(pattern: ScGiven): Unit = {
+    val found = globalVisitor.getElement match {
+      case g: ScGiven => g
+      case _ =>
+        globalVisitor.setResult(false)
+        return
+    }
+    val context = globalVisitor.getMatchContext
+    context.pushResult()
+    try {
+      def nameMatches = matchOptOptional(pattern.nameElement, found.nameElement)
+
+      def annotationsMatch = matchInAnyOrder(pattern.annotations, found.annotations)
+
+      def modifierMatch = checkModifier(pattern.getModifierList.modifiers, found.getModifierList.modifiers)
+
+      def getGivenTypes(g: ScGiven): Seq[ScTypeElement] = g match {
+        case g: ScGivenDefinition => extractConstructorInvocations(g.extendsBlock).map(_.typeElement)
+        case g: ScGivenAlias => g.typeElement.toSeq
+      }
+
+      def typeMatches = matchInAnyOrder(getGivenTypes(pattern), getGivenTypes(found))
+
+      def typeParamsMatch = {
+        val patternTypeParams = pattern.typeParameters
+        patternTypeParams.isEmpty || matchInAnyOrder(patternTypeParams, found.typeParameters)
+      }
+
+      def paramsMatch = pattern.parameters.isEmpty || matchSequentially(pattern.parameters, found.parameters)
+
+      def bodyMatches = pattern match {
+        case _: ScGivenAliasDeclaration => true
+        case pattern: ScGivenAliasDefinition =>
+          found match {
+            case found: ScGivenAliasDefinition => matchBody(pattern.body, found.body)
+            case found: ScGivenAliasDeclaration => matchBody(pattern.body, None)
+            case _ => false
+          }
+        case pattern: ScGivenDefinition =>
+          found match {
+            case found: ScGivenDefinition => matchExtendsBlock(pattern.extendsBlock, found.extendsBlock)
+            case _ => false
+          }
+        case _ => false
+      }
+
+      globalVisitor.setResult(nameMatches && annotationsMatch && modifierMatch && typeMatches && typeParamsMatch && paramsMatch && bodyMatches)
+    } finally {
+      scopeMatch(pattern, typedVar = false, found, Option(found.nameId), pattern)
     }
   }
 
@@ -946,7 +1001,7 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
     }
   }
 
-  def scopeMatch(patternNode: PsiElement, typedVar: Boolean, matchNode: PsiElement, ident: Option[PsiElement], pattern: PsiElement): Unit = {
+  private def scopeMatch(patternNode: PsiElement, typedVar: Boolean, matchNode: PsiElement, ident: Option[PsiElement], pattern: PsiElement): Unit = {
     if (typedVar) {
       ident.foreach(
         id => globalVisitor.getMatchContext.getResult.addChild(new MatchResultImpl(ScalaStructuralSearchProfile.SCOPE_ID, id.getText, id, 0, 0, false))
@@ -963,16 +1018,19 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
   }
 
   private def substHandle(handler: MatchingHandler, other: PsiElement, otherwise: () => Boolean): Boolean = {
-    handler match {
-      case substHand: SubstitutionHandler =>
-        substHand.handle(other, globalVisitor.getMatchContext)
-      case delHand: DelegatingHandler =>
-        delHand.getDelegate match {
-          case substHand: SubstitutionHandler =>
-            substHand.handle(other, globalVisitor.getMatchContext)
-          case _ => otherwise()
-        }
-      case _ => otherwise()
+    asSubstitutionHandler(handler).fold(otherwise()) {
+      substHandler => substHandler.handle(other, globalVisitor.getMatchContext)
     }
   }
+
+  private def asSubstitutionHandler(handler: MatchingHandler): Option[SubstitutionHandler] =
+    handler match {
+      case substHand: SubstitutionHandler => Some(substHand)
+      case delHand: DelegatingHandler =>
+        delHand.getDelegate match {
+          case substHand: SubstitutionHandler => Some(substHand)
+          case _ => None
+        }
+      case _ => None
+    }
 }

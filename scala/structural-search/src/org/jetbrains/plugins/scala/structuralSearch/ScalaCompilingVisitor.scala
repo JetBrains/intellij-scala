@@ -17,9 +17,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScForBin
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatternDefinition, ScTypeAlias, ScValueDeclaration, ScVariableDeclaration, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGivenDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGiven, ScGivenDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
-import org.jetbrains.plugins.scala.structuralSearch.filter.{AcceptAllFilter, CaseClauseFilter, FunctionFilter, MethodInvocationFilter, TypeAliasFilter, TypeDefinitionFilter, TypeElementFilter, TypeParamFilter, ValVarFilter}
+import org.jetbrains.plugins.scala.structuralSearch.filter.{AcceptAllFilter, CaseClauseFilter, FunctionFilter, GivenFilter, LeafIdentifierFilter, MethodInvocationFilter, TypeAliasFilter, TypeDefinitionFilter, TypeElementFilter, TypeParamFilter, ValVarFilter}
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
 
 class ScalaCompilingVisitor(globalVisitor: GlobalCompilingVisitor) extends ScalaRecursiveElementVisitor {
@@ -114,6 +114,19 @@ class ScalaCompilingVisitor(globalVisitor: GlobalCompilingVisitor) extends Scala
     globalVisitor
       .getContext.getPattern
       .getHandler(fun).setFilter(new FunctionFilter())
+  }
+
+  override def visitGiven(g: ScGiven): Unit = {
+    super.visitScalaElement(g)
+    val pattern = globalVisitor.getContext.getPattern
+
+    for (nameElement <- g.nameElement) {
+      placeVarHandler(nameElement.getText)
+      globalVisitor.handle(nameElement)
+      pattern.getHandler(nameElement).setFilter(new LeafIdentifierFilter)
+    }
+
+    pattern.getHandler(g).setFilter(new GivenFilter())
   }
 
   override def visitTypeElement(te: ScTypeElement): Unit = {
