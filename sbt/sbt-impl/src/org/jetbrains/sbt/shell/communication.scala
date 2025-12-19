@@ -47,7 +47,7 @@ final class SbtShellCommunication(project: Project) {
   private val communicationActive = new Semaphore(1)
   private val shellQueueReady = new Semaphore(1)
 
-  private case class QueuedCommand(id: String, cmd: String, listener: CommandListener[?])
+  private case class QueuedCommand(id: String, cmd: () => String, listener: CommandListener[?])
 
   //TODO: rename to commandsQueue
   private val commands = new LinkedBlockingQueue[QueuedCommand]()
@@ -84,11 +84,11 @@ final class SbtShellCommunication(project: Project) {
     command(cmd, new StringBuilder(), messageAggregator).map(_.toString())
 
   /** Queue an sbt command for execution in the sbt shell. */
-  def command[A](@NonNls cmd: String, default: A, eventHandler: EventAggregator[A], terminationMessage: Option[String] = None): Future[A] =
+  def command[A](@NonNls cmd: => String, default: A, eventHandler: EventAggregator[A], terminationMessage: Option[String] = None): Future[A] =
     command(cmd, id = UUID.randomUUID().toString, default, eventHandler, terminationMessage)
 
   def command[A](
-    @NonNls cmd: String,
+    @NonNls cmd: => String,
     id: String,
     default: A,
     eventHandler: EventAggregator[A],
@@ -96,15 +96,7 @@ final class SbtShellCommunication(project: Project) {
   ): Future[A] = {
     val listener = new CommandListener(default, eventHandler, terminationMessage)
 
-    // Prefix the command with a leading space.
-    // In the "new" sbt shell (based on jline3 since sbt 1.4), lines that start with a space are excluded
-    // from the history (see HISTORY_IGNORE_SPACE in jline3). This prevents
-    // IntelliJ IDEA–generated commands (e.g., reload, build, tasks, test) from cluttering the user's sbt commands history.
-    // We keep the same prefix in the "old" shell (jline2) for simplicity - it has no effect and causes no harm there.
-    // Consider - maybe not all commands should be escaped e.g. tasks from the sbt tool window.
-    // But this is how it used to work in the "old shell".
-    val spacedCmd = s" $cmd"
-    val qc = QueuedCommand(id, spacedCmd, listener)
+    val qc = QueuedCommand(id, () => cmd, listener)
 
     if (isDestroyingOrEmptyingQueueInProgress) {
       afterRestartCommands.put(qc)
@@ -288,7 +280,7 @@ final class SbtShellCommunication(project: Project) {
    * @return `Future[String]` containing the entire shell output
    */
   @RequiresBackgroundThread
-  def commandAfterSoftRestart[A](cmd: String, default: A, eventHandler: EventAggregator[A], terminationMessage: String): Future[A] = {
+  def commandAfterSoftRestart[A](cmd: => String, default: A, eventHandler: EventAggregator[A], terminationMessage: String): Future[A] = {
     if (isEmptyingQueueRunning)
       return command(cmd, default, eventHandler, Some(terminationMessage))
 
@@ -326,7 +318,14 @@ final class SbtShellCommunication(project: Project) {
     handler.addProcessListener(listener)
 
     process.usingWriter { shell =>
-      shell.print(cmd)
+      // Prefix the command with a leading space.
+      // In the "new" sbt shell (based on jline3 since sbt 1.4), lines that start with a space are excluded
+      // from the history (see HISTORY_IGNORE_SPACE in jline3). This prevents
+      // IntelliJ IDEA–generated commands (e.g., reload, build, tasks, test) from cluttering the user's sbt commands history.
+      // We keep the same prefix in the "old" shell (jline2) for simplicity - it has no effect and causes no harm there.
+      // Consider - maybe not all commands should be escaped e.g. tasks from the sbt tool window.
+      // But this is how it used to work in the "old shell".
+      shell.print(s" ${cmd()}")
       // note: the reason why instead of simply doing "shell.println", it was split into command execution and "\n" is Windows
       // and how com.pty4j.windows.winpty.WinPTYOutputStream works
       // (it doesn't impact macos and Linux, because on these systems "\n" is the default new line character).

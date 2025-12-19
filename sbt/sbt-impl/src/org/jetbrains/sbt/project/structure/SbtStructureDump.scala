@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}
 import org.jetbrains.plugins.scala.extensions.LoggerExt
 import org.jetbrains.sbt.actions.GenerateManagedSourcesReporter
-import org.jetbrains.sbt.project.SbtProjectResolver.ImportCancelledException
+import org.jetbrains.sbt.project.SbtProjectResolver.{ImportCancelledException, ImportContext}
 import org.jetbrains.sbt.project.structure.SbtOption.*
 import org.jetbrains.sbt.project.structure.SbtStructureDump.*
 import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication}
@@ -45,36 +45,45 @@ class SbtStructureDump {
 
   def dumpFromShell(
     project: Project,
-    sbtVersion: SbtVersion,
     structureFilePath: String,
     options: Seq[String],
     reporter: BuildReporter,
     preferScala2: Boolean,
     generateManagedSources: Boolean
-  ): Future[BuildMessages] = {
+  )(using context: ImportContext): Future[BuildMessages] = {
     reporter.start()
 
-    val optionsString = makeOptionsStringLiteral(options)
-    val SeqFqn = SbtVersionCapabilities.collectionsSeqClassFqn(sbtVersion)
-    val setCommands = Seq(
-      s"""${scopedSbtSetting("_root_.org.jetbrains.sbt.StructureKeys.sbtStructureOptions", "_root_.sbt.Global", sbtVersion)} := $optionsString""",
-      s"""${scopedSbtSetting("_root_.org.jetbrains.sbt.StructureKeys.generateManagedSourcesDuringStructureDump", "_root_.sbt.Global", sbtVersion)} := $generateManagedSources"""
-    ).mkString(s"set $SeqFqn(", ",", ")")
-    val dumpStructureToCommand = s"${SbtUtil.sbtStructureGlobalCommand("dumpStructureTo", sbtVersion)} $structureFilePath"
-
-    // SCL-22858 compiler bytecode indices are disabled in sbt shell
-    val ideaPortSetting = ""
-
-    val maybePreferScala2Command = if (preferScala2) "preferScala2" else ""
-    val sbtCommand = buildSbtCompositeCommand(Seq(
-      "reload",
-      setCommands,
-      maybePreferScala2Command,
-      dumpStructureToCommand,
-      s"session clear-all $ideaPortSetting"
-    ))
-
     val shell = SbtShellCommunication.forProject(project)
+
+    lazy val buildCommand: String = {
+      // Re-detect the sbt version at the moment the command is built.
+      // Since this is called from within `SbtShellCommunication.processCommand`,
+      // #getRunningOrDetectedSbtVersion returns the version currently used in the sbt shell rather than the detected one.
+      val currentSbtVersion = shell.getRunningOrDetectedSbtVersion
+
+      context.sbtVersion = currentSbtVersion
+
+      val optionsString = makeOptionsStringLiteral(options)
+      val SeqFqn = SbtVersionCapabilities.collectionsSeqClassFqn(currentSbtVersion)
+      val setCommands = Seq(
+        s"""${scopedSbtSetting("_root_.org.jetbrains.sbt.StructureKeys.sbtStructureOptions", "_root_.sbt.Global", currentSbtVersion)} := $optionsString""",
+        s"""${scopedSbtSetting("_root_.org.jetbrains.sbt.StructureKeys.generateManagedSourcesDuringStructureDump", "_root_.sbt.Global", currentSbtVersion)} := $generateManagedSources"""
+      ).mkString(s"set $SeqFqn(", ",", ")")
+      val dumpStructureToCommand = s"${SbtUtil.sbtStructureGlobalCommand("dumpStructureTo", currentSbtVersion)} $structureFilePath"
+
+      // SCL-22858 compiler bytecode indices are disabled in sbt shell
+      val ideaPortSetting = ""
+
+      val maybePreferScala2Command = if (preferScala2) "preferScala2" else ""
+      buildSbtCompositeCommand(Seq(
+        "reload",
+        setCommands,
+        maybePreferScala2Command,
+        dumpStructureToCommand,
+        s"session clear-all $ideaPortSetting"
+      ))
+    }
+
     val optProcessOutputBuilder = setUpProcessOutputCollection()
     val aggregator = shell.messageAggregatorForSync(
       reporter,
@@ -87,9 +96,9 @@ class SbtStructureDump {
     val isSbtVersionOutdated = SbtProcessManager.forProject(project).isSbtVersionOutdated
     val terminationMessage = "Sbt shell terminated before sync command is finished"
     if (isSbtVersionOutdated) {
-      shell.commandAfterSoftRestart(sbtCommand, BuildMessages.empty, aggregator, terminationMessage)
+      shell.commandAfterSoftRestart(buildCommand, BuildMessages.empty, aggregator, terminationMessage)
     } else {
-      shell.command(sbtCommand, BuildMessages.empty, aggregator, Some(terminationMessage))
+      shell.command(buildCommand, BuildMessages.empty, aggregator, Some(terminationMessage))
     }
   }
 
