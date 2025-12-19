@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<idea-plugin>
+<idea-plugin visibility="public">
     <dependencies>
         <plugin id="JUnit"/>
         <module name="scalaCommunity.bsp"/>
