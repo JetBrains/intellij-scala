@@ -169,7 +169,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     settings: SbtExecutionSettings,
     @Nullable project: Project,
     indicator: ProgressIndicator
-  )(implicit reporter: BuildReporter): Try[(Elem, BuildMessages)] = {
+  )(implicit reporter: BuildReporter, context: ImportContext): Try[(Elem, BuildMessages)] = {
     SbtProjectResolver.processOutputOfLatestStructureDump = ""
 
     val useShellImport = settings.useShellForImport && project != null
@@ -187,7 +187,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
           case sd: SbtStructureDumper.FromShell =>
             val messagesF = sd.dumpFromShell(
               project,
-              sbtVersion,
               structureFile,
               options,
               reporter,
@@ -1494,7 +1493,16 @@ object SbtProjectResolver {
     executionSettings: SbtExecutionSettings,
     eelDescriptor: EelDescriptor
   ) {
-    def sbtVersion: SbtVersion = executionSettings.sbtVersion
+    /**
+     * The sbt version used for the project import.
+     *
+     * Initially sourced from `executionSettings.sbtVersion`. If importing via the sbt shell is enabled,
+     * this value is updated to reflect the actual version used by the shell session,
+     * which may differ from the initial settings if the import was deferred.
+     *
+     * @see [[org.jetbrains.sbt.project.structure.SbtStructureDump#dumpFromShell]]
+     */
+    var sbtVersion: SbtVersion = executionSettings.sbtVersion
     def useSeparateProdTestSources: Boolean = executionSettings.separateProdTestSources
     def useSeparateCompilerOutputPaths: Boolean = executionSettings.useSeparateCompilerOutputPaths
   }

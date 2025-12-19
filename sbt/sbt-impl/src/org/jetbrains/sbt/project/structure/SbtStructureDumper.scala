@@ -8,6 +8,7 @@ import com.intellij.platform.eel.provider.utils.EelPathUtils.TransferTarget
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}
 import org.jetbrains.sbt.process.{ProcessOutputCollector, SbtRunner}
+import org.jetbrains.sbt.project.SbtProjectResolver.ImportContext
 import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication}
 import org.jetbrains.sbt.{SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabilities, asLocalPath, eelDescriptor}
 
@@ -31,36 +32,45 @@ object SbtStructureDumper:
 
     def dumpFromShell(
       project: Project,
-      sbtVersion: SbtVersion,
       structureFile: Path,
       options: Seq[String],
       reporter: BuildReporter,
       preferScala2: Boolean,
       generateManagedSources: Boolean
-    ): Future[BuildMessages] =
+    )(using context: ImportContext): Future[BuildMessages] =
       reporter.start()
 
-      val optionsString = makeOptionsStringLiteral(options)
-      val SeqFqn = SbtVersionCapabilities.collectionsSeqClassFqn(sbtVersion)
-      val setCommands = Seq(
-        s"""${scopedSbtSetting("_root_.org.jetbrains.sbt.StructureKeys.sbtStructureOptions", "_root_.sbt.Global", sbtVersion)} := $optionsString""",
-        s"""${scopedSbtSetting("_root_.org.jetbrains.sbt.StructureKeys.generateManagedSourcesDuringStructureDump", "_root_.sbt.Global", sbtVersion)} := $generateManagedSources"""
-      ).mkString(s"set $SeqFqn(", ",", ")")
-      val dumpStructureToCommand = s"${SbtUtil.sbtStructureGlobalCommand("dumpStructureTo", sbtVersion)} ${normalizedLocalPath(structureFile)}"
-
-      // SCL-22858 compiler bytecode indices are disabled in sbt shell
-      val ideaPortSetting = ""
-
-      val maybePreferScala2Command = if (preferScala2) "preferScala2" else ""
-      val sbtCommand = buildSbtCompositeCommand(Seq(
-        "reload",
-        setCommands,
-        maybePreferScala2Command,
-        dumpStructureToCommand,
-        s"session clear-all $ideaPortSetting"
-      ))
-
       val shell = SbtShellCommunication.forProject(project)
+
+      lazy val buildCommand: String = {
+        // Re-detect the sbt version at the moment the command is built.
+        // Since this is called from within `SbtShellCommunication.processCommand`,
+        // #getRunningOrDetectedSbtVersion returns the version currently used in the sbt shell rather than the detected one.
+        val currentSbtVersion = shell.getRunningOrDetectedSbtVersion
+
+        context.sbtVersion = currentSbtVersion
+
+        val optionsString = makeOptionsStringLiteral(options)
+        val SeqFqn = SbtVersionCapabilities.collectionsSeqClassFqn(currentSbtVersion)
+        val setCommands = Seq(
+          s"""${scopedSbtSetting("_root_.org.jetbrains.sbt.StructureKeys.sbtStructureOptions", "_root_.sbt.Global", currentSbtVersion)} := $optionsString""",
+          s"""${scopedSbtSetting("_root_.org.jetbrains.sbt.StructureKeys.generateManagedSourcesDuringStructureDump", "_root_.sbt.Global", currentSbtVersion)} := $generateManagedSources"""
+        ).mkString(s"set $SeqFqn(", ",", ")")
+        val dumpStructureToCommand = s"${SbtUtil.sbtStructureGlobalCommand("dumpStructureTo", currentSbtVersion)} ${normalizedLocalPath(structureFile)}"
+
+        // SCL-22858 compiler bytecode indices are disabled in sbt shell
+        val ideaPortSetting = ""
+
+        val maybePreferScala2Command = if (preferScala2) "preferScala2" else ""
+        buildSbtCompositeCommand(Seq(
+          "reload",
+          setCommands,
+          maybePreferScala2Command,
+          dumpStructureToCommand,
+          s"session clear-all $ideaPortSetting"
+        ))
+      }
+
       val optProcessOutputBuilder = processOutputCollector.map(_.processOutputBuilder)
       val aggregator = shell.messageAggregatorForSync(
         reporter,
@@ -73,9 +83,9 @@ object SbtStructureDumper:
       val isSbtVersionOutdated = SbtProcessManager.forProject(project).isSbtVersionOutdated
       val terminationMessage = "Sbt shell terminated before sync command is finished"
       if isSbtVersionOutdated then
-        shell.commandAfterSoftRestart(sbtCommand, BuildMessages.empty, aggregator, terminationMessage)
+        shell.commandAfterSoftRestart(buildCommand, BuildMessages.empty, aggregator, terminationMessage)
       else
-        shell.command(sbtCommand, BuildMessages.empty, aggregator, Some(terminationMessage))
+        shell.command(buildCommand, BuildMessages.empty, aggregator, Some(terminationMessage))
 
   end FromShell
 
