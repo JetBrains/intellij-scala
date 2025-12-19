@@ -29,7 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpres
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterType, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAliasDeclaration, ScTypeAliasDefinition, ScValueOrVariable, ScValueOrVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScExportStmt, ScImportExpr}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGiven, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypeBoundsOwner}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.structuralSearch.ScalaStructuralSearchProfile.REPLACEMENT_CONTEXT
@@ -160,6 +160,7 @@ final class ScalaStructuralSearchProfile extends StructuralSearchProfileBase {
         case _: ScReferenceExpression => false
         case _ => true
       }
+      case g: ScGiven => !g.nameElement.contains(variableNode)
       case _ => true
     }
   }

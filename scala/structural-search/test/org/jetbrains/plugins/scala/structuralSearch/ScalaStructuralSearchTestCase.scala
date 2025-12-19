@@ -70,41 +70,48 @@ abstract class ScalaStructuralSearchTestCase extends StructuralSRTestCase {
   private def extractMarker(code: String): (String, Map[Int, Int]) = {
     @tailrec
     def extract(code: String, map: Map[String, (Int, Int)]): (String, Map[Int, Int]) = {
-      val begin = code.indexOf("<match=\"")
-      val end = code.indexOf("</match=\"")
-      if (0 <= begin && begin < end) {
-        val ident = code.substring(begin + 8, begin + 10)
-        extract(code.replaceFirst(s"<match=\"$ident\">", ""),
-          map + (ident -> (begin, -1))
-        )
-      } else if (0 <= end) {
-        val ident = code.substring(end + 9, end + 11)
-        extract(code.replaceFirst(s"</match=\"$ident\">", ""),
-          map + (ident -> (map.getOrElse(ident, (-1, -1))._1, end))
-        )
+      val matchOpenStr = "<match=\""
+      val matchClosingStr = "</match=\""
+
+      val openIdx = code.indexOf(matchOpenStr)
+      val closeIdx = code.indexOf(matchClosingStr)
+
+      def extractIdent(identStart: Int): String = {
+        val identEnd = code.indexOf("\"", identStart)
+        assert(identEnd >= 0)
+        code.substring(identStart, identEnd)
+      }
+
+      if (openIdx != -1 && (openIdx < closeIdx || closeIdx == -1)) {
+        // <match is first
+        val ident = extractIdent(openIdx + matchOpenStr.length)
+        assert(!map.contains(ident))
+        val beginStr = s"<match=\"$ident\">"
+        extract(code.replaceFirst(beginStr, ""), map + (ident -> (openIdx, -1)))
+
+      } else if (closeIdx != -1 && (closeIdx < openIdx || openIdx == -1)) {
+        // </match is first
+        val ident = extractIdent(closeIdx + matchClosingStr.length)
+        assert(map.contains(ident))
+        val begin = map(ident)._1
+        extract(code.replaceFirst(s"</match=\"$ident\">", ""), map + (ident -> (begin, closeIdx)))
       } else {
-        (code, map.map((_, v) => (v._1, v._2)))
+        assert(openIdx == -1 && closeIdx == -1)
+        (code, map.map { case (k, (start, end)) => (start, end) })
       }
     }
 
     extract(code, Map())
   }
-  
+
   def clearMarker(code: String, except: Set[String] = Set()): String = {
-    @tailrec
-    def clearMarker(code: String, except: Set[String] = Set(), fromIndex: Int): String = {
-      val begin = code.indexOf("<match=\"", fromIndex)
-      if (0 <= begin) {
-        val ident = code.substring(begin + 8, begin + 10)
-        if (except.contains(ident))
-          clearMarker(code, except, begin + 12)
-        else
-          clearMarker(code.replaceFirst(s"<match=\"$ident\">", "").replaceFirst(s"</match=\"$ident\">", ""), except, begin)
-      } else {
-        code
+    val matchRegex = raw"""</?match="([^"]+)">""".r
+    matchRegex
+      .findAllMatchIn(code)
+      .filter(m => !except.contains(m.group(1)))
+      .foldLeft(code) {
+        (acc, m) => acc.replaceFirst(m.matched, "")
       }
-    }
-    clearMarker(code.stripMargin.trim, except, 0)
   }
 
   protected def findMatches(in: String,
