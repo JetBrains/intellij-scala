@@ -6,8 +6,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.JDOMUtil
-import org.jdom.Element
-import org.jetbrains.jps.incremental.scala.ScalaJpsProjectMetadataConstants
+import org.jetbrains.jps.incremental.scala.{ScalaJpsProjectMetadata, ScalaJpsProjectMetadataConstants}
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.compile.ScalaCompileTask
@@ -29,7 +28,7 @@ private final class WriteScalaJpsProjectMetadataCompileTask extends ScalaCompile
   override protected def log: Logger = Log
 
   /**
-   * Writes the Scala project metadata to disk which the JPS process expects while runinng the build.
+   * Writes the Scala project metadata to disk which the JPS process expects while running the build.
    *
    * @param force write the latest project metadata regardless of the previous state on disk
    * @param project the project instance
@@ -43,35 +42,28 @@ private final class WriteScalaJpsProjectMetadataCompileTask extends ScalaCompile
     val projectRootManager = ProjectRootManager.getInstance(project)
     val crc = projectRootManager.getModificationCount
 
-    val crcFilePath = configFilePath.resolveSibling("scala-jps-project-metadata.crc")
+    val crcFilePath = configFilePath.resolveSibling(ScalaJpsProjectMetadataConstants.ScalaJpsProjectMetadataCrcFileName)
 
     if (!force && crcFilePath.exists) {
-      try {
-        val lastCrc = readLastCrcFromDisk(crcFilePath)
-        if (lastCrc == crc) return // Project has not changed.
-        Log.debug(s"Project metadata changed: lastCrc = $lastCrc, currentCrc = $crc")
-      } catch {
-        case e: IOException =>
-          Log.error("Unable to read or find Scala JPS project metadata crc file", e)
+      readLastCrcFromDisk(crcFilePath) match {
+        case Some(lastCrc) =>
+          if (lastCrc == crc)
+            return // Project has not changed, there's no need to write the same project metadata to disk.
+          Log.debug(s"Project metadata changed: lastCrc = $lastCrc, currentCrc = $crc")
+        case None =>
+          Log.debug("Could not read Scala JPS project metadata from disk, the file was most likely not produced yet")
       }
     }
 
-    val element = new Element("scala-jps-project-metadata")
-    val modulesWithScalaSdkElement = new Element(ScalaJpsProjectMetadataConstants.ModulesWithScalaSdkElement)
-    project.modulesWithScala.foreach { module =>
-      val name = module.getName
-      val moduleElement = new Element(ScalaJpsProjectMetadataConstants.ModuleElement)
-      moduleElement.setAttribute(ScalaJpsProjectMetadataConstants.NameAttribute, name)
-      modulesWithScalaSdkElement.addContent(moduleElement)
-    }
-    element.addContent(modulesWithScalaSdkElement)
+    val modulesWithScalaSdk = project.modulesWithScala.map(_.getName).toSet
+    val projectMetadata = ScalaJpsProjectMetadata(modulesWithScalaSdk)
 
     val writeToDiskTask: Runnable = () => {
       if (!project.isDefault) {
         buildManager.clearState(project)
       }
       try {
-        JDOMUtil.write(element, configFilePath)
+        JDOMUtil.write(projectMetadata.asXml, configFilePath)
         Using.resource(new DataOutputStream(
           new BufferedOutputStream(
             Files.newOutputStream(crcFilePath, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE)
@@ -87,8 +79,8 @@ private final class WriteScalaJpsProjectMetadataCompileTask extends ScalaCompile
     buildManager.runCommand(writeToDiskTask)
   }
 
-  private def readLastCrcFromDisk(crcFilePath: Path): Long =
-    Using.resource(new DataInputStream(Files.newInputStream(crcFilePath, StandardOpenOption.READ)))(_.readLong())
+  private def readLastCrcFromDisk(crcFilePath: Path): Option[Long] =
+    Using(new DataInputStream(Files.newInputStream(crcFilePath, StandardOpenOption.READ)))(_.readLong()).toOption
 }
 
 private object WriteScalaJpsProjectMetadataCompileTask {

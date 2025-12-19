@@ -7,4 +7,5 @@ object ScalaJpsProjectMetadataConstants {
   final val NameAttribute = "name"
 
   final val ScalaJpsProjectMetadataFileName = "scala-jps-project-metadata.xml"
+  final val ScalaJpsProjectMetadataCrcFileName = "scala-jps-project-metadata.crc"
 }

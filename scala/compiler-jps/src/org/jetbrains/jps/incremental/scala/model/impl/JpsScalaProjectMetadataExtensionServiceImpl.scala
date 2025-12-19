@@ -4,62 +4,59 @@ package impl
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.{JDOMUtil, Key}
 import org.jetbrains.jps.incremental.CompileContext
-import org.jetbrains.jps.incremental.scala.{ScalaJpsProjectMetadataConstants, SettingsManager}
+import org.jetbrains.jps.incremental.scala.{ScalaJpsProjectMetadata, ScalaJpsProjectMetadataConstants, SettingsManager}
 
 import java.nio.file.Path
 import scala.jdk.CollectionConverters._
-import scala.util.control.NonFatal
+import scala.util.Try
 
 private final class JpsScalaProjectMetadataExtensionServiceImpl extends JpsScalaProjectMetadataExtensionService {
 
-  import JpsScalaProjectMetadataExtensionServiceImpl.{Log, ModulesWithScalaSdkKey}
+  import JpsScalaProjectMetadataExtensionServiceImpl.{Log, ScalaJpsProjectMetadataKey}
 
-  override def modulesWithScala(context: CompileContext): Set[String] = loadConfig(context)
+  override def modulesWithScala(context: CompileContext): Set[String] = loadProjectMetadata(context).modulesWithScalaSdk
 
-  private def loadConfig(context: CompileContext): Set[String] = {
-    val alreadyComputedModules = context.getUserData(ModulesWithScalaSdkKey)
-    if (alreadyComputedModules ne null) return alreadyComputedModules
+  private def loadProjectMetadata(context: CompileContext): ScalaJpsProjectMetadata = {
+    val alreadyComputedProjectMetadata = ScalaJpsProjectMetadataKey.get(context)
+    if (alreadyComputedProjectMetadata != null) return alreadyComputedProjectMetadata
 
-    val forceManualSearch = JpsScalaProjectMetadataExtensionService.isCBH(context)
+    val forceManualCompute = JpsScalaProjectMetadataExtensionService.isCBH(context)
 
-    val modulesWithScalaSdk =
-      if (forceManualSearch) manualSearchFallback(context)
+    val projectMetadata =
+      if (forceManualCompute) manuallyComputeMetadataFallback(context)
       else {
         val paths = context.getProjectDescriptor.dataManager.getDataPaths
         val dataStorageDir = paths.getDataStorageDir
         val configFilePath = dataStorageDir.resolve(ScalaJpsProjectMetadataConstants.ScalaJpsProjectMetadataFileName)
-        computeConfig(configFilePath, context)
+        computeProjectMetadata(configFilePath, context)
       }
 
-    context.putUserData(ModulesWithScalaSdkKey, modulesWithScalaSdk)
-    modulesWithScalaSdk
+    ScalaJpsProjectMetadataKey.set(context, projectMetadata)
+    projectMetadata
   }
 
-  private def computeConfig(configFilePath: Path, context: CompileContext): Set[String] =
-    try readConfigFromDisk(configFilePath)
-    catch {
-      case NonFatal(t) =>
-        Log.info(s"Failed to read the modules with a configured Scala SDK from $configFilePath, falling back to manual search", t)
-        manualSearchFallback(context)
+  private def computeProjectMetadata(configFilePath: Path, context: CompileContext): ScalaJpsProjectMetadata =
+    readProjectMetadataFromDisk(configFilePath) match {
+      case Some(metadata) => metadata
+      case None =>
+        Log.info(s"Could not read the Scala JPS project metadata from $configFilePath, falling back to manually computing the data")
+        manuallyComputeMetadataFallback(context)
     }
 
-  private def readConfigFromDisk(configFilePath: Path): Set[String] = {
-    val element = JDOMUtil.load(configFilePath)
-    element.getChild(ScalaJpsProjectMetadataConstants.ModulesWithScalaSdkElement)
-      .getChildren(ScalaJpsProjectMetadataConstants.ModuleElement)
-      .asScala
-      .map(_.getAttributeValue(ScalaJpsProjectMetadataConstants.NameAttribute))
-      .toSet
+  private def readProjectMetadataFromDisk(configFilePath: Path): Option[ScalaJpsProjectMetadata] = {
+    val rootElement = Try(JDOMUtil.load(configFilePath)).toOption
+    rootElement.flatMap(ScalaJpsProjectMetadata.parseXml)
   }
 
-  private def manualSearchFallback(context: CompileContext): Set[String] = {
+  private def manuallyComputeMetadataFallback(context: CompileContext): ScalaJpsProjectMetadata = {
     val modules = context.getProjectDescriptor.getProject.getModules.asScala
-    modules.filter(SettingsManager.getScalaSdk(_).isDefined).map(_.getName).toSet
+    val modulesWithScalaSdk = modules.filter(SettingsManager.getScalaSdk(_).isDefined).map(_.getName).toSet
+    ScalaJpsProjectMetadata(modulesWithScalaSdk)
   }
 }
 
 private object JpsScalaProjectMetadataExtensionServiceImpl {
   private val Log: Logger = Logger.getInstance(classOf[JpsScalaProjectMetadataExtensionServiceImpl])
 
-  private val ModulesWithScalaSdkKey: Key[Set[String]] = Key.create("jps.scala.modulesWithScalaSdk")
+  private val ScalaJpsProjectMetadataKey: Key[ScalaJpsProjectMetadata] = Key.create("scala.jps.project.metadata")
 }
