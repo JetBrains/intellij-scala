@@ -46,7 +46,7 @@
         <plugin id="org.intellij.intelliLang"/>
     </dependencies>
 
-    <content>
+    <content namespace="jetbrains">
         <module name="scalaCommunity.bsp" />
         <module name="scalaCommunity.bsp-junit" />
         <module name="scalaCommunity.bsp-terminal" />
