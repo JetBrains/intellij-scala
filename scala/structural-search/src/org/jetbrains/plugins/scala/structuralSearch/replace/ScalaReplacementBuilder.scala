@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScGuard
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScValue, ScValueOrVariable, ScValueOrVariableDefinition, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScConstructorOwner, ScGivenDefinition, ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScConstructorOwner, ScGiven, ScGivenDefinition, ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.structuralSearch.ScalaStructuralSearchProfile
 import org.jetbrains.plugins.scala.structuralSearch.ScalaStructuralSearchProfile.PATTERN_CONTEXT
@@ -251,6 +251,8 @@ class ScalaReplacementBuilder(val profile: StructuralSearchProfile) {
           buildClass(Some(subRes), insertBefore = insertBefore, insertAfter = insertAfter)
           if (noBody) result.append("\n}")
         }, Some(() => buildClass(scopeRes)))
+      case g: ScGiven =>
+        buildChildren(element, scopeRes, result)
       // Build function
       case replacePattern: ScFunction =>
         def buildFunc(subRes: Option[MatchResult], insertBefore: Map[PsiElement, String] = Map(), insertAfter: Map[PsiElement, String] = Map()): Unit = {
