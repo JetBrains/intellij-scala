@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<idea-plugin>
+<idea-plugin visibility="public">
     <extensionPoints>
         <extensionPoint qualifiedName="com.intellij.bspEnvironmentRunnerExtension"
                         interface="org.jetbrains.bsp.project.test.environment.BspEnvironmentRunnerExtension"
