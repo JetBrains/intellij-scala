@@ -2,7 +2,7 @@ package org.jetbrains.jps.incremental.scala.model
 
 import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.incremental.CompileContext
-import org.jetbrains.jps.incremental.scala.BuildParameters
+import org.jetbrains.jps.incremental.scala.{BuildParameters, ScalaJpsProjectMetadata}
 import org.jetbrains.jps.model.module.JpsModule
 import org.jetbrains.jps.service.JpsServiceManager
 
@@ -33,7 +33,13 @@ trait JpsScalaProjectMetadataExtensionService {
    * 
    * @return A set of module names which have a Scala SDK configured.
    */
-  def modulesWithScala(context: CompileContext): Set[String]
+  def modulesWithScala(context: CompileContext): Set[String] =
+    projectMetadata(context).modulesWithScalaSdk
+
+  /**
+   * Returns the project metadata for the given compile context.
+   */
+  def projectMetadata(context: CompileContext): ScalaJpsProjectMetadata
 }
 
 object JpsScalaProjectMetadataExtensionService {

@@ -14,7 +14,7 @@ private final class JpsScalaProjectMetadataExtensionServiceImpl extends JpsScala
 
   import JpsScalaProjectMetadataExtensionServiceImpl.{Log, ScalaJpsProjectMetadataKey}
 
-  override def modulesWithScala(context: CompileContext): Set[String] = loadProjectMetadata(context).modulesWithScalaSdk
+  override def projectMetadata(context: CompileContext): ScalaJpsProjectMetadata = loadProjectMetadata(context)
 
   private def loadProjectMetadata(context: CompileContext): ScalaJpsProjectMetadata = {
     val alreadyComputedProjectMetadata = ScalaJpsProjectMetadataKey.get(context)
