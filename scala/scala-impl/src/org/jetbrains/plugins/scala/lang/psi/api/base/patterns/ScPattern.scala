@@ -135,15 +135,18 @@ object ScPattern {
           case b: ScBlockExpr =>
             val functionLikeType = FunctionLikeType(b)
 
+            @tailrec
+            def extractPtFromFunctionType(tpe: ScType): Option[ScType] = tpe match {
+              case functionLikeType(FunctionTypeMarker.ContextFunctionN, tpe, _) => extractPtFromFunctionType(tpe)
+              case functionLikeType(_, _, Seq())                                 => Some(api.Unit)
+              case functionLikeType(_, _, Seq(p0))                               => Some(p0)
+              case functionLikeType(_, _, params)                                => Some(TupleType(params, context = b))
+              case _                                                             => None
+            }
+
             b.expectedType(fromUnderscore = false) match {
-              case Some(et) =>
-                et.removeAbstracts match {
-                  case functionLikeType(_, _, Seq())   => Some(api.Unit)
-                  case functionLikeType(_, _, Seq(p0)) => Some(p0)
-                  case functionLikeType(_, _, params)  => Some(TupleType(params, context = b))
-                  case _                               => None
-                }
-              case None => None
+              case Some(et) => extractPtFromFunctionType(et.removeAbstracts)
+              case None     => None
             }
           case _ => None
         }

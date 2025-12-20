@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorTyp
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScImportsHolder, ScalaPsiUtil}
 
+import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 
 trait ScBlock extends ScExpression
@@ -56,12 +57,12 @@ trait ScBlock extends ScExpression
           val et = this.expectedType(fromUnderscore = false)
             .getOrElse(return Failure(ScalaBundle.message("cannot.infer.type.without.expected.type")))
 
-          return et match {
-            case FunctionType(_, params) =>
+          val params = extractExpectedTypeParams(et)
+
+          return params match {
+            case Some(params) =>
               Right(FunctionType(clausesLubType, params.map(_.removeVarianceAbstracts())))
-            case PartialFunctionType(_, param) =>
-              Right(PartialFunctionType(clausesLubType, param.removeVarianceAbstracts()))
-            case _ =>
+            case None =>
               Failure(ScalaBundle.message("cannot.infer.type.without.function.expected.type"))
           }
       }
@@ -75,6 +76,14 @@ trait ScBlock extends ScExpression
       case Some(e) => e.`type`().getOrAny
     }
     Right(inner)
+  }
+
+  @tailrec
+  private def extractExpectedTypeParams(pt: ScType): Option[Seq[ScType]] = pt match {
+    case FunctionType(_, params)       => params.toOption
+    case PartialFunctionType(_, param) => Seq(param).toOption
+    case ContextFunctionType(ret, _)   => extractExpectedTypeParams(ret)
+    case _                             => None
   }
 
   def hasCaseClauses: Boolean = false
