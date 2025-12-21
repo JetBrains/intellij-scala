@@ -57,11 +57,17 @@ trait ScBlock extends ScExpression
           val et = this.expectedType(fromUnderscore = false)
             .getOrElse(return Failure(ScalaBundle.message("cannot.infer.type.without.expected.type")))
 
-          val params = extractExpectedTypeParams(et)
+          val paramInfo = extractExpectedTypeParams(et)
 
-          return params match {
-            case Some(params) =>
-              Right(FunctionType(clausesLubType, params.map(_.removeVarianceAbstracts())))
+          return paramInfo match {
+            case Some((params, isPartial)) =>
+              val sanitizedParams = params.map(_.removeVarianceAbstracts())
+
+              val tpe =
+                if (isPartial) PartialFunctionType(clausesLubType, sanitizedParams.head)
+                else           FunctionType(clausesLubType, sanitizedParams)
+
+              Right(tpe)
             case None =>
               Failure(ScalaBundle.message("cannot.infer.type.without.function.expected.type"))
           }
@@ -79,9 +85,9 @@ trait ScBlock extends ScExpression
   }
 
   @tailrec
-  private def extractExpectedTypeParams(pt: ScType): Option[Seq[ScType]] = pt match {
-    case FunctionType(_, params)       => params.toOption
-    case PartialFunctionType(_, param) => Seq(param).toOption
+  private def extractExpectedTypeParams(pt: ScType): Option[(Seq[ScType], Boolean)] = pt match {
+    case FunctionType(_, params)       => Option(params -> false)
+    case PartialFunctionType(_, param) => Option(Seq(param) -> true)
     case ContextFunctionType(ret, _)   => extractExpectedTypeParams(ret)
     case _                             => None
   }
