@@ -147,7 +147,9 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
                     }
                     else noParams(buffer)
                   } else {
-                    val targetParamClause = Compatibility.correspondingParamClause(clauses, argClauses, i)
+                    val targetParamClause =
+                      if (argClauses.isEmpty) clauses.headOption.filter(_.isImplicit)
+                      else                    Compatibility.correspondingParamClause(clauses, argClauses, i)
 
                     val actualIdx = targetParamClause match {
                       case None          => i
@@ -280,14 +282,17 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
 
             if (clauses.length <= i) noParams(buffer)
             else {
-              val consInvocation = args.getContext.asOptionOf[ScConstructorInvocation]
+              val consInvocation = args.getContext
 
               val argClauses = consInvocation match {
-                case None      => Seq.empty
-                case Some(inv) => inv.arguments.map(_.exprs)
+                case inv: ScConstructorInvocation => inv.arguments.map(_.exprs)
+                case _: MethodInvocation          => collectMethodInvocationArgClauses(args)
+                case _                            => Seq.empty
               }
 
-              val targetParamClause = Compatibility.correspondingParamClause(clauses, argClauses, i)
+              val targetParamClause =
+                if (argClauses.isEmpty) clauses.headOption.filter(_.isImplicit)
+                else                    Compatibility.correspondingParamClause(clauses, argClauses, i)
 
               val actualIdx = targetParamClause match {
                 case None          => i

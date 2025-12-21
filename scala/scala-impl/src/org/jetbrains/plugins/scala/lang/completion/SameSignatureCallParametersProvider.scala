@@ -144,7 +144,7 @@ object SameSignatureCallParametersProvider {
                   val argumentExpressions = collectMethodInvocationArgClauses(argumentsList)
 
                   val providedArgs = argumentsList.exprs.count {
-                    case ref: ScReferenceExpression => ref.refName != "IntellijIdeaRulezz"
+                    case ref: ScReferenceExpression => ref.refName != "IntellijIdeaRulezzz"
                     case _                          => true
                   }
 
@@ -192,8 +192,12 @@ object SameSignatureCallParametersProvider {
   ) {
 
     def parametersNames(method: ScMethodLike): Seq[ScParameter] = {
-      val paramClause =
-        Compatibility.correspondingParamClause(method.effectiveParameterClauses, args, clauseIndex)
+      val paramClause = {
+        val effectiveClauses = method.effectiveParameterClauses
+
+        if (args.isEmpty) effectiveClauses.lift(clauseIndex)
+        else              Compatibility.correspondingParamClause(method.effectiveParameterClauses, args, clauseIndex)
+      }
 
       paramClause match {
         case None         => Seq.empty
