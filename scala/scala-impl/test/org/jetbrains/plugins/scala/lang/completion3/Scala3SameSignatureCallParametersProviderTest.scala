@@ -892,4 +892,27 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
          |A($CARET, y)
         """.stripMargin
   )
+
+  @Test
+  def testLeadingUsingClause(): Unit = checkLookupElement(
+    fileText =
+      s"""object A {
+         |  def foo(using String)(x: Int, y: Int) = 1
+         |  val x = 1
+         |  val y = 2
+         |  foo($CARET)
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""object A {
+         |  def foo(using String)(x: Int, y: Int) = 1
+         |  val x = 1
+         |  val y = 2
+         |  foo(x, y)
+         |}
+         |""".stripMargin,
+    item = "x, y",
+    isSuper = false,
+    icons = VAL, VAL
+  )
 }

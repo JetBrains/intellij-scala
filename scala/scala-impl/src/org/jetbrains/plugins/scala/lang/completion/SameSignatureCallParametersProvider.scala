@@ -11,6 +11,7 @@ import com.intellij.util.ProcessingContext
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.NotImplementedError
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.collectMethodInvocationArgClauses
 import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaInsertHandler.AssignmentText
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base._
@@ -20,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonName
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScConstructorOwner, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createExpressionWithContextFromText}
-import org.jetbrains.plugins.scala.lang.psi.types.Context
+import org.jetbrains.plugins.scala.lang.psi.types.{Compatibility, Context}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -54,14 +55,25 @@ object SameSignatureCallParametersProvider {
 
   private final class MethodParametersCompletionProvider extends ScalaCompletionProvider {
 
-    override protected def completionsFor(position: PsiElement)
-                                         (implicit parameters: CompletionParameters,
-                                          context: ProcessingContext): Iterable[LookupElementBuilder] = {
+    override protected def completionsFor(
+      position: PsiElement
+    )(implicit
+      parameters: CompletionParameters,
+      context:    ProcessingContext
+    ): Iterable[LookupElementBuilder] = {
       val argumentsList = findArgumentsList(position)
 
       argumentsList.getContext match {
         case ScMethodCall.withDeepestInvoked(reference: ScReferenceExpression) =>
-          val argumentToStart = new ArgumentToStart(argumentsList)()
+          val argumentExpressions = collectMethodInvocationArgClauses(argumentsList)
+          val clauseIdx           = argumentsList.invocationCount - 1
+
+          val providedArgs = argumentsList.exprs.count {
+            case ref: ScReferenceExpression => ref.refName != "IntellijIdeaRulezzz"
+            case _                          => true
+          }
+
+          val argumentToStart = ArgumentToStart(argumentExpressions, clauseIdx, providedArgs)
 
           createFunctionArgumentsElements(
             reference,
@@ -129,7 +141,18 @@ object SameSignatureCallParametersProvider {
                 //noinspection ScalaUnnecessaryParentheses
                 case Some((constructorOwner: ScConstructorOwner, substitutor))
                   if (if (constructorOwner.hasTypeParameters) typeElement.is[ScParameterizedTypeElement] else true) =>
-                  val argumentToStart = new ArgumentToStart(argumentsList)(constructorInvocation.arguments.indexOf(argumentsList))
+                  val argumentExpressions = collectMethodInvocationArgClauses(argumentsList)
+
+                  val providedArgs = argumentsList.exprs.count {
+                    case ref: ScReferenceExpression => ref.refName != "IntellijIdeaRulezz"
+                    case _                          => true
+                  }
+
+                  val argumentToStart = ArgumentToStart(
+                    argumentExpressions,
+                    constructorInvocation.arguments.indexOf(argumentsList),
+                    providedArgs
+                  )
 
                   val constructorArgsElements = createConstructorArgumentsElements(
                     position,
@@ -162,20 +185,21 @@ object SameSignatureCallParametersProvider {
       }
   }
 
-  private[this] final class ArgumentToStart private(clauseIndex: Int,
-                                                    argumentsToDrop: Int) {
+  private[this] final case class ArgumentToStart (
+    args:              Seq[Seq[ScExpression]],
+    clauseIndex:       Int,
+    providedArguments: Int
+  ) {
 
-    def this(list: ScArgumentExprList)
-            (clauseIndex: Int = list.invocationCount - 1) = this(
-      clauseIndex,
-      list.children.count(_.textMatches(","))
+    def parametersNames(method: ScMethodLike): Seq[ScParameter] = {
+      val paramClause =
+        Compatibility.correspondingParamClause(method.effectiveParameterClauses, args, clauseIndex)
 
-      /** empty expressions cannot be handled via [[ScArgumentExprList.exprs]] */
-    )
-
-    def parametersNames(method: ScMethodLike): Seq[ScParameter] = method
-      .parametersInClause(clauseIndex)
-      .drop(argumentsToDrop)
+      paramClause match {
+        case None         => Seq.empty
+        case Some(clause) => clause.parameters.drop(providedArguments)
+      }
+    }
   }
 
   private[this] sealed abstract class Argument(protected val typeable: Typeable,
@@ -214,7 +238,13 @@ object SameSignatureCallParametersProvider {
   private[this] def createAssignmentLookupElement(method: ScMethodLike,
                                                   argumentToStart: ArgumentToStart,
                                                   substitutor: ScSubstitutor): Option[LookupElementBuilder] =
-    createLookupElement(method, argumentToStart, substitutor)(findMethodParameters(method)).map { builder =>
+    createLookupElement(
+      method,
+      argumentToStart,
+      substitutor
+    )(
+      findMethodParameters(method)
+    ).map { builder =>
       builder.withTailText(AssignmentText).withInsertHandler(new AssignmentsInsertHandler)
     }
 

@@ -909,19 +909,19 @@ object Compatibility {
 
           args.nonEmpty &&
             (args.lift(nextArgClauseIdx) match {
-            case Some(argList) =>
-              argList.isUsing || {
-                val nextParamClause =
-                  Compatibility.correspondingParamClause(
-                    paramClauses,
-                    nonEmptyArgs,
-                    i + 1
-                  )
+              case Some(argList) =>
+                argList.isUsing || {
+                  val nextParamClause =
+                    Compatibility.correspondingParamClause(
+                      paramClauses,
+                      nonEmptyArgs,
+                      i + 1
+                    )
 
-                nextParamClause.exists(_.hasImplicitKeyword)
-              }
-            case _ => false
-          })
+                  nextParamClause.exists(_.hasImplicitKeyword)
+                }
+              case _ => false
+            })
         }
 
         if (!shouldNotUpdateTrailingImplicits) {
@@ -1087,12 +1087,16 @@ object Compatibility {
 
     val initialApplicabilityRes = ApplicabilityCheckResult(Seq.empty)
 
-    val (typeWithoutLeadingImplicits, leadingImplicitArgs) = updateTypeWithImplicitArguments(
-      consType,
-      withExpected      = false,
-      hasImplicitClause = hasImplicitClause,
-      isLeadingClause   = true
-    )
+    val (typeWithoutLeadingImplicits, leadingImplicitArgs) =
+      if (args.headOption.exists(_.isUsing))
+        (consType, Seq.empty)
+      else
+        updateTypeWithImplicitArguments(
+          consType,
+          withExpected      = false,
+          hasImplicitClause = hasImplicitClause,
+          isLeadingClause   = true
+        )
 
     val (tpeWithoutLast, applicabilityResWithoutLastClause, implicitArgs) = cons match {
       case scalaCons: ScMethodLike =>

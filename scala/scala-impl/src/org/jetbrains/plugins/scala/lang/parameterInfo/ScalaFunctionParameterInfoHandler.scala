@@ -7,6 +7,7 @@ import com.intellij.psi._
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.collectMethodInvocationArgClauses
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parameterInfo.ScalaFunctionParameterInfoHandler.{AnnotationParameters, UniversalApplyCall, UniversalApplyCallContext}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
@@ -30,7 +31,6 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-import java.awt.Color
 import java.util
 import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
@@ -44,13 +44,12 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
 
   override def getActualParameters(elem: PsiElement): Array[ScExpression] = {
     elem match {
-      case argExprList: ScArgumentExprList =>
-        argExprList.exprs.toArray
-      case _: ScUnitExpr => Array.empty
-      case p: ScParenthesisedExpr => p.innerElement.toArray
-      case t: ScTuple => t.exprs.toArray
-      case e: ScExpression => Array(e)
-      case _ => Array.empty
+      case argExprList: ScArgumentExprList => argExprList.exprs.toArray
+      case _: ScUnitExpr                   => Array.empty
+      case p: ScParenthesisedExpr          => p.innerElement.toArray
+      case t: ScTuple                      => t.exprs.toArray
+      case e: ScExpression                 => Array(e)
+      case _                               => Array.empty
     }
   }
 
@@ -73,28 +72,33 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
     context.getParameterOwner match {
       case args: PsiElement =>
         implicit val tpc: TypePresentationContext = TypePresentationContext(args)
-        val color: Color = context.getDefaultParameterColor
-        val index = context.getCurrentParameterIndex
+
         val buffer: StringBuilder = new StringBuilder("")
-        var isGrey = false
+
+        val color      = context.getDefaultParameterColor
+        val index      = context.getCurrentParameterIndex
+
+        var isGrey       = false
         var isDeprecated = false
 
         def paramText(param: ScParameter, subst: ScSubstitutor) = {
           val typeRenderer: TypeRenderer = subst(_).presentableText
+
           val renderer = new ParameterRenderer(
             typeRenderer,
             ModifiersRenderer.SimpleText(),
             new TypeAnnotationRenderer(typeRenderer, ParameterTypeDecorator.DecorateAllMinimized),
             withAnnotations = true
           )
+
           renderer.render(param)
         }
-        def typeParamText(param: ScTypeParam, subst: ScSubstitutor) = {
+
+        def typeParamText(param: ScTypeParam, subst: ScSubstitutor) =
           new TypeParamsRenderer(subst(_).presentableText).render(param)
-        }
+
         p match {
-          case x: String if x == "" =>
-            noParams(buffer)
+          case x: String if x == "" => noParams(buffer)
           case (a: AnnotationParameters, _: Int) =>
             val seq = a.seq
             if (seq.isEmpty) noParams(buffer)
@@ -131,27 +135,35 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
               psiMethod match {
                 case method: ScFunction =>
                   val isEffective = method.allClauses.length <= i
-                  val clauses = if (isEffective) method.effectiveParameterClauses else method.allClauses
+                  val argClauses  = collectMethodInvocationArgClauses(args)
+
+                  val clauses =
+                    if (isEffective) method.effectiveParameterClauses
+                    else             method.allClauses
 
                   if (clauses.length <= i || (i == -1 && clauses.isEmpty)) {
                     if (clauses.isEmpty && i == 0) { // SCL-20512
                       method.returnType.fold(_ => noParams(buffer), processApplyMethod)
                     }
                     else noParams(buffer)
-                  }
-                  else {
-                    val clause: ScParameterClause = if (i >= 0) clauses(i) else clauses.head
-                    val length = clause.effectiveParameters.length
+                  } else {
+                    val targetParamClause = Compatibility.correspondingParamClause(clauses, argClauses, i)
 
-                    val precedingClauses = if (i == -1) Seq.empty else clauses.take(i)
-                    val remainingClauses = if (i == -1) Seq.empty else clauses.drop(i + 1)
+                    val actualIdx = targetParamClause match {
+                      case None          => i
+                      case Some(pclause) => clauses.indexOf(pclause)
+                    }
+
+                    val precedingClauses = if (actualIdx == -1) Seq.empty else clauses.take(actualIdx)
+                    val remainingClauses = if (actualIdx == -1) Seq.empty else clauses.drop(actualIdx + 1)
 
                     val typeParameters = method.typeParameters
                     val multipleLists = typeParameters.nonEmpty || precedingClauses.nonEmpty || remainingClauses.nonEmpty
 
                     def parametersOf(clause: ScParameterClause): Seq[(Parameter, String)] = {
+                      val length      = clause.effectiveParameters.length
                       val parameters0 = if (isEffective) clause.effectiveParameters else clause.parameters
-                      val parameters: Seq[ScParameter] = if (i != -1) parameters0 else parameters0.take(length - 1)
+                      val parameters  = if (i != -1) parameters0 else parameters0.take(length - 1)
                       parameters.map(param => (Parameter(param), paramText(param, subst)))
                     }
 
@@ -173,7 +185,16 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
                     if (multipleLists) {
                       buffer.append("(")
                     }
-                    isGrey = applyToParameters(parametersOf(clause), subst, clause, canBeNaming = true)(args, buffer, index)
+
+                    targetParamClause.foreach { clause =>
+                      isGrey = applyToParameters(
+                        parametersOf(clause),
+                        subst,
+                        clause,
+                        canBeNaming = true
+                      )(args, buffer, index)
+                    }
+
                     if (multipleLists) {
                       buffer.append(")")
                     }
@@ -259,13 +280,28 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
 
             if (clauses.length <= i) noParams(buffer)
             else {
-              val clause: ScParameterClause = clauses(i)
-              val preceedingClauses = clauses.take(i)
-              val remainingClauses = clauses.drop(i + 1)
+              val consInvocation = args.getContext.asOptionOf[ScConstructorInvocation]
+
+              val argClauses = consInvocation match {
+                case None      => Seq.empty
+                case Some(inv) => inv.arguments.map(_.exprs)
+              }
+
+              val targetParamClause = Compatibility.correspondingParamClause(clauses, argClauses, i)
+
+              val actualIdx = targetParamClause match {
+                case None          => i
+                case Some(pclause) => clauses.indexOf(pclause)
+              }
+
+              val preceedingClauses = clauses.take(actualIdx)
+              val remainingClauses = clauses.drop(actualIdx + 1)
+
               val typeParameters = constructor.getParent match {
                 case owner: ScTypeParametersOwner => owner.typeParameters
-                case _ => Seq.empty
+                case _                            => Seq.empty
               }
+
               val multipleLists = typeParameters.nonEmpty || preceedingClauses.nonEmpty || remainingClauses.nonEmpty
 
               def parametersOf(clause: ScParameterClause) = {
@@ -291,7 +327,16 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
               if (multipleLists) {
                 buffer.append("(")
               }
-              isGrey = applyToParameters(parametersOf(clause), subst, clause, canBeNaming = true)(args, buffer, index)
+
+              targetParamClause.foreach { clause =>
+                isGrey = applyToParameters(
+                  parametersOf(clause),
+                  subst,
+                  clause,
+                  canBeNaming = true
+                )(args, buffer, index)
+              }
+
               if (multipleLists) {
                 buffer.append(")")
               }
@@ -735,7 +780,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
           for {
             constr <- clazz.functions
             if constr.isConstructor &&
-               constr.clauses.map(_.clauses.length).getOrElse(1) > i
+              constr.clauses.map(_.clauses.length).getOrElse(1) > i
           } {
             if (!PsiTreeUtil.isAncestor(constr, self, true) &&
               constr.getTextRange.getStartOffset < self.getTextRange.getStartOffset) {
@@ -750,7 +795,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
   /**
    * Returns context's argument psi and fill context items
    * by appropriate PsiElements (in which we can resolve)
-    *
+   *
    * @param context current context
    * @return context's argument expression
    */
@@ -759,7 +804,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
     val offset = context.getOffset
     val element = file.findElementAt(offset)
     if (element.is[PsiWhiteSpace])
-    if (element == null) return null
+      if (element == null) return null
     @tailrec
     def findArgs(elem: PsiElement): Option[Invocation] = {
       if (elem == null) return None
