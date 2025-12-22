@@ -421,7 +421,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
         case b: ScBlockExpr if b.isInCatchBlock =>
           b.getContext.getContext.asInstanceOf[ScTry].expectedTypesEx(fromUnderscore = true)
         case b: ScBlockExpr if b.isPartialFunction =>
-          val expectedForPf    = b.expectedTypesEx(fromUnderscore = true)
+          val expectedForPf    = expectedTypesUnwrapContextFunction(b, fromUnderscore = true)
           val functionLikeType = FunctionLikeType(expr)
 
           expectedForPf.collect {
