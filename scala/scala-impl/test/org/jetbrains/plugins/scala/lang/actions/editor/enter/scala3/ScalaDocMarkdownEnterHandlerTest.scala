@@ -228,4 +228,36 @@ class ScalaDocMarkdownEnterHandlerTest extends DoEditorStateTestOps {
          | */
          |""".stripMargin,
     )
+
+  def testEnterAfterHeader(): Unit =
+    doEnterTest(
+      s"""
+         |/**
+         | * Header
+         | * ------$CARET
+         | */
+         |""".stripMargin,
+      s"""
+         |/**
+         | * Header
+         | * ------
+         | * $CARET
+         | */
+         |""".stripMargin,
+    )
+
+  def testEnterAfterEmptyUnorderedList(): Unit =
+    doMyEnterTest(
+      s"""
+         |/**
+         | * - $CARET
+         | */
+         |""".stripMargin,
+      s"""
+         |/**
+         | * -
+         | * $CARET
+         | */
+         |""".stripMargin,
+    )
 }

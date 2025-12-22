@@ -66,7 +66,9 @@ class ScalaDocMarkdownEnterHandler extends EnterHandlerDelegateAdapter {
       val afterQuotePrefix = prevLineWithoutCurrentLinePrefix.substring(quotePrefix.length)
 
       val toInsert =
-        if (afterQuotePrefix.startsWith("-")) {
+        if (!allowListInsertionRegex.matches(afterQuotePrefix)) {
+          None
+        } else if (afterQuotePrefix.startsWith("-")) {
           Some(if (caretAtEnd) "- " else "  ")
         } else if (afterQuotePrefix.startsWith("+")) {
           Some(if (caretAtEnd) "+ " else "  ")
@@ -102,5 +104,7 @@ class ScalaDocMarkdownEnterHandler extends EnterHandlerDelegateAdapter {
     Result.Continue
   }
 
-  private val numberedListRegex = """(\d+)([.)])""".r
+  // make sure the line does contain something else than the list head and is not a header
+  private val allowListInsertionRegex = raw"""(((\d+[.)])|[-+*])\s+\S.*)|\s+""".r
+  private val numberedListRegex = raw"""(\d+)([.)])""".r
 }
