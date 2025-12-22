@@ -68,14 +68,19 @@ class ScalaDocMarkdownEnterHandler extends EnterHandlerDelegateAdapter {
       val toInsert =
         if (afterQuotePrefix.startsWith("-")) {
           Some(if (caretAtEnd) "- " else "  ")
+        } else if (afterQuotePrefix.startsWith("+")) {
+          Some(if (caretAtEnd) "+ " else "  ")
+        } else if (afterQuotePrefix.startsWith("*")) {
+          Some(if (caretAtEnd) "* " else "  ")
         } else {
           for {
             m <- numberedListRegex.findPrefixMatchOf(afterQuotePrefix)
             num <- m.group(1).toIntOption
             if !caretAtEnd || num < Int.MaxValue
           } yield {
-            if (caretAtEnd) s"${num + 1}. "
-            else s"$num. ".map(_ => ' ')
+            val listSep = m.group(2)
+            if (caretAtEnd) s"${num + 1}$listSep "
+            else s"$num$listSep ".map(_ => ' ')
           }
         }
 
@@ -97,5 +102,5 @@ class ScalaDocMarkdownEnterHandler extends EnterHandlerDelegateAdapter {
     Result.Continue
   }
 
-  private val numberedListRegex = """(\d+)\.""".r
+  private val numberedListRegex = """(\d+)([.)])""".r
 }
