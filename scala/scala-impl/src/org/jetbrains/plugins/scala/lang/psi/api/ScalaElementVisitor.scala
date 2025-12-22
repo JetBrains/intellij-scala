@@ -188,7 +188,17 @@ abstract class ScalaElementVisitor extends PsiElementVisitor {
   def visitContextBound(contextBound: ScContextBound): Unit = visitScalaElement(contextBound)
 
   // given
-  def visitGiven(g: ScGiven): Unit = visitScalaElement(g)
+  def visitGiven(g: ScGiven): Unit = {
+    // The different definitions of ScGiven are subclasses of ScFunctionDefinition, ScFunctionDeclaration, and ScTypeDefinition.
+    // We want visitGiven to be the default handler for all given syntaxes, but if it is not overridden,
+    // we want to visit the more specific super types of the more specific definitions. That's why we do the match here.
+    g match {
+      case g: ScGivenAliasDeclaration => visitFunctionDeclaration(g)
+      case g: ScGivenAliasDefinition => visitFunctionDefinition(g)
+      case g: ScGivenDefinition => visitTypeDefinition(g)
+      case _ => visitScalaElement(g)
+    }
+  }
   def visitGivenAlias(g: ScGivenAlias): Unit = visitGiven(g)
   def visitGivenAliasDeclaration(g: ScGivenAliasDeclaration): Unit = visitGivenAlias(g)
   def visitGivenAliasDefinition(g: ScGivenAliasDefinition): Unit = visitGivenAlias(g)
