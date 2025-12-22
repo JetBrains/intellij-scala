@@ -67,11 +67,7 @@ object SameSignatureCallParametersProvider {
         case ScMethodCall.withDeepestInvoked(reference: ScReferenceExpression) =>
           val argumentExpressions = collectMethodInvocationArgClauses(argumentsList)
           val clauseIdx           = argumentsList.invocationCount - 1
-
-          val providedArgs = argumentsList.exprs.count {
-            case ref: ScReferenceExpression => ref.refName != "IntellijIdeaRulezzz"
-            case _                          => true
-          }
+          val providedArgs        = argumentsList.children.count(_.textMatches(","))
 
           val argumentToStart = ArgumentToStart(argumentExpressions, clauseIdx, providedArgs)
 
@@ -142,11 +138,7 @@ object SameSignatureCallParametersProvider {
                 case Some((constructorOwner: ScConstructorOwner, substitutor))
                   if (if (constructorOwner.hasTypeParameters) typeElement.is[ScParameterizedTypeElement] else true) =>
                   val argumentExpressions = collectMethodInvocationArgClauses(argumentsList)
-
-                  val providedArgs = argumentsList.exprs.count {
-                    case ref: ScReferenceExpression => ref.refName != "IntellijIdeaRulezzz"
-                    case _                          => true
-                  }
+                  val providedArgs        = argumentsList.children.count(_.textMatches(","))
 
                   val argumentToStart = ArgumentToStart(
                     argumentExpressions,

@@ -11,7 +11,10 @@ class KyoHighlightingTest extends ScalaLightCodeInsightFixtureTestCase {
 
   override def librariesLoaders: Seq[LibraryLoader] =
     super.librariesLoaders :+
-      IvyManagedLoader("io.getkyo" %% "kyo-core" % "0.16.2")
+      IvyManagedLoader(
+        ("io.getkyo" %% "kyo-core" % "0.16.2").transitive(),
+        ("io.getkyo" %% "kyo-prelude" % "0.16.2").transitive()
+      )
 
   def testSCL23717(): Unit = checkTextHasNoErrors(
     """

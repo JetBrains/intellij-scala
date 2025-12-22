@@ -148,11 +148,12 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
                     else noParams(buffer)
                   } else {
                     val targetParamClause =
-                      if (argClauses.isEmpty) clauses.headOption.filter(_.isImplicit)
-                      else                    Compatibility.correspondingParamClause(clauses, argClauses, i)
+                      if (argClauses.isEmpty)     clauses.headOption.filter(_.isImplicit)
+                      else if (clauses.size == 1) clauses.headOption
+                      else                        Compatibility.correspondingParamClause(clauses, argClauses, i)
 
                     val actualIdx = targetParamClause match {
-                      case None          => i
+                      case None          => clauses.size
                       case Some(pclause) => clauses.indexOf(pclause)
                     }
 
@@ -184,21 +185,17 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
                       buffer.append(")")
                     }
 
-                    if (multipleLists) {
-                      buffer.append("(")
-                    }
-
                     targetParamClause.foreach { clause =>
+                      if (multipleLists) buffer.append("(")
+
                       isGrey = applyToParameters(
                         parametersOf(clause),
                         subst,
                         clause,
                         canBeNaming = true
                       )(args, buffer, index)
-                    }
 
-                    if (multipleLists) {
-                      buffer.append(")")
+                      if (multipleLists) buffer.append(")")
                     }
 
                     remainingClauses.foreach { clause =>
@@ -291,11 +288,12 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
               }
 
               val targetParamClause =
-                if (argClauses.isEmpty) clauses.headOption.filter(_.isImplicit)
-                else                    Compatibility.correspondingParamClause(clauses, argClauses, i)
+                if (argClauses.isEmpty)     clauses.headOption.filter(_.isImplicit)
+                else if (clauses.size == 1) clauses.headOption
+                else                        Compatibility.correspondingParamClause(clauses, argClauses, i)
 
               val actualIdx = targetParamClause match {
-                case None          => i
+                case None          => clauses.size
                 case Some(pclause) => clauses.indexOf(pclause)
               }
 
@@ -329,21 +327,17 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
                 buffer.append(")")
               }
 
-              if (multipleLists) {
-                buffer.append("(")
-              }
-
               targetParamClause.foreach { clause =>
+                if (multipleLists) buffer.append("(")
+
                 isGrey = applyToParameters(
                   parametersOf(clause),
                   subst,
                   clause,
                   canBeNaming = true
                 )(args, buffer, index)
-              }
 
-              if (multipleLists) {
-                buffer.append(")")
+                if (multipleLists) buffer.append(")")
               }
 
               remainingClauses.foreach { clause =>
