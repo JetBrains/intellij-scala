@@ -3,6 +3,7 @@ import sbt.io.IO
 import sbt.{URL, url}
 
 import scala.collection.mutable
+import scala.util.Try
 import scala.xml.{Elem, XML}
 
 // Contains some duplicated code from <ultimate root>/project/teamcity/TeamCityAPI.scala.
@@ -25,53 +26,49 @@ object TeamCityCommunityUtil {
       TRUNK_INSTALLERS ::
       Nil
 
-  def getBuildIdForVersionSafe(ideaVersion: String): Option[String] = {
-    //231.1234.15 -> 231
-    val majorVersion = ideaVersion.split('.').headOption.getOrElse("")
-    val buildTypePatterns = BUILD_TYPE_PATTERNS.toStream
-    val buildTypes = buildTypePatterns.map(_.format(majorVersion))
-    val detectedBuildIds = buildTypes.flatMap(detectBuildIdForBuildType(ideaVersion, _))
-    val result = detectedBuildIds.find(artifactExists)
-    result
-  }
-
-  private def detectBuildIdForBuildType(ideaVersion: String, buildType: String): Option[String] = {
-    try {
-      val response = buildResponse(buildType, "number", ideaVersion)
-      // limit number of builds to 1 - filters bogus build twins
-      val isSuccess = (response \\ "build").take(1).filter(x => (x \\ "@status").text == "SUCCESS")
-      val id = (isSuccess \\ "@id").text
-      if (id != null && id.nonEmpty)
-        Some(id)
-      else
-        None
-    } catch {
-      case _: Throwable =>
-        None
+  def getBuildIdForVersionSafe(ideaVersion: String): Try[Option[String]] = {
+    Try {
+      //231.1234.15 -> 231
+      val majorVersion = ideaVersion.split('.').headOption.getOrElse("")
+      val buildTypePatterns = BUILD_TYPE_PATTERNS.toStream
+      val buildTypes = buildTypePatterns.map(_.format(majorVersion))
+      val detectedBuildIds = buildTypes.map(detectBuildIdForBuildType(ideaVersion, _))
+      val result =
+        detectedBuildIds.flatMap(_.toOption).flatten.find(artifactExists)
+          .orElse(detectedBuildIds.flatMap(_.get).find(artifactExists))
+      result
     }
   }
 
-  private def buildResponse(buildType: String,
-                                  key: String, value: String) = {
+  private def detectBuildIdForBuildType(ideaVersion: String, buildType: String): Try[Option[String]] = Try {
+    val response = buildResponse(buildType, "number", ideaVersion)
+    // limit number of builds to 1 - filters bogus build twins
+    val isSuccess = (response \\ "build").take(1).filter(x => (x \\ "@status").text == "SUCCESS")
+    val id = (isSuccess \\ "@id").text
+    if (id != null && id.nonEmpty)
+      Some(id)
+    else
+      None
+  }
+
+  private def buildResponse(
+    buildType: String,
+    key: String,
+    value: String
+  ): Elem = {
     val from = url(s"$BuildsBaseUrl/?locator=buildType:(id:$buildType),branch:(default:true),status:SUCCESS,$key:$value")
     val string = IO.readLinesURL(from).mkString
     XML.loadString(string)
   }
 
   private def artifactExists(buildId: String): Boolean = {
-    try {
-      val locator = new BuildLocator(BuildsBaseUrl + "/")
-      val response = locator
-        .id(buildId)
-        .route("/artifacts/")
-        .getXml
-      val num = (response \ "@count").text.toInt
-      num > 0
-    } catch {
-      case e: Exception =>
-        log.warn(s"Failed to get artifact info for build $buildId: ${e.printStackTrace()}")
-        false
-    }
+    val locator = new BuildLocator(BuildsBaseUrl + "/")
+    val response = locator
+      .id(buildId)
+      .route("/artifacts/")
+      .getXml
+    val num = (response \ "@count").text.toInt
+    num > 0
   }
 
   final class BuildLocator(baseUrl: String = s"$BuildsBaseUrl/?locator=") {

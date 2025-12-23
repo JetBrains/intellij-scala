@@ -93,6 +93,8 @@ object Versions {
       // up breaking our build. To reduce the possibility of this, we add a special resolver which is able to find
       // the exact test framework dependencies that match the exact nightly `intellijVersion`.
       TeamCityCommunityUtil.getBuildIdForVersionSafe(intellijVersion)
+        .toOption
+        .flatten
         .map { buildId =>
           val mavenArtifactsUrl = s"https://buildserver.labs.intellij.net/guestAuth/app/rest/builds/id:$buildId/artifacts/content/maven-artifacts"
           val mavenArtifactPatterns = "[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"
