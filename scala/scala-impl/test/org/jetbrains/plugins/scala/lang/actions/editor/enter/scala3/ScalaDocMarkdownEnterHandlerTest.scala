@@ -1,15 +1,33 @@
 package org.jetbrains.plugins.scala.lang.actions.editor.enter.scala3
 
 class ScalaDocMarkdownEnterHandlerTest extends DoEditorStateTestOps {
-  private def doEnterTestWithAndWithoutTextAfterCaret(before: String, after: String): Unit = {
-    super.doEnterTest(before, after)
+
+  private def doMyEnterTest(before: String, after: String, afterOther: String*): Unit = {
+    def replaceInStr(replace: String => String): Unit = {
+      val rBefore = replace(before)
+      val rAfter = replace(after)
+      val rAfterOther = afterOther.map(replace)
+
+      if ((rBefore, rAfter, rAfterOther) != (before, after, afterOther)) {
+        super.doEnterTest(rBefore, rAfter, rAfterOther: _*)
+      }
+    }
+
+    super.doEnterTest(before, after, afterOther: _*)
+    replaceInStr(_.replace("-", "+"))
+    replaceInStr(_.replace("-", "*"))
+    replaceInStr(_.replace(".", ")"))
+  }
+
+  private def doMyEnterTestWithAndWithoutTextAfterCaret(before: String, after: String): Unit = {
+    doMyEnterTest(before, after)
 
     def replaceCaret(s: String) = s.replace(CARET, CARET + "abc")
-    doEnterTest(replaceCaret(before), replaceCaret(after))
+    doMyEnterTest(replaceCaret(before), replaceCaret(after))
   }
 
   def testUnorderedList(): Unit =
-    doEnterTest(
+    doMyEnterTest(
       s"""
          |/**
          | * - a list item$CARET
@@ -24,7 +42,7 @@ class ScalaDocMarkdownEnterHandlerTest extends DoEditorStateTestOps {
     )
 
   def testNestedUnorderedList(): Unit =
-    doEnterTest(
+    doMyEnterTest(
       s"""
          |/**
          | * - a list item
@@ -41,7 +59,7 @@ class ScalaDocMarkdownEnterHandlerTest extends DoEditorStateTestOps {
     )
 
   def testUnorderedListWithAfterText(): Unit =
-    doEnterTest(
+    doMyEnterTest(
       s"""
          |/**
          | * - a list item${CARET}abc
@@ -56,7 +74,7 @@ class ScalaDocMarkdownEnterHandlerTest extends DoEditorStateTestOps {
     )
 
   def testNestedUnorderedListWithAfterText(): Unit =
-    doEnterTest(
+    doMyEnterTest(
       s"""
          |/**
          | * - a list item
@@ -73,7 +91,7 @@ class ScalaDocMarkdownEnterHandlerTest extends DoEditorStateTestOps {
     )
 
   def testOrderedList(): Unit =
-    doEnterTest(
+    doMyEnterTest(
       s"""
          |/**
          | * 1. a list item$CARET
@@ -88,7 +106,7 @@ class ScalaDocMarkdownEnterHandlerTest extends DoEditorStateTestOps {
     )
 
   def testNestedOrderedList(): Unit =
-    doEnterTest(
+    doMyEnterTest(
       s"""
          |/**
          | * 1. a list item
@@ -105,7 +123,7 @@ class ScalaDocMarkdownEnterHandlerTest extends DoEditorStateTestOps {
     )
 
   def testOrderedListWithAfterText(): Unit =
-    doEnterTest(
+    doMyEnterTest(
       s"""
          |/**
          | * 1. a list item${CARET}abc
@@ -120,7 +138,7 @@ class ScalaDocMarkdownEnterHandlerTest extends DoEditorStateTestOps {
     )
 
   def testNestedOrderedListWithAfterText(): Unit =
-    doEnterTest(
+    doMyEnterTest(
       s"""
          |/**
          | * 1. a list item
@@ -137,7 +155,7 @@ class ScalaDocMarkdownEnterHandlerTest extends DoEditorStateTestOps {
     )
 
   def testMaxNumberOrderedList(): Unit =
-    doEnterTest(
+    doMyEnterTest(
       s"""
          |/**
          | * > 2147483647. suspicious xD$CARET
@@ -152,7 +170,7 @@ class ScalaDocMarkdownEnterHandlerTest extends DoEditorStateTestOps {
     )
 
   def testMaxNumberOrderedListWithAfterText(): Unit =
-    doEnterTest(
+    doMyEnterTest(
       s"""
          |/**
          | * > 2147483647. suspicious xD${CARET}abc
@@ -167,7 +185,7 @@ class ScalaDocMarkdownEnterHandlerTest extends DoEditorStateTestOps {
     )
 
   def testQuote(): Unit =
-    doEnterTestWithAndWithoutTextAfterCaret(
+    doMyEnterTestWithAndWithoutTextAfterCaret(
       s"""
          |/**
          | * > quoted text$CARET
@@ -182,7 +200,7 @@ class ScalaDocMarkdownEnterHandlerTest extends DoEditorStateTestOps {
     )
 
   def testDoubleQuoteWithSpace(): Unit =
-    doEnterTestWithAndWithoutTextAfterCaret(
+    doMyEnterTestWithAndWithoutTextAfterCaret(
       s"""
          |/**
          | * > > quoted text$CARET
@@ -197,7 +215,7 @@ class ScalaDocMarkdownEnterHandlerTest extends DoEditorStateTestOps {
     )
 
   def testDoubleQuoteWithoutSpace(): Unit =
-    doEnterTestWithAndWithoutTextAfterCaret(
+    doMyEnterTestWithAndWithoutTextAfterCaret(
       s"""
          |/**
          | * >> quoted text$CARET
@@ -207,6 +225,38 @@ class ScalaDocMarkdownEnterHandlerTest extends DoEditorStateTestOps {
          |/**
          | * >> quoted text
          | * >> $CARET
+         | */
+         |""".stripMargin,
+    )
+
+  def testEnterAfterHeader(): Unit =
+    doEnterTest(
+      s"""
+         |/**
+         | * Header
+         | * ------$CARET
+         | */
+         |""".stripMargin,
+      s"""
+         |/**
+         | * Header
+         | * ------
+         | * $CARET
+         | */
+         |""".stripMargin,
+    )
+
+  def testEnterAfterEmptyUnorderedList(): Unit =
+    doMyEnterTest(
+      s"""
+         |/**
+         | * - $CARET
+         | */
+         |""".stripMargin,
+      s"""
+         |/**
+         | * -
+         | * $CARET
          | */
          |""".stripMargin,
     )
