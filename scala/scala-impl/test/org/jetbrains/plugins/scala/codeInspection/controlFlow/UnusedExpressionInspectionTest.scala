@@ -523,11 +523,21 @@ class UnusedExpressionInspectionTest extends UnusedExpressionInspectionTestBase 
        |}
        |
        |@main
-       |def main() = {
+       |def main(): Unit = {
        |  "test" xShouldBe "number"
        |  "test" shouldBe "number"
        |}
        |""".stripMargin
+  )
+
+  // SCL-19743
+  def testStringBuilderAdd(): Unit = checkTextHasNoErrors(
+    """
+      |def foo(args: Vector[Int]): Unit = {
+      |  val b = new StringBuilder("?")
+      |  args.addString(b, "(", "&", ")")
+      |}
+      |""".stripMargin
   )
 }
 

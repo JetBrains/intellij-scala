@@ -34,7 +34,7 @@ object SideEffectsUtil {
   ).map(_ + ".get")
 
   private val knownUnsafeMethodNames: ArraySeq[String] =
-    ArraySeq("head", "tail", "last", "reduce", "reduceLeft", "reduceRight")
+    ArraySeq("head", "tail", "last", "reduce", "reduceLeft", "reduceRight", "addString")
 
   private val knownMethodsWithSideEffects: ArraySeq[String] = {
     val objectMethods = ArraySeq("wait", "finalize", "notifyAll", "notify").map("java.lang.Object." + _)
