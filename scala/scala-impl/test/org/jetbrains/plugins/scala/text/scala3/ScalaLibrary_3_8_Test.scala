@@ -9,7 +9,6 @@ class ScalaLibrary_3_8_Test extends TextToTextTestBase(
   packages = Seq("scala"),
   minClassCount = 909,
   classExceptions = Set(
-    "scala.EmptyTuple", // duplicate JARs in RC3
     "scala.NamedTuple", // def map[F[_]](f: [t] => t => F[t])
     "scala.NamedTupleDecomposition", // non-absolute paths in match types
     "scala.Tuple", // non-absolute paths in match types
@@ -22,11 +21,6 @@ class ScalaLibrary_3_8_Test extends TextToTextTestBase(
     "scala.collection.mutable.CheckedIndexedSeqView", // Id | Id[Nothing]
     "scala.collection.mutable.CollisionProofHashMap", // Cannot resolve CollisionProofHashMap.LLNode[K, V]
     "scala.concurrent.impl.Promise", // ? => ? | Function1[?, ?]
-    "scala.deriving.Mirror", // duplicate JARs in RC3
-    "scala.quoted.ToExpr", // duplicate JARs in RC3
-    "scala.runtime.FunctionXXL", // duplicate JARs in RC3
-    "scala.runtime.TupleXXL", // duplicate JARs in RC3
-    "scala.runtime.Tuples", // duplicate JARs in RC3
     "scala.sys.process.ProcessImpl", // Unknown type
   ),
   withSources = true,
