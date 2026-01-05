@@ -22,7 +22,7 @@ import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vfs.encoding.EncodingProjectManager
-import com.intellij.terminal.{ProcessHandlerTtyConnector, TerminalExecutionConsole}
+import com.intellij.terminal.{ProcessHandlerTtyConnector, TerminalExecutionConsole, TerminalExecutionConsoleBuilder}
 import com.intellij.util.messages.MessageBusConnection
 import com.jediterm.core.util.TermSize
 import com.sun.jna.Platform
@@ -434,7 +434,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
 
    */
   private def createTerminalConsole(handler: OSProcessHandler): TerminalExecutionConsole = {
-    val console = new TerminalExecutionConsole(project, null ) // pass null to use custom tty connector
+    val console = TerminalExecutionConsoleBuilder(project).build()
     val ttyConnector = new ProcessHandlerTtyConnector(handler, EncodingProjectManager.getInstance(project).getDefaultCharset) {
       override def resize(termSize: TermSize): Unit = {
         val minRows = 3 // from org.jline.reader.impl.LineReaderImpl.MIN_ROWS
