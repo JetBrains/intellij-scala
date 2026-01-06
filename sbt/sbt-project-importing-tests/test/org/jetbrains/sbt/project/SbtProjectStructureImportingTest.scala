@@ -1297,7 +1297,7 @@ final class SbtProjectStructureImportingTest extends SbtProjectStructureImportin
     )
 
     runTest(
-      new project("root") {
+      expected = new project("root") {
         libraries := expectedScalaLibraries
 
         // ATTENTION: since sbt 2.0:
@@ -1335,7 +1335,9 @@ final class SbtProjectStructureImportingTest extends SbtProjectStructureImportin
             compileTestOutputPath := "%PROJECT_ROOT%/target/out/jvm/scala-3.6.2/subproject2/test-classes"
           },
         )
-      }
+      },
+      optionsModifier = _.copy(checkExtraClasspath = false),
+      mutedNotificationTitles = Seq(SbtBundle.message("sbt.legacy.modules.layout.notification.title"))
     )
 
     // Adding the assertion here not to create a separate heavy test for such a tiny check
