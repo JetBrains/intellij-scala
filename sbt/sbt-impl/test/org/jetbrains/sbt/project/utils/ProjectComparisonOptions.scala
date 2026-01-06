@@ -9,7 +9,8 @@ case class ProjectComparisonOptions(
   strictCheckForBuildModules: Boolean,
   scalaCliStructureHelper: Option[ScalaCliStructureHelper],
   checkLibraryDependenciesOrder: Boolean,
-  checkProjectDependenciesOrder: Boolean
+  checkProjectDependenciesOrder: Boolean,
+  checkExtraClasspath: Boolean
 )
 
 object ProjectComparisonOptions {
@@ -18,17 +19,19 @@ object ProjectComparisonOptions {
       strictCheckForBuildModules = false,
       scalaCliStructureHelper = None,
       checkLibraryDependenciesOrder = false,
-      checkProjectDependenciesOrder = false
+      checkProjectDependenciesOrder = false,
+      checkExtraClasspath = true
     )
 
   def apply(strictCheckForBuildModules: Boolean): ProjectComparisonOptions =
-    ProjectComparisonOptions(strictCheckForBuildModules, scalaCliStructureHelper = None, checkLibraryDependenciesOrder = false, checkProjectDependenciesOrder = false)
+    ProjectComparisonOptions(strictCheckForBuildModules, scalaCliStructureHelper = None, checkLibraryDependenciesOrder = false, checkProjectDependenciesOrder = false, checkExtraClasspath = true)
 
   def apply(scalaCliProjectName: String): ProjectComparisonOptions =
     ProjectComparisonOptions(
       strictCheckForBuildModules = false,
       scalaCliStructureHelper = Some(ScalaCliStructureHelper(scalaCliProjectName)),
       checkLibraryDependenciesOrder = false,
-      checkProjectDependenciesOrder = false
+      checkProjectDependenciesOrder = false,
+      checkExtraClasspath = true
     )
 }

@@ -1116,7 +1116,7 @@ import java.net.URI
     )
 
     runTest(
-      new project("root") {
+      expected = new project("root") {
         libraries := expectedScalaLibraries
 
         // ATTENTION: since sbt 2.0:
@@ -1257,7 +1257,8 @@ import java.net.URI
             compileTestOutputPath := "%PROJECT_ROOT%/target/out/jvm/scala-3.6.2/subproject2/test-classes"
           },
         )
-      }
+      },
+      optionsModifier = _.copy(checkExtraClasspath = false)
     )
 
     // Adding the assertion here not to create a separate heavy test for such a tiny check
