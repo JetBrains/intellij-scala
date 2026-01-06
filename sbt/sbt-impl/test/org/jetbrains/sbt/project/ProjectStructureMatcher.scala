@@ -512,7 +512,9 @@ trait ProjectStructureMatcher {
         }
 
         expectedScalaSdk.classpath.foreach(testClasspath("Scala SDK classpath", _, sdkProperties.compilerClasspath))
-        expectedScalaSdk.extraClasspath.foreach(testClasspath("Scala SDK extra classpath", _, sdkProperties.scaladocExtraClasspath))
+
+        if compareContext.options.checkExtraClasspath then
+          expectedScalaSdk.extraClasspath.foreach(testClasspath("Scala SDK extra classpath", _, sdkProperties.scaladocExtraClasspath))
     }
   }
 
