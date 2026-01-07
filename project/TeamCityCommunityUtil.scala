@@ -1,4 +1,3 @@
-import org.jetbrains.sbtidea.PluginLogger as log
 import sbt.io.IO
 import sbt.{URL, url}
 
@@ -55,11 +54,8 @@ object TeamCityCommunityUtil {
     buildType: String,
     key: String,
     value: String
-  ): Elem = {
-    val from = url(s"$BuildsBaseUrl/?locator=buildType:(id:$buildType),branch:(default:true),status:SUCCESS,$key:$value")
-    val string = IO.readLinesURL(from).mkString
-    XML.loadString(string)
-  }
+  ): Elem =
+    fetchTCApi(s"$BuildsBaseUrl/?locator=buildType:(id:$buildType),branch:(default:true),status:SUCCESS,$key:$value")
 
   private def artifactExists(buildId: String): Boolean = {
     val locator = new BuildLocator(BuildsBaseUrl + "/")
@@ -79,9 +75,56 @@ object TeamCityCommunityUtil {
     def add(key: String, value: String): BuildLocator = { builder.append(key).append(':').append(value).append(','); this }
     def buildTypeId(btid: String): BuildLocator = { builder.append("buildType:(").append(btid).append("),"); this }
     def id(value: String): BuildLocator = add("id", value)
+    def number(number: String): BuildLocator = add("number", number)
     def branch(value: String): BuildLocator = add("branch", value)
     def status(value: String): BuildLocator = add("status", value)
     def personal(value: Boolean): BuildLocator = add("personal", value.toString)
     def count(num: Int): BuildLocator = add("count", num.toString)
+    def defaultFilter(value: Boolean): BuildLocator = add("defaultFilter", value.toString)
+    def failedToStart(value: Boolean): BuildLocator = add("failedToStart", value.toString)
+  }
+
+  private def fetchTCApi(restUrl: String): Elem =
+    XML.load(url(restUrl))
+
+  def fetchPreviousTestFailures(): Set[String] = {
+    val prevBuildIds = fetchPreviousBuildIds()
+    // We want only builds that ran through completely and still failed.
+    // Canceled builds would have the status "UNKNOWN".
+    // We have to set defaultFilter:false, so that we get builds from branches other than the main branch
+    println(prevBuildIds)
+    prevBuildIds
+      .map(buildId => fetchTCApi(s"$RestBaseUrl/testOccurrences?locator=build:(id:$buildId),status:FAILURE,count:1000"))
+      .ensuring(_.forall(_.attribute("nextHref").isEmpty))
+      .map(failures => (failures \\ "testOccurrence").map(failure => failure \@ "name").toSet)
+      .reduceOption(_ union _) // return all tests that failed in *all* retrieved builds
+      .getOrElse(throw new Exception(s"No previously failing test build found"))
+  }
+
+  def fetchPreviousBuildIds(): Seq[Long] = {
+    def getProperty(name: String): String = {
+      val value = System.getProperty(name)
+      if (value == null)
+        throw new Exception(s"$name not specified")
+      value
+    }
+    val buildType = getProperty("teamcity.buildType.id")
+    val buildNumber = getProperty("build.number")
+
+    println(s"Fetching previous build ids for buildType=$buildType, buildNumber=$buildNumber")
+
+    val builds = new BuildLocator()
+      .buildTypeId(buildType)
+      .number(buildNumber)
+      .failedToStart(false)
+      .defaultFilter(false)
+      .count(1000)
+      .getXml
+    assert(builds.attribute("nextHref").isEmpty)
+    (builds \\ "build")
+      .filter(build => (build \@ "state") == "finished")
+      .map(build => build \@ "id")
+      .map(_.toLong)
+      .toList
   }
 }
