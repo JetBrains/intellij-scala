@@ -497,20 +497,23 @@ class ScalaMatchingVisitor(globalVisitor: GlobalMatchingVisitor) extends ScalaEl
 
   override def visitParameters(parameters: ScParameters): Unit = {
     val other = globalVisitor.getElement.asInstanceOf[ScParameters]
-
+    val clauses = parameters.clauses
     globalVisitor.setResult(
-      if (parameters.clauses.size == 1)
-        matchSequentially(parameters.params, other.params)
-      else
-        matchSequentially(parameters.clauses, other.clauses)
+      clauses match {
+        case Seq(clause) if !clause.isImplicit =>
+          matchSequentially(parameters.params, other.params)
+        case _ =>
+          matchSequentially(clauses, other.clauses)
+      }
     )
   }
 
   override def visitParameterClause(clause: ScParameterClause): Unit = {
     val other = globalVisitor.getElement.asInstanceOf[ScParameterClause]
+    val implicitnessMatches = !clause.isImplicit || other.isImplicit
 
     globalVisitor.setResult(
-      matchSequentially(clause.parameters, other.parameters)
+      implicitnessMatches && matchSequentially(clause.parameters, other.parameters)
     )
   }
 
