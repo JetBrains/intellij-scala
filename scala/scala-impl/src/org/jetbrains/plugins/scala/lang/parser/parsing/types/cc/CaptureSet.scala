@@ -27,7 +27,7 @@ object CaptureSet extends ParsingRule {
               if (nextToken != ScalaTokenTypes.tRBRACE) {
                 builder.error(ScalaBundle.message("comma.or.rbrace.expected"))
 
-                if (nextToken == ScalaTokenTypes.tLBRACE) {
+                if (nextToken == null || nextToken == ScalaTokenTypes.tLBRACE) {
                   // if we find a '{' let parseLoopUntilRBrace handle it
                   false
                 } else {

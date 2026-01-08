@@ -1334,4 +1334,29 @@ class CaptureCheckingParserTest extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  def testParsingAtEof(): Unit = checkTree(
+    """
+      |x: A^{
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  TypedExpression
+      |    ReferenceExpression: x
+      |      PsiElement(identifier)('x')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    CaptureType: A^{
+      |      SimpleType: A
+      |        CodeReferenceElement: A
+      |          PsiElement(identifier)('A')
+      |      PsiElement(^)('^')
+      |      CaptureSet
+      |        PsiElement({)('{')
+      |        PsiErrorElement:Capture reference expected
+      |          <empty list>
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
 }
