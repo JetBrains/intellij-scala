@@ -748,11 +748,12 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   private def createLibraries(data: sbtStructure.StructureData, projects: Seq[sbtStructure.ProjectData])(using context: ImportContext): Seq[LibraryNode] = {
     val repositoryModules = data.repository.map(_.modules).getOrElse(Seq.empty)
     val (modulesWithoutBinaries, modulesWithBinaries) = repositoryModules.partition(_.binaries.isEmpty)
-    val otherModuleIds = projects.flatMap { proj =>
+    val modulesFromProjects = projects.flatMap { proj =>
       val dependencies = proj.dependencies.modules
       val prodAndTest = dependencies.forProduction ++ dependencies.forTest
       prodAndTest.map(_.id)
-    }.diff(repositoryModules.map(_.id))
+    }.distinct
+    val otherModuleIds = modulesFromProjects.diff(repositoryModules.map(_.id))
 
     val libs = modulesWithBinaries.map(createResolvedLibrary) ++ otherModuleIds.map(createUnresolvedLibrary)
 
