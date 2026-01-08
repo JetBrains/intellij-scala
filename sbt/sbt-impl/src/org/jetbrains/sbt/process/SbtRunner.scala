@@ -81,7 +81,8 @@ final class SbtRunner(processOutputCollector: Option[ProcessOutputCollector] = N
     sbtLauncherArgs: Seq[String],
     @NonNls sbtCommands: String,
     @Nls reportMessage: String,
-    passParentEnvironment: Boolean
+    passParentEnvironment: Boolean,
+    timingCollector: Option[SbtImportTimingCollector.TimingCollector]
   )(
     implicit reporter: BuildReporter
   ): Try[BuildMessages] = {
@@ -160,7 +161,7 @@ final class SbtRunner(processOutputCollector: Option[ProcessOutputCollector] = N
           // exit needs to be in a separate command, otherwise it will never execute when a previous command in the chain errors
           writer.println(ignoreInShellHistory("exit"))
           writer.flush()
-          handle(process, dumpTaskId, reporter, indicator)
+          handle(process, dumpTaskId, reporter, indicator, timingCollector)
         }
       }
       .recoverWith {
@@ -193,12 +194,15 @@ final class SbtRunner(processOutputCollector: Option[ProcessOutputCollector] = N
   private def handle(process: Process,
                      dumpTaskId: EventId,
                      reporter: BuildReporter,
-                     indicator: ProgressIndicator
+                     indicator: ProgressIndicator,
+                     timingCollector: Option[SbtImportTimingCollector.TimingCollector]
                     ): Try[BuildMessages] = {
 
     var messages = BuildMessages.empty
 
     def update(typ: OutputType, textRaw: String): Unit = {
+      timingCollector.foreach(_.processSbtOutputLine(textRaw))
+
       reporter match {
         case _: GenerateManagedSourcesReporter =>
           // The SbtGenerateManagedSourcesAction is sensitive to the exact output of the sbt process.

@@ -13,7 +13,7 @@ import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager}
 import com.intellij.openapi.project.{Project, ProjectManager}
 import com.intellij.openapi.roots.DependencyScope
 import com.intellij.openapi.util.io.FileUtil
-import com.intellij.openapi.util.registry.RegistryManager
+import com.intellij.openapi.util.registry.{Registry, RegistryManager}
 import com.intellij.platform.eel.EelDescriptor
 import com.intellij.platform.eel.provider.EelProviderUtil
 import com.intellij.util.SystemProperties
@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.project.external.{JdkByHome, JdkByName, Scala
 import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
 import org.jetbrains.sbt.SbtUtil.*
 import org.jetbrains.sbt.process.ProcessOutputCollector.PrintProcessOutputOnFailurePropertyName
-import org.jetbrains.sbt.process.SbtRunner
+import org.jetbrains.sbt.process.{SbtImportTimingCollector, SbtRunner}
 import org.jetbrains.sbt.project.SbtProjectResolver.*
 import org.jetbrains.sbt.project.SbtProjectResolver.ImportContext.given
 import org.jetbrains.sbt.project.data.*
@@ -73,8 +73,14 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     val sbtLauncher = SbtUtil.getLauncherJar(settings)
 
+    @Nullable val ideaProject: Project = taskId.findProject()
+    val useShellImport = settings.useShellForImport && ideaProject != null
+
     val eelDescriptor = EelProviderUtil.getEelDescriptor(projectRoot)
-    implicit val context: ImportContext = ImportContext(settings, eelDescriptor)
+    val timingCollector =
+      if (!useShellImport && Registry.is("sbt.import.time.measurement")) Some(new SbtImportTimingCollector.TimingCollector(projectRoot))
+      else None
+    implicit val context: ImportContext = ImportContext(settings, eelDescriptor, timingCollector)
 
     if (isPreview) dummyProject(projectRoot, settings).toDataNode
     else {
@@ -84,7 +90,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       if (indicator == null) {
         throw new IllegalStateException("The External System machinery did not provide a ProgressIndicator instance")
       }
-      importProject(taskId, settings, projectRoot, sbtLauncher, listener, indicator)
+      importProject(taskId, settings, projectRoot, sbtLauncher, listener, indicator, ideaProject, useShellImport)
     }
   }
 
@@ -94,7 +100,9 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     projectRoot: Path,
     sbtLauncher: Path,
     notifications: ExternalSystemTaskNotificationListener,
-    indicator: ProgressIndicator
+    indicator: ProgressIndicator,
+    @Nullable ideaProject: Project,
+    useShellImport: Boolean
   )(implicit context: ImportContext): DataNode[esProjectData.ProjectData] = {
 
     @NonNls val importTaskId = s"import:${UUID.randomUUID()}"
@@ -107,10 +115,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       new CompositeReporter(esReporter, logReporter)
     } else esReporter
 
-    @Nullable val ideaProject: Project = taskId.findProject()
-
     val startTime = System.currentTimeMillis()
-    val useShellImport = settings.useShellForImport && ideaProject != null
     val structureDump = dumpStructure(projectRoot, sbtLauncher, context.sbtVersion, settings, ideaProject, indicator, useShellImport)
 
     // side-effecty status reporting
@@ -127,7 +132,21 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
             e => throw new IllegalStateException("Could not deserialize sbt structure data", e),
             identity
           )
-        convert(normalizePath(projectRoot), data, settings.jdk, settings, Option(ideaProject), useShellImport).toDataNode
+
+        val convertStart = System.currentTimeMillis()
+        val result = convert(normalizePath(projectRoot), data, settings.jdk, settings, Option(ideaProject), useShellImport).toDataNode
+        val convertTime = System.currentTimeMillis - convertStart
+
+        try {
+          context.timingCollector.foreach { timingCollector =>
+            timingCollector.addScalaPluginTimings("convert" -> convertTime)
+            timingCollector.writeTimingResults()
+          }
+        } catch {
+          case ex: Exception => log.warn("Failed to write timing summary with custom timings", ex)
+        }
+
+        result
       }
       .recoverWith {
         case ImportCancelledException(cause) =>
@@ -1527,7 +1546,8 @@ object SbtProjectResolver {
    */
   private[project] case class ImportContext(
     executionSettings: SbtExecutionSettings,
-    eelDescriptor: EelDescriptor
+    eelDescriptor: EelDescriptor,
+    timingCollector: Option[SbtImportTimingCollector.TimingCollector]
   ) {
     /**
      * The sbt version used for the project import.
