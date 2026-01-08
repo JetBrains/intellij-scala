@@ -185,6 +185,25 @@ class ScSSFunctionsTest extends ScalaStructuralSearchTestCase {
     )
   }
 
+  def testParametersMatch_Implicit(): Unit = {
+    val content =
+      """<match="AA">def test1(a: Int)</match="AA">
+        |<match="AB">def test2(implicit a: Int)</match="AB">
+        |"""
+
+    matchAndAssert(
+      "Match Implicit",
+      content,
+      "def $test$(a: Int)"
+    )
+
+    matchAndAssert(
+      "Match Implicit",
+      clearMarker(content, Set("AB")),
+      "def $test$(implicit a: Int)"
+    )
+  }
+
   // TODO wait for fix of type parameters and look for a new pattern
   def testTypeParametersMatch(): Unit = {
     val content =
