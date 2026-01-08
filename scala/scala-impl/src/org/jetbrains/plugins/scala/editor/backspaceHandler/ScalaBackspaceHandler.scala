@@ -459,9 +459,8 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
   }
 
   private def handleAutoInsertBraces(deletedChar: Char, offset: Int, file: ScFile, document: Document, editor: Editor): Unit = {
+    val txt = document.getImmutableCharSequence
     def hasLeft: Option[Boolean] = {
-      val txt = document.getImmutableCharSequence
-
       val iterator = editor.asInstanceOf[EditorEx].getHighlighter.createIterator(offset)
       val tpe = iterator.getTokenType
       if (tpe == null)
@@ -494,7 +493,11 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
       }
     }
 
-    val charNext = document.getImmutableCharSequence.charAt(offset)
+    if (offset >= txt.length) {
+      return
+    }
+
+    val charNext = txt.charAt(offset)
     (deletedChar, charNext) match {
       case ('{', '}') => fixBrace()
       case ('(', ')') => fixBrace()
