@@ -50,7 +50,7 @@ object SbtConfigSetup {
     val runInit = (runner: SbtRunner, indicator: ProgressIndicator, reporter: BuildReporter) => runner.runSbt(
       indicator, baseDir, jdkExe, vmArgs,
       Map.empty, sbtLauncher, Seq.empty, sbtLauncherArgs, sbtCommands,
-      BspBundle.message("bsp.resolver.creating.sbt.configuration"), passParentEnvironment = true
+      BspBundle.message("bsp.resolver.creating.sbt.configuration"), passParentEnvironment = true, timingCollector = None
     )(reporter)
     new SbtConfigSetup(runInit)
   }

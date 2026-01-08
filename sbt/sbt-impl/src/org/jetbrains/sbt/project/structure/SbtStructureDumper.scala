@@ -109,7 +109,7 @@ object SbtStructureDumper:
       preferScala2: Boolean,
       passParentEnvironment: Boolean,
       generateManagedSources: Boolean
-    )(using reporter: BuildReporter): Try[BuildMessages] =
+    )(using reporter: BuildReporter, context: ImportContext): Try[BuildMessages] =
       val optString = makeOptionsStringLiteral(options)
 
       val sbtVersion = SbtUtil.detectSbtVersion(directory, sbtLauncher)
@@ -146,18 +146,23 @@ object SbtStructureDumper:
           sbtVersion
         )
 
+      val sbtTaskTimingOption =
+        if (context.timingCollector.nonEmpty) Seq("-Dsbt.task.timings=true")
+        else Nil
+
       val buildMessages = runner.runSbt(
         indicator,
         directory,
         vmExecutable,
-        vmOptions ++ additionalVmOptions,
+        vmOptions ++ additionalVmOptions ++ sbtTaskTimingOption,
         environment,
         sbtLauncher,
         sbtOptions,
         sbtLauncherArgs,
         sbtCommandsString,
         SbtBundle.message("sbt.extracting.project.structure.from.sbt"),
-        passParentEnvironment
+        passParentEnvironment,
+        context.timingCollector
       )
 
       copyFileContentsIfNeeded(transferredStructureFile, structureFile)
