@@ -2,7 +2,7 @@ package org.jetbrains.sbt
 package project
 
 import com.intellij.openapi.externalSystem.model.ExternalSystemException
-import com.intellij.openapi.externalSystem.model.project.{ExternalSystemSourceType, ModuleData as ESModuleData}
+import com.intellij.openapi.externalSystem.model.project.{ExternalSystemSourceType, LibraryData, ModuleData as ESModuleData}
 import com.intellij.openapi.roots.DependencyScope
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.sbt.project.SbtProjectResolver.ImportContext
@@ -31,7 +31,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
   protected def addSharedSourceModules(
     groupedSharedRoots: Seq[SharedSourcesGroup],
     projectToSourceSet: Map[sbtStructure.ProjectData, ModuleSourceSet],
-    libraryNodes: Seq[LibraryNode],
+    libraryDataByName: Map[String, LibraryData],
     defaultModuleFilesDirectory: String,
     separateProdTestSources: Boolean,
     buildProjectsGroups: Seq[BuildProjectsGroup]
@@ -39,7 +39,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
     // The parent "standard" modules are created with the content root node set to the project base.
     // We need to collect all parent bases to avoid creating a shared sources parent module in the same directory.
     val parentModulesBases = projectToSourceSet.map(_._1.base.toPath.toCanonicalPath.toString).toSeq
-    val createSourceModule: (SharedSourcesGroup, Seq[LibraryNode], String, Seq[BuildProjectsGroup]) => ModuleDataNodeType =
+    val createSourceModule: (SharedSourcesGroup, Map[String, LibraryData], String, Seq[BuildProjectsGroup]) => ModuleDataNodeType =
       // note: we know that if separateProdTestSources are enabled, projectToSourceSet values will be of type CompleteModuleSourceSet
       // and if not, values will be of type PrentModuleSourceSet
       if (separateProdTestSources)
@@ -47,7 +47,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
       else
         createSharedSourcesModuleNodeLegacy(_, castMapValues[PrentModuleSourceSet](projectToSourceSet), _, _, _)
 
-    groupedSharedRoots.map(createSourceModule(_, libraryNodes, defaultModuleFilesDirectory, buildProjectsGroups))
+    groupedSharedRoots.map(createSourceModule(_, libraryDataByName, defaultModuleFilesDirectory, buildProjectsGroups))
   }
 
   protected def addModuleDependencies(
@@ -56,10 +56,13 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
     moduleNode: ModuleDataNodeType,
     useSeparateProdTestSources: Boolean
   ): Unit = {
-    def findDependantModule(dependencyId: ProjectDependencyData): ModuleDataNodeType =
-      allModules
-        .find(_.getId == ModuleNode.combinedId(dependencyId.project, dependencyId.buildURI))
-        .getOrElse(throw new ExternalSystemException("Cannot find project dependency: " + dependencyId.project))
+    lazy val moduleById = allModules.map(m => m.getId -> m).toMap
+
+    def findDependantModule(dependencyId: ProjectDependencyData): ModuleDataNodeType = {
+      val id = ModuleNode.combinedId(dependencyId.project, dependencyId.buildURI)
+      moduleById.getOrElse(id,
+        throw new ExternalSystemException("Cannot find project dependency: " + dependencyId.project))
+    }
 
     if (useSeparateProdTestSources) {
       // In the main/test modules mode, an order is assigned to all project dependencies.
@@ -90,7 +93,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
   private def createSharedSourcesModuleNodeLegacy(
     rootGroup: SharedSourcesGroup,
     projectToModuleNode: Map[sbtStructure.ProjectData, PrentModuleSourceSet],
-    libraryNodes: Seq[LibraryNode],
+    libraryDataByName: Map[String, LibraryData],
     defaultModuleFilesDirectory: String,
     buildProjectsGroups: Seq[BuildProjectsGroup]
   )(using context: ImportContext): ModuleDataNodeType = {
@@ -117,7 +120,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
 
       //add library dependencies of the representative project
       val libraryDependencies = representativeProjectDependencies.modules
-      moduleNode.addAll(createLibraryDependencies(libraryDependencies.forProduction)(moduleNode, libraryNodes.map(_.data), offset = unmanagedDependencies.size + 1, useSeparateProdTestSources = false))
+      moduleNode.addAll(createLibraryDependencies(libraryDependencies.forProduction)(moduleNode, libraryDataByName, offset = unmanagedDependencies.size + 1, useSeparateProdTestSources = false))
 
       //add unmanaged jars/libraries dependencies of the representative project
       moduleNode.addAll(unmanagedDependencies)
@@ -183,7 +186,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
   private def createSharedSourcesModuleNode(
     rootGroup: SharedSourcesGroup,
     projectToSourceSet: Map[sbtStructure.ProjectData, CompleteModuleSourceSet],
-    libraryNodes: Seq[LibraryNode],
+    libraryDataByName: Map[String, LibraryData],
     defaultModuleFilesDirectory: String,
     buildProjectsGroups: Seq[BuildProjectsGroup],
     parentModulesBases: Seq[String]
@@ -204,7 +207,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
         rootGroup,
         moduleFilesDirectory,
         representativeProject,
-        libraryNodes,
+        libraryDataByName,
         SourceSetType.Main,
         mainOwnerProjectsIds,
         sourceRootsWithType,
@@ -214,7 +217,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
         rootGroup,
         moduleFilesDirectory,
         representativeProject,
-        libraryNodes,
+        libraryDataByName,
         SourceSetType.Test,
         testOwnerProjectsIds,
         sourceRootsWithType,
@@ -493,7 +496,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
     group: SharedSourcesGroup,
     moduleFilesDirectory: String,
     representativeProject: ProjectData,
-    libraryNodes: Seq[LibraryNode],
+    libraryDataByName: Map[String, LibraryData],
     sourceSetName: SourceSetType,
     ownerProjectsIds: Seq[String],
     sourceRootsWithType: Seq[(SourceRoot, ExternalSystemSourceType)],
@@ -556,10 +559,9 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
     val unmanagedDependencies = createUnmanagedDependencies(unmanagedLibraryDependencies)(moduleNode, offset = moduleDependencies.size)
 
     //add library dependencies of the representative project
-    val librariesNodeData = libraryNodes.map(_.data)
     val libraryDependencies = getScopedDependencies(representativeProjectDependencies.modules)
     val libraryDependenciesNodes = createLibraryDependencies(libraryDependencies)(
-      moduleNode, librariesNodeData,
+      moduleNode, libraryDataByName,
       offset = calculateLibraryDepsOffsetMainTestModules(unmanagedDependencies, None, moduleDependencies),
       useSeparateProdTestSources = true
     )

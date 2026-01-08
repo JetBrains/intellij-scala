@@ -3,6 +3,7 @@ package org.jetbrains.sbt.project
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.externalSystem.model.project.LibraryData
 import com.intellij.openapi.externalSystem.model.task.event.{Failure as ESFailure, *}
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListener}
 import com.intellij.openapi.externalSystem.model.{DataNode, ExternalSystemException, project as esProjectData}
@@ -383,12 +384,12 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val projects = Seq(dummyRootProject)
 
     val projectNode = new ProjectNode(projectName, projectPath, projectPath)
-    val libraryNodes = Seq.empty[LibraryNode]
+    val libraryData = Map.empty[String, LibraryData]
     val buildProjectsGroup = Seq(BuildProjectsGroup(projectUri, dummyRootProject, Nil, projectTmpName))
     val projectToModule = createIntelliJModuleNodes(
       buildProjectsGroup,
       groupedSharedRoots = Nil,
-      libraryNodes,
+      libraryData,
       projectRoot
     )
 
@@ -484,10 +485,11 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val groupedSharedRoots = groupSharedRoots(projects, projectRootFile)
 
     val buildProjectsGroups: Seq[BuildProjectsGroup] = createBuildProjectGroups(projects)
+    val libraryDataByName = projectLibraryNodes.map(lib => lib.getExternalName -> lib.data).toMap
     val projectToModule: Map[ProjectData, ModuleSourceSet] = createIntelliJModuleNodes(
       buildProjectsGroups,
       groupedSharedRoots,
-      projectLibraryNodes,
+      libraryDataByName,
       projectRootFile
     )
 
@@ -502,7 +504,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     addSharedSourceModules(
       groupedSharedRoots,
       projectToModule,
-      projectLibraryNodes,
+      libraryDataByName,
       defaultModuleFilesDirectory,
       settings.separateProdTestSources,
       buildProjectsGroups
@@ -619,11 +621,9 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   private def createIntelliJModuleNodes(
     projectsGrouped: Seq[BuildProjectsGroup],
     groupedSharedRoots: Seq[SharedSourcesGroup],
-    projectLibraryNodes: Seq[LibraryNode],
+    libraryDataByName: Map[String, LibraryData],
     projectRoot: Path,
   )(implicit context: ImportContext): Map[ProjectData, ModuleSourceSet] = {
-    val librariesData = projectLibraryNodes.map(_.data)
-
     val projectsSourcesDetails =
       if (context.useSeparateProdTestSources) resolveProjectsSourcesDetails(projectsGrouped, groupedSharedRoots)
       else Map.empty[ProjectData, ProjectSourcesDetails]
@@ -632,7 +632,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       createModulesInsideBuildProjectGroup(
         buildProjectsGroup,
         projectRoot,
-        librariesData,
+        libraryDataByName,
         projectsSourcesDetails
       )
     }
@@ -651,7 +651,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   private def createModulesInsideBuildProjectGroup(
     buildProjectsGroup: BuildProjectsGroup,
     projectRoot: Path,
-    librariesData: Seq[esProjectData.LibraryData],
+    libraryDataByName: Map[String, esProjectData.LibraryData],
     projectsSourcesDetails: Map[ProjectData, ProjectSourcesDetails]
   )(implicit context: ImportContext): Seq[(ProjectData, ModuleSourceSet)] = {
     val BuildProjectsGroup(_, rootProject, projects, rootProjectModuleNameUnique) = buildProjectsGroup
@@ -666,11 +666,11 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       if (context.useSeparateProdTestSources) {
         val projectSourcesDetails = projectsSourcesDetails.getOrElse(project, ProjectSourcesDetails.default)
         createModuleWithAllRequiredDataForSeparateProdAndTestSources(
-          project, projectRoot, moduleName, moduleGroup, librariesData, shouldCreateNestedModule, projectSourcesDetails
+          project, projectRoot, moduleName, moduleGroup, libraryDataByName, shouldCreateNestedModule, projectSourcesDetails
         )
       } else {
         createModuleWithAllRequiredDataLegacy(
-          project, projectRoot, moduleName, moduleGroup, librariesData, shouldCreateNestedModule
+          project, projectRoot, moduleName, moduleGroup, libraryDataByName, shouldCreateNestedModule
         )
       }
 
@@ -864,7 +864,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     projectRoot: Path,
     moduleName: String,
     moduleGroup: Option[String],
-    librariesData: Seq[esProjectData.LibraryData],
+    libraryDataByName: Map[String, esProjectData.LibraryData],
     shouldCreateNestedModule: Boolean,
   )(implicit context: ImportContext): PrentModuleSourceSet = {
     // TODO use both ID and Name when related flaws in the External System will be fixed
@@ -890,7 +890,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     val projectDependencies = project.dependencies
     addAllRequiredDataToModuleNode(
-      librariesData,
+      libraryDataByName,
       projectDependencies.modules.forProduction,
       projectDependencies.jars.forProduction,
       project,
@@ -932,7 +932,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     projectRoot: Path,
     moduleName: String,
     moduleGroup: Option[String],
-    librariesData: Seq[esProjectData.LibraryData],
+    libraryDataByName: Map[String, esProjectData.LibraryData],
     shouldCreateNestedModule: Boolean,
     sourcesDetails: ProjectSourcesDetails
   )(implicit context: ImportContext): CompleteModuleSourceSet = {
@@ -989,7 +989,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     testModule.addAll(testContentRoots)
 
     addAllRequiredDataToModuleNode(
-      librariesData,
+      libraryDataByName,
       dependencies.modules.forProduction,
       dependencies.jars.forProduction,
       project,
@@ -1006,7 +1006,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     )
 
     addAllRequiredDataToModuleNode(
-      librariesData,
+      libraryDataByName,
       dependencies.modules.forTest,
       dependencies.jars.forTest,
       project,
@@ -1095,7 +1095,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
    *                            Currently only useful for the main/test modules mode.
    */
   private def addAllRequiredDataToModuleNode(
-    librariesData: Seq[esProjectData.LibraryData],
+    libraryDataByName: Map[String, esProjectData.LibraryData],
     moduleDependencies: Seq[ModuleDependencyData],
     jarDependencies: Seq[JarDependencyData],
     projectData: ProjectData,
@@ -1113,11 +1113,11 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     // create unmanaged dependencies, we need to know how many of them there are, they need to be ordered before
     // the managed dependencies SCL-21852
     val unmanagedDependencies = createUnmanagedDependencies(jarDependencies)(moduleNode, offset = projectDependencies.size)
-    val unmanagedSourcesAndDocsLibrary = librariesData.find(_.getExternalName == Sbt.UnmanagedSourcesAndDocsName)
+    val unmanagedSourcesAndDocsLibrary = libraryDataByName.get(Sbt.UnmanagedSourcesAndDocsName)
 
     val libraryDependenciesNodes = createLibraryDependencies(moduleDependencies)(
       moduleNode,
-      librariesData,
+      libraryDataByName,
       offset = calculateLibraryDepsOffsetMainTestModules(
         unmanagedDependencies,
         unmanagedSourcesAndDocsLibrary,
@@ -1327,13 +1327,13 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     unmanagedDependencies.size + unmanagedSourcesAndDocsLibrary.size + projectDependencies.size + 1
 
   protected def createLibraryDependencies(dependencies: Seq[sbtStructure.ModuleDependencyData])
-                                         (moduleData: esProjectData.ModuleData, libraries: Seq[esProjectData.LibraryData], offset: Int, useSeparateProdTestSources: Boolean): Seq[LibraryDependencyNode] = {
+                                         (moduleData: esProjectData.ModuleData, libraryDataByName: Map[String, esProjectData.LibraryData], offset: Int, useSeparateProdTestSources: Boolean): Seq[LibraryDependencyNode] = {
     val resolvedDependencies =
       if (!useSeparateProdTestSources) resolveLibraryDependencyConflicts(dependencies)
       else dependencies
     resolvedDependencies.zipWithIndex.map { case (dependency, index) =>
       val name = getNameForLibrary(dependency.id)
-      val library = libraries.find(_.getExternalName == name).getOrElse(
+      val library = libraryDataByName.getOrElse(name,
         throw new ExternalSystemException("Library not found: " + name))
       val data = new LibraryDependencyNode(moduleData, library, esProjectData.LibraryLevel.PROJECT)
       val order = index + offset
