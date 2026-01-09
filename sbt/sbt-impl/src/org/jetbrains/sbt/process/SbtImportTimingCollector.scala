@@ -26,6 +26,17 @@ private[sbt] object SbtImportTimingCollector:
 
   private case class ImportStep(name: String, timeMs: Long)
 
+  /**
+   * A file that contains the timing results from each import in a separate line, formatted as:
+   * {{{
+   * timestamp|stepName1:time1,time2;stepName2:time3,time4
+   * }}}
+   * Multiple times for the same step indicate multiple executions within a single import.
+   */
+  val historyFile = ".idea/sbt-import-history.txt"
+  /** A file that contains aggregated results from all imports. It's automatically updated after each import. */
+  val summaryFile = ".idea/sbt-import-summary.txt"
+
   /** A collector that accumulates timing data during import. */
   class TimingCollector(projectDirectory: Path):
     private val steps = mutable.ArrayBuffer[ImportStep]()
@@ -34,17 +45,9 @@ private[sbt] object SbtImportTimingCollector:
     private val ServerStartedMarker = "[info] started sbt server"
     private var sbtServerStarted = false
 
-    /**
-     * A file that contains the timing results from each import in a separate line, formatted as:
-     * {{{
-     * timestamp|stepName1:time1,time2;stepName2:time3,time4
-     * }}}
-     * Multiple times for the same step indicate multiple executions within a single import.
-     */
-    private val historyFile = projectDirectory.resolve(".idea/sbt-import-history.txt")
+    private val historyFilePath = projectDirectory.resolve(historyFile)
 
-    /** A file that contains aggregated results from all imports. It's automatically updated after each import. */
-    private val summaryFile = projectDirectory.resolve(".idea/sbt-import-summary.txt")
+    private val summaryFilePath = projectDirectory.resolve(summaryFile)
 
     /** Process a line of sbt output to extract timing information. */
     def processSbtOutputLine(line: String): Unit = {
@@ -78,10 +81,10 @@ private[sbt] object SbtImportTimingCollector:
 
         val timeStamp = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH-mm-ss").format(LocalDateTime.now())
         val line = s"$timeStamp|$data\n"
-        Files.writeString(historyFile, line, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.APPEND)
+        Files.writeString(historyFilePath, line, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.APPEND)
       } catch {
         case ex: Exception =>
-          Log.warn(s"[SbtImportTimingCollector] Failed to append import steps from the most recent import to $historyFile", ex)
+          Log.warn(s"[SbtImportTimingCollector] Failed to append import steps from the most recent import to $historyFilePath", ex)
       }
 
     /**
@@ -90,7 +93,7 @@ private[sbt] object SbtImportTimingCollector:
      */
     private def regenerateSummary(): Unit =
       try {
-        val allImports = readTimingHistory(historyFile)
+        val allImports = readTimingHistory(historyFilePath)
         if (allImports.isEmpty) return
 
         // Aggregate statistics across all imports
@@ -119,7 +122,7 @@ private[sbt] object SbtImportTimingCollector:
              |$statsLines
              |""".stripMargin
 
-        Files.writeString(summaryFile, summary, StandardCharsets.UTF_8)
+        Files.writeString(summaryFilePath, summary, StandardCharsets.UTF_8)
       } catch {
         case ex: Exception =>
           Log.warn("[SbtImportTimingCollector] Failed to regenerate the summary file", ex)
