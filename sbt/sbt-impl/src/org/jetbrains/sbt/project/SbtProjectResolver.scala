@@ -1,6 +1,8 @@
 package org.jetbrains.sbt.project
 
 import com.intellij.notification.NotificationType
+import com.intellij.build.issue.{BuildIssue, BuildIssueQuickFix}
+import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.model.project.LibraryData
@@ -16,6 +18,7 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.registry.{Registry, RegistryManager}
 import com.intellij.platform.eel.EelDescriptor
 import com.intellij.platform.eel.provider.EelProviderUtil
+import com.intellij.pom.Navigatable
 import com.intellij.util.SystemProperties
 import org.jetbrains.annotations.{ApiStatus, NonNls, Nullable, TestOnly}
 import org.jetbrains.plugins.scala.*
@@ -42,7 +45,8 @@ import org.jetbrains.sbt.{RichBoolean, Sbt, SbtBundle, SbtUtil, SbtVersion, usin
 import java.io.FileNotFoundException
 import java.net.URI
 import java.nio.file.{Files, Path}
-import java.util.{Collections, Locale, UUID}
+import java.util.concurrent.CompletableFuture
+import java.util.{Collections, Locale, UUID, List as JList}
 import scala.collection.{MapView, mutable}
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, TimeoutException}
@@ -311,6 +315,10 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
         LegacyModulesLayoutNotifications.warnForBuildToolWindow(reporter)
       }
 
+      if (context.timingCollector.nonEmpty) {
+        informAboutImportTimingEnabled(reporter)
+      }
+
       val structureFilePath = getStructureFilePath(projectRoot)
       val StructureFileReuseMode(readStructureFile, writeStructureFile) = getStructureFileReuseMode
 
@@ -330,6 +338,26 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
         }
       }
     }
+  }
+
+  private def informAboutImportTimingEnabled(buildReporter: BuildReporter): Unit = {
+    val quickFixId = "disable_import_timing"
+    val quickFix: BuildIssueQuickFix = new BuildIssueQuickFix {
+      override def getId: String = quickFixId
+
+      override def runQuickFix(project: Project, dataContext: DataContext): CompletableFuture[?] = {
+        Registry.get("sbt.import.time.measurement").setValue(false)
+        CompletableFuture.completedFuture(null)
+      }
+    }
+
+    val buildIssue: BuildIssue = new BuildIssue {
+      override def getTitle: String = SbtBundle.message("sbt.import.timing.title")
+      override def getDescription: String = SbtBundle.message("sbt.import.timing.details", quickFixId)
+      override def getQuickFixes: JList[BuildIssueQuickFix] = JList.of(quickFix)
+      override def getNavigatable(project: Project): Navigatable = null
+    }
+    buildReporter.info(buildIssue)
   }
 
   private def getStructureFilePath(projectRoot: Path): Option[Path] =
