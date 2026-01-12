@@ -51,6 +51,10 @@ class FatalWarningsEvaluationTest_3_7 extends FatalWarningsEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_7
 }
 
+class FatalWarningsEvaluationTest_3_8 extends FatalWarningsEvaluationTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_8
+}
+
 class FatalWarningsEvaluationTest_RC extends FatalWarningsEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_LTS_RC
 }
