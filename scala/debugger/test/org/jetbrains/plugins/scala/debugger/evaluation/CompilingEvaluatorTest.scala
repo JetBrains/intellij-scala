@@ -65,6 +65,10 @@ class CompilingEvaluatorTest_3_7 extends CompilingEvaluatorTest_3 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_7
 }
 
+class CompilingEvaluatorTest_3_8 extends CompilingEvaluatorTest_3 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_8
+}
+
 class CompilingEvaluatorTest_3_RC extends CompilingEvaluatorTest_3 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_LTS_RC
 }

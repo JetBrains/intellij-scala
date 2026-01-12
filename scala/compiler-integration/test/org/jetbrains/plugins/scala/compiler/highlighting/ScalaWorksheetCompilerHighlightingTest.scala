@@ -230,6 +230,10 @@ class ScalaWorksheetCompilerHighlightingTest_3_7 extends ScalaWorksheetCompilerH
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_7
 }
 
+class ScalaWorksheetCompilerHighlightingTest_3_8 extends ScalaWorksheetCompilerHighlightingTest_3 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_8
+}
+
 class ScalaWorksheetCompilerHighlightingTest_3_RC extends ScalaWorksheetCompilerHighlightingTest_3 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_LTS_RC
 }
