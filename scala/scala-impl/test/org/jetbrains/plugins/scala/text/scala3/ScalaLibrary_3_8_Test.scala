@@ -16,7 +16,9 @@ class ScalaLibrary_3_8_Test extends TextToTextTestBase(
     "scala.collection.IndexedSeqView", // extends Id | Id[_root_.scala.Nothing]
     "scala.collection.IterableOnceOps", // "\"
     "scala.collection.SeqView", // extends Appended | Appended[_root_.scala.Nothing]
+    "scala.collection.SortedMapOps", // extends MapOps.LazyKeySet | MapOps.LazyKeySet[A, B, C, D]
     "scala.collection.generic.IsIterableLowPriority", // Cannot resolve _root_.scala.collection.generic.IsMap
+    "scala.collection.immutable.MapOps", // extends MapOps.LazyKeySet | MapOps.LazyKeySet[A, B, C, D]
     "scala.collection.immutable.NumericRange", // extends NumericRange | NumericRange[T]
     "scala.collection.mutable.CheckedIndexedSeqView", // Id | Id[Nothing]
     "scala.collection.mutable.CollisionProofHashMap", // Cannot resolve CollisionProofHashMap.LLNode[K, V]
