@@ -2,13 +2,12 @@ package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.codeInsight.daemon.impl.{DaemonCodeAnalyzerImpl, HighlightInfo}
-import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.editor.event.{EditorMouseEvent, EditorMouseMotionListener}
 import com.intellij.openapi.editor.impl.EditorMouseHoverPopupControl
 import com.intellij.openapi.editor.{Editor, EditorFactory}
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.annotator.TypeMismatchError.TypeMismatchErrorProblemGroup
-import org.jetbrains.plugins.scala.annotator.quickfix.EnableTypeMismatchHints
+import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.startup.ProjectActivity
@@ -38,8 +37,10 @@ private object TypeMismatchTooltipsHandler {
           val position = editor.xyToLogicalPosition(point)
           val offset = editor.logicalPositionToOffset(position)
 
-          val highlightInfo = Option(DaemonCodeAnalyzer.getInstance(project).asInstanceOf[DaemonCodeAnalyzerImpl]
-            .findHighlightByOffset(editor.getDocument, offset, false))
+          val highlightInfo = inReadAction {
+            Option(DaemonCodeAnalyzer.getInstance(project).asInstanceOf[DaemonCodeAnalyzerImpl]
+              .findHighlightByOffset(editor.getDocument, offset, false))
+          }
 
           disableTooltipOnMouseHoverForTypeMismatchErrors(editor, highlightInfo)
         } else {
