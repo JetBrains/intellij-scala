@@ -18,6 +18,8 @@ class ScalaStringBuilderRendererTest_3_6 extends ScalaStringBuilderRendererTestB
 
 class ScalaStringBuilderRendererTest_3_7 extends ScalaStringBuilderRendererTestBase(ScalaVersion.Latest.Scala_3_7)
 
+class ScalaStringBuilderRendererTest_3_8 extends ScalaStringBuilderRendererTestBase(ScalaVersion.Latest.Scala_3_8)
+
 class ScalaStringBuilderRendererTest_3_LTS_RC extends ScalaStringBuilderRendererTestBase(ScalaVersion.Latest.Scala_3_LTS_RC)
 
 class ScalaStringBuilderRendererTest_3_Next_RC extends ScalaStringBuilderRendererTestBase(ScalaVersion.Latest.Scala_3_Next_RC)
