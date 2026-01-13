@@ -404,6 +404,7 @@ private class ScaladocMarkdownParsing(builder: MkBuilder, content: String) exten
 
       // Common blocks
       case MarkdownElementTypes.PARAGRAPH => ScalaDocElementTypes.DOC_PARAGRAPH
+      case GFMElementTypes.TABLE => ScalaDocElementTypes.DOC_PARAGRAPH
       case MarkdownElementTypes.CODE_FENCE => ScalaDocElementTypes.DOC_CODEBLOCK
       case MarkdownElementTypes.BLOCK_QUOTE => ScalaDocElementTypes.DOC_BLOCKQUOTE
       case MarkdownTokenTypes.LIST_NUMBER => ScalaDocTokenType.DOC_LIST_ITEM_HEAD
