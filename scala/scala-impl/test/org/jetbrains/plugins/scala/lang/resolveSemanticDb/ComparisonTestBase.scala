@@ -19,8 +19,9 @@ abstract class ComparisonTestBase(config: ReferenceComparisonTestConfig) extends
   protected def setupFiles(testName: String): Seq[PsiFile] = {
     def getCaseSensitivePath(name: String): Option[Path] = {
       val path = config.sourcePath.resolve(name)
-      if (path.getFileWithRealOsPath.getName == name) Some(path)
-      else None
+      Option(path)
+        .filter(_.exists)
+        .filter(p => realOsPathFileName(p) == name)
     }
 
     // tests now can contain the file and the directory, and both are considered
@@ -43,4 +44,7 @@ abstract class ComparisonTestBase(config: ReferenceComparisonTestConfig) extends
     else if (path.isDirectory) path.children().sorted
     else Seq.empty
   }
+
+  private def realOsPathFileName(path: Path): String =
+    path.toRealPath().getFileName.toString
 }
