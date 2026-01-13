@@ -31,13 +31,12 @@ import org.jetbrains.sbt.project.utils.{MacroSubstitutor, ProjectStructureCompar
 import org.junit.Assert.{assertFalse, assertNotNull, assertTrue, fail}
 import org.junit.{Assert, ComparisonFailure}
 
-import java.io.File
 import java.nio.file.Path
 import scala.jdk.CollectionConverters.*
 
 trait ProjectStructureMatcher {
 
-  import ProjectStructureMatcher._
+  import ProjectStructureMatcher.*
 
   protected def defaultAssertMatch: AttributeMatchType
 
@@ -139,7 +138,7 @@ trait ProjectStructureMatcher {
     actual: Module,
     singleContentRootModules: Boolean
   )(implicit compareContext: ProjectStructureComparisonContext): Unit = {
-    import ProjectStructureDsl._
+    import ProjectStructureDsl.*
 
     expected.foreach(contentRoots)(assertModuleContentRootsEqual(actual))
     expected.foreach(sources)(assertModuleContentFoldersEqual(actual, JavaSourceRootType.SOURCE, "Sources", singleContentRootModules))
@@ -487,7 +486,7 @@ trait ProjectStructureMatcher {
     // If we don't do this here, we could get test failures.
     //
     // ATTENTION: We might need to review this approach once we run the tests for WSL on Windows agents.
-    val pathCanonical = new File(path).getCanonicalPath
+    val pathCanonical = Path.of(path).toRealPath().toString
     // Normalize separators to have the same expected data on Unix and Windows
     pathCanonical.replace("\\", "/")
   }
