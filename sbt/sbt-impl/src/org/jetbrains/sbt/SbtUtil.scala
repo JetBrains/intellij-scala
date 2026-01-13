@@ -12,7 +12,7 @@ import com.intellij.openapi.project.{Project, ProjectUtil}
 import com.intellij.platform.workspace.storage.{EntityStorage, SymbolicEntityId, WorkspaceEntityWithSymbolicId}
 import com.intellij.util.net.{ProxyConfiguration, ProxyCredentialStore, ProxyCredentialStoreKt, ProxySettings, ProxyUtils}
 import com.intellij.util.{EnvironmentUtil, SystemProperties}
-import org.jetbrains.annotations.{ApiStatus, VisibleForTesting}
+import org.jetbrains.annotations.VisibleForTesting
 import org.jetbrains.plugins.scala.build.BuildReporter
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.project.Version
@@ -232,11 +232,6 @@ object SbtUtil {
       getRepoDir / relativePath
     }
   }
-
-  @deprecated(message = "Use defaultLauncherPath which returns java.nio.file.Path", since = "2025.3")
-  @Deprecated(since = "2025.3", forRemoval = true)
-  @ApiStatus.ScheduledForRemoval(inVersion = "2026.1")
-  def getDefaultLauncher: java.io.File = defaultLauncherPath.toFile
 
   def defaultLauncherPath: Path = getLauncherDir / "sbt-launch.jar"
 
