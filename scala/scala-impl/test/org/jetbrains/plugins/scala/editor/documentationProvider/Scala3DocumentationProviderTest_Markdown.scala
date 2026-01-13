@@ -268,4 +268,18 @@ class Scala3DocumentationProviderTest_Markdown
       "<div class='content'><p><strike>strikethrough</strike></p></div>",
       HtmlSpacesComparisonMode.DontIgnore,
     )
+
+  def test_table(): Unit =
+    doGenerateRenderedDocBodyTest(
+      s"""
+         |/**
+         | * | Column 1 | Column 2 |
+         | * | -------- | -------- |
+         | * | Text | Text |
+         | */
+         |class ${|}Foo
+         |""".stripMargin,
+      "<div class='content'><table><thead><tr><th>Column 1</th><th>Column 2</th></tr></thead><tbody><tr><td>Text</td><td>Text</td></tr></tbody></table></div>",
+      HtmlSpacesComparisonMode.DontIgnore,
+    )
 }

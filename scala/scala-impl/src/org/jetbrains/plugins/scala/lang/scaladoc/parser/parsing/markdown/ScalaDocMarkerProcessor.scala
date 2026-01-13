@@ -26,6 +26,9 @@ class ScalaDocMarkerProcessor(productionHolder: ProductionHolder, constraints: C
     new AtxHeaderProvider,
     new HtmlBlockProvider,
     new LinkReferenceDefinitionProvider,
+
+    // gfm
+    new GitHubTableMarkerProvider,
   )
 
   private val m = {
