@@ -238,7 +238,7 @@ private class ScaladocMarkdownParsing(builder: MkBuilder, content: String) exten
 
     val textOffset = childIt.currentStartOffset
     val text = nodeText(childIt.current)
-    val isHttpLink = text == "http" || text == "https"
+    val isHttpLink = text.startsWith("http:") || text.startsWith("https:")
 
     val (elementType, refTegType) =
       if (isHttpLink) (ScalaDocTokenType.DOC_HTTP_LINK_TAG, ScalaDocTokenType.DOC_HTTP_LINK_VALUE)
