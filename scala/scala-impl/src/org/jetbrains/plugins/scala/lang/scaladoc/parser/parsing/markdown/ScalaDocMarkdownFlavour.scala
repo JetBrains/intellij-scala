@@ -6,8 +6,8 @@ import com.intellij.markdown.utils.CodeFenceSyntaxHighlighterGeneratingProvider
 import com.intellij.markdown.utils.lang.HtmlSyntaxHighlighter
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.HtmlChunk
-import org.intellij.markdown.ast.ASTNode
-import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
+import org.intellij.markdown.ast.{ASTNode, ASTUtilKt}
+import org.intellij.markdown.flavours.gfm.{GFMElementTypes, GFMFlavourDescriptor, GFMTokenTypes, StrikeThroughDelimiterParser}
 import org.intellij.markdown.html._
 import org.intellij.markdown.lexer.MarkdownLexer
 import org.intellij.markdown.parser.sequentialparsers.impl._
@@ -22,13 +22,13 @@ import java.net.URI
 import java.util
 import scala.jdk.CollectionConverters._
 
-class ScalaDocMarkdownFlavour extends CommonMarkFlavourDescriptor {
+class ScalaDocMarkdownFlavour extends GFMFlavourDescriptor {
   override def getMarkerProcessorFactory: MarkerProcessorFactory =
     (productionHolder: ProductionHolder) => {
       new ScalaDocMarkerProcessor(productionHolder, ScalaDocMarkdownConstraints.BASE)
     }
 
-  private val sequentialParserManager = new SequentialParserManager {
+  private val sequentialParserManager: SequentialParserManager = new SequentialParserManager {
     override def getParserSequence: util.List[SequentialParser] = util.List.of(
       new AutolinkParser(util.List.of(MarkdownTokenTypes.AUTOLINK)),
       new BacktickParser(),
