@@ -6,6 +6,7 @@ import com.intellij.openapi.util.Key
 import com.intellij.psi.tree.IElementType
 import org.intellij.markdown
 import org.intellij.markdown.ast.ASTNode
+import org.intellij.markdown.flavours.gfm.GFMElementTypes
 import org.intellij.markdown.parser.MarkdownParser
 import org.intellij.markdown.{MarkdownElementType, MarkdownElementTypes, MarkdownTokenTypes}
 import org.jetbrains.annotations.Nullable
@@ -126,6 +127,7 @@ private class ScaladocMarkdownParsing(builder: MkBuilder, content: String) exten
       case MarkdownElementTypes.EMPH => visitBorderSyntaxElement(elementTy, treeIt, ScalaDocTokenType.DOC_ITALIC_TAG, ScalaDocTokenType.DOC_ITALIC_TAG, 1)
       case MarkdownElementTypes.STRONG => visitBorderSyntaxElement(elementTy, treeIt, ScalaDocTokenType.DOC_BOLD_TAG, ScalaDocTokenType.DOC_BOLD_TAG, 2)
       case MarkdownElementTypes.CODE_SPAN => visitBorderSyntaxElement(elementTy, treeIt, ScalaDocTokenType.DOC_MONOSPACE_TAG, ScalaDocTokenType.DOC_MONOSPACE_TAG, 1)
+      case GFMElementTypes.STRIKETHROUGH => visitBorderSyntaxElement(elementTy, treeIt, ScalaDocTokenType.DOC_STRIKETHROUGH_TAG, ScalaDocTokenType.DOC_STRIKETHROUGH_TAG, 2)
       case WikiLinkParser.WIKI_LINK => visitWikiDocLink(treeIt)
       case MarkdownElementTypes.CODE_FENCE => visitCodeFence(elementTy, treeIt)
       case MarkdownElementTypes.PARAGRAPH => visitParagraph(elementTy, treeIt)
@@ -413,6 +415,7 @@ private class ScaladocMarkdownParsing(builder: MkBuilder, content: String) exten
       // Common inline tags
       case MarkdownElementTypes.EMPH => ScalaDocTokenType.DOC_ITALIC_TAG // NOTE: Distinct from MarkdownTokenTypes.EMPH, which is for the * character.
       case MarkdownElementTypes.STRONG => ScalaDocTokenType.DOC_BOLD_TAG
+      case GFMElementTypes.STRIKETHROUGH => ScalaDocTokenType.DOC_STRIKETHROUGH_TAG
       case MarkdownElementTypes.CODE_SPAN => ScalaDocTokenType.DOC_MONOSPACE_TAG
       case WikiLinkParser.WIKI_LINK => ScalaDocTokenType.DOC_LINK_TAG
       case MarkdownElementTypes.AUTOLINK => ScalaDocTokenType.DOC_LINK_TAG
