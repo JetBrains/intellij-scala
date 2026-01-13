@@ -8,8 +8,9 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.PathExt
 
 import java.awt.event.ItemEvent
-import java.nio.file.Path
+import java.nio.file.{Files, Path, StandardOpenOption}
 import javax.swing.JTextField
+import scala.util.Using
 import javax.swing.text.{AbstractDocument, AttributeSet, BadLocationException, DocumentFilter}
 
 private[scala]
@@ -48,9 +49,16 @@ object DistributionComboBoxUtils {
     val path = getLocalDistributionInfoPath(distributionInfo)
     path == null || path.nonEmpty && {
       val file = Path.of(path)
-      file.isRegularFile && file.getFileName.toString.endsWith(".jar")
+      file.isRegularFile && isValidJar(file)
     }
   }
+
+  // Mostly adapted from `org.jetbrains.plugins.gradle.util.JarUtilKt#isValidJar`
+  private def isValidJar(path: Path): Boolean =
+    Using(Files.newInputStream(path, StandardOpenOption.READ)) { in =>
+      val signature = new Array[Byte](2)
+      in.read(signature) == 2 && signature.sameElements(Array(0x50, 0x4B))
+    }.getOrElse(false)
 
   def installLocalDistributionInfoPathTooltip(comboBox: DistributionComboBox): Unit = {
     comboBox.addItemListener((_: ItemEvent) => {
