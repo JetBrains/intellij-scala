@@ -239,6 +239,24 @@ class Scala3DocumentationProviderTest_Markdown
       HtmlSpacesComparisonMode.DontIgnore,
     )
 
+  def test_autolink(): Unit =
+    doGenerateRenderedDocBodyTest(
+      s"""
+         |/**
+         | * autolink: http://example.com/Foo
+         | * autolink in bold: **http://example.com/Foo**
+         | * no autolink: [[http://example.com/Foo]]
+         | */
+         |class ${|}Foo
+         |""".stripMargin,
+      """
+        |<div class='content'><p>autolink: <a href="http://example.com/Foo">http://example.com/Foo</a>
+        |autolink in bold: <strong><a href="http://example.com/Foo">http://example.com/Foo</a></strong>
+        |no autolink: <a href="http://example.com/Foo">http://example.com/Foo</a></p></div>
+        |""".stripMargin,
+      HtmlSpacesComparisonMode.DontIgnore,
+    )
+
   def test_strikethrough(): Unit =
     doGenerateRenderedDocBodyTest(
       s"""
