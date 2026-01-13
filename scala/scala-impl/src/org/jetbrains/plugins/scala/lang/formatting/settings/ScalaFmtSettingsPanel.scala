@@ -38,7 +38,6 @@ import org.scalafmt.dynamic.ScalafmtVersion
 
 import java.awt._
 import java.awt.event.{FocusEvent, FocusListener}
-import java.io.File
 import java.util.Collections.emptyList
 import javax.swing._
 import javax.swing.event.ChangeEvent
@@ -471,7 +470,7 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
   private var fallBackToDefaultSettings: JBCheckBox = _
   private val customSettingsTitle = ScalaBundle.message("scalafmt.settings.panel.select.custom.scalafmt.configuration.file")
   //noinspection HardCodedStringLiteral
-  private val DefaultConfigFilePath = s".${File.separatorChar}${ScalafmtDynamicConfigService.DefaultConfigurationFileName}"
+  private val DefaultConfigFilePath = s".${java.io.File.separatorChar}${ScalafmtDynamicConfigService.DefaultConfigurationFileName}"
 }
 
 object ScalaFmtSettingsPanel {

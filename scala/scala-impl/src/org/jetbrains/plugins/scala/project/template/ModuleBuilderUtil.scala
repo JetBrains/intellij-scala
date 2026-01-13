@@ -15,16 +15,15 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{ContentEntry, ModifiableRootModel}
 import com.intellij.openapi.startup.StartupManager
-import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.psi.{PsiFile, PsiManager}
 import com.intellij.util.concurrency.AppExecutorUtil
 import org.jetbrains.annotations.{ApiStatus, Nullable}
 import org.jetbrains.jps.model.java.{JavaResourceRootType, JavaSourceRootType}
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 
-import java.io.File
+import java.nio.file.{Files, Path}
 
 @ApiStatus.Internal
 object ModuleBuilderUtil {
@@ -39,8 +38,15 @@ object ModuleBuilderUtil {
     dir.foreach(doSetupModule(module, externalProjectSettings, _, projectSystemId))
   }
 
-  def doSetupModule[T <: ExternalProjectSettings](module: Module, externalProjectSettings: T, contentRootDir: File, projectSystemId: ProjectSystemId): Unit = {
-    val rootPath = contentRootDir.getCanonicalPath
+  @deprecated(message = "Use doSetupModule which takes a java.nio.file.Path argument", since = "2026.1")
+  @Deprecated(since = "2026.1", forRemoval = true)
+  @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
+  def doSetupModule[T <: ExternalProjectSettings](module: Module, externalProjectSettings: T, contentRootDir: java.io.File, projectSystemId: ProjectSystemId): Unit = {
+    doSetupModule(module, externalProjectSettings, contentRootDir.toPath, projectSystemId)
+  }
+
+  def doSetupModule[T <: ExternalProjectSettings](module: Module, externalProjectSettings: T, contentRootDir: Path, projectSystemId: ProjectSystemId): Unit = {
+    val rootPath = contentRootDir.toRealPath().toString
 
     // hack some dummy data so that external system realizes it can remove this module after sbt import
     // see com.intellij.openapi.externalSystem.service.project.manage.ModuleDataService.computeOrphanData
@@ -55,7 +61,7 @@ object ModuleBuilderUtil {
       ExternalSystemApiUtil.getSettings(project, projectSystemId)
         .asInstanceOf[AbstractExternalSystemSettings[_, T, _]]
 
-    externalProjectSettings.setExternalProjectPath(contentRootDir.getAbsolutePath)
+    externalProjectSettings.setExternalProjectPath(contentRootDir.toCanonicalPath.toString)
     settings.linkProject(externalProjectSettings)
 
     FileDocumentManager.getInstance.saveAllDocuments()
@@ -101,7 +107,7 @@ object ModuleBuilderUtil {
   ): Unit = {
     for {
       contentRootDir <- getOrCreateDir(contentEntryPath)
-      vFile <- Option(LocalFileSystem.getInstance.refreshAndFindFileByIoFile(contentRootDir))
+      vFile <- Option(LocalFileSystem.getInstance.refreshAndFindFileByNioFile(contentRootDir))
     } {
       doSetupRootModel(model, vFile, contentEntryFolders)
     }
@@ -157,7 +163,7 @@ object ModuleBuilderUtil {
     folders: DefaultModuleContentEntryFolders,
   ): Unit = {
     def url(relativePath: String): String =
-      vContentRootDir.toString + File.separator + relativePath
+      vContentRootDir.toString + java.io.File.separator + relativePath
 
     folders.sources.map(url).foreach(entry.addSourceFolder(_, JavaSourceRootType.SOURCE))
     folders.testSources.map(url).foreach(entry.addSourceFolder(_, JavaSourceRootType.TEST_SOURCE))
@@ -166,9 +172,9 @@ object ModuleBuilderUtil {
     folders.excluded.map(url).foreach(entry.addExcludeFolder)
   }
 
-  private def getOrCreateDir(dirPath: String): Option[File] =
-    if (dirPath.nonEmpty)
-      Some(new File(dirPath)).filter(FileUtilRt.createDirectory)
-    else
-      None
+  private def getOrCreateDir(dirPath: String): Option[Path] =
+    if (dirPath.nonEmpty) {
+      val dir = Files.createDirectories(Path.of(dirPath))
+      Option(dir).filter(_.exists)
+    } else None
 }
