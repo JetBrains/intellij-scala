@@ -577,7 +577,9 @@ lazy val compilerShared =
       scalaVersion := Versions.scala3Version,
       (Compile / javacOptions) := outOfIDEAProcessJavacOptions,
       (Compile / scalacOptions) := outOfIDEAProcessScala3ScalacOptions,
-      packageMethod := PackagingMethod.Standalone("lib/compiler-shared.jar", static = true)
+      packageMethod := PackagingMethod.Standalone("lib/compiler-shared.jar", static = true),
+      libraryDependencies += Dependencies.sprayJson,
+      packageLibraryMappings += Dependencies.sprayJson -> Some(s"lib/spray-json_2.13-${Versions.sprayJsonVersion}.jar")
     )
     .settings(
       buildInfoPackage := "org.jetbrains.plugins.scala.compiler.buildinfo",

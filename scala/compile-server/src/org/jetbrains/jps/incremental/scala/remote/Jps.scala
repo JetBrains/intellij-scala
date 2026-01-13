@@ -32,7 +32,7 @@ private object Jps {
       Utils.setSystemRoot(scalaCompileServerSystemDir.toFile)
     }
 
-    val CompileServerCommand.CompileJps(projectPath, globalOptionsPath, dataStorageRootPath, moduleNames, sourceScope, externalProjectConfig) = command
+    val CompileServerCommand.CompileJps(projectPath, globalOptionsPath, dataStorageRootPath, moduleNames, sourceScope, projectMetadata, externalProjectConfig) = command
     val lock = projectLock.computeIfAbsent(dataStorageRootPath, _ => new ReentrantLock())
     lock.lock()
     try {
@@ -40,10 +40,12 @@ private object Jps {
       val loader = new JpsModelLoaderImpl(projectPath, globalOptionsPath, false, null)
       val buildRunner = new BuildRunner(loader)
       val customBuildId = UUID.randomUUID()
+      val jpsProjectMetadata = command.projectMetadata.asCompactJsonString
       buildRunner.setBuilderParams(
         Map(
           BuildParameters.BuildTriggeredByCBH -> true.toString,
-          BuildParameters.CustomBuildIdForCBH -> customBuildId.toString
+          BuildParameters.CustomBuildIdForCBH -> customBuildId.toString,
+          BuildParameters.JpsProjectMetadataParameter -> jpsProjectMetadata
         ).asJava
       )
       var compiledFiles = Set.empty[Path]

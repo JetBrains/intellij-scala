@@ -2,24 +2,34 @@ package org.jetbrains.jps.incremental.scala
 
 import org.jdom.Element
 import org.jetbrains.jps.incremental.scala.ScalaJpsProjectMetadataConstants.*
+import spray.json.DefaultJsonProtocol.{jsonFormat1, given}
+import spray.json.{JsValue, JsonFormat, given}
 
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
-final case class ScalaJpsProjectMetadata(modulesWithScalaSdk: Set[String]) {
-  def asXml: Element = {
+final case class ScalaJpsProjectMetadata(modulesWithScalaSdk: Set[String]):
+  def asXml: Element =
     def createModuleElement(name: String): Element =
       new Element(ModuleElement).setAttribute(NameAttribute, name)
 
-    val modulesWithScalaSdkElement = modulesWithScalaSdk.foldLeft(new Element(ModulesWithScalaSdkElement)) {
-      case (element, name) =>
+    val modulesWithScalaSdkElement =
+      modulesWithScalaSdk.foldLeft(new Element(ModulesWithScalaSdkElement)): (element, name) =>
         element.addContent(createModuleElement(name))
-    }
     new Element(RootElement).addContent(modulesWithScalaSdkElement)
-  }
-}
 
-object ScalaJpsProjectMetadata {
-  def parseXml(rootElement: Element): Option[ScalaJpsProjectMetadata] = {
+  def asJson: JsValue =
+    summon[JsonFormat[ScalaJpsProjectMetadata]].write(this)
+
+  /**
+   * To be used when serializing project metadata to be sent as arguments to the JPS build process.
+   */
+  def asCompactJsonString: String = asJson.compactPrint
+
+object ScalaJpsProjectMetadata:
+  def empty: ScalaJpsProjectMetadata =
+    ScalaJpsProjectMetadata(modulesWithScalaSdk = Set.empty)
+
+  def parseXml(rootElement: Element): Option[ScalaJpsProjectMetadata] =
     if (rootElement.getName != RootElement) return None
     val modulesWithScalaSdkElement = rootElement.getChild(ModulesWithScalaSdkElement)
     if (modulesWithScalaSdkElement == null) return None
@@ -29,5 +39,14 @@ object ScalaJpsProjectMetadata {
         .map(_.getAttributeValue(NameAttribute))
         .toSet
     Some(ScalaJpsProjectMetadata(modulesWithScalaSdk))
-  }
-}
+
+  private given JsonFormat[ScalaJpsProjectMetadata] = jsonFormat1(ScalaJpsProjectMetadata.apply)
+
+  def parseJson(json: JsValue): ScalaJpsProjectMetadata =
+    summon[JsonFormat[ScalaJpsProjectMetadata]].read(json)
+
+  /**
+   * To be used when deserializing project metadata be sent as arguments to the JPS build process.
+   */
+  def parseCompactJsonString(json: String): ScalaJpsProjectMetadata =
+    parseJson(json.parseJson)

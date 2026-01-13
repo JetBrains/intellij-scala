@@ -6,7 +6,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.JDOMUtil
-import org.jetbrains.jps.incremental.scala.{ScalaJpsProjectMetadata, ScalaJpsProjectMetadataConstants}
+import org.jetbrains.jps.incremental.scala.ScalaJpsProjectMetadataConstants
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.compile.ScalaCompileTask
@@ -55,8 +55,7 @@ private final class WriteScalaJpsProjectMetadataCompileTask extends ScalaCompile
       }
     }
 
-    val modulesWithScalaSdk = project.modulesWithScala.map(_.getName).toSet
-    val projectMetadata = ScalaJpsProjectMetadata(modulesWithScalaSdk)
+    val projectMetadata = project.jpsProjectMetadata
 
     val writeToDiskTask: Runnable = () => {
       if (!project.isDefault) {

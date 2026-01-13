@@ -19,6 +19,7 @@ import com.intellij.platform.workspace.storage.MutableEntityStorage
 import com.intellij.psi.{LanguageSubstitutors, PsiElement, PsiFile}
 import com.intellij.util.PathsList
 import org.jetbrains.annotations.TestOnly
+import org.jetbrains.jps.incremental.scala.ScalaJpsProjectMetadata
 import org.jetbrains.jps.model.serialization.library.JpsLibraryTableSerializer
 import org.jetbrains.plugins.scala.caches.cachedInUserData
 import org.jetbrains.plugins.scala.compiler.data.CompileOrder
@@ -541,6 +542,16 @@ package object project {
     def modulesWithScala: Seq[Module] =
       if (project.isDisposed) Seq.empty
       else modulesWithScalaCached
+
+    /**
+     * A cached instance of the JPS project metadata, used for passing precomputed information
+     * to the JPS build process about the project to avoid recomputing the data on each build.
+     */
+    def jpsProjectMetadata: ScalaJpsProjectMetadata =
+      cachedInUserData("scalaJpsProjectMetadata", project, ProjectRootManager.getInstance(project)) {
+        val modulesWithScalaSdk = modulesWithScala.map(_.getName).toSet
+        ScalaJpsProjectMetadata(modulesWithScalaSdk)
+      }
 
     /**
      * @note This utility method can end up being called on the UI thread. In the worst-case scenario with changes to

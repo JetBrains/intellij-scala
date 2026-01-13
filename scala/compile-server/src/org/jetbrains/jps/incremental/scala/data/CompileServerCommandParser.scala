@@ -1,5 +1,6 @@
 package org.jetbrains.jps.incremental.scala.data
 
+import org.jetbrains.jps.incremental.scala.ScalaJpsProjectMetadata
 import org.jetbrains.jps.incremental.scala.remote.{CommandIds, CompileServerCommand, SourceScope}
 import org.jetbrains.plugins.scala.compiler.data.{ComputeStampsArguments, DocumentCompilationArguments, ExpressionEvaluationArguments}
 
@@ -30,13 +31,14 @@ object CompileServerCommandParser
       case CommandIds.CompileJps =>
         import org.jetbrains.plugins.scala.compiler.data.Extractors.StringToSequence
         args match {
-          case Seq(projectPath, globalOptionsPath, dataStorageRootPath, StringToSequence(moduleNames), sourceScope, other@_*) =>
+          case Seq(projectPath, globalOptionsPath, dataStorageRootPath, StringToSequence(moduleNames), sourceScope, projectMetadataJson, other@_*) =>
             CompileServerCommand.CompileJps(
               projectPath = projectPath,
               globalOptionsPath = globalOptionsPath,
               dataStorageRootPath = dataStorageRootPath,
               moduleNames = moduleNames,
               sourceScope = SourceScope.fromString(sourceScope),
+              projectMetadata = ScalaJpsProjectMetadata.parseCompactJsonString(projectMetadataJson),
               externalProjectConfig = other.headOption
             )
           case _ =>

@@ -49,6 +49,9 @@ object Versions {
   val bspVersion = "2.1.0"
   val sbtStructureVersion: String = "2025.3.6"
   val sbtIdeaShellVersion: String = "2025.3.0"
+
+  // spray-json is a dependency of scala-compiler-indices-protocol. Make sure the versions match.
+  val sprayJsonVersion = "1.3.6"
   val compilerIndicesVersion = "1.0.16"
 
   val java9rtExportVersion: String = "0.1.0"
@@ -171,6 +174,10 @@ object Dependencies {
   // when updating the version, do not forget to:
   //  1. update version in the sbt-idea-compiler indices plugin too
   //  2. update version in scala-plugin-common.xml compilerServer.plugin classpath setting
+  // Do not use %% to determine the cross-version for spray-json. The dependency is applied to a few modules
+  // which currently have a different Scala version and the build definition fails.
+  // cross CrossVersion.for3use2_13 also cannot be used because it is not compatible with packageLibraryMappings.
+  val sprayJson: ModuleID = "io.spray" % "spray-json_2.13" % Versions.sprayJsonVersion
   val compilerIndicesProtocol: ModuleID = "org.jetbrains.scala" %% "scala-compiler-indices-protocol" % compilerIndicesVersion
 
   val nailgun = "org.jetbrains" % "nailgun-server-for-scala-plugin" % "1.3.1"

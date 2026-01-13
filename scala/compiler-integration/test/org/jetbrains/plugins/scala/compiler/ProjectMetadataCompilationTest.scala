@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.compiler
 
 import com.intellij.compiler.server.BuildManager
-import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.util.JDOMUtil
 import com.intellij.pom.java.LanguageLevel
@@ -34,7 +33,6 @@ class ProjectMetadataCompilationTest extends SbtExternalSystemImportingTestLike 
 
   override def setUp(): Unit = {
     super.setUp()
-    ApplicationManagerEx.getApplicationEx.setSaveAllowed(true)
     CompileServerTestUtil.registerLongRunningThreads()
   }
 
@@ -64,7 +62,7 @@ class ProjectMetadataCompilationTest extends SbtExternalSystemImportingTestLike 
     val xml = JDOMUtil.load(filePath)
     val actualProjectMetadata = ScalaJpsProjectMetadata.parseXml(xml)
 
-    val expectedProjectMetadata = ScalaJpsProjectMetadata(project.modulesWithScala.map(_.getName).toSet)
+    val expectedProjectMetadata = project.jpsProjectMetadata
     assertEquals(Some(expectedProjectMetadata), actualProjectMetadata)
   }
 }

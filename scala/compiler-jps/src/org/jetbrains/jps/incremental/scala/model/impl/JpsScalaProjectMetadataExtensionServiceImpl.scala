@@ -2,11 +2,11 @@ package org.jetbrains.jps.incremental.scala.model
 package impl
 
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.util.JDOMUtil
+import com.intellij.openapi.util.{JDOMUtil, Key}
 import com.intellij.util.containers.FileCollectionFactory
 import org.jetbrains.jps.incremental.CompileContext
-import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage}
-import org.jetbrains.jps.incremental.scala.{ScalaJpsProjectMetadata, ScalaJpsProjectMetadataConstants, SettingsManager}
+import org.jetbrains.jps.incremental.scala.model.impl.JpsScalaProjectMetadataExtensionServiceImpl.ParsedProjectMetadataInstance
+import org.jetbrains.jps.incremental.scala.{BuildParameters, ScalaJpsProjectMetadata, ScalaJpsProjectMetadataConstants, SettingsManager}
 
 import java.nio.file.Path
 import java.util.concurrent.locks.{Lock, ReentrantLock}
@@ -25,20 +25,31 @@ private final class JpsScalaProjectMetadataExtensionServiceImpl extends JpsScala
   override def projectMetadata(context: CompileContext): ScalaJpsProjectMetadata = loadProjectMetadata(context)
 
   private def loadProjectMetadata(context: CompileContext): ScalaJpsProjectMetadata = {
-    val filePath = projectMetadataFilePath(context)
     lock.lock()
     try {
+      val readFromCommand = JpsScalaProjectMetadataExtensionService.isCBH(context)
+      if (readFromCommand) {
+        val alreadyParsedInstance = ParsedProjectMetadataInstance.get(context)
+        if (alreadyParsedInstance != null) {
+          // Avoids parsing the provided JSON multiple times for the same CompileContext instance.
+          return alreadyParsedInstance
+        }
+
+        val compactJsonString = context.getBuilderParameter(BuildParameters.JpsProjectMetadataParameter)
+        if (compactJsonString == null) {
+          throw new IllegalStateException("ScalaJpsProjectMetadata was not provided with the CBH compilation request")
+        }
+
+        val projectMetadata = ScalaJpsProjectMetadata.parseCompactJsonString(compactJsonString)
+        ParsedProjectMetadataInstance.set(context, projectMetadata)
+        return projectMetadata
+      }
+
+      val filePath = projectMetadataFilePath(context)
       val alreadyComputedProjectMetadata = loadedProjectMetadataInstances.get(filePath)
       if (alreadyComputedProjectMetadata != null) return alreadyComputedProjectMetadata
 
-      val forceManualCompute = JpsScalaProjectMetadataExtensionService.isCBH(context)
-
-      val projectMetadata =
-        if (forceManualCompute) manuallyComputeMetadataFallback(context)
-        else {
-          computeProjectMetadata(filePath, context)
-        }
-
+      val projectMetadata = computeProjectMetadata(filePath, context)
       loadedProjectMetadataInstances.put(filePath, projectMetadata)
       projectMetadata
     } finally {
@@ -73,4 +84,7 @@ private final class JpsScalaProjectMetadataExtensionServiceImpl extends JpsScala
 
 private object JpsScalaProjectMetadataExtensionServiceImpl {
   private val Log: Logger = Logger.getInstance(classOf[JpsScalaProjectMetadataExtensionServiceImpl])
+
+  private final val ParsedProjectMetadataInstance: Key[ScalaJpsProjectMetadata] =
+    Key.create("scala.jps.project.metadata.parsed.instance")
 }

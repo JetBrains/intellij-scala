@@ -1,5 +1,6 @@
 package org.jetbrains.jps.incremental.scala.remote
 
+import org.jetbrains.jps.incremental.scala.ScalaJpsProjectMetadata
 import org.jetbrains.plugins.scala.compiler.data.serialization.SerializationUtils
 import org.jetbrains.plugins.scala.compiler.data.{Arguments, ComputeStampsArguments, DocumentCompilationArguments, ExpressionEvaluationArguments}
 
@@ -34,13 +35,15 @@ object CompileServerCommand {
   /**
    * @param externalProjectConfig Some(path) in case build system supports storing project configuration outside `.idea` folder
    */
-  case class CompileJps(projectPath: String,
-                        globalOptionsPath: String,
-                        dataStorageRootPath: String,
-                        moduleNames: Seq[String],
-                        sourceScope: SourceScope,
-                        externalProjectConfig: Option[String])
-    extends CompileServerCommand {
+  case class CompileJps(
+    projectPath: String,
+    globalOptionsPath: String,
+    dataStorageRootPath: String,
+    moduleNames: Seq[String],
+    sourceScope: SourceScope,
+    projectMetadata: ScalaJpsProjectMetadata,
+    externalProjectConfig: Option[String]
+  ) extends CompileServerCommand {
 
     override def id: String = CommandIds.CompileJps
 
@@ -50,6 +53,7 @@ object CompileServerCommand {
       dataStorageRootPath,
       SerializationUtils.sequenceToString(moduleNames),
       sourceScope.toString,
+      projectMetadata.asCompactJsonString
     ) ++ externalProjectConfig
 
     override def isCompileCommand: Boolean = true
