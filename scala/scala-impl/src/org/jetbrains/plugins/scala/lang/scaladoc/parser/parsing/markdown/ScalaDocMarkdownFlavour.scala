@@ -73,6 +73,16 @@ class ScalaDocMarkdownFlavour extends GFMFlavourDescriptor {
       ).asJava
     )
 
+    val oldGFMAutolinkProvider = parent.get(GFMTokenTypes.GFM_AUTOLINK).ensuring(_ != null)
+    parent.put(
+      GFMTokenTypes.GFM_AUTOLINK,
+      (visitor: HtmlGenerator#HtmlGeneratingVisitor, text: String, node: ASTNode) => {
+        if (ASTUtilKt.getParentOfType(node, WikiLinkParser.WIKI_LINK) == null) {
+          oldGFMAutolinkProvider.processNode(visitor, text, node)
+        }
+      }
+    )
+
     parent
   }
 
