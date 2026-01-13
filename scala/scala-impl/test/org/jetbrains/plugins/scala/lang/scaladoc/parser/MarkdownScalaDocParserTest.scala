@@ -2368,4 +2368,29 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  def test_strikethrough(): Unit = checkTree(
+    """
+      |/**
+      | * ~~strikethrough~~
+      | */
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  DocComment
+      |    ScPsiDocToken(DOC_COMMENT_START)('/**')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    ScDocParagraph
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      DocSyntaxElement 256
+      |        ScPsiDocToken(DOC_STRIKETHROUGH_TAG 256)('~~')
+      |        ScPsiDocToken(DOC_COMMENT_DATA)('strikethrough')
+      |        ScPsiDocToken(DOC_STRIKETHROUGH_TAG 256)('~~')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_END)('*/')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
 }

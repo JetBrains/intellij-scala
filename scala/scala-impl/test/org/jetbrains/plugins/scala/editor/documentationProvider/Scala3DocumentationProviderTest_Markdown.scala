@@ -238,4 +238,16 @@ class Scala3DocumentationProviderTest_Markdown
         |""".stripMargin,
       HtmlSpacesComparisonMode.DontIgnore,
     )
+
+  def test_strikethrough(): Unit =
+    doGenerateRenderedDocBodyTest(
+      s"""
+         |/**
+         | * ~~strikethrough~~
+         | */
+         |class ${|}Foo
+         |""".stripMargin,
+      "<div class='content'><p><strike>strikethrough</strike></p></div>",
+      HtmlSpacesComparisonMode.DontIgnore,
+    )
 }

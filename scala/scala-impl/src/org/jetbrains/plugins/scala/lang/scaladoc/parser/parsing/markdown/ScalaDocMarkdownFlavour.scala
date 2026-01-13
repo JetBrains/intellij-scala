@@ -36,7 +36,7 @@ class ScalaDocMarkdownFlavour extends GFMFlavourDescriptor {
       new WikiLinkParser(),
       new InlineLinkParser(),
       new ReferenceLinkParser(),
-      new EmphasisLikeParser(new EmphStrongDelimiterParser())
+      new EmphasisLikeParser(new EmphStrongDelimiterParser(), new StrikeThroughDelimiterParser()),
     )
   }
 
@@ -68,6 +68,8 @@ class ScalaDocMarkdownFlavour extends GFMFlavourDescriptor {
 
           override def closeTag(visitor: HtmlGenerator#HtmlGeneratingVisitor, s: String, astNode: ASTNode): Unit = {}
         },
+
+        GFMElementTypes.STRIKETHROUGH -> new SimpleInlineTagProvider("strike", 2, -2)
       ).asJava
     )
 
