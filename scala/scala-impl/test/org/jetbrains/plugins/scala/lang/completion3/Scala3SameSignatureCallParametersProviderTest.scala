@@ -913,6 +913,6 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
          |""".stripMargin,
     item = "x, y",
     isSuper = false,
-    icons = VAL, VAL
+    icons = FIELD_VAL, FIELD_VAL
   )
 }

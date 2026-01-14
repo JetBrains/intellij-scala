@@ -161,7 +161,9 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
                     val remainingClauses = if (actualIdx == -1) Seq.empty else clauses.drop(actualIdx + 1)
 
                     val typeParameters = method.typeParameters
-                    val multipleLists = typeParameters.nonEmpty || precedingClauses.nonEmpty || remainingClauses.nonEmpty
+
+                    val multipleLists = typeParameters.nonEmpty ||
+                      (precedingClauses.size + remainingClauses.size + targetParamClause.size > 1)
 
                     def parametersOf(clause: ScParameterClause): Seq[(Parameter, String)] = {
                       val length      = clause.effectiveParameters.length
@@ -177,12 +179,12 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
                     }
 
                     precedingClauses.foreach { clause =>
-                      buffer.append("(")
+                      if (multipleLists) buffer.append("(")
                       val parameters = parametersOf(clause)
                       if (parameters.nonEmpty) {
                         applyToParameters(parameters, subst, clause, canBeNaming = true)(args, buffer, -1)
                       }
-                      buffer.append(")")
+                      if (multipleLists) buffer.append(")")
                     }
 
                     targetParamClause.foreach { clause =>
@@ -297,7 +299,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
                 case Some(pclause) => clauses.indexOf(pclause)
               }
 
-              val preceedingClauses = clauses.take(actualIdx)
+              val precedingClauses = clauses.take(actualIdx)
               val remainingClauses = clauses.drop(actualIdx + 1)
 
               val typeParameters = constructor.getParent match {
@@ -305,7 +307,8 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
                 case _                            => Seq.empty
               }
 
-              val multipleLists = typeParameters.nonEmpty || preceedingClauses.nonEmpty || remainingClauses.nonEmpty
+              val multipleLists = typeParameters.nonEmpty ||
+                (precedingClauses.size + remainingClauses.size + targetParamClause.size > 1)
 
               def parametersOf(clause: ScParameterClause) = {
                 val parameters = if (isEffective) clause.effectiveParameters else clause.parameters
@@ -318,13 +321,13 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
                 buffer.append("]")
               }
 
-              preceedingClauses.foreach { clause =>
-                buffer.append("(")
+              precedingClauses.foreach { clause =>
+                if (multipleLists) buffer.append("(")
                 val parameters = parametersOf(clause)
                 if (parameters.nonEmpty) {
                   applyToParameters(parameters, subst, clause, canBeNaming = true)(args, buffer, -1)
                 }
-                buffer.append(")")
+                if (multipleLists) buffer.append(")")
               }
 
               targetParamClause.foreach { clause =>
