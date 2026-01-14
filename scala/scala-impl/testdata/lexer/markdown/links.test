@@ -4,6 +4,8 @@
  * [[ref.ref]]
  * [[ref alt text]]
  * [[ref.ref alt text]]
+ * [[ref _ ref]]
+ * [[ref*ref]]
  * [[http://example.com]]
  * [[http//example.com]]
  * [[http://example.com some alt text]]
@@ -53,6 +55,26 @@ DOC_WHITESPACE { }
 DOC_LEFT_BRACKET {[}
 DOC_LEFT_BRACKET {[}
 DOC_COMMENT_DATA {ref.ref alt text}
+DOC_RIGHT_BRACKET {]}
+DOC_RIGHT_BRACKET {]}
+DOC_WHITESPACE {
+ }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_LEFT_BRACKET {[}
+DOC_LEFT_BRACKET {[}
+DOC_COMMENT_DATA {ref _ ref}
+DOC_RIGHT_BRACKET {]}
+DOC_RIGHT_BRACKET {]}
+DOC_WHITESPACE {
+ }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_LEFT_BRACKET {[}
+DOC_LEFT_BRACKET {[}
+DOC_COMMENT_DATA {ref}
+DOC_MD_ASTERISKS {*}
+DOC_COMMENT_DATA {ref}
 DOC_RIGHT_BRACKET {]}
 DOC_RIGHT_BRACKET {]}
 DOC_WHITESPACE {
