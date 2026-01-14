@@ -4,6 +4,7 @@ import com.intellij.debugger.impl.{DebuggerManagerListener, DebuggerSession}
 import com.intellij.openapi.progress.{ProgressIndicator, Task}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
+import com.intellij.openapi.util.registry.Registry
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.debugger.DebuggerBundle
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt, ScalaLanguageLevel}
@@ -27,12 +28,13 @@ private final class ExpressionCompilerResolverListener(project: Project) extends
           project
             .modulesWithScala
             .flatMap(_.scalaMinorVersion)
-            .filter(_.isScala3)
             .flatMap { v =>
               if (v.languageLevel >= ScalaLanguageLevel.Scala_3_7)
                 Some(v -> ExpressionCompilerType.BuiltIn)
-              else
+              else if (v.isScala3 || Registry.is("scala.debugger.use.scala.2.expression.compiler"))
                 resolveExpressionCompilerJar(v, indicator).map(jar => v -> ExpressionCompilerType.ResolvedJar(jar))
+              else
+                None
             }.toMap
         } catch {
           case NonFatal(_) => Map.empty[ScalaVersion, ExpressionCompilerType]

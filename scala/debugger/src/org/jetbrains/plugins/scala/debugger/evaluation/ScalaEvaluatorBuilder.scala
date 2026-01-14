@@ -5,6 +5,7 @@ import com.intellij.debugger.engine.evaluation._
 import com.intellij.debugger.engine.evaluation.expression._
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.diagnostic.ControlFlowException
+import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.psi._
@@ -21,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionWithContextFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
-import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
+import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectContext, ProjectContextOwner, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.statistics.ScalaDebuggerUsagesCollector
 import org.jetbrains.plugins.scala.util.AnonymousFunction
 import org.jetbrains.plugins.scala.{NlsString, Scala3Language}
@@ -40,6 +41,11 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
 
     val project = codeFragment.getProject
 
+    val scala2ExpressionCompilerExists =
+      Option(ModuleUtilCore.findModuleForPsiElement(position.getFile))
+        .flatMap(_.scalaMinorVersion)
+        .exists(_.languageLevel >= ScalaLanguageLevel.Scala_2_12)
+
     val cached = cachedEvaluator(project, position, scalaFragment)
 
     def buildSimpleEvaluator: Evaluator = {
@@ -52,7 +58,14 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
                 new ExpressionCompilerEvaluator(codeFragment, position).evaluate(context)
             }
             ScalaDuplexEvaluator(simple, shim)
-          } else simple
+          } else {
+            if (Registry.is("scala.debugger.use.scala.2.expression.compiler") && scala2ExpressionCompilerExists) {
+              new Evaluator {
+                override def evaluate(context: EvaluationContextImpl): AnyRef =
+                  new ExpressionCompilerEvaluator(codeFragment, position).evaluate(context)
+              }
+            } else simple
+          }
 
         cacheEvaluator(project, position, scalaFragment, evaluator)
         evaluator
@@ -72,6 +85,8 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       case _: NeedCompilationException =>
         ScalaDebuggerUsagesCollector.logCompilingEvaluator(project)
         if (codeFragment.getLanguage.is(Scala3Language.INSTANCE))
+          new ExpressionCompilerEvaluator(codeFragment, position)
+        else if (Registry.is("scala.debugger.use.scala.2.expression.compiler") && scala2ExpressionCompilerExists)
           new ExpressionCompilerEvaluator(codeFragment, position)
         else
           new ScalaCompilingExpressionEvaluator(buildCompilingEvaluator)

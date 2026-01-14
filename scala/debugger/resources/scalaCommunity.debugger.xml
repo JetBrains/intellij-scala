@@ -32,6 +32,7 @@
         <projectService serviceImplementation="org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCompileHelper"/>
 
         <registryKey defaultValue="true" description="Use an expression evaluator in the debugger which does lazy resolve during evaluation time" key="scala.debugger.expression.evaluator.lazy.resolve.enabled"/>
+        <registryKey key="scala.debugger.use.scala.2.expression.compiler" defaultValue="false" description="Use the expression compiler for Scala 2"/>
     </extensions>
 
     <projectListeners>

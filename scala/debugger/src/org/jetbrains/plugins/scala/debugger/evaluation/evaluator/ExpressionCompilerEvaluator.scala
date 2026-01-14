@@ -90,7 +90,7 @@ private[evaluation] final class ExpressionCompilerEvaluator(codeFragment: PsiEle
       val thisObject = stackFrame.thisObject()
 
       val packageName = inReadAction(ScalaPositionManager.findPackageName(position.getElementAt)).getOrElse("")
-      val arguments = ExpressionEvaluationArguments(useBuiltInExpressionCompiler, outDir, classpath, scalacOptions, source, line, expression, localVariableNames.toSet, packageName)
+      val arguments = ExpressionEvaluationArguments(useBuiltInExpressionCompiler, scalaVersion.isScala2, outDir, classpath, scalacOptions, source, line, expression, localVariableNames.toSet, packageName)
 
       val errors = Seq.newBuilder[NlsString]
       val client = new DummyClient() {

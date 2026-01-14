@@ -228,7 +228,7 @@ object Main {
   private val classLoaderCache: Cache[Seq[Path], ClassLoader] = new Cache(3)
 
   private def evaluateExpressionLogic(args: ExpressionEvaluationArguments, client: Client): Unit = {
-    val ExpressionEvaluationArguments(useBuiltInExpressionCompiler, outDir, classpath, scalacOptions, source, line, expression, localVariableNames, packageName) = args
+    val ExpressionEvaluationArguments(useBuiltInExpressionCompiler, isScala2, outDir, classpath, scalacOptions, source, line, expression, localVariableNames, packageName) = args
 
     val classLoader = classLoaderCache.getOrUpdate(classpath) { () =>
       new URLClassLoader(classpath.map(_.toUri.toURL).toArray, this.getClass.getClassLoader)
@@ -236,6 +236,7 @@ object Main {
 
     val bridgeClassName =
       if (useBuiltInExpressionCompiler) "dotty.tools.debug.ExpressionCompilerBridge"
+      else if (isScala2) "scala.tools.nsc.ExpressionCompilerBridge"
       else "dotty.tools.dotc.ExpressionCompilerBridge"
 
     val bridgeClass = Class.forName(bridgeClassName, true, classLoader)

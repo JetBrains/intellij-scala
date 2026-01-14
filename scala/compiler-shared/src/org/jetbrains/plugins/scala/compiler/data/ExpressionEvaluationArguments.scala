@@ -6,6 +6,7 @@ import java.nio.file.Path
 
 case class ExpressionEvaluationArguments(
   useBuiltInExpressionCompiler: Boolean,
+  isScala2: Boolean,
   outDir: Path,
   classpath: Seq[Path],
   scalacOptions: Seq[String],
@@ -20,6 +21,7 @@ case class ExpressionEvaluationArguments(
   def asStrings: Seq[String] =
     Seq(
       useBuiltInExpressionCompiler.toString,
+      isScala2.toString,
       pathToString(outDir),
       pathsToString(classpath),
       sequenceToString(scalacOptions),
@@ -37,6 +39,7 @@ object ExpressionEvaluationArguments {
   def parse(strings: Seq[String]): Option[ExpressionEvaluationArguments] = strings match {
     case Seq(
       s2b(useBuiltInExpressionCompiler),
+      s2b(isScala2),
       StringToPath(outDir),
       StringToPaths(classpath),
       StringToSequence(scalacOptions),
@@ -46,7 +49,7 @@ object ExpressionEvaluationArguments {
       stringToSet(localVariableNames),
       packageName
     ) =>
-      Some(ExpressionEvaluationArguments(useBuiltInExpressionCompiler, outDir, classpath, scalacOptions, source, line, expression, localVariableNames, packageName))
+      Some(ExpressionEvaluationArguments(useBuiltInExpressionCompiler, isScala2, outDir, classpath, scalacOptions, source, line, expression, localVariableNames, packageName))
     case _ => None
   }
 

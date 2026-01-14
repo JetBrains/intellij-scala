@@ -6,6 +6,7 @@ import com.intellij.debugger.ui.breakpoints.{Breakpoint, BreakpointManager, Java
 import com.intellij.debugger.{BreakpointComment, DebuggerInvocationUtil, DebuggerTestCase}
 import com.intellij.execution.configurations.JavaParameters
 import com.intellij.openapi.application.ModalityState
+import com.intellij.openapi.util.registry.Registry
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.xdebugger.{XDebuggerManager, XDebuggerUtil}
@@ -37,6 +38,16 @@ abstract class ScalaDebuggerTestCase extends DebuggerTestCase with ScalaExecutio
   override protected def testDataDirectoryName: String = "debugger"
 
   override protected def areLogErrorsIgnored(): Boolean = true
+
+  override protected def setUp(): Unit = {
+    super.setUp()
+    Registry.get("scala.debugger.use.scala.2.expression.compiler").setValue(true)
+  }
+
+  override protected def tearDown(): Unit = {
+    try Registry.get("scala.debugger.use.scala.2.expression.compiler").setValue(false)
+    finally super.tearDown()
+  }
 
   override protected def initApplication(): Unit = {
     super.initApplication()
