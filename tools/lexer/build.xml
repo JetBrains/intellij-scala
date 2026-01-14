@@ -33,6 +33,10 @@
     <flex flexFileName="_ScalaDocLexer.flex" flexFileDir="${scaladoc.lexer.path}"/>
   </target>
 
+    <target name="generate.lexer.markdown">
+        <flex flexFileName="_CustomGFMLexer.flex" flexFileDir="${scaladoc.lexer.path}/markdown"/>
+    </target>
+
   <target name="generate.lexer.scaladirective">
     <flex flexFileName="_ScalaDirectiveLexer.flex" flexFileDir="${scaladirective.lexer.path}"/>
   </target>

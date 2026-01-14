@@ -1,10 +1,8 @@
 package org.jetbrains.plugins.scala.lang.scaladoc.lexer
 
-import com.intellij.lexer.{Lexer, LexerBase, MergingLexerAdapter}
+import com.intellij.lexer.{LexerBase, MergingLexerAdapter}
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.util.text.CharArrayUtil
-import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
-import org.intellij.markdown.lexer.{GeneratedLexer, MarkdownLexer, _MarkdownLexer}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType._
 
 import java.io.IOException

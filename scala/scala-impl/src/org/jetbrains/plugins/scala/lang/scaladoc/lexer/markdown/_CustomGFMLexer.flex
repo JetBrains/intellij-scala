@@ -1,26 +1,32 @@
 /*
  * This file is copied from https://github.com/JetBrains/markdown/blob/master/src/commonMain/kotlin/org/intellij/markdown/flavours/gfm/lexer/gfm.flex
  */
-package org.intellij.markdown.flavours.gfm.lexer;
+package org.jetbrains.plugins.scala.lang.scaladoc.lexer.markdown;
 
 import org.intellij.markdown.MarkdownTokenTypes;
 import org.intellij.markdown.flavours.gfm.GFMTokenTypes;
 import org.intellij.markdown.IElementType;
-import org.intellij.markdown.lexer.GeneratedLexer;
 
-/* Auto generated File */
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 %%
 
-%class _GFMLexer
+%class _CustomGFMLexer
 %unicode
 %public
 
-%function advance
 %type IElementType
 
-%implements GeneratedLexer
+%implements CustomMarkdownLexer
 
 %{
+  public _CustomGFMLexer() {
+    this(null);
+  }
+
   private static class Token extends MarkdownTokenTypes {}
 
   private List<Integer> stateStack = new ArrayList<Integer>();
@@ -80,7 +86,7 @@ import org.intellij.markdown.lexer.GeneratedLexer;
     char first = yycharat(0);
     char last = yycharat(yylength() - 1);
 
-    stateStack.push(yystate());
+    stateStack.add(yystate());
 
     parseDelimited.exitChar = last;
     parseDelimited.returnType = contentsType;
@@ -116,8 +122,11 @@ import org.intellij.markdown.lexer.GeneratedLexer;
       yybegin(AFTER_LINE_START);
     }
     else {
-      yybegin(stateStack.pop());
+      yybegin(stateStack.removeLast());
     }
+  }
+
+  private void resetCustom() {
   }
 
   private void resetState() {
@@ -281,7 +290,7 @@ GFM_AUTOLINK = (("http" "s"? | "ftp" | "file")"://" | "www.") {HOST_PART} ("." {
   "`"+ {
     if (canInline()) {
       codeSpanBacktickslength = yylength();
-      stateStack.push(yystate());
+      stateStack.add(yystate());
       yybegin(CODE_SPAN);
       return MarkdownTokenTypes.BACKTICK;
     }
@@ -387,9 +396,9 @@ GFM_AUTOLINK = (("http" "s"? | "ftp" | "file")"://" | "www.") {HOST_PART} ("." {
   {EOL} | {ANY_CHAR} {
     if (yycharat(0) == parseDelimited.exitChar) {
       if (yystate() == CODE_SPAN) {
-        stateStack.pop();
+        stateStack.removeLast();
       }
-      yybegin(stateStack.pop());
+      yybegin(stateStack.removeLast());
       return getDelimiterTokenType(yycharat(0));
     }
     return parseDelimited.returnType;
