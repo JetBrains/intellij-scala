@@ -1214,10 +1214,10 @@ package object extensions {
       element match {
         case fun: ScFunction if !fun.isConstructor =>
           val wrappers = fun.getFunctionWrappers(
-            isStatic = isStatic,
-            isAbstract = fun.isAbstractMember,
+            isStatic          = isStatic,
+            isAbstract        = fun.isAbstractMember,
             isExportForwarder = signature.exportedInfo.isDefined,
-            cClass = concreteClassFor(fun)
+            cClass            = concreteClassFor(fun)
           )
           wrappers.foreach(processMethod)
           wrappers.foreach(w => processName(w.name))

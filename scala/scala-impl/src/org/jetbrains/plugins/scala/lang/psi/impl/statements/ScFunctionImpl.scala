@@ -260,10 +260,10 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     * @return Empty array, if containing class is null.
     */
   override def getFunctionWrappers(
-    isStatic:   Boolean,
-    isAbstract: Boolean,
+    isStatic:          Boolean,
+    isAbstract:        Boolean,
     isExportForwarder: Boolean,
-    cClass:     Option[PsiClass] = None
+    cClass:            Option[PsiClass] = None
   ): Seq[ScFunctionWrapper] =
     _getFunctionWrappers(isStatic, isAbstract, isExportForwarder, cClass)
 
@@ -273,28 +273,30 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
       BlockModificationTracker(this),
       (isStatic: Boolean, isAbstract: Boolean, isExportForwarder: Boolean, cClass: Option[PsiClass]) => {
         val builder = Seq.newBuilder[ScFunctionWrapper]
+
         if (cClass.isDefined || containingClass != null) {
           for {
             clause <- clauses
             first  <- clause.clauses.headOption
             if first.hasRepeatedParam && isJavaVarargs(this)
           } builder += new ScFunctionWrapper(
-            delegate = this,
-            isStatic = isStatic,
-            isAbstract = isAbstract,
+            delegate          = this,
+            isStatic          = isStatic,
+            isAbstract        = isAbstract,
             isExportForwarder = isExportForwarder,
-            cClass = cClass,
-            isJavaVarargs = true
+            cClass            = cClass,
+            isJavaVarargs     = true
           )
 
           builder += new ScFunctionWrapper(
-            delegate = this,
-            isStatic = isStatic,
-            isAbstract = isAbstract,
+            delegate          = this,
+            isStatic          = isStatic,
+            isAbstract        = isAbstract,
             isExportForwarder = isExportForwarder,
-            cClass = cClass
+            cClass            = cClass
           )
         }
+
         builder.result()
       }
     )

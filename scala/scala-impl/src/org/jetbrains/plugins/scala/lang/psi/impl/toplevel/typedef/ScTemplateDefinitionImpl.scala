@@ -97,6 +97,7 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
     val result = mutable.ArrayBuffer(getConstructors.toSeq: _*)
 
     val signatures: Iterator[TermSignature] = allSignatures
+
     signatures.foreach { signature =>
       this.processWrappersForSignature(
         signature,

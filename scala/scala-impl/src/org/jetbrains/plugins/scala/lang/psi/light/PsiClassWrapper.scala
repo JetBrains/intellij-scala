@@ -29,15 +29,21 @@ import java.util
 import javax.swing._
 import _root_.scala.collection.mutable.ArrayBuffer
 
-class PsiClassWrapper(val definition: ScTemplateDefinition,
-                      private var qualName: String,
-                      private var name: String) extends LightElement(definition.getManager, definition.getLanguage) with PsiClassAdapter /*with SyntheticElement*/ {
+class PsiClassWrapper(
+  val         definition: ScTemplateDefinition,
+  private var qualName:   String,
+  private var name:       String
+) extends LightElement(definition.getManager, definition.getLanguage)
+  with PsiClassAdapter /*with SyntheticElement*/ {
+
   override def hashCode(): Int = definition.hashCode()
 
   override def equals(obj: Any): Boolean = {
     obj match {
       case wrapper: PsiClassWrapper =>
-        definition.equals(wrapper.definition) && qualName == wrapper.qualName && name == wrapper.name
+        definition.equals(wrapper.definition) &&
+          qualName == wrapper.qualName &&
+          name == wrapper.name
       case _ => false
     }
   }
@@ -72,6 +78,7 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
       case _ => definition.getFields //todo:
     }
   }
+
   override def psiMethods: Array[PsiMethod] = {
     definition match {
       case obj: ScObject =>

@@ -35,12 +35,12 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
  *
  */
 class ScFunctionWrapper(
-  override val delegate: ScFunction,
-  isStatic: Boolean,
-  isAbstract: Boolean,
-  val isExportForwarder: Boolean,
+  override val delegate:     ScFunction,
+  isStatic:                  Boolean,
+  isAbstract:                Boolean,
+  val isExportForwarder:     Boolean,
   private[scala] val cClass: Option[PsiClass],
-  isJavaVarargs: Boolean = false
+  isJavaVarargs:             Boolean = false
 ) extends PsiMethodWrapper(
   delegate,
   delegate.getName,
@@ -74,7 +74,7 @@ class ScFunctionWrapper(
   }
 
   override protected def parameters: Seq[PsiParameter] =
-    delegate.effectiveParameterClauses
+    delegate.parameterClausesWithExtension()
       .flatMap(_.effectiveParameters)
       .map(ScLightParameter.from(_, superSubstitutor.followed(methodTypeParamsSubstitutor), isJavaVarargs))
 

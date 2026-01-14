@@ -210,4 +210,31 @@ class Scala3ResolveTest extends SimpleResolveTestBase {
   def testDependentFunOtherClause(): Unit = doResolveTest(
     s"""def test: (${REFTGT}i: Int) => (j: ${REFSRC}i.type) => Unit = null"""
   )
+
+  def testSCL24850(): Unit = {
+    myFixture.addFileToProject(
+      "hasExtension.scala",
+      """
+        |package foo
+        |
+        |class Foo {
+        |  extension (d: Double) def foo(a: Int, b: String): Unit = ???
+        |}
+        |""".stripMargin
+    )
+
+    doResolveTest(
+      s"""
+         |package foo;
+         |
+         |public class JUsage extends foo.Foo {
+         |    @Override
+         |    public void foo(double d, int a, String b) {
+         |        super.fo${REFSRC}o(d, a, b);
+         |    }
+         |}
+         |""".stripMargin,
+      "JUsage.java"
+    )
+  }
 }

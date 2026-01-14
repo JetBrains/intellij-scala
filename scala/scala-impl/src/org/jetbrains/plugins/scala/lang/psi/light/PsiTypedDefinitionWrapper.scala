@@ -12,21 +12,24 @@ import org.jetbrains.plugins.scala.lang.psi.light.PsiMethodWrapper.containingCla
 import org.jetbrains.plugins.scala.lang.psi.types.api.{AnyRef, Unit}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TermSignature}
 
-class PsiTypedDefinitionWrapper(override val delegate: ScTypedDefinition,
-                                isStatic: Boolean,
-                                isAbstract: Boolean,
-                                role: DefinitionRole,
-                                cClass: Option[PsiClass] = None)
-  extends PsiMethodWrapper(delegate, javaMethodName(delegate.name, role), containingClass(delegate, cClass, isStatic)) {
-
+class PsiTypedDefinitionWrapper(
+  override val delegate: ScTypedDefinition,
+  isStatic:              Boolean,
+  isAbstract:            Boolean,
+  role:                  DefinitionRole,
+  cClass:                Option[PsiClass] = None
+) extends PsiMethodWrapper(
+  delegate,
+  javaMethodName(delegate.name, role),
+  containingClass(delegate, cClass, isStatic)
+) {
   override def getNameIdentifier: PsiIdentifier = delegate.getNameIdentifier
 
   override def isWritable: Boolean = getContainingFile.isWritable
 
-  override def setName(name: String): PsiElement = {
+  override def setName(name: String): PsiElement =
     if (role == SIMPLE_ROLE) delegate.setName(name)
-    else this
-  }
+    else                     this
 
   override protected def returnScType: ScType = PsiTypedDefinitionWrapper.typeFor(delegate, role)
 
@@ -38,38 +41,39 @@ class PsiTypedDefinitionWrapper(override val delegate: ScTypedDefinition,
     ScLightModifierList(delegate, isStatic, isAbstract, getContainingClass.isInstanceOf[ScTrait])
 
   override def findSuperMethods(): Array[PsiMethod] = {
-    if (isStatic)
-      return PsiMethod.EMPTY_ARRAY
-
     def wrap(superSig: TermSignature): Option[PsiMethod] = superSig.namedElement match {
       case f: ScFunction =>
-        Some(new ScFunctionWrapper(
-          delegate = f,
-          isStatic = isStatic,
-          isAbstract = f.isAbstractMember,
-          isExportForwarder = superSig.exportedInfo.isDefined,
-          cClass = None,
-          isJavaVarargs = false
-        ))
+        Option(
+          new ScFunctionWrapper(
+            delegate          = f,
+            isStatic          = isStatic,
+            isAbstract        = f.isAbstractMember,
+            isExportForwarder = superSig.exportedInfo.isDefined,
+            cClass            = None,
+            isJavaVarargs     = false
+          )
+        )
       case td: ScTypedDefinition =>
-        Some(new PsiTypedDefinitionWrapper(td, isStatic, isAbstract = td.isAbstractMember, role))
-      case m: PsiMethod =>
-        Some(m)
-      case _ => None
+        Option(new PsiTypedDefinitionWrapper(td, isStatic, isAbstract = td.isAbstractMember, role))
+      case m: PsiMethod => Option(m)
+      case _            => None
     }
 
-    val name = PropertyMethods.methodName(delegate.name, role)
-    val superSignatures =
-      TypeDefinitionMembers.getSignatures(getContainingClass)
-        .forName(name)
-        .findNode(delegate)
-        .map(_.supers.map(_.info))
+    if (isStatic) PsiMethod.EMPTY_ARRAY
+    else {
+      val name = PropertyMethods.methodName(delegate.name, role)
+      val superSignatures =
+        TypeDefinitionMembers.getSignatures(getContainingClass)
+          .forName(name)
+          .findNode(delegate)
+          .map(_.supers.map(_.info))
 
-    superSignatures.getOrElse(Seq.empty).flatMap(wrap).toArray
+      superSignatures.getOrElse(Seq.empty).flatMap(wrap).toArray
+    }
   }
 
   override def copy(): PsiElement =
-    new PsiTypedDefinitionWrapper(delegate.asInstanceOf[ScTypedDefinition], isStatic, isAbstract, role, cClass)
+    new PsiTypedDefinitionWrapper(delegate, isStatic, isAbstract, role, cClass)
 }
 
 object PsiTypedDefinitionWrapper {
