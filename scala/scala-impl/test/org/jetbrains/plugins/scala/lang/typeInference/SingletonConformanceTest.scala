@@ -45,3 +45,21 @@ class SingletonConformanceTest extends ScalaLightCodeInsightFixtureTestCase {
        |""".stripMargin
   )
 }
+
+class SingletonConformance_3 extends ScalaLightCodeInsightFixtureTestCase {
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version >= LatestScalaVersions.Scala_3
+
+  def testSCL24794(): Unit = checkTextHasNoErrors(
+    """
+      |type T
+      |
+      |object Outside {
+      |  def method(): Unit = {
+      |    val v: T = ???
+      |    val t: T = (??? : v.type)
+      |  }
+      |}
+      |""".stripMargin
+  )
+}
