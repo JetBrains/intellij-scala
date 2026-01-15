@@ -57,9 +57,9 @@ object ScalaMarkerType {
   def findOverrides(member: ScMember, deep: Boolean): Seq[PsiNamedElement] = {
     val namedElems = member match {
       case d: ScDeclaredElementsHolder => d.declaredElements.filterByType[ScNamedElement]
-      case param: ScClassParameter => Seq(param)
-      case ta: ScTypeAlias => Seq(ta)
-      case _ => Seq.empty
+      case param: ScClassParameter     => Seq(param)
+      case ta: ScTypeAlias             => Seq(ta)
+      case _                           => Seq.empty
     }
 
     namedElems.flatMap(ScalaOverridingMemberSearcher.search(_, deep = deep, withSelfType = true))

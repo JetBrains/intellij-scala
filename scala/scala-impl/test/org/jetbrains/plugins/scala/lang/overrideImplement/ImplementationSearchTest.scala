@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.overrideImplement
 
 import com.intellij.codeInsight.navigation.{ImplementationSearcher, MethodImplementationsSearch}
+import com.intellij.idea.TestFor
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.AllOverridingMethodsSearch
@@ -11,7 +12,7 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.{PsiMemberExt, StringExt}
 import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
 import org.junit.Assert
-import org.junit.Assert.{assertNotNull, assertTrue}
+import org.junit.Assert.assertTrue
 
 import java.util
 import scala.jdk.CollectionConverters._
@@ -25,6 +26,18 @@ class ImplementationSearchTest extends ScalaLightCodeInsightFixtureTestCase {
     myFixture.addFileToProject("DummyScala.scala", scalaText.withNormalizedSeparator.trim)
     myFixture.configureByText("DummyJava.java", javaText.withNormalizedSeparator.trim)
 
+    doFind(shouldFoundInClasses)
+  }
+
+  def findFromScala(scalaText: String, javaText: String, shouldFoundInClasses: Set[String]): Unit = {
+    // Create test files
+    myFixture.addFileToProject("DummyJava.java", javaText.withNormalizedSeparator.trim)
+    myFixture.configureByText("DummyScala.scala", scalaText.withNormalizedSeparator.trim)
+
+    doFind(shouldFoundInClasses)
+  }
+
+  private def doFind(shouldFoundInClasses: Set[String]): Unit = {
     // Find method at the caret marker
     val atCaret = myFixture.getElementAtCaret
     val method = PsiTreeUtil.getParentOfType(atCaret, classOf[PsiMethod], false)
@@ -380,5 +393,33 @@ class ImplementationSearchTest extends ScalaLightCodeInsightFixtureTestCase {
     addCommonJavaScalaDefinitions_SCL19720_WithExports()
     assertHasImplementationsInClasses("ScalaTrait", "fooScala", Seq("ScalaClass"))
     assertHasImplementationsInClasses("ScalaTrait", "barScala", Seq("ScalaClass"))
+  }
+
+  @TestFor(issues = Array("SCL-24850"))
+  def testSearchImplementationsOfScala3ExtensionMethodInJavaAndScala(): Unit = {
+    val scalaText =
+      s"""package foo
+         |
+         |class Foo {
+         |  extension (d: Double) def fo${CARET}o(a: Int, b: String): Unit = ???
+         |}
+         |
+         |class Bar extends Foo {
+         |  extension (d: Double) override def foo(a: Int, b: String): Unit = ???
+         |}
+         |""".stripMargin
+
+    val javaText =
+      """package foo;
+        |
+        |public class JUsage extends foo.Foo {
+        |    @Override
+        |    public void foo(double d, int a, String b) {
+        |        super.foo(d, a, b);
+        |    }
+        |}
+        |""".stripMargin
+
+    findFromScala(scalaText, javaText, Set("Bar", "JUsage"))
   }
 }

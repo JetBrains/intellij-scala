@@ -269,7 +269,7 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
   /**
    * @param isStrictCheck false - Fast option to just check member names<br>
    *                      true - Slow option which will check all function overloaded alternatives
-   *                      For that it needs to resolve all type paramers and check parameter types equivalence
+   *                      For that it needs to resolve all type parameters and check parameter types equivalence
    */
   protected def isSimilarMemberForNavigation(m: ScMember, isStrictCheck: Boolean) = false
 }

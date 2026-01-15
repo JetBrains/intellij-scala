@@ -1297,7 +1297,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       }
 
       var rightVisitor: ScalaTypeVisitor =
-        new ValDesignatorSimplification with UndefinedSubstVisitor with AbstractVisitor
+        new ValDesignatorSimplification with DesignatorVisitor with UndefinedSubstVisitor with AbstractVisitor
           with ParameterizedAbstractVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
