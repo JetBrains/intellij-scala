@@ -9,7 +9,6 @@ import org.jetbrains.jps.incremental.scala.{ScalaJpsProjectMetadata, ScalaJpsPro
 import org.jetbrains.plugins.scala.CompilationTests_Zinc
 import org.jetbrains.plugins.scala.compiler.CompilerMessagesUtil.assertNoErrorsOrWarnings
 import org.jetbrains.plugins.scala.extensions.PathExt
-import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.project.SbtExternalSystemImportingTestLike
 import org.junit.Assert.{assertEquals, assertTrue}
@@ -62,7 +61,7 @@ class ProjectMetadataCompilationTest extends SbtExternalSystemImportingTestLike 
     val xml = JDOMUtil.load(filePath)
     val actualProjectMetadata = ScalaJpsProjectMetadata.parseXml(xml)
 
-    val expectedProjectMetadata = project.jpsProjectMetadata
+    val expectedProjectMetadata = ProjectMetadataUtil.jpsProjectMetadata(project)
     assertEquals(Some(expectedProjectMetadata), actualProjectMetadata)
   }
 }

@@ -1,25 +1,24 @@
 package org.jetbrains.plugins.scala.compiler
 
 import com.intellij.openapi.module.ModuleManager
+import com.intellij.openapi.project.Project
 import com.intellij.testFramework.CompilerTester
 import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
-import org.junit.Assert.fail
+import org.junit.Assert.assertEquals
 
 abstract class DisplayModuleNameTestBase(jdkVersion: TestJdkVersion, separateProdAndTestSources: Boolean = false)
   extends SbtProjectCompilationTestBase(separateProdAndTestSources) {
 
   override protected def jdkVersionForTest: TestJdkVersion = jdkVersion
 
-  override protected def reuseCompileServerProcessBetweenTests: Boolean = false
-
   protected def runTest(expectedValue: Boolean): Unit = {
     importProject(false)
-    val modules = ModuleManager.getInstance(getMyProject).getModules
+    val project = getMyProject
+    val modules = ModuleManager.getInstance(project).getModules
     rootModule = modules.find(_.getName == "root").orNull
-    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules: _*), null, false)
+    compiler = new CompilerTester(project, java.util.Arrays.asList(modules: _*), null, false)
     compiler.rebuild()
-    val buildProcessParameters = CompileServerLauncher.buildProcessParameters
-    checkUseModuleDisplayName(expectedValue, buildProcessParameters)
+    assertUseModuleDisplayName(expectedValue, project)
   }
 
   protected def createSingleBuildProject(): Unit = {
@@ -71,16 +70,8 @@ abstract class DisplayModuleNameTestBase(jdkVersion: TestJdkVersion, separatePro
         |""".stripMargin)
   }
 
-  protected def checkUseModuleDisplayName(expectedValue: Boolean, parameters: Seq[String]): Unit = {
-    val pattern = """-Duse\.module\.display\.name=(.+)""".r
-    val value = parameters.collectFirst { case pattern(matched) => matched }
-    value match {
-      case Some(x) =>
-        val stripped = x.strip()
-        if (stripped != expectedValue.toString) {
-          fail(s"The value for \"-Duse.module.display.name=\" should be $expectedValue but was $stripped")
-        }
-      case None => fail("\"-Duse.module.display.name=\" hasn't been found in CompileServerLauncher.buildProcessParameters")
-    }
+  private def assertUseModuleDisplayName(expectedValue: Boolean, project: Project): Unit = {
+    val useModuleDisplayName = ProjectMetadataUtil.computeUseModuleDisplayName(project)
+    assertEquals("Use module display name was not properly configured", expectedValue, useModuleDisplayName)
   }
 }

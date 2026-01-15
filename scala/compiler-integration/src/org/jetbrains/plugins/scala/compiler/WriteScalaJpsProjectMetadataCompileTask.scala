@@ -55,7 +55,7 @@ private final class WriteScalaJpsProjectMetadataCompileTask extends ScalaCompile
       }
     }
 
-    val projectMetadata = project.jpsProjectMetadata
+    val projectMetadata = ProjectMetadataUtil.jpsProjectMetadata(project)
 
     val writeToDiskTask: Runnable = () => {
       if (!project.isDefault) {

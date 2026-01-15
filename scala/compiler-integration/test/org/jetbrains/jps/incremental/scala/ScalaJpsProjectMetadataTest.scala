@@ -2,19 +2,20 @@ package org.jetbrains.jps.incremental.scala
 
 import com.intellij.openapi.util.JDOMUtil
 import org.jdom.Element
+import org.jetbrains.jps.incremental.scala.ScalaJpsProjectMetadataConstants.UseModuleDisplayNameElement
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import spray.json.DefaultJsonProtocol.StringJsonFormat
-import spray.json.{JsArray, JsObject, JsValue, enrichAny}
+import spray.json.{JsArray, JsBoolean, JsObject, JsValue, enrichAny}
 
 class ScalaJpsProjectMetadataTest {
   @Test
   def xmlSerialization(): Unit = {
     val moduleNames = generateModuleNames
-    val expectedXml = generateXmlStructure(moduleNames)
+    val expectedXml = generateXmlStructure(moduleNames, useModuleDisplayName = false)
     val expectedXmlString = JDOMUtil.write(expectedXml, "\n")
 
-    val actualXml = ScalaJpsProjectMetadata(moduleNames).asXml
+    val actualXml = ScalaJpsProjectMetadata(moduleNames, useModuleDisplayName = false).asXml
     val actualXmlString = JDOMUtil.write(actualXml, "\n")
 
     assertEquals(expectedXmlString, actualXmlString)
@@ -23,9 +24,9 @@ class ScalaJpsProjectMetadataTest {
   @Test
   def xmlDeserialization(): Unit = {
     val moduleNames = generateModuleNames
-    val expectedMetadata = ScalaJpsProjectMetadata(moduleNames)
+    val expectedMetadata = ScalaJpsProjectMetadata(moduleNames, useModuleDisplayName = true)
 
-    val startingXml = generateXmlStructure(moduleNames)
+    val startingXml = generateXmlStructure(moduleNames, useModuleDisplayName = true)
     val actualMetadata = ScalaJpsProjectMetadata.parseXml(startingXml)
 
     assertEquals(Some(expectedMetadata), actualMetadata)
@@ -34,7 +35,7 @@ class ScalaJpsProjectMetadataTest {
   @Test
   def xmlSerializationDeserialization(): Unit = {
     val moduleNames = generateModuleNames
-    val metadata = ScalaJpsProjectMetadata(moduleNames)
+    val metadata = ScalaJpsProjectMetadata(moduleNames, useModuleDisplayName = true)
 
     val serialized = metadata.asXml
     val deserialized = ScalaJpsProjectMetadata.parseXml(serialized)
@@ -45,9 +46,9 @@ class ScalaJpsProjectMetadataTest {
   @Test
   def jsonSerialization(): Unit = {
     val moduleNames = generateModuleNames
-    val metadata = ScalaJpsProjectMetadata(moduleNames)
+    val metadata = ScalaJpsProjectMetadata(moduleNames, useModuleDisplayName = true)
 
-    val expectedJson = generateJson(moduleNames)
+    val expectedJson = generateJson(moduleNames, useModuleDisplayName = true)
     val actualJson = metadata.asJson
 
     assertEquals(expectedJson, actualJson)
@@ -56,9 +57,9 @@ class ScalaJpsProjectMetadataTest {
   @Test
   def jsonDeserialization(): Unit = {
     val moduleNames = generateModuleNames
-    val expectedMetadata = ScalaJpsProjectMetadata(moduleNames)
+    val expectedMetadata = ScalaJpsProjectMetadata(moduleNames, useModuleDisplayName = false)
 
-    val startingJson = generateJson(moduleNames)
+    val startingJson = generateJson(moduleNames, useModuleDisplayName = false)
     val actualMetadata = ScalaJpsProjectMetadata.parseJson(startingJson)
 
     assertEquals(expectedMetadata, actualMetadata)
@@ -67,7 +68,7 @@ class ScalaJpsProjectMetadataTest {
   @Test
   def jsonSerializationDeserialization(): Unit = {
     val moduleNames = generateModuleNames
-    val metadata = ScalaJpsProjectMetadata(moduleNames)
+    val metadata = ScalaJpsProjectMetadata(moduleNames, useModuleDisplayName = true)
 
     val serialized = metadata.asJson
     val deserialized = ScalaJpsProjectMetadata.parseJson(serialized)
@@ -75,19 +76,24 @@ class ScalaJpsProjectMetadataTest {
     assertEquals(metadata, deserialized)
   }
 
-  private def generateXmlStructure(moduleNames: Set[String]): Element = {
+  private def generateXmlStructure(moduleNames: Set[String], useModuleDisplayName: Boolean): Element = {
     import ScalaJpsProjectMetadataConstants._
     val modulesWithScalaSdkElement =
       moduleNames.foldLeft(new Element(ModulesWithScalaSdkElement)) { case (element, name) =>
         element.addContent(new Element(ModuleElement).setAttribute(NameAttribute, name))
       }
-    new Element(RootElement).addContent(modulesWithScalaSdkElement)
+
+    val useModuleDisplayNameElement =
+      new Element(UseModuleDisplayNameElement).setAttribute(ValueAttribute, useModuleDisplayName.toString)
+
+    new Element(RootElement).addContent(modulesWithScalaSdkElement).addContent(useModuleDisplayNameElement)
   }
 
-  private def generateJson(moduleNames: Set[String]): JsValue = {
+  private def generateJson(moduleNames: Set[String], useModuleDisplayName: Boolean): JsValue = {
     import ScalaJpsProjectMetadataConstants.ModulesWithScalaSdkElement
     JsObject(
-      ModulesWithScalaSdkElement -> JsArray(moduleNames.toSeq.map(_.toJson): _*)
+      ModulesWithScalaSdkElement -> JsArray(moduleNames.toSeq.map(_.toJson): _*),
+      UseModuleDisplayNameElement -> JsBoolean(useModuleDisplayName)
     )
   }
 

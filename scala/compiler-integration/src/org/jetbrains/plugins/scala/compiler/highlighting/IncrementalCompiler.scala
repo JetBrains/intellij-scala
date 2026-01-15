@@ -9,8 +9,7 @@ import com.intellij.util.io.PathKt
 import org.jetbrains.jps.incremental.Utils
 import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.remote.{CompileServerCommand, SourceScope}
-import org.jetbrains.plugins.scala.compiler.CompileServerClient
-import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.compiler.{CompileServerClient, ProjectMetadataUtil}
 
 import java.nio.file.Path
 
@@ -37,7 +36,7 @@ private object IncrementalCompiler {
       dataStorageRootPath = dataStorageRootPath,
       moduleNames = moduleNames.toSeq,
       sourceScope = sourceScope,
-      projectMetadata = project.jpsProjectMetadata,
+      projectMetadata = ProjectMetadataUtil.jpsProjectMetadata(project),
       externalProjectConfig = externalConfigurationDir
     )
 

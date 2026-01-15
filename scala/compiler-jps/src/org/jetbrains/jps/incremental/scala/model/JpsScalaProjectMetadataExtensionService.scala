@@ -37,6 +37,13 @@ trait JpsScalaProjectMetadataExtensionService {
     projectMetadata(context).modulesWithScalaSdk
 
   /**
+   * Show shortened, display names of modules in the compiler messages instead of the full module names
+   * which are longer and may contain a repeated root.
+   */
+  def useModuleDisplayName(context: CompileContext): Boolean =
+    projectMetadata(context).useModuleDisplayName
+
+  /**
    * Returns the project metadata for the given compile context.
    */
   def projectMetadata(context: CompileContext): ScalaJpsProjectMetadata
@@ -57,6 +64,9 @@ object JpsScalaProjectMetadataExtensionService {
 
   def projectHasScala(context: CompileContext): Boolean =
     instance().projectHasScala(context)
+
+  def useModuleDisplayName(context: CompileContext): Boolean =
+    instance().useModuleDisplayName(context)
 
   def isCBH(context: CompileContext): Boolean =
     Option(context.getBuilderParameter(BuildParameters.BuildTriggeredByCBH)).flatMap(_.toBooleanOption).getOrElse(false)

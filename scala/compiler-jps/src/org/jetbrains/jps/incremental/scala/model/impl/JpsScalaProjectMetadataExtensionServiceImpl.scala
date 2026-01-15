@@ -78,7 +78,7 @@ private final class JpsScalaProjectMetadataExtensionServiceImpl extends JpsScala
   private def manuallyComputeMetadataFallback(context: CompileContext): ScalaJpsProjectMetadata = {
     val modules = context.getProjectDescriptor.getProject.getModules.asScala
     val modulesWithScalaSdk = modules.filter(SettingsManager.getScalaSdk(_).isDefined).map(_.getName).toSet
-    ScalaJpsProjectMetadata(modulesWithScalaSdk)
+    ScalaJpsProjectMetadata(modulesWithScalaSdk, useModuleDisplayName = false)
   }
 }
 

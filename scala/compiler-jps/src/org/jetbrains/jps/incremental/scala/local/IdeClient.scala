@@ -8,7 +8,7 @@ import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.incremental.CompileContext
 import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage, FileDeletedEvent, ProgressMessage}
 import org.jetbrains.jps.incremental.scala.Client.PosInfo
-import org.jetbrains.jps.incremental.scala.model.JpsSbtExtensionService
+import org.jetbrains.jps.incremental.scala.model.{JpsSbtExtensionService, JpsScalaProjectMetadataExtensionService}
 import org.jetbrains.jps.incremental.scala.remote.{CompileServerMetrics, SerializablePath}
 import org.jetbrains.jps.incremental.scala.utils.ScalaJDKIncompatibilityDetector
 import org.jetbrains.jps.model.module.JpsModule
@@ -27,7 +27,7 @@ abstract class IdeClient(compilerName: String,
 
   private var hasErrors = false
   private val compilationId: CompilationId = CompilationId(timestamp = System.nanoTime(), documentVersions = immutable.HashMap.empty)
-  private val compilationUnitId = Some(IdeClient.getCompilationUnitId(chunk))
+  private val compilationUnitId = Some(IdeClient.getCompilationUnitId(context, chunk))
 
   override def message(msg: Client.ClientMsg): Unit = {
     val Client.ClientMsg(kind, text, source, pointer, _, _, _) = msg
@@ -132,9 +132,9 @@ abstract class IdeClient(compilerName: String,
 
 object IdeClient {
 
-  private def getCompilationUnitId(chunk: ModuleChunk): CompilationUnitId = {
+  private def getCompilationUnitId(context: CompileContext, chunk: ModuleChunk): CompilationUnitId = {
     val moduleBuildTarget = chunk.representativeTarget
-    val moduleId = getDisplayModuleNameIfApplicable(moduleBuildTarget.getModule)
+    val moduleId = getDisplayModuleNameIfApplicable(context, moduleBuildTarget.getModule)
     val testScope = moduleBuildTarget.isTests
     CompilationUnitId(
       moduleId = moduleId,
@@ -142,8 +142,8 @@ object IdeClient {
     )
   }
 
-  private def getDisplayModuleNameIfApplicable(module: JpsModule): String =
-    if (shouldUseDisplayModuleNames) getDisplayModuleName(module)
+  private def getDisplayModuleNameIfApplicable(context: CompileContext, module: JpsModule): String =
+    if (JpsScalaProjectMetadataExtensionService.useModuleDisplayName(context)) getDisplayModuleName(module)
     else module.getName
 
   private def getDisplayModuleName(module: JpsModule): String = {
@@ -158,7 +158,4 @@ object IdeClient {
         moduleName
     }
   }
-
-  private def shouldUseDisplayModuleNames: Boolean =
-    Option(System.getProperty("use.module.display.name")).flatMap(_.toBooleanOption).getOrElse(false)
 }

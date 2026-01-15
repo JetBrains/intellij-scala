@@ -58,8 +58,6 @@ abstract class SbtProjectCompilationTestBase(separateProdAndTestSources: Boolean
 
   override def getTestsTempDir: String = this.getClass.getSimpleName
 
-  protected def reuseCompileServerProcessBetweenTests: Boolean = true
-
   protected def jdkVersionForTest: TestJdkVersion
 
   override def setUp(): Unit = {
@@ -74,20 +72,10 @@ abstract class SbtProjectCompilationTestBase(separateProdAndTestSources: Boolean
     }
 
     SbtCachesSetupUtil.setupCoursierAndIvyCache(getMyProject)
-
-    if (reuseCompileServerProcessBetweenTests) {
-      CompileServerTestUtil.registerLongRunningThreads()
-    } else {
-      // We don't want to reuse the compile server in this test class, but it may have already been started.
-      // We should shut it down first.
-      CompileServerLauncher.stopServerAndWait()
-    }
+    CompileServerTestUtil.registerLongRunningThreads()
   }
 
   override def tearDown(): Unit = try {
-    if (!reuseCompileServerProcessBetweenTests) {
-      CompileServerLauncher.stopServerAndWait()
-    }
     compiler.tearDown()
     val settings = ScalaCompileServerSettings.getInstance()
     settings.USE_DEFAULT_SDK = true
