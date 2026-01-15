@@ -68,7 +68,7 @@ final class ReferenceComparisonTest_Scala3_Newest_Part1 extends ReferenceCompari
   def test_21400(): Unit = doTest("21400", true) // #matchType
   def test_21681d(): Unit = doTest("21681d", true)
   def test_22219(): Unit = doTest("22219", true) // #intersectionType
-  def test_22219b(): Unit = doTest("22219b", false) // #intersectionType
+  def test_22219b(): Unit = doTest("22219b", true) // #intersectionType
   def test_23056(): Unit = doTest("23056", true)
   def test_A(): Unit = doTest("A", true)
   def test_abstract(): Unit = doTest("abstract", true)

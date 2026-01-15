@@ -25,6 +25,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
 import org.jetbrains.plugins.scala.util.HashBuilder._
 
+import java.util.Objects
 import scala.annotation.tailrec
 import scala.collection.mutable
 
@@ -115,6 +116,8 @@ class TermSignature(
     falseUndef:  Boolean
   ): ConstraintsResult = {
 
+    if (isScala != other.isScala) return paramTypesEquivExtendedWithJava(other, constraints, falseUndef)
+
     if (paramLength != other.paramLength ||
         paramLength > 0 && paramClauseSizes =!= other.paramClauseSizes ||
         hasRepeatedParam =!= other.hasRepeatedParam)
@@ -127,29 +130,73 @@ class TermSignature(
     var lastConstraints     = constraints
 
     while (clauseIterator.hasNext && otherClauseIterator.hasNext) {
-      val clause1            = clauseIterator.next()
-      val clause2            = otherClauseIterator.next()
-      val typesIterator      = clause1.iterator
-      val otherTypesIterator = clause2.iterator
+      val clause1 = clauseIterator.next()
+      val clause2 = otherClauseIterator.next()
 
-      while (typesIterator.hasNext && otherTypesIterator.hasNext) {
-        val t1  = typesIterator.next()
-        val t2  = otherTypesIterator.next()
-        val tp1 = unified.followed(depParamTypeSubst)(t1())
-        val tp2 = unified(t2())
-        var t   = tp2.equiv(tp1, lastConstraints, falseUndef)
+      val result  = paramTypesEquivInner(
+        other = other,
+        typesIterator = clause1.iterator,
+        otherTypesIterator = clause2.iterator,
+        depParamTypeSubst = depParamTypeSubst,
+        unified = unified,
+        constraints = lastConstraints,
+        falseUndef = falseUndef,
+      )
 
-        if (t.isLeft && tp1.equiv(api.AnyRef) && !this.isScala) {
-          t = tp2.equiv(Any, lastConstraints, falseUndef)
-        }
-        if (t.isLeft && tp2.equiv(api.AnyRef) && !other.isScala) {
-          t = Any.equiv(tp1, lastConstraints, falseUndef)
-        }
-        if (t.isLeft) {
-          return ConstraintsResult.Left
-        }
-        lastConstraints = t.constraints
+      result match {
+        case s: ConstraintSystem => lastConstraints = s
+        case _ => return result
       }
+    }
+    lastConstraints
+  }
+
+  private def paramTypesEquivExtendedWithJava(
+    other:       TermSignature,
+    constraints: ConstraintSystem,
+    falseUndef:  Boolean
+  ): ConstraintsResult = {
+    if (paramLength != other.paramLength || hasRepeatedParam =!= other.hasRepeatedParam)
+      return ConstraintsResult.Left
+
+    paramTypesEquivInner(
+      other = other,
+      typesIterator = substitutedTypes.flatten.iterator,
+      otherTypesIterator = other.substitutedTypes.flatten.iterator,
+      depParamTypeSubst = depParamTypeSubstitutor(other),
+      unified = other.substitutor.withBindings(typeParams, other.typeParams),
+      constraints = constraints,
+      falseUndef = falseUndef,
+    )
+  }
+
+  private def paramTypesEquivInner(
+    other: TermSignature,
+    typesIterator: Iterator[() => ScType],
+    otherTypesIterator: Iterator[() => ScType],
+    depParamTypeSubst: ScSubstitutor,
+    unified: ScSubstitutor,
+    constraints: ConstraintSystem,
+    falseUndef: Boolean,
+  ): ConstraintsResult = {
+    var lastConstraints = constraints
+    while (typesIterator.hasNext && otherTypesIterator.hasNext) {
+      val t1  = typesIterator.next()
+      val t2  = otherTypesIterator.next()
+      val tp1 = unified.followed(depParamTypeSubst)(t1())
+      val tp2 = unified(t2())
+      var t   = tp2.equiv(tp1, lastConstraints, falseUndef)
+
+      if (t.isLeft && tp1.equiv(api.AnyRef) && !this.isScala) {
+        t = tp2.equiv(Any, lastConstraints, falseUndef)
+      }
+      if (t.isLeft && tp2.equiv(api.AnyRef) && !other.isScala) {
+        t = Any.equiv(tp1, lastConstraints, falseUndef)
+      }
+      if (t.isLeft) {
+        return ConstraintsResult.Left
+      }
+      lastConstraints = t.constraints
     }
     lastConstraints
   }
@@ -166,7 +213,8 @@ class TermSignature(
 
   private def parameterSizeHash: Int = {
     if (paramLength == 0) 0
-    else paramClauseSizes.hash
+    else Objects.hash(paramLength)
+    //    else paramClauseSizes.hash
   }
 
   private def depParamTypeSubstitutor(target: TermSignature): ScSubstitutor = {
