@@ -249,8 +249,11 @@ private class ScaladocMarkdownParsing(builder: MkBuilder, content: String) exten
     childIt.dropRest()
 
     ensureBuilderInPosition(textOffset, elementType) // mark [[
-    ensureBuilderInPosition(treeIt.currentEndOffset - 2, refTegType) // mark the link content
-
+    ensureBuilderInPosition(textOffset + text.length, refTegType) // mark the link/reference
+    if (builder.getTokenType == ScalaDocTokenType.DOC_WHITESPACE) {
+      builder.advanceLexer()
+    }
+    ensureBuilderInPosition(treeIt.currentEndOffset - 2, ScalaDocTokenType.DOC_COMMENT_DATA) // mark the link text
     ensureBuilderInPosition(treeIt.currentEndOffset, ScalaDocTokenType.DOC_LINK_CLOSE_TAG) // mark ]]
 
     marker.done(elementType)

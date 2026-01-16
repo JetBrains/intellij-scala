@@ -16,6 +16,7 @@ import org.intellij.markdown.parser.{LinkMap, LookaheadText, MarkerProcessorFact
 import org.intellij.markdown.{IElementType, MarkdownElementTypes, MarkdownTokenTypes}
 import org.jetbrains.plugins.scala.Scala3Language
 import org.jetbrains.plugins.scala.editor.documentationProvider.HtmlPsiUtils
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.markdown._CustomGFMLexer
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
 
 import java.net.URI
@@ -42,6 +43,7 @@ class ScalaDocMarkdownFlavour extends GFMFlavourDescriptor {
 
   override def getSequentialParserManager: SequentialParserManager = sequentialParserManager
 
+  private val wsRegex = raw"\s+".r
   override def createHtmlGeneratingProviders(linkMap: LinkMap, uri: URI): java.util.Map[IElementType, GeneratingProvider] = {
     val parent = super.createHtmlGeneratingProviders(linkMap, uri)
     parent.putAll(
@@ -53,14 +55,18 @@ class ScalaDocMarkdownFlavour extends GFMFlavourDescriptor {
 
         WikiLinkParser.WIKI_LINK -> new OpenCloseGeneratingProvider {
           override def openTag(visitor: HtmlGenerator#HtmlGeneratingVisitor, s: String, astNode: ASTNode): Unit = {
-            val linkText = s.substring(astNode.getStartOffset+2, astNode.getEndOffset-2)
+            val innerText = s.substring(astNode.getStartOffset+2, astNode.getEndOffset-2)
+            val (link, linkText) = wsRegex.findFirstMatchIn(innerText) match {
+              case Some(m) if m.start > 0 && m.end < innerText.length - 1 => (innerText.substring(0, m.start), innerText.substring(m.end))
+              case _ => (innerText.trim, innerText)
+            }
 
             val html =
-              if (linkText.startsWith("http:") || linkText.startsWith("https:")) {
-                HtmlPsiUtils.hyperLink(linkText, linkText)
+              if (link.startsWith("http:") || link.startsWith("https:")) {
+                HtmlPsiUtils.hyperLink(link, linkText)
               } else {
                 val buffer = new java.lang.StringBuilder
-                DocumentationManagerUtil.createHyperlink(buffer, linkText, linkText, false)
+                DocumentationManagerUtil.createHyperlink(buffer, link, linkText, false)
                 buffer.toString
               }
             visitor.consumeHtml(html)
@@ -86,7 +92,7 @@ class ScalaDocMarkdownFlavour extends GFMFlavourDescriptor {
     parent
   }
 
-  override def createInlinesLexer(): MarkdownLexer = super.createInlinesLexer()
+  override def createInlinesLexer(): MarkdownLexer = new MarkdownLexer(new _CustomGFMLexer)
 }
 
 object ScalaDocMarkdownFlavour {

@@ -228,13 +228,23 @@ class Scala3DocumentationProviderTest_Markdown
       s"""
          |/**
          | * [[Foo]]
-         | *
-         | * [[http://example.com/Foo]]
+         | * [[ Foo]]
+         | * [[Foo ]]
+         | * [[Foo Alt text]]
+         | * [[http://example.com/]]
+         | * [[http://example.com/ Alt text]]
+         | * [[http://example.com/ Alt text ]]
          | */
          |class ${|}Foo
          |""".stripMargin,
       """
-        |<div class='content'><p><a href="psi_element://Foo"><code>Foo</code></a></p><p><a href="http://example.com/Foo">http://example.com/Foo</a></p></div>
+        |<div class='content'><p><a href="psi_element://Foo"><code>Foo</code></a>
+        |<a href="psi_element://Foo"><code> Foo</code></a>
+        |<a href="psi_element://Foo"><code>Foo </code></a>
+        |<a href="psi_element://Foo"><code>Alt text</code></a>
+        |<a href="http://example.com/">http://example.com/</a>
+        |<a href="http://example.com/">Alt text</a>
+        |<a href="http://example.com/">Alt text </a></p></div>
         |""".stripMargin,
       HtmlSpacesComparisonMode.DontIgnore,
     )

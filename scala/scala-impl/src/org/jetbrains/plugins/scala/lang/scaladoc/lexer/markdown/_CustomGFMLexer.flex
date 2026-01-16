@@ -35,6 +35,8 @@ import java.util.Set;
 
   private int codeSpanBacktickslength = 0;
 
+  private int stateBeforeWikilink = 0;
+
   private ParseDelimited parseDelimited = new ParseDelimited();
 
   private static class ParseDelimited {
@@ -224,6 +226,7 @@ import java.util.Set;
 DIGIT = [0-9]
 ALPHANUM = [\p{Letter}\p{Number}]
 WHITE_SPACE = [ \t\f]
+WIKILINK_REF_CONTENT = [^ \t\f\]\[\r\n\u2028\u2029\u000B\u000C\u0085]
 EOL = \R
 ANY_CHAR = [^]
 
@@ -258,7 +261,7 @@ PATH=({PATH_PART}+ | ("(" {PATH_PART}* ")"? {PATH_PART}*)) ("(" {PATH_PART}* ")"
 // See pushbackAutolink method
 GFM_AUTOLINK = (("http" "s"? | "ftp" | "file")"://" | "www.") {HOST_PART} ("." {HOST_PART})* (":" [0-9]+)? ("/" {PATH})? "/"?
 
-%state TAG_START, AFTER_LINE_START, PARSE_DELIMITED, CODE_SPAN
+%state TAG_START, AFTER_LINE_START, PARSE_DELIMITED, CODE_SPAN, IN_WIKILINK
 
 %%
 
@@ -280,7 +283,7 @@ GFM_AUTOLINK = (("http" "s"? | "ftp" | "file")"://" | "www.") {HOST_PART} ("." {
   }
 }
 
-<AFTER_LINE_START, PARSE_DELIMITED> {
+<AFTER_LINE_START, PARSE_DELIMITED, IN_WIKILINK> {
   // Escaping
   \\[\\\"'`*_{}\[\]()#+.,!:@#$%&~<>/-] {
     return getReturnGeneralized(MarkdownTokenTypes.TEXT);
@@ -316,6 +319,22 @@ GFM_AUTOLINK = (("http" "s"? | "ftp" | "file")"://" | "www.") {HOST_PART} ("." {
   }
 }
 
+<IN_WIKILINK> {
+  {WIKILINK_REF_CONTENT}+ {
+    return MarkdownTokenTypes.TEXT;
+  }
+
+  {WHITE_SPACE}+ {
+    yybegin(stateBeforeWikilink);
+    return MarkdownTokenTypes.WHITE_SPACE;
+  }
+
+  "]" / "]" {
+    yybegin(stateBeforeWikilink);
+    return getDelimiterTokenType(']');
+  }
+}
+
 <AFTER_LINE_START, PARSE_DELIMITED, CODE_SPAN> {
 
   // Emphasis
@@ -339,10 +358,15 @@ GFM_AUTOLINK = (("http" "s"? | "ftp" | "file")"://" | "www.") {HOST_PART} ("." {
 }
 
 <AFTER_LINE_START, CODE_SPAN> {
-
-  {WHITE_SPACE}+ {
-    return MarkdownTokenTypes.WHITE_SPACE;
+  "[" / "[" {
+    stateBeforeWikilink = yystate();
+    yybegin(IN_WIKILINK);
+    return getDelimiterTokenType(yycharat(0));
   }
+}
+
+
+<AFTER_LINE_START, CODE_SPAN, IN_WIKILINK> {
 
   \" | "'"| "(" | ")" | "[" | "]" | "<" | ">" {
     return getDelimiterTokenType(yycharat(0));
@@ -352,6 +376,12 @@ GFM_AUTOLINK = (("http" "s"? | "ftp" | "file")"://" | "www.") {HOST_PART} ("." {
 
   \\ / {EOL} {
     return MarkdownTokenTypes.HARD_LINE_BREAK;
+  }
+}
+
+<AFTER_LINE_START, CODE_SPAN> {
+  {WHITE_SPACE}+ {
+    return MarkdownTokenTypes.WHITE_SPACE;
   }
 
   {WHITE_SPACE}* ({EOL} {WHITE_SPACE}*)+ {
@@ -390,7 +420,7 @@ GFM_AUTOLINK = (("http" "s"? | "ftp" | "file")"://" | "www.") {HOST_PART} ("." {
 
 }
 
-<PARSE_DELIMITED, CODE_SPAN> {
+<PARSE_DELIMITED, CODE_SPAN, IN_WIKILINK> {
   {EOL} { resetState(); }
 
   {EOL} | {ANY_CHAR} {
