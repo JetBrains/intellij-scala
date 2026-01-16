@@ -2275,6 +2275,11 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |/**
       | * [[ref.ref]]
       | * [[ref.ref Some alt text]]
+      | * [[ ref?]]
+      | * [[ref  ]]
+      | * [[
+      | * [[ref
+      | * [[ref Text
       | */
       |""".stripMargin,
     """
@@ -2306,13 +2311,40 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |              PsiElement(identifier)('ref')
       |            PsiElement(.)('.')
       |            PsiElement(identifier)('ref')
-      |          PsiWhiteSpace(' ')
-      |          PsiElement(identifier)('Some')
-      |          PsiWhiteSpace(' ')
-      |          PsiElement(identifier)('alt')
-      |          PsiWhiteSpace(' ')
-      |          PsiElement(identifier)('text')
+      |        ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |        ScPsiDocToken(DOC_COMMENT_DATA)('Some alt text')
       |        ScPsiDocToken(DOC_LINK_CLOSE_TAG 0)(']]')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      DocSyntaxElement 64
+      |        ScPsiDocToken(DOC_LINK_TAG 64)('[[')
+      |        ASTWrapperPsiElement(SCALA_DOC_REFERENCE_LINK)
+      |          PsiWhiteSpace(' ')
+      |        ScPsiDocToken(DOC_COMMENT_DATA)('ref?')
+      |        ScPsiDocToken(DOC_LINK_CLOSE_TAG 0)(']]')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      DocSyntaxElement 64
+      |        ScPsiDocToken(DOC_LINK_TAG 64)('[[')
+      |        ASTWrapperPsiElement(SCALA_DOC_REFERENCE_LINK)
+      |          CodeReferenceElement (scalaDoc): ref
+      |            PsiElement(identifier)('ref')
+      |        ScPsiDocToken(DOC_WHITESPACE)('  ')
+      |        ScPsiDocToken(DOC_LINK_CLOSE_TAG 0)(']]')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      ScPsiDocToken(DOC_COMMENT_DATA)('[[')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      ScPsiDocToken(DOC_COMMENT_DATA)('[[ref')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      ScPsiDocToken(DOC_COMMENT_DATA)('[[ref Text')
       |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |    ScPsiDocToken(DOC_COMMENT_END)('*/')
       |  PsiWhiteSpace('\n')
@@ -2327,6 +2359,9 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       | * [[http://google.com Some alt text]]
       | * [[https://google.com]]
       | * [[https://google.com Some alt text]]
+      | *
+      | * [[http://google.com
+      | * [[http://google.com Some alt text
       | */
       |""".stripMargin,
     """
@@ -2347,7 +2382,9 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      DocSyntaxElement 128
       |        ScPsiDocToken(DOC_HTTP_LINK_TAG 128)('[[')
-      |        ScPsiDocToken(DOC_HTTP_LINK_VALUE)('http://google.com Some alt text')
+      |        ScPsiDocToken(DOC_HTTP_LINK_VALUE)('http://google.com')
+      |        ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |        ScPsiDocToken(DOC_COMMENT_DATA)('Some alt text')
       |        ScPsiDocToken(DOC_LINK_CLOSE_TAG 0)(']]')
       |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
@@ -2361,8 +2398,21 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      DocSyntaxElement 128
       |        ScPsiDocToken(DOC_HTTP_LINK_TAG 128)('[[')
-      |        ScPsiDocToken(DOC_HTTP_LINK_VALUE)('https://google.com Some alt text')
+      |        ScPsiDocToken(DOC_HTTP_LINK_VALUE)('https://google.com')
+      |        ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |        ScPsiDocToken(DOC_COMMENT_DATA)('Some alt text')
       |        ScPsiDocToken(DOC_LINK_CLOSE_TAG 0)(']]')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    ScDocParagraph
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      ScPsiDocToken(DOC_COMMENT_DATA)('[[http://google.com')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      ScPsiDocToken(DOC_COMMENT_DATA)('[[http://google.com Some alt text')
       |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |    ScPsiDocToken(DOC_COMMENT_END)('*/')
       |  PsiWhiteSpace('\n')
