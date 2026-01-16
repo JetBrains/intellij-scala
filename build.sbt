@@ -223,6 +223,7 @@ lazy val worksheetReplInterface =
         unmanagedJars.map(f => (f, s"lib/${f.getName}"))
       }
     )
+    .settings(compilationCacheSettings)
 
 // A subproject which exists only to hold a precompiled jar in its `lib` directory.
 lazy val worksheetReplInterfaceImpls =
@@ -244,6 +245,7 @@ lazy val worksheetReplInterfaceImpls =
         unmanagedJars.map(f => (f, s"worksheet-repl-interface/${f.getName}"))
       }
     )
+    .settings(compilationCacheSettings)
 
 lazy val structureView = newProject("structure-view", file("scala/structure-view"))
   .dependsOn(scalaImpl % "test->test;compile->compile")
