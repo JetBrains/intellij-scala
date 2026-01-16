@@ -3,7 +3,7 @@ import sbt.{URL, url}
 
 import scala.collection.mutable
 import scala.util.Try
-import scala.xml.{Elem, XML}
+import scala.xml.{Elem, Node, XML}
 
 // Contains some duplicated code from <ultimate root>/project/teamcity/TeamCityAPI.scala.
 // This is because I cannot get the build to work when I try to reference definitions within this object
@@ -87,18 +87,29 @@ object TeamCityCommunityUtil {
   private def fetchTCApi(restUrl: String): Elem =
     XML.load(url(restUrl))
 
-  def fetchPreviousTestFailures(): Set[String] = {
+  case class PreviousTests(failing: Set[String], passing: Set[String])
+  def fetchPreviousTests(): PreviousTests = {
     val prevBuildIds = fetchPreviousBuildIds()
-    // We want only builds that ran through completely and still failed.
-    // Canceled builds would have the status "UNKNOWN".
-    // We have to set defaultFilter:false, so that we get builds from branches other than the main branch
-    println(prevBuildIds)
-    prevBuildIds
-      .map(buildId => fetchTCApi(s"$RestBaseUrl/testOccurrences?locator=build:(id:$buildId),status:FAILURE,count:1000"))
-      .ensuring(_.forall(_.attribute("nextHref").isEmpty))
-      .map(failures => (failures \\ "testOccurrence").map(failure => failure \@ "name").toSet)
-      .reduceOption(_ union _) // return all tests that failed in *all* retrieved builds
+    println(s"Previous build Ids: [${prevBuildIds.mkString(", ")}]")
+    val results = prevBuildIds
+      .map(buildId => fetchTCApi(s"$RestBaseUrl/testOccurrences?locator=build:(id:$buildId),count:100000"))
+      .ensuring(_.forall(_.attribute("nextHref").isEmpty)) // check that there are not more than 100000 test occurrences
+      .map { tests =>
+        val (passing, failing) =
+          (tests \\ "testOccurrence")
+            .partition(test => (test \@ "status") == "SUCCESS")
+        def name(node: Node): String = node \@ "name"
+        (passing.map(name).toSet, failing.map(name).toSet)
+      }
+
+    val (passing, failing) =
+      results
+      .reduceOption[(Set[String], Set[String])] {
+        case ((aPassing, aFailing), (bPassing, bFailing)) =>
+          (aPassing union bPassing, aFailing intersect bFailing)
+      } // return all tests that failed in *all* retrieved builds
       .getOrElse(throw new Exception(s"No previously failing test build found"))
+    PreviousTests(failing, passing)
   }
 
   def fetchPreviousBuildIds(): Seq[Long] = {
@@ -113,13 +124,17 @@ object TeamCityCommunityUtil {
 
     println(s"Fetching previous build ids for buildType=$buildType, buildNumber=$buildNumber")
 
+    // We want only builds that ran through completely and still failed.
+    // Canceled builds would have the status "UNKNOWN".
+    // We have to set defaultFilter:false, so that we get builds from branches other than the main branch
     val builds = new BuildLocator()
       .buildTypeId(buildType)
       .number(buildNumber)
       .failedToStart(false)
       .defaultFilter(false)
-      .count(1000)
+      .count(1000) // only get a thousand builds... we expect to get at most 10 or so.
       .getXml
+    // If more builds are returned nextHref will be set and we'll fail here
     assert(builds.attribute("nextHref").isEmpty)
     (builds \\ "build")
       .filter(build => (build \@ "state") == "finished")
@@ -127,4 +142,19 @@ object TeamCityCommunityUtil {
       .map(_.toLong)
       .toList
   }
+
+
+  /**
+   * Escapes a string that should occur between the ' in a tc service message.
+   * {{{
+   *  '       -> |'
+   *  [       -> |[
+   *  ]       -> |]
+   *  |       -> ||
+   *  newline -> |n
+   * }}}
+   */
+  def escapeTCServiceMessageString(str: String): String =
+    str.replaceAll(raw"([|'\[\]])", "|$1")
+      .replaceAll("\n", "|n")
 }
