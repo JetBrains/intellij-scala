@@ -45,6 +45,8 @@ Global / intellijAttachSources := true
 // Muted lint warnings for keys used by the IDE, but not by sbt (coming from sbt-ide-settings)
 Global / excludeLintKeys ++= Set(idePackagePrefix, ideSkipProject, ideExcludedDirectories, ideaConfigOptions, intellijPlugins)
 
+ThisBuild / cleanAll := Common.cleanAllTask(None).value
+
 val definedTestsScopeFilter: ScopeFilter =
   ScopeFilter(inDependencies(scalaCommunity, includeRoot = false), inConfigurations(Test))
 
@@ -110,7 +112,6 @@ lazy val scalaCommunity: sbt.Project =
       ),
       // all sub-project tests need to be run within main project's classpath
       Test / definedTests := definedTests.all(definedTestsScopeFilter).value.flatten,
-      cleanAll := Common.cleanAllTask(None).value
     )
 
 lazy val pluginXml = newProject("pluginXml", file("pluginXml"))
