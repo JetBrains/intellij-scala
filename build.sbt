@@ -185,7 +185,7 @@ lazy val uast = newProject(
   scalaImpl % "test->test;compile->compile",
 ).settings(
   intellijPlugins += "JUnit".toPlugin,
-  resolvers += Versions.intellijRepository_ForManagedIntellijDependencies,
+  resolvers += Versions.IntellijTestFrameworkArtifactsResolver,
   libraryDependencies += Dependencies.intellijUastTestFramework % Test
 )
 

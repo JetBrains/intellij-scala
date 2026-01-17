@@ -20,7 +20,7 @@ object Versions {
    * ATTENTION: check the comment in [[Common.newProjectWithKotlin]] when updating this version.
    *            update `since-build` in plugin.xml if there are binary incompatible changes after update
    */
-  val intellijVersion = "261.18108"
+  val intellijVersion = "261.17801.41"
 
   def isNightlyIntellijVersion: Boolean = intellijVersion.count(_ == '.') == 1
 
@@ -89,21 +89,19 @@ object Versions {
   // If this value gets initialized to `Some(resolver)` then it needs to be used and the versions of the test framework
   // artifacts need to be equal to `intellijVersion`.
   // Otherwise, they need to be equal to `intellijVersion_ForManagedIntellijDependencies`.
-  private val TeamCityArtifactsResolver: Option[Resolver] =
-    if (intellijRepository_ForManagedIntellijDependencies == IntellijRepositories.Nightly) {
-      // We're dealing with an `intellijVersion` which has test framework dependencies which need to be resolved
-      // from a nightly snapshot Maven repository. SNAPSHOT releases can be overwritten by newer releases, which end
-      // up breaking our build. To reduce the possibility of this, we add a special resolver which is able to find
-      // the exact test framework dependencies that match the exact nightly `intellijVersion`.
-      TeamCityCommunityUtil.getBuildIdForVersionSafe(intellijVersion)
-        .toOption
-        .flatten
-        .map { buildId =>
-          val mavenArtifactsUrl = s"https://buildserver.labs.intellij.net/guestAuth/app/rest/builds/id:$buildId/artifacts/content/maven-artifacts"
-          val mavenArtifactPatterns = "[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"
-          Resolver.url("teamcity-artifacts", url(mavenArtifactsUrl))(Patterns(isMavenCompatible = true, artifactPatterns = mavenArtifactPatterns))
-        }
-    } else None
+  private val TeamCityArtifactsResolver: Option[Resolver] = {
+    // At the moment, some dependencies seem to not yet be published to public Maven repositories which can be
+    // resolved outside the internal JetBrains network.
+    // TODO: Revisit for 261 EAP 2.
+    TeamCityCommunityUtil.getBuildIdForVersionSafe(intellijVersion)
+      .toOption
+      .flatten
+      .map { buildId =>
+        val mavenArtifactsUrl = s"https://buildserver.labs.intellij.net/guestAuth/app/rest/builds/id:$buildId/artifacts/content/maven-artifacts"
+        val mavenArtifactPatterns = "[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"
+        Resolver.url("teamcity-artifacts", url(mavenArtifactsUrl))(Patterns(isMavenCompatible = true, artifactPatterns = mavenArtifactPatterns))
+      }
+  }
 
   val IntellijTestFrameworkArtifactsResolver: Resolver =
     TeamCityArtifactsResolver.getOrElse(intellijRepository_ForManagedIntellijDependencies)
@@ -219,7 +217,7 @@ object Dependencies {
 
   // The uast-test-framework can currently only be resolved from the SNAPSHOTS repository. It is not being published for every intellijVersion yet.
   // This will hopefully change soon.
-  val intellijUastTestFramework: ModuleID = ("com.jetbrains.intellij.platform" % "uast-test-framework" % Versions.intellijVersion_ForManagedIntellijDependencies).notTransitive()
+  val intellijUastTestFramework: ModuleID = ("com.jetbrains.intellij.platform" % "uast-test-framework" % IntellijTestFrameworkVersion).notTransitive()
 
   val intellijTeamCityTestFramework: ModuleID = ("com.jetbrains.intellij.platform" % "test-framework-team-city" % IntellijTestFrameworkVersion).notTransitive()
   val slf4jApi: ModuleID = "org.slf4j" % "slf4j-api" % "2.0.17" // Necessary as a test dependency for the "external-system-test-framework".
