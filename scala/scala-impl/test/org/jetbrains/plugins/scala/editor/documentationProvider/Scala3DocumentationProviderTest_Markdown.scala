@@ -227,6 +227,8 @@ class Scala3DocumentationProviderTest_Markdown
     doGenerateRenderedDocBodyTest(
       s"""
          |/**
+         | * [[]]
+         | * [[ ]]
          | * [[Foo]]
          | * [[ Foo]]
          | * [[Foo ]]
@@ -238,7 +240,9 @@ class Scala3DocumentationProviderTest_Markdown
          |class ${|}Foo
          |""".stripMargin,
       """
-        |<div class='content'><p><a href="psi_element://Foo"><code>Foo</code></a>
+        |<div class='content'><p><a href="psi_element://"><code></code></a>
+        |<a href="psi_element://"><code> </code></a>
+        |<a href="psi_element://Foo"><code>Foo</code></a>
         |<a href="psi_element://Foo"><code> Foo</code></a>
         |<a href="psi_element://Foo"><code>Foo </code></a>
         |<a href="psi_element://Foo"><code>Alt text</code></a>
