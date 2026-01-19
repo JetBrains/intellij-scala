@@ -1034,7 +1034,8 @@ ScalaFile
                     ScPsiDocToken(DOC_COMMENT_DATA)(' string contains a backslash (')
                     DocSyntaxElement 8
                       ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
-                      ScPsiDocToken(DOC_MONOSPACE_TAG 8)('\`')
+                      ScPsiDocToken(DOC_COMMENT_DATA)('\')
+                      ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
                     ScPsiDocToken(DOC_COMMENT_DATA)(') character')
                     ScPsiDocToken(DOC_WHITESPACE)('\n   ')
                     ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
@@ -1713,7 +1714,8 @@ ScalaFile
                     ScPsiDocToken(DOC_COMMENT_DATA)(' string contains a backslash (')
                     DocSyntaxElement 8
                       ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
-                      ScPsiDocToken(DOC_MONOSPACE_TAG 8)('\`')
+                      ScPsiDocToken(DOC_COMMENT_DATA)('\')
+                      ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
                     ScPsiDocToken(DOC_COMMENT_DATA)(') character')
                     ScPsiDocToken(DOC_WHITESPACE)('\n   ')
                     ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
@@ -3243,7 +3245,8 @@ ScalaFile
                 ScPsiDocToken(DOC_COMMENT_DATA)('An exception that is thrown if a string contains a backslash (')
                 DocSyntaxElement 8
                   ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
-                  ScPsiDocToken(DOC_MONOSPACE_TAG 8)('\`')
+                  ScPsiDocToken(DOC_COMMENT_DATA)('\')
+                  ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
                 ScPsiDocToken(DOC_COMMENT_DATA)(') character')
                 ScPsiDocToken(DOC_WHITESPACE)('\n   ')
                 ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
