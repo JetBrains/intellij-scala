@@ -4,7 +4,9 @@ import com.intellij.testIntegration.TestFramework
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestFramework.TestFrameworkSetupInfo
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestFramework, TestFrameworkSetupSupportBase}
 
-final class MUnitTestFramework extends AbstractTestFramework with TestFrameworkSetupSupportBase {
+final class MUnitTestFramework extends AbstractTestFramework
+  with TestFrameworkSetupSupportBase
+  with MUnitTestFrameworkMarker {
 
   override def baseSuitePaths: Seq[String] = Seq("munit.Suite")
 

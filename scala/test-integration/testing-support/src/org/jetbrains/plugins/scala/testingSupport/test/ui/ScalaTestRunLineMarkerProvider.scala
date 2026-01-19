@@ -19,14 +19,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestFramework
-import org.jetbrains.plugins.scala.testingSupport.test.munit.{MUnitTestLocationsFinder, MUnitUtils}
+import org.jetbrains.plugins.scala.testingSupport.test.munit.{MUnitTestFrameworkMarker, MUnitTestLocationsFinder, MUnitUtils}
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.{ScalaTestTestFramework, ScalaTestTestLocationsFinder}
 import org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2TestFramework
 import org.jetbrains.plugins.scala.testingSupport.test.utest.UTestTestFramework
 
 import javax.swing.Icon
 import scala.jdk.CollectionConverters.IterableHasAsScala
-import scala.util.Try
 
 /**
  * ATTENTION: despite the name "ScalaTest*" this line marker provider is applicable for all test frameworks
@@ -129,7 +128,7 @@ class ScalaTestRunLineMarkerProvider extends TestRunLineMarkerProvider {
 
     scalaFramework.flatMap {
       case _: ScalaTestTestFramework => infoForScalaTestMethodRef(ref, definition)
-      case IsMunitTestFrameworkViaReflection() => infoForMUnitMethodRef(ref, definition)
+      case _: MUnitTestFrameworkMarker => infoForMUnitMethodRef(ref, definition)
       case _ => None
     }
   }
@@ -177,15 +176,6 @@ class ScalaTestRunLineMarkerProvider extends TestRunLineMarkerProvider {
     if (locations.contains(obj))
       Some(buildLineInfo("", obj.getProject, isClass = false))
     else None
-  }
-
-  private object IsMunitTestFrameworkViaReflection {
-    private final val MunitTestFrameworkClassName = "org.jetbrains.plugins.scala.testingSupport.test.munit.MUnitTestFramework"
-
-    def unapply(framework: AbstractTestFramework): Boolean =
-      Try(Class.forName(MunitTestFrameworkClassName))
-        .toOption
-        .exists(_.isInstance(framework))
   }
 
   private def infoForMUnitMethodRef(ref: ScReferenceExpression, definition: ScTypeDefinition): Option[RunLineMarkerContributor.Info] = {
