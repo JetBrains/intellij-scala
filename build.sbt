@@ -70,7 +70,7 @@ lazy val scalaCommunity: sbt.Project =
       scalaCompilerPluginTests % "test->test;compile->compile",
       debugger % "test->test;compile->compile",
       testingSupport % "test->test;compile->compile",
-      munitTestingSupport % "test->test;compile->compile",
+      testingSupportMunit % "test->test;compile->compile",
       gradleIntegration % "test->test;compile->compile",
       i18nIntegration % "test->test;compile->compile",
       intelliLangIntegration % "test->test;compile->compile",
@@ -637,13 +637,19 @@ lazy val testingSupport =
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.testing-support")
     )
 
-lazy val munitTestingSupport = newProject("munit-testing-support", file("scala/test-integration/munit-testing-support"))
+// The MUnit support requires the JUnit plugin to be installed and enabled. For this reason, MUnit support is
+// contained within a separate module such that other test frameworks can be run without having the JUnit plugin
+// enabled. At the moment, we do not foresee that other frameworks need to be separated into their own modules.
+// This is why the module is put in a same-level directory as `testing-support` to avoid further filesystem nesting.
+// If we split out more modules, we could move all of them under the `testing-support` directory, e.g.
+// `testing-support/scalatest`, `testing-support/specs2`, `testing-support/munit`, etc.
+lazy val testingSupportMunit = newProject("testing-support-munit", file("scala/test-integration/testing-support-munit"))
   .dependsOn(
     testingSupport % "test->test;compile->compile"
   )
   .settings(
     intellijPlugins += "JUnit".toPlugin,
-    packageMethod := PackagingMethod.PluginModule("scalaCommunity.munit-testing-support")
+    packageMethod := PackagingMethod.PluginModule("scalaCommunity.testing-support.munit")
   )
 
 lazy val testRunners: Project =
