@@ -46,7 +46,6 @@ public interface ScalaDocTokenType {
   ScalaDocSyntaxElementType DOC_SUBSCRIPT_TAG = new ScalaDocSyntaxElementType("DOC_SUBSCRIPT_TAG", 1 << 5);
   ScalaDocSyntaxElementType DOC_LINK_TAG = new ScalaDocSyntaxElementType("DOC_LINK_TAG", 1 << 6); // rename to DOC_LINK_START_TAG
   ScalaDocSyntaxElementType DOC_HTTP_LINK_TAG = new ScalaDocSyntaxElementType("DOC_HTTP_LINK_TAG", 1 << 7);
-  ScalaDocSyntaxElementType DOC_STRIKETHROUGH_TAG = new ScalaDocSyntaxElementType("DOC_STRIKETHROUGH_TAG", 1 << 8);
   ScalaDocSyntaxElementType DOC_LINK_CLOSE_TAG = new ScalaDocSyntaxElementType("DOC_LINK_CLOSE_TAG", 0); // TODO: rename to DOC_LINK_END
   // TODO: something is wrong with header parsing.
   //  everything between `===` ===header =content= 42=== should be a content `header =content= 42`
@@ -55,6 +54,7 @@ public interface ScalaDocTokenType {
   //  VALID_DOC_HEADER should be renamed to DOC_HEADER_START after this is fixed
   ScalaDocSyntaxElementType VALID_DOC_HEADER = new ScalaDocSyntaxElementType("VALID_DOC_HEADER", 1 << 8);
   ScalaDocSyntaxElementType DOC_HEADER = new ScalaDocSyntaxElementType("DOC_HEADER", 1 << 8);
+ScalaDocSyntaxElementType DOC_STRIKETHROUGH_TAG = new ScalaDocSyntaxElementType("DOC_STRIKETHROUGH_TAG", 1 << 9);
 
   // TODO-md-emi: add PSI elements correspond to these element types.
   // Markdown-specific element types
