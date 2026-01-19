@@ -42,6 +42,9 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
   public boolean SHOW_IMPORT_POPUP_IMPLICITS = true;
   public boolean SHOW_IMPORT_POPUP_EXTENSION_METHODS = true;
 
+  // Automatic renames
+  public boolean RENAME_OVERLOADS = true;
+
   @ReportValue
   public int ADD_IMPORTS_ON_PASTE = CodeInsightSettings.ASK;
   public boolean RENAME_SEARCH_IN_COMMENTS_AND_STRINGS = false;

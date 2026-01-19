@@ -8,8 +8,10 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtil, VirtualFile}
 import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
-import com.intellij.refactoring.rename.{RenameProcessor, RenamePsiElementProcessor}
+import com.intellij.refactoring.RefactoringFactory
+import com.intellij.refactoring.rename.RenamePsiElementProcessor
 import com.intellij.testFramework.{PlatformTestUtil, PsiTestUtil}
+import org.hamcrest.MatcherAssert.assertThat
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -30,12 +32,15 @@ abstract class ScalaRenameTestBase extends ScalaLightCodeInsightFixtureTestCase 
   protected val folderPath: Path = refactoringCommonTestDataRoot / "rename3"
 
   private def rootBefore: Path = folderPath / getTestName(true) / "before"
+
   private def rootAfter: Path = folderPath / getTestName(true) / "after"
 
-  protected def doTest(newName: String = "NameAfterRename"): Unit = {
+  protected def doTest(newName: String = "NameAfterRename", withAutoRenames: Boolean = false): Unit = {
     val caretPositions = findCaretsAndRemoveMarkers(filesBefore)
     PsiDocumentManager.getInstance(getProject).commitAllDocuments()
     myEditors = createEditors(filesBefore)
+
+    assertThat("No caret positions found in test case. Use `/*caret*/`.", caretPositions.nonEmpty)
 
     for {
       CaretPosition(vFile, offset) <- caretPositions
@@ -44,13 +49,13 @@ abstract class ScalaRenameTestBase extends ScalaLightCodeInsightFixtureTestCase 
       val editor = myEditors(vFile)
       editor.getCaretModel.moveToOffset(offset)
 
-      val oldName = doRename(editor, file, newName)
+      val oldName = doRename(editor, file, newName, withAutoRenames)
 
       val dirAfter = LocalFileSystem.getInstance.refreshAndFindFileByNioFile(rootAfter)
       PlatformTestUtil.assertDirectoriesEqual(dirAfter, myDirectory)
 
       //rename back for next caret position
-      doRename(editor, file, oldName)
+      doRename(editor, file, oldName, withAutoRenames)
     }
   }
 
@@ -69,7 +74,7 @@ abstract class ScalaRenameTestBase extends ScalaLightCodeInsightFixtureTestCase 
         val builder = Seq.newBuilder[Int]
         val length = caretMarker.length
         var occ = text.indexOf(caretMarker)
-        while(occ > 0) {
+        while (occ > 0) {
           builder += occ
           text = text.substring(0, occ) + text.substring(occ + length)
           occ = text.indexOf(caretMarker)
@@ -109,7 +114,7 @@ abstract class ScalaRenameTestBase extends ScalaLightCodeInsightFixtureTestCase 
         .toSeq
   }
 
-  private def doRename(editor: Editor, file: PsiFile, newName: String): String = {
+  private def doRename(editor: Editor, file: PsiFile, newName: String, withAutoRenames: Boolean): String = {
     PsiDocumentManager.getInstance(getProject).commitAllDocuments()
     FileDocumentManager.getInstance.saveAllDocuments()
 
@@ -124,7 +129,11 @@ abstract class ScalaRenameTestBase extends ScalaLightCodeInsightFixtureTestCase 
       val subst = RenamePsiElementProcessor.forElement(element).substituteElementToRename(element, getEditor)
       if (subst != null) {
         oldName = ScalaNamesUtil.scalaName(subst)
-        new RenameProcessor(getProject, subst, newName, searchInComments, false).run()
+        val renameRefactoring = RefactoringFactory.getInstance(getProject).createRename(subst, newName, searchInComments, false)
+        if (withAutoRenames) {
+          renameRefactoring.respectEnabledAutomaticRenames()
+        }
+        renameRefactoring.run()
       }
     })
 
