@@ -160,7 +160,7 @@ object ScalaBundleSorting {
       bundleMessagesRelativePath = "TestingSupportBundle.properties"
     ),
     ModuleWithBundleInfo(
-      rootPath = scalaModDir / "test-integration/munit-testing-support",
+      rootPath = scalaModDir / "test-integration/testing-support-munit",
       bundleMessagesRelativePath = "MUnitTestingSupportBundle.properties"
     ),
     ModuleWithBundleInfo(

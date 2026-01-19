@@ -52,7 +52,7 @@
         <module name="scalaCommunity.bsp-terminal" />
 
         <module name="scalaCommunity.testing-support" />
-        <module name="scalaCommunity.munit-testing-support" />
+        <module name="scalaCommunity.testing-support.munit" />
         <module name="scalaCommunity.scala-cli" />
         <module name="scalaCommunity.worksheet" />
         <module name="scalaCommunity.debugger" />
