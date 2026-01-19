@@ -4,9 +4,10 @@ import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
 import org.jetbrains.plugins.scala.testingSupport.ScalaTestingTestCase
+import org.jetbrains.plugins.scala.testingSupport.junit.JUnitIntegrationTestConfigAssertions
 import org.jetbrains.plugins.scala.testingSupport.test.munit.MUnitConfiguration
 
-abstract class MUnitTestCase extends ScalaTestingTestCase {
+abstract class MUnitTestCase extends ScalaTestingTestCase with JUnitIntegrationTestConfigAssertions {
 
   def munitVersion: String
 

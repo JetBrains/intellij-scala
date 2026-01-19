@@ -14,9 +14,9 @@ final class MUnitConfigurationType extends ConfigurationType {
 
   override def getId: String = "MUnitRunConfiguration"
 
-  override def getDisplayName: String = TestingSupportBundle.message("munit.config.display.name")
+  override def getDisplayName: String = MUnitTestingSupportBundle.message("munit.config.display.name")
 
-  override def getConfigurationTypeDescription: String = TestingSupportBundle.message("munit.config.description")
+  override def getConfigurationTypeDescription: String = MUnitTestingSupportBundle.message("munit.config.description")
 
   override def getHelpTopic: String = super.getHelpTopic
 
@@ -30,4 +30,3 @@ object MUnitConfigurationType {
   def apply(): MUnitConfigurationType =
     ConfigurationTypeUtil.findConfigurationType(classOf[MUnitConfigurationType])
 }
-

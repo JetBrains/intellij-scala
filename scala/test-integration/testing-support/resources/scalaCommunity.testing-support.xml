@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <idea-plugin visibility="public">
     <dependencies>
-        <plugin id="JUnit"/>
         <module name="scalaCommunity.bsp"/>
         <module name="scalaCommunity.compiler-integration"/>
     </dependencies>
@@ -24,17 +23,14 @@
         <testFramework implementation="org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2TestFramework" order="first"/>
         <testFramework implementation="org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestTestFramework" order="first"/>
         <testFramework implementation="org.jetbrains.plugins.scala.testingSupport.test.utest.UTestTestFramework" order="first"/>
-        <testFramework implementation="org.jetbrains.plugins.scala.testingSupport.test.munit.MUnitTestFramework"/>
 
         <configurationType implementation="org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2ConfigurationType"/>
         <configurationType implementation="org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestConfigurationType"/>
         <configurationType implementation="org.jetbrains.plugins.scala.testingSupport.test.utest.UTestConfigurationType"/>
-        <configurationType implementation="org.jetbrains.plugins.scala.testingSupport.test.munit.MUnitConfigurationType"/>
 
         <runConfigurationProducer implementation="org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2ConfigurationProducer"/>
         <runConfigurationProducer implementation="org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestConfigurationProducer"/>
         <runConfigurationProducer implementation="org.jetbrains.plugins.scala.testingSupport.test.utest.UTestConfigurationProducer"/>
-        <runConfigurationProducer implementation="org.jetbrains.plugins.scala.testingSupport.test.munit.MUnitConfigurationProducer"/>
 
         <bspEnvironmentRunnerExtension implementation="org.jetbrains.plugins.scala.testingSupport.bsp.BspEnvironmentScalaTestRunnerExtension"/>
     </extensions>

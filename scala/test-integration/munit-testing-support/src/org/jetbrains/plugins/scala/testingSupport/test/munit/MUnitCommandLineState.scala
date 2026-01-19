@@ -18,12 +18,6 @@ import org.jetbrains.plugins.scala.testingSupport.test.utils.RawProcessOutputDeb
 
 import scala.jdk.CollectionConverters.SeqHasAsJava
 
-/**
- * @todo We reuse [[com.intellij.rt.junit.JUnitStarter]] so we depend on bundled JUnit plugin at runtime.<br>
- *       We should extract munit support to a separate module (SCL-13080) or even plugin.<br>
- *       Munit support should automatically be disabled when JUnit plugin is disabled manually<br>
- *       (though it's not a often case)
- */
 private class MUnitCommandLineState(
   conf: MUnitConfiguration,
   env: ExecutionEnvironment,
@@ -47,7 +41,7 @@ private class MUnitCommandLineState(
     } catch {
       case noCassDef: NoClassDefFoundError if noCassDef.getMessage.toLowerCase.contains("junit") =>
         Log.warn(noCassDef)
-        throw new ExecutionException(TestingSupportBundle.message("ensure.junit.plugin.is.enabled"))
+        throw new ExecutionException(MUnitTestingSupportBundle.message("ensure.junit.plugin.is.enabled"))
     }
   }
 
@@ -82,7 +76,7 @@ private class MUnitCommandLineState(
 
     import exceptions._
     if (suitesToTestsMap.isEmpty)
-      throw configurationException(TestingSupportBundle.message("munit.command.line.state.no.tests.found"))
+      throw configurationException(MUnitTestingSupportBundle.message("munit.command.line.state.no.tests.found"))
 
     val isSingleClass = suitesToTestsMap.size == 1 && suitesToTestsMap.head._2.isEmpty
     if (isSingleClass) {
