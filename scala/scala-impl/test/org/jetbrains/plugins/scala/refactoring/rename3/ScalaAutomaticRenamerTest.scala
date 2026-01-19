@@ -9,6 +9,8 @@ final class ScalaAutomaticRenamerTest extends ScalaRenameTestBase {
 
   def testAutomaticRenamer(): Unit = doTest(newName = "Bar", withAutoRenames = true)
 
+  def testAutomaticRenamerJavaClass(): Unit = doTest(newName = "Bar", withAutoRenames = true)
+
   def testAutomaticRenamerJavaParameter(): Unit = doTest(newName = "aa", withAutoRenames = true)
 
   def testAutomaticRenamerOverloads(): Unit = doTest(newName = "bar", withAutoRenames = true)
