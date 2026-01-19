@@ -45,6 +45,7 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
   // Automatic renames
   public boolean RENAME_OVERLOADS = true;
   public boolean RENAME_PARAMETER_IN_HIERARCHY = true;
+  public boolean RENAME_VARIABLES = true;
 
   @ReportValue
   public int ADD_IMPORTS_ON_PASTE = CodeInsightSettings.ASK;

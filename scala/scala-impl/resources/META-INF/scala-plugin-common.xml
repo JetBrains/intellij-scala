@@ -399,6 +399,7 @@
         <platform.backend.documentation.psiTargetProvider order="first" implementation="org.jetbrains.plugins.scala.editor.documentationProvider.ScalaPsiDocumentationTargetProvider"/>
         <automaticRenamerFactory implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.AutomaticOverloadsRenamerFactory"/>
         <automaticRenamerFactory implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.AutomaticParameterRenamerFactory" order="first"/>
+        <automaticRenamerFactory implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.AutomaticVariableRenamerFactory"/>
         <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaMethodProcessor" order="first"/>
         <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.PrepareRenameScalaMethodProcessor" order="last"/>
         <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaPackageProcessor" order="first"/>
