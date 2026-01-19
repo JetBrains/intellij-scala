@@ -241,17 +241,18 @@ private class ScaladocMarkdownParsing(builder: MkBuilder, content: String) exten
     val textOffset = childIt.currentStartOffset
     val text = nodeText(childIt.current)
     val isHttpLink = text.startsWith("http:") || text.startsWith("https:")
+    childIt.dropRest()
 
     val (elementType, refTegType) =
       if (isHttpLink) (ScalaDocTokenType.DOC_HTTP_LINK_TAG, ScalaDocTokenType.DOC_HTTP_LINK_VALUE)
       else (ScalaDocTokenType.DOC_LINK_TAG, ScalaDocElementTypes.SCALA_DOC_REFERENCE_LINK)
 
-    childIt.dropRest()
-
     ensureBuilderInPosition(textOffset, elementType) // mark [[
-    ensureBuilderInPosition(textOffset + text.length, refTegType) // mark the link/reference
-    if (builder.getTokenType == ScalaDocTokenType.DOC_WHITESPACE) {
-      builder.advanceLexer()
+    if (text != "]") {
+      ensureBuilderInPosition(textOffset + text.length, refTegType) // mark the link/reference
+      if (builder.getTokenType == ScalaDocTokenType.DOC_WHITESPACE) {
+        builder.advanceLexer()
+      }
     }
     ensureBuilderInPosition(treeIt.currentEndOffset - 2, ScalaDocTokenType.DOC_COMMENT_DATA) // mark the link text
     ensureBuilderInPosition(treeIt.currentEndOffset, ScalaDocTokenType.DOC_LINK_CLOSE_TAG) // mark ]]

@@ -2273,6 +2273,7 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
   def test_ref_link(): Unit = checkTree(
     """
       |/**
+      | * [[]]
       | * [[ref.ref]]
       | * [[ref.ref Some alt text]]
       | * [[ ref?]]
@@ -2290,6 +2291,12 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |    ScDocParagraph
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      DocSyntaxElement 64
+      |        ScPsiDocToken(DOC_LINK_TAG 64)('[[')
+      |        ScPsiDocToken(DOC_LINK_CLOSE_TAG 0)(']]')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      DocSyntaxElement 64
       |        ScPsiDocToken(DOC_LINK_TAG 64)('[[')
