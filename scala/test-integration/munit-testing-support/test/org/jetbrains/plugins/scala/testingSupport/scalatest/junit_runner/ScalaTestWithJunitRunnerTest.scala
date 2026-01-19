@@ -6,6 +6,7 @@ import com.intellij.execution.testframework.sm.runner.states.TestStateInfo.Magni
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
 import org.jetbrains.plugins.scala.configurations.RunConfigCreationContext
+import org.jetbrains.plugins.scala.testingSupport.junit.JUnitIntegrationTestConfigAssertions
 import org.jetbrains.plugins.scala.testingSupport.scalatest._
 import org.jetbrains.plugins.scala.testingSupport.scalatest.base.ScalaTestTestCase
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestRunConfiguration
@@ -13,7 +14,8 @@ import org.jetbrains.plugins.scala.util.RevertableChange
 
 class ScalaTestWithJunitRunnerTest extends ScalaTestTestCase
   with WithScalaTest_3_2
-  with WithScala_2_13 {
+  with WithScala_2_13
+  with JUnitIntegrationTestConfigAssertions {
 
   override protected def setUp(): Unit = {
     super.setUp()

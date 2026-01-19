@@ -7,7 +7,7 @@ import com.intellij.execution.testframework.AbstractTestProxy
 import org.jetbrains.plugins.scala.testingSupport.ScalaTestingTestCase
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
-abstract class ScalaJUnitTestingTestCaseBase extends ScalaTestingTestCase {
+abstract class ScalaJUnitTestingTestCaseBase extends ScalaTestingTestCase with JUnitIntegrationTestConfigAssertions {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
 

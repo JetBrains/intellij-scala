@@ -70,6 +70,7 @@ lazy val scalaCommunity: sbt.Project =
       scalaCompilerPluginTests % "test->test;compile->compile",
       debugger % "test->test;compile->compile",
       testingSupport % "test->test;compile->compile",
+      munitTestingSupport % "test->test;compile->compile",
       gradleIntegration % "test->test;compile->compile",
       i18nIntegration % "test->test;compile->compile",
       intelliLangIntegration % "test->test;compile->compile",
@@ -611,9 +612,17 @@ lazy val testingSupport =
       compilerIntegration % "test->test;compile->compile"
     )
     .settings(
-      intellijPlugins += "JUnit".toPlugin,
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.testing-support")
     )
+
+lazy val munitTestingSupport = newProject("munit-testing-support", file("scala/test-integration/munit-testing-support"))
+  .dependsOn(
+    testingSupport % "test->test;compile->compile"
+  )
+  .settings(
+    intellijPlugins += "JUnit".toPlugin,
+    packageMethod := PackagingMethod.PluginModule("scalaCommunity.munit-testing-support")
+  )
 
 lazy val testRunners: Project =
   newProject("test-runners", file("scala/test-integration/test-runners"))

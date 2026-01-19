@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.testingSupport
 
 import com.intellij.execution.RunnerAndConfigurationSettings
-import com.intellij.execution.junit.JUnitConfiguration
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.{AllInPackageTestData, ClassTestData, SingleTestData}
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, SearchForTest}
 import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions.ObjectOps
@@ -26,8 +25,6 @@ trait IntegrationTestConfigAssertions {
     val config = configAndSettings.getConfiguration
 
     val actualConfigPackage = config match {
-      case c: JUnitConfiguration =>
-        c.getPersistentData.getPackageName
       case c: AbstractTestRunConfiguration =>
         c.testConfigurationData.assertInstanceOf[AllInPackageTestData].testPackagePath
     }
