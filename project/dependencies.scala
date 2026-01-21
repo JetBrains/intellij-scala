@@ -20,7 +20,7 @@ object Versions {
    * ATTENTION: check the comment in [[Common.newProjectWithKotlin]] when updating this version.
    *            update `since-build` in plugin.xml if there are binary incompatible changes after update
    */
-  val intellijVersion = "253.29346.240"
+  val intellijVersion = "253.30387.20"
 
   def isNightlyIntellijVersion: Boolean = intellijVersion.count(_ == '.') == 1
 
@@ -61,7 +61,7 @@ object Versions {
    * However according to Peter Gromov it shouldn't be important for us and we can use maven dependencies.
    * Those custom distributions usually contain performance fixes and not the logic.
    */
-  val LanguageToolVersion = "6.7.19"
+  val LanguageToolVersion = "6.7.20"
 
   /**
    * Potentially automate the updating of this version in the future.
