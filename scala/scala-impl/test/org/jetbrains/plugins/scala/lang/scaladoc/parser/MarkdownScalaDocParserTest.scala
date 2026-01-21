@@ -277,6 +277,44 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
+  def test_code_fence_after_text(): Unit = checkTree(
+    """
+      |/**
+      | * Code block example: ```
+      | * val x = 42
+      | * println(x)
+      | * ```
+      | */
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  DocComment
+      |    ScPsiDocToken(DOC_COMMENT_START)('/**')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    ScDocParagraph
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      ScPsiDocToken(DOC_COMMENT_DATA)('Code block example:')
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |    InnerCodeElement
+      |      ScPsiDocToken(DOC_INNER_CODE_TAG)('```')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_INNER_CODE)(' val x = 42')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_INNER_CODE)(' println(x)')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_INNER_CODE)(' ')
+      |      ScPsiDocToken(DOC_INNER_CLOSE_CODE_TAG)('```')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_END)('*/')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
   // Code blocks with {{{ and }}} fences
   def test_code_block_fences(): Unit = checkTree(
     """
@@ -318,7 +356,7 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
-  def test_no_code_fence_in_the_middle(): Unit = checkTree(
+  def test_code_fence_in_the_middle(): Unit = checkTree(
     """
       |/**
       | * No code block: {{{
@@ -336,20 +374,142 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |    ScDocParagraph
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
-      |      ScPsiDocToken(DOC_COMMENT_DATA)('No code block: {{{')
+      |      ScPsiDocToken(DOC_COMMENT_DATA)('No code block:')
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |    InnerCodeElement
+      |      ScPsiDocToken(DOC_INNER_CODE_TAG)('{{{')
       |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
-      |      ScPsiDocToken(DOC_COMMENT_DATA)('val x = 42')
+      |      ScPsiDocToken(DOC_INNER_CODE)(' val x = 42')
       |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
-      |      ScPsiDocToken(DOC_COMMENT_DATA)('println(x)')
+      |      ScPsiDocToken(DOC_INNER_CODE)(' println(x)')
       |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_INNER_CODE)(' ')
+      |      ScPsiDocToken(DOC_INNER_CLOSE_CODE_TAG)('}}}')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_END)('*/')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  def test_mixed_code_fence(): Unit = checkTree(
+    """
+      |/**
+      | * A {{{ B ``` C ``` D }}} E
+      | */
+      |/**
+      | * A {{{ B ``` C }}} D
+      | */
+      |/**
+      | * A ``` B {{{ C }}} D ``` E
+      | */
+      |/**
+      | * A ```
+      | * B {{{ C }}} D ``` E
+      | */
+      |/**
+      | * ```
+      | * some code {{{ here }}}
+      | * ```
+      | */
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  DocComment
+      |    ScPsiDocToken(DOC_COMMENT_START)('/**')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    ScDocParagraph
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
-      |      ScPsiDocToken(DOC_COMMENT_DATA)('}}}')
+      |      ScPsiDocToken(DOC_COMMENT_DATA)('A')
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |    InnerCodeElement
+      |      ScPsiDocToken(DOC_INNER_CODE_TAG)('{{{')
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      ScPsiDocToken(DOC_INNER_CODE)('B ')
+      |      ScPsiDocToken(DOC_INNER_CODE)('```')
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      ScPsiDocToken(DOC_INNER_CODE)('C ')
+      |      ScPsiDocToken(DOC_INNER_CODE)('``` D }}} E')
       |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_END)('*/')
+      |  PsiWhiteSpace('\n')
+      |  DocComment
+      |    ScPsiDocToken(DOC_COMMENT_START)('/**')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    ScDocParagraph
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      ScPsiDocToken(DOC_COMMENT_DATA)('A')
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |    InnerCodeElement
+      |      ScPsiDocToken(DOC_INNER_CODE_TAG)('{{{')
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      ScPsiDocToken(DOC_INNER_CODE)('B ')
+      |      ScPsiDocToken(DOC_INNER_CODE)('```')
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      ScPsiDocToken(DOC_INNER_CODE)('C ')
+      |      ScPsiDocToken(DOC_INNER_CLOSE_CODE_TAG)('}}}')
+      |    ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |    ScDocParagraph
+      |      ScPsiDocToken(DOC_COMMENT_DATA)('D')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_END)('*/')
+      |  PsiWhiteSpace('\n')
+      |  DocComment
+      |    ScPsiDocToken(DOC_COMMENT_START)('/**')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    ScDocParagraph
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      ScPsiDocToken(DOC_COMMENT_DATA)('A ')
+      |      DocSyntaxElement 8
+      |        ScPsiDocToken(DOC_MONOSPACE_TAG 8)('```')
+      |        ScPsiDocToken(DOC_COMMENT_DATA)(' B {{{ C }}} D ')
+      |        ScPsiDocToken(DOC_MONOSPACE_TAG 8)('```')
+      |      ScPsiDocToken(DOC_COMMENT_DATA)(' E')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_END)('*/')
+      |  PsiWhiteSpace('\n')
+      |  DocComment
+      |    ScPsiDocToken(DOC_COMMENT_START)('/**')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    ScDocParagraph
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      ScPsiDocToken(DOC_COMMENT_DATA)('A')
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |    InnerCodeElement
+      |      ScPsiDocToken(DOC_INNER_CODE_TAG)('```')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_INNER_CODE)(' B {{{ C ')
+      |      ScPsiDocToken(DOC_INNER_CODE)('}}}')
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      ScPsiDocToken(DOC_INNER_CODE)('D ')
+      |      ScPsiDocToken(DOC_INNER_CODE)('``` E')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_END)('*/')
+      |  PsiWhiteSpace('\n')
+      |  DocComment
+      |    ScPsiDocToken(DOC_COMMENT_START)('/**')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |    InnerCodeElement
+      |      ScPsiDocToken(DOC_INNER_CODE_TAG)('```')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_INNER_CODE)(' some code {{{ here ')
+      |      ScPsiDocToken(DOC_INNER_CODE)('}}}')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_INNER_CODE)(' ')
+      |      ScPsiDocToken(DOC_INNER_CLOSE_CODE_TAG)('```')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |    ScPsiDocToken(DOC_COMMENT_END)('*/')
       |  PsiWhiteSpace('\n')
       |""".stripMargin
