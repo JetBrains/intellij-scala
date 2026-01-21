@@ -37,7 +37,7 @@ object DerivesUtil {
    *     }}}
    * (b) The type class type parameter and all ADT type parameters are of kind 'Type'
    *
-   *     In this case the ADT has at least one type parameter of kind 'Type',
+   *     In this case, the ADT has at least one type parameter of kind 'Type',
    *     otherwise it would already have been covered as a "natural" case
    *     for a type class of the form F[_].
    *
@@ -49,14 +49,14 @@ object DerivesUtil {
    *     //given derived$TC[A, B, C](given TC[A], TC[B], TC[C]): TC[C[A, B, C]]
    *     }}}
    */
-  def deriveSingleParameterTypeClass(
+  private def deriveSingleParameterTypeClass(
     refName: String,
     tc:      ScTypeDefinition,
     owner:   ScDerivesClauseOwner
   ): Option[String] = {
     if (tc.typeParameters.size != 1) None
     else {
-      val derivedFqn                = s"${tc.qualifiedName}.derived"
+      val derivedFqn                = s"$refName.derived"
       val typeClassParamType        = TypeParameter(tc.typeParameters.head)
       val instanceTypeParams        = typeClassParamType.typeParameters
       val instanceArity             = instanceTypeParams.size
@@ -72,7 +72,7 @@ object DerivesUtil {
           ownerTypeParams.dropRight(instanceArity).map(_.name)
 
         val resultTypeText =
-          if (instanceArity == ownerArity) s"${tc.qualifiedName}[${owner.name}]"
+          if (instanceArity == ownerArity) s"$refName[${owner.name}]"
           else {
             val lambdaParamNames = (0 until instanceArity).map(idx => s"tc$idx")
 
@@ -89,7 +89,7 @@ object DerivesUtil {
               if (appliedTypeParams.isEmpty) ""
               else                           appliedTypeParams.commaSeparated(Model.SquareBrackets)
 
-            s"${tc.qualifiedName}[[${lambdaParams.commaSeparated()}] =>> ${owner.name}$appliedTypeParamsText]"
+            s"$refName[[${lambdaParams.commaSeparated()}] =>> ${owner.name}$appliedTypeParamsText]"
           }
 
         val typeParametersText =
@@ -104,7 +104,7 @@ object DerivesUtil {
 
         val typeParamString = ownerTypeParams.map(_.name).commaSeparated(Model.SquareBrackets)
 
-        val resultTypeText = s"${tc.qualifiedName}[${owner.name}$typeParamString]"
+        val resultTypeText = s"$refName[${owner.name}$typeParamString]"
 
         Option(s"given derived$$$refName$typeParamString$typeParamInstancesText: $resultTypeText = $derivedFqn")
       } else None

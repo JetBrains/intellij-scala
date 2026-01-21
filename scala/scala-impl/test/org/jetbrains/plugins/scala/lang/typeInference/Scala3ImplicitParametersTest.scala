@@ -242,4 +242,22 @@ class Scala3ImplicitParametersTest extends ImplicitParametersTestBase {
        |
        |""".stripMargin
   )
+
+  def testSCL24883(): Unit = checkNoImplicitParameterProblems(
+    s"""
+       |class Test {
+       |  trait CaseClassName[A]:
+       |    def get: String
+       |
+       |  object CaseClassName:
+       |    inline final def derived[A](using inline A: scala.deriving.Mirror.Of[A]): CaseClassName[A] = new CaseClassName[A]:
+       |      def get = A.toString
+       |
+       |  case class CoolClass(i: Int) derives CaseClassName
+       |
+       |  def print(): Unit =
+       |    println(${START}summon[CaseClassName[CoolClass]]$END.get)
+       |}
+       |""".stripMargin
+  )
 }
