@@ -296,4 +296,70 @@ class Scala3DocumentationProviderTest_Markdown
       "<div class='content'><table><thead><tr><th>Column 1</th><th>Column 2</th></tr></thead><tbody><tr><td>Text</td><td>Text</td></tr></tbody></table></div>",
       HtmlSpacesComparisonMode.DontIgnore,
     )
+
+  private val s = " "
+
+  def test_mixed_code_spans1(): Unit =
+    doGenerateRenderedDocBodyTest(
+      s"""
+         |/**
+         | * A {{{ B ``` C }}} D
+         | *
+         | * A ``` B {{{ C }}} D ``` E
+         | *
+         | * A ```
+         | * B {{{ C }}} D ``` E
+         | */
+         |class ${|}Foo
+         |""".stripMargin,
+      s"""
+         |<div class='content'><p>A</p><pre><code>
+         | B$s
+         |```
+         | C </code></pre><p>D</p><p>A <code>B {{{ C }}} D</code> E</p><p>A</p><pre><code>
+         |B$s
+         |{{{
+         | C$s
+         |}}}
+         | D$s
+         |``` E
+         |</code></pre></div>
+         |""".stripMargin
+    )
+
+  def test_mixed_code_spans2(): Unit =
+    doGenerateRenderedDocBodyTest(
+      s"""
+         |/**
+         | * A {{{ B ``` C ``` D }}} E
+         | */
+         |class ${|}Foo
+         |""".stripMargin,
+      s"""
+         |<div class='content'><p>A</p><pre><code>
+         | B$s
+         |```
+         | C$s
+         |``` D }}} E
+         |</code></pre></div>
+         |""".stripMargin
+    )
+
+  def test_mixed_code_spans3(): Unit =
+    doGenerateRenderedDocBodyTest(
+      s"""
+         |/**
+         | * ```
+         | * some code {{{ here }}}
+         | * A ```
+         | */
+         |class ${|}Foo
+         |""".stripMargin,
+      s"""
+         |<div class='content'><pre><code>
+         |some code {{{ here$s
+         |}}}
+         |A </code></pre></div>
+         |""".stripMargin
+    )
 }

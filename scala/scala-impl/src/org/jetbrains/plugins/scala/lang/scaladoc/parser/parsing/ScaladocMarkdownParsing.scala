@@ -22,6 +22,7 @@ import java.{util => ju}
 import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
 import scala.jdk.CollectionConverters.ListHasAsScala
+import scala.util.matching.Regex
 
 /**
  *
@@ -466,6 +467,21 @@ private class ScaladocMarkdownParsing(builder: MkBuilder, content: String) exten
 object ScaladocMarkdownParsing {
   val MARKDOWN_DATA: Key[(String, ASTNode)] = Key.create("scaladoc.markdown")
 
+  private val CodeBlockStartRegex =
+    raw"""(.*?)(\{\{\{|```)([\s\S]*)""".r
+
+  private val CodeBlockEndRegex =
+    raw"""(.*?)(}}}|```)([\s\S]*)""".r
+
+//  private val CodeBlockStartRegex =
+//    raw"""(.*?)(```+|\{\{\{)([\s\S]*)""".r
+//
+  private val BeforeCodeBlockFenceIsBlankRegex =
+    raw"""[>\s]*""".r
+
+  private def isBlankBeforeFence(text: String): Boolean =
+    BeforeCodeBlockFenceIsBlankRegex.matches(text)
+
   def parse(psiBuilder: PsiBuilder, root: IElementType): Unit = {
     val original = psiBuilder.getOriginalText
     val (content, lineOffsetMapping) = splitContext(original)
@@ -512,7 +528,9 @@ object ScaladocMarkdownParsing {
 
     var extraRemoved = initialOffset
     var firstLine = true
-    val result = content.linesWithSeparators.map(line => {
+    var isInCodeBlock: Boolean = false
+    val processedLines = Seq.newBuilder[(String, Int)]
+    content.linesWithSeparators.foreach(line => {
       val initialLength = line.length
       val trimmed = line.stripLeading
 
@@ -531,8 +549,60 @@ object ScaladocMarkdownParsing {
 
       extraRemoved += initialLength - finalLine.length
 
+      // Process code blocks
+      // See <scala3-repository>/scaladoc/src/dotty/tools/scaladoc/tasty/comments/Preparser.scala
+      val processed = new StringBuilder
+
+      def addFakeLine(): Unit = {
+        processed.append('\n')
+        processedLines.addOne((processed.toString(), extraRemoved))
+        extraRemoved -= 1
+        processed.clear()
+      }
+
+      @tailrec
+      def process(rest: String): Unit =
+        rest match {
+          case CodeBlockStartRegex(before, fence, after) if !isInCodeBlock =>
+            if (isBlankBeforeFence(before)) {
+              isInCodeBlock = true
+              if (fence == "```") {
+                processed.append(rest)
+              } else {
+                processed.append(before) // blank, but maybe not empty
+                processed.append(fence)  // fence == "{{{"
+                if (after.isBlank) {
+                  processed.append(after)
+                } else {
+                  addFakeLine()
+                  process(after)
+                }
+              }
+            } else {
+              processed.append(before)
+              addFakeLine()
+              process(fence + after)
+            }
+          case CodeBlockEndRegex(before, fence, after) =>
+            isInCodeBlock = false
+            processed.append(before)
+            if (!isBlankBeforeFence(before))
+              addFakeLine()
+            processed.append(fence)
+            if (after.isBlank) {
+              processed.append(after)
+            } else {
+              addFakeLine()
+              process(after)
+            }
+          case _ =>
+            processed.append(rest)
+        }
+
+      process(finalLine)
+
       firstLine = false
-      (finalLine, extraRemoved)
+      processedLines.addOne((processed.toString(), extraRemoved))
     })
 
     // Technically not very efficient, but meh. We need to collect both at once.
@@ -540,7 +610,7 @@ object ScaladocMarkdownParsing {
     val lines = new StringBuilder
     val map = ArraySeq.newBuilder[Int]
 
-    result.foreach { case (line, spacing) =>
+    processedLines.result().foreach { case (line, spacing) =>
       lines.append(line)
       map += spacing
     }
@@ -598,11 +668,12 @@ object ScaladocMarkdownParsing {
       var gotOne = false
       while (getTokenType == ScalaDocTokenType.DOC_WHITESPACE) {
         gotOne = true
-        curLine += getTokenText.count(_ == '\n')
         advanceLexer()
       }
       if (gotOne) whitespaceMarker.collapse(ScalaDocTokenType.DOC_WHITESPACE)
       else whitespaceMarker.drop()
+
+      curLine += 1
 
       // Skip the leading asterisk
       if (getTokenType == ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS) {
