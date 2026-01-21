@@ -27,6 +27,7 @@ class ScalaTargetElementEvaluator extends TargetElementEvaluatorEx2 with TargetE
     case isSyntheticObject(clazz) => clazz
     case isVarSetterFakeMethod(refPattern) => refPattern
     case isVarSetterWrapper(refPattern) => refPattern
+    case isAdjusted(namedElement) => namedElement
     case _ => null
   }
 
@@ -101,6 +102,15 @@ class ScalaTargetElementEvaluator extends TargetElementEvaluatorEx2 with TargetE
         case obj: ScObject if obj.isSyntheticObject => obj.baseCompanionTypeDefinition
         case _ => None
       }
+    }
+  }
+
+  private object isAdjusted {
+    def unapply(ref: PsiReference): Option[PsiNamedElement] = ref.resolve() match {
+      case e: PsiNamedElement =>
+        val adjusted = ScNamedElement.adjusted(e)
+        if (adjusted != e) Some(adjusted) else None
+      case _ => None
     }
   }
 

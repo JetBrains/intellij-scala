@@ -494,4 +494,12 @@ class FindUsagesTest_Scala2 extends FindUsagesTestBase {
          |${start}Right$end(2)
          |""".stripMargin
     )
+
+  def testApplyOnValExplicit(): Unit =
+    doTest(
+      s"""
+         |$start$CARET$Right$end.apply(1)
+         |${start}Right$end.apply(2)
+         |""".stripMargin
+    )
 }
