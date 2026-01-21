@@ -8,12 +8,12 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.MessageType
 import com.intellij.openapi.ui.popup.Balloon.Position
 import com.intellij.openapi.ui.popup.{Balloon, JBPopupFactory}
-import com.intellij.openapi.util.Disposer
+import com.intellij.openapi.util.NlsSafe
 import com.intellij.openapi.wm.WindowManager
 import com.intellij.openapi.wm.impl.status.IdeStatusBarImpl
 import com.intellij.ui.awt.RelativePoint
 import com.intellij.util.concurrency.annotations.RequiresEdt
-import com.intellij.util.messages.{MessageBusConnection, Topic}
+import com.intellij.util.messages.Topic
 import com.intellij.util.ui.PositionTracker
 import com.intellij.util.ui.update.{MergingUpdateQueue, Update}
 import org.jetbrains.annotations.Nls
@@ -22,65 +22,50 @@ import org.jetbrains.plugins.scala.compiler.CompileServerManager._
 import org.jetbrains.plugins.scala.settings.{ScalaCompileServerSettings, ShowSettingsUtilImplExt}
 
 import java.awt.Point
+import java.util.concurrent.locks.{Lock, ReentrantLock}
 
-@Service(Array(Service.Level.PROJECT))
-final class CompileServerManager(project: Project) extends Disposable with CompileServerManager.ErrorListener {
-
-  private var connection: MessageBusConnection = _
+@Service(Array(Service.Level.APP))
+final class CompileServerManager extends Disposable with CompileServerManager.ErrorListener {
 
   private val errorNotificationUpdateQueue: MergingUpdateQueue =
     new MergingUpdateQueue("ErrorNotificationQueue", 1000, true, MergingUpdateQueue.ANY_COMPONENT, this)
 
-  { // init
-    if (!ApplicationManager.getApplication.isUnitTestMode) {
-      connection = ApplicationManager.getApplication.getMessageBus.connect()
-      connection.subscribe(CompileServerManager.ErrorTopic, this)
-    }
-  }
-
-  override def dispose(): Unit = {
-    if (ApplicationManager.getApplication.isUnitTestMode)
-      return
-
-    Disposer.dispose(connection)
-    connection = null
-  }
-
-  @Nls
-  private def title = CompilerIntegrationBundle.message("scala.compile.server.title")
-  private val NotificationGroupId = "Scala Compile Server"
-
   private val errorsBuffer: java.lang.StringBuilder = new java.lang.StringBuilder()
 
-  private val errorsBufferLock: AnyRef = new Object()
+  private val errorsBufferLock: Lock = new ReentrantLock()
 
   private val showNotificationUpdate: Update = new Update(this) {
     override def run(): Unit = {
-      val text = errorsBufferLock.synchronized {
-        val text = errorsBuffer.toString
+      errorsBufferLock.lock()
+      val text = try {
+        val t = errorsBuffer.toString
         errorsBuffer.setLength(0)
-        text
+        t
+      } finally {
+        errorsBufferLock.unlock()
       }
+
+      @NlsSafe
       val message = text.replace(System.lineSeparator(), "<br/>")
-      showNotification(message, NotificationType.ERROR)
+      showNotification(message, NotificationType.ERROR, project = None)
     }
   }
+
+  { // init
+    val app = ApplicationManager.getApplication
+    if (!app.isUnitTestMode) {
+      val conn = app.getMessageBus.connect(this: Disposable) // Automatically released when this service is disposed
+      conn.subscribe(CompileServerManager.ErrorTopic, this: CompileServerManager.ErrorListener)
+    }
+  }
+
+  override def dispose(): Unit = {}
 
   override def onError(errorsText: String): Unit = {
-    errorsBufferLock.synchronized {
-      errorsBuffer.append(errorsText)
-    }
+    errorsBufferLock.lock()
+    try errorsBuffer.append(errorsText)
+    finally errorsBufferLock.unlock()
     errorNotificationUpdateQueue.queue(showNotificationUpdate)
-  }
-
-  def showNotification(@Nls message: String, notificationType: NotificationType): Unit = {
-    Notifications.Bus.notify(new Notification(NotificationGroupId, title, message, notificationType), project)
-  }
-
-  @RequiresEdt
-  def showStoppedByIdleTimoutNotification(): Unit = {
-    val message = NlsString(CompilerIntegrationBundle.message("compile.server.stopped.due.to.inactivity"))
-    showBalloonNotificationOnWidget(message, project)
   }
 }
 
@@ -100,10 +85,8 @@ object CompileServerManager {
   private[compiler] val ServerStatusTopic: Topic[ServerStatusListener] =
     new Topic("Scala compile server status topic", classOf[ServerStatusListener])
 
-  def apply(project: Project): CompileServerManager =
-    project.getService(classOf[CompileServerManager])
-
-  private[compiler] def init(project: Project): CompileServerManager = apply(project)
+  def instance(): CompileServerManager =
+    ApplicationManager.getApplication.getService(classOf[CompileServerManager])
 
   def showCompileServerSettingsDialog(project: Project, filter: String = ""): Unit =
     ShowSettingsUtilImplExt.showSettingsDialog(project, classOf[ScalaCompileServerForm], filter)
@@ -150,4 +133,18 @@ object CompileServerManager {
     positionTracker.foreach(balloon.show(_, Position.above))
   }
 
+  @Nls
+  private def title: String = CompilerIntegrationBundle.message("scala.compile.server.title")
+
+  private val NotificationGroupId = "Scala Compile Server"
+
+  def showNotification(@Nls message: String, notificationType: NotificationType, project: Option[Project]): Unit = {
+    Notifications.Bus.notify(new Notification(NotificationGroupId, title, message, notificationType), project.orNull)
+  }
+
+  @RequiresEdt
+  def showStoppedByIdleTimeoutNotification(project: Project): Unit = {
+    val message = NlsString(CompilerIntegrationBundle.message("compile.server.stopped.due.to.inactivity"))
+    showBalloonNotificationOnWidget(message, project)
+  }
 }
