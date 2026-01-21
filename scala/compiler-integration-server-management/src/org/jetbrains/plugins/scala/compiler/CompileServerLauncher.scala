@@ -151,14 +151,12 @@ object CompileServerLauncher {
           // pass --add-opens parameters to JDK 8 and lower.
           val buildProcessParameters = BuildProcessParametersProvider.EP_NAME.getExtensions(project).asScala.iterator
             .flatMap(_.getVMArguments.asScala).toSeq.diff(compileServerJvmAddOpensExtraParams)
-          val extraJvmParameters = CompileServerVmOptionsProvider.implementations.iterator
-            .flatMap(_.vmOptionsFor(project)).toSeq
 
           val jpsOptions =
             if (jpsUseUnifiedIC) Seq(s"-D${GlobalOptions.DEPENDENCY_GRAPH_ENABLED}=true")
             else Seq.empty
 
-          buildProcessParameters ++ extraJvmParameters ++ jpsOptions
+          buildProcessParameters ++ jpsOptions
         }
 
         // SCL-18193
