@@ -239,7 +239,11 @@ object CompileServerLauncher {
                   invokeLater {
                     ProjectManager.getInstance().getOpenProjects.foreach { project =>
                       if (!project.isDisposed) {
-                        CompileServerManager(project).showNotification(CompilerIntegrationBundle.message("compile.server.terminated.unexpectedly.0.port.1.pid", instance.port, instance.pid), NotificationType.WARNING)
+                        CompileServerManager.showNotification(
+                          CompilerIntegrationBundle.message("compile.server.terminated.unexpectedly.0.port.1.pid", instance.port, instance.pid),
+                          NotificationType.WARNING,
+                          Some(project)
+                        )
                       }
                     }
                   }
@@ -545,8 +549,8 @@ object CompileServerLauncher {
    */
   @RequiresBackgroundThread
   def ensureServerRunning(project: Project): Boolean = {
-    // initialize the compile server manager service instance for the project which holds the widget state
-    CompileServerManager.init(project)
+    // initialize the server manager service to ensure that errors thrown by the server are reported in the IDE
+    CompileServerManager.instance()
     serverStartLock.synchronized {
       LOG.traceWithDebugInDev(s"ensureServerRunning [thread:${Thread.currentThread.threadId()}]")
       if (project.isDisposed) {
