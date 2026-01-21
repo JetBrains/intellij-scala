@@ -49,13 +49,6 @@ object CompileServerLauncher {
   private def waitUntilDebuggerAttached = true
   private def debugAgentPort = "5006"
 
-  executeOnPooledThread {
-    ScalaShutDownTracker.registerShutdownTask(() => {
-      LOG.info("Shutdown event triggered, stopping server")
-      stopServerAndWaitFor(Duration.Zero)
-    })
-  }
-
   private def isUnitTestMode: Boolean =
     ApplicationManager.getApplication.isUnitTestMode
 
