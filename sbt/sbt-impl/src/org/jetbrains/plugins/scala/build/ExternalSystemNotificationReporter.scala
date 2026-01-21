@@ -91,6 +91,9 @@ class ExternalSystemNotificationReporter(workingDir: String,
   override def info(message: String, position: Option[FilePosition]): Unit =
     onEvent(message, Kind.INFO, position)
 
+  override def info(issue: BuildIssue): Unit =
+    onEvent(issue, Kind.INFO)
+
   private def onEvent(
     @Nls message: String,
     kind: Kind,

@@ -39,6 +39,8 @@ trait BuildReporter {
   /** Show message. */
   def info(@Nls message: String, position: Option[FilePosition]): Unit
 
+  def info(issue: BuildIssue): Unit = ()
+
   /** Clear any messages associated with file. */
   def clear(file: Path): Unit
   /** Print stdout message to log. */
