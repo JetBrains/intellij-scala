@@ -11,7 +11,6 @@ import com.intellij.openapi.progress.{ProgressIndicator, Task}
 import com.intellij.openapi.vfs.{VfsUtil, VirtualFileManager}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.build.BuildMessages
-import org.jetbrains.sbt.buildinfo.BuildInfo
 import org.jetbrains.sbt.icons.Icons
 import org.jetbrains.sbt.process.SbtRunner
 import org.jetbrains.sbt.project.{SbtExternalSystemManager, SbtProjectSystem}
@@ -76,7 +75,6 @@ private final class SbtGenerateManagedSourcesAction extends AnAction(
           val launcher = SbtUtil.getLauncherJar(settings)
 
           val sbtVersion = SbtUtil.detectSbtVersion(projectBasePath, launcher)
-          val sbtStructurePluginBinVersion = SbtUtil.structurePluginBinaryVersion(sbtVersion)
           val addPluginCommandSupported = SbtVersionCapabilities.isAddPluginCommandSupported(sbtVersion)
 
           if (!addPluginCommandSupported) {
@@ -90,14 +88,9 @@ private final class SbtGenerateManagedSourcesAction extends AnAction(
             viewManager.onEvent(taskId, finishEvent)
             return
           }
-
-          val repoPath = SbtUtil.normalizePath(SbtUtil.getRepoDir)
-          val tmpPluginsSbtFile = SbtUtil.createTemporarySbtFile(
-            raw"""resolvers += MavenCache("Scala Plugin Bundled Repository", file(raw"$repoPath"))
-                 |
-                 |addSbtPlugin("org.jetbrains.scala" % "sbt-structure-extractor" % "${BuildInfo.sbtStructureVersion}", "$sbtStructurePluginBinVersion")
-                 |""".stripMargin
-          )
+          
+          val sbtFileContent = SbtUtil.sbtStructurePluginDeclaration(sbtVersion)
+          val tmpPluginsSbtFile = SbtUtil.createTemporarySbtFile(sbtFileContent)
           val setupOptions = Seq(s"-addPluginSbtFile=${tmpPluginsSbtFile.toRealPath()}")
 
           val generateCommand = "show " + SbtUtil.sbtStructureGlobalCommand("ideaGenerateAllManagedSources", sbtVersion)

@@ -15,9 +15,9 @@ import org.jetbrains.annotations.{Nls, NonNls}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}
 import org.jetbrains.plugins.scala.extensions.{LoggerExt, PathExt}
+import org.jetbrains.sbt.SbtUtil.SbtProcessOptions
 import org.jetbrains.sbt.actions.GenerateManagedSourcesReporter
 import org.jetbrains.sbt.project.SbtProjectResolver.ImportCancelledException
-import org.jetbrains.sbt.project.structure.SbtOption.{JvmOptionGlobal, SbtLauncherOption}
 import org.jetbrains.sbt.project.structure.{ListenerAdapter, OutputType}
 import org.jetbrains.sbt.{SbtBundle, SbtUtil, asLocalPath, eelDescriptor}
 
@@ -37,6 +37,36 @@ final class SbtRunner(processOutputCollector: Option[ProcessOutputCollector] = N
   private val cancellationFlag: AtomicBoolean = new AtomicBoolean(false)
 
   def cancel(): Unit = cancellationFlag.set(true)
+
+  @RequiresBackgroundThread
+  def runSbt(
+    indicator: ProgressIndicator,
+    directory: Path,
+    vmExecutable: Path,
+    vmOptions: Seq[String],
+    environment0: Map[String, String],
+    sbtLauncher: Path,
+    sbtOptions: Seq[String],
+    sbtLauncherArgs: Seq[String],
+    @NonNls sbtCommands: String,
+    @Nls reportMessage: String,
+    passParentEnvironment: Boolean,
+    timingCollector: Option[SbtImportTimingCollector.TimingCollector]
+  )(
+    implicit reporter: BuildReporter
+  ): Try[BuildMessages] =
+    runSbt(
+      indicator,
+      directory,
+      vmExecutable,
+      environment0,
+      sbtLauncher,
+      sbtCommands,
+      reportMessage,
+      passParentEnvironment,
+      timingCollector,
+      sbtProcessOptions = SbtUtil.collectAllOptions(directory, vmOptions, sbtOptions, passParentEnvironment, environment0, sbtLauncherArgs)
+    )
 
   /**
    * Runs sbt via the `java -jar sbt-launch.jar` mechanism.
@@ -58,11 +88,8 @@ final class SbtRunner(processOutputCollector: Option[ProcessOutputCollector] = N
    * @param indicator             The required progress indicator instance
    * @param directory             The working directory of the JVM process to be spawned
    * @param vmExecutable          The path to the JDK `java` executable
-   * @param vmOptions             JDK VM options passed directly to the `java` process
    * @param environment0          Environment variables to be provided to the `java` process
    * @param sbtLauncher           A path to the sbt launcher jar
-   * @param sbtOptions            A list of options to be provided to sbt
-   * @param sbtLauncherArgs       A list of extra launcher arguments to be provided during sbt startup
    * @param sbtCommands           A list of sbt commands to be executed by the spawned sbt process
    * @param reportMessage         A description message to be provided to the reporting mechanism (usually shown to the end user)
    * @param passParentEnvironment Include the environment variables available to IntelliJ IDEA when starting the process
@@ -74,15 +101,13 @@ final class SbtRunner(processOutputCollector: Option[ProcessOutputCollector] = N
     indicator: ProgressIndicator,
     directory: Path,
     vmExecutable: Path,
-    vmOptions: Seq[String],
     environment0: Map[String, String],
     sbtLauncher: Path,
-    sbtOptions: Seq[String],
-    sbtLauncherArgs: Seq[String],
     @NonNls sbtCommands: String,
     @Nls reportMessage: String,
     passParentEnvironment: Boolean,
-    timingCollector: Option[SbtImportTimingCollector.TimingCollector]
+    timingCollector: Option[SbtImportTimingCollector.TimingCollector],
+    sbtProcessOptions: SbtProcessOptions
   )(
     implicit reporter: BuildReporter
   ): Try[BuildMessages] = {
@@ -97,22 +122,15 @@ final class SbtRunner(processOutputCollector: Option[ProcessOutputCollector] = N
       s"""runSbt
          |  directory: $directory,
          |  vmExecutable: $vmExecutable,
-         |  vmOptions: $vmOptions,
+         |  allVmOptions: ${sbtProcessOptions.allVmOptions},
          |  environment: $environment,
          |  sbtLauncher: $sbtLauncher,
-         |  sbtOptions: $sbtOptions,
-         |  sbtLauncherArguments: $sbtLauncherArgs,
+         |  sbtLauncherArguments: ${sbtProcessOptions.sbtLauncherArgs},
          |  sbtCommands: $sbtCommands,
          |  reportMessage: $reportMessage""".stripMargin
     )
 
     val startTime = System.currentTimeMillis()
-    // assuming here that this method might still be called without valid project
-
-    val sbtOpts = SbtUtil.collectAllOptionsFromSbt(sbtOptions, directory, passParentEnvironment, environment0)
-    val allOpts = SbtUtil.collectAllOptionsFromJava(directory, vmOptions, passParentEnvironment, environment0) ++ sbtOpts.collect { case a: JvmOptionGlobal => a.value }
-
-    val allSbtLauncherArgs = sbtOpts.collect { case a: SbtLauncherOption => a.value } ++ sbtLauncherArgs
 
     //noinspection ApiStatus,UnstableApiUsage
     val transferredSbtLauncher =
@@ -131,9 +149,9 @@ final class SbtRunner(processOutputCollector: Option[ProcessOutputCollector] = N
           "-Dsbt.log.noformat=true",
           "-Dfile.encoding=UTF-8"
         ) ++
-          allOpts ++
+          sbtProcessOptions.allVmOptions ++
           List("-jar", transferredSbtLauncher.asLocalPath) ++
-          allSbtLauncherArgs // :+ "--debug"
+          sbtProcessOptions.sbtLauncherArgs // :+ "--debug"
 
       val processCommands = processCommandsRaw.filterNot(_.isEmpty)
 

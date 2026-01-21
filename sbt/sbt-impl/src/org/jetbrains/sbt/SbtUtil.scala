@@ -9,6 +9,7 @@ import com.intellij.openapi.externalSystem.model.{DataNode, Key}
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.{Project, ProjectUtil}
+import org.jetbrains.sbt.project.structure.SbtOption.{JvmOptionGlobal, SbtLauncherOption}
 import com.intellij.platform.workspace.storage.{EntityStorage, SymbolicEntityId, WorkspaceEntityWithSymbolicId}
 import com.intellij.util.net.{ProxyConfiguration, ProxyCredentialStore, ProxyCredentialStoreKt, ProxySettings, ProxyUtils}
 import com.intellij.util.{EnvironmentUtil, SystemProperties}
@@ -141,6 +142,18 @@ object SbtUtil {
       Version("1.0")
     else
       sbtVersion.value.major(2) //effectively ~ 0.13
+  }
+
+  /**
+   * Creates the sbt file content that adds the sbt-structure plugin from the local Scala plugin repository.
+   */
+  private[sbt] def sbtStructurePluginDeclaration(sbtVersion: SbtVersion): String = {
+    val repoPath = SbtUtil.normalizePath(SbtUtil.getRepoDir)
+    val sbtStructurePluginBinVersion = structurePluginBinaryVersion(sbtVersion)
+    raw"""resolvers += MavenCache("Scala Plugin Bundled Repository", file(raw"$repoPath"))
+         |
+         |addSbtPlugin("org.jetbrains.scala" % "sbt-structure-extractor" % "${BuildInfo.sbtStructureVersion}", "$sbtStructurePluginBinVersion")
+         |""".stripMargin
   }
 
   def detectSbtVersion(project: Project): SbtVersion = {
@@ -299,6 +312,43 @@ object SbtUtil {
       .map { options => JvmOpts.processJvmOptions(Seq(options)) }
       .getOrElse(Seq.empty)
     java_opts_env ++ JvmOpts.loadFrom(workingDir) ++ vmOptionsFromSettings
+  }
+
+  /**
+   * Holds all the vm options and sbt launcher args required to start the sbt process.
+   *
+   * @param allVmOptions all VM options to pass to the JVM
+   * @param sbtLauncherArgs arguments to pass to the sbt launcher 
+   * @see [[collectAllOptions]] for details on how all VM options are collected.                        
+   */
+  case class SbtProcessOptions(
+    allVmOptions: Seq[String],
+    sbtLauncherArgs: Seq[String]
+  )
+  
+  /**
+   * 1. Collects all VM options from both Java and sbt sources: 
+   *  - `JAVA_OPTS`/`SBT_OPTS` environment variable
+   *  - `.jvmopts`/`.sbtopts` file in the working directory
+   *  - `vmOptions`/`sbtOptions` from settings
+   *  
+   * 2. Extracts sbt launcher options from `sbtOptions`
+   */
+  def collectAllOptions(
+    workingDir: Path,
+    vmOptions: Seq[String],
+    sbtOptions: Seq[String],
+    passParentEnvironment: Boolean,
+    environment: Map[String, String],
+    additionalLauncherArgs: Seq[String]
+  )(implicit reporter: BuildReporter): SbtProcessOptions = {
+    val sbtOpts = collectAllOptionsFromSbt(sbtOptions, workingDir, passParentEnvironment, environment)
+    val javaOpts = collectAllOptionsFromJava(workingDir, vmOptions, passParentEnvironment, environment)
+    
+    val allVmOptions = javaOpts ++ sbtOpts.collect { case a: JvmOptionGlobal => a.value }
+    val launcherArgs = sbtOpts.collect { case a: SbtLauncherOption => a.value }
+    
+    SbtProcessOptions(allVmOptions, launcherArgs ++ additionalLauncherArgs)
   }
 
   def collectAllOptionsFromSbt(sbtOptions: Seq[String], directory: Path, passParentEnvironment: Boolean, userSetEnv: Map[String, String])
