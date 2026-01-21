@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.findUsages
 
+import com.intellij.codeInsight.TargetElementUtilBase.TARGET_ELEMENT_EVALUATOR
 import com.intellij.openapi.application.ReadActionProcessor
 import com.intellij.openapi.project.{IndexNotReadyException, Project}
 import com.intellij.openapi.util.Condition
@@ -93,7 +94,11 @@ class OperatorAndBacktickedSearcher extends QueryExecutor[PsiReference, Referenc
         return consumer.process(reference)
       }
 
-      val refResolvedElement = reference.resolve()
+      val targetElementEvaluator = TARGET_ELEMENT_EVALUATOR.forLanguage(reference.getElement.getLanguage)
+      val refResolvedElement = targetElementEvaluator.getElementByReference(reference, 0) match {
+        case null => reference.resolve()
+        case e => e
+      }
       if (refResolvedElement == elementToSearch) {
         return consumer.process(reference)
       }
