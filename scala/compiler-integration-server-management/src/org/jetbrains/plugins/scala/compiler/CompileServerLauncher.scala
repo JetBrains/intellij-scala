@@ -92,13 +92,6 @@ object CompileServerLauncher {
     }
   }
 
-  private def compilerServerAdditionalCP(): Iterable[Path] = for {
-    extension        <- CompileServerClasspathProvider.implementations
-    pluginDescriptor = extension.getPluginDescriptor
-    pluginsLibs      = pluginDescriptor.getPluginPath / "lib"
-    filesPath        <- extension.classpathSeq
-  } yield pluginsLibs / filesPath
-
   // TODO: track that we attach debug agent and show notification, as with JPS Build Process
   // TODO: add internal action "Debug Scala Compile Server" as with JPS "Debug Build Process"
   private def start(project: Project, jdk: JDK): Either[CompileServerProblem, Process] = {
@@ -125,7 +118,7 @@ object CompileServerLauncher {
           pluginsClasspath ++ applicationClasspath
         }
         val classpath =
-          (jdk.tools ++ classpathFiles ++ compilerServerAdditionalCP())
+          (jdk.tools ++ classpathFiles)
             .map(_.toCanonicalPath.toString) ++ buildProcessClasspath
 
         val freePort = CompileServerLauncher.findFreePort
