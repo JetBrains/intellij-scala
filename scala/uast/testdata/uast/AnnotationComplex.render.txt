@@ -1,4 +1,4 @@
-public annotation Annotation : scala.annotation.StaticAnnotation {
+public class Annotation : scala.annotation.StaticAnnotation {
     public final var strings: java.lang.String
     public fun Annotation() : void = UastEmptyExpression
 }
@@ -8,7 +8,7 @@ public class A {
     public fun A() : void = UastEmptyExpression
 }
 
-public annotation AnnotationInner : scala.annotation.StaticAnnotation {
+public class AnnotationInner : scala.annotation.StaticAnnotation {
     public final var value: Annotation
     public fun AnnotationInner() : void = UastEmptyExpression
 }
@@ -23,7 +23,7 @@ public class B2 {
     public fun B2() : void = UastEmptyExpression
 }
 
-public annotation AnnotationArray : scala.annotation.StaticAnnotation {
+public class AnnotationArray : scala.annotation.StaticAnnotation {
     public final var value: Annotation
     public fun AnnotationArray() : void = UastEmptyExpression
 }

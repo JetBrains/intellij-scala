@@ -3,11 +3,11 @@ public class A {
     public fun A() : void = UastEmptyExpression
 }
 
-public annotation Test : scala.annotation.StaticAnnotation {
+public class Test : scala.annotation.StaticAnnotation {
     public fun Test() : void = UastEmptyExpression
 }
 
-public annotation MyAnnotation : scala.annotation.StaticAnnotation {
+public class MyAnnotation : scala.annotation.StaticAnnotation {
     public final var text: java.lang.String
     public fun MyAnnotation() : void = UastEmptyExpression
 }

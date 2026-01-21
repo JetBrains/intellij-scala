@@ -1,4 +1,4 @@
-public annotation SimpleAnnotation : scala.annotation.StaticAnnotation {
+public class SimpleAnnotation : scala.annotation.StaticAnnotation {
     public fun SimpleAnnotation() : void = UastEmptyExpression
 }
 
