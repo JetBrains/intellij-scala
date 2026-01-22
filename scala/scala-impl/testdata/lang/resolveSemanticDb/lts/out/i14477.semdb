@@ -1,0 +1,10 @@
+Document tests/pos/i14477.scala
+(1:26..1:27) _empty_/Foo#[A] -> 1:18
+(3:16..3:17) _empty_/i14477$package.FooX#[F] -> 3:11
+(4:8..4:11) _empty_/Foo# -> 1:14
+(4:21..4:22) local1 -> 4:15
+(7:14..7:17) _empty_/Foo# -> 1:14
+(7:18..7:24) scala/Predef.String#
+(9:12..9:16) _empty_/i14477$package.FooX# -> 3:6
+(9:17..9:22) _empty_/i14477$package.MyFoo# -> 7:6
+

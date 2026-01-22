@@ -1,0 +1,6 @@
+Document tests/pos/i10848a.scala
+(6:16..6:20) _empty_/IsOn# -> 3:7
+(6:21..6:23) _empty_/i10848a$package.On# -> 4:6
+(6:31..6:35) _empty_/IsOn# -> 3:7
+(6:36..6:38) _empty_/i10848a$package.On# -> 4:6
+
