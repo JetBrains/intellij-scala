@@ -5,6 +5,7 @@ import com.facebook.nailgun.NGConstants;
 import com.facebook.nailgun.NGServer;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -59,7 +60,7 @@ public class NailgunRunner {
 
     URLClassLoader classLoader = constructClassLoader(classpath);
 
-    TokensGenerator.generateAndWriteTokenFor(scalaCompileServerSystemDir, port);
+    final Path tokenFile = TokensGenerator.generateAndWriteTokenFor(classLoader, scalaCompileServerSystemDir, port);
 
     InetAddress address = InetAddress.getByName(null);
     NGServer server = createServer(address, port, id, scalaCompileServerSystemDir, classLoader);
@@ -69,7 +70,7 @@ public class NailgunRunner {
     thread.setContextClassLoader(classLoader);
     thread.start();
 
-    Runtime.getRuntime().addShutdownHook(new ShutdownHook(server, scalaCompileServerSystemDir));
+    Runtime.getRuntime().addShutdownHook(new ShutdownHook(server, tokenFile));
   }
 
   /**
@@ -165,16 +166,19 @@ public class NailgunRunner {
     private static final int WAIT_FOR_SERVER_TERMINATION_TIMEOUT_MS = 3000;
 
     private final NGServer myServer;
-    private final Path scalaCompileServerSystemDir;
+    private final Path tokenFile;
 
-    ShutdownHook(NGServer server, Path scalaCompileServerSystemDir) {
+    ShutdownHook(NGServer server, Path tokenFile) {
       myServer = server;
-      this.scalaCompileServerSystemDir = scalaCompileServerSystemDir;
+      this.tokenFile = tokenFile;
     }
 
     @Override
     public void run() {
-      TokensGenerator.deleteTokenFor(scalaCompileServerSystemDir, myServer.getPort());
+      try {
+        Files.deleteIfExists(tokenFile);
+      } catch (IOException ignored) {
+      }
 
       myServer.shutdown();
 
@@ -204,18 +208,14 @@ public class NailgunRunner {
 
   private static class TokensGenerator {
 
-    static void generateAndWriteTokenFor(Path scalaCompileServerSystemDir, int port) throws IOException {
-      Path path = tokenPathFor(scalaCompileServerSystemDir, port);
-      writeTokenTo(path, UUID.randomUUID());
-    }
-
-    /** duplicated in {@link org.jetbrains.plugins.scala.server.CompileServerToken} */
-    static Path tokenPathFor(Path scalaCompileServerSystemDir, int port) {
-      return scalaCompileServerSystemDir.resolve("tokens").resolve(Integer.toString(port));
+    static Path generateAndWriteTokenFor(ClassLoader classLoader, Path scalaCompileServerSystemDir, int port)
+            throws IOException, ClassNotFoundException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+      final Path path = Utils.tokenPathForPort(classLoader, scalaCompileServerSystemDir, port);
+      return writeTokenTo(path, UUID.randomUUID());
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    static void writeTokenTo(Path path, UUID uuid) throws IOException {
+    private static Path writeTokenTo(Path path, UUID uuid) throws IOException {
       Path directory = path.getParent();
 
       if (!Files.exists(directory)) {
@@ -239,22 +239,7 @@ public class NailgunRunner {
         file.setWritable(/* writable */ true, /* ownerOnly */ true);
       }
 
-      Files.write(path, uuid.toString().getBytes(StandardCharsets.UTF_8));
-    }
-
-    public static void deleteTokenFor(Path scalaCompileServerSystemDir, int port) {
-      Path path = tokenPathFor(scalaCompileServerSystemDir, port);
-      if (!deleteFile(path)) {
-        path.toFile().deleteOnExit();
-      }
-    }
-
-    private static boolean deleteFile(Path path) {
-      try {
-        return Files.deleteIfExists(path);
-      } catch (IOException ignored) {
-        return false;
-      }
+      return Files.write(path, uuid.toString().getBytes(StandardCharsets.UTF_8));
     }
   }
 }
