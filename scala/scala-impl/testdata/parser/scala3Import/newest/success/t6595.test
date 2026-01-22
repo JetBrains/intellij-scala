@@ -1,4 +1,4 @@
-//> using options -Xfatal-warnings -deprecation -feature
+//> using options -Werror -deprecation -feature
 
 import scala.annotation.switch
 
@@ -30,7 +30,7 @@ ScalaFile
     PsiWhiteSpace(' ')
     ScDirectiveToken(tDIRECTIVE_KEY)('options')
     PsiWhiteSpace(' ')
-    ScDirectiveToken(tDIRECTIVE_VALUE)('-Xfatal-warnings')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-Werror')
     PsiWhiteSpace(' ')
     ScDirectiveToken(tDIRECTIVE_VALUE)('-deprecation')
     PsiWhiteSpace(' ')

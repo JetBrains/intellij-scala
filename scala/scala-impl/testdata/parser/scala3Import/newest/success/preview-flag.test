@@ -1,0 +1,247 @@
+//> using options -preview
+package scala // @preview is private[scala]
+import scala.annotation.internal.preview
+
+@preview def previewDef: Int = 42
+
+class Foo:
+  def foo: Int = previewDef
+
+class Bar:
+  def bar: Int = previewDef
+object Bar:
+  def bar: Int = previewDef
+
+object Baz:
+  def bar: Int = previewDef
+
+def toplevelMethod: Int = previewDef
+-----
+ScalaFile
+  PsiElement(SCALA_DIRECTIVE)
+    ScDirectiveToken(tDIRECTIVE_PREFIX)('//>')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_COMMAND)('using')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_KEY)('options')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-preview')
+  PsiWhiteSpace('\n')
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: scala
+      PsiElement(identifier)('scala')
+    PsiWhiteSpace(' ')
+    PsiComment(comment)('// @preview is private[scala]')
+    PsiWhiteSpace('\n')
+    ScImportStatement
+      PsiElement(import)('import')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: scala.annotation.internal.preview
+          CodeReferenceElement: scala.annotation.internal
+            CodeReferenceElement: scala.annotation
+              CodeReferenceElement: scala
+                PsiElement(identifier)('scala')
+              PsiElement(.)('.')
+              PsiElement(identifier)('annotation')
+            PsiElement(.)('.')
+            PsiElement(identifier)('internal')
+          PsiElement(.)('.')
+          PsiElement(identifier)('preview')
+    PsiWhiteSpace('\n\n')
+    ScFunctionDefinition: previewDef
+      AnnotationsList
+        Annotation
+          PsiElement(@)('@')
+          AnnotationExpression
+            ConstructorInvocation
+              SimpleType: preview
+                CodeReferenceElement: preview
+                  PsiElement(identifier)('preview')
+      Modifiers
+        <empty list>
+      PsiWhiteSpace(' ')
+      PsiElement(def)('def')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('previewDef')
+      Parameters
+        <empty list>
+      PsiElement(:)(':')
+      PsiWhiteSpace(' ')
+      SimpleType: Int
+        CodeReferenceElement: Int
+          PsiElement(identifier)('Int')
+      PsiWhiteSpace(' ')
+      PsiElement(=)('=')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('42')
+    PsiWhiteSpace('\n\n')
+    ScClass: Foo
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Foo')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDefinition: foo
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('foo')
+            Parameters
+              <empty list>
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: previewDef
+              PsiElement(identifier)('previewDef')
+    PsiWhiteSpace('\n\n')
+    ScClass: Bar
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Bar')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDefinition: bar
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('bar')
+            Parameters
+              <empty list>
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: previewDef
+              PsiElement(identifier)('previewDef')
+    PsiWhiteSpace('\n')
+    ScObject: Bar
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Bar')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDefinition: bar
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('bar')
+            Parameters
+              <empty list>
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: previewDef
+              PsiElement(identifier)('previewDef')
+    PsiWhiteSpace('\n\n')
+    ScObject: Baz
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Baz')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDefinition: bar
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('bar')
+            Parameters
+              <empty list>
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: previewDef
+              PsiElement(identifier)('previewDef')
+    PsiWhiteSpace('\n\n')
+    ScFunctionDefinition: toplevelMethod
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(def)('def')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('toplevelMethod')
+      Parameters
+        <empty list>
+      PsiElement(:)(':')
+      PsiWhiteSpace(' ')
+      SimpleType: Int
+        CodeReferenceElement: Int
+          PsiElement(identifier)('Int')
+      PsiWhiteSpace(' ')
+      PsiElement(=)('=')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: previewDef
+        PsiElement(identifier)('previewDef')

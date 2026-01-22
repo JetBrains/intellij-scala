@@ -1,5 +1,3 @@
-//> using options -preview
-
 @main def Test: Unit =
   for
     x <- Option(23 -> "abc")
@@ -70,15 +68,6 @@
     assert(summon[Int] == 23)
 -----
 ScalaFile
-  PsiElement(SCALA_DIRECTIVE)
-    ScDirectiveToken(tDIRECTIVE_PREFIX)('//>')
-    PsiWhiteSpace(' ')
-    ScDirectiveToken(tDIRECTIVE_COMMAND)('using')
-    PsiWhiteSpace(' ')
-    ScDirectiveToken(tDIRECTIVE_KEY)('options')
-    PsiWhiteSpace(' ')
-    ScDirectiveToken(tDIRECTIVE_VALUE)('-preview')
-  PsiWhiteSpace('\n\n')
   ScFunctionDefinition: Test
     AnnotationsList
       Annotation

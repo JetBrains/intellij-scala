@@ -1,0 +1,12 @@
+[27,86]: PackageDef
+[27,27]: Ident
+[27,54]: Import
+[34,48]: Select
+[34,39]: Ident
+[56,86]: DefDef
+[65,80]: AppliedTypeTree
+[65,65]: TypedSplice
+[65,65]: TypeTree[TypeRef
+[65,68]: Ident
+[74,80]: Ident
+[83,86]: Ident

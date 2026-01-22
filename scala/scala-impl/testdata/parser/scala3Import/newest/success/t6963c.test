@@ -1,4 +1,4 @@
-//> using options -Xmigration:2.9 -Xfatal-warnings
+//> using options -Xmigration:2.9 -Werror
 //
 import collection.Seq
 object Test {
@@ -37,7 +37,7 @@ ScalaFile
     PsiWhiteSpace(' ')
     ScDirectiveToken(tDIRECTIVE_VALUE)('-Xmigration:2.9')
     PsiWhiteSpace(' ')
-    ScDirectiveToken(tDIRECTIVE_VALUE)('-Xfatal-warnings')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-Werror')
   PsiWhiteSpace('\n')
   PsiComment(comment)('//')
   PsiWhiteSpace('\n')

@@ -1,4 +1,4 @@
-//> using options -Xfatal-warnings -Wnonunit-statement
+//> using options -Werror -Wnonunit-statement
 
 class Node()
 class Elem(
@@ -39,7 +39,7 @@ ScalaFile
     PsiWhiteSpace(' ')
     ScDirectiveToken(tDIRECTIVE_KEY)('options')
     PsiWhiteSpace(' ')
-    ScDirectiveToken(tDIRECTIVE_VALUE)('-Xfatal-warnings')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-Werror')
     PsiWhiteSpace(' ')
     ScDirectiveToken(tDIRECTIVE_VALUE)('-Wnonunit-statement')
   PsiWhiteSpace('\n\n')

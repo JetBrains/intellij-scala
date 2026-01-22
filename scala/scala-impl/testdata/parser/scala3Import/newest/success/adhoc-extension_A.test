@@ -1,4 +1,4 @@
-//> using options -source future -deprecation -Xfatal-warnings
+//> using options -source future -deprecation -Werror
 
 package adhoc
 class A
@@ -18,7 +18,7 @@ ScalaFile
     PsiWhiteSpace(' ')
     ScDirectiveToken(tDIRECTIVE_VALUE)('-deprecation')
     PsiWhiteSpace(' ')
-    ScDirectiveToken(tDIRECTIVE_VALUE)('-Xfatal-warnings')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-Werror')
   PsiWhiteSpace('\n\n')
   ScPackaging
     PsiElement(package)('package')

@@ -1,4 +1,4 @@
-//> using options -source future -deprecation -Xfatal-warnings
+//> using options -source future -deprecation -Werror
 
 def r = BigInt(1) to BigInt(3) // error
 -----
@@ -16,7 +16,7 @@ ScalaFile
     PsiWhiteSpace(' ')
     ScDirectiveToken(tDIRECTIVE_VALUE)('-deprecation')
     PsiWhiteSpace(' ')
-    ScDirectiveToken(tDIRECTIVE_VALUE)('-Xfatal-warnings')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-Werror')
   PsiWhiteSpace('\n\n')
   ScFunctionDefinition: r
     AnnotationsList
