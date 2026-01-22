@@ -12,10 +12,12 @@ import com.intellij.ui.UIBundle
 import com.intellij.ui.dsl.builder.{ButtonKt, Panel, Row, TopGap}
 import com.intellij.util.SystemProperties
 import org.jetbrains.annotations.TestOnly
+import org.jetbrains.bsp.project.importing.BspSetupConfigStep.BspConfigSetupTask
 import org.jetbrains.plugins.scala.project.Versions
 import org.jetbrains.plugins.scala.util.ui.extensions.JComboBoxOps
 import org.jetbrains.sbt.project.template.wizard.buildSystem.{ScalaNewProjectWizardData, ScalaSampleCodeNewProjectWizardData, addScalaSampleCode}
 import org.jetbrains.sbt.project.template.wizard.{ScalaNewProjectWizardMultiStep, ScalaVersionStepLike}
+import org.jetbrains.scalaCli.project.importing.ScalaCliConfigSetup
 import org.jetbrains.scalaCli.{ScalaCliBundle, ScalaCliUtils}
 
 import java.nio.file.Path
@@ -78,6 +80,10 @@ final class ScalaCliNewProjectWizardStep(parent: ScalaNewProjectWizardMultiStep)
     }
 
     builder.commit(project)
+
+    val setup = new ScalaCliConfigSetup(projectRoot)
+    val task = new BspConfigSetupTask(setup)
+    task.queue()
   }
 
   override def setupUI(panel: Panel): Unit = {

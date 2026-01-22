@@ -206,7 +206,7 @@ class BspSetupConfigStep(wizardContext: WizardContext, builder: BspProjectImport
     (workspaceBspConfigs.nonEmpty ||
       configSetupChoices.size == 1 ||
       bspSetupConfigStepUi.chooseBspSetupList.getSelectedIndex >= 0 ) &&
-      bspSetupConfigStepUi.isJdkSelectedIfRequired()
+      bspSetupConfigStepUi.isJdkSelectedIfRequired
   }
 
   override def updateStep(): Unit = {
@@ -220,7 +220,7 @@ class BspSetupConfigStep(wizardContext: WizardContext, builder: BspProjectImport
       else bspSetupConfigStepUi.chooseBspSetupList.getSelectedIndex
 
     val jdkOpt = if (configSetupChoices.size > configIndex && configIndex >= 0) {
-      existingJdk.orElse(bspSetupConfigStepUi.getSelectedJdkIfRequired())
+      existingJdk.orElse(bspSetupConfigStepUi.getSelectedJdkIfRequired)
     } else None
 
     runSetupTask = jdkOpt match {
@@ -240,7 +240,7 @@ class BspSetupConfigStep(wizardContext: WizardContext, builder: BspProjectImport
     // TODO this spawns an indicator window which is not nice.
     // show a live log in the window or something?
     if (wizardContext.getProjectBuilder.isInstanceOf[BspProjectImportBuilder]) {
-      bspSetupConfigStepUi.getSelectedJdkIfRequired().foreach(SdkUtils.addJdkIfNotExists)
+      bspSetupConfigStepUi.getSelectedJdkIfRequired.foreach(SdkUtils.addJdkIfNotExists)
       updateDataModel() // without it runSetupTask is null
       builder.prepare(wizardContext)
       //this will use DefaultProject, which will lead to exception IDEA-289729
@@ -253,7 +253,7 @@ class BspSetupConfigStep(wizardContext: WizardContext, builder: BspProjectImport
 }
 object BspSetupConfigStep {
 
-  private[importing] class BspConfigSetupTask(setup: BspConfigSetup)
+  class BspConfigSetupTask(setup: BspConfigSetup)
     extends Task.Modal(null, BspBundle.message("bsp.config.steps.setup.config.task.title"), true) {
 
     override def run(indicator: ProgressIndicator): Unit = {
@@ -326,12 +326,12 @@ final class BspSetupConfigStepUi(
     }
   }
 
-  def getSelectedJdkIfRequired(): Option[Sdk] =
+  def getSelectedJdkIfRequired: Option[Sdk] =
     if (showJdkComboBox) Option(jdkComboBox.getSelectedJdk)
     else None
 
 
-  def isJdkSelectedIfRequired(): Boolean =
+  def isJdkSelectedIfRequired: Boolean =
     if (showJdkComboBox) jdkComboBox.getSelectedJdk != null
     else true
 }

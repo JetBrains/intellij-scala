@@ -66,7 +66,7 @@ final class GenerateBspConfig(project: Project, workspace: Path) {
 
     override def doValidateAll(): util.List[ValidationInfo] = {
       val validationInfo = super.doValidateAll()
-      if (!configSetupUi.isJdkSelectedIfRequired()) {
+      if (!configSetupUi.isJdkSelectedIfRequired) {
         validationInfo.add(new ValidationInfo(BspBundle.message("jdkComboBox.validation.tooltip")).forComponent(configSetupUi.jdkComboBox))
       }
       validationInfo
@@ -82,7 +82,7 @@ final class GenerateBspConfig(project: Project, workspace: Path) {
       configSetupUi.selectedConfigSetup
 
     def getSelectedJdkIfRequired(): Option[Sdk] =
-      configSetupUi.getSelectedJdkIfRequired()
+      configSetupUi.getSelectedJdkIfRequired
 
     locally {
       configSetupUi.updateChooseBspSetupComponent(configSetups)
