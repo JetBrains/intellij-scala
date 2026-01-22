@@ -98,7 +98,10 @@ class AfterUpdateDottyVersionScript {
 
 object AfterUpdateDottyVersionScript {
   private val scala3_repo_lts_branch = "lts-3.3"
-  private val scala3_repo_newest_branch = "release-3.7.4"
+  private val scala3_repo_newest_branch = "release-3.8.0"
+
+  private val scala3_lts_module_name = "scala3-bootstrapped"
+  private val scala3_newest_module_name = "scala3-bootstrapped-new"
 
   class ScalaRepository private (branch: String) {
     lazy val path: Path = {
@@ -117,6 +120,9 @@ object AfterUpdateDottyVersionScript {
       else
         throw new AssertionError(s"The file $blackList or $excludeList does not exist")
     }
+
+    lazy val `run-from-tasty.excludelist`: Path =
+      path.resolve("compiler/test/dotc/run-from-tasty.excludelist")
 
     private def prepare(): Path = {
       if (!Files.isDirectory(path)) {
@@ -252,7 +258,7 @@ object AfterUpdateDottyVersionScript {
 
     override protected val includeCompilerAsLibrary: Boolean = true
 
-    override def testProjectJdkVersion = LanguageLevel.JDK_17
+    override def testProjectJdkVersion = LanguageLevel.JDK_21
 
     private def log(msg: String): Unit =
       println(s"${this.getClass.getSimpleName}: $msg")
@@ -305,11 +311,11 @@ object AfterUpdateDottyVersionScript {
    * Imports Tests from the dotty repositiory
    */
   class Scala3ImportedParserTest_Import_FromDottyDirectory_LTS
-    extends Scala3ImportedParserTest_Import_FromDottyDirectory(Scala3ImportedParserTestConfig.LTS, scala3_repo_lts_branch)
+    extends Scala3ImportedParserTest_Import_FromDottyDirectory(Scala3ImportedParserTestConfig.LTS, scala3_repo_lts_branch, scala3_lts_module_name)
   class Scala3ImportedParserTest_Import_FromDottyDirectory_Newest
-    extends Scala3ImportedParserTest_Import_FromDottyDirectory(Scala3ImportedParserTestConfig.Newest, scala3_repo_newest_branch)
+    extends Scala3ImportedParserTest_Import_FromDottyDirectory(Scala3ImportedParserTestConfig.Newest, scala3_repo_newest_branch, scala3_newest_module_name)
 
-  abstract class Scala3ImportedParserTest_Import_FromDottyDirectory(config: Scala3ImportedParserTestConfig, branch: String)
+  abstract class Scala3ImportedParserTest_Import_FromDottyDirectory(config: Scala3ImportedParserTestConfig, branch: String, sbtTestModule: String)
     extends TestCase {
 
     val successDataPath = testDataPath / config.successDataDirectory
@@ -493,7 +499,7 @@ object AfterUpdateDottyVersionScript {
         clearDirectory(rangesPath)
       }
 
-      runSbt("testCompilation --from-tasty pos", repo.path)
+      runSbt(s"$sbtTestModule/testCompilation --from-tasty pos", repo.path)
 
       val allFilesInFailed = allFilesIn(failDataPath).toSet
       val allFilesInRanges = allFilesIn(rangesPath).toSet
@@ -532,10 +538,10 @@ object AfterUpdateDottyVersionScript {
    * Imports semanticdb tests from the dotty repositiory
    */
   class Scala3ImportedSemanticDbTest_Import_FromDottyDirectory_Scala3_LTS
-    extends Scala3ImportedSemanticDbTest_Import_FromDottyDirectory(ReferenceComparisonTestConfig_Scala3_LTS, scala3_repo_lts_branch)
+    extends Scala3ImportedSemanticDbTest_Import_FromDottyDirectory(ReferenceComparisonTestConfig_Scala3_LTS, scala3_repo_lts_branch, scala3_lts_module_name)
   class Scala3ImportedSemanticDbTest_Import_FromDottyDirectory_Scala3_Newest
-    extends Scala3ImportedSemanticDbTest_Import_FromDottyDirectory(ReferenceComparisonTestConfig_Scala3_Newest, scala3_repo_newest_branch)
-  abstract class Scala3ImportedSemanticDbTest_Import_FromDottyDirectory(config: ReferenceComparisonTestConfig, branch: String)
+    extends Scala3ImportedSemanticDbTest_Import_FromDottyDirectory(ReferenceComparisonTestConfig_Scala3_Newest, scala3_repo_newest_branch, scala3_newest_module_name)
+  abstract class Scala3ImportedSemanticDbTest_Import_FromDottyDirectory(config: ReferenceComparisonTestConfig, branch: String, sbtTestModule: String)
     extends TestCase {
 
     def test(): Unit = {
@@ -663,7 +669,7 @@ object AfterUpdateDottyVersionScript {
 
       patchTestBlacklist(repo)
 
-      runSbt("testCompilation --from-tasty pos", repo.path)
+      runSbt(s"$sbtTestModule/testCompilation --from-tasty pos", repo.path)
 
       copyRecursively(repo.path.resolve("tests/pos"), config.sourcePath)
 
@@ -750,9 +756,9 @@ object AfterUpdateDottyVersionScript {
   }
 
   private def runSbt(cmdline: String, dir: Path): Unit = {
-    val jdkDirectory = SmartJDKLoader.discoverJDK(JavaSdkVersion.JDK_17) match {
+    val jdkDirectory = SmartJDKLoader.discoverJDK(JavaSdkVersion.JDK_21) match {
       case Some(directory) => directory
-      case None => sys.error("JDK 17 must be installed on the machine")
+      case None => sys.error("JDK 21 must be installed on the machine")
     }
 
     println(
@@ -821,175 +827,50 @@ object AfterUpdateDottyVersionScript {
       """# Tree is huge and blows stack for printing Text
         |i7034.scala
         |
-        |# class i15274.orig$package cannot be unpickled because no class file was found for denot: val <none>
-        |i15274.orig.scala
-        |
-        |# class i15743.moregadt$package cannot be unpickled because no class file was found for denot: val <none>
-        |i15743.moregadt.scala
-        |
-        |# class i15991.orig$package cannot be unpickled because no class file was found for denot: val <none>
-        |i15991.orig.scala
-        |
-        |# EnumValue[E] is not a class
-        |i15155.scala
-        |
-        |#class i15523.avoid$package cannot be unpickled because no class file was found for denot: val <none>
-        |i15523.avoid.scala
-        |
-        |#class i15029.orig$package cannot be unpickled because no class file was found for denot: val <none>
-        |i15029.orig.scala
-        |
         |# also very long
         |jzon
         |i19907_slow_1000_3.scala
         |i19907_slow_1000_4.scala
         |
-        |#Fatal compiler crash when compiling: tests\pos\i15827.scala:
+        |# lts-3.3 and 3.8.0
+        |i18263.orig.scala
         |i15827.scala
-        |
-        |# update from 3.3.1 to 3.3.2:
+        |i15743.moregadt.scala
+        |i19955b.scala
         |extend-java-enum.scala
         |i13044.scala
         |i17230.bootstrap.scala
-        |i7445b.scala
-        |refinements.scala
-        |typeclass-scaling.scala
-        |
-        |## update for 3.6.2
-        |#Doesn't generate ranges for some reason
-        |B_2.scala
-        |i7045.scala
-        |i8715.scala
-        |
-        |i18699.scala
-        |i10929-new-syntax.scala
-        |i20135.scala
-        |cc-poly-source.scala
+        |i21390.zio.scala
         |i19955a.scala
-        |i18626.min1.scala
-        |mt-scrutinee-widen3.scala
+        |i21682.1.scala
+        |i15523.avoid.scala
+        |i15274.orig.scala
         |i21682.2.scala
         |i15029.orig.scala
-        |10747-shapeless-min.scala
-        |gears-probem-1.scala
-        |i19001.case1.scala
-        |reach-problem.scala
-        |invariant-cc.scala
-        |i18263.orig.scala
-        |8647.scala
+        |refinements.scala
         |i15155.scala
-        |i19009.case2.scala
-        |i19001.case2.scala
-        |i15827.scala
-        |Tuple.Elem.scala
         |i15991.orig.scala
-        |with-type-operator-3.4-migration.scala
-        |i10242.scala
-        |i9804.scala
-        |parsercombinators-arrow.scala
-        |precise-ctx-bound.scala
-        |gears-probem.scala
-        |typeclasses-this.scala
-        |i15743.moregadt.scala
-        |i19942.1.scala
-        |i15926.contra.scala
-        |i19570.orig.scala
-        |singleton-ctx-bound.scala
-        |dotty-experimental.scala
-        |21400b.scala
-        |i15926.min.scala
-        |hylolib-cb-extract.scala
-        |mt-redux-norm.perspective.scala
-        |cc-poly-1.scala
-        |i20237.scala
-        |i16596.scala
-        |i18867-3.3.scala
-        |i19955b.scala
-        |with-type-operator-3.3.scala
-        |i19009.case3.scala
+        |typeclass-scaling.scala
         |i20053b.scala
         |i18253.orig.scala
-        |i10929.scala
-        |i19570.min1.scala
-        |i15926.extract.scala
-        |i18867-3.4.scala
-        |i21239.orig.scala
-        |cc-ex-unpack.scala
-        |cb-companion-joins.scala
-        |parsercombinators-ctx-bounds.scala
-        |reach-capability.scala
-        |Buffer.scala
-        |deferredSummon.scala
-        |extend-java-enum.scala
-        |parsercombinators-new-syntax.scala
-        |i16596.orig.scala
-        |i19009.case1.scala
-        |i15177.hylolib.scala
-        |i17257.min.scala
-        |typeclasses-arrow.scala
-        |polycap.scala
-        |i13580.scala
-        |parsercombinators-this.scala
-        |i17395.scala
-        |9757.scala
-        |deferred-givens-singletons.scala
-        |i21390.zio.scala
-        |i21682.1.scala
-        |infer-exists.scala
-        |i16706.scala
-        |boxmap-paper.scala
-        |parsercombinators-givens.scala
-        |Tuple.Drop.scala
-        |i15523.avoid.scala
-        |i17395-spec.ordered.scala
-        |hylolib-extract.scala
-        |cc-poly-source-capability.scala
-        |i15274.orig.scala
-        |cc-experimental.scala
-        |i19001.case3.scala
-        |given-syntax.scala
-        |alphanumeric-infix-operator-compat
-        |
-        |i7851.scala
-        |FromString-cb-companion.scala
-        |hylolib-deferred-given-extract.scala
-        |i18097.1.scala
-        |typeclass-aggregates.scala
-        |erased-soft-keyword.scala
-        |parsercombinators-givens-2.scala
-        |i18097.orig.scala
         |i21558.orig.scala
-        |FromString-named.scala
-        |experimental-flag.scala
-        |erased-class-as-args.scala
-        |TupleReverse.scala
-        |cbproxy-expansion.scala
-        |parent-refinement.scala
-        |depclass-1.scala
-        |precise-indexof.scala
-        |i18097.2.scala
-        |tailrec.scala
-        |TupleReverseOnto.scala
-        |FromString.scala
-        |typeclasses.scala
-        |i10848a.scala
-        |i2941.scala
-        |i17222.4.scala
-        |preview-flag.scala
-        |i14477.scala
-        |packageObjectValues.scala
-        |i17222.5.scala
-        |i6199c.scala
-        |i6199b.scala
-        |i21981.orig.scala
-        |
-        |# Scala 3.7.4
-        |cc-use-alternatives.scala
-        |erased-pathdep-1.scala
-        |i23489.scala
-        |t5031_2.scala
-        |t8367.scala
+        |i7445b.scala
+        |alphanumeric-infix-operator-compat
+        |i18533 # this uses a specific jvm version, so let's not test it
+        |t12396
         |""".stripMargin.trim
     )
+
+    //patchFile(
+    //  repo.`run-from-tasty.excludelist`,
+    //  """# CI only: cannot reduce summonFrom with
+    //    |sip23-valueof.scala""".stripMargin,
+    //  """# CI only: cannot reduce summonFrom with
+    //    |sip23-valueof.scala
+    //    |
+    //    |# 3.8.0
+    //    |backwardsCompat-implicitParens
+    //    |""".stripMargin
+    //)
   }
 }
