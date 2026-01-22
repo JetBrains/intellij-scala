@@ -7,7 +7,7 @@ import com.intellij.openapi.editor.{Editor, LogicalPosition}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.compiler.{CompileServerManager, ScalaCompileServerForm}
+import org.jetbrains.plugins.scala.compiler.{CompileServerSettingsUtil, ScalaCompileServerForm}
 import org.jetbrains.plugins.scala.console.configuration.ScalaSdkJLineFixer
 import org.jetbrains.plugins.scala.worksheet.WorksheetBundle
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult
@@ -79,14 +79,14 @@ class WorksheetEvaluationErrorReporter(
       .addAction(new NotificationAction(WorksheetBundle.message("worksheet.configuration.errors.enable.compile.server")) {
         override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
           notification.expire()
-          CompileServerManager.enableCompileServer()
+          CompileServerSettingsUtil.enableCompileServer()
         }
       })
       .addAction(new NotificationAction(WorksheetBundle.message("worksheet.configuration.errors.configure.compile.server")) {
         override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
           notification.expire()
           val filter = ScalaCompileServerForm.SearchFilter.USE_COMPILE_SERVER_FOR_SCALA
-          CompileServerManager.showCompileServerSettingsDialog(project, filter)
+          CompileServerSettingsUtil.showCompileServerSettingsDialog(project, filter)
         }
       })
       .notify(project)

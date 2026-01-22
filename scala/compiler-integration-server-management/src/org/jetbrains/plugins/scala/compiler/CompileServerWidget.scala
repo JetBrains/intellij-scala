@@ -11,7 +11,7 @@ import com.intellij.ui.awt.RelativePoint
 import com.intellij.util.Consumer
 import com.intellij.util.messages.MessageBusConnection
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.compiler.CompileServerManager.{ServerStatusListener, showCompileServerSettingsDialog}
+import org.jetbrains.plugins.scala.compiler.CompileServerManager.ServerStatusListener
 import org.jetbrains.plugins.scala.extensions.executeOnPooledThread
 
 import java.awt.Point
@@ -110,7 +110,7 @@ private final class CompileServerWidget(project: Project) extends StatusBarWidge
 
   private object Configure extends AnAction(CompilerIntegrationBundle.message("action.configure"), CompilerIntegrationBundle.message("configure.compile.server"), AllIcons.General.Settings) with DumbAware {
     override def actionPerformed(e: AnActionEvent): Unit =
-      showCompileServerSettingsDialog(project)
+      CompileServerSettingsUtil.showCompileServerSettingsDialog(project)
 
     override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
   }

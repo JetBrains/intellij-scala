@@ -5,12 +5,10 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.NlsSafe
 import com.intellij.util.messages.Topic
 import com.intellij.util.ui.update.{MergingUpdateQueue, Update}
 import org.jetbrains.plugins.scala.compiler.CompileServerManager._
-import org.jetbrains.plugins.scala.settings.{ScalaCompileServerSettings, ShowSettingsUtilImplExt}
 import org.jetbrains.plugins.scala.util.ScalaShutDownTracker
 
 import java.util.concurrent.locks.{Lock, ReentrantLock}
@@ -86,12 +84,4 @@ object CompileServerManager {
 
   def instance(): CompileServerManager =
     ApplicationManager.getApplication.getService(classOf[CompileServerManager])
-
-  def showCompileServerSettingsDialog(project: Project, filter: String = ""): Unit =
-    ShowSettingsUtilImplExt.showSettingsDialog(project, classOf[ScalaCompileServerForm], filter)
-
-  def enableCompileServer(): Unit = {
-    val settings = ScalaCompileServerSettings.getInstance()
-    settings.COMPILE_SERVER_ENABLED = true
-  }
 }
