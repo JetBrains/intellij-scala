@@ -5,13 +5,12 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.util.NlsSafe
-import com.intellij.util.messages.Topic
 import com.intellij.util.ui.update.{MergingUpdateQueue, Update}
 
 import java.util.concurrent.locks.{Lock, ReentrantLock}
 
 @Service(Array(Service.Level.APP))
-final class CompileServerManager extends Disposable with CompileServerManager.ErrorListener {
+private final class CompileServerErrorNotificationService extends Disposable {
 
   private val errorNotificationUpdateQueue: MergingUpdateQueue =
     new MergingUpdateQueue("ErrorNotificationQueue", 1000, true, MergingUpdateQueue.ANY_COMPONENT, this)
@@ -37,17 +36,9 @@ final class CompileServerManager extends Disposable with CompileServerManager.Er
     }
   }
 
-  { // init
-    val app = ApplicationManager.getApplication
-    if (!app.isUnitTestMode) {
-      val conn = app.getMessageBus.connect(this: Disposable) // Automatically released when this service is disposed
-      conn.subscribe(CompileServerManager.ErrorTopic, this: CompileServerManager.ErrorListener)
-    }
-  }
-
   override def dispose(): Unit = {}
 
-  override def onError(errorsText: String): Unit = {
+  def onError(errorsText: String): Unit = {
     errorsBufferLock.lock()
     try errorsBuffer.append(errorsText)
     finally errorsBufferLock.unlock()
@@ -55,15 +46,7 @@ final class CompileServerManager extends Disposable with CompileServerManager.Er
   }
 }
 
-object CompileServerManager {
-
-  private[compiler] trait ErrorListener {
-    def onError(text: String): Unit
-  }
-
-  private[compiler] val ErrorTopic: Topic[ErrorListener] =
-    new Topic("Scala compile server errors text topic", classOf[ErrorListener])
-
-  def instance(): CompileServerManager =
-    ApplicationManager.getApplication.getService(classOf[CompileServerManager])
+private object CompileServerErrorNotificationService {
+  def instance(): CompileServerErrorNotificationService =
+    ApplicationManager.getApplication.getService(classOf[CompileServerErrorNotificationService])
 }

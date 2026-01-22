@@ -82,7 +82,7 @@ private final class ProcessWatcher(process: Process, commandLine: String) {
       Log.warn(s"[$outputType] ${text.trim}")
       val filtered = text.linesIterator.mkString(System.lineSeparator())
       if (filtered.nonEmpty) {
-        ApplicationManager.getApplication.getMessageBus.syncPublisher(CompileServerManager.ErrorTopic).onError(filtered)
+        ApplicationManager.getApplication.getMessageBus.syncPublisher(CompileServerErrorListener.Topic).onError(filtered)
       }
     }
 
