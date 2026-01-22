@@ -4,9 +4,9 @@ import com.intellij.CommonBundle
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.Sdk
-import com.intellij.openapi.ui.{DialogWrapper, ValidationInfo}
+import com.intellij.openapi.ui.{DialogWrapper, Messages, ValidationInfo}
 import org.jetbrains.annotations.ApiStatus
-import org.jetbrains.bsp.project.importing.bspConfigSteps.{ConfigSetup, workspaceSetupChoices}
+import org.jetbrains.bsp.project.importing.bspConfigSteps._
 import org.jetbrains.bsp.project.importing.preimport.BloopPreImporter
 import org.jetbrains.bsp.project.importing.setup.NoConfigSetup
 import org.jetbrains.bsp.project.importing.{BspSetupConfigStep, BspSetupConfigStepUi, bspConfigSteps}
@@ -34,8 +34,13 @@ final class GenerateBspConfig(project: Project, workspace: Path) {
 
   def runSynchronously(): Unit = {
     val configSetups: Seq[ConfigSetup] = workspaceSetupChoices(workspace)
-    if (configSetups.isEmpty)
-      return //TODO handle?
+    if (configSetups.isEmpty) {
+      val possibleSetups = Seq(SbtSetup, MillSetup, ScalaCliSetup, FastpassSetup)
+      val possibleSetupsText = possibleSetups.map(configChoiceName).mkString(", ")
+      val message = BspBundle.message("cannot.determine.project.setup", possibleSetupsText)
+      Messages.showErrorDialog(project, message, BspBundle.message("cannot.determine.project.setup.title"))
+      return
+    }
 
     val projectJdk = BspJdkUtil.findOrCreateBestJdkForProject(Some(project))
     val (configSetupOpt, sdkOpt): (Option[ConfigSetup], Option[Sdk]) = if (configSetups.size > 1 || projectJdk.isEmpty) {
@@ -58,7 +63,7 @@ final class GenerateBspConfig(project: Project, workspace: Path) {
 
   }
 
-  final class GenerateBspConfigDialog(
+  private final class GenerateBspConfigDialog(
     configSetups: Seq[ConfigSetup],
     project: Project,
     shouldShowJdkComboBox: Boolean
@@ -98,7 +103,6 @@ final class GenerateBspConfig(project: Project, workspace: Path) {
     override def createCenterPanel(): JComponent = null
   }
 
-  //TODO: currently this handles only two cases: sbt and sbt + bloop
   //TODO: make it cancellable for both: SBT and Bloop
   //TODO: it duplicates some code with BspProjectResolver.installBSPs
   private def runConfigSetupSynchronously(setup: ConfigSetup, sdk: Sdk): Unit = {
