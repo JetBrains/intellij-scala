@@ -1,6 +1,6 @@
 trait B
 class D extends B
-object Test extends App {
+object Test {
   def foo[T](bar: T) = {
     bar match {
       case _: Array[Array[_]] => println("array 2d")
@@ -61,14 +61,6 @@ ScalaFile
     PsiElement(identifier)('Test')
     PsiWhiteSpace(' ')
     ExtendsBlock
-      PsiElement(extends)('extends')
-      PsiWhiteSpace(' ')
-      TemplateParents
-        ConstructorInvocation
-          SimpleType: App
-            CodeReferenceElement: App
-              PsiElement(identifier)('App')
-      PsiWhiteSpace(' ')
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')

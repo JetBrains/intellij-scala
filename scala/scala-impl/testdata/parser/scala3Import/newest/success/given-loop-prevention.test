@@ -1,4 +1,4 @@
-//> using options -Xfatal-warnings -source 3.4
+//> using options -Werror -source 3.4
 
 class Foo
 
@@ -21,7 +21,7 @@ ScalaFile
     PsiWhiteSpace(' ')
     ScDirectiveToken(tDIRECTIVE_KEY)('options')
     PsiWhiteSpace(' ')
-    ScDirectiveToken(tDIRECTIVE_VALUE)('-Xfatal-warnings')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-Werror')
     PsiWhiteSpace(' ')
     ScDirectiveToken(tDIRECTIVE_VALUE)('-source')
     PsiWhiteSpace(' ')

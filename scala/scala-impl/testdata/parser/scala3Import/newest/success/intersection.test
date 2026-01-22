@@ -18,8 +18,7 @@ object intersection {
 
 
   class C[-T]
-  def f: C[A] & C[B] = ???
-  def g: C[A | B] = f
+  def g: C[A | B] = ???
   def h: C[A] & C[B] = g
 }
 object Test {
@@ -41,17 +40,6 @@ object Test {
   def fooBA = (??? : B with A).f
   def fooBA1: Int = fooBA
 }
-
-object Test2:
-  class Row[+X]
-  class A
-  class B
-  class C extends Row[A]
-  class D extends Row[B]
-  val x: C & D = ???
-  val y: Row[A & B] = x
-
-
 -----
 ScalaFile
   ScObject: intersection
@@ -358,49 +346,6 @@ ScalaFile
           ExtendsBlock
             <empty list>
         PsiWhiteSpace('\n  ')
-        ScFunctionDefinition: f
-          AnnotationsList
-            <empty list>
-          Modifiers
-            <empty list>
-          PsiElement(def)('def')
-          PsiWhiteSpace(' ')
-          PsiElement(identifier)('f')
-          Parameters
-            <empty list>
-          PsiElement(:)(':')
-          PsiWhiteSpace(' ')
-          InfixType: C[A] & C[B]
-            ParametrizedType: C[A]
-              SimpleType: C
-                CodeReferenceElement: C
-                  PsiElement(identifier)('C')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: A
-                  CodeReferenceElement: A
-                    PsiElement(identifier)('A')
-                PsiElement(])(']')
-            PsiWhiteSpace(' ')
-            CodeReferenceElement: &
-              PsiElement(identifier)('&')
-            PsiWhiteSpace(' ')
-            ParametrizedType: C[B]
-              SimpleType: C
-                CodeReferenceElement: C
-                  PsiElement(identifier)('C')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: B
-                  CodeReferenceElement: B
-                    PsiElement(identifier)('B')
-                PsiElement(])(']')
-          PsiWhiteSpace(' ')
-          PsiElement(=)('=')
-          PsiWhiteSpace(' ')
-          ReferenceExpression: ???
-            PsiElement(identifier)('???')
-        PsiWhiteSpace('\n  ')
         ScFunctionDefinition: g
           AnnotationsList
             <empty list>
@@ -434,8 +379,8 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
-          ReferenceExpression: f
-            PsiElement(identifier)('f')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
         PsiWhiteSpace('\n  ')
         ScFunctionDefinition: h
           AnnotationsList
@@ -776,204 +721,3 @@ ScalaFile
             PsiElement(identifier)('fooBA')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
-  PsiWhiteSpace('\n\n')
-  ScObject: Test2
-    AnnotationsList
-      <empty list>
-    Modifiers
-      <empty list>
-    PsiElement(object)('object')
-    PsiWhiteSpace(' ')
-    PsiElement(identifier)('Test2')
-    ExtendsBlock
-      ScTemplateBody
-        PsiElement(:)(':')
-        PsiWhiteSpace('\n  ')
-        ScClass: Row
-          AnnotationsList
-            <empty list>
-          Modifiers
-            <empty list>
-          PsiElement(class)('class')
-          PsiWhiteSpace(' ')
-          PsiElement(identifier)('Row')
-          TypeParameterClause
-            PsiElement([)('[')
-            TypeParameter: X
-              PsiElement(identifier)('+')
-              PsiElement(identifier)('X')
-            PsiElement(])(']')
-          PrimaryConstructor
-            AnnotationsList
-              <empty list>
-            Modifiers
-              <empty list>
-            Parameters
-              <empty list>
-          ExtendsBlock
-            <empty list>
-        PsiWhiteSpace('\n  ')
-        ScClass: A
-          AnnotationsList
-            <empty list>
-          Modifiers
-            <empty list>
-          PsiElement(class)('class')
-          PsiWhiteSpace(' ')
-          PsiElement(identifier)('A')
-          PrimaryConstructor
-            AnnotationsList
-              <empty list>
-            Modifiers
-              <empty list>
-            Parameters
-              <empty list>
-          ExtendsBlock
-            <empty list>
-        PsiWhiteSpace('\n  ')
-        ScClass: B
-          AnnotationsList
-            <empty list>
-          Modifiers
-            <empty list>
-          PsiElement(class)('class')
-          PsiWhiteSpace(' ')
-          PsiElement(identifier)('B')
-          PrimaryConstructor
-            AnnotationsList
-              <empty list>
-            Modifiers
-              <empty list>
-            Parameters
-              <empty list>
-          ExtendsBlock
-            <empty list>
-        PsiWhiteSpace('\n  ')
-        ScClass: C
-          AnnotationsList
-            <empty list>
-          Modifiers
-            <empty list>
-          PsiElement(class)('class')
-          PsiWhiteSpace(' ')
-          PsiElement(identifier)('C')
-          PrimaryConstructor
-            AnnotationsList
-              <empty list>
-            Modifiers
-              <empty list>
-            Parameters
-              <empty list>
-          PsiWhiteSpace(' ')
-          ExtendsBlock
-            PsiElement(extends)('extends')
-            PsiWhiteSpace(' ')
-            TemplateParents
-              ConstructorInvocation
-                ParametrizedType: Row[A]
-                  SimpleType: Row
-                    CodeReferenceElement: Row
-                      PsiElement(identifier)('Row')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: A
-                      CodeReferenceElement: A
-                        PsiElement(identifier)('A')
-                    PsiElement(])(']')
-        PsiWhiteSpace('\n  ')
-        ScClass: D
-          AnnotationsList
-            <empty list>
-          Modifiers
-            <empty list>
-          PsiElement(class)('class')
-          PsiWhiteSpace(' ')
-          PsiElement(identifier)('D')
-          PrimaryConstructor
-            AnnotationsList
-              <empty list>
-            Modifiers
-              <empty list>
-            Parameters
-              <empty list>
-          PsiWhiteSpace(' ')
-          ExtendsBlock
-            PsiElement(extends)('extends')
-            PsiWhiteSpace(' ')
-            TemplateParents
-              ConstructorInvocation
-                ParametrizedType: Row[B]
-                  SimpleType: Row
-                    CodeReferenceElement: Row
-                      PsiElement(identifier)('Row')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: B
-                      CodeReferenceElement: B
-                        PsiElement(identifier)('B')
-                    PsiElement(])(']')
-        PsiWhiteSpace('\n  ')
-        ScPatternDefinition: x
-          AnnotationsList
-            <empty list>
-          Modifiers
-            <empty list>
-          PsiElement(val)('val')
-          PsiWhiteSpace(' ')
-          ListOfPatterns
-            ReferencePattern: x
-              PsiElement(identifier)('x')
-          PsiElement(:)(':')
-          PsiWhiteSpace(' ')
-          InfixType: C & D
-            SimpleType: C
-              CodeReferenceElement: C
-                PsiElement(identifier)('C')
-            PsiWhiteSpace(' ')
-            CodeReferenceElement: &
-              PsiElement(identifier)('&')
-            PsiWhiteSpace(' ')
-            SimpleType: D
-              CodeReferenceElement: D
-                PsiElement(identifier)('D')
-          PsiWhiteSpace(' ')
-          PsiElement(=)('=')
-          PsiWhiteSpace(' ')
-          ReferenceExpression: ???
-            PsiElement(identifier)('???')
-        PsiWhiteSpace('\n  ')
-        ScPatternDefinition: y
-          AnnotationsList
-            <empty list>
-          Modifiers
-            <empty list>
-          PsiElement(val)('val')
-          PsiWhiteSpace(' ')
-          ListOfPatterns
-            ReferencePattern: y
-              PsiElement(identifier)('y')
-          PsiElement(:)(':')
-          PsiWhiteSpace(' ')
-          ParametrizedType: Row[A & B]
-            SimpleType: Row
-              CodeReferenceElement: Row
-                PsiElement(identifier)('Row')
-            TypeArgumentsList
-              PsiElement([)('[')
-              InfixType: A & B
-                SimpleType: A
-                  CodeReferenceElement: A
-                    PsiElement(identifier)('A')
-                PsiWhiteSpace(' ')
-                CodeReferenceElement: &
-                  PsiElement(identifier)('&')
-                PsiWhiteSpace(' ')
-                SimpleType: B
-                  CodeReferenceElement: B
-                    PsiElement(identifier)('B')
-              PsiElement(])(']')
-          PsiWhiteSpace(' ')
-          PsiElement(=)('=')
-          PsiWhiteSpace(' ')
-          ReferenceExpression: x
-            PsiElement(identifier)('x')

@@ -1,14 +1,26 @@
+//> using options -source:future
+
 trait TypedArray[T, Repr]
 
-trait Ops[T <: TypedArray[_, T]] {
+trait Ops[T <: TypedArray[?, T]] {
   def typedArray(): T
 }
 
 object Test {
-  def test(ops: Ops[_ <: TypedArray[_, _]]) = ops.typedArray()
+  def test1(ops: Ops[? <: TypedArray[?, ?]]) = ops.typedArray()
+  def test2(ops: Ops[? <: TypedArray[? <: AnyRef, ?]]) = ops.typedArray() // ok, was error: Recursion limit exceeded.
 }
 -----
 ScalaFile
+  PsiElement(SCALA_DIRECTIVE)
+    ScDirectiveToken(tDIRECTIVE_PREFIX)('//>')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_COMMAND)('using')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_KEY)('options')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-source:future')
+  PsiWhiteSpace('\n\n')
   ScTrait: TypedArray
     AnnotationsList
       <empty list>
@@ -51,14 +63,14 @@ ScalaFile
         PsiWhiteSpace(' ')
         PsiElement(<:)('<:')
         PsiWhiteSpace(' ')
-        ParametrizedType: TypedArray[_, T]
+        ParametrizedType: TypedArray[?, T]
           SimpleType: TypedArray
             CodeReferenceElement: TypedArray
               PsiElement(identifier)('TypedArray')
           TypeArgumentsList
             PsiElement([)('[')
-            WildcardType: _
-              PsiElement(_)('_')
+            WildcardType: ?
+              PsiElement(?)('?')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
             SimpleType: T
@@ -111,14 +123,14 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        ScFunctionDefinition: test
+        ScFunctionDefinition: test1
           AnnotationsList
             <empty list>
           Modifiers
             <empty list>
           PsiElement(def)('def')
           PsiWhiteSpace(' ')
-          PsiElement(identifier)('test')
+          PsiElement(identifier)('test1')
           Parameters
             ParametersClause
               PsiElement(()('(')
@@ -131,29 +143,29 @@ ScalaFile
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
                 ParameterType
-                  ParametrizedType: Ops[_ <: TypedArray[_, _]]
+                  ParametrizedType: Ops[? <: TypedArray[?, ?]]
                     SimpleType: Ops
                       CodeReferenceElement: Ops
                         PsiElement(identifier)('Ops')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      WildcardType: _ <: TypedArray[_, _]
-                        PsiElement(_)('_')
+                      WildcardType: ? <: TypedArray[?, ?]
+                        PsiElement(?)('?')
                         PsiWhiteSpace(' ')
                         PsiElement(<:)('<:')
                         PsiWhiteSpace(' ')
-                        ParametrizedType: TypedArray[_, _]
+                        ParametrizedType: TypedArray[?, ?]
                           SimpleType: TypedArray
                             CodeReferenceElement: TypedArray
                               PsiElement(identifier)('TypedArray')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            WildcardType: _
-                              PsiElement(_)('_')
+                            WildcardType: ?
+                              PsiElement(?)('?')
                             PsiElement(,)(',')
                             PsiWhiteSpace(' ')
-                            WildcardType: _
-                              PsiElement(_)('_')
+                            WildcardType: ?
+                              PsiElement(?)('?')
                             PsiElement(])(']')
                       PsiElement(])(']')
               PsiElement())(')')
@@ -169,5 +181,72 @@ ScalaFile
             ArgumentList
               PsiElement(()('(')
               PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: test2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('test2')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: ops
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('ops')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Ops[? <: TypedArray[? <: AnyRef, ?]]
+                    SimpleType: Ops
+                      CodeReferenceElement: Ops
+                        PsiElement(identifier)('Ops')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      WildcardType: ? <: TypedArray[? <: AnyRef, ?]
+                        PsiElement(?)('?')
+                        PsiWhiteSpace(' ')
+                        PsiElement(<:)('<:')
+                        PsiWhiteSpace(' ')
+                        ParametrizedType: TypedArray[? <: AnyRef, ?]
+                          SimpleType: TypedArray
+                            CodeReferenceElement: TypedArray
+                              PsiElement(identifier)('TypedArray')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            WildcardType: ? <: AnyRef
+                              PsiElement(?)('?')
+                              PsiWhiteSpace(' ')
+                              PsiElement(<:)('<:')
+                              PsiWhiteSpace(' ')
+                              SimpleType: AnyRef
+                                CodeReferenceElement: AnyRef
+                                  PsiElement(identifier)('AnyRef')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            WildcardType: ?
+                              PsiElement(?)('?')
+                            PsiElement(])(']')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: ops.typedArray
+              ReferenceExpression: ops
+                PsiElement(identifier)('ops')
+              PsiElement(.)('.')
+              PsiElement(identifier)('typedArray')
+            ArgumentList
+              PsiElement(()('(')
+              PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// ok, was error: Recursion limit exceeded.')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

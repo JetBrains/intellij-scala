@@ -1,4 +1,4 @@
-//> using options -Xfatal-warnings
+//> using options -Werror
 import scala.language.implicitConversions
 import scala.language.future
 
@@ -23,7 +23,7 @@ ScalaFile
     PsiWhiteSpace(' ')
     ScDirectiveToken(tDIRECTIVE_KEY)('options')
     PsiWhiteSpace(' ')
-    ScDirectiveToken(tDIRECTIVE_VALUE)('-Xfatal-warnings')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-Werror')
   PsiWhiteSpace('\n')
   ScImportStatement
     PsiElement(import)('import')

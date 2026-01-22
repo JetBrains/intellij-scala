@@ -26,7 +26,7 @@ object t2 {
   }
 
   val x: A & B = new C
-  val ys: List[A & B] = x.children
+  val ys: List[A] & List[B] = x.children
 
   class C extends A with B {
     def children: List[A & B] = ???
@@ -357,24 +357,31 @@ ScalaFile
                 PsiElement(identifier)('ys')
             PsiElement(:)(':')
             PsiWhiteSpace(' ')
-            ParametrizedType: List[A & B]
-              SimpleType: List
-                CodeReferenceElement: List
-                  PsiElement(identifier)('List')
-              TypeArgumentsList
-                PsiElement([)('[')
-                InfixType: A & B
+            InfixType: List[A] & List[B]
+              ParametrizedType: List[A]
+                SimpleType: List
+                  CodeReferenceElement: List
+                    PsiElement(identifier)('List')
+                TypeArgumentsList
+                  PsiElement([)('[')
                   SimpleType: A
                     CodeReferenceElement: A
                       PsiElement(identifier)('A')
-                  PsiWhiteSpace(' ')
-                  CodeReferenceElement: &
-                    PsiElement(identifier)('&')
-                  PsiWhiteSpace(' ')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: &
+                PsiElement(identifier)('&')
+              PsiWhiteSpace(' ')
+              ParametrizedType: List[B]
+                SimpleType: List
+                  CodeReferenceElement: List
+                    PsiElement(identifier)('List')
+                TypeArgumentsList
+                  PsiElement([)('[')
                   SimpleType: B
                     CodeReferenceElement: B
                       PsiElement(identifier)('B')
-                PsiElement(])(']')
+                  PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(=)('=')
             PsiWhiteSpace(' ')
