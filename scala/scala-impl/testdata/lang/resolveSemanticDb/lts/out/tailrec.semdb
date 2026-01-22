@@ -1,0 +1,41 @@
+Document tests/pos/tailrec.scala
+(3:8..3:13) scala/
+(3:14..3:24) scala/annotation/
+(3:25..3:32) scala/annotation/tailrec#
+(8:2..8:9) scala/annotation/tailrec#
+(9:20..9:23) scala/Int#
+(9:30..9:33) scala/Int#
+(9:37..9:41) _empty_/Foo1# -> 5:14
+(9:43..9:47) _empty_/Foo2# -> 6:7
+(9:53..9:56) scala/Int#
+(10:6..10:7) _empty_/tailrec$package.test1().(n) -> 9:17
+(10:8..10:10) scala/Int#`<=`(+3).
+(10:18..10:21) _empty_/tailrec$package.test1().(acc) -> 9:25
+(11:8..11:13) _empty_/tailrec$package.test1(). -> 9:11
+(11:14..11:15) _empty_/tailrec$package.test1().(n) -> 9:17
+(11:16..11:17) scala/Int#`-`(+3).
+(11:21..11:24) _empty_/tailrec$package.test1().(acc) -> 9:25
+(11:25..11:26) scala/Int#`*`(+3).
+(11:27..11:28) _empty_/tailrec$package.test1().(n) -> 9:17
+(13:2..13:9) scala/annotation/tailrec#
+(14:20..14:23) scala/Int#
+(14:30..14:33) scala/Int#
+(14:36..14:40) _empty_/Foo1# -> 5:14
+(14:45..14:48) scala/Int#
+(15:6..15:7) _empty_/tailrec$package.test2().(n) -> 14:17
+(15:8..15:10) scala/Int#`<=`(+3).
+(15:18..15:21) _empty_/tailrec$package.test2().(acc) -> 14:25
+(16:8..16:13) _empty_/tailrec$package.test2(). -> 14:11
+(16:14..16:15) _empty_/tailrec$package.test2().(n) -> 14:17
+(16:16..16:17) scala/Int#`-`(+3).
+(16:21..16:24) _empty_/tailrec$package.test2().(acc) -> 14:25
+(16:25..16:26) scala/Int#`*`(+3).
+(16:27..16:28) _empty_/tailrec$package.test2().(n) -> 14:17
+(18:2..18:6) scala/main#
+(19:9..19:13) _empty_/Foo1# -> 5:14
+(19:16..19:20) _empty_/Foo1# -> 5:14
+(20:9..20:13) _empty_/Foo2# -> 6:7
+(20:16..20:20) _empty_/Foo2# -> 6:7
+(21:3..21:8) _empty_/tailrec$package.test1(). -> 9:11
+(22:3..22:8) _empty_/tailrec$package.test2(). -> 14:11
+

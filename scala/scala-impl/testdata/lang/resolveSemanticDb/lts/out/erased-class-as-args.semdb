@@ -1,0 +1,51 @@
+Document tests/pos/erased-class-as-args.scala
+(5:23..5:26) scala/Int#
+(5:36..5:37) _empty_/A# -> 3:14
+(7:14..7:15) _empty_/A# -> 3:14
+(7:20..7:23) scala/Int#
+(7:28..7:31) scala/Int#
+(9:17..9:18) _empty_/A# -> 3:14
+(9:33..9:34) _empty_/`erased-class-as-args$package`.TSub#[T] -> 9:12
+(9:39..9:42) scala/Int#
+(9:47..9:50) scala/Int#
+(11:13..11:14) _empty_/`erased-class-as-args$package`.T# -> 7:6
+(11:18..11:19) _empty_/`erased-class-as-args$package`.useT().(f) -> 11:10
+(11:24..11:25) _empty_/A# -> 3:14
+(13:16..13:20) _empty_/`erased-class-as-args$package`.TSub# -> 9:6
+(13:21..13:22) _empty_/B# -> 5:14
+(13:27..13:28) _empty_/`erased-class-as-args$package`.useTSub().(f) -> 13:13
+(13:33..13:34) _empty_/B# -> 5:14
+(15:2..15:6) scala/main#
+(16:20..16:21) _empty_/A# -> 3:14
+(16:26..16:29) scala/Int#
+(16:34..16:35) local7 -> 16:23
+(16:36..16:37) scala/Int#`+`(+4).
+(17:14..17:15) _empty_/`erased-class-as-args$package`.T# -> 7:6
+(17:28..17:29) local11 -> 17:22
+(17:30..17:31) scala/Int#`+`(+4).
+(18:3..18:9) scala/Predef.assert(+1).
+(18:10..18:14) _empty_/`erased-class-as-args$package`.useT(). -> 11:5
+(18:32..18:33) local14 -> 18:26
+(18:34..18:35) scala/Int#`+`(+4).
+(18:39..18:41) scala/Int#`==`(+3).
+(19:3..19:9) scala/Predef.assert(+1).
+(19:10..19:14) _empty_/`erased-class-as-args$package`.useT(). -> 11:5
+(19:15..19:21) local8 -> 16:7
+(19:23..19:25) scala/Int#`==`(+3).
+(20:3..20:9) scala/Predef.assert(+1).
+(20:10..20:14) _empty_/`erased-class-as-args$package`.useT(). -> 11:5
+(20:15..20:20) local12 -> 17:7
+(20:22..20:24) scala/Int#`==`(+3).
+(22:13..22:17) _empty_/`erased-class-as-args$package`.TSub# -> 9:6
+(22:18..22:19) _empty_/A# -> 3:14
+(22:33..22:34) local16 -> 22:27
+(22:35..22:36) scala/Int#`+`(+4).
+(23:3..23:9) scala/Predef.assert(+1).
+(23:10..23:14) _empty_/`erased-class-as-args$package`.useT(). -> 11:5
+(23:15..23:19) local17 -> 22:7
+(23:21..23:23) scala/Int#`==`(+3).
+(24:3..24:9) scala/Predef.assert(+1).
+(24:10..24:17) _empty_/`erased-class-as-args$package`.useTSub(). -> 13:5
+(24:18..24:22) local17 -> 22:7
+(24:24..24:26) scala/Int#`==`(+3).
+

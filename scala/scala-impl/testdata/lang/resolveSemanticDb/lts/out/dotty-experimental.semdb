@@ -1,0 +1,5 @@
+Document tests/pos/dotty-experimental.scala
+(3:9..3:14) dotty/
+(6:11..6:15) scala/caps.
+(6:16..6:19) scala/caps.cap.
+
