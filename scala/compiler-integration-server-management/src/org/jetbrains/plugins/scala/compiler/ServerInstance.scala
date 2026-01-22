@@ -12,10 +12,9 @@ private final class ServerInstance(
   val jvmParameters: Set[String],
   val jpsUseUnifiedIC: Boolean,
   val incrementalCompiler: IncrementalityType
-) extends CompileServerManager.ErrorListener {
+) {
 
   private var _stopped: Boolean = false
-  private val errorBuffer: StringBuffer = new StringBuffer()
 
   def running: Boolean = !_stopped && watcher.running
 
@@ -41,10 +40,6 @@ private final class ServerInstance(
       s", jpsUseUnifiedIC: $jpsUseUnifiedIC" +
       s", incrementalCompiler: $incrementalCompiler" +
       s", stopped: ${_stopped}" +
-      s", running: $running" +
-      s", errors: ${errorBuffer.toString}"
+      s", running: $running"
   }
-
-  override def onError(text: String): Unit =
-    errorBuffer.append(text)
 }
