@@ -4,15 +4,11 @@ import com.intellij.notification.NotificationType
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.NlsSafe
 import com.intellij.util.messages.Topic
 import com.intellij.util.ui.update.{MergingUpdateQueue, Update}
-import org.jetbrains.plugins.scala.compiler.CompileServerManager._
-import org.jetbrains.plugins.scala.util.ScalaShutDownTracker
 
 import java.util.concurrent.locks.{Lock, ReentrantLock}
-import scala.concurrent.duration.Duration
 
 @Service(Array(Service.Level.APP))
 final class CompileServerManager extends Disposable with CompileServerManager.ErrorListener {
@@ -47,11 +43,6 @@ final class CompileServerManager extends Disposable with CompileServerManager.Er
       val conn = app.getMessageBus.connect(this: Disposable) // Automatically released when this service is disposed
       conn.subscribe(CompileServerManager.ErrorTopic, this: CompileServerManager.ErrorListener)
     }
-
-    ScalaShutDownTracker.registerShutdownTask(() => {
-      Log.info("Shutdown event triggered, stopping server")
-      CompileServerLauncher.stopServerAndWaitFor(Duration.Zero)
-    })
   }
 
   override def dispose(): Unit = {}
@@ -65,8 +56,6 @@ final class CompileServerManager extends Disposable with CompileServerManager.Er
 }
 
 object CompileServerManager {
-
-  private final val Log: Logger = Logger.getInstance(classOf[CompileServerManager])
 
   private[compiler] trait ErrorListener {
     def onError(text: String): Unit

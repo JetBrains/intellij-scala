@@ -542,6 +542,7 @@ object CompileServerLauncher {
    */
   @RequiresBackgroundThread
   def ensureServerRunning(project: Project): Boolean = {
+    CompileServerShutdown.registerShutdownTask()
     // initialize the server manager service to ensure that errors thrown by the server are reported in the IDE
     CompileServerManager.instance()
     serverStartLock.synchronized {
