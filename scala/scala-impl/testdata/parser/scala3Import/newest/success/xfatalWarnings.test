@@ -1,4 +1,4 @@
-//> using options -nowarn -Xfatal-warnings
+//> using options -nowarn -Werror
 // succeeds despite -Xfatal-warnings because of -nowarn
 
 object xfatalWarnings {
@@ -23,7 +23,7 @@ ScalaFile
     PsiWhiteSpace(' ')
     ScDirectiveToken(tDIRECTIVE_VALUE)('-nowarn')
     PsiWhiteSpace(' ')
-    ScDirectiveToken(tDIRECTIVE_VALUE)('-Xfatal-warnings')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-Werror')
   PsiWhiteSpace('\n')
   PsiComment(comment)('// succeeds despite -Xfatal-warnings because of -nowarn')
   PsiWhiteSpace('\n\n')

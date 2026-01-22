@@ -1,0 +1,648 @@
+//> using options -experimental
+
+import scala.Tuple.*
+def test[T1, T2, T3, T4] =
+  summon[Reverse[EmptyTuple] =:= EmptyTuple]
+  summon[Reverse[T1 *: EmptyTuple] =:= T1 *: EmptyTuple]
+  summon[Reverse[(T1, T2)] =:= (T2, T1)]
+  summon[Reverse[(T1, T2, T3)] =:= (T3, T2, T1)]
+  summon[Reverse[(T1, T2, T3, T4)] =:= (T4, T3, T2, T1)]
+
+  summon[Reverse[(T1, T2, T3, T4)] =:= Reverse[(T1, T2, T3, T4)]]
+  summon[Reverse[(T1, T2, T3, T4)] <:< Reverse[(Any, Any, Any, Any)]]
+
+def test2[Tup <: Tuple] =
+  summon[Reverse[Tup] =:= Reverse[Tup]]
+
+def test3[T1, T2, T3, T4](tup1: (T1, T2, T3, T4)): Unit =
+  val tup11: (T1, T2, T3, T4) = tup1
+  summon[Reverse[tup11.type] =:= (T4, T3, T2, T1)]
+-----
+ScalaFile
+  PsiElement(SCALA_DIRECTIVE)
+    ScDirectiveToken(tDIRECTIVE_PREFIX)('//>')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_COMMAND)('using')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_KEY)('options')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-experimental')
+  PsiWhiteSpace('\n\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.Tuple
+        CodeReferenceElement: scala
+          PsiElement(identifier)('scala')
+        PsiElement(.)('.')
+        PsiElement(identifier)('Tuple')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T1
+        PsiElement(identifier)('T1')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: T2
+        PsiElement(identifier)('T2')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: T3
+        PsiElement(identifier)('T3')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: T4
+        PsiElement(identifier)('T4')
+      PsiElement(])(']')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      GenericCall
+        ReferenceExpression: summon
+          PsiElement(identifier)('summon')
+        TypeArgumentsList
+          PsiElement([)('[')
+          InfixType: Reverse[EmptyTuple] =:= EmptyTuple
+            ParametrizedType: Reverse[EmptyTuple]
+              SimpleType: Reverse
+                CodeReferenceElement: Reverse
+                  PsiElement(identifier)('Reverse')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: EmptyTuple
+                  CodeReferenceElement: EmptyTuple
+                    PsiElement(identifier)('EmptyTuple')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: =:=
+              PsiElement(identifier)('=:=')
+            PsiWhiteSpace(' ')
+            SimpleType: EmptyTuple
+              CodeReferenceElement: EmptyTuple
+                PsiElement(identifier)('EmptyTuple')
+          PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      GenericCall
+        ReferenceExpression: summon
+          PsiElement(identifier)('summon')
+        TypeArgumentsList
+          PsiElement([)('[')
+          InfixType: Reverse[T1 *: EmptyTuple] =:= T1 *: EmptyTuple
+            ParametrizedType: Reverse[T1 *: EmptyTuple]
+              SimpleType: Reverse
+                CodeReferenceElement: Reverse
+                  PsiElement(identifier)('Reverse')
+              TypeArgumentsList
+                PsiElement([)('[')
+                InfixType: T1 *: EmptyTuple
+                  SimpleType: T1
+                    CodeReferenceElement: T1
+                      PsiElement(identifier)('T1')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: *:
+                    PsiElement(identifier)('*:')
+                  PsiWhiteSpace(' ')
+                  SimpleType: EmptyTuple
+                    CodeReferenceElement: EmptyTuple
+                      PsiElement(identifier)('EmptyTuple')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: =:=
+              PsiElement(identifier)('=:=')
+            PsiWhiteSpace(' ')
+            InfixType: T1 *: EmptyTuple
+              SimpleType: T1
+                CodeReferenceElement: T1
+                  PsiElement(identifier)('T1')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: *:
+                PsiElement(identifier)('*:')
+              PsiWhiteSpace(' ')
+              SimpleType: EmptyTuple
+                CodeReferenceElement: EmptyTuple
+                  PsiElement(identifier)('EmptyTuple')
+          PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      GenericCall
+        ReferenceExpression: summon
+          PsiElement(identifier)('summon')
+        TypeArgumentsList
+          PsiElement([)('[')
+          InfixType: Reverse[(T1, T2)] =:= (T2, T1)
+            ParametrizedType: Reverse[(T1, T2)]
+              SimpleType: Reverse
+                CodeReferenceElement: Reverse
+                  PsiElement(identifier)('Reverse')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TupleType: (T1, T2)
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: T1
+                      CodeReferenceElement: T1
+                        PsiElement(identifier)('T1')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: T2
+                      CodeReferenceElement: T2
+                        PsiElement(identifier)('T2')
+                  PsiElement())(')')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: =:=
+              PsiElement(identifier)('=:=')
+            PsiWhiteSpace(' ')
+            TupleType: (T2, T1)
+              PsiElement(()('(')
+              TypesList
+                SimpleType: T2
+                  CodeReferenceElement: T2
+                    PsiElement(identifier)('T2')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: T1
+                  CodeReferenceElement: T1
+                    PsiElement(identifier)('T1')
+              PsiElement())(')')
+          PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      GenericCall
+        ReferenceExpression: summon
+          PsiElement(identifier)('summon')
+        TypeArgumentsList
+          PsiElement([)('[')
+          InfixType: Reverse[(T1, T2, T3)] =:= (T3, T2, T1)
+            ParametrizedType: Reverse[(T1, T2, T3)]
+              SimpleType: Reverse
+                CodeReferenceElement: Reverse
+                  PsiElement(identifier)('Reverse')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TupleType: (T1, T2, T3)
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: T1
+                      CodeReferenceElement: T1
+                        PsiElement(identifier)('T1')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: T2
+                      CodeReferenceElement: T2
+                        PsiElement(identifier)('T2')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: T3
+                      CodeReferenceElement: T3
+                        PsiElement(identifier)('T3')
+                  PsiElement())(')')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: =:=
+              PsiElement(identifier)('=:=')
+            PsiWhiteSpace(' ')
+            TupleType: (T3, T2, T1)
+              PsiElement(()('(')
+              TypesList
+                SimpleType: T3
+                  CodeReferenceElement: T3
+                    PsiElement(identifier)('T3')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: T2
+                  CodeReferenceElement: T2
+                    PsiElement(identifier)('T2')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: T1
+                  CodeReferenceElement: T1
+                    PsiElement(identifier)('T1')
+              PsiElement())(')')
+          PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      GenericCall
+        ReferenceExpression: summon
+          PsiElement(identifier)('summon')
+        TypeArgumentsList
+          PsiElement([)('[')
+          InfixType: Reverse[(T1, T2, T3, T4)] =:= (T4, T3, T2, T1)
+            ParametrizedType: Reverse[(T1, T2, T3, T4)]
+              SimpleType: Reverse
+                CodeReferenceElement: Reverse
+                  PsiElement(identifier)('Reverse')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TupleType: (T1, T2, T3, T4)
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: T1
+                      CodeReferenceElement: T1
+                        PsiElement(identifier)('T1')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: T2
+                      CodeReferenceElement: T2
+                        PsiElement(identifier)('T2')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: T3
+                      CodeReferenceElement: T3
+                        PsiElement(identifier)('T3')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: T4
+                      CodeReferenceElement: T4
+                        PsiElement(identifier)('T4')
+                  PsiElement())(')')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: =:=
+              PsiElement(identifier)('=:=')
+            PsiWhiteSpace(' ')
+            TupleType: (T4, T3, T2, T1)
+              PsiElement(()('(')
+              TypesList
+                SimpleType: T4
+                  CodeReferenceElement: T4
+                    PsiElement(identifier)('T4')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: T3
+                  CodeReferenceElement: T3
+                    PsiElement(identifier)('T3')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: T2
+                  CodeReferenceElement: T2
+                    PsiElement(identifier)('T2')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: T1
+                  CodeReferenceElement: T1
+                    PsiElement(identifier)('T1')
+              PsiElement())(')')
+          PsiElement(])(']')
+      PsiWhiteSpace('\n\n  ')
+      GenericCall
+        ReferenceExpression: summon
+          PsiElement(identifier)('summon')
+        TypeArgumentsList
+          PsiElement([)('[')
+          InfixType: Reverse[(T1, T2, T3, T4)] =:= Reverse[(T1, T2, T3, T4)]
+            ParametrizedType: Reverse[(T1, T2, T3, T4)]
+              SimpleType: Reverse
+                CodeReferenceElement: Reverse
+                  PsiElement(identifier)('Reverse')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TupleType: (T1, T2, T3, T4)
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: T1
+                      CodeReferenceElement: T1
+                        PsiElement(identifier)('T1')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: T2
+                      CodeReferenceElement: T2
+                        PsiElement(identifier)('T2')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: T3
+                      CodeReferenceElement: T3
+                        PsiElement(identifier)('T3')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: T4
+                      CodeReferenceElement: T4
+                        PsiElement(identifier)('T4')
+                  PsiElement())(')')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: =:=
+              PsiElement(identifier)('=:=')
+            PsiWhiteSpace(' ')
+            ParametrizedType: Reverse[(T1, T2, T3, T4)]
+              SimpleType: Reverse
+                CodeReferenceElement: Reverse
+                  PsiElement(identifier)('Reverse')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TupleType: (T1, T2, T3, T4)
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: T1
+                      CodeReferenceElement: T1
+                        PsiElement(identifier)('T1')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: T2
+                      CodeReferenceElement: T2
+                        PsiElement(identifier)('T2')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: T3
+                      CodeReferenceElement: T3
+                        PsiElement(identifier)('T3')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: T4
+                      CodeReferenceElement: T4
+                        PsiElement(identifier)('T4')
+                  PsiElement())(')')
+                PsiElement(])(']')
+          PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      GenericCall
+        ReferenceExpression: summon
+          PsiElement(identifier)('summon')
+        TypeArgumentsList
+          PsiElement([)('[')
+          InfixType: Reverse[(T1, T2, T3, T4)] <:< Reverse[(Any, Any, Any, Any)]
+            ParametrizedType: Reverse[(T1, T2, T3, T4)]
+              SimpleType: Reverse
+                CodeReferenceElement: Reverse
+                  PsiElement(identifier)('Reverse')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TupleType: (T1, T2, T3, T4)
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: T1
+                      CodeReferenceElement: T1
+                        PsiElement(identifier)('T1')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: T2
+                      CodeReferenceElement: T2
+                        PsiElement(identifier)('T2')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: T3
+                      CodeReferenceElement: T3
+                        PsiElement(identifier)('T3')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: T4
+                      CodeReferenceElement: T4
+                        PsiElement(identifier)('T4')
+                  PsiElement())(')')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: <:<
+              PsiElement(identifier)('<:<')
+            PsiWhiteSpace(' ')
+            ParametrizedType: Reverse[(Any, Any, Any, Any)]
+              SimpleType: Reverse
+                CodeReferenceElement: Reverse
+                  PsiElement(identifier)('Reverse')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TupleType: (Any, Any, Any, Any)
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: Any
+                      CodeReferenceElement: Any
+                        PsiElement(identifier)('Any')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Any
+                      CodeReferenceElement: Any
+                        PsiElement(identifier)('Any')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Any
+                      CodeReferenceElement: Any
+                        PsiElement(identifier)('Any')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Any
+                      CodeReferenceElement: Any
+                        PsiElement(identifier)('Any')
+                  PsiElement())(')')
+                PsiElement(])(']')
+          PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: test2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test2')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: Tup
+        PsiElement(identifier)('Tup')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Tuple
+          CodeReferenceElement: Tuple
+            PsiElement(identifier)('Tuple')
+      PsiElement(])(']')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    GenericCall
+      ReferenceExpression: summon
+        PsiElement(identifier)('summon')
+      TypeArgumentsList
+        PsiElement([)('[')
+        InfixType: Reverse[Tup] =:= Reverse[Tup]
+          ParametrizedType: Reverse[Tup]
+            SimpleType: Reverse
+              CodeReferenceElement: Reverse
+                PsiElement(identifier)('Reverse')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Tup
+                CodeReferenceElement: Tup
+                  PsiElement(identifier)('Tup')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          CodeReferenceElement: =:=
+            PsiElement(identifier)('=:=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Reverse[Tup]
+            SimpleType: Reverse
+              CodeReferenceElement: Reverse
+                PsiElement(identifier)('Reverse')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Tup
+                CodeReferenceElement: Tup
+                  PsiElement(identifier)('Tup')
+              PsiElement(])(']')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: test3
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test3')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T1
+        PsiElement(identifier)('T1')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: T2
+        PsiElement(identifier)('T2')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: T3
+        PsiElement(identifier)('T3')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: T4
+        PsiElement(identifier)('T4')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: tup1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('tup1')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            TupleType: (T1, T2, T3, T4)
+              PsiElement(()('(')
+              TypesList
+                SimpleType: T1
+                  CodeReferenceElement: T1
+                    PsiElement(identifier)('T1')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: T2
+                  CodeReferenceElement: T2
+                    PsiElement(identifier)('T2')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: T3
+                  CodeReferenceElement: T3
+                    PsiElement(identifier)('T3')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: T4
+                  CodeReferenceElement: T4
+                    PsiElement(identifier)('T4')
+              PsiElement())(')')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Unit
+      CodeReferenceElement: Unit
+        PsiElement(identifier)('Unit')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: tup11
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: tup11
+            PsiElement(identifier)('tup11')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        TupleType: (T1, T2, T3, T4)
+          PsiElement(()('(')
+          TypesList
+            SimpleType: T1
+              CodeReferenceElement: T1
+                PsiElement(identifier)('T1')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleType: T2
+              CodeReferenceElement: T2
+                PsiElement(identifier)('T2')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleType: T3
+              CodeReferenceElement: T3
+                PsiElement(identifier)('T3')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleType: T4
+              CodeReferenceElement: T4
+                PsiElement(identifier)('T4')
+          PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: tup1
+          PsiElement(identifier)('tup1')
+      PsiWhiteSpace('\n  ')
+      GenericCall
+        ReferenceExpression: summon
+          PsiElement(identifier)('summon')
+        TypeArgumentsList
+          PsiElement([)('[')
+          InfixType: Reverse[tup11.type] =:= (T4, T3, T2, T1)
+            ParametrizedType: Reverse[tup11.type]
+              SimpleType: Reverse
+                CodeReferenceElement: Reverse
+                  PsiElement(identifier)('Reverse')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: tup11.type
+                  CodeReferenceElement: tup11
+                    PsiElement(identifier)('tup11')
+                  PsiElement(.)('.')
+                  PsiElement(type)('type')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: =:=
+              PsiElement(identifier)('=:=')
+            PsiWhiteSpace(' ')
+            TupleType: (T4, T3, T2, T1)
+              PsiElement(()('(')
+              TypesList
+                SimpleType: T4
+                  CodeReferenceElement: T4
+                    PsiElement(identifier)('T4')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: T3
+                  CodeReferenceElement: T3
+                    PsiElement(identifier)('T3')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: T2
+                  CodeReferenceElement: T2
+                    PsiElement(identifier)('T2')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: T1
+                  CodeReferenceElement: T1
+                    PsiElement(identifier)('T1')
+              PsiElement())(')')
+          PsiElement(])(']')

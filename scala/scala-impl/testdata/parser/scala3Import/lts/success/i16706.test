@@ -1,0 +1,345 @@
+import scala.deriving.Mirror
+import scala.reflect.ClassTag
+
+type TupleUnionLub[T <: Tuple, Lub, Acc <: Lub] <: Lub = T match {
+  case (h & Lub) *: t => TupleUnionLub[t, Lub, Acc | h]
+  case EmptyTuple     => Acc
+}
+
+transparent inline given derived[A](
+    using m: Mirror.SumOf[A],
+    idClassTag: ClassTag[TupleUnionLub[m.MirroredElemTypes, A, Nothing]]
+): Unit = ()
+
+sealed trait Foo
+case class FooA(a: Int) extends Foo
+
+val instance = derived[Foo] // error
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.deriving.Mirror
+        CodeReferenceElement: scala.deriving
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('deriving')
+        PsiElement(.)('.')
+        PsiElement(identifier)('Mirror')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.reflect.ClassTag
+        CodeReferenceElement: scala.reflect
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('reflect')
+        PsiElement(.)('.')
+        PsiElement(identifier)('ClassTag')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: TupleUnionLub
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('TupleUnionLub')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Tuple
+          CodeReferenceElement: Tuple
+            PsiElement(identifier)('Tuple')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: Lub
+        PsiElement(identifier)('Lub')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: Acc
+        PsiElement(identifier)('Acc')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Lub
+          CodeReferenceElement: Lub
+            PsiElement(identifier)('Lub')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(<:)('<:')
+    PsiWhiteSpace(' ')
+    SimpleType: Lub
+      CodeReferenceElement: Lub
+        PsiElement(identifier)('Lub')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchType: T match {
+  case (h & Lub) *: t => TupleUnionLub[t, Lub, Acc | h]
+  case EmptyTuple     => Acc
+}
+      SimpleType: T
+        CodeReferenceElement: T
+          PsiElement(identifier)('T')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace(' ')
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      ScMatchTypeCasesImpl(match type cases)
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          InfixType: (h & Lub) *: t
+            TypeInParenthesis: (h & Lub)
+              PsiElement(()('(')
+              InfixType: h & Lub
+                TypeVariable: h
+                  PsiElement(identifier)('h')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: &
+                  PsiElement(identifier)('&')
+                PsiWhiteSpace(' ')
+                SimpleType: Lub
+                  CodeReferenceElement: Lub
+                    PsiElement(identifier)('Lub')
+              PsiElement())(')')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: *:
+              PsiElement(identifier)('*:')
+            PsiWhiteSpace(' ')
+            TypeVariable: t
+              PsiElement(identifier)('t')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          ParametrizedType: TupleUnionLub[t, Lub, Acc | h]
+            SimpleType: TupleUnionLub
+              CodeReferenceElement: TupleUnionLub
+                PsiElement(identifier)('TupleUnionLub')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: t
+                CodeReferenceElement: t
+                  PsiElement(identifier)('t')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Lub
+                CodeReferenceElement: Lub
+                  PsiElement(identifier)('Lub')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              InfixType: Acc | h
+                SimpleType: Acc
+                  CodeReferenceElement: Acc
+                    PsiElement(identifier)('Acc')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: |
+                  PsiElement(identifier)('|')
+                PsiWhiteSpace(' ')
+                SimpleType: h
+                  CodeReferenceElement: h
+                    PsiElement(identifier)('h')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          SimpleType: EmptyTuple
+            CodeReferenceElement: EmptyTuple
+              PsiElement(identifier)('EmptyTuple')
+          PsiWhiteSpace('     ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          SimpleType: Acc
+            CodeReferenceElement: Acc
+              PsiElement(identifier)('Acc')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScGivenAliasDefinition: derived
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(transparent)('transparent')
+      PsiWhiteSpace(' ')
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(given)('given')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('derived')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiWhiteSpace('\n    ')
+        PsiElement(using)('using')
+        PsiWhiteSpace(' ')
+        Parameter: m
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('m')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Mirror.SumOf[A]
+              SimpleType: Mirror.SumOf
+                CodeReferenceElement: Mirror.SumOf
+                  CodeReferenceElement: Mirror
+                    PsiElement(identifier)('Mirror')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('SumOf')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
+                PsiElement(])(']')
+        PsiElement(,)(',')
+        PsiWhiteSpace('\n    ')
+        Parameter: idClassTag
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('idClassTag')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: ClassTag[TupleUnionLub[m.MirroredElemTypes, A, Nothing]]
+              SimpleType: ClassTag
+                CodeReferenceElement: ClassTag
+                  PsiElement(identifier)('ClassTag')
+              TypeArgumentsList
+                PsiElement([)('[')
+                ParametrizedType: TupleUnionLub[m.MirroredElemTypes, A, Nothing]
+                  SimpleType: TupleUnionLub
+                    CodeReferenceElement: TupleUnionLub
+                      PsiElement(identifier)('TupleUnionLub')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: m.MirroredElemTypes
+                      CodeReferenceElement: m.MirroredElemTypes
+                        CodeReferenceElement: m
+                          PsiElement(identifier)('m')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('MirroredElemTypes')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Nothing
+                      CodeReferenceElement: Nothing
+                        PsiElement(identifier)('Nothing')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Unit
+      CodeReferenceElement: Unit
+        PsiElement(identifier)('Unit')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    UnitExpression
+      PsiElement(()('(')
+      PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(sealed)('sealed')
+    PsiWhiteSpace(' ')
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScClass: FooA
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('FooA')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: a
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Foo
+            CodeReferenceElement: Foo
+              PsiElement(identifier)('Foo')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: instance
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: instance
+        PsiElement(identifier)('instance')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: derived
+        PsiElement(identifier)('derived')
+      TypeArgumentsList
+        PsiElement([)('[')
+        SimpleType: Foo
+          CodeReferenceElement: Foo
+            PsiElement(identifier)('Foo')
+        PsiElement(])(']')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// error')

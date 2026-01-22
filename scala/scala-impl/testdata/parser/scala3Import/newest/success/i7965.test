@@ -5,8 +5,6 @@ trait Z
 
 abstract class Test {
   def x: Has[X] | (Has[Y] & Has[Z])
-  val y: Has[? >: (X & Y) | (X & Z) <: (X | Y) & (X | Z)] = x
-
   def foo[T <: Has[_]](has: T): T = has
   foo(x)
 }
@@ -199,105 +197,6 @@ ScalaFile
                     PsiElement(])(']')
               PsiElement())(')')
         PsiWhiteSpace('\n  ')
-        ScPatternDefinition: y
-          AnnotationsList
-            <empty list>
-          Modifiers
-            <empty list>
-          PsiElement(val)('val')
-          PsiWhiteSpace(' ')
-          ListOfPatterns
-            ReferencePattern: y
-              PsiElement(identifier)('y')
-          PsiElement(:)(':')
-          PsiWhiteSpace(' ')
-          ParametrizedType: Has[? >: (X & Y) | (X & Z) <: (X | Y) & (X | Z)]
-            SimpleType: Has
-              CodeReferenceElement: Has
-                PsiElement(identifier)('Has')
-            TypeArgumentsList
-              PsiElement([)('[')
-              WildcardType: ? >: (X & Y) | (X & Z) <: (X | Y) & (X | Z)
-                PsiElement(?)('?')
-                PsiWhiteSpace(' ')
-                PsiElement(>:)('>:')
-                PsiWhiteSpace(' ')
-                InfixType: (X & Y) | (X & Z)
-                  TypeInParenthesis: (X & Y)
-                    PsiElement(()('(')
-                    InfixType: X & Y
-                      SimpleType: X
-                        CodeReferenceElement: X
-                          PsiElement(identifier)('X')
-                      PsiWhiteSpace(' ')
-                      CodeReferenceElement: &
-                        PsiElement(identifier)('&')
-                      PsiWhiteSpace(' ')
-                      SimpleType: Y
-                        CodeReferenceElement: Y
-                          PsiElement(identifier)('Y')
-                    PsiElement())(')')
-                  PsiWhiteSpace(' ')
-                  CodeReferenceElement: |
-                    PsiElement(identifier)('|')
-                  PsiWhiteSpace(' ')
-                  TypeInParenthesis: (X & Z)
-                    PsiElement(()('(')
-                    InfixType: X & Z
-                      SimpleType: X
-                        CodeReferenceElement: X
-                          PsiElement(identifier)('X')
-                      PsiWhiteSpace(' ')
-                      CodeReferenceElement: &
-                        PsiElement(identifier)('&')
-                      PsiWhiteSpace(' ')
-                      SimpleType: Z
-                        CodeReferenceElement: Z
-                          PsiElement(identifier)('Z')
-                    PsiElement())(')')
-                PsiWhiteSpace(' ')
-                PsiElement(<:)('<:')
-                PsiWhiteSpace(' ')
-                InfixType: (X | Y) & (X | Z)
-                  TypeInParenthesis: (X | Y)
-                    PsiElement(()('(')
-                    InfixType: X | Y
-                      SimpleType: X
-                        CodeReferenceElement: X
-                          PsiElement(identifier)('X')
-                      PsiWhiteSpace(' ')
-                      CodeReferenceElement: |
-                        PsiElement(identifier)('|')
-                      PsiWhiteSpace(' ')
-                      SimpleType: Y
-                        CodeReferenceElement: Y
-                          PsiElement(identifier)('Y')
-                    PsiElement())(')')
-                  PsiWhiteSpace(' ')
-                  CodeReferenceElement: &
-                    PsiElement(identifier)('&')
-                  PsiWhiteSpace(' ')
-                  TypeInParenthesis: (X | Z)
-                    PsiElement(()('(')
-                    InfixType: X | Z
-                      SimpleType: X
-                        CodeReferenceElement: X
-                          PsiElement(identifier)('X')
-                      PsiWhiteSpace(' ')
-                      CodeReferenceElement: |
-                        PsiElement(identifier)('|')
-                      PsiWhiteSpace(' ')
-                      SimpleType: Z
-                        CodeReferenceElement: Z
-                          PsiElement(identifier)('Z')
-                    PsiElement())(')')
-              PsiElement(])(']')
-          PsiWhiteSpace(' ')
-          PsiElement(=)('=')
-          PsiWhiteSpace(' ')
-          ReferenceExpression: x
-            PsiElement(identifier)('x')
-        PsiWhiteSpace('\n\n  ')
         ScFunctionDefinition: foo
           AnnotationsList
             <empty list>

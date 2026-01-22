@@ -1,0 +1,481 @@
+import scala.compiletime.ops.int, int.-
+
+type Count[N, T] <: Tuple = (N, T) match
+  case (0, T) => EmptyTuple
+  case (N, T) => T *: Count[N - 1, T]
+
+val a: Count[3, Int] = (1, 2, 3)
+val b: Count[4, Int] = (1, 2, 3, 4)
+val c: Count[5, Int] = (1, 2, 3, 4, 5)
+val d: Count[6, Int] = (1, 2, 3, 4, 5, 6)
+val z: Count[23, Int] = (
+  1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+  11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+  21, 22, 23)
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.compiletime.ops.int
+        CodeReferenceElement: scala.compiletime.ops
+          CodeReferenceElement: scala.compiletime
+            CodeReferenceElement: scala
+              PsiElement(identifier)('scala')
+            PsiElement(.)('.')
+            PsiElement(identifier)('compiletime')
+          PsiElement(.)('.')
+          PsiElement(identifier)('ops')
+        PsiElement(.)('.')
+        PsiElement(identifier)('int')
+    PsiElement(,)(',')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: int.-
+        CodeReferenceElement: int
+          PsiElement(identifier)('int')
+        PsiElement(.)('.')
+        PsiElement(identifier)('-')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: Count
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Count')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: N
+        PsiElement(identifier)('N')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(<:)('<:')
+    PsiWhiteSpace(' ')
+    SimpleType: Tuple
+      CodeReferenceElement: Tuple
+        PsiElement(identifier)('Tuple')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchType: (N, T) match
+  case (0, T) => EmptyTuple
+  case (N, T) => T *: Count[N - 1, T]
+      TupleType: (N, T)
+        PsiElement(()('(')
+        TypesList
+          SimpleType: N
+            CodeReferenceElement: N
+              PsiElement(identifier)('N')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          SimpleType: T
+            CodeReferenceElement: T
+              PsiElement(identifier)('T')
+        PsiElement())(')')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      ScMatchTypeCasesImpl(match type cases)
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          TupleType: (0, T)
+            PsiElement(()('(')
+            TypesList
+              LiteralType: 0
+                IntegerLiteral
+                  PsiElement(integer)('0')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+            PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          SimpleType: EmptyTuple
+            CodeReferenceElement: EmptyTuple
+              PsiElement(identifier)('EmptyTuple')
+        PsiWhiteSpace('\n  ')
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          TupleType: (N, T)
+            PsiElement(()('(')
+            TypesList
+              SimpleType: N
+                CodeReferenceElement: N
+                  PsiElement(identifier)('N')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+            PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          InfixType: T *: Count[N - 1, T]
+            SimpleType: T
+              CodeReferenceElement: T
+                PsiElement(identifier)('T')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: *:
+              PsiElement(identifier)('*:')
+            PsiWhiteSpace(' ')
+            ParametrizedType: Count[N - 1, T]
+              SimpleType: Count
+                CodeReferenceElement: Count
+                  PsiElement(identifier)('Count')
+              TypeArgumentsList
+                PsiElement([)('[')
+                InfixType: N - 1
+                  SimpleType: N
+                    CodeReferenceElement: N
+                      PsiElement(identifier)('N')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: -
+                    PsiElement(identifier)('-')
+                  PsiWhiteSpace(' ')
+                  LiteralType: 1
+                    IntegerLiteral
+                      PsiElement(integer)('1')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
+                PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: a
+        PsiElement(identifier)('a')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Count[3, Int]
+      SimpleType: Count
+        CodeReferenceElement: Count
+          PsiElement(identifier)('Count')
+      TypeArgumentsList
+        PsiElement([)('[')
+        LiteralType: 3
+          IntegerLiteral
+            PsiElement(integer)('3')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        SimpleType: Int
+          CodeReferenceElement: Int
+            PsiElement(identifier)('Int')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    Tuple
+      PsiElement(()('(')
+      IntegerLiteral
+        PsiElement(integer)('1')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('2')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('3')
+      PsiElement())(')')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: b
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: b
+        PsiElement(identifier)('b')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Count[4, Int]
+      SimpleType: Count
+        CodeReferenceElement: Count
+          PsiElement(identifier)('Count')
+      TypeArgumentsList
+        PsiElement([)('[')
+        LiteralType: 4
+          IntegerLiteral
+            PsiElement(integer)('4')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        SimpleType: Int
+          CodeReferenceElement: Int
+            PsiElement(identifier)('Int')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    Tuple
+      PsiElement(()('(')
+      IntegerLiteral
+        PsiElement(integer)('1')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('2')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('3')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('4')
+      PsiElement())(')')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: c
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: c
+        PsiElement(identifier)('c')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Count[5, Int]
+      SimpleType: Count
+        CodeReferenceElement: Count
+          PsiElement(identifier)('Count')
+      TypeArgumentsList
+        PsiElement([)('[')
+        LiteralType: 5
+          IntegerLiteral
+            PsiElement(integer)('5')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        SimpleType: Int
+          CodeReferenceElement: Int
+            PsiElement(identifier)('Int')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    Tuple
+      PsiElement(()('(')
+      IntegerLiteral
+        PsiElement(integer)('1')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('2')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('3')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('4')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('5')
+      PsiElement())(')')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: d
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: d
+        PsiElement(identifier)('d')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Count[6, Int]
+      SimpleType: Count
+        CodeReferenceElement: Count
+          PsiElement(identifier)('Count')
+      TypeArgumentsList
+        PsiElement([)('[')
+        LiteralType: 6
+          IntegerLiteral
+            PsiElement(integer)('6')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        SimpleType: Int
+          CodeReferenceElement: Int
+            PsiElement(identifier)('Int')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    Tuple
+      PsiElement(()('(')
+      IntegerLiteral
+        PsiElement(integer)('1')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('2')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('3')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('4')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('5')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('6')
+      PsiElement())(')')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: z
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: z
+        PsiElement(identifier)('z')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Count[23, Int]
+      SimpleType: Count
+        CodeReferenceElement: Count
+          PsiElement(identifier)('Count')
+      TypeArgumentsList
+        PsiElement([)('[')
+        LiteralType: 23
+          IntegerLiteral
+            PsiElement(integer)('23')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        SimpleType: Int
+          CodeReferenceElement: Int
+            PsiElement(identifier)('Int')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    Tuple
+      PsiElement(()('(')
+      PsiWhiteSpace('\n  ')
+      IntegerLiteral
+        PsiElement(integer)('1')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('2')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('3')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('4')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('5')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('6')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('7')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('8')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('9')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('10')
+      PsiElement(,)(',')
+      PsiWhiteSpace('\n  ')
+      IntegerLiteral
+        PsiElement(integer)('11')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('12')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('13')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('14')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('15')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('16')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('17')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('18')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('19')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('20')
+      PsiElement(,)(',')
+      PsiWhiteSpace('\n  ')
+      IntegerLiteral
+        PsiElement(integer)('21')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('22')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('23')
+      PsiElement())(')')

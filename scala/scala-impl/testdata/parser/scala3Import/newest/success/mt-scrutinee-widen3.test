@@ -1,0 +1,217 @@
+// Like widen2, but using a.type only, meaning it should typecheck
+import scala.util.Random
+val x = 42
+
+type IsX[T] =
+    T match
+        case x.type => true
+        case _ => false
+
+def bothXOrNot(a: Int, b: Int)(using IsX[a.type] =:= IsX[a.type]) = ???
+
+def test = bothXOrNot(Random.nextInt(), Random.nextInt())
+-----
+ScalaFile
+  PsiComment(comment)('// Like widen2, but using a.type only, meaning it should typecheck')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.util.Random
+        CodeReferenceElement: scala.util
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('util')
+        PsiElement(.)('.')
+        PsiElement(identifier)('Random')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: x
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: x
+        PsiElement(identifier)('x')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    IntegerLiteral
+      PsiElement(integer)('42')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: IsX
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('IsX')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n    ')
+    MatchType: T match
+        case x.type => true
+        case _ => false
+      SimpleType: T
+        CodeReferenceElement: T
+          PsiElement(identifier)('T')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n        ')
+      ScMatchTypeCasesImpl(match type cases)
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          SimpleType: x.type
+            CodeReferenceElement: x
+              PsiElement(identifier)('x')
+            PsiElement(.)('.')
+            PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          LiteralType: true
+            BooleanLiteral
+              PsiElement(true)('true')
+        PsiWhiteSpace('\n        ')
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          TypeVariable: _
+            PsiElement(_)('_')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          LiteralType: false
+            BooleanLiteral
+              PsiElement(false)('false')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: bothXOrNot
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('bothXOrNot')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: a
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('a')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        Parameter: b
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('b')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+        PsiElement())(')')
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement(using)('using')
+        PsiWhiteSpace(' ')
+        Parameter: <anonymous>
+          ParameterType
+            InfixType: IsX[a.type] =:= IsX[a.type]
+              ParametrizedType: IsX[a.type]
+                SimpleType: IsX
+                  CodeReferenceElement: IsX
+                    PsiElement(identifier)('IsX')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: a.type
+                    CodeReferenceElement: a
+                      PsiElement(identifier)('a')
+                    PsiElement(.)('.')
+                    PsiElement(type)('type')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              ParametrizedType: IsX[a.type]
+                SimpleType: IsX
+                  CodeReferenceElement: IsX
+                    PsiElement(identifier)('IsX')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  SimpleType: a.type
+                    CodeReferenceElement: a
+                      PsiElement(identifier)('a')
+                    PsiElement(.)('.')
+                    PsiElement(type)('type')
+                  PsiElement(])(']')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: bothXOrNot
+        PsiElement(identifier)('bothXOrNot')
+      ArgumentList
+        PsiElement(()('(')
+        MethodCall
+          ReferenceExpression: Random.nextInt
+            ReferenceExpression: Random
+              PsiElement(identifier)('Random')
+            PsiElement(.)('.')
+            PsiElement(identifier)('nextInt')
+          ArgumentList
+            PsiElement(()('(')
+            PsiElement())(')')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: Random.nextInt
+            ReferenceExpression: Random
+              PsiElement(identifier)('Random')
+            PsiElement(.)('.')
+            PsiElement(identifier)('nextInt')
+          ArgumentList
+            PsiElement(()('(')
+            PsiElement())(')')
+        PsiElement())(')')
