@@ -13,10 +13,9 @@ import com.intellij.ui.components.JBList
 import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager, Spacer}
 import com.intellij.util.ui.{JBUI, UI}
 import org.jetbrains.annotations.Nls
-import org.jetbrains.bsp.project.BspProjectInstallProvider
 import org.jetbrains.bsp.project.importing.BspSetupConfigStep.BspConfigSetupTask
 import org.jetbrains.bsp.project.importing.bspConfigSteps._
-import org.jetbrains.bsp.project.importing.setup.{BspConfigSetup, FastpassConfigSetup, NoConfigSetup, SbtConfigSetup}
+import org.jetbrains.bsp.project.importing.setup.{BspConfigSetup, FastpassConfigSetup, MillConfigSetup, NoConfigSetup, SbtConfigSetup, ScalaCliSetupProvider}
 import org.jetbrains.bsp.protocol.BspConnectionConfig
 import org.jetbrains.bsp.settings.BspProjectSettings._
 import org.jetbrains.bsp.{BspBundle, BspJdkUtil, BspUtil}
@@ -137,9 +136,10 @@ object bspConfigSteps {
       case bspConfigSteps.SbtSetup =>
         (SbtConfigSetup(workspace, jdk), Some(NoPreImport), None, None) // server config to be set in next step
       case bspConfigSteps.MillSetup =>
-        (NoConfigSetup, Some(MillBspPreImport), Some(AutoConfig), None)
+        (new MillConfigSetup(workspace), Some(NoPreImport), Some(AutoConfig), None)
       case bspConfigSteps.ScalaCliSetup =>
-        (NoConfigSetup, Some(ScalaCliBspPreImport), Some(AutoConfig), None)
+        val configSetup = ScalaCliSetupProvider.getBspConfigSetup(workspace).getOrElse(NoConfigSetup)
+        (configSetup, Some(NoPreImport), Some(AutoConfig), None)
       case bspConfigSteps.FastpassSetup =>
         val bspWorkspace = FastpassConfigSetup.computeBspWorkspace(workspace)
         val configSetup: BspConfigSetup = FastpassConfigSetup.create(workspace).fold(throw _, identity)
@@ -161,19 +161,23 @@ object bspConfigSteps {
       }
     } else Nil
 
-    val bspInstallConfigs = BspProjectInstallProvider.getConfigs(vfile.toNioPath)
+    val millChoice =
+      if (MillConfigSetup.canImport(workspace)) List(MillSetup)
+      else Nil
+
+    val scalaCliChoice =
+      if (ScalaCliSetupProvider.canImport(workspace)) List(ScalaCliSetup)
+      else Nil
 
     val bloopChoice =
       if (BspUtil.bloopConfigDir(workspace).isDefined) List(BloopSetup)
       else Nil
 
-    val fastpassChoice = if(FastpassProjectImportProvider.canImport(vfile))
-      List(FastpassSetup)
-    else
-      Nil
+    val fastpassChoice =
+      if (FastpassProjectImportProvider.canImport(vfile)) List(FastpassSetup)
+      else Nil
 
-
-    (sbtChoice ++ bspInstallConfigs ++ bloopChoice ++ fastpassChoice).distinct
+    (sbtChoice ++ millChoice ++ scalaCliChoice ++ bloopChoice ++ fastpassChoice).distinct
   }
 }
 

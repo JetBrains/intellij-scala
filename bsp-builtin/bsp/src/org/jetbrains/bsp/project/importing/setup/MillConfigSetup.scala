@@ -1,10 +1,9 @@
-package org.jetbrains.bsp.project.importing
+package org.jetbrains.bsp.project.importing.setup
 
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.util.SystemInfo
 import org.jetbrains.bsp.BspUtil
-import org.jetbrains.bsp.project.BspProjectInstallProvider
-import org.jetbrains.bsp.project.importing.bspConfigSteps.{ConfigSetup, MillSetup}
+import org.jetbrains.bsp.project.importing.setup.MillConfigSetup._
 import org.jetbrains.plugins.scala.extensions.PathExt
 
 import java.nio.charset.Charset
@@ -12,24 +11,12 @@ import java.nio.file.{Files, Path}
 import scala.sys.process._
 import scala.util.{Failure, Success, Try, Using}
 
-class MillProjectInstaller extends BspProjectInstallProvider {
+/** Handles Mill BSP configuration generation. */
+final class MillConfigSetup(workspace: Path) extends CommandBasedBspConfigSetup(workspace) {
 
-  private val versionPattern = """^.*(0\.8\.0|0\.7.+|0\.6.+)$"""
+  override protected def serverName: String = "Mill"
 
-  override def canImport(workspace: Path): Boolean =
-    Option(workspace) match {
-      case Some(directory) if directory.isDirectory =>
-        BspUtil.directoryContainsFile(directory, "build.mill", "build.mill.scala") ||
-          isBspCompatible(directory) ||
-          isLegacyBspCompatible(directory)
-      case _ => false
-    }
-
-  override def getConfigSetup: ConfigSetup = MillSetup
-
-  override def serverName: String = "Mill"
-
-  override def installCommand(workspace: Path, indicator: ProgressIndicator): Try[Seq[String]] = {
+  override protected def installCommand(workspace: Path, indicator: ProgressIndicator): Try[Seq[String]] = {
     // note: The legacy part is only executed for mill bootstrap script so it is not applicable for Windows.
     // Maybe it could be, but we decided to support mill.bat file only for the newer bsp approach
     val isLegacyMill = !SystemInfo.isWindows && isLegacyBspCompatible(workspace)
@@ -52,10 +39,40 @@ class MillProjectInstaller extends BspProjectInstallProvider {
 
   private def isMillInstalled(workspace: Path, indicator: ProgressIndicator): Boolean =
     BspUtil.isToolInstalledCheckViaVersion(workspace, indicator, "mill")
+}
+
+private[bsp] object MillConfigSetup {
+
+  private val versionPattern = """^.*(0\.8\.0|0\.7.+|0\.6.+)$"""
+
+  /** Checks if the given workspace is a Mill project that can be imported. */
+  def canImport(workspace: Path): Boolean =
+    Option(workspace) match {
+      case Some(directory) if directory.isDirectory =>
+        BspUtil.directoryContainsFile(directory, "build.mill", "build.mill.scala") ||
+          isBspCompatible(directory) ||
+          isLegacyBspCompatible(directory)
+      case _ => false
+    }
 
   private def getMillFile(workspace: Path): Option[Path] =
     if (SystemInfo.isWindows) BspUtil.findFileByName(workspace, "mill.bat")
     else BspUtil.findFileByName(workspace, "mill")
+
+  private def isBspCompatible(workspace: Path): Boolean = {
+    val fileOpt = getMillFile(workspace)
+    fileOpt.exists(isMillFileBspCompatible(_, workspace))
+  }
+
+  private def isMillFileBspCompatible(millFile: Path, workspace: Path): Boolean = {
+    if (SystemInfo.isWindows) {
+      checkMillVersionWithBatFile(millFile, workspace)
+    } else {
+      Using.resource(Files.lines(millFile, Charset.defaultCharset())) { lines =>
+        lines.anyMatch(t => !t.matches(versionPattern))
+      }
+    }
+  }
 
   private def checkMillVersionWithBatFile(file: Path, workspace: Path): Boolean = {
     val stdout = new StringBuilder
@@ -69,30 +86,11 @@ class MillProjectInstaller extends BspProjectInstallProvider {
       }
   }
 
-  private def isBspCompatible(workspace: Path) = {
-    val fileOpt = getMillFile(workspace)
-    fileOpt.exists(isMillFileBspCompatible(_, workspace))
-  }
-
-  /**
-   This method checks whether the Mill version is not a legacy (it is higher that  0.8.0).
-   */
-  private def isMillFileBspCompatible(millFile: Path, workspace: Path): Boolean = {
-    if (SystemInfo.isWindows) {
-      checkMillVersionWithBatFile(millFile, workspace)
-    } else {
-      Using.resource(Files.lines(millFile, Charset.defaultCharset())) { lines =>
-        lines.anyMatch(t => !t.matches(versionPattern))
-      }
-    }
-  }
-
   // Legacy Mill =< 0.8.0
-  private def isLegacyBspCompatible(workspace: Path) =
+  private def isLegacyBspCompatible(workspace: Path): Boolean =
     BspUtil.findFileByName(workspace, "build.sc").exists { buildScript =>
       Using.resource(Files.lines(buildScript, Charset.defaultCharset()))(
         _.anyMatch(line => line == "import $ivy.`com.lihaoyi::mill-contrib-bsp:$MILL_VERSION`")
       )
     }
-
 }

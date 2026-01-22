@@ -6,6 +6,7 @@ import com.intellij.execution.process.CapturingProcessHandler
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.{Module, ModuleManager}
+import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator}
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.{Project, ProjectUtil}
 import com.intellij.openapi.roots.CompilerProjectExtension
@@ -176,7 +177,12 @@ object BspUtil {
       val handler = new CapturingProcessHandler(generalCommandLine)
       val output = handler.runProcessWithProgressIndicator(indicator, 120000) // 2-minute timeout
 
-      stderr.append(output.getStderr)
+      stderr.append(output.getStderr.trim)
+
+      output.getExitCode
+      if (output.isCancelled) {
+        throw new ProcessCanceledException()
+      }
 
       output.getExitCode
     }

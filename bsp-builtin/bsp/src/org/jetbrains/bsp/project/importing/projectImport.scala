@@ -24,7 +24,7 @@ import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.packaging.artifacts.ModifiableArtifactModel
 import com.intellij.projectImport.{ProjectImportBuilder, ProjectImportProvider, ProjectOpenProcessor}
 import org.jetbrains.bsp._
-import org.jetbrains.bsp.project.BspProjectInstallProvider
+import org.jetbrains.bsp.project.importing.setup.{MillConfigSetup, ScalaCliSetupProvider}
 import org.jetbrains.bsp.protocol.BspConnectionConfig
 import org.jetbrains.bsp.settings.BspProjectSettings._
 import org.jetbrains.bsp.settings._
@@ -271,8 +271,9 @@ object BspProjectOpenProcessor {
     // temporarily disable sbt importing via bloop from welcome screen (SCL-17359)
     val sbtProject = false
 
-    val canImportWithInstaller = BspProjectInstallProvider.canImport(workspace.toNioPath)
+    val canImportMill = MillConfigSetup.canImport(ioWorkspace)
+    val canImportScalaCli = ScalaCliSetupProvider.canImport(workspace.toNioPath)
 
-    bspConnectionProtocolSupported || bloopProject || bspConnectionProtocolSupported || sbtProject || canImportWithInstaller
+    bspConnectionProtocolSupported || bloopProject || bspConnectionProtocolSupported || sbtProject || canImportMill || canImportScalaCli
   }
 }
