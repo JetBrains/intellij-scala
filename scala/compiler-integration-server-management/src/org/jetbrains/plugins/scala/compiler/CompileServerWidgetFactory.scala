@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.compiler
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.IconLoader
 import com.intellij.openapi.wm.{StatusBar, StatusBarWidget, StatusBarWidgetFactory}
+import com.intellij.util.messages.Topic
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
@@ -36,4 +37,11 @@ private object CompileServerWidgetFactory {
 
   val IconRunning: Icon = Icons.COMPILE_SERVER
   val IconStopped: Icon = IconLoader.getDisabledIcon(IconRunning)
+
+  trait UpdateWidgetListener {
+    def updateWidget(): Unit
+  }
+
+  val Topic: Topic[UpdateWidgetListener] =
+    new Topic("Scala Compile Server widget update topic", classOf[UpdateWidgetListener])
 }

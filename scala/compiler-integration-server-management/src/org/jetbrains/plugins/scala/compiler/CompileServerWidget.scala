@@ -11,7 +11,6 @@ import com.intellij.ui.awt.RelativePoint
 import com.intellij.util.Consumer
 import com.intellij.util.messages.MessageBusConnection
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.compiler.CompileServerManager.ServerStatusListener
 import org.jetbrains.plugins.scala.extensions.executeOnPooledThread
 
 import java.awt.Point
@@ -22,15 +21,10 @@ import scala.concurrent.duration.Duration
 private final class CompileServerWidget(project: Project) extends StatusBarWidget
   with StatusBarWidget.IconPresentation
   with Consumer[MouseEvent]
-  with ServerStatusListener {
+  with CompileServerWidgetFactory.UpdateWidgetListener {
 
   private val connection: MessageBusConnection = ApplicationManager.getApplication.getMessageBus.connect(this)
   private var statusBar: StatusBar = _
-
-  private var icon: Icon = {
-    if (launcher.running) CompileServerWidgetFactory.IconRunning
-    else CompileServerWidgetFactory.IconStopped
-  }
 
   override def ID(): String = CompileServerWidgetFactory.ID
 
@@ -38,14 +32,15 @@ private final class CompileServerWidget(project: Project) extends StatusBarWidge
 
   override def install(statusBar: StatusBar): Unit = {
     this.statusBar = statusBar
-    connection.subscribe(CompileServerManager.ServerStatusTopic, this)
+    connection.subscribe(CompileServerWidgetFactory.Topic, this)
   }
 
-  override def dispose(): Unit = {
-    icon = null
-  }
+  override def dispose(): Unit = {}
 
-  override def getIcon: Icon = icon
+  override def getIcon: Icon = {
+    if (launcher.running) CompileServerWidgetFactory.IconRunning
+    else CompileServerWidgetFactory.IconStopped
+  }
 
   override def getClickConsumer: Consumer[MouseEvent] = this
 
@@ -68,16 +63,7 @@ private final class CompileServerWidget(project: Project) extends StatusBarWidge
     popup.show(new RelativePoint(e.getComponent, at))
   }
 
-  override def onServerStatus(running: Boolean): Unit = {
-    if (running) {
-      icon = CompileServerWidgetFactory.IconRunning
-    } else {
-      icon = CompileServerWidgetFactory.IconStopped
-    }
-    updateWidget()
-  }
-
-  private def updateWidget(): Unit = {
+  override def updateWidget(): Unit = {
     if (statusBar != null) {
       statusBar.updateWidget(ID())
     }

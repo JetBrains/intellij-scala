@@ -75,13 +75,6 @@ object CompileServerManager {
   private[compiler] val ErrorTopic: Topic[ErrorListener] =
     new Topic("Scala compile server errors text topic", classOf[ErrorListener])
 
-  private[compiler] trait ServerStatusListener {
-    def onServerStatus(running: Boolean): Unit
-  }
-
-  private[compiler] val ServerStatusTopic: Topic[ServerStatusListener] =
-    new Topic("Scala compile server status topic", classOf[ServerStatusListener])
-
   def instance(): CompileServerManager =
     ApplicationManager.getApplication.getService(classOf[CompileServerManager])
 }

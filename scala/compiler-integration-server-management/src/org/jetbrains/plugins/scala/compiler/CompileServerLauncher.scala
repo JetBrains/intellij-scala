@@ -222,7 +222,7 @@ object CompileServerLauncher {
             )
             LOG.assertTrue(serverInstance.isEmpty, "serverInstance is expected to be None")
             serverInstance = Some(instance)
-            toggleServerStatus(running = true)
+            updateCompileServerWidget()
             watcher.startNotify()
             watcher.addProcessListener(new ProcessListener {
               override def processTerminated(event: ProcessEvent): Unit = {
@@ -243,7 +243,7 @@ object CompileServerLauncher {
                 }
 
                 serverInstance = None
-                toggleServerStatus(running = false)
+                updateCompileServerWidget()
               }
             })
             infoAndPrintOnTeamcity(s"compile server process started: ${instance.summary}")
@@ -264,10 +264,10 @@ object CompileServerLauncher {
     }
   }
 
-  private def toggleServerStatus(running: Boolean): Unit = {
+  private def updateCompileServerWidget(): Unit = {
     val app = ApplicationManager.getApplication
     if (app.isDisposed) return
-    app.getMessageBus.syncPublisher(CompileServerManager.ServerStatusTopic).onServerStatus(running)
+    app.getMessageBus.syncPublisher(CompileServerWidgetFactory.Topic).updateWidget()
   }
 
   // ensure that old tokens from old sessions do not exist on file system to avoid race conditions (see ticket from the commit)
