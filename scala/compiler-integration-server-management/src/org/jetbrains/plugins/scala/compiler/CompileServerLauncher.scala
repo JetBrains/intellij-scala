@@ -232,7 +232,7 @@ object CompileServerLauncher {
                   invokeLater {
                     ProjectManager.getInstance().getOpenProjects.foreach { project =>
                       if (!project.isDisposed) {
-                        CompileServerManager.showNotification(
+                        CompileServerNotifications.showNotification(
                           CompilerIntegrationBundle.message("compile.server.terminated.unexpectedly.0.port.1.pid", instance.port, instance.pid),
                           NotificationType.WARNING,
                           Some(project)

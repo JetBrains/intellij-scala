@@ -64,7 +64,7 @@ private final class ProcessWatcher(process: Process, commandLine: String) {
               invokeLater {
                 ProjectManager.getInstance().getOpenProjects.foreach { project =>
                   if (!project.isDisposed) {
-                    CompileServerManager.showStoppedByIdleTimeoutNotification(project)
+                    CompileServerNotifications.showStoppedByIdleTimeoutNotification(project)
                   }
                 }
               }
