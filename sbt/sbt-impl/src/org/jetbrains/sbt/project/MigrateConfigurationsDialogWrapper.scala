@@ -1,28 +1,25 @@
 package org.jetbrains.sbt.project
 
 import com.intellij.application.options.ModulesComboBox
-import com.intellij.execution.{RunManager, RunnerAndConfigurationSettings}
-import com.intellij.openapi.ui.DialogWrapper
-import com.intellij.ui.components.JBScrollPane
-import com.intellij.ui.table.JBTable
-import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager}
-
-import java.awt.{Component, Dimension}
-import javax.swing._
-import javax.swing.table.{DefaultTableCellRenderer, DefaultTableModel, TableCellEditor}
 import com.intellij.execution.configurations.ModuleBasedConfiguration
+import com.intellij.execution.{RunManager, RunnerAndConfigurationSettings}
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.module.Module
+import com.intellij.openapi.ui.DialogWrapper
+import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.scale.JBUIScale
 import com.intellij.ui.{LayeredIcon, SimpleTextAttributes, SortedComboBoxModel}
+import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager}
 import com.intellij.util.ui.EmptyIcon
 import org.jetbrains.sbt.SbtBundle
-import org.jetbrains.sbt.project.MigrateConfigurationsDialogWrapper.{ConfigDisplayOptions, TableCellRendererWithLeftMargin, ModuleConfigurationExt}
+import org.jetbrains.sbt.project.MigrateConfigurationsDialogWrapper.{ConfigDisplayOptions, ModuleConfigurationExt, TableCellRendererWithLeftMargin}
 import org.jetbrains.sbt.project.SbtMigrateConfigurationsAction.{ModuleConfiguration, ModuleHeuristicResult}
 
-import java.awt.event.MouseEvent
+import java.awt.{Component, Dimension}
 import java.util.Comparator
-import scala.jdk.CollectionConverters.IterableHasAsJava
+import javax.swing.*
+import javax.swing.table.{DefaultTableCellRenderer, DefaultTableModel}
+import scala.jdk.CollectionConverters.*
 
 class MigrateConfigurationsDialogWrapper(modules: Seq[Module], configurationToModule: Map[ModuleConfiguration, ModuleHeuristicResult]) extends DialogWrapper(true) {
 
@@ -50,38 +47,15 @@ class MigrateConfigurationsDialogWrapper(modules: Seq[Module], configurationToMo
     new DefaultCellEditor(comboBox)
   }
 
-  private val myTable = new JBTable() {
-    override def getCellEditor(row: Int, column: Int): TableCellEditor = {
-      lazy val defaultCellEditor = super.getCellEditor(row, column)
-      if (column == 2) getCellEditorForModulesComboBoxColumn(row, defaultCellEditor)
-      else defaultCellEditor
-    }
-
-    private def getCellEditorForModulesComboBoxColumn(row: Int, defaultValue: => TableCellEditor): TableCellEditor = {
-      val configurationOpt = findConfigInRow(row)
-      configurationOpt match {
-        case Some(config) => configToComboBoxCellEditor.getOrElse(config, defaultValue)
-        case None => defaultValue
-      }
-    }
-
-    override def getToolTipText(event: MouseEvent): String = {
-      // TODO The tooltip doesn't work when the user just clicks on it.
-      //  In order for a tooltip to appear, the user has to move the mouse a little after clicking on it.
-      val row = rowAtPoint(event.getPoint)
-      val configurationOpt = findConfigInRow(row)
-      val guesses = configurationOpt.flatMap(configurationToModule.get).map(_.guesses).getOrElse(Nil)
-      if (guesses.nonEmpty) {
-        guesses.mkString("Suggested modules: ", ", ", "")
-      } else {
-        super.getToolTipText(event)
-      }
-    }
-  }
-
   private val myTableModel = new DefaultTableModel(Array[AnyRef]("Configuration", "Module name in previous scheme", "New module"), 0) {
     override def isCellEditable(row: Int, column: Int): Boolean = column != 0 && column != 1
   }
+
+  private val myTable: CustomJBTable = new CustomJBTable(
+    myTableModel,
+    configurationToModule.asJava,
+    configToComboBoxCellEditor.asJava
+  )
 
   private var isClosed: Boolean = false
 
@@ -201,12 +175,6 @@ class MigrateConfigurationsDialogWrapper(modules: Seq[Module], configurationToMo
     val module = getValueAt[Module](row, 2)
     (config, module)
   }
-
-  private def findConfigInRow(row: Integer): Option[ModuleConfiguration] = {
-    val isRowWithinRange = row >= 0 && row < configurationToModule.size
-    if (isRowWithinRange) getValueAt[ModuleConfiguration](row, 0)
-    else None
-  }
 }
 
 object MigrateConfigurationsDialogWrapper {
@@ -262,4 +230,3 @@ final class ModulesPrioritizedComparator(prioritizedElements: Seq[String]) exten
     }
   }
 }
-
