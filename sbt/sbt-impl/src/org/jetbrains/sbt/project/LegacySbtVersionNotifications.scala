@@ -17,8 +17,6 @@ import org.jetbrains.sbt.{Sbt, SbtBundle, SbtUtil, SbtVersion, SbtVersionDetecto
 import java.nio.file.Path
 
 /**
- * Originally created based on [[org.jetbrains.plugins.scala.components.Scala3Disclaimer]]
- *
  * See also [[org.jetbrains.plugins.scala.util.ScalaNotificationGroups]]
  */
 private object LegacySbtVersionNotifications {
