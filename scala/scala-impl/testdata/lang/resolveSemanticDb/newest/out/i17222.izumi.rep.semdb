@@ -10,7 +10,7 @@ Document tests/pos/i17222.izumi.rep/InspectorBase.scala
 (8:15..8:22) scala/quoted/Quotes#reflect.
 (10:24..10:27) scala/Int#
 (13:21..13:26) izumi/reflect/dottyreflection/InspectorBase#debug# -> 14:14
-(13:29..13:36) scala/Predef.valueOf().
+(13:29..13:36) scala/Predef.valueOf(+1).
 (13:37..13:42) izumi/reflect/dottyreflection/InspectorBase#debug# -> 14:14
 (17:49..17:55) scala/Predef.String#
 (17:58..17:62) scala/Unit#

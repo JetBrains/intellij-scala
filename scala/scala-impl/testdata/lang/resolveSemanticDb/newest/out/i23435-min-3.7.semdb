@@ -1,0 +1,22 @@
+Document tests/pos/i23435-min-3.7.scala
+(3:19..3:20) _empty_/`i23435-min-3.7$package`.Or#[A] -> 3:10
+(3:21..3:22) scala/`|`#
+(3:23..3:24) _empty_/`i23435-min-3.7$package`.Or#[B] -> 3:14
+(5:8..5:10) _empty_/`i23435-min-3.7$package`.Or# -> 3:6
+(5:11..5:14) scala/Int#
+(5:16..5:22) scala/Predef.String#
+(5:24..5:25) scala/`&`#
+(5:26..5:28) _empty_/`i23435-min-3.7$package`.Or# -> 3:6
+(5:29..5:35) scala/Predef.String#
+(5:37..5:40) scala/Int#
+(6:8..6:10) _empty_/`i23435-min-3.7$package`.Or# -> 3:6
+(6:11..6:14) scala/Int#
+(6:15..6:16) scala/`&`#
+(6:17..6:23) scala/Predef.String#
+(6:25..6:31) scala/Predef.String#
+(6:32..6:33) scala/`&`#
+(6:34..6:37) scala/Int#
+(6:41..6:42) _empty_/`i23435-min-3.7$package`.x. -> 5:5
+(7:8..7:14) scala/Predef.String#
+(7:17..7:18) _empty_/`i23435-min-3.7$package`.y. -> 6:5
+

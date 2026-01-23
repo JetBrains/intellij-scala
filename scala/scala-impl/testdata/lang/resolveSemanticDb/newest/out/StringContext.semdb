@@ -306,7 +306,7 @@ Document tests/pos/StringContext.scala
 (390:44..390:50) scala/Predef.String#
 (390:53..390:59) scala/Predef.String#
 (391:5..391:8) scala/StringContext.processUnicode().(str) -> 390:39
-(391:9..391:16) java/lang/String#indexOf(+2).
+(391:9..391:16) java/lang/String#indexOf(+3).
 (392:17..392:18) local40 -> 392:12
 (392:19..392:21) scala/Int#`==`(+3).
 (392:25..392:27) scala/Boolean#`||`().
