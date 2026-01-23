@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.deprecation
 
 import com.intellij.codeInspection.{LocalInspectionTool, LocalQuickFix, ProblemsHolder}
+import com.intellij.modcommand.ModCommandAction
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.deprecation.Scala3DeprecatedAlphanumericInfixCallInspection.isDeprecatedInfix
 import org.jetbrains.plugins.scala.codeInspection.quickfix._
@@ -24,22 +25,22 @@ final class Scala3DeprecatedAlphanumericInfixCallInspection extends LocalInspect
       if (element.features.warnAboutDeprecatedInfixCallsEnabled) {
         element.getContext match {
           case infixExpr@ScInfixExpr(_, ref, right) if ref == element && isDeprecatedInfix(ref, right) =>
-            val fixes = Array[LocalQuickFix](
+            val fixes = Array[ModCommandAction](
               new WrapRefExprInBackticksQuickFix(ref),
               new ConvertFromInfixExpressionQuickFix(infixExpr),
-            )
+            ).map(LocalQuickFix.from)
             holder.registerProblem(ref, message(ref.refName), fixes: _*)
           case infixType@ScInfixTypeElement(_, ref, _) if ref == element && isDeprecatedInfix(ref) =>
-            val fixes = Array[LocalQuickFix](
+            val fixes = Array[ModCommandAction](
               new WrapStableCodeRefInBackticksQuickFix(ref),
               new ConvertFromInfixTypeQuickFix(infixType),
-            )
+            ).map(LocalQuickFix.from)
             holder.registerProblem(ref, message(ref.refName), fixes: _*)
           case infixPattern@ScInfixPattern(_, ref, _) if ref == element && isDeprecatedInfix(ref) =>
-            val fixes = Array[LocalQuickFix](
+            val fixes = Array[ModCommandAction](
               new WrapStableCodeRefInBackticksQuickFix(ref),
               new ConvertFromInfixPatternQuickFix(infixPattern),
-            )
+            ).map(LocalQuickFix.from)
             holder.registerProblem(ref, message(ref.refName), fixes: _*)
           case _ =>
         }

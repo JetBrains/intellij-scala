@@ -27,6 +27,7 @@ class ConvertFromInfixExpressionIntention extends PsiElementBaseIntentionAction 
     val infixExpr = PsiTreeUtil.getParentOfType(element, classOf[ScInfixExpr], false)
     if (infixExpr == null || !infixExpr.isValid) return
 
-    ConvertFromInfixExpressionQuickFix.applyFix(infixExpr, editor)(project)
+    val quickFix = new ConvertFromInfixExpressionQuickFix(infixExpr)
+    quickFix.asIntention().invoke(project, editor, element.getContainingFile)
   }
 }

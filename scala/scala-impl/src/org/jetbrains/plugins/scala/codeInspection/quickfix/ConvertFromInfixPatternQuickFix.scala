@@ -1,15 +1,18 @@
 package org.jetbrains.plugins.scala.codeInspection.quickfix
 
+import com.intellij.modcommand.{ActionContext, ModPsiUpdater, PsiUpdateModCommandAction}
 import com.intellij.openapi.command.undo.UndoUtil.markPsiFileForUndo
 import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.quickfix.ConvertFromInfixPatternQuickFix.message
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScInfixPattern, ScParenthesisedPattern}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
-final class ConvertFromInfixPatternQuickFix(expr: ScInfixPattern) extends AbstractFixOnPsiElement(message, expr) {
-  override protected def doApplyFix(infixPattern: ScInfixPattern)(implicit project: Project): Unit =
-    ConvertFromInfixPatternQuickFix.applyFix(infixPattern)
+final class ConvertFromInfixPatternQuickFix(expr: ScInfixPattern) extends PsiUpdateModCommandAction[ScInfixPattern](expr) {
+  override def getFamilyName: String = message
+
+  override def invoke(context: ActionContext, infixPattern: ScInfixPattern, updater: ModPsiUpdater): Unit =
+    ConvertFromInfixPatternQuickFix.applyFix(infixPattern)(context.project())
 }
 
 object ConvertFromInfixPatternQuickFix {
