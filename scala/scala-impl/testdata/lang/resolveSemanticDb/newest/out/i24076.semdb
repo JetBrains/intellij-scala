@@ -1,0 +1,10 @@
+Document tests/pos/i24076.scala
+(1:34..1:41) scala/ValueOf#
+(1:47..1:50) scala/Int#
+(2:40..2:43) scala/Any#
+(2:46..2:49) scala/Any#
+(3:11..3:14) _empty_/i24076$package.foo().(arg) -> 2:35
+(3:16..3:19) _empty_/i24076$package.foo().(arg) -> 2:35
+(7:9..7:12) _empty_/i24076$package.foo(). -> 2:24
+(7:13..7:16) _empty_/i24076$package.bug(). -> 1:24
+

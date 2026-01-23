@@ -1,0 +1,65 @@
+Document tests/pos/i19001.case1.scala
+(1:8..1:12) java/
+(1:13..1:17) java/util/
+(1:18..1:28) java/util/concurrent/
+(1:29..1:44) java/util/concurrent/CompletionStage#
+(2:8..2:13) scala/
+(2:14..2:24) scala/concurrent/
+(2:25..2:31) scala/concurrent/Future#
+(2:25..2:31) scala/concurrent/Future.
+(5:26..5:34) _empty_/ActorRef# -> 4:7
+(5:35..5:38) _empty_/ActorRef#ask().[Res] -> 5:12
+(5:43..5:44) _empty_/ActorRef#[T] -> 4:17
+(5:47..5:53) scala/concurrent/Future#
+(5:54..5:57) _empty_/ActorRef#ask().[Res] -> 5:12
+(5:61..5:64) scala/Predef.`???`().
+(7:50..7:56) scala/concurrent/Future#
+(7:57..7:58) _empty_/`i19001.case1$package`.FutureOps#[T] -> 7:32
+(7:69..7:75) scala/AnyVal#
+(8:15..8:30) java/util/concurrent/CompletionStage#
+(8:31..8:32) _empty_/`i19001.case1$package`.FutureOps#[T] -> 7:32
+(8:36..8:39) scala/Predef.`???`().
+(11:14..11:22) _empty_/ActorRef# -> 4:7
+(11:23..11:26) _empty_/AskPattern#[Req] -> 10:18
+(11:30..11:33) scala/Predef.`???`().
+(12:23..12:31) _empty_/ActorRef# -> 4:7
+(12:32..12:35) _empty_/AskPattern#[Res] -> 10:23
+(12:40..12:43) _empty_/AskPattern#[Req] -> 10:18
+(12:46..12:49) scala/Predef.`???`().
+(14:18..14:33) java/util/concurrent/CompletionStage#
+(14:34..14:37) _empty_/AskPattern#[Res] -> 10:23
+(14:41..14:46) _empty_/AskPattern#actor. -> 11:7
+(14:47..14:50) _empty_/ActorRef#ask(). -> 5:8
+(14:51..14:65) _empty_/AskPattern#messageFactory. -> 12:7
+(14:66..14:71) scala/Function1#apply().
+(14:73..14:79) _empty_/`i19001.case1$package`.FutureOps#asJava(). -> 8:7
+(15:22..15:37) java/util/concurrent/CompletionStage#
+(15:38..15:41) _empty_/AskPattern#[Res] -> 10:23
+(15:45..15:50) _empty_/AskPattern#actor. -> 11:7
+(15:51..15:54) _empty_/ActorRef#ask(). -> 5:8
+(15:55..15:58) _empty_/AskPattern#[Res] -> 10:23
+(15:60..15:74) _empty_/AskPattern#messageFactory. -> 12:7
+(15:75..15:80) scala/Function1#apply().
+(15:82..15:88) _empty_/`i19001.case1$package`.FutureOps#asJava(). -> 8:7
+(16:22..16:37) java/util/concurrent/CompletionStage#
+(16:38..16:41) _empty_/AskPattern#[Res] -> 10:23
+(16:45..16:50) _empty_/AskPattern#actor. -> 11:7
+(16:51..16:54) _empty_/ActorRef#ask(). -> 5:8
+(16:55..16:69) _empty_/AskPattern#messageFactory. -> 12:7
+(16:71..16:77) _empty_/`i19001.case1$package`.FutureOps#asJava(). -> 8:7
+(18:24..18:28) java/
+(18:29..18:33) java/util/
+(18:34..18:42) java/util/function/
+(18:43..18:51) java/util/function/Function#
+(18:52..18:60) _empty_/ActorRef# -> 4:7
+(18:61..18:64) _empty_/AskPattern#[Res] -> 10:23
+(18:67..18:70) _empty_/AskPattern#[Req] -> 10:18
+(18:74..18:77) scala/Predef.`???`().
+(19:30..19:45) java/util/concurrent/CompletionStage#
+(19:46..19:49) _empty_/AskPattern#[Res] -> 10:23
+(19:53..19:58) _empty_/AskPattern#actor. -> 11:7
+(19:59..19:62) _empty_/ActorRef#ask(). -> 5:8
+(19:63..19:78) _empty_/AskPattern#jMessageFactory. -> 18:7
+(19:79..19:84) java/util/function/Function#apply().
+(19:86..19:92) _empty_/`i19001.case1$package`.FutureOps#asJava(). -> 8:7
+

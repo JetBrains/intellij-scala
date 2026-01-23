@@ -1,0 +1,24 @@
+Document tests/pos/puretest.scala
+(1:8..1:12) scala/caps/
+(1:13..1:17) scala/caps/Pure.
+(2:14..2:18) scala/caps/Pure#
+(3:17..3:25) scala/package.Iterable#
+(3:26..3:27) _empty_/puretest$package.bar().[T] -> 3:9
+(3:29..3:30) scala/`&`#
+(3:31..3:35) scala/caps/Pure#
+(4:18..4:22) scala/caps/Pure#
+(5:18..5:22) scala/caps/Pure#
+(5:23..5:24) scala/`&`#
+(5:25..5:33) scala/package.Iterable#
+(5:34..5:35) _empty_/puretest$package.bam().[CC][A] -> 5:12
+(7:3..7:6) _empty_/puretest$package.foo(). -> 2:5
+(7:7..7:10) scala/Int#
+(8:3..8:6) _empty_/puretest$package.bar(). -> 3:5
+(8:7..8:10) scala/Int#
+(8:12..8:16) scala/package.List#
+(8:17..8:20) scala/Int#
+(9:3..9:6) _empty_/puretest$package.baz(). -> 4:5
+(9:7..9:10) scala/package.Seq#
+(10:3..10:6) _empty_/puretest$package.bam(). -> 5:5
+(10:7..10:10) scala/package.Seq#
+

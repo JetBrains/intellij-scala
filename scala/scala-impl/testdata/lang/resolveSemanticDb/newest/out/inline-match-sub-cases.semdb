@@ -1,0 +1,29 @@
+Document tests/pos/inline-match-sub-cases.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:35) scala/language.experimental.
+(1:36..1:44) scala/language.experimental.subCases.
+(6:33..6:36) scala/Int#
+(6:41..6:44) scala/Int#
+(6:47..6:53) scala/Predef.String#
+(7:12..7:13) _empty_/Test.foo().(i) -> 6:30
+(8:17..8:18) _empty_/Test.foo().(j) -> 6:38
+(11:17..11:18) _empty_/Test.foo().(j) -> 6:38
+(16:19..16:22) _empty_/Test.foo(). -> 6:26
+(17:19..17:22) _empty_/Test.foo(). -> 6:26
+(18:19..18:22) _empty_/Test.foo(). -> 6:26
+(19:18..19:21) _empty_/Test.foo(). -> 6:26
+(21:33..21:39) scala/Option#
+(21:40..21:43) scala/Any#
+(21:47..21:53) scala/Predef.String#
+(22:12..22:13) _empty_/Test.bar().(x) -> 21:30
+(23:12..23:16) scala/Some.
+(23:20..23:23) scala/Int#
+(23:28..23:29) local0 -> 23:17
+(26:12..26:16) scala/Some.
+(26:20..26:26) scala/Predef.String#
+(29:11..29:14) _empty_/Test.bar(). -> 21:26
+(29:15..29:19) scala/Some.
+(30:11..30:14) _empty_/Test.bar(). -> 21:26
+(30:15..30:19) scala/Some.
+

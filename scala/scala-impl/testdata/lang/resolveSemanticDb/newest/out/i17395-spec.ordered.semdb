@@ -1,0 +1,22 @@
+Document tests/pos/i17395-spec.ordered.scala
+(2:23..2:36) _empty_/ThingWithPart# -> 1:7
+(2:51..2:52) _empty_/`i17395-spec.ordered$package`.PartField#[A] -> 2:18
+(3:23..3:24) _empty_/`i17395-spec.ordered$package`.ExtractPart#[B] -> 3:18
+(3:38..3:47) _empty_/`i17395-spec.ordered$package`.PartField# -> 2:8
+(3:54..3:55) local6 -> 3:48
+(7:39..7:41) _empty_/TC# -> 5:7
+(7:42..7:53) _empty_/`i17395-spec.ordered$package`.ExtractPart# -> 3:6
+(7:54..7:55) _empty_/TC.tcForOptionPart().[D] -> 7:23
+(7:60..7:62) _empty_/TC# -> 5:7
+(7:63..7:69) scala/Option#
+(7:70..7:81) _empty_/`i17395-spec.ordered$package`.ExtractPart# -> 3:6
+(7:82..7:83) _empty_/TC.tcForOptionPart().[D] -> 7:23
+(11:25..11:27) _empty_/TC# -> 5:7
+(11:28..11:33) _empty_/Value# -> 9:7
+(13:31..13:44) _empty_/ThingWithPart# -> 1:7
+(13:59..13:64) _empty_/Value# -> 9:7
+(16:11..16:15) scala/Unit#
+(17:14..17:16) _empty_/TC. -> 6:8
+(17:17..17:32) _empty_/TC.tcForOptionPart(). -> 7:7
+(17:33..17:48) _empty_/ValuePartHolder# -> 13:7
+

@@ -856,8 +856,71 @@ object AfterUpdateDottyVersionScript {
         |i21558.orig.scala
         |i7445b.scala
         |alphanumeric-infix-operator-compat
-        |i18533 # this uses a specific jvm version, so let's not test it
+        |i18533
         |t12396
+        |i20078
+        |
+        |i7851.scala
+        |singleton-ctx-bound.scala
+        |typeclasses-arrow.scala
+        |FromString-named.scala
+        |deferred-givens-singletons.scala
+        |i11064.scala
+        |i16706.scala
+        |parsercombinators-givens.scala
+        |hylolib-extract.scala
+        |mt-scrutinee-widen3.scala
+        |10747-shapeless-min.scala
+        |TupleReverse.scala
+        |cbproxy-expansion.scala
+        |i23489.scala
+        |t8367.scala
+        |8647.scala
+        |FromString-cb-companion.scala
+        |preview-flag.scala
+        |hylolib-deferred-given-extract.scala
+        |depclass-1.scala
+        |into-bigint.scala
+        |parent-refinement.scala
+        |erased-pathdep-1.scala
+        |i10242.scala
+        |i9804.scala
+        |parsercombinators-arrow.scala
+        |precise-ctx-bound.scala
+        |typeclasses-this.scala
+        |21400b.scala
+        |typeclass-aggregates.scala
+        |hylolib-cb-extract.scala
+        |precise-indexof.scala
+        |i16596.scala
+        |tailrec.scala
+        |i10929-new-syntax.scala
+        |packageObjectValues.scala
+        |into-class.scala
+        |t5031_2.scala
+        |TupleReverseOnto.scala
+        |i23398.scala
+        |i10929.scala
+        |cb-companion-joins.scala
+        |parsercombinators-ctx-bounds.scala
+        |erased-soft-keyword.scala
+        |deferredSummon.scala
+        |parsercombinators-new-syntax.scala
+        |parsercombinators-givens-2.scala
+        |i15177.hylolib.scala
+        |into-sam.scala
+        |i13580.scala
+        |parsercombinators-this.scala
+        |i17395.scala
+        |into-expr.scala
+        |9757.scala
+        |FromString.scala
+        |typeclasses.scala
+        |i10848a.scala
+        |experimental-flag.scala
+        |cc-use-alternatives.scala
+        |i10256.scala
+        |given-syntax.scala
         |""".stripMargin.trim
     )
 

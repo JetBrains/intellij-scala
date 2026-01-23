@@ -1,0 +1,9 @@
+Document tests/pos/mixin-generic-extended-by-java/ExtensionId_1.scala
+(10:24..10:33) _empty_/Extension# -> 1:7
+(12:19..12:45) _empty_/ClassicActorSystemProvider# -> 3:7
+(12:48..12:49) _empty_/ExtensionId#[T] -> 10:19
+(12:52..12:55) scala/Predef.`???`().
+(18:41..18:50) _empty_/Extension# -> 1:7
+(18:60..18:71) _empty_/ExtensionId# -> 10:7
+(18:72..18:73) _empty_/AbstractExtensionId#[T] -> 18:36
+
