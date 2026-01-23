@@ -1,7 +1,7 @@
 package org.jetbrains.sbt.project
 
-import com.intellij.notification.NotificationType
 import com.intellij.build.issue.{BuildIssue, BuildIssueQuickFix}
+import com.intellij.notification.NotificationType
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
@@ -25,8 +25,8 @@ import org.jetbrains.plugins.scala.*
 import org.jetbrains.plugins.scala.build.*
 import org.jetbrains.plugins.scala.compiler.data.CompileOrder
 import org.jetbrains.plugins.scala.extensions.PathExt
-import org.jetbrains.plugins.scala.project.{ReplClasspath, Version}
 import org.jetbrains.plugins.scala.project.external.{JdkByHome, JdkByName, ScalaSdkUtils, SdkReference}
+import org.jetbrains.plugins.scala.project.{ReplClasspath, Version}
 import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
 import org.jetbrains.sbt.SbtUtil.*
 import org.jetbrains.sbt.process.ProcessOutputCollector.PrintProcessOutputOnFailurePropertyName
@@ -44,6 +44,7 @@ import org.jetbrains.sbt.{RichBoolean, Sbt, SbtBundle, SbtUtil, SbtVersion, usin
 
 import java.io.FileNotFoundException
 import java.net.URI
+import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
 import java.util.concurrent.CompletableFuture
 import java.util.{Collections, Locale, UUID, List as JList}
@@ -613,9 +614,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
    *       }}}<br>
    *       See also https://youtrack.jetbrains.com/issue/SCL-13573/Apply-shared-external-source-directory-logic-for-sbt-build-modules
    */
-  private def configureBuildModuleDependencies(buildModules: Seq[BuildModuleNodeWithBuildBaseDir]): Unit = {
-    if (buildModules.size == 2) {
-      val Seq(module1, module2) = buildModules
+  private def configureBuildModuleDependencies(buildModules: Seq[BuildModuleNodeWithBuildBaseDir]): Unit = buildModules match {
+    case Seq(module1, module2) =>
       if (isChild(module1.buildBaseDir, module2.buildBaseDir)) {
         addModuleDependencyNode(module2.moduleNode, module1.moduleNode, DependencyScope.COMPILE)
       }
@@ -625,7 +625,26 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       else {
         //modules are not hierarchical? Not sure if such case possible but will leave the empty branch here
       }
-    }
+
+    // See https://youtrack.jetbrains.com/issue/SCL-24902/Unify-the-Scala-Ultimate-and-Scala-Community-sbt-builds.
+    // This is an extremely specific workaround for the Scala Plugin for IntelliJ IDEA Ultimate repository.
+    // We set the <root>/community/project directory as a source directory for the "scalaUltimate-build" build module.
+    case Seq(buildModule) if buildModule.moduleNode.getModuleName == "scalaUltimate-build" =>
+      val buildBaseDir = buildModule.buildBaseDir
+      val communityProjectDir = buildBaseDir / "community" / Sbt.ProjectDirectory
+      if (communityProjectDir.exists) { // The community directory exists
+        val buildSbtSourcesPatchFile = buildBaseDir / Sbt.ProjectDirectory / "build.sbt"
+        if (buildSbtSourcesPatchFile.exists) { // <root>/project/build.sbt exists
+          //noinspection ApiStatus,UnstableApiUsage
+          val contents = com.intellij.platform.eel.fs.EelFiles.readString(buildSbtSourcesPatchFile, StandardCharsets.UTF_8)
+          val containsPatch = contents.contains("""Compile / unmanagedSourceDirectories += baseDirectory.value.getParentFile / "community" / "project"""")
+          if (containsPatch) {
+            buildModule.moduleNode.add(createBuildContentRootForScalaPluginUltimateWorkaround(communityProjectDir))
+          }
+        }
+      }
+
+    case _ =>
   }
 
   private def isChild(child: Path, parentPath: Path): Boolean = {
@@ -1340,6 +1359,13 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     result.storeNioPaths(esProjectData.ExternalSystemSourceType.SOURCE, sourceDirs)
     result.storeNioPaths(esProjectData.ExternalSystemSourceType.EXCLUDED, excludedDirs)
 
+    result
+  }
+
+  private def createBuildContentRootForScalaPluginUltimateWorkaround(communityProjectDir: Path): ContentRootNode = {
+    val result = new ContentRootNode(communityProjectDir)
+    val sourceDirs = Seq(communityProjectDir)
+    result.storeNioPaths(esProjectData.ExternalSystemSourceType.SOURCE, sourceDirs)
     result
   }
 
