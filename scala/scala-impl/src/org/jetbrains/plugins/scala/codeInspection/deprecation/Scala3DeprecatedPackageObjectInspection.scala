@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.codeInspection.deprecation
 
-import com.intellij.codeInspection.{LocalInspectionTool, LocalQuickFix, ProblemHighlightType, ProblemsHolder}
-import com.intellij.openapi.project.Project
+import com.intellij.codeInspection.{LocalInspectionTool, LocalQuickFix, ProblemsHolder}
+import com.intellij.modcommand.{ActionContext, ModCommandAction, ModPsiUpdater, PsiUpdateModCommandAction}
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInsight.unwrap.{ScalaUnwrapContext, ScalaUnwrapper}
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle, getActiveEditor}
+import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
@@ -14,7 +14,7 @@ class Scala3DeprecatedPackageObjectInspection extends LocalInspectionTool {
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case obj: ScObject if obj.isPackageObject && obj.isInScala3Module =>
-      val fix = unwrapPackageObjectQuickFix(obj).toSeq
+      val fix = unwrapPackageObjectQuickFix(obj).map(LocalQuickFix.from).toSeq
       holder.registerProblem(obj.nameId, message, fix: _*)
     case _ =>
   }
@@ -25,11 +25,13 @@ object Scala3DeprecatedPackageObjectInspection {
   private[deprecation] val fixId = ScalaInspectionBundle.message("unwrap.package.object.fix")
   private val unwrapper = new PackageObjectUnwrapper
 
-  private def unwrapPackageObjectQuickFix(obj: ScObject): Option[LocalQuickFix] =
+  private def unwrapPackageObjectQuickFix(obj: ScObject): Option[ModCommandAction] =
     Option.when(obj.extendsBlock.templateParents.forall(_.typeElements.isEmpty))(
-      new AbstractFixOnPsiElement[ScObject](fixId, obj) {
-        override protected def doApplyFix(element: ScObject)(implicit project: Project): Unit =
-          getActiveEditor(element).foreach(unwrapper.unwrap(_, element))
+      new PsiUpdateModCommandAction[ScObject](obj) {
+        override def getFamilyName: String = fixId
+
+        override protected def invoke(context: ActionContext, obj: ScObject, updater: ModPsiUpdater): Unit =
+          unwrapper.unwrap(obj)
       }
     )
 
@@ -39,6 +41,12 @@ object Scala3DeprecatedPackageObjectInspection {
     override def doUnwrap(element: PsiElement, context: ScalaUnwrapContext): Unit = {
       context.extractAllMembers(element.asInstanceOf[ScObject])
       context.deleteExactly(element)
+    }
+
+    def unwrap(obj: ScObject): Unit = {
+      val context = createContext()
+      context.setIsEffective(true)
+      doUnwrap(obj, context)
     }
   }
 }
