@@ -1,0 +1,41 @@
+Document tests/pos/i19009.case1.scala
+(3:14..3:17) scala/Predef.Map#
+(3:18..3:19) _empty_/RatingPeriod#[P] -> 2:20
+(3:21..3:27) scala/package.Vector#
+(3:28..3:41) _empty_/ScoreVsPlayer# -> 5:7
+(3:42..3:43) _empty_/RatingPeriod#[P] -> 2:20
+(7:26..7:27) _empty_/`i19009.case1$package`.updated().[P] -> 7:13
+(7:43..7:53) scala/package.IndexedSeq#
+(7:54..7:67) _empty_/ScoreVsPlayer# -> 5:7
+(7:68..7:69) _empty_/`i19009.case1$package`.updated().[P] -> 7:13
+(7:81..7:82) _empty_/`i19009.case1$package`.updated().[P] -> 7:13
+(7:86..7:92) scala/Option#
+(7:93..7:99) _empty_/Player# -> 1:7
+(7:100..7:101) _empty_/`i19009.case1$package`.updated().[P] -> 7:13
+(7:106..7:112) _empty_/Player# -> 1:7
+(7:113..7:114) _empty_/`i19009.case1$package`.updated().[P] -> 7:13
+(7:118..7:121) scala/Predef.`???`().
+(10:40..10:43) scala/Predef.Map#
+(10:44..10:45) _empty_/Leaderboard#[P] -> 9:19
+(10:47..10:53) _empty_/Player# -> 1:7
+(10:54..10:55) _empty_/Leaderboard#[P] -> 9:19
+(12:19..12:20) _empty_/Leaderboard#[P] -> 9:19
+(12:36..12:48) _empty_/RatingPeriod# -> 2:7
+(12:54..12:55) _empty_/Leaderboard#[P] -> 9:19
+(12:59..12:70) _empty_/Leaderboard# -> 9:7
+(12:71..12:73) _empty_/Leaderboard#after().[P2] -> 12:13
+(13:28..13:40) _empty_/Leaderboard#after().(ratingPeriod) -> 12:22
+(13:41..13:46) _empty_/RatingPeriod#games(). -> 3:7
+(13:47..13:55) scala/collection/IterableOnce#iterator().
+(13:56..13:59) scala/collection/Iterator#map().
+(14:7..14:14) _empty_/`i19009.case1$package`.updated(). -> 7:5
+(14:15..14:17) local1 -> 13:63
+(14:19..14:31) local2 -> 13:67
+(14:33..14:63) _empty_/Leaderboard#playersByIdInNoParticularOrder(). -> 10:8
+(16:7..16:14) _empty_/`i19009.case1$package`.updated(). -> 7:5
+(16:15..16:16) _empty_/Leaderboard#[P] -> 9:19
+(16:18..16:20) local1 -> 13:63
+(16:22..16:34) local2 -> 13:67
+(16:36..16:66) _empty_/Leaderboard#playersByIdInNoParticularOrder(). -> 10:8
+(18:5..18:8) scala/Predef.`???`().
+

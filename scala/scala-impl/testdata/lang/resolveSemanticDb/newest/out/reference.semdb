@@ -1233,10 +1233,11 @@ Document tests/pos/reference/intersection-types.scala
 (28:22..28:23) intersectionTypes/t2.C# -> 31:9
 (29:11..29:15) scala/package.List#
 (29:16..29:17) intersectionTypes/t2.A# -> 20:9
-(29:18..29:19) scala/`&`#
-(29:20..29:21) intersectionTypes/t2.B# -> 24:9
-(29:25..29:26) intersectionTypes/t2.x. -> 28:7
-(29:27..29:35) intersectionTypes/t2.B#children(). -> 25:9
+(29:19..29:20) scala/`&`#
+(29:21..29:25) scala/package.List#
+(29:26..29:27) intersectionTypes/t2.B# -> 24:9
+(29:31..29:32) intersectionTypes/t2.x. -> 28:7
+(29:33..29:41) intersectionTypes/t2.B#children(). -> 25:9
 (31:19..31:20) intersectionTypes/t2.A# -> 20:9
 (31:26..31:27) intersectionTypes/t2.B# -> 24:9
 (32:19..32:23) scala/package.List#

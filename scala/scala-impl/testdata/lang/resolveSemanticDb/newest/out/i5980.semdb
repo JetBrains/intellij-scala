@@ -3,7 +3,7 @@ Document tests/pos/i5980.scala
 (7:13..7:14) _empty_/A# -> 1:7
 (7:16..7:17) scala/`&`#
 (7:20..7:21) _empty_/B# -> 2:7
-(7:25..7:27) _empty_/Covariant#fy(). -> 8:7
+(7:25..7:28) scala/Predef.`???`().
 (8:11..8:12) _empty_/Covariant#[F] -> 4:17
 (8:13..8:14) _empty_/A# -> 1:7
 (8:16..8:17) scala/`&`#
@@ -14,7 +14,7 @@ Document tests/pos/i5980.scala
 (10:13..10:14) _empty_/A# -> 1:7
 (10:16..10:17) scala/`&`#
 (10:20..10:21) _empty_/B# -> 2:7
-(10:25..10:27) _empty_/Covariant#gy(). -> 11:7
+(10:25..10:28) scala/Predef.`???`().
 (11:11..11:12) _empty_/Covariant#G# -> 5:9
 (11:13..11:14) _empty_/A# -> 1:7
 (11:16..11:17) scala/`&`#
@@ -25,7 +25,7 @@ Document tests/pos/i5980.scala
 (17:13..17:14) _empty_/A# -> 1:7
 (17:16..17:17) scala/`|`#
 (17:20..17:21) _empty_/B# -> 2:7
-(17:25..17:27) _empty_/Contravariant#fy(). -> 18:7
+(17:25..17:28) scala/Predef.`???`().
 (18:11..18:12) _empty_/Contravariant#[F] -> 14:21
 (18:13..18:14) _empty_/A# -> 1:7
 (18:16..18:17) scala/`&`#
@@ -36,7 +36,7 @@ Document tests/pos/i5980.scala
 (20:13..20:14) _empty_/A# -> 1:7
 (20:16..20:17) scala/`|`#
 (20:20..20:21) _empty_/B# -> 2:7
-(20:25..20:27) _empty_/Contravariant#gy(). -> 21:7
+(20:25..20:28) scala/Predef.`???`().
 (21:11..21:12) _empty_/Contravariant#G# -> 15:9
 (21:13..21:14) _empty_/A# -> 1:7
 (21:16..21:17) scala/`&`#
@@ -61,16 +61,11 @@ Document tests/pos/i5980.scala
 (30:14..30:15) scala/`&`#
 (30:16..30:17) _empty_/LiskovViolation#B# -> 26:9
 (30:20..30:23) _empty_/LiskovViolation#fc1(). -> 29:7
-(32:12..32:13) _empty_/LiskovViolation#[F] -> 24:23
-(32:14..32:15) _empty_/LiskovViolation#A# -> 25:9
-(32:16..32:17) scala/`&`#
-(32:18..32:19) _empty_/LiskovViolation#B# -> 26:9
-(32:23..32:26) _empty_/LiskovViolation#fc1(). -> 29:7
-(32:27..32:35) _empty_/LiskovViolation#C#children(). -> 27:34
-(33:12..33:13) _empty_/LiskovViolation#[F] -> 24:23
-(33:14..33:15) _empty_/LiskovViolation#A# -> 25:9
-(33:16..33:17) scala/`&`#
-(33:18..33:19) _empty_/LiskovViolation#B# -> 26:9
-(33:23..33:26) _empty_/LiskovViolation#fc2(). -> 30:7
-(33:27..33:35) _empty_/LiskovViolation#B#children(). -> 26:17
+(31:12..31:13) _empty_/LiskovViolation#[F] -> 24:23
+(31:14..31:15) _empty_/LiskovViolation#A# -> 25:9
+(31:17..31:18) scala/`&`#
+(31:19..31:20) _empty_/LiskovViolation#[F] -> 24:23
+(31:21..31:22) _empty_/LiskovViolation#B# -> 26:9
+(31:26..31:29) _empty_/LiskovViolation#fc2(). -> 30:7
+(31:30..31:38) _empty_/LiskovViolation#B#children(). -> 26:17
 
