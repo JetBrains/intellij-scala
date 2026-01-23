@@ -26,6 +26,5 @@ object ScalaNotificationGroups {
   //Sticky Balloon (by default)
   def scalaPluginVerifier: NotificationGroup = manager.getNotificationGroup("scala.plugin.verifier")
   def scalaPluginUpdater: NotificationGroup = manager.getNotificationGroup("scala.plugin.updater")
-  def scala3Disclaimer: NotificationGroup = manager.getNotificationGroup("scala3.disclaimer")
   def scalaFeaturesAdvertiser: NotificationGroup = manager.getNotificationGroup("scala.features.advertiser")
 }

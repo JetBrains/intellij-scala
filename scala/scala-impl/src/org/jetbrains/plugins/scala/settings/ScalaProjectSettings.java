@@ -95,8 +95,6 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
   // LIBRARY EXTENSIONS
   private boolean ENABLE_LIBRARY_EXTENSIONS = true;
 
-  private boolean SCALA_3_DISCLAIMER_SHOWN = false;
-
   private boolean MIGRATE_CONFIGURATIONS_NOTIFICATION_SHOWN = false;
 
   //INDEXING
@@ -637,14 +635,6 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
 
   public void setMigrateConfigurationsNotificationShown(boolean b) {
     MIGRATE_CONFIGURATIONS_NOTIFICATION_SHOWN = b;
-  }
-
-  public boolean isScala3DisclaimerShown() {
-    return SCALA_3_DISCLAIMER_SHOWN;
-  }
-
-  public void setScala3DisclaimerShown(boolean b) {
-    SCALA_3_DISCLAIMER_SHOWN = b;
   }
 
   public ScalaMetaMode getScalaMetaMode() {
