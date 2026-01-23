@@ -5,6 +5,8 @@ package org.jetbrains.plugins.scala.codeInspection
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.ide.scratch.ScratchRootType
+import com.intellij.lang.impl.modcommand.ModCommandActionWrapper
+import com.intellij.modcommand.ActionContext
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.openapi.project.Project
@@ -97,9 +99,17 @@ final class ScalaQuickFixTestFixture(
     assertFalse("Quick fix is available", action.isAvailable(getProject, getEditor, getFile))
   }
 
+  def getPresentableText(action: IntentionAction): String = action match {
+    case wrapper: ModCommandActionWrapper =>
+      val context = ActionContext.from(getEditor, getFile)
+      val presentation = wrapper.asModCommandAction().getPresentation(context)
+      Option(presentation).fold(action.getText)(_.name())
+    case _ => action.getText
+  }
+
   private def findQuickFix(text: String, hintFilter: String => Boolean): Option[IntentionAction] = {
     val actions = findAllQuickFixes(text, failOnEmptyErrors = false)
-    actions.find(a => hintFilter(a.getText))
+    actions.find(a => hintFilter(getPresentableText(a)))
   }
 
   private def doFindQuickFix(text: String, hint: String, failOnEmptyErrors: Boolean = true): IntentionAction =
@@ -111,13 +121,13 @@ final class ScalaQuickFixTestFixture(
   def doFindQuickFixes(text: String, hints: Seq[String], failOnEmptyErrors: Boolean): Seq[IntentionAction] = {
     val actions = findAllQuickFixes(text, failOnEmptyErrors)
     val hintSet = hints.toSet
-    val actionsMatching = actions.filter(a => hintSet.contains(a.getText))
+    val actionsMatching = actions.filter(a => hintSet.contains(getPresentableText(a)))
     assert(actionsMatching.nonEmpty,
       s"""Quick fixes not found.
          |Expected actions:
          |  ${hints.mkString("  \n")}
          |Available actions:
-         |  ${actions.map(_.getText).mkString("  \n")}""".stripMargin
+         |  ${actions.map(getPresentableText).mkString("  \n")}""".stripMargin
     )
     actionsMatching
   }

@@ -1,8 +1,9 @@
 package org.jetbrains.plugins.scala.codeInspection.booleans
 
-import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
-import com.intellij.openapi.project.{DumbAware, Project}
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle}
+import com.intellij.codeInspection.{LocalInspectionTool, LocalQuickFix, ProblemsHolder}
+import com.intellij.modcommand.{ActionContext, ModCommand, PsiBasedModCommandAction}
+import com.intellij.openapi.project.DumbAware
+import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr, ScParenthesisedExpr, ScPrefixExpr}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
@@ -12,20 +13,25 @@ import scala.collection.mutable
 final class DoubleNegationInspection extends LocalInspectionTool with DumbAware {
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case expr: ScExpression if DoubleNegationUtil.hasDoubleNegation(expr) =>
-      holder.registerProblem(expr, ScalaInspectionBundle.message("displayname.double.negation"), new DoubleNegationQuickFix(expr))
+      val fix = LocalQuickFix.from(new DoubleNegationQuickFix(expr))
+      holder.registerProblem(expr, ScalaInspectionBundle.message("displayname.double.negation"), fix)
     case _ =>
   }
 }
 
 final class DoubleNegationQuickFix(expr: ScExpression)
-  extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("remove.double.negation"), expr)
+  extends PsiBasedModCommandAction[ScExpression](expr)
     with DumbAware {
-  override protected def doApplyFix(scExpr: ScExpression)
-                                   (implicit project: Project): Unit = {
-    if (!DoubleNegationUtil.hasDoubleNegation(scExpr)) return
+  override def getFamilyName: String = ScalaInspectionBundle.message("remove.double.negation")
 
-    val newExpr = DoubleNegationUtil.removeDoubleNegation(scExpr)
-    scExpr.replaceExpression(newExpr, removeParenthesis = true)
+  override def perform(context: ActionContext, expr: ScExpression): ModCommand = {
+    if (DoubleNegationUtil.hasDoubleNegation(expr)) {
+      ModCommand.psiUpdate(expr, (expr: ScExpression) => {
+        val newExpr = DoubleNegationUtil.removeDoubleNegation(expr)
+        expr.replaceExpression(newExpr, removeParenthesis = true)
+        ()
+      })
+    } else ModCommand.nop()
   }
 }
 
