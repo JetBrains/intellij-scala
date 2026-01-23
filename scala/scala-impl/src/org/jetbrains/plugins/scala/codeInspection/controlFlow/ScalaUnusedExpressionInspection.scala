@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala.codeInspection.controlFlow
 
 import com.intellij.codeInspection._
-import com.intellij.openapi.project.Project
+import com.intellij.modcommand.{ActionContext, ModCommandAction, ModPsiUpdater, PsiUpdateModCommandAction}
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiComment, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.codeInspection.controlFlow.ScalaUnusedExpressionInspection.{HasSideEffects, NoSideEffects, OnlyThrows, RangeCollector, SideEffectKind, createQuickFixes}
 import org.jetbrains.plugins.scala.codeInspection.quickfix.RemoveExpressionQuickFix
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle, expressionResultIsNotUsed, findDefiningFunction, isUnitFunction}
+import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle, expressionResultIsNotUsed, findDefiningFunction, isUnitFunction}
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
@@ -18,25 +18,25 @@ import scala.collection.mutable
 
 final class ScalaUnusedExpressionInspection extends LocalInspectionTool {
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
-      case expression: ScExpression if IntentionAvailabilityChecker.checkInspection(this, expression.getParent) &&
-        expressionResultIsNotUsed(expression) =>
+    case expression: ScExpression if IntentionAvailabilityChecker.checkInspection(this, expression.getParent) &&
+      expressionResultIsNotUsed(expression) =>
 
-        for {
-          case (range, effect) <- collectRanges(expression)
-          case descriptionTemplate <-
-            effect match {
-              case NoSideEffects => Some(ScalaInspectionBundle.message("unused.expression.no.side.effects"))
-              case OnlyThrows => Some(ScalaInspectionBundle.message("unused.expression.throws"))
-              case HasSideEffects => None
-            }
-        } {
-          val quickfixes =
-            if (range == expression.getTextRange) createQuickFixes(expression)
-            else Array.empty[LocalQuickFix]
-          holder.registerProblem(expression, range.shiftLeft(expression.startOffset), descriptionTemplate, quickfixes: _*)
-        }
-      case _ =>
-    }
+      for {
+        case (range, effect) <- collectRanges(expression)
+        case descriptionTemplate <-
+          effect match {
+            case NoSideEffects => Some(ScalaInspectionBundle.message("unused.expression.no.side.effects"))
+            case OnlyThrows => Some(ScalaInspectionBundle.message("unused.expression.throws"))
+            case HasSideEffects => None
+          }
+      } {
+        val quickfixes =
+          if (range == expression.getTextRange) createQuickFixes(expression).map(LocalQuickFix.from)
+          else Nil
+        holder.registerProblem(expression, range.shiftLeft(expression.startOffset), descriptionTemplate, quickfixes: _*)
+      }
+    case _ =>
+  }
 
   private def collectRanges(expr: ScExpression): Seq[(TextRange, SideEffectKind)] = {
     val collector = new RangeCollector
@@ -105,17 +105,15 @@ object ScalaUnusedExpressionInspection {
     def result(): Seq[(TextRange, SideEffectKind)] = builder.toSeq
   }
 
-  private def createQuickFixes(expression: ScExpression): Array[LocalQuickFix] = new RemoveExpressionQuickFix(expression) match {
-    case quickFix if findDefiningFunction(expression).forall(isUnitFunction) => Array(quickFix)
-    case quickFix => Array(quickFix, new AddReturnQuickFix(expression))
+  private def createQuickFixes(expression: ScExpression): List[ModCommandAction] = new RemoveExpressionQuickFix(expression) match {
+    case quickFix if findDefiningFunction(expression).forall(isUnitFunction) => List(quickFix)
+    case quickFix => List(quickFix, new AddReturnQuickFix(expression))
   }
 
-  private[this] class AddReturnQuickFix(expression: ScExpression) extends AbstractFixOnPsiElement(
-    ScalaInspectionBundle.message("add.return.keyword"),
-    expression
-  ) {
-    override protected def doApplyFix(expression: ScExpression)
-                                     (implicit project: Project): Unit = {
+  private[this] class AddReturnQuickFix(expression: ScExpression) extends PsiUpdateModCommandAction[ScExpression](expression) {
+    override def getFamilyName: String = ScalaInspectionBundle.message("add.return.keyword")
+
+    override def invoke(context: ActionContext, element: ScExpression, updater: ModPsiUpdater): Unit = {
       val retStmt = ScalaPsiElementFactory.createExpressionWithContextFromText(s"return ${expression.getText}", expression.getContext, expression)
       expression.replaceExpression(retStmt, removeParenthesis = true)
     }
