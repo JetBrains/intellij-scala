@@ -153,6 +153,19 @@ class ContextFunctionHighlightingTest extends ScalaLightCodeInsightFixtureTestCa
       |""".stripMargin
   )
 
+  def testSCL24903(): Unit = doTest(
+    """
+      |object Test:
+      |
+      |  case class Coordinates(latitude: Double, longitude: Double)
+      |
+      |  def withSomeCoordinates[A](f: Coordinates ?=> A): A = ???
+      |
+      |  def main(args: Array[String]): Unit =
+      |    withSomeCoordinates { x ?=> x.latitude }
+      |""".stripMargin
+  )
+
   //@TODO: fix, see https://youtrack.jetbrains.com/issue/SCL-23347 comment
 //  def testSCL23347(): Unit = doTest(
 //    """

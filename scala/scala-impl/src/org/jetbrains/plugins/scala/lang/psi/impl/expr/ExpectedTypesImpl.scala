@@ -307,7 +307,13 @@ class ExpectedTypesImpl extends ExpectedTypes {
     }
 
     def expectedTypesUnwrapContextFunction(e: ScExpression, fromUnderscore: Boolean): Array[ParameterType] =
-      e.expectedTypesEx(fromUnderscore).map(pt => unwrapContextFunctionType(pt._1) -> None)
+      e.expectedTypesEx(fromUnderscore).map(pt =>
+        expr match {
+          case fn: ScFunctionExpr if fn.isContext => pt
+          case _                                  =>
+            unwrapContextFunctionType(pt._1) -> None
+        }
+      )
 
     def mapResolves(resolves: Array[ScalaResolveResult], types: Array[TypeResult]): Array[(TypeResult, Boolean, Boolean)] =
       resolves.zip(types).map {
