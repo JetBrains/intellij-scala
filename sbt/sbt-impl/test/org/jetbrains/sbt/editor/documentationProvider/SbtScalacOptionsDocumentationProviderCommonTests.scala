@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 import org.jetbrains.sbt.language.psi.SbtScalacOptionDocHolder
 import org.jetbrains.sbt.language.utils.SbtScalacOptionInfo
-import org.jetbrains.sbt.language.utils.SbtScalacOptionInfo.ArgType
+import org.jetbrains.sbt.language.utils.SbtScalacOptionInfo.{ArgType, Deprecation}
 
 abstract class SbtScalacOptionsDocumentationProviderCommonTests extends SbtScalacOptionsDocumentationProviderTestBase {
 
@@ -188,7 +188,7 @@ abstract class SbtScalacOptionsDocumentationProviderCommonTests extends SbtScala
     val descriptions = Map(langLevel -> description)
     val defaultValue = Some("default test choice")
     val choices = Map(langLevel -> Set(defaultValue.get, "test choice", "another test choice"))
-    val option = SbtScalacOptionInfo(flag, descriptions, choices, ArgType.No, Set(langLevel), defaultValue)
+    val option = SbtScalacOptionInfo(flag, descriptions, choices, ArgType.No, Set(langLevel), defaultValue, Map(langLevel -> Deprecation("test deprecation", Some("replacement"))))
     val docHolder = new SbtScalacOptionDocHolder(option)(using getProject)
 
     val expectedDoc = expectedDocumentation(langLevel, description, choices(langLevel), defaultValue)
