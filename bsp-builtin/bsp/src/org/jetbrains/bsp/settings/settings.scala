@@ -14,6 +14,7 @@ import com.intellij.util.xmlb.Converter
 import com.intellij.util.xmlb.annotations.{OptionTag, XCollection}
 import org.jetbrains.bsp._
 import org.jetbrains.bsp.settings.BspProjectSettings._
+import org.jetbrains.bsp.settings.PreImportConfig.AutoPreImport
 import org.jetbrains.plugins.scala.extensions.PathExt
 
 import java.nio.file.{Path, Paths}
@@ -34,7 +35,6 @@ class BspProjectSettings extends ExternalProjectSettings {
   var serverConfig: BspServerConfig = AutoConfig
 
   @BeanProperty
-  @OptionTag(converter = classOf[PreImportConfigConverter])
   var preImportConfig: PreImportConfig = AutoPreImport
 
   override def setExternalProjectPath(externalProjectPath: String): Unit = {
@@ -54,8 +54,43 @@ class BspProjectSettings extends ExternalProjectSettings {
 
 object BspProjectSettings {
 
-  /** A specific configuration to start and connect to a BSP server. */
-  sealed abstract class BspServerConfig
+  /**
+   * A specific configuration to start and connect to a BSP server.
+   *
+   * '''Important:''' this class is used as a type for one of the fields inside [[BspProjectSettings]] and is serialized.
+   * By default, the IntelliJ mechanism for checking whether the new value of [[BspProjectSettings.serverConfig]]
+   * is different from the default, and consequently whether it should be serialized or not, relies on comparing
+   * the fields inside the class. Since this class has no fields, e.g., `AutoConfig` and `BloopConfig` were considered
+   * equal (see [[https://youtrack.jetbrains.com/issue/IJPL-231922]]).
+   *
+   * To address this, a custom `equals` method is implemented inside this class. It switches the comparison
+   * from fields-based to `equals`-method-based, ensuring the [[BspProjectSettings.serverConfig]] is properly serialized when required.
+   *
+   * This is just a workaround. If the ADT has no fields, like in
+   * [[org.jetbrains.bsp.settings.PreImportConfig]], the simplest solution is to use a Java enum.
+   *
+   *   - When adding new subtypes ensure the `equals`/`hashCode` methods are updated and work correctly.
+   *   - '''In case of any changes inside [[BspServerConfig]] and its subtypes adjust tests in [[org.jetbrains.bsp.settings.BspProjectSettingsTest]]'''
+   */
+  sealed abstract class BspServerConfig {
+    override def equals(obj: Any): Boolean = {
+      if (!obj.isInstanceOf[BspServerConfig] || this.getClass != obj.getClass) return false
+
+      if (this.isInstanceOf[BspConfigFile]) {
+        val _this = this.asInstanceOf[BspConfigFile]
+        val other = obj.asInstanceOf[BspConfigFile]
+        _this.path.toAbsolutePath.normalize() == other.path.toAbsolutePath.normalize()
+      } else {
+        true // case objects with same class are equal
+      }
+    }
+
+    override def hashCode(): Int = this match {
+      case AutoConfig => "AutoConfig".hashCode
+      case BloopConfig => "BloopConfig".hashCode
+      case BspConfigFile(path) => 31 * getClass.hashCode() + path.toAbsolutePath.normalize().hashCode()
+    }
+  }
   /** Choose BSP config automatically */
   case object AutoConfig extends BspServerConfig
   /** Bloop without preimport */
@@ -63,32 +98,7 @@ object BspProjectSettings {
   /** Use BSP config file to specify connection */
   case class BspConfigFile(path: Path) extends BspServerConfig
 
-  /** A Task to run before connecting to BSP server and importing project.  */
-  sealed abstract class PreImportConfig
-  /** Do not run any PreImporter */
-  case object NoPreImport extends PreImportConfig
-  /** Attempt to choose pre-importer automatically */
-  case object AutoPreImport extends PreImportConfig
-  /** Preimport with Bloop from sbt project */
-  case object BloopSbtPreImport extends PreImportConfig
-
-  class PreImportConfigConverter extends Converter[PreImportConfig] {
-    override def fromString(value: String): PreImportConfig =
-      value match {
-        case "NoPreImport" => NoPreImport
-        case "AutoPreImport" => AutoPreImport
-        case "BloopBspPreImport" => BloopSbtPreImport
-      }
-
-    override def toString(value: PreImportConfig): String =
-      value match {
-        case NoPreImport => "NoPreImport"
-        case AutoPreImport => "AutoPreImport"
-        case BloopSbtPreImport => "BloopBspPreImport"
-      }
-  }
-
-  class BspServerConfigConverter extends Converter[BspServerConfig] {
+  private class BspServerConfigConverter extends Converter[BspServerConfig] {
     private val configFile = "BspConfigFile:(?<path>.*)".r
     override def fromString(value: String): BspServerConfig = {
       value match {

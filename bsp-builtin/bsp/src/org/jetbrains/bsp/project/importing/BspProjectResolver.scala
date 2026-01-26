@@ -17,7 +17,7 @@ import org.jetbrains.bsp.project.importing.preimport.{BloopPreImporter, PreImpor
 import org.jetbrains.bsp.protocol.session.Bsp4JJobFailure
 import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, BuildServerInfo, NotificationAggregator}
 import org.jetbrains.bsp.protocol.{BspCommunication, BspConnectionConfig, BspJob, BspNotifications}
-import org.jetbrains.bsp.settings.{BspExecutionSettings, BspProjectSettings}
+import org.jetbrains.bsp.settings.{BspExecutionSettings, BspProjectSettings, PreImportConfig}
 import org.jetbrains.bsp.{BspBundle, BspErrorMessage, BspJdkUtil, BspNoJdkConfiguredError, BspTaskCancelled, BspUtil}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter, ExternalSystemNotificationReporter}
@@ -208,22 +208,22 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
   private def installBSP(
     workspace: Path,
     indicator: ProgressIndicator,
-    preImportTask: BspProjectSettings.PreImportConfig,
+    preImportTask: PreImportConfig,
     bspServerConfig: BspProjectSettings.BspServerConfig
   )(implicit reporter: BuildReporter): Try[BuildMessages] = {
     def isSbtProject(workspace: Path) = workspace.resolve("build.sbt").exists
 
     //`runBloopInstall` changes `importState` inside
     preImportTask match {
-      case BspProjectSettings.NoPreImport =>
+      case PreImportConfig.NoPreImport =>
         EmptyBuildMessagesSuccess
-      case BspProjectSettings.AutoPreImport =>
+      case PreImportConfig.AutoPreImport =>
         if (bspServerConfig == BspProjectSettings.AutoConfig && bloopConfigDir(workspace).isDefined && isSbtProject(workspace)) {
           runBloopInstall(workspace, indicator)
         } else {
           EmptyBuildMessagesSuccess
         }
-      case BspProjectSettings.BloopSbtPreImport =>
+      case PreImportConfig.BloopSbtPreImport =>
         runBloopInstall(workspace, indicator)
       case _ => EmptyBuildMessagesSuccess
     }

@@ -18,6 +18,8 @@ import org.jetbrains.bsp.project.importing.bspConfigSteps._
 import org.jetbrains.bsp.project.importing.setup.{BspConfigSetup, FastpassConfigSetup, MillConfigSetup, NoConfigSetup, SbtConfigSetup, ScalaCliSetupProvider}
 import org.jetbrains.bsp.protocol.BspConnectionConfig
 import org.jetbrains.bsp.settings.BspProjectSettings._
+import org.jetbrains.bsp.settings.PreImportConfig
+import org.jetbrains.bsp.settings.PreImportConfig._
 import org.jetbrains.bsp.{BspBundle, BspJdkUtil, BspUtil}
 import org.jetbrains.plugins.scala.build.IndicatorReporter
 import org.jetbrains.plugins.scala.project.external.SdkUtils

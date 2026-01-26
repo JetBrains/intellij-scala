@@ -13,7 +13,8 @@ import org.jetbrains.bsp
 import org.jetbrains.bsp.project.importing.BspProjectResolver
 import org.jetbrains.bsp.protocol.session.BspSession.{BspServer, BspSessionTask}
 import org.jetbrains.bsp.protocol.{BspCommunication, BspCommunicationService}
-import org.jetbrains.bsp.settings.BspProjectSettings.{AutoConfig, AutoPreImport}
+import org.jetbrains.bsp.settings.BspProjectSettings.AutoConfig
+import org.jetbrains.bsp.settings.PreImportConfig.AutoPreImport
 import org.jetbrains.bsp.settings.{BspExecutionSettings, BspSystemSettings}
 import org.jetbrains.plugins.scala.build.{BuildReporter, ConsoleReporter}
 import org.jetbrains.plugins.scala.extensions.PathExt

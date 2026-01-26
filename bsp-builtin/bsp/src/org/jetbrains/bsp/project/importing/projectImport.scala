@@ -27,6 +27,7 @@ import org.jetbrains.bsp._
 import org.jetbrains.bsp.project.importing.setup.{MillConfigSetup, ScalaCliSetupProvider}
 import org.jetbrains.bsp.protocol.BspConnectionConfig
 import org.jetbrains.bsp.settings.BspProjectSettings._
+import org.jetbrains.bsp.settings.PreImportConfig._
 import org.jetbrains.bsp.settings._
 import org.jetbrains.sbt.project.{AbstractBuildToolOpenProjectProvider, SbtProjectImportProvider}
 

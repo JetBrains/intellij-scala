@@ -10,7 +10,7 @@ import org.jetbrains.bsp.project.importing.bspConfigSteps._
 import org.jetbrains.bsp.project.importing.preimport.BloopPreImporter
 import org.jetbrains.bsp.project.importing.setup.NoConfigSetup
 import org.jetbrains.bsp.project.importing.{BspSetupConfigStep, BspSetupConfigStepUi, bspConfigSteps}
-import org.jetbrains.bsp.settings.BspProjectSettings
+import org.jetbrains.bsp.settings.PreImportConfig
 import org.jetbrains.bsp.{BspBundle, BspJdkUtil}
 import org.jetbrains.plugins.scala.build.IndicatorReporter
 import org.jetbrains.plugins.scala.project.external.SdkUtils
@@ -109,7 +109,7 @@ final class GenerateBspConfig(project: Project, workspace: Path) {
     val parameters = bspConfigSteps.getBuilderConfigurationParameters(sdk, workspace, setup)
     parameters.bspConfigSetup match {
       case NoConfigSetup =>
-        val installBloop = parameters.preImportConfig.contains(BspProjectSettings.BloopSbtPreImport)
+        val installBloop = parameters.preImportConfig.contains(PreImportConfig.BloopSbtPreImport)
         if (installBloop) {
           ProgressManager.getInstance.runProcessWithProgressSynchronously((() => {
             val indicator = ProgressManager.getInstance().getProgressIndicator
