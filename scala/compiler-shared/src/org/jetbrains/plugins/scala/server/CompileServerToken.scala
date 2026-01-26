@@ -5,7 +5,6 @@ import java.nio.file.{Files, Path}
 
 object CompileServerToken {
 
-  /** dulicated in `org.jetbrains.plugins.scala.nailgun.NailgunRunner#tokenPathFor(int)` */
   def tokenPathForPort(scalaCompileServerSystemDir: Path, port: Int): Path =
     scalaCompileServerSystemDir
       .resolve("tokens")

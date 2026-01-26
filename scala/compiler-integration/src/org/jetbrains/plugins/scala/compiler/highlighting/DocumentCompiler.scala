@@ -140,7 +140,7 @@ private final class DocumentCompiler(project: Project) {
           client.compilationEnd(fixedSources)
         }
       }
-      new RemoteServerRunner()
+      new RemoteServerRunner(module.getProject)
         .buildProcess(CommandIds.Compile, arguments.asStrings, fixedClient)
         .runSync()
     }
@@ -166,7 +166,7 @@ private final class DocumentCompiler(project: Project) {
         )
       )
 
-      new RemoteServerRunner()
+      new RemoteServerRunner(module.getProject)
         .buildProcess(CommandIds.CompileDocument, DocumentCompilationArguments.serialize(arguments), client)
         .runSync()
     }

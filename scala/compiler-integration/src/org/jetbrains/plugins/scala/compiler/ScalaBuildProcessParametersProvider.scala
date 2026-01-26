@@ -49,14 +49,14 @@ class ScalaBuildProcessParametersProvider(project: Project)
   private def addOpens(): Seq[String] = CompileServerLauncher.compileServerJvmAddOpensExtraParams
 
   private def scalaCompileServerSystemDir(): String =
-    s"-Dscala.compile.server.system.dir=${CompileServerLauncher.scalaCompileServerSystemDir}"
+    s"-Dscala.compile.server.system.dir=${CompileServerLauncher.scalaCompileServerSystemDir(project)}"
 
   private def java9rtParams(): Seq[String] = {
     val settings = ScalaCompileServerSettings.getInstance()
     if (settings.COMPILE_SERVER_ENABLED) Seq.empty
     else {
       val sdk = CompileServerJdkManager.getBuildProcessRuntimeJdk(project)._1
-      JDK.fromSdk(sdk).map(CompileServerLauncher.prepareJava9rtJar).getOrElse(Seq.empty)
+      JDK.fromSdk(sdk).map(CompileServerLauncher.prepareJava9rtJar(project, _)).getOrElse(Seq.empty)
     }
   }
 

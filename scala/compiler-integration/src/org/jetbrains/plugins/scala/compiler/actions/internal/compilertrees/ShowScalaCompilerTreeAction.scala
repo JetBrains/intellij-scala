@@ -184,7 +184,7 @@ object ShowScalaCompilerTreeAction {
     }
 
     def run(): Unit = {
-      new RemoteServerRunner()
+      new RemoteServerRunner(module.getProject)
         .buildProcess(CommandIds.Compile, arguments.asStrings, client)
         .runSync()
     }

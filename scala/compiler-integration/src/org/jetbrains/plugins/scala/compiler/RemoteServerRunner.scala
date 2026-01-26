@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.compiler
 
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.registry.RegistryManager
+import org.jetbrains.annotations.{ApiStatus, Nullable}
 import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.remote.RemoteResourceOwner
 import org.jetbrains.plugins.scala.compiler.RemoteServerRunner._
@@ -10,13 +12,19 @@ import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 
 import java.net.{ConnectException, InetAddress, UnknownHostException}
 import java.nio.file.Path
+import scala.annotation.nowarn
 import scala.concurrent.duration.{Duration, DurationInt, FiniteDuration}
 import scala.util.control.NonFatal
 
 /**
  * @see `org.jetbrains.plugins.scala.worksheet.server.NonServerRunner`
  */
-final class RemoteServerRunner extends RemoteResourceOwner {
+final class RemoteServerRunner(@Nullable project: Project) extends RemoteResourceOwner {
+
+  @deprecated(message = "Use the constructor which takes a Project instance", since = "2026.1")
+  @Deprecated(since = "2026.1", forRemoval = true)
+  @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
+  def this() = this(null)
 
   override protected val address: InetAddress = InetAddress.getByName(null)
 
@@ -39,7 +47,9 @@ final class RemoteServerRunner extends RemoteResourceOwner {
       this.callbacks :+= callback
 
     override def run(): Unit = {
-      val scalaCompileServerSystemDir = CompileServerLauncher.scalaCompileServerSystemDir
+      val scalaCompileServerSystemDir =
+        if (project != null) CompileServerLauncher.scalaCompileServerSystemDir(project)
+        else CompileServerLauncher.scalaCompileServerSystemDir: @nowarn
       var unhandledException: Option[Throwable] = None
       try {
         for (i <- 0 until ConnectionRetryAttempts - 1) {
