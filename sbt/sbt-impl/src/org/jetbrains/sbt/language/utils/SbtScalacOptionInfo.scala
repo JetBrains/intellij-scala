@@ -1,9 +1,9 @@
 package org.jetbrains.sbt.language.utils
 
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
-import org.jetbrains.sbt.language.utils.SbtScalacOptionInfo.ArgType
-import spray.json.DefaultJsonProtocol._
-import spray.json._
+import org.jetbrains.sbt.language.utils.SbtScalacOptionInfo.{ArgType, Deprecation}
+import spray.json.DefaultJsonProtocol.*
+import spray.json.*
 
 import scala.collection.immutable.{SortedMap, SortedSet}
 
@@ -13,6 +13,7 @@ final case class SbtScalacOptionInfo(flag: String,
                                      argType: ArgType,
                                      scalaVersions: Set[ScalaLanguageLevel],
                                      defaultValue: Option[String],
+                                     deprecations: Map[ScalaLanguageLevel, Deprecation],
                                     ) {
   def getText: String = argType match {
     case ArgType.OneSeparate => s""""$flag", """""
@@ -70,7 +71,7 @@ object SbtScalacOptionInfo {
 
   implicit object SbtScalacOptionInfoJsonFormat extends JsonFormat[SbtScalacOptionInfo] {
     private val inner: RootJsonFormat[SbtScalacOptionInfo] =
-      jsonFormat6(SbtScalacOptionInfo.apply)
+      jsonFormat7(SbtScalacOptionInfo.apply)
 
     override def read(json: JsValue): SbtScalacOptionInfo = inner.read(json)
     override def write(obj: SbtScalacOptionInfo): JsValue = {
@@ -82,7 +83,8 @@ object SbtScalacOptionInfo {
         choices = obj.choices.view.mapValues(_.to(SortedSet)).to(SortedMap),
         argType = obj.argType,
         scalaVersions = obj.scalaVersions.to(SortedSet),
-        defaultValue = obj.defaultValue
+        defaultValue = obj.defaultValue,
+        deprecations = obj.deprecations.to(SortedMap),
       )
 
       // We need this because for some reason objects are converted from SortedMaps to HashMaps in spray during writing
@@ -95,6 +97,38 @@ object SbtScalacOptionInfo {
       }
 
       sorted(inner.write(sortedObj))
+    }
+  }
+
+  case class Deprecation(msg: String, replacedWith: Option[String])
+
+  implicit object DeprecationFormat extends JsonFormat[Deprecation] {
+    override def read(json: JsValue): Deprecation = {
+      json match {
+        case JsTrue => Deprecation("", None)
+        case JsObject(fields) =>
+          val msg = fields.get("msg").map(_.convertTo[String]).getOrElse("")
+          val replacedWith = fields.get("replacedWith").map(_.convertTo[String])
+          Deprecation(msg, replacedWith)
+        case _ =>
+          deserializationError("Expected object or true, got: " + json)
+      }
+    }
+
+    override def write(obj: Deprecation): JsValue = {
+      var result = SortedMap.empty[String, JsValue]
+      if (obj.msg != "") {
+        result += "msg" -> JsString(obj.msg)
+      }
+      obj.replacedWith.foreach { replacedWith =>
+          result += "replacedWith" -> JsString(replacedWith)
+      }
+
+      if (result.isEmpty) {
+        JsTrue
+      } else {
+        JsObject(result)
+      }
     }
   }
 }

@@ -72,7 +72,7 @@ object SbtScalacOptionUtils {
 
   private val scalacOptionFlagsWithPrefix = cached("scalacOptionsFlagsWithPrefix", ModificationTracker.NEVER_CHANGED, () => {
     getScalacOptions.collect {
-      case SbtScalacOptionInfo(flag, _, _, ArgType.OneAfterPrefix(prefix), _, _) =>
+      case SbtScalacOptionInfo(flag, _, _, ArgType.OneAfterPrefix(prefix), _, _, _) =>
         prefix -> flag
     }
   })

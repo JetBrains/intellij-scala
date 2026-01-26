@@ -7,9 +7,9 @@ import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.{DependencyManager, ScalaVersion}
 import org.jetbrains.sbt.language.utils.SbtScalacOptionInfo
-import org.jetbrains.sbt.language.utils.SbtScalacOptionInfo.ArgType
-import spray.json.DefaultJsonProtocol._
-import spray.json._
+import org.jetbrains.sbt.language.utils.SbtScalacOptionInfo.{ArgType, Deprecation}
+import spray.json.*
+import spray.json.DefaultJsonProtocol.*
 
 import java.lang.reflect.Field
 import java.net.URLClassLoader
@@ -160,21 +160,44 @@ object UpdateScalacOptionsInfo {
       .getDeclaredField("_2")
       .get(pair)
 
+  case class SettingsAlias(name: String, deprecation: Option[Deprecation])
+  private def getSettingsAlias(any: Any)(implicit classLoader: ClassLoader): SettingsAlias = any match {
+    case s: String => SettingsAlias(s, None) // old version
+    case alias => // since 3.8
+      val settingAliasClass = loadClass("dotty.tools.dotc.config.Settings$SettingAlias")
+      val nameMethod = settingAliasClass.getMethod("name")
+      val deprecationMethod = settingAliasClass.getMethod("deprecation")
+
+      val name = nameMethod.invoke(alias).asInstanceOf[String]
+      val deprecationRaw = toOption(deprecationMethod.invoke(alias))
+        .map { deprecation =>
+          val deprecationClass = loadClass("dotty.tools.dotc.config.Settings$Deprecation")
+          val msgMethod = deprecationClass.getMethod("msg")
+          val replacedByMethod = deprecationClass.getMethod("replacedBy")
+          val msg = msgMethod.invoke(deprecation).asInstanceOf[String]
+          val replacedBy = toOption(replacedByMethod.invoke(deprecation)).map(_.asInstanceOf[String])
+          Deprecation(msg, replacedBy)
+        }
+
+      SettingsAlias(name, deprecationRaw)
+  }
+
   private def createScalacOptionWithAliases(name: String, argType: ArgType, description: String,
-                                            aliases: List[String], choices: List[String], default: Option[String])
+                                            aliases: List[SettingsAlias], choices: List[String], default: Option[String])
                                            (implicit langLevel: ScalaLanguageLevel): List[SbtScalacOptionInfo] = {
     val scalaVersions = Set(langLevel)
 
-    def scalacOption(flag: String) = SbtScalacOptionInfo(
+    def scalacOption(flag: String, deprecation: Option[Deprecation]) = SbtScalacOptionInfo(
       flag = flag,
       descriptions = scalaVersions.map(_ -> description).toMap,
       choices = if (choices.nonEmpty) Map(langLevel -> choices.toSet) else Map.empty,
       argType = argType,
       scalaVersions = scalaVersions,
-      defaultValue = default
+      defaultValue = default,
+      deprecations = deprecation.map(langLevel -> _).toMap,
     )
 
-    scalacOption(name) :: aliases.map(scalacOption)
+    scalacOption(name, None) :: aliases.map(a => scalacOption(a.name, a.deprecation))
   }
 
 
@@ -237,7 +260,7 @@ object UpdateScalacOptionsInfo {
       val name = nameField.get(setting).asInstanceOf[String]
       val description = descriptionField.get(setting).asInstanceOf[String]
       val choices = toOption(choicesField.get(setting)).fold(List.empty[Any])(iterableLikeToList(_))
-      val aliases = iterableLikeToList(aliasesField.get(setting)).asInstanceOf[List[String]]
+      val aliases = iterableLikeToList(aliasesField.get(setting)).map(getSettingsAlias)
 
       val tag = classTagField.get(setting)
 
@@ -316,7 +339,7 @@ object UpdateScalacOptionsInfo {
         val name = nameField.get(setting).asInstanceOf[String]
         val description = descriptionField.get(setting).asInstanceOf[String]
         val choices = iterableLikeToList(choicesMethod.invoke(setting)).asInstanceOf[List[String]]
-        val aliases = iterableLikeToList(aliasesMethod.invoke(setting)).asInstanceOf[List[String]]
+        val aliases = iterableLikeToList(aliasesMethod.invoke(setting)).map(getSettingsAlias)
 
         val (defaultValue, argType) =
           if (booleanSettingClass isInstance setting)
@@ -417,11 +440,18 @@ object UpdateScalacOptionsInfo {
     assert(left.defaultValue == right.defaultValue, "Cannot merge scalac options with different default values:\n" +
       s"\tleft[${left.flag}] is ${left.defaultValue} (${left.scalaVersions}), right[${right.flag}] is ${right.defaultValue} (${right.scalaVersions})")
 
-    assert(left.productArity == 3 + 3, "Make sure that all fields are processed during scalac options merge")
+    assert(left.productArity == 4 + 3, "Make sure that all fields are processed during scalac options merge")
 
     val descriptions = left.descriptions ++ right.descriptions
     val choices = left.choices ++ right.choices
     val versions = left.scalaVersions | right.scalaVersions
+    val deprecation = (left.deprecations.toSeq ++ right.deprecations.toSeq)
+      .groupMapReduce(_._1)(_._2) {
+        case (a, b) =>
+          assert(a == b, "Cannot merge scalac options with different deprecation messages:\n" +
+            s"\tleft[${left.flag}] is $a (${left.scalaVersions}), right[${right.flag}] is $b (${right.scalaVersions})")
+          a
+      }
 
     right.copy(descriptions = descriptions, choices = choices, scalaVersions = versions)
   }
