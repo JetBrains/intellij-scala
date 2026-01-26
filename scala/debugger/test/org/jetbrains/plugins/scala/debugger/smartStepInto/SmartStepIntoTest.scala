@@ -330,6 +330,50 @@ class SmartStepIntoTest_3_RC extends SmartStepIntoTest_3 {
 
 class SmartStepIntoTest_3_Next_RC extends SmartStepIntoTest_3 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_Next_RC
+
+  override def testAnonymousClassFromClass1(): Unit = {
+    smartStepIntoTest("AnonymousClassFromClass")(
+      Target("execute(ProcessorClass)"),
+      Target("new ProcessorClass()"),
+      Target("new ProcessorClass.execute()")
+    )(
+      Breakpoint("AnonymousClassFromClass.scala", "main", 6) -> smartStepInto(Target("new ProcessorClass()")),
+      Breakpoint("AnonymousClassFromClass.scala", "<init>", 6) -> resume
+    )
+  }
+
+  override def testAnonymousClassFromClass2(): Unit = {
+    smartStepIntoTest("AnonymousClassFromClass")(
+      Target("execute(ProcessorClass)"),
+      Target("new ProcessorClass()"),
+      Target("new ProcessorClass.execute()")
+    )(
+      Breakpoint("AnonymousClassFromClass.scala", "main", 6) -> smartStepInto(Target("new ProcessorClass.execute()")),
+      Breakpoint("AnonymousClassFromClass.scala", "execute", 10) -> resume
+    )
+  }
+
+  override def testAnonymousClassFromTrait1(): Unit = {
+    smartStepIntoTest("AnonymousClassFromTrait")(
+      Target("execute(Processor)"),
+      Target("new Processor()"),
+      Target("new Processor.execute()")
+    )(
+      Breakpoint("AnonymousClassFromTrait.scala", "main", 6) -> smartStepInto(Target("new Processor()")),
+      Breakpoint("AnonymousClassFromTrait.scala", "<init>", 6) -> resume
+    )
+  }
+
+  override def testAnonymousClassFromTrait2(): Unit = {
+    smartStepIntoTest("AnonymousClassFromTrait")(
+      Target("execute(Processor)"),
+      Target("new Processor()"),
+      Target("new Processor.execute()")
+    )(
+      Breakpoint("AnonymousClassFromTrait.scala", "main", 6) -> smartStepInto(Target("new Processor.execute()")),
+      Breakpoint("AnonymousClassFromTrait.scala", "execute", 10) -> resume
+    )
+  }
 }
 
 abstract class SmartStepIntoTestBase extends ScalaDebuggerTestCase {
