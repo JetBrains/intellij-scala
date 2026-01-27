@@ -7,6 +7,7 @@ import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.ui.{DialogWrapper, Messages, ValidationInfo}
 import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.bsp.project.importing.bspConfigSteps._
+import org.jetbrains.bsp.project.importing.experimental.GenerateBspConfig.GenerateBspConfigDialog
 import org.jetbrains.bsp.project.importing.preimport.BloopPreImporter
 import org.jetbrains.bsp.project.importing.setup.NoConfigSetup
 import org.jetbrains.bsp.project.importing.{BspSetupConfigStep, BspSetupConfigStepUi, bspConfigSteps}
@@ -63,46 +64,6 @@ final class GenerateBspConfig(project: Project, workspace: Path) {
 
   }
 
-  private final class GenerateBspConfigDialog(
-    configSetups: Seq[ConfigSetup],
-    project: Project,
-    shouldShowJdkComboBox: Boolean
-  ) extends DialogWrapper(project) {
-
-    override def doValidateAll(): util.List[ValidationInfo] = {
-      val validationInfo = super.doValidateAll()
-      if (!configSetupUi.isJdkSelectedIfRequired) {
-        validationInfo.add(new ValidationInfo(BspBundle.message("jdkComboBox.validation.tooltip")).forComponent(configSetupUi.jdkComboBox))
-      }
-      validationInfo
-    }
-
-    private val configSetupUi = new BspSetupConfigStepUi(
-        BspBundle.message("choose.tool.to.generate.bsp.configuration"),
-        configSetups,
-        shouldShowJdkComboBox
-      )
-
-    def selectedConfigSetup: ConfigSetup =
-      configSetupUi.selectedConfigSetup
-
-    def getSelectedJdkIfRequired(): Option[Sdk] =
-      configSetupUi.getSelectedJdkIfRequired
-
-    locally {
-      configSetupUi.updateChooseBspSetupComponent(configSetups)
-
-      setTitle(BspBundle.message("generate.bsp.configuration"))
-      setOKButtonText(CommonBundle.getOkButtonText)
-      setCancelButtonText(CommonBundle.getCancelButtonText)
-      init()
-    }
-
-    override def createNorthPanel(): JComponent = configSetupUi.mainComponent
-
-    override def createCenterPanel(): JComponent = null
-  }
-
   //TODO: make it cancellable for both: SBT and Bloop
   //TODO: it duplicates some code with BspProjectResolver.installBSPs
   private def runConfigSetupSynchronously(setup: ConfigSetup, sdk: Sdk): Unit = {
@@ -122,5 +83,48 @@ final class GenerateBspConfig(project: Project, workspace: Path) {
         val runSetupTask = new BspSetupConfigStep.BspConfigSetupTask(setup)
         runSetupTask.queue()
     }
+  }
+}
+
+private[bsp] object GenerateBspConfig {
+
+  final class GenerateBspConfigDialog(
+    configSetups: Seq[ConfigSetup],
+    project: Project,
+    shouldShowJdkComboBox: Boolean
+  ) extends DialogWrapper(project) {
+
+    override def doValidateAll(): util.List[ValidationInfo] = {
+      val validationInfo = super.doValidateAll()
+      if (!configSetupUi.isJdkSelectedIfRequired) {
+        validationInfo.add(new ValidationInfo(BspBundle.message("jdkComboBox.validation.tooltip")).forComponent(configSetupUi.jdkComboBox))
+      }
+      validationInfo
+    }
+
+    private val configSetupUi = new BspSetupConfigStepUi(
+      BspBundle.message("choose.tool.to.generate.bsp.configuration"),
+      configSetups,
+      shouldShowJdkComboBox
+    )
+
+    def selectedConfigSetup: ConfigSetup =
+      configSetupUi.selectedConfigSetup
+
+    def getSelectedJdkIfRequired(): Option[Sdk] =
+      configSetupUi.getSelectedJdkIfRequired
+
+    locally {
+      configSetupUi.updateChooseBspSetupComponent(configSetups)
+
+      setTitle(BspBundle.message("generate.bsp.configuration"))
+      setOKButtonText(CommonBundle.getOkButtonText)
+      setCancelButtonText(CommonBundle.getCancelButtonText)
+      init()
+    }
+
+    override def createNorthPanel(): JComponent = configSetupUi.mainComponent
+
+    override def createCenterPanel(): JComponent = null
   }
 }

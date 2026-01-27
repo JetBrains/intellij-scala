@@ -24,11 +24,15 @@ import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.packaging.artifacts.ModifiableArtifactModel
 import com.intellij.projectImport.{ProjectImportBuilder, ProjectImportProvider, ProjectOpenProcessor}
 import org.jetbrains.bsp._
-import org.jetbrains.bsp.project.importing.setup.{MillConfigSetup, ScalaCliSetupProvider}
+import org.jetbrains.bsp.project.importing.BspSetupConfigStep.BspConfigSetupTask
+import org.jetbrains.bsp.project.importing.bspConfigSteps.ConfigSetup
+import org.jetbrains.bsp.project.importing.experimental.GenerateBspConfig.GenerateBspConfigDialog
+import org.jetbrains.bsp.project.importing.setup.{MillConfigSetup, NoConfigSetup, ScalaCliSetupProvider}
 import org.jetbrains.bsp.protocol.BspConnectionConfig
 import org.jetbrains.bsp.settings.BspProjectSettings._
 import org.jetbrains.bsp.settings.PreImportConfig._
 import org.jetbrains.bsp.settings._
+import org.jetbrains.plugins.scala.project.external.SdkUtils
 import org.jetbrains.sbt.project.{AbstractBuildToolOpenProjectProvider, SbtProjectImportProvider}
 
 import java.nio.file.{Path, Paths}
@@ -145,11 +149,12 @@ class BspOpenProjectProvider extends AbstractBuildToolOpenProjectProvider {
 
   override def doLinkProject(projectDirectory: VirtualFile, project: Project): Unit = {
     val bspProjectSettings = new BspProjectSettings()
-    bspProjectSettings.setExternalProjectPath(projectDirectory.toNioPath.toString)
-    attachBspProjectAndRefresh(bspProjectSettings, project)
+    val workspace = projectDirectory.toNioPath
+    bspProjectSettings.setExternalProjectPath(workspace.toString)
+    attachBspProjectAndRefresh(bspProjectSettings, project, workspace)
   }
 
-  private def attachBspProjectAndRefresh(settings: BspProjectSettings, project: Project): Unit = {
+  private def attachBspProjectAndRefresh(settings: BspProjectSettings, project: Project, workspace: Path): Unit = {
     val externalProjectPath = settings.getExternalProjectPath
     BspUtil.bspSettings(project).linkProject(settings)
     ExternalSystemUtil.refreshProject(externalProjectPath,
@@ -157,12 +162,61 @@ class BspOpenProjectProvider extends AbstractBuildToolOpenProjectProvider {
         .usePreviewMode()
         .use(ProgressExecutionMode.MODAL_SYNC))
     ExternalProjectsManagerImpl.getInstance(project).runWhenInitialized { () =>
+      val setupChoices = bspConfigSteps.workspaceSetupChoices(workspace)
+      val shouldGenerateBspConfig = !isBspConfigurationAvailable(workspace) && setupChoices.nonEmpty
+      if (shouldGenerateBspConfig)
+        generateBspConfig(workspace, setupChoices, project, settings)
+
       ExternalSystemUtil.refreshProject(
         externalProjectPath,
         new ImportSpecBuilder(project, BSP.ProjectSystemId)
           .withCallback(new FinalImportCallback(project, settings))
           .withImportProjectData(false)
       )
+    }
+  }
+
+  private def isBspConfigurationAvailable(workspace: Path): Boolean = {
+    val bspConnectionProtocolSupported = BspConnectionConfig.workspaceConfigurationFiles(workspace).nonEmpty
+    val bloopProject = BspUtil.bloopConfigDir(workspace).isDefined
+    bspConnectionProtocolSupported || bloopProject
+  }
+
+  private def generateBspConfig(
+    workspace: Path,
+    setupChoices: List[ConfigSetup],
+    project: Project,
+    settings: BspProjectSettings
+  ): Unit = {
+    val existingJdk = BspJdkUtil.findOrCreateBestJdkForProject(Some(project))
+
+    val (configSetupOpt, sdkOpt) =
+      if (setupChoices.size > 1 && existingJdk.isEmpty)  {
+        val dialog = new GenerateBspConfigDialog(setupChoices, project, existingJdk.isEmpty)
+        if (dialog.showAndGet()) {
+          val selectedConfigSetup = dialog.selectedConfigSetup
+          val selectedJdk = dialog.getSelectedJdkIfRequired()
+          selectedJdk.foreach(SdkUtils.addJdkIfNotExists)
+          (Some(selectedConfigSetup), selectedJdk)
+        } else (None, None)
+      } else {
+        (setupChoices.headOption, existingJdk)
+      }
+
+    for {
+      configSetup <- configSetupOpt
+      sdk <- sdkOpt
+    } {
+      val params = bspConfigSteps.getBuilderConfigurationParameters(sdk, workspace, configSetup)
+      params.preImportConfig.foreach(settings.setPreImportConfig)
+      params.serverConfig.foreach(settings.setServerConfig)
+      params.externalBspWorkspace.foreach(path => settings.setExternalProjectPath(path.toString))
+
+      val bspConfigSetup = params.bspConfigSetup
+      if (bspConfigSetup != NoConfigSetup) {
+        val task = new BspConfigSetupTask(bspConfigSetup)
+        task.queue()
+      }
     }
   }
 
