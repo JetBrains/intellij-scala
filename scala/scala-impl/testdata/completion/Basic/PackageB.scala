@@ -3,7 +3,7 @@ object Wrapper {
   mut/*caret*/
 }
 /*
-copyArrayToImmutableIndexedSeq
+copyArrayToImmutableIndexedSeq (strikeout)
 mutable
 mutable
  */

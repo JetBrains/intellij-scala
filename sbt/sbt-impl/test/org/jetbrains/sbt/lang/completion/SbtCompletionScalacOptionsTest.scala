@@ -1,11 +1,14 @@
 package org.jetbrains.sbt
 package lang.completion
 
+import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.extensions.PathExt
 
 import java.nio.file.Path
 
 class SbtCompletionScalacOptionsTest extends SbtFileTestDataCompletionTestBase with MockSbt_1_0 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_3_8
+
   override def folderPath: Path = super.folderPath / "scalacOptions"
 
   def testCompleteSeqRef(): Unit = doTest()
@@ -53,4 +56,6 @@ class SbtCompletionScalacOptionsTest extends SbtFileTestDataCompletionTestBase w
   def testCompleteObjectMemberAfterScalacOptionsInInterpolatedString(): Unit = doTest()
 
   def testCompleteInInterpolatedString(): Unit = doTest()
+
+  def testCompleteDeprecated(): Unit = doTest()
 }
