@@ -72,7 +72,7 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
         log.warn("BSP connection failed", error)
 
         error match {
-          case BspConnectionFileError(_, _) =>
+          case _: BspConnectionConfigError =>
             val project = findProject
             project.foreach(showRegenerateBspConnectionFileNotification)
           case _ =>
@@ -255,7 +255,7 @@ object BspCommunication {
         else if (bloopEnabled)
           configureBloopLauncherIfJdkExists()
         else
-          Left(BspErrorMessage(s"Unable to automatically determine BSP connection configuration in $base"))
+          Left(BspInvalidAutoConfigError(base))
 
       case BspProjectSettings.BloopConfig =>
         if (bloopEnabled)
