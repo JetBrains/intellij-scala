@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.completion
 
 import com.intellij.codeInsight.completion.{CodeCompletionHandlerBase, CompletionType}
 import com.intellij.codeInsight.lookup.impl.LookupImpl
-import com.intellij.codeInsight.lookup.{LookupElement, LookupManager}
+import com.intellij.codeInsight.lookup.{LookupElement, LookupElementPresentation, LookupManager}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.{PathExt, StringExt}
 import org.jetbrains.plugins.scala.util.TestUtils
@@ -65,7 +65,16 @@ abstract class FileTestDataCompletionTestBase extends ScalaLightCodeInsightFixtu
         //    presentation
         //  }
         //  val itemTexts = presentations.map(_.getItemText)
-        val lookups = items.map(_.getLookupString)
+        val lookups = items.map { item =>
+          val presentation = new LookupElementPresentation
+          item.renderElement(presentation)
+
+          var result = item.getLookupString
+          if (presentation.isStrikeout) {
+            result += " (strikeout)"
+          }
+          result
+        }
         lookups
       case _ => Array.empty[String]
     }

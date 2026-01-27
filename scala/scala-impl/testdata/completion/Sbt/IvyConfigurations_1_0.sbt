@@ -2,7 +2,7 @@ ivyConfigurations += <caret>
 /*
 Compile
 Default
-IntegrationTest
+IntegrationTest (strikeout)
 Optional
 Provided
 Runtime

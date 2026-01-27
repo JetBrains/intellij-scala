@@ -68,6 +68,8 @@ object SbtScalacOptionsCompletionContributor {
         .withInsertHandler(new ScalacOptionInsertHandler(option))
         .withPsiElement(new SbtScalacOptionDocHolder(option))
         .withCaseSensitivity(false)
+        // be conservative and only make it strikethrough if all versions are deprecated
+        .withStrikeoutness(scalaVersions.forall(option.deprecations.contains))
         .bold()
     }
   }
