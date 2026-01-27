@@ -10,11 +10,13 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.options.advanced.AdvancedSettings
 import com.intellij.openapi.project.{Project, ProjectManager}
 import com.intellij.openapi.projectRoots.{JavaSdkVersion, ProjectJdkTable, Sdk}
+import com.intellij.platform.eel.provider.utils.EelPathUtils
+import com.intellij.platform.eel.provider.{EelNioBridgeServiceKt, EelProviderUtil, LocalEelDescriptor}
 import com.intellij.util.PathUtil
 import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import com.intellij.util.net.NetUtils
 import org.apache.commons.lang3.StringUtils
-import org.jetbrains.annotations.Nls
+import org.jetbrains.annotations.{ApiStatus, Nls}
 import org.jetbrains.jps.api.GlobalOptions
 import org.jetbrains.jps.cmdline.ClasspathBootstrap
 import org.jetbrains.plugins.scala.extensions._
@@ -120,7 +122,7 @@ object CompileServerLauncher {
           settings.COMPILE_SERVER_PORT = freePort
           saveSettings()
         }
-        deleteOldTokenFile(scalaCompileServerSystemDir, freePort)
+        deleteOldTokenFile(scalaCompileServerSystemDir(project), freePort)
         val id = settings.COMPILE_SERVER_ID
 
         val shutdownDelay = settings.COMPILE_SERVER_SHUTDOWN_DELAY * 60
@@ -160,7 +162,7 @@ object CompileServerLauncher {
           else Seq.empty
 
         val userJvmParameters = jvmParameters
-        val java9rtJarParams = prepareJava9rtJar(jdk)
+        val java9rtJarParams = prepareJava9rtJar(project, jdk)
         val commands =
           jdk.executable.toCanonicalPath.toString +:
             "-cp" +: nailgunClasspath +:
@@ -176,7 +178,7 @@ object CompileServerLauncher {
             freePort.toString +:
             id +:
             classpath.mkString(java.io.File.pathSeparator) +:
-            scalaCompileServerSystemDir.toCanonicalPath.toString +:
+            toLocalPathString(scalaCompileServerSystemDir(project)) +:
             Nil
 
         val workingDirectory: Path = {
@@ -441,7 +443,7 @@ object CompileServerLauncher {
    *
    * @note This method does heavy I/O which can block for several seconds. It must not be called on the UI thread.
    */
-  private[scala] def prepareJava9rtJar(jdk: JDK): Seq[String] = {
+  private[scala] def prepareJava9rtJar(project: Project, jdk: JDK): Seq[String] = {
     /*
      * The following code is the same workaround that sbt applies that allows unpatched versions of Scala
      * (before Scala 2.10.7, before Scala 2.11.12, before Scala 2.12.17) to be compilable on JDK 9+.
@@ -492,7 +494,7 @@ object CompileServerLauncher {
           // for Eclipse Adoptium 17.0.5
           Try {
             val exportDirectoryPathProcess =
-              new GeneralCommandLine(executablePath, s"-Dsbt.global.base=$jvmRtDir", "-jar", java9rtExportJar.toString, "--rt-ext-dir")
+              new GeneralCommandLine(executablePath, s"-Dsbt.global.base=${jvmRtDir(project)}", "-jar", java9rtExportJar.toString, "--rt-ext-dir")
                 .withParentEnvironmentType(GeneralCommandLine.ParentEnvironmentType.CONSOLE)
                 .createProcess()
 
@@ -616,10 +618,42 @@ object CompileServerLauncher {
     final case class UnexpectedException(cause: Throwable) extends CompileServerProblem
   }
 
-  def scalaCompileServerSystemDir: Path =
-    PathManager.getSystemDir.resolve("scala-compile-server")
+  private final val ScalaCompileServerDirName = "scala-compile-server"
 
-  private def jvmRtDir: Path = scalaCompileServerSystemDir.resolve("jvm-rt")
+  //noinspection ApiStatus,UnstableApiUsage
+  def scalaCompileServerSystemDir(project: Project): Path = {
+    val eelDescriptor = EelProviderUtil.getEelDescriptor(project)
+    val systemDir =
+      if (eelDescriptor == LocalEelDescriptor.INSTANCE) {
+        // For filesystem paths which match the machine where IDEA is running on, we call
+        // `PathManager.getSystemDir`, which respects the `-Didea.system.path` VM option.
+        PathManager.getSystemDir
+      } else
+        EelPathUtils.getSystemFolder(eelDescriptor)
+
+    systemDir.resolve(ScalaCompileServerDirName)
+  }
+
+  /**
+   * Given a [[java.nio.file.Path]] instance, returns a local path string which can be used inside the target machine.
+   * For example, it returns a UNIX filesystem path for a given path inside WSL.
+   *
+   * @note The code is duplicated in `org.jetbrains.sbt.eelPathExtensions`. Should be deduplicated in the future after
+   *       we fully migrate to Scala 3.
+   */
+  private def toLocalPathString(path: Path): String = {
+    val eelDescriptor = EelProviderUtil.getEelDescriptor(path)
+    val eelPath = EelNioBridgeServiceKt.asEelPath(path, eelDescriptor)
+    eelPath.toString
+  }
+
+  @deprecated(message = "Use scalaCompileServerSystemDir(Project)", since = "2026.1")
+  @Deprecated(since = "2026.1", forRemoval = true)
+  @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
+  def scalaCompileServerSystemDir: Path =
+    PathManager.getSystemDir.resolve(ScalaCompileServerDirName)
+
+  private def jvmRtDir(project: Project): Path = scalaCompileServerSystemDir(project).resolve("jvm-rt")
 
   private val java9rtExportString: String = "java9-rt-export"
 

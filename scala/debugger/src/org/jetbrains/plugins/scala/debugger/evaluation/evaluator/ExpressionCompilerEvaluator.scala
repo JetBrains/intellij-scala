@@ -101,7 +101,7 @@ private[evaluation] final class ExpressionCompilerEvaluator(codeFragment: PsiEle
         }
       }
 
-      val process = new RemoteServerRunner().buildProcess(CommandIds.EvaluateExpression, arguments.asStrings, client)
+      val process = new RemoteServerRunner(context.getProject).buildProcess(CommandIds.EvaluateExpression, arguments.asStrings, client)
 
       var result: Either[Seq[NlsString], Unit] = Right(())
       process.addTerminationCallback { _ =>

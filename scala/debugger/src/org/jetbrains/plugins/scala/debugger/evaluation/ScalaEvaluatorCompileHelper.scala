@@ -105,7 +105,7 @@ private class ServerConnector(module: Module, filesToCompile: Seq[Path], outputD
 
   type CompileResult = Either[Seq[NlsString], Array[(Path, String)]]
   def compile(): CompileResult = {
-    val compilationProcess = new RemoteServerRunner().buildProcess(CommandIds.Compile, arguments.asStrings, client)
+    val compilationProcess = new RemoteServerRunner(module.getProject).buildProcess(CommandIds.Compile, arguments.asStrings, client)
     var result: CompileResult = Left(Seq(NlsString(DebuggerBundle.message("compilation.failed"))))
     compilationProcess.addTerminationCallback { _ => // TODO: do not ignore possible exception
       val foundErrors = errors.result()
