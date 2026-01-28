@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.textAnalysis.grazie
 
 import com.intellij.grazie.jlanguage.Lang
-import com.intellij.testFramework.PlatformTestUtil
+import com.intellij.testFramework.PerformanceUnitTest
+import com.intellij.tools.ide.metrics.benchmark.Benchmark
 import com.intellij.util.ThrowableRunnable
 
 /**
@@ -38,6 +39,7 @@ class ScalaSupportTest extends GrazieScalaTestBase:
     myFixture.launchAction(myFixture.getAvailableIntentions().stream().filter(_.getText == "Remove").findFirst().get())
     myFixture.checkResultByFile("AccidentalMerge_after.scala")
 
+  @PerformanceUnitTest
   def testPerformance_LongComment(): Unit =
     //NOTE: don't use lambda due to Scala 3/JUnit integration issue https://github.com/scala/scala3/issues/20322
     runPerformanceTest(new ThrowableRunnable[Throwable]() {
@@ -46,6 +48,7 @@ class ScalaSupportTest extends GrazieScalaTestBase:
       }
     })
 
+  @PerformanceUnitTest
   def testPerformance_ManyLineComments(): Unit =
     val text = "// this is a single line comment\n" * 5000
     myFixture.configureByText("a.scala", text)
@@ -58,8 +61,7 @@ class ScalaSupportTest extends GrazieScalaTestBase:
     })
 
   private def runPerformanceTest(runnable: ThrowableRunnable[?]): Unit =
-    PlatformTestUtil
-      .newBenchmark("highlighting", () => runnable.run())
+    Benchmark.newBenchmark("highlighting", runnable)
       .setup { () => getPsiManager.dropPsiCaches() }
       .start()
 end ScalaSupportTest
