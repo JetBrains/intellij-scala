@@ -191,12 +191,12 @@ object CompileServerLauncher {
         val builder = new GeneralCommandLine(commands.asJava)
           .withParentEnvironmentType(GeneralCommandLine.ParentEnvironmentType.CONSOLE)
           .withWorkingDirectory(workingDirectory)
-          .toProcessBuilder
+        val commandLineString = builder.getCommandLineString
 
         val incrementalCompiler = ScalaCompilerConfiguration(project).incrementalityType
 
         catching(classOf[IOException])
-          .either(builder.start())
+          .either(builder.createProcess())
           .left.map(e => CompileServerProblem.UnexpectedException(e))
           .map { process =>
             val bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream))
@@ -249,7 +249,7 @@ object CompileServerLauncher {
               }
             })
             infoAndPrintOnTeamcity(s"compile server process started: ${instance.summary}")
-            LOG.debug(s"command line: ${builder.command().asScala.mkString(" ")}")
+            LOG.debug(s"command line: $commandLineString")
             LOG.debug(s"working directory: ${instance.workingDir}")
 
             if (attachDebugAgent) {
