@@ -166,7 +166,7 @@ private object GrazieScalaTestBase:
     val hunspellRemote = lang.getHunspellRemote
     if hunspellRemote == null then
       throw AssertionError(s"Hunspell remote for language ${lang.getIso} not found")
-    val outputDir = GrazieDynamic.INSTANCE.getLangDynamicFolder(lang).resolve(hunspellRemote.getStorageName)
+    val outputDir = GrazieDynamic.INSTANCE.getDynamicFolder.resolve(hunspellRemote.getStorageName)
     Files.createDirectories(outputDir)
     ZipUtil.extract(zip, outputDir, HunspellDescriptor.Companion.filenameFilter())
     val spellChecker = SpellCheckerManager.getInstance(project).getSpellChecker
@@ -186,7 +186,7 @@ private object GrazieScalaTestBase:
     val hunspellRemote = lang.getHunspellRemote
     if hunspellRemote == null then
       throw AssertionError(s"Hunspell remote for language ${lang.getIso} not found")
-    GrazieDynamic.INSTANCE.getLangDynamicFolder(lang).resolve(hunspellRemote.getFile).toString
+    GrazieDynamic.INSTANCE.getDynamicFolder.resolve(hunspellRemote.getFile).toString
 
   inline def service[T](using ClassTag[T]): T =
     ApplicationManager.getApplication.getService(classTag[T].runtimeClass.asInstanceOf[Class[T]])
