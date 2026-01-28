@@ -2,12 +2,13 @@ package org.jetbrains.plugins.scala.codeInsight.unwrap
 
 import com.intellij.codeInsight.unwrap.AbstractUnwrapper
 import com.intellij.psi.{PsiElement, PsiWhiteSpace}
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createNewLine
 
 class ScalaUnwrapContext extends AbstractUnwrapper.AbstractContext {
-  override def isWhiteSpace(element: PsiElement): Boolean = element.isInstanceOf[PsiWhiteSpace]
+  override def isWhiteSpace(element: PsiElement): Boolean = element.is[PsiWhiteSpace]
 
   def extractAllMembers(td: ScTemplateDefinition): Unit = {
     val members = td.members

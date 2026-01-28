@@ -6,7 +6,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.StringExt
 
 abstract class ScalaUnwrapper extends AbstractUnwrapper[ScalaUnwrapContext]("") {
-  override def createContext() = new ScalaUnwrapContext
+  override def createContext(): ScalaUnwrapContext = new ScalaUnwrapContext
 }
 
 trait ShortTextDescription {

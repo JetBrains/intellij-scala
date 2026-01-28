@@ -170,3 +170,7 @@ case class ScalaSDKLoader(
   private def findJarFile(file: Path) =
     JarFileSystem.getInstance().refreshAndFindFileByPath(file.toCanonicalPath.toString + "!/")
 }
+
+object ScalaSDKLoader {
+  def default(): ScalaSDKLoader = ScalaSDKLoader()
+}

@@ -38,7 +38,7 @@ object TypePluralNamesProvider {
     }
   }
 
-  private object IsTraversable {
+  private[refactoring] object IsTraversable {
 
     import GenericTypeNamesProvider.isInheritor
 

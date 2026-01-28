@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.codeInsight.intention
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
-import com.intellij.codeInspection.LocalQuickFixOnPsiElement
+import com.intellij.modcommand.ModCommandAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression}
 abstract class SimplificationBasedIntention(
   @Nls familyName: String,
   simplificationType: SimplificationType,
-  quickFix: Simplification => LocalQuickFixOnPsiElement
+  quickFix: Simplification => ModCommandAction
 ) extends PsiElementBaseIntentionAction {
   override def getText: String = familyName
 
@@ -23,7 +23,10 @@ abstract class SimplificationBasedIntention(
     simplification(element).isDefined
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit =
-    simplification(element).foreach(quickFix(_).applyFix())
+    simplification(element).foreach { simplification =>
+      val intentionAction = quickFix(simplification).asIntention()
+      intentionAction.invoke(project, editor, element.getContainingFile)
+    }
 
   private def simplification(element: PsiElement): Option[Simplification] =
     element.withParentsInFile.takeWhile(!_.is[ScBlockExpr]).flatMap {

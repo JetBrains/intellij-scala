@@ -1,9 +1,10 @@
 package org.jetbrains.plugins.scala.codeInspection.booleans
 
-import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
+import com.intellij.codeInspection.{LocalInspectionTool, LocalQuickFix, ProblemsHolder}
+import com.intellij.modcommand.{ActionContext, ModCommand, PsiBasedModCommandAction}
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.codeInspection.booleans.SimplifyBooleanUtil.isOfBooleanType
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle}
+import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -20,19 +21,23 @@ class SimplifyBooleanMatchInspection extends LocalInspectionTool {
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case stmt: ScMatch if stmt.isValid && SimpleBooleanMatchUtil.isSimpleBooleanMatchStmt(stmt) =>
       val toHighlight = stmt.findFirstChildByType(ScalaTokenTypes.kMATCH).getOrElse(stmt)
-      holder.registerProblem(toHighlight, getDisplayName, new SimplifyBooleanMatchToIfStmtQuickFix(stmt))
+      val fix = LocalQuickFix.from(new SimplifyBooleanMatchToIfStmtQuickFix(stmt))
+      holder.registerProblem(toHighlight, getDisplayName, fix)
     case _ =>
   }
 }
 
-class SimplifyBooleanMatchToIfStmtQuickFix(stmt: ScMatch) extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("simplify.match.to.if.statement"), stmt) {
+class SimplifyBooleanMatchToIfStmtQuickFix(stmt: ScMatch) extends PsiBasedModCommandAction[ScMatch](stmt) {
+  override def getFamilyName: String = ScalaInspectionBundle.message("simplify.match.to.if.statement")
 
-  override protected def doApplyFix(scStmt: ScMatch)
-                                   (implicit project: Project): Unit = {
+  override def perform(context: ActionContext, scStmt: ScMatch): ModCommand = {
     if (SimpleBooleanMatchUtil.isSimpleBooleanMatchStmt(scStmt)) {
-      val newExpr = SimpleBooleanMatchUtil.simplifyMatchStmt(scStmt)(project, scStmt)
-      scStmt.replaceExpression(newExpr, removeParenthesis = false)
-    }
+      ModCommand.psiUpdate(scStmt, (scStmt: ScMatch) => {
+        val newExpr = SimpleBooleanMatchUtil.simplifyMatchStmt(scStmt)(context.project, scStmt)
+        scStmt.replaceExpression(newExpr, removeParenthesis = false)
+        ()
+      })
+    } else ModCommand.nop()
   }
 }
 

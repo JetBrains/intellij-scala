@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.codeInspection.functionExpressions
 
-import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
+import com.intellij.codeInspection.{LocalInspectionTool, LocalQuickFix, ProblemsHolder}
 import com.intellij.psi.{PsiClass, PsiFile}
 import org.jetbrains.plugins.scala.codeInspection.functionExpressions.UnnecessaryPartialFunctionInspection._
 import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle}
@@ -38,11 +38,8 @@ class UnnecessaryPartialFunctionInspection extends LocalInspectionTool {
         Seq(singleCaseClause) <- expression.caseClauses.map(_.caseClauses)
         if canBeConvertedToFunction(singleCaseClause, conformsTo(expectedExpressionType))
         caseKeyword <- singleCaseClause.firstChild
-      } holder.registerProblem(
-        caseKeyword,
-        inspectionName,
-        new UnnecessaryPartialFunctionQuickFix(expression)
-      )
+        fix = LocalQuickFix.from(new UnnecessaryPartialFunctionQuickFix(expression))
+      } holder.registerProblem(caseKeyword, inspectionName, fix)
     case _ =>
   }
 
@@ -53,7 +50,6 @@ class UnnecessaryPartialFunctionInspection extends LocalInspectionTool {
       .map(clazz =>
         ScParameterizedType(ScDesignatorType(clazz), parameterTypes(clazz)).asInstanceOf[ValueType])
   }
-
 
   private def findPartialFunctionType(file: PsiFile): Option[ValueType] =
     findType(file, PartialFunctionClassName, undefinedTypeParameters)

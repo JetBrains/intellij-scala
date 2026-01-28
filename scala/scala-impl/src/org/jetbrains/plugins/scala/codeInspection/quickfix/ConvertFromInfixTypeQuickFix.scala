@@ -1,15 +1,18 @@
 package org.jetbrains.plugins.scala.codeInspection.quickfix
 
+import com.intellij.modcommand.{ActionContext, ModPsiUpdater, PsiUpdateModCommandAction}
 import com.intellij.openapi.command.undo.UndoUtil.markPsiFileForUndo
-import com.intellij.openapi.project.{DumbAware, Project}
+import com.intellij.openapi.project.DumbAware
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.quickfix.ConvertFromInfixTypeQuickFix.message
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScParenthesisedTypeElement}
 
 final class ConvertFromInfixTypeQuickFix(expr: ScInfixTypeElement)
-  extends AbstractFixOnPsiElement(message, expr)
+  extends PsiUpdateModCommandAction[ScInfixTypeElement](expr)
     with DumbAware {
-  override protected def doApplyFix(infixType: ScInfixTypeElement)(implicit project: Project): Unit =
+  override def getFamilyName: String = message
+
+  override def invoke(context: ActionContext, infixType: ScInfixTypeElement, updater: ModPsiUpdater): Unit =
     ConvertFromInfixTypeQuickFix.applyFix(infixType)
 }
 

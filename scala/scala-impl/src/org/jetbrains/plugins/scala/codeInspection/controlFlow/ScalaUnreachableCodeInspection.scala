@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala.codeInspection.controlFlow
 
 import com.intellij.codeInspection._
-import com.intellij.openapi.project.Project
+import com.intellij.modcommand.{ActionContext, ModCommand, ModCommandAction, ModPsiUpdater, PsiBasedModCommandAction}
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.incremental.Highlighting._
 import org.jetbrains.plugins.scala.codeInsight.unwrap.{ScalaUnwrapContext, ScalaWhileUnwrapper}
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractFixOnTwoPsiElements, ScalaInspectionBundle}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractUpdateModCommandOnTwoPsiElements, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.incremental.Highlighting._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScDo
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
@@ -36,13 +36,14 @@ final class ScalaUnreachableCodeInspection extends LocalInspectionTool {
 
           head = fragment.head
           last = fragment.last
+          fix = createQuickFix(head, last)
         } yield manager.createProblemDescriptor(
           head,
           last,
           descriptionTemplate,
           ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
           isOnTheFly,
-          createQuickFix(head, last)
+          LocalQuickFix.from(fix)
         )
       case _ => Nil
     }
@@ -85,7 +86,7 @@ object ScalaUnreachableCodeInspection {
   private def fragments(cfg: Seq[Instruction],
                         unreachable: collection.Set[Instruction],
                         scope: PsiElement): Seq[Seq[PsiElement]] = {
-    // First get all reachable elements in the scope (definition of the cfg)
+    // First, get all reachable elements in the scope (definition of the cfg)
     val reachable = mutable.Set.empty[PsiElement]
     for {
       instr <- cfg
@@ -98,7 +99,7 @@ object ScalaUnreachableCodeInspection {
         .foreach(_ => ())
     }
 
-    // Then group the upper most unreachable elements together when they have the same reachable parent
+    // Then group the uppermost unreachable elements together when they have the same reachable parent
     val sortedInstrElements = cfg
       .flatMap(instr => instr.element)
       .sortBy(_.getTextOffset)
@@ -115,7 +116,7 @@ object ScalaUnreachableCodeInspection {
     val fragments = new FragmentsBuilder
     var curReachableParent = Option.empty[PsiElement]
 
-    // go through all the elements, determine upper most unreachable and reachable parents
+    // go through all the elements, determine uppermost unreachable and reachable parents,
     // then group all upper unreachable elements together if they have the same reachable parent
     // and are not interrupted by a reachable element
     for (elem <- sortedInstrElements) {
@@ -162,8 +163,8 @@ object ScalaUnreachableCodeInspection {
   }
 
   /**
-    * Combines connected unreachable instructions into components
-    */
+   * Combines connected unreachable instructions into components
+   */
   /*private def unreachableComponents(unreachable: collection.Set[Instruction]): Seq[Set[Instruction]] = {
 
     // now, collect them into components
@@ -197,44 +198,42 @@ object ScalaUnreachableCodeInspection {
     unreachable.iterator.flatMap(searchComponent).toSeq
   }*/
 
-  private def createQuickFix(head: PsiElement, last: PsiElement) = head.getParent match {
+  private def createQuickFix(head: PsiElement, last: PsiElement): ModCommandAction = head.getParent match {
     case doStatement@ScDo(_, Some(`head`)) => new UnwrapDoStmtFix(doStatement)
     case _ if head eq last => new RemoveFragmentQuickFix(head)
     case _ => new RemoveRangeQuickFix(head, last)
   }
 
-  private[this] class RemoveRangeQuickFix(from: PsiElement, to: PsiElement) extends AbstractFixOnTwoPsiElements(
-    ScalaInspectionBundle.message("remove.unreachable.code"),
-    from,
-    to
-  ) {
-    override protected def doApplyFix(from: PsiElement, to: PsiElement)
-                                     (implicit project: Project): Unit = {
+  private[this] final class RemoveRangeQuickFix(from: PsiElement, to: PsiElement)
+    extends AbstractUpdateModCommandOnTwoPsiElements[PsiElement, PsiElement](
+      ScalaInspectionBundle.message("remove.unreachable.code"),
+      from,
+      to
+    ) {
+    override protected def doInvoke(context: ActionContext, from: PsiElement, to: PsiElement, updater: ModPsiUpdater): Unit =
       from.getParent.deleteChildRange(from, to)
-    }
   }
 
-  private[this] class RemoveFragmentQuickFix(fragment: PsiElement) extends AbstractFixOnPsiElement(
-    ScalaInspectionBundle.message("remove.unreachable.code"),
-    fragment
-  ) {
-    override protected def doApplyFix(element: PsiElement)
-                                     (implicit project: Project): Unit = {
+  private[this] final class RemoveFragmentQuickFix(fragment: PsiElement) extends PsiBasedModCommandAction[PsiElement](fragment) {
+    override def getFamilyName: String = ScalaInspectionBundle.message("remove.unreachable.code")
+
+    override def perform(context: ActionContext, element: PsiElement): ModCommand = ModCommand.psiUpdate(element, (element: PsiElement) => {
       element.delete()
-    }
+      ()
+    })
   }
 
-  private[this] class UnwrapDoStmtFix(doStatement: ScDo) extends AbstractFixOnPsiElement(
-    ScalaInspectionBundle.message("unwrap.do.statement"),
-    doStatement
-  ) {
-    override protected def doApplyFix(doStatement: ScDo)
-                                     (implicit project: Project): Unit =
+  private[this] final class UnwrapDoStmtFix(doStatement: ScDo) extends PsiBasedModCommandAction[ScDo](doStatement) {
+    override def getFamilyName: String = ScalaInspectionBundle.message("unwrap.do.statement")
+
+    override def perform(context: ActionContext, doStatement: ScDo): ModCommand =
       if (doStatement.body.isDefined) {
-        val unwrapContext = new ScalaUnwrapContext
-        unwrapContext.setIsEffective(true)
-        new ScalaWhileUnwrapper().doUnwrap(doStatement, unwrapContext)
-      }
+        ModCommand.psiUpdate(doStatement, (doStatement: ScDo) => {
+          val unwrapContext = new ScalaUnwrapContext
+          unwrapContext.setIsEffective(true)
+          new ScalaWhileUnwrapper().doUnwrap(doStatement, unwrapContext)
+          ()
+        })
+      } else ModCommand.nop
   }
-
 }

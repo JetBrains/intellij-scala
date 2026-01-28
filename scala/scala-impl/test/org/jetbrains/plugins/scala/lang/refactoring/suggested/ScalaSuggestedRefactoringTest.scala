@@ -112,7 +112,7 @@ class ScalaSuggestedRefactoringTest extends ScalaLightCodeInsightFixtureTestCase
          |class C {
          |  private class InnerNew$CARET {}
          |
-         |  private def foo(inner: InnerNew): Unit = {
+         |  private def foo(innerNew: InnerNew): Unit = {
          |  }
          |}
          |""".stripMargin,
@@ -135,7 +135,7 @@ class ScalaSuggestedRefactoringTest extends ScalaLightCodeInsightFixtureTestCase
          |class C {
          |  private class InnerNew$CARET
          |
-         |  private def foo(inner: InnerNew): Unit = {
+         |  private def foo(innerNew: InnerNew): Unit = {
          |  }
          |}
          |""".stripMargin,
