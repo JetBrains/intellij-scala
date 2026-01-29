@@ -76,9 +76,8 @@ public interface Icons {
     //Console
     Icon SCALA_CONSOLE = getIcon("/org/jetbrains/plugins/scala/images/scalaConsole.svg", Icons.class);
 
-    // Highlighting (status bar)
-    Icon TYPED = getIcon("/org/jetbrains/plugins/scala/images/typed.svg", Icons.class);
-    Icon UNTYPED = getIcon("/org/jetbrains/plugins/scala/images/untyped.svg", Icons.class);
+    // Highlighting mode (status bar)
+    Icon HIGHLIGHTING_MODE = getIcon("/org/jetbrains/plugins/scala/images/highlightingMode.svg", Icons.class);
 
     // X-Ray mode widget
     Icon PIN = getIcon("/org/jetbrains/plugins/scala/images/pin.svg", Icons.class);
