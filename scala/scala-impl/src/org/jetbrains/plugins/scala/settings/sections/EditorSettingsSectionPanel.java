@@ -127,15 +127,15 @@ public class EditorSettingsSectionPanel extends SettingsSectionPanel {
     }
 
     private void updateCompilerSettings() {
-        boolean forScala2 = ScalaProjectUtil.hasScala2(myProject) &&
-                typeCheckerScala2.getSelectedItem() == ScalaProjectSettings.TypeChecker.Compiler;
-
-        boolean forScala3 = ScalaProjectUtil.hasScala3(myProject) &&
-                typeCheckerScala3.getSelectedItem() == ScalaProjectSettings.TypeChecker.Compiler;
-
         boolean hasBultInHighlighting =
                 ScalaProjectUtil.hasScala2(myProject) && typeCheckerScala2.getSelectedItem() == ScalaProjectSettings.TypeChecker.BuiltIn ||
                         ScalaProjectUtil.hasScala3(myProject) && typeCheckerScala3.getSelectedItem() == ScalaProjectSettings.TypeChecker.BuiltIn;
+
+        boolean hasCompilerHighlighting =
+                ScalaProjectUtil.hasScala2(myProject) && typeCheckerScala2.getSelectedItem() == ScalaProjectSettings.TypeChecker.Compiler ||
+                        ScalaProjectUtil.hasScala3(myProject) && typeCheckerScala3.getSelectedItem() == ScalaProjectSettings.TypeChecker.Compiler;
+
+        boolean isCompilerHighlightingOnly = !hasBultInHighlighting;
 
         typeAwareHighlighting.setVisible(hasBultInHighlighting);
         typeAwareHighlightingHelp.setVisible(hasBultInHighlighting);
@@ -148,13 +148,18 @@ public class EditorSettingsSectionPanel extends SettingsSectionPanel {
             incrementalHighlighting.setSelected(false);
         }
 
-        boolean isCompilerHighlightingOnly = !hasBultInHighlighting;
-        disableInspections.setVisible(isCompilerHighlightingOnly);
-        disableInspectionsHelp.setVisible(isCompilerHighlightingOnly);
-        disableInspectionsPanel.setVisible(isCompilerHighlightingOnly);
+        disableInspections.setVisible(hasCompilerHighlighting);
+        disableInspectionsHelp.setVisible(hasCompilerHighlighting);
+        disableInspectionsPanel.setVisible(hasCompilerHighlighting);
 
-        useCompilerTypes.setVisible(forScala2 || forScala3);
-        useCompilerTypesHelp.setVisible(forScala2 || forScala3);
+        disableInspections.setEnabled(isCompilerHighlightingOnly);
+        disableInspections.setToolTipText(isCompilerHighlightingOnly ? null : ScalaBundle.message("disable.inspections.tooltip"));
+        if (!isCompilerHighlightingOnly) {
+            disableInspections.setSelected(false);
+        }
+
+        useCompilerTypes.setVisible(hasCompilerHighlighting);
+        useCompilerTypesHelp.setVisible(hasCompilerHighlighting);
     }
 
     @Override
