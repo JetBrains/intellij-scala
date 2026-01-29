@@ -4,6 +4,7 @@ import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnAction
 import com.intellij.openapi.project.ProjectUtil
 import org.jetbrains.bsp.{BspBundle, BspUtil}
 
+// TODO SCL-24897
 class GenerateBspConfigurationFile extends AnAction(
   BspBundle.message("generate.bsp.configuration.file")
 ) {

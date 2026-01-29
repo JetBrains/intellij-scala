@@ -119,6 +119,8 @@ object bspConfigSteps {
     externalBspWorkspace: Option[Path]
   )
 
+  // TODO: The requirement for the JDK to be present here seems unnecessary for all use cases.
+  //  For example, Mill or Scala CLI config setups don't require the JDK.
   def getBuilderConfigurationParameters(
     jdk: Sdk,
     workspace: Path,
