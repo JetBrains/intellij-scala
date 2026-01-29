@@ -33,7 +33,13 @@ final class ToggleTypeAwareHighlightingAction extends AnAction(
 object ToggleTypeAwareHighlightingAction {
   def toggleSettingAndRehighlight(project: Project): Unit = {
     val settings = ScalaProjectSettings.getInstance(project)
-    settings.toggleTypeAwareHighlighting()
+    setSettingAndRehighlight(project, !settings.isTypeAwareHighlightingEnabled)
+  }
+
+  def setSettingAndRehighlight(project: Project, enabled: Boolean): Unit = {
+    val settings = ScalaProjectSettings.getInstance(project)
+    if (settings.isTypeAwareHighlightingEnabled == enabled) return
+    settings.setTypeAwareHighlightingEnabled(enabled)
 
     TypeAwareWidgetUpdater.scheduleWidgetUpdate(project)
 
