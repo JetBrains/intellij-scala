@@ -13,12 +13,13 @@
 
   <property name="scala.lexer.path" value="${scala-impl.src.root}/org/jetbrains/plugins/scala/lang/lexer/core"/>
   <property name="scaladoc.lexer.path" value="${scala-impl.src.root}/org/jetbrains/plugins/scala/lang/scaladoc/lexer"/>
+  <property name="scaladoc.reflinks.lexer.path" value="${scala-impl.src.root}/org/jetbrains/plugins/scala/lang/scaladoc/reflinks/lexer"/>
   <property name="scaladirective.lexer.path" value="${scala-impl.src.root}/org/jetbrains/plugins/scalaDirective/lang/lexer"/>
 
   <!-- TARGETS DEFINITION -->
 
   <target name="generate.lexer.all"
-          depends="generate.lexer.scala.core, generate.lexer.scaladoc, generate.lexer.sbt.shell, generate.lexer.scaladirective"
+          depends="generate.lexer.scala.core, generate.lexer.scaladoc, generate.lexer.scaladoc.reflinks, generate.lexer.sbt.shell, generate.lexer.scaladirective"
           description="main target"/>
 
   <target name="generate.lexer.scala.core" depends="generate.lexer.scala.splitting">
@@ -31,6 +32,10 @@
 
   <target name="generate.lexer.scaladoc">
     <flex flexFileName="_ScalaDocLexer.flex" flexFileDir="${scaladoc.lexer.path}"/>
+  </target>
+
+  <target name="generate.lexer.scaladoc.reflinks">
+    <flex flexFileName="_ScalaDocRefLink.flex" flexFileDir="${scaladoc.reflinks.lexer.path}"/>
   </target>
 
     <target name="generate.lexer.markdown">
