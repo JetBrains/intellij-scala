@@ -81,7 +81,7 @@
                    implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaColorSchemeAnnotator"/>
         <annotator language="Scala"
                    implementationClass="org.jetbrains.plugins.scala.annotator.ScalaAnnotator"/>
-        <statusBarWidgetFactory id="TypeAwareHighlighting" implementation="org.jetbrains.plugins.scala.components.TypeAwareWidgetFactory" order="before Position"/>
+        <statusBarWidgetFactory id="ScalaHighlightingMode" implementation="org.jetbrains.plugins.scala.components.ScalaHighlightingModeWidgetFactory" order="before Position"/>
 
         <defaultHighlightingSettingProvider implementation="org.jetbrains.plugins.scala.annotator.ScalaDefaultHighlightingSettingProvider"/>
 
@@ -2087,12 +2087,6 @@
         <listener topic="com.intellij.execution.ExecutionListener"
                   class="org.jetbrains.plugins.scala.runner.SyncOutputExecutionListener"/>
 
-        <listener topic="com.intellij.openapi.project.DumbService$DumbModeListener"
-                  class="org.jetbrains.plugins.scala.components.TypeAwareWidgetFactory$Listener"/>
-
-        <listener topic="com.intellij.openapi.roots.ModuleRootListener"
-                  class="org.jetbrains.plugins.scala.components.TypeAwareWidgetModuleRootListener"/>
-
         <listener topic="com.intellij.openapi.roots.ModuleRootListener"
                   class="org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager$SPMModuleRootListener"/>
     </projectListeners>
@@ -2103,7 +2097,8 @@
         <action id="Scala.NewPackageObject" class="org.jetbrains.plugins.scala.actions.NewPackageObjectAction">
             <add-to-group group-id="NewGroup" anchor="after" relative-to-action="Scala.NewClass"/>
         </action>
-        <action id="Scala.EnableErrors" class="org.jetbrains.plugins.scala.actions.ToggleTypeAwareHighlightingAction"/>
+
+        <action id="Scala.HighlightingMode" class="org.jetbrains.plugins.scala.actions.ScalaHighlightingModeAction"/>
         <action id="Scala.ShowImplicitConversions" class="org.jetbrains.plugins.scala.actions.implicitConversions.ShowImplicitConversionsAction">
             <keyboard-shortcut keymap="$default" first-keystroke="control shift Q"/>
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="ctrl Q"/>

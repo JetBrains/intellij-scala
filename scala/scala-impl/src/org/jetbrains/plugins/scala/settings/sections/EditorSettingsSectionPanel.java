@@ -1,17 +1,22 @@
 package org.jetbrains.plugins.scala.settings.sections;
 
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ModalityState;
+import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.util.Pair;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.ContextHelpLabel;
 import com.intellij.ui.TitledSeparator;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import com.intellij.util.FileContentUtil;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaBundle;
-import org.jetbrains.plugins.scala.actions.ToggleTypeAwareHighlightingAction;
 import org.jetbrains.plugins.scala.incremental.Highlighting;
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel;
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings;
@@ -20,6 +25,9 @@ import org.jetbrains.plugins.scala.settings.SimpleMappingListCellRenderer;
 import javax.swing.*;
 import java.awt.*;
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 import java.util.ResourceBundle;
 
 import static org.jetbrains.plugins.scala.settings.ScalaProjectSettings.getInstance;
@@ -215,7 +223,14 @@ public class EditorSettingsSectionPanel extends SettingsSectionPanel {
 
         scalaProjectSettings.setCompilerHighlightingScala2(typeCheckerScala2.getSelectedItem() == ScalaProjectSettings.TypeChecker.Compiler);
         scalaProjectSettings.setCompilerHighlightingScala3(typeCheckerScala3.getSelectedItem() == ScalaProjectSettings.TypeChecker.Compiler);
-        ToggleTypeAwareHighlightingAction.setSettingAndRehighlight(myProject, typeAwareHighlighting.isSelected());
+        if (scalaProjectSettings.isTypeAwareHighlightingEnabled() != typeAwareHighlighting.isSelected()) {
+            scalaProjectSettings.setTypeAwareHighlightingEnabled(typeAwareHighlighting.isSelected());
+            ApplicationManager.getApplication().invokeLater(() -> {
+                Editor[] openEditors = EditorFactory.getInstance().getAllEditors();
+                List<VirtualFile> vFiles = Arrays.stream(openEditors).map(Editor::getVirtualFile).filter(Objects::nonNull).toList();
+                FileContentUtil.reparseFiles(myProject, vFiles, true);
+            }, ModalityState.nonModal());
+        }
         boolean wasEnabled = scalaProjectSettings.isIncrementalHighlighting();
         boolean enabled = incrementalHighlighting.isSelected();
         scalaProjectSettings.setIncrementalHighlighting(enabled);
