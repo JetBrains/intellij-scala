@@ -2,19 +2,21 @@ package org.jetbrains.plugins.scala.compiler.actions.internal.compilertrees
 
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.actionSystem.impl.SimpleDataContext
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.Disposer
 import com.intellij.psi.PsiManager
 import com.intellij.testFramework.TestActionEvent
 import com.intellij.ui.UiInterceptors
 import org.jetbrains.plugins.scala.compiler.ScalaCompilerTestBase
-import org.jetbrains.plugins.scala.compiler.actions.internal.compilertrees.CompilerTrees.PhaseWithTreeText
-import org.jetbrains.plugins.scala.compiler.actions.internal.compilertrees.ui.CompilerTreesDialog
+import org.jetbrains.plugins.scala.compiler.actions.internal.compilertrees.ui.{CompilerTreesDialog, TreeDisplayOptions}
+import org.jetbrains.plugins.scala.extensions.invokeAndWait
+import org.jetbrains.plugins.scala.ui.AwaitTestUtils
 import org.jetbrains.plugins.scala.{ScalaVersion, SlowTests}
 import org.junit.ComparisonFailure
 import org.junit.experimental.categories.Category
 
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
-import scala.concurrent.{Await, Promise}
+import scala.concurrent.{Await, Future, Promise}
 
 @Category(Array(classOf[SlowTests]))
 abstract class ShowScalaCompilerTreeActionTestBase extends ScalaCompilerTestBase {
@@ -29,6 +31,20 @@ abstract class ShowScalaCompilerTreeActionTestBase extends ScalaCompilerTestBase
     fileText: String,
     expectedPhasesWithTreePlaceholders: Seq[PhaseWithTreeText]
   ): Unit = {
+    val treeDisplayOptions = TreeDisplayOptions(
+      showEmptyPhases = true,
+      showTasty = true,
+      showUncapturedMessages = true
+    )
+    testCompilerPhasesAndTreesAreParsedAndDisplayed(fileName, fileText, treeDisplayOptions, expectedPhasesWithTreePlaceholders)
+  }
+
+  protected def testCompilerPhasesAndTreesAreParsedAndDisplayed(
+    fileName: String,
+    fileText: String,
+    treeDisplayOptions: TreeDisplayOptions,
+    expectedPhasesWithTreePlaceholders: Seq[PhaseWithTreeText]
+  ): Unit = {
     val vFile = addFileToProjectSources(fileName, fileText)
 
     val psiFile = PsiManager.getInstance(getProject).findFile(vFile)
@@ -36,20 +52,15 @@ abstract class ShowScalaCompilerTreeActionTestBase extends ScalaCompilerTestBase
       .add(CommonDataKeys.PSI_FILE, psiFile)
       .build()
 
-    val promise: Promise[CompilerTrees] = Promise()
-    UiInterceptors.register(new UiInterceptors.UiInterceptor[CompilerTreesDialog](classOf[CompilerTreesDialog]) {
-      override protected def doIntercept(dialog: CompilerTreesDialog): Unit = {
-        Disposer.register(getTestRootDisposable, dialog.getDisposable)
-        promise.success(dialog.getCompilerTrees)
-      }
-    })
+    // Register a hook to collect the phases from the dialog once it's created
+    val collectedPhasesFuture = registerDialogUiInterceptorAndGetPhasesFuture(treeDisplayOptions)
 
+    // Execute the action - it will start the phases generation in the background, populating the dialog with data
     val action = new ShowScalaCompilerTreeAction
     action.actionPerformed(TestActionEvent.createTestEvent(dataContext))
 
-    val compilerTrees: CompilerTrees = Await.result(promise.future, WaitForCompileServerTimeout)
-
-    val actualPhasesWithTreePlaceholders = replaceActualTreesWithPlaceholders(compilerTrees.phasesTrees)
+    val collectedPhases = AwaitTestUtils.waitFutureDispatchingAllEdtEvents(collectedPhasesFuture, WaitForCompileServerTimeout)
+    val actualPhasesWithTreePlaceholders = replaceActualTreesWithPlaceholders(collectedPhases)
     if (expectedPhasesWithTreePlaceholders != actualPhasesWithTreePlaceholders) {
       throw new ComparisonFailure(
         "Compiler trees",
@@ -63,6 +74,38 @@ abstract class ShowScalaCompilerTreeActionTestBase extends ScalaCompilerTestBase
   private val TreePlaceholderGenerator = Map[String, String]().withDefault { _ =>
     UniqueTrees += 1
     s"Tree placeholder $UniqueTrees"
+  }
+
+  private def registerDialogUiInterceptorAndGetPhasesFuture(
+    treeDisplayOptions: TreeDisplayOptions
+  ): Future[Seq[PhaseWithTreeText]] = {
+    val promise = Promise[Seq[PhaseWithTreeText]]()
+
+    UiInterceptors.register(new UiInterceptors.UiInterceptor[CompilerTreesDialog](classOf[CompilerTreesDialog]) {
+      override protected def doIntercept(dialog: CompilerTreesDialog): Unit = {
+        // Ensure the dialog and editor are disposed to avoid leaking UI between tests
+        Disposer.register(getTestRootDisposable, dialog.getDisposable)
+
+        dialog.setDisplayOptionsForTests(treeDisplayOptions)
+
+        ApplicationManager.getApplication.executeOnPooledThread(() => {
+          // Wait until the dialog is filled with data
+          AwaitTestUtils.waitForConditionOrFail(
+            WaitForCompileServerTimeout,
+            s"Compiler trees collection did not finish"
+          ) { () =>
+            dialog.isCollectionFinishedForTests
+          }
+
+          val phases: Seq[PhaseWithTreeText] = invokeAndWait {
+            dialog.phasesFromModelForTests
+          }
+          promise.trySuccess(phases)
+        })
+      }
+    })
+
+    promise.future
   }
 
   /**
@@ -80,13 +123,13 @@ abstract class ShowScalaCompilerTreeActionTestBase extends ScalaCompilerTestBase
 
   private def replaceActualTreeWithPlaceholder(phaseWithTree: PhaseWithTreeText): PhaseWithTreeText = {
     val treePlaceholder = if (phaseWithTree.phaseText.nonEmpty) TreePlaceholderGenerator(phaseWithTree.phaseText) else phaseWithTree.phaseText
-    PhaseWithTreeText(phaseWithTree.phase, treePlaceholder)
+    PhaseWithTreeText(phaseWithTree.phaseName, treePlaceholder)
   }
 
   private def buildTextForTests(trees: Seq[PhaseWithTreeText]): String =
     trees
       .map(pt => {
-        s"""PhaseWithTreeText("${pt.phase}", "${pt.phaseText}")"""
+        s"""PhaseWithTreeText("${pt.phaseName}", "${pt.phaseText}")"""
       })
       .mkString("Seq(\n  ", ",\n  ", "\n)")
 
@@ -468,7 +511,26 @@ class ShowScalaCompilerTreeActionTest_Scala3 extends ShowScalaCompilerTreeAction
         PhaseWithTreeText("MegaPhase{lambdaLift, elimStaticThis, countOuterAccesses}", ""),
         PhaseWithTreeText("MegaPhase{dropOuterAccessors, checkNoSuperThis, flatten, transformWildcards, moveStatic, expandPrivate, restoreScopes, selectStatic, Collect entry points, collectSuperCalls, repeatableAnnotations}", ""),
         PhaseWithTreeText("genBCode", ""),
-        PhaseWithTreeText("Tasty (class MyClass2)", "Tree placeholder 6")
+        PhaseWithTreeText("Tasty (class MyClass2)", "Tree placeholder 6"),
+      )
+    )
+  }
+
+  def testParsePhasesAndTreesFromCompilerOutput_RecogniseClassWithEmptyPackage_WithEmptyDisplayOptions(): Unit = {
+    testCompilerPhasesAndTreesAreParsedAndDisplayed(
+      s"MyClass2.scala",
+      CommonScala2AndScala3FileText_EmptyPackage,
+      treeDisplayOptions = TreeDisplayOptions(
+        showEmptyPhases = false,
+        showTasty = false,
+        showUncapturedMessages = false
+      ),
+      Seq(
+        PhaseWithTreeText("parser", "Tree placeholder 1"),
+        PhaseWithTreeText("typer", "Tree placeholder 2"),
+        PhaseWithTreeText("posttyper", "Tree placeholder 3"),
+        PhaseWithTreeText("MegaPhase{elimErasedValueType, pureStats, vcElideAllocations, etaReduce, arrayApply, elimPolyFunction, tailrec, completeJavaEnums, mixin, lazyVals, memoize, nonLocalReturns, capturedVars}", "Tree placeholder 4"),
+        PhaseWithTreeText("constructors", "Tree placeholder 5"),
       )
     )
   }
