@@ -25,13 +25,6 @@ case class InternalJDKLoader() extends SmartJDKLoader() {
   }
 }
 
-/**
-  * Consider using this instead of HeavyJDKLoader if you don't need java interop in your tests
-  */
-case class MockJDKLoader(languageLevel: LanguageLevel = LanguageLevel.JDK_17) extends SmartJDKLoader() {
-  override protected def createSdkInstance(): Sdk = IdeaTestUtil.getMockJdk(languageLevel.toJavaVersion)
-}
-
 case class HeavyJDKLoader(languageLevel: LanguageLevel = LanguageLevel.JDK_17) extends SmartJDKLoader() {
   override protected def createSdkInstance(): Sdk = SmartJDKLoader.getOrCreateJDK(languageLevel)
 }
