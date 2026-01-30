@@ -17,7 +17,7 @@ object TreeDisplayOptions {
   /** Default display options: hide empty phases, show everything else */
   val Default: TreeDisplayOptions = TreeDisplayOptions(
     showEmptyPhases = false,
-    showTasty = true,
+    showTasty = false,
     showUncapturedMessages = true
   )
 }
