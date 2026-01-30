@@ -145,6 +145,7 @@ public class ScalaCompileServerForm implements Configurable {
 
     /**
      * Serializes the maximum heap size text field value to a string.
+     *
      * @return the heap size as string if valid, otherwise an empty string if it matches the sentinel value
      */
     private String heapSizeAsString() {
@@ -339,6 +340,9 @@ public class ScalaCompileServerForm implements Configurable {
 
     private static Method $$$cachedGetBundleMethod$$$ = null;
 
+    /**
+     * @noinspection ALL
+     */
     private String $$$getMessageFromBundle$$$(String path, String key) {
         ResourceBundle bundle;
         try {
