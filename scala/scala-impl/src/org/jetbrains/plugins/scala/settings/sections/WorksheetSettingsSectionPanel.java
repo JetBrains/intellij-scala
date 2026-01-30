@@ -39,16 +39,16 @@ public class WorksheetSettingsSectionPanel extends SettingsSectionPanel {
         outputSpinner.setModel(spinnerModel(1, null, 1));
 
         worksheetAutoRunDelaySpinner.setModel(spinnerModel(
-            WORKSHEET_RUN_DELAY_MS_MINIMUM,
-            WORKSHEET_RUN_DELAY_MS_MAXIMUM,
-            WORKSHEET_RUN_DELAY_SPINNER_STEP_SIZE
+                WORKSHEET_RUN_DELAY_MS_MINIMUM,
+                WORKSHEET_RUN_DELAY_MS_MAXIMUM,
+                WORKSHEET_RUN_DELAY_SPINNER_STEP_SIZE
         ));
 
         scTypeSelectionCombobox.setModel(new EnumComboBoxModel<>(ScalaProjectSettings.ScFileMode.class));
         scTypeSelectionCombobox.setRenderer(SimpleMappingListCellRenderer.create(
-            Pair.create(ScalaProjectSettings.ScFileMode.Worksheet, ScalaBundle.message("script.file.mode.always.worksheet")),
-            Pair.create(ScalaProjectSettings.ScFileMode.Ammonite, ScalaBundle.message("script.file.mode.always.ammonite")),
-            Pair.create(ScalaProjectSettings.ScFileMode.Auto, ScalaBundle.message("script.file.mode.ammonite.in.test.sources.otherwise.worksheet"))
+                Pair.create(ScalaProjectSettings.ScFileMode.Worksheet, ScalaBundle.message("script.file.mode.always.worksheet")),
+                Pair.create(ScalaProjectSettings.ScFileMode.Ammonite, ScalaBundle.message("script.file.mode.always.ammonite")),
+                Pair.create(ScalaProjectSettings.ScFileMode.Auto, ScalaBundle.message("script.file.mode.ammonite.in.test.sources.otherwise.worksheet"))
         ));
 
         reset();
@@ -180,6 +180,9 @@ public class WorksheetSettingsSectionPanel extends SettingsSectionPanel {
 
     private static Method $$$cachedGetBundleMethod$$$ = null;
 
+    /**
+     * @noinspection ALL
+     */
     private String $$$getMessageFromBundle$$$(String path, String key) {
         ResourceBundle bundle;
         try {
@@ -255,4 +258,5 @@ public class WorksheetSettingsSectionPanel extends SettingsSectionPanel {
     public JComponent $$$getRootComponent$$$() {
         return rootPanel;
     }
+
 }

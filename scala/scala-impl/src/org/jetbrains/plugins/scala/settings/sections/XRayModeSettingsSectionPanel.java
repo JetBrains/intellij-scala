@@ -263,6 +263,9 @@ public class XRayModeSettingsSectionPanel extends SettingsSectionPanel {
 
     private static Method $$$cachedGetBundleMethod$$$ = null;
 
+    /**
+     * @noinspection ALL
+     */
     private String $$$getMessageFromBundle$$$(String path, String key) {
         ResourceBundle bundle;
         try {
