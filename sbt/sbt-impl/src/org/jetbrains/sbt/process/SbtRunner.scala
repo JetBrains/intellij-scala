@@ -144,7 +144,7 @@ final class SbtRunner(processOutputCollector: Option[ProcessOutputCollector] = N
 
       val processCommandsRaw =
         List(
-          vmExecutable.asLocalPath,
+          vmExecutable.toString,
           "-Djline.terminal=jline.UnsupportedTerminal",
           "-Dsbt.log.noformat=true",
           "-Dfile.encoding=UTF-8"

@@ -48,6 +48,7 @@ import java.io.{IOException, OutputStreamWriter, PrintWriter}
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
 import java.util.concurrent.TimeUnit
+import scala.annotation.nowarn
 import scala.concurrent.TimeoutException
 import scala.jdk.CollectionConverters.*
 
@@ -217,7 +218,8 @@ final class SbtProcessManager(project: Project) extends Disposable {
     commandLine: GeneralCommandLine,
     sbtBinVersion: Version
   ): Path = {
-    val globalPluginsDir = globalPluginsDirectory(SbtVersion(sbtBinVersion), commandLine.getParametersList)
+    // TODO: Needs to be adapted for eel/WSL.
+    val globalPluginsDir = globalPluginsDirectory(SbtVersion(sbtBinVersion), commandLine.getParametersList): @nowarn("cat=deprecation")
     // workaround: --addPluginSbtFile fails if global plugins dir does not exist. https://youtrack.jetbrains.com/issue/SCL-14415
     if (!globalPluginsDir.exists) {
       Files.createDirectories(globalPluginsDir)

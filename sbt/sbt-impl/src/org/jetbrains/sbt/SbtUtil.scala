@@ -9,11 +9,13 @@ import com.intellij.openapi.externalSystem.model.{DataNode, Key}
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.{Project, ProjectUtil}
-import org.jetbrains.sbt.project.structure.SbtOption.{JvmOptionGlobal, SbtLauncherOption}
+import com.intellij.platform.eel.EelDescriptor
+import com.intellij.platform.eel.provider.LocalEelDescriptor
+import com.intellij.platform.eel.provider.utils.EelPathUtils
 import com.intellij.platform.workspace.storage.{EntityStorage, SymbolicEntityId, WorkspaceEntityWithSymbolicId}
 import com.intellij.util.net.{ProxyConfiguration, ProxyCredentialStore, ProxyCredentialStoreKt, ProxySettings, ProxyUtils}
 import com.intellij.util.{EnvironmentUtil, SystemProperties}
-import org.jetbrains.annotations.VisibleForTesting
+import org.jetbrains.annotations.{ApiStatus, VisibleForTesting}
 import org.jetbrains.plugins.scala.build.BuildReporter
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.project.Version
@@ -23,6 +25,7 @@ import org.jetbrains.sbt.Sbt.SbtModuleChildKeyInstance
 import org.jetbrains.sbt.buildinfo.BuildInfo
 import org.jetbrains.sbt.project.data.{SbtBuildModuleData, SbtModuleData, SbtProjectData}
 import org.jetbrains.sbt.project.settings.SbtExecutionSettings
+import org.jetbrains.sbt.project.structure.SbtOption.{JvmOptionGlobal, SbtLauncherOption}
 import org.jetbrains.sbt.project.structure.{JvmOpts, SbtOption, SbtOpts}
 import org.jetbrains.sbt.project.{SbtExternalSystemManager, SbtProjectSystem}
 import org.jetbrains.sbt.settings.SbtSettings
@@ -33,6 +36,7 @@ import scala.collection.mutable
 import scala.jdk.CollectionConverters.MapHasAsScala
 import scala.math.Ordering.Implicits.infixOrderingOps
 
+//noinspection ApiStatus,UnstableApiUsage
 object SbtUtil {
   private lazy val log: Logger = Logger.getInstance(getClass)
 
@@ -55,19 +59,36 @@ object SbtUtil {
 
   /** Directory for global sbt plugins given sbt version */
   @VisibleForTesting
+  @deprecated(message = "Use globalPluginsDirectory(SbtVersion, EelDescriptor)", since = "2026.1")
+  @Deprecated(since = "2026.1", forRemoval = true)
+  @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
   def globalPluginsDirectory(sbtVersion: SbtVersion): Path =
+    globalPluginsDirectory(sbtVersion, LocalEelDescriptor.INSTANCE)
+
+  /** Directory for global sbt plugins given sbt version */
+  @VisibleForTesting
+  def globalPluginsDirectory(sbtVersion: SbtVersion, eelDescriptor: EelDescriptor): Path =
     getFileProperty(CommandLineOptions.globalPlugins).getOrElse {
-      val base = globalBase(sbtVersion)
+      val base = globalBase(sbtVersion, eelDescriptor)
       base / "plugins"
     }
 
   /** Directory for global sbt plugins from parameters if it is explicitly set,
    * otherwise calculate from sbt version.
    */
-  def globalPluginsDirectory(sbtVersion: SbtVersion, parameters: ParametersList): Path = {
+  @deprecated(message = "Use globalPluginsDirectory(SbtVersion, ParametersList, EelDescriptor)", since = "2026.1")
+  @Deprecated(since = "2026.1", forRemoval = true)
+  @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
+  def globalPluginsDirectory(sbtVersion: SbtVersion, parameters: ParametersList): Path =
+    globalPluginsDirectory(sbtVersion, parameters, LocalEelDescriptor.INSTANCE)
+
+  /** Directory for global sbt plugins from parameters if it is explicitly set,
+   * otherwise calculate from sbt version.
+   */
+  def globalPluginsDirectory(sbtVersion: SbtVersion, parameters: ParametersList, eelDescriptor: EelDescriptor): Path = {
     val maybeCustomDir = customGlobalPluginsDirectory(parameters)
     maybeCustomDir.getOrElse {
-      globalPluginsDirectory(sbtVersion)
+      globalPluginsDirectory(sbtVersion, eelDescriptor)
     }
   }
 
@@ -79,19 +100,29 @@ object SbtUtil {
   }
 
   /** Base directory for global sbt settings. */
-  def globalBase(sbtVersion: SbtVersion): Path = {
+  @deprecated("Use globalBase(SbtVersion, EelDescriptor)", since = "2026.1")
+  @Deprecated(since = "2026.1", forRemoval = true)
+  @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
+  def globalBase(sbtVersion: SbtVersion): Path =
+    globalBase(sbtVersion, LocalEelDescriptor.INSTANCE)
+
+  /** Base directory for global sbt settings. */
+  def globalBase(sbtVersion: SbtVersion, eelDescriptor: EelDescriptor): Path = {
     val global = getFileProperty(CommandLineOptions.globalBase)
-    global.getOrElse(defaultVersionedGlobalBase(sbtVersion))
+    global.getOrElse(defaultVersionedGlobalBase(sbtVersion, eelDescriptor))
   }
 
   private def getFileProperty(name: String): Option[Path] = Option(System.getProperty(name)).flatMap { path =>
     if (path.isEmpty) None else Some(Path.of(path))
   }
 
-  private[sbt] def defaultGlobalBase: Path = Path.of(SystemProperties.getUserHome) / Sbt.Extension
+  private[sbt] def defaultGlobalBase(eelDescriptor: EelDescriptor): Path =
+    eelDescriptor match
+      case LocalEelDescriptor.INSTANCE => Path.of(SystemProperties.getUserHome) / Sbt.Extension
+      case remote => EelPathUtils.getHomePath(remote) / Sbt.Extension
 
-  private def defaultVersionedGlobalBase(sbtVersion: SbtVersion): Path = {
-    defaultGlobalBase / sbtVersion.binaryVersion.presentation
+  private def defaultVersionedGlobalBase(sbtVersion: SbtVersion, eelDescriptor: EelDescriptor): Path = {
+    defaultGlobalBase(eelDescriptor) / sbtVersion.binaryVersion.presentation
   }
 
   def isBuiltWithSeparateModulesForProdTest(project: Project, projectPath: Option[String] = None): Boolean = {

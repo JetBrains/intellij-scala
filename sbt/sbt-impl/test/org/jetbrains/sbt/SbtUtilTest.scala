@@ -1,13 +1,18 @@
 package org.jetbrains.sbt
 
 import com.intellij.execution.configurations.ParametersList
+import com.intellij.platform.eel.provider.LocalEelDescriptor
+import com.intellij.testFramework.UsefulTestCase
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.junit.Assert.{assertEquals, assertTrue}
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 import java.nio.file.Path
 
-class SbtUtilTest {
+@RunWith(classOf[JUnit4])
+class SbtUtilTest extends UsefulTestCase {
 
   private val v0120: SbtVersion = SbtVersion("0.12.0")
   private val v0130: SbtVersion = SbtVersion("0.13.0")
@@ -17,15 +22,14 @@ class SbtUtilTest {
   private val v200: SbtVersion = SbtVersion("2.0.0")
   private val v223: SbtVersion = SbtVersion("2.2.3")
 
-  import SbtUtil.defaultGlobalBase
-  private val globalBase012 = defaultGlobalBase / "0.12"
-  private val globalBase013 = defaultGlobalBase / "0.13"
-  private val globalBase10 = defaultGlobalBase / "1.0"
-  private val globalBase20 = defaultGlobalBase / "2"
+  private val globalBase012 = SbtUtil.defaultGlobalBase(LocalEelDescriptor.INSTANCE) / "0.12"
+  private val globalBase013 = SbtUtil.defaultGlobalBase(LocalEelDescriptor.INSTANCE) / "0.13"
+  private val globalBase10 = SbtUtil.defaultGlobalBase(LocalEelDescriptor.INSTANCE) / "1.0"
+  private val globalBase20 = SbtUtil.defaultGlobalBase(LocalEelDescriptor.INSTANCE) / "2"
 
   @Test
   def testDefaultGlobalBase(): Unit = {
-    import SbtUtil.globalBase
+    val globalBase = (version: SbtVersion) => SbtUtil.globalBase(version, LocalEelDescriptor.INSTANCE)
     assertEquals(globalBase012, globalBase(v0120))
     assertEquals(globalBase013, globalBase(v0130))
     assertEquals(globalBase013, globalBase(v01317))
@@ -37,7 +41,7 @@ class SbtUtilTest {
 
   @Test
   def testDefaultGlobalPluginsDirectory(): Unit = {
-    import SbtUtil.globalPluginsDirectory
+    val globalPluginsDirectory = (version: SbtVersion) => SbtUtil.globalPluginsDirectory(version, LocalEelDescriptor.INSTANCE)
     assertEquals(globalBase012 / "plugins", globalPluginsDirectory(v0120))
     assertEquals(globalBase013 / "plugins", globalPluginsDirectory(v0130))
     assertEquals(globalBase013 / "plugins", globalPluginsDirectory(v01317))
@@ -52,8 +56,7 @@ class SbtUtilTest {
     val params = new ParametersList()
     params.addProperty("sbt.global.base", "hockensnock")
 
-    import SbtUtil.globalPluginsDirectory
-    val dir = globalPluginsDirectory(v0120, params)
+    val dir = SbtUtil.globalPluginsDirectory(v0120, params, LocalEelDescriptor.INSTANCE)
     assertEquals(Path.of("hockensnock", "plugins"), dir)
   }
 
@@ -62,12 +65,13 @@ class SbtUtilTest {
     val params = new ParametersList()
 
     import SbtUtil.globalPluginsDirectory
-    val expected1 = globalPluginsDirectory(v0120)
-    val actual1 = globalPluginsDirectory(v0120, params)
+    val local = LocalEelDescriptor.INSTANCE
+    val expected1 = globalPluginsDirectory(v0120, local)
+    val actual1 = globalPluginsDirectory(v0120, params, local)
     assertEquals(expected1, actual1)
 
-    val expected2 = globalPluginsDirectory(v112)
-    val actual2 = globalPluginsDirectory(v112, params)
+    val expected2 = globalPluginsDirectory(v112, local)
+    val actual2 = globalPluginsDirectory(v112, params, local)
     assertEquals(expected2, actual2)
   }
 
@@ -76,7 +80,7 @@ class SbtUtilTest {
     val params = new ParametersList()
     params.addProperty("sbt.global.plugins", "snickenfland")
 
-    val dir = SbtUtil.globalPluginsDirectory(v0120, params)
+    val dir = SbtUtil.globalPluginsDirectory(v0120, params, LocalEelDescriptor.INSTANCE)
     assertEquals(Path.of("snickenfland"), dir)
   }
 
@@ -86,7 +90,7 @@ class SbtUtilTest {
     params.addProperty("sbt.global.base", "hockensnock")
     params.add("-Dsbt.global.plugins=tocklewick")
 
-    val dir = SbtUtil.globalPluginsDirectory(v0120, params)
+    val dir = SbtUtil.globalPluginsDirectory(v0120, params, LocalEelDescriptor.INSTANCE)
     assertEquals(Path.of("tocklewick"), dir)
   }
 

@@ -5,16 +5,19 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.platform.eel.EelDescriptor
 import com.intellij.platform.eel.provider.utils.EelPathUtils
 import com.intellij.platform.eel.provider.utils.EelPathUtils.TransferTarget
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}
+import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.sbt.SbtUtil.SbtProcessOptions
 import org.jetbrains.sbt.process.{ProcessOutputCollector, SbtRunner}
 import org.jetbrains.sbt.project.SbtProjectResolver.ImportContext
 import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication}
 import org.jetbrains.sbt.{Sbt, SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabilities, asLocalPath, eelDescriptor}
 
+import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
 import java.util.UUID
 import scala.concurrent.Future
@@ -119,13 +122,15 @@ object SbtStructureDumper:
 
       val sbtVersion = SbtUtil.detectSbtVersion(directory, sbtLauncher)
 
+      val targetEelDescriptor = directory.eelDescriptor
+
       val transferredStructureFile =
-        EelPathUtils.transferLocalContentToRemote(structureFile, TransferTarget.Temporary(directory.eelDescriptor))
+        EelPathUtils.transferLocalContentToRemote(structureFile, TransferTarget.Temporary(targetEelDescriptor))
 
       val maybePreferScala2Command = if (preferScala2) "preferScala2" else ""
 
       val transferredSbtStructureJar =
-        EelPathUtils.transferLocalContentToRemote(sbtStructureJar, TransferTarget.Temporary(directory.eelDescriptor))
+        EelPathUtils.transferLocalContentToRemote(sbtStructureJar, TransferTarget.Temporary(targetEelDescriptor))
 
       val dumpStructureCommand = SbtUtil.sbtStructureGlobalCommand("dumpStructure", sbtVersion)
 
@@ -181,6 +186,7 @@ object SbtStructureDumper:
         dumpProcessArgsMethod(
           directory,
           transferredStructureFile,
+          targetEelDescriptor,
           optString,
           generateManagedSources,
           transferredSbtStructureJar,
@@ -256,6 +262,7 @@ object SbtStructureDumper:
     private def getDumpProcessArgsForNewImport(
       projectRoot: Path,
       structureFilePath: Path,
+      eelDescriptor: EelDescriptor,
       optString: String,
       generateManagedSources: Boolean,
       sbtStructureJar: Path,
@@ -268,21 +275,24 @@ object SbtStructureDumper:
 
       val parametersList = new ParametersList()
       parametersList.addAll(sbtProcessOptions.allVmOptions*)
-      
-      val globalPluginsDir = SbtUtil.globalPluginsDirectory(sbtVersion, parametersList)
-      val pluginFile = FileUtil.createTempFile(globalPluginsDir.toFile, "idea-structure", Sbt.Extension)
+
+      val globalPluginsDir = SbtUtil.globalPluginsDirectory(sbtVersion, parametersList, eelDescriptor)
+      if !globalPluginsDir.exists then
+        Files.createDirectories(globalPluginsDir)
+
+      val pluginFile = globalPluginsDir / s"idea-structure${Sbt.Extension}"
       // Unfortunately, when using an sbt file in the global plugin directory instead of `--addPluginSbtFile`,
       // the plugin jar cannot be added with `unmanagedJars` settings. The `unmanagedJars` setting is not considered
       // in the global plugin build, which differs from `--addPluginSbtFile`, which behaves more like adding an sbt file as part of the project build.
       val pluginContent = SbtUtil.sbtStructurePluginDeclaration(sbtVersion)
-      FileUtil.writeToFile(pluginFile, pluginContent)
-
-      StructureDumpConfig(commands, extraSbtFileToRemove = Some(pluginFile.toPath))
+      Files.writeString(pluginFile, pluginContent, StandardCharsets.UTF_8)
+      StructureDumpConfig(commands, extraSbtFileToRemove = Some(pluginFile))
     }
 
     private def getDumpProcessArgsForLegacySbt(
       projectRoot: Path,
       structureFilePath: Path,
+      eelDescriptor: EelDescriptor,
       optString: String,
       generateManagedSources: Boolean,
       sbtStructureJar: Path,
@@ -310,7 +320,6 @@ object SbtStructureDumper:
       )
       StructureDumpConfig(commands, extraSbtFileToRemove = None)
     }
-
 
     private def copyFileContentsIfNeeded(remotePath: Path, localPath: Path): Unit =
       import java.io.PrintWriter
