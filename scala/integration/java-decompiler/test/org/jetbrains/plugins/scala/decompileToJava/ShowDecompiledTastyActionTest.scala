@@ -16,24 +16,13 @@ import org.junit.Assert.{assertFalse, assertNotNull, assertTrue}
 
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
-class ShowDecompiledTastyActionTest extends ScalaLightCodeInsightFixtureTestCase {
-
-  override protected def supportedIn(version: ScalaVersion): Boolean = version.isScala3
+abstract class ShowDecompiledTastyActionTestBase extends ScalaLightCodeInsightFixtureTestCase {
 
   override protected def includeScalaLibrarySources: Boolean = true
 
-  private val ActionId = "Scala.DecompileTasty"
-
-  private def getAction: AnAction = {
-    val actionManager = com.intellij.openapi.actionSystem.ActionManager.getInstance()
-    val registeredAction = actionManager.getAction(ActionId)
-    assertNotNull(s"Action '$ActionId' should be registered in the ActionManager", registeredAction)
-    registeredAction
-  }
-
-  def testActionAvailableForScala3LibraryFile(): Unit = {
+  protected def assertActionAvailableAndOpensFile(fileNameToOpen: String, expectedEditorFileName: String): Unit = {
     val action = getAction
-    val actionPresentation = openFileEditorAndUpdateAction(getProject, action, "CanEqual.scala")
+    val actionPresentation = openFileEditorAndUpdateAction(getProject, action, fileNameToOpen)
     assertTrue(
       s"Action '$ActionId' should be available in the given context",
       actionPresentation.isEnabledAndVisible
@@ -41,13 +30,13 @@ class ShowDecompiledTastyActionTest extends ScalaLightCodeInsightFixtureTestCase
 
     val event = createActionEvent(getProject, action)
     action.actionPerformed(event)
-    
+
     val editor = FileEditorManager.getInstance(getProject).getSelectedTextEditor
-    assertEquals("Opened file name", "CanEqual.tasty", editor.getVirtualFile.getName)
+    assertEquals("Opened file name", expectedEditorFileName, editor.getVirtualFile.getName)
   }
 
-  def testActionNotAvailableForOtherFiles(): Unit = {
-    val actionPresentation = openFileEditorAndUpdateAction(getProject, getAction, "Option.scala")
+  protected def assertActionNotAvailable(fileNameToOpen: String): Unit = {
+    val actionPresentation = openFileEditorAndUpdateAction(getProject, getAction, fileNameToOpen)
     assertFalse(
       s"Action '$ActionId' should not be enabled in the given context",
       actionPresentation.isEnabled
@@ -56,6 +45,15 @@ class ShowDecompiledTastyActionTest extends ScalaLightCodeInsightFixtureTestCase
       s"Action '$ActionId' should be visible in the given context",
       actionPresentation.isVisible
     )
+  }
+
+  private val ActionId = "Scala.DecompileTasty"
+
+  private def getAction: AnAction = {
+    val actionManager = com.intellij.openapi.actionSystem.ActionManager.getInstance()
+    val registeredAction = actionManager.getAction(ActionId)
+    assertNotNull(s"Action '$ActionId' should be registered in the ActionManager", registeredAction)
+    registeredAction
   }
 
   private def openFileEditorAndUpdateAction(project: Project, action: AnAction, scala2SourceFile: String): Presentation = {
@@ -120,5 +118,31 @@ class ShowDecompiledTastyActionTest extends ScalaLightCodeInsightFixtureTestCase
       .find(_.getName == ScalaLibrarySourceFile)
       .map(vf => PsiManager.getInstance(project).findFile(vf))
       .getOrElse(throw new RuntimeException(s"File '$ScalaLibrarySourceFile' not found in the library scope"))
+  }
+}
+
+class ShowDecompiledTastyActionTest_Scala_3_3 extends ShowDecompiledTastyActionTestBase {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_3
+
+  def testActionAvailableForScala3LibrarySourceFile(): Unit = {
+    assertActionAvailableAndOpensFile("CanEqual.scala", "CanEqual.tasty")
+  }
+
+  def testActionNotAvailableForScala2LibrarySourceFile(): Unit = {
+    assertActionNotAvailable("Option.scala")
+  }
+}
+
+class ShowDecompiledTastyActionTest_Scala_3_8 extends ShowDecompiledTastyActionTestBase {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_8
+
+  def testActionAvailableForScala3LibrarySourceFile(): Unit = {
+    assertActionAvailableAndOpensFile("CanEqual.scala", "CanEqual.tasty")
+  }
+
+  def testActionAvailableForScala2LibrarySourceFile_BundledInUnifiedLibrary(): Unit = {
+    assertActionAvailableAndOpensFile("Option.scala", "Option.tasty")
   }
 }
