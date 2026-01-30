@@ -114,11 +114,6 @@
     </projectListeners>
 
     <actions>
-        <action id="Scala.CompilerHighlightingScala2"
-                class="org.jetbrains.plugins.scala.compiler.highlighting.ToggleCompilerHighlightingScala2Action"/>
-        <action id="Scala.CompilerHighlightingScala3"
-                class="org.jetbrains.plugins.scala.compiler.highlighting.ToggleCompilerHighlightingScala3Action"/>
-
         <action id="Scala.CollectShortTroubleshootingInfo"
                 internal="true"
                 class="org.jetbrains.plugins.scala.compiler.actions.internal.ScalaCollectShortTroubleshootingInfoAction">

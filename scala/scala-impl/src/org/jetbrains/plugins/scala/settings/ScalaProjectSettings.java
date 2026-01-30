@@ -425,8 +425,8 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
     return TYPE_AWARE_HIGHLIGHTING_ENABLED;
   }
 
-  public void toggleTypeAwareHighlighting() {
-    TYPE_AWARE_HIGHLIGHTING_ENABLED = !TYPE_AWARE_HIGHLIGHTING_ENABLED;
+  public void setTypeAwareHighlightingEnabled(boolean enabled) {
+    TYPE_AWARE_HIGHLIGHTING_ENABLED = enabled;
   }
 
   @TestOnly
