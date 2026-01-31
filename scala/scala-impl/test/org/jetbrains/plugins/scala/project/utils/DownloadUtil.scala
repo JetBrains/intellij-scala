@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.project.sdkdetect.repository
+package org.jetbrains.plugins.scala.project.utils
 
 import java.net.{HttpURLConnection, URI}
 import java.nio.file.{Files, Path}
