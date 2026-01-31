@@ -1,19 +1,17 @@
 package org.jetbrains.plugins.scala.project.sdkdetect.repository
 
-import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.vfs.VirtualFileManager
-import com.intellij.util.system.CpuArch
 import junitparams.naming.TestCaseName
 import junitparams.{JUnitParamsRunner, Parameters}
 import org.apache.commons.io.FileUtils
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
+import org.jetbrains.plugins.scala.project.utils.ScalaInstallationTestUtils
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.junit.Assert._
 import org.junit.Test
 import org.junit.runner.RunWith
 
-import java.net.URI
-import java.nio.file.{Files, Path}
+import java.nio.file.Files
 import scala.annotation.unused
 import scala.collection.immutable.ListSet
 
@@ -59,10 +57,10 @@ class SystemDetectorIntegrationTest extends ScalaLightCodeInsightFixtureTestCase
 
     val scalaVersionStr = scalaVersion.minor
 
-    val downloadUrl = getScalaSdkArchiveDownloadUrl(scalaVersion)
-    val zipFile = downloadScalaDistribution(downloadUrl, baseTempDir)
+    val zipFile = ScalaInstallationTestUtils.downloadScalaDistribution(scalaVersion, baseTempDir)
 
-    val unzippedDir = unzipScalaSdkArchive(zipFile, baseTempDir)
+    val tempDir = baseTempDir.resolve("scala-sdk")
+    val unzippedDir = ScalaInstallationTestUtils.unzipScalaSdkArchive(zipFile, tempDir)
 
     val scalaSdkInnerDirNamePrefix = if (scalaVersion.isScala3) s"scala3-$scalaVersionStr" else s"scala-$scalaVersionStr"
 
@@ -93,55 +91,5 @@ class SystemDetectorIntegrationTest extends ScalaLightCodeInsightFixtureTestCase
       FileUtils.deleteDirectory(unzippedDir.toFile)
       Files.deleteIfExists(zipFile)
     }
-  }
-
-  /**
-   * Gets the download URL for a specific Scala version<br>
-   * Examples:
-   *  - For Scala 2.x: https://github.com/scala/scala/releases/download/v2.13.12/scala-2.13.12.zip
-   *  - For Scala 3.3-3.4: https://github.com/scala/scala3/releases/download/3.3.6/scala3-3.3.6.zip
-   *  - For Scala 3.5+: https://github.com/scala/scala3/releases/download/3.5.1/scala3-3.5.1-x86_64-apple-darwin.zip
-   */
-  private def getScalaSdkArchiveDownloadUrl(version: ScalaVersion): String = {
-    val scalaVersion = version.minor
-
-    if (version.isScala2) {
-      val archiveType = if (SystemInfo.isWindows) "msi" else "zip"
-      s"https://github.com/scala/scala/releases/download/v$scalaVersion/scala-$scalaVersion.$archiveType"
-    }
-    else if (version < ScalaVersion.Latest.Scala_3_5.withMinor(0)) {
-      // Scala 3.0-3.4 has generic binaries
-      s"https://github.com/scala/scala3/releases/download/$scalaVersion/scala3-$scalaVersion.zip"
-    } else {
-      // Scala 3.5+ has platform-specific binaries
-      val platformPart = if (SystemInfo.isWindows)
-        "x86_64-pc-win32"
-      else if (SystemInfo.isMac)
-        if (CpuArch.isArm64) "aarch64-apple-darwin" else "x86_64-apple-darwin"
-      else if (CpuArch.isArm64) "aarch64-pc-linux" else "x86_64-pc-linux"
-
-      s"https://github.com/scala/scala3/releases/download/$scalaVersion/scala3-$scalaVersion-$platformPart.zip"
-    }
-  }
-
-  private def downloadScalaDistribution(urlString: String, baseTempDir: Path): Path = {
-    val fileName = Path.of(new URI(urlString).toURL.getPath).getFileName.toString
-    val targetFilePath = baseTempDir.resolve(fileName)
-
-    if (Files.exists(targetFilePath) && Files.size(targetFilePath) > 0) {
-      println(s"File already exists: $targetFilePath, skipping download")
-      return targetFilePath
-    }
-
-    DownloadUtil.downloadFile(urlString, targetFilePath)
-    targetFilePath
-  }
-
-  private def unzipScalaSdkArchive(zipFile: Path, baseTempDir: Path): Path = {
-    val tempDir = baseTempDir.resolve("scala-sdk")
-    Files.createDirectories(tempDir)
-    println(s"Unzipping Scala distribution to ${tempDir.toAbsolutePath}")
-    ZipUtils.unzip(zipFile, tempDir)
-    tempDir
   }
 }
