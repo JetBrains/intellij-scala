@@ -82,15 +82,14 @@ final class ScalaCliNewProjectWizardStep(parent: ScalaNewProjectWizardMultiStep)
 
   override def setupUI(panel: Panel): Unit = {
     panel.onApply(() => {
-      // note: if these are tests, `getContext.getProjectDirectory` does not return the exact root directory of the project.
-      // During tests, only the exact root directory contains the Scala CLI run script.
-      // Therefore, we cannot execute `throwExceptionIfScalaCliNotInstalled`, as it will fail.
-      // But it's not really required for tests because checking if Scala CLI is installed is also done in ScalaCliProjectInstaller#installCommand.
-      if (!ApplicationManager.getApplication.isUnitTestMode) {
-        val isScalaCliInstalled = ScalaCliUtils.isScalaCliInstalled(Path.of(SystemProperties.getUserHome))
-        if (!isScalaCliInstalled) {
-          throw new CommitStepException(ScalaCliBundle.message("scala.cli.not.installed"))
-        }
+      val installationPath =
+        if (ApplicationManager.getApplication.isUnitTestMode)
+          getContext.getProjectDirectory.resolve(moduleNameProperty.get())
+        else
+          Path.of(SystemProperties.getUserHome)
+      val isScalaCliInstalled = ScalaCliUtils.isScalaCliInstalled(installationPath)
+      if (!isScalaCliInstalled) {
+        throw new CommitStepException(ScalaCliBundle.message("scala.cli.not.installed"))
       }
       KUnit
     })

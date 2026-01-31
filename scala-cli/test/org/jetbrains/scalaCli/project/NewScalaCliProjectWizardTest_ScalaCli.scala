@@ -4,30 +4,35 @@ import com.intellij.execution.process.ProcessOutputType
 import com.intellij.ide.projectWizard.NewProjectWizardConstants
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListener, ExternalSystemTaskType}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.projectRoots.ProjectJdkTable
+import org.jetbrains.plugins.scala.project.utils.ScalaInstallationTestUtils._
 import com.intellij.openapi.util.SystemInfo
+import com.intellij.openapi.util.io.NioFiles
 import com.intellij.testFramework.FixtureRuleKt.useProject
-import com.intellij.testFramework.JUnit38AssumeSupportRunner
+import com.intellij.testFramework.{JUnit38AssumeSupportRunner, UsefulTestCase}
 import com.intellij.util.system.CpuArch
+import junitparams.naming.TestCaseName
+import junitparams.{JUnitParamsRunner, Parameters}
 import org.jetbrains.bsp.BSP
 import org.jetbrains.bsp.protocol.BspCommunicationService
-import org.jetbrains.plugins.scala.extensions.inWriteAction
+import org.jetbrains.plugins.scala.LatestScalaVersions._
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.project.utils.ScalaInstallationTestUtils
 import org.jetbrains.sbt.project.ProjectStructureDsl._
 import org.jetbrains.sbt.project.template.wizard.buildSystem.BuildSystemScalaNewProjectWizardData.scalaBuildSystemData
 import org.jetbrains.sbt.project.template.wizard.buildSystem.ScalaNewProjectWizardData.scalaData
 import org.jetbrains.sbt.project.utils.ProjectComparisonOptions
 import org.jetbrains.sbt.project.{ExactMatch, NewScalaProjectWizardTestBase, ProjectStructureTestUtils}
-import org.junit.Assume
+import org.junit.{Assume, Test}
 import org.junit.runner.RunWith
 
-import java.nio.file.Files
+import java.nio.file.{Files, Path}
 import java.util.concurrent.TimeUnit
+import scala.annotation.unused
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
 import scala.sys.process.{Process, ProcessLogger}
 import scala.util.Try
-
 
 // TODO:
 //  - test .gitignore creation
@@ -35,8 +40,7 @@ import scala.util.Try
 /**
  *  The Scala CLI tests are executed only on Linux or macOS machines; on other systems, they are ignored.
  */
-@RunWith(classOf[JUnit38AssumeSupportRunner])
-class NewScalaCliProjectWizardTest extends NewScalaProjectWizardTestBase with ExactMatch {
+abstract class NewScalaCliProjectWizardTestBase extends NewScalaProjectWizardTestBase with ExactMatch {
 
   /**
    * All tests in this class have the same project name.
@@ -47,7 +51,6 @@ class NewScalaCliProjectWizardTest extends NewScalaProjectWizardTestBase with Ex
   override protected def setUp(): Unit = {
     ignoreTestIfSystemIsNotAllowed()
     super.setUp()
-    installScalaCli()
     // note: it's a workaround for #SCL-23061.
     // Closing all BSP sessions cannot be achieved by overriding #waitForConfiguration and closing the sessions there,
     // because the project refresh in ModuleBuilderUtil.doSetupModule is executed asynchronously.
@@ -75,32 +78,12 @@ class NewScalaCliProjectWizardTest extends NewScalaProjectWizardTestBase with Ex
     ExternalSystemTaskNotificationListener.EP_NAME.getPoint.registerExtension(closeAllBspInstancesAfterReload, getTestRootDisposable)
   }
 
-  def testCreateSimpleProjectScala2(): Unit = {
-    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk(useEnv = false)("2.13.14", BSP.ProjectSystemId)
-    runSimpleCreateSbtProjectTest("2.13.14", scalaLibraries)
-  }
-
-  //TODO #SCL-23031
-//  def testCreateProjectWithDotsSpacesAndDashesInNameName(): Unit =
-//    runSimpleCreateSbtProjectTest("project_name_with_dots spaces and-dashes and UPPERCASE")
-
-  def testCreateSimpleProjectScala3(): Unit = {
-    val scalaVersion = "3.0.2"
-    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk(useEnv = false)(scalaVersion, BSP.ProjectSystemId)
-    runSimpleCreateSbtProjectTest(scalaVersion, scalaLibraries)
-  }
-
-  def testCreateSimpleProjectScala3AndUseIndentationBasedSyntax(): Unit = {
-    val scalaVersion = "3.3.3"
-    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk(useEnv = false)(scalaVersion, BSP.ProjectSystemId)
-    runSimpleCreateSbtProjectTest(scalaVersion, scalaLibraries, useIndentationBasedSyntax = true)
-  }
-
-  private def runSimpleCreateSbtProjectTest(
+  protected def runSimpleCreateProjectTest(
     scalaVersion: String,
-    scalaLibraries: Seq[library],
-    useIndentationBasedSyntax: Boolean = false
+    useIndentationBasedSyntax: Boolean = false,
+    shouldExcludeScalaBuild: Boolean = true // Scala CLI bundled in Scala 3.5.2 & 3.6.7 doesn't have '.scala-build' in the output paths
   ): Unit = {
+    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdk(useEnv = false)(scalaVersion, BSP.ProjectSystemId)
     //noinspection TypeAnnotation
     val expectedProject = new project(projectName) {
       val projectLibraries = scalaLibraries :+ new library(s"BSP: semanticdb-javac-0.10.0")
@@ -118,7 +101,7 @@ class NewScalaCliProjectWizardTest extends NewScalaProjectWizardTestBase with Ex
           testSources := Seq()
           resources := Seq()
           testResources := Seq()
-          excluded := Seq(".bsp", ".bloop", ".scala-build")
+          excluded := Seq(".bsp", ".bloop") ++ (if (shouldExcludeScalaBuild) Seq(".scala-build") else Nil)
         }
       )
     }
@@ -145,7 +128,7 @@ class NewScalaCliProjectWizardTest extends NewScalaProjectWizardTestBase with Ex
     })
   }
 
-  private def installScalaCli(): Unit = {
+  protected def installScalaCli(): Unit = {
     val projectDirectory = getContentRoot.toPath.resolve(projectName)
     //note: it's necessary to create this directory at this point, because naturally,
     // it is only created directly inside the test, but we already need this path to be able to add the Scala CLI script there.
@@ -181,10 +164,132 @@ class NewScalaCliProjectWizardTest extends NewScalaProjectWizardTestBase with Ex
   }
 
   /**
+   * Installs a specific Scala version to the test project directory.
+   * Downloads and extracts the Scala distribution, then creates a wrapper script at `./scala`
+   * that forwards to the actual Scala executable.
+   *
+   * @see [[createScalaWrapperScript]]
+   */
+  protected def installScala(scalaVersion: ScalaVersion): Unit = {
+    val testDirectory = getContentRoot.toPath.resolve(projectName)
+    Files.createDirectories(testDirectory)
+
+    val zipFile = ScalaInstallationTestUtils.downloadScalaDistribution(scalaVersion, testDirectory)
+    unzipScalaSdkArchive(zipFile, testDirectory, customRootDir = Some("scala-root"))
+
+    createScalaWrapperScript(testDirectory)
+  }
+
+  /**
+   * Creates a wrapper script that forwards to the actual Scala executable.
+   * This allows the use of the `./scala` command in test project directories.
+   */
+  private def createScalaWrapperScript(testDirectory: Path): Unit = {
+    val scalaDir = testDirectory.resolve("scala-root")
+
+    // Create wrapper script
+    val scriptContent =
+      s"""#!/bin/bash
+         |exec "${scalaDir.resolve("bin/scala").toAbsolutePath}" "$$@"
+         |""".stripMargin
+    val wrapperScript = testDirectory.resolve("./scala")
+    Files.write(wrapperScript, scriptContent.getBytes)
+    NioFiles.setExecutable(wrapperScript)
+
+    // Make the required executables in bin directory executable
+    val executablePaths = Seq("bin/scala", "bin/scalac", "bin/scala-cli", "libexec/scala-cli")
+    executablePaths.foreach { dir =>
+      val executablePath = scalaDir.resolve(dir)
+      if (Files.exists(executablePath) && Files.isRegularFile(executablePath))
+        NioFiles.setExecutable(executablePath)
+    }
+  }
+
+  /**
    * Ignores test if the operating system is not Linux or Mac
    */
   private def ignoreTestIfSystemIsNotAllowed(): Unit = {
     val isAllowed = SystemInfo.isLinux || SystemInfo.isMac
     Assume.assumeTrue("The operating system is not allowed (Linux/macOS)", isAllowed)
+  }
+}
+
+/**
+ * Tests with standalone Scala CLI installed.
+ */
+@RunWith(classOf[JUnit38AssumeSupportRunner])
+class NewScalaCliProjectWizardTest_ScalaCli extends NewScalaCliProjectWizardTestBase {
+
+  override protected def setUp(): Unit = {
+    super.setUp()
+    installScalaCli()
+  }
+
+  def testCreateSimpleProjectScala2(): Unit =
+    runSimpleCreateProjectTest("2.13.14")
+
+  def testCreateSimpleProjectScala3(): Unit =
+    runSimpleCreateProjectTest("3.0.2")
+
+  def testCreateSimpleProjectScala3AndUseIndentationBasedSyntax(): Unit =
+    runSimpleCreateProjectTest( "3.3.3", useIndentationBasedSyntax = true)
+}
+
+/**
+ * Tests with installed Scala versions that do not have Scala CLI bundled - expects failure.
+ * The tests cover Scala versions 2.10-2.13 and Scala 3.0-3.4.
+ */
+@RunWith(classOf[JUnitParamsRunner])
+class NewScalaCliProjectWizard_ScalaWithoutScalaCLI extends NewScalaCliProjectWizardTestBase {
+
+  @unused
+  private def scalaVersionsParameters: Array[AnyRef] = {
+    val all = LatestScalaVersions.allStableWithoutScalaNext :+ Scala_3_4
+    // Scala 2.9 zip is not available on GitHub, so for simplicity just ignored
+    all.filterNot(_ == Scala_2_9).toArray
+  }
+
+  @Test
+  @Parameters(method = "scalaVersionsParameters")
+  @TestCaseName("{method}[{0}]")
+  def testCreateProjectUsingScalaWithoutScalaCLI(scalaVersion: ScalaVersion): Unit = {
+    installScala(scalaVersion)
+
+    // Scala 3.0.2 reports a slightly different version output, which is not directly parsed
+    // in org.jetbrains.scalaCli.ScalaCliUtils.parseScalaVersion. It doesn't matter much in production.
+    val expectedErrorMessage =
+      if (scalaVersion == Scala_3_0) "Unable to parse Scala version from output: Scala compiler version 3.0.2"
+      else s"Scala version ${scalaVersion.minor} is lower than 3.5.0"
+
+    UsefulTestCase.assertThrows(
+      classOf[Exception],
+      expectedErrorMessage,
+      () => runSimpleCreateProjectTest("3.0.2")
+    )
+  }
+}
+
+/**
+ * Tests with installed Scala versions that have Scala CLI bundled.
+ * The tests cover Scala versions 3.5-3.8.
+ */
+@RunWith(classOf[JUnitParamsRunner])
+class NewScalaCliProjectWizard_ScalaWithScalaCLI extends NewScalaCliProjectWizardTestBase {
+
+  @unused
+  private def scalaVersionsParameters: Array[AnyRef] =
+    LatestScalaVersions.allScalaNext.filterNot(_ == Scala_3_4).toArray
+
+  @Test
+  @Parameters(method = "scalaVersionsParameters")
+  @TestCaseName("{method}[{0}]")
+  def testCreateProjectUsingScalaWithScalaCLI(scalaVersion: ScalaVersion): Unit = {
+    installScala(scalaVersion)
+
+    val shouldExcludeScalaBuild =
+      if (scalaVersion == Scala_3_5 || scalaVersion == Scala_3_6) false
+      else true
+
+    runSimpleCreateProjectTest("3.0.2", useIndentationBasedSyntax = false, shouldExcludeScalaBuild)
   }
 }
