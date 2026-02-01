@@ -218,7 +218,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
     val bspProjectInstallers = BspProjectInstallProvider.getImplementations
 
     def installBspFrom(bspProjectInstaller: Option[BspProjectInstallProvider]): Try[BuildMessages] =
-      bspProjectInstaller.map(_.bspInstall(workspace)).getOrElse(EmptyBuildMessagesSuccess)
+      bspProjectInstaller.map(_.bspInstall(workspace, indicator)).getOrElse(EmptyBuildMessagesSuccess)
 
     def installWithAnyBspProjectInstaller: Try[BuildMessages] = {
       val installer = bspProjectInstallers.find(_.canImport(workspace))
@@ -276,6 +276,7 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
         Failure(BspTaskCancelled)
     }
 
+  // TODO This does not cancel processes run inside BspProjectInstallProvider.bspInstall
   override def cancelTask(taskId: ExternalSystemTaskId,
                           listener: ExternalSystemTaskNotificationListener): Boolean = {
     def doCancel(f: =>Unit) = {

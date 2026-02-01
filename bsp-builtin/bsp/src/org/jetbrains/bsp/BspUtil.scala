@@ -2,12 +2,15 @@ package org.jetbrains.bsp
 
 import com.intellij.build.events.impl.{FailureResultImpl, SkippedResultImpl, SuccessResultImpl}
 import com.intellij.execution.configurations.GeneralCommandLine
+import com.intellij.execution.process.CapturingProcessHandler
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.{Module, ModuleManager}
+import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.{Project, ProjectUtil}
 import com.intellij.openapi.roots.CompilerProjectExtension
 import com.intellij.openapi.vfs.VirtualFileManager
+import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import org.eclipse.lsp4j.jsonrpc.ResponseErrorException
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseErrorCode
 import org.jetbrains.annotations.Nls
@@ -21,7 +24,6 @@ import org.jetbrains.plugins.scala.extensions.PathExt
 import java.net.URI
 import java.nio.file.{Path, Paths}
 import java.util.concurrent.CompletableFuture
-import scala.io.Source
 import scala.jdk.CollectionConverters.SeqHasAsJava
 import scala.util.{Failure, Success, Try}
 
@@ -149,8 +151,9 @@ object BspUtil {
    * @param directory directory in which the check will be executed
    * @param toolCommand executable name (e.g. "scala-cli", "mill")
    */
-  def isToolInstalledCheckViaVersion(directory: Path, toolCommand: String): Boolean = {
-    val work = runCommand(directory, toolCommand, "--version")
+  @RequiresBackgroundThread
+  def isToolInstalledCheckViaVersion(directory: Path, indicator: ProgressIndicator, toolCommand: String): Boolean = {
+    val work = runCommand(directory, indicator, toolCommand, "--version")
     work.fold(
       exc => {
         log.error(s"The $toolCommand is not installed in $directory - ${exc.getMessage}")
@@ -163,18 +166,19 @@ object BspUtil {
   /**
    * @return Right, if the process exit value is 0; otherwise, return Left with the exception.
    */
-  def runCommand(directory: Path, command: String*): Either[Throwable, Int] = {
+  @RequiresBackgroundThread
+  def runCommand(directory: Path, indicator: ProgressIndicator, command: String*): Either[Throwable, Int] = {
     val stderr = new StringBuilder
     val work = Try {
       val generalCommandLine = new GeneralCommandLine(command.asJava)
         .withWorkDirectory(directory.toString)
-      val process = generalCommandLine.toProcessBuilder.start()
-      process.waitFor()
 
-      val stderrText = Source.fromInputStream(process.getErrorStream).mkString.trim
-      stderr.append(stderrText)
+      val handler = new CapturingProcessHandler(generalCommandLine)
+      val output = handler.runProcessWithProgressIndicator(indicator, 120000) // 2-minute timeout
 
-      process.exitValue()
+      stderr.append(output.getStderr)
+
+      output.getExitCode
     }
 
     work match {

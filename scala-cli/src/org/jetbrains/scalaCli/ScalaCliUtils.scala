@@ -1,20 +1,32 @@
 package org.jetbrains.scalaCli
 
 import com.intellij.execution.configurations.GeneralCommandLine
+import com.intellij.execution.process.CapturingProcessHandler
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager}
+import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import org.jetbrains.bsp.BspUtil
 
 import java.nio.file.Path
-import java.util.concurrent.{TimeUnit, TimeoutException}
-import scala.io.Source
+import java.util.concurrent.TimeoutException
 import scala.util.Try
 
 private object ScalaCliUtils {
   private val log = Logger.getInstance(getClass)
 
+  /** Checks if Scala CLI is installed, showing a cancelable progress dialog. */
   def isScalaCliInstalled(workspace: Path): Boolean =
-    detectScalaCliInstallKind(workspace).nonEmpty
+    ProgressManager.getInstance.runProcessWithProgressSynchronously(
+      () => {
+        val indicator = ProgressManager.getInstance.getProgressIndicator
+        if (indicator == null) false
+        else detectScalaCliInstallKind(workspace, indicator).nonEmpty
+      },
+      ScalaCliBundle.message("scala.cli.detecting"),
+      true,
+      null
+    )
 
   /** Describes how Scala CLI is installed on the system. */
   sealed trait ScalaCliInstallKind
@@ -34,16 +46,17 @@ private object ScalaCliUtils {
    * @return Some([[ScalaCliInstallKind]]) if Scala CLI is installed
    *         or `None` if it's not.
    */
-  def detectScalaCliInstallKind(workspace: Path): Option[ScalaCliInstallKind] =
-    if (isBundledScalaCliInstalled(workspace))
+  @RequiresBackgroundThread
+  def detectScalaCliInstallKind(workspace: Path, indicator: ProgressIndicator): Option[ScalaCliInstallKind] =
+    if (isBundledScalaCliInstalled(workspace, indicator))
       Some(ScalaCliInstallKind.Bundled)
-    else if (isScalaCliStandaloneInstalled(workspace))
+    else if (isScalaCliStandaloneInstalled(workspace, indicator))
       Some(ScalaCliInstallKind.Standalone)
     else
       None
 
-  private def isScalaCliStandaloneInstalled(workspace: Path): Boolean =
-    BspUtil.isToolInstalledCheckViaVersion(workspace, getScalaCliStandaloneCommand)
+  private def isScalaCliStandaloneInstalled(workspace: Path, indicator: ProgressIndicator): Boolean =
+    BspUtil.isToolInstalledCheckViaVersion(workspace, indicator, getScalaCliStandaloneCommand)
 
   /**
    * Returns the command used to invoke Scala CLI commands. It can be:
@@ -84,8 +97,8 @@ private object ScalaCliUtils {
    * Checks if Scala CLI is bundled with the scala installation by attempting to run `scala -version`.
    * Since Scala 3.5.0, Scala CLI has been included in the Scala distribution.
    */
-  private def isBundledScalaCliInstalled(workspace: Path): Boolean = {
-    val result = tryCheckScalaVersionWithBundledScalaCli(workspace)
+  private def isBundledScalaCliInstalled(workspace: Path, indicator: ProgressIndicator): Boolean = {
+    val result = tryCheckScalaVersionWithBundledScalaCli(workspace, indicator)
     result.fold(
       {
         // It's required for tests, see org.jetbrains.scalaCli.project.NewScalaCliProjectWizardWith_ScalaWithoutScalaCLI
@@ -99,9 +112,9 @@ private object ScalaCliUtils {
     )
   }
 
-  private def tryCheckScalaVersionWithBundledScalaCli(directory: Path): Try[Boolean] =
+  private def tryCheckScalaVersionWithBundledScalaCli(directory: Path, indicator: ProgressIndicator): Try[Boolean] =
     for {
-      output <- executeScalaVersionCommand(directory)
+      output <- executeScalaVersionCommand(directory, indicator)
       (major, minor, patch) <- parseScalaVersion(output)
     } yield {
       if (major > 3 || (major == 3 && minor >= 5))
@@ -113,23 +126,20 @@ private object ScalaCliUtils {
   /**
    * Executes 'scala -version' command and returns the output.
    */
-  private def executeScalaVersionCommand(directory: Path): Try[String] =
+  @RequiresBackgroundThread
+  private def executeScalaVersionCommand(directory: Path, indicator: ProgressIndicator): Try[String] =
     Try {
       val commandLine = new GeneralCommandLine(getScalaStandaloneCommand, "-version")
         .withWorkDirectory(directory.toString)
-      val process = commandLine.toProcessBuilder.start()
-      process.getOutputStream.close()
 
-      val completed = process.waitFor(1, TimeUnit.MINUTES)
+      val handler = new CapturingProcessHandler(commandLine)
+      val output = handler.runProcessWithProgressIndicator(indicator, 60000) // 1-minute timeout
 
-      if (!completed) {
-        process.destroy()
+      if (output.isTimeout) {
         throw new TimeoutException("Command 'scala -version' timed out after 2 minutes")
       }
 
-      val stdout = Source.fromInputStream(process.getInputStream).mkString
-      val stderr = Source.fromInputStream(process.getErrorStream).mkString
-      stdout + stderr
+      output.getStdout + output.getStderr
     }
 
   /**

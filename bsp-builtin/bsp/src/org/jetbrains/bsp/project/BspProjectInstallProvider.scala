@@ -3,11 +3,12 @@ package org.jetbrains.bsp.project
 import com.intellij.build.events.EventResult
 import com.intellij.build.events.impl.{FailureResultImpl, SuccessResultImpl}
 import com.intellij.openapi.extensions.ExtensionPointName
+import com.intellij.openapi.progress.ProgressIndicator
 import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.bsp.project.importing.bspConfigSteps.ConfigSetup
 import org.jetbrains.bsp.{BspBundle, BspUtil}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
-import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter, ExternalSystemNotificationReporter}
+import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}
 
 import java.nio.file.Path
 import java.util.UUID
@@ -20,17 +21,17 @@ trait BspProjectInstallProvider {
 
   def canImport(workspace: Path): Boolean
   def serverName: String
-  def installCommand(workspace: Path): Try[Seq[String]]
+  def installCommand(workspace: Path, indicator: ProgressIndicator): Try[Seq[String]]
   def getConfigSetup: ConfigSetup
 
-  def bspInstall(workspace: Path)(implicit reporter: BuildReporter): Try[BuildMessages] = {
+  def bspInstall(workspace: Path, indicator: ProgressIndicator)(implicit reporter: BuildReporter): Try[BuildMessages] = {
     val dumpTaskId = EventId(s"dump:${UUID.randomUUID()}")
     reporter.startTask(dumpTaskId, None, BspBundle.message("bsp.resolver.installing.configuration", serverName))
 
-    val command = installCommand(workspace)
+    val command = installCommand(workspace, indicator)
     val work = command.toEither.flatMap { cmd =>
       reporter.log(BspBundle.message("bsp.resolver.installing.configuration.command", cmd.mkString(" ")))
-      BspUtil.runCommand(workspace, cmd:_*)
+      BspUtil.runCommand(workspace, indicator, cmd:_*)
     }
 
     def finishInstallTask(errorMsg: Option[String], result: EventResult, status: BuildMessages.BuildStatus): Try[BuildMessages] = {
