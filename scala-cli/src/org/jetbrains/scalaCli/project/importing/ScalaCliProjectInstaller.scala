@@ -1,5 +1,6 @@
 package org.jetbrains.scalaCli.project.importing
 
+import com.intellij.openapi.progress.ProgressIndicator
 import org.jetbrains.bsp.BspUtil
 import org.jetbrains.bsp.project.BspProjectInstallProvider
 import org.jetbrains.bsp.project.importing.bspConfigSteps
@@ -19,12 +20,12 @@ class ScalaCliProjectInstaller extends BspProjectInstallProvider {
 
   override def serverName: String = "Scala CLI"
 
-  override def installCommand(workspace: Path): Try[Seq[String]] =
-    ScalaCliUtils.detectScalaCliInstallKind(workspace) match {
+  override def installCommand(workspace: Path, indicator: ProgressIndicator): Try[Seq[String]] =
+    ScalaCliUtils.detectScalaCliInstallKind(workspace, indicator) match {
       case Some(scalaCliInstallKind) =>
         Success(Seq(getScalaCliCommand(scalaCliInstallKind), "setup-ide", "."))
       case None =>
-        Failure(new IllegalStateException("Unable to install BSP, because Scala CLI is not installed"))
+        Failure(new IllegalStateException("Unable to install BSP, Scala CLI installation could not be determined"))
     }
 
   override def getConfigSetup: bspConfigSteps.ConfigSetup = ScalaCliSetup
