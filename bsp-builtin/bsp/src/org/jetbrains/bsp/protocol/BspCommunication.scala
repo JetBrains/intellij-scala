@@ -157,7 +157,10 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
     case _ => // ignore
   }
 
-  /** Close this session. This method may block on I/O. */
+  /**
+   * Close this session. This method may block on I/O.
+   * Consider adding synchronization to this method `session.synchronized { ... }`
+   */
   private[bsp] def closeSession(): Future[Unit] = session.get() match {
     case None => Future.successful(())
     case Some(s) =>
