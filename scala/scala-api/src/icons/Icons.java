@@ -9,6 +9,8 @@ import static com.intellij.openapi.util.IconLoader.getIcon;
  * When the "New UI" is enabled, an automatic mapping is done between old icons and new icons.
  * The mappings are defined in ScalaIconMappings.json
  *
+ * NOTE: File names must be in sync with [[https://github.com/JetBrains/IntelliJIcons]]
+ *
  * @see com.intellij.icons.AllIcons
  */
 public interface Icons {
