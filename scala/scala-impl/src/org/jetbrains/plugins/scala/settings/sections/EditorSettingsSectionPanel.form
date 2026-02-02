@@ -20,7 +20,7 @@
       </component>
       <component id="a10ad" class="javax.swing.JCheckBox" binding="showNotFoundImplicitArgumentsCheckBox">
         <constraints>
-          <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
         </constraints>
         <properties>
           <selected value="true"/>
@@ -29,7 +29,7 @@
       </component>
       <component id="8c6f0" class="javax.swing.JCheckBox" binding="showAmbiguousImplicitArgumentsCheckBox">
         <constraints>
-          <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
         </constraints>
         <properties>
           <selected value="true"/>
@@ -39,7 +39,7 @@
       <grid id="2f7a0" layout-manager="GridLayoutManager" row-count="1" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
         <margin top="0" left="0" bottom="0" right="0"/>
         <constraints>
-          <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="8" fill="2" indent="0" use-parent-layout="false"/>
+          <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="8" fill="2" indent="1" use-parent-layout="false"/>
         </constraints>
         <properties/>
         <border type="none"/>
@@ -70,7 +70,7 @@
       </grid>
       <component id="6520a" class="javax.swing.JCheckBox" binding="showTypeMismatchHintsCheckBox">
         <constraints>
-          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
         </constraints>
         <properties>
           <selected value="true"/>
@@ -96,7 +96,7 @@
           <grid id="e85ec" binding="typeCheckerScala2Section" layout-manager="GridLayoutManager" row-count="1" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
-              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="8" fill="2" indent="0" use-parent-layout="false"/>
+              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="8" fill="2" indent="1" use-parent-layout="false"/>
             </constraints>
             <properties/>
             <border type="none"/>
@@ -128,7 +128,7 @@
           <grid id="53a9a" binding="typeCheckerScala3Section" layout-manager="GridLayoutManager" row-count="1" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
-              <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="8" fill="2" indent="0" use-parent-layout="false"/>
+              <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="8" fill="2" indent="1" use-parent-layout="false"/>
             </constraints>
             <properties/>
             <border type="none"/>
@@ -159,7 +159,7 @@
           </grid>
           <grid id="bdc3d" binding="highlightingOptionsPanel2" layout-manager="BorderLayout" hgap="0" vgap="0">
             <constraints>
-              <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+              <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="1" use-parent-layout="false"/>
             </constraints>
             <properties/>
             <border type="none"/>
@@ -228,7 +228,7 @@
           </grid>
           <grid id="4dee1" binding="highlightingOptionsPanel1" layout-manager="BorderLayout" hgap="0" vgap="0">
             <constraints>
-              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="1" use-parent-layout="false"/>
             </constraints>
             <properties/>
             <border type="none"/>
