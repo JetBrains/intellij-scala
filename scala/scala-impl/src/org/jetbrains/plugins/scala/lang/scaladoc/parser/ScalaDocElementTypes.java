@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.scaladoc.parser;
 
 import com.intellij.lang.*;
+import com.intellij.lexer.Lexer;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiElement;
@@ -13,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocElementType;
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType;
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.ScaladocMarkdownParsing;
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl.ScDocCommentImpl;
+import org.jetbrains.plugins.scala.lang.scaladoc.reflinks.ScalaDocRefLinkLanguage;
 import org.jetbrains.plugins.scalaDoc.ScalaDocLanguage;
 import org.jetbrains.plugins.scalaDoc.lang.parser.ScalaDocParserDefinition;
 
@@ -21,18 +23,20 @@ import java.util.regex.Pattern;
 
 public interface ScalaDocElementTypes {
     @NotNull
-    ILazyParseableElementType SCALA_DOC_REFERENCE_LINK = new ILazyParseableElementType("SCALA_DOC_REFERENCE_LINK", Scala3Language.INSTANCE) {
+    ILazyParseableElementType SCALA_DOC_REFERENCE_LINK = new ILazyParseableElementType("SCALA_DOC_REFERENCE_LINK", ScalaDocRefLinkLanguage.INSTANCE()) {
         @Override
         @Nullable
         public ASTNode parseContents(@NotNull ASTNode lazyNode) {
             PsiElement psi = lazyNode.getTreeParent().getPsi();
 
             Project project = psi.getProject();
-            Language languageForParser = getLanguageForParser(psi);
-            PsiBuilder builder = PsiBuilderFactory.getInstance().createBuilder(project, lazyNode, null, languageForParser, lazyNode.getChars());
-
-            // NOTE: this is a simplified version of the formal definition in ScalaDoc
-            return ScaladocMarkdownParsing.parseCodeReference(builder).getFirstChildNode();
+            Language language = getLanguage();
+            ParserDefinition parserDefinition = LanguageParserDefinitions.INSTANCE.forLanguage(language);
+            Lexer lexer = parserDefinition.createLexer(project);
+            PsiParser parser = parserDefinition.createParser(project);
+            PsiBuilder builder = PsiBuilderFactory.getInstance().createBuilder(project, lazyNode, lexer, language, lazyNode.getChars());
+            parser.parse(ScalaDocElementTypes.SCALA_DOC_REFERENCE_LINK, builder);
+            return builder.getTreeBuilt().getFirstChildNode();
         }
     };
 

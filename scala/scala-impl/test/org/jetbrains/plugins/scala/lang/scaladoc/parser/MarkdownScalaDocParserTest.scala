@@ -535,10 +535,10 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |      DocSyntaxElement 64
       |        ScPsiDocToken(DOC_LINK_TAG 64)('[[')
       |        ASTWrapperPsiElement(SCALA_DOC_REFERENCE_LINK)
-      |          CodeReferenceElement (scalaDoc): scala.collection.immutable.List
-      |            CodeReferenceElement (scalaDoc): scala.collection.immutable
-      |              CodeReferenceElement (scalaDoc): scala.collection
-      |                CodeReferenceElement (scalaDoc): scala
+      |          ScDocRefQuerySegment('List')
+      |            ScDocRefQuerySegment('immutable')
+      |              ScDocRefQuerySegment('collection')
+      |                ScDocRefQuerySegment('scala')
       |                  PsiElement(identifier)('scala')
       |                PsiElement(.)('.')
       |                PsiElement(identifier)('collection')
@@ -555,8 +555,8 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |      DocSyntaxElement 64
       |        ScPsiDocToken(DOC_LINK_TAG 64)('[[')
       |        ASTWrapperPsiElement(SCALA_DOC_REFERENCE_LINK)
-      |          CodeReferenceElement (scalaDoc): scala.Option
-      |            CodeReferenceElement (scalaDoc): scala
+      |          ScDocRefQuerySegment('Option')
+      |            ScDocRefQuerySegment('scala')
       |              PsiElement(identifier)('scala')
       |            PsiElement(.)('.')
       |            PsiElement(identifier)('Option')
@@ -564,7 +564,8 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |      ScPsiDocToken(DOC_COMMENT_DATA)('.')
       |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |    ScPsiDocToken(DOC_COMMENT_END)('*/')
-      |  PsiWhiteSpace('\n')""".stripMargin
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
   )
 
   def test_quote(): Unit = checkTree(
@@ -871,7 +872,7 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |      ScPsiDocToken(DOC_TAG_NAME)('@throws')
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      ASTWrapperPsiElement(SCALA_DOC_REFERENCE_LINK)
-      |        CodeReferenceElement (scalaDoc): IllegalArgumentException
+      |        ScDocRefQuerySegment('IllegalArgumentException')
       |          PsiElement(identifier)('IllegalArgumentException')
       |      ScDocParagraph
       |        ScPsiDocToken(DOC_WHITESPACE)(' ')
@@ -883,14 +884,15 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |      ScPsiDocToken(DOC_TAG_NAME)('@throws')
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      ASTWrapperPsiElement(SCALA_DOC_REFERENCE_LINK)
-      |        CodeReferenceElement (scalaDoc): NullPointerException
+      |        ScDocRefQuerySegment('NullPointerException')
       |          PsiElement(identifier)('NullPointerException')
       |      ScDocParagraph
       |        ScPsiDocToken(DOC_WHITESPACE)(' ')
       |        ScPsiDocToken(DOC_COMMENT_DATA)('if the input is null')
       |        ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |    ScPsiDocToken(DOC_COMMENT_END)('*/')
-      |  PsiWhiteSpace('\n')""".stripMargin
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
   )
 
   // Combined features (more complex tests)
@@ -980,8 +982,8 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |          DocSyntaxElement 64
       |            ScPsiDocToken(DOC_LINK_TAG 64)('[[')
       |            ASTWrapperPsiElement(SCALA_DOC_REFERENCE_LINK)
-      |              CodeReferenceElement (scalaDoc): scala.Option
-      |                CodeReferenceElement (scalaDoc): scala
+      |              ScDocRefQuerySegment('Option')
+      |                ScDocRefQuerySegment('scala')
       |                  PsiElement(identifier)('scala')
       |                PsiElement(.)('.')
       |                PsiElement(identifier)('Option')
@@ -1062,8 +1064,8 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |        DocSyntaxElement 64
       |          ScPsiDocToken(DOC_LINK_TAG 64)('[[')
       |          ASTWrapperPsiElement(SCALA_DOC_REFERENCE_LINK)
-      |            CodeReferenceElement (scalaDoc): scala.Option
-      |              CodeReferenceElement (scalaDoc): scala
+      |            ScDocRefQuerySegment('Option')
+      |              ScDocRefQuerySegment('scala')
       |                PsiElement(identifier)('scala')
       |              PsiElement(.)('.')
       |              PsiElement(identifier)('Option')
@@ -1076,7 +1078,7 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |      ScPsiDocToken(DOC_TAG_NAME)('@throws')
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      ASTWrapperPsiElement(SCALA_DOC_REFERENCE_LINK)
-      |        CodeReferenceElement (scalaDoc): NullPointerException
+      |        ScDocRefQuerySegment('NullPointerException')
       |          PsiElement(identifier)('NullPointerException')
       |      ScDocParagraph
       |        ScPsiDocToken(DOC_WHITESPACE)(' ')
@@ -1284,10 +1286,10 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |      DocSyntaxElement 64
       |        ScPsiDocToken(DOC_LINK_TAG 64)('[[')
       |        ASTWrapperPsiElement(SCALA_DOC_REFERENCE_LINK)
-      |          CodeReferenceElement (scalaDoc): scala.collection.immutable.List
-      |            CodeReferenceElement (scalaDoc): scala.collection.immutable
-      |              CodeReferenceElement (scalaDoc): scala.collection
-      |                CodeReferenceElement (scalaDoc): scala
+      |          ScDocRefQuerySegment('List')
+      |            ScDocRefQuerySegment('immutable')
+      |              ScDocRefQuerySegment('collection')
+      |                ScDocRefQuerySegment('scala')
       |                  PsiElement(identifier)('scala')
       |                PsiElement(.)('.')
       |                PsiElement(identifier)('collection')
@@ -1403,8 +1405,8 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |        DocSyntaxElement 64
       |          ScPsiDocToken(DOC_LINK_TAG 64)('[[')
       |          ASTWrapperPsiElement(SCALA_DOC_REFERENCE_LINK)
-      |            CodeReferenceElement (scalaDoc): scala.Option
-      |              CodeReferenceElement (scalaDoc): scala
+      |            ScDocRefQuerySegment('Option')
+      |              ScDocRefQuerySegment('scala')
       |                PsiElement(identifier)('scala')
       |              PsiElement(.)('.')
       |              PsiElement(identifier)('Option')
@@ -1428,7 +1430,7 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |      ScPsiDocToken(DOC_TAG_NAME)('@throws')
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      ASTWrapperPsiElement(SCALA_DOC_REFERENCE_LINK)
-      |        CodeReferenceElement (scalaDoc): IllegalArgumentException
+      |        ScDocRefQuerySegment('IllegalArgumentException')
       |          PsiElement(identifier)('IllegalArgumentException')
       |      ScDocParagraph
       |        ScPsiDocToken(DOC_WHITESPACE)(' ')
@@ -1440,7 +1442,7 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |      ScPsiDocToken(DOC_TAG_NAME)('@throws')
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      ASTWrapperPsiElement(SCALA_DOC_REFERENCE_LINK)
-      |        CodeReferenceElement (scalaDoc): NullPointerException
+      |        ScDocRefQuerySegment('NullPointerException')
       |          PsiElement(identifier)('NullPointerException')
       |      ScDocParagraph
       |        ScPsiDocToken(DOC_WHITESPACE)(' ')
@@ -2461,8 +2463,8 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |      DocSyntaxElement 64
       |        ScPsiDocToken(DOC_LINK_TAG 64)('[[')
       |        ASTWrapperPsiElement(SCALA_DOC_REFERENCE_LINK)
-      |          CodeReferenceElement (scalaDoc): ref.ref
-      |            CodeReferenceElement (scalaDoc): ref
+      |          ScDocRefQuerySegment('ref')
+      |            ScDocRefQuerySegment('ref')
       |              PsiElement(identifier)('ref')
       |            PsiElement(.)('.')
       |            PsiElement(identifier)('ref')
@@ -2473,8 +2475,8 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |      DocSyntaxElement 64
       |        ScPsiDocToken(DOC_LINK_TAG 64)('[[')
       |        ASTWrapperPsiElement(SCALA_DOC_REFERENCE_LINK)
-      |          CodeReferenceElement (scalaDoc): ref.ref
-      |            CodeReferenceElement (scalaDoc): ref
+      |          ScDocRefQuerySegment('ref')
+      |            ScDocRefQuerySegment('ref')
       |              PsiElement(identifier)('ref')
       |            PsiElement(.)('.')
       |            PsiElement(identifier)('ref')
@@ -2487,7 +2489,10 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |      DocSyntaxElement 64
       |        ScPsiDocToken(DOC_LINK_TAG 64)('[[')
       |        ASTWrapperPsiElement(SCALA_DOC_REFERENCE_LINK)
-      |          PsiWhiteSpace(' ')
+      |          ScDocRefQuerySegment(<error>)
+      |            PsiErrorElement:Identifier, 'this', or 'package' expected
+      |              <empty list>
+      |          PsiElement(white space in line)(' ')
       |        ScPsiDocToken(DOC_COMMENT_DATA)('ref?')
       |        ScPsiDocToken(DOC_LINK_CLOSE_TAG 0)(']]')
       |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
@@ -2496,7 +2501,7 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |      DocSyntaxElement 64
       |        ScPsiDocToken(DOC_LINK_TAG 64)('[[')
       |        ASTWrapperPsiElement(SCALA_DOC_REFERENCE_LINK)
-      |          CodeReferenceElement (scalaDoc): ref
+      |          ScDocRefQuerySegment('ref')
       |            PsiElement(identifier)('ref')
       |        ScPsiDocToken(DOC_WHITESPACE)('  ')
       |        ScPsiDocToken(DOC_LINK_CLOSE_TAG 0)(']]')

@@ -202,6 +202,7 @@
         <lang.parserDefinition language="Scala 3" implementationClass="org.jetbrains.plugins.scala.lang.parser.Scala3ParserDefinition"/>
         <lang.parserDefinition language="ScalaDoc" implementationClass="org.jetbrains.plugins.scalaDoc.lang.parser.ScalaDocParserDefinition"/>
         <lang.parserDefinition language="ScalaDirective" implementationClass="org.jetbrains.plugins.scalaDirective.lang.parser.ScalaDirectiveParserDefinition"/>
+        <lang.parserDefinition language="ScalaDocRefLink" implementationClass="org.jetbrains.plugins.scala.lang.scaladoc.reflinks.ScalaDocRefLinkParserDefinition"/>
         <lang.ast.factory language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.parser.ScalaASTFactory"/>
         <lang.substitutor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.parser.ScalaLanguageSubstitutor"/>
         <lang.commenter language="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaCommenter"/>
