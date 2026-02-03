@@ -1,11 +1,12 @@
 package org.jetbrains.plugins.scala.worksheet.integration.plain
 
 import com.intellij.psi.PsiDocumentManager
+import org.jetbrains.plugins.scala.ui.AwaitTestUtils
 import org.jetbrains.plugins.scala.util.assertions.StringAssertions.assertStringMatches
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult.WorksheetRunError
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetRuntimeExceptionsTests
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetRuntimeExceptionsTests.Folded
-import org.jetbrains.plugins.scala.worksheet.integration.util.{EditorRobot, MyUiUtils}
+import org.jetbrains.plugins.scala.worksheet.integration.util.EditorRobot
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.settings.persistent.WorksheetFilePersistentSettings
@@ -410,7 +411,7 @@ trait WorksheetPlainIntegration_CommonTests extends PlainWorksheetTestBase
     // TODO: this is not the best way of testing, cause it relies on lucky threading conditions,
     //  but current architecture doesn't allow us do it some other way, think how this can be improved
     val stamp = viewer.getDocument.getModificationStamp
-    MyUiUtils.waitConditioned(5.seconds) { () =>
+    AwaitTestUtils.waitConditionedDispatchingAllEdtEvents(5.seconds) { () =>
       viewer.getDocument.getModificationStamp != stamp
     }
 
@@ -434,7 +435,8 @@ trait WorksheetPlainIntegration_CommonTests extends PlainWorksheetTestBase
     robot.moveToEnd()
     robot.typeString("\n2 + unknownRef + 4\n")
 
-    MyUiUtils.wait(5.seconds)
+    // TODO: it shouldn't just wait for 5 seconds. WE need to a better way, a better condition to early break
+    AwaitTestUtils.waitDispatchingAllEdtEvents(5.seconds)
 
     assertViewerEditorText(editor,
       """res0: Int = 42""".stripMargin

@@ -1,25 +1,33 @@
-package org.jetbrains.plugins.scala.worksheet.integration.util
+package org.jetbrains.plugins.scala.ui
 
 import com.intellij.testFramework.PlatformTestUtil
+import com.intellij.util.concurrency.annotations.RequiresEdt
 import com.intellij.util.ui.UIUtil
 
 import scala.concurrent.duration.Duration
 
-private[integration] object MyUiUtils {
+object AwaitTestUtils {
 
-  def wait(duration: Duration, attempts: Int = 100) : Unit =
-    waitConditioned(duration, attempts)()
+  @RequiresEdt
+  def waitDispatchingAllEdtEvents(duration: Duration, attempts: Int = 100): Unit =
+    waitConditionedDispatchingAllEdtEvents(duration, attempts)()
 
-  def waitConditioned(duration: Duration, attempts: Int = 100)(earlyBreakCondition: () => Boolean = () => false) : Unit = {
+  @RequiresEdt
+  def waitConditionedDispatchingAllEdtEvents(
+    duration: Duration,
+    attempts: Int = 100,
+  )(earlyBreakCondition: () => Boolean = () => false): Unit = {
     val timeout = duration.toMillis
     var idx = 0
     val sleepTime = timeout / attempts
+
     while (idx < attempts && !earlyBreakCondition()) {
       UIUtil.dispatchAllInvocationEvents()
       PlatformTestUtil.dispatchAllInvocationEventsInIdeEventQueue()
       Thread.sleep(sleepTime)
       idx += 1
     }
+
     PlatformTestUtil.dispatchAllInvocationEventsInIdeEventQueue()
   }
 }

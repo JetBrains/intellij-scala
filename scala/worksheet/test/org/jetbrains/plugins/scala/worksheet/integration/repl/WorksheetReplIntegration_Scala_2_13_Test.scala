@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.worksheet.integration.repl
 
 import com.intellij.testFramework.IndexingTestUtil
+import org.jetbrains.plugins.scala.ui.AwaitTestUtils
 import org.jetbrains.plugins.scala.util.RevertableChange.withModifiedRegistryValue
 import org.jetbrains.plugins.scala.util.assertions.StringAssertions._
 import org.jetbrains.plugins.scala.util.runners._
@@ -9,7 +10,7 @@ import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.TestRunResult
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetRuntimeExceptionsTests
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetRuntimeExceptionsTests.NoFolding
-import org.jetbrains.plugins.scala.worksheet.integration.util.{EditorRobot, MyUiUtils}
+import org.jetbrains.plugins.scala.worksheet.integration.util.EditorRobot
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.junit.Assert._
@@ -242,7 +243,7 @@ class WorksheetReplIntegration_Scala_2_13_Test
 
     val viewer = WorksheetCache.getInstance(project).getViewer(editor)
     val stamp = viewer.getDocument.getModificationStamp
-    MyUiUtils.waitConditioned(5 seconds) { () =>
+    AwaitTestUtils.waitConditionedDispatchingAllEdtEvents(5 seconds) { () =>
       viewer.getDocument.getModificationStamp != stamp
     }
 
@@ -266,7 +267,7 @@ class WorksheetReplIntegration_Scala_2_13_Test
     robot.moveToEnd()
     robot.typeString("\n2 + unknownRef + 4\n")
 
-    MyUiUtils.wait(5 seconds)
+    AwaitTestUtils.waitDispatchingAllEdtEvents(5 seconds)
 
     assertViewerEditorText(editor,
       """val res0: Int = 42
