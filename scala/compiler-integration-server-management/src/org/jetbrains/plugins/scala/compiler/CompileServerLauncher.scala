@@ -126,7 +126,7 @@ object CompileServerLauncher {
 
         val jpsUseUnifiedIC = isJpsUseUnifiedIC
 
-        val vmOptions = if (isUnitTestMode && project == null) Seq.empty else {
+        val vmOptions = if (project.isDisposed) Seq.empty else {
           // Duplicated --add-opens parameters are inherited from this extension point
           // through ScalaBuildProcessParametersProvider. This filtering also helps to not
           // pass --add-opens parameters to JDK 8 and lower.
