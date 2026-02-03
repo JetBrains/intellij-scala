@@ -193,6 +193,7 @@ lazy val worksheet =
     .dependsOn(
       bsp,
       compilerIntegration % "test->test;compile->compile",
+      testUtilsPlatform % "test->test",
       worksheetReplInterface,
       repl % "test->test;compile->compile", //do we indeed need this dependency on Scala REPL? can we get rid of it?
     ).settings(
@@ -383,12 +384,22 @@ lazy val scalaLanguageUtilsRt: sbt.Project =
     )
 
 /**
- * The modules contain common test utilities that can be used from any other module.
+ * This module contains common test utilities for plain Scala that can be used in ANY other module/scope<br>
+ * That includes modules for:
+ *  - Main in-IDE plugin code
+ *  - Code executed in external processes, that doesn't have access to the platform code (e.g. in JPS, worksheet, REPL, etc...)
  * It only has dependency on the plain Scala and on the JUnit test framework.
  * It doesn't have any dependencies on IntelliJ SDK entities or test framework.
  */
 lazy val testUtilsCommon: sbt.Project =
   newPlainScalaProject("test-utils-common", file("scala/test-utils-common"))
+    .projectWithTestsOnly
+
+/**
+ * This module contains common test utilities for modules that use IntelliJ platform
+ */
+lazy val testUtilsPlatform: sbt.Project =
+  newProject("test-utils-platform", file("scala/test-utils-platform"))
     .projectWithTestsOnly
 
 lazy val sbtImpl =
@@ -421,6 +432,7 @@ lazy val compilerIntegration =
       codeInsight % "test->test;compile->compile",
       sbtImpl % "test->test;compile->compile",
       scalaMetaImpl % "test->test;compile->compile",
+      testUtilsPlatform % "test->test",
       jps,
       bsp
     )
