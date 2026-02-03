@@ -7,11 +7,15 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.tree.{IFileElementType, TokenSet}
 import com.intellij.psi.{FileViewProvider, PsiElement, PsiFile}
 import org.jetbrains.annotations.NotNull
+import org.jetbrains.plugins.scala.lang.scaladoc.reflinks.lexer.ScalaDocRefLinkLexer
+import org.jetbrains.plugins.scala.lang.scaladoc.reflinks.parser.ScalaDocRefLinkParser
+import org.jetbrains.plugins.scala.lang.scaladoc.reflinks.psi.ScalaDocRefLinkFile
+import org.jetbrains.plugins.scala.lang.scaladoc.reflinks.psi.impl.{ScDocRefQuerySegmentImpl, ScDocRefStrictMemberIdQueryImpl}
 
 class ScalaDocRefLinkParserDefinition extends ParserDefinition {
   override def createLexer(project: Project): Lexer = new ScalaDocRefLinkLexer
 
-  override def createParser(project: Project): PsiParser = ???
+  override def createParser(project: Project): PsiParser = new ScalaDocRefLinkParser
 
   override def getFileNodeType: IFileElementType = ScalaDocRefLinkParserDefinition.FileNodeType
 
@@ -22,9 +26,14 @@ class ScalaDocRefLinkParserDefinition extends ParserDefinition {
   override def getStringLiteralElements: TokenSet = TokenSet.EMPTY
 
   @NotNull
-  override def createElement(node: ASTNode): PsiElement = new ASTWrapperPsiElement(node)
+  override def createElement(node: ASTNode): PsiElement =
+    node.getElementType match {
+      case ScalaDocRefLinkElementTypes.STRICT_MEMBER_ID => new ScDocRefStrictMemberIdQueryImpl(node)
+      case ScalaDocRefLinkElementTypes.QUERY_SEGMENT => new ScDocRefQuerySegmentImpl(node)
+      case _ => new ASTWrapperPsiElement(node)
+    }
 
-  override def createFile(viewProvider: FileViewProvider): PsiFile = ???
+  override def createFile(viewProvider: FileViewProvider): PsiFile = new ScalaDocRefLinkFile(viewProvider)
 }
 
 object ScalaDocRefLinkParserDefinition {
