@@ -63,7 +63,7 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
   }
 
   private def openSession(job: BspSessionJob[_,_])(implicit reporter: BuildReporter): Either[BspError, BspSession] = {
-    val sessionBuilder = prepareSession(base, config, findProject)
+    val sessionBuilder = prepareSession(findProject)
 
     sessionBuilder match {
       case Left(error) =>
@@ -88,6 +88,51 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
         session.updateAndGet(_ => Option(newSession))
         Right(newSession)
     }
+  }
+
+  private def prepareSession(project: => Option[Project])(implicit reporter: BuildReporter): Either[BspError, Builder] = {
+    // TODO supported languages should be extendable
+    val supportedLanguages = List("scala","java")
+    val capabilities = BspCapabilities(supportedLanguages)
+    val compilerOutputDir = BspUtil.compilerOutputDirFromConfig(base)
+      .getOrElse(base.resolve("out"))
+    val bloopEnabled = BspUtil.bloopConfigDir(base).isDefined
+
+    def configureBloopLauncherIfJdkExists() =
+      BspJdkUtil.findOrCreateBestJdkForProject(project) match {
+        case Some(jdk) => Right(new BloopLauncherConnector(base, compilerOutputDir, capabilities, jdk))
+        case None => Left(BspNoJdkConfiguredError)
+      }
+
+    val connector: Either[BspError, BspServerConnector] = config match {
+
+      case BspProjectSettings.AutoConfig =>
+        // only use workspace configs for auto-detection, system configs might not be applicable
+        val connectionDetails = BspConnectionConfig.workspaceBspConfigs(base)
+        val configuredMethods = connectionDetails.map(_._2).map(ProcessBsp)
+        if (connectionDetails.nonEmpty)
+          Right(new GenericConnector(base, compilerOutputDir, capabilities, configuredMethods))
+        else if (bloopEnabled)
+          configureBloopLauncherIfJdkExists()
+        else
+          Left(BspInvalidAutoConfigError(base))
+
+      case BspProjectSettings.BloopConfig =>
+        if (bloopEnabled)
+          configureBloopLauncherIfJdkExists()
+        else
+          Left(BspErrorMessage(s"Bloop is not configured for BSP workspace in $base"))
+
+      case BspProjectSettings.BspConfigFile(path) =>
+        BspConnectionConfig.readConnectionFile(path)(new Gson)
+          .map { details =>
+            val method = ProcessBsp(details)
+            new GenericConnector(base, compilerOutputDir, capabilities, List(method))
+          }.toEither.left
+          .map(cause => BspConnectionFileError(path, cause))
+    }
+
+    connector.flatMap(_.connect(reporter))
   }
 
   //see SCL-20865
@@ -223,56 +268,4 @@ object BspCommunication {
     val config = bspSettings.serverConfig
     forWorkspace(baseDir, config)
   }
-
-
-  private def prepareSession(
-    base: Path,
-    config: BspServerConfig,
-    project: => Option[Project]
-  )(implicit reporter: BuildReporter): Either[BspError, Builder] = {
-
-    // TODO supported languages should be extendable
-    val supportedLanguages = List("scala","java")
-    val capabilities = BspCapabilities(supportedLanguages)
-    val compilerOutputDir = BspUtil.compilerOutputDirFromConfig(base)
-      .getOrElse(base.resolve("out"))
-    val bloopEnabled = BspUtil.bloopConfigDir(base).isDefined
-
-    def configureBloopLauncherIfJdkExists() =
-      BspJdkUtil.findOrCreateBestJdkForProject(project) match {
-        case Some(jdk) => Right(new BloopLauncherConnector(base, compilerOutputDir, capabilities, jdk))
-        case None => Left(BspNoJdkConfiguredError)
-      }
-
-    val connector: Either[BspError, BspServerConnector] = config match {
-
-      case BspProjectSettings.AutoConfig =>
-        // only use workspace configs for auto-detection, system configs might not be applicable
-        val connectionDetails = BspConnectionConfig.workspaceBspConfigs(base)
-        val configuredMethods = connectionDetails.map(_._2).map(ProcessBsp)
-        if (connectionDetails.nonEmpty)
-          Right(new GenericConnector(base, compilerOutputDir, capabilities, configuredMethods))
-        else if (bloopEnabled)
-          configureBloopLauncherIfJdkExists()
-        else
-          Left(BspInvalidAutoConfigError(base))
-
-      case BspProjectSettings.BloopConfig =>
-        if (bloopEnabled)
-          configureBloopLauncherIfJdkExists()
-        else
-          Left(BspErrorMessage(s"Bloop is not configured for BSP workspace in $base"))
-
-      case BspProjectSettings.BspConfigFile(path) =>
-        BspConnectionConfig.readConnectionFile(path)(new Gson)
-          .map { details =>
-            val method = ProcessBsp(details)
-            new GenericConnector(base, compilerOutputDir, capabilities, List(method))
-          }.toEither.left
-          .map(cause => BspConnectionFileError(path, cause))
-    }
-
-    connector.flatMap(_.connect(reporter))
-  }
-
 }
