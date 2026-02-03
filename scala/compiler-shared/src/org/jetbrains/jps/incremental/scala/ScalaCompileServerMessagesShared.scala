@@ -2,6 +2,7 @@ package org.jetbrains.jps.incremental.scala
 
 import com.intellij.AbstractBundle
 import org.jetbrains.annotations.{Nls, PropertyKey}
+import org.jetbrains.plugins.scala.server.CompileServerProperties
 
 import java.net.InetAddress
 import scala.annotation.varargs
@@ -33,7 +34,7 @@ abstract class ScalaCompileServerMessagesShared(bundle: AbstractBundle) {
 
   @Nls
   def missingScalaCompileServerSystemDir(): String =
-    message("missing.scala.compile.server.system.directory")
+    message("missing.scala.compile.server.system.directory", CompileServerProperties.SystemDirectoryProperty)
 }
 
 object ScalaCompileServerMessagesShared {

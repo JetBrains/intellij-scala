@@ -1,7 +1,5 @@
 package org.jetbrains.jps.incremental.scala.model.impl;
 
-import com.intellij.util.xmlb.XmlSerializerUtil;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jps.incremental.scala.model.GlobalSettings;
 import org.jetbrains.jps.model.ex.JpsElementBase;
 
@@ -20,11 +18,6 @@ public class GlobalSettingsImpl extends JpsElementBase<GlobalSettingsImpl> imple
   }
 
   @Override
-  public int getCompileServerPort() {
-    return myState.COMPILE_SERVER_PORT;
-  }
-
-  @Override
   public String getCompileServerSdk() {
     return myState.COMPILE_SERVER_SDK;
   }
@@ -37,7 +30,6 @@ public class GlobalSettingsImpl extends JpsElementBase<GlobalSettingsImpl> imple
   @SuppressWarnings("JavadocReference")
   public static class State {
     public boolean COMPILE_SERVER_ENABLED = true;
-    public int COMPILE_SERVER_PORT = 3200;
     public String COMPILE_SERVER_SDK;
   }
 }

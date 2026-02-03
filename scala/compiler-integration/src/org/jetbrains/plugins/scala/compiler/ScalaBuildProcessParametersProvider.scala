@@ -6,6 +6,7 @@ import com.intellij.openapi.util.registry.Registry
 import org.jetbrains.jps.api.GlobalOptions
 import org.jetbrains.plugins.scala.compiler.data.SbtData
 import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.server.CompileServerProperties
 import org.jetbrains.plugins.scala.settings.{ScalaCompileServerSettings, ScalaHighlightingMode}
 
 import java.util.Collections
@@ -49,7 +50,7 @@ class ScalaBuildProcessParametersProvider(project: Project)
   private def addOpens(): Seq[String] = CompileServerLauncher.compileServerJvmAddOpensExtraParams
 
   private def scalaCompileServerSystemDir(): String =
-    s"-Dscala.compile.server.system.dir=${CompileServerLauncher.scalaCompileServerSystemDir(project)}"
+    s"-D${CompileServerProperties.SystemDirectoryProperty}=${CompileServerLauncher.scalaCompileServerSystemDir(project)}"
 
   private def java9rtParams(): Seq[String] = {
     val settings = ScalaCompileServerSettings.getInstance()
