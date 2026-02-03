@@ -23,7 +23,7 @@ import org.jetbrains.jps.cmdline.ClasspathBootstrap
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
-import org.jetbrains.plugins.scala.server.{CompileServerProperties, CompileServerToken}
+import org.jetbrains.plugins.scala.server.{CompileServerPort, CompileServerProperties, CompileServerToken}
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.util._
 import org.jetbrains.plugins.scala.util.teamcity.TeamcityUtils
@@ -110,11 +110,6 @@ object CompileServerLauncher {
             .map(_.toCanonicalPath.toString) ++ buildProcessClasspath
 
         val freePort = CompileServerLauncher.findFreePort
-        if (settings.COMPILE_SERVER_PORT != freePort) {
-          new RemoteServerStopper(settings.COMPILE_SERVER_PORT).sendStop()
-          settings.COMPILE_SERVER_PORT = freePort
-          saveSettings()
-        }
         deleteOldTokenFile(scalaCompileServerSystemDir(project), freePort)
         val id = settings.COMPILE_SERVER_ID
 
@@ -126,7 +121,7 @@ object CompileServerLauncher {
 
         val jpsUseUnifiedIC = isJpsUseUnifiedIC
 
-        val vmOptions = if (isUnitTestMode && project == null) Seq.empty else {
+        val vmOptions = if (project.isDisposed) Seq.empty else {
           // Duplicated --add-opens parameters are inherited from this extension point
           // through ScalaBuildProcessParametersProvider. This filtering also helps to not
           // pass --add-opens parameters to JDK 8 and lower.
@@ -580,7 +575,7 @@ object CompileServerLauncher {
   }
 
   private def findFreePort: Int = {
-    val port = ScalaCompileServerSettings.getInstance().COMPILE_SERVER_PORT
+    val port = CompileServerPort.DefaultPort
     if (!isUsed(port)) port else {
       LOG.info(s"compile server port is already used ($port), searching for available port")
       val result = NetUtils.findAvailableSocketPort()

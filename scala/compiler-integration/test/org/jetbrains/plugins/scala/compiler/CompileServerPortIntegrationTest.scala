@@ -3,9 +3,8 @@ package org.jetbrains.plugins.scala.compiler
 import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.compiler.CompilerMessagesUtil.assertNoErrorsOrWarnings
-import org.jetbrains.plugins.scala.server.{CompileServerPort, CompileServerToken}
-import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
-import org.junit.Assert.assertTrue
+import org.jetbrains.plugins.scala.server.CompileServerPort
+import org.junit.Assert.{assertEquals, assertTrue}
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -13,13 +12,13 @@ import org.junit.runners.JUnit4
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 @RunWith(classOf[JUnit4])
-class CompileServerTokenIntegrationTest extends ScalaCompilerTestBase {
+class CompileServerPortIntegrationTest extends ScalaCompilerTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
 
   override def testProjectJdkVersion: LanguageLevel = LanguageLevel.JDK_21
 
   @Test
-  def tokenCreated(): Unit = {
+  def portFileCreated(): Unit = {
     addFileToProjectSources("org/example/Person.scala",
       """package org.example
         |
@@ -30,13 +29,10 @@ class CompileServerTokenIntegrationTest extends ScalaCompilerTestBase {
     assertNoErrorsOrWarnings(messages)
 
     val compileServerSystemDir = CompileServerLauncher.scalaCompileServerSystemDir(getProject)
-    val port = CompileServerLauncher.port.getOrElse(CompileServerPort.DefaultPort)
-    val token = CompileServerToken.tokenForPort(compileServerSystemDir, port)
-    assertTrue("Could not read the Scala Compile Server token for the test project", token.nonEmpty)
-    assertTrue("The token string is empty", token.get.nonEmpty)
-
-    // The exact value of the token is intentionally not asserted as we intentionally do not have a way of injecting
-    // a specific token value for tests. If we did, this would open up a way to provide a token value and take control
-    // of the Scala Compile Server for untrusted code execution.
+    val expected = CompileServerLauncher.port
+    assertTrue(s"Compile server is not running", CompileServerLauncher.running)
+    assertTrue(s"Compile server port is not defined", expected.isDefined)
+    val actual = CompileServerPort.readPortFile(compileServerSystemDir)
+    assertEquals(expected, actual)
   }
 }

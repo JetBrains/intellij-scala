@@ -7,7 +7,7 @@ import org.jetbrains.annotations.{ApiStatus, Nullable}
 import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.remote.RemoteResourceOwner
 import org.jetbrains.plugins.scala.compiler.RemoteServerRunner._
-import org.jetbrains.plugins.scala.server.CompileServerToken
+import org.jetbrains.plugins.scala.server.{CompileServerPort, CompileServerToken}
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 
 import java.net.{ConnectException, InetAddress, UnknownHostException}
@@ -28,7 +28,7 @@ final class RemoteServerRunner(@Nullable project: Project) extends RemoteResourc
 
   override protected val address: InetAddress = InetAddress.getByName(null)
 
-  override protected val port: Int = ScalaCompileServerSettings.getInstance().COMPILE_SERVER_PORT
+  override protected val port: Int = CompileServerLauncher.port.getOrElse(CompileServerPort.DefaultPort)
 
   override protected val socketConnectTimeout: FiniteDuration =
     RegistryManager.getInstance().intValue("scala.compile.server.socket.connect.timeout.milliseconds").milliseconds

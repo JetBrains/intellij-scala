@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.compiler.testUtils
+package org.jetbrains.plugins.scala.compiler
 
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.server.CompileServerToken

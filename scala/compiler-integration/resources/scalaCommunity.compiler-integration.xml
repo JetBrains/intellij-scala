@@ -32,6 +32,8 @@
 
         <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.compiler.WriteScalaJpsProjectMetadataCompileTask"/>
 
+        <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.compiler.PrepareCompileServerTask"/>
+
         <compiler.isUpToDateCheckConsumer implementation="org.jetbrains.plugins.scala.compiler.highlighting.CompilerHighlightingUpToDateChecker"/>
         <compiler.isUpToDateCheckConsumer implementation="org.jetbrains.plugins.scala.compiler.references.compilation.IsUpToDateChecker"/>
 
@@ -78,9 +80,6 @@
                   class="org.jetbrains.plugins.scala.compiler.charts.CompilationChartsBuildManagerListener"/>
         <listener topic="com.intellij.compiler.server.BuildManagerListener"
                   class="org.jetbrains.plugins.scala.compiler.highlighting.CompilerHighlightingBuildManagerListener"/>
-
-        <listener topic="com.intellij.compiler.server.BuildManagerListener"
-                  class="org.jetbrains.plugins.scala.compiler.CompileServerBuildManagerListener"/>
 
         <listener topic="org.jetbrains.plugins.scala.compiler.CompileServerErrorListener"
                   class="org.jetbrains.plugins.scala.compiler.CompileServerErrorListenerImpl"

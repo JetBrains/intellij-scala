@@ -18,7 +18,6 @@ public class ScalaCompileServerSettings implements PersistentStateComponent<Scal
   //ATTENTION: these field names should be the same as in
   //org.jetbrains.jps.incremental.scala.model.impl.GlobalSettingsImpl.State (see it's JavaDoc)
   public boolean COMPILE_SERVER_ENABLED = true;
-  public int COMPILE_SERVER_PORT = 3200;
   public String COMPILE_SERVER_SDK;
 
   //is not accessible from UI, but is serialized and used in jps-plugin

@@ -1,15 +1,15 @@
 package org.jetbrains.plugins.scala.server
 
-import scala.util.Try
-
 object CompileServerProperties {
 
   final val IsScalaCompileServer = "ij.scala.compile.server"
+
+  final val SystemDirectoryProperty = "scala.compile.server.system.dir"
   
   def isMyselfScalaCompileServer: Boolean = {
     val optionResult = for {
       value <- sys.props.get(IsScalaCompileServer)
-      booleanValue <- Try(value.toBoolean).toOption
+      booleanValue <- value.toBooleanOption
     } yield booleanValue
     optionResult.getOrElse(false)
   }

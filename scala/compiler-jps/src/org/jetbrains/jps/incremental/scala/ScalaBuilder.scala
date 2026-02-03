@@ -12,10 +12,10 @@ import org.jetbrains.jps.model.JpsProject
 import org.jetbrains.jps.model.module.{JpsModule, JpsModuleDependency}
 import org.jetbrains.plugins.scala.compiler.MissingScalaSdk
 import org.jetbrains.plugins.scala.compiler.data.{CompilationData, SbtData}
-import org.jetbrains.plugins.scala.server.CompileServerProperties
+import org.jetbrains.plugins.scala.server.{CompileServerPort, CompileServerProperties}
 
 import java.net.InetAddress
-import java.nio.file.Path
+import java.nio.file.{Path, Paths}
 import java.util.concurrent.atomic.AtomicBoolean
 import scala.concurrent.duration.DurationInt
 import scala.jdk.CollectionConverters._
@@ -197,13 +197,16 @@ object ScalaBuilder {
   }
 
   private def getServer(implicit context: CompileContext): Server = {
+    lazy val remoteServerPort = readCompileServerPort()
+
     val useRemoteServer = isCompileServerEnabled &&
       !CompileServerProperties.isMyselfScalaCompileServer &&
-      !context.getUserData(DisableScalaCompileServerForContextKey)
+      !context.getUserData(DisableScalaCompileServerForContextKey) &&
+      remoteServerPort.isDefined
 
     if (useRemoteServer) {
       cleanLocalServerCache()
-      val port = globalSettings.getCompileServerPort
+      val port = remoteServerPort.get
       Log.info(s"Using remote server with port: $port")
       val socketConnectTimeout = Option(System.getProperty("scala.compile.server.socket.connect.timeout.milliseconds")).map(_.toInt.milliseconds).getOrElse(10.milliseconds)
       new remote.RemoteServer(InetAddress.getByName(null), port, socketConnectTimeout)
@@ -212,6 +215,11 @@ object ScalaBuilder {
       localServer
     }
   }
+
+  private def readCompileServerPort(): Option[Int] =
+    Option(System.getProperty(CompileServerProperties.SystemDirectoryProperty))
+      .map(Paths.get(_))
+      .flatMap(CompileServerPort.readPortFile)
 
   def isCompileServerEnabled(implicit context: CompileContext): Boolean =
     globalSettings.isCompileServerEnabled
