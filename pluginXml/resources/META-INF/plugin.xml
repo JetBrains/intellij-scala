@@ -58,6 +58,7 @@
         <module name="scalaCommunity.debugger" />
         <module name="scalaCommunity.compiler-integration" />
         <module name="scalaCommunity.structural-search" />
+        <module name="scalaCommunity.uast" />
 
         <!-- integrations -->
         <module name="scalaCommunity.copyright" />
@@ -86,8 +87,6 @@
     <xi:include href="/META-INF/structure-view.xml"/>
     <xi:include href="/META-INF/scala-meta-impl.xml"/>
     <xi:include href="/META-INF/scalastyle-integration.xml"/>
-    <xi:include href="/META-INF/uast.xml"/>
-
 
     <!-- Include the ultimate part of our plugin -->
     <xi:include href="/META-INF/scala-ultimate-plugin.xml">

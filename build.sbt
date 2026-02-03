@@ -187,7 +187,8 @@ lazy val uast = newProject(
 ).settings(
   intellijPlugins += "JUnit".toPlugin,
   resolvers += Versions.IntellijTestFrameworkArtifactsResolver,
-  libraryDependencies += Dependencies.intellijUastTestFramework % Test
+  libraryDependencies += Dependencies.intellijUastTestFramework % Test,
+  packageMethod := PackagingMethod.PluginModule("scalaCommunity.uast"),
 )
 
 lazy val worksheet =
