@@ -1,5 +1,6 @@
 package org.jetbrains.scalaCli.project.importing
 
+import com.intellij.openapi.progress.ProgressIndicator
 import org.jetbrains.bsp.project.importing.setup.CommandBasedBspConfigSetup
 import org.jetbrains.scalaCli.ScalaCliUtils
 import org.jetbrains.scalaCli.ScalaCliUtils.getScalaCliCommand
@@ -12,8 +13,8 @@ final class ScalaCliConfigSetup(workspace: Path) extends CommandBasedBspConfigSe
 
   override protected def serverName: String = "Scala CLI"
 
-  override protected def installCommand(workspace: Path): Try[Seq[String]] =
-    ScalaCliUtils.detectScalaCliInstallKind(workspace) match {
+  override protected def installCommand(workspace: Path, indicator: ProgressIndicator): Try[Seq[String]] =
+    ScalaCliUtils.detectScalaCliInstallKind(workspace, indicator) match {
       case Some(scalaCliInstallKind) =>
         Success(Seq(getScalaCliCommand(scalaCliInstallKind), "setup-ide", "."))
       case None =>

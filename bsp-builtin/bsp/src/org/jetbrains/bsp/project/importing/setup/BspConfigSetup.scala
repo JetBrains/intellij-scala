@@ -28,10 +28,15 @@ abstract class CommandBasedBspConfigSetup(workspace: Path) extends BspConfigSetu
   protected def serverName: String
 
   /** Returns the command to run for BSP installation. */
-  protected def installCommand(workspace: Path): Try[Seq[String]]
+  protected def installCommand(workspace: Path, indicator: ProgressIndicator): Try[Seq[String]]
 
-  override def cancel(): Unit =
-    currentIndicator.foreach(_.cancel())
+  override def cancel(): Unit = {
+    currentIndicator.foreach { indicator =>
+      if (!indicator.isCanceled)
+        indicator.cancel()
+    }
+    currentIndicator = None
+  }
 
   override def run(indicator: ProgressIndicator)(implicit reporter: BuildReporter): Try[BuildMessages] = {
     currentIndicator = Some(indicator)
@@ -46,10 +51,10 @@ abstract class CommandBasedBspConfigSetup(workspace: Path) extends BspConfigSetu
     val dumpTaskId = EventId(s"dump:${UUID.randomUUID()}")
     reporter.startTask(dumpTaskId, None, BspBundle.message("bsp.resolver.installing.configuration", serverName))
 
-    val command = installCommand(workspace)
+    val command = installCommand(workspace, indicator)
     val work = command.toEither.flatMap { cmd =>
       reporter.log(BspBundle.message("bsp.resolver.installing.configuration.command", cmd.mkString(" ")))
-      BspUtil.runCommand(workspace, Some(indicator), cmd: _*)
+      BspUtil.runCommand(workspace, indicator, cmd: _*)
     }
 
     def finishInstallTask(errorMsg: Option[String], result: EventResult, status: BuildMessages.BuildStatus): Try[BuildMessages] = {
