@@ -26,16 +26,14 @@ import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.server.{CompileServerProperties, CompileServerToken}
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.util._
-
-import java.util.concurrent.ConcurrentHashMap
-import scala.concurrent.duration._
-import scala.io.Source
-
 import org.jetbrains.plugins.scala.util.teamcity.TeamcityUtils
 
 import java.io.{BufferedReader, IOException, InputStreamReader}
 import java.nio.file.{Files, Path}
+import java.util.concurrent.ConcurrentHashMap
 import scala.collection.mutable
+import scala.concurrent.duration._
+import scala.io.Source
 import scala.jdk.CollectionConverters._
 import scala.util.Try
 import scala.util.control.Exception._
@@ -102,15 +100,11 @@ object CompileServerLauncher {
         val (nailgunCpFiles, classpathFiles) = presentFiles.partition(_.nameContains("nailgun"))
         val nailgunClasspath = nailgunCpFiles
           .map(_.toCanonicalPath.toString).mkString(java.io.File.pathSeparator)
-        val buildProcessClasspath = {
-          // in worksheet tests we reuse compile server between projects
-          // we initialize it before the first test starts, so the project is `null`
-          // TODO: make project "Option"
-          val pluginsClasspath = if (isUnitTestMode && (project eq null) || project.isDisposed) Seq() else
-            new BuildProcessClasspathManager(project.unloadAwareDisposable).getBuildProcessPluginsClasspath(project).asScala.toSeq
-          val applicationClasspath = ClasspathBootstrap.getBuildProcessApplicationClasspath.asScala
-          pluginsClasspath ++ applicationClasspath
-        }
+
+        val buildProcessClasspath =
+          if (project.isDisposed) Seq.empty
+          else new BuildProcessClasspathManager(project.unloadAwareDisposable).getBuildProcessClasspath(project).asScala.toSeq
+
         val classpath =
           (jdk.tools ++ classpathFiles)
             .map(_.toCanonicalPath.toString) ++ buildProcessClasspath
