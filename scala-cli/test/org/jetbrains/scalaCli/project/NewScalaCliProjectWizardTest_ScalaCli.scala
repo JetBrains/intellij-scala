@@ -140,7 +140,9 @@ abstract class NewScalaCliProjectWizardTestBase extends NewScalaProjectWizardTes
     val os = if (SystemInfo.isLinux) "pc-linux-static" else "apple-darwin"
     val archiveName = s"scala-cli-$cpuArch-$os.gz"
 
-    val curlCommand = s"curl --fail --location https://github.com/Virtuslab/scala-cli/releases/latest/download/$archiveName"
+    // TODO described in org.jetbrains.scalaCli.project.NewScalaCliProjectWizard_ScalaWithScalaCLI.scalaVersionsParameters
+    //  (the URL for latest version https://github.com/Virtuslab/scala-cli/releases/latest/download/$archiveName)
+    val curlCommand = s"curl --fail --location https://github.com/VirtusLab/scala-cli/releases/download/v1.9.1/$archiveName"
     val gzipCommand = "gzip --decompress"
     val curlProcess = Process(curlCommand) #| Process(gzipCommand, projectDirectory.toFile)
 
@@ -278,8 +280,16 @@ class NewScalaCliProjectWizard_ScalaWithoutScalaCLI extends NewScalaCliProjectWi
 class NewScalaCliProjectWizard_ScalaWithScalaCLI extends NewScalaCliProjectWizardTestBase {
 
   @unused
-  private def scalaVersionsParameters: Array[AnyRef] =
-    LatestScalaVersions.allScalaNext.filterNot(_ == Scala_3_4).toArray
+  private def scalaVersionsParameters: Array[AnyRef] = {
+    // TODO
+    //  Remove the Scala 3.8 version from ignored list and update the Scala CLI standalone installation method
+    //  to use the latest version once the issue with downloading artifacts from the Sonatype snapshots repo is fixed in Scala CLI.
+    //  The Sonatype snapshots repo used in Scala CLI behaves unpredictably in some cases.
+    //  For certain dependencies, requests may hang indefinitely, preventing the BSP server from starting and causing test failures.
+    //  This issue occurs with Scala CLI 1.12.1 (used with Scala 3.8.1), where it hangs while downloading bloop artifacts.
+    val ignored = Seq(Scala_3_4, Scala_3_8)
+    LatestScalaVersions.allScalaNext.diff(ignored).toArray
+  }
 
   @Test
   @Parameters(method = "scalaVersionsParameters")
