@@ -1,3 +1,4 @@
+//noinspection ApiStatus,UnstableApiUsage
 package org.jetbrains.plugins.scala.compiler
 
 import com.intellij.compiler.server.BuildProcessParametersProvider
@@ -30,7 +31,6 @@ import java.util.concurrent.ConcurrentHashMap
 import scala.concurrent.duration._
 import scala.io.Source
 
-//noinspection ApiStatus,UnstableApiUsage
 import org.jetbrains.plugins.scala.util.teamcity.TeamcityUtils
 
 import java.io.{BufferedReader, IOException, InputStreamReader}
@@ -103,7 +103,6 @@ object CompileServerLauncher {
         val nailgunClasspath = nailgunCpFiles
           .map(_.toCanonicalPath.toString).mkString(java.io.File.pathSeparator)
         val buildProcessClasspath = {
-          //noinspection ApiStatus
           // in worksheet tests we reuse compile server between projects
           // we initialize it before the first test starts, so the project is `null`
           // TODO: make project "Option"
@@ -212,7 +211,7 @@ object CompileServerLauncher {
               }
             }
 
-            val watcher = new ProcessWatcher(process, "scalaCompileServer")
+            val watcher = new ProcessWatcher(process, "scalaCompileServer", local = EelPathUtils.isProjectLocal(project))
             val instance = new ServerInstance(
               watcher = watcher,
               port = freePort,
@@ -333,7 +332,7 @@ object CompileServerLauncher {
   def running: Boolean = serverInstance.exists(_.running)
 
   def port: Option[Int] = serverInstance.map(_.port)
-  def pid: Option[Long] = serverInstance.map(_.watcher.pid)
+  def pid: Option[Long] = serverInstance.flatMap(_.watcher.pid)
 
   def defaultSdk(project: Project): Sdk =
     CompileServerJdkManager.recommendedJdk(project)._1
@@ -620,7 +619,6 @@ object CompileServerLauncher {
 
   private final val ScalaCompileServerDirName = "scala-compile-server"
 
-  //noinspection ApiStatus,UnstableApiUsage
   def scalaCompileServerSystemDir(project: Project): Path = {
     val eelDescriptor = EelProviderUtil.getEelDescriptor(project)
     val systemDir =

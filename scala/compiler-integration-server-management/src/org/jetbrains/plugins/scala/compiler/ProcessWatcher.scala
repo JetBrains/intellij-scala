@@ -10,8 +10,13 @@ import org.jetbrains.jps.incremental.scala.utils.CompileServerSharedMessages
 import org.jetbrains.plugins.scala.compiler.ProcessWatcher.Log
 import org.jetbrains.plugins.scala.extensions.invokeLater
 
-private final class ProcessWatcher(process: Process, commandLine: String) {
-  private val processHandler = new OSProcessHandler(process, commandLine) {
+/**
+ * @param process an instance of the running Scala Compile Server process
+ * @param commandLine the command line used for starting the Scala Compile Server process
+ * @param local true if the process is running on the same machine where IntelliJ IDEA is running
+ */
+private final class ProcessWatcher(process: Process, commandLine: String, local: Boolean) {
+  private val processHandler: OSProcessHandler = new OSProcessHandler(process, commandLine) {
     override def readerOptions(): BaseOutputReader.Options = BaseOutputReader.Options.BLOCKING
   }
 
@@ -29,7 +34,12 @@ private final class ProcessWatcher(process: Process, commandLine: String) {
 
   def running: Boolean = !processHandler.isProcessTerminated
 
-  def pid: Long = process.pid()
+  /**
+   * @return the PID of the running Scala Compile Serve process only if the process is running on the same machine
+   *         where IntelliJ IDEA is running
+   */
+  def pid: Option[Long] =
+    Option.when(local)(process.pid())
 
   def destroyAndWait(): Boolean = {
     processHandler.destroyProcess()
@@ -87,7 +97,8 @@ private final class ProcessWatcher(process: Process, commandLine: String) {
     }
 
     override def processTerminated(event: ProcessEvent): Unit = {
-      Log.info(s"compile server process terminated with exit code: ${event.getExitCode} (pid: ${process.pid()}) ")
+      val pidStr = pid.map(p => s"(PID: $p)").getOrElse("(PID not available for remote processes)")
+      Log.info(s"compile server process terminated with exit code: ${event.getExitCode} $pidStr")
     }
   }
 }

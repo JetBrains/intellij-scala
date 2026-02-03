@@ -20,7 +20,7 @@ private final class ServerInstance(
 
   def stopped: Boolean = _stopped
 
-  def pid: Long = watcher.pid
+  def pid: String = watcher.pid.fold("N/A")(_.toString)
 
   def destroyAndWait(): Boolean = {
     _stopped = true
