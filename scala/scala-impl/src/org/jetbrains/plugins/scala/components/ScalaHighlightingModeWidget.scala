@@ -47,7 +47,8 @@ private final class ScalaHighlightingModeWidget(project: Project)
 
     val compilerOptions =
       s"<tr><td>${message("scala.highlighting.mode.widget.built.in.inspections")}:</td><td style='margin-left: 7px;'>${optionText(builtInInspections)}</td></tr>" +
-        s"<tr><td>${message("scala.highlighting.mode.widget.compiler.types")}:</td><td style='margin-left: 7px;'>${optionText(settings.isUseCompilerTypes)}</td></tr>"
+        s"<tr><td>${message("scala.highlighting.mode.widget.compiler.types")}:</td><td style='margin-left: 7px;'>${optionText(settings.isUseCompilerTypes)}</td></tr>" +
+        s"<tr><td>${message("scala.highlighting.mode.widget.compiler.delay")}:</td><td style='margin-left: 7px;'>${settings.getCompilerHighlightingDelay} ${message("scala.highlighting.mode.widget.compiler.ms")}</td></tr>"
 
     def modeText(mode: Mode) = if (mode) message("type.checker.compiler") else message("type.checker.built.in")
 
