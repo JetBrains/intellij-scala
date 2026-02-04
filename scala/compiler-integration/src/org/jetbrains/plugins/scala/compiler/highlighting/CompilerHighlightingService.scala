@@ -118,7 +118,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
     } else {
       val sourceScope = calculateSourceScope(virtualFile)
       val scope = FileCompilationScope(virtualFile, module, sourceScope, document, psiFile)
-      schedule(CompilationRequest.IncrementalRequest(Map(virtualFile -> scope), debugReason, CompilationRequest.compilationDeadline))
+      schedule(CompilationRequest.IncrementalRequest(Map(virtualFile -> scope), debugReason, CompilationRequest.compilationDeadline(project)))
     }
   }
 
@@ -131,7 +131,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
   ): Unit = {
     val sourceScope = calculateSourceScope(virtualFile)
     val scope = FileCompilationScope(virtualFile, module, sourceScope, document, psiFile)
-    schedule(CompilationRequest.DocumentRequest(scope, debugReason, CompilationRequest.compilationDeadline))
+    schedule(CompilationRequest.DocumentRequest(scope, debugReason, CompilationRequest.compilationDeadline(project)))
   }
 
   def triggerWorksheetCompilation(
@@ -141,7 +141,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
     isFirstTimeHighlighting: Boolean,
     debugReason: String
   ): Unit =
-    schedule(CompilationRequest.WorksheetRequest(psiFile, virtualFile, document, isFirstTimeHighlighting, debugReason, CompilationRequest.compilationDeadline))
+    schedule(CompilationRequest.WorksheetRequest(psiFile, virtualFile, document, isFirstTimeHighlighting, debugReason, CompilationRequest.compilationDeadline(project)))
 
   private[highlighting] def saveProjectOnNextCompilation(): Unit = {
     projectSaveTracker.set(true)
@@ -183,7 +183,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
       //Otherwise if you open non-compiled project and open worksheet it will contain red code
       val sourceScope = calculateSourceScope(virtualFile)
       val scope = FileCompilationScope(virtualFile, module, sourceScope, document, file)
-      val incrementalRequest = CompilationRequest.IncrementalRequest(Map(virtualFile -> scope), debugReason, CompilationRequest.compilationDeadline)
+      val incrementalRequest = CompilationRequest.IncrementalRequest(Map(virtualFile -> scope), debugReason, CompilationRequest.compilationDeadline(project))
       executeIncrementalCompilationRequest(incrementalRequest, runDocumentCompiler = false)
     }
 
@@ -592,7 +592,7 @@ private final class CompilerHighlightingService(project: Project, coroutineScope
             }
 
           case RequestState.NotReady =>
-            val delayed = request.delayed(CompilationRequest.compilationDeadline)
+            val delayed = request.delayed(CompilationRequest.compilationDeadline(project))
             priorityQueue.add(delayed)
 
           case RequestState.Expired =>
