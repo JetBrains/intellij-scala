@@ -85,8 +85,10 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
 
         error match {
           case _: BspConnectionConfigError =>
-            val project = findProject
-            project.foreach(showRegenerateBspConnectionFileNotification)
+            findProject.foreach { project =>
+              val service = BspRegenerateBspConnectionFileNotificationService.getInstance(project)
+              service.showRegenerateBspConnectionFileNotification(base)
+            }
           case _ =>
         }
 
@@ -176,52 +178,6 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
           runningBspConfigSetup.set(None)
         }
       }
-    }
-  }
-
-  //see SCL-20865
-  private def showRegenerateBspConnectionFileNotification(project: Project): Unit = {
-    val RegenerateFileAndReloadAction = new NotificationAction(BspBundle.message("regenerate.file.and.reload")) {
-      override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
-        generateBspCommunicationFile(project)
-        refreshProject(project)
-
-        notification.hideBalloon()
-      }
-    }
-    val RegenerateFileAction = new NotificationAction(BspBundle.message("regenerate.file")) {
-      override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
-        generateBspCommunicationFile(project)
-
-        notification.hideBalloon()
-      }
-    }
-
-    BSP.NotificationGroup
-      .createNotification(
-        BspBundle.message("unable.to.read.bsp.connection.file"),
-        NotificationType.WARNING
-      )
-      .addAction(RegenerateFileAndReloadAction)
-      .addAction(RegenerateFileAction)
-      .notify(project)
-  }
-
-  private def generateBspCommunicationFile(project: Project): Unit = {
-    val generateBspConfig = new GenerateBspConfig(project, base)
-    generateBspConfig.runSynchronously()
-  }
-
-  private def refreshProject(project: Project): Unit = {
-    // We save all documents because there is a possible case that there is an external system config file changed inside the ide
-    FileDocumentManager.getInstance.saveAllDocuments()
-    val systemId = BSP.ProjectSystemId
-
-    //can't call async version `confirmLoadingUntrustedProjectAsync` from Scala (or Java)
-    //because it uses Kotlin coroutines
-    val confirmed = ExternalSystemTrustedProjectDialog.confirmLoadingUntrustedProject(project, systemId)
-    if (confirmed) {
-      ExternalSystemUtil.refreshProjects(new ImportSpecBuilder(project, systemId))
     }
   }
 
