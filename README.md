@@ -129,10 +129,12 @@ UI Designer uses different border class in internal mode, see `com.intellij.uiDe
   To view the current memory usage, right-click the status bar and enable *Memory Indicator* (or *Find Action* "CPU and Memory Live Charts"). If necessary, use *Help | Change Memory Settings* to increase the maximum heap size.
 - **Make code highlighting-friendly** \
   In the same way code has runtime performance, code has compile-time performance. "The laws of highlighting," just as the laws of physics, are real and should be respected for highlighting to be efficient. Please see the guidelines for [how to make code highlighting-friendly](https://youtrack.jetbrains.com/issue/SCL-24113).
-- **Try *Incremental Highlighting***  \
-  When using the built-in highlighting, you can enable *Settings | Languages | Scala | Editor | Incremental highlighting* to [highlight only what's visible](https://youtrack.jetbrains.com/issue/SCL-23216). (Double-press Esc to highlight the entire file.) This helps reduce CPU, RAM, and battery use, especially in large complex files, and also increase responsiveness.
-- **Use compiler-based highlighting without inspections** \
+- **Try *Incremental Highlighting*** \
+  When using the *Built-in* highlighting, you can enable *Settings | Languages | Scala | Editor | Incremental highlighting* to [highlight only what's visible](https://youtrack.jetbrains.com/issue/SCL-23216). (Double-press `Esc` to highlight the entire file.) This helps reduce CPU, RAM, and battery use, especially in large complex files, and also increase responsiveness.
+- **Use *Compiler* highlighting without inspections** \
   Using *Settings | Languages | Scala | Editor | Error highlighting: Compiler* helps with false errors in complex code, but in normal cases it's usually slower and consumes more resources. However, if you also *Disable built-in inspections*, this can help with CPU, RAM, and battery use in cases challenging for the built-in type inference.
+- **Use *Built-in* highlighting if the code doesn't compile** \
+  If the code doesn't compile cleanly, the *Compiler* highlighting is particularly inefficient. In such a case, try the *Built-in* highlighting, possibly with *Incremental Highlighting*. (If there are false positives, you can disable the *Type-aware* option.)
 - **Capture CPU and memory snapshots** \
   Sometimes, performance issues are inherent and depend on the code. Other times, the cause is an inefficiency in the algorithms. Follow the guidelines for [reporting performance problems](https://intellij-support.jetbrains.com/hc/en-us/articles/207241235-Reporting-performance-problems) to capture CPU and memory snapshots and post them to the [issue tracker](https://youtrack.jetbrains.com/issues/SCL#newissue), which can help us diagnose and fix the issue.
 - **Profile the plugin** \
