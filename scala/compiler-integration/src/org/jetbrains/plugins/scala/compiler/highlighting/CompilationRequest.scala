@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.compiler.highlighting
 
 import com.intellij.openapi.editor.Document
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
@@ -79,5 +80,5 @@ private object CompilationRequest {
     else x.deadline compare y.deadline
   }
 
-  def compilationDeadline: Deadline = Deadline.now + ScalaHighlightingMode.compilationDelay
+  def compilationDeadline(project: Project): Deadline = Deadline.now + ScalaHighlightingMode.compilationDelay(project)
 }

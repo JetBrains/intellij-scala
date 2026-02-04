@@ -655,8 +655,6 @@
         <filetype.decompiler filetype="TASTy" implementationClass="org.jetbrains.plugins.scala.tasty.TastyDecompiler"/>
         <syntaxHighlighter id="tasty.file" key="TASTy" factoryClass="org.jetbrains.plugins.scala.tasty.TastySyntaxHighlighterFactory"/>
 
-        <registryKey key="scala.highlighting.compilation.delay.millis" defaultValue="750" restartRequired="false"
-                     description="Delay between runs of the compilation for highlighting, millis"/>
         <registryKey key="scala.highlighting.compilation.timeout.to.show.progress.millis" defaultValue="7000" restartRequired="false"
                      description="The progress of compilation for highlighting will be shown after this timeout"/>
         <registryKey key="scala.test.framework.runner.log.raw.process.output" defaultValue="false" restartRequired="false"
