@@ -34,18 +34,6 @@ public class Utils {
         setupMethod.invoke(null, ngServer);
     }
 
-    /**
-     * Reflectively calls `org.jetbrains.plugins.scala.server.CompileServerToken.tokenPathForPort`. This avoids
-     * duplicating the code.
-     */
-    public static Path tokenPathForPort(ClassLoader classLoader, Path scalaCompileServerSystemDir, int port)
-            throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        final Class<?> cls = Class.forName(COMPILE_SERVER_TOKEN_OBJECT_NAME, true, classLoader);
-        final Method method = cls.getMethod("tokenPathForPort", Path.class, int.class);
-        method.setAccessible(true);
-        return (Path) method.invoke(null, scalaCompileServerSystemDir, port);
-    }
-
     private Utils() {
 
     }
