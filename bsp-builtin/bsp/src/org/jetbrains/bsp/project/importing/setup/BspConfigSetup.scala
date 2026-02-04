@@ -13,6 +13,12 @@ import scala.util.Try
 
 abstract class BspConfigSetup {
   def cancel(): Unit
+  /**
+   * Since `BspConfigSetup` can be run as part of the import and build process, it’s necessary to keep in mind:
+   *  - Proper indicator handling to allow the `BspConfigSetup` task to be canceled
+   *  - Starting an additional task or displaying a node via the `BuildReporter` to indicate that the BSP config task is running.
+   *    (it currently does not work in the build, only in the sync window)
+   */
   def run(indicator: ProgressIndicator)(implicit reporter: BuildReporter): Try[BuildMessages]
 }
 

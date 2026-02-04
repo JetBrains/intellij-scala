@@ -152,7 +152,13 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
     preImportMessages match {
       case Success(messages) if messages.status == BuildMessages.OK =>
         val projectJob: BspJob[(DataNode[ProjectData], BuildMessages)] =
-          communication.run(requests(workspace)(_, _,reporter), BuildMessages.empty, notifications, reporter.log)
+          communication.run(
+            requests(workspace)(_, _,reporter), 
+            BuildMessages.empty, 
+            notifications, 
+            reporter.log,
+            canGenerateBspConfigFile = true
+          )
 
         val value = waitForProjectCancelable(projectJob)
         value match {
@@ -266,8 +272,8 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
     importState match {
       case PreImportTask(preImporter) =>
         doCancel { preImporter.cancel() }
-      case BspTask(_) =>
-        doCancel {}
+      case BspTask(communication) =>
+        doCancel { communication.cancelConfigGeneration() }
       case Active =>
         doCancel {}
       case Inactive =>

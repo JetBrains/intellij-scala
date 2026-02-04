@@ -7,7 +7,7 @@ import com.intellij.execution.process.ProcessOutputType
 import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent}
-import com.intellij.openapi.progress.ProcessCanceledException
+import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator}
 import com.intellij.openapi.project.{DumbAwareAction, Project}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
@@ -159,11 +159,13 @@ class BuildToolWindowReporter(project: Project,
 }
 
 object BuildToolWindowReporter {
-  class CancelBuildAction(cancelToken: Promise[?])
+  /** Action to cancel an ongoing build by failing the promise and canceling the progress indicator. */
+  class CancelBuildAction(cancelToken: Promise[?], indicator: Option[ProgressIndicator])
     extends DumbAwareAction(SbtBundle.message("report.build.toolwindow.cancel"), SbtBundle.message("report.build.toolwindow.cancel"), AllIcons.Actions.Suspend) {
 
     override def actionPerformed(e: AnActionEvent): Unit = {
       cancelToken.failure(new ProcessCanceledException())
+      indicator.foreach(_.cancel())
     }
 
     override def update(e: AnActionEvent): Unit =

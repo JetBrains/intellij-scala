@@ -24,6 +24,7 @@ import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.packaging.artifacts.ModifiableArtifactModel
 import com.intellij.projectImport.{ProjectImportBuilder, ProjectImportProvider, ProjectOpenProcessor}
 import org.jetbrains.bsp._
+import org.jetbrains.bsp.project.importing.BspProjectOpenProcessor.hasBspConfiguration
 import org.jetbrains.bsp.project.importing.BspSetupConfigStep.BspConfigSetupTask
 import org.jetbrains.bsp.project.importing.bspConfigSteps.ConfigSetup
 import org.jetbrains.bsp.project.importing.experimental.GenerateBspConfig.GenerateBspConfigDialog
@@ -163,7 +164,7 @@ class BspOpenProjectProvider extends AbstractBuildToolOpenProjectProvider {
         .use(ProgressExecutionMode.MODAL_SYNC))
     ExternalProjectsManagerImpl.getInstance(project).runWhenInitialized { () =>
       val setupChoices = bspConfigSteps.workspaceSetupChoices(workspace)
-      val shouldGenerateBspConfig = !isBspConfigurationAvailable(workspace) && setupChoices.nonEmpty
+      val shouldGenerateBspConfig = !hasBspConfiguration(workspace) && setupChoices.nonEmpty
       if (shouldGenerateBspConfig)
         generateBspConfig(workspace, setupChoices, project, settings)
 
@@ -175,13 +176,7 @@ class BspOpenProjectProvider extends AbstractBuildToolOpenProjectProvider {
       )
     }
   }
-
-  private def isBspConfigurationAvailable(workspace: Path): Boolean = {
-    val bspConnectionProtocolSupported = BspConnectionConfig.workspaceConfigurationFiles(workspace).nonEmpty
-    val bloopProject = BspUtil.bloopConfigDir(workspace).isDefined
-    bspConnectionProtocolSupported || bloopProject
-  }
-
+  
   private def generateBspConfig(
     workspace: Path,
     setupChoices: List[ConfigSetup],
@@ -320,8 +315,6 @@ object BspProjectOpenProcessor {
   def canOpenProject(workspace: VirtualFile): Boolean = {
     val ioWorkspace = Path.of(workspace.getPath)
 
-    val bspConnectionProtocolSupported = BspConnectionConfig.workspaceConfigurationFiles(ioWorkspace).nonEmpty
-    val bloopProject = BspUtil.bloopConfigDir(ioWorkspace).isDefined
     // val sbtProject = SbtProjectImportProvider.canImport(workspace)
     // temporarily disable sbt importing via bloop from welcome screen (SCL-17359)
     val sbtProject = false
@@ -329,6 +322,12 @@ object BspProjectOpenProcessor {
     val canImportMill = MillConfigSetup.canImport(ioWorkspace)
     val canImportScalaCli = ScalaCliSetupProvider.canImport(workspace.toNioPath)
 
-    bspConnectionProtocolSupported || bloopProject || bspConnectionProtocolSupported || sbtProject || canImportMill || canImportScalaCli
+    hasBspConfiguration(ioWorkspace) || sbtProject || canImportMill || canImportScalaCli
+  }
+
+  private[bsp] def hasBspConfiguration(workspace: Path): Boolean = {
+    val bspConnectionProtocolSupported = BspConnectionConfig.workspaceConfigurationFiles(workspace).nonEmpty
+    val bloopProject = BspUtil.bloopConfigDir(workspace).isDefined
+    bspConnectionProtocolSupported || bloopProject
   }
 }

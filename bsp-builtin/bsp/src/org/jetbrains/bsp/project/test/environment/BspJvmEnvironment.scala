@@ -223,7 +223,7 @@ object BspJvmEnvironment {
   ): Try[A] = {
     val communication = BspCommunication.forWorkspace(Path.of(workspace), project)
     val bspTaskId = BuildMessages.randomEventId
-    val cancelAction = new CancelBuildAction(Promise[Unit]())
+    val cancelAction = new CancelBuildAction(Promise[Unit](), indicator =  None)
     implicit val reporter: BuildToolWindowReporter =
       new BuildToolWindowReporter(project, bspTaskId, reporterTitle, cancelAction)
     val job = communication.run(

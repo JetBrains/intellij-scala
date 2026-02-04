@@ -9,11 +9,14 @@ import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
 import com.intellij.openapi.externalSystem.service.project.trusted.ExternalSystemTrustedProjectDialog
 import com.intellij.openapi.externalSystem.util.ExternalSystemUtil
 import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager}
 import com.intellij.openapi.project.{Project, ProjectUtil}
 import com.intellij.openapi.vfs.VfsUtil
 import org.jetbrains.bsp._
 import org.jetbrains.bsp.project.BspExternalSystemManager
 import org.jetbrains.bsp.project.importing.experimental.GenerateBspConfig
+import org.jetbrains.bsp.project.importing.{BspProjectOpenProcessor, bspConfigSteps}
+import org.jetbrains.bsp.project.importing.setup.BspConfigSetup
 import org.jetbrains.bsp.protocol.BspCommunication._
 import org.jetbrains.bsp.protocol.BspNotifications.BspNotification
 import org.jetbrains.bsp.protocol.session.BspServerConnector._
@@ -37,7 +40,9 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
   private val log = Logger.getInstance(classOf[BspCommunication])
 
   private val session: AtomicReference[Option[BspSession]] = new AtomicReference[Option[BspSession]](None)
-  
+
+  private val runningBspConfigSetup: AtomicReference[Option[BspConfigSetup]] = new AtomicReference[Option[BspConfigSetup]](None)
+
   private[protocol] val connectionFileHash = BspConnectionConfig.workspaceBspConfigsHash(base)
 
   lazy val exitCommands: List[List[String]] = {
@@ -51,19 +56,26 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
     }
     argvExitCommands
   }
-  private def acquireSessionAndRun(job: BspSessionJob[_,_])(implicit reporter: BuildReporter): Either[BspError, BspSession] = session.synchronized {
+
+  private def acquireSessionAndRun(
+    job: BspSessionJob[_,_],
+    canGenerateBspConfigFile: Boolean
+  )(implicit reporter: BuildReporter): Either[BspError, BspSession] = session.synchronized {
     session.get() match {
       case Some(currentSession) =>
         if (currentSession.isAlive) Right(currentSession)
-        else openSession(job)
+        else openSession(job, canGenerateBspConfigFile)
 
       case None =>
-        openSession(job)
+        openSession(job, canGenerateBspConfigFile)
     }
   }
 
-  private def openSession(job: BspSessionJob[_,_])(implicit reporter: BuildReporter): Either[BspError, BspSession] = {
-    val sessionBuilder = prepareSession(findProject)
+  private def openSession(
+    job: BspSessionJob[_,_],
+    canGenerateBspConfigFile: Boolean
+  )(implicit reporter: BuildReporter): Either[BspError, BspSession] = {
+    val sessionBuilder = prepareSession(findProject, canGenerateBspConfigFile)
 
     sessionBuilder match {
       case Left(error) =>
@@ -90,7 +102,17 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
     }
   }
 
-  private def prepareSession(project: => Option[Project])(implicit reporter: BuildReporter): Either[BspError, Builder] = {
+  private def prepareSession(
+    project: => Option[Project],
+    canGenerateBspConfigFile: Boolean
+  )(implicit reporter: BuildReporter): Either[BspError, Builder] = {
+    val shouldGenerate = !BspProjectOpenProcessor.hasBspConfiguration(base) && canGenerateBspConfigFile
+    if (shouldGenerate) {
+      val indicator = ProgressManager.getInstance().getProgressIndicator
+      if (indicator != null)
+        tryToGenerateBspConfig(indicator, project)
+    }
+
     // TODO supported languages should be extendable
     val supportedLanguages = List("scala","java")
     val capabilities = BspCapabilities(supportedLanguages)
@@ -133,6 +155,28 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
     }
 
     connector.flatMap(_.connect(reporter))
+  }
+
+  /**
+   * Generates a BSP configuration file if exactly one setup choice exists and a JDK is available.
+   */
+  private def tryToGenerateBspConfig(indicator: ProgressIndicator, project: Option[Project])(implicit reporter: BuildReporter): Unit = {
+    val setupChoices = bspConfigSteps.workspaceSetupChoices(base)
+    // If there is more than one setup choice or no JDK, a notification will prompt the user to run GenerateBspConfig manually.
+    // See org.jetbrains.bsp.BspConnectionConfigError
+    if (setupChoices.size != 1) return
+
+    BspJdkUtil.findOrCreateBestJdkForProject(project).foreach { jdk =>
+      val parameters = bspConfigSteps.getBuilderConfigurationParameters(jdk, base, setupChoices.head)
+      val setup = parameters.bspConfigSetup
+      if (runningBspConfigSetup.compareAndSet(None, Some(setup))) {
+        try {
+          setup.run(indicator)
+        } finally {
+          runningBspConfigSetup.set(None)
+        }
+      }
+    }
   }
 
   //see SCL-20865
@@ -222,15 +266,20 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
 
   def alive: Boolean = session.get().exists(_.isAlive)
 
+  /**
+   * @param canGenerateBspConfigFile whether to auto-generate missing BSP config before server start.
+   *                                 Caller must remember to call [[org.jetbrains.bsp.protocol.BspCommunication.cancelConfigGeneration]] on cancellation.
+   */
   def run[T, A](task: BspSessionTask[T],
                 default: A,
                 aggregator: NotificationAggregator[A],
-                processLogger: ProcessLogger
+                processLogger: ProcessLogger,
+                canGenerateBspConfigFile: Boolean
                )
                (implicit reporter: BuildReporter): BspJob[(T, A)] = {
     val job = jobs.create(task, default, aggregator, processLogger)
 
-    acquireSessionAndRun(job) match {
+    acquireSessionAndRun(job, canGenerateBspConfigFile) match {
       case Left(error) => new FailedBspJob(error)
       case Right(currentSession) =>
         currentSession.run(job)
@@ -242,11 +291,16 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
              processLogger: ProcessLogger)
             (implicit reporter: BuildReporter): BspJob[T] = {
     val callback = (_: Unit, n: BspNotification) => notifications(n)
-    val job = run(bspSessionTask, (), callback, processLogger)
+    val job = run(bspSessionTask, (), callback, processLogger, canGenerateBspConfigFile = false)
     new NonAggregatingBspJob(job)
   }
 
+  /** Cancels ongoing BSP configuration file generation. */
+  def cancelConfigGeneration(): Unit =
+    runningBspConfigSetup.getAndSet(None).foreach(_.cancel())
+
   override def dispose(): Unit = {
+    cancelConfigGeneration()
     closeSession()
   }
 }

@@ -42,6 +42,8 @@ class BspTask[T](project: Project,
 
   private val diagnostics: mutable.Map[URI, List[Diagnostic]] = mutable.Map.empty
 
+  private val communications: mutable.Set[BspCommunication] = mutable.Set.empty
+
   import BspNotifications._
   private def notifications(implicit reporter: BuildReporter): NotificationAggregator[BuildMessages] =
     (messages, notification) => notification match {
@@ -79,6 +81,7 @@ class BspTask[T](project: Project,
   }
 
   override def onCancel(): Unit = {
+    communications.foreach(_.cancelConfigGeneration())
     resultPromise.tryFailure(new ProcessCanceledException())
   }
 
@@ -87,7 +90,7 @@ class BspTask[T](project: Project,
       arguments.map(_.reporter)
         .getOrElse {
           new CompositeReporter(
-            new BuildToolWindowReporter(project, bspTaskId, BspBundle.message("bsp.task.build"), new CancelBuildAction(resultPromise)),
+            new BuildToolWindowReporter(project, bspTaskId, BspBundle.message("bsp.task.build"), new CancelBuildAction(resultPromise, Some(indicator))),
             new CompilerEventReporter(project, CompilationId(timestamp = System.nanoTime(), documentVersions = immutable.HashMap.empty)),
             new IndicatorReporter(indicator)
           )
@@ -101,11 +104,13 @@ class BspTask[T](project: Project,
     val buildJobs = targetByWorkspace.map { case (workspace, targets) =>
       val targetsToClean = targetToCleanByWorkspace.getOrElse(workspace, List.empty)
       val communication: BspCommunication = BspCommunication.forWorkspace(Path.of(workspace), project)
+      communications.add(communication)
       communication.run(
         { case (server, serverInfo) => buildRequests(targets, targetsToClean)(server, serverInfo.capabilities, reporter) },
         BuildMessages.empty,
         notifications,
-        processLog
+        processLog,
+        canGenerateBspConfigFile = true
       )
     }
     
@@ -138,6 +143,8 @@ class BspTask[T](project: Project,
       reporter.finishWithFailure(combinedMessages.exceptions.head)
     }
     else reporter.finish(combinedMessages)
+
+    communications.clear()
 
     ExternalSystemVfsUtil.refreshRoots(project, BSP.ProjectSystemId, indicator)
     resultPromise.trySuccess(combinedMessages)

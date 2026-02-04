@@ -29,7 +29,7 @@ class FetchScalaTestClassesTask(project: Project,
     val text = BspBundle.message("bsp.test.fetching.scala.test.classes")
     indicator.setText(text)
     val cancelPromise: Promise[Unit] = Promise()
-    val cancelAction = new CancelBuildAction(cancelPromise)
+    val cancelAction = new CancelBuildAction(cancelPromise, indicator = None)
     implicit val reporter: BuildReporter = new BuildToolWindowReporter(project, BuildMessages.randomEventId, text, cancelAction)
     reporter.start()
 

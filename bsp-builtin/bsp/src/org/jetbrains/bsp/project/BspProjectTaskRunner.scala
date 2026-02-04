@@ -8,7 +8,7 @@ import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
 import com.intellij.openapi.externalSystem.util.{ExternalSystemApiUtil => ES}
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.ModuleType
-import com.intellij.openapi.progress.{EmptyProgressIndicator, ProgressManager}
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.task._
 import org.jetbrains.bsp.data.BspMetadata
@@ -107,12 +107,12 @@ class BspProjectTaskRunner(arguments: Option[CustomTaskArguments]) extends Proje
       }
     }
 
-    val progressManager = ProgressManager.getInstance()
-    if (arguments.nonEmpty) {
-      progressManager.runProcessWithProgressAsynchronously(bspTask, new EmptyProgressIndicator())
-    } else {
-      progressManager.run(bspTask)
-    }
+    // Run the BSP task the same way it's done in org.jetbrains.sbt.shell.SbtProjectTaskRunnerImpl.run.
+    // I didn't notice that running a task with progressManager.runProcessWithProgressAsynchronously and an empty progress indicator
+    // would cause the indicator not to display if the BSP task job takes a long time.
+    // However, using an empty progress indicator leads to poor cancellation handling.
+    // I agree that for highlighting this might be annoying, but it should probably be handled differently.
+    ProgressManager.getInstance().run(bspTask)
 
     promiseResult
   }
