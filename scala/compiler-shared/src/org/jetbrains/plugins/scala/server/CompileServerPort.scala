@@ -5,7 +5,6 @@ import java.nio.file.{Files, Path}
 import scala.util.Try
 
 object CompileServerPort {
-  final val DefaultPort = 3200
   final val PortFileName = "port.txt"
 
   def portFilePath(scalaCompileServerSystemDir: Path): Path =

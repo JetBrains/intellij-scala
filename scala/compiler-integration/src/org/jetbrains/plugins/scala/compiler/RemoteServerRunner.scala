@@ -28,7 +28,7 @@ final class RemoteServerRunner(@Nullable project: Project) extends RemoteResourc
 
   override protected val address: InetAddress = InetAddress.getByName(null)
 
-  override protected val port: Int = CompileServerLauncher.port.getOrElse(CompileServerPort.DefaultPort)
+  override protected def port: Int = CompileServerLauncher.port.getOrElse(throw new TCPPortMissingException())
 
   override protected val socketConnectTimeout: FiniteDuration =
     RegistryManager.getInstance().intValue("scala.compile.server.socket.connect.timeout.milliseconds").milliseconds
@@ -59,7 +59,7 @@ final class RemoteServerRunner(@Nullable project: Project) extends RemoteResourc
             send(command, token +: arguments, client)
             return
           } catch {
-            case _: ConnectException | _: CantFindSecureTokenException =>
+            case _: ConnectException | _: TCPPortMissingException | _: CantFindSecureTokenException =>
               Thread.sleep(100)
           }
         }
@@ -99,4 +99,6 @@ private object RemoteServerRunner {
 
   private def readToken(scalaCompileServerSystemDir: Path, port: Int): String =
     CompileServerToken.tokenForPort(scalaCompileServerSystemDir, port).getOrElse(throw new CantFindSecureTokenException)
+
+  private final class TCPPortMissingException extends Exception("Cannot connect to the Scala Compile Server: unknown TCP port")
 }

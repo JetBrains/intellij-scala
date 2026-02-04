@@ -4,25 +4,15 @@ import com.facebook.nailgun.Alias;
 import com.facebook.nailgun.NGConstants;
 import com.facebook.nailgun.NGServer;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.PosixFilePermission;
-import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Stream;
-
-import static java.util.Arrays.asList;
 
 /**
  * used from {@link org.jetbrains.plugins.scala.compiler.CompileServerLauncher}
@@ -50,27 +40,24 @@ public class NailgunRunner {
    * An alternative to default nailgun main {@link com.facebook.nailgun.NGServer#main(java.lang.String[])}
    */
   public static void main(String[] args) throws Exception {
-    if (args.length != 4)
-      throw new IllegalArgumentException("Usage: NailgunRunner [port] [id] [classpath] [system-dir-path]");
+    if (args.length != 3)
+      throw new IllegalArgumentException("Usage: NailgunRunner [id] [classpath] [system-dir-path]");
 
-    int port = Integer.parseInt(args[0]);
-    String id = args[1];
-    String classpath = args[2];
-    Path scalaCompileServerSystemDir = Paths.get(args[3]);
+    String id = args[0];
+    String classpath = args[1];
+    Path scalaCompileServerSystemDir = Paths.get(args[2]);
 
     URLClassLoader classLoader = constructClassLoader(classpath);
 
-    final Path tokenFile = TokensGenerator.generateAndWriteTokenFor(classLoader, scalaCompileServerSystemDir, port);
-
     InetAddress address = InetAddress.getByName(null);
-    NGServer server = createServer(address, port, id, scalaCompileServerSystemDir, classLoader);
+    NGServer server = createServer(address, 0, id, scalaCompileServerSystemDir, classLoader);
 
     Thread thread = new Thread(server);
-    thread.setName("NGServer(" + address.toString() + ", " + port + "," + id + ")");
+    thread.setName("Scala Compile Server NGServer");
     thread.setContextClassLoader(classLoader);
     thread.start();
 
-    Runtime.getRuntime().addShutdownHook(new ShutdownHook(server, tokenFile));
+    Runtime.getRuntime().addShutdownHook(new ShutdownHook(server));
   }
 
   /**
@@ -166,20 +153,13 @@ public class NailgunRunner {
     private static final int WAIT_FOR_SERVER_TERMINATION_TIMEOUT_MS = 3000;
 
     private final NGServer myServer;
-    private final Path tokenFile;
 
-    ShutdownHook(NGServer server, Path tokenFile) {
+    ShutdownHook(NGServer server) {
       myServer = server;
-      this.tokenFile = tokenFile;
     }
 
     @Override
     public void run() {
-      try {
-        Files.deleteIfExists(tokenFile);
-      } catch (IOException ignored) {
-      }
-
       myServer.shutdown();
 
       long waitStart = System.currentTimeMillis();
@@ -203,43 +183,6 @@ public class NailgunRunner {
       }
       System.err.flush();
       System.out.flush();
-    }
-  }
-
-  private static class TokensGenerator {
-
-    static Path generateAndWriteTokenFor(ClassLoader classLoader, Path scalaCompileServerSystemDir, int port)
-            throws IOException, ClassNotFoundException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
-      final Path path = Utils.tokenPathForPort(classLoader, scalaCompileServerSystemDir, port);
-      return writeTokenTo(path, UUID.randomUUID());
-    }
-
-    @SuppressWarnings("ResultOfMethodCallIgnored")
-    private static Path writeTokenTo(Path path, UUID uuid) throws IOException {
-      Path directory = path.getParent();
-
-      if (!Files.exists(directory)) {
-        Files.createDirectories(directory);
-      }
-
-      final boolean isPosix = path.getFileSystem().supportedFileAttributeViews().contains("posix");
-
-      if (isPosix) {
-        Files.createFile(path, PosixFilePermissions.asFileAttribute(
-                new HashSet<>(asList(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE))
-        ));
-      } else {
-        // Windows
-        // Using `java.io.File` here is unavoidable, as Windows is not compatible with `PosixFilePermission`
-        // and throws exceptions at runtime.
-        final java.io.File file = path.toFile();
-        file.createNewFile();
-        file.setExecutable(false);
-        file.setReadable(/* readable */ true, /* ownerOnly */ true);
-        file.setWritable(/* writable */ true, /* ownerOnly */ true);
-      }
-
-      return Files.write(path, uuid.toString().getBytes(StandardCharsets.UTF_8));
     }
   }
 }

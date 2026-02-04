@@ -16,6 +16,8 @@ object Versions {
   val bloopVersion = "2.0.14"
   val zincVersion = "1.11.0"
 
+  val nailgunVersion = "1.3.1"
+
   /**
    * ATTENTION: check the comment in [[Common.newProjectWithKotlin]] when updating this version.
    *            update `since-build` in plugin.xml if there are binary incompatible changes after update
@@ -178,7 +180,7 @@ object Dependencies {
   val sprayJson: ModuleID = "io.spray" % "spray-json_2.13" % Versions.sprayJsonVersion
   val compilerIndicesProtocol: ModuleID = "org.jetbrains.scala" %% "scala-compiler-indices-protocol" % compilerIndicesVersion
 
-  val nailgun = "org.jetbrains" % "nailgun-server-for-scala-plugin" % "1.3.1"
+  val nailgun = "org.jetbrains" % "nailgun-server-for-scala-plugin" % nailgunVersion
 
   val zinc = "org.scala-sbt" %% "zinc" % zincVersion excludeAll ExclusionRule(organization = "org.apache.logging.log4j")
   val compilerInterface = "org.scala-sbt" % "compiler-interface" % zincVersion

@@ -6,6 +6,7 @@ import java.nio.file.Path
 
 private final class ServerInstance(
   val watcher: ProcessWatcher,
+  val compileServerSystemDir: Path,
   val port: Int,
   val workingDir: Option[Path],
   val jdk: JDK,

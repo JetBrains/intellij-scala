@@ -15,20 +15,20 @@ import com.intellij.platform.eel.provider.utils.EelPathUtils
 import com.intellij.platform.eel.provider.{EelNioBridgeServiceKt, EelProviderUtil, LocalEelDescriptor}
 import com.intellij.util.PathUtil
 import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
-import com.intellij.util.net.NetUtils
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.annotations.{ApiStatus, Nls}
 import org.jetbrains.jps.api.GlobalOptions
 import org.jetbrains.jps.cmdline.ClasspathBootstrap
+import org.jetbrains.plugins.scala.compiler.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
-import org.jetbrains.plugins.scala.server.{CompileServerPort, CompileServerProperties, CompileServerToken}
+import org.jetbrains.plugins.scala.server.{CompileServerProperties, CompileServerToken}
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.util._
 import org.jetbrains.plugins.scala.util.teamcity.TeamcityUtils
 
-import java.io.{BufferedReader, IOException, InputStreamReader}
+import java.io.{BufferedReader, IOException, InputStream, InputStreamReader}
 import java.nio.file.{Files, Path}
 import java.util.concurrent.ConcurrentHashMap
 import scala.collection.mutable
@@ -37,6 +37,7 @@ import scala.io.Source
 import scala.jdk.CollectionConverters._
 import scala.util.Try
 import scala.util.control.Exception._
+import scala.util.matching.Regex
 
 object CompileServerLauncher {
 
@@ -109,8 +110,6 @@ object CompileServerLauncher {
           (jdk.tools ++ classpathFiles)
             .map(_.toCanonicalPath.toString) ++ buildProcessClasspath
 
-        val freePort = CompileServerLauncher.findFreePort
-        deleteOldTokenFile(scalaCompileServerSystemDir(project), freePort)
         val id = settings.COMPILE_SERVER_ID
 
         val shutdownDelay = settings.COMPILE_SERVER_SHUTDOWN_DELAY * 60
@@ -163,7 +162,6 @@ object CompileServerLauncher {
             unsafeMemoryAccessOptions ++:
             vmOptions ++:
             NailgunRunnerFQN +:
-            freePort.toString +:
             id +:
             classpath.mkString(java.io.File.pathSeparator) +:
             toLocalPathString(scalaCompileServerSystemDir(project)) +:
@@ -187,23 +185,19 @@ object CompileServerLauncher {
           .either(builder.createProcess())
           .left.map(e => CompileServerProblem.UnexpectedException(e))
           .map { process =>
-            val bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream))
-            var cont = true
-            while (cont) {
-              val line = bufferedReader.readLine()
-              if (line eq null) {
-                // Reached the end of the stream. The process listener will take care of the rest.
-                cont = false
-              } else if (line.startsWith("NGServer") && line.contains("started on") && line.contains(freePort.toString)) {
-                // The NGServer is ready to accept connections.
-                cont = false
+            val compileServerSystemDir = scalaCompileServerSystemDir(project)
+            val port =
+              waitUntilNailgunServerIsReady(compileServerSystemDir, process.getInputStream) match {
+                case Some(p) => p
+                case None =>
+                  return Left(CompileServerProblem.Error(CompilerIntegrationBundle.message("compile.server.missing.tcp.port")))
               }
-            }
 
             val watcher = new ProcessWatcher(process, "scalaCompileServer", local = EelPathUtils.isProjectLocal(project))
             val instance = new ServerInstance(
               watcher = watcher,
-              port = freePort,
+              compileServerSystemDir = compileServerSystemDir,
+              port = port,
               workingDir = Option(workingDirectory),
               jdk = jdk,
               jvmParameters = userJvmParameters.toSet,
@@ -216,6 +210,7 @@ object CompileServerLauncher {
             watcher.startNotify()
             watcher.addProcessListener(new ProcessListener {
               override def processTerminated(event: ProcessEvent): Unit = {
+                CompileServerToken.removeTokenFileForPort(compileServerSystemDir, port)
                 val isExpectedProcessTermination = watcher.isTerminatedByIdleTimeout || instance.stopped
                 if (!isExpectedProcessTermination) {
                   LOG.warn(s"Compile server terminated unexpectedly: ${instance.summary}")
@@ -260,12 +255,6 @@ object CompileServerLauncher {
     app.getMessageBus.syncPublisher(CompileServerWidgetFactory.Topic).updateWidget()
   }
 
-  // ensure that old tokens from old sessions do not exist on file system to avoid race conditions (see ticket from the commit)
-  // it should be deleted in org.jetbrains.plugins.scala.nailgun.NailgunRunner.ShutdownHook.run
-  // but in case of some server crashes it can remain on the file system
-  private def deleteOldTokenFile(scalaCompileServerSystemDir: Path, freePort: Int): Unit =
-    Try(Files.delete(CompileServerToken.tokenPathForPort(scalaCompileServerSystemDir, freePort)))
-
   // TODO stop server more gracefully
 
   /**
@@ -283,7 +272,7 @@ object CompileServerLauncher {
 
   private def stopInternal(timeout: Option[FiniteDuration], debugReason: Option[String]): Boolean = serverStartLock.synchronized {
     LOG.info(s"compile server process stop: ${serverInstance.map(_.summary).getOrElse("<no info>")}")
-    serverInstance.forall { it =>
+    val stopped = serverInstance.forall { it =>
       val stopped = timeout match {
         case Some(duration) => it.destroyAndWaitFor(duration.toMillis)
         case None => it.destroyAndWait()
@@ -309,8 +298,16 @@ object CompileServerLauncher {
         }
       }
 
+      if (stopped) {
+        CompileServerToken.removeTokenFileForPort(it.compileServerSystemDir, it.port)
+      }
+
       stopped
     }
+    if (stopped) {
+      serverInstance = None
+    }
+    stopped
   }
 
   private def infoAndPrintOnTeamcity(message: String): Unit = {
@@ -557,6 +554,7 @@ object CompileServerLauncher {
     currentInstance.map { instance =>
       val useProjectHome = settings.USE_PROJECT_HOME_AS_WORKING_DIR
       val workingDirChanged = useProjectHome && projectHome(project) != currentInstance.map(_.workingDir)
+      val systemDirectoryChanged = instance.compileServerSystemDir != scalaCompileServerSystemDir(project)
       val jdkChanged = compileServerJdk(project) match {
         case Right(projectJdk) => projectJdk != instance.jdk
         case _ => false
@@ -566,6 +564,7 @@ object CompileServerLauncher {
       val incrementalCompilerChanged = ScalaCompilerConfiguration(project).incrementalityType != instance.incrementalCompiler
       val reasons = mutable.ArrayBuffer.empty[String]
       if (workingDirChanged) reasons += "working dir changed"
+      if (systemDirectoryChanged) reasons += "system directory changed"
       if (jdkChanged) reasons += "jdk changed"
       if (jvmParametersChanged) reasons += "jvm parameters changed"
       if (jpsUseUnifiedICChanged) reasons += "jps unified incremental compilation setting changed"
@@ -574,18 +573,31 @@ object CompileServerLauncher {
     }.getOrElse(Seq.empty)
   }
 
-  private def findFreePort: Int = {
-    val port = CompileServerPort.DefaultPort
-    if (!isUsed(port)) port else {
-      LOG.info(s"compile server port is already used ($port), searching for available port")
-      val result = NetUtils.findAvailableSocketPort()
-      LOG.info(s"found available port: $result")
-      result
-    }
-  }
+  private val ngServerStartedLine: Regex =
+    s"""^NGServer ${BuildInfo.nailgunVersion} started on (.*), port (\\d{1,5})\\.$$""".r
 
-  private def isUsed(portFromSettings: Int): Boolean =
-    NetUtils.canConnectToSocket("localhost", portFromSettings)
+  /**
+   * @note The provided [[InputStream]] should not be closed after use, as that would prevent the process
+   *       from printing to the out stream.
+   *
+   * @param is the input stream of the nailgun process
+   * @return the TCP port number on which the server is listening
+   */
+  @RequiresBackgroundThread
+  private def waitUntilNailgunServerIsReady(compileServerSystemDir: Path, is: InputStream): Option[Int] = {
+    val bufferedReader = new BufferedReader(new InputStreamReader(is))
+    while (true) {
+      bufferedReader.readLine() match {
+        case null => return None
+        case ngServerStartedLine(_, port) =>
+          // The NGServer is ready to accept connections.
+          val opt = port.toIntOption
+          opt.foreach(p => CompileServerToken.generateAndWriteTokenFor(compileServerSystemDir, p))
+          return opt
+      }
+    }
+    None
+  }
 
   private def saveSettings(): Unit = {
     ApplicationManager.getApplication.saveSettings()

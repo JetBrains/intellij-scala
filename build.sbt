@@ -587,7 +587,8 @@ lazy val compilerShared =
       buildInfoPackage := "org.jetbrains.plugins.scala.compiler.buildinfo",
       buildInfoKeys := Seq(
         "sbtVersion" -> Versions.sbtVersion,
-        "zincVersion" -> Versions.zincVersion
+        "zincVersion" -> Versions.zincVersion,
+        "nailgunVersion" -> Versions.nailgunVersion
       ),
       buildInfoOptions += BuildInfoOption.ConstantValue
     )

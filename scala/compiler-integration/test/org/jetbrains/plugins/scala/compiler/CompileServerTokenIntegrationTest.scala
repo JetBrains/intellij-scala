@@ -3,8 +3,7 @@ package org.jetbrains.plugins.scala.compiler
 import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.compiler.CompilerMessagesUtil.assertNoErrorsOrWarnings
-import org.jetbrains.plugins.scala.server.{CompileServerPort, CompileServerToken}
-import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
+import org.jetbrains.plugins.scala.server.CompileServerToken
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -30,8 +29,10 @@ class CompileServerTokenIntegrationTest extends ScalaCompilerTestBase {
     assertNoErrorsOrWarnings(messages)
 
     val compileServerSystemDir = CompileServerLauncher.scalaCompileServerSystemDir(getProject)
-    val port = CompileServerLauncher.port.getOrElse(CompileServerPort.DefaultPort)
-    val token = CompileServerToken.tokenForPort(compileServerSystemDir, port)
+    val token = CompileServerLauncher.port match {
+      case Some(port) => CompileServerToken.tokenForPort(compileServerSystemDir, port)
+      case None => throw new AssertionError("Cannot connect to Scala Compile Server: unknown TCP port, make sure the server is running")
+    }
     assertTrue("Could not read the Scala Compile Server token for the test project", token.nonEmpty)
     assertTrue("The token string is empty", token.get.nonEmpty)
 
