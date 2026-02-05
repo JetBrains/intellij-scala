@@ -1,0 +1,13 @@
+''''
+'''
+multi-line with embedded '''
+dedented string
+'''
+''''
+-------
+dedented string {''''
+'''
+multi-line with embedded '''
+dedented string
+'''
+''''}

@@ -1,0 +1,42 @@
+object a{
+  val name = "world"
+  val x = s'''
+  Hello $name!
+  This is a dedented
+  interpolated string
+  '''
+}
+-----
+object {object}
+white space in line { }
+identifier {a}
+{ {{}
+white space in line {
+  }
+val {val}
+white space in line { }
+identifier {name}
+white space in line { }
+= {=}
+white space in line { }
+string content {"world"}
+white space in line {
+  }
+val {val}
+white space in line { }
+identifier {x}
+white space in line { }
+= {=}
+white space in line { }
+interpolated string id {s}
+interpolated dedented string {'''
+  Hello }
+interpolated string injection {$}
+identifier {name}
+interpolated dedented string {!
+  This is a dedented
+  interpolated string
+  '''}
+white space in line {
+}
+} {}}
