@@ -333,4 +333,21 @@ class RefLinkResolveTest extends ScalaLightCodeInsightFixtureTestCase {
         |}
         |""".stripMargin
     )
+
+  def testStrictMemberId(): Unit = checkAll(
+    """
+      |/**
+      | * [[#Target  inTest]] only looks into the members
+      | */
+      |class Test {
+      |  object Target %inTest%
+      |}
+      |
+      |/**
+      | * [[#Test <not found>]]
+      | * [[#Inner <not found>]]
+      | */
+      |class Inner
+      |""".stripMargin
+  )
 }

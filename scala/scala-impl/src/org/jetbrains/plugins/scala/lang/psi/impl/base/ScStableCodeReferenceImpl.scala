@@ -356,9 +356,21 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     val qualifierResult = _qualifier()
     qualifierResult match {
       case None =>
+        var searchedDocOwner = false
         @scala.annotation.tailrec
-        def treeWalkUp(place: PsiElement, lastParent: PsiElement, state: ResolveState): Unit = {
+        def treeWalkUp(@Nullable place: PsiElement, lastParent: PsiElement, state: ResolveState): Unit = {
           ProgressManager.checkCanceled()
+
+          if (localReferenceSearch) {
+            // We should only search the first DocOwner (aka the one the scaladoc reference is in)
+            if (searchedDocOwner) return
+            place match {
+              case _: ScDocCommentOwner =>
+                searchedDocOwner = true
+              case _ =>
+            }
+          }
+
           place match {
             case null =>
             case p: ScTypeElement if p.analog.isDefined =>
