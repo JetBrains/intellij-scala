@@ -11,10 +11,10 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.options.advanced.AdvancedSettings
 import com.intellij.openapi.project.{Project, ProjectManager, ProjectUtil}
 import com.intellij.openapi.projectRoots.{JavaSdkVersion, ProjectJdkTable, Sdk}
-import com.intellij.platform.eel.EelDescriptor
 import com.intellij.platform.eel.path.EelPath
 import com.intellij.platform.eel.provider.utils.EelPathUtils
 import com.intellij.platform.eel.provider.{EelNioBridgeServiceKt, EelProviderUtil, LocalEelDescriptor}
+import com.intellij.platform.eel.{EelDescriptor, EelPlatformKt}
 import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.annotations.{ApiStatus, Nls}
@@ -104,16 +104,30 @@ object CompileServerLauncher {
     compileServerJars.partition(_.exists) match {
       case (presentFiles, Seq()) =>
         val (nailgunCpFiles, classpathFiles) = presentFiles.partition(_.nameContains("nailgun"))
-        val nailgunClasspath = nailgunCpFiles
-          .map(_.toCanonicalPath.toString).mkString(java.io.File.pathSeparator)
+
+        val targetPathSeparator = EelPlatformKt.getPathSeparator(eelDescriptor.getOsFamily)
+
+        val nailgunClasspath =
+          nailgunCpFiles
+            .map(transferredRemotePath(_, project, eelDescriptor))
+            .map(asTargetLocalPathString(_, eelDescriptor))
+            .mkString(targetPathSeparator)
 
         val buildProcessClasspath =
-          if (project.isDisposed) Seq.empty
-          else new BuildProcessClasspathManager(project.unloadAwareDisposable).getBuildProcessClasspath(project).asScala.toSeq
+          if (project.isDisposed)
+            Seq.empty
+          else
+            new BuildProcessClasspathManager(project.unloadAwareDisposable)
+              .getBuildProcessClasspath(project)
+              .asScala
+              .toSeq
+              .map(Path.of(_))
 
         val classpath =
-          (jdk.tools ++ classpathFiles)
-            .map(_.toCanonicalPath.toString) ++ buildProcessClasspath
+          (jdk.tools.toSeq ++ classpathFiles ++ buildProcessClasspath)
+            .map(transferredRemotePath(_, project, eelDescriptor))
+            .map(asTargetLocalPathString(_, eelDescriptor))
+            .mkString(targetPathSeparator)
 
         val id = settings.COMPILE_SERVER_ID
 
@@ -168,7 +182,7 @@ object CompileServerLauncher {
             vmOptions ++:
             NailgunRunnerFQN +:
             id +:
-            classpath.mkString(java.io.File.pathSeparator) +:
+            classpath +:
             asTargetLocalPathString(scalaCompileServerSystemDir(project), eelDescriptor) +:
             Nil
 
