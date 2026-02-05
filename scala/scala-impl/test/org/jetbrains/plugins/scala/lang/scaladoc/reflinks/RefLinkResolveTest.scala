@@ -336,7 +336,11 @@ class RefLinkResolveTest extends ScalaLightCodeInsightFixtureTestCase {
 
   def testStrictMemberId(): Unit = checkAll(
     """
+      |package scala {
+      |  class Target %inScalaPkg%
+      |}
       |/**
+      | * [[Target   inScalaPkg]] does a toplevel lookup first
       | * [[#Target  inTest]] only looks into the members
       | */
       |class Test {
@@ -348,6 +352,32 @@ class RefLinkResolveTest extends ScalaLightCodeInsightFixtureTestCase {
       | * [[#Inner <not found>]]
       | */
       |class Inner
+      |""".stripMargin
+  )
+
+
+  def testTopLevelSearch(): Unit = checkAll(
+    """
+      |package topLvl {
+      |  object Target /*topLvl*/    %targetTopLvl%
+      |}
+      |// shouldn't be found because scala.inScala has higher precedence
+      |package isScala { object Target }
+      |
+      |package scala.inScala {
+      |  object Target /*inScala*/   %targetInScala%
+      |}
+      |
+      |package outer.inner {
+      |  package topLvl { object Target }
+      |  package inScala { object Target }
+      |
+      |  /**
+      |   * [[topLvl.Target   targetTopLvl]]
+      |   * [[inScala.Target  targetInScala]]
+      |   */
+      |  class Blub
+      |}
       |""".stripMargin
   )
 }

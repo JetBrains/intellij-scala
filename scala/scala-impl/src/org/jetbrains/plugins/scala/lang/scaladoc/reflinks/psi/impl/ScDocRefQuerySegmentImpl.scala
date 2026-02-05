@@ -6,6 +6,8 @@ import org.jetbrains.plugins.scala.lang.scaladoc.reflinks.psi.ScDocRefQuerySegme
 import org.jetbrains.plugins.scala.lang.scaladoc.reflinks.psi.ScDocRefQuerySegment.IdSelector
 
 class ScDocRefQuerySegmentImpl(node: ASTNode) extends ScDocResolvableCodeReferenceImpl(node) with ScDocRefQuerySegment {
+  override def isTopLevelSearch: Boolean = qualifier.isEmpty
+
   override def refName: String = selector match {
     case Some(IdSelector(text)) => text
     case _ => ""

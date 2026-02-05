@@ -5,6 +5,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl.ScDocResolvableCodeRef
 import org.jetbrains.plugins.scala.lang.scaladoc.reflinks.psi.ScDocRefStrictMemberIdQuery
 
 class ScDocRefStrictMemberIdQueryImpl(node: ASTNode) extends ScDocResolvableCodeReferenceImpl(node) with ScDocRefStrictMemberIdQuery {
+  override def isTopLevelSearch: Boolean = false
   override def localReferenceSearch: Boolean = true
 
   override def refName: String = super.memberId.getOrElse("")

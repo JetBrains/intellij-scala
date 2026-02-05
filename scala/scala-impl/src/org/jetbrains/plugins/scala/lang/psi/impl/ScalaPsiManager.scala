@@ -220,6 +220,7 @@ class ScalaPsiManager(implicit val project: Project) extends Disposable {
       }
     )
 
+  def emptyNamePackage: Option[ScPackageImpl] = _noNamePackage()
   private[psi] def noNamePackage: ScPackageImpl = _noNamePackage().orNull
 
   private val _noNamePackage: () => Option[ScPackageImpl] =
