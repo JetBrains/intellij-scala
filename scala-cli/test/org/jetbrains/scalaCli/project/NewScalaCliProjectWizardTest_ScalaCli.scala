@@ -142,7 +142,7 @@ abstract class NewScalaCliProjectWizardTestBase extends NewScalaProjectWizardTes
 
     // TODO described in org.jetbrains.scalaCli.project.NewScalaCliProjectWizard_ScalaWithScalaCLI.scalaVersionsParameters
     //  (the URL for latest version https://github.com/Virtuslab/scala-cli/releases/latest/download/$archiveName)
-    val curlCommand = s"curl --fail --location https://github.com/VirtusLab/scala-cli/releases/download/v1.9.1/$archiveName"
+    val curlCommand = s"curl --fail --location https://github.com/VirtusLab/scala-cli/releases/download/v1.5.4/$archiveName"
     val gzipCommand = "gzip --decompress"
     val curlProcess = Process(curlCommand) #| Process(gzipCommand, projectDirectory.toFile)
 
@@ -229,13 +229,13 @@ class NewScalaCliProjectWizardTest_ScalaCli extends NewScalaCliProjectWizardTest
   }
 
   def testCreateSimpleProjectScala2(): Unit =
-    runSimpleCreateProjectTest("2.13.14")
+    runSimpleCreateProjectTest("2.13.14", shouldExcludeScalaBuild = false)
 
   def testCreateSimpleProjectScala3(): Unit =
-    runSimpleCreateProjectTest("3.0.2")
+    runSimpleCreateProjectTest("3.0.2", shouldExcludeScalaBuild = false)
 
   def testCreateSimpleProjectScala3AndUseIndentationBasedSyntax(): Unit =
-    runSimpleCreateProjectTest( "3.3.3", useIndentationBasedSyntax = true)
+    runSimpleCreateProjectTest( "3.3.3", useIndentationBasedSyntax = true, shouldExcludeScalaBuild = false)
 }
 
 /**
@@ -282,12 +282,13 @@ class NewScalaCliProjectWizard_ScalaWithScalaCLI extends NewScalaCliProjectWizar
   @unused
   private def scalaVersionsParameters: Array[AnyRef] = {
     // TODO
-    //  Remove the Scala 3.8 version from ignored list and update the Scala CLI standalone installation method
+    //  Remove the Scala 3.8 & 3.7 version from ignored list and update the Scala CLI standalone installation method
     //  to use the latest version once the issue with downloading artifacts from the Sonatype snapshots repo is fixed in Scala CLI.
     //  The Sonatype snapshots repo used in Scala CLI behaves unpredictably in some cases.
     //  For certain dependencies, requests may hang indefinitely, preventing the BSP server from starting and causing test failures.
-    //  This issue occurs with Scala CLI 1.12.1 (used with Scala 3.8.1), where it hangs while downloading bloop artifacts.
-    val ignored = Seq(Scala_3_4, Scala_3_8)
+    //  This issue occurs with several of the latest Scala CLI versions (including 1.12.1 used with Scala 3.8.1), where it hangs while downloading bloop artifacts.
+    //  Scala 3.7 is included in the ignored tests because it takes ~6 minutes to run on CI (also due to downloading Sonatype dependencies).
+    val ignored = Seq(Scala_3_4, Scala_3_8, Scala_3_7)
     LatestScalaVersions.allScalaNext.diff(ignored).toArray
   }
 
