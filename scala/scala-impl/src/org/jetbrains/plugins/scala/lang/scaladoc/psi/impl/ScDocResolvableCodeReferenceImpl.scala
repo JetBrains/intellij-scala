@@ -4,14 +4,17 @@ import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedWithRecursionGuard}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinitionLike}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceImpl
 import org.jetbrains.plugins.scala.lang.resolve.StdKinds._
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl.ScDocResolvableCodeReferenceImpl.SelectorKind
 
 class ScDocResolvableCodeReferenceImpl(node: ASTNode) extends ScStableCodeReferenceImpl(node) with ScDocResolvableCodeReference {
+
+  override protected def walkUpIntermediaryPackages: Boolean = true
 
   override protected def debugKind: Option[String] = Some("scalaDoc")
 
@@ -25,8 +28,7 @@ class ScDocResolvableCodeReferenceImpl(node: ASTNode) extends ScStableCodeRefere
 
     val refName = ref.refName
 
-    val referenceToObject = refName.endsWith("$")
-    val refNameAdjusted = if (referenceToObject) refName.stripSuffix("$") else refName
+    val (selectorKind, refNameAdjusted) = SelectorKind.stripFrom(refName)
     val kinds = stableImportSelector
     val processor = new ResolveProcessor(kinds, ref, refNameAdjusted)
 
@@ -40,11 +42,17 @@ class ScDocResolvableCodeReferenceImpl(node: ASTNode) extends ScStableCodeRefere
     //(search for `ScDocResolvableCodeReference` usages in `org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceImpl.processQualifier
     val resolveResult1 = resolveResult0.distinctBy(_.element)
 
-    val resolveResult2 =
-      if (referenceToObject && resolveResult1.forall(_.element.is[ScTypeDefinition])) // check if no methods were resolved
-        resolveResult1.filter(_.element.is[ScObject])
-      else
-        resolveResult1
+    def isTerm(rr: ScalaResolveResult): Boolean = rr.element match {
+      case _: ScObject => true
+      case _: ScTypeDefinitionLike => false
+      case _ => true
+    }
+
+    val resolveResult2 = selectorKind match {
+      case SelectorKind.ForceTerm => resolveResult1.filter(isTerm)
+      case SelectorKind.ForceType => resolveResult1.filterNot(isTerm)
+      case SelectorKind.NoForce => resolveResult1
+    }
 
     //If we resolved to multiple references: class and it's companion, move companion object to the end
     //NOTE: it's not correct behaviour, but it will be incorrect until SCL-13263 is implemented
@@ -62,4 +70,30 @@ class ScDocResolvableCodeReferenceImpl(node: ASTNode) extends ScStableCodeRefere
 
   override def getKinds(incomplete: Boolean, completion: Boolean): ResolveTargets.ValueSet =
     stableImportSelector
+}
+
+object ScDocResolvableCodeReferenceImpl {
+  type SelectorKind = SelectorKind.Value
+  object SelectorKind extends Enumeration {
+    val ForceTerm, ForceType, NoForce = Value
+
+    def stripFrom(text: String): (SelectorKind, String) = {
+      val len = text.length
+      if (len < 1) {
+        return (NoForce, text)
+      }
+
+      text.last match {
+        case '!' => (ForceType, text.stripSuffix("!"))
+        case '$' => (ForceTerm, text.stripSuffix("$"))
+        case '`' if len >= 2 =>
+          text(len - 2) match {
+            case '!' => (ForceType, text.substring(0, len - 2) + "`")
+            case '$' => (ForceTerm, text.substring(0, len - 2) + "`")
+            case _ => (NoForce, text)
+          }
+        case _ => (NoForce, text)
+      }
+    }
+  }
 }
