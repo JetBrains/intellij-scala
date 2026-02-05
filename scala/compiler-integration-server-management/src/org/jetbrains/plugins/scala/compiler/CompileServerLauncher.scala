@@ -6,14 +6,15 @@ import com.intellij.compiler.server.impl.BuildProcessClasspathManager
 import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.process.{ProcessEvent, ProcessListener}
 import com.intellij.notification.{Notification, NotificationType, Notifications}
-import com.intellij.openapi.application.{ApplicationManager, PathManager}
+import com.intellij.openapi.application.{ApplicationInfo, ApplicationManager, PathManager}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.options.advanced.AdvancedSettings
-import com.intellij.openapi.project.{Project, ProjectManager}
+import com.intellij.openapi.project.{Project, ProjectManager, ProjectUtil}
 import com.intellij.openapi.projectRoots.{JavaSdkVersion, ProjectJdkTable, Sdk}
+import com.intellij.platform.eel.EelDescriptor
+import com.intellij.platform.eel.path.EelPath
 import com.intellij.platform.eel.provider.utils.EelPathUtils
 import com.intellij.platform.eel.provider.{EelNioBridgeServiceKt, EelProviderUtil, LocalEelDescriptor}
-import com.intellij.util.PathUtil
 import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.annotations.{ApiStatus, Nls}
@@ -35,9 +36,9 @@ import scala.collection.mutable
 import scala.concurrent.duration._
 import scala.io.Source
 import scala.jdk.CollectionConverters._
-import scala.util.Try
 import scala.util.control.Exception._
 import scala.util.matching.Regex
+import scala.util.{Try, Using}
 
 object CompileServerLauncher {
 
@@ -97,6 +98,8 @@ object CompileServerLauncher {
       settings.COMPILE_SERVER_SDK = jdk.name
       ApplicationManager.getApplication.saveSettings()
     }
+
+    val eelDescriptor = EelProviderUtil.getEelDescriptor(project)
 
     compileServerJars.partition(_.exists) match {
       case (presentFiles, Seq()) =>
@@ -166,7 +169,7 @@ object CompileServerLauncher {
             NailgunRunnerFQN +:
             id +:
             classpath.mkString(java.io.File.pathSeparator) +:
-            toLocalPathString(scalaCompileServerSystemDir(project)) +:
+            asTargetLocalPathString(scalaCompileServerSystemDir(project), eelDescriptor) +:
             Nil
 
         val workingDirectory: Path = {
@@ -423,7 +426,7 @@ object CompileServerLauncher {
    * Only the filesystem path to the argument JDK is kept in the map, not a reference to the underlying SDK object,
    * to avoid memory leaks.
    */
-  private val jdkRtJarCache: ConcurrentHashMap[String, Path] = new ConcurrentHashMap()
+  private val jdkRtJarCache: ConcurrentHashMap[Path, Path] = new ConcurrentHashMap()
 
   /**
    * Prepares the Java 9+ `rt.jar` workaround for compiling old versions of Scala with modern JDK versions.
@@ -457,7 +460,8 @@ object CompileServerLauncher {
      */
     Option(jdk).filter(_.version.exists(_.isAtLeast(JavaSdkVersion.JDK_1_9))).fold(Seq.empty[String]) { jdk =>
       // We are running JDK 9+ as the runtime JDK for the Scala compiler.
-      val executablePath = jdk.executable.toCanonicalPath.toString
+      val executablePath = jdk.executable.toCanonicalPath
+      val eelDescriptor = EelProviderUtil.getEelDescriptor(project)
 
       val resultPath =
         if (jdkRtJarCache.containsKey(executablePath)) Some(jdkRtJarCache.get(executablePath))
@@ -465,12 +469,17 @@ object CompileServerLauncher {
           // The path of the `java9-rt-export.jar` tool packaged as `<plugin root>/java9-rt-export/java9-rt-export.jar`
           // and distributed with the Scala plugin.
           val java9rtExportJar =
-          Path.of(PathUtil.getJarPathForClass(getClass))
-            .getParent
-            .getParent
-            .getParent
-            .resolve(java9rtExportString)
-            .resolve(s"$java9rtExportString.jar")
+            PathManager.getJarForClass(getClass)
+              .getParent
+              .getParent
+              .getParent
+              .resolve(java9rtExportString)
+              .resolve(s"$java9rtExportString.jar")
+
+          val transferredJava9rtExportJarPath = asTargetLocalPathString(
+            transferredRemotePath(java9rtExportJar, project, eelDescriptor),
+            eelDescriptor
+          )
 
           // The command
           // `java -Dsbt.global.base=<IDEA system directory>/scala-compile-server/jvm-rt -jar <plugin root>/java9-rt-export/java9-rt-export.jar --rt-ext-dir`
@@ -481,13 +490,14 @@ object CompileServerLauncher {
           // for Eclipse Adoptium 17.0.5
           Try {
             val exportDirectoryPathProcess =
-              new GeneralCommandLine(executablePath, s"-Dsbt.global.base=${jvmRtDir(project)}", "-jar", java9rtExportJar.toString, "--rt-ext-dir")
+              new GeneralCommandLine(executablePath.toString, s"-Dsbt.global.base=${jvmRtDir(project)}", "-jar", transferredJava9rtExportJarPath, "--rt-ext-dir")
                 .withParentEnvironmentType(GeneralCommandLine.ParentEnvironmentType.CONSOLE)
                 .createProcess()
 
             exportDirectoryPathProcess.waitFor()
-            val exportDirectoryPath =
-              Path.of(Source.fromInputStream(exportDirectoryPathProcess.getInputStream).mkString.trim)
+            val rawPathStringOutput =
+              Using.resource(Source.fromInputStream(exportDirectoryPathProcess.getInputStream))(_.mkString.trim)
+            val exportDirectoryPath = EelNioBridgeServiceKt.asNioPath(EelPath.parse(rawPathStringOutput, eelDescriptor))
 
             // The full path of the produced `rt.jar`.
             // Example: <IDEA system directory>/scala-compile-server/jvm-rt/java9-rt-ext-eclipse_adoptium_17_0_5/rt.jar
@@ -503,7 +513,7 @@ object CompileServerLauncher {
               // The command
               // `java -jar <plugin root>/java9-rt-export/java9-rt-export.jar <IDEA system directory>/scala-compile-server/jvm-rt/<jdk specific directory>`
               // is executed and creates the `rt.jar`.
-              new GeneralCommandLine(executablePath, "-jar", java9rtExportJar.toString, rtJarPath.toString)
+              new GeneralCommandLine(executablePath.toString, "-jar", transferredJava9rtExportJarPath, rtJarPath.toString)
                 .withParentEnvironmentType(GeneralCommandLine.ParentEnvironmentType.CONSOLE)
                 .createProcess()
                 .waitFor()
@@ -638,17 +648,45 @@ object CompileServerLauncher {
    * @note The code is duplicated in `org.jetbrains.sbt.eelPathExtensions`. Should be deduplicated in the future after
    *       we fully migrate to Scala 3.
    */
-  private def toLocalPathString(path: Path): String = {
-    val eelDescriptor = EelProviderUtil.getEelDescriptor(path)
-    val eelPath = EelNioBridgeServiceKt.asEelPath(path, eelDescriptor)
-    eelPath.toString
-  }
+  private def asTargetLocalPathString(path: Path, eelDescriptor: EelDescriptor): String =
+    eelDescriptor match {
+      case LocalEelDescriptor.INSTANCE =>
+        path.toString
+      case remote =>
+        val eelPath = EelNioBridgeServiceKt.asEelPath(path, remote)
+        eelPath.toString
+    }
 
   @deprecated(message = "Use scalaCompileServerSystemDir(Project)", since = "2026.1")
   @Deprecated(since = "2026.1", forRemoval = true)
   @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
   def scalaCompileServerSystemDir: Path =
     PathManager.getSystemDir.resolve(ScalaCompileServerDirName)
+
+  private def transferredRemotePath(path: Path, project: Project, eelDescriptor: EelDescriptor): Path =
+    remoteProjectCacheDirectory(project, eelDescriptor) match {
+      case Some(cacheDir) =>
+        EelPathUtils.transferLocalContentToRemote(path, new EelPathUtils.TransferTarget.Explicit(cacheDir / path.getFileName.toString))
+      case None =>
+        path
+    }
+
+  /**
+   * Needs to match `cacheDirectory` in [[com.intellij.compiler.server.EelBuildCommandLineBuilder]].
+   * @return a path to the cache directory if the project belongs to a remote machine, `None` if the
+   *         project is a project on the local machine where IDEA is running
+   */
+  private def remoteProjectCacheDirectory(project: Project, eelDescriptor: EelDescriptor): Option[Path] =
+    eelDescriptor match {
+      case LocalEelDescriptor.INSTANCE => None
+      case remote =>
+        val systemDir = EelPathUtils.getSystemFolder(remote)
+        val buildId = ApplicationInfo.getInstance().getBuild.toString
+        val projectSpecific = ProjectUtil.getProjectCacheFileName(project)
+        val path = systemDir / s"jps-$buildId" / projectSpecific
+        if (!path.exists) Files.createDirectories(path)
+        Some(path)
+    }
 
   private def jvmRtDir(project: Project): Path = scalaCompileServerSystemDir(project).resolve("jvm-rt")
 
