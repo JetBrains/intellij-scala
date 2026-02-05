@@ -50,6 +50,8 @@ class BspProjectImportBuilder
   private[importing] var externalBspWorkspace: Option[Path] = None
   private[importing] var preImportConfig: PreImportConfig = AutoPreImport
   private[importing] var serverConfig: BspServerConfig = AutoConfig
+  /** Whether the Scala plugin generated the BSP connection file during initial import */
+  private[importing] var bspConfigGenerated: Boolean = false
 
   /** The wizard system reuses the builder between different runs of the wizard (IDEA-246371),
    * so we need to manually reset on every run. On this occasion, we can preconfigure any
@@ -57,6 +59,7 @@ class BspProjectImportBuilder
   private[importing] def reset(): Unit = {
     preImportConfig = AutoPreImport
     serverConfig = AutoConfig
+    bspConfigGenerated = false
   }
 
   private[importing] def autoConfigure(workspace: Path): Unit = {
@@ -70,6 +73,7 @@ class BspProjectImportBuilder
     val projectSettings = bspSettings.getLinkedProjectSettings(getBspWorkspace.toString)
     projectSettings.setPreImportConfig(preImportConfig)
     projectSettings.setServerConfig(serverConfig)
+    projectSettings.setBspConfigGenerated(bspConfigGenerated)
   }
 
   def setExternalBspWorkspace(str: Path): Unit = {
@@ -85,6 +89,9 @@ class BspProjectImportBuilder
 
   def setServerConfig(bspConfig: BspServerConfig): Unit =
     this.serverConfig = bspConfig
+
+  def setBspConfigGenerated(generated: Boolean): Unit =
+    this.bspConfigGenerated = generated
 
   override def doPrepare(context: WizardContext): Unit = {}
   override def beforeCommit(dataNode: DataNode[ProjectData], project: Project): Unit = {}
@@ -209,6 +216,8 @@ class BspOpenProjectProvider extends AbstractBuildToolOpenProjectProvider {
 
       val bspConfigSetup = params.bspConfigSetup
       if (bspConfigSetup != NoConfigSetup) {
+        settings.setBspConfigGenerated(true)
+
         val task = new BspConfigSetupTask(bspConfigSetup)
         task.queue()
       }

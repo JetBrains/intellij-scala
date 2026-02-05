@@ -106,6 +106,7 @@ object BspProjectSettingsTest {
         _ => {},
         settings => {
           assertFalse("buildOnSave default should be false", settings.buildOnSave)
+          assertFalse("bspConfigGenerated default should be false", settings.bspConfigGenerated)
           assertTrue("runPreImportTask default should be true", settings.runPreImportTask)
         }
       )
@@ -116,10 +117,12 @@ object BspProjectSettingsTest {
         getProject,
         settings => {
           settings.buildOnSave = true
+          settings.bspConfigGenerated = true
           settings.runPreImportTask = false
         },
         settings => {
           assertTrue("buildOnSave should be preserved after serialization", settings.buildOnSave)
+          assertTrue("bspConfigGenerated should be preserved after serialization", settings.bspConfigGenerated)
           assertFalse("runPreImportTask should be preserved after serialization", settings.runPreImportTask)
         }
       )
@@ -151,5 +154,27 @@ object BspProjectSettingsTest {
         _.setPreImportConfig(BloopSbtPreImport),
         settings => assertEquals("BloopSbtPreImport should be preserved", BloopSbtPreImport, settings.preImportConfig)
       )
+  }
+
+  @RunWith(classOf[JUnit4])
+  class ConnectionFileHashSerializationTests extends JavaModuleTestCase {
+
+    @Test
+    def testConnectionFileHashDefaultValue(): Unit =
+      testWithProjectReopen(
+        getProject,
+        _ => {},
+        settings => assertNull(settings.connectionFileHash)
+      )
+
+    @Test
+    def testConnectionFileHashNonEmpty(): Unit = {
+      val hash = 1234543
+      testWithProjectReopen(
+        getProject,
+        _.setConnectionFileHash(hash),
+        settings => assertEquals("connectionFileHash should be preserved", hash, settings.connectionFileHash)
+      )
+    }
   }
 }

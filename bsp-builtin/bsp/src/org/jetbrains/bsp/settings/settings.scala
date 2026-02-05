@@ -12,6 +12,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.util.messages.Topic
 import com.intellij.util.xmlb.Converter
 import com.intellij.util.xmlb.annotations.{OptionTag, XCollection}
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.bsp._
 import org.jetbrains.bsp.settings.BspProjectSettings._
 import org.jetbrains.bsp.settings.PreImportConfig.AutoPreImport
@@ -37,6 +38,19 @@ class BspProjectSettings extends ExternalProjectSettings {
   @BeanProperty
   var preImportConfig: PreImportConfig = AutoPreImport
 
+  /** Whether the Scala plugin generated the BSP connection file during initial import */
+  @BeanProperty
+  var bspConfigGenerated: Boolean = false
+
+  /**
+   * Hash of the BSP connection files under the .bsp directory
+   *
+   * @see [[org.jetbrains.bsp.protocol.BspConnectionConfig.workspaceBspConfigsHash]]
+   */
+  @BeanProperty
+  @Nullable
+  var connectionFileHash: Integer = null
+
   override def setExternalProjectPath(externalProjectPath: String): Unit = {
     super.setExternalProjectPath(ExternalSystemApiUtil.toCanonicalPath(externalProjectPath))
   }
@@ -48,6 +62,8 @@ class BspProjectSettings extends ExternalProjectSettings {
     result.runPreImportTask = runPreImportTask
     result.serverConfig = serverConfig
     result.preImportConfig = preImportConfig
+    result.bspConfigGenerated = bspConfigGenerated
+    result.connectionFileHash = connectionFileHash
     result
   }
 }

@@ -249,6 +249,10 @@ class BspSetupConfigStep(wizardContext: WizardContext, builder: BspProjectImport
       builder.prepare(wizardContext)
       //this will use DefaultProject, which will lead to exception IDEA-289729
       //builder.ensureProjectIsDefined(wizardContext)
+
+      val willGenerateConfig = runSetupTask != NoConfigSetup
+      builder.setBspConfigGenerated(willGenerateConfig)
+
       val task = new BspConfigSetupTask(runSetupTask)
       task.queue()
     }

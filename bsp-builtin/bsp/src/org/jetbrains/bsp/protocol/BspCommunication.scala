@@ -1,12 +1,9 @@
 package org.jetbrains.bsp.protocol
 
 import com.google.gson.Gson
-import com.intellij.notification.{Notification, NotificationAction, NotificationType}
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
-import com.intellij.openapi.externalSystem.service.project.trusted.ExternalSystemTrustedProjectDialog
 import com.intellij.openapi.externalSystem.util.ExternalSystemUtil
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager}
@@ -14,7 +11,6 @@ import com.intellij.openapi.project.{Project, ProjectUtil}
 import com.intellij.openapi.vfs.VfsUtil
 import org.jetbrains.bsp._
 import org.jetbrains.bsp.project.BspExternalSystemManager
-import org.jetbrains.bsp.project.importing.experimental.GenerateBspConfig
 import org.jetbrains.bsp.project.importing.{BspProjectOpenProcessor, bspConfigSteps}
 import org.jetbrains.bsp.project.importing.setup.BspConfigSetup
 import org.jetbrains.bsp.protocol.BspCommunication._
@@ -100,9 +96,21 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
           .withTraceLogPredicate(() => BspExecutionSettings.executionSettingsFor(base).traceBsp)
         val newSession = newSessionBuilder.create
         session.updateAndGet(_ => Option(newSession))
+        
+        storeConnectionFileHash()
+        
         Right(newSession)
     }
   }
+
+  private def storeConnectionFileHash(): Unit =
+    for {
+      project <- findProject
+      settings <- bspSettings(project)
+    } {
+      val currentHash = BspConnectionConfig.workspaceBspConfigsHash(base)
+      settings.setConnectionFileHash(currentHash)
+    }
 
   private def prepareSession(
     project: => Option[Project],
