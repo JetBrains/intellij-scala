@@ -93,8 +93,10 @@ object CompileServerLauncher {
 
     val settings = ScalaCompileServerSettings.getInstance
 
-    settings.COMPILE_SERVER_SDK = jdk.name
-    saveSettings()
+    if (settings.COMPILE_SERVER_SDK != jdk.name) {
+      settings.COMPILE_SERVER_SDK = jdk.name
+      ApplicationManager.getApplication.saveSettings()
+    }
 
     compileServerJars.partition(_.exists) match {
       case (presentFiles, Seq()) =>
@@ -597,10 +599,6 @@ object CompileServerLauncher {
       }
     }
     None
-  }
-
-  private def saveSettings(): Unit = {
-    ApplicationManager.getApplication.saveSettings()
   }
 
   private def projectHome(project: Project): Option[Path] = {
