@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScDerivesClause, ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScPackage, ScalaFile, ScalaRecursiveElementVisitor}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScPackage, ScPackageLike, ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.{PatternTypeInference, ScReferenceImpl}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
 import org.jetbrains.plugins.scala.lang.psi.impl.{CompilerType, ScalaPsiElementFactory, ScalaPsiManager}
@@ -330,6 +330,25 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
       result
     }
 
+  /**
+   * Whether to walk up packages that have no explicit syntax statement.
+   * Currently only applicable to qualifier-less ScalaDoc references
+   *
+   * {{{
+   *   package foo.bar.baz
+   * }}}
+   *
+   * If `true` also process `foo.bar` and `foo` packages.
+   */
+  protected def walkUpIntermediaryPackages: Boolean = false
+
+  /**
+   * Whether to walk up the tree when trying to find a qualifier-less reference.
+   * In a ScalaDoc StrictMemberId reference (aka. `#member`) we only look into the
+   * actual owner.
+   */
+  protected def localReferenceSearch: Boolean = false
+
   private def processQualifier(
     processor:           BaseProcessor,
     isExportInExtension: Boolean
@@ -402,7 +421,16 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
                   if (!processor.changedLevel)
                     return
               }
-              treeWalkUp(place.getContext, place, newState)
+
+              object ParentPackage {
+                def unapply(p: ScPackageLike): Option[ScPackageLike] = p.parentScalaPackage
+              }
+              place match {
+                case ParentPackage(parent) if walkUpIntermediaryPackages =>
+                  treeWalkUp(parent, place, newState)
+                case _ =>
+                  treeWalkUp(place.getContext, place, newState)
+              }
           }
         }
 
