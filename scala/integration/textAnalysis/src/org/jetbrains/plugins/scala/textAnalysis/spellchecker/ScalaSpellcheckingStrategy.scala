@@ -1,18 +1,53 @@
 package org.jetbrains.plugins.scala.textAnalysis.spellchecker
 
-import com.intellij.psi.PsiElement
-import com.intellij.spellchecker.tokenizer.{SpellcheckingStrategy, Tokenizer}
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import com.intellij.psi.impl.source.tree.LeafPsiElement
+import com.intellij.psi.{PsiComment, PsiElement}
+import com.intellij.spellchecker.inspections.{PlainTextSplitter, Splitter}
+import com.intellij.spellchecker.tokenizer.SpellcheckingStrategy.EMPTY_TOKENIZER as emptyTokenizer
+import com.intellij.spellchecker.tokenizer.{SpellcheckingStrategy, TokenConsumer, Tokenizer, TokenizerBase}
+import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScReference}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 
-class ScalaSpellcheckingStrategy extends SpellcheckingStrategy {
-  private final val myLiteralExpressionTokenizer: ScLiteralExpressionTokenizer = new ScLiteralExpressionTokenizer
-  private final val myDocCommentTokenizer: ScalaDocCommentTokenizer = new ScalaDocCommentTokenizer
-
-  override def getTokenizer(element: PsiElement): Tokenizer[? <: PsiElement] = element match {
-    case _: ScLiteral => myLiteralExpressionTokenizer
-    case _: ScDocComment => myDocCommentTokenizer
-    case _ => super.getTokenizer(element)
+final class ScalaSpellcheckingStrategy extends SpellcheckingStrategy {
+  private val myLiteralExpressionTokenizer: ScLiteralExpressionTokenizer = new ScLiteralExpressionTokenizer
+  private val myDocCommentTokenizer: ScalaDocCommentTokenizer = new ScalaDocCommentTokenizer
+  private val codeTokenizer: Tokenizer[PsiElement] = new TokenizerBase[PsiElement](PlainTextSplitter.getInstance()) {
+    override def consumeToken(element: PsiElement, consumer: TokenConsumer, splitter: Splitter): Unit = {
+      consumer.consumeToken(element, true, splitter)
+    }
   }
-}
 
+  override def getTokenizer(element: PsiElement): Tokenizer[? <: PsiElement] =
+    if useTextLevelSpellchecking() && element.is[PsiComment, ScLiteral] then emptyTokenizer
+    else element match {
+      case _: ScLiteral => myLiteralExpressionTokenizer
+      case _: ScDocComment => myDocCommentTokenizer
+      case _: PsiComment => super.getTokenizer(element)
+      case leaf: LeafPsiElement if leaf.getElementType == ScalaTokenTypes.tIDENTIFIER =>
+        leaf.getParent match {
+          case _: ScReference => emptyTokenizer
+          case param: ScParameter =>
+            param.owner match {
+              case owner: ScModifierListOwner => getTokenizer(owner)
+              case _ => codeTokenizer
+            }
+          case owner: ScModifierListOwner => getTokenizer(owner)
+          case pattern: ScBindingPattern =>
+            pattern.nameContext match {
+              case valOrVar: ScValueOrVariable => getTokenizer(valOrVar)
+              case _ => codeTokenizer
+            }
+          case _ => codeTokenizer
+        }
+      case _ => emptyTokenizer
+    }
+
+  private def getTokenizer(owner: ScModifierListOwner): Tokenizer[? <: PsiElement] =
+    if owner.hasModifierPropertyScala("override") then emptyTokenizer else codeTokenizer
+}
