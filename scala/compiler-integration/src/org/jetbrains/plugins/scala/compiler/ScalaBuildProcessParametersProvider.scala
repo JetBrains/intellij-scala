@@ -50,7 +50,7 @@ class ScalaBuildProcessParametersProvider(project: Project)
   private def addOpens(): Seq[String] = CompileServerLauncher.compileServerJvmAddOpensExtraParams
 
   private def scalaCompileServerSystemDir(): String =
-    s"-D${CompileServerProperties.SystemDirectoryProperty}=${CompileServerLauncher.scalaCompileServerSystemDir(project)}"
+    s"-D${CompileServerProperties.SystemDirectoryProperty}=${CompileServerLauncher.targetLocalScalaCompileServerSystemDir(project)}"
 
   private def java9rtParams(): Seq[String] = {
     val settings = ScalaCompileServerSettings.getInstance()

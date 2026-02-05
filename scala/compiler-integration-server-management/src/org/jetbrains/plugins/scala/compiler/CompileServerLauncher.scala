@@ -131,6 +131,8 @@ object CompileServerLauncher {
 
         val id = settings.COMPILE_SERVER_ID
 
+        val compileServerSystemDir = scalaCompileServerSystemDir(project)
+
         val shutdownDelay = settings.COMPILE_SERVER_SHUTDOWN_DELAY * 60
         val shutdownDelayArg = if (settings.COMPILE_SERVER_SHUTDOWN_IDLE && shutdownDelay >= 0) {
           Seq(s"-Dshutdown.delay.seconds=$shutdownDelay")
@@ -183,7 +185,7 @@ object CompileServerLauncher {
             NailgunRunnerFQN +:
             id +:
             classpath +:
-            asTargetLocalPathString(scalaCompileServerSystemDir(project), eelDescriptor) +:
+            asTargetLocalPathString(compileServerSystemDir, eelDescriptor) +:
             Nil
 
         val workingDirectory: Path = {
@@ -204,7 +206,6 @@ object CompileServerLauncher {
           .either(builder.createProcess())
           .left.map(e => CompileServerProblem.UnexpectedException(e))
           .map { process =>
-            val compileServerSystemDir = scalaCompileServerSystemDir(project)
             val port =
               waitUntilNailgunServerIsReady(compileServerSystemDir, process.getInputStream) match {
                 case Some(p) => p
@@ -644,15 +645,26 @@ object CompileServerLauncher {
 
   def scalaCompileServerSystemDir(project: Project): Path = {
     val eelDescriptor = EelProviderUtil.getEelDescriptor(project)
-    val systemDir =
-      if (eelDescriptor == LocalEelDescriptor.INSTANCE) {
+    scalaCompileServerSystemDir(eelDescriptor)
+  }
+
+  private def scalaCompileServerSystemDir(eelDescriptor: EelDescriptor): Path = {
+    val systemDir = eelDescriptor match {
+      case LocalEelDescriptor.INSTANCE =>
         // For filesystem paths which match the machine where IDEA is running on, we call
         // `PathManager.getSystemDir`, which respects the `-Didea.system.path` VM option.
         PathManager.getSystemDir
-      } else
-        EelPathUtils.getSystemFolder(eelDescriptor)
+      case remote =>
+        EelPathUtils.getSystemFolder(remote)
+    }
 
     systemDir.resolve(ScalaCompileServerDirName)
+  }
+
+  def targetLocalScalaCompileServerSystemDir(project: Project): String = {
+    val eelDescriptor = EelProviderUtil.getEelDescriptor(project)
+    val dir = scalaCompileServerSystemDir(eelDescriptor)
+    asTargetLocalPathString(dir, eelDescriptor)
   }
 
   /**
