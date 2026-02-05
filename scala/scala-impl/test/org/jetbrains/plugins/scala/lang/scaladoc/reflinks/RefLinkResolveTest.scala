@@ -313,4 +313,24 @@ class RefLinkResolveTest extends ScalaLightCodeInsightFixtureTestCase {
         |""".stripMargin
 
     )
+
+  def testNonNestedOuterPackage(): Unit =
+    checkAll(
+      """
+        |package outer.outer2 {
+        |  class InOuter2 %outer2%
+        |
+        |  packe inner {
+        |    /**
+        |     * [[InOuter   outer]]
+        |     */
+        |    class SomeClass
+        |  }
+        |}
+        |
+        |package outer {
+        |  class InOuter   %outer%
+        |}
+        |""".stripMargin
+    )
 }
