@@ -504,8 +504,13 @@ object CompileServerLauncher {
           // <IDEA system directory>/scala-compile-server/jvm-rt/java9-rt-ext-eclipse_adoptium_17_0_5
           // for Eclipse Adoptium 17.0.5
           Try {
+            val jvmRtDir = asTargetLocalPathString(
+              scalaCompileServerSystemDir(project) / "jvm-rt",
+              eelDescriptor
+            )
+
             val exportDirectoryPathProcess =
-              new GeneralCommandLine(executablePath.toString, s"-Dsbt.global.base=${jvmRtDir(project)}", "-jar", transferredJava9rtExportJarPath, "--rt-ext-dir")
+              new GeneralCommandLine(executablePath.toString, s"-Dsbt.global.base=$jvmRtDir", "-jar", transferredJava9rtExportJarPath, "--rt-ext-dir")
                 .withParentEnvironmentType(GeneralCommandLine.ParentEnvironmentType.CONSOLE)
                 .createProcess()
 
@@ -525,10 +530,11 @@ object CompileServerLauncher {
 
             // Create the `rt.jar` if it doesn't exist.
             if (!rtJarPath.exists) {
+              val rtJarTargetLocalPathString = asTargetLocalPathString(rtJarPath, eelDescriptor)
               // The command
               // `java -jar <plugin root>/java9-rt-export/java9-rt-export.jar <IDEA system directory>/scala-compile-server/jvm-rt/<jdk specific directory>`
               // is executed and creates the `rt.jar`.
-              new GeneralCommandLine(executablePath.toString, "-jar", transferredJava9rtExportJarPath, rtJarPath.toString)
+              new GeneralCommandLine(executablePath.toString, "-jar", transferredJava9rtExportJarPath, rtJarTargetLocalPathString)
                 .withParentEnvironmentType(GeneralCommandLine.ParentEnvironmentType.CONSOLE)
                 .createProcess()
                 .waitFor()
@@ -541,7 +547,10 @@ object CompileServerLauncher {
 
       // The path of the directory with the exported `rt.jar` is provided as a JVM parameter
       // `-Dscala.ext.dirs=<IDEA system directory>/scala-compile-server/jvm-rt/<jdk specific directory>`
-      resultPath.map(path => s"$scalaExtDirsParameterString=$path").toSeq
+      resultPath
+        .map(asTargetLocalPathString(_, eelDescriptor))
+        .map(path => s"$scalaExtDirsParameterString=$path")
+        .toSeq
     }
   }
 
@@ -713,8 +722,6 @@ object CompileServerLauncher {
         if (!path.exists) Files.createDirectories(path)
         Some(path)
     }
-
-  private def jvmRtDir(project: Project): Path = scalaCompileServerSystemDir(project).resolve("jvm-rt")
 
   private val java9rtExportString: String = "java9-rt-export"
 
