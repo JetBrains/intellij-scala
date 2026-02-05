@@ -4,6 +4,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
 import org.jetbrains.plugins.scala.lang.scaladoc.reflinks.psi.ScDocRefQuerySegment.{IdSelector, PackageSelector, Selector, ThisSelector}
 
 
@@ -11,15 +12,13 @@ sealed trait ScDocRefElement extends ScalaPsiElement {
 
 }
 
-sealed trait ScDocRefQuery extends ScDocRefElement {
-
-}
+sealed trait ScDocRefQuery extends ScDocRefElement with ScDocResolvableCodeReference
 
 object ScDocRefQuery {
-  private val backSlashReplaceRegex = raw"\\(?!\\)".r
+  private val backSlashReplaceRegex = raw"\\(?=.)".r
   def cleanId(idText: String): String = {
     if (idText.isEmpty) idText
-    else if (idText.head == '`') idText.stripPrefix("`").stripSuffix("`")
+    else if (idText.head == '`') idText
     else backSlashReplaceRegex.replaceAllIn(idText, "")
   }
 }
@@ -32,7 +31,7 @@ trait ScDocRefStrictMemberIdQuery extends ScDocRefQuery {
 }
 
 trait ScDocRefQuerySegment extends ScDocRefQuery {
-  def qualifier: Option[ScDocRefQuerySegment] = findChild[ScDocRefQuerySegment]
+  override def qualifier: Option[ScDocRefQuerySegment] = findChild[ScDocRefQuerySegment]
 
   def selector: Option[Selector] = {
     val lastChild = getLastChild
