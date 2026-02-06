@@ -53,7 +53,6 @@ class CompileServerTokenTest(port: Int) {
       assertEquals("The token file was created with wrong posix filesystem permissions", Set(OWNER_READ, OWNER_WRITE), permissions)
     } else {
       val file = tokenFilePath.toFile
-      assertFalse("The token file on Windows must not be executable", file.canExecute)
       assertTrue("The token file on Windows must be readable", file.canRead)
       assertTrue("The token file on Windows must be writable", file.canWrite)
     }

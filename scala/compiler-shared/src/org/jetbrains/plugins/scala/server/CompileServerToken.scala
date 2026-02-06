@@ -46,7 +46,6 @@ object CompileServerToken {
       // and throws exceptions at runtime.
       val file = path.toFile
       file.createNewFile()
-      file.setExecutable(false)
       file.setReadable(/* readable */ true, /* ownerOnly */ true)
       file.setWritable(/* writable */ true, /* ownerOnly */ true)
     }
