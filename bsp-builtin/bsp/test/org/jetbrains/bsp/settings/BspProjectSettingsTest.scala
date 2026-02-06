@@ -108,6 +108,7 @@ object BspProjectSettingsTest {
           assertFalse("buildOnSave default should be false", settings.buildOnSave)
           assertFalse("bspConfigGenerated default should be false", settings.bspConfigGenerated)
           assertTrue("runPreImportTask default should be true", settings.runPreImportTask)
+          assertTrue("autoRegenerateBspConfigOnServerStartup default should be true", settings.autoRegenerateBspConfigOnServerStartup)
         }
       )
 
@@ -119,11 +120,13 @@ object BspProjectSettingsTest {
           settings.buildOnSave = true
           settings.bspConfigGenerated = true
           settings.runPreImportTask = false
+          settings.autoRegenerateBspConfigOnServerStartup = false
         },
         settings => {
           assertTrue("buildOnSave should be preserved after serialization", settings.buildOnSave)
           assertTrue("bspConfigGenerated should be preserved after serialization", settings.bspConfigGenerated)
           assertFalse("runPreImportTask should be preserved after serialization", settings.runPreImportTask)
+          assertFalse("autoRegenerateBspConfigOnServerStartup should be preserved after serialization", settings.autoRegenerateBspConfigOnServerStartup)
         }
       )
   }

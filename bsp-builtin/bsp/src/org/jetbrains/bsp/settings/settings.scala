@@ -10,8 +10,10 @@ import com.intellij.openapi.externalSystem.util.ExternalSystemUiUtil._
 import com.intellij.openapi.externalSystem.util.{ExternalSystemApiUtil, ExternalSystemSettingsControl, ExternalSystemUiUtil, PaintAwarePanel}
 import com.intellij.openapi.project.Project
 import com.intellij.util.messages.Topic
+import com.intellij.util.ui.UI
 import com.intellij.util.xmlb.Converter
 import com.intellij.util.xmlb.annotations.{OptionTag, XCollection}
+import com.intellij.ui.TitledSeparator
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.bsp._
 import org.jetbrains.bsp.settings.BspProjectSettings._
@@ -21,6 +23,7 @@ import org.jetbrains.plugins.scala.extensions.PathExt
 import java.nio.file.{Path, Paths}
 import java.util
 import javax.swing.JCheckBox
+import scala.annotation.nowarn
 import scala.beans.BeanProperty
 
 class BspProjectSettings extends ExternalProjectSettings {
@@ -51,6 +54,13 @@ class BspProjectSettings extends ExternalProjectSettings {
   @Nullable
   var connectionFileHash: Integer = null
 
+  /**
+   * Whether to automatically regenerate the BSP connection file before the BSP server starts.
+   * This is only applied to Scala CLI or Mill projects.
+   */
+  @BeanProperty
+  var autoRegenerateBspConfigOnServerStartup = true
+
   override def setExternalProjectPath(externalProjectPath: String): Unit = {
     super.setExternalProjectPath(ExternalSystemApiUtil.toCanonicalPath(externalProjectPath))
   }
@@ -64,6 +74,7 @@ class BspProjectSettings extends ExternalProjectSettings {
     result.preImportConfig = preImportConfig
     result.bspConfigGenerated = bspConfigGenerated
     result.connectionFileHash = connectionFileHash
+    result.autoRegenerateBspConfigOnServerStartup = autoRegenerateBspConfigOnServerStartup
     result
   }
 }
@@ -148,30 +159,66 @@ class BspProjectSettingsControl(settings: BspProjectSettings)
   @BeanProperty
   var serverConfig: BspServerConfig = AutoConfig
 
+  @BeanProperty
+  var autoRegenerateBspConfigOnServerStartup = false
+
+  @BeanProperty
+  var bspConfigGenerated: Boolean = false
+
+  @BeanProperty
+  @Nullable
+  var connectionFileHash: Integer = null
+
   private val buildOnSaveCheckBox = new JCheckBox(BspBundle.message("bsp.protocol.build.automatically.on.file.save"))
   private val runPreImportTaskCheckBox = new JCheckBox(BspBundle.message("bsp.protocol.export.sbt.projects.to.bloop.before.import"))
+  private val autoRegenerateBspConfigCheckBox = new JCheckBox(BspBundle.message("bsp.protocol.auto.generate.config"))
 
   override def fillExtraControls(content: PaintAwarePanel, indentLevel: Int): Unit = {
     val fillLineConstraints = getFillLineConstraints(1)
     content.add(buildOnSaveCheckBox, fillLineConstraints)
+
+    content.add(new TitledSeparator(BspBundle.message("bsp.protocol.sbt.project")), fillLineConstraints)
     content.add(runPreImportTaskCheckBox, fillLineConstraints)
+
+    content.add(new TitledSeparator(BspBundle.message("bsp.protocol.scala.cli.mill.project")), fillLineConstraints)
+
+    val panelBuilder = UI.PanelFactory.panel(autoRegenerateBspConfigCheckBox): @nowarn("cat=deprecation")
+    val panelBuilderWithTooltip = panelBuilder.withTooltip(BspBundle.message("bsp.protocol.auto.generate.config.tooltip"))
+    val panel = panelBuilderWithTooltip.createPanel()
+
+    content.add(panel, fillLineConstraints)
   }
 
   override def isExtraSettingModified: Boolean = {
     val initial = getInitialSettings
     buildOnSaveCheckBox.isSelected != initial.buildOnSave ||
-      runPreImportTaskCheckBox.isSelected != initial.runPreImportTask
+      runPreImportTaskCheckBox.isSelected != initial.runPreImportTask ||
+      autoRegenerateBspConfigCheckBox.isSelected != initial.autoRegenerateBspConfigOnServerStartup
   }
 
   override def resetExtraSettings(isDefaultModuleCreation: Boolean): Unit = {
     val initial = getInitialSettings
     buildOnSaveCheckBox.setSelected(initial.buildOnSave)
     runPreImportTaskCheckBox.setSelected(initial.runPreImportTask)
+    autoRegenerateBspConfigCheckBox.setSelected(initial.autoRegenerateBspConfigOnServerStartup)
+    // It's required, even for settings that don't have corresponding checkboxes,
+    // to preserve the existing values in the project settings instead of using defaults.
+    preImportConfig = initial.preImportConfig
+    serverConfig = initial.serverConfig
+    bspConfigGenerated = initial.bspConfigGenerated
+    connectionFileHash = initial.connectionFileHash
   }
 
   override def applyExtraSettings(settings: BspProjectSettings): Unit = {
     settings.buildOnSave = buildOnSaveCheckBox.isSelected
     settings.runPreImportTask = runPreImportTaskCheckBox.isSelected
+    settings.autoRegenerateBspConfigOnServerStartup = autoRegenerateBspConfigCheckBox.isSelected
+    // It's required, even for settings that don't have corresponding checkboxes,
+    // to preserve the existing values in the project settings instead of using defaults.
+    settings.preImportConfig = preImportConfig
+    settings.serverConfig = serverConfig
+    settings.bspConfigGenerated = bspConfigGenerated
+    settings.connectionFileHash = connectionFileHash
   }
 
   override def validate(settings: BspProjectSettings): Boolean = true

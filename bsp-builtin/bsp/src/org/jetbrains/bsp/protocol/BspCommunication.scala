@@ -11,8 +11,9 @@ import com.intellij.openapi.project.{Project, ProjectUtil}
 import com.intellij.openapi.vfs.VfsUtil
 import org.jetbrains.bsp._
 import org.jetbrains.bsp.project.BspExternalSystemManager
+import org.jetbrains.bsp.project.importing.BspProjectOpenProcessor.isScalaCliOrMill
 import org.jetbrains.bsp.project.importing.{BspProjectOpenProcessor, bspConfigSteps}
-import org.jetbrains.bsp.project.importing.setup.BspConfigSetup
+import org.jetbrains.bsp.project.importing.setup.{BspConfigSetup, NoConfigSetup}
 import org.jetbrains.bsp.protocol.BspCommunication._
 import org.jetbrains.bsp.protocol.BspNotifications.BspNotification
 import org.jetbrains.bsp.protocol.session.BspServerConnector._
@@ -39,7 +40,7 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
 
   private val runningBspConfigSetup: AtomicReference[Option[BspConfigSetup]] = new AtomicReference[Option[BspConfigSetup]](None)
 
-  private[protocol] val connectionFileHash = BspConnectionConfig.workspaceBspConfigsHash(base)
+  private[protocol] var connectionFileHash = BspConnectionConfig.workspaceBspConfigsHash(base)
 
   lazy val exitCommands: List[List[String]] = {
     val workspace = base.toCanonicalPath
@@ -82,7 +83,7 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
         error match {
           case _: BspConnectionConfigError =>
             findProject.foreach { project =>
-              val service = BspRegenerateBspConnectionFileNotificationService.getInstance(project)
+              val service = BspConnectionFileNotificationService.getInstance(project)
               service.showRegenerateBspConnectionFileNotification(base)
             }
           case _ =>
@@ -116,11 +117,21 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
     project: => Option[Project],
     canGenerateBspConfigFile: Boolean
   )(implicit reporter: BuildReporter): Either[BspError, Builder] = {
-    val shouldGenerate = !BspProjectOpenProcessor.hasBspConfiguration(base) && canGenerateBspConfigFile
+    val hasBspConfigs = BspProjectOpenProcessor.hasBspConfiguration(base)
+
+    lazy val settings = project.flatMap(bspSettings)
+    def generateForScalaCliOrMill: Boolean =
+      isScalaCliOrMill(base) && settings.exists { s =>
+        // If the connection file hash is null, it means that it's the first BSP startup in a freshly imported project,
+        // and this way we don't want to regenerate the initial BSP connection file.
+        s.autoRegenerateBspConfigOnServerStartup && s.getConnectionFileHash() != null
+      }
+
+    val shouldGenerate = canGenerateBspConfigFile && (!hasBspConfigs || generateForScalaCliOrMill)
     if (shouldGenerate) {
       val indicator = ProgressManager.getInstance().getProgressIndicator
       if (indicator != null)
-        tryToGenerateBspConfig(indicator, project)
+        tryToGenerateBspConfig(indicator, project, hasBspConfigs, settings)
     }
 
     // TODO supported languages should be extendable
@@ -170,20 +181,44 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
   /**
    * Generates a BSP configuration file if exactly one setup choice exists and a JDK is available.
    */
-  private def tryToGenerateBspConfig(indicator: ProgressIndicator, project: Option[Project])(implicit reporter: BuildReporter): Unit = {
+  private def tryToGenerateBspConfig(
+    indicator: ProgressIndicator,
+    findProject: => Option[Project],
+    hasBspConfigs: Boolean,
+    settings: => Option[BspProjectSettings]
+  )(implicit reporter: BuildReporter): Unit = {
     val setupChoices = bspConfigSteps.workspaceSetupChoices(base)
     // If there is more than one setup choice or no JDK, a notification will prompt the user to run GenerateBspConfig manually.
     // See org.jetbrains.bsp.BspConnectionConfigError
     if (setupChoices.size != 1) return
 
-    BspJdkUtil.findOrCreateBestJdkForProject(project).foreach { jdk =>
-      val parameters = bspConfigSteps.getBuilderConfigurationParameters(jdk, base, setupChoices.head)
+    BspJdkUtil.findOrCreateBestJdkForProject(findProject).foreach { jdk =>
+      val parameters = bspConfigSteps.getBuilderConfigurationParameters(jdk, base, setupChoices.head, considerExistingConfigs = false)
       val setup = parameters.bspConfigSetup
+      if (setup == NoConfigSetup) return
+
       if (runningBspConfigSetup.compareAndSet(None, Some(setup))) {
+        val beforeGenerationHash = BspConnectionConfig.workspaceBspConfigsHash(base)
+        val showTheNotification = hasBspConfigs && settings.exists { s =>
+          // If the `beforeGenerationHash` is different from the saved hash, it means that it was changed externally (e.g., by the user)
+          val isHashDifferent = Option(s.getConnectionFileHash()).exists(_ != beforeGenerationHash)
+          isHashDifferent || !s.bspConfigGenerated
+        }
+
         try {
           setup.run(indicator)
         } finally {
           runningBspConfigSetup.set(None)
+        }
+
+        val afterGenerationHash = BspConnectionConfig.workspaceBspConfigsHash(base)
+        connectionFileHash = afterGenerationHash
+
+        if (showTheNotification && beforeGenerationHash != afterGenerationHash) {
+          findProject.foreach { project =>
+            val service = BspConnectionFileNotificationService.getInstance(project)
+            service.showConfigChangedNotification(base)
+          }
         }
       }
     }

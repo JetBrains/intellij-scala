@@ -328,10 +328,7 @@ object BspProjectOpenProcessor {
     // temporarily disable sbt importing via bloop from welcome screen (SCL-17359)
     val sbtProject = false
 
-    val canImportMill = MillConfigSetup.canImport(ioWorkspace)
-    val canImportScalaCli = ScalaCliSetupProvider.canImport(workspace.toNioPath)
-
-    hasBspConfiguration(ioWorkspace) || sbtProject || canImportMill || canImportScalaCli
+    hasBspConfiguration(ioWorkspace) || sbtProject || isScalaCliOrMill(workspace.toNioPath)
   }
 
   private[bsp] def hasBspConfiguration(workspace: Path): Boolean = {
@@ -339,4 +336,7 @@ object BspProjectOpenProcessor {
     val bloopProject = BspUtil.bloopConfigDir(workspace).isDefined
     bspConnectionProtocolSupported || bloopProject
   }
+
+  private[bsp] def isScalaCliOrMill(workspace: Path): Boolean =
+    MillConfigSetup.canImport(workspace) || ScalaCliSetupProvider.canImport(workspace)
 }

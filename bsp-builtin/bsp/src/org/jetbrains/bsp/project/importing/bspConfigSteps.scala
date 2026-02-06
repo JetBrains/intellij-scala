@@ -124,11 +124,12 @@ object bspConfigSteps {
   def getBuilderConfigurationParameters(
     jdk: Sdk,
     workspace: Path,
-    configSetup: ConfigSetup
+    configSetup: ConfigSetup,
+    considerExistingConfigs: Boolean = true
   ): BuilderConfigurationParameters = {
     val workspaceBspConfigs = BspConnectionConfig.workspaceBspConfigs(workspace)
 
-    val tuple = if (workspaceBspConfigs.size == 1)
+    val tuple = if (workspaceBspConfigs.size == 1 && considerExistingConfigs)
       (NoConfigSetup, Some(NoPreImport), Some(BspConfigFile(workspaceBspConfigs.head._1)), None)
     else configSetup match {
       case bspConfigSteps.NoSetup =>
