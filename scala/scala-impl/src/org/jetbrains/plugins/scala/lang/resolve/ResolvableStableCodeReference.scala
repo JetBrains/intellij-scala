@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
 import com.intellij.openapi.progress.ProgressManager
-import org.jetbrains.plugins.scala.caches.{cachedWithRecursionGuard, BlockModificationTracker}
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedWithRecursionGuard}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 
-trait ResolvableStableCodeReference
+trait ResolvableStableCodeReference extends ScalaPsiElement with ScPolyResolvable
 
 object ResolvableStableCodeReference {
 

@@ -41,6 +41,7 @@ import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, CompletionProcessor, ExtractorResolveProcessor}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocResolvableCodeReference, ScDocSyntaxElement}
+import org.jetbrains.plugins.scala.lang.scaladoc.reflinks.psi.ScDocRefQuery
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.annotation.tailrec
@@ -467,10 +468,11 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
           case _ =>
         }
         processor.candidates
-      case Some(q: ScDocResolvableCodeReference) =>
+      case Some(q: ScDocRefQuery) =>
         val result = q.multiResolveScala(incomplete = true)
         val result2 = result.flatMap(processQualifierResolveResult(q, _, processor, isExportInExtension))
         result2
+
       case Some(q: ScStableCodeReference) =>
         // Handle `foo: prefix.Type` where `prefix` is a reference to a transparent inline method
         val symbol = CompilerType(q) match {
@@ -503,7 +505,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
   }
 
   private def processQualifierResolveResult(
-    qualifier:           ScStableCodeReference,
+    qualifier:           ResolvableStableCodeReference,
     res:                 ScalaResolveResult,
     processor:           BaseProcessor,
     isExportInExtension: Boolean

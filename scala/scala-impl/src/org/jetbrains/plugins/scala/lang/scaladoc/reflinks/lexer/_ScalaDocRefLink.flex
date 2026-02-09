@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.scaladoc.reflinks;
+package org.jetbrains.plugins.scala.lang.scaladoc.reflinks.lexer;
 
 import com.intellij.lexer.FlexLexer;
 import com.intellij.psi.tree.IElementType;
@@ -38,9 +38,6 @@ QUOTED_IDENTIFIER = "`" [^`\r\n]* "`"
 
 <YYINITIAL> {
   {WS}+ { return tWHITE_SPACE_IN_LINE; }
-
-  "this" { return kTHIS; }
-  "package" { return kPACKAGE; }
 
   {QUOTED_IDENTIFIER} { return tIDENTIFIER; }
   {IDENTIFIER} { return tIDENTIFIER; }

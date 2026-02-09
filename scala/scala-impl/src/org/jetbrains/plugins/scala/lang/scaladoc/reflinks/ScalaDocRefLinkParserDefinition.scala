@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.lang.scaladoc.reflinks.lexer.ScalaDocRefLinkLexer
 import org.jetbrains.plugins.scala.lang.scaladoc.reflinks.parser.ScalaDocRefLinkParser
 import org.jetbrains.plugins.scala.lang.scaladoc.reflinks.psi.ScalaDocRefLinkFile
-import org.jetbrains.plugins.scala.lang.scaladoc.reflinks.psi.impl.{ScDocRefQuerySegmentImpl, ScDocRefStrictMemberIdQueryImpl}
+import org.jetbrains.plugins.scala.lang.scaladoc.reflinks.psi.impl.{ScDocRefQuerySegmentImpl, ScDocRefStrictMemberIdQueryImpl, ScDocRefThisQueryImpl}
 
 class ScalaDocRefLinkParserDefinition extends ParserDefinition {
   override def createLexer(project: Project): Lexer = new ScalaDocRefLinkLexer
@@ -30,6 +30,7 @@ class ScalaDocRefLinkParserDefinition extends ParserDefinition {
     node.getElementType match {
       case ScalaDocRefLinkElementTypes.STRICT_MEMBER_ID => new ScDocRefStrictMemberIdQueryImpl(node)
       case ScalaDocRefLinkElementTypes.QUERY_SEGMENT => new ScDocRefQuerySegmentImpl(node)
+      case ScalaDocRefLinkElementTypes.THIS_QUERY_SEGMENT => new ScDocRefThisQueryImpl(node)
       case _ => new ASTWrapperPsiElement(node)
     }
 

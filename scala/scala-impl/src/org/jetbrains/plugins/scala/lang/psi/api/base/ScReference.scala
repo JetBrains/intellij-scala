@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.{isIdent
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
-trait ScReference extends ScalaPsiElement with PsiPolyVariantReference {
+trait ScReference extends ScalaPsiElement with ScPolyResolvable {
   override def getReference: ScReference = this
 
   def nameId: PsiElement
@@ -31,14 +31,11 @@ trait ScReference extends ScalaPsiElement with PsiPolyVariantReference {
     nameId.getText
   }
 
-  def multiResolveScala(incomplete: Boolean): Array[ScalaResolveResult]
-
-  @deprecated("Is required for compatibility. Prefer `multiResolveScala` for better type inference.", "2018.1")
-  override final def multiResolve(incomplete: Boolean): Array[ResolveResult] = multiResolveScala(incomplete).toArray
+  override def multiResolveScala(incomplete: Boolean): Array[ScalaResolveResult]
 
   def bind(): Option[ScalaResolveResult]
 
-  private def patternNeedBackticks(name: String) = name != "" && name.charAt(0).isLower && getParent.isInstanceOf[ScStableReferencePattern]
+  private def patternNeedBackticks(name: String) = name != "" && name.charAt(0).isLower && getParent.is[ScStableReferencePattern]
 
   override def getElement: ScReference = this
 

@@ -1,18 +1,20 @@
 package org.jetbrains.plugins.scala.lang.scaladoc.reflinks.psi
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPathElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScDocCommentOwner
+import org.jetbrains.plugins.scala.lang.resolve.ResolvableStableCodeReference
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
-import org.jetbrains.plugins.scala.lang.scaladoc.reflinks.psi.ScDocRefQuerySegment.{IdSelector, PackageSelector, Selector, ThisSelector}
 
 
 sealed trait ScDocRefElement extends ScalaPsiElement {
 
 }
 
-sealed trait ScDocRefQuery extends ScDocRefElement with ScDocResolvableCodeReference
+sealed trait ScDocRefQuery extends ScDocRefElement with ResolvableStableCodeReference with ScPathElement
 
 object ScDocRefQuery {
   private val backSlashReplaceRegex = raw"\\(?=.)".r
@@ -23,38 +25,24 @@ object ScDocRefQuery {
   }
 }
 
-trait ScDocRefStrictMemberIdQuery extends ScDocRefQuery {
+trait ScDocRefStrictMemberIdQuery extends ScDocRefQuery with ScDocResolvableCodeReference {
   def memberId: Option[String] =
     findLastChildByTypeScala[PsiElement](ScalaTokenTypes.tIDENTIFIER)
       .map(_.getText)
       .map(ScDocRefQuery.cleanId)
 }
 
-trait ScDocRefQuerySegment extends ScDocRefQuery {
+trait ScDocRefQuerySegment extends ScDocRefQuery with ScDocResolvableCodeReference {
   override def qualifier: Option[ScDocRefQuerySegment] = findChild[ScDocRefQuerySegment]
-
-  def selector: Option[Selector] = {
-    val lastChild = getLastChild
-    lastChild.elementType match {
-      case ScalaTokenTypes.tIDENTIFIER => Some(IdSelector(ScDocRefQuery.cleanId(lastChild.getText)))
-      case ScalaTokenTypes.kTHIS => Some(ThisSelector)
-      case ScalaTokenTypes.kPACKAGE => Some(PackageSelector)
-      case _ => None
-    }
-  }
+  override def pathQualifier: Option[ScDocRefQuery] = findChild[ScDocRefQuery]
 }
 
-object ScDocRefQuerySegment {
-  sealed trait Selector {
-    def text: String
-  }
-  case class IdSelector(id: String) extends Selector {
-    override def text: String = id
-  }
-  case object PackageSelector extends Selector {
-    override def text: String = "package"
-  }
-  case object ThisSelector extends Selector {
-    override def text: String = "this"
-  }
+trait ScDocRefThisQuery extends ScDocRefQuery {
+  def thisToken: PsiElement = this.getFirstChild
+
+  def resolveThis(): Option[ScNamedElement with ScDocCommentOwner]
+
+  override def resolve(): ScNamedElement with ScDocCommentOwner
 }
+
+trait ScPackageQuery extends ScDocRefQuery
