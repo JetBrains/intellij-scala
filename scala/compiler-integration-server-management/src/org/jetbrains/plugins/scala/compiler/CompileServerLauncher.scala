@@ -1,8 +1,8 @@
 //noinspection ApiStatus,UnstableApiUsage
 package org.jetbrains.plugins.scala.compiler
 
-import com.intellij.compiler.server.{BuildManager, BuildProcessParametersProvider}
 import com.intellij.compiler.server.impl.BuildProcessClasspathManager
+import com.intellij.compiler.server.{BuildManager, BuildProcessParametersProvider}
 import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.process.{ProcessEvent, ProcessListener}
 import com.intellij.notification.{Notification, NotificationType, Notifications}
@@ -17,7 +17,7 @@ import com.intellij.platform.eel.provider.{EelNioBridgeServiceKt, EelProviderUti
 import com.intellij.platform.eel.{EelDescriptor, EelPlatformKt}
 import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import org.apache.commons.lang3.StringUtils
-import org.jetbrains.annotations.{ApiStatus, Nls}
+import org.jetbrains.annotations.{ApiStatus, Nls, Nullable}
 import org.jetbrains.jps.api.GlobalOptions
 import org.jetbrains.jps.cmdline.ClasspathBootstrap
 import org.jetbrains.plugins.scala.compiler.buildinfo.BuildInfo
@@ -675,13 +675,23 @@ object CompileServerLauncher {
     scalaCompileServerSystemDir(eelDescriptor)
   }
 
+  def logDirectory(@Nullable project: Project): Path = project match {
+    case null => buildManagerLogDirectory()
+    case p =>
+      val descriptor = EelProviderUtil.getEelDescriptor(p)
+      logDirectory(descriptor)
+  }
+
   private def logDirectory(eelDescriptor: EelDescriptor): Path =
     eelDescriptor match {
       case LocalEelDescriptor.INSTANCE =>
-        BuildManager.getBuildLogDirectory.toCanonicalPath
+        buildManagerLogDirectory()
       case remote =>
         EelPathUtils.getSystemFolder(remote) / "logs" / "build-log"
     }
+
+  private def buildManagerLogDirectory(): Path =
+    BuildManager.getBuildLogDirectory.toCanonicalPath
 
   private def scalaCompileServerSystemDir(eelDescriptor: EelDescriptor): Path = {
     val systemDir = eelDescriptor match {

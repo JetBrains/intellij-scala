@@ -122,5 +122,12 @@
         <action id="Scala.ShowScalaCompilerTreeForFileAction"
                 class="org.jetbrains.plugins.scala.compiler.actions.internal.compilertrees.ShowScalaCompilerTreeAction"
                 internal="true"/>
+
+        <action id="Scala.ShowCompileServerLog"
+                class="org.jetbrains.plugins.scala.compiler.actions.ShowCompileServerLogAction">
+            <add-to-group group-id="HelpMenu" anchor="after" relative-to-action="ShowLog"/>
+            <synonym key="show.compile.server.log.synonym.finder"/>
+            <synonym key="show.compile.server.log.synonym.explorer"/>
+        </action>
     </actions>
 </idea-plugin>

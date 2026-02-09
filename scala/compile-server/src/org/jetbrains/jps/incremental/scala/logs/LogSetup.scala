@@ -1,7 +1,7 @@
 package org.jetbrains.jps.incremental.scala.logs
 
 import com.intellij.openapi.diagnostic.{JulLogger, Logger}
-import org.jetbrains.plugins.scala.server.CompileServerProperties
+import org.jetbrains.plugins.scala.server.{CompileServerLog, CompileServerProperties}
 
 import java.io.IOException
 import java.nio.file.Paths
@@ -12,15 +12,13 @@ import java.nio.file.Paths
  */
 //noinspection ApiStatus,UnstableApiUsage
 object LogSetup {
-  private final val LogFileName = "scala-compile-server.log"
-
   def initLoggers(): Unit = {
     try {
       val logDir = sys.props.get(CompileServerProperties.LogDirectory) match {
         case Some(dir) => Paths.get(dir)
         case None => return
       }
-      val logFilePath = logDir.resolve(LogFileName)
+      val logFilePath = CompileServerLog.logFilePath(logDir)
       JulLogger.clearHandlers()
       JulLogger.configureLogFileAndConsole(logFilePath, true, true, true, false, null, null, null)
     } catch {
