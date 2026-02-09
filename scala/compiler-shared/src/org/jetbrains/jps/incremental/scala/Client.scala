@@ -65,6 +65,21 @@ trait Client {
 
   def deleted(module: Path): Unit
 
+  /**
+   * The method indicates when a client is interested in canceling the current compilation process.
+   * This implies that it should also be stopped on the Scala compiler server.
+   *
+   * ## Implementation details
+   * The actual compilation process on the server is not immediately canceled. It is cooperative and involves multiple parts:
+   * 1. The IDE cancels a progress indicator
+   * 2. The socket gets closed when the client returns from the read loop.<br>
+   *    (see [[remote.RemoteResourceOwner.send]] and [[remote.RemoteResourceOwner.handle]])
+   * 3. The server-side output stream reports an error via `PrintStream.checkError`, which makes the server-side client report `isCanceled = true`.<br>
+   * 4. The compiler loop polls `isCanceled` and stops the compilation at the next check.
+   *    (see [[local.AbstractCompiler.ClientProgress.advance]]),
+   *    and JPS-based compilation uses `() => client.isCanceled` as a cancellation callback<br>
+   *    (see [[remote.EncodingEventGeneratingClient]]) and [[remote.EventGeneratingClient.isCanceled]])
+   */
   def isCanceled: Boolean
 
   def worksheetOutput(text: String): Unit

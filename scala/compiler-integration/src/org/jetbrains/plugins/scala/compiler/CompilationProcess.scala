@@ -16,6 +16,11 @@ trait CompilationProcess {
     Await.result(result.future, Duration.Inf)
   }
 
+  /**
+   * Stops the underlying process.
+   *
+   * ATTENTION: The implementation may terminate the entire Scala Compile Server, not just cancel the current compilation request.
+   */
   def stop(): Unit
 
   def addTerminationCallback(callback: Option[Throwable] => Unit): Unit

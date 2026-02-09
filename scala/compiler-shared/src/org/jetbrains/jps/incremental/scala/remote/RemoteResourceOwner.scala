@@ -37,9 +37,11 @@ trait RemoteResourceOwner {
         client.internalTrace(s"writing chunks to socket")
         chunks.foreach(_.writeTo(output))
         output.flush()
+
         if (client != null) {
           Using.resource(new DataInputStream(new BufferedInputStream(socket.getInputStream))) { input =>
             client.internalTrace("reading chunks from socket")
+            // Returning from the `handle` (for example, on cancel) unwinds Using.resource scopes and closes the socket
             handle(input, client)
           }
         }
@@ -50,6 +52,8 @@ trait RemoteResourceOwner {
   protected def handle(input: DataInputStream, client: Client): Unit = {
     val processor = new ClientEventProcessor(client)
 
+    // When a client is canceled, we stop reading from the socket in the loop.
+    // The caller then closes the socket via Using.resource
     while (!client.isCanceled) {
       val chunk = Chunk.readFrom(input)
       chunk match {
