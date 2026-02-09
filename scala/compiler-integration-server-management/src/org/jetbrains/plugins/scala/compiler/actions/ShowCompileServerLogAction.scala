@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.compiler.actions
 
 import com.intellij.ide.actions.RevealFileAction
-import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent}
-import com.intellij.openapi.project.{DumbAware, Project}
+import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnActionEvent}
+import com.intellij.openapi.project.{DumbAwareAction, Project}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, CompilerIntegrationBundle}
 import org.jetbrains.plugins.scala.server.CompileServerLog
@@ -10,9 +10,9 @@ import org.jetbrains.plugins.scala.server.CompileServerLog
 /**
  * Similar to [[com.intellij.ide.actions.ShowLogAction]].
  */
-final class ShowCompileServerLogAction extends AnAction with DumbAware {
+final class ShowCompileServerLogAction extends DumbAwareAction {
 
-  // Called in constructor
+  // Called in the constructor
   getTemplatePresentation.setText(displayName(skipDetection = true))
 
   override def actionPerformed(e: AnActionEvent): Unit = {
