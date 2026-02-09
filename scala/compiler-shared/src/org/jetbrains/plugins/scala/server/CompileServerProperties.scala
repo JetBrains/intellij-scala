@@ -5,6 +5,8 @@ object CompileServerProperties {
   final val IsScalaCompileServer = "ij.scala.compile.server"
 
   final val SystemDirectoryProperty = "scala.compile.server.system.dir"
+
+  final val LogDirectory = "scala.compile.server.log.dir"
   
   def isMyselfScalaCompileServer: Boolean = {
     val optionResult = for {

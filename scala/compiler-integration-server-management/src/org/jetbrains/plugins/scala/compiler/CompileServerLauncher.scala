@@ -1,7 +1,7 @@
 //noinspection ApiStatus,UnstableApiUsage
 package org.jetbrains.plugins.scala.compiler
 
-import com.intellij.compiler.server.BuildProcessParametersProvider
+import com.intellij.compiler.server.{BuildManager, BuildProcessParametersProvider}
 import com.intellij.compiler.server.impl.BuildProcessClasspathManager
 import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.process.{ProcessEvent, ProcessListener}
@@ -157,7 +157,7 @@ object CompileServerLauncher {
 
         // SCL-18193
         val addOpensOptions =
-          if (jdk.version.exists(_ isAtLeast JavaSdkVersion.JDK_1_9)) {
+          if (isJdkAtLeast(jdk, JavaSdkVersion.JDK_1_9)) {
             val buffer = mutable.ListBuffer.empty[String]
             ClasspathBootstrap.configureReflectionOpenPackages(buffer.append)
             buffer.result() ++ compileServerJvmAddOpensExtraParams
@@ -165,12 +165,26 @@ object CompileServerLauncher {
 
         // SCL-23766 Unsafe memory access in JDK 24+
         val unsafeMemoryAccessOptions =
-          if (jdk.version.exists(_.isAtLeast(JavaSdkVersion.JDK_24)))
+          if (isJdkAtLeast(jdk, JavaSdkVersion.JDK_24))
             Seq("--enable-native-access=ALL-UNNAMED", "--sun-misc-unsafe-memory-access=allow")
           else Seq.empty
 
         val userJvmParameters = jvmParameters
         val java9rtJarParams = prepareJava9rtJar(project, jdk)
+
+        val loggingParameters = {
+          val vmOptionsForLogging =
+            if (isJdkAtLeast(jdk, JavaSdkVersion.JDK_1_9))
+              Seq(s"--add-opens", "java.base/java.lang=ALL-UNNAMED")
+            else
+              Seq.empty
+
+          Seq(
+            s"-D${GlobalOptions.USE_DEFAULT_FILE_LOGGING_OPTION}=false",
+            s"-D${CompileServerProperties.LogDirectory}=${logDirectory(eelDescriptor)}"
+          ) ++ vmOptionsForLogging
+        }
+
         val commands =
           jdk.executable.toCanonicalPath.toString +:
             "-cp" +: nailgunClasspath +:
@@ -182,6 +196,7 @@ object CompileServerLauncher {
             addOpensOptions ++:
             unsafeMemoryAccessOptions ++:
             vmOptions ++:
+            loggingParameters ++:
             NailgunRunnerFQN +:
             id +:
             classpath +:
@@ -433,6 +448,9 @@ object CompileServerLauncher {
       )
     }.getOrElse(Seq.empty)
 
+  private def isJdkAtLeast(jdk: JDK, version: JavaSdkVersion): Boolean =
+    jdk.version.exists(_.isAtLeast(version))
+
   /**
    * A cache to avoid recomputing the `rt.jar` location on every invocation of the `prepareJava9rtJar` method,
    * which happens every time the compile server needs to be started for some reason, as well as every time
@@ -473,7 +491,7 @@ object CompileServerLauncher {
      *
      * The sbt `java9-rt-export` tool is used to produce the `rt.jar` file, and is unique to each JDK runtime.
      */
-    Option(jdk).filter(_.version.exists(_.isAtLeast(JavaSdkVersion.JDK_1_9))).fold(Seq.empty[String]) { jdk =>
+    Option(jdk).filter(isJdkAtLeast(_, JavaSdkVersion.JDK_1_9)).fold(Seq.empty[String]) { jdk =>
       // We are running JDK 9+ as the runtime JDK for the Scala compiler.
       val executablePath = jdk.executable.toCanonicalPath
       val eelDescriptor = EelProviderUtil.getEelDescriptor(project)
@@ -656,6 +674,14 @@ object CompileServerLauncher {
     val eelDescriptor = EelProviderUtil.getEelDescriptor(project)
     scalaCompileServerSystemDir(eelDescriptor)
   }
+
+  private def logDirectory(eelDescriptor: EelDescriptor): Path =
+    eelDescriptor match {
+      case LocalEelDescriptor.INSTANCE =>
+        BuildManager.getBuildLogDirectory.toCanonicalPath
+      case remote =>
+        EelPathUtils.getSystemFolder(remote) / "logs" / "build-log"
+    }
 
   private def scalaCompileServerSystemDir(eelDescriptor: EelDescriptor): Path = {
     val systemDir = eelDescriptor match {

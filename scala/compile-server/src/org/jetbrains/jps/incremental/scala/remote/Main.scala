@@ -5,6 +5,7 @@ import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.data.CompileServerCommandParser
 import org.jetbrains.jps.incremental.scala.local.worksheet.WorksheetServer
 import org.jetbrains.jps.incremental.scala.local.{Cache, LocalServer}
+import org.jetbrains.jps.incremental.scala.logs.LogSetup
 import org.jetbrains.jps.incremental.scala.utils.CompileServerSharedMessages
 import org.jetbrains.plugins.scala.compiler.data.serialization.SerializationUtils
 import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgs
@@ -30,6 +31,8 @@ import scala.util.{Failure, Success, Try}
  * @see `org.jetbrains.plugins.scala.worksheet.server.NonServerRunner`
  */
 object Main {
+
+  LogSetup.initLoggers()
 
   /**
    * We need to remember original output streams, otherwise System.out/err can reference to stale [[com.facebook.nailgun.ThreadLocalPrintStream]] values
