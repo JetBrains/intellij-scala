@@ -295,4 +295,14 @@ class ScalaDocMarkdownFormatterTest extends AbstractScalaFormatterTestBase {
       | */
       |""".stripMargin
   )
+
+  // SCL-22730
+  def test_scalaRef(): Unit = doTextTest(
+    """
+      |/**
+      | * @param x time (from [[System.nanoTime()]])
+      | * */
+      |def f(x: Long): Unit = ()
+      |""".stripMargin
+  )
 }
