@@ -165,7 +165,6 @@
                              instance="org.jetbrains.plugins.scala.settings.sections.ExtensionSettingsSectionConfigurable"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.settings.CompilerIndicesSettings"/>
 
-        <errorHandler implementation="org.jetbrains.plugins.scala.ScalaErrorReportSubmitter"/>
         <autoImportOptionsProvider instance="org.jetbrains.plugins.scala.editor.autoimport.ScalaAutoImportOptionsProvider"/>
         <fileType name="Scala" language="Scala" extensions="scala;mill"
                   implementationClass="org.jetbrains.plugins.scala.ScalaFileType" fieldName="INSTANCE" />
