@@ -21,10 +21,10 @@ white space in line {
 identifier {identifier2}
 white space in line {
 }
-this {this}
+identifier {this}
 white space in line {
 }
-package {package}
+identifier {package}
 white space in line {
 }
 . {.}

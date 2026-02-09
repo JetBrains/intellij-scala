@@ -82,7 +82,7 @@ class ScalaDocRefLinkParserTest extends SimpleTestCase {
     "#`toString`",
     """
       |ASTWrapperPsiElement(FILE)
-      |  ScDocRefStrictMemberIdQuery(toString)
+      |  ScDocRefStrictMemberIdQuery(`toString`)
       |    PsiElement(#)('#')
       |    PsiElement(identifier)('`toString`')
       |""".stripMargin
@@ -93,7 +93,7 @@ class ScalaDocRefLinkParserTest extends SimpleTestCase {
     """
       |ASTWrapperPsiElement(FILE)
       |  ScDocRefQuerySegment('foo')
-      |    ScDocRefQuerySegment(this)
+      |    ScDocRefThisQuery
       |      PsiElement(this)('this')
       |    PsiElement(.)('.')
       |    PsiElement(identifier)('foo')
@@ -105,7 +105,7 @@ class ScalaDocRefLinkParserTest extends SimpleTestCase {
     """
       |ASTWrapperPsiElement(FILE)
       |  ScDocRefQuerySegment('Bar')
-      |    ScDocRefQuerySegment(package)
+      |    ScPackageQuery
       |      PsiElement(package)('package')
       |    PsiElement(.)('.')
       |    PsiElement(identifier)('Bar')
@@ -117,7 +117,7 @@ class ScalaDocRefLinkParserTest extends SimpleTestCase {
     """
       |ASTWrapperPsiElement(FILE)
       |  ScDocRefQuerySegment('Foo')
-      |    ScDocRefQuerySegment('type')
+      |    ScDocRefQuerySegment('`type`')
       |      PsiElement(identifier)('`type`')
       |    PsiElement(.)('.')
       |    PsiElement(identifier)('Foo')
@@ -185,7 +185,7 @@ class ScalaDocRefLinkParserTest extends SimpleTestCase {
     "`foo\\bar`",
     """
       |ASTWrapperPsiElement(FILE)
-      |  ScDocRefQuerySegment('foo\bar')
+      |  ScDocRefQuerySegment('`foo\bar`')
       |    PsiElement(identifier)('`foo\bar`')
       |""".stripMargin
   )

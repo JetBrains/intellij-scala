@@ -32,4 +32,6 @@ class ScDocRefThisQueryImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wit
   override def isReferenceTo(element: PsiElement): Boolean = element == resolve()
 
   override def isSoft: Boolean = false
+
+  override def toString: String = "ScDocRefThisQuery"
 }

@@ -35,4 +35,6 @@ class ScPackageQueryImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
   override def isReferenceTo(element: PsiElement): Boolean = element == resolve()
 
   override def isSoft: Boolean = false
+
+  override def toString: String = s"ScPackageQuery"
 }
