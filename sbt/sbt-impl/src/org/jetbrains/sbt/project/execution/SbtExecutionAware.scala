@@ -4,6 +4,7 @@ package org.jetbrains.sbt.project.execution
 import com.intellij.build.events.BuildEvents
 import com.intellij.build.events.impl.{SkippedResultImpl, SuccessResultImpl}
 import com.intellij.build.issue.{BuildIssue, BuildIssueQuickFix}
+import com.intellij.execution.process.ProcessOutputType
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
@@ -124,6 +125,14 @@ class SbtExecutionAware extends ExternalSystemExecutionAware {
   private def whenTaskCanceled(task: ExternalSystemTask, onCancelAction: => Unit): Unit = {
     val progressManager = ExternalSystemProgressNotificationManager.getInstance()
     val notificationListener = new ExternalSystemTaskNotificationListener {
+      // `ExternalSystemTaskNotificationListener` contains two default methods that call each other if there is an
+      // implementation of a specific method in the subclass. Reflection is used for this purpose.
+      // It's causing issues because Scala compiles Java interface default methods into concrete method implementations in subclasses.
+      // As a result, reflection shows that both methods exist in the subclass,
+      // causing the two `onTaskOutput` methods to call each other indefinitely, leading to a `StackOverflowError`.
+      // An empty implementation of `onTaskOutput` prevents this.
+      override def onTaskOutput(id: ExternalSystemTaskId, text: String, outputType: ProcessOutputType): Unit = { }
+
       override def onCancel(projectPath: String, id: ExternalSystemTaskId): Unit = onCancelAction
     }
     progressManager.addNotificationListener(task.getId, notificationListener)
