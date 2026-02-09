@@ -8,7 +8,10 @@ import java.nio.charset.StandardCharsets
 import java.util.Base64
 
 final class EncodingEventGeneratingClient(out: PrintStream, standalone: Boolean)
-  extends EventGeneratingClient(eventHandler(out, standalone), out.checkError) {
+  extends EventGeneratingClient(
+    writeEvent = eventHandler(out, standalone),
+    canceled = out.checkError
+  ) {
 
   private var _hasErrors = false
 
