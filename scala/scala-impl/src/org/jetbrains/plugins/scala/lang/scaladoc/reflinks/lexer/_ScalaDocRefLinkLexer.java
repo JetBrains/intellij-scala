@@ -65,9 +65,7 @@ public class _ScalaDocRefLinkLexer implements FlexLexer, ScalaTokenTypes {
   private static final String ZZ_CMAP_BLOCKS_PACKED_0 =
     "\11\0\1\1\1\2\1\0\1\3\1\2\22\0\1\1"+
     "\2\0\1\4\4\0\1\5\1\6\4\0\1\7\54\0"+
-    "\1\10\1\11\1\12\2\0\1\13\1\14\1\0\1\15"+
-    "\1\0\1\16\1\0\1\17\1\20\1\21\1\0\1\22"+
-    "\4\0\1\23\2\0\1\24\1\25\u038b\0";
+    "\1\10\1\11\1\12\2\0\1\13\u039f\0";
 
   private static int [] zzUnpackcmap_blocks() {
     int [] result = new int[1024];
@@ -95,11 +93,10 @@ public class _ScalaDocRefLinkLexer implements FlexLexer, ScalaTokenTypes {
 
   private static final String ZZ_ACTION_PACKED_0 =
     "\1\0\1\1\1\2\1\3\1\4\1\5\1\6\1\7"+
-    "\1\1\1\10\1\11\2\1\1\0\6\1\1\12\2\1"+
-    "\1\13";
+    "\1\1\1\10\1\11\1\0\1\1";
 
   private static int [] zzUnpackAction() {
-    int [] result = new int[24];
+    int [] result = new int[13];
     int offset = 0;
     offset = zzUnpackAction(ZZ_ACTION_PACKED_0, offset, result);
     return result;
@@ -124,12 +121,11 @@ public class _ScalaDocRefLinkLexer implements FlexLexer, ScalaTokenTypes {
   private static final int [] ZZ_ROWMAP = zzUnpackRowMap();
 
   private static final String ZZ_ROWMAP_PACKED_0 =
-    "\0\0\0\26\0\54\0\102\0\102\0\102\0\102\0\102"+
-    "\0\130\0\102\0\156\0\204\0\232\0\156\0\102\0\260"+
-    "\0\306\0\334\0\362\0\u0108\0\26\0\u011e\0\u0134\0\26";
+    "\0\0\0\14\0\30\0\44\0\44\0\44\0\44\0\44"+
+    "\0\60\0\44\0\74\0\74\0\44";
 
   private static int [] zzUnpackRowMap() {
-    int [] result = new int[24];
+    int [] result = new int[13];
     int offset = 0;
     offset = zzUnpackRowMap(ZZ_ROWMAP_PACKED_0, offset, result);
     return result;
@@ -153,19 +149,12 @@ public class _ScalaDocRefLinkLexer implements FlexLexer, ScalaTokenTypes {
 
   private static final String ZZ_TRANS_PACKED_0 =
     "\1\2\3\3\1\4\1\5\1\6\1\7\1\10\1\11"+
-    "\1\12\1\13\7\2\1\14\1\2\1\15\1\2\10\0"+
-    "\1\11\2\0\12\2\1\0\3\3\50\0\2\2\2\0"+
-    "\5\2\1\11\14\2\2\16\1\0\10\16\1\17\12\16"+
-    "\1\2\10\0\1\11\2\0\1\20\12\2\10\0\1\11"+
-    "\2\0\4\2\1\21\6\2\10\0\1\11\2\0\1\2"+
-    "\1\22\11\2\10\0\1\11\2\0\5\2\1\23\5\2"+
-    "\10\0\1\11\2\0\6\2\1\24\4\2\10\0\1\11"+
-    "\2\0\10\2\1\25\2\2\10\0\1\11\2\0\1\26"+
-    "\12\2\10\0\1\11\2\0\3\2\1\27\7\2\10\0"+
-    "\1\11\2\0\2\2\1\30\7\2";
+    "\1\12\1\13\1\2\10\0\1\11\3\0\3\3\24\0"+
+    "\2\2\2\0\5\2\1\11\2\2\2\14\1\0\10\14"+
+    "\1\15";
 
   private static int [] zzUnpacktrans() {
-    int [] result = new int[330];
+    int [] result = new int[72];
     int offset = 0;
     offset = zzUnpacktrans(ZZ_TRANS_PACKED_0, offset, result);
     return result;
@@ -203,11 +192,10 @@ public class _ScalaDocRefLinkLexer implements FlexLexer, ScalaTokenTypes {
   private static final int [] ZZ_ATTRIBUTE = zzUnpackAttribute();
 
   private static final String ZZ_ATTRIBUTE_PACKED_0 =
-    "\1\0\2\1\5\11\1\1\1\11\3\1\1\0\1\11"+
-    "\11\1";
+    "\1\0\2\1\5\11\1\1\1\11\1\1\1\0\1\11";
 
   private static int [] zzUnpackAttribute() {
-    int [] result = new int[24];
+    int [] result = new int[13];
     int offset = 0;
     offset = zzUnpackAttribute(ZZ_ATTRIBUTE_PACKED_0, offset, result);
     return result;
@@ -550,57 +538,47 @@ public class _ScalaDocRefLinkLexer implements FlexLexer, ScalaTokenTypes {
             { return tIDENTIFIER;
             }
           // fall through
-          case 12: break;
+          case 10: break;
           case 2:
             { return tWHITE_SPACE_IN_LINE;
             }
           // fall through
-          case 13: break;
+          case 11: break;
           case 3:
             { return tINNER_CLASS;
             }
           // fall through
-          case 14: break;
+          case 12: break;
           case 4:
             { return tLPARENTHESIS;
             }
           // fall through
-          case 15: break;
+          case 13: break;
           case 5:
             { return tRPARENTHESIS;
             }
           // fall through
-          case 16: break;
+          case 14: break;
           case 6:
             { return tDOT;
             }
           // fall through
-          case 17: break;
+          case 15: break;
           case 7:
             { return tLSQBRACKET;
             }
           // fall through
-          case 18: break;
+          case 16: break;
           case 8:
             { return tRSQBRACKET;
             }
           // fall through
-          case 19: break;
+          case 17: break;
           case 9:
             { return tSTUB;
             }
           // fall through
-          case 20: break;
-          case 10:
-            { return kTHIS;
-            }
-          // fall through
-          case 21: break;
-          case 11:
-            { return kPACKAGE;
-            }
-          // fall through
-          case 22: break;
+          case 18: break;
           default:
             zzScanError(ZZ_NO_MATCH);
           }

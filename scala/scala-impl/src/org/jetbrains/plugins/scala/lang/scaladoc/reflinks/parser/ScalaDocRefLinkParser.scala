@@ -58,8 +58,27 @@ class ScalaDocRefLinkParser extends PsiParser with LightPsiParser {
    */
   private def parseSegmentedQuery(builder: PsiBuilder): Unit = {
     var marker = builder.mark()
-    parseQualifier(builder)
-    marker.done(ScalaDocRefLinkElementTypes.QUERY_SEGMENT)
+    // first segment can be also a 'this' or 'package'
+    // afterwards both are just also names
+    val segmentType =
+      builder.getTokenType match {
+        case `tIDENTIFIER` =>
+          try builder.getTokenText match {
+            case "this" =>
+              builder.remapCurrentToken(kTHIS)
+              ScalaDocRefLinkElementTypes.THIS_QUERY_SEGMENT
+            case "package" =>
+              builder.remapCurrentToken(kPACKAGE)
+              ???
+            case _ =>
+              ScalaDocRefLinkElementTypes.QUERY_SEGMENT
+          }
+          finally builder.advanceLexer()
+        case _ =>
+          builder.error(ScalaBundle.message("identifier.this.or.package.expected"))
+          ScalaDocRefLinkElementTypes.QUERY_SEGMENT
+      }
+    marker.done(segmentType)
 
     // Check for type parameters '(' or '[' that end the query
     while (builder.getTokenType == tDOT || builder.getTokenType == tINNER_CLASS) {

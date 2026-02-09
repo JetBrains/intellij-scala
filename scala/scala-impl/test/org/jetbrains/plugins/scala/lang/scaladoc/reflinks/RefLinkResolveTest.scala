@@ -4,6 +4,7 @@ import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, ObjectExt, PsiElementExt}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.scaladoc.reflinks.psi.ScDocRefQuery
 import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers.AssertMatchersExt
 
@@ -47,16 +48,23 @@ class RefLinkResolveTest extends ScalaLightCodeInsightFixtureTestCase {
   case class TestResult(resolvedLineNumber: Int, resolvedLine: String)
 
   private def testQuery(query: ScDocRefQuery, target: String, testData: TestData): Seq[TestResult] = {
-    val resolved = query.multiResolveScala(incomplete = false)
+    val resolved =
+      query.multiResolveScala(incomplete = false)
+        .map(_.element.getNavigationElement)
+        .map {
+          case named: ScNamedElement => named.nameId
+          case e => e
+        }
     if (resolved == null)
       return Seq.empty
 
 
     resolved.toSeq
       .map { r =>
+        val offset = r.startOffset
         val num = PsiDocumentManager.getInstance(getProject)
           .getDocument(testData.psiFile)
-          .getLineNumber(r.element.startOffset)
+          .getLineNumber(offset)
         TestResult(num, testData.getLine(num))
       }
   }
@@ -355,7 +363,6 @@ class RefLinkResolveTest extends ScalaLightCodeInsightFixtureTestCase {
       |""".stripMargin
   )
 
-
   def testTopLevelSearch(): Unit = checkAll(
     """
       |package topLvl {
@@ -377,6 +384,21 @@ class RefLinkResolveTest extends ScalaLightCodeInsightFixtureTestCase {
       |   * [[inScala.Target  targetInScala]]
       |   */
       |  class Blub
+      |}
+      |""".stripMargin
+  )
+
+  def testThisQualifier(): Unit = checkAll(
+    """
+      |/**
+      | *  [[this.Target   target]]
+      | *  [[this          myself]]
+      | *  [[Myself.this   this]]
+      | *  [[this.this     this]]
+      | */
+      |class Myself {   %myself%
+      |  object Target  %target%
+      |  object `this`  %this%
       |}
       |""".stripMargin
   )
