@@ -468,7 +468,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
           case _ =>
         }
         processor.candidates
-      case Some(q: ScDocRefQuery) =>
+      case Some(q: ResolvableStableCodeReference) if q.is[ScDocRefQuery, ScDocResolvableCodeReference] =>
         val result = q.multiResolveScala(incomplete = true)
         val result2 = result.flatMap(processQualifierResolveResult(q, _, processor, isExportInExtension))
         result2
