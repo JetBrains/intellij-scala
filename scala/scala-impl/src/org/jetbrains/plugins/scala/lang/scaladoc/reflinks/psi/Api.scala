@@ -2,9 +2,9 @@ package org.jetbrains.plugins.scala.lang.scaladoc.reflinks.psi
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPathElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScPackaging}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScDocCommentOwner
 import org.jetbrains.plugins.scala.lang.resolve.ResolvableStableCodeReference
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
@@ -45,4 +45,10 @@ trait ScDocRefThisQuery extends ScDocRefQuery {
   override def resolve(): ScNamedElement with ScDocCommentOwner
 }
 
-trait ScPackageQuery extends ScDocRefQuery
+trait ScPackageQuery extends ScDocRefQuery {
+  def packageToken: PsiElement = this.getFirstChild
+
+  def resolvePackage(): Option[ScPackage]
+
+  override def resolve(): ScPackage
+}

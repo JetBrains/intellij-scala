@@ -395,10 +395,29 @@ class RefLinkResolveTest extends ScalaLightCodeInsightFixtureTestCase {
       | *  [[this          myself]]
       | *  [[Myself.this   this]]
       | *  [[this.this     this]]
+      | *  [[#this         this]]
       | */
       |class Myself {   %myself%
       |  object Target  %target%
       |  object `this`  %this%
+      |}
+      |""".stripMargin
+  )
+
+  def testPackageQualifier(): Unit = checkAll(
+    """
+      |package org.test
+      |
+      |object Target %pkg-target%
+      |
+      |/**
+      | *  [[package.Target   pkg-target]]
+      | *  [[Myself.package   package]]
+      | *  [[#package         package
+      | */
+      |class Myself {
+      |  class Target      %target%
+      |  object `package`  %package%
       |}
       |""".stripMargin
   )
