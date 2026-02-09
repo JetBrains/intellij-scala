@@ -44,7 +44,7 @@ class ScalaDocRefLinkParser extends PsiParser with LightPsiParser {
       case null | ScalaTokenTypes.tLSQBRACKET | ScalaTokenTypes.tLPARENTHESIS =>
         // this is fine
       case _ =>
-        builder.error("Expected '.', '#', '(', '[' or whitespace")
+        builder.error(ScalaBundle.message("expected.scaladoc.tokens.or.whitespace"))
     }
 
     // rest is just unused tokens

@@ -984,7 +984,7 @@ ScalaFile
                 ScPsiDocToken(DOC_TAG_NAME)('@throws')
                 ScPsiDocToken(DOC_WHITESPACE)(' ')
                 ASTWrapperPsiElement(SCALA_DOC_REFERENCE_LINK)
-                  CodeReferenceElement (scalaDoc): IllegalArgumentException
+                  ScDocRefQuerySegment('IllegalArgumentException')
                     PsiElement(identifier)('IllegalArgumentException')
                 ScPsiDocToken(DOC_WHITESPACE)('\n   ')
                 ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
@@ -1017,8 +1017,8 @@ ScalaFile
                   ScPsiDocToken(DOC_TAG_NAME)('@throws')
                   ScPsiDocToken(DOC_WHITESPACE)(' ')
                   ASTWrapperPsiElement(SCALA_DOC_REFERENCE_LINK)
-                    CodeReferenceElement (scalaDoc): StringContext.InvalidEscapeException
-                      CodeReferenceElement (scalaDoc): StringContext
+                    ScDocRefQuerySegment('InvalidEscapeException')
+                      ScDocRefQuerySegment('StringContext')
                         PsiElement(identifier)('StringContext')
                       PsiElement(.)('.')
                       PsiElement(identifier)('InvalidEscapeException')
@@ -1410,7 +1410,7 @@ ScalaFile
                 ScPsiDocToken(DOC_TAG_NAME)('@throws')
                 ScPsiDocToken(DOC_WHITESPACE)(' ')
                 ASTWrapperPsiElement(SCALA_DOC_REFERENCE_LINK)
-                  CodeReferenceElement (scalaDoc): IllegalArgumentException
+                  ScDocRefQuerySegment('IllegalArgumentException')
                     PsiElement(identifier)('IllegalArgumentException')
                 ScPsiDocToken(DOC_WHITESPACE)('\n   ')
                 ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
@@ -1664,7 +1664,7 @@ ScalaFile
                 ScPsiDocToken(DOC_TAG_NAME)('@throws')
                 ScPsiDocToken(DOC_WHITESPACE)(' ')
                 ASTWrapperPsiElement(SCALA_DOC_REFERENCE_LINK)
-                  CodeReferenceElement (scalaDoc): IllegalArgumentException
+                  ScDocRefQuerySegment('IllegalArgumentException')
                     PsiElement(identifier)('IllegalArgumentException')
                 ScPsiDocToken(DOC_WHITESPACE)('\n   ')
                 ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
@@ -1697,8 +1697,8 @@ ScalaFile
                   ScPsiDocToken(DOC_TAG_NAME)('@throws')
                   ScPsiDocToken(DOC_WHITESPACE)(' ')
                   ASTWrapperPsiElement(SCALA_DOC_REFERENCE_LINK)
-                    CodeReferenceElement (scalaDoc): StringContext.InvalidEscapeException
-                      CodeReferenceElement (scalaDoc): StringContext
+                    ScDocRefQuerySegment('InvalidEscapeException')
+                      ScDocRefQuerySegment('StringContext')
                         PsiElement(identifier)('StringContext')
                       PsiElement(.)('.')
                       PsiElement(identifier)('InvalidEscapeException')
@@ -6036,7 +6036,7 @@ ScalaFile
                 ScPsiDocToken(DOC_TAG_NAME)('@throws')
                 ScPsiDocToken(DOC_WHITESPACE)(' ')
                 ASTWrapperPsiElement(SCALA_DOC_REFERENCE_LINK)
-                  CodeReferenceElement (scalaDoc): IllegalArgumentException
+                  ScDocRefQuerySegment('IllegalArgumentException')
                     PsiElement(identifier)('IllegalArgumentException')
                 ScDocParagraph
                   ScPsiDocToken(DOC_WHITESPACE)('  ')
