@@ -309,6 +309,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       else WITH_SPACING
 
     val scaladocSpacing = elementTypesWithParents match {
+      case (_, _, ScalaDocElementTypes.SCALA_DOC_REFERENCE_LINK, ScalaDocElementTypes.SCALA_DOC_REFERENCE_LINK) =>
+        WITHOUT_SPACING
       case (_, ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS, _, _) =>
         NO_SPACING_WITH_NEWLINE
       case (_, ScalaDocTokenType.DOC_COMMENT_END, _, _) =>
