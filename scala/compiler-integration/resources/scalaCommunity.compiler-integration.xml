@@ -123,4 +123,19 @@
                 class="org.jetbrains.plugins.scala.compiler.actions.internal.compilertrees.ShowScalaCompilerTreeAction"
                 internal="true"/>
     </actions>
+
+    <actions resource-bundle="messages.CompilerIntegrationBundle">
+        <action id="Scala.OpenCompileServerLog"
+                internal="true"
+                class="org.jetbrains.plugins.scala.compiler.actions.internal.OpenCompileServerLogAction">
+            <add-to-group group-id="HelpMenu" anchor="before" relative-to-action="Scala.ShowCompileServerLog"/>
+        </action>
+
+        <action id="Scala.ShowCompileServerLog"
+                class="org.jetbrains.plugins.scala.compiler.actions.ShowCompileServerLogAction">
+            <add-to-group group-id="HelpMenu" anchor="after" relative-to-action="ShowLog"/>
+            <synonym key="show.compile.server.log.synonym.finder"/>
+            <synonym key="show.compile.server.log.synonym.explorer"/>
+        </action>
+    </actions>
 </idea-plugin>
