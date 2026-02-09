@@ -26,9 +26,9 @@ import com.intellij.projectImport.{ProjectImportBuilder, ProjectImportProvider, 
 import org.jetbrains.bsp._
 import org.jetbrains.bsp.project.importing.BspProjectOpenProcessor.hasBspConfiguration
 import org.jetbrains.bsp.project.importing.BspSetupConfigStep.BspConfigSetupTask
-import org.jetbrains.bsp.project.importing.bspConfigSteps.ConfigSetup
+import org.jetbrains.bsp.project.importing.bspConfigSteps._
 import org.jetbrains.bsp.project.importing.experimental.GenerateBspConfig.GenerateBspConfigDialog
-import org.jetbrains.bsp.project.importing.setup.{MillConfigSetup, NoConfigSetup, ScalaCliSetupProvider}
+import org.jetbrains.bsp.project.importing.setup.{BspSetupProvider, NoConfigSetup}
 import org.jetbrains.bsp.protocol.BspConnectionConfig
 import org.jetbrains.bsp.settings.BspProjectSettings._
 import org.jetbrains.bsp.settings.PreImportConfig._
@@ -338,5 +338,5 @@ object BspProjectOpenProcessor {
   }
 
   private[bsp] def isScalaCliOrMill(workspace: Path): Boolean =
-    MillConfigSetup.canImport(workspace) || ScalaCliSetupProvider.canImport(workspace)
+    BspSetupProvider.canImport(workspace, MillSetup) || BspSetupProvider.canImport(workspace, ScalaCliSetup)
 }

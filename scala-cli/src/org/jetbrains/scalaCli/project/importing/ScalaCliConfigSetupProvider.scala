@@ -1,13 +1,18 @@
 package org.jetbrains.scalaCli.project.importing
 
 import org.jetbrains.bsp.BspUtil
-import org.jetbrains.bsp.project.importing.setup.{BspConfigSetup, ScalaCliSetupProvider}
+import org.jetbrains.bsp.project.importing.bspConfigSteps
+import org.jetbrains.bsp.project.importing.bspConfigSteps.ConfigSetup
+import org.jetbrains.bsp.project.importing.setup.{BspConfigSetup, BspSetupProvider}
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.scalaCli.project.ScalaCliProjectUtils.ProjectDefinitionFileName
 
 import java.nio.file.Path
 
-class ScalaCliConfigSetupProvider extends ScalaCliSetupProvider {
+class ScalaCliConfigSetupProvider extends BspSetupProvider {
+
+  override def configSetup: ConfigSetup =
+    bspConfigSteps.ScalaCliSetup
 
   override def canImport(workspace: Path): Boolean =
     Option(workspace).filter(_.isDirectory).exists(isScalaCli)

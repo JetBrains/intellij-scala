@@ -11,7 +11,7 @@
     </extensions>
 
     <extensions defaultExtensionNs="org.intellij">
-        <bsp.scalaCliSetupProvider implementation="org.jetbrains.scalaCli.project.importing.ScalaCliConfigSetupProvider"/>
+        <bsp.bspSetupProvider implementation="org.jetbrains.scalaCli.project.importing.ScalaCliConfigSetupProvider"/>
         <scala.newScalaFileActionExtension implementation="org.jetbrains.scalaCli.actions.ScalaCliNewScalaFileActionExtension"/>
         <scala.fileDeclarationsContributor implementation="org.jetbrains.scalaCli.script.ScalaCliScriptFileDeclarationsContributor"/>
     </extensions>
