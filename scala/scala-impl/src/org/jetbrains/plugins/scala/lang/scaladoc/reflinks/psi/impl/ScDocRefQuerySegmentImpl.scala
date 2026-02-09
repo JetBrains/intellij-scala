@@ -9,5 +9,11 @@ class ScDocRefQuerySegmentImpl(node: ASTNode) extends ScDocResolvableCodeReferen
 
   override def refName: String = ScDocRefQuery.cleanId(super.refName)
 
-  override def toString: String = s"ScDocRefQuerySegment($refName)"
+  override def toString: String = {
+    val name = refName match {
+      case "" => "<error>"
+      case s => s"'$s'"
+    }
+    s"ScDocRefQuerySegment($name)"
+  }
 }
