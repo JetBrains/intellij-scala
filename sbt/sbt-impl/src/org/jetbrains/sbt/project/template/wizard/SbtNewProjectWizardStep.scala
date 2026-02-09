@@ -6,7 +6,6 @@ import com.intellij.ide.wizard.{AbstractNewProjectWizardStep, NewProjectWizardSt
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.observable.properties.{GraphProperty, PropertyGraph}
 import com.intellij.openapi.progress.ProgressIndicator
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JavaSdkVersion, Sdk}
 import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.openapi.ui.validation.{DialogValidationRequestor, RequestorsKt}
@@ -16,7 +15,6 @@ import com.intellij.ui.dsl.gridLayout.HorizontalAlign
 import com.intellij.util.lang.JavaVersion
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions.*
-import org.jetbrains.sbt.project.template.wizard.buildSystem.startJdkDownloadIfNeeded as startJdkDownload
 import org.jetbrains.plugins.scala.project.Versions
 import org.jetbrains.plugins.scala.util.AsynchronousVersionsDownloading
 import org.jetbrains.sbt.project.template.SComboBox
@@ -89,11 +87,6 @@ abstract class SbtNewProjectWizardStep(parent: NewProjectWizardStep)
 
       KUnit
     })
-
-  protected def startJdkDownloadIfNeeded(project: Project): Unit = {
-    val sdkDownloadTask = jdkIntent.flatMap(intent => Option(intent.getDownloadTask))
-    startJdkDownload(sdkDownloadTask, project)
-  }
 
   protected def setUpScalaUIWithJDKValidation(panel: Panel): Unit = {
     setUpScalaUI(

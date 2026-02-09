@@ -11,9 +11,7 @@ import com.intellij.openapi.client.ClientSystemInfo
 import com.intellij.openapi.keymap.KeymapTextContext
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.Sdk
-import com.intellij.openapi.projectRoots.impl.jdkDownloader.JdkDownloadTask
 import com.intellij.openapi.roots.ProjectRootManager
-import com.intellij.openapi.roots.ui.configuration.projectRoot.SdkDownloadTask
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
 import org.jetbrains.annotations.ApiStatus
@@ -105,11 +103,11 @@ package object buildSystem {
     }
   }
 
-  def startJdkDownloadIfNeeded(sdkDownloadTask: Option[SdkDownloadTask], project: Project): Unit =
-    sdkDownloadTask.collect { case task: JdkDownloadTask =>
-      val service = project.getService(classOf[JdkDownloadService])
-      service.scheduleDownloadJdkForNewProject(task)
-    }
+  /** Schedules the download of the given SDK if it is not already in progress. */
+  def scheduleDownloadSdk(sdk: Sdk, project: Project): Unit = {
+    val service = project.getService(classOf[JdkDownloadService])
+    service.scheduleDownloadSdk(sdk)
+  }
 
   private def createDirectoryIfMissing(path: String): VirtualFile =
     Option(VfsUtil.createDirectoryIfMissing(path))

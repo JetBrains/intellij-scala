@@ -29,7 +29,7 @@ import org.jetbrains.sbt.project.template.{SbtModuleBuilder, SbtModuleBuilderSel
 
 import java.util.concurrent.atomic.AtomicReference
 import javax.swing.JLabel
-import kotlin.Unit.{INSTANCE => KUnit}
+import kotlin.Unit.INSTANCE as KUnit
 import scala.annotation.nowarn
 import scala.collection.immutable.ListSet
 
@@ -80,7 +80,8 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardMultiStep)
     val projectRoot = getContext.getProjectDirectory.toAbsolutePath
     builder.setContentEntryPath(projectRoot.toString)
 
-    setProjectOrModuleSdk(project, parent, builder, getSdkFromJdkIntent(jdkIntent))
+    val sdk = Option(getContext.getProjectJdk)
+    setProjectOrModuleSdk(project, parent, builder, sdk)
 
     ExternalProjectsManagerImpl.setupCreatedProject(project)
     /** NEWLY_CREATED_PROJECT must be set up to prevent the call of markDirtyAllExternalProjects in ExternalProjectsDataStorage#load.
@@ -102,7 +103,7 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardMultiStep)
       builder.openFileEditorAfterProjectOpened = files
     }
 
-    startJdkDownloadIfNeeded(project)
+    sdk.foreach(scheduleDownloadSdk(_, project))
     builder.commit(project)
   }
 

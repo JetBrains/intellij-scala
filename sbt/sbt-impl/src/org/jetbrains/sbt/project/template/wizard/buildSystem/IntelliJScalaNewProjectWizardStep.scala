@@ -40,7 +40,8 @@ final class IntelliJScalaNewProjectWizardStep(parent: ScalaNewProjectWizardMulti
     builder.setContentEntryPath(FileUtil.toSystemDependentName(getContentRoot))
     builder.setModuleFilePath(FileUtil.toSystemDependentName(moduleFile.toString))
 
-    setProjectOrModuleSdk(project, parent, builder, getSdkFromJdkIntent(Option(getJdkIntent)))
+    val sdk = Option(getContext.getProjectJdk)
+    setProjectOrModuleSdk(project, parent, builder, sdk)
 
     val librarySettings = libraryPanel.apply()
     builder.libraryCompositionSettings = librarySettings
@@ -59,7 +60,7 @@ final class IntelliJScalaNewProjectWizardStep(parent: ScalaNewProjectWizardMulti
           withOnboardingTips = true
         )
 
-    startJdkDownloadIfNeeded(sdkDownloadTask = Option(getSdkDownloadTask), project)
+    sdk.foreach(scheduleDownloadSdk(_, project))
     builder.commit(project)
   }
 
