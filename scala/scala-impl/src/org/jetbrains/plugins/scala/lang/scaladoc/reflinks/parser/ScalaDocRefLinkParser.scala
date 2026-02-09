@@ -69,7 +69,7 @@ class ScalaDocRefLinkParser extends PsiParser with LightPsiParser {
               ScalaDocRefLinkElementTypes.THIS_QUERY_SEGMENT
             case "package" =>
               builder.remapCurrentToken(kPACKAGE)
-              ???
+              ScalaDocRefLinkElementTypes.THIS_PACKAGE_SEGMENT
             case _ =>
               ScalaDocRefLinkElementTypes.QUERY_SEGMENT
           }
