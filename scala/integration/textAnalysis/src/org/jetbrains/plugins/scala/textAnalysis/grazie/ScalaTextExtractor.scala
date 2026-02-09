@@ -9,12 +9,13 @@ import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.PsiUtilCore
 import com.intellij.util.containers.ContainerUtil
-import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.intelliLang.injection.ScalaInjectionInfosCollector
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocInlinedTag, ScDocResolvableCodeReference, ScDocTag}
+import org.jetbrains.plugins.scala.textAnalysis.spellchecker.ScalaDocCommentTokenizer
 
 import java.util
 import scala.jdk.CollectionConverters.SeqHasAsJava
@@ -63,7 +64,7 @@ final class ScalaTextExtractor extends TextExtractor:
       root match
         case _: ScDocComment =>
           return HtmlUtilsKt.excludeHtml(scaladocBuilderWithoutTags.build(root, TextDomain.DOCUMENTATION))
-        case _: ScDocTag =>
+        case tag: ScDocTag if !ScalaDocCommentTokenizer.ExcludedTags.contains(tag.name) =>
           return HtmlUtilsKt.excludeHtml(scaladocBuilder.build(root, TextDomain.DOCUMENTATION))
         case _ =>
 

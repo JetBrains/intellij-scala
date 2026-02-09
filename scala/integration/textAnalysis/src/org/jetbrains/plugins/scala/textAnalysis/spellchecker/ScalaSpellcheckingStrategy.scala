@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.textAnalysis.spellchecker
 
+import com.intellij.openapi.util.registry.Registry
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.{PsiComment, PsiElement}
 import com.intellij.spellchecker.inspections.{PlainTextSplitter, Splitter}
@@ -47,6 +48,8 @@ final class ScalaSpellcheckingStrategy extends SpellcheckingStrategy {
         }
       case _ => emptyTokenizer
     }
+
+  override def useTextLevelSpellchecking(): Boolean = Registry.is("spellchecker.grazie.enabled", false)
 
   private def getTokenizer(owner: ScModifierListOwner): Tokenizer[? <: PsiElement] =
     if owner.hasModifierPropertyScala("override") then emptyTokenizer else codeTokenizer

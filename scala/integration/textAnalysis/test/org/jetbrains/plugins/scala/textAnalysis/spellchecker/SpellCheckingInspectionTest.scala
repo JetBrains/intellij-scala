@@ -2,9 +2,16 @@ package org.jetbrains.plugins.scala.textAnalysis.spellchecker
 
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.grazie.spellcheck.GrazieSpellCheckingInspection
+import com.intellij.openapi.util.registry.Registry
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 
-class SpellCheckingInspectionTest extends ScalaInspectionTestBase {
+abstract class SpellCheckingInspectionTestBase extends ScalaInspectionTestBase {
+  protected def textLevelSpellcheckingEnabled: Boolean
+
+  protected override def setUp(): Unit = {
+    super.setUp()
+    Registry.get("spellchecker.grazie.enabled").setValue(textLevelSpellcheckingEnabled, getTestRootDisposable)
+  }
 
   override protected val classOfInspection: Class[? <: LocalInspectionTool] = classOf[GrazieSpellCheckingInspection]
 
@@ -123,9 +130,9 @@ class SpellCheckingInspectionTest extends ScalaInspectionTestBase {
 
   def testDontIgnoreScalaDocTag(): Unit = checkTextHasError(
     s"""/**
-      | * @note ${START}Mispeled$END ${START}Texxt$END
-      | */
-      |""".stripMargin
+       | * @note ${START}Mispeled$END ${START}Texxt$END
+       | */
+       |""".stripMargin
   )
 
   def testIgnoreScalaDocTag_See(): Unit = checkTextHasNoErrors(
@@ -141,4 +148,12 @@ class SpellCheckingInspectionTest extends ScalaInspectionTestBase {
       | */
       |""".stripMargin
   )
+}
+
+final class SpellCheckingInspectionTest extends SpellCheckingInspectionTestBase {
+  override def textLevelSpellcheckingEnabled: Boolean = false
+}
+
+final class SpellCheckingInspectionTest_WithTextLevelSpellchecking extends SpellCheckingInspectionTestBase {
+  override def textLevelSpellcheckingEnabled: Boolean = true
 }

@@ -22,8 +22,8 @@ private class ScalaDocCommentTokenizer extends Tokenizer[PsiDocComment] {
   }
 }
 
-private object ScalaDocCommentTokenizer {
-  private val ExcludedTags: Set[String] = Set(
+private[textAnalysis] object ScalaDocCommentTokenizer {
+  val ExcludedTags: Set[String] = Set(
     "author",
     "see",
   )
