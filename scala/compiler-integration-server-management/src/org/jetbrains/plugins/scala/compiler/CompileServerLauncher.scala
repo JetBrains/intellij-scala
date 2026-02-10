@@ -181,7 +181,7 @@ object CompileServerLauncher {
 
           Seq(
             s"-D${GlobalOptions.USE_DEFAULT_FILE_LOGGING_OPTION}=false",
-            s"-D${CompileServerProperties.LogDirectory}=${logDirectory(eelDescriptor)}"
+            s"-D${CompileServerProperties.LogDirectory}=${asTargetLocalPathString(logDirectory(eelDescriptor), eelDescriptor)}"
           ) ++ vmOptionsForLogging
         }
 
