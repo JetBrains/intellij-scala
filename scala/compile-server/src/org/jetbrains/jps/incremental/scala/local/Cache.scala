@@ -8,7 +8,7 @@ import scala.util.control.NonFatal
 
 /**
  * A cache where reads of values are not blocked by computations of unrelated values. This cache should be used in
- * cases where computing a value is computationally expensive and we don't want to block unrelated reads for the
+ * cases where computing a value is computationally expensive, and we don't want to block unrelated reads for the
  * duration of the computation.
  *
  * For example, this cache should be used when caching scalac compiler instances. They are very expensive to
@@ -40,12 +40,7 @@ class Cache[K, V](capacity: Int) {
     cached match {
       case Some(Left(promise)) =>
         // The value is being computed. We need to wait for it.
-        try Await.result(promise.future, Duration.Inf)
-        catch {
-          case NonFatal(_) =>
-            // Another thread failed to compute the value, we need to compute it ourselves.
-            compute(key)(thunk)
-        }
+        awaitPromise(promise)
 
       case Some(Right(reference)) =>
         // The value has already been computed. We need to dereference the soft reference.
@@ -69,33 +64,29 @@ class Cache[K, V](capacity: Int) {
     createPromise(key) match {
       case State.PromiseCreated(promise) =>
         // We managed to create the promise. That means we need to compute the result.
-        // Important, the computation is done outside of the write lock.
+        // Importantly, the computation is done outside the write lock.
         try {
           val result = thunk()
-          promise.success(result)
-          val reference = new SoftReference(result)
           withLock(writeLock) {
-            underlying.put(key, Right(reference))
+            underlying.put(key, Right(new SoftReference(result)))
           }
+          promise.success(result)
           // If everything went well, we have computed the value, completed the promise and also replaced the
           // promise with a soft reference to the value.
           result
         } catch {
           case NonFatal(t) =>
-            // The computation failed. Notify other readers through the promise that they need to compute
-            // the value for themselves.
+            // The computation failed. Notify other readers through the promise.
+            withLock(writeLock) {
+              underlying.remove(key)
+            }
             promise.failure(t)
             throw t
         }
 
       case State.Computing(promise) =>
         // The value is being computed. We need to wait for it.
-        try Await.result(promise.future, Duration.Inf)
-        catch {
-          case NonFatal(_) =>
-            // Another thread failed to compute the value, we need to compute it ourselves.
-            compute(key)(thunk)
-        }
+        awaitPromise(promise)
 
       case State.Computed(result) =>
         // The value has already been computed, just return it.
@@ -106,12 +97,12 @@ class Cache[K, V](capacity: Int) {
   private def createPromise(key: K): State = withLock(writeLock) {
     // Here, we're holding the write lock. We want to be as quick as possible to exit the critical region.
     // Instead of computing the value with the write lock held, which will block all reads from the cache,
-    // we want to signal to the other threads that we intend to compute the value and that they should wait for us.
+    // we signal to the other threads that we intend to compute the value and that they should wait for us.
 
     // We need to read the state of the value again.
     val cached = Option(underlying.get(key))
 
-    // Creates a promise and puts it in the map. Other readers will await on the promise, to get the value
+    // Creates a promise and stores it in the map. Other readers will await the promise to get the value
     // that we're computing.
     def create(): State.PromiseCreated = {
       val promise = Promise[V]()
@@ -144,6 +135,13 @@ class Cache[K, V](capacity: Int) {
     try thunk
     finally lock.unlock()
   }
+
+  private def awaitPromise(promise: Promise[V]): V =
+    try Await.result(promise.future, Duration.Inf)
+    catch {
+      case NonFatal(t) =>
+        throw new CacheComputationException(t)
+    }
 
   private sealed trait State
   private object State {
