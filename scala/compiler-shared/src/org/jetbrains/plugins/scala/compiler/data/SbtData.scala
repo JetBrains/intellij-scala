@@ -77,22 +77,22 @@ object SbtData {
 
   val compilerInterfacesKey = "scala.compiler.interfaces.dir"
 
-  private def compilerInterfacesDir(systemRootDir: Path): Path = {
-    def defaultDir =
-      systemRootDir.resolve("scala-compiler-interfaces")
+  private def compilerInterfacesDir(compileServerSystemDir: Path): Path = {
+    def defaultDir: Path =
+      compileServerSystemDir.resolve("scala-compiler-interfaces")
 
     val customPath = Option(System.getProperty(compilerInterfacesKey))
     customPath.map(Paths.get(_)).getOrElse(defaultDir)
   }
 
-  def from(pluginJpsRoot: Path, javaClassVersion: String, systemRootDir: Path): Either[String, SbtData] =
+  def from(pluginJpsRoot: Path, javaClassVersion: String, compileServerSystemDir: Path): Either[String, SbtData] =
     for {
       sbtHome <- Either.cond(Files.exists(pluginJpsRoot), pluginJpsRoot, "Scala plugin jps directory does not exist: " + pluginJpsRoot)
       Jars(sbtInterfaceJar, compilerInterfaceJar, compilerBridges) = Jars.fromPluginJpsDirectory(sbtHome)
     } yield {
       import org.jetbrains.plugins.scala.compiler.buildinfo.BuildInfo.{sbtVersion, zincVersion}
       val directoryName = s"scala-compiler-bridges_${sbtVersion}_$zincVersion"
-      val interfacesHome = compilerInterfacesDir(systemRootDir).resolve(directoryName)
+      val interfacesHome = compilerInterfacesDir(compileServerSystemDir).resolve(directoryName)
       SbtData(sbtInterfaceJar, compilerInterfaceJar, compilerBridges, interfacesHome, javaClassVersion)
     }
 }

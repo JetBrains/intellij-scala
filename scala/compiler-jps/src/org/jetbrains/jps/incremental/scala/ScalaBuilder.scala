@@ -4,10 +4,10 @@ import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.diagnostic.{Logger => JpsLogger}
 import com.intellij.openapi.util.Key
 import org.jetbrains.jps.ModuleChunk
+import org.jetbrains.jps.incremental.CompileContext
 import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage, ProgressMessage}
 import org.jetbrains.jps.incremental.scala.Server.ServerError
 import org.jetbrains.jps.incremental.scala.local.LocalServer
-import org.jetbrains.jps.incremental.{CompileContext, Utils}
 import org.jetbrains.jps.model.JpsProject
 import org.jetbrains.jps.model.module.{JpsModule, JpsModuleDependency}
 import org.jetbrains.plugins.scala.compiler.MissingScalaSdk
@@ -151,11 +151,12 @@ object ScalaBuilder {
       cachedLocalServer = None
     }
 
-  private lazy val sbtData = {
+  private lazy val sbtData: Either[String, SbtData] = {
     val pluginJpsRoot = PathManager.getJarForClass(getClass).getParent
     val javaClassVersion = System.getProperty("java.class.version")
-    val systemRootDir = Utils.getSystemRoot.toPath
-    SbtData.from(pluginJpsRoot, javaClassVersion, systemRootDir)
+    compileServerSystemDir
+      .toRight("Scala compile server system directory not provided")
+      .flatMap(SbtData.from(pluginJpsRoot, javaClassVersion, _))
   }
 
   /**
@@ -216,10 +217,11 @@ object ScalaBuilder {
     }
   }
 
+  private def compileServerSystemDir: Option[Path] =
+    Option(System.getProperty(CompileServerProperties.SystemDirectoryProperty)).map(Paths.get(_))
+
   private def readCompileServerPort(): Option[Int] =
-    Option(System.getProperty(CompileServerProperties.SystemDirectoryProperty))
-      .map(Paths.get(_))
-      .flatMap(CompileServerPort.readPortFile)
+    compileServerSystemDir.flatMap(CompileServerPort.readPortFile)
 
   def isCompileServerEnabled(implicit context: CompileContext): Boolean =
     globalSettings.isCompileServerEnabled

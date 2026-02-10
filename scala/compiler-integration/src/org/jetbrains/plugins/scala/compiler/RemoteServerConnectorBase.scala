@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.compiler
 
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.roots.OrderEnumerator
-import org.jetbrains.jps.incremental.Utils
 import org.jetbrains.plugins.scala.compiler.data._
 import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgs
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PathExt}
@@ -24,7 +23,8 @@ abstract class RemoteServerConnectorBase(
 
   protected val sbtData: SbtData = {
     val javaClassVersion = System.getProperty("java.class.version")
-    SbtData.from(ScalaPluginJars.jpsRoot, javaClassVersion, Utils.getSystemRoot.toPath) match {
+    val compileServerDir = CompileServerLauncher.scalaCompileServerSystemDir(module.getProject)
+    SbtData.from(ScalaPluginJars.jpsRoot, javaClassVersion, compileServerDir) match {
       case Left(msg)   => throw new IllegalArgumentException(msg)
       case Right(data) => data
     }
