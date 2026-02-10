@@ -5,6 +5,7 @@ import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnActionEvent}
 import com.intellij.openapi.project.{DumbAwareAction, Project}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, CompilerIntegrationBundle}
+import org.jetbrains.plugins.scala.extensions.executeOnPooledThread
 import org.jetbrains.plugins.scala.server.CompileServerLog
 
 /**
@@ -33,7 +34,7 @@ final class ShowCompileServerLogAction extends DumbAwareAction {
   private def isSupported: Boolean =
     RevealFileAction.isDirectoryOpenSupported
 
-  private def showLog(@Nullable project: Project): Unit = {
+  private def showLog(@Nullable project: Project): Unit = executeOnPooledThread {
     val logDir = CompileServerLauncher.logDirectory(project)
     if (RevealFileAction.isSupported) {
       RevealFileAction.openFile(CompileServerLog.logFilePath(logDir))

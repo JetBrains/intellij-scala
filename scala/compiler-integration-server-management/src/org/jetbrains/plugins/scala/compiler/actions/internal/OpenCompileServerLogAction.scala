@@ -39,7 +39,7 @@ final class OpenCompileServerLogAction extends DumbAwareAction {
 
   override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 
-  private def openLogInEditor(@NotNull project: Project): Unit = {
+  private def openLogInEditor(@NotNull project: Project): Unit = executeOnPooledThread {
     val logDir = CompileServerLauncher.logDirectory(project)
     val logFilePath = CompileServerLog.logFilePath(logDir)
     val file = LocalFileSystem.getInstance.refreshAndFindFileByNioFile(logFilePath)
@@ -53,27 +53,28 @@ final class OpenCompileServerLogAction extends DumbAwareAction {
     } else {
       @NlsSafe val title = "Cannot find '" + LoggerFactory.getLogFilePath + "'"
       @NlsSafe val empty = ""
-      Notifications.Bus.notify(new Notification(Notifications.SYSTEM_MESSAGES_GROUP_ID, title, empty, NotificationType.INFORMATION)): @nowarn("cat=deprecation")
+      Notifications.Bus.notify(
+        new Notification(Notifications.SYSTEM_MESSAGES_GROUP_ID, title, empty, NotificationType.INFORMATION): @nowarn("cat=deprecation"),
+        project
+      )
     }
   }
 
   private def scrollToLastIDEStart(editor: TextEditor): Unit = {
-    executeOnPooledThread {
-      try {
-        val bytes = editor.getFile.contentsToByteArray(true)
-        val log = new String(bytes, StandardCharsets.UTF_8)
-        // Scroll to the bottom of the file.
-        val index = log.length - 1
-        if (index >= 0) {
-          val condition: Condition[?] = _ => editor.getEditor.isDisposed
-          ApplicationManager.getApplication.invokeLater(() => {
-            editor.getEditor.getCaretModel.moveToOffset(index)
-            editor.getEditor.getScrollingModel.scrollToCaret(ScrollType.CENTER_UP)
-          }, condition)
-        }
-      } catch {
-        case _: IOException =>
+    try {
+      val bytes = editor.getFile.contentsToByteArray(true)
+      val log = new String(bytes, StandardCharsets.UTF_8)
+      // Scroll to the bottom of the file.
+      val index = log.length - 1
+      if (index >= 0) {
+        val condition: Condition[?] = _ => editor.getEditor.isDisposed
+        ApplicationManager.getApplication.invokeLater(() => {
+          editor.getEditor.getCaretModel.moveToOffset(index)
+          editor.getEditor.getScrollingModel.scrollToCaret(ScrollType.CENTER_UP)
+        }, condition)
       }
+    } catch {
+      case _: IOException =>
     }
   }
 }
