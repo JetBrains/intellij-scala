@@ -98,6 +98,10 @@ class CompilerFactoryImpl(sbtData: SbtData) extends CompilerFactory {
 
 object CompilerFactoryImpl {
 
+  import com.intellij.openapi.diagnostic.{Logger => IdeaLogger}
+
+  private val Log: IdeaLogger = IdeaLogger.getInstance(classOf[CompilerFactoryImpl])
+
   private val scalaInstanceCache = new Cache[CompilerJars, ScalaInstance](3)
 
   private var classLoadersMap = Map[Seq[Path], ClassLoader]()
@@ -183,6 +187,7 @@ object CompilerFactoryImpl {
         client.foreach(_.progress(CompileServerBundle.message("compiling.scalac.interface", scalaVersion)))
         Files.createDirectories(home)
         val raw = new RawCompiler(scalaInstance, ClasspathOptionsUtil.auto, NullLogger)
+        Log.info(s"Compiling compiler bridge sources $sourceJar for Scala $scalaVersion to: $targetJar")
         AnalyzingCompiler.compileSources(
           Seq(sourceJar),
           targetJar,
@@ -193,6 +198,7 @@ object CompilerFactoryImpl {
         )
       }
 
+      Log.info(s"Compiler bridge for Scala $scalaVersion: $targetJar")
       targetJar
     }
   }

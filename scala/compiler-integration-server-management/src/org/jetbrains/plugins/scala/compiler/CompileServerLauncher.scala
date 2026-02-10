@@ -742,6 +742,11 @@ object CompileServerLauncher {
         path
     }
 
+  def transferToRemoteProjectCacheDirectory(path: Path, project: Project): Path = {
+    val eelDescriptor = EelProviderUtil.getEelDescriptor(project)
+    transferredRemotePath(path, project, eelDescriptor)
+  }
+
   /**
    * Needs to match `cacheDirectory` in [[com.intellij.compiler.server.EelBuildCommandLineBuilder]].
    * @return a path to the cache directory if the project belongs to a remote machine, `None` if the

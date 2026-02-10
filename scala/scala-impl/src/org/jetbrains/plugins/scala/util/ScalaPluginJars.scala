@@ -41,6 +41,21 @@ object ScalaPluginJars {
   val compilerPluginJar_3_3: Path = jpsRoot / "compiler-plugin-3.3.jar"
 }
 
+object CompilerBridgeSourcesJars {
+  import ScalaPluginJars.jpsRoot
+
+  private def sources(version: String): String = s"compiler-bridge-sources_$version.jar"
+
+  private val compilerBridgeSources_2_10: Path = jpsRoot / sources("2.10")
+  private val compilerBridgeSources_2_11: Path = jpsRoot / sources("2.11")
+  private val compilerBridgeSources_2_13: Path = jpsRoot / sources("2.13")
+
+  val allBridgeSources: Seq[Path] = Seq(
+    compilerBridgeSources_2_10,
+    compilerBridgeSources_2_11,
+    compilerBridgeSources_2_13
+  )
+}
 
 object IntellijPlatformJars {
 
