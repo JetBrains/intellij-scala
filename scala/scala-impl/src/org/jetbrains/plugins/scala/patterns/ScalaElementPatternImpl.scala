@@ -5,7 +5,7 @@ import com.intellij.psi.{PsiElement, PsiMethod}
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScReference}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScMethodCall, ScPostfixExpr, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScGenericCall, ScMethodCall, ScPostfixExpr, ScReferenceExpression}
 
 private[scala]
 object ScalaElementPatternImpl {
@@ -35,6 +35,12 @@ object ScalaElementPatternImpl {
             call.getEffectiveInvokedExpr match {
               case ref: ScReference =>
                 return resolvesAndMatchesPattern(ref, methodPattern, context)
+              case generic: ScGenericCall =>
+                generic.referencedExpr match {
+                  case ref: ScReference =>
+                    return resolvesAndMatchesPattern(ref, methodPattern, context)
+                  case _ =>
+                }
               case _ =>
             }
           case _ =>
