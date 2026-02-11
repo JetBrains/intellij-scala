@@ -39,7 +39,7 @@
         <compiler.isUpToDateCheckConsumer implementation="org.jetbrains.plugins.scala.compiler.highlighting.CompilerHighlightingUpToDateChecker"/>
         <compiler.isUpToDateCheckConsumer implementation="org.jetbrains.plugins.scala.compiler.references.compilation.IsUpToDateChecker"/>
 
-        <statusBarWidgetFactory id="ScalaCompileServer" implementation="org.jetbrains.plugins.scala.compiler.CompileServerWidgetFactory" order="before TypeAwareHighlighting"/>
+        <statusBarWidgetFactory id="ScalaCompileServer" implementation="org.jetbrains.plugins.scala.compiler.CompileServerWidgetFactory" order="before ScalaHighlightingMode"/>
 
         <projectService serviceInterface="org.jetbrains.plugins.scala.compiler.CompileServerClient"
                         serviceImplementation="org.jetbrains.plugins.scala.compiler.CompileServerClientImpl"/>
