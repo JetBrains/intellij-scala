@@ -1,7 +1,8 @@
 package org.jetbrains.scalaCli.project.template.wizard
 
+import com.intellij.openapi.module.Module
 import org.jetbrains.bsp.BSP
-import org.jetbrains.bsp.settings.BspProjectSettings
+import org.jetbrains.bsp.settings.{BspProjectSettings, PreImportConfig}
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.template.DefaultModuleContentEntryFolders
@@ -19,7 +20,16 @@ class ScalaCliModuleBuilder (
 
   private val selections = _selections.copy() // Selections is mutable data structure
 
-  override protected def externalSystemConfigFile: String = ScalaCliProjectUtils.ProjectDefinitionFileName
+  override protected def externalSystemConfigFile: String =
+    ScalaCliProjectUtils.ProjectDefinitionFileName
+
+  override def setupModule(module: Module): Unit = {
+    val settings = getExternalProjectSettings
+    settings.setBspConfigGenerated(true)
+    settings.setPreImportConfig(PreImportConfig.NoPreImport)
+
+    super.setupModule(module)
+  }
 
   private def createNewFile(path: Path): Boolean =
     try {
