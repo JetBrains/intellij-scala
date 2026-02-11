@@ -3,9 +3,7 @@ package org.jetbrains.plugins.scala.settings.sections;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogPanel;
 import com.intellij.openapi.util.Pair;
-import com.intellij.ui.ContextHelpLabel;
-import com.intellij.ui.EnumComboBoxModel;
-import com.intellij.ui.TitledSeparator;
+import com.intellij.ui.*;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.dsl.builder.BuilderKt;
 import com.intellij.uiDesigner.core.GridConstraints;
@@ -17,6 +15,8 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings;
 import org.jetbrains.plugins.scala.settings.SimpleMappingListCellRenderer;
 
 import javax.swing.*;
+import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.text.html.StyleSheet;
 import java.awt.*;
 import java.lang.reflect.Method;
 import java.util.ResourceBundle;
@@ -25,7 +25,7 @@ import static org.jetbrains.plugins.scala.settings.ScalaProjectSettings.getInsta
 
 @SuppressWarnings("unchecked")
 public class PerformanceSettingsSectionPanel extends SettingsSectionPanel {
-    private JLabel myPerformanceGuidelines;
+    private JEditorPane myPerformanceGuidelines;
     private TitledSeparator myAdvancedLabel;
     private JPanel myAdvancedPanel;
     private JPanel myAdvancedPanelContainer;
@@ -46,6 +46,19 @@ public class PerformanceSettingsSectionPanel extends SettingsSectionPanel {
         super(project);
 
         $$$setupUI$$$();
+
+        JBLabel prototype = new JBLabel();
+        myPerformanceGuidelines.setMargin(prototype.getInsets());
+        myPerformanceGuidelines.setFont(prototype.getFont());
+        myPerformanceGuidelines.setBackground(prototype.getBackground());
+        myPerformanceGuidelines.setForeground(prototype.getForeground());
+        StyleSheet css = ((HTMLEditorKit) myPerformanceGuidelines.getEditorKit()).getStyleSheet();
+        css.addRule("body, p {" +
+                "color:#" + ColorUtil.toHex(prototype.getForeground()) + ";" +
+                "font-family:" + prototype.getFont().getFamily() + ";" +
+                "font-size:" + prototype.getFont().getSize() + "pt;" +
+                "}");
+        myPerformanceGuidelines.addHyperlinkListener(BrowserHyperlinkListener.INSTANCE);
 
         scalaMetaMode.setModel(new EnumComboBoxModel<>(ScalaProjectSettings.ScalaMetaMode.class));
         scalaMetaMode.setRenderer(SimpleMappingListCellRenderer.create(
@@ -138,14 +151,16 @@ public class PerformanceSettingsSectionPanel extends SettingsSectionPanel {
      * @noinspection ALL
      */
     private void $$$setupUI$$$() {
-        createUIComponents();
         rootPanel = new JPanel();
         rootPanel.setLayout(new GridLayoutManager(3, 3, new Insets(9, 9, 9, 9), -1, -1));
         myAdvancedLabel = new TitledSeparator();
         myAdvancedLabel.setText(this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.performance.advanced"));
         rootPanel.add(myAdvancedLabel, new GridConstraints(1, 0, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        this.$$$loadLabelText$$$(myPerformanceGuidelines, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.performance.guidelines"));
-        rootPanel.add(myPerformanceGuidelines, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(1000, -1), null, 0, false));
+        myPerformanceGuidelines = new JEditorPane();
+        myPerformanceGuidelines.setContentType("text/html");
+        myPerformanceGuidelines.setEditable(false);
+        myPerformanceGuidelines.setText(this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.performance.guidelines"));
+        rootPanel.add(myPerformanceGuidelines, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, 50), null, 0, false));
         myAdvancedPanelContainer = new JPanel();
         myAdvancedPanelContainer.setLayout(new BorderLayout(0, 0));
         rootPanel.add(myAdvancedPanelContainer, new GridConstraints(2, 0, 1, 3, GridConstraints.ANCHOR_NORTH, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
@@ -290,12 +305,5 @@ public class PerformanceSettingsSectionPanel extends SettingsSectionPanel {
      */
     public JComponent $$$getRootComponent$$$() {
         return rootPanel;
-    }
-
-    private void createUIComponents() {
-        JBLabel label = new JBLabel();
-        label.setCopyable(true);
-        label.setAllowAutoWrapping(true);
-        myPerformanceGuidelines = label;
     }
 }
