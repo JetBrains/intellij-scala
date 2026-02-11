@@ -55,7 +55,7 @@ private final class ScalaHighlightingModeWidget(project: Project)
     def optionsFor(mode: Mode) = if (mode) compilerOptions else builtInOptions
 
     val info = mode.map { mode =>
-      s"<div>Scala: ${modeText(mode)}</div>" +
+      s"<div>${modeText(mode)}</div>" +
         "<table cellpadding='0' cellspacing='0' style='margin-left: 10px;'>" + optionsFor(mode) + "</table>"
     } getOrElse {
       s"<div>${message("type.checker.label.scala2")} ${modeText(modeScala2)}</div>" +
@@ -65,7 +65,7 @@ private final class ScalaHighlightingModeWidget(project: Project)
     }
 
     s"<html><body><div style='padding: 3px;'>" +
-      s"<strong>${message("scala.project.settings.form.error.highlighting")}</strong>" +
+      s"<strong>${message("scala.highlighting.mode")}</strong>" +
       s"<div style='margin-top: 7px'>$info</div>" +
       s"</div></body></html>"
   }
