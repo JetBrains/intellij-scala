@@ -5,28 +5,26 @@ import com.intellij.internal.statistic.service.fus.collectors.CounterUsagesColle
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.statistics.ScalaRefactoringUsagesCollector.Group
 
-import scala.annotation.nowarn
-
 //noinspection UnstableApiUsage
 class ScalaRefactoringUsagesCollector extends CounterUsagesCollector {
   override def getGroup: EventLogGroup = Group
 }
 
 object ScalaRefactoringUsagesCollector {
-  private val Group = new EventLogGroup("scala.refactoring", 1): @nowarn("cat=deprecation") // TODO: SCL-24479
+  private val Group = new EventLogGroup("scala.refactoring", 1) // TODO: SCL-24479
 
-  private val RenameLocalEvent = Group.registerEvent("rename.local"): @nowarn("cat=deprecation") // TODO: SCL-24479
-  private val RenameMemberEvent = Group.registerEvent("rename.member"): @nowarn("cat=deprecation") // TODO: SCL-24479
-  private val MoveFileEvent = Group.registerEvent("move.file"): @nowarn("cat=deprecation") // TODO: SCL-24479
-  private val MoveClassEvent = Group.registerEvent("move.class"): @nowarn("cat=deprecation") // TODO: SCL-24479
-  private val IntroduceVariableEvent = Group.registerEvent("introduce.variable"): @nowarn("cat=deprecation") // TODO: SCL-24479
-  private val IntroduceTypeAliasEvent = Group.registerEvent("introduce.type.alias"): @nowarn("cat=deprecation") // TODO: SCL-24479
-  private val IntroduceFieldEvent = Group.registerEvent("introduce.field"): @nowarn("cat=deprecation") // TODO: SCL-24479
-  private val IntroduceParameterEvent = Group.registerEvent("introduce.parameter"): @nowarn("cat=deprecation") // TODO: SCL-24479
-  private val ExtractMethodEvent = Group.registerEvent("extract.method"): @nowarn("cat=deprecation") // TODO: SCL-24479
-  private val ExtractTraitEvent = Group.registerEvent("extract.trait"): @nowarn("cat=deprecation") // TODO: SCL-24479
-  private val InlineEvent = Group.registerEvent("inline"): @nowarn("cat=deprecation") // TODO: SCL-24479
-  private val ChangeSignatureEvent = Group.registerEvent("change.signature"): @nowarn("cat=deprecation") // TODO: SCL-24479
+  private val RenameLocalEvent = Group.registerEvent("rename.local") // TODO: SCL-24479
+  private val RenameMemberEvent = Group.registerEvent("rename.member") // TODO: SCL-24479
+  private val MoveFileEvent = Group.registerEvent("move.file") // TODO: SCL-24479
+  private val MoveClassEvent = Group.registerEvent("move.class") // TODO: SCL-24479
+  private val IntroduceVariableEvent = Group.registerEvent("introduce.variable") // TODO: SCL-24479
+  private val IntroduceTypeAliasEvent = Group.registerEvent("introduce.type.alias") // TODO: SCL-24479
+  private val IntroduceFieldEvent = Group.registerEvent("introduce.field") // TODO: SCL-24479
+  private val IntroduceParameterEvent = Group.registerEvent("introduce.parameter") // TODO: SCL-24479
+  private val ExtractMethodEvent = Group.registerEvent("extract.method") // TODO: SCL-24479
+  private val ExtractTraitEvent = Group.registerEvent("extract.trait") // TODO: SCL-24479
+  private val InlineEvent = Group.registerEvent("inline") // TODO: SCL-24479
+  private val ChangeSignatureEvent = Group.registerEvent("change.signature") // TODO: SCL-24479
 
   def logRenameLocal(project: Project): Unit = RenameLocalEvent.log(project)
   def logRenameMember(project: Project): Unit = RenameMemberEvent.log(project)

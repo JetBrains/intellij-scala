@@ -8,35 +8,33 @@ import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.ScFileMode
 import org.jetbrains.plugins.scala.statistics.ScalaActionUsagesCollector.Group
 
-import scala.annotation.nowarn
-
 //noinspection UnstableApiUsage
 class ScalaActionUsagesCollector extends CounterUsagesCollector {
   override def getGroup: EventLogGroup = Group
 }
 
 object ScalaActionUsagesCollector {
-  private val Group = new EventLogGroup("scala.actions", 2): @nowarn("cat=deprecation") // TODO: SCL-24479
+  private val Group = new EventLogGroup("scala.actions", 2) // TODO: SCL-24479
 
-  private val TypeInfoEvent = Group.registerEvent("type.info"): @nowarn("cat=deprecation") // TODO: SCL-24479
-  private val XRayModeEvent = Group.registerEvent("x-ray.mode", new LongEventField("duration")): @nowarn("cat=deprecation") // TODO: SCL-24479
-  private val ShowImplicitParametersEvent = Group.registerEvent("show.implicit.parameters"): @nowarn("cat=deprecation") // TODO: SCL-24479
-  private val GoToImplicitConversionEvent = Group.registerEvent("go.to.implicit.conversion"): @nowarn("cat=deprecation") // TODO: SCL-24479
-  private val StructureViewEvent = Group.registerEvent("structure.view"): @nowarn("cat=deprecation") // TODO: SCL-24479
-  private val OptimizeImportsEvent = Group.registerEvent("optimize.imports"): @nowarn("cat=deprecation") // TODO: SCL-24479
-  private val CreateFromUsageEvent = Group.registerEvent("createFromUsage"): @nowarn("cat=deprecation") // TODO: SCL-24479
-  private val OverrideImplementEvent = Group.registerEvent("overrideImplement"): @nowarn("cat=deprecation") // TODO: SCL-24479
-  private val DesugarCodeEvent = Group.registerEvent("desugar.code"): @nowarn("cat=deprecation") // TODO: SCL-24479
-  private val RearrangeEvent = Group.registerEvent("rearrange"): @nowarn("cat=deprecation") // TODO: SCL-24479
-  private val ConvertFromJavaEvent = Group.registerEvent("convert.javatext"): @nowarn("cat=deprecation") // TODO: SCL-24479
-  private val RunWorksheetEvent = Group.registerEvent("worksheet"): @nowarn("cat=deprecation") // TODO: SCL-24479
+  private val TypeInfoEvent = Group.registerEvent("type.info") // TODO: SCL-24479
+  private val XRayModeEvent = Group.registerEvent("x-ray.mode", new LongEventField("duration")) // TODO: SCL-24479
+  private val ShowImplicitParametersEvent = Group.registerEvent("show.implicit.parameters") // TODO: SCL-24479
+  private val GoToImplicitConversionEvent = Group.registerEvent("go.to.implicit.conversion") // TODO: SCL-24479
+  private val StructureViewEvent = Group.registerEvent("structure.view") // TODO: SCL-24479
+  private val OptimizeImportsEvent = Group.registerEvent("optimize.imports") // TODO: SCL-24479
+  private val CreateFromUsageEvent = Group.registerEvent("createFromUsage") // TODO: SCL-24479
+  private val OverrideImplementEvent = Group.registerEvent("overrideImplement") // TODO: SCL-24479
+  private val DesugarCodeEvent = Group.registerEvent("desugar.code") // TODO: SCL-24479
+  private val RearrangeEvent = Group.registerEvent("rearrange") // TODO: SCL-24479
+  private val ConvertFromJavaEvent = Group.registerEvent("convert.javatext") // TODO: SCL-24479
+  private val RunWorksheetEvent = Group.registerEvent("worksheet") // TODO: SCL-24479
 
-  private val ScFileModeSetWorksheetEvent = Group.registerEvent("sc.file.set.worksheet"): @nowarn("cat=deprecation") // TODO: SCL-24479
-  private val ScFileModeSetAmmoniteEvent = Group.registerEvent("sc.file.set.ammonite"): @nowarn("cat=deprecation") // TODO: SCL-24479
-  private val ScFileModeSetAutoEvent = Group.registerEvent("sc.file.set.auto"): @nowarn("cat=deprecation") // TODO: SCL-24479
+  private val ScFileModeSetWorksheetEvent = Group.registerEvent("sc.file.set.worksheet") // TODO: SCL-24479
+  private val ScFileModeSetAmmoniteEvent = Group.registerEvent("sc.file.set.ammonite") // TODO: SCL-24479
+  private val ScFileModeSetAutoEvent = Group.registerEvent("sc.file.set.auto") // TODO: SCL-24479
 
-  private val IncrementalityTypeSetSbtEvent = Group.registerEvent("compiler.inc.type.set.sbt"): @nowarn("cat=deprecation") // TODO: SCL-24479
-  private val IncrementalityTypeSetIdeaEvent = Group.registerEvent("compiler.inc.type.set.idea"): @nowarn("cat=deprecation") // TODO: SCL-24479
+  private val IncrementalityTypeSetSbtEvent = Group.registerEvent("compiler.inc.type.set.sbt") // TODO: SCL-24479
+  private val IncrementalityTypeSetIdeaEvent = Group.registerEvent("compiler.inc.type.set.idea") // TODO: SCL-24479
 
   def logTypeInfo(project: Project): Unit = TypeInfoEvent.log(project)
   def logXRayMode(project: Project, duration: Long): Unit = XRayModeEvent.log(project, duration)
