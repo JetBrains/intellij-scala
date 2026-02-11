@@ -1,10 +1,12 @@
 package org.jetbrains.jps.incremental.scala.logs
 
 import com.intellij.openapi.diagnostic.{JulLogger, Logger}
+import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.plugins.scala.server.{CompileServerLog, CompileServerProperties}
 
 import java.io.IOException
-import java.nio.file.Paths
+import java.nio.file.{Path, Paths}
+import java.util.logging.Filter
 
 /**
  * Similar to `org.jetbrains.jps.cmdline.LogSetup` which cannot itself be directly used, as it is compiled with JDK 11.
@@ -20,7 +22,16 @@ object LogSetup {
       }
       val logFilePath = CompileServerLog.logFilePath(logDir)
       JulLogger.clearHandlers()
-      JulLogger.configureLogFileAndConsole(logFilePath, true, true, true, false, null, null, null)
+      JulLogger.configureLogFileAndConsole(
+        /* logFilePath         = */ logFilePath,
+        /* appendToFile        = */ true,
+        /* enableConsoleLogger = */ false,
+        /* showDateInConsole   = */ true,
+        /* writeAttachments    = */ false,
+        /* onRotate            = */ null,
+        /* filter              = */ null,
+        /* inMemoryLogPath     = */ null
+      )
     } catch {
       case e: IOException =>
         Console.err.println("Failed to configure logging: ")
