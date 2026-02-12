@@ -27,6 +27,7 @@ class ScalaCliModuleBuilder (
     val settings = getExternalProjectSettings
     settings.setBspConfigGenerated(true)
     settings.setPreImportConfig(PreImportConfig.NoPreImport)
+
     super.setupModule(module)
   }
 
