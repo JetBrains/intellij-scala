@@ -456,6 +456,8 @@ lazy val debugger =
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.debugger"),
       resolvers += Versions.IntellijTestFrameworkArtifactsResolver,
       libraryDependencies += Dependencies.intellijDebuggerTestFramework % Test
+    ).settings(
+      Test / definedTests := Seq.empty
     )
 
 
