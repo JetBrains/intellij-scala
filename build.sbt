@@ -456,11 +456,7 @@ lazy val debugger =
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.debugger"),
       resolvers += Versions.IntellijTestFrameworkArtifactsResolver,
       libraryDependencies += Dependencies.intellijDebuggerTestFramework % Test
-    ).settings(
-      // TODO: Re-enable these tests after they have been fixed.
-      Test / definedTests := Seq.empty
     )
-
 
 lazy val compileServer =
   newPlainScalaProject("compile-server", file("scala/compile-server"))
