@@ -5,7 +5,7 @@ import com.intellij.debugger.engine.evaluation.CodeFragmentKind
 import com.intellij.debugger.impl.OutputChecker
 import com.intellij.execution.configurations.JavaParameters
 import com.intellij.openapi.module.{Module, ModuleManager}
-import com.intellij.openapi.projectRoots.Sdk
+import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.psi.PsiManager
@@ -13,7 +13,7 @@ import com.sun.jdi.IntegerValue
 import junit.framework.TestCase.assertEquals
 import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.compiler.CompileServerTestUtil
-import org.jetbrains.plugins.scala.extensions.{PathExt, inReadAction}
+import org.jetbrains.plugins.scala.extensions.{PathExt, inReadAction, inWriteAction}
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
@@ -65,6 +65,16 @@ class SharedSourcesEvaluationTest extends DebuggerTestCase {
 
     val modules = ModuleManager.getInstance(getProject).getModules
     mainModule = modules.find(_.getName == "sharedsourcesevaltest.sharedSourcesEvalTest.sharedSourcesEvalTestJVM.main").orNull
+  }
+
+  override protected def tearDown(): Unit = {
+    try {
+      //noinspection ApiStatus
+      val table = ProjectJdkTable.getInstance(getProject)
+      inWriteAction(table.getAllJdks.foreach(table.removeJdk))
+    } finally {
+      super.tearDown()
+    }
   }
 
   override def getModule: Module = mainModule
