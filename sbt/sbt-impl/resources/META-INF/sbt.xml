@@ -184,6 +184,9 @@
                      These timings are collected and aggregated into two files in the `.idea` directory: `sbt-import-history.txt` (raw timing data from each import) and `sbt-import-summary.txt` (aggregated statistics across all imports).
                      When this registry is disabled `sbt-import-history.txt` and `sbt-import-summary.txt` files are deleted."/>
 
+        <registryKey key="sbt.shell.import.old" defaultValue="false" restartRequired="false"
+                     description="Use old sbt shell import mechanism with `set` command instead of modifying system properties."/>
+
         <newProjectWizard.languageGenerator implementation="org.jetbrains.sbt.project.template.wizard.ScalaNewProjectWizard"/>
         <newProjectWizard.scala.buildSystem implementation="org.jetbrains.sbt.project.template.wizard.buildSystem.SbtScalaNewProjectWizard" />
         <newProjectWizard.scala.buildSystem implementation="org.jetbrains.sbt.project.template.wizard.buildSystem.IntelliJScalaNewProjectWizard" />

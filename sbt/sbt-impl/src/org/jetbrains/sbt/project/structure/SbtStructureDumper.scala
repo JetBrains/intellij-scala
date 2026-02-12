@@ -5,6 +5,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.util.registry.Registry
 import com.intellij.platform.eel.EelDescriptor
 import com.intellij.platform.eel.provider.utils.EelPathUtils
 import com.intellij.platform.eel.provider.utils.EelPathUtils.TransferTarget
@@ -57,24 +58,57 @@ object SbtStructureDumper:
         context.sbtVersion = currentSbtVersion
 
         val optionsString = makeOptionsStringLiteral(options)
-        val SeqFqn = SbtVersionCapabilities.collectionsSeqClassFqn(currentSbtVersion)
-        val setCommands = Seq(
-          s"""${scopedSbtSetting("_root_.org.jetbrains.sbt.StructureKeys.sbtStructureOptions", "_root_.sbt.Global", currentSbtVersion)} := $optionsString""",
-          s"""${scopedSbtSetting("_root_.org.jetbrains.sbt.StructureKeys.generateManagedSourcesDuringStructureDump", "_root_.sbt.Global", currentSbtVersion)} := $generateManagedSources"""
-        ).mkString(s"set $SeqFqn(", ",", ")")
         val dumpStructureToCommand = s"${SbtUtil.sbtStructureGlobalCommand("dumpStructureTo", currentSbtVersion)} ${normalizedLocalPath(structureFile)}"
 
         // SCL-22858 compiler bytecode indices are disabled in sbt shell
         val ideaPortSetting = ""
 
         val maybePreferScala2Command = if (preferScala2) "preferScala2" else ""
-        buildSbtCompositeCommand(
-          "reload",
-          setCommands,
-          maybePreferScala2Command,
-          dumpStructureToCommand,
-          s"session clear-all $ideaPortSetting"
-        )
+
+        // The new import method using the `eval` command does not work well for sbt 0.13 and 1.1.x versions.
+        // I noticed it started working since sbt 1.3.x, so let's enable it from this version.
+        val isMinimumSbt = currentSbtVersion >= SbtVersion("1.3.0")
+
+        // The registry is added as a safety fallback. If nothing goes wrong over 1-2 releases, it could be removed.
+        if (Registry.is("sbt.shell.import.old") || !isMinimumSbt) {
+          val SeqFqn = SbtVersionCapabilities.collectionsSeqClassFqn(currentSbtVersion)
+          val setCommands = Seq(
+            s"""${scopedSbtSetting("_root_.org.jetbrains.sbt.StructureKeys.sbtStructureOptions", "_root_.sbt.Global", currentSbtVersion)} := $optionsString""",
+            s"""${scopedSbtSetting("_root_.org.jetbrains.sbt.StructureKeys.generateManagedSourcesDuringStructureDump", "_root_.sbt.Global", currentSbtVersion)} := $generateManagedSources"""
+          ).mkString(s"set $SeqFqn(", ",", ")")
+
+          buildSbtCompositeCommand(
+            "reload",
+            setCommands,
+            maybePreferScala2Command,
+            dumpStructureToCommand,
+            s"session clear-all $ideaPortSetting"
+          )
+        } else {
+          // The system properties will later be used in the `sbt-structure` plugin to initialize settings.
+          // The same trick is used in #dumpFromProcess.
+          // Setting the properties with `System.setProperty(..)` affects the sbt settings initialization
+          // because the `reload` command is executed afterward.
+          // At the end of the `eval` command, () is added. This is done because the `eval` command always
+          // prints its return value to the terminal. Without this, it would sometimes print `true` or `false`,
+          // depending on what was returned from the last `System.setProperty(..)`.
+          // To make the output more consistent, I added () so it always returns the same value ([info] ans: Unit = null).
+          val setSystemProps =
+            s"""eval {
+               |System.setProperty("sbt.structure.options", $optionsString);
+               |System.setProperty("sbt.structure.generateManagedSources", "${generateManagedSources.toString}");
+               |() }""".stripMargin.replace('\n', ' ')
+
+          // `session clear-all` is not used with this import method because, effectively, nothing needs to be cleared.
+          // When it is used, the message "No session settings defined" is displayed in the shell.
+          // If, in the future, any session settings are modified, maybe this should be added again.
+          buildSbtCompositeCommand(
+            setSystemProps,
+            "reload",
+            maybePreferScala2Command,
+            dumpStructureToCommand
+          )
+        }
       }
 
       val optProcessOutputBuilder = processOutputCollector.map(_.processOutputBuilder)
