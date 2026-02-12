@@ -457,6 +457,7 @@ lazy val debugger =
       resolvers += Versions.IntellijTestFrameworkArtifactsResolver,
       libraryDependencies += Dependencies.intellijDebuggerTestFramework % Test
     ).settings(
+      // TODO: Re-enable these tests after they have been fixed.
       Test / definedTests := Seq.empty
     )
 
