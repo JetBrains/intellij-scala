@@ -2,6 +2,7 @@ package org.jetbrains.sbt.project
 
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.util.io.NioFiles
+import org.jetbrains.plugins.scala.base.TestCaseExt
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.platform.externalSystem.testFramework.ExternalSystemImportingTestCase
 import com.intellij.pom.java.LanguageLevel
@@ -17,7 +18,11 @@ abstract class ScalaExternalSystemImportingTestBase extends ExternalSystemImport
 
   protected def getJdkConfiguredForTestCase: Sdk = myProjectJdk
 
-  protected def projectJdkLanguageLevel: LanguageLevel = LanguageLevel.JDK_11
+  protected def projectJdkLanguageLevel: LanguageLevel = {
+    val requiresJdkAnnotation = this.findTestAnnotation[RequiresJdk]
+    val requiredJdk = requiresJdkAnnotation.map(_.value())
+    requiredJdk.getOrElse(LanguageLevel.JDK_11)
+  }
 
   override protected def getTestsTempDir: String = "" // Use default temp directory
 

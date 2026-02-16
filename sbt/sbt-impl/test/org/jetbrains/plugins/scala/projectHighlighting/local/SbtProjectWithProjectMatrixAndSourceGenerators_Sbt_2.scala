@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.projectHighlighting.local
 
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.projectHighlighting.base.SbtProjectHighlightingLocalProjectsTestBase
@@ -27,6 +28,8 @@ class SbtProjectWithProjectMatrixAndSourceGenerators_Sbt_2
   override protected val projectFileName = projectName
 
   override protected def copyTestProjectToTemporaryDir = true
+
+  override protected def projectJdkLanguageLevel: LanguageLevel = LanguageLevel.JDK_17
 
   override def setUp(): Unit = {
     super.setUp()
