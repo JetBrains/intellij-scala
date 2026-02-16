@@ -128,11 +128,11 @@ sealed abstract class ScalaAddImportAction[Psi <: PsiElement, Elem <: ElementToI
   }
 
   protected def secondPopupStep(element: Elem): PopupStep[_] = {
-    val qname: String = element.qualifiedName
+    val qname: String = inReadAction(element.qualifiedName)
     if (qname == null)
       return FINAL_CHOICE
 
-    val toExclude = AddImportAction.getAllExcludableStrings(element.qualifiedName)
+    val toExclude = AddImportAction.getAllExcludableStrings(qname)
 
     new BaseListPopupStep[String](null, toExclude) {
       override def onChosen(selectedValue: String, finalChoice: Boolean): PopupStep[_] = {
