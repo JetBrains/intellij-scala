@@ -171,7 +171,7 @@ class BspOpenProjectProvider extends AbstractBuildToolOpenProjectProvider {
         .use(ProgressExecutionMode.MODAL_SYNC))
     ExternalProjectsManagerImpl.getInstance(project).runWhenInitialized { () =>
       val setupChoices = bspConfigSteps.workspaceSetupChoices(workspace)
-      val shouldGenerateBspConfig = !hasBspConfiguration(workspace) && setupChoices.nonEmpty
+      val shouldGenerateBspConfig = !hasBspConfiguration(workspace) && setupChoices.nonEmpty && settings.serverConfig != BloopConfig
       if (shouldGenerateBspConfig)
         generateBspConfig(workspace, setupChoices, project, settings)
 
@@ -210,15 +210,14 @@ class BspOpenProjectProvider extends AbstractBuildToolOpenProjectProvider {
       sdk <- sdkOpt
     } {
       val params = bspConfigSteps.getBuilderConfigurationParameters(sdk, workspace, configSetup)
-      params.preImportConfig.foreach(settings.setPreImportConfig)
-      params.serverConfig.foreach(settings.setServerConfig)
-      params.externalBspWorkspace.foreach(path => settings.setExternalProjectPath(path.toString))
-
-      val bspConfigSetup = params.bspConfigSetup
-      if (bspConfigSetup != NoConfigSetup) {
+      if (params.bspConfigSetup != NoConfigSetup) {
         settings.setBspConfigGenerated(true)
 
-        val task = new BspConfigSetupTask(bspConfigSetup)
+        params.preImportConfig.foreach(settings.setPreImportConfig)
+        params.serverConfig.foreach(settings.setServerConfig)
+        params.externalBspWorkspace.foreach(path => settings.setExternalProjectPath(path.toString))
+
+        val task = new BspConfigSetupTask(params.bspConfigSetup)
         task.queue()
       }
     }
