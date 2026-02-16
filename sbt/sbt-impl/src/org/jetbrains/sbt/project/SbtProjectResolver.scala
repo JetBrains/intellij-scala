@@ -581,19 +581,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   private def removeNestedModuleNodes(nodes: Seq[ModuleDataNodeType]): Seq[ModuleDataNodeType] =
     nodes.filterNot(_.isInstanceOf[NestedModuleNode])
 
-  private def findRootNodeForBuild(
-    buildProjectsGroups: Seq[BuildProjectsGroup],
-    buildModuleBaseDir: Path,
-    projectToModule: Map[ProjectData, ModuleDataNodeType]
-  )(using context: ImportContext): Option[ModuleDataNodeType] = {
-    val rootProjectOpt = buildProjectsGroups
-      .find(_.rootProject.base.toPath == buildModuleBaseDir)
-      .map(_.rootProject)
-    val rootProjectModuleName = rootProjectOpt
-      .flatMap(projectToModule.get)
-    rootProjectModuleName
-  }
-
   /**
    * Some SBT builds can have nested sbT builds.
    * Scala Plugin project is a good example for that.
@@ -1248,15 +1235,21 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       def isAncestorOf(other: Path): Boolean =
         FileUtil.isAncestor(file.toCanonicalPath.toString, other.toCanonicalPath.toString, true)
 
-    val buildBaseProject =
-      projects
-        .filter(p => p.buildURI == build.uri)
-        .foldLeft(None: Option[ProjectData]) {
-          case (None, p) => Some(p)
-          case (Some(p), p1) =>
-            val parent = if (p.base.toPath.isAncestorOf(p1.base.toPath)) p else p1
-            Some(parent)
-        }
+    val buildBaseProject = {
+      // Picking the root project from the buildProjectsGroups should be the most appropriate,
+      // but, just in case, the old option has also been preserved
+      val baseFromGroup = buildProjectsGroups.find(_.buildUri == build.uri).map(_.rootProject)
+      baseFromGroup.orElse(
+        projects
+          .filter(p => p.buildURI == build.uri)
+          .foldLeft(None: Option[ProjectData]) {
+            case (None, p) => Some(p)
+            case (Some(p), p1) =>
+              val parent = if (p.base.toPath.isAncestorOf(p1.base.toPath)) p else p1
+              Some(parent)
+          }
+      )
+    }
 
     val buildId = buildBaseProject.flatMap(projectToParentModule.get)
       .map(_.getModuleName + Sbt.BuildModuleSuffix)
@@ -1271,7 +1264,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     val buildProjectDirRoot = buildBaseDir / Sbt.ProjectDirectory
 
-    val rootNode = findRootNodeForBuild(buildProjectsGroups, buildBaseDir, projectToParentModule)
+    val rootNode = buildBaseProject.flatMap(projectToParentModule.get)
     val moduleFilesDirectory = rootNode.map(_.getModuleFileDirectoryPath).getOrElse(defaultModuleFilesDirectory)
     // TODO explicit canonical path is needed until IDEA-126011 is fixed
     val result = createModuleNode(

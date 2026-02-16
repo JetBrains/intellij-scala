@@ -64,6 +64,81 @@ import java.net.URI
     runSimpleTest("simple-scala3", "3.0.2", scalaLibraries, DefaultSbtContentRootsScala3, DefaultMainSbtContentRootsScala3, DefaultTestSbtContentRootsScala3)
   }
 
+  // Test case to check whether the build module is added when the root project is skipped with ideSkipProject := true
+  // TODO For now the added build module has incorrect data, fix it with SCL-25022
+  def testNoRootModule(): Unit = {
+    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
+    val projectName = "dummy"
+    val scalaVersion = "2.13"
+    runTest(
+      new project(projectName) {
+        libraries := scalaLibraries
+        modules := Seq(
+          new module(s"$projectName") {
+            contentRoots += s"$getProjectPath/dummy"
+            excluded := Seq("target")
+          },
+          new module(s"$projectName.main") {
+            contentRoots := Seq(
+              s"$getProjectPath/dummy/src/main",
+              s"$getProjectPath/dummy/target/scala-$scalaVersion/src_managed/main",
+              s"$getProjectPath/dummy/target/scala-$scalaVersion/resource_managed/main"
+            )
+            sources := Seq("scala")
+            resources := Nil
+            testSources := Nil
+            testResources := Nil
+            libraryDependencies := scalaLibraries
+          },
+          new module(s"$projectName.test") {
+            contentRoots := Seq(
+              s"$getProjectPath/dummy/src/test",
+              s"$getProjectPath/dummy/target/scala-$scalaVersion/src_managed/test",
+              s"$getProjectPath/dummy/target/scala-$scalaVersion/resource_managed/test"
+            )
+            sources := Nil
+            resources := Nil
+            testSources := Nil
+            testResources := Nil
+            libraryDependencies := scalaLibraries
+          },
+          new module(s"$projectName.fooModule") {
+            contentRoots += s"$getProjectPath/fooModule"
+            excluded := Seq("target")
+          },
+          new module(s"$projectName.fooModule.main") {
+            contentRoots := Seq(
+              s"$getProjectPath/fooModule/src/main",
+              s"$getProjectPath/fooModule/target/scala-$scalaVersion/src_managed/main",
+              s"$getProjectPath/fooModule/target/scala-$scalaVersion/resource_managed/main"
+            )
+            sources := Nil
+            resources := Nil
+            testSources := Nil
+            testResources := Nil
+            libraryDependencies := scalaLibraries
+          },
+          new module(s"$projectName.fooModule.test") {
+            contentRoots := Seq(
+              s"$getProjectPath/fooModule/src/test",
+              s"$getProjectPath/fooModule/target/scala-$scalaVersion/src_managed/test",
+              s"$getProjectPath/fooModule/target/scala-$scalaVersion/resource_managed/test"
+            )
+            sources := Nil
+            resources := Nil
+            testSources := Nil
+            testResources := Nil
+            libraryDependencies := scalaLibraries
+          },
+          new module(s"$projectName.$projectName-build") {
+            contentRoots := Seq(s"$getProjectPath/dummy/project")
+            sources := Nil
+            excluded := Seq("project/target", "target")
+          }
+        )
+      }
+    )
+  }
 
   protected def runSimpleTest(
     projectName: String,
