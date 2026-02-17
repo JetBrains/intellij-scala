@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
 import org.jetbrains.plugins.scala.lang.resolve.processor._
-import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures}
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt, ScalaFeatures, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.util.UnloadableThreadLocal
 
 import java.{util => ju}
@@ -203,8 +203,11 @@ object TypeDefinitionMembers {
         case p: ResolveProcessor => p.name
         case _ => ""
       }
-      stdLibPatches(clazz, member).foreach {
-        processClassDeclarations(_, processor, state, lastParent, place)
+
+      if (place.scalaLanguageLevelOrDefault < ScalaLanguageLevel.Scala_3_8) {
+        stdLibPatches(clazz, member).foreach {
+          processClassDeclarations(_, processor, state, lastParent, place)
+        }
       }
     }
 
