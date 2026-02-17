@@ -1,3 +1,4 @@
+//noinspection ApiStatus,UnstableApiUsage
 package org.jetbrains.sbt.project.structure
 
 import com.intellij.execution.configurations.ParametersList
@@ -21,6 +22,7 @@ import org.jetbrains.sbt.{Sbt, SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabil
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
 import java.util.UUID
+import scala.annotation.unused
 import scala.concurrent.Future
 import scala.util.Try
 
@@ -276,10 +278,10 @@ object SbtStructureDumper:
      * the approach with `--addPluginSbtFile` can be used.
      */
     private def getDumpProcessArgsForNewImport(
-      structureFilePath: Path,
+      @unused structureFilePath: Path,
       eelDescriptor: EelDescriptor,
-      optString: String,
-      generateManagedSources: Boolean,
+      @unused optString: String,
+      @unused generateManagedSources: Boolean,
       sbtStructureJar: Path,
       maybePreferScala2Command: String,
       dumpStructureCommand: String,
@@ -300,8 +302,11 @@ object SbtStructureDumper:
             |Seq(file("${normalizedLocalPath(sbtStructureJar)}")).classpath
             |}
             |""".stripMargin
-        )
-        val launcherArgs = Seq(s"-addPluginSbtFile=${tmpPluginsSbtFile.toRealPath()}")
+        ).toRealPath()
+        val transferredTmpPluginsSbtFile =
+          EelPathUtils.transferLocalContentToRemote(tmpPluginsSbtFile, TransferTarget.Temporary(eelDescriptor))
+
+        val launcherArgs = Seq(s"-addPluginSbtFile=${normalizedLocalPath(transferredTmpPluginsSbtFile)}")
         StructureDumpConfig(commands, extraSbtFileToRemove = None, launcherArgs)
       } else {
         val parametersList = new ParametersList()
@@ -323,14 +328,14 @@ object SbtStructureDumper:
 
     private def getDumpProcessArgsForLegacySbt(
       structureFilePath: Path,
-      eelDescriptor: EelDescriptor,
+      @unused eelDescriptor: EelDescriptor,
       optString: String,
       generateManagedSources: Boolean,
       sbtStructureJar: Path,
       maybePreferScala2Command: String,
       dumpStructureCommand: String,
       sbtVersion: SbtVersion,
-      sbtProcessOptions: SbtProcessOptions
+      @unused sbtProcessOptions: SbtProcessOptions
     ): StructureDumpConfig = {
       val SeqFqn = SbtVersionCapabilities.collectionsSeqClassFqn(sbtVersion)
       val setCommands = Seq(
