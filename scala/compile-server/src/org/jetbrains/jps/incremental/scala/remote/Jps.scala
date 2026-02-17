@@ -40,7 +40,7 @@ private object Jps {
       val loader = new JpsModelLoaderImpl(projectPath, globalOptionsPath, false, null)
       val buildRunner = new BuildRunner(loader)
       val customBuildId = UUID.randomUUID()
-      val jpsProjectMetadata = command.projectMetadata.asCompactJsonString
+      val jpsProjectMetadata = projectMetadata.asCompactJsonString
       buildRunner.setBuilderParams(
         Map(
           BuildParameters.BuildTriggeredByCBH -> true.toString,
