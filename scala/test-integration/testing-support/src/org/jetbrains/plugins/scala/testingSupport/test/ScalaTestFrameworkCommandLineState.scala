@@ -1,12 +1,16 @@
 package org.jetbrains.plugins.scala.testingSupport.test
 
 import com.intellij.execution.configurations.{JavaCommandLineState, JavaParameters, ParametersList}
+import com.intellij.execution.process.{KillableColoredProcessHandler, OSProcessHandler, ProcessTerminatedListener}
 import com.intellij.execution.runners.{ExecutionEnvironment, ProgramRunner}
+import com.intellij.execution.target.TargetProgressIndicator
 import com.intellij.execution.testframework.sm.SMTestRunnerConnectionUtil
+import com.intellij.execution.testframework.sm.runner.ui.{SMTRunnerConsoleView, SMTestRunnerResultsForm}
 import com.intellij.execution.testframework.ui.BaseTestsOutputConsoleView
 import com.intellij.execution.util.EnvFilesUtilKt.configureEnvsFromFiles
 import com.intellij.execution.{ExecutionResult, Executor, JavaRunConfigurationExtensionManager, ShortenCommandLine}
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.text.StringUtil
@@ -17,7 +21,7 @@ import com.intellij.platform.eel.provider.utils.EelPathUtils
 import com.intellij.util.ui.UIUtil
 import com.intellij.util.{EnvironmentUtil, PathsList}
 import org.apache.commons.lang3.StringUtils
-import org.jetbrains.annotations.ApiStatus
+import org.jetbrains.annotations.{ApiStatus, NotNull}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt}
 import org.jetbrains.plugins.scala.testingSupport.test.CustomTestRunnerBasedStateProvider.TestFrameworkRunnerInfo
@@ -172,13 +176,10 @@ class ScalaTestFrameworkCommandLineState(
     }.toSeq
   }
 
+  /**
+   * @note Written according to [[com.intellij.execution.JavaTestFrameworkRunnableState#execute]].
+   */
   override def execute(executor: Executor, runner: ProgramRunner[_]): ExecutionResult = {
-    val processHandler = startProcess()
-
-    attachExtensionsToProcess(configuration, processHandler)
-
-    RawProcessOutputDebugLogger.maybeAddListenerTo(processHandler)
-
     val testConsoleView: BaseTestsOutputConsoleView = {
       val consoleProperties = configuration.createTestConsoleProperties(executor)
       consoleProperties.setIdBasedTestTree(true)
@@ -204,6 +205,10 @@ class ScalaTestFrameworkCommandLineState(
         )
     Disposer.register(configuration.getProject, consoleViewDecorated)
 
+    val processHandler = createHandler()
+    attachExtensionsToProcess(configuration, processHandler)
+    RawProcessOutputDebugLogger.maybeAddListenerTo(processHandler)
+
     consoleViewDecorated.attachToProcess(processHandler)
 
     // Using a decorated console view. We also need to pass the underlying test console view, in order to correctly
@@ -211,6 +216,32 @@ class ScalaTestFrameworkCommandLineState(
     val executionResult = createExecutionResult(consoleViewDecorated, testConsoleView, processHandler)
 
     executionResult
+  }
+
+  /**
+   * @note This is a simplified version of `JavaTestFrameworkRunnableState#creatHandler`.
+   *       Calling `getEnvironment.getPreparedTargetEnvironment` and `getTargetedCommandLine`
+   *       sets up the run configuration for a remote execution target, such as eel/WSL.
+   *       It handles automatic translation of the run configuration parameters to match
+   *       the expectations of the target machine.
+   */
+  @NotNull
+  private def createHandler(): OSProcessHandler = {
+    val remoteEnvironment = getEnvironment.getPreparedTargetEnvironment(this, TargetProgressIndicator.EMPTY)
+    val targetedCommandLineBuilder = getTargetedCommandLine
+    val targetedCommandLine = targetedCommandLineBuilder.build()
+
+    val process = remoteEnvironment.createProcess(targetedCommandLine, new EmptyProgressIndicator())
+
+    val processHandler = new KillableColoredProcessHandler.Silent(
+      process,
+      targetedCommandLine.getCommandPresentation(remoteEnvironment),
+      targetedCommandLine.getCharset,
+      targetedCommandLineBuilder.getFilesToDeleteOnTermination
+    )
+
+    ProcessTerminatedListener.attach(processHandler)
+    processHandler
   }
 
   /**
