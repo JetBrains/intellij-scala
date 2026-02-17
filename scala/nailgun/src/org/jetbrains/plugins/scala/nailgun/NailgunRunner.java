@@ -40,17 +40,18 @@ public class NailgunRunner {
    * An alternative to default nailgun main {@link com.facebook.nailgun.NGServer#main(java.lang.String[])}
    */
   public static void main(String[] args) throws Exception {
-    if (args.length != 3)
+    if (args.length != 4)
       throw new IllegalArgumentException("Usage: NailgunRunner [id] [classpath] [system-dir-path]");
 
     String id = args[0];
     String classpath = args[1];
     Path scalaCompileServerSystemDir = Paths.get(args[2]);
+    Path jpsBuildSystemDir = Paths.get(args[3]);
 
     URLClassLoader classLoader = constructClassLoader(classpath);
 
     InetAddress address = InetAddress.getByName(null);
-    NGServer server = createServer(address, 0, id, scalaCompileServerSystemDir, classLoader);
+    NGServer server = createServer(address, 0, id, scalaCompileServerSystemDir, jpsBuildSystemDir, classLoader);
 
     Thread thread = new Thread(server);
     thread.setName("Scala Compile Server NGServer");
@@ -123,8 +124,14 @@ public class NailgunRunner {
     return urlString.contains("repl-interface.jar");
   }
 
-  private static NGServer createServer(InetAddress address, int port, String id, Path scalaCompileServerSystemDir, URLClassLoader classLoader)
-          throws Exception {
+  private static NGServer createServer(
+          InetAddress address,
+          int port,
+          String id,
+          Path scalaCompileServerSystemDir,
+          Path jpsBuildSystemDir,
+          URLClassLoader classLoader
+  ) throws Exception {
 
     NGServer server = new NGServer(
             address,
@@ -135,7 +142,7 @@ public class NailgunRunner {
 
     server.setAllowNailsByClassName(false);
 
-    Class<?> mainNailClass = Utils.loadAndSetupServerMainNailClass(classLoader, scalaCompileServerSystemDir);
+    Class<?> mainNailClass = Utils.loadAndSetupServerMainNailClass(classLoader, scalaCompileServerSystemDir, jpsBuildSystemDir);
     Utils.setupServerShutdownTimer(mainNailClass, server);
     for (String command : COMMANDS) {
       server.getAliasManager().addAlias(new Alias(command, SERVER_DESCRIPTION, mainNailClass));

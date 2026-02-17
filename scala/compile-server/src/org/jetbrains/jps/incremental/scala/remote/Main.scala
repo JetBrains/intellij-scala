@@ -51,11 +51,12 @@ object Main {
   private val currentParallelism = new AtomicInteger(0)
 
   private var scalaCompileServerSystemDir: Path = _
+  private var jpsBuildSystemDir: Path = _
 
-  // NOTE: we can't merge all setup methods, because in MainLightRunner (NonServerRunner) nailgun classes are not available
-  @unused("used via reflection in org.jetbrains.plugins.scala.nailgun.Utils.setupScalaCompileServerSystemDir")
-  def setupScalaCompileServerSystemDir(scalaCompileServerSystemDir: Path): Unit = {
+  @unused("used via reflection in org.jetbrains.plugins.scala.nailgun.Utils.setupSystemDirectories")
+  def setupSystemDirectories(scalaCompileServerSystemDir: Path, jpsBuildSystemDir: Path): Unit = {
     this.scalaCompileServerSystemDir = scalaCompileServerSystemDir
+    this.jpsBuildSystemDir = jpsBuildSystemDir
   }
 
   @unused("used via reflection from org.jetbrains.plugins.scala.nailgun.Utils.setupServerShutdownTimer")
@@ -124,7 +125,7 @@ object Main {
                           out: PrintStream,
                           port: Int,
                           standalone: Boolean): Unit = {
-    if (scalaCompileServerSystemDir == null)
+    if (scalaCompileServerSystemDir == null || jpsBuildSystemDir == null)
       throw new IllegalStateException("the 'setup' method must be invoked before compile server usage")
     val client = new EncodingEventGeneratingClient(out, standalone)
     val oldOut = System.out
@@ -194,7 +195,7 @@ object Main {
         case CompileServerCommand.ComputeStamps(arguments) =>
           computeStampsLogic(arguments, client)
         case compileJps: CompileServerCommand.CompileJps =>
-          Jps.compileJpsLogic(compileJps, client, scalaCompileServerSystemDir)
+          Jps.compileJpsLogic(compileJps, client, jpsBuildSystemDir)
         case CompileServerCommand.CompileDocument(arguments) =>
           compileDocumentLogic(arguments, client)
         case CompileServerCommand.EvaluateExpression(args) =>

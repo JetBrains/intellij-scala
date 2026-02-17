@@ -27,9 +27,9 @@ private object Jps {
 
   private val projectLock: ConcurrentMap[String, Lock] = ContainerUtil.createConcurrentSoftValueMap()
 
-  def compileJpsLogic(command: CompileServerCommand.CompileJps, client: Client, scalaCompileServerSystemDir: Path): Unit = {
+  def compileJpsLogic(command: CompileServerCommand.CompileJps, client: Client, jpsBuildSystemDir: Path): Unit = {
     if (systemRootSet.compareAndSet(false, true)) {
-      Utils.setSystemRoot(scalaCompileServerSystemDir.toFile)
+      Utils.setSystemRoot(jpsBuildSystemDir.toFile)
     }
 
     val CompileServerCommand.CompileJps(projectPath, globalOptionsPath, dataStorageRootPath, moduleNames, sourceScope, projectMetadata, externalProjectConfig) = command

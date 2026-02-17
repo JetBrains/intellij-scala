@@ -185,6 +185,8 @@ object CompileServerLauncher {
           ) ++ vmOptionsForLogging
         }
 
+        val jpsBuildSystemDir = BuildManager.getInstance().getBuildSystemDirectory(project)
+
         val commands =
           jdk.executable.toCanonicalPath.toString +:
             "-cp" +: nailgunClasspath +:
@@ -201,6 +203,7 @@ object CompileServerLauncher {
             id +:
             classpath +:
             asTargetLocalPathString(compileServerSystemDir, eelDescriptor) +:
+            asTargetLocalPathString(jpsBuildSystemDir, eelDescriptor) +:
             Nil
 
         val workingDirectory: Path = {

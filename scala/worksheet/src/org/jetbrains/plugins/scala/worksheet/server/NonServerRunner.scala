@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.worksheet.server
 
+import com.intellij.compiler.server.BuildManager
 import com.intellij.execution.process._
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
@@ -55,11 +56,12 @@ class NonServerRunner(project: Project) {
           val runnerClassPath = classPathArg(jdkToolsPath :+ ScalaPluginJars.scalaNailgunRunnerJar)
           val mainClassPath = classPathArg(jdkToolsPath ++ CompileServerLauncher.compileServerJars)
           val scalaCompileServerSystemDir = CompileServerLauncher.scalaCompileServerSystemDir(project)
+          val jpsBuildSystemDir = BuildManager.getInstance().getBuildSystemDirectory(project)
           val jvmParameters = CompileServerLauncher.jvmParameters
           val jnaParams = CompileServerLauncher.jnaVMOptions
           val java9rtJarParams = CompileServerLauncher.prepareJava9rtJar(project, jdk)
           (jdkPath +: "-cp" +: runnerClassPath +: jvmParameters) ++ jnaParams ++ java9rtJarParams ++
-            (SERVER_CLASS_NAME +: mainClassPath +: scalaCompileServerSystemDir.toString +: argsEncoded)
+            (SERVER_CLASS_NAME +: mainClassPath +: scalaCompileServerSystemDir.toString +: jpsBuildSystemDir.toString +: argsEncoded)
         }
 
         val builder = new ProcessBuilder(commands.asJava)

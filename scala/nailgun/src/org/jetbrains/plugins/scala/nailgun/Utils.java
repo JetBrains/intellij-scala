@@ -10,21 +10,18 @@ public class Utils {
 
     private static final String SERVER_CLASS_NAME = "org.jetbrains.jps.incremental.scala.remote.Main";
 
-    // Deliberately naming the class, not the Scala object, as modern Scala versions generate static forwarder methods.
-    private static final String COMPILE_SERVER_TOKEN_OBJECT_NAME = "org.jetbrains.plugins.scala.server.CompileServerToken";
-
-    public static Class<?> loadAndSetupServerMainNailClass(ClassLoader classLoader, Path scalaCompileServerSystemPath)
+    public static Class<?> loadAndSetupServerMainNailClass(ClassLoader classLoader, Path scalaCompileServerSystemPath, Path jpsBuildSystemDir)
             throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Class<?> clazz = classLoader.loadClass(SERVER_CLASS_NAME);
-        setupScalaCompileServerSystemDir(clazz, scalaCompileServerSystemPath);
+        setupSystemDirectories(clazz, scalaCompileServerSystemPath, jpsBuildSystemDir);
         return clazz;
     }
 
-    private static void setupScalaCompileServerSystemDir(Class<?> serverMainNailClass, Path scalaCompileServerSystemDir)
+    private static void setupSystemDirectories(Class<?> serverMainNailClass, Path scalaCompileServerSystemDir, Path jpsBuildSystemDir)
             throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        Method setupMethod = serverMainNailClass.getMethod("setupScalaCompileServerSystemDir", Path.class);
+        Method setupMethod = serverMainNailClass.getMethod("setupSystemDirectories", Path.class, Path.class);
         setupMethod.setAccessible(true);
-        setupMethod.invoke(null, scalaCompileServerSystemDir);
+        setupMethod.invoke(null, scalaCompileServerSystemDir, jpsBuildSystemDir);
     }
 
     public static void setupServerShutdownTimer(Class<?> serverMainNailClass, NGServer ngServer)
