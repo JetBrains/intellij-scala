@@ -1456,7 +1456,7 @@ final class ReferenceComparisonTest_Scala3_Newest_Part14 extends ReferenceCompar
   def test_i13660(): Unit = doTest("i13660", true) // #typeLambda
   def test_i13668(): Unit = doTest("i13668", true) // #extension
   def test_i13669(): Unit = doTest("i13669", false) // #extension, #export
-  def test_i13739(): Unit = doTest("i13739", false) // #unionType
+  def test_i13739(): Unit = doTest("i13739", true) // #unionType
   def test_i13816(): Unit = doTest("i13816", false) // #intersectionType
   def test_i13820(): Unit = doTest("i13820", true)
   def test_i13842(): Unit = doTest("i13842", true)
@@ -2352,7 +2352,7 @@ final class ReferenceComparisonTest_Scala3_Newest_Part23 extends ReferenceCompar
   def test_nullary_poly(): Unit = doTest("nullary_poly", true)
   def test_object_union_inf(): Unit = doTest("object-union-inf", true) // #intersectionType
   def test_objXfun(): Unit = doTest("objXfun", true) // #enum
-  def test_opaque(): Unit = doTest("opaque", false) // #opaque
+  def test_opaque(): Unit = doTest("opaque", true) // #opaque
   def test_opaque_aliasing(): Unit = doTest("opaque-aliasing", true) // #opaque
   def test_opaque_digits(): Unit = doTest("opaque-digits", true) // #opaque
   def test_opaque_groups(): Unit = doTest("opaque-groups", false) // #opaque
@@ -3443,7 +3443,7 @@ final class ReferenceComparisonTest_Scala3_Newest_Part33 extends ReferenceCompar
   def test_toplevel_cyclic(): Unit = doTest("toplevel-cyclic", true)
   def test_toplevel_match(): Unit = doTest("toplevel-match", true) // #matchType
   def test_toplevel_opaque(): Unit = doTest("toplevel-opaque", true) // #opaque
-  def test_toplevel_opaque_xm(): Unit = doTest("toplevel-opaque-xm", false) // #opaque, #extension
+  def test_toplevel_opaque_xm(): Unit = doTest("toplevel-opaque-xm", true) // #opaque, #extension
   def test_toplevel_privates(): Unit = doTest("toplevel-privates", true)
   def test_tparam_inf(): Unit = doTest("tparam_inf", true)
   def test_tracked(): Unit = doTest("tracked", true)

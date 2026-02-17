@@ -41,7 +41,6 @@ class QuillTest extends TextToTextTestBase(
   sourceExceptions = Set(
     "io.getquill.IdiomContext", // scala.Option | scala.Some
     "io.getquill.MirrorContextBase", // MirrorContextBase.this.QueryMirror | MirrorContextBase.this.RunQueryResult
-    "io.getquill.StringCodec", // ... | Cannot resolve expression
     "io.getquill.ast.StatefulTransformerWithStack", // scala.Option | scala.None.type
     "io.getquill.context.BatchStatic", // io.getquill.ast.Ident | scala.Any
     "io.getquill.context.Execution", // scala.quoted.Expr | scala.Any

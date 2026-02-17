@@ -1408,7 +1408,7 @@ final class ReferenceComparisonTest_Scala3_LTS_Part14 extends ReferenceCompariso
   def test_i13660(): Unit = doTest("i13660", true) // #typeLambda
   def test_i13668(): Unit = doTest("i13668", true) // #extension
   def test_i13669(): Unit = doTest("i13669", false) // #extension, #export
-  def test_i13739(): Unit = doTest("i13739", false) // #unionType
+  def test_i13739(): Unit = doTest("i13739", true) // #unionType
   def test_i13816(): Unit = doTest("i13816", false) // #intersectionType
   def test_i13820(): Unit = doTest("i13820", true)
   def test_i13842(): Unit = doTest("i13842", true)
@@ -1823,7 +1823,7 @@ final class ReferenceComparisonTest_Scala3_LTS_Part18 extends ReferenceCompariso
   def test_implicit_match_nested(): Unit = doTest("implicit-match-nested", true) // #transparentInline
   def test_implicit_scope(): Unit = doTest("implicit-scope", true) // #opaque, #extension
   def test_implicit_scope_loop(): Unit = doTest("implicit-scope-loop", true)
-  def test_implicit_shadowing(): Unit = doTest("implicit-shadowing", false)
+  def test_implicit_shadowing(): Unit = doTest("implicit-shadowing", true)
   def test_implicit_unwrap_tc(): Unit = doTest("implicit-unwrap-tc", true)
   def test_implicit_cache(): Unit = doTest("implicit_cache", true)
   def test_implicit_tparam(): Unit = doTest("implicit_tparam", true)
@@ -3070,7 +3070,7 @@ final class ReferenceComparisonTest_Scala3_LTS_Part29 extends ReferenceCompariso
   def test_toplevel_cyclic(): Unit = doTest("toplevel-cyclic", true)
   def test_toplevel_match(): Unit = doTest("toplevel-match", true) // #matchType
   def test_toplevel_opaque(): Unit = doTest("toplevel-opaque", true) // #opaque
-  def test_toplevel_opaque_xm(): Unit = doTest("toplevel-opaque-xm", false) // #opaque, #extension
+  def test_toplevel_opaque_xm(): Unit = doTest("toplevel-opaque-xm", true) // #opaque, #extension
   def test_toplevel_privates(): Unit = doTest("toplevel-privates", true)
   def test_tparam_inf(): Unit = doTest("tparam_inf", true)
   def test_trailing_comma_pattern(): Unit = doTest("trailing-comma-pattern", true)
