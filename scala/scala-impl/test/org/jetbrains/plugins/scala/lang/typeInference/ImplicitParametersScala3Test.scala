@@ -166,4 +166,80 @@ class ImplicitParametersScala3Test extends ImplicitParametersTestBase {
          |}
          |""".stripMargin
       )
+
+  def testSCL21517(): Unit =
+    checkTextHasNoErrors(
+      """
+        |object Example:
+        |  // OK: Inheritors of java.lang.Number
+        |  // Resolves to scala.CanEqual.canEqualNumber
+        |  summon[CanEqual[java.lang.Number, java.lang.Number]]
+        |  summon[CanEqual[scala.math.ScalaNumber, scala.math.ScalaNumber]]
+        |  summon[CanEqual[java.lang.Float, java.lang.Float]]
+        |  summon[CanEqual[scala.math.ScalaNumber, scala.math.ScalaNumber]]
+        |  summon[CanEqual[java.math.BigDecimal, java.math.BigDecimal]]
+        |  summon[CanEqual[java.lang.Short, java.lang.Short]]
+        |  summon[CanEqual[java.lang.Long, java.lang.Long]]
+        |  summon[CanEqual[java.util.concurrent.atomic.AtomicInteger, java.util.concurrent.atomic.AtomicInteger]]
+        |  summon[CanEqual[java.lang.Byte, java.lang.Byte]]
+        |  summon[CanEqual[scala.math.ScalaNumber, scala.math.ScalaNumber]]
+        |  summon[CanEqual[java.lang.Double, java.lang.Double]]
+        |  summon[CanEqual[java.util.concurrent.atomic.AtomicLong, java.util.concurrent.atomic.AtomicLong]]
+        |  summon[CanEqual[java.lang.Integer, java.lang.Integer]]
+        |  summon[CanEqual[java.math.BigInteger, java.math.BigInteger]]
+        |
+        |  // OK: String
+        |  // Resolves to scala.CanEqual.canEqualString
+        |  summon[CanEqual[java.lang.String, java.lang.String]]
+        |  summon[CanEqual[String, String]]
+        |
+        |  // NOT OK: Scala primitive types (scala.AnyVal)
+        |  summon[CanEqual[Int, Int]]
+        |  summon[CanEqual[Float, Float]]
+        |  summon[CanEqual[Double, Double]]
+        |  summon[CanEqual[Long, Long]]
+        |  summon[CanEqual[Boolean, Boolean]]
+        |  summon[CanEqual[Char, Char]]
+        |  summon[CanEqual[Unit, Unit]]
+        |
+        |  summon[CanEqual[AnyVal, AnyVal]]
+        |  summon[CanEqual[AnyRef, AnyRef]]
+        |  summon[CanEqual[Object, Object]]
+        |  summon[CanEqual[Object, AnyRef]]
+        |
+        |  summon[CanEqual[MyBaseClass, Null]]
+        |  summon[CanEqual[Null, MyBaseClass]]
+        |  summon[CanEqual[Nothing, MyBaseClass]]
+        |  summon[CanEqual[MyBaseClass, Nothing]]
+        |
+        |  // NOT OK: Other Java/Scala classes including custom classes
+        |  summon[CanEqual[scala.util.Random, scala.util.Random]]
+        |  summon[CanEqual[MyBaseClass, MyBaseClass]]
+        |  summon[CanEqual[MyChildClass, MyChildClass]]
+        |
+        |abstract class MyBaseClass
+        |class MyChildClass extends MyBaseClass
+        |""".stripMargin
+    )
+
+  def testSCL21517Neg_StrictEq(): Unit = checkHasImplicitArgumentProblems(
+    s"""
+       |object A {
+       |  import scala.language.strictEquality
+       |  class Foo
+       |  ${START}summon[CanEqual[Foo, Foo]]$END
+       |}
+       |""".stripMargin
+  )
+
+  def testSCL21517Neg_HasInstance(): Unit = checkHasImplicitArgumentProblems(
+    s"""
+       |object A {
+       |  class Foo
+       |  class Bar extends Foo
+       |  given CanEqual[Bar, Bar] = ???
+       |  ${START}summon[CanEqual[Foo, Bar]]$END
+       |}
+       |""".stripMargin
+  )
 }

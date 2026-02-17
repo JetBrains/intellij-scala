@@ -176,6 +176,12 @@ private class ScalaModuleSettings private(
       case _ => false
     }
 
+  val hasStrictEquality: Boolean =
+    additionalCompilerOptions.exists {
+      case "-language:strictEquality" => true
+      case _                          => false
+    }
+
   def isSource3: Boolean = source3Options.isSource3Enabled
 
   val features: SerializableScalaFeatures =
@@ -191,7 +197,7 @@ private class ScalaModuleSettings private(
       hasTrailingCommasEnabled = isTrailingCommasEnabled,
       hasUnderscoreWildcardsDisabled = kindProjectorUnderscorePlaceholdersEnabled || YKindProjectorUnderscoresOptionEnabled,
       hasPreviewFlag = hasPreviewFlag,
-      hasCaptureCheckingEnabled = hasCaptureCheckingEnabled,
+      hasCaptureCheckingEnabled = hasCaptureCheckingEnabled
     )
 
   lazy val externalSystemId: Option[String] =

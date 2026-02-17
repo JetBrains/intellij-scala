@@ -1,17 +1,21 @@
 package org.jetbrains.plugins.scala.lang.psi.api
 
-import com.intellij.psi.PsiClass
 import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.search.searches.ClassInheritorsSearch
+import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
+import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
+import org.jetbrains.plugins.scala.lang.psi.types.SmartSuperTypeUtil.TraverseSupers
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ExtractClass, ParameterizedType, TypeParameterType}
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScCompoundType, ScLiteralType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ExtractClass, ParameterizedType, StdTypes, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScCompoundType, ScLiteralType, ScType, SmartSuperTypeUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.util.CommonQualifiedNames
 
 object SyntheticImplicitInstances {
@@ -29,12 +33,18 @@ object SyntheticImplicitInstances {
   val ConformsWitness = "scala.Predef.<:<"
   val EquivWitness    = "scala.Predef.=:="
   val Mirrors         = Seq("scala.deriving.Mirror", "scala.deriving.Mirror.Product", "scala.deriving.Mirror.Sum")
+  val CanEqual        = "scala.CanEqual"
 
-  private[api] def compilerGeneratedInstance(tp: ScType)(implicit context: Context): Option[ScalaResolveResult] =
+  private[api] def compilerGeneratedInstance(
+    tp:    ScType,
+    place: PsiElement
+  )(implicit
+    context: Context
+  ): Option[ScalaResolveResult] =
     tp.removeAliasDefinitions() match {
       case p @ ParameterizedType(_, params) =>
         p.extractClass.collect {
-          case clazz if areEligible(params, clazz.qualifiedName) =>
+          case clazz if areEligible(params, clazz.qualifiedName, place) =>
             new ScalaResolveResult(clazz, p.substitutor)
         }
       case ScCompoundType(Seq(ExtractClass(cls)), _, typesMap) if Mirrors.contains(cls.qualifiedName) =>
@@ -49,16 +59,102 @@ object SyntheticImplicitInstances {
     }
 
 
-  private def areEligible(params: Seq[ScType], typeFqn: String)(implicit context: Context): Boolean =
+  private def areEligible(
+    params:  Seq[ScType],
+    typeFqn: String,
+    place:   PsiElement
+  )(implicit
+    context: Context
+  ): Boolean =
     (typeFqn, params) match {
       case (TypeTest, Seq(lhs, rhs))                    => eligibleForTypeTest(lhs, rhs)
       case (ValueOf, Seq(t))                            => eligibleForValueOf(t)
       case (ConformsWitness, Seq(t1, t2))               => t1.conforms(t2)
       case (EquivWitness, Seq(t1, t2))                  => t1.equiv(t2)
+      case (CanEqual, Seq(lhs, rhs))                    => eligibleForSyntheticCanEqual(lhs, rhs, place)
       case (mirror, Seq(t)) if Mirrors.contains(mirror) => eligibleForMirror(t)
       case _ if params.size == 1                        => tagsAndManifists.contains(typeFqn)
       case _                                            => false
     }
+
+  private def eligibleForSyntheticCanEqual(
+    lhs: ScType,
+    rhs: ScType,
+    place: PsiElement
+  ): Boolean = {
+    val strictEqualityEnabled = place.isStrictEqualityEnabled
+
+    def derivesFrom(scType: ScType, fqn: String): Boolean = {
+      var res: Boolean = false
+
+      SmartSuperTypeUtil.traverseSuperTypes(
+        scType,
+        (_, cls, _) => cls match {
+          case cls if cls.qualifiedName == fqn =>
+            res = true
+            TraverseSupers.Stop
+          case _ => TraverseSupers.ProcessParents
+        }
+      )
+
+      res
+    }
+
+    def compareToBoxed(l: ScType, r: ScType): Boolean = {
+      val boxedNumericClass = {
+        val maybeEntry = StdTypes.instance(place.getProject).fqnBoxedToScType.find {
+          case (_, tpe) => tpe == l
+        }
+
+        maybeEntry.flatMap { case (fqn, _) =>
+          ScalaPsiManager
+            .instance(place.getProject)
+            .getCachedClass(place.getResolveScope, fqn)
+        }
+      }
+
+      boxedNumericClass.isDefined &&
+        r.extractClass == boxedNumericClass
+    }
+
+    val canEqualForPredefinedClasses = {
+      val dealiasedLhs = lhs.removeAliasDefinitionsIn(place)
+      val dealiasedRhs = rhs.removeAliasDefinitionsIn(place)
+
+      if (dealiasedLhs.isNothing || dealiasedRhs.isNothing) true
+      else if (dealiasedLhs.isUnit && dealiasedRhs.isUnit) true
+      else if (dealiasedLhs.isPrimitive) {
+        if (dealiasedRhs.isPrimitive)
+          dealiasedLhs == dealiasedRhs || dealiasedLhs.isNumericType && dealiasedRhs.isNumericType
+        else compareToBoxed(dealiasedLhs, dealiasedRhs)
+      }
+      else if (dealiasedRhs.isPrimitive) compareToBoxed(dealiasedRhs, dealiasedLhs)
+      else if (dealiasedLhs.isNull) dealiasedLhs == dealiasedRhs || derivesFrom(dealiasedRhs, "java.lang.Object")
+      else if (dealiasedRhs.isNull) derivesFrom(dealiasedLhs, "java.lang.Object")
+      else false
+    }
+
+    canEqualForPredefinedClasses ||
+      (!strictEqualityEnabled && {
+        // if lhs == rhs, no need to check for CanEqual[lhs, lhs] or CanEqual[rhs, rhs],
+        // if they were to exist, we wouldn't have come here
+        lhs.equiv(rhs) ||
+          !hasCanEqual(lhs, place) && !hasCanEqual(rhs, place)
+      })
+  }
+
+  private def hasCanEqual(argType: ScType, place: PsiElement): Boolean = {
+    val typeText = argType.canonicalText
+
+    val instanceType =
+      ScalaPsiElementFactory.createTypeFromText(s"scala.CanEqual[$typeText, $typeText]", place, place)
+
+    instanceType.exists { tpe =>
+      val collector     = new ImplicitCollector(place, tpe, tpe, None, false)
+      val searchResults = collector.collect()
+      searchResults.size == 1
+    }
+  }
 
   private def eligibleForTypeTest(lhs: ScType, rhs: ScType): Boolean =
     !rhs.isAnyVal &&

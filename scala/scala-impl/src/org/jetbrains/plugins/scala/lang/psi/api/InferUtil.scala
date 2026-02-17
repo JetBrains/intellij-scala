@@ -290,7 +290,7 @@ object InferUtil {
         exprs          ++= resultType.map(Expression(_))
         resolveResults  += srr
       } else {
-        val compilerGenerated = SyntheticImplicitInstances.compilerGeneratedInstance(paramType)
+        val compilerGenerated = SyntheticImplicitInstances.compilerGeneratedInstance(paramType, place)
 
         val result = compilerGenerated.getOrElse {
           if (param.isDefault && param.paramInCode.nonEmpty) {

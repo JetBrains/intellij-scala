@@ -25,9 +25,9 @@ import org.jetbrains.plugins.scala.compiler.data.CompileOrder
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.compiled.ScClsFileViewProvider.ScClsFileImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.PrecedenceTypes
 import org.jetbrains.plugins.scala.project.LibraryExt.{guessLibraryVersionFromName, runtimeVersion}
@@ -427,6 +427,8 @@ package object project {
 
     def isSource3MigrationEnabled: Boolean = scalaModuleSettings.exists(_.hasSource3Migration)
 
+    def isStrictEqualityFlagEnabled: Boolean = scalaModuleSettings.exists(_.hasStrictEquality)
+
     def features: SerializableScalaFeatures =
       scalaModuleSettings.fold(ScalaFeatures.default)(_.features)
 
@@ -766,6 +768,21 @@ package object project {
     def contextAppliedEnabled: Boolean = isDefinedInModuleOrProject(_.contextAppliedPluginEnabled)
 
     def isSAMEnabled: Boolean = isDefinedInModuleOrProject(_.isSAMEnabled)
+
+    def isStrictEqualityFlagEnabled: Boolean = isDefinedInModuleOrProject(_.isStrictEqualityFlagEnabled)
+
+    def isStrictEqualityEnabled: Boolean = isStrictEqualityFlagEnabled || {
+      val reference =
+        ScalaPsiElementFactory.createReferenceFromText("strictEquality", element, element)
+
+      reference.resolve() match {
+        case obj: ScObject =>
+          val fqn = obj.qualifiedName
+          fqn == "scala.language.strictEquality" ||
+            fqn == "scala.runtime.stdLibPatches.language.strictEquality"
+        case _ => false
+      }
+    }
 
     def isSource3MigrationEnabled: Boolean = isDefinedInModuleOrProject(_.isSource3MigrationEnabled)
 
