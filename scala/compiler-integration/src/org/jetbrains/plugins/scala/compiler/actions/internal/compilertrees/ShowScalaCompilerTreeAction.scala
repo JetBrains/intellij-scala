@@ -48,13 +48,15 @@ final class ShowScalaCompilerTreeAction extends AnAction(CompilerIntegrationBund
 
     FileDocumentManager.getInstance.saveAllDocuments()
 
-    // Create collection listener and show dialog immediately
-    val dialog = new CompilerTreesDialog(module.getProject, module)
+    val treesGenerator = new CompilerTreesGenerator(virtualFile, module)
+
+    val dialog = new CompilerTreesDialog(module.getProject, module, treesGenerator.getProgressIndicator)
     dialog.setTitle(CompilerIntegrationBundle.message("scala.compiler.trees.for", virtualFile.getName))
     dialog.show()
 
     // Start background compilation
     // (NOTE: it's important to do it after the dialog is shown in order in Tests, UI Interceptors can add an extra collecting listener)
-    CompilerTreesGenerator.runCompilationAndCollectTrees(virtualFile, module, dialog.compilerTreesListener)
+    treesGenerator.addListener(dialog.compilerTreesListener)
+    treesGenerator.runCompilationAndCollectTrees()
   }
 }
