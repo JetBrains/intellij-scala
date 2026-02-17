@@ -485,7 +485,7 @@ object MethodResolveProcessor {
           expectedOption().map(_.removeAbstracts) match {
             case Some(FunctionType(_, _)) => problems += ExpectedTypeMismatch
             case Some(tp: ScType) if obj.isSAMEnabled =>
-              SAMUtil.toSAMType(tp, obj) match {
+              SAMUtil.SAMToFunctionType(tp, obj) match {
                 case Some(FunctionType(_, _)) => problems += ExpectedTypeMismatch
                 case _                        => ()
               }

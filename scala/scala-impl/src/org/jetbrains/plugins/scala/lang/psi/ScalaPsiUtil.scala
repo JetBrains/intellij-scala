@@ -1327,7 +1327,7 @@ object ScalaPsiUtil {
         case FunctionType(_, _) =>
           Some(ExpectedTypeKind.Function)
         case expected if expr.isSAMEnabled =>
-          val samType = SAMUtil.toSAMType(expected, expr)
+          val samType = SAMUtil.SAMToFunctionType(expected, expr)
           samType.map(ExpectedTypeKind.ClassWithSAM)
         case _ =>
           None

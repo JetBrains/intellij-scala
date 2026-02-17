@@ -108,7 +108,7 @@ object SAMUtil {
     *  }
     * }}}
     */
-    def toSAMType(expected: ScType, element: PsiElement): Option[ScType] = {
+    def SAMToFunctionType(expected: ScType, element: PsiElement): Option[ScType] = {
       // @TODO: ContextFunctions for method with implicit/using parameters
       implicit val scope: ElementScope = element.elementScope
       implicit val context: Context = Context(element)

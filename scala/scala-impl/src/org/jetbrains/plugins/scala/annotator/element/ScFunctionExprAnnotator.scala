@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, TypePresenta
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TupleType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType.isFunctionType
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
-import org.jetbrains.plugins.scala.util.SAMUtil.toSAMType
+import org.jetbrains.plugins.scala.util.SAMUtil.SAMToFunctionType
 
 object ScFunctionExprAnnotator extends ElementAnnotator[ScFunctionExpr] {
 
@@ -62,7 +62,7 @@ object ScFunctionExprAnnotator extends ElementAnnotator[ScFunctionExpr] {
 
     literal.expectedType() match {
       case Some(t @ FunctionType(_, _)) => Some(t)
-      case Some(t) => toSAMType(t, literal)
+      case Some(t) => SAMToFunctionType(t, literal)
       case _ => None
     }
   }

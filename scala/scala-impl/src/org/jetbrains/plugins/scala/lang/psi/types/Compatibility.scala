@@ -162,7 +162,7 @@ object Compatibility {
       def checkForSAM(etaExpansionHappened: Boolean = false): Option[ExpressionTypeResult] =
         tp match {
           case FunctionType(retTpe, params) if place.isSAMEnabled =>
-            SAMUtil.toSAMType(pt, place) match {
+            SAMUtil.SAMToFunctionType(pt, place) match {
               case Some(methodType @ FunctionType(ptRetTpe, _)) =>
                 val maybeSubst = conformanceSubst(tp, methodType)
 

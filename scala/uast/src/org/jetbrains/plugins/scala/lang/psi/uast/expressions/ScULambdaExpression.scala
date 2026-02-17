@@ -57,7 +57,7 @@ trait ScULambdaCommon extends ScUGenLambda with ScUExpression {
   override def getFunctionalInterfaceType: PsiType = {
     if (scExpression.isSAMEnabled) {
       scExpression.`type`().toOption
-        .flatMap(SAMUtil.toSAMType(_, scExpression))
+        .flatMap(SAMUtil.SAMToFunctionType(_, scExpression))
         .map(_.toPsiType)
         .orNull
     }

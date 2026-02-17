@@ -596,8 +596,8 @@ object ScExpression {
       @scala.annotation.tailrec
       def checkForSAM(tp: ScType): Option[ScType] =
         tp match {
-          case FunctionType(_, _)           => SAMUtil.toSAMType(expected, expr)
-          case _: ScMethodType              => SAMUtil.toSAMType(expected, expr)
+          case FunctionType(_, _)           => SAMUtil.SAMToFunctionType(expected, expr)
+          case _: ScMethodType              => SAMUtil.SAMToFunctionType(expected, expr)
           case ScTypePolymorphicType(tp, _) => checkForSAM(tp)
           case _                            => None
         }

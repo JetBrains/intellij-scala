@@ -41,7 +41,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.util.AnonymousFunction._
-import org.jetbrains.plugins.scala.util.SAMUtil.toSAMType
+import org.jetbrains.plugins.scala.util.SAMUtil.SAMToFunctionType
 import org.jetbrains.plugins.scala.util.ScalaBytecodeConstants
 import org.jetbrains.plugins.scala.util.TopLevelMembers.topLevelMemberClassName
 
@@ -526,7 +526,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     else {
       (literal.expectedType() match {
         case Some(t @ FunctionType(_, _)) => Some(t)
-        case Some(t) => toSAMType(t, literal)
+        case Some(t) => SAMToFunctionType(t, literal)
         case _ => None
       }) match {
         case Some(FunctionType(_, Seq(TupleType(components)))) =>

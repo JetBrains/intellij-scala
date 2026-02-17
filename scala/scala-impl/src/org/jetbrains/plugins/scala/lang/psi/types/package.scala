@@ -450,7 +450,7 @@ package object types {
       case ScAbstractType(_, _, upper)            => unapply(upper)
       case tpe if place.isSAMEnabled              =>
         for {
-          (_, retTpe, paramTpes) <- SAMUtil.toSAMType(tpe, place).flatMap(unapply)
+          (_, retTpe, paramTpes) <- SAMUtil.SAMToFunctionType(tpe, place).flatMap(unapply)
           cls                    <- tpe.extractClass
         } yield (SAM(cls), retTpe, paramTpes)
       case _ => None

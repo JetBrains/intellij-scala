@@ -25,7 +25,7 @@ class ConvertExpressionToSAMInspection extends LocalInspectionTool {
     case definition: ScNewTemplateDefinition
       if definition.isSAMEnabled && containsSingleFunction(definition) && !hasConstructorArgs(definition)  =>
       definition.expectedTypes().flatMap {
-        SAMUtil.toSAMType(_, definition)
+        SAMUtil.SAMToFunctionType(_, definition)
       } match {
         case Seq(expectedMethodType) => inspectAccordingToExpectedType(expectedMethodType, definition, holder)
         case _ =>
