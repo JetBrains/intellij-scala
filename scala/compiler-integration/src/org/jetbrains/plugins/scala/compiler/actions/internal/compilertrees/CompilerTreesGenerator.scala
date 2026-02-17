@@ -4,6 +4,7 @@ import com.intellij.notification.{NotificationType, NotificationsManager}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module.Module
+import com.intellij.openapi.progress.{EmptyProgressIndicator, ProgressIndicator}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.VirtualFile
@@ -21,19 +22,38 @@ import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
 import java.nio.file.Path
 import scala.collection.mutable
 
-private object CompilerTreesGenerator {
+private final class CompilerTreesGenerator(
+  virtualFile: VirtualFile,
+  module: Module
+) {
 
   private val Log: Logger = Logger.getInstance(this.getClass)
 
-  def runCompilationAndCollectTrees(
-    virtualFile: VirtualFile,
-    module: Module,
-    compilerTrees: CompilerTreesCollectionListener.Composite
-  ): Unit = {
+  private var compilerTreesListener: CompilerTreesCollectionListener.Composite =
+    new CompilerTreesCollectionListener.Composite()
+
+  private val progressIndicator: ProgressIndicator = new EmptyProgressIndicator()
+
+  /**
+   * Returns the progress indicator used by the background compilation task.
+   * It is used to connect UI components (e.g., progress dialogs) to cancellation and state updates.
+   */
+  def getProgressIndicator: ProgressIndicator = progressIndicator
+
+  def addListener(listener: CompilerTreesCollectionListener): Unit = {
+    compilerTreesListener = compilerTreesListener.withExtraListener(listener)
+  }
+
+  def runCompilationAndCollectTrees(): Unit = {
     ApplicationManager.getApplication.executeOnPooledThread(new Runnable {
       override def run(): Unit = {
+        val listener = compilerTreesListener
         try {
-          doRunCompilationAndCollectTrees(virtualFile, module, compilerTrees)
+          if (progressIndicator.isCanceled) {
+            listener.collectionFinished()
+            return
+          }
+          doRunCompilationAndCollectTrees(listener)
         } catch {
           case e: Exception =>
             invokeLater {
@@ -48,17 +68,19 @@ private object CompilerTreesGenerator {
 
   @RequiresBackgroundThread
   private def doRunCompilationAndCollectTrees(
-    virtualFile: VirtualFile,
-    module: Module,
-    compilerTrees: CompilerTreesCollectionListener.Composite
+    listener: CompilerTreesCollectionListener.Composite
   ): Unit = {
-    Log.debug(s"Compiler trees collection started for ${virtualFile.getPath}")
+    Log.info(s"Compiler trees collection started for ${virtualFile.getPath}")
 
     val phaseCollectorListener = new CompilerTreesCollectionListener.Collecting
-    val compilerTreesWithCollector = compilerTrees.withExtraListener(phaseCollectorListener)
+    val compilerTreesWithCollector = listener.withExtraListener(phaseCollectorListener)
     try {
       CompileServerLauncher.ensureServerRunning(module.getProject)
-      val errors = compileFileAndCollectPhases(virtualFile, module, compilerTreesWithCollector)
+      val errors = compileFileAndCollectPhases(compilerTreesWithCollector)
+
+      if (progressIndicator.isCanceled) {
+        return
+      }
 
       // Show notifications about errors or non-existing trees if needed
       if (errors.nonEmpty) {
@@ -72,19 +94,22 @@ private object CompilerTreesGenerator {
       }
     } finally {
       compilerTreesWithCollector.collectionFinished()
-      Log.debug(s"Compiler trees collection finished for ${virtualFile.getPath}")
+      if (progressIndicator.isCanceled) {
+        Log.info(s"Compiler trees collection canceled for ${virtualFile.getPath}")
+      } else {
+        Log.info(s"Compiler trees collection finished for ${virtualFile.getPath}")
+      }
     }
   }
 
   @RequiresBackgroundThread
   private def compileFileAndCollectPhases(
-    virtualFile: VirtualFile,
-    module: Module,
     compilerTrees: CompilerTreesCollectionListener.Composite
   ): Seq[Client.ClientMsg] = {
     val collectingClient = new ClientCollectingAndStreamingMessages(
       module.scalaLanguageLevel.getOrElse(ScalaLanguageLevel.Scala_2_13),
-      compilerTrees
+      compilerTrees,
+      progressIndicator
     )
 
     val tempOutputDir = FileUtil.createTempDirectory("ShowScalaCompilerTreeAction", null, true).toPath
@@ -138,7 +163,8 @@ private object CompilerTreesGenerator {
    */
   private class ClientCollectingAndStreamingMessages(
     languageLevel: ScalaLanguageLevel,
-    compilerTreesListener: CompilerTreesCollectionListener.Composite
+    compilerTreesListener: CompilerTreesCollectionListener.Composite,
+    progressIndicator: ProgressIndicator
   ) extends DummyClient() {
     val errors: mutable.Buffer[Client.ClientMsg] = mutable.ArrayBuffer.empty[Client.ClientMsg]
 
@@ -161,6 +187,8 @@ private object CompilerTreesGenerator {
       // Process message for phase detection
       phaseCollector.processMessage(normalizedMsg)
     }
+
+    override def isCanceled: Boolean = progressIndicator.isCanceled
 
     def finish(): Unit = {
       phaseCollector.finish()

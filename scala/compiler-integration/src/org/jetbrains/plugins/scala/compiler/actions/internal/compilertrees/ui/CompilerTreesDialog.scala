@@ -6,6 +6,7 @@ import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.observable.properties.{GraphProperty, PropertyGraph}
 import com.intellij.openapi.observable.util.BindUtil
+import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.{DialogWrapper, SimpleToolWindowPanel, ValidationInfo}
 import com.intellij.openapi.util.Condition
@@ -31,7 +32,8 @@ import scala.util.matching.Regex
 
 final class CompilerTreesDialog(
   myProject: Project,
-  myModule: Module
+  myModule: Module,
+  phasesCollectionProgress: ProgressIndicator
 ) extends DialogWrapper(myProject) {
 
   private var myEditor: EditorEx = _
@@ -323,6 +325,7 @@ final class CompilerTreesDialog(
   override protected def doValidate(): ValidationInfo = null //nothing to validate right now
 
   override protected def dispose(): Unit = {
+    phasesCollectionProgress.cancel()
     EditorFactory.getInstance.releaseEditor(myEditor)
     super.dispose()
   }
