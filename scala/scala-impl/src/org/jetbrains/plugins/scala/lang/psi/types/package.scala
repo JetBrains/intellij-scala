@@ -375,7 +375,7 @@ package object types {
           }
         case designatorOwner: DesignatorOwner =>
           designatorOwner.element match {
-            case definition: ScTypeAliasDefinition if needExpand(definition) =>
+            case definition: ScTypeAliasDefinition if needExpand(definition) && !definition.isEffectivelyOpaque =>
               definition.aliasedType.toOption.flatMap {
                 extractFrom(_, visitedAliases + definition.physical)
               }

@@ -448,7 +448,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
     trait ParameterizedAliasVisitor extends ScalaTypeVisitor {
       override def visitParameterizedType(p: ParameterizedType): Unit = {
         p match {
-          case AliasType(_, _, upper, _) =>
+          case AliasType(_, _, upper, opaque) if !opaque =>
             result = upper match {
               case Right(value) => conformsInner(l, value, visited, constraints)
               case _            => ConstraintsResult.Left

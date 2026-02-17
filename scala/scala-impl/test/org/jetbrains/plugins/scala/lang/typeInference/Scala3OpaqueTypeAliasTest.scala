@@ -1259,4 +1259,52 @@ class Scala3OpaqueTypeAliasTest extends ScalaLightCodeInsightFixtureTestCase {
        |object T:
        |  object Inner:
        |    val v: T = 123""".stripMargin)
+
+  def testSCL25018(): Unit = checkTextHasNoErrors(
+    """
+      |object Types {
+      |  trait B
+      |  class C extends B
+      |
+      |  opaque type Id[+T <: B] = Int
+      |  object Id {
+      |    def apply[T <: B](x: Int): Id[T] = x
+      |    type A = Id[B]
+      |  }
+      |}
+      |
+      |import Types.*
+      |
+      |object Main {
+      |  def f(x: Id.A) = println(x)
+      |
+      |  def main(args: Array[String]): Unit = {
+      |    val id = Id[C](0)
+      |    f(id)
+      |
+      | }
+      |}
+      |""".stripMargin
+  )
+
+  def testSCL25009(): Unit = checkTextHasNoErrors(
+    """
+      |opaque type A = Int
+      |
+      |trait B[C] {
+      |  def foo: Int = 2
+      |}
+      |
+      |object B {
+      |  implicit val int: B[Int] = new B[Int]{}
+      |
+      |  given b: B[A] = new B[A]{}
+      |}
+      |
+      |object Main {
+      |  def f1 = implicitly[B[Int]]
+      |  def f2 = implicitly[B[A]]
+      |}
+      |""".stripMargin
+  )
 }
