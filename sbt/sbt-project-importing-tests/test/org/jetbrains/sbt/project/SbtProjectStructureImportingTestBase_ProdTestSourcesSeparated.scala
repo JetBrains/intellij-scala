@@ -31,6 +31,17 @@ import java.net.URI
 
   import ProjectStructureDsl._
 
+  /**
+   * Resolves the test data project directory path.
+   *
+   * This method strips the `_sbt_*` version suffix from the test method name.
+   * This allows multiple version-specific tests (e.g., [[testSimpleTwoBuilds_sbt_1_12_1]]) to share the same underlying test data directory.
+   */
+  override protected def getTestDataProjectPath: String = {
+    val testName = getTestName(true).replaceAll("_sbt_.*$", "")
+    generateTestProjectPath(testName)
+  }
+
   def testSimple(): Unit = {
     val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
     runSimpleTest("simple", "2.13", scalaLibraries)
@@ -2365,4 +2376,209 @@ import java.net.URI
       modules := Seq(root, rootMain, rootTest) ++ c1Modules
     }
   )
+
+  // Verifies the import process with `-addPluginSbtFile`.
+  // It has two builds because the sbt bug (https://github.com/sbt/sbt/issues/8570) fixed in 1.12.1 and 2.0.0-RC9 is related to multi-build setup.
+  def testSimpleTwoBuilds_sbt_1_12_1(): Unit = {
+    injectVariable(
+      getTestProjectPath / "project" / "build.properties",
+      "$SBT_VERSION$",
+      "1.12.1"
+    )
+
+    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
+    runTest(
+      new project("simpleTwoBuilds") {
+        libraries := scalaLibraries
+
+        val buildURI: URI = getTestProjectPath.toCanonicalPath.toUri
+
+        modules := Seq(
+          new module("simpleTwoBuilds") {
+            contentRoots := Seq(getProjectPath)
+            sbtProjectId := "simpleTwoBuilds"
+            sbtBuildURI := buildURI
+            excluded := Seq("target")
+          },
+          new module("simpleTwoBuilds.main") {
+            contentRoots := Seq(
+              s"$getProjectPath/src/main",
+              s"$getProjectPath/target/scala-2.13/src_managed/main",
+              s"$getProjectPath/target/scala-2.13/resource_managed/main"
+            )
+            sbtProjectId := "simpleTwoBuilds"
+            sbtBuildURI := buildURI
+            sources := Seq("scala")
+            resources := Nil
+            testSources := Nil
+            testResources := Nil
+            libraryDependencies := scalaLibraries
+          },
+          new module("simpleTwoBuilds.test") {
+            contentRoots := Seq(
+              s"$getProjectPath/src/test",
+              s"$getProjectPath/target/scala-2.13/src_managed/test",
+              s"$getProjectPath/target/scala-2.13/resource_managed/test"
+            )
+            sbtProjectId := "simpleTwoBuilds"
+            sbtBuildURI := buildURI
+            sources := Nil
+            resources := Nil
+            testSources := Seq("scala")
+            testResources := Nil
+            libraryDependencies := scalaLibraries
+          },
+          new module("c2") {
+            contentRoots := Seq(s"$getProjectPath/c2")
+            sbtProjectId := "c2"
+            sbtBuildURI := buildURI.resolve("c2/")
+            excluded := Seq("target")
+          },
+          new module("c2.main") {
+            contentRoots := Seq(
+              s"$getProjectPath/c2/src/main",
+              s"$getProjectPath/c2/target/scala-2.13/src_managed/main",
+              s"$getProjectPath/c2/target/scala-2.13/resource_managed/main"
+            )
+            sbtProjectId := "c2"
+            sbtBuildURI := buildURI.resolve("c2/")
+            sources := Seq("scala")
+            resources := Nil
+            testSources := Nil
+            testResources := Nil
+            libraryDependencies := scalaLibraries
+          },
+          new module("c2.test") {
+            contentRoots := Seq(
+              s"$getProjectPath/c2/src/test",
+              s"$getProjectPath/c2/target/scala-2.13/src_managed/test",
+              s"$getProjectPath/c2/target/scala-2.13/resource_managed/test"
+            )
+            sbtProjectId := "c2"
+            sbtBuildURI := buildURI.resolve("c2/")
+            sources := Nil
+            resources := Nil
+            testSources := Nil
+            testResources := Nil
+            libraryDependencies := scalaLibraries
+          },
+          new module("simpleTwoBuilds.simpleTwoBuilds-build") {
+            sources := Seq("")
+            excluded := Seq("project/target", "target")
+          },
+          new module("c2.c2-build") {
+            sources := Seq("")
+            excluded := Seq("project/target", "target")
+          }
+        )
+      }
+    )
+  }
+
+  // Verifies the import process with `-addPluginSbtFile`
+  // It has two builds because the sbt bug (https://github.com/sbt/sbt/issues/8570) fixed in 1.12.1 and 2.0.0-RC9 is related to multi-build setup.
+  @RequiresJdk(LanguageLevel.JDK_17)
+  def testSimpleTwoBuilds_sbt_2_0_0_RC9(): Unit = {
+    injectVariable(
+      getTestProjectPath / "project" / "build.properties",
+      "$SBT_VERSION$",
+      "2.0.0-RC9"
+    )
+
+    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
+    runTest(
+      new project("simpleTwoBuilds") {
+        libraries := scalaLibraries
+
+        val buildURI: URI = getTestProjectPath.toCanonicalPath.toUri
+
+        modules := Seq(
+          new module("simpleTwoBuilds") {
+            contentRoots := Seq(getProjectPath)
+            sbtProjectId := "simpleTwoBuilds"
+            sbtBuildURI := buildURI
+            excluded := Seq("target")
+          },
+          new module("simpleTwoBuilds.main") {
+            contentRoots := Seq(
+              s"$getProjectPath/src/main",
+              s"$getProjectPath/target/out/jvm/scala-2.13.14/simpletwobuilds/src_managed/main",
+              s"$getProjectPath/target/out/jvm/scala-2.13.14/simpletwobuilds/resource_managed/main"
+            )
+            sbtProjectId := "simpleTwoBuilds"
+            sbtBuildURI := buildURI
+            sources := Seq("scala")
+            resources := Nil
+            testSources := Nil
+            testResources := Nil
+            libraryDependencies := scalaLibraries
+            compileOutputPath := "%PROJECT_ROOT%/target/out/jvm/scala-2.13.14/simpletwobuilds/classes"
+            compileTestOutputPath := null
+          },
+          new module("simpleTwoBuilds.test") {
+            contentRoots := Seq(
+              s"$getProjectPath/src/test",
+              s"$getProjectPath/target/out/jvm/scala-2.13.14/simpletwobuilds/src_managed/test",
+              s"$getProjectPath/target/out/jvm/scala-2.13.14/simpletwobuilds/resource_managed/test"
+            )
+            sbtProjectId := "simpleTwoBuilds"
+            sbtBuildURI := buildURI
+            sources := Nil
+            resources := Nil
+            testSources := Seq("scala")
+            testResources := Nil
+            libraryDependencies := scalaLibraries
+            compileOutputPath := null
+            compileTestOutputPath := "%PROJECT_ROOT%/target/out/jvm/scala-2.13.14/simpletwobuilds/test-classes"
+          },
+          new module("c2") {
+            contentRoots := Seq(s"$getProjectPath/c2")
+            sbtProjectId := "c2"
+            sbtBuildURI := buildURI.resolve("c2/")
+            excluded := Seq("target")
+          },
+          new module("c2.main") {
+            contentRoots := Seq(
+              s"$getProjectPath/c2/src/main",
+              s"$getProjectPath/target/out/jvm/scala-2.13.14/c2/src_managed/main",
+              s"$getProjectPath/target/out/jvm/scala-2.13.14/c2/resource_managed/main"
+            )
+            sbtProjectId := "c2"
+            sbtBuildURI := buildURI.resolve("c2/")
+            sources := Seq("scala")
+            resources := Nil
+            testSources := Nil
+            testResources := Nil
+            libraryDependencies := scalaLibraries
+            compileOutputPath := "%PROJECT_ROOT%/target/out/jvm/scala-2.13.14/c2/classes"
+            compileTestOutputPath := null
+          },
+          new module("c2.test") {
+            contentRoots := Seq(
+              s"$getProjectPath/c2/src/test",
+              s"$getProjectPath/target/out/jvm/scala-2.13.14/c2/src_managed/test",
+              s"$getProjectPath/target/out/jvm/scala-2.13.14/c2/resource_managed/test"
+            )
+            sbtProjectId := "c2"
+            sbtBuildURI := buildURI.resolve("c2/")
+            sources := Nil
+            resources := Nil
+            testSources := Nil
+            testResources := Nil
+            libraryDependencies := scalaLibraries
+            compileOutputPath := null
+            compileTestOutputPath := "%PROJECT_ROOT%/target/out/jvm/scala-2.13.14/c2/test-classes"
+          },
+          new module("simpleTwoBuilds.simpleTwoBuilds-build") {
+            sources := Seq("")
+            excluded := Seq("project/target", "target")
+          },
+          new module("c2.c2-build") {
+            sources := Seq("")
+            excluded := Seq("project/target", "target")
+          }
+        )
+      }
+    )
+  }
 }

@@ -180,19 +180,15 @@ object SbtStructureDumper:
          Since sbt 1.4.0+, commands prepended with a space are not added to the history, which should be sufficient for this kind of import.
        - Does not set `shellPrompt := { _ => "" }` — from what I've observed, setting `shellPrompt` to `""` prevents the
          prompt from being displayed before shutting down the sbt process (only a cosmetic issue).
-       - Currently loads the `sbt-structure` plugin via the file in the global plugin directory instead of `--addPluginSbtFile` (due to https://github.com/sbt/sbt/issues/8570).
-         Will be migrated later (see `getDumpProcessArgsForNewImport`).
        
        Applied only to sbt 1.5.0+ because:
        - the ability to apply plugin jars via `unmanagedJars` has worked only since sbt 1.3.4.
          I'm not sure which exact change in sbt enabled this, as there were multiple fixes to the `addPluginSbtFile` command.
        - some sbt 1.4.x versions are broken due to missing the necessary files for the arm64 architecture,
          making it difficult to test for other potential issues.
-       Does not apply to sbt 2.x due to https://github.com/sbt/sbt/issues/8600.
-       However, this is not critical because the next sbt 2.x version will include the fix for https://github.com/sbt/sbt/issues/8570,
-       allowing us to safely use the `--addPluginSbtFile` approach.
       */
-      val isNewImportEnabled = sbtVersion >= SbtVersion("1.5.0") && !sbtVersion.isSbt2
+      val isNewImportEnabled =
+        sbtVersion >= (if sbtVersion.isSbt2 then SbtVersion("2.0.0-RC9") else SbtVersion("1.5.0"))
 
       val additionalVmOptionsForNewImport =
         if (isNewImportEnabled)
@@ -216,9 +212,8 @@ object SbtStructureDumper:
         if (isNewImportEnabled) getDumpProcessArgsForNewImport
         else getDumpProcessArgsForLegacySbt
 
-      val StructureDumpConfig(sbtCommandsString, extraSbtFileToRemove) =
+      val StructureDumpConfig(sbtCommandsString, extraSbtFileToRemove, launcherArgs) =
         dumpProcessArgsMethod(
-          directory,
           transferredStructureFile,
           targetEelDescriptor,
           optString,
@@ -240,7 +235,7 @@ object SbtStructureDumper:
         SbtBundle.message("sbt.extracting.project.structure.from.sbt"),
         passParentEnvironment,
         context.timingCollector,
-        sbtProcessOptions
+        sbtProcessOptions.copy(sbtLauncherArgs = sbtProcessOptions.sbtLauncherArgs ++ launcherArgs)
       )
 
       copyFileContentsIfNeeded(transferredStructureFile, structureFile)
@@ -264,37 +259,23 @@ object SbtStructureDumper:
      */
     private case class StructureDumpConfig(
       sbtCommands: String,
-      extraSbtFileToRemove: Option[Path]
+      extraSbtFileToRemove: Option[Path],
+      launcherArgs: Seq[String]
     )
 
     /**
      * Builds config for dumping the project structure in the new import way (without state transformations).
      * 
-     * Due to the sbt issue [[https://github.com/sbt/sbt/issues/8570]] when using `--addPluginSbtFile`, the current
-     * approach relies on adding an sbt file to the global plugins directory.
+     * Due to the sbt issue [[https://github.com/sbt/sbt/issues/8570]] when using `--addPluginSbtFile` in sbt 1.x < 1.12.1
+     * and sbt 2.x < 2.0.0-RC9 the new import relies on adding an sbt file to the global plugins directory.
      * The same trick is used in [[SbtProcessManager.createShellProcessHandler]] when an sbt version is lower than 1.2.0.
      * This is less safe and a worse approach by design, but it's the only way I managed to come up with
      * to avoid applying the `sbt-structure` plugin via state transformations.
-     * 
-     * @todo When any sbt version (1.x/2.x) is published with the fix for [[https://github.com/sbt/sbt/issues/8570]],
-     *       add a condition to check if the sbt version contains the fix and use the approach with `--addPluginSbtFile`
-     *       and `unmanagedJars` instead of the global plugin directory:
-     *       {{{
-     *       val fileConverter =
-     *         if (sbtVersion.isSbt2) "given FileConverter = fileConverter.value"
-     *         else ""
-     *       val tmpPluginsSbtFile = SbtUtil.createTemporarySbtFile(
-     *         raw"""Compile / unmanagedJars ++= {
-     *               |$fileConverter
-     *               |Seq(file("${normalizedLocalPath(sbtStructureJar)}")).classpath
-     *               |}
-     *               |""".stripMargin
-     *        )
-     *       val launcherArgs = Seq(s"-addPluginSbtFile=${tmpPluginsSbtFile.toRealPath()}")
-     *       }}}
+     *
+     * In sbt 1.x >= 1.12.1 and sbt 2.x >= 2.0.0-RC9, the issue described in [[https://github.com/sbt/sbt/issues/8570]] is fixed, so
+     * the approach with `--addPluginSbtFile` can be used.
      */
     private def getDumpProcessArgsForNewImport(
-      projectRoot: Path,
       structureFilePath: Path,
       eelDescriptor: EelDescriptor,
       optString: String,
@@ -307,24 +288,40 @@ object SbtStructureDumper:
     ): StructureDumpConfig = {
       val commands = buildSbtCompositeCommand(maybePreferScala2Command, dumpStructureCommand)
 
-      val parametersList = new ParametersList()
-      parametersList.addAll(sbtProcessOptions.allVmOptions*)
+      val isAddPluginSbtFileEnabled = sbtVersion.isSbt2 || sbtVersion >= SbtVersion("1.12.1")
+      if (isAddPluginSbtFileEnabled) {
+        val fileConverter =
+          if (sbtVersion.isSbt2) "given FileConverter = fileConverter.value"
+          else ""
 
-      val globalPluginsDir = SbtUtil.globalPluginsDirectory(sbtVersion, parametersList, eelDescriptor)
-      if !globalPluginsDir.exists then
-        Files.createDirectories(globalPluginsDir)
+        val tmpPluginsSbtFile = SbtUtil.createTemporarySbtFile(
+          raw"""Compile / unmanagedJars ++= {
+            |$fileConverter
+            |Seq(file("${normalizedLocalPath(sbtStructureJar)}")).classpath
+            |}
+            |""".stripMargin
+        )
+        val launcherArgs = Seq(s"-addPluginSbtFile=${tmpPluginsSbtFile.toRealPath()}")
+        StructureDumpConfig(commands, extraSbtFileToRemove = None, launcherArgs)
+      } else {
+        val parametersList = new ParametersList()
+        parametersList.addAll(sbtProcessOptions.allVmOptions *)
 
-      val pluginFile = globalPluginsDir / s"idea-structure${Sbt.Extension}"
-      // Unfortunately, when using an sbt file in the global plugin directory instead of `--addPluginSbtFile`,
-      // the plugin jar cannot be added with `unmanagedJars` settings. The `unmanagedJars` setting is not considered
-      // in the global plugin build, which differs from `--addPluginSbtFile`, which behaves more like adding an sbt file as part of the project build.
-      val pluginContent = SbtUtil.sbtStructurePluginDeclaration(sbtVersion)
-      Files.writeString(pluginFile, pluginContent, StandardCharsets.UTF_8)
-      StructureDumpConfig(commands, extraSbtFileToRemove = Some(pluginFile))
+        val globalPluginsDir = SbtUtil.globalPluginsDirectory(sbtVersion, parametersList, eelDescriptor)
+        if !globalPluginsDir.exists then
+          Files.createDirectories(globalPluginsDir)
+
+        val pluginFile = globalPluginsDir / s"idea-structure${Sbt.Extension}"
+        // Unfortunately, when using an sbt file in the global plugin directory instead of `--addPluginSbtFile`,
+        // the plugin jar cannot be added with `unmanagedJars` settings. The `unmanagedJars` setting is not considered
+        // in the global plugin build, which differs from `--addPluginSbtFile`, which behaves more like adding an sbt file as part of the project build.
+        val pluginContent = SbtUtil.sbtStructurePluginDeclaration(sbtVersion)
+        Files.writeString(pluginFile, pluginContent, StandardCharsets.UTF_8)
+        StructureDumpConfig(commands, extraSbtFileToRemove = Some(pluginFile), launcherArgs = Nil)
+      }
     }
 
     private def getDumpProcessArgsForLegacySbt(
-      projectRoot: Path,
       structureFilePath: Path,
       eelDescriptor: EelDescriptor,
       optString: String,
@@ -352,7 +349,7 @@ object SbtStructureDumper:
         maybePreferScala2Command,
         dumpStructureCommand
       )
-      StructureDumpConfig(commands, extraSbtFileToRemove = None)
+      StructureDumpConfig(commands, extraSbtFileToRemove = None, launcherArgs = Nil)
     }
 
     private def copyFileContentsIfNeeded(remotePath: Path, localPath: Path): Unit =
