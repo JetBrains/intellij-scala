@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtensionBody, ScF
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType, ScThisType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, ParameterizedType, StdType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
@@ -39,7 +39,6 @@ abstract class ImplicitProcessor(
 
   private object ImplicitStrategy extends NameUniquenessStrategy
 
-  //@TODO: since scala 3 uses nestedness for implicit precedence, perhaps this is no longer needed?
   override protected def nameUniquenessStrategy: NameUniquenessStrategy = ImplicitStrategy
 
   override protected val precedenceHolder: TopPrecedenceHolder = new MappedTopPrecedenceHolder(nameUniquenessStrategy)
@@ -50,7 +49,7 @@ abstract class ImplicitProcessor(
 
   override protected def addResults(results: Iterable[ScalaResolveResult]): Boolean = {
     if (withoutPrecedence) {
-      candidatesSet ++= results
+      results.foreach(getLevelSet.add)
       true
     } else super.addResults(results)
   }

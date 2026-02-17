@@ -54,7 +54,7 @@ private[implicits] final class ImplicitParametersProcessor(
   private def currentLevelSet: ju.Set[ScalaResolveResult] =
     levelSets(levelSets.size - 1)
 
-  override def getLevelSet(result: ScalaResolveResult): ju.Set[ScalaResolveResult] = currentLevelSet
+  override def getLevelSet: ju.Set[ScalaResolveResult] = currentLevelSet
 
   override def changedLevel: Boolean = {
     val levelSet = currentLevelSet

@@ -57,7 +57,7 @@ trait PrecedenceHelper {
     levelUniqueNamesSet.clear()
   }
 
-  protected def getLevelSet(result: ScalaResolveResult): util.Set[ScalaResolveResult] = levelSet
+  protected def getLevelSet: util.Set[ScalaResolveResult] = levelSet
 
   /**
     * Do not add ResolveResults through candidatesSet. It may break precedence. Use this method instead.
@@ -70,7 +70,7 @@ trait PrecedenceHelper {
 
     val result = results.head
 
-    lazy val levelSet = getLevelSet(result)
+    lazy val levelSet = getLevelSet
 
     def addResults(): Unit = {
       levelUniqueNamesSet.add(result)

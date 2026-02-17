@@ -36,7 +36,7 @@ case class ImplicitSearchScope(representative: PsiElement) {
       collection.Seq.empty[collection.Set[ScalaResolveResult]],
       BlockModificationTracker(representative)
     ) {
-      new ImplicitParametersProcessor(representative, withoutPrecedence = false).candidatesByLevel
+      new ImplicitParametersProcessor(representative, withoutPrecedence = true).candidatesByLevel
     }
 
   def cachedImplicitsByType(scType: ScType): Set[ScalaResolveResult] =

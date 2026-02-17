@@ -166,6 +166,32 @@ class ContextFunctionHighlightingTest extends ScalaLightCodeInsightFixtureTestCa
       |""".stripMargin
   )
 
+  def testSCL23976(): Unit = doTest(
+    """
+      |object Test {
+      |  def stringContext(body: String ?=> Unit): Unit = ???
+      |
+      |  def intContext(body: Int ?=> Unit): Unit = ???
+      |
+      |  stringContext {
+      |    intContext {
+      |      summon[Int]    // works fine
+      |      summon[String] // IDEA doesn't "see" the given instance
+      |    }
+      |  }
+      |
+      |  // swapping the context functions makes the other given unresolved
+      |
+      |  intContext {
+      |    stringContext {
+      |      summon[Int]    // now IDEA doesn't "see" this one
+      |      summon[String] // works fine
+      |    }
+      |  }
+      |}
+      |""".stripMargin
+  )
+
   //@TODO: fix, see https://youtrack.jetbrains.com/issue/SCL-23347 comment
 //  def testSCL23347(): Unit = doTest(
 //    """
