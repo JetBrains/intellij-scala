@@ -5,7 +5,7 @@ import com.intellij.psi.PsiClass
 import org.apache.commons.lang3.StringUtils
 import org.jdom.Element
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.extensions.PsiClassExt
+import org.jetbrains.plugins.scala.extensions.{PsiClassExt, inReadAction}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.testingSupport.test.ui.TestRunConfigurationForm
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, TestKind}
@@ -49,7 +49,8 @@ class ClassTestData(config: AbstractTestRunConfiguration) extends TestConfigurat
     if (clazz == null) throw executionException(TestingSupportBundle.message("test.run.config.test.class.not.found", testClassPath))
     if (config.isInvalidSuite(clazz))
       throw executionException(TestingSupportBundle.message("test.config.clazz.is.not.a.valid.test.suite", clazz))
-    Map(clazz.qualifiedName -> Set[String]())
+    val qname = inReadAction(clazz.qualifiedName)
+    Map(qname -> Set.empty[String])
   }
 
   override def copyFieldsFromForm(form: TestRunConfigurationForm): Unit = {
