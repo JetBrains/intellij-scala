@@ -12,16 +12,20 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.newvfs.ManagingFS
 import com.intellij.openapi.vfs.newvfs.persistent.PersistentFSImpl
-import com.intellij.util.EnvironmentUtil
+import com.intellij.platform.eel.provider.EelProviderUtil
+import com.intellij.platform.eel.provider.utils.EelPathUtils
+import com.intellij.util.ui.UIUtil
+import com.intellij.util.{EnvironmentUtil, PathsList}
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.plugins.scala.extensions.ObjectExt
-import org.jetbrains.plugins.scala.project.{ModuleExt, PathsListExt, ProjectExt}
+import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt}
 import org.jetbrains.plugins.scala.testingSupport.test.CustomTestRunnerBasedStateProvider.TestFrameworkRunnerInfo
 import org.jetbrains.plugins.scala.testingSupport.test.ScalaTestFrameworkCommandLineState._
 import org.jetbrains.plugins.scala.testingSupport.test.exceptions.executionException
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.TestConfigurationData
 import org.jetbrains.plugins.scala.testingSupport.test.utils.{JavaParametersModified, RawProcessOutputDebugLogger}
+import org.jetbrains.plugins.scala.util.ScalaPluginJars
 
 import java.io.IOException
 import java.nio.charset.StandardCharsets
@@ -42,7 +46,7 @@ class ScalaTestFrameworkCommandLineState(
   override val failedTests: Option[Seq[(String, String)]],
   runnerInfo: TestFrameworkRunnerInfo
 ) extends JavaCommandLineState(env)
-  with ScalaTestFrameworkCommandLineStateLike{
+  with ScalaTestFrameworkCommandLineStateLike {
 
   override def createJavaParameters(): JavaParameters = {
     val params = new JavaParametersModified()
@@ -67,7 +71,7 @@ class ScalaTestFrameworkCommandLineState(
     val workingDirEffective = VariablesExpander.getWorkingDirExpanded(configuration)
     params.setWorkingDirectory(workingDirEffective)
 
-    params.getClassPath.addRunners()
+    addRunnersJar(params.getClassPath)
     params.setMainClass(runnerInfo.runnerClass)
 
     // hack fix for SCL-12564
@@ -113,6 +117,17 @@ class ScalaTestFrameworkCommandLineState(
     params.setShortenCommandLine(configuration.getShortenCommandLine, project)
 
     params
+  }
+
+  //noinspection ApiStatus,UnstableApiUsage
+  private def addRunnersJar(classPath: PathsList): Unit = {
+    val runnersJar = ScalaPluginJars.runnersJar
+    val eelDescriptor = EelProviderUtil.getEelDescriptor(project)
+    val transferredRunnersJar = EelPathUtils.transferLocalContentToRemote(
+      runnersJar,
+      new EelPathUtils.TransferTarget.Temporary(eelDescriptor)
+    )
+    classPath.add(transferredRunnersJar.toString)
   }
 
   /**
@@ -167,7 +182,7 @@ class ScalaTestFrameworkCommandLineState(
     val testConsoleView: BaseTestsOutputConsoleView = {
       val consoleProperties = configuration.createTestConsoleProperties(executor)
       consoleProperties.setIdBasedTestTree(true)
-      SMTestRunnerConnectionUtil.createConsole("Scala", consoleProperties)
+      UIUtil.invokeAndWaitIfNeeded(() => SMTestRunnerConnectionUtil.createConsole("Scala", consoleProperties))
     }
     /**
      * This, for example, can attach additional profiler window when the test is executed
