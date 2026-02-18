@@ -923,7 +923,10 @@ lazy val i18nIntegration =
     .settings(
       scalaVersion := Versions.scala3Version,
       Compile / scalacOptions := globalScala3ScalacOptions,
-      intellijPlugins += "com.intellij.java-i18n".toPlugin,
+      intellijPlugins ++= Seq(
+        "com.intellij.java-i18n".toPlugin,
+        "com.intellij.properties".toPlugin,
+      ),
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.i18n")
     )
 
