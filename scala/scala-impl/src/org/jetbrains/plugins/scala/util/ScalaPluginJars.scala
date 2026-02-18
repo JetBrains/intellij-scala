@@ -48,11 +48,13 @@ object CompilerBridgeSourcesJars {
 
   private val compilerBridgeSources_2_10: Path = jpsRoot / sources("2.10")
   private val compilerBridgeSources_2_11: Path = jpsRoot / sources("2.11")
+  private val compilerBridgeSources_2_12: Path = jpsRoot / sources("2.12")
   private val compilerBridgeSources_2_13: Path = jpsRoot / sources("2.13")
 
   val allBridgeSources: Seq[Path] = Seq(
     compilerBridgeSources_2_10,
     compilerBridgeSources_2_11,
+    compilerBridgeSources_2_12,
     compilerBridgeSources_2_13
   )
 }

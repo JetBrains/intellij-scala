@@ -48,7 +48,8 @@ object SbtData {
         scala = ScalaSourceJars(
           _2_10 = pluginJpsDir.resolve("compiler-bridge-sources_2.10.jar"),
           _2_11 = pluginJpsDir.resolve("compiler-bridge-sources_2.11.jar"),
-          _2_13 = pluginJpsDir.resolve("compiler-bridge-sources_2.13.jar"),
+          _2_12 = pluginJpsDir.resolve("compiler-bridge-sources_2.12.jar"),
+          _2_13 = pluginJpsDir.resolve("compiler-bridge-sources_2.13.jar")
         ),
         scala3 = Scala3Jars(
           _3_0 = pluginJpsDir.resolve("scala3-sbt-bridge_3.0.jar"),
@@ -68,7 +69,7 @@ object SbtData {
    * Contains sources of the scala compiler bridges.
    * We must compile sources to use bridges.
    */
-  case class ScalaSourceJars(_2_10: Path, _2_11: Path, _2_13: Path)
+  case class ScalaSourceJars(_2_10: Path, _2_11: Path, _2_12: Path, _2_13: Path)
 
   /**
    * Contains already compiled dotty/scala3 compiler bridges.

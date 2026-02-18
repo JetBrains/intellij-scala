@@ -177,7 +177,9 @@ object CompilerFactoryImpl {
     else {
       val sourceJar: Path =
         if (isBefore_2_11(scalaVersion)) compilerBridges.scala._2_10
-        else if (isBefore_2_13(scalaVersion)) compilerBridges.scala._2_11
+        else if (is_2_11(scalaVersion)) compilerBridges.scala._2_11
+        else if (is_2_12(scalaVersion)) compilerBridges.scala._2_12
+        else if (isExactly_2_13_0_M1(scalaVersion)) compilerBridges.scala._2_12
         else compilerBridges.scala._2_13
 
       val bridgeFileName = s"compiler-bridge-${scalaVersion.presentation}-$javaClassVersion.jar"
@@ -204,7 +206,9 @@ object CompilerFactoryImpl {
   }
 
   private def isBefore_2_11(version: Version): Boolean = version.major(2) < Version("2.11")
-  private def isBefore_2_13(version: Version): Boolean = version.major(2) < Version("2.13")
+  private def is_2_11(version: Version): Boolean = version.major(2) == Version("2.11")
+  private def is_2_12(version: Version): Boolean = version.major(2) == Version("2.12")
+  private def isExactly_2_13_0_M1(version: Version): Boolean = version == Version("2.13.0-M1")
   private def is3_0(version: Version): Boolean = version.presentation.startsWith("3.0")
   private def is3_1(version: Version): Boolean = version.presentation.startsWith("3.1")
   private def is3_2(version: Version): Boolean = version.presentation.startsWith("3.2")
