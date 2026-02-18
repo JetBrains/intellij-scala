@@ -1,8 +1,7 @@
 package org.jetbrains.plugins.scala.base
 
 import com.intellij.application.options.CodeStyle
-import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
-import com.intellij.codeInsight.daemon.impl.{DaemonCodeAnalyzerImpl, HighlightInfo}
+import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.module.Module
@@ -15,13 +14,14 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiFile
 import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings}
 import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
+import com.intellij.testFramework.fixtures.impl.CodeInsightTestFixtureImpl
 import com.intellij.testFramework.fixtures.{JavaCodeInsightTestFixture, LightJavaCodeInsightFixtureTestCase}
 import com.intellij.testFramework.{EditorTestUtil, IdeaTestUtil, LightProjectDescriptor}
 import com.intellij.util.lang.JavaVersion
 import org.intellij.lang.annotations.Language
 import org.jetbrains.jps.model.java.JavaSourceRootType
 import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, ScalaSDKLoader}
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, StringExt}
+import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.util.TestUtils
@@ -160,9 +160,7 @@ abstract class ScalaLightCodeInsightFixtureTestCase
 
     // SCL-21849
     if (getIndexingMode != IndexingMode.SMART) {
-      DaemonCodeAnalyzer.getInstance(getProject())
-        .asOptionOf[DaemonCodeAnalyzerImpl]
-        .foreach(_.mustWaitForSmartMode(false, getTestRootDisposable))
+      CodeInsightTestFixtureImpl.mustWaitForSmartMode(false, getTestRootDisposable)
     }
 
     Registry.get("ast.loading.filter").setValue(true, getTestRootDisposable)
