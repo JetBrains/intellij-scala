@@ -1,88 +1,31 @@
 package org.jetbrains.sbt.shell.testSettingsQueryHandler
 
-import com.intellij.execution.process.OSProcessHandler
-import com.intellij.openapi.util.registry.Registry
-import com.intellij.testFramework.fixtures.IdeaTestFixtureFactory
 import org.jetbrains.plugins.scala.SlowTests2
 import org.jetbrains.plugins.scala.build.BuildMessages
-import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.SbtUtil.SbtProjectUriAndId
-import org.jetbrains.sbt.project.SbtProjectStructureImportingLike
-import org.jetbrains.sbt.shell.testSettingsQueryHandler.SbtProjectPlatformTestCase.ProcessLogger
 import org.jetbrains.sbt.shell.testSettingsQueryHandler.SettingQueryHandlerTestBase.{SbtSetCommand, SbtSetCommandSettingPath}
-import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication, SettingQueryHandler}
+import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellTestBase, SettingQueryHandler}
 import org.jetbrains.sbt.{SbtVersion, SbtVersionCapabilities}
-import org.junit.Assert.assertNotNull
 import org.junit.experimental.categories.Category
 
-import java.nio.file.Path
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration.{Duration, DurationInt, FiniteDuration}
+import scala.concurrent.duration.Duration
 
 @Category(Array(classOf[SlowTests2]))
 //noinspection ApiStatus
-abstract class SettingQueryHandlerTestBase extends SbtProjectStructureImportingLike {
-
-  protected def useNewShell: Boolean = false
-
-  protected def getRelativeTestProjectPath: String
-
-  override protected def copyTestProjectToTemporaryDir: Boolean = true
-
-  override protected def getTestDataProjectPath: String =
-    Path.of(TestUtils.getTestDataPath, getRelativeTestProjectPath).toString
-
-  protected def comm: SbtShellCommunication = myComm
-  protected def shellProcessHandler: OSProcessHandler = myShellProcessHandler
-
-  protected var myComm: SbtShellCommunication = _
-  protected var myShellProcessHandler: OSProcessHandler = _
-  protected var logger: ProcessLogger = _
-
-  protected val DefaultCommandWaitTimeout: FiniteDuration = 60.seconds
+abstract class SettingQueryHandlerTestBase extends SbtShellTestBase {
 
   private lazy val sbtProjectUriAndId = SbtProjectUriAndId(
     uri = getTestProjectPath.toUri.toString,
     id = "scalaTest"
   )
 
-  override protected def setUpFixtures(): Unit = {
-    val myTestFixture = IdeaTestFixtureFactory.getFixtureFactory.createFixtureBuilder(getName, getTestProjectPath, useDirectoryBasedStorageFormat()).getFixture
-    myTestFixture.setUp()
-
-    setMyTestFixture(myTestFixture)
-  }
-
-  override def setUp(): Unit = {
-    getCurrentExternalProjectSettings.useSbtShellForImport = true
-
-    super.setUp()
-
-    if (useNewShell) {
-      val newShellRegistry = Registry.get("sbt.new.shell")
-      newShellRegistry.setValue(true, getTestRootDisposable)
-    }
-
-    importProject()
-
-    val project = getMyProject
-
-    myComm = SbtShellCommunication.forProject(project)
-    assertNotNull(myComm)
-
-    myShellProcessHandler = SbtProcessManager.forProject(project).acquireShellProcessHandler()
-    assertNotNull(myShellProcessHandler)
-
-    logger = new ProcessLogger
-    myShellProcessHandler.addProcessListener(logger)
-  }
-
   def testFailedCommand(): Unit = {
     Await.result(comm.command("set npSuchSetting:=42"), DefaultCommandWaitTimeout)
     flush()
     val logNoAnsi = BuildMessages.stripAnsiCodes(logger.getLog)
-    assert(logNoAnsi.contains(SbtProjectPlatformTestCase.errorPrefix))
+    assert(logNoAnsi.contains(SbtShellTestBase.errorPrefix))
   }
 
   def testShow(): Unit =
@@ -125,7 +68,7 @@ abstract class SettingQueryHandlerTestBase extends SbtProjectStructureImportingL
     val log = logger.getLog
 
     assert(res == expectedValue, s"Invalid value read by SettingQueryHandler: '$expectedValue' expected, but '$res' found. Full log:\n$log")
-    assert(!logger.getLog.contains(SbtProjectPlatformTestCase.errorPrefix), s"log contained errors. Full log:\n $log")
+    assert(!logger.getLog.contains(SbtShellTestBase.errorPrefix), s"log contained errors. Full log:\n $log")
   }
 
   protected def doTestSetSetting(
@@ -143,7 +86,7 @@ abstract class SettingQueryHandlerTestBase extends SbtProjectStructureImportingL
     flush()
     val log = logger.getLog
     assert(res == expectedValue, s"Invalid value read by SettingQueryHandler: '$expectedValue' expected, but '$res' found. Full log:\n$log")
-    assert(!logger.getLog.contains(SbtProjectPlatformTestCase.errorPrefix), s"log contained errors. Full log:\n $log")
+    assert(!logger.getLog.contains(SbtShellTestBase.errorPrefix), s"log contained errors. Full log:\n $log")
   }
 
   protected def doTestAddToSetting(
@@ -168,7 +111,7 @@ abstract class SettingQueryHandlerTestBase extends SbtProjectStructureImportingL
     flush()
     val log = logger.getLog
     assert(res == expectedValue, s"Invalid value read by SettingQueryHandler: '$expectedValue' expected, but '$res' found. Full log:\n$log")
-    assert(!logger.getLog.contains(SbtProjectPlatformTestCase.errorPrefix), s"log contained errors. Full log:\n $log")
+    assert(!logger.getLog.contains(SbtShellTestBase.errorPrefix), s"log contained errors. Full log:\n $log")
   }
 
   private def flush(): Unit =

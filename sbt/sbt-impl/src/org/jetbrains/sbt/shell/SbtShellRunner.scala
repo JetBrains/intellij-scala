@@ -13,6 +13,7 @@ import com.intellij.openapi.editor.ex.util.EditorUtil
 import com.intellij.openapi.project.Project
 import com.intellij.ui.content.impl.ContentImpl
 import org.jetbrains.plugins.scala.extensions.{executeOnPooledThread, invokeLater}
+import org.jetbrains.plugins.scala.isUnitTestMode
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.statistics.SbtShellCommandsUsagesCollector
 import org.jetbrains.sbt.SbtBundle
@@ -56,6 +57,8 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
 
   private def showInitializingPlaceholder(): Unit = {
     SbtShellToolWindowFactory.instance(using project).foreach { toolWindow =>
+      if (isUnitTestMode) return
+
       invokeLater {
         val label = new JLabel(SbtBundle.message("initializing.sbt.shell.message"), SwingConstants.CENTER)
         label.setOpaque(true)

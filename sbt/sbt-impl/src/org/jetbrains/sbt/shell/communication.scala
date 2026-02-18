@@ -14,7 +14,7 @@ import org.jetbrains.ide.PooledThreadExecutor
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}
 import org.jetbrains.plugins.scala.extensions.LoggerExt
-import org.jetbrains.plugins.scala.isInternalMode
+import org.jetbrains.plugins.scala.{isInternalMode, isUnitTestMode}
 import org.jetbrains.sbt.shell.LineListener.{LineSeparatorRegex, escapeNewLines}
 import org.jetbrains.sbt.shell.SbtProcessUtil.*
 import org.jetbrains.sbt.shell.SbtShellCommunication.*
@@ -40,7 +40,21 @@ import scala.util.{Failure, Success}
 final class SbtShellCommunication(project: Project) {
 
   private val stateRef = new AtomicReference[ShellState](ShellState.Off)
-  private def currentState: ShellState = stateRef.get()
+  private[shell] def currentState: ShellState = stateRef.get()
+
+  /**
+   * @see [[org.jetbrains.sbt.shell.SbtShellStateIntegrationTest.StateSequenceChecker]]
+   */
+  @TestOnly
+  private[shell] var testStateListener: Option[ShellState => Unit] = None
+
+  @TestOnly
+  private[shell] def setTestStateListener(listener: ShellState => Unit): Unit =
+    testStateListener = Some(listener)
+
+  @TestOnly
+  private[shell] def clearTestStateListener(): Unit =
+    testStateListener = None
 
   private lazy val process: SbtProcessManager = SbtProcessManager.forProject(project)
 
@@ -114,20 +128,21 @@ final class SbtShellCommunication(project: Project) {
   }
 
   /**
-   * Cancel the queue emptying process and transfers any pending commands from the [[afterRestartCommands]] queue
-   * to the standard [[commands]] queue.
-   * These transferred commands will be terminated during the standard queue processing shutdown.
+   * Cancels the upcoming soft restart by interrupting the queue-emptying future
+   * and terminating all commands accumulated in [[afterRestartCommands]].
    */
-  def cancelEmptyingQueue(): Unit = {
+  private[shell] def cancelSoftRestartProcess(): Unit = {
     Option(emptyingQueueFuture.get()).foreach(_.cancel(true))
-    moveAccumulatedCommandsToStandardQueue()
+    terminatePendingCommands(afterRestartCommands)
   }
 
-  /**
-   * Move commands accumulated in [[afterRestartCommands]] queue to the standard [[commands]] queue.
-   */
-  private def moveAccumulatedCommandsToStandardQueue(): Int =
-    afterRestartCommands.drainTo(commands)
+  private def terminatePendingCommands(commandsQueue: LinkedBlockingQueue[QueuedCommand]): Unit = {
+    commandsQueue.forEach { case QueuedCommand(_, cmd, listener) =>
+      Log.warn(s"Sbt shell is terminated, skipping command: $cmd")
+      listener.processTerminated()
+    }
+    commandsQueue.clear()
+  }
 
   /**
    * Sends "i" (ignore) to the sbt shell.
@@ -206,19 +221,25 @@ final class SbtShellCommunication(project: Project) {
           processNextQueuedCommand(1.second)
         }
 
+        // If the current state is not shutting down or off, it means the process was terminated externally (e.g., from Activity Monitor),
+        // not via `SbtProcessManager.destroyProcess`. In this case, explicitly call `SbtProcessManager.destroyProcess` to properly execute the chain of
+        // shell states and cancel the soft restart process if it's running.
+        if (!currentState.isShuttingDownOrOff) {
+          process.destroyProcess()
+        }
+
         // Process terminated, notify remaining commands in the queue
         // otherwise, there might be some stuck processes
-        commands.forEach { case QueuedCommand(_, cmd, listener) =>
-          Log.warn(s"Sbt shell is terminated, skipping command: $cmd")
-          listener.processTerminated()
-        }
-        commands.clear()
+        terminatePendingCommands(commands)
+
+        // release the communicationActive semaphore, before (maybe) acquiring the new shell
+        communicationActive.release()
 
         if (!afterRestartCommands.isEmpty) {
+          // Move commands accumulated in `afterRestartCommands` queue to the standard queue (they will be processed when the new shell starts)
+          afterRestartCommands.drainTo(commands)
           process.acquireShellProcessHandler()
-          moveAccumulatedCommandsToStandardQueue()
         }
-        communicationActive.release()
       } catch {
         case ex: Throwable =>
           Log.error(new RuntimeException("Unexpected exception during commands queue processing", ex))
@@ -368,6 +389,7 @@ final class SbtShellCommunication(project: Project) {
   def emitShellStateEvent(event: ShellStateEvent): Unit = {
     val next = SbtShellLifecycle.transition(currentState, event)
     stateRef.set(next)
+    testStateListener.foreach(_(next))
   }
 
   private[sbt] def messageAggregatorForSync(
@@ -578,14 +600,14 @@ private[shell] object SbtShellLifecycle {
   sealed trait ShellState
   object ShellState {
     /** The shell is alive, and no command is currently running or queued. */
-    private[SbtShellLifecycle] case object Idle extends ShellState
+    private[shell] case object Idle extends ShellState
     /**
      * The shell is alive and has commands pending in the standard command queue (see [[org.jetbrains.sbt.shell.SbtShellCommunication.commands]])
      * or the queue is empty but the last command is still running.
      */
-    private[SbtShellLifecycle] case object Queued extends ShellState
+    private[shell] case object Queued extends ShellState
     /** The shell is in the process of shutting down, but the process has not terminated yet. */
-    private[SbtShellLifecycle] case object ShuttingDown extends ShellState
+    private[shell] case object ShuttingDown extends ShellState
     /** The shell process is not running. */
     case object Off extends ShellState
 
@@ -611,7 +633,7 @@ private[shell] object SbtShellLifecycle {
     import ShellStateEvent.*
     def logProhibitedTransition(): ShellState = {
       val msg = s"[SbtShellLifecycle] The prohibited $event event from $state. Ignored"
-      if (isInternalMode) log.error(msg)
+      if (isInternalMode || isUnitTestMode) log.error(msg)
       else log.warn(msg)
 
       state

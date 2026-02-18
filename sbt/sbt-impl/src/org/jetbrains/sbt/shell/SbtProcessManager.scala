@@ -136,13 +136,15 @@ final class SbtProcessManager(project: Project) extends Disposable {
 
     val debugConnection = if (sbtSettings.shellDebugMode) Option(addDebugParameters(javaParameters)) else None
 
-    invokeAndWait {
-      inWriteAction {
-        //By saving all documents ew ensure that edits in `project/build.properties` are saved to disk
-        //otherwise user might change `sbt.version`, reload the project and there will be a warning in sbt shell
-        //"[warn] sbt version mismatch, using: 1.9.1, in build.properties: "1.9.2", use 'reboot' to use the new value."
-        //This is because `saveAllDocuments` will be called anyway after sbt process is started, but before it does the check which produces the warning
-        FileDocumentManager.getInstance().saveAllDocuments()
+    if (!isUnitTestMode) {
+      invokeAndWait {
+        inWriteAction {
+          //By saving all documents ew ensure that edits in `project/build.properties` are saved to disk
+          //otherwise user might change `sbt.version`, reload the project and there will be a warning in sbt shell
+          //"[warn] sbt version mismatch, using: 1.9.1, in build.properties: "1.9.2", use 'reboot' to use the new value."
+          //This is because `saveAllDocuments` will be called anyway after sbt process is started, but before it does the check which produces the warning
+          FileDocumentManager.getInstance().saveAllDocuments()
+        }
       }
     }
 
@@ -558,19 +560,26 @@ final class SbtProcessManager(project: Project) extends Disposable {
    * @param isSoft when `true`, the emptying queue process is not canceled, and post-restart commands are preserved.
    *
    *               When `false`, the emptying queue process is canceled if it is running.
-   * @see [[org.jetbrains.sbt.shell.SbtShellCommunication.cancelEmptyingQueue]]
+   * @see [[org.jetbrains.sbt.shell.SbtShellCommunication.cancelSoftRestartProcess]]
    */
   private def destroyProcess(isSoft: Boolean): Unit = processDataMutex.synchronized {
     log.debug("destroyProcess")
     processData match {
       case Some(pd) =>
         val shell = SbtShellCommunication.forProject(project)
+        // Cancel the soft restart process before emitting `ShutdownRequested`, as it will cause the command loop inside
+        // `SbtShellCommunication.startQueueProcessing` to exit, and there should be no commands in the `afterRestartCommands` queue afterward.
+        if (!isSoft)
+          shell.cancelSoftRestartProcess()
+
         shell.emitShellStateEvent(ShellStateEvent.ShutdownRequested)
-        if (!isSoft) {
-          shell.cancelEmptyingQueue()
-        }
+
         val runnable: Runnable = () => terminateProcessGracefully(pd.processHandler.getProcess)
-        ProgressManager.getInstance().runProcessWithProgressSynchronously(runnable, SbtBundle.message("sbt.shell.stopping.process"), false, project)
+        if (isUnitTestMode)
+          runnable.run()
+        else
+          ProgressManager.getInstance().runProcessWithProgressSynchronously(runnable, SbtBundle.message("sbt.shell.stopping.process"), false, project)
+
         shell.emitShellStateEvent(ShellStateEvent.ProcessTerminated)
         processData = None
       case None => // nothing to do
