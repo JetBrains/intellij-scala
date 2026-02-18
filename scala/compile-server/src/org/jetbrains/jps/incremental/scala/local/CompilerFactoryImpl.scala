@@ -178,6 +178,7 @@ object CompilerFactoryImpl {
       val sourceJar: Path =
         if (isBefore_2_11(scalaVersion)) compilerBridges.scala._2_10
         else if (is_2_11(scalaVersion)) compilerBridges.scala._2_11
+        else if (isBeforeOrExactly_2_12_0(scalaVersion)) compilerBridges.scala._2_11
         else if (is_2_12(scalaVersion)) compilerBridges.scala._2_12
         else if (isExactly_2_13_0_M1(scalaVersion)) compilerBridges.scala._2_12
         else compilerBridges.scala._2_13
@@ -207,6 +208,7 @@ object CompilerFactoryImpl {
 
   private def isBefore_2_11(version: Version): Boolean = version.major(2) < Version("2.11")
   private def is_2_11(version: Version): Boolean = version.major(2) == Version("2.11")
+  private def isBeforeOrExactly_2_12_0(version: Version): Boolean = version <= Version("2.12.0")
   private def is_2_12(version: Version): Boolean = version.major(2) == Version("2.12")
   private def isExactly_2_13_0_M1(version: Version): Boolean = version == Version("2.13.0-M1")
   private def is3_0(version: Version): Boolean = version.presentation.startsWith("3.0")
