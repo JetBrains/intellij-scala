@@ -7,8 +7,10 @@ import com.intellij.testFramework.LightPlatformTestCase
 import junit.framework.TestCase.{assertEquals, fail}
 import com.intellij.openapi.externalSystem.model.project.{ModuleData, ModuleDependencyData}
 
+import scala.annotation.nowarn
 import scala.compiletime.uninitialized
 
+@nowarn("cat=deprecation") // LightPlatformTestCase is deprecated in favor of JUnit 5 (IJPL-233558)
 class SbtViewContributorTest extends LightPlatformTestCase {
 
   private var sbtViewContributor: SbtViewContributor = uninitialized

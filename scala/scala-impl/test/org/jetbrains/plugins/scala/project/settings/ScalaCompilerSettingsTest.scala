@@ -5,10 +5,13 @@ import org.jetbrains.plugins.scala.compiler.data.{CompileOrder, ScalaCompilerSet
 import org.jetbrains.plugins.scala.project.settings.ReflectionTestUtils.assertEqualsWithFieldValuesDiff
 import org.junit.Assert.{assertEquals, assertNotEquals}
 
+import scala.annotation.nowarn
+
 /**
  * @see [[org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings]]
  * @see [[org.jetbrains.plugins.scala.compiler.data.ScalaCompilerSettingsState]]
  */
+@nowarn("cat=deprecation") // LightPlatformTestCase is deprecated in favor of JUnit 5 (IJPL-233558)
 class ScalaCompilerSettingsTest extends LightPlatformTestCase {
 
   def testScalaCompilerSettings_ToState_ShouldReturnSameInstanceAsWasPassedTo_FromState(): Unit = {

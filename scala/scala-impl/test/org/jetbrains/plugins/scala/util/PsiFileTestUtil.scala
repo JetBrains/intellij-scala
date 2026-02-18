@@ -9,6 +9,7 @@ import org.junit.Assert.{assertNotNull, assertTrue}
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Path, Paths}
+import scala.annotation.nowarn
 
 object PsiFileTestUtil {
   def addFileToProject(fileName: String, text: String, project: Project): PsiFile =
@@ -24,6 +25,7 @@ object PsiFileTestUtil {
     def createDir(parent: VirtualFile, name: String): VirtualFile = parent.createChildDirectory(null, name)
 
     def createVFile(path: Path): VirtualFile = {
+      @nowarn("cat=deprecation") // LightPlatformTestCase is deprecated in favor of JUnit 5 (IJPL-233558)
       val sourceRoot = LightPlatformTestCase.getSourceRoot
       val dir = dirNames(path).foldLeft(sourceRoot)(createDir)
       val vFile = dir.createChildData(null, fileName)

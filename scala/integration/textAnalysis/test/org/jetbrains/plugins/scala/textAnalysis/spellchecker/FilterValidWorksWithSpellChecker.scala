@@ -3,8 +3,11 @@ package org.jetbrains.plugins.scala.textAnalysis.spellchecker
 import com.intellij.spellchecker.SpellCheckerManager
 import com.intellij.testFramework.LightPlatformTestCase
 
+import scala.annotation.nowarn
+
 // We use LightPlatformTestCase, because it already knows how to create test project, create all services.
 // Project is required to create spellchecker instance.
+@nowarn("cat=deprecation") // LightPlatformTestCase is deprecated in favor of JUnit 5 (IJPL-233558)
 class FilterValidWorksWithSpellChecker extends LightPlatformTestCase {
 
   def testMain(): Unit = {
