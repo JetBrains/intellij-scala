@@ -297,7 +297,7 @@ class ChangeAccessModifierIntention extends BaseElementAtCaretIntentionAction {
     }
 
     val canceled = !ProgressManager.getInstance.runProcessWithProgressSynchronously((() =>
-      ReadAction.run(() => {
+      ReadAction.runBlocking(() => {
         for (declaredElement <- getElementsToSearch(member)) {
           val search = ReferencesSearch.search(declaredElement, useScope)
           search.asScala.foreach { (reference: PsiReference) =>
