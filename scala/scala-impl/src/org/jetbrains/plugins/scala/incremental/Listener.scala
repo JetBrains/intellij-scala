@@ -8,7 +8,8 @@ import com.intellij.openapi.editor.impl.event.MarkupModelListener
 import com.intellij.openapi.editor.{Editor, EditorFactory, FoldRegion}
 import com.intellij.openapi.extensions.ExtensionPointName
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.Disposer
+import com.intellij.openapi.util.{Disposer, Key}
+import org.jetbrains.plugins.scala.incremental.Listener.INCREMENTAL_HIGHLIGHTING_KEY
 
 import java.awt.event.{KeyAdapter, KeyEvent}
 
@@ -77,7 +78,9 @@ class Listener extends EditorFactoryListener {
 
     if (!incremental.Highlighting.enabledIn(editor.getProject) || !isScalaIn(editor.getVirtualFile)) return
 
+    if (editor.getUserData(INCREMENTAL_HIGHLIGHTING_KEY) != null) return
     connectTo(editor)
+    editor.putUserData(INCREMENTAL_HIGHLIGHTING_KEY, "")
   }
 
   private def connectTo(editor: Editor): Unit = if (!updaters.contains(editor)) {
@@ -94,12 +97,12 @@ class Listener extends EditorFactoryListener {
   override def editorReleased(event: EditorFactoryEvent): Unit = {
     val editor = event.getEditor
 
-    if (!incremental.Highlighting.enabledIn(editor.getProject) || !isScalaIn(editor.getVirtualFile)) return
-
+    if (editor.getUserData(INCREMENTAL_HIGHLIGHTING_KEY) == null) return
     disconnectFrom(editor)
+    editor.putUserData(INCREMENTAL_HIGHLIGHTING_KEY, null)
   }
 
-  private def disconnectFrom(editor: Editor): Unit = if (updaters.contains(editor)) {
+  private def disconnectFrom(editor: Editor): Unit = {
     editor.getContentComponent.removeKeyListener(keyListener)
     Disposer.dispose(updaters(editor))
     updaters -= editor
@@ -107,15 +110,17 @@ class Listener extends EditorFactoryListener {
 }
 
 private object Listener {
+  private val INCREMENTAL_HIGHLIGHTING_KEY = Key.create[AnyRef]("incremental_highlighting_key")
+
   private def instance = new ExtensionPointName("com.intellij.editorFactoryListener").findExtensionOrFail(classOf[Listener])
 
-  private def editors = EditorFactory.getInstance.getAllEditors.filter(editor => isScalaIn(editor.getVirtualFile))
+  private def editorFactory = EditorFactory.getInstance
 
-  def connectTo(project: Project): Unit = {
-    editors.foreach(instance.connectTo)
+  def connectTo(project: Project): Unit = editorFactory.getAllEditors.foreach { editor =>
+    instance.editorCreated(new EditorFactoryEvent(editorFactory, editor))
   }
 
-  def disconnectFrom(project: Project): Unit = {
-    editors.foreach(instance.disconnectFrom)
+  def disconnectFrom(project: Project): Unit = editorFactory.getAllEditors.foreach { editor =>
+    instance.editorReleased(new EditorFactoryEvent(editorFactory, editor))
   }
 }
