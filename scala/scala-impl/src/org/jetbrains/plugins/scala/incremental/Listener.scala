@@ -114,13 +114,13 @@ private object Listener {
 
   private def instance = new ExtensionPointName("com.intellij.editorFactoryListener").findExtensionOrFail(classOf[Listener])
 
-  private def editorFactory = EditorFactory.getInstance
+  private def editorsIn(project: Project) = EditorFactory.getInstance.getAllEditors.filter(_.getProject == project)
 
-  def connectTo(project: Project): Unit = editorFactory.getAllEditors.foreach { editor =>
-    instance.editorCreated(new EditorFactoryEvent(editorFactory, editor))
+  def connectTo(project: Project): Unit = editorsIn(project).foreach { editor =>
+    instance.editorCreated(new EditorFactoryEvent(EditorFactory.getInstance, editor))
   }
 
-  def disconnectFrom(project: Project): Unit = editorFactory.getAllEditors.foreach { editor =>
-    instance.editorReleased(new EditorFactoryEvent(editorFactory, editor))
+  def disconnectFrom(project: Project): Unit = editorsIn(project).foreach { editor =>
+    instance.editorReleased(new EditorFactoryEvent(EditorFactory.getInstance, editor))
   }
 }
