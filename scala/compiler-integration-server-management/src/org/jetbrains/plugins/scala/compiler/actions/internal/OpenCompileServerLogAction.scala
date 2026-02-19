@@ -12,7 +12,7 @@ import com.intellij.openapi.util.{Condition, NlsSafe}
 import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtil}
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, CompilerIntegrationBundle}
-import org.jetbrains.plugins.scala.extensions.executeOnPooledThread
+import org.jetbrains.plugins.scala.extensions.{executeOnPooledThread, invokeLater}
 import org.jetbrains.plugins.scala.server.CompileServerLog
 
 import java.io.IOException
@@ -45,10 +45,12 @@ final class OpenCompileServerLogAction extends DumbAwareAction {
     val file = LocalFileSystem.getInstance.refreshAndFindFileByNioFile(logFilePath)
     if (file != null) {
       VfsUtil.markDirtyAndRefresh(true, false, false, file)
-      val editors = FileEditorManager.getInstance(project).openFile(file, true)
-      editors match {
-        case Array(te: TextEditor, _*) => scrollToLastIDEStart(te)
-        case _ => PsiNavigationSupport.getInstance.createNavigatable(project, file, -1).navigate(true)
+      invokeLater {
+        val editors = FileEditorManager.getInstance(project).openFile(file, true)
+        editors match {
+          case Array(te: TextEditor, _*) => scrollToLastIDEStart(te)
+          case _ => PsiNavigationSupport.getInstance.createNavigatable(project, file, -1).navigate(true)
+        }
       }
     } else {
       @NlsSafe val title = "Cannot find '" + LoggerFactory.getLogFilePath + "'"
@@ -60,7 +62,7 @@ final class OpenCompileServerLogAction extends DumbAwareAction {
     }
   }
 
-  private def scrollToLastIDEStart(editor: TextEditor): Unit = {
+  private def scrollToLastIDEStart(editor: TextEditor): Unit = executeOnPooledThread {
     try {
       val bytes = editor.getFile.contentsToByteArray(true)
       val log = new String(bytes, StandardCharsets.UTF_8)
