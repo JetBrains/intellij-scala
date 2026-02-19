@@ -26,7 +26,7 @@ private object LazyValDescriptor {
   def create(project: Project, ref: ObjectReference, field: Field, evaluationContext: EvaluationContextImpl): NodeDescriptor = {
     val allFields = ref.referenceType().allFields().asScala
     val allMethods = ref.referenceType().allMethods().asScala
-    val isScala3 = allFields.exists(_.name().startsWith(ScalaClassRenderer.Offset))
+    val isScala3 = allFields.exists(f => ScalaClassRenderer.isVarHandleOrOffsetField(f.name()))
     if (isScala3) createLazyValDescriptorScala3(project, ref, field, allFields, allMethods, evaluationContext)
     else createLazyValDescriptorScala2(project, ref, field, allFields, allMethods)
   }
