@@ -50,6 +50,8 @@ object Tracing {
 
   private def isHighlightingTracingEnabled: Boolean = Registry.is("scala.highlighting.tracing")
 
+  private def isHighlightingTracingInEditorEnabled: Boolean = Registry.is("scala.highlighting.tracing.in.editor")
+
   private class HighlightingListener(project: Project) extends DaemonListener {
     private var startInstants = Map.empty[FileEditor, Long]
     private var durations = Seq.empty[Long]
@@ -58,7 +60,9 @@ object Tracing {
       if (!isHighlightingTracingEnabled) return
       val editors = fileEditors.asScala.filter(e => isScalaIn(e.getFile))
       if (editors.isEmpty) return
-      cleanElementStates()
+      if (isHighlightingTracingInEditorEnabled) {
+        cleanElementStates()
+      }
       startInstants ++= editors.map(editor => editor -> System.nanoTime())
       durations = Seq.empty
       statusBar.setInfo("Highlighting...")
@@ -81,10 +85,12 @@ object Tracing {
 
   def trace(e: PsiElement, reason: String, start: Boolean = false): Unit = if (isHighlightingTracingEnabled) {
     VisibleRange.editorsFor(e).foreach { editor =>
-      reason match {
-        case "Resolve" => highlightElement(editor, e, start, RESOLVE_STATE_KEY, RESOLVE_COLOR)
-        case "Inference" => highlightElement(editor, e, start, INFERENCE_STATE_KEY, INFERENCE_COLOR)
-        case _ =>
+      if (isHighlightingTracingInEditorEnabled) {
+        reason match {
+          case "Resolve" => highlightElement(editor, e, start, RESOLVE_STATE_KEY, RESOLVE_COLOR)
+          case "Inference" => highlightElement(editor, e, start, INFERENCE_STATE_KEY, INFERENCE_COLOR)
+          case _ =>
+        }
       }
 
       if (!start) {
