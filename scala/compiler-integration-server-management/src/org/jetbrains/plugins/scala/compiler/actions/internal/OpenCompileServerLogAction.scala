@@ -16,7 +16,6 @@ import org.jetbrains.plugins.scala.extensions.{executeOnPooledThread, invokeLate
 import org.jetbrains.plugins.scala.server.CompileServerLog
 
 import java.io.IOException
-import java.nio.charset.StandardCharsets
 import scala.annotation.nowarn
 
 /**
@@ -64,17 +63,17 @@ final class OpenCompileServerLogAction extends DumbAwareAction {
 
   private def scrollToLastIDEStart(editor: TextEditor): Unit = executeOnPooledThread {
     try {
-      val bytes = editor.getFile.contentsToByteArray(true)
-      val log = new String(bytes, StandardCharsets.UTF_8)
-      // Scroll to the bottom of the file.
-      val index = log.length - 1
-      if (index >= 0) {
-        val condition: Condition[?] = _ => editor.getEditor.isDisposed
-        ApplicationManager.getApplication.invokeLater(() => {
-          editor.getEditor.getCaretModel.moveToOffset(index)
-          editor.getEditor.getScrollingModel.scrollToCaret(ScrollType.CENTER_UP)
-        }, condition)
-      }
+      val length = editor.getFile.getLength
+      val scrollOffset =
+        if (length < 0) 0
+        else if (length > Int.MaxValue.toLong) Int.MaxValue
+        else length.toInt - 1
+
+      val expire: Condition[?] = _ => editor.getEditor.isDisposed
+      ApplicationManager.getApplication.invokeLater(() => {
+        editor.getEditor.getCaretModel.moveToOffset(scrollOffset)
+        editor.getEditor.getScrollingModel.scrollToCaret(ScrollType.CENTER_UP)
+      }, expire)
     } catch {
       case _: IOException =>
     }
