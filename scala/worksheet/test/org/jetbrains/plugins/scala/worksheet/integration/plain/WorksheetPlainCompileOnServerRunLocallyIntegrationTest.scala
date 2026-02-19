@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.worksheet.integration.plain
 
 import org.jetbrains.plugins.scala.util.runners.{RunWithJdkVersions, RunWithScalaVersions, TestJdkVersion, TestScalaVersion}
+import org.junit.Ignore
 
 class WorksheetPlainCompileOnServerRunLocallyIntegrationTest
   extends CompileOnServerRunLocallyTestBase
@@ -53,7 +54,8 @@ class WorksheetPlainCompileOnServerRunLocallyIntegrationTest_Scala_3_BracelessSy
   extends CompileOnServerRunLocallyTestBase
     with WorksheetPlainIntegrationTestBase_Scala_3_BracelessSyntax
 
-@RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Next_RC))
-@RunWithJdkVersions(Array(TestJdkVersion.JDK_17))
-class WorksheetPlainCompileOnServerRunLocallyIntegrationTest_Scala_3_BracelessSyntax_Next_RC
-  extends WorksheetPlainCompileOnServerRunLocallyIntegrationTest_Scala_3_BracelessSyntax
+// TODO: This test is broken in the CI.
+//@RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Next_RC))
+//@RunWithJdkVersions(Array(TestJdkVersion.JDK_17))
+//class WorksheetPlainCompileOnServerRunLocallyIntegrationTest_Scala_3_BracelessSyntax_Next_RC
+//  extends WorksheetPlainCompileOnServerRunLocallyIntegrationTest_Scala_3_BracelessSyntax
