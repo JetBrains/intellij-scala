@@ -173,6 +173,7 @@
         <editorFactoryListener implementation="org.jetbrains.plugins.scala.incremental.Listener"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.incremental.Tracing$StartupActivity"/>
         <registryKey key="scala.highlighting.tracing" defaultValue="false" description="Trace resolve and type inference"/>
+        <registryKey key="scala.highlighting.tracing.in.editor" defaultValue="true" description="Also trace resolve and type inference in editor"/>
         <registryKey key="scala.incremental.highlighting.lookaround" defaultValue="15" description="Number of lines to highlight beyond the visible area"/>
 
         <highlightingPassFactory implementation="org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaLocalVarCouldBeValPassFactory"/>
