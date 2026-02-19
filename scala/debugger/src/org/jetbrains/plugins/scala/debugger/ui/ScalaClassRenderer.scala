@@ -36,7 +36,7 @@ class ScalaClassRenderer extends ClassRenderer {
 
   override def shouldDisplay(context: EvaluationContext, ref: ObjectReference, f: Field): Boolean =
     !ScalaSyntheticProvider.hasSpecialization(f, Some(ref.referenceType())) &&
-      !isModule(f) && !isBitmap(f) && !isOffset(f)
+      !isScalaSpecialField(f)
 
   override def calcLabel(descriptor: ValueDescriptor, context: EvaluationContext, labelListener: DescriptorLabelListener): String = {
     val renderer = NodeRendererSettings.getInstance().getToStringRenderer
@@ -81,20 +81,21 @@ private object ScalaClassRenderer {
 
   private val Bitmap: String = "bitmap$"
 
-  val Offset: String = "OFFSET$"
+  private final val OffsetPrefix = "OFFSET$"
 
-  def isModule(f: Field): Boolean = f.name() == Module
+  private final val VarHandleSuffix = "$lzyHandle"
 
-  def isBitmap(f: Field): Boolean = f.name().contains(Bitmap)
-
-  def isOffset(f: Field): Boolean = f.name().startsWith(Offset)
+  private def isScalaSpecialField(f: Field): Boolean = {
+    val name = f.name()
+    name == Module || name.contains(Bitmap) || name.endsWith(VarHandleSuffix) || name.startsWith(OffsetPrefix)
+  }
 
   def isScalaSource(ct: ClassType): Boolean =
     Try(ct.sourceName().endsWith(".scala")).getOrElse(false)
 
   def isLazyVal(ref: ObjectReference, f: Field): Boolean = {
     val allFields = ref.referenceType().allFields().asScala
-    val isScala3 = allFields.exists(_.name().startsWith(Offset))
+    val isScala3 = allFields.exists(f => isVarHandleOrOffsetField(f.name()))
     val fieldName = f.name()
     if (isScala3) fieldName.contains("$lzy")
     else {
@@ -105,6 +106,9 @@ private object ScalaClassRenderer {
       }
     }
   }
+
+  private[ui] def isVarHandleOrOffsetField(fieldName: String): Boolean =
+    fieldName.endsWith(VarHandleSuffix) || fieldName.startsWith(OffsetPrefix)
 
   private[ui] def isStringBuilder(ct: ClassType): Boolean =
     DebuggerUtils.instanceOf(ct, "scala.collection.mutable.StringBuilder")
