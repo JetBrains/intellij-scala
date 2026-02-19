@@ -36,7 +36,7 @@
     <version>VERSION</version>
     <change-notes></change-notes>
     <vendor url="https://www.jetbrains.com">JetBrains</vendor>
-    <idea-version since-build="261.20362" until-build="261.*"/>
+    <idea-version since-build="261.21525" until-build="261.*"/>
 
     <!-- <depends optional="true" config-file="packagesearch.xml">com.jetbrains.packagesearch.intellij-plugin</depends> -->
 
