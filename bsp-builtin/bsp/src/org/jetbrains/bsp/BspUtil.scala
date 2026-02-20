@@ -153,8 +153,8 @@ object BspUtil {
    * @param toolCommand executable name (e.g. "scala-cli", "mill")
    */
   @RequiresBackgroundThread
-  def isToolInstalledCheckViaVersion(directory: Path, indicator: ProgressIndicator, toolCommand: String): Boolean = {
-    val work = runCommand(directory, indicator, toolCommand, "--version")
+  def isToolInstalledCheckViaVersion(directory: Path, indicator: ProgressIndicator, toolCommand: String*): Boolean = {
+    val work = runCommand(directory, indicator, (toolCommand :+ "--version"): _*)
     work.fold(
       exc => {
         log.error(s"The $toolCommand is not installed in $directory - ${exc.getMessage}")

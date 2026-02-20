@@ -5,6 +5,7 @@ import com.intellij.execution.process.CapturingProcessHandler
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager}
+import com.intellij.openapi.util.SystemInfo
 import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import org.jetbrains.bsp.BspUtil
 
@@ -56,42 +57,54 @@ private object ScalaCliUtils {
       None
 
   private def isScalaCliStandaloneInstalled(workspace: Path, indicator: ProgressIndicator): Boolean =
-    BspUtil.isToolInstalledCheckViaVersion(workspace, indicator, getScalaCliStandaloneCommand)
+    BspUtil.isToolInstalledCheckViaVersion(workspace, indicator, getScalaCliStandaloneCommand: _*)
 
   /**
-   * Returns the command used to invoke Scala CLI commands. It can be:
-   *  - Bundled with Scala ≥ 3.5.0: `scala` or `./scala` in the unit test mode
-   *  - Standalone installation: `scala-cli` or `./scala-cli` in the unit test mode
+   * Returns the command sequence to execute Scala CLI based on the installation type.
    *
+   * @see [[createToolExecutionCommand]]
    * @see [[getScalaCliStandaloneCommand]]
    * @see [[getScalaStandaloneCommand]]
    */
-  def getScalaCliCommand(scalaCliInstallKind: ScalaCliInstallKind): String =
+  def getScalaCliCommand(scalaCliInstallKind: ScalaCliInstallKind): Seq[String] =
     scalaCliInstallKind match {
       case ScalaCliInstallKind.Bundled => getScalaStandaloneCommand
       case ScalaCliInstallKind.Standalone => getScalaCliStandaloneCommand
     }
 
   /**
-   * The unit test mode requires `./scala-cli`,
-   * because instead of a global installation, there is a scala-cli script in the test project root.
-   *
-   * @see [[org.jetbrains.scalaCli.project.NewScalaCliProjectWizardTestBase.installScalaCli]]
+   * @see [[createToolExecutionCommand]]
    */
-  private def getScalaCliStandaloneCommand: String =
-    if (ApplicationManager.getApplication.isUnitTestMode) "./scala-cli"
-    else "scala-cli"
+  private def getScalaCliStandaloneCommand: Seq[String] =
+    createToolExecutionCommand("scala-cli")
 
   /**
-   * The unit test mode requires `./scala`,
-   * because instead of a global installation, there is a scala script in the test project root.
-   * *
-   * @see [[org.jetbrains.scalaCli.project.NewScalaCliProjectWizardTestBase.installScala]]
+   * Creates a command sequence to execute a tool (`scala-cli` or `scala`).
+   *
+   * The returned command differs based on the execution environment:
+   *  - Unit test mode: Returns `./tool` to invoke a local wrapper script placed in the test project root,
+   *    rather than relying on a globally installed tool.
+   *  - Windows: Prefix the command with `cmd.exe /c` because tools are often distributed as batch scripts
+   *    (e.g., `.bat`) that require a command interpreter to execute.
+   *
+   * @param tool the name of the tool to execute (`scala-cli` or `scala`)
    * @see [[org.jetbrains.scalaCli.project.NewScalaCliProjectWizardTestBase.createScalaWrapperScript]]
+   * @see [[org.jetbrains.scalaCli.project.NewScalaCliProjectWizardTestBase.installScalaCli]]
    */
-  private def getScalaStandaloneCommand: String =
-    if (ApplicationManager.getApplication.isUnitTestMode) "./scala"
-    else "scala"
+  private def createToolExecutionCommand(tool: String): Seq[String] = {
+    val command =
+      if (ApplicationManager.getApplication.isUnitTestMode) s"./$tool"
+      else tool
+
+    if (SystemInfo.isWindows) Seq("cmd.exe", "/c", command)
+    else Seq(command)
+  }
+
+  /**
+   * @see [[createToolExecutionCommand]]
+   */
+  private def getScalaStandaloneCommand: Seq[String] =
+    createToolExecutionCommand("scala")
 
   /**
    * Checks if Scala CLI is bundled with the scala installation by attempting to run `scala -version`.
@@ -129,14 +142,14 @@ private object ScalaCliUtils {
   @RequiresBackgroundThread
   private def executeScalaVersionCommand(directory: Path, indicator: ProgressIndicator): Try[String] =
     Try {
-      val commandLine = new GeneralCommandLine(getScalaStandaloneCommand, "-version")
+      val commandLine = new GeneralCommandLine((getScalaStandaloneCommand:+ "-version"): _*)
         .withWorkDirectory(directory.toString)
 
       val handler = new CapturingProcessHandler(commandLine)
-      val output = handler.runProcessWithProgressIndicator(indicator, 60000) // 1-minute timeout
+      val output = handler.runProcessWithProgressIndicator(indicator, 45000) // 45s timeout
 
       if (output.isTimeout) {
-        throw new TimeoutException("Command 'scala -version' timed out after 2 minutes")
+        throw new TimeoutException("Command 'scala -version' timed out after 45s")
       }
 
       output.getStdout + output.getStderr
