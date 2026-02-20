@@ -30,7 +30,9 @@ final class MillConfigSetup(workspace: Path) extends CommandBasedBspConfigSetup(
         Success(Seq(file.toCanonicalPath.toString, "-i", "mill.bsp.BSP/install"))
       //TODO: consider verifying Mill's installation in the #canImport to prevent its
       // display in BspSetupConfigStepUi if not installed (the same in ScalaCliProjectInstaller)
-      case _ if isMillInstalled(workspace, indicator) =>
+      //According to the docs, Mill global installation is only available for macOS/Linux.
+      //https://mill-build.org/mill/cli/installation-ide.html#_global_installation
+      case _ if !SystemInfo.isWindows && isMillInstalled(workspace, indicator) =>
         // If the launcher is not found in the project root but Mill is available in the PATH, then we can use it.
         Success(Seq("mill", "-i", "mill.bsp.BSP/install"))
       case _ => Failure(new IllegalStateException("Installation of BSP is unable to proceed as the Mill executable is missing from both the project root and the PATH."))
