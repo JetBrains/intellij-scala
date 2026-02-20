@@ -7,6 +7,7 @@ import com.intellij.spellchecker.inspections.{PlainTextSplitter, Splitter}
 import com.intellij.spellchecker.tokenizer.SpellcheckingStrategy.EMPTY_TOKENIZER as emptyTokenizer
 import com.intellij.spellchecker.tokenizer.{SpellcheckingStrategy, TokenConsumer, Tokenizer, TokenizerBase}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.incremental.Highlighting.ElementHighlightingExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScReference}
@@ -53,4 +54,6 @@ final class ScalaSpellcheckingStrategy extends SpellcheckingStrategy {
 
   private def getTokenizer(owner: ScModifierListOwner): Tokenizer[? <: PsiElement] =
     if owner.hasModifierPropertyScala("override") then emptyTokenizer else codeTokenizer
+
+  override def isMyContext(element: PsiElement): Boolean = element.isVisible
 }
