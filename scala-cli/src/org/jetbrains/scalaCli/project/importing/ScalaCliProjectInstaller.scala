@@ -23,7 +23,7 @@ class ScalaCliProjectInstaller extends BspProjectInstallProvider {
   override def installCommand(workspace: Path, indicator: ProgressIndicator): Try[Seq[String]] =
     ScalaCliUtils.detectScalaCliInstallKind(workspace, indicator) match {
       case Some(scalaCliInstallKind) =>
-        Success(Seq(getScalaCliCommand(scalaCliInstallKind), "setup-ide", "."))
+        Success(getScalaCliCommand(scalaCliInstallKind) ++ Seq("setup-ide", "."))
       case None =>
         Failure(new IllegalStateException("Unable to install BSP, Scala CLI installation could not be determined"))
     }
