@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.textAnalysis.spellchecker
 
 import com.intellij.psi.PsiElement
 import com.intellij.spellchecker.tokenizer.{SpellcheckingStrategy, Tokenizer}
+import org.jetbrains.plugins.scala.incremental.Highlighting.ElementHighlightingExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 
@@ -14,5 +15,7 @@ class ScalaSpellcheckingStrategy extends SpellcheckingStrategy {
     case _: ScDocComment => myDocCommentTokenizer
     case _ => super.getTokenizer(element)
   }
+
+  override def isMyContext(element: PsiElement): Boolean = element.isVisible
 }
 
