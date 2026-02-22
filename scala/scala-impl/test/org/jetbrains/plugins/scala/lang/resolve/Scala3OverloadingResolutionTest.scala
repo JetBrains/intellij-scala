@@ -103,4 +103,23 @@ class Scala3OverloadingResolutionTest extends SimpleResolveTestBase {
        |}
        |""".stripMargin
   )
+
+  def testSCL24199(): Unit = checkTextHasNoErrors(
+    s"""
+       |class MainTest {
+       |  class Foo
+       |
+       |  extension [T](leftSideValue: T) {
+       |    def shouldBe(right: Foo): Unit = ???
+       |  }
+       |
+       |  extension [T, R](leftSideValue: T) {
+       |    def shouldBe(right: R): Unit = ???
+       |  }
+       |
+       |  shouldBe(1)(new Foo)
+       |  1 shouldBe (new Foo)
+       |}
+       |""".stripMargin
+  )
 }

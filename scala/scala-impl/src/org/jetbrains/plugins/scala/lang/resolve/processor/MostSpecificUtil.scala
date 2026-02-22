@@ -32,66 +32,78 @@ class MostSpecificUtil(
   private implicit def context: Context = Context(place)
 
   def mostSpecificForParameterClause(
-    cands: Set[(ScalaResolveResult, Option[ScParameterClause])]
+    cands:                   Set[(ScalaResolveResult, Option[ScParameterClause])],
+    isForImplicitResolution: Boolean
   ): Option[ScalaResolveResult] =
-    mostSpecificGeneric(cands.map { case (r, paramClause) =>
-      InnerScalaResolveResult(
-        r.element,
-        implicitConversionClass(r),
-        r,
-        r.substitutor,
-        parameterClause = paramClause
-      )
-    }, noImplicit = false).map(_.repr)
+    mostSpecificGeneric(
+      cands.map { case (r, paramClause) =>
+        InnerScalaResolveResult(
+          r,
+          r.substitutor,
+          parameterClause     = paramClause,
+          isImplicitCandidate = isForImplicitResolution
+        )
+      },
+      noImplicit = false
+    ).map(_.repr)
 
   def mostSpecificForResolveResult(applicable: Set[ScalaResolveResult]): Option[ScalaResolveResult] =
-    mostSpecificGeneric(applicable.map(r =>
-      InnerScalaResolveResult(r.element, implicitConversionClass(r), r, r.substitutor)
-    ), noImplicit = false).map(_.repr)
+    mostSpecificGeneric(
+      applicable.map(r => InnerScalaResolveResult(r, r.substitutor)),
+      noImplicit = false
+    ).map(_.repr)
 
   def mostSpecificForImplicitParameters(applicable: Set[ScalaResolveResult]): Option[ScalaResolveResult] =
     mostSpecificGeneric(
-      applicable.map(r => toInnerSRR(r, withSubst = true)),
+      applicable.map(r => innerSrrForImplicitCandidate(r, withSubst = true)),
       noImplicit = true
     ).map(_.repr)
 
-  private def toInnerSRR(
+  private def innerSrrForImplicitCandidate(
     r:         ScalaResolveResult,
     withSubst: Boolean = false
-  ): InnerScalaResolveResult[ScalaResolveResult] = {
+  ): InnerScalaResolveResult = {
     val subst =
       if (withSubst) r.substitutor
       else           r.implicitScopeType.fold(ScSubstitutor.empty)(ScSubstitutor.apply)
 
     InnerScalaResolveResult(
-      r.element,
-      implicitConversionClass(r),
       r,
       subst,
-      implicitCase = true
+      isImplicitCandidate = true
     )
   }
 
   def nextMostSpecific(rest: Iterable[ScalaResolveResult]): Option[ScalaResolveResult] = {
-    nextMostSpecificGeneric(rest.map(toInnerSRR(_))).map(_.repr)
+    nextMostSpecificGeneric(rest.map(innerSrrForImplicitCandidate(_))).map(_.repr)
   }
 
   def isMoreSpecific(r1: ScalaResolveResult, r2: ScalaResolveResult): Boolean =
-    isMoreSpecific(toInnerSRR(r1), toInnerSRR(r2), checkImplicits = false)
+    isMoreSpecific(innerSrrForImplicitCandidate(r1), innerSrrForImplicitCandidate(r2), checkImplicits = false)
 
   /**
    * @param parameterClause See [[MethodResolveProcessor]].
-   *                        Useful for overloading resolution in scala 3.
+   *                        Used for overloading resolution in scala 3.
+   *
+   * @TODO: callByNameImplicit seems to be always == false, I've checked git history all the way
+   *        back to 2018, and it looks like it was always this way. This is obviously incorrect,
+   *        but probably rather low impact.
    */
-  private case class InnerScalaResolveResult[T](
-    element:                 PsiNamedElement,
-    implicitConversionClass: Option[PsiClass],
-    repr:                    T,
-    substitutor:             ScSubstitutor,
-    parameterClause:         Option[ScParameterClause] = None,
-    callByNameImplicit:      Boolean                   = false,
-    implicitCase:            Boolean                   = false
+  private case class InnerScalaResolveResult(
+    repr:                ScalaResolveResult,
+    substitutor:         ScSubstitutor,
+    parameterClause:     Option[ScParameterClause] = None,
+    callByNameImplicit:  Boolean                   = false,
+    isImplicitCandidate: Boolean                   = false,
   ) {
+    def element: PsiNamedElement         = repr.element
+
+    def implicitConversionClass: Option[PsiClass] =
+      for {
+        conversion <- repr.implicitConversion
+        member     <- conversion.element.nameContext.asOptionOf[ScMember]
+        psiClass   <- Option(member.containingClass)
+      } yield psiClass
 
     def paramsOrCandidateType(
       tp:       ScType,
@@ -169,9 +181,9 @@ class MostSpecificUtil(
 
 
   //todo: make implementation closer to scala.tools.nsc.typechecker.Infer.Inferencer.isAsSpecific
-  private def isAsSpecificAs[T](
-    lhs:            InnerScalaResolveResult[T],
-    rhs:            InnerScalaResolveResult[T],
+  private def isAsSpecificAs(
+    lhs:            InnerScalaResolveResult,
+    rhs:            InnerScalaResolveResult,
     checkImplicits: Boolean
   ): Boolean = {
     def isLastParameterRepeated(params: Iterable[Parameter]): Boolean =
@@ -182,9 +194,9 @@ class MostSpecificUtil(
 
     (lhs.element, rhs.element) match {
       case (lhsElement @ (_: PsiMethod | _: ScSyntheticFunction), rhsElement @ (_: PsiMethod | _: ScSyntheticFunction)) =>
-        val lhsType   = lhs.substitutor(getType(lhsElement, lhs.implicitCase))
+        val lhsType   = lhs.substitutor(getType(lhs))
         val lhsParams = lhs.paramsOrCandidateType(lhsType, undefine = false)
-        val rhsType   = rhs.substitutor(getType(rhsElement, rhs.implicitCase))
+        val rhsType   = rhs.substitutor(getType(rhs))
         val rhsParams = rhs.paramsOrCandidateType(rhsType, undefine = true)
 
         val paramsConformance = (lhsParams, rhsParams) match {
@@ -237,7 +249,7 @@ class MostSpecificUtil(
             Compatibility.checkConformance(params2, argExprs, checkImplicits)
           case (Right(lhsType), Right(rhsType)) =>
             lhsType.conforms(rhsType, ConstraintSystem.empty) //todo: with implicits?
-          case (Left(_), Right(_)) if !lhs.implicitCase => return false
+          case (Left(_), Right(_)) if !lhs.isImplicitCandidate => return false
           case _                                        => return true
         }
 
@@ -274,9 +286,9 @@ class MostSpecificUtil(
           case _ => false
         }
       case (_, _: PsiMethod) => true
-      case (lhsElement, rhsElement) =>
-        val lhsType = getType(lhsElement, lhs.implicitCase)
-        val rhsType = getType(rhsElement, rhs.implicitCase)
+      case (_, _) =>
+        val lhsType = getType(lhs)
+        val rhsType = getType(rhs)
         //@TODO: similarly to the case above this should probably take implicit conversions into account
         lhsType.conforms(rhsType)
     }
@@ -288,8 +300,7 @@ class MostSpecificUtil(
       cls    <- member.containingClass.toOption
     } yield cls
 
-  private def extractContainingClass(res: InnerScalaResolveResult[_]): Option[PsiClass] =
-    getContainingClass(res.element)
+  private def extractContainingClass(srr: InnerScalaResolveResult): Option[PsiClass] = getContainingClass(srr.element)
 
   /**
    * 1) `c1` is a subclass of `c2`, or
@@ -320,8 +331,11 @@ class MostSpecificUtil(
       case _ => false
     }
 
-  private def relativeWeight[T](r1: InnerScalaResolveResult[T], r2: InnerScalaResolveResult[T],
-                                checkImplicits: Boolean): Int = {
+  private def relativeWeight(
+    r1:             InnerScalaResolveResult,
+    r2:             InnerScalaResolveResult,
+    checkImplicits: Boolean
+  ): Int = {
     val asSpecific = if (isAsSpecificAs(r1, r2, checkImplicits)) 1 else 0
 
     val derived =
@@ -337,12 +351,12 @@ class MostSpecificUtil(
     asSpecific + derived
   }
 
-  private def isMoreSpecific[T](
-    r1:             InnerScalaResolveResult[T],
-    r2:             InnerScalaResolveResult[T],
+  private def isMoreSpecific(
+    r1:             InnerScalaResolveResult,
+    r2:             InnerScalaResolveResult,
     checkImplicits: Boolean
   ): Boolean = {
-    def hasImplicitParameters(isrr: InnerScalaResolveResult[T]): Boolean =
+    def hasImplicitParameters(isrr: InnerScalaResolveResult): Boolean =
       isrr.element match {
         case fn: ScFunction =>
           //@TODO: parameterClausesWithExtension.flatMap(_.effectiveParameters)?
@@ -368,15 +382,15 @@ class MostSpecificUtil(
            *    parameters, relative weights are recomputed and compared as if `r1` and `r2`
            *    take normal (non-implicit) parameters.
            */
-          if (place.isInScala3File && weightR1R2 == weightR2R1 && r1.implicitCase) {
+          if (place.isInScala3File && weightR1R2 == weightR2R1 && r1.isImplicitCandidate) {
             val r1HasImplicitParameters = hasImplicitParameters(r1)
             val r2HasImplicitParameters = hasImplicitParameters(r2)
 
             if (!r1HasImplicitParameters && r2HasImplicitParameters)
               true
             else if (r1HasImplicitParameters && r2HasImplicitParameters) {
-              val r1withParams = r1.copy(implicitCase = false)
-              val r2withParams = r2.copy(implicitCase = false)
+              val r1withParams = r1.copy(isImplicitCandidate = false)
+              val r2withParams = r2.copy(isImplicitCandidate = false)
 
               val weightWithParamsR1R2 = relativeWeight(r1withParams, r2withParams, checkImplicits)
               val weightWithParamsR2R1 = relativeWeight(r2withParams, r1withParams, checkImplicits)
@@ -388,11 +402,11 @@ class MostSpecificUtil(
     }
   }
 
-  private def mostSpecificGeneric[T](
-    applicable: Set[InnerScalaResolveResult[T]],
+  private def mostSpecificGeneric(
+    applicable: Set[InnerScalaResolveResult],
     noImplicit: Boolean
-  ): Option[InnerScalaResolveResult[T]] = {
-    def calc(checkImplicits: Boolean): Option[InnerScalaResolveResult[T]] = {
+  ): Option[InnerScalaResolveResult] = {
+    def calc(checkImplicits: Boolean): Option[InnerScalaResolveResult] = {
       val a1iterator = applicable.iterator
 
       while (a1iterator.hasNext) {
@@ -417,7 +431,7 @@ class MostSpecificUtil(
       result
   }
 
-  private def nextMostSpecificGeneric[T](rest: Iterable[InnerScalaResolveResult[T]]): Option[InnerScalaResolveResult[T]] =
+  private def nextMostSpecificGeneric(rest: Iterable[InnerScalaResolveResult]): Option[InnerScalaResolveResult] =
     if (rest.isEmpty)        None
     else if (rest.size == 1) Option(rest.head)
     else  {
@@ -436,12 +450,20 @@ class MostSpecificUtil(
       Option(foundMax)
     }
 
-  def getType(e: PsiNamedElement, implicitCase: Boolean): ScType = {
-    val res = e match {
+  def getType(cand: InnerScalaResolveResult): ScType = {
+    import cand.{element, isImplicitCandidate}
+
+    val isExtensionCall = cand.repr.isExtensionCall
+
+    val unresolvedExtensionTypeParams =
+      if (isExtensionCall) cand.repr.unresolvedTypeParameters.getOrElse(Seq.empty)
+      else                 Seq.empty
+
+    val res = element match {
       case m: PsiMethod =>
         val scope = place.elementScope
         m.methodTypeProvider(scope).polymorphicType(
-          dropExtensionClauses = true, //@TODO: should probably be srr.isExtensionCall
+          dropExtensionClauses = isExtensionCall
         )
       case fun: ScSyntheticFunction => fun.polymorphicType()
       case refPatt: ScReferencePattern => refPatt.getParent /*id list*/ .getParent match {
@@ -457,20 +479,20 @@ class MostSpecificUtil(
       case _                        => Nothing
     }
 
-    res match {
-      case ScMethodType(retType, _, true) if implicitCase => retType
-      case ScTypePolymorphicType(ScMethodType(retType, _, true), typeParameters) if implicitCase =>
+    val tpe = res match {
+      case ScMethodType(retType, _, true) if isImplicitCandidate => retType
+      case ScTypePolymorphicType(ScMethodType(retType, _, true), typeParameters) if isImplicitCandidate =>
         ScTypePolymorphicType(retType, typeParameters)
       case tp => tp
     }
-  }
 
-  private def implicitConversionClass(srr: ScalaResolveResult): Option[ScTemplateDefinition] =
-    for {
-      conversion <- srr.implicitConversion
-      member     <- conversion.element.nameContext.asOptionOf[ScMember]
-      psiClass   <- Option(member.containingClass)
-    } yield psiClass
+    if (unresolvedExtensionTypeParams.isEmpty) tpe
+    else tpe match {
+      case ScTypePolymorphicType(retType, typeParams) =>
+        ScTypePolymorphicType(retType, typeParams ++ unresolvedExtensionTypeParams)
+      case other                                      => ScTypePolymorphicType(other, unresolvedExtensionTypeParams)
+    }
+  }
 }
 
 object MostSpecificUtil {

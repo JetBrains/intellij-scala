@@ -778,7 +778,11 @@ object MethodResolveProcessor {
 
         val mostSpecificUtil = MostSpecificUtil(ref, len)
 
-        def selectMostSpecificOr(candidates: Set[ScalaResolveResult], orElse: => Set[ScalaResolveResult]): Set[ScalaResolveResult] =
+        def selectMostSpecificOr(
+          candidates:              Set[ScalaResolveResult],
+          orElse:                  =>Set[ScalaResolveResult],
+          isForImplicitResolution: Boolean
+        ): Set[ScalaResolveResult] =
           if (candidates.sizeIs == 1) candidates
           else {
             val candidatesWithRespectiveParamClause =
@@ -795,7 +799,10 @@ object MethodResolveProcessor {
                 case other => (other, None)
               }
 
-            mostSpecificUtil.mostSpecificForParameterClause(candidatesWithRespectiveParamClause) match {
+            mostSpecificUtil.mostSpecificForParameterClause(
+              candidatesWithRespectiveParamClause,
+              isForImplicitResolution
+            ) match {
               case Some(rr) => Set(rr)
               case None => orElse
             }
@@ -807,9 +814,12 @@ object MethodResolveProcessor {
             extensionMethods.result(),
             selectMostSpecificOr(
               implicitMethods.result(),
-              filtered
-            )
-          )
+              filtered,
+              isForImplicitResolution = true
+            ),
+            isForImplicitResolution = true
+          ),
+          isForImplicitResolution = false
         )
       }
     }
