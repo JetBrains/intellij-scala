@@ -122,4 +122,14 @@ class Scala3OverloadingResolutionTest extends SimpleResolveTestBase {
        |}
        |""".stripMargin
   )
+
+  def testSCL25049(): Unit = checkTextHasNoErrors(
+    """
+      |object A {
+      |  def bar(x: Int): String = "1"
+      |  def bar(x: Int)(t: Int): Unit = 2
+      |  val z = bar(1)
+      |}
+      |""".stripMargin
+  )
 }

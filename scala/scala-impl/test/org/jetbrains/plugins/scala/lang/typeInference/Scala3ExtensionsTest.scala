@@ -600,21 +600,23 @@ class Scala3ExtensionsTest extends ScalaLightCodeInsightFixtureTestCase {
 
     checkTextHasNoErrors(
       """
-        |trait Functor[F[_]]:
-        |  extension [A, B](fa: F[A])
-        |    def ffmap(f: A => B): F[B]
+        |object Test2 {
+        |  trait Functor[F[_]]:
+        |    extension [A, B](fa: F[A])
+        |      def ffmap(f: A => B): F[B]
         |
-        |trait F[A]
-        |given fInt: F[Int] = ???
-        |given eitherFunctor[E: F]: Functor[[A] =>> Either[E, A]] with
-        |  extension[A, B] (x: Either[E, A])
-        |    def ffmap(f: A => B): Either[E, B] = x match
-        |      case Left(err) => Left(err)
-        |      case Right(a) => Right(f(a))
+        |  trait F[A]
+        |  given fInt: F[Int] = ???
+        |  given eitherFunctor[E: F]: Functor[[A] =>> Either[E, A]] with
+        |    extension[A, B] (x: Either[E, A])
+        |      def ffmap(f: A => B): Either[E, B] = x match
+        |        case Left(err) => Left(err)
+        |        case Right(a) => Right(f(a))
         |
-        |object A {
-        |  val e1: Either[Int, Int] = Right(10)
-        |  val e3 = e1.ffmap(a => a + 1)
+        |  object A {
+        |    val e1: Either[Int, Int] = Right(10)
+        |    val e3 = e1.ffmap(a => a + 1)
+        |  }
         |}
         |""".stripMargin
     )

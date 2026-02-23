@@ -42,7 +42,6 @@ class QuillTest extends TextToTextTestBase(
     "io.getquill.IdiomContext", // scala.Option | scala.Some
     "io.getquill.MirrorContextBase", // MirrorContextBase.this.QueryMirror | MirrorContextBase.this.RunQueryResult
     "io.getquill.ast.StatefulTransformerWithStack", // scala.Option | scala.None.type
-    "io.getquill.context.BatchStatic", // io.getquill.ast.Ident | scala.Any
     "io.getquill.context.Execution", // scala.quoted.Expr | scala.Any
     "io.getquill.context.ExtractLifts", // [?, ?, ?] | [_$1, _$2, _$3]]) forSome {type _$1; type _$2; type _$3}]
     "io.getquill.context.Extraction", // Extraction.Simple | Extraction with Extraction.Simple

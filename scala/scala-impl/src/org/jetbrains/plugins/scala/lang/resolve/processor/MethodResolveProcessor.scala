@@ -650,12 +650,21 @@ object MethodResolveProcessor {
 
       if (applicableForCurrentClause.isEmpty)
         resultsForCurrentClause
-      else if (useScala3OverloadingRules
-        && applicableForCurrentClause.size > 1
-        && clauseIdx < maxArgClauseIdx
-      )
-        candidatesForArgClause(applicableForCurrentClause, clauseIdx + 1)
-      else
+      else if (useScala3OverloadingRules&& applicableForCurrentClause.size > 1) {
+        if (clauseIdx < maxArgClauseIdx)
+          candidatesForArgClause(applicableForCurrentClause, clauseIdx + 1)
+        else
+          applicableForCurrentClause.filter { cand =>
+            val nextParamClause =
+              Compatibility.correspondingParamClause(
+                cand.functionParamClauses,
+                argumentClauses ++ Seq(Seq.empty),
+                clauseIdx + 1
+              )
+
+            nextParamClause.isEmpty // prefer alternatives that need no eta expansion
+          }
+      } else
         applicableForCurrentClause
     }
 
@@ -770,7 +779,7 @@ object MethodResolveProcessor {
         val implicitMethods = Set.newBuilder[ScalaResolveResult]
 
         for (rr <- filtered) {
-          // Extensions from givens have same precedence than methods from implicit conversions
+          // Extensions from givens have the same precedence than methods from implicit conversions
           if (rr.implicitConversion.isDefined || rr.isExtensionFromGiven) implicitMethods += rr
           else if (rr.isExtensionCall) extensionMethods += rr
           else normalMethods += rr
@@ -786,17 +795,15 @@ object MethodResolveProcessor {
           if (candidates.sizeIs == 1) candidates
           else {
             val candidatesWithRespectiveParamClause =
-              candidates.map {
-                case cand @ ScalaResolveResult(_: ScFunction, _) =>
-                  val paramClause =
-                    Compatibility.correspondingParamClause(
-                      cand.functionParamClauses,
-                      argumentClauses,
-                      argClauseIdx
-                    )
+              candidates.map { cand =>
+                val paramClause =
+                  Compatibility.correspondingParamClause(
+                    cand.functionParamClauses,
+                    argumentClauses,
+                    argClauseIdx
+                  )
 
-                  (cand, paramClause)
-                case other => (other, None)
+                (cand, paramClause)
               }
 
             mostSpecificUtil.mostSpecificForParameterClause(
