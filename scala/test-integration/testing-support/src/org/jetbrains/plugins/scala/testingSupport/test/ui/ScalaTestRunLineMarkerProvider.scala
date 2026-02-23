@@ -13,6 +13,7 @@ import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testIntegration.{TestFramework, TestRunLineMarkerProvider}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.incremental.Highlighting.ElementHighlightingExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
@@ -43,13 +44,16 @@ class ScalaTestRunLineMarkerProvider extends TestRunLineMarkerProvider {
    * for uTest location hint format see
    *  - [[org.jetbrains.plugins.scala.testingSupport.uTest.UTestReporter]]
    */
-  override def getInfo(element: PsiElement): RunLineMarkerContributor.Info =
+  override def getInfo(element: PsiElement): RunLineMarkerContributor.Info = {
+    if (!element.isVisible) return null
+
     element match {
       case leaf: LeafPsiElement if leaf.getElementType == ScalaTokenTypes.tIDENTIFIER =>
         infoForLeafElement(leaf).orNull
       case _ =>
         null
     }
+  }
 
   // REMINDER from codeInsight.daemon.LineMarkerInfo:
   // LineMarker is supposed to be registered for leaf elements only!

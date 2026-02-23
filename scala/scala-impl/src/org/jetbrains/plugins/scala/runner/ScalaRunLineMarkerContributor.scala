@@ -4,6 +4,7 @@ import com.intellij.execution.lineMarker.RunLineMarkerContributor.Info
 import com.intellij.execution.lineMarker.{ExecutorAction, RunLineMarkerContributor}
 import com.intellij.icons.AllIcons
 import com.intellij.psi.{PsiClass, PsiElement}
+import org.jetbrains.plugins.scala.incremental.Highlighting.ElementHighlightingExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
@@ -14,6 +15,8 @@ import javax.swing.Icon
 
 class ScalaRunLineMarkerContributor extends RunLineMarkerContributor {
   override def getInfo(element: PsiElement): Info = {
+    if (!element.isVisible) return null
+
     element.getContainingFile match {
       case scriptLikeFile: ScalaFile
         if scriptLikeFile.isWorksheetFile || scriptLikeFile.isMultipleDeclarationsAllowed =>
