@@ -2,9 +2,10 @@ package org.jetbrains.plugins.scala
 package incremental
 
 import com.intellij.openapi.editor.{Editor, EditorFactory, LogicalPosition}
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.util.{Key, TextRange}
-import com.intellij.psi.{PsiDocumentManager, PsiElement}
+import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
 
 import java.awt.Point
 
@@ -15,10 +16,10 @@ private object VisibleRange {
 
   private def lookaround: Int = Registry.intValue("scala.incremental.highlighting.lookaround")
 
-  def isVisible(e: PsiElement): Boolean = {
+  def isVisible(e: PsiElement)/*Caching*/(project: Project, containingFile: PsiFile): Boolean = {
     val elementRange = e.getTextRange
 
-    editorsFor(e).exists { editor =>
+    editorsFor(e)/*Caching*/(project, containingFile).exists { editor =>
       val visibleRange = editor.getUserData(VISIBLE_RANGE_KEY)
       visibleRange == null || elementRange.intersects(visibleRange) && !isFolded(editor, elementRange)
     }
@@ -32,11 +33,10 @@ private object VisibleRange {
     region1 == region2
   }
 
-  def editorsFor(e: PsiElement): Seq[Editor] = {
-    val psiFile = e.getContainingFile
-    if (psiFile == null) return Seq.empty
+  def editorsFor(e: PsiElement)/*Caching*/(project: Project, containingFile: PsiFile): Seq[Editor] = {
+    if (containingFile == null) return Seq.empty
 
-    val document = PsiDocumentManager.getInstance(e.getProject).getDocument(psiFile)
+    val document = PsiDocumentManager.getInstance(e.getProject).getDocument(containingFile)
     if (document == null) return Seq.empty
 
     EditorFactory.getInstance.getEditors(document).toSeq

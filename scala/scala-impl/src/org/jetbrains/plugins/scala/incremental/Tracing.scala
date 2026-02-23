@@ -84,7 +84,10 @@ object Tracing {
   }
 
   def trace(e: PsiElement, reason: String, start: Boolean = false): Unit = if (isHighlightingTracingEnabled) {
-    VisibleRange.editorsFor(e).foreach { editor =>
+    val containingFile = e.getContainingFile
+    val project = if (containingFile != null) containingFile.getProject else e.getProject // Avoid tree walk-up
+
+    VisibleRange.editorsFor(e)/*Caching*/(project, containingFile).foreach { editor =>
       if (isHighlightingTracingInEditorEnabled) {
         reason match {
           case "Resolve" => highlightElement(editor, e, start, RESOLVE_STATE_KEY, RESOLVE_COLOR)
