@@ -95,6 +95,9 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
   // LIBRARY EXTENSIONS
   private boolean ENABLE_LIBRARY_EXTENSIONS = true;
 
+  // Don't reset the setting for old versions when using new versions. TODO Delete later
+  private boolean SCALA_3_DISCLAIMER_SHOWN = false;
+
   private boolean MIGRATE_CONFIGURATIONS_NOTIFICATION_SHOWN = false;
 
   //INDEXING
