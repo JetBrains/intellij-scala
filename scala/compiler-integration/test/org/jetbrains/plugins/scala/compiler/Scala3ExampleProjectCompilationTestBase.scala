@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.compiler
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.roots.CompilerModuleExtension
+import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.CompilerTester
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader
@@ -32,7 +33,9 @@ abstract class Scala3ExampleProjectCompilationTestBase(
     with ScalaSdkOwner {
 
   override protected def supportedIn(version: ScalaVersion): Boolean =
-    version >= LatestScalaVersions.Scala_3_0
+    version >= LatestScalaVersions.Scala_3_8
+
+  override protected def projectJdkLanguageLevel: LanguageLevel = LanguageLevel.JDK_17
 
   override protected def githubRepositoryWithRevision: GithubRepositoryWithRevision =
     GithubRepositoryWithRevision("scala", "scala3-example-project", revision = "main")
