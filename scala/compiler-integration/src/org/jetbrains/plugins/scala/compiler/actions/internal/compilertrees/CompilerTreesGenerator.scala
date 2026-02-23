@@ -148,7 +148,7 @@ private final class CompilerTreesGenerator(
     @RequiresEdt
     def notifyNoCompilerTrees(project: Project): Unit = {
       val notification = ScalaNotificationGroups.scalaGeneral.createNotification(
-        CompilerIntegrationBundle.message("couldn.t.parse.trees.from.the.compiler.output"),
+        CompilerIntegrationBundle.message("could.not.parse.trees.from.the.compiler.output"),
         NotificationType.WARNING
       )
       NotificationsManager.getNotificationsManager.showNotification(notification, project)
