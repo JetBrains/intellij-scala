@@ -9,6 +9,7 @@ import com.intellij.psi.{PsiElement, PsiElementVisitor, PsiWhiteSpace}
 import com.intellij.util.Function
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.incremental.Highlighting.ElementHighlightingExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.ScalaMetaMode
@@ -23,6 +24,8 @@ abstract class MacroExpansionLineMarkerProvider extends RelatedItemLineMarkerPro
   protected type Markers = util.Collection[_ >: Marker]
 
   override def collectNavigationMarkers(element: PsiElement, result: Markers): Unit = {
+    if (!element.isVisible) return
+
     if (ScalaProjectSettings.getInstance(element.getProject).getScalaMetaMode == ScalaMetaMode.Disabled)
       return
     if (element.getNode == null || element.getNode.getElementType != ScalaTokenTypes.tIDENTIFIER )
