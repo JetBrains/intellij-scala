@@ -12,7 +12,9 @@ import com.intellij.openapi.project.{Project, ProjectUtil}
 import com.intellij.platform.eel.EelDescriptor
 import com.intellij.platform.eel.provider.LocalEelDescriptor
 import com.intellij.platform.eel.provider.utils.EelPathUtils
+import com.intellij.platform.eel.provider.utils.EelPathUtils.TransferTarget
 import com.intellij.platform.workspace.storage.{EntityStorage, SymbolicEntityId, WorkspaceEntityWithSymbolicId}
+import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import com.intellij.util.net.{ProxyConfiguration, ProxyCredentialStore, ProxyCredentialStoreKt, ProxySettings, ProxyUtils}
 import com.intellij.util.{EnvironmentUtil, SystemProperties}
 import org.jetbrains.annotations.{ApiStatus, VisibleForTesting}
@@ -472,8 +474,24 @@ object SbtUtil {
   val SeparateMainTestModulesBlogPostLink =
     "https://blog.jetbrains.com/scala/new-module-layout-for-sbt/"
 
-  def createTemporarySbtFile(content: String): Path = {
-    val tmpPluginsSbtFile = Files.createTempFile("idea", Sbt.Extension)
+  /**
+   * Creates a temporary `.sbt` file with EEL awareness and the given content.
+   *
+   * When `project` is provided, it uses a built-in EEL utility for creating temporary files; otherwise, it creates a local temporary file
+   * and transfers it to the remote target.
+   *
+   * @todo Ideally, there should be a platform utility to create a temporary file using only the [[EelDescriptor]].
+   *       Right now, I couldn't find one.
+   */
+  @RequiresBackgroundThread
+  def createTemporarySbtFile(content: String, eelDescriptor: EelDescriptor, projectOpt: Option[Project]): Path = {
+    val tmpPluginsSbtFile = projectOpt match
+      case Some(project) =>
+        EelPathUtils.createTemporaryFile(project, "idea", Sbt.Extension, true).toRealPath()
+      case None =>
+        val tmpPluginsSbtFile = Files.createTempFile("idea", Sbt.Extension).toRealPath()
+        EelPathUtils.transferLocalContentToRemote(tmpPluginsSbtFile, TransferTarget.Temporary(eelDescriptor))
+
     Files.writeString(tmpPluginsSbtFile, content)
     tmpPluginsSbtFile.toFile.deleteOnExit()
     tmpPluginsSbtFile

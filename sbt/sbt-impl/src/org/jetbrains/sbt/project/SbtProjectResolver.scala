@@ -18,6 +18,8 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.registry.{Registry, RegistryManager}
 import com.intellij.platform.eel.EelDescriptor
 import com.intellij.platform.eel.provider.EelProviderUtil
+import com.intellij.platform.eel.provider.utils.EelPathUtils
+import com.intellij.platform.eel.provider.utils.EelPathUtils.TransferTarget
 import com.intellij.pom.Navigatable
 import com.intellij.util.SystemProperties
 import org.jetbrains.annotations.{ApiStatus, NonNls, Nullable, TestOnly}
@@ -208,12 +210,15 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
       activeProcessDumper = Option(dumper)
 
+      val transferredStructureFile =
+        EelPathUtils.transferLocalContentToRemote(structureFile, TransferTarget.Temporary(context.eelDescriptor))
+
       val messageResult: Try[BuildMessages] = {
         dumper match {
           case sd: SbtStructureDumper.FromShell =>
             val messagesF = sd.dumpFromShell(
               project,
-              structureFile,
+              transferredStructureFile,
               options,
               reporter,
               settings.preferScala2,
@@ -243,7 +248,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
             pd.dumpFromProcess(
               indicator,
               projectRoot,
-              structureFile,
+              transferredStructureFile,
               options,
               settings.vmExecutable.toPath,
               settings.vmOptions,
@@ -253,11 +258,14 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
               sbtStructureJar,
               settings.preferScala2,
               settings.passParentEnvironment,
-              settings.generateManagedSourcesDuringProjectSync
+              settings.generateManagedSourcesDuringProjectSync,
+              Option(project)
             )
         }
       }
       activeProcessDumper = None
+
+      copyFileContentsIfNeeded(transferredStructureFile, structureFile)
 
       val result: Try[(Elem, BuildMessages)] = messageResult.flatMap { messages =>
         val tried = {
@@ -340,6 +348,17 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       }
     }
   }
+
+  private def copyFileContentsIfNeeded(remotePath: Path, localPath: Path): Unit =
+    import java.io.PrintWriter
+    import java.nio.charset.StandardCharsets.UTF_8
+    import java.nio.file.Files
+    import java.nio.file.StandardOpenOption.*
+    import scala.util.Using
+    if remotePath != localPath then
+      Using.resource(Files.newBufferedReader(remotePath, UTF_8)): reader =>
+        Using.resource(PrintWriter(Files.newBufferedWriter(localPath, UTF_8, CREATE, TRUNCATE_EXISTING, WRITE))): writer =>
+          reader.lines().forEach(writer.println(_))
 
   private def informAboutImportTimingEnabled(buildReporter: BuildReporter): Unit = {
     val quickFixId = "disable_import_timing"
