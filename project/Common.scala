@@ -351,13 +351,11 @@ object Common {
 
   lazy val cleanAll: TaskKey[Unit] = taskKey("Cleans all modules")
 
-  def cleanAllTask(includeBuild: Option[BuildRef]): Def.Initialize[Task[Unit]] = Def.taskDyn {
+  def cleanAllTask: Def.Initialize[Task[Unit]] = Def.taskDyn {
     val structure = buildStructure.value
     val build = thisProjectRef.value.build
-    val projects = structure.allProjectRefs(build) ++ includeBuild.toSeq.flatMap(b => structure.allProjectRefs(b.build))
-    val scopeFilter = ScopeFilter(inProjects(projects *), inAnyConfiguration)
-    Def.task {
-      clean.all(scopeFilter).value
-    }
+    val projects = structure.allProjectRefs(build)
+    val scopeFilter = ScopeFilter(inProjects(projects*), inAnyConfiguration)
+    clean.all(scopeFilter).map(_ => ())
   }
 }
