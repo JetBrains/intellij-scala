@@ -7,8 +7,7 @@ import com.intellij.openapi.fileEditor.impl.text.TextEditorComponent
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.util.{Key, TextRange}
-import com.intellij.psi.{PsiElement, PsiFile}
-import org.jetbrains.annotations.Nullable
+import com.intellij.psi.PsiFile
 
 import java.awt.Point
 
@@ -19,14 +18,11 @@ private object VisibleRange {
 
   private def lookaround: Int = Registry.intValue("scala.incremental.highlighting.lookaround")
 
-  private[incremental] def isVisible(e: PsiElement)/*Caching*/(project: Project, @Nullable containingFile: PsiFile): Boolean = {
-    val elementRange = e.getTextRange
-
-    editorsFor(e)/*Caching*/(project, containingFile).exists { editor =>
+  private[incremental] def isVisible(project: Project, psiFile: PsiFile, range: TextRange): Boolean =
+    editorsFor(project, psiFile).exists { editor =>
       val visibleRange = editor.getUserData(VISIBLE_RANGE_KEY)
-      visibleRange == null || elementRange.intersects(visibleRange) && !isFolded(editor, elementRange)
+      visibleRange == null || range.intersects(visibleRange) && !isFolded(editor, range)
     }
-  }
 
   private def isFolded(editor: Editor, range: TextRange): Boolean = {
     val foldingModel = editor.getFoldingModel
@@ -36,10 +32,8 @@ private object VisibleRange {
     region1 == region2
   }
 
-  private[incremental] def editorsFor(e: PsiElement)/*Caching*/(project: Project, @Nullable containingFile: PsiFile): Iterable[Editor] = {
-    if (containingFile == null) return Seq.empty
-
-    val virtualFile = containingFile.getVirtualFile
+  private[incremental] def editorsFor(project: Project, psiFile: PsiFile): Iterable[Editor] = {
+    val virtualFile = psiFile.getVirtualFile
     if (virtualFile == null) return Seq.empty
 
     FileEditorManager.getInstance(project).getEditors(virtualFile).map(_.getComponent).collect {
