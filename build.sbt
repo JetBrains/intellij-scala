@@ -45,7 +45,7 @@ Global / intellijAttachSources := true
 // Muted lint warnings for keys used by the IDE, but not by sbt (coming from sbt-ide-settings)
 Global / excludeLintKeys ++= Set(idePackagePrefix, ideSkipProject, ideExcludedDirectories, ideaConfigOptions, intellijPlugins)
 
-ThisBuild / cleanAll := Common.cleanAllTask(None).value
+ThisBuild / cleanAll := Common.cleanAllTask.value
 
 val definedTestsScopeFilter: ScopeFilter =
   ScopeFilter(inDependencies(scalaCommunity, includeRoot = false), inConfigurations(Test))
