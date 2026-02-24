@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.compiler.actions
+package org.jetbrains.plugins.scala.compiler.actions.internal
 
 import com.intellij.ide.actions.RevealFileAction
 import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnActionEvent}
