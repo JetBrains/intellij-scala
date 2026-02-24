@@ -160,7 +160,7 @@ object Tracing {
 
   private def cleanElementStates(): Unit = {
     val editors = EditorFactory.getInstance.getAllEditors
-    val editorsWithVFiles = editors.map(editor => editor -> editor.getVirtualFile).filter(_._2 != null)
+    val editorsWithVFiles = editors.map(editor => editor -> editor.virtualFile).filter(_._2 != null)
     editorsWithVFiles.foreach { case (editor, vFile) => cleanElementStateInEditor(editor, vFile) }
   }
 

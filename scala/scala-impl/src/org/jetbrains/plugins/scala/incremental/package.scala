@@ -3,7 +3,8 @@ package scala
 
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.codeInsight.daemon.impl.{DaemonCodeAnalyzerEx, DaemonCodeAnalyzerImpl, FileStatusMap}
-import com.intellij.openapi.editor.Document
+import com.intellij.openapi.editor.{Document, Editor}
+import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.annotations.Nullable
@@ -42,6 +43,10 @@ package object incremental {
       if (b.getStartOffset <= a.getStartOffset) new TextRange(b.getEndOffset, a.getEndOffset)
       else new TextRange(a.getStartOffset, b.getStartOffset)
     }
+  }
+
+  private[incremental] implicit class EditorExt(private val that: Editor) extends AnyVal {
+    @Nullable def virtualFile: VirtualFile = FileDocumentManager.getInstance.getFile(that.getDocument)
   }
 
   private[incremental] def isScalaIn(@Nullable file: VirtualFile): Boolean =
