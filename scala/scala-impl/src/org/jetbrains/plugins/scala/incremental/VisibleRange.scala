@@ -1,13 +1,11 @@
 package org.jetbrains.plugins.scala
 package incremental
 
-import com.intellij.openapi.editor.{Editor, LogicalPosition}
-import com.intellij.openapi.fileEditor.FileEditorManager
-import com.intellij.openapi.fileEditor.impl.text.TextEditorComponent
+import com.intellij.openapi.editor.{Editor, EditorFactory, LogicalPosition}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.util.{Key, TextRange}
-import com.intellij.psi.PsiFile
+import com.intellij.psi.{PsiDocumentManager, PsiFile}
 
 import java.awt.Point
 
@@ -32,13 +30,11 @@ private object VisibleRange {
     region1 == region2
   }
 
-  private[incremental] def editorsFor(project: Project, psiFile: PsiFile): Iterable[Editor] = {
-    val virtualFile = psiFile.getVirtualFile
-    if (virtualFile == null) return Seq.empty
+  private[incremental] def editorsFor(project: Project, psiFile: PsiFile): Seq[Editor] = {
+    val document = PsiDocumentManager.getInstance(project).getDocument(psiFile)
+    if (document == null) return Seq.empty
 
-    FileEditorManager.getInstance(project).getEditors(virtualFile).map(_.getComponent).collect {
-      case component: TextEditorComponent => component.getEditor
-    }
+    EditorFactory.getInstance.getEditors(document).toSeq
   }
 
   def saveIn(editor: Editor): Unit = {
