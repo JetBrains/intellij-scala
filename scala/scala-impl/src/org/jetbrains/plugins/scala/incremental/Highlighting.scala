@@ -40,7 +40,7 @@ object Highlighting {
 
       if (builtInHighlightingDisabledIn(project)) return false
 
-      !enabledIn(project) || VisibleRange.isVisible(e)/*Caching*/(project, containingFile)
+      !enabledIn(project) || (containingFile != null && VisibleRange.isVisible(project, containingFile, e.getTextRange))
     }
   }
 }
