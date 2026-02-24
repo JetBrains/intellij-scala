@@ -76,7 +76,7 @@ class Listener extends EditorFactoryListener {
   override def editorCreated(event: EditorFactoryEvent): Unit = {
     val editor = event.getEditor
 
-    if (!incremental.Highlighting.enabledIn(editor.getProject) || !isScalaIn(editor.getVirtualFile)) return
+    if (!incremental.Highlighting.enabledIn(editor.getProject) || !isScalaIn(editor.virtualFile)) return
 
     if (editor.getUserData(INCREMENTAL_HIGHLIGHTING_KEY) != null) return
     connectTo(editor)
