@@ -8,6 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.psi.{PsiElement, PsiFile}
+import org.jetbrains.annotations.Nullable
 
 import java.awt.Point
 
@@ -18,7 +19,7 @@ private object VisibleRange {
 
   private def lookaround: Int = Registry.intValue("scala.incremental.highlighting.lookaround")
 
-  def isVisible(e: PsiElement)/*Caching*/(project: Project, containingFile: PsiFile): Boolean = {
+  private[incremental] def isVisible(e: PsiElement)/*Caching*/(project: Project, @Nullable containingFile: PsiFile): Boolean = {
     val elementRange = e.getTextRange
 
     editorsFor(e)/*Caching*/(project, containingFile).exists { editor =>
@@ -35,7 +36,7 @@ private object VisibleRange {
     region1 == region2
   }
 
-  private[incremental] def editorsFor(e: PsiElement)/*Caching*/(project: Project, containingFile: PsiFile): Iterable[Editor] = {
+  private[incremental] def editorsFor(e: PsiElement)/*Caching*/(project: Project, @Nullable containingFile: PsiFile): Iterable[Editor] = {
     if (containingFile == null) return Seq.empty
 
     val virtualFile = containingFile.getVirtualFile
