@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.redundantBlock
 
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
 import com.intellij.openapi.project.{DumbAware, Project}
-import com.intellij.psi.{PsiElement, PsiWhiteSpace}
+import com.intellij.psi.{PsiElement, PsiElementVisitor, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.codeInspection.parentheses.registerRedundantParensProblem
 import org.jetbrains.plugins.scala.codeInspection.redundantBlock.RedundantBlockInspection.{InCaseClauseQuickFix, UnwrapExpressionQuickFix}
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle}
@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScC
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 final class RedundantBlockInspection extends LocalInspectionTool with DumbAware {
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
     case (block: ScBlock) childOf ((blockOfExpr: ScBlock) childOf (_: ScCaseClause))
       if block.hasRBrace && block.getFirstChild.textMatches("{") &&
         blockOfExpr.getChildren.lengthIs == 1 && !block.getChildren.exists(_.is[ScCaseClauses]) =>

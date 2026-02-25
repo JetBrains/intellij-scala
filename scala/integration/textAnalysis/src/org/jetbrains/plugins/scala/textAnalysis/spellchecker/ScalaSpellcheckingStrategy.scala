@@ -55,5 +55,10 @@ final class ScalaSpellcheckingStrategy extends SpellcheckingStrategy {
   private def getTokenizer(owner: ScModifierListOwner): Tokenizer[? <: PsiElement] =
     if owner.hasModifierPropertyScala("override") then emptyTokenizer else codeTokenizer
 
-  override def isMyContext(element: PsiElement): Boolean = element.isVisible
+  override def isMyContext(element: PsiElement): Boolean = {
+    val file = element.getContainingFile
+    val project = if (file != null) file.getProject else element.getProject // Avoid tree walk-up
+
+    element.isVisible(project, file)
+  }
 }

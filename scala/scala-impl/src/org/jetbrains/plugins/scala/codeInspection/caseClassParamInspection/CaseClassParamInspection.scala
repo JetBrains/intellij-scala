@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection
 
 import com.intellij.codeInspection._
 import com.intellij.openapi.project.DumbAware
+import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInspection.PsiElementVisitorSimple
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -11,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.util.EnumSet._
 
 final class CaseClassParamInspection extends LocalInspectionTool with DumbAware {
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
     case c: ScClass if c.isCase =>
       for {
         paramClause <- c.allClauses.take(1)

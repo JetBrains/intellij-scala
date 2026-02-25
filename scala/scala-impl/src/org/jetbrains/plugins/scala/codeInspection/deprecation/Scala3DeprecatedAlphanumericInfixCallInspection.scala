@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.deprecation
 
 import com.intellij.codeInspection.{LocalInspectionTool, LocalQuickFix, ProblemsHolder}
 import com.intellij.modcommand.ModCommandAction
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import org.jetbrains.plugins.scala.codeInspection.deprecation.Scala3DeprecatedAlphanumericInfixCallInspection.isDeprecatedInfix
 import org.jetbrains.plugins.scala.codeInspection.quickfix._
 import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle}
@@ -21,7 +21,7 @@ final class Scala3DeprecatedAlphanumericInfixCallInspection extends LocalInspect
 
   import Scala3DeprecatedAlphanumericInfixCallInspection.message
 
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = { element =>
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) { element =>
       if (element.features.warnAboutDeprecatedInfixCallsEnabled) {
         element.getContext match {
           case infixExpr@ScInfixExpr(_, ref, right) if ref == element && isDeprecatedInfix(ref, right) =>

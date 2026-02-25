@@ -8,7 +8,7 @@ import com.intellij.codeInsight.AnnotationUtil
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
-import com.intellij.psi.{PsiElement, PsiReference}
+import com.intellij.psi.{PsiElement, PsiElementVisitor, PsiReference}
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple}
 import org.jetbrains.plugins.scala.extensions.*
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
@@ -23,7 +23,7 @@ import scala.collection.mutable
 
 class ReferencePassedToNlsInspection extends LocalInspectionTool {
 
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
     case element@(_: PsiReference | _: MethodInvocation) if isPassedToNls(element) =>
       resolveToNotNlsAnnotated(element).foreach {
         case Annotatable(ref) if isInProjectSource(ref) =>

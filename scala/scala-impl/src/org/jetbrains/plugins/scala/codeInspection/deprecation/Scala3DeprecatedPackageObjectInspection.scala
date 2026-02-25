@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.deprecation
 
 import com.intellij.codeInspection.{LocalInspectionTool, LocalQuickFix, ProblemsHolder}
 import com.intellij.modcommand.{ActionContext, ModCommandAction, ModPsiUpdater, PsiUpdateModCommandAction}
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import org.jetbrains.plugins.scala.codeInsight.unwrap.{ScalaUnwrapContext, ScalaUnwrapper}
 import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
@@ -12,7 +12,7 @@ class Scala3DeprecatedPackageObjectInspection extends LocalInspectionTool {
 
   import Scala3DeprecatedPackageObjectInspection._
 
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
     case obj: ScObject if obj.isPackageObject && obj.isInScala3Module =>
       val fix = unwrapPackageObjectQuickFix(obj).map(LocalQuickFix.from).toSeq
       holder.registerProblem(obj.nameId, message, fix: _*)

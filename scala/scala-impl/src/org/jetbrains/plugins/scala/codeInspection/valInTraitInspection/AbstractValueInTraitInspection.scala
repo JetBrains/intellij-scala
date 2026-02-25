@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.valInTraitInspection
 
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
 import com.intellij.openapi.project.DumbAware
+import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.{&, ObjectExt, Parent}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValueDeclaration, ScValueOrVariableDeclaration}
@@ -9,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
 
 final class AbstractValueInTraitInspection extends LocalInspectionTool with DumbAware {
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
     //todo: we should use dataflow analysis to get if it's safe to use declaration here
     case (v: ScValueOrVariableDeclaration) & Parent(_: ScTemplateBody) =>
       v.containingClass match {

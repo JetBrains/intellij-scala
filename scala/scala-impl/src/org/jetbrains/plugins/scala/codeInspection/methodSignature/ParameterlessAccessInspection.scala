@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.methodSignature
 
 import com.intellij.codeInspection._
-import com.intellij.psi.{PsiElement, PsiFile, PsiMethod}
+import com.intellij.psi.{PsiElement, PsiElementVisitor, PsiFile, PsiMethod}
 import org.jetbrains.plugins.scala.annotator.quickfix.AddCallParenthesesQuickFix
 import org.jetbrains.plugins.scala.codeInspection.PsiElementVisitorSimple
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -16,7 +16,7 @@ sealed abstract class ParameterlessAccessInspection extends LocalInspectionTool 
 
   import ParameterlessAccessInspection._
 
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
     case element if !isValid(element) =>
     case reference@ScReferenceExpression(method: PsiMethod) if isValid(method) =>
       val maybeTargetExpression = reference.getParent match {

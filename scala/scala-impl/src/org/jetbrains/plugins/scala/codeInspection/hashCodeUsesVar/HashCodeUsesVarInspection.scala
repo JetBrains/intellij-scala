@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable
 
 class HashCodeUsesVarInspection extends LocalInspectionTool {
 
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
     case hashCodeMethod: PsiMethod if MethodUtils.isHashCode(hashCodeMethod) =>
       hashCodeMethod.accept(new ScalaRecursiveElementVisitor {
         override def visitReferenceExpression(exp: ScReferenceExpression): Unit = {

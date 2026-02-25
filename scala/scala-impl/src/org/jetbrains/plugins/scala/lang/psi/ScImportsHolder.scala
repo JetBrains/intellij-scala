@@ -106,7 +106,9 @@ trait ScImportsHolder extends ScImportsOrExportsHolder {
     if (lastParent != null) {
       val prevImports = previousImports(lastParent)
 
-      if (!builtInHighlightingDisabledIn(getProject) && !incremental.Highlighting.enabledIn(getProject)) {
+      val project = getProject
+
+      if (!builtInHighlightingDisabledIn(project) && !incremental.Highlighting.enabledIn(project)) {
         //Resolve all references in previous import expressions in direct order to avoid SOE
         prevImports.foreach { importStmt =>
           ProgressManager.checkCanceled()

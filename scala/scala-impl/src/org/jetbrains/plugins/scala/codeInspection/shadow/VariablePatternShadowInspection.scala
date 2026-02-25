@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.shadow
 
 import com.intellij.codeInspection.{LocalInspectionTool, LocalQuickFix, ProblemsHolder}
 import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.codeInspection.quickfix.RenameElementQuickfix
 import org.jetbrains.plugins.scala.extensions.ObjectExt
@@ -15,7 +16,7 @@ class VariablePatternShadowInspection extends LocalInspectionTool {
 
   import VariablePatternShadowInspection._
 
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
     case refPat: ScReferencePattern if isInCaseClause(refPat) && doesShadowOtherPattern(refPat) =>
       val quickFixes = Array[LocalQuickFix](
         new ConvertToStableIdentifierPatternFix(refPat),

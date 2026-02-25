@@ -3,6 +3,7 @@ package codeInspection
 
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
 import com.intellij.openapi.project.{DumbAware, Project}
+import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
@@ -13,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
 import org.jetbrains.plugins.scala.project.ScalaFeatures
 
 final class SbtReplaceProjectWithProjectInInspection extends LocalInspectionTool with DumbAware {
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
     case defn: ScPatternDefinition if defn.getContainingFile.getFileType.getName == Sbt.Name =>
       (defn.expr, defn.bindings) match {
         case (Some(call: ScMethodCall), Seq(projectNamePattern: ScReferencePattern)) =>

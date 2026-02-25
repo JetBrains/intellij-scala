@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.booleans
 
 import com.intellij.codeInspection.{LocalInspectionTool, LocalQuickFix, ProblemsHolder}
 import com.intellij.modcommand.{ActionContext, ModCommand, PsiBasedModCommandAction}
+import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
@@ -14,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.ge
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 final class SimplifyBooleanInspection extends LocalInspectionTool {
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
     case _: ScParenthesisedExpr => //do nothing to avoid many similar expressions
     case expr: ScExpression if SimplifyBooleanUtil.canBeSimplified(expr) =>
       val fix = LocalQuickFix.from(new SimplifyBooleanQuickFix(expr))

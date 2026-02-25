@@ -6,13 +6,19 @@ import org.jetbrains.plugins.scala.incremental.Highlighting._
 
 class ScalaInspectionSuppressor extends InspectionSuppressor {
   override def isSuppressedFor(element: PsiElement, toolId: String): Boolean = {
-    if (!element.isVisible) return false
+    val file = element.getContainingFile
+    val project = if (file != null) file.getProject else element.getProject // Avoid tree walk-up
+
+    if (!element.isVisible(project, file)) return false
 
     ScalaSuppressableInspectionTool.findElementToolSuppressedIn(element, toolId).isDefined
   }
 
   override def getSuppressActions(element: PsiElement, toolShortName: String): Array[SuppressQuickFix] = {
-    if (!element.isVisible) return Array.empty
+    val file = element.getContainingFile
+    val project = if (file != null) file.getProject else element.getProject // Avoid tree walk-up
+
+    if (!element.isVisible(project, file)) return Array.empty
 
     ScalaSuppressableInspectionTool.suppressActions(toolShortName)
   }

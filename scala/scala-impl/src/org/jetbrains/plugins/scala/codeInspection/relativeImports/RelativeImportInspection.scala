@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.relativeImports
 import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo
 import com.intellij.codeInspection.{LocalInspectionTool, LocalQuickFix, ProblemDescriptor, ProblemsHolder}
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiPackage
+import com.intellij.psi.{PsiElementVisitor, PsiPackage}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
@@ -18,7 +18,7 @@ import scala.collection.mutable.ArrayBuffer
 class RelativeImportInspection extends LocalInspectionTool {
   import org.jetbrains.plugins.scala.codeInspection.relativeImports.RelativeImportInspection.qual
 
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
     case ScImportExpr.qualifier(qualifier) =>
       val q = qual(qualifier)
       val resolve = q.multiResolveScala(false)

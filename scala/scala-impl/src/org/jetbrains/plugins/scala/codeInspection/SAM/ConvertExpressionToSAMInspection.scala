@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.SAM
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.codeInspection.SAM.ConvertExpressionToSAMInspection._
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
@@ -21,7 +21,7 @@ import scala.collection.mutable
 
 class ConvertExpressionToSAMInspection extends LocalInspectionTool {
 
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
     case definition: ScNewTemplateDefinition
       if definition.isSAMEnabled && containsSingleFunction(definition) && !hasConstructorArgs(definition)  =>
       definition.expectedTypes().flatMap {

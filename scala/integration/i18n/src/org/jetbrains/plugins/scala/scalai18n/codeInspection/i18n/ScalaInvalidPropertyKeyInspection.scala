@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.*
 class ScalaInvalidPropertyKeyInspection extends LocalInspectionTool {
 
 
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
     case invoc@MethodInvocation(_, Seq(ScParenthesizedElement.InnermostElement(stringLit: ScStringLiteral), restArgs @ _*)) =>
       // check the property reference and the number of parameters passed
       val key = stringLit.getValue

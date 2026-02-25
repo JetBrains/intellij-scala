@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.functionExpressions
 
 import com.intellij.codeInspection.{LocalInspectionTool, LocalQuickFix, ProblemsHolder}
-import com.intellij.psi.{PsiClass, PsiFile}
+import com.intellij.psi.{PsiClass, PsiElementVisitor, PsiFile}
 import org.jetbrains.plugins.scala.codeInspection.functionExpressions.UnnecessaryPartialFunctionInspection._
 import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
@@ -22,7 +22,7 @@ object UnnecessaryPartialFunctionInspection {
 
 class UnnecessaryPartialFunctionInspection extends LocalInspectionTool {
 
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
     case expression: ScBlockExpr =>
       implicit val context: Context = Context(expression)
 

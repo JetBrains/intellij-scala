@@ -5,6 +5,7 @@ import com.intellij.codeInspection.ui.StringValidatorWithSwingSelector
 import com.intellij.codeInspection.{LocalInspectionTool, LocalQuickFix, ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
+import com.intellij.psi.PsiElementVisitor
 import one.util.streamex.StreamEx
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionInspectionBase._
@@ -72,7 +73,7 @@ object OperationOnCollectionInspectionBase {
 abstract class OperationOnCollectionInspectionBase extends LocalInspectionTool {
   private val settings = ScalaApplicationSettings.getInstance()
 
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
     case SimplifiableExpression(expr) => simplifications(expr).foreach {
       case s@Simplification(toReplace, _, hint, rangeInParent) =>
         val quickFix = LocalQuickFix.from(OperationOnCollectionQuickFix(s))

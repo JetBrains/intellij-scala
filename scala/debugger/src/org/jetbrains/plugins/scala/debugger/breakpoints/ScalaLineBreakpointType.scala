@@ -106,14 +106,17 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Debug
     res
   }
 
-  private def findContainingDefinition(elem: PsiElement, lambdas: Seq[PsiElement]): Option[PsiElement] =
+  private def findContainingDefinition(elem: PsiElement, lambdas: Seq[PsiElement]): Option[PsiElement] = {
+    val project = elem.getProject
+
     elem.withParentsInFile.collect {
-      case c if ScalaPositionManager.isLambda(c, typeAware(c)) => c
+      case c if ScalaPositionManager.isLambda(c, typeAware(project)) => c
       case m: PsiMethod => m
       case tb: ScTemplateBody => tb
       case ed: ScEarlyDefinitions => ed
       case c: ScClass => c
     }.find(!lambdas.contains(_))
+  }
 
   //noinspection InstanceOf
   override def matchesPosition(@NotNull breakpoint: LineBreakpoint[_], @NotNull position: SourcePosition): Boolean = {

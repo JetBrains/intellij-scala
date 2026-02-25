@@ -10,7 +10,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.ui.Messages
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple}
 import org.jetbrains.plugins.scala.extensions.*
@@ -29,7 +29,7 @@ import scala.annotation.unused
 //noinspection ScalaExtractStringToBundle
 class ScalaExtractStringToBundleInspection extends LocalInspectionTool {
 
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
     case element@AnyTopmostStringParts(parts) if !shouldBeIgnored(element) =>
       val isNaturalLang = containsNaturalLangString(element, parts)
 

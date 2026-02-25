@@ -17,7 +17,7 @@ final class ScalaDocUnbalancedHeaderInspection extends LocalInspectionTool with 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor =
     new ScalaElementVisitor {
       override def visitWikiSyntax(syntaxElement: ScDocSyntaxElement): Unit = {
-        if (!syntaxElement.isVisible) return
+        if (!syntaxElement.isVisible(holder.getProject, holder.getFile)) return
 
         val firstChild = syntaxElement.getFirstChild
         val lastChild = syntaxElement.getLastChild

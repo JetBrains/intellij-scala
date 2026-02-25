@@ -14,7 +14,7 @@ final class DangerousCatchAllInspection extends LocalInspectionTool with DumbAwa
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     new ScalaElementVisitor {
       override def visitCatchBlock(catchBlock: ScCatchBlock): Unit = {
-        if (!catchBlock.isVisible) return
+        if (!catchBlock.isVisible(holder.getProject, holder.getFile)) return
 
         catchBlock.expression match {
           case Some(block: ScBlockExpr) =>

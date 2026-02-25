@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.deprecation
 
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.DumbAware
+import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
@@ -9,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 final class ScalaDeprecatedIdentifierInspection extends LocalInspectionTool with DumbAware {
   import ScalaDeprecatedIdentifierInspection._
 
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
     case ref: ScReference if deprecatedNames.contains(ref.refName) =>
       holder.registerProblem(
         ref.nameId,

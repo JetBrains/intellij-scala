@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.booleans
 import com.intellij.codeInspection.{LocalInspectionTool, LocalQuickFix, ProblemsHolder}
 import com.intellij.modcommand.{ActionContext, ModCommand, PsiBasedModCommandAction}
 import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.codeInspection.booleans.SimplifyBooleanUtil.isOfBooleanType
 import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.StringExt
@@ -18,7 +19,7 @@ import scala.language.implicitConversions
 
 class SimplifyBooleanMatchInspection extends LocalInspectionTool {
 
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
     case stmt: ScMatch if stmt.isValid && SimpleBooleanMatchUtil.isSimpleBooleanMatchStmt(stmt) =>
       val toHighlight = stmt.findFirstChildByType(ScalaTokenTypes.kMATCH).getOrElse(stmt)
       val fix = LocalQuickFix.from(new SimplifyBooleanMatchToIfStmtQuickFix(stmt))

@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.booleans
 import com.intellij.codeInspection.{LocalInspectionTool, LocalQuickFix, ProblemsHolder}
 import com.intellij.modcommand.{ActionContext, ModCommand, PsiBasedModCommandAction}
 import com.intellij.openapi.project.DumbAware
+import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr, ScParenthesisedExpr, ScPrefixExpr}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
@@ -11,7 +12,7 @@ import scala.annotation.tailrec
 import scala.collection.mutable
 
 final class DoubleNegationInspection extends LocalInspectionTool with DumbAware {
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
     case expr: ScExpression if DoubleNegationUtil.hasDoubleNegation(expr) =>
       val fix = LocalQuickFix.from(new DoubleNegationQuickFix(expr))
       holder.registerProblem(expr, ScalaInspectionBundle.message("displayname.double.negation"), fix)

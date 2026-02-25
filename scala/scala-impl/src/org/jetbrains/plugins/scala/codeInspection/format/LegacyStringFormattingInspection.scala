@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.format
 
 import com.intellij.codeInspection._
 import com.intellij.modcommand.{ActionContext, ModPsiUpdater, PsiUpdateModCommandAction}
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import org.jetbrains.plugins.scala.codeInspection.format.LegacyStringFormattingInspection._
 import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.format._
@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
 
 class LegacyStringFormattingInspection extends LocalInspectionTool {
 
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
     case element@ConcatenationOrFormattingTopmostStringParts(parts) if parts.sizeIs > 1 =>
       val fix = LocalQuickFix.from(new FormattingQuickFix(element))
       holder.registerProblem(element, ScalaInspectionBundle.message("legacy.string.formatting.use.interpolated.string"), fix)

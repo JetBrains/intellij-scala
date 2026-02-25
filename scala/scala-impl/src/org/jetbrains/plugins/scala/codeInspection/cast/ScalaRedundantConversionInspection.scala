@@ -4,7 +4,7 @@ import com.intellij.codeInspection.ex.ProblemDescriptorImpl
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.{PsiElement, PsiMethod}
+import com.intellij.psi.{PsiElement, PsiElementVisitor, PsiMethod}
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnTwoPsiElements, PsiElementVisitorSimple, ScalaInspectionBundle, conformsToTypeFromClass}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScPostfixExpr, ScReferenceExpression, ScUnderscoreSection}
@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScTypeExt, TypePrese
 
 class ScalaRedundantConversionInspection extends LocalInspectionTool {
 
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
     case element @ ScReferenceExpression.withQualifier(qualifier) & PsiReferenceEx.resolve(target) =>
       process(element, qualifier, target, qualifier.getTextLength, holder)
     case element @ ScPostfixExpr(operand, operator @ PsiReferenceEx.resolve(target)) =>

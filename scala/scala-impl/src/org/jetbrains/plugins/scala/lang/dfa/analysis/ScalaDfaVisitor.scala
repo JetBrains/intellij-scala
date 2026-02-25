@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.dfa.analysis
 
+import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.incremental.Highlighting._
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
@@ -10,20 +12,20 @@ import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
 import scala.util.Success
 
-class ScalaDfaVisitor(val run: ScFunctionDefinition => Unit) extends ScalaElementVisitor {
+class ScalaDfaVisitor(project: Project, file: PsiFile, val run: ScFunctionDefinition => Unit) extends ScalaElementVisitor {
   override def visitFunctionDefinition(function: ScFunctionDefinition): Unit = {
-    if (!function.isVisible) return
+    if (!function.isVisible(project, file)) return
 
     run(function)
   }
 }
 
 object ScalaDfaVisitor {
-  class AsyncProvider {
+  class AsyncProvider(project: Project, file: PsiFile) {
     private val mutex = new Object
     private val pendingFutures = ArrayBuffer[(Future[Option[ScalaDfaResult]], ScalaDfaResult => Unit)]()
 
-    def visitor(report: ScalaDfaResult => Unit) = new ScalaDfaVisitor(processFunctionDef(report))
+    def visitor(report: ScalaDfaResult => Unit) = new ScalaDfaVisitor(project, file, processFunctionDef(report))
 
     def finish(): Unit = mutex.synchronized {
 //      println(s"[$this] Finishing ${pendingFutures.size} pending futures")

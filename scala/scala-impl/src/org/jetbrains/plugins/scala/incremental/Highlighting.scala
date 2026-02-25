@@ -38,13 +38,11 @@ object Highlighting {
   }
 
   implicit class ElementHighlightingExt(private val e: PsiElement) extends AnyVal {
-    def isVisible: Boolean = {
-      val containingFile = e.getContainingFile
-      val project = if (containingFile != null) containingFile.getProject else e.getProject // Avoid tree walk-up
-
+    // The parameters are for optimization: e.getProject and e.getContainingFile require tree walk-up and checkCanceled, see SCL-25054
+    def isVisible(project: Project, @Nullable file: PsiFile): Boolean = {
       if (builtInHighlightingDisabledIn(project)) return false
 
-      !enabledIn(project) || (containingFile != null && VisibleRange.isVisible(project, containingFile, e.getTextRange))
+      !enabledIn(project) || (file != null && VisibleRange.isVisible(project, file, e.getTextRange))
     }
   }
 }
