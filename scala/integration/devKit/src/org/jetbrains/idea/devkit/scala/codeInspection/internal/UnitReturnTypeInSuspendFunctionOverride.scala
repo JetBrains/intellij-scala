@@ -1,7 +1,7 @@
 package org.jetbrains.idea.devkit.scala.codeInspection.internal
 
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
-import com.intellij.psi.{PsiClass, PsiClassType, PsiMethod, PsiType, PsiWildcardType}
+import com.intellij.psi.{PsiClass, PsiClassType, PsiElementVisitor, PsiMethod, PsiType, PsiWildcardType}
 import org.jetbrains.idea.devkit.scala.ScalaDevkitBundle
 import org.jetbrains.idea.devkit.scala.codeInspection.internal.UnitReturnTypeInSuspendFunctionOverride.isSuspendFunction
 import org.jetbrains.plugins.scala.codeInspection.PsiElementVisitorSimple
@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
 final class UnitReturnTypeInSuspendFunctionOverride extends LocalInspectionTool {
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
     case function: ScFunction if function.hasModifierPropertyScala(ScalaModifier.OVERRIDE) && function.hasUnitResultType =>
       function.superMethod.foreach { method =>
         if (isSuspendFunction(method)) {

@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.worksheet.ammonite
 
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.codeInspection.PsiElementVisitorSimple
 import org.jetbrains.plugins.scala.extensions.implementation.iterator.ParentsIterator
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -10,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, 
 import org.jetbrains.plugins.scala.worksheet.WorksheetBundle
 
 class AmmoniteUnresolvedLibraryInspection extends LocalInspectionTool {
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
     case stableRef: ScStableCodeReference => processExpr(stableRef, stableRef.qualifier, holder)
     case selector: ScImportSelector =>
       new ParentsIterator(selector).find {

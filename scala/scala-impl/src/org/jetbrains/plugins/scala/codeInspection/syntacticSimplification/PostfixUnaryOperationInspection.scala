@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.syntacticSimplification
 
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
 import com.intellij.openapi.project.{DumbAware, Project}
+import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.PostfixUnaryOperationInspection.{createQuickfix, isPostfixUnaryOperation}
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnTwoPsiElements, PsiElementVisitorSimple, ScalaInspectionBundle}
@@ -9,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScPostfixExp
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 final class PostfixUnaryOperationInspection extends LocalInspectionTool with DumbAware {
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
     case ref: ScReferenceExpression if isPostfixUnaryOperation(ref) =>
       holder.registerProblem(ref.nameId, getDisplayName, createQuickfix(ref, ref.qualifier.get, ref.refName))
     case postfix: ScPostfixExpr if isPostfixUnaryOperation(postfix) =>

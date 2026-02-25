@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.monads
 
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
+import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle, conformsToTypeFromClass}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
@@ -13,7 +14,7 @@ final class NestedStatefulMonadsInspection extends LocalInspectionTool {
 
   import NestedStatefulMonadsInspection._
 
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
     case call: ScMethodCall =>
       import call.projectContext
       implicit val context: Context = Context(call)

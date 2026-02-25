@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.controlFlow
 import com.intellij.codeInspection._
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.{PsiComment, PsiWhiteSpace}
+import com.intellij.psi.{PsiComment, PsiElementVisitor, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.codeInspection.controlFlow.ScalaUnusedExpressionInspection.{HasSideEffects, NoSideEffects, OnlyThrows, RangeCollector, SideEffectKind, createQuickFixes}
 import org.jetbrains.plugins.scala.codeInspection.quickfix.RemoveExpressionQuickFix
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle, expressionResultIsNotUsed, findDefiningFunction, isUnitFunction}
@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.util.SideEffectsUtil.{hasNoSideEffects, hasNo
 import scala.collection.mutable
 
 final class ScalaUnusedExpressionInspection extends LocalInspectionTool {
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
       case expression: ScExpression if IntentionAvailabilityChecker.checkInspection(this, expression.getParent) &&
         expressionResultIsNotUsed(expression) =>
 

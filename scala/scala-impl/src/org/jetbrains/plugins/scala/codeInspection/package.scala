@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala
 
+import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.{FileEditorManager, TextEditor}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiClass, PsiElement, PsiElementVisitor}
+import com.intellij.psi.{PsiClass, PsiElement, PsiElementVisitor, PsiFile}
 import org.jetbrains.plugins.scala.incremental.Highlighting._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
@@ -99,13 +100,27 @@ package object codeInspection {
     }
   }
 
+  @deprecated("Use PsiElementVisitorSimple(holder) factory method")
   abstract class PsiElementVisitorSimple extends PsiElementVisitor {
     override final def visitElement(element: PsiElement): Unit = {
-      if (!element.isVisible) return
+      val file = element.getContainingFile
+      val project = if (file != null) file.getProject else element.getProject // Avoid tree walk-up
+
+      if (!element.isVisible(project, file)) return
 
       visitPsiElement(element)
     }
 
     def visitPsiElement(element: PsiElement): Unit
+  }
+
+  object PsiElementVisitorSimple {
+    def apply(holder: ProblemsHolder)(f: PsiElement => Unit): PsiElementVisitor = new PsiElementVisitor {
+      override def visitElement(element: PsiElement): Unit = {
+        if (!element.isVisible(holder.getProject, holder.getFile)) return
+
+        f(element)
+      }
+    }
   }
 }

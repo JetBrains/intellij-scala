@@ -22,7 +22,7 @@ class ScalaWrongPlatformMethodsUsageInspection extends LocalInspectionTool {
 
     new ScalaElementVisitor {
       override def visitReferenceExpression(ref: ScReferenceExpression): Unit = {
-        if (!ref.isVisible) return
+        if (!ref.isVisible(holder.getProject, holder.getFile)) return
 
         val resolve = ref.resolve()
 

@@ -17,7 +17,7 @@ final class ScalaXmlUnmatchedTagInspection extends LocalInspectionTool with Dumb
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     new ScalaElementVisitor {
       override def visitXmlStartTag(s: ScXmlStartTag): Unit = {
-        if (!s.isVisible) return
+        if (!s.isVisible(holder.getProject, holder.getFile)) return
 
         if (s.getTextRange.isEmpty) return
 
@@ -33,7 +33,7 @@ final class ScalaXmlUnmatchedTagInspection extends LocalInspectionTool with Dumb
       }
 
       override def visitXmlEndTag(s: ScXmlEndTag): Unit = {
-        if (!s.isVisible) return
+        if (!s.isVisible(holder.getProject, holder.getFile)) return
 
         def register(fixes: LocalQuickFix*): Unit =
           holder.registerProblem(s, ScalaBundle.message("xml.no.opening.tag"), fixes: _*)

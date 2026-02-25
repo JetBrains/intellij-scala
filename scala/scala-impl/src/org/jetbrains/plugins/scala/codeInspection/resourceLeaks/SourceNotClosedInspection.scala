@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.resourceLeaks
 
 import com.intellij.codeInspection._
+import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.codeInspection._
 import org.jetbrains.plugins.scala.codeInspection.collections.{MethodRepr, Qualified, invocation, unqualifed}
 import org.jetbrains.plugins.scala.extensions._
@@ -10,7 +11,7 @@ import scala.collection.immutable.ArraySeq
 
 class SourceNotClosedInspection extends LocalInspectionTool {
 
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
     case element@MethodRepr(_, Some(SourceCreatingMethod(_)), _, _) & NonClosingMethodOfSource() =>
       holder.registerProblem(element, ScalaInspectionBundle.message("source.not.closed"))
 

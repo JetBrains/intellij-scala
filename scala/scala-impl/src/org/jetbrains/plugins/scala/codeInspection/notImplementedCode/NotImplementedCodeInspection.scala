@@ -4,14 +4,14 @@ import com.intellij.codeInsight.CodeInsightUtilCore
 import com.intellij.codeInsight.template.TemplateBuilderImpl
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import org.jetbrains.plugins.scala.annotator.TemplateUtils
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions._
 
 class NotImplementedCodeInspection extends LocalInspectionTool {
 
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
     case reference @ ReferenceTarget(Member("???", "scala.Predef")) =>
       holder.registerProblem(reference, ScalaInspectionBundle.message("not.implemented"), new ImplementQuickFix(reference))
     case _ =>

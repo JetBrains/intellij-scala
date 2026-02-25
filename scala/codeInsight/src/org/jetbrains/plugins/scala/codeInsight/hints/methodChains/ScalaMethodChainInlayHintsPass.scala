@@ -41,7 +41,7 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
         gatherMethodChainHints(editor, root)
       }
 
-  private def gatherMethodChainHints(editor: Editor, root: PsiElement): Seq[(Seq[AlignedHintTemplate], ScExpression)] = {
+  private def gatherMethodChainHints(editor: Editor, root: PsiFile): Seq[(Seq[AlignedHintTemplate], ScExpression)] = {
     val document = editor.getDocument
     val minChainCount = math.max(2, settings.uniqueTypesToShowMethodChains)
     val builder = Seq.newBuilder[(Seq[AlignedHintTemplate], ScExpression)]
@@ -50,7 +50,7 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
       implicit val tpc: TypePresentationContext = TypePresentationContext(elem)
       implicit val context: Context = Context(elem)
 
-      if (!elem.isVisible) return Set.empty
+      if (!elem.isVisible(editor.getProject, root)) return Set.empty
 
       var occupiedLines = Set.empty[Int]
       for (child <- elem.children)

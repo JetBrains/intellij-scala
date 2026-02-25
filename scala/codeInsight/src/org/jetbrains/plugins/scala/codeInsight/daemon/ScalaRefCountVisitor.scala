@@ -30,7 +30,7 @@ final class ScalaRefCountVisitor(project: Project) extends HighlightVisitor {
     HighlightingAdvisor.shouldInspect(file)
 
   override def visit(element: PsiElement): Unit = {
-    if (builtInHighlightingDisabledIn(element.getProject) || incremental.Highlighting.enabledIn(project)) return
+    if (builtInHighlightingDisabledIn(project) || incremental.Highlighting.enabledIn(project)) return
 
     registerElementsAndImportsUsed(element)
   }

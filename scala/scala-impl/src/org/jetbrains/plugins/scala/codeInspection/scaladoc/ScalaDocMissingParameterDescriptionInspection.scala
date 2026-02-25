@@ -18,7 +18,7 @@ final class ScalaDocMissingParameterDescriptionInspection extends LocalInspectio
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     new ScalaElementVisitor {
       override def visitTag(tag: ScDocTag): Unit = {
-        if (!tag.isVisible) return
+        if (!tag.isVisible(holder.getProject, holder.getFile)) return
 
         if (!TagNamesWithValueElement.contains(tag.name))
           return

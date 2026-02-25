@@ -30,7 +30,7 @@ final class PrivateShadowInspection extends LocalInspectionTool {
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = new PsiElementVisitor {
     override def visitElement(element: PsiElement): Unit = {
-      if (!element.isVisible) return
+      if (!element.isVisible(holder.getProject, holder.getFile)) return
 
       element match {
         case elem: ScNamedElement if

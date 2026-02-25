@@ -35,7 +35,7 @@ class FunctionTupleSyntacticSugarInspection extends LocalInspectionTool {
 
     new ScalaElementVisitor {
       override def visitScalaElement(elem: ScalaPsiElement): Unit = {
-        if (!elem.isVisible) return
+        if (!elem.isVisible(holder.getProject, holder.getFile)) return
 
         elem match {
           case te: ScParameterizedTypeElement =>

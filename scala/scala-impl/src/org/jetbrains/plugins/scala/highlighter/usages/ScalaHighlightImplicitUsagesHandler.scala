@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.highlighter.usages
 
 import com.intellij.codeInsight.highlighting.{HighlightUsagesHandler, HighlightUsagesHandlerBase}
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.{PsiElement, PsiFile, PsiNamedElement, PsiReference, ReferenceRange}
@@ -35,7 +36,7 @@ class ScalaHighlightImplicitUsagesHandler[T](editor: Editor, file: PsiFile, data
   override def computeUsages(targets: util.List[_ <: PsiElement]): Unit = {
     import ScalaHighlightImplicitUsagesHandler._
     val usages = targets.asScala
-      .flatMap(findUsages(file, _))
+      .flatMap(findUsages(editor.getProject, file, _))
       .flatMap(ReferenceRange.getAbsoluteRanges(_).asScala)
     val targetIds = targets.asScala.flatMap(nameId)
     myReadUsages.addAll((targetIds ++ usages).asJava)
@@ -142,7 +143,7 @@ object ScalaHighlightImplicitUsagesHandler {
     }
   }
 
-  private def findUsages(file: PsiFile, target: PsiElement): Seq[PsiReference] = {
+  private def findUsages(project: Project, file: PsiFile, target: PsiElement): Seq[PsiReference] = {
     val useScope = target.getUseScope
     if (!useScope.contains(file.getVirtualFile)) return Seq.empty
 
@@ -152,7 +153,7 @@ object ScalaHighlightImplicitUsagesHandler {
     }
 
     file
-      .elements(_.isVisible)
+      .elements(_.isVisible(project, file))
       .filter(inUseScope)
       .flatMap(target.refOrImplicitRefIn)
       .toSeq

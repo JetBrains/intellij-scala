@@ -19,7 +19,7 @@ final class ScalaDocUnknownTagInspection extends LocalInspectionTool with DumbAw
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     new ScalaElementVisitor {
       override def visitTag(tag: ScDocTag): Unit = {
-        if (!tag.isVisible) return
+        if (!tag.isVisible(holder.getProject, holder.getFile)) return
 
         val tagNameElement = tag.getNameElement
         if (tagNameElement == null) return

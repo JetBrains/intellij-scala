@@ -4,7 +4,7 @@ import com.intellij.codeInsight.daemon.HighlightDisplayKey
 import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo
 import com.intellij.codeInspection._
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
@@ -20,7 +20,7 @@ import scala.annotation.nowarn
 class TypeAnnotationInspection extends LocalInspectionTool {
   import TypeAnnotationInspection._
 
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
     case value: ScPatternDefinition if value.isSimple && !value.hasExplicitType =>
       inspect(value, value.bindings.head, value.expr, holder)
     case variable: ScVariableDefinition if variable.isSimple && !variable.hasExplicitType =>

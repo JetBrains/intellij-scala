@@ -42,7 +42,7 @@ trait RangeInlayHintsPass {
       }
 
   private def gatherRangeHints(editor: Editor, root: PsiFile): Seq[HintTemplate] =
-    root.elements(_.isVisible).flatMap {
+    root.elements(_.isVisible(editor.getProject, root)).flatMap {
       case ScInfixExpr(left, ref, right@InfixArgs(args)) if settings.showRangeHintsForToAndUntil =>
         val upperOffset = args match {
           case Seq(first, _) => first.startOffset

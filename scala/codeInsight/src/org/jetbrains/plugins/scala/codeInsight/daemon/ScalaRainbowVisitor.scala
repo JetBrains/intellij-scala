@@ -34,7 +34,10 @@ final class ScalaRainbowVisitor extends RainbowVisitor {
   }
 
   override def visit(element: PsiElement): Unit = {
-    if (!element.isVisible) return
+    val file = element.getContainingFile
+    val project = if (file != null) file.getProject else element.getProject // Avoid tree walk-up
+
+    if (!element.isVisible(project, file)) return
 
     Some(element).collect {
       case tagValue: ScDocTagValue => (tagValue, tagValue)

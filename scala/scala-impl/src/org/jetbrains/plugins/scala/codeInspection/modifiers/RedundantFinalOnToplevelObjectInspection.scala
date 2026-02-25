@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.modifiers
 
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
 import com.intellij.openapi.project.DumbAware
-import com.intellij.psi.PsiFile
+import com.intellij.psi.{PsiElementVisitor, PsiFile}
 import org.jetbrains.plugins.scala.codeInspection.PsiElementVisitorSimple
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaModifier, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile}
@@ -19,7 +19,7 @@ final class RedundantFinalOnToplevelObjectInspection extends LocalInspectionTool
       false
   }
 
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
     case obj@ScObject.withModifierList(ml) if obj.isTopLevel && ml.isFinal =>
       val finalModifier = ml.findFirstChildByType(ScalaTokenTypes.kFINAL).getOrElse(obj.targetToken)
       val quickFix = new SetModifierQuickfix(obj, ScalaModifier.Final, set = false)

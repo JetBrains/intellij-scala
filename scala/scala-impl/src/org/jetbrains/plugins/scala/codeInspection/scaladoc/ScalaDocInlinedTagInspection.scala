@@ -19,7 +19,7 @@ final class ScalaDocInlinedTagInspection extends LocalInspectionTool with DumbAw
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor =
     new ScalaElementVisitor {
       override def visitInlinedTag(inlinedTag: ScDocInlinedTag): Unit = {
-        if (!inlinedTag.isVisible) return
+        if (!inlinedTag.isVisible(holder.getProject, holder.getFile)) return
 
         val problem = holder.getManager.createProblemDescriptor(
           inlinedTag, getDisplayName, true,

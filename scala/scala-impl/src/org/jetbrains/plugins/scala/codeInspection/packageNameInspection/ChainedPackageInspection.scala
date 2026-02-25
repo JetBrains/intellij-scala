@@ -22,7 +22,7 @@ class ChainedPackageInspection extends LocalInspectionTool {
       case file: ScalaFile =>
         val maybeProblemDescriptor = for {
           firstPackaging <- file.firstPackaging
-          if firstPackaging.isVisible
+          if firstPackaging.isVisible(manager.getProject, file)
           module <- file.module
           basePackage = ScalaProjectSettings.getInstance(file.getProject).getBasePackageFor(module)
           if basePackage.nonEmpty && firstPackaging.packageName != basePackage && (firstPackaging.packageName + ".").startsWith(basePackage + ".")

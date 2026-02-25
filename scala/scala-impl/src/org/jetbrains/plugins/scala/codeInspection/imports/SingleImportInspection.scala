@@ -17,7 +17,7 @@ class SingleImportInspection extends LocalInspectionTool {
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     new ScalaElementVisitor {
       override def visitImportExpr(importExpr: ScImportExpr): Unit = {
-        if (!importExpr.isVisible) return
+        if (!importExpr.isVisible(holder.getProject, holder.getFile)) return
 
         importExpr.selectorSet.foreach {
           case selectorSet@ScImportSelectors(selector) if selectorSet.getFirstChild.elementType == ScalaTokenTypes.tLBRACE =>

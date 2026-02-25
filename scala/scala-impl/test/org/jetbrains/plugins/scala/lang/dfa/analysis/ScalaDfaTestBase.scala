@@ -34,7 +34,7 @@ abstract class ScalaDfaTestBase extends ScalaLightCodeInsightFixtureTestCase wit
         .foreach(report)
     }
 
-    val dfaVisitor = new ScalaDfaVisitor(runDfa)
+    val dfaVisitor = new ScalaDfaVisitor(getProject, actualFile, runDfa)
 
     actualFile.accept(new ScalaRecursiveElementVisitor {
       override def visitScalaElement(element: ScalaPsiElement): Unit = {

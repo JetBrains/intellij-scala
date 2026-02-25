@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.forwardReferenceInspection
 
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInspection.PsiElementVisitorSimple
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt}
@@ -13,7 +13,7 @@ class ForwardReferenceInspection extends LocalInspectionTool {
 
   import ForwardReferenceInspection._
 
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
     case ref: ScReferenceExpression if isDirectContextRef(ref) =>
       val maybeResolved = ref.bind()
         .map(_.getActualElement)

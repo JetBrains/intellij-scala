@@ -21,7 +21,7 @@ final class ScalaDocUnclosedTagWithoutParserInspection extends LocalInspectionTo
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     new ScalaElementVisitor {
       override def visitWikiSyntax(s: ScDocSyntaxElement): Unit = {
-        if (!s.isVisible) return
+        if (!s.isVisible(holder.getProject, holder.getFile)) return
 
         val firstElementType = s.getFirstChild.getNode.getElementType
         if (!ScalaDocSyntaxElementType.canClose(firstElementType,

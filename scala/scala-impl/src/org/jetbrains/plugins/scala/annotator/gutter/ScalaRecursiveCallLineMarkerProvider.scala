@@ -28,8 +28,11 @@ class ScalaRecursiveCallLineMarkerProvider extends LineMarkerProvider {
                                       result: util.Collection[_ >: LineMarkerInfo[_]]): Unit = {
     if (!GutterUtil.RecursionOption.isEnabled) return
 
+    lazy val file = elements.getFirst.getContainingFile
+    lazy val project = if (file != null) file.getProject else elements.getFirst.getProject // Avoid tree walk-up
+
     val visitedLines = mutable.HashSet.empty[Int]
-    elements.asScala.filter(_.isVisible).foreach { element =>
+    elements.asScala.filter(_.isVisible(project, file)).foreach { element =>
       ProgressManager.checkCanceled()
       val lineNumber = element.getLineNumber
       element match {

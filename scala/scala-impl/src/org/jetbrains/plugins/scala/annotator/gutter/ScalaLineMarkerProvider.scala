@@ -44,7 +44,10 @@ final class ScalaLineMarkerProvider extends LineMarkerProviderDescriptor {
   import ScalaMarkerType._
 
   override def getLineMarkerInfo(element: PsiElement): LineMarkerInfo[_ <: PsiElement] = {
-    if (!builtInHighlightingDisabledIn(element.getProject) && !element.isVisible) return null
+    val file = element.getContainingFile
+    val project = if (file != null) file.getProject else element.getProject // Avoid tree walk-up
+
+    if (!builtInHighlightingDisabledIn(project) && !element.isVisible(project, file)) return null
 
     if (element.isValid) {
       val lineMarkerInfo =
@@ -201,7 +204,10 @@ final class ScalaLineMarkerProvider extends LineMarkerProviderDescriptor {
                                       result: ju.Collection[_ >: LineMarkerInfo[_]]): Unit = {
     import scala.jdk.CollectionConverters._
 
-    val markersSam = elements.asScala.filter(_.isValid).filter(_.isVisible).flatMap { element =>
+    lazy val file = elements.getFirst.getContainingFile
+    lazy val project = if (file != null) file.getProject else elements.getFirst.getProject // Avoid tree walk-up
+
+    val markersSam = elements.asScala.filter(_.isValid).filter(_.isVisible(project, file)).flatMap { element =>
       getImplementsSAMTypeMarker(element).map(augmentSeparatorInfo(element, _))
     }
     markersSam.foreach(result.add)
@@ -212,7 +218,7 @@ final class ScalaLineMarkerProvider extends LineMarkerProviderDescriptor {
 
     ApplicationManager.getApplication.assertReadAccessAllowed()
 
-    val identifiers = elements.asScala.filter(_.isVisible).filter(_.elementType == ScalaTokenTypes.tIDENTIFIER)
+    val identifiers = elements.asScala.filter(_.isVisible(project, file)).filter(_.elementType == ScalaTokenTypes.tIDENTIFIER)
     val markers = identifiers.flatMap { identifier =>
       ProgressManager.checkCanceled()
       val context = identifier.parent match {

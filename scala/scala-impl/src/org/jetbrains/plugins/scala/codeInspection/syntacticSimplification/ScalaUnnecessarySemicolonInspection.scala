@@ -18,7 +18,7 @@ final class ScalaUnnecessarySemicolonInspection extends LocalInspectionTool with
       def shiftInNewFile(offset: Int, semicolonOffset: Int): Int = offset + (if (offset > semicolonOffset) 1 else 0)
 
       override def visitElement(element: PsiElement): Unit = {
-        if (!element.isVisible) return
+        if (!element.isVisible(holder.getProject, holder.getFile)) return
 
         if (element.elementType == ScalaTokenTypes.tSEMICOLON) {
           val file = element.getContainingFile

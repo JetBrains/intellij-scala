@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.typeChecking
 
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
-import com.intellij.psi.PsiMethod
+import com.intellij.psi.{PsiElementVisitor, PsiMethod}
 import com.siyeh.ig.psiutils.MethodUtils
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
@@ -131,7 +131,7 @@ object ComparingUnrelatedTypesInspection {
 
 class ComparingUnrelatedTypesInspection extends LocalInspectionTool {
 
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
     case e if e.isInScala3File => () // TODO Handle Scala 3 code (`CanEqual` instances, etc.), SCL-19722
     case MethodRepr(expr, Some(left), Some(oper), Seq(right)) if isComparingFunctions(oper.refName) =>
       implicit val context: Context = Context(expr)

@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.internal
 
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
 import com.intellij.openapi.module.ModuleUtilCore
-import com.intellij.psi.{PsiDocCommentOwner, PsiElement}
+import com.intellij.psi.{PsiDocCommentOwner, PsiElement, PsiElementVisitor}
 import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.codeInspection.internal.ApiStatusInspection._
 import org.jetbrains.plugins.scala.extensions._
@@ -15,7 +15,7 @@ class ApiStatusInspection extends LocalInspectionTool {
   private def elementsAreInTheSameModule(e1: PsiElement, e2: PsiElement): Boolean =
     ModuleUtilCore.findModuleForPsiElement(e1) == ModuleUtilCore.findModuleForPsiElement(e2)
 
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
     case fun: ScFunction =>
       fun.superMethod.collectFirst {
         case Status(status) & sup if !elementsAreInTheSameModule(fun, sup) =>

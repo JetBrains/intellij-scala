@@ -25,7 +25,7 @@ abstract class ScHighlightEndMarkerUsagesHandler private(element: ScalaPsiElemen
     myReadUsages.add(elementNameId.getTextRange)
 
     element.containingFile.foreach { file =>
-      file.elements(_.isVisible)
+      file.elements(_.isVisible(editor.getProject, file))
         .filterByType[ScReference]
         .filter(_.isReferenceTo(element))
         .map(_.getTextRange)
