@@ -23,7 +23,6 @@ class ScalaLibrary_3_8_Test extends TextToTextTestBase(
     "scala.collection.mutable.CheckedIndexedSeqView", // Id | Id[Nothing]
     "scala.collection.mutable.CollisionProofHashMap", // Cannot resolve CollisionProofHashMap.LLNode[K, V]
     "scala.concurrent.impl.Promise", // ? => ? | Function1[?, ?]
-    "scala.sys.process.ProcessImpl", // Unknown type
   ),
   withSources = true,
   sourceExceptions = Set(
@@ -62,6 +61,7 @@ class ScalaLibrary_3_8_Test extends TextToTextTestBase(
     "scala.quoted.runtime.QuoteMatching", // ? <: _root_.scala.AnyKind | ?
     "scala.quoted.runtime.QuoteUnpickler", // ? <: _root_.scala.AnyKind | ?
     "scala.sys.process.ProcessBuilderImpl", // ProcessBuilderImpl.this.IStreamBuilder | _root_.scala.sys.process.ProcessBuilder.IStreamBuilder
+    "scala.sys.process.ProcessImpl", // ProcessImpl.this.SequentialProcess | _root_.scala.sys.process.Process.SequentialProcess
     "scala.sys.process.processInternal", // : Boolean | = props contains "scala.process.debug"
   ),
   transformed = {
