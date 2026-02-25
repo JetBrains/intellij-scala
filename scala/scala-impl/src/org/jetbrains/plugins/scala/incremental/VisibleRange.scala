@@ -34,6 +34,7 @@ private object VisibleRange {
     val document = PsiDocumentManager.getInstance(project).getDocument(psiFile)
     if (document == null) return Seq.empty
 
+    // Note that we should also include Diff Viewer editors
     EditorFactory.getInstance.getEditors(document).toSeq
   }
 
