@@ -5,12 +5,16 @@ import settings.ScalaProjectSettings
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.project.ProjectExt
 
 // SCL-23216
 object Highlighting {
+  // All Scala editors (including in Diff Viewer). Accessed from multiple threads. Faster than EditorFactory.getEditors.
+  @volatile
+  private[incremental] var editors = Set.empty[Editor]
+
   private[incremental] var editor: Editor = _
 
   private[incremental] var suppress: Boolean = false

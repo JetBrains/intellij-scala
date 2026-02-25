@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package incremental
 
-import com.intellij.openapi.editor.{Editor, EditorFactory, LogicalPosition}
+import com.intellij.openapi.editor.{Editor, LogicalPosition}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.util.{Key, TextRange}
@@ -30,12 +30,11 @@ private object VisibleRange {
     region1 == region2
   }
 
-  private[incremental] def editorsFor(project: Project, psiFile: PsiFile): Seq[Editor] = {
+  private[incremental] def editorsFor(project: Project, psiFile: PsiFile): Iterable[Editor] = {
     val document = PsiDocumentManager.getInstance(project).getDocument(psiFile)
     if (document == null) return Seq.empty
 
-    // Note that we should also include Diff Viewer editors
-    EditorFactory.getInstance.getEditors(document).toSeq
+    Highlighting.editors.filter(_.getDocument == document)
   }
 
   def saveIn(editor: Editor): Unit = {
