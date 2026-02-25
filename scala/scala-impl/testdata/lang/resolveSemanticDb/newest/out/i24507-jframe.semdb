@@ -1,0 +1,6 @@
+Document tests/pos/i24507-jframe.scala
+(1:20..1:25) javax/
+(1:26..1:31) javax/swing/
+(1:32..1:38) javax/swing/JFrame#
+(1:59..1:75) javax/swing/JFrame#AccessibleJFrame#
+
