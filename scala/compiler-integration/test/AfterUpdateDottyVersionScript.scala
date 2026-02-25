@@ -98,7 +98,7 @@ class AfterUpdateDottyVersionScript {
 
 object AfterUpdateDottyVersionScript {
   private val scala3_repo_lts_branch = "lts-3.3"
-  private val scala3_repo_newest_branch = "release-3.8.1"
+  private val scala3_repo_newest_branch = "release-3.8.2"
 
   private val scala3_lts_module_name = "scala3-bootstrapped"
   private val scala3_newest_module_name = "scala3-bootstrapped-new"
@@ -832,13 +832,15 @@ object AfterUpdateDottyVersionScript {
         |i19907_slow_1000_3.scala
         |i19907_slow_1000_4.scala
         |
-        |# lts-3.3 and 3.8.0
+        |# lts-3.3 and 3.8.2
         |i18263.orig.scala
         |i15827.scala
         |i15743.moregadt.scala
         |i19955b.scala
         |extend-java-enum.scala
         |i13044.scala
+        |i24543.scala
+        |i23225.scala
         |i17230.bootstrap.scala
         |i21390.zio.scala
         |i19955a.scala

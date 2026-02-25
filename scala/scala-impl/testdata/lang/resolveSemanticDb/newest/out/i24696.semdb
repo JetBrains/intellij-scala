@@ -1,0 +1,42 @@
+Document tests/pos/i24696.scala
+(3:41..3:47) _empty_/Schema# -> 1:7
+(3:48..3:49) _empty_/Schema.Either#[A] -> 3:29
+(3:59..3:65) _empty_/Schema# -> 1:7
+(3:66..3:67) _empty_/Schema.Either#[B] -> 3:32
+(3:78..3:84) _empty_/Schema# -> 1:7
+(3:85..3:90) scala/
+(3:91..3:95) scala/util/
+(3:96..3:102) scala/util/Either#
+(3:103..3:104) _empty_/Schema.Either#[A] -> 3:29
+(3:106..3:107) _empty_/Schema.Either#[B] -> 3:32
+(7:37..7:49) _empty_/DynamicValue# -> 10:14
+(7:59..7:71) _empty_/DynamicValue# -> 10:14
+(8:38..8:50) _empty_/DynamicValue# -> 10:14
+(8:60..8:72) _empty_/DynamicValue# -> 10:14
+(12:48..12:54) _empty_/Schema# -> 1:7
+(12:55..12:56) _empty_/DynamicValue#toTypedValueLazyError().[A] -> 12:31
+(12:60..12:66) scala/package.Either#
+(12:67..12:78) _empty_/DecodeError# -> 4:7
+(12:80..12:81) _empty_/DynamicValue#toTypedValueLazyError().[A] -> 12:31
+(13:8..13:12) _empty_/DynamicValue# -> 10:14
+(13:14..13:20) _empty_/DynamicValue#toTypedValueLazyError().(schema) -> 12:40
+(14:15..14:27) _empty_/DynamicValue. -> 6:8
+(14:28..14:37) _empty_/DynamicValue.LeftValue.
+(14:46..14:52) _empty_/Schema. -> 2:8
+(14:53..14:59) _empty_/Schema.Either.
+(15:11..15:16) local1 -> 14:38
+(15:17..15:38) _empty_/DynamicValue#toTypedValueLazyError(). -> 12:9
+(15:45..15:52) local4 -> 14:60
+(15:54..15:57) scala/util/Either#map().
+(15:58..15:62) scala/package.Left.
+(16:15..16:27) _empty_/DynamicValue. -> 6:8
+(16:28..16:38) _empty_/DynamicValue.RightValue.
+(16:47..16:53) _empty_/Schema. -> 2:8
+(16:54..16:60) _empty_/Schema.Either.
+(17:11..17:16) local5 -> 16:39
+(17:17..17:38) _empty_/DynamicValue#toTypedValueLazyError(). -> 12:9
+(17:45..17:52) local8 -> 16:64
+(17:54..17:57) scala/util/Either#map().
+(17:58..17:63) scala/package.Right.
+(18:19..18:22) scala/Predef.`???`().
+

@@ -1,0 +1,49 @@
+Document tests/pos/i24192.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:42) scala/language.implicitConversions.
+(6:38..6:39) _empty_/decorators.mapDecorator().[C] -> 6:29
+(6:55..6:60) _empty_/decorators.IsMap# -> 5:9
+(6:61..6:62) _empty_/decorators.mapDecorator().[C] -> 6:29
+(6:66..6:69) scala/Predef.Map#
+(6:70..6:71) _empty_/decorators.mapDecorator().[C] -> 6:29
+(6:73..6:76) _empty_/decorators.mapDecorator().(map) -> 6:50
+(6:85..6:88) scala/Predef.`???`().
+(8:8..8:18) _empty_/decorators. -> 4:8
+(8:19..8:31) _empty_/decorators.mapDecorator(). -> 6:16
+(12:7..12:18) _empty_/Applicative# -> 11:7
+(12:29..12:32) scala/Predef.`???`().
+(16:22..16:33) _empty_/Applicative# -> 11:7
+(16:22..16:33) _empty_/Traverse#sequence().[G] -> 16:16
+(16:43..16:44) _empty_/Traverse#[F] -> 14:16
+(16:45..16:46) _empty_/Traverse#sequence().[G] -> 16:16
+(16:47..16:48) _empty_/Traverse#sequence().[A] -> 16:35
+(16:53..16:54) _empty_/Traverse#sequence().[G] -> 16:16
+(16:55..16:56) _empty_/Traverse#[F] -> 14:16
+(16:57..16:58) _empty_/Traverse#sequence().[A] -> 16:35
+(16:63..16:66) scala/Predef.`???`().
+(19:20..19:28) _empty_/Traverse# -> 14:7
+(19:29..19:30) _empty_/Traverse.apply().[F] -> 19:13
+(19:34..19:37) scala/Predef.`???`().
+(21:24..21:26) _empty_/Eq# -> 10:7
+(21:24..21:26) _empty_/Segment#[Element] -> 21:15
+(23:33..23:35) _empty_/Eq# -> 10:7
+(23:33..23:35) _empty_/MergeResult#[Element] -> 23:24
+(23:56..23:59) scala/package.Seq#
+(23:60..23:67) _empty_/Segment# -> 21:7
+(23:68..23:75) _empty_/MergeResult#[Element] -> 23:24
+(24:29..24:35) scala/Option#
+(24:36..24:47) _empty_/MergeResult# -> 23:12
+(24:48..24:55) _empty_/MergeResult#[Element] -> 23:24
+(25:5..25:13) _empty_/Traverse. -> 18:8
+(25:14..25:17) scala/package.Seq#
+(26:8..26:16) _empty_/Traverse#sequence(). -> 16:7
+(26:17..26:20) scala/package.Seq.
+(26:21..26:26) scala/collection/SeqFactory.Delegate#empty().
+(26:27..26:33) scala/Option#
+(26:34..26:41) _empty_/Segment# -> 21:7
+(26:42..26:49) _empty_/MergeResult#[Element] -> 23:24
+(27:8..27:11) scala/Option#map().
+(27:12..27:23) _empty_/MergeResult.
+(27:24..27:29) _empty_/MergeResult.apply().
+
