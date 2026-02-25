@@ -86,6 +86,7 @@ class Listener extends EditorFactoryListener {
   private def connectTo(editor: Editor): Unit = if (!updaters.contains(editor)) {
     val updater = new Updater(editor)
     updaters += editor -> updater
+    Highlighting.editors = updaters.keySet
     val markupModelListener = markupModelListenerFor(editor)
     editor.getMarkupModel.asInstanceOf[MarkupModelEx].addMarkupModelListener(updater, markupModelListener)
     editor.asInstanceOf[EditorEx].getFilteredDocumentMarkupModel.addMarkupModelListener(updater, markupModelListener)
@@ -106,6 +107,7 @@ class Listener extends EditorFactoryListener {
     editor.getContentComponent.removeKeyListener(keyListener)
     Disposer.dispose(updaters(editor))
     updaters -= editor
+    Highlighting.editors = updaters.keySet
   }
 }
 
