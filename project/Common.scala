@@ -279,6 +279,8 @@ object Common {
     def projectWithTestsOnly: Project = project.settings(
       Compile / sourceDirectories := Nil,
       Compile / resourceDirectories := Nil,
+      // Base settings define Compile / resourceDirectory; keep a value but hide it so lintUnused doesn't warn for test-only modules.
+      Compile / resourceDirectory.withRank(KeyRanks.Invisible) := baseDirectory.value / "resources",
       Compile / unmanagedSourceDirectories := Nil,
       Compile / unmanagedResourceDirectories := Nil,
       // Packaging a module with tests only doesn't make sense
