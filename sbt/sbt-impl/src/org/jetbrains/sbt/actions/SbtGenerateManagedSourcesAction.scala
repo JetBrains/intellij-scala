@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.build.BuildMessages
 import org.jetbrains.sbt.icons.Icons
 import org.jetbrains.sbt.process.SbtRunner
 import org.jetbrains.sbt.project.{SbtExternalSystemManager, SbtProjectSystem}
-import org.jetbrains.sbt.{SbtBundle, SbtUtil, SbtVersionCapabilities}
+import org.jetbrains.sbt.{SbtBundle, SbtUtil, SbtVersionCapabilities, eelDescriptor, normalizedLocalPath}
 
 import java.nio.file.{Files, Path}
 import scala.util.control.NonFatal
@@ -90,8 +90,9 @@ private final class SbtGenerateManagedSourcesAction extends AnAction(
           }
           
           val sbtFileContent = SbtUtil.sbtStructurePluginDeclaration(sbtVersion)
-          val tmpPluginsSbtFile = SbtUtil.createTemporarySbtFile(sbtFileContent)
-          val setupOptions = Seq(s"-addPluginSbtFile=${tmpPluginsSbtFile.toRealPath()}")
+          val descriptor = projectBasePath.eelDescriptor
+          val tmpPluginsSbtFile = SbtUtil.createTemporarySbtFile(sbtFileContent, descriptor, Option(project))
+          val setupOptions = Seq(s"-addPluginSbtFile=${tmpPluginsSbtFile.normalizedLocalPath}")
 
           val generateCommand = "show " + SbtUtil.sbtStructureGlobalCommand("ideaGenerateAllManagedSources", sbtVersion)
           val sbtResult = SbtRunner().runSbt(
