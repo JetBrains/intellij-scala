@@ -36,6 +36,7 @@ sealed trait SbtStructureDumper:
 object SbtStructureDumper:
   final class FromShell extends SbtStructureDumper:
     // Dumping the sbt project structure from sbt-shell is not cancellable.
+    // TODO make it cancelable it should and can be cancelable
     override def cancel(): Unit = ()
 
     def dumpFromShell(

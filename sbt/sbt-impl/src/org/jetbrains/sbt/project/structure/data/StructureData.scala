@@ -1,5 +1,6 @@
 package org.jetbrains.sbt.project.structure.data
 
+import com.intellij.platform.eel.EelDescriptor
 import org.jetbrains.sbt.project.structure.data.XmlDeserializer.deserializeNodeSeq
 
 import scala.xml.Node
@@ -11,7 +12,7 @@ case class StructureData(sbtVersion: String,
                          localCachePath: Option[InterpretablePath])
 
 object StructureData:
-  given XmlDeserializer[StructureData] = new XmlDeserializer[StructureData]:
+  given EelDescriptor => XmlDeserializer[StructureData] = new XmlDeserializer[StructureData]:
     private given PathConstructor[String]:
       override def construct(str: String): InterpretablePath = new InterpretablePath(str)
 
