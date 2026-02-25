@@ -24,9 +24,12 @@ abstract class MacroExpansionLineMarkerProvider extends RelatedItemLineMarkerPro
   protected type Markers = util.Collection[_ >: Marker]
 
   override def collectNavigationMarkers(element: PsiElement, result: Markers): Unit = {
-    if (!element.isVisible) return
+    val file = element.getContainingFile
+    val project = if (file != null) file.getProject else element.getProject // Avoid tree walk-up
 
-    if (ScalaProjectSettings.getInstance(element.getProject).getScalaMetaMode == ScalaMetaMode.Disabled)
+    if (!element.isVisible(project, file)) return
+
+    if (ScalaProjectSettings.getInstance(project).getScalaMetaMode == ScalaMetaMode.Disabled)
       return
     if (element.getNode == null || element.getNode.getElementType != ScalaTokenTypes.tIDENTIFIER )
       return

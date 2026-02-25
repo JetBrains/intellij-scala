@@ -23,7 +23,7 @@ class ScalaDocUnknownParameterInspection extends LocalInspectionTool {
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     new ScalaElementVisitor {
       override def visitDocComment(docComment: ScDocComment): Unit = {
-        if (!docComment.isVisible) return
+        if (!docComment.isVisible(holder.getProject, holder.getFile)) return
 
         ProgressIndicatorProvider.checkCanceled()
         checkDocComment(docComment, holder, isOnTheFly)

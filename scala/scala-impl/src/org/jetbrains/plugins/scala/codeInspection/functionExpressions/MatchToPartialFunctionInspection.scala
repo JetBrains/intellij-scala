@@ -4,7 +4,7 @@ import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.codeInspection._
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.impl.source.tree.TreeElement
 import com.intellij.psi.search.LocalSearchScope
@@ -27,7 +27,7 @@ class MatchToPartialFunctionInspection extends LocalInspectionTool {
 
   import MatchToPartialFunctionInspection._
 
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
     case function@ScFunctionExpr(Seq(param), Some(statement@ScMatch(ScReferenceExpression(resolved), _)))
       if resolved == param && isValid(function) =>
       registerProblem(statement, function, holder)

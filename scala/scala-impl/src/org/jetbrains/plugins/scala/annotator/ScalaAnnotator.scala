@@ -44,7 +44,8 @@ class ScalaAnnotator extends Annotator
     if (InjectedLanguageManager.getInstance(element.getProject).isInjectedFragment(file))
       return
 
-    if (!element.isVisible) return
+    val sessionFile = holder.getCurrentAnnotationSession.getFile
+    if (!element.isVisible(sessionFile.getProject, sessionFile)) return
 
     val typeAware =
       if ((file ne null) && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(file)) false

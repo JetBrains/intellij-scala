@@ -5,7 +5,7 @@ import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.Nls
@@ -35,7 +35,7 @@ final class TypeCheckCanBeMatchInspection extends LocalInspectionTool {
 
   import TypeCheckCanBeMatchInspection._
 
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
     case IsInstanceOfCall(call) =>
       for {
         ifStmt <- Option(PsiTreeUtil.getParentOfType(call, classOf[ScIf]))

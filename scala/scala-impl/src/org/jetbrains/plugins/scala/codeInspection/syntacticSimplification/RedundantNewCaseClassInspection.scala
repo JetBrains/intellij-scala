@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.syntacticSimplification
 
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
+import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInspection.PsiElementVisitorSimple
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
@@ -14,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 class RedundantNewCaseClassInspection extends LocalInspectionTool {
 
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
     case newTemplate: ScNewTemplateDefinition if !newTemplate.extendsBlock.isAnonymousClass =>
       if (hasRedundantNew(newTemplate)) {
         holder.registerProblem(newTemplate.getFirstChild, ScalaBundle.message("new.on.case.class.instantiation.redundant"), new RemoveNewQuickFix(newTemplate))

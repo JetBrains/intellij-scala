@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.packagesearch.codeInspection
 
 import com.intellij.codeInspection.{LocalInspectionTool, LocalQuickFix, ProblemsHolder}
 import com.intellij.openapi.project.PossiblyDumbAware
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import org.apache.maven.artifact.versioning.ComparableVersion
 import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.SeqExt
@@ -18,7 +18,7 @@ abstract class DependencyVersionInspection extends LocalInspectionTool with Poss
 
   protected def createQuickFix(element: PsiElement, newerVersion: String): LocalQuickFix
 
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = { element =>
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) { element =>
     if (isAvailable(element)) {
       createDependencyDescriptor(element).foreach { dependencyDescriptor =>
         val currentVersion = dependencyDescriptor.version

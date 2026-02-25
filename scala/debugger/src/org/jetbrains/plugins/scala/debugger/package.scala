@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala
 
+import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.incremental.Highlighting.builtInHighlightingDisabledIn
 
@@ -10,6 +11,6 @@ package object debugger {
    *
    * @see [[org.jetbrains.plugins.scala.debugger.breakpoints.ScalaLineBreakpointType.computeVariants]]
    */
-  private[debugger] def typeAware(e: PsiElement): Boolean =
-    !(builtInHighlightingDisabledIn(e.getProject) || incremental.Highlighting.enabledIn(e.getProject))
+  private[debugger] def typeAware(project: Project): Boolean =
+    !(builtInHighlightingDisabledIn(project) || incremental.Highlighting.enabledIn(project))
 }

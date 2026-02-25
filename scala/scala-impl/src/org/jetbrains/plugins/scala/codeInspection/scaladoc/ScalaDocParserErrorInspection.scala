@@ -16,7 +16,7 @@ final class ScalaDocParserErrorInspection extends LocalInspectionTool with DumbA
         visitScaladocElement(s)
 
       override def visitScaladocElement(element: ScalaPsiElement): Unit = {
-        if (!element.isVisible) return
+        if (!element.isVisible(holder.getProject, holder.getFile)) return
 
         element.getChildren.foreach {
           case a: PsiErrorElement =>

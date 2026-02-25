@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.parentheses
 
 import com.intellij.codeInspection.{LocalInspectionTool, LocalQuickFix, ProblemsHolder}
 import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.codeInsight.intention.RemoveBracesIntention
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle}
@@ -17,7 +18,7 @@ import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker.checkInspec
 
 abstract class ScalaUnnecessaryParenthesesInspectionBase extends LocalInspectionTool {
 
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
     case parenthesized: ScParenthesizedElement if isProblem(parenthesized) =>
       val quickFix = new RemoveParenthesesFix(parenthesized)
       registerProblem(parenthesized, quickFix, holder, isOnTheFly)

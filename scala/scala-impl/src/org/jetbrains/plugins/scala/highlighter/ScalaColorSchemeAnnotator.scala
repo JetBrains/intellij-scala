@@ -35,7 +35,8 @@ final class ScalaColorSchemeAnnotator extends Annotator {
   import ScalaColorSchemeAnnotator._
 
   override def annotate(element: PsiElement, holder: AnnotationHolder): Unit = {
-    if (!element.isVisible) return
+    val file = holder.getCurrentAnnotationSession.getFile
+    if (!element.isVisible(file.getProject, file)) return
 
     highlightElement(element)(new ScalaAnnotationHolderAdapter(holder))
   }

@@ -49,8 +49,8 @@ class ScalaHighlightConstructorInvocationUsages(reference: Option[ScReference], 
     val config = ScalaFindUsagesConfiguration.getInstance(file.getProject)
     val manager = new ScalaFindUsagesHandler(classToHighlight, config)
     val localSearchScope =
-      if (incremental.Highlighting.enabledIn(file.getProject))
-        file.elements(_.isVisible).map(new LocalSearchScope(_)).foldLeft[SearchScope](LocalSearchScope.EMPTY)(_.union(_))
+      if (incremental.Highlighting.enabledIn(editor.getProject))
+        file.elements(_.isVisible(editor.getProject, file)).map(new LocalSearchScope(_)).foldLeft[SearchScope](LocalSearchScope.EMPTY)(_.union(_))
       else
         new LocalSearchScope(file)
 

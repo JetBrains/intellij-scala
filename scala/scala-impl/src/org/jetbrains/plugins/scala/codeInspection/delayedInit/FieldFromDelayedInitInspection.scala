@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.delayedInit
 
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
+import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle, conformsToTypeFromClass}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -14,7 +15,7 @@ final class FieldFromDelayedInitInspection extends LocalInspectionTool {
 
   import FieldFromDelayedInitInspection._
 
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
     case ref: ScReferenceExpression =>
       implicit val context: Context = Context(ref)
 

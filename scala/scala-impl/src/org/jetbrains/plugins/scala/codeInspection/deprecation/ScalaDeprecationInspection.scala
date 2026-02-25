@@ -88,7 +88,7 @@ class ScalaDeprecationInspection extends LocalInspectionTool {
     new ScalaElementVisitor {
 
       override def visitFunction(fun: ScFunction): Unit = {
-        if (!fun.isVisible) return
+        if (!fun.isVisible(holder.getProject, holder.getFile)) return
 
         if (fun.isDefinedInClass) {
           fun.superMethods.foreach(checkOverridingDeprecated(_, fun))
@@ -96,7 +96,7 @@ class ScalaDeprecationInspection extends LocalInspectionTool {
       }
 
       override def visitReference(ref: ScReference): Unit = {
-        if (!ref.isVisible) return
+        if (!ref.isVisible(holder.getProject, holder.getFile)) return
 
         if (ref.isValid) {
           val resolveResult = ref.bind()
@@ -126,13 +126,13 @@ class ScalaDeprecationInspection extends LocalInspectionTool {
       }
 
       override def visitReferenceExpression(ref: ScReferenceExpression): Unit = {
-        if (!ref.isVisible) return
+        if (!ref.isVisible(holder.getProject, holder.getFile)) return
 
         visitReference(ref)
       }
 
       override def visitTypeProjection(proj: ScTypeProjection): Unit = {
-        if (!proj.isVisible) return
+        if (!proj.isVisible(holder.getProject, holder.getFile)) return
 
         visitReference(proj)
       }

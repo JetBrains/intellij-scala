@@ -6,7 +6,7 @@ import com.intellij.codeInsight.hints.ParameterHintsPassFactory.forceHintsUpdate
 import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, ActionUpdateThread, AnAction, AnActionEvent, Separator}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.EditorColorsScheme
-import com.intellij.psi.{PsiElement, PsiWhiteSpace}
+import com.intellij.psi.{PsiElement, PsiFile, PsiWhiteSpace}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.incremental.Highlighting._
 import org.jetbrains.plugins.scala.annotator.TypeMismatchHints
@@ -39,7 +39,7 @@ import scala.annotation.tailrec
 private[codeInsight] trait ScalaTypeHintsPass {
   protected implicit def settings: ScalaHintsSettings
 
-  protected def collectTypeHints(editor: Editor, root: PsiElement): Seq[Hint] = {
+  protected def collectTypeHints(editor: Editor, root: PsiFile): Seq[Hint] = {
     val compilerErrorsEnabled = Option(root.getContainingFile).exists { file =>
       file.isScala3File && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(file)
     }
@@ -49,7 +49,7 @@ private[codeInsight] trait ScalaTypeHintsPass {
       Seq.empty
     } else {
       (for {
-        element <- root.elements(_.isVisible)
+        element <- root.elements(_.isVisible(editor.getProject, root))
         definition = Definition(element) // NB: "definition" might be in fact _any_ PsiElement (e.g. ScalaFile)
         (tpe, body, menu) <- typeAndBodyOf(definition)
         if !(settings.preserveIndents && (!element.textContains('\n') && definition.hasCustomIndents || adjacentDefinitionsHaveCustomIndent(element)))
@@ -60,7 +60,7 @@ private[codeInsight] trait ScalaTypeHintsPass {
     }.toSeq
   }
 
-  private def collectXRayHints(editor: Editor, root: PsiElement) = root.elements(_.isVisible).flatMap {
+  private def collectXRayHints(editor: Editor, root: PsiFile) = root.elements(_.isVisible(editor.getProject, root)).flatMap {
     case e @ Typeable(t) => xRayHintsFor(e, t)(editor.getColorsScheme, TypePresentationContext(e), Context(e), settings)
     case _ => Seq.empty
   }

@@ -16,6 +16,11 @@ class ScalaSpellcheckingStrategy extends SpellcheckingStrategy {
     case _ => super.getTokenizer(element)
   }
 
-  override def isMyContext(element: PsiElement): Boolean = element.isVisible
+  override def isMyContext(element: PsiElement): Boolean = {
+    val file = element.getContainingFile
+    val project = if (file != null) file.getProject else element.getProject // Avoid tree walk-up
+
+    element.isVisible(project, file)
+  }
 }
 

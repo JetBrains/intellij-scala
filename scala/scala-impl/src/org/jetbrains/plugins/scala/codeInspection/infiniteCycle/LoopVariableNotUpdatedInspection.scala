@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.infiniteCycle
 
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
-import com.intellij.psi.{PsiElement, PsiReference}
+import com.intellij.psi.{PsiElement, PsiElementVisitor, PsiReference}
 import org.jetbrains.plugins.scala.codeInspection.PsiElementVisitorSimple
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable
 class LoopVariableNotUpdatedInspection extends LocalInspectionTool {
   private val ComparisonOperators = Set("==", "!=", ">", "<", ">=", "<=")
 
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
     case ScWhile(
       Some(ScInfixExpr((ref: ScReferenceExpression) & ResolvesTo(target@Parent(Parent(_: ScVariable))), ElementText(operator), _)),
       Some(body)) if !ref.isQualified && ComparisonOperators.contains(operator) && !isMutatedWithing(body, target) =>

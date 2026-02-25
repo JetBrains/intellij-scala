@@ -20,7 +20,10 @@ final class ScalaRecursiveFunctionLineMarkerProvider extends LineMarkerProvider 
       return null
     }
 
-    if (!element.isVisible) return null
+    val file = element.getContainingFile
+    val project = if (file != null) file.getProject else element.getProject // Avoid tree walk-up
+
+    if (!element.isVisible(project, file)) return null
 
     element.getParent match {
       case function: ScFunctionDefinition if element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER =>

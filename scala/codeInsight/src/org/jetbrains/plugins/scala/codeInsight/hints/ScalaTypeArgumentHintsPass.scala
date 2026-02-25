@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.codeInsight.hints
 
 import com.intellij.openapi.editor.Editor
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.annotator.hints.Hint.HintPosition
 import org.jetbrains.plugins.scala.annotator.hints.{Hint, Text}
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings
@@ -20,11 +20,11 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 
 private[codeInsight] trait ScalaTypeArgumentHintsPass {
-  protected def collectTypeArgumentHints(editor: Editor, root: PsiElement): Iterator[Hint] =
+  protected def collectTypeArgumentHints(editor: Editor, root: PsiFile): Iterator[Hint] =
     if (ScalaHintsSettings.xRayMode && ScalaApplicationSettings.XRAY_SHOW_TYPE_ARGUMENT_HINTS) doCollectTypeArgumentHints(editor, root)
     else Iterator.empty
 
-  private def doCollectTypeArgumentHints(editor: Editor, root: PsiElement): Iterator[Hint] = root.elements(_.isVisible).flatMap {
+  private def doCollectTypeArgumentHints(editor: Editor, root: PsiFile): Iterator[Hint] = root.elements(_.isVisible(editor.getProject, root)).flatMap {
     case ci@ScConstructorInvocation.reference(Resolved(r@ScalaResolveResult(TypeParamsOfMethodLike(typeParams), _))) =>
       r.resultUndef.flatMap { cs =>
         xRayTypeArgumentsHints(ci.typeElement, cs, typeParams, editor)

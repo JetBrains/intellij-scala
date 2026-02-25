@@ -20,7 +20,7 @@ class ReferenceMustBePrefixedInspection extends LocalInspectionTool {
 
   import ReferenceMustBePrefixedInspection._
 
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
     case reference: ScReference if reference.qualifier.isEmpty && !reference.getParent.isInstanceOf[ScImportSelector] =>
       reference.bind().collect {
         case result@withActual(clazz: PsiClass) if result.renamed.isEmpty && isValid(clazz, reference) => clazz

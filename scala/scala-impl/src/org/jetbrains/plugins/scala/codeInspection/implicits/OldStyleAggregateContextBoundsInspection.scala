@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.implicits
 
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.{DumbAware, Project}
+import com.intellij.psi.PsiElementVisitor
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.implicits.OldStyleAggregateContextBoundsInspection._
@@ -10,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 final class OldStyleAggregateContextBoundsInspection extends LocalInspectionTool with DumbAware {
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
     case boundsOwner: ScTypeBoundsOwner if boundsOwner.contextBounds.size > 1
       && boundsOwner.features.`new context bounds and givens`
       && hasOldStyleContextBounds(boundsOwner) =>

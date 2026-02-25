@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.externalLibraries.kindProjector.inspections
 
 import com.intellij.codeInspection.{LocalInspectionTool, LocalQuickFix, ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions._
@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.project._
 
 class DeprecatedKindProjectorSyntaxInspection extends LocalInspectionTool {
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
     case DeprecatedIdentifier(e, qf, message) =>
       //noinspection ReferencePassedToNls
       holder.registerProblem(e, message, qf.toArray[LocalQuickFix]: _*)

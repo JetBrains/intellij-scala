@@ -81,7 +81,9 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
   // com.intellij.psi.util.MainMethodSearcherBase calls this method on classes before checking hasMainMethod or findMainInClass,
   // which triggers type inference and interferes with incremental highlighting.
   override def isAnnotationType: Boolean = {
-    if (builtInHighlightingDisabledIn(getProject) || incremental.Highlighting.enabledIn(getProject)) return false
+    val project = getProject
+
+    if (builtInHighlightingDisabledIn(project) || incremental.Highlighting.enabledIn(project)) return false
 
     annotationType
   }

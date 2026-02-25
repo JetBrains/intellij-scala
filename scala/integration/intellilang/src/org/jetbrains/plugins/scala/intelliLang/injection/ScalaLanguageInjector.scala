@@ -56,12 +56,14 @@ final class ScalaLanguageInjector extends MultiHostInjector {
     if (injectUsingComment(host, literals))
       return
 
-    val project = host.getProject
+    val file = host.getContainingFile
+    val project = if (file != null) file.getProject else host.getProject // Avoid tree walk-up
+
     implicit val projectSettings: ScalaProjectSettings = ScalaProjectSettings.getInstance(project)
     if (injectUsingInterpolatedStringPrefix(host, literals, projectSettings.getIntInjectionMapping))
       return
 
-    if (!host.isVisible) return
+    if (!host.isVisible(project, file)) return
 
     //TODO: make this check earlier? when exactly? should we support explicit injection via intention or comment?
     if (projectSettings.isDisableLangInjection)

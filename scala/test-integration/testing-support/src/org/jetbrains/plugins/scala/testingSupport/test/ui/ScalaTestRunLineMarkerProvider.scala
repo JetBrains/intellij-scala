@@ -45,7 +45,10 @@ class ScalaTestRunLineMarkerProvider extends TestRunLineMarkerProvider {
    *  - [[org.jetbrains.plugins.scala.testingSupport.uTest.UTestReporter]]
    */
   override def getInfo(element: PsiElement): RunLineMarkerContributor.Info = {
-    if (!element.isVisible) return null
+    val file = element.getContainingFile
+    val project = if (file != null) file.getProject else element.getProject // Avoid tree walk-up
+
+    if (!element.isVisible(project, file)) return null
 
     element match {
       case leaf: LeafPsiElement if leaf.getElementType == ScalaTokenTypes.tIDENTIFIER =>

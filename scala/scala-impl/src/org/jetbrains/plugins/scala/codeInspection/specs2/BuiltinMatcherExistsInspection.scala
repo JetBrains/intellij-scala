@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.specs2
 
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.ElementText
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr, ScMethodCall}
@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
 
 class BuiltinMatcherExistsInspection extends LocalInspectionTool {
 
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
     case elem@ScMethodCall(matcher, Seq(ScMethodCall(inner, _))) if equalToMatcher(matcher) && optional(inner) =>
       suggestFixForOptional(elem, holder)
     case elem@ScMethodCall(matcher, Seq(inner: ScExpression)) if equalToMatcher(matcher) && optional(inner) =>

@@ -15,7 +15,8 @@ abstract class DfaInspectionBase(createReporter: ProblemsHolder => ScalaDfaResul
     var provider = session.getUserData(visitorProviderKey)
 
     if (provider == null) {
-      provider = new ScalaDfaVisitor.AsyncProvider
+      val file = session.getFile
+      provider = new ScalaDfaVisitor.AsyncProvider(file.getProject, file)
       session.putUserData(visitorProviderKey, provider)
     }
 

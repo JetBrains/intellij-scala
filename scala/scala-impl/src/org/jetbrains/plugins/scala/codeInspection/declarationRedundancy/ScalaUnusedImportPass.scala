@@ -43,7 +43,7 @@ class ScalaUnusedImportPass(override val file: PsiFile, editor: Editor, override
   private var myOptimizeImportsRunnable: Option[Runnable] = None
 
   override def collectInformationWithProgress(progress: ProgressIndicator): Unit = file match {
-    case _ if builtInHighlightingDisabledIn(file.getProject) || incremental.Highlighting.enabledIn(file.getProject) => myHighlights = ju.Collections.emptyList()
+    case _ if builtInHighlightingDisabledIn(myProject) || incremental.Highlighting.enabledIn(myProject) => myHighlights = ju.Collections.emptyList()
     case _ if HighlightingLevelManager.getInstance(file.getProject).shouldInspect(file) =>
       file.findScalaLikeFile match {
         case Some(scalaFile: ScalaFile) =>

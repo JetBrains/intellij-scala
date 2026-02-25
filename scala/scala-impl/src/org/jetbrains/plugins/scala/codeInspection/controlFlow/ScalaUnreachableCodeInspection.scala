@@ -52,7 +52,7 @@ final class ScalaUnreachableCodeInspection extends LocalInspectionTool {
     private val descriptionTemplate = getDisplayName
 
     override def visitElement(element: PsiElement): Unit = {
-      if (!element.isVisible) return
+      if (!element.isVisible(holder.getProject, holder.getFile)) return
 
       for {
         descriptor <- problemDescriptors(element, descriptionTemplate)(holder.getManager, isOnTheFly)

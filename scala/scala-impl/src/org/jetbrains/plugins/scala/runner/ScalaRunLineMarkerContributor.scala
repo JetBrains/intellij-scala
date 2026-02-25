@@ -15,9 +15,12 @@ import javax.swing.Icon
 
 class ScalaRunLineMarkerContributor extends RunLineMarkerContributor {
   override def getInfo(element: PsiElement): Info = {
-    if (!element.isVisible) return null
+    val file = element.getContainingFile
+    val project = if (file != null) file.getProject else element.getProject // Avoid tree walk-up
 
-    element.getContainingFile match {
+    if (!element.isVisible(project, file)) return null
+
+    file match {
       case scriptLikeFile: ScalaFile
         if scriptLikeFile.isWorksheetFile || scriptLikeFile.isMultipleDeclarationsAllowed =>
         return null

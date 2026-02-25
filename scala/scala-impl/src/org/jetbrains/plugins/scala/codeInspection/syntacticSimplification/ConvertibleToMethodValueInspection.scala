@@ -48,7 +48,7 @@ object ConvertibleToMethodValueInspection {
 
 class ConvertibleToMethodValueInspection extends LocalInspectionTool {
 
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
     case ArgumentToPolymorphicLambda() => () // disallowed by kind projector rules
     case MethodRepr(_, _, Some(ref), _)
       if ref.bind().exists(involvesImplicitsOrByNameParams) => //do nothing

@@ -7,7 +7,7 @@ import com.intellij.codeInsight.hints.{HintInfo, HintInfoFilter, InlayParameterH
 import com.intellij.lang.Language
 import com.intellij.openapi.actionSystem.{ActionGroup, ActionManager, ActionUpdateThread, AnAction, AnActionEvent, Separator}
 import com.intellij.openapi.editor.Editor
-import com.intellij.psi.{PsiElement, PsiMethod}
+import com.intellij.psi.{PsiElement, PsiFile, PsiMethod}
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.incremental.Highlighting._
 import org.jetbrains.plugins.scala.ScalaLanguage.{INSTANCE => ScalaLanguage}
@@ -32,11 +32,11 @@ import scala.jdk.CollectionConverters.SeqHasAsJava
 trait ScalaInlayParameterHintsPass {
   protected implicit def settings: ScalaHintsSettings
 
-  protected def collectParameterHints(editor: Editor, root: PsiElement): Seq[Hint] = {
+  protected def collectParameterHints(editor: Editor, root: PsiFile): Seq[Hint] = {
     val filter: HintInfoFilter =
       if (ScalaHintsSettings.xRayMode && ScalaApplicationSettings.XRAY_FOR_ALL_PARAMETERS) _ => true
       else hintInfoFilterFor(ScalaLanguage, ScalaInlayParameterHintsProvider)
-    root.elements(_.isVisible).flatMap(getParameterHints(_, filter)).toSeq
+    root.elements(_.isVisible(editor.getProject, root)).flatMap(getParameterHints(_, filter)).toSeq
   }
 
   private def getParameterHints(element: PsiElement, filter: HintInfoFilter): Seq[Hint] = {

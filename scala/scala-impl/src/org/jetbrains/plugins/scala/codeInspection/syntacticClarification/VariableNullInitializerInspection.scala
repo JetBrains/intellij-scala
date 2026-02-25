@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.syntacticClarification
 
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
 import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.codeInspection.syntacticClarification.VariableNullInitializerInspection._
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
@@ -13,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 
 class VariableNullInitializerInspection extends LocalInspectionTool {
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
     case definition: ScVariableDefinition if definition.isDefinedInClass =>
       if (definition.declaredType.exists(isApplicable)) {
         definition.expr.filter(e => e.isValid && isNull(e)).foreach { expression =>

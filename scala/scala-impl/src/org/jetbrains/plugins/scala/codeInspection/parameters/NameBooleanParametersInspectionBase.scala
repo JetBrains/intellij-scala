@@ -25,7 +25,7 @@ abstract class NameBooleanParametersInspectionBase extends LocalInspectionTool {
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     new ScalaElementVisitor {
       override def visitMethodCallExpression(mc: ScMethodCall): Unit = {
-        if (!mc.isVisible) return
+        if (!mc.isVisible(holder.getProject, holder.getFile)) return
 
         if (mc.isInScala3File) return // TODO Handle Scala 3 code (`using` arguments, etc.), SCL-19602
         val argList = mc.args
