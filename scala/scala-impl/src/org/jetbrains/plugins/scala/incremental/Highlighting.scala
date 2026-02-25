@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.project.ProjectExt
 object Highlighting {
   // All Scala editors (including in Diff Viewer). Accessed from multiple threads. Faster than EditorFactory.getEditors.
   @volatile
-  private[incremental] var editors = Set.empty[Editor]
+  private[incremental] var editors = Seq.empty[Editor]
 
   private[incremental] var editor: Editor = _
 
