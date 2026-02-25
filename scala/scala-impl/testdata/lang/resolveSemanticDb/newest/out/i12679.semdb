@@ -18,4 +18,20 @@ Document tests/pos/i12679.scala
 (9:26..9:30) _empty_/Example.example().(bool) -> 8:47
 (9:33..9:36) _empty_/Example.foo(). -> 4:7
 (9:37..9:38) _empty_/Example.example().[F] -> 8:15
+(12:16..12:22) scala/Predef.String#
+(12:30..12:36) scala/Predef.String#
+(12:44..12:48) scala/Unit#
+(12:51..12:54) scala/Predef.`???`().
+(14:16..14:23) scala/Boolean#
+(14:26..14:30) scala/Unit#
+(14:33..14:36) scala/Predef.`???`().
+(16:25..16:31) scala/Option#
+(16:32..16:38) scala/Predef.String#
+(16:47..16:54) scala/Boolean#
+(17:5..17:13) _empty_/Example2.example().(maybeQux) -> 16:15
+(17:14..17:18) scala/Option#fold().
+(17:19..17:22) _empty_/Example2.foo(+1). -> 14:7
+(17:23..17:27) _empty_/Example2.example().(bool) -> 16:41
+(17:35..17:38) _empty_/Example2.foo(). -> 12:7
+(17:39..17:40) local0 -> 17:30
 

@@ -2365,6 +2365,19 @@
   "flag": "-Wimplausible-patterns",
   "scalaVersions": ["3.4", "3.5", "3.6", "3.7", "3.8"]
 }, {
+  "argType": "No",
+  "choices": {
+
+  },
+  "deprecations": {
+
+  },
+  "descriptions": {
+    "3.8": "Warn if type argument was inferred as union type."
+  },
+  "flag": "-Winfer-union",
+  "scalaVersions": ["3.8"]
+}, {
   "argType": "OneAfterColon",
   "choices": {
     "2.13": ["after", "before", "both", "default", "none"]
