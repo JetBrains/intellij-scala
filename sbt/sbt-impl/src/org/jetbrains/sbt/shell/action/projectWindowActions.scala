@@ -4,14 +4,18 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.externalSystem.action.ExternalSystemNodeAction
 import com.intellij.openapi.externalSystem.model.{ExternalSystemDataKeys, ProjectSystemId}
 import com.intellij.openapi.externalSystem.view.{ModuleNode, ProjectNode}
+import com.intellij.openapi.progress.util.ProgressIndicatorUtils
+import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.sbt.project.data.{SbtCommandData, SbtNamedKey, SbtSettingData, SbtTaskData}
 import org.jetbrains.sbt.shell.SbtShellCommunication
-import org.jetbrains.sbt.shell.action.SbtNodeAction._
+import org.jetbrains.sbt.shell.action.SbtNodeAction.*
 import org.jetbrains.sbt.{SbtBundle, SbtUtil}
 
-import scala.jdk.CollectionConverters._
+import java.util.UUID
+import scala.jdk.CollectionConverters.*
+import scala.jdk.FutureConverters.*
 
 abstract class SbtNodeAction[T <: SbtNamedKey](c: Class[T]) extends ExternalSystemNodeAction[T](c) {
 
@@ -34,7 +38,21 @@ abstract class SbtNodeAction[T <: SbtNamedKey](c: Class[T]) extends ExternalSyst
     val comms = SbtShellCommunication.forProject(e.getProject)
     val projectPart = projectScope.getOrElse("")
     val keyPart = externalData.name
-    comms.command(buildCmd(projectPart, keyPart)) // TODO indicator
+    val cmd = buildCmd(projectPart, keyPart)
+
+    // Running a command in the sbt shell requires a BGT because some underlying eel methods used when the shell is created need it
+    val id = UUID.randomUUID().toString
+    val task = new Task.Backgroundable(e.getProject, SbtBundle.message("sbt.shell.action.run.task.indicator", keyPart), true) {
+      override def run(indicator: ProgressIndicator): Unit = {
+        val future = comms.command(cmd, id)
+        // It checks if the indicator was canceled, if so, it will trigger the #onCancel method
+        ProgressIndicatorUtils.awaitWithCheckCanceled(future.asJava.toCompletableFuture)
+      }
+
+      override def onCancel(): Unit =
+        comms.removeCommandFromQueueOrCancel(id)
+    }
+    ProgressManager.getInstance().run(task)
   }
 }
 
