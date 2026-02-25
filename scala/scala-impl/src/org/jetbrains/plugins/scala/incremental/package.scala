@@ -46,6 +46,7 @@ package object incremental {
   }
 
   private[incremental] implicit class EditorExt(private val that: Editor) extends AnyVal {
+    // Editor.getVirtualFile is obsolete and incompatible with Diff Viewer
     @Nullable def virtualFile: VirtualFile = FileDocumentManager.getInstance.getFile(that.getDocument)
   }
 
