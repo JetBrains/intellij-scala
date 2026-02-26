@@ -2,7 +2,7 @@ import LocalRepoPackager.sbtDep
 import coursier.core.Dependency
 import org.jetbrains.sbtidea.IntelliJPlatform.IdeaCommunity
 import org.jetbrains.sbtidea.download.BuildInfo
-import org.jetbrains.sbtidea.download.idea.{IntellijRepositories, IntellijVersionUtils}
+import org.jetbrains.sbtidea.download.idea.IntellijVersionUtils
 import sbt.*
 
 object Versions {
@@ -92,9 +92,6 @@ object Versions {
   // artifacts need to be equal to `intellijVersion`.
   // Otherwise, they need to be equal to `intellijVersion_ForManagedIntellijDependencies`.
   private val TeamCityArtifactsResolver: Option[Resolver] = {
-    // At the moment, some dependencies seem to not yet be published to public Maven repositories which can be
-    // resolved outside the internal JetBrains network.
-    // TODO: Revisit for 261 EAP 2.
     TeamCityCommunityUtil.getBuildIdForVersionSafe(intellijVersion)
       .toOption
       .flatten
