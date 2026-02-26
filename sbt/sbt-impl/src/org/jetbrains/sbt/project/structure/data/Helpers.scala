@@ -1,10 +1,13 @@
 package org.jetbrains.sbt.project.structure.data
 
+import com.intellij.platform.eel.EelDescriptor
+import com.intellij.platform.eel.path.EelPath
+import com.intellij.platform.eel.provider.{EelNioBridgeServiceKt, LocalEelDescriptor}
+import com.intellij.platform.eel.provider.utils.EelPathUtils
 import org.jetbrains.plugins.scala.extensions.PathExt
 
 import java.net.URI
 import java.nio.file.Paths
-import scala.language.implicitConversions
 import scala.xml.Node
 
 private object Helpers:
@@ -16,10 +19,20 @@ private object Helpers:
       case _ => throw new RuntimeException("Multiple " + name + " nodes are found in " + node)
 
   extension (str: String)
-    def uri: URI = canonUri(new URI(str.replace("\\", "/"))) // handle windows separators
+    def uri(using descriptor: EelDescriptor): URI = canonUri(new URI(str.replace("\\", "/"))) // handle windows separators
 
-  private def canonUri(uri: URI): URI =
+  private def canonUri(uri: URI)(using descriptor: EelDescriptor): URI =
     val uri1 =
-      if uri.getScheme == "file" then Paths.get(uri).toCanonicalPath.toUri
-      else uri
+      if (uri.getScheme == "file") {
+        val path =
+          if descriptor == LocalEelDescriptor.INSTANCE then
+            Paths.get(uri).toCanonicalPath
+          else
+            // I am not 100% sure if this conversion is required, maybe we could just use uri.getPath within eel.
+            // From what I have checked, it is not harmful.
+            val eelPath = EelPath.parse(uri.getPath, descriptor).normalize()
+            EelNioBridgeServiceKt.asNioPath(eelPath)
+
+        EelPathUtils.getUriLocalToEel(path)
+      } else uri
     uri1.normalize()

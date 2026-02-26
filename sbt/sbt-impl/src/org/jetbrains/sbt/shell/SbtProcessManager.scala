@@ -1,6 +1,7 @@
 package org.jetbrains.sbt.shell
 
 import com.intellij.debugger.engine.DebuggerUtils
+import com.intellij.execution.CantRunException
 import com.intellij.execution.configurations.*
 import com.intellij.execution.configurations.GeneralCommandLine.ParentEnvironmentType
 import com.intellij.execution.process.{ColoredProcessHandler, KillableProcessHandler, OSProcessHandler, OSProcessUtil}
@@ -10,18 +11,21 @@ import com.intellij.openapi.actionSystem.{ActionGroup, AnActionEvent, DefaultAct
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileDocumentManager
+import org.jetbrains.sbt.{JvmMemorySize, Sbt, SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabilities, SbtVersionDetector, eelDescriptor, normalizedLocalPath}
 import com.intellij.openapi.options.ex.SingleConfigurableEditor
 import com.intellij.openapi.options.newEditor.SettingsDialog
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.{Project, ProjectManager, ProjectManagerListener}
-import com.intellij.openapi.projectRoots.Sdk
+import com.intellij.openapi.projectRoots.{JavaSdkType, Sdk}
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.roots.ui.configuration.ProjectStructureConfigurable
 import com.intellij.openapi.ui.DialogWrapper.DialogStyle
 import com.intellij.openapi.util.SystemInfo
-import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vfs.encoding.EncodingProjectManager
+import com.intellij.platform.eel.EelDescriptor
+import com.intellij.platform.eel.provider.utils.EelPathUtils
+import com.intellij.platform.eel.provider.utils.EelPathUtils.TransferTarget
 import com.intellij.terminal.{ProcessHandlerTtyConnector, TerminalExecutionConsole, TerminalExecutionConsoleBuilder}
 import com.intellij.util.messages.MessageBusConnection
 import com.jediterm.core.util.TermSize
@@ -42,13 +46,11 @@ import org.jetbrains.sbt.project.structure.SbtOption.*
 import org.jetbrains.sbt.shell.SbtProcessManager.*
 import org.jetbrains.sbt.shell.SbtShellLifecycle.ShellStateEvent
 import org.jetbrains.sbt.shell.action.{DebugShellAction, EOFAction, StartAction, StopAction}
-import org.jetbrains.sbt.{JvmMemorySize, Sbt, SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabilities, SbtVersionDetector}
 
 import java.io.{IOException, OutputStreamWriter, PrintWriter}
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
 import java.util.concurrent.TimeUnit
-import scala.annotation.nowarn
 import scala.concurrent.TimeoutException
 import scala.jdk.CollectionConverters.*
 
@@ -119,22 +121,21 @@ final class SbtProcessManager(project: Project) extends Disposable {
     val workingDirPath = getWorkingDirPath(project)
     val workingDir = Path.of(workingDirPath)
 
+    val eelDescriptor = workingDir.eelDescriptor
+
     val sbtSettings = getSbtSettings(workingDirPath)
-    lazy val launcher = SbtUtil.getLauncherJar(sbtSettings)
+    lazy val launcher = EelPathUtils.transferLocalContentToRemote(
+      SbtUtil.getLauncherJar(sbtSettings),
+      TransferTarget.Temporary(eelDescriptor)
+    )
 
     // an id to identify this boot of sbt as being launched from idea, so that any plugins it injects are never ever loaded otherwise
     // use sbtStructureVersion as approximation of compatible versions of IDEA this is allowed to launch with.
     // this avoids failing reloads when multiple sbt instances are booted from IDEA (SCL-12009)
     val runId = BuildInfo.sbtStructureVersion
 
-    val sdk = selectSdkOrWarn(sbtSettings)
-    val javaParameters: JavaParameters = new JavaParameters
-    javaParameters.setJdk(sdk)
-    javaParameters.configureByProject(project, 1, sdk)
-    javaParameters.setWorkingDirectory(workingDir.toCanonicalPath.toString)
-    javaParameters.setJarPath(launcher.toCanonicalPath.toString)
-
-    val debugConnection = if (sbtSettings.shellDebugMode) Option(addDebugParameters(javaParameters)) else None
+    val vmParams = new ParametersList
+    val debugConnection = if (sbtSettings.shellDebugMode) Option(addDebugParameters(vmParams)) else None
 
     if (!isUnitTestMode) {
       invokeAndWait {
@@ -153,7 +154,6 @@ final class SbtProcessManager(project: Project) extends Disposable {
     log.debug(s"projectSbtVersion = $projectSbtVersion")
     log.debug(s"addPluginCommandSupported = $addPluginCommandSupported")
 
-    val vmParams = javaParameters.getVMParametersList
     vmParams.add("-server")
 
     val sbtOpts = SbtUtil.collectAllOptionsFromSbt(sbtSettings.sbtOptions, workingDir, sbtSettings.passParentEnvironment, sbtSettings.userSetEnvironment)
@@ -174,11 +174,19 @@ final class SbtProcessManager(project: Project) extends Disposable {
     if (SystemInfo.isWindows && !useNewShell)
       vmParams.add("-Dsbt.log.noformat=true")
 
-    val commandLine: GeneralCommandLine = javaParameters.toCommandLine
-    sbtSettings.getCustomVMExecutableOrWarn(project).foreach(exe => commandLine.setExePath(exe.toCanonicalPath.toString))
+    val sdk = selectSdkOrWarn(sbtSettings)
+    // The exception looks scary, but in the previous implementation, it was also thrown if the JDK was not of the JavaSdkType
+    // (see com.intellij.openapi.projectRoots.JdkCommandLineSetup.setupJavaExePath)
+    lazy val sdkExecutable = sdk.getSdkType match {
+      case jst: JavaSdkType => Path.of(jst.getVMExecutablePath(sdk))
+      case _ => throw CantRunException.jdkMisconfigured(sdk)
+    }
+    val vmExecutable = sbtSettings.getCustomVMExecutableOrWarn(project).getOrElse(sdkExecutable)
+
+    val programParams = new ParametersList
 
     val settingsFile: Path =
-      getOrCreateExtraSbtSettingsFile(addPluginCommandSupported, commandLine, projectSbtVersion.binaryVersion)
+      getOrCreateExtraSbtSettingsFile(addPluginCommandSupported, vmParams, projectSbtVersion.binaryVersion, eelDescriptor)
 
     val injectPluginsSettings = getInjectedPluginsCommands(projectSbtVersion)
     val settingsAll = pluginResolverSetting +: injectPluginsSettings
@@ -192,17 +200,17 @@ final class SbtProcessManager(project: Project) extends Disposable {
     )
 
     if (addPluginCommandSupported) {
-      val settingsPath = settingsFile.toCanonicalPath.toString
-      commandLine.addParameter(s"early(addPluginSbtFile=\"\"\"$settingsPath\"\"\")")
+      val settingsPath = settingsFile.normalizedLocalPath
+      programParams.add(s"early(addPluginSbtFile=\"\"\"$settingsPath\"\"\")")
     }
 
     val commands = if (useNewShell) "shell" else "idea-shell"
 
-    commandLine.addParameter(commands)
+    programParams.add(commands)
     val sbtLauncherArgs = sbtOpts.collect { case a: SbtLauncherOption => a.value }
-    commandLine.addParameters(sbtLauncherArgs.asJava)
+    programParams.addAll(sbtLauncherArgs *)
 
-    val pty = createPtyCommandLine(commandLine, sbtSettings.passParentEnvironment, sbtSettings.userSetEnvironment, useNewShell)
+    val pty = createPtyCommandLine(vmExecutable, workingDir, vmParams, launcher, programParams, sbtSettings.passParentEnvironment, sbtSettings.userSetEnvironment, useNewShell)
     // KillableProcessHandler is a handler compatible with TerminalExecutionConsole. Maybe it will change IJPL-212220
     val cpty =
       if (useNewShell)
@@ -217,17 +225,17 @@ final class SbtProcessManager(project: Project) extends Disposable {
 
   private def getOrCreateExtraSbtSettingsFile(
     addPluginCommandSupported: Boolean,
-    commandLine: GeneralCommandLine,
-    sbtBinVersion: Version
+    vmParametersList: ParametersList,
+    sbtBinVersion: Version,
+    eelDescriptor: EelDescriptor
   ): Path = {
-    // TODO: Needs to be adapted for eel/WSL.
-    val globalPluginsDir = globalPluginsDirectory(SbtVersion(sbtBinVersion), commandLine.getParametersList): @nowarn("cat=deprecation")
+    val globalPluginsDir = globalPluginsDirectory(SbtVersion(sbtBinVersion), vmParametersList, eelDescriptor)
     // workaround: --addPluginSbtFile fails if global plugins dir does not exist. https://youtrack.jetbrains.com/issue/SCL-14415
     if (!globalPluginsDir.exists) {
       Files.createDirectories(globalPluginsDir)
     }
     if (addPluginCommandSupported)
-      FileUtil.createTempFile("idea", Sbt.Extension, true).toPath
+       EelPathUtils.createTemporaryFile(project, "idea", Sbt.Extension, true).toRealPath()
     else
       globalPluginsDir / "idea.sbt"
   }
@@ -262,17 +270,15 @@ final class SbtProcessManager(project: Project) extends Disposable {
   }
 
   /**
-   * add debug parameters to java parameters and create remote connection
-   * @return
+   * Add debug parameters to ParametersList and create remote connection
    */
-  private def addDebugParameters(javaParameters: JavaParameters): RemoteConnection = {
+  private def addDebugParameters(vmParams: ParametersList): RemoteConnection = {
 
     val host = "localhost"
     val port = DebuggerUtils.getInstance.findAvailableDebugAddress(true)
     val remoteConnection = new RemoteConnection(true, host, port, false)
 
     val shellDebugProperties = s"-agentlib:jdwp=transport=dt_socket,address=$host:$port,suspend=n,server=y"
-    val vmParams = javaParameters.getVMParametersList
     vmParams.prepend("-Xdebug")
     vmParams.replaceOrPrepend("-agentlib:jdwp=", shellDebugProperties)
 
@@ -283,27 +289,31 @@ final class SbtProcessManager(project: Project) extends Disposable {
 
   /**
    * Because the regular GeneralCommandLine process doesn't mesh well with JLine on Windows, use a
-   * Pseudo-Terminal based command line
-   * @param commandLine commandLine to copy from
-   * @return
+   * Pseudo-Terminal based command line.
    */
   private def createPtyCommandLine(
-    commandLine: GeneralCommandLine,
+    vmExecutable: Path,
+    workingDir: Path,
+    vmParams: ParametersList,
+    launcher: Path,
+    programParams: ParametersList,
     passParentEnvironment: Boolean,
     environment: Map[String, String],
     withNewShell: Boolean
   ) = {
     val pty = new PtyCommandLine()
-    pty.withExePath(commandLine.getExePath)
-    pty.withWorkDirectory(commandLine.getWorkDirectory)
-    pty.withEnvironment(commandLine.getEnvironment)
+    pty.withExePath(vmExecutable.toString)
+    pty.withWorkDirectory(workingDir.toFile)
     pty.withEnvironment(environment.asJava)
 
     if isUnitTestMode && SystemInfo.isWindows then
       pty.withEnvironment(SbtRunner.defaultCoursierDirectoriesAsEnvVariables().asJava)
 
-    pty.withParameters(commandLine.getParametersList.getList)
-    val parentEnvironmentType = if (passParentEnvironment) commandLine.getParentEnvironmentType else ParentEnvironmentType.NONE
+    pty.addParameters(vmParams.getList)
+    pty.addParameters("-jar", launcher.normalizedLocalPath)
+    pty.addParameters(programParams.getList)
+
+    val parentEnvironmentType = if (passParentEnvironment) ParentEnvironmentType.CONSOLE else ParentEnvironmentType.NONE
     pty.withParentEnvironmentType(parentEnvironmentType)
 
     // The console mode needs to be disabled when TerminalExecution is used (see com.intellij.execution.process.LocalPtyOptions.Builder.consoleMode)

@@ -97,6 +97,9 @@ final class SbtShellCommunication(project: Project) {
   def command(cmd: String): Future[String] =
     command(cmd, new StringBuilder(), messageAggregator).map(_.toString())
 
+  def command(cmd: => String, id: String): Future[String] =
+    command(cmd, id, new StringBuilder(), messageAggregator, None).map(_.toString())
+
   /** Queue an sbt command for execution in the sbt shell. */
   def command[A](@NonNls cmd: => String, default: A, eventHandler: EventAggregator[A], terminationMessage: Option[String] = None): Future[A] =
     command(cmd, id = UUID.randomUUID().toString, default, eventHandler, terminationMessage)

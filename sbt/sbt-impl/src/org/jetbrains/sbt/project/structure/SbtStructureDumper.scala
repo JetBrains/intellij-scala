@@ -5,7 +5,6 @@ import com.intellij.execution.configurations.ParametersList
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.platform.eel.EelDescriptor
 import com.intellij.platform.eel.provider.utils.EelPathUtils
@@ -17,7 +16,7 @@ import org.jetbrains.sbt.SbtUtil.SbtProcessOptions
 import org.jetbrains.sbt.process.{ProcessOutputCollector, SbtRunner}
 import org.jetbrains.sbt.project.SbtProjectResolver.ImportContext
 import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication}
-import org.jetbrains.sbt.{Sbt, SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabilities, asLocalPath, eelDescriptor}
+import org.jetbrains.sbt.{Sbt, SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabilities, normalizedLocalPath}
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
@@ -37,6 +36,7 @@ sealed trait SbtStructureDumper:
 object SbtStructureDumper:
   final class FromShell extends SbtStructureDumper:
     // Dumping the sbt project structure from sbt-shell is not cancellable.
+    // TODO make it cancelable it should and can be cancelable
     override def cancel(): Unit = ()
 
     def dumpFromShell(
@@ -60,7 +60,7 @@ object SbtStructureDumper:
         context.sbtVersion = currentSbtVersion
 
         val optionsString = makeOptionsStringLiteral(options)
-        val dumpStructureToCommand = s"${SbtUtil.sbtStructureGlobalCommand("dumpStructureTo", currentSbtVersion)} ${normalizedLocalPath(structureFile)}"
+        val dumpStructureToCommand = s"${SbtUtil.sbtStructureGlobalCommand("dumpStructureTo", currentSbtVersion)} ${structureFile.normalizedLocalPath}"
 
         // SCL-22858 compiler bytecode indices are disabled in sbt shell
         val ideaPortSetting = ""
@@ -152,21 +152,17 @@ object SbtStructureDumper:
       sbtStructureJar: Path,
       preferScala2: Boolean,
       passParentEnvironment: Boolean,
-      generateManagedSources: Boolean
+      generateManagedSources: Boolean,
+      project: Option[Project]
     )(using reporter: BuildReporter, context: ImportContext): Try[BuildMessages] =
       val optString = makeOptionsStringLiteral(options)
 
       val sbtVersion = SbtUtil.detectSbtVersion(directory, sbtLauncher)
 
-      val targetEelDescriptor = directory.eelDescriptor
-
-      val transferredStructureFile =
-        EelPathUtils.transferLocalContentToRemote(structureFile, TransferTarget.Temporary(targetEelDescriptor))
-
       val maybePreferScala2Command = if (preferScala2) "preferScala2" else ""
 
       val transferredSbtStructureJar =
-        EelPathUtils.transferLocalContentToRemote(sbtStructureJar, TransferTarget.Temporary(targetEelDescriptor))
+        EelPathUtils.transferLocalContentToRemote(sbtStructureJar, TransferTarget.Temporary(context.eelDescriptor))
 
       val dumpStructureCommand = SbtUtil.sbtStructureGlobalCommand("dumpStructure", sbtVersion)
 
@@ -195,7 +191,7 @@ object SbtStructureDumper:
       val additionalVmOptionsForNewImport =
         if (isNewImportEnabled)
           Seq(
-            s"-Dsbt.structure.outputFile=${normalizedLocalPath(transferredStructureFile)}",
+            s"-Dsbt.structure.outputFile=${structureFile.normalizedLocalPath}",
             s"-Dsbt.structure.options=$optString",
             s"-Dsbt.structure.generateManagedSources=$generateManagedSources",
           )
@@ -216,15 +212,16 @@ object SbtStructureDumper:
 
       val StructureDumpConfig(sbtCommandsString, extraSbtFileToRemove, launcherArgs) =
         dumpProcessArgsMethod(
-          transferredStructureFile,
-          targetEelDescriptor,
+          structureFile,
+          context.eelDescriptor,
           optString,
           generateManagedSources,
           transferredSbtStructureJar,
           maybePreferScala2Command,
           dumpStructureCommand,
           sbtVersion,
-          sbtProcessOptions
+          sbtProcessOptions,
+          project
         )
 
       val buildMessages = runner.runSbt(
@@ -239,8 +236,6 @@ object SbtStructureDumper:
         context.timingCollector,
         sbtProcessOptions.copy(sbtLauncherArgs = sbtProcessOptions.sbtLauncherArgs ++ launcherArgs)
       )
-
-      copyFileContentsIfNeeded(transferredStructureFile, structureFile)
 
       extraSbtFileToRemove.foreach { path =>
         try {
@@ -286,7 +281,8 @@ object SbtStructureDumper:
       maybePreferScala2Command: String,
       dumpStructureCommand: String,
       sbtVersion: SbtVersion,
-      sbtProcessOptions: SbtProcessOptions
+      sbtProcessOptions: SbtProcessOptions,
+      project: Option[Project]
     ): StructureDumpConfig = {
       val commands = buildSbtCompositeCommand(maybePreferScala2Command, dumpStructureCommand)
 
@@ -299,14 +295,14 @@ object SbtStructureDumper:
         val tmpPluginsSbtFile = SbtUtil.createTemporarySbtFile(
           raw"""Compile / unmanagedJars ++= {
             |$fileConverter
-            |Seq(file("${normalizedLocalPath(sbtStructureJar)}")).classpath
+            |Seq(file("${sbtStructureJar.normalizedLocalPath}")).classpath
             |}
-            |""".stripMargin
-        ).toRealPath()
-        val transferredTmpPluginsSbtFile =
-          EelPathUtils.transferLocalContentToRemote(tmpPluginsSbtFile, TransferTarget.Temporary(eelDescriptor))
+            |""".stripMargin,
+          eelDescriptor,
+          project
+        )
 
-        val launcherArgs = Seq(s"-addPluginSbtFile=${normalizedLocalPath(transferredTmpPluginsSbtFile)}")
+        val launcherArgs = Seq(s"-addPluginSbtFile=${tmpPluginsSbtFile.normalizedLocalPath}")
         StructureDumpConfig(commands, extraSbtFileToRemove = None, launcherArgs)
       } else {
         val parametersList = new ParametersList()
@@ -335,18 +331,19 @@ object SbtStructureDumper:
       maybePreferScala2Command: String,
       dumpStructureCommand: String,
       sbtVersion: SbtVersion,
-      @unused sbtProcessOptions: SbtProcessOptions
+      @unused sbtProcessOptions: SbtProcessOptions,
+      @unused project: Option[Project]
     ): StructureDumpConfig = {
       val SeqFqn = SbtVersionCapabilities.collectionsSeqClassFqn(sbtVersion)
       val setCommands = Seq(
         """historyPath := None""",
         s"""shellPrompt := { _ => "" }""",
-        s"""${scopedSbtSetting("""SettingKey[_root_.scala.Option[_root_.sbt.File]]("sbtStructureOutputFile")""", "_root_.sbt.Global", sbtVersion)} := _root_.scala.Some(_root_.sbt.file("${normalizedLocalPath(structureFilePath)}"))""",
+        s"""${scopedSbtSetting("""SettingKey[_root_.scala.Option[_root_.sbt.File]]("sbtStructureOutputFile")""", "_root_.sbt.Global", sbtVersion)} := _root_.scala.Some(_root_.sbt.file("${structureFilePath.normalizedLocalPath}"))""",
         s"""${scopedSbtSetting("""SettingKey[_root_.java.lang.String]("sbtStructureOptions")""", "_root_.sbt.Global", sbtVersion)} := $optString""",
         s"""${scopedSbtSetting("""SettingKey[_root_.scala.Boolean]("generateManagedSourcesDuringStructureDump")""", "_root_.sbt.Global", sbtVersion)} := $generateManagedSources"""
       ).mkString(s"set $SeqFqn(", ",", ")")
 
-      val applyStateTransformersCommand = s"""apply -cp "${normalizedLocalPath(sbtStructureJar)}" "org.jetbrains.sbt.CreateTasks" "sbt.jetbrains.LogDownloadArtifacts""""
+      val applyStateTransformersCommand = s"""apply -cp "${sbtStructureJar.normalizedLocalPath}" "org.jetbrains.sbt.CreateTasks" "sbt.jetbrains.LogDownloadArtifacts""""
 
       val commands = buildSbtCompositeCommand(
         setCommands,
@@ -356,22 +353,7 @@ object SbtStructureDumper:
       )
       StructureDumpConfig(commands, extraSbtFileToRemove = None, launcherArgs = Nil)
     }
-
-    private def copyFileContentsIfNeeded(remotePath: Path, localPath: Path): Unit =
-      import java.io.PrintWriter
-      import java.nio.charset.StandardCharsets.UTF_8
-      import java.nio.file.Files
-      import java.nio.file.StandardOpenOption.*
-      import scala.util.Using
-      if remotePath != localPath then
-        Using.resource(Files.newBufferedReader(remotePath, UTF_8)): reader =>
-          Using.resource(PrintWriter(Files.newBufferedWriter(localPath, UTF_8, CREATE, TRUNCATE_EXISTING, WRITE))): writer =>
-            reader.lines().forEach(writer.println(_))
-
   end FromProcess
-
-  private def normalizedLocalPath(path: Path): String =
-    FileUtil.toSystemIndependentName(path.asLocalPath)
 
   private def buildSbtCompositeCommand(commands: String*): String =
     commands.filter(_.nonEmpty).mkString(";", ";", "")

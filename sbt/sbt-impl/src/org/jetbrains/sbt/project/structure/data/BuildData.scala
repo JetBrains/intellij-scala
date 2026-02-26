@@ -1,5 +1,6 @@
 package org.jetbrains.sbt.project.structure.data
 
+import com.intellij.platform.eel.EelDescriptor
 import org.jetbrains.sbt.project.structure.data.DataSerializers.*
 import org.jetbrains.sbt.project.structure.data.Helpers.uri
 
@@ -27,7 +28,7 @@ object BuildData:
       sort(sources)
     )
 
-  given PathConstructor[String] => XmlDeserializer[BuildData] = what =>
+  given (PathConstructor[String], EelDescriptor) => XmlDeserializer[BuildData] = what =>
     val uri = (what \ "uri").map(_.text.uri).head
     val imports = (what \ ImportElementName).map(_.text)
     val classes = (what \ ClassesElementName).map(e => InterpretablePath.construct(e.text))
