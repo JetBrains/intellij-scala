@@ -42,6 +42,16 @@ ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" 
 
 Global / intellijAttachSources := true
 
+// Warn about old JDK used early, before compilation fails
+Global / onLoad := {
+  val prev = (Global / onLoad).value
+  state => {
+    //NOTE: the min JDK version should be the same as in README.md
+    JdkVersionCheck.warnIfNotRequiredJdk(state.log, minJdkVersion = "21")
+    prev(state)
+  }
+}
+
 // Muted lint warnings for keys used by the IDE, but not by sbt (coming from sbt-ide-settings)
 Global / excludeLintKeys ++= Set(idePackagePrefix, ideSkipProject, ideExcludedDirectories, ideaConfigOptions, intellijPlugins)
 
