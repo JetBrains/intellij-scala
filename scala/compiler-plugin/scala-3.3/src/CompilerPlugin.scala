@@ -45,7 +45,7 @@ private object CompilerPlugin:
         // Handle possible ErrorType("Type mismatch"), e.g. val x: Foo = bar()
         // tpe is binary-incompatible with 3.2, but compiles
         val tpe = if (tree.tpe.isError) tree.expansion.tpe else tree.tpe
-        val s = printer.toText(tpe).mkString(Int.MaxValue, false)
+        val s = TextCompat.mkString(printer.toText(tpe), Int.MaxValue)
           .replace("<root>.this.", "_root_.")
           .replace("<empty>.this.", "_root_.")
           .replace("$.this.", ".")
