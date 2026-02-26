@@ -6,7 +6,7 @@ import dotty.tools.dotc.ast.tpd.{Tree => InternalTree}
 import dotty.tools.dotc.core.Contexts.{Context => InternalContext}
 import dotty.tools.dotc.ast.{Trees => InternalTrees}
 
-object MacroPrinter3 {
+object MacroPrinter_3_8_3 {
 
   inline def showType[T](inline expr: => T): String = ${ showTypeImpl('expr) }
   inline def showMethodDefinition[T](inline expr: T): String = ${ showMethodDefinitionImpl('expr) }
@@ -31,7 +31,7 @@ object MacroPrinter3 {
       .deconst // avoid value types (val x: 42 = 42)
       .widenTermRefExpr // avoid varName.type
     val text = printer.toText(tpe3)
-    Expr(text.mkString(80, false)) // TODO: max width, const or parameterize in settings?
+    Expr(text.mkString(80)) // TODO: max width, const or parameterize in settings?
   }
 
   private def showMethodDefinitionImpl[T](expr: Expr[T])(implicit quotes: Quotes): Expr[String] = {
