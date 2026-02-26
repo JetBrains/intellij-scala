@@ -4,6 +4,7 @@ import com.intellij.openapi.editor.Document
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
@@ -62,7 +63,8 @@ object WorksheetDefaultSourcePreprocessor {
       return Left(null)
     }
 
-    implicit val languageLevel: ScalaLanguageLevel = languageLevelForFile(srcFile)
+    implicit val scalaVersion: ScalaVersion = scalaVersionForFile(srcFile)
+    val languageLevel = scalaVersion.languageLevel
 
     val iterNumber = compilationAttemptForFile(srcFile)
 
@@ -70,7 +72,8 @@ object WorksheetDefaultSourcePreprocessor {
       if210 = "MacroPrinter210",
       if211 = "MacroPrinter211",
       if213 = "MacroPrinter213",
-      if3 = "MacroPrinter3",
+      if300 = "MacroPrinter_3_0_0",
+      if383 = "MacroPrinter_3_8_3",
       default = "MacroPrinter"
     )
     val packageOpt: Option[String] = packageForFile(srcFile)
@@ -97,10 +100,9 @@ object WorksheetDefaultSourcePreprocessor {
     sourceBuilder.process(rootChildren, preDeclarations, postDeclarations)
   }
 
-  private def languageLevelForFile(srcFile: ScalaFile) = {
-    val moduleOpt  = WorksheetFileSettings(srcFile).getModule
-    val maybeLevel = moduleOpt.flatMap(_.scalaLanguageLevel)
-    maybeLevel.getOrElse(ScalaLanguageLevel.getDefault)
+  private def scalaVersionForFile(srcFile: ScalaFile): ScalaVersion = {
+    val moduleOpt = WorksheetFileSettings(srcFile).getModule
+    moduleOpt.fold(ScalaVersion.default)(_.scalaMinorVersionOrDefault)
   }
 
   private def compilationAttemptForFile(srcFile: ScalaFile): Int = {
@@ -143,14 +145,15 @@ object WorksheetDefaultSourcePreprocessor {
   }
 
   @inline
-  def withCompilerVersion[T](if210: => T, if211: => T, if213: => T, if3: => T, default: => T)
-                            (implicit languageLevel: ScalaLanguageLevel): T  =
-    languageLevel match {
+  def withCompilerVersion[T](if210: => T, if211: => T, if213: => T, if300: => T, if383: => T, default: => T)
+                            (implicit scalaVersion: ScalaVersion): T  =
+    scalaVersion.languageLevel match {
       case ScalaLanguageLevel.Scala_2_10 => if210
       case ScalaLanguageLevel.Scala_2_11 => if211
       case ScalaLanguageLevel.Scala_2_13 => if213
-      case _ if languageLevel.isScala3   => if3
-      case _                             => default
+      case level if level.isScala3 =>
+        if (scalaVersion <= ScalaVersion.fromString("3.8.2").get) if300 else if383
+      case _ => default
     }
 
   private def calcContentLines(document: Document, range: TextRange): Int =
@@ -196,7 +199,7 @@ object WorksheetDefaultSourcePreprocessor {
     def process(elements: Iterable[PsiElement],
                 preDeclarations: Iterable[PsiElement],
                 postDeclarations: Iterable[PsiElement])
-               (implicit languageLevel: ScalaLanguageLevel): Either[PsiErrorElement, PreprocessResult] = {
+               (implicit scalaVersion: ScalaVersion): Either[PsiErrorElement, PreprocessResult] = {
 
       val (classStart, classEnd) = (
         s"final class $className { \n",
@@ -205,7 +208,7 @@ object WorksheetDefaultSourcePreprocessor {
 
       val (mainMethodStart, mainMethodEnd) = {
         val unitReturnType = ": Unit ="
-        val mainReturnType = withCompilerVersion("", unitReturnType, unitReturnType, unitReturnType, unitReturnType)
+        val mainReturnType = withCompilerVersion("", unitReturnType, unitReturnType, unitReturnType, unitReturnType, unitReturnType)
         (
           s"""def main()$mainReturnType {
              |val $instanceName = new $className
@@ -258,7 +261,7 @@ object WorksheetDefaultSourcePreprocessor {
           s"""${packageAndImports.mkString(";")}
              |
              |object $className {""".stripMargin,
-          s"""${printArrayText(languageLevel)}
+          s"""${printArrayText(scalaVersion.languageLevel)}
              |
              |}""".stripMargin
         )
