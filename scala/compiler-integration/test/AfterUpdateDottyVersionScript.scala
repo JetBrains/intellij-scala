@@ -26,7 +26,7 @@ import org.junit.{FixMethodOrder, Ignore, Test}
 import java.io.PrintWriter
 import java.lang.annotation.Annotation
 import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, Path, Paths, StandardCopyOption}
+import java.nio.file.{Files, Path, StandardCopyOption}
 import scala.annotation.tailrec
 import scala.io.Source
 import scala.jdk.CollectionConverters.ListHasAsScala
@@ -105,7 +105,7 @@ object AfterUpdateDottyVersionScript {
 
   class ScalaRepository private (branch: String) {
     lazy val path: Path = {
-      val res = Paths.get(System.getProperty("java.io.tmpdir")).toRealPath() / s"after-update-dotty-version-script-repo-download-$branch"
+      val res = Path.of(System.getProperty("java.io.tmpdir")).toRealPath() / s"after-update-dotty-version-script-repo-download-$branch"
       NioFiles.deleteRecursively(res)
       res
     }
@@ -226,7 +226,7 @@ object AfterUpdateDottyVersionScript {
     }
   }
 
-  private val testDataPath: Path = Paths.get(TestUtils.getTestDataPath)
+  private val testDataPath: Path = Path.of(TestUtils.getTestDataPath)
 
   private def downloadRepository(url: String): Path = {
     val repoFile = newTempFile()
@@ -266,13 +266,13 @@ object AfterUpdateDottyVersionScript {
     def test(): Unit = {
       log("start")
 
-      val resourcesPath = scalaUltimateProjectDir.resolve(Paths.get(
+      val resourcesPath = scalaUltimateProjectDir.resolve(Path.of(
         "community", "scala", "runners", "resources"
       ))
-      val packagePath = Paths.get("org", "jetbrains", "plugins", "scala", "worksheet")
+      val packagePath = Path.of("org", "jetbrains", "plugins", "scala", "worksheet")
       val sourceFileName = "MacroPrinter3_sources.scala"
       val targetDir = resourcesPath.resolve(packagePath)
-      val sourceFile = targetDir.resolve(Paths.get("src", sourceFileName))
+      val sourceFile = targetDir.resolve(Path.of("src", sourceFileName))
       assertTrue(Path.of(sourceFile.toUri).exists)
 
       log("reading source file")
@@ -325,7 +325,7 @@ object AfterUpdateDottyVersionScript {
     def test(): Unit = {
       val repo = ScalaRepository.prepareBranch(branch)
 
-      val srcDir = repo.path.resolve(Paths.get("tests", "pos")).toAbsolutePath
+      val srcDir = repo.path.resolve(Path.of("tests", "pos")).toAbsolutePath
 
       clearDirectory(successDataPath)
       clearDirectory(failDataPath)
