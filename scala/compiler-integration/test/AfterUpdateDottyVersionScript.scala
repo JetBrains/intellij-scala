@@ -6,6 +6,7 @@ import com.intellij.platform.templates.github.{DownloadUtil, ZipUtil => GithubZi
 import com.intellij.pom.java.LanguageLevel
 import junit.framework.TestCase
 import junitparams.JUnitParamsRunner
+import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.compiler.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.extensions.PathExt
@@ -15,7 +16,6 @@ import org.jetbrains.plugins.scala.lang.resolveSemanticDb._
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.configurations._
 import org.jetbrains.plugins.scala.project.VirtualFileExt
 import org.jetbrains.plugins.scala.util.TestUtils
-import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.jetbrains.sbt.lang.completion.UpdateScalacOptionsInfo
 import org.junit.Assert.{assertEquals, assertTrue, fail}
 import org.junit.runner.{Computer, JUnitCore, RunWith, Runner}
@@ -47,8 +47,14 @@ class AfterUpdateDottyVersionScript {
 
   import AfterUpdateDottyVersionScript._
 
-  @Test def test_1_RecompileMacroPrinter3(): Unit =
-    runScript(Script.FromTestCase(classOf[RecompileMacroPrinter3]))
+  /**
+   * Not needed to be run for each new Scala version. It is only here for convenient running.
+   */
+  // TODO: Factor this out to a separate script file.
+  @Test def test_1_RecompileMacroPrinter3(): Unit = {
+    runScript(Script.FromTestCase(classOf[RecompileMacroPrinter_3_0_0]))
+    runScript(Script.FromTestCase(classOf[RecompileMacroPrinter_3_8_3]))
+  }
 
   /**
    * NOTE:
@@ -246,19 +252,30 @@ object AfterUpdateDottyVersionScript {
     assert(rc == 0, s"Failed to stash changes in repository $repository")
   }
 
-  /**
-   * Recompile some classes needed in tests
-   */
-  class RecompileMacroPrinter3
+  private def versionError(version: String): Nothing =
+    sys.error(s"Scala $version is not recognized as an official Scala release")
+
+  class RecompileMacroPrinter_3_0_0 extends AbstractRecompileMacroPrinter(
+    scalaVersion = ScalaVersion.fromString("3.0.0").getOrElse(versionError("3.0.0")),
+    macroPrinterName = "MacroPrinter_3_0_0"
+  ) {
+    override def testProjectJdkVersion: LanguageLevel = LanguageLevel.JDK_1_8
+  }
+
+  class RecompileMacroPrinter_3_8_3 extends AbstractRecompileMacroPrinter(
+    scalaVersion = ScalaVersion.fromString("3.8.3-RC1").getOrElse(versionError("3.8.3-RC1")),
+    macroPrinterName = "MacroPrinter_3_8_3"
+  ) {
+    override def testProjectJdkVersion: LanguageLevel = LanguageLevel.JDK_17
+  }
+
+  abstract class AbstractRecompileMacroPrinter(scalaVersion: ScalaVersion, macroPrinterName: String)
     extends ScalaCompilerTestBase {
 
-    /** For now looks like MacroPrinter3 compiled for Scala 3.0 works for Scala 3.1 automatically */
-    override protected def supportedIn(version: ScalaVersion): Boolean =
-      version == LatestScalaVersions.Scala_3_0
+    // Set an exact Scala version.
+    injectedScalaVersion = scalaVersion
 
     override protected val includeCompilerAsLibrary: Boolean = true
-
-    override def testProjectJdkVersion = LanguageLevel.JDK_21
 
     private def log(msg: String): Unit =
       println(s"${this.getClass.getSimpleName}: $msg")
@@ -270,7 +287,7 @@ object AfterUpdateDottyVersionScript {
         "community", "scala", "runners", "resources"
       ))
       val packagePath = Path.of("org", "jetbrains", "plugins", "scala", "worksheet")
-      val sourceFileName = "MacroPrinter3_sources.scala"
+      val sourceFileName = s"${macroPrinterName}_source.scala"
       val targetDir = resourcesPath.resolve(packagePath)
       val sourceFile = targetDir.resolve(Path.of("src", sourceFileName))
       assertTrue(Path.of(sourceFile.toUri).exists)
@@ -278,7 +295,7 @@ object AfterUpdateDottyVersionScript {
       log("reading source file")
       val sourceContent = readFile(sourceFile)
       addFileToProjectSources(sourceFileName, sourceContent)
-      log("compiling")
+      log(s"compiling using Scala ${scalaVersion.minor}")
       compiler.make().assertNoProblems()
 
       val compileOutput = CompilerModuleExtension.getInstance(getModule).getCompilerOutputPath
@@ -289,8 +306,8 @@ object AfterUpdateDottyVersionScript {
 
       val classes = folderWithClasses.listFiles.toSeq
       assertEquals(
-        classes.map(_.getName).toSet,
-        Set("MacroPrinter3$.class", "MacroPrinter3.class", "MacroPrinter3.tasty")
+        Set(s"$macroPrinterName$$.class", s"$macroPrinterName.class", s"$macroPrinterName.tasty"),
+        classes.map(_.getName).toSet
       )
 
       log(
