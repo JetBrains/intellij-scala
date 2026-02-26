@@ -101,7 +101,7 @@ class WorksheetReplIntegration_Scala_3_Next_RC_Test extends WorksheetReplIntegra
         |
         |val x: Int = 2
         |val y: String = "21231"
-        |val x2: java.io.PrintStream = null
+        |val x2: PrintStream = null
         |
         |def f: Int
         |
