@@ -29,9 +29,6 @@ import scala.concurrent.duration.{DurationInt, FiniteDuration}
 import scala.concurrent.{Future, Promise}
 import scala.util.{Failure, Success}
 
-// TODO: this class has become too complicated, too much random state updates.
-//  We need to design a better architecture for it.
-//  Finite state machine would be a good fit here
 /**
  * Service for connecting with an sbt shell associated with project.
  */
@@ -148,12 +145,14 @@ final class SbtShellCommunication(project: Project) {
   }
 
   /**
-   * Sends "i" (ignore) to the sbt shell.
+   * Sends "i" (ignore) to the sbt shell. Works only if the shell is not already in the termination process.
    * Used to handle the interactive error prompt: "Project loading failed: (r)etry, (q)uit, (l)ast, or (i)gnore".
    *
    * @see [[org.jetbrains.sbt.shell.SbtProcessUtil.promptError]]
    */
   private def sendIgnore(): Unit = {
+    if currentState.isShuttingDownOrOff then return
+
     // Prior to sbt 1.4.0, the load failure command input required a newline.
     // However, in newer versions, adding it unconditionally causes a double prompt to appear.
     // See https://github.com/sbt/sbt/commit/5afc0f0fdfe4500770c000a02fa57c9b46e8de3c
@@ -165,9 +164,13 @@ final class SbtShellCommunication(project: Project) {
   }
 
   /**
-    * Send string directly to the shell without regarding the shell state.
-    * This should only be used to send keypresses such as ctrl+c
-    */
+   * Send string directly to the shell without regarding the shell state.
+   * This should only be used to send keypresses such as ctrl+c.
+   *
+   * ATTENTION!
+   *
+   * To execute it needs to acquire the shell instance, which may trigger the sbt shell startup.
+   */
   def send(keys: String): Unit =
     process.usingWriter { shell =>
       shell.print(keys)
