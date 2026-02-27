@@ -3,9 +3,10 @@ package org.jetbrains.plugins.scala.lang.resolve
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.PsiClass
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.extensions.PathExt
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPolyResolvable, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.{ScParameterImpl, ScTypeParamImpl}
@@ -26,8 +27,9 @@ class ScaladocLinkResolveTest_Old extends ScalaResolveTestCase {
     //NOTE: the file is prepared in `setUp`
     val caretOffsets: Seq[Int] = getEditor.getCaretModel.getAllCarets.asScala.map(_.getOffset).toSeq
     for (caretOffset <- caretOffsets) {
-      val reference = getFile.findReferenceAt(caretOffset)
-      val results = reference.asInstanceOf[ScReference].multiResolveScala(false)
+
+      val reference = PsiTreeUtil.getParentOfType(getFile.findElementAt(caretOffset), classOf[ScPolyResolvable])
+      val results = reference.multiResolveScala(false)
       assertEquals(
         s"""Wrong number of resolved elements for reference: $reference
            |All elements:
