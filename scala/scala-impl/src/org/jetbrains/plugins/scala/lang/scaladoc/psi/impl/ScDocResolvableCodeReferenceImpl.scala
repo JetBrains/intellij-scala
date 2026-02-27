@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedWithR
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinitionLike}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceImpl
 import org.jetbrains.plugins.scala.lang.resolve.StdKinds._
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
@@ -93,7 +93,7 @@ class ScDocResolvableCodeReferenceImpl(node: ASTNode) extends ScStableCodeRefere
       val topLevelResults = nonEmptyOr(
         searchThrough(manager.getCachedClass(scope, "scala.Predef")),
         nonEmptyOr(
-          searchThrough(manager.getCachedPackage("scala")),
+          searchThrough(manager.getCachedPackage("scala").map(ScPackageImpl.apply)),
           searchThrough(manager.emptyNamePackage)
         )
       )

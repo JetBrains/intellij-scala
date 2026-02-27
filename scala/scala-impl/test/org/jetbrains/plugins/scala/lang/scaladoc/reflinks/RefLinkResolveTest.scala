@@ -421,4 +421,22 @@ class RefLinkResolveTest extends ScalaLightCodeInsightFixtureTestCase {
       |}
       |""".stripMargin
   )
+
+  def testObjectResolveInScalaPackage(): Unit = checkAll(
+    """
+      |package scala
+      |
+      |class Myself {                        %myself%
+      |  /**
+      |   * [[Myself.Exception exception]]
+      |   * [[Myself           myself]]
+      |   */
+      |  def func(): Unit = ()
+      |}
+      |
+      |object Myself {                       %myself%
+      | class Exception extends Throwable    %exception%
+      |}
+      |""".stripMargin
+  )
 }
