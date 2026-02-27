@@ -1,21 +1,24 @@
 package org.jetbrains.plugins.scala.uast
 
 import com.intellij.lang.Language
-import com.intellij.openapi.project.Project
 import com.intellij.platform.uast.testFramework.common.AllUastTypesKt.allUElementSubtypes
-import junit.framework.TestResult
-import org.jetbrains.plugins.scala.base.ScalaFileSetTestCase
+import junitparams.JUnitParamsRunner
+import org.jetbrains.plugins.scala.base.SdkFileSetTestBase
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.uast.withPossibleSourceTypesCheck
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage, ScalaVersion}
 import org.jetbrains.uast.UElement
 import org.junit.Ignore
+import org.junit.runner.{Computer, JUnitCore, RunWith, Runner}
+import org.junit.runners.model.{FrameworkMethod, RunnerBuilder}
 
+import java.lang.annotation.Annotation
 import java.nio.file.{Files, Path, Paths}
 import java.text.SimpleDateFormat
 import java.util.Calendar
-import scala.annotation.nowarn
+import scala.annotation.tailrec
+import scala.collection.mutable
 import scala.jdk.CollectionConverters.IterableHasAsScala
 import scala.util.Try
 
@@ -28,10 +31,6 @@ object GeneratePossibleSourceTypesMapping {
   private def log(message: String): Unit =
     println(s"[${format.format(Calendar.getInstance().getTime)}] $message")
 
-  private val excluded: Set[String] = Set(
-    "large.test", "large2.test" // they're just very large with ~10k references/definitions
-  )
-
   val mappingOutputPath: Path =
     Paths.get(TestUtils.findCommunityRoot)
       .resolve("scala/uast/src/org/jetbrains/plugins/scala/uast/ScalaUastSourceTypeMapping.scala")
@@ -40,7 +39,6 @@ object GeneratePossibleSourceTypesMapping {
     try run()
     finally System.exit(0)
   }
-
 
   private def run(): Unit = {
     log("Gather mapping...")
@@ -109,35 +107,45 @@ object GeneratePossibleSourceTypesMapping {
     log("Done.")
   }
 
-  private def gatherMapping(): Map[String, Set[String]] = {
-    var mapping = Map.empty[String, Set[String]]
+  // This is essentially a static reference to a mutable map.
+  // This is a way to return a result from a Unit method (runTest).
+  // The map cannot be provided as a class parameter because each of the GatheringTestSuite implementations
+  //  needs to be a proper JUnit class with a zero-argument constructor.
+  object GatheringTestSuiteMapping {
+    val mapping: mutable.Map[String, Set[String]] = mutable.Map.empty
 
     def add(classOfUElement: String, classOfElement: String): Unit = {
-      mapping = mapping.updatedWith(classOfUElement) {
-        set =>
-          if (!set.exists(_.contains(classOfElement))) {
-            log(s"    Found $classOfUElement -> $classOfElement")
-          }
-          Some(set.getOrElse(Set.empty) + classOfElement)
+      mapping.updateWith(classOfUElement) { set =>
+        if (!set.exists(_.contains(classOfElement))) {
+          log(s"    Found $classOfUElement -> $classOfElement")
+        }
+        Some(set.getOrElse(Set.empty) + classOfElement)
       }
     }
+  }
 
+  private def gatherMapping(): Map[String, Set[String]] = {
     @Ignore("for local running only")
-    @nowarn("cat=deprecation")
-    class GatheringTestSuite(path: String, lang: Language, extensions: String*) extends ScalaFileSetTestCase(path, extensions: _*) {
+    abstract class GatheringTestSuite(path: Path, lang: Language, extensions: String*) extends SdkFileSetTestBase {
+      private val excluded: Set[String] = Set(
+        "large.test", "large2.test" // they're just very large with ~10k references/definitions
+      )
 
-      override protected def needsSdk(): Boolean = true
-
-      override def supportedInScalaVersion(version: ScalaVersion): Boolean =
+      override protected def supportedIn(version: ScalaVersion): Boolean =
         version == ScalaVersion.Latest.Scala_2_13
 
-      override protected def getLanguage: Language = lang
+      override protected def relativeTestDataPath: Path = path
 
-      override protected def runTest(testName0: String, content: String, project: Project): Unit = if (!excluded(testName0)) {
+      override protected def transform(testName: String, fileText: String): String = fileText
+
+      override protected def language: Language = lang
+
+      override protected def testFileExtensions: Seq[String] = extensions.toSeq
+
+      override protected def runTest(testName: String, fileText: String): Unit = if (!excluded(testName)) {
         withPossibleSourceTypesCheck {
-          log(s"Gathering from $testName0")
-          val file = createLightFile(content, project)
-
+          log(s"Gathering from $testName")
+          val file = createLightFile(fileText)
           val plugin = new ScalaUastLanguagePlugin
           for (element <- file.depthFirst()) {
             val classOfElement = element.getClass.getSimpleName
@@ -147,33 +155,90 @@ object GeneratePossibleSourceTypesMapping {
               uClass <- allUElementSubtypes.asScala if uClass.isInstance(uElement)
             } {
               val classOfUElement = uClass.getSimpleName
-              add(classOfUElement, classOfElement)
+              GatheringTestSuiteMapping.add(classOfUElement, classOfElement)
             }
           }
         }
       }
     }
 
-    new GatheringTestSuite("/parser/data", ScalaLanguage.INSTANCE).run(new TestResult)
-    new GatheringTestSuite("/../src", ScalaLanguage.INSTANCE, ".scala").run(new TestResult)
-    new GatheringTestSuite("/parser/scala3Import/success", Scala3Language.INSTANCE, ".test").run(new TestResult)
+    class Scala2ParserData extends GatheringTestSuite(Path.of("parser", "data"), ScalaLanguage.INSTANCE, ".test")
+    class Scala2Sources extends GatheringTestSuite(Path.of("..", "src"), ScalaLanguage.INSTANCE, ".scala")
+    class Scala3ParserLts extends GatheringTestSuite(Path.of("parser", "scala3Import", "lts", "success"), Scala3Language.INSTANCE, ".test")
+    class Scala3ParserNewest extends GatheringTestSuite(Path.of("parser", "scala3Import", "newest", "success"), Scala3Language.INSTANCE, ".test")
 
-    if (mapping.sizeIs < 10) {
+    def runScript(testClass: Class[?]): Unit = {
+      findAnnotation(testClass, classOf[RunWith]) match {
+        case Some(annotation) =>
+          val correct = annotation.value() == classOf[JUnitParamsRunner]
+          if (!correct) {
+            sys.error(s"The test class ${testClass.getName} must be annotated with `@RunWith(classOf[JUnitParamsRunner])`")
+          }
+        case None =>
+          sys.error(s"The test class ${testClass.getName} must be annotated with `@RunWith(classOf[JUnitParamsRunner])`")
+      }
+
+      // A hack to ignore the @Ignore annotation, otherwise the test class would not be executed by the JUnit 4 machinery.
+      val computer = new Computer() {
+        override def getRunner(builder: RunnerBuilder, testClass: Class[_]): Runner = new JUnitParamsRunner(testClass) {
+          override def isIgnored(child: FrameworkMethod): Boolean = false
+        }
+      }
+
+      val result = JUnitCore.runClasses(computer, testClass)
+      result.getFailures.asScala.headOption match {
+        case Some(failure) => throw failure.getException
+        case None =>
+      }
+    }
+
+    def findAnnotation[T <: Annotation](klass: Class[_], annotationClass: Class[T]): Option[T] = {
+      @tailrec
+      def inner(c: Class[_]): Annotation = c.getAnnotation(annotationClass) match {
+        case null =>
+          c.getSuperclass match {
+            case null => null
+            case parent => inner(parent)
+          }
+        case annotation => annotation
+      }
+
+      Option(inner(klass).asInstanceOf[T])
+    }
+
+    try {
+      runScript(classOf[Scala2ParserData])
+      runScript(classOf[Scala2Sources])
+      runScript(classOf[Scala3ParserLts])
+      runScript(classOf[Scala3ParserNewest])
+    } catch {
+      case t: Throwable =>
+        t.printStackTrace()
+    }
+
+    if (GatheringTestSuiteMapping.mapping.sizeIs < 10) {
       System.err.println(
         """#####################################################################################
           |# Inner tests were not run...
-          |# Make sure you have -cp set to scalaUltimate in your run config.
-          |# If that doesn't help try adding VM option -Didea.force.use.core.classloader=true
-          |# and --add-opens options (see scalaUltimate run configuration)
-          |#
-          |# If you see an error mentioning a Native Library (e.g. you use Apple Silicon),
-          |# copy -Djna.boot.library.path options from scalaUltimate run configuration.
+          |# After creating the GeneratePossibleSourceTypesMapping run configuration, it needs to be edited
+          |# to be properly configured. Please do the following steps:
+          |#   1. Run any other test in the IDE to generate a Run Configuration for it. For example, run
+          |#      `org.jetbrains.plugins.scala.uast.ScalaPossibleSourceTypesTest` which is in the same directory as
+          |#      this script.
+          |#   2. Set JBR as the JDK used for running the GeneratePossibleSourceTypesMapping. JBR needs to be used
+          |#      because the script runs the whole IDE.
+          |#   3. Choose scalaUltimate.test in the -cp dropdown.
+          |#   4. From the Run Configuration of the other test you just ran, copy the whole contents of the VM Options
+          |#      field. It looks something like: -cp "" @<some path on your machine>/junit_template_argfile.txt into
+          |#      the VM Options field of the GeneratePossibleSourceTypesMapping Run Configuration. If the VM Options
+          |#      field is not visible, you need to make it visible by clicking the Modify Options link and selecting
+          |#      Add VM Options. Then simply paste the contents inside.
           |#####################################################################################
           |""".stripMargin.trim
       )
       System.exit(1)
     }
 
-    mapping
+    GatheringTestSuiteMapping.mapping.toMap
   }
 }

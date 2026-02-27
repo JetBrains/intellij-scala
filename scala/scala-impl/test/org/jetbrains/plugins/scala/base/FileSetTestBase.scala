@@ -98,6 +98,8 @@ sealed trait FileSetTestBase extends FailableTest { self: LightJavaCodeInsightFi
 
   protected def language: Language = ScalaLanguage.INSTANCE
 
+  protected def testFileExtensions: Seq[String] = Seq(".test")
+
   protected def baseTestParameters: Array[AnyRef] = {
     val testDirectoryPath: Path = baseTestDataPath / relativeTestDataPath
     findTestFiles(testDirectoryPath).map { path =>
@@ -152,10 +154,13 @@ sealed trait FileSetTestBase extends FailableTest { self: LightJavaCodeInsightFi
 
     !canonicalPath.contains(".svn") &&
       !canonicalPath.contains(".cvs") &&
-      name.endsWith(".test") &&
+      fileExtensionFilter(name) &&
       !name.startsWith("_") &&
       name != "CVS"
   }
+
+  private def fileExtensionFilter(fileName: String): Boolean =
+    testFileExtensions.exists(fileName.endsWith)
 
   protected def scalaCodeStyleSettings: ScalaCodeStyleSettings =
     ScalaCodeStyleSettings.getInstance(project)
