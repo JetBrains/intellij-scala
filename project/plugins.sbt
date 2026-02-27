@@ -8,7 +8,7 @@ addSbtPlugin("org.jetbrains.scala" % "sbt-kotlin-plugin" % "3.1.7")
 
 // Only used for local development purposes, not in CI/CD.
 // See ../README.md for some examples of how to generate reports locally.
-addSbtPlugin("org.scoverage" %% "sbt-scoverage" % "2.3.1")
+addSbtPlugin("org.scoverage" %% "sbt-scoverage" % "2.4.4")
 
 libraryDependencies ++= Seq(
   "io.get-coursier" %% "coursier-sbt-maven-repository" % "2.1.24"
