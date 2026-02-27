@@ -507,15 +507,6 @@ object ScaladocMarkdownParsing {
     rootMarker.done(root)
   }
 
-  def parseCodeReference(psiBuilder: PsiBuilder): com.intellij.lang.ASTNode = {
-    val marker = psiBuilder.mark()
-    val scPsiBuilder = new ScalaPsiBuilderImpl(psiBuilder, true)
-    StableIdForImport(ScalaDocTokenType.DOC_CODE_LINK_VALUE)(scPsiBuilder)
-    while (!scPsiBuilder.eof()) scPsiBuilder.advanceLexer()
-    marker.done(ScalaDocElementTypes.SCALA_DOC_REFERENCE_LINK)
-    psiBuilder.getTreeBuilt
-  }
-
   private val contentAfterStar = raw"\*( )+\S".r
   private def splitContext(input: CharSequence): (String, Seq[Int]) = {
     val text = input.toString

@@ -8,7 +8,6 @@ import org.apache.commons.lang3.StringUtils
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.TokenSets.TokenSetExt
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.PsiBuilderExt
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.{ScalaPsiBuilder, ScalaPsiBuilderImpl}
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableIdForImport
@@ -222,6 +221,14 @@ class MyScaladocParsing(private val builder: PsiBuilder,
     if (isNewLine)
       hasLineBreak = true
 
+  private def parseScalaDocRef(): Unit = {
+    val refMarker = builder.mark()
+    while (builder.getTokenType != DOC_LINK_CLOSE_TAG && builder.getTokenType != DOC_WHITESPACE) {
+      builder.advanceLexer()
+    }
+    refMarker.collapse(ScalaDocElementTypes.SCALA_DOC_REFERENCE_LINK)
+  }
+
   private def parseCommentData(): Unit = {
     val tokenType = builder.getTokenType
     tokenType match {
@@ -319,12 +326,7 @@ class MyScaladocParsing(private val builder: PsiBuilder,
         marker.drop()
         return false
       case DOC_LINK_TAG =>
-        if (builder.getTokenType == DOC_WHITESPACE)
-          builder.advanceLexer()
-        if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER && !isEndOfComment) {
-          val psiBuilder = mkScalaPsiBuilder(builder, isScala3 = false)
-          StableIdForImport(DOC_CODE_LINK_VALUE)(psiBuilder)
-        }
+        parseScalaDocRef()
       case DOC_MONOSPACE_TAG =>
         parseUntilAndConvertToData(monospaceEndTokenSet)
         marker.done(syntaxElementType)
@@ -527,8 +529,7 @@ class MyScaladocParsing(private val builder: PsiBuilder,
     tagName match {
       case TagNames.Throws =>
         consumeWhiteSpaces()
-        val psiBuilder = mkScalaPsiBuilder(builder, isScala3 = false)
-        StableIdForImport(DOC_TAG_VALUE_TOKEN)(psiBuilder)
+        parseScalaDocRef()
       case TagNames.Param | TagNames.TypeParam | TagNames.Define =>
         if (builder.lookAhead(DOC_WHITESPACE, DOC_TAG_VALUE_TOKEN)) {
           builder.advanceLexer() // ate space
