@@ -42,10 +42,9 @@ object SbtStructureDumper:
     def dumpFromShell(
       project: Project,
       structureFile: Path,
-      options: Seq[String],
+      optString: String,
       reporter: BuildReporter,
-      preferScala2: Boolean,
-      generateManagedSources: Boolean
+      preferScala2: Boolean
     )(using context: ImportContext): Future[BuildMessages] =
       reporter.start()
 
@@ -59,7 +58,6 @@ object SbtStructureDumper:
 
         context.sbtVersion = currentSbtVersion
 
-        val optionsString = makeOptionsStringLiteral(options)
         val dumpStructureToCommand = s"${SbtUtil.sbtStructureGlobalCommand("dumpStructureTo", currentSbtVersion)} ${structureFile.normalizedLocalPath}"
 
         // SCL-22858 compiler bytecode indices are disabled in sbt shell
@@ -75,8 +73,7 @@ object SbtStructureDumper:
         if (Registry.is("sbt.shell.import.old") || !isMinimumSbt) {
           val SeqFqn = SbtVersionCapabilities.collectionsSeqClassFqn(currentSbtVersion)
           val setCommands = Seq(
-            s"""${scopedSbtSetting("_root_.org.jetbrains.sbt.StructureKeys.sbtStructureOptions", "_root_.sbt.Global", currentSbtVersion)} := $optionsString""",
-            s"""${scopedSbtSetting("_root_.org.jetbrains.sbt.StructureKeys.generateManagedSourcesDuringStructureDump", "_root_.sbt.Global", currentSbtVersion)} := $generateManagedSources"""
+            s"""${scopedSbtSetting("_root_.org.jetbrains.sbt.StructureKeys.sbtStructureOptions", "_root_.sbt.Global", currentSbtVersion)} := $optString""",
           ).mkString(s"set $SeqFqn(", ",", ")")
 
           buildSbtCompositeCommand(
@@ -87,25 +84,16 @@ object SbtStructureDumper:
             s"session clear-all $ideaPortSetting"
           )
         } else {
-          // The system properties will later be used in the `sbt-structure` plugin to initialize settings.
-          // The same trick is used in #dumpFromProcess.
-          // Setting the properties with `System.setProperty(..)` affects the sbt settings initialization
-          // because the `reload` command is executed afterward.
-          // At the end of the `eval` command, () is added. This is done because the `eval` command always
-          // prints its return value to the terminal. Without this, it would sometimes print `true` or `false`,
-          // depending on what was returned from the last `System.setProperty(..)`.
-          // To make the output more consistent, I added () so it always returns the same value ([info] ans: Unit = null).
-          val setSystemProps =
-            s"""eval {
-               |System.setProperty("sbt.structure.options", $optionsString);
-               |System.setProperty("sbt.structure.generateManagedSources", "${generateManagedSources.toString}");
-               |() }""".stripMargin.replace('\n', ' ')
+          // `setSbtStructureOptionsProperty` command override the `sbt.structure.options` system property inside the sbt-structure plugin.
+          // Later this property is used to initialize `sbtStructureOptions` setting.
+          // `setSbtStructureOptionsProperty` must be executed first to ensure system properties are updated
+          // before the `reload` initializes the settings.
 
           // `session clear-all` is not used with this import method because, effectively, nothing needs to be cleared.
           // When it is used, the message "No session settings defined" is displayed in the shell.
           // If, in the future, any session settings are modified, maybe this should be added again.
           buildSbtCompositeCommand(
-            setSystemProps,
+            s"setSbtStructureOptionsProperty $optString",
             "reload",
             maybePreferScala2Command,
             dumpStructureToCommand
@@ -143,7 +131,7 @@ object SbtStructureDumper:
       indicator: ProgressIndicator,
       directory: Path,
       structureFile: Path,
-      options: Seq[String],
+      optString: String,
       vmExecutable: Path,
       vmOptions: Seq[String],
       sbtOptions: Seq[String],
@@ -152,11 +140,8 @@ object SbtStructureDumper:
       sbtStructureJar: Path,
       preferScala2: Boolean,
       passParentEnvironment: Boolean,
-      generateManagedSources: Boolean,
       project: Option[Project]
     )(using reporter: BuildReporter, context: ImportContext): Try[BuildMessages] =
-      val optString = makeOptionsStringLiteral(options)
-
       val sbtVersion = SbtUtil.detectSbtVersion(directory, sbtLauncher)
 
       val maybePreferScala2Command = if (preferScala2) "preferScala2" else ""
@@ -193,7 +178,6 @@ object SbtStructureDumper:
           Seq(
             s"-Dsbt.structure.outputFile=${structureFile.normalizedLocalPath}",
             s"-Dsbt.structure.options=$optString",
-            s"-Dsbt.structure.generateManagedSources=$generateManagedSources",
           )
         else Nil
 
@@ -215,7 +199,6 @@ object SbtStructureDumper:
           structureFile,
           context.eelDescriptor,
           optString,
-          generateManagedSources,
           transferredSbtStructureJar,
           maybePreferScala2Command,
           dumpStructureCommand,
@@ -276,7 +259,6 @@ object SbtStructureDumper:
       @unused structureFilePath: Path,
       eelDescriptor: EelDescriptor,
       @unused optString: String,
-      @unused generateManagedSources: Boolean,
       sbtStructureJar: Path,
       maybePreferScala2Command: String,
       dumpStructureCommand: String,
@@ -326,7 +308,6 @@ object SbtStructureDumper:
       structureFilePath: Path,
       @unused eelDescriptor: EelDescriptor,
       optString: String,
-      generateManagedSources: Boolean,
       sbtStructureJar: Path,
       maybePreferScala2Command: String,
       dumpStructureCommand: String,
@@ -340,7 +321,6 @@ object SbtStructureDumper:
         s"""shellPrompt := { _ => "" }""",
         s"""${scopedSbtSetting("""SettingKey[_root_.scala.Option[_root_.sbt.File]]("sbtStructureOutputFile")""", "_root_.sbt.Global", sbtVersion)} := _root_.scala.Some(_root_.sbt.file("${structureFilePath.normalizedLocalPath}"))""",
         s"""${scopedSbtSetting("""SettingKey[_root_.java.lang.String]("sbtStructureOptions")""", "_root_.sbt.Global", sbtVersion)} := $optString""",
-        s"""${scopedSbtSetting("""SettingKey[_root_.scala.Boolean]("generateManagedSourcesDuringStructureDump")""", "_root_.sbt.Global", sbtVersion)} := $generateManagedSources"""
       ).mkString(s"set $SeqFqn(", ",", ")")
 
       val applyStateTransformersCommand = s"""apply -cp "${sbtStructureJar.normalizedLocalPath}" "org.jetbrains.sbt.CreateTasks" "sbt.jetbrains.LogDownloadArtifacts""""
@@ -357,9 +337,6 @@ object SbtStructureDumper:
 
   private def buildSbtCompositeCommand(commands: String*): String =
     commands.filter(_.nonEmpty).mkString(";", ";", "")
-
-  private def makeOptionsStringLiteral(options: Seq[String]): String =
-    options.mkString("\"", ", ", "\"")
 
   private def scopedSbtSetting(setting: String, scope: String, sbtVersion: SbtVersion): String =
     val supportsSlashSyntax = SbtVersionCapabilities.isSlashSyntaxSupported(sbtVersion)

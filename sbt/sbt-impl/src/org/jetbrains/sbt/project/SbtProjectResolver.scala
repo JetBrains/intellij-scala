@@ -201,7 +201,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   )(implicit reporter: BuildReporter, context: ImportContext): Try[(Elem, BuildMessages)] = {
     SbtProjectResolver.processOutputOfLatestStructureDump = ""
 
-    val options = getSbtStructureDumpOptions(settings)
+    val optString = makeOptionsStringLiteral(settings)
 
     def doDumpStructure(structureFile: Path): Try[(Elem, BuildMessages)] = {
       val dumper =
@@ -219,10 +219,9 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
             val messagesF = sd.dumpFromShell(
               project,
               transferredStructureFile,
-              options,
+              optString,
               reporter,
-              settings.preferScala2,
-              settings.generateManagedSourcesDuringProjectSync
+              settings.preferScala2
             )
             Try {
               val testTimeout =
@@ -249,7 +248,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
               indicator,
               projectRoot,
               transferredStructureFile,
-              options,
+              optString,
               settings.vmExecutable.toPath,
               settings.vmOptions,
               settings.sbtOptions,
@@ -258,7 +257,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
               sbtStructureJar,
               settings.preferScala2,
               settings.passParentEnvironment,
-              settings.generateManagedSourcesDuringProjectSync,
               Option(project)
             )
         }
@@ -406,12 +404,16 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     writeStructureFile: Boolean
   )
 
-  private def getSbtStructureDumpOptions(settings: SbtExecutionSettings): Seq[String] =
-    Seq("download") ++
-      settings.resolveClassifiers.seq("resolveSourceClassifiers") ++
-      settings.resolveSbtClassifiers.seq("resolveSbtClassifiers") ++
-      settings.separateProdTestSources.seq("separateProdAndTestSources")
+  private def makeOptionsStringLiteral(settings: SbtExecutionSettings): String = {
+    val options =
+      Seq("download") ++
+        settings.resolveClassifiers.seq("resolveSourceClassifiers") ++
+        settings.resolveSbtClassifiers.seq("resolveSbtClassifiers") ++
+        settings.separateProdTestSources.seq("separateProdAndTestSources") ++
+        settings.generateManagedSourcesDuringProjectSync.seq("generateManagedSources")
 
+    options.mkString("\"", ", ", "\"")
+  }
 
   /**
    * Create project preview without using sbt, since sbt import can fail and users would have to do a manual edit of the project.
