@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.project.ProjectExt
 // SCL-23216
 object Highlighting {
   // All Scala editors (including in Diff Viewer). Accessed from multiple threads. Faster than EditorFactory.getEditors.
+  // Effectively mirrors Listener.updaters.keySet but as Seq and with tread safety.
   @volatile
   private[incremental] var editors = Seq.empty[Editor]
 
