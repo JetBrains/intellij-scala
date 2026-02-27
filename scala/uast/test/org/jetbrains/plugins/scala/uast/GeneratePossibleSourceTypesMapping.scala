@@ -125,7 +125,6 @@ object GeneratePossibleSourceTypesMapping {
   }
 
   private def gatherMapping(): Map[String, Set[String]] = {
-    @Ignore("for local running only")
     abstract class GatheringTestSuite(path: Path, lang: Language, extensions: String*) extends SdkFileSetTestBase {
       private val excluded: Set[String] = Set(
         "large.test", "large2.test" // they're just very large with ~10k references/definitions
@@ -162,9 +161,16 @@ object GeneratePossibleSourceTypesMapping {
       }
     }
 
+    @Ignore("for local running only")
     class Scala2ParserData extends GatheringTestSuite(Path.of("parser", "data"), ScalaLanguage.INSTANCE, ".test")
+
+    @Ignore("for local running only")
     class Scala2Sources extends GatheringTestSuite(Path.of("..", "src"), ScalaLanguage.INSTANCE, ".scala")
+
+    @Ignore("for local running only")
     class Scala3ParserLts extends GatheringTestSuite(Path.of("parser", "scala3Import", "lts", "success"), Scala3Language.INSTANCE, ".test")
+
+    @Ignore("for local running only")
     class Scala3ParserNewest extends GatheringTestSuite(Path.of("parser", "scala3Import", "newest", "success"), Scala3Language.INSTANCE, ".test")
 
     def runScript(testClass: Class[?]): Unit = {
