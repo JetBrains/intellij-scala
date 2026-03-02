@@ -118,7 +118,7 @@ public class EditorSettingsSectionPanel extends SettingsSectionPanel {
 
         typeAwareHighlightingHelp.add(ContextHelpLabel.create(ScalaBundle.message("type.aware.highlighting.help")));
         incrementalHighlightingHelp.add(ContextHelpLabel.create(ScalaBundle.message("incremental.highlighting.help")));
-        disableInspectionsHelp.add(ContextHelpLabel.create(ScalaBundle.message("disable.inspections.help")));
+        disableInspectionsHelp.add(ContextHelpLabel.create(ScalaBundle.message("disable.inspections.help", "")));
         useCompilerTypesHelp.add(ContextHelpLabel.create(ScalaBundle.message("use.compiler.types.help")));
         compilerHighlightingDelayHelp.add(ContextHelpLabel.create(ScalaBundle.message("compiler.highlighting.delay.help", DEFAULT_COMPILER_HIGHLIGHTING_DELAY)));
 
@@ -194,6 +194,8 @@ public class EditorSettingsSectionPanel extends SettingsSectionPanel {
 
         disableInspections.setEnabled(isCompilerHighlightingOnly);
         disableInspections.setToolTipText(isCompilerHighlightingOnly ? null : ScalaBundle.message("disable.inspections.tooltip"));
+        disableInspectionsHelp.removeAll();
+        disableInspectionsHelp.add(ContextHelpLabel.create(ScalaBundle.message("disable.inspections.help", isCompilerHighlightingOnly ? "" : ScalaBundle.message("disable.inspections.tooltip"))));
         if (!isCompilerHighlightingOnly) {
             disableInspections.setSelected(false);
         }
