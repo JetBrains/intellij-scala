@@ -9,30 +9,12 @@ import org.jetbrains.plugins.scala.util.Annotations
 import org.jetbrains.plugins.scala.util.teamcity.TeamcityUtils
 import org.jetbrains.plugins.scala.util.teamcity.TeamcityUtils.Status.Warning
 import org.junit.experimental.categories.Category
-import org.junit.internal.runners.JUnit38ClassRunner
 import org.junit.runner.manipulation.{Filter, Filterable}
 import org.junit.runner.{Describable, Description}
 
 import java.util
 import scala.annotation.unused
 import scala.jdk.CollectionConverters._
-
-@Deprecated(forRemoval = true)
-@deprecated(message = "Consider migrating to MultipleScalaVersionsJUnit4Runner")
-class MultipleScalaVersionsRunner(private val myTest: Test, klass: Class[_]) extends JUnit38ClassRunner(myTest) {
-
-  def this(klass: Class[_]) =
-    this(MultipleScalaVersionsRunner.testSuite(klass.asSubclass(classOf[TestCase])), klass)
-
-  override def getDescription: Description = {
-    val description = MultipleScalaVersionsRunner.makeDescription(klass, myTest)
-    //debugLog(description)
-    description
-  }
-
-  override def filter(filter: Filter): Unit =
-    super.filter(filter)
-}
 
 object MultipleScalaVersionsRunner {
 
