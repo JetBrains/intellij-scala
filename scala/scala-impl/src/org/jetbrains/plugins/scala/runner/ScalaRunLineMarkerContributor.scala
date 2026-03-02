@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.runner.ScalaRunLineMarkerContributor.RunIcon
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.ScalaMainMethodUtil
 
 import javax.swing.Icon
@@ -18,7 +19,9 @@ class ScalaRunLineMarkerContributor extends RunLineMarkerContributor {
     val file = element.getContainingFile
     val project = if (file != null) file.getProject else element.getProject // Avoid tree walk-up
 
-    if (!element.isVisible(project, file)) return null
+    if (!ScalaProjectSettings.in(project).isDisableInspections) {
+      if (!element.isVisible(project, file)) return null
+    }
 
     file match {
       case scriptLikeFile: ScalaFile

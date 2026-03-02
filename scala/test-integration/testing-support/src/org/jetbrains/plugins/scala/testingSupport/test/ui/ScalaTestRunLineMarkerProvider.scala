@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestFramework
 import org.jetbrains.plugins.scala.testingSupport.test.munit.{MUnitTestFrameworkMarker, MUnitTestLocationsFinder, MUnitUtils}
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.{ScalaTestTestFramework, ScalaTestTestLocationsFinder}
@@ -48,7 +49,9 @@ class ScalaTestRunLineMarkerProvider extends TestRunLineMarkerProvider {
     val file = element.getContainingFile
     val project = if (file != null) file.getProject else element.getProject // Avoid tree walk-up
 
-    if (!element.isVisible(project, file)) return null
+    if (!ScalaProjectSettings.in(project).isDisableInspections) {
+      if (!element.isVisible(project, file)) return null
+    }
 
     element match {
       case leaf: LeafPsiElement if leaf.getElementType == ScalaTokenTypes.tIDENTIFIER =>
