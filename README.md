@@ -20,8 +20,12 @@ It enables multiple features such as:
 - To get information about how to install and use this plugin in IDEA, please
   use [IntelliJ IDEA online help](https://www.jetbrains.com/idea/help/scala.html)
 
+### Social media
+
 - If you have any question about the Scala plugin, we'd be glad to answer it in our 
 [discord channel](https://discord.gg/aUKpZzeHCK)
+
+- You can also follow us on [X/Twitter](https://x.com/IntelliJScala) and [BlueSky](https://bsky.app/profile/scala.intellijidea.com)
 
 ### Reporting issues
 If you found a bug, please report it on our [issue tracker](https://youtrack.jetbrains.com/issues/SCL#newissue)
