@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ReferenceComparisonTes
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb._
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.configurations._
 import org.jetbrains.plugins.scala.project.VirtualFileExt
-import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.plugins.scala.util.{Annotations, TestUtils}
 import org.jetbrains.sbt.lang.completion.UpdateScalacOptionsInfo
 import org.junit.Assert.{assertEquals, assertTrue, fail}
 import org.junit.runner.{Computer, JUnitCore, RunWith, Runner}
@@ -24,10 +24,8 @@ import org.junit.runners.model.{FrameworkMethod, RunnerBuilder}
 import org.junit.{FixMethodOrder, Ignore, Test}
 
 import java.io.PrintWriter
-import java.lang.annotation.Annotation
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path, StandardCopyOption}
-import scala.annotation.tailrec
 import scala.io.Source
 import scala.jdk.CollectionConverters.ListHasAsScala
 import scala.sys.process.Process
@@ -169,22 +167,8 @@ object AfterUpdateDottyVersionScript {
 
   private var someTestAlreadyFailed = false
 
-  private def findAnnotation[T <: Annotation](klass: Class[_], annotationClass: Class[T]): Option[T] = {
-    @tailrec
-    def inner(c: Class[_]): Annotation = c.getAnnotation(annotationClass) match {
-      case null =>
-        c.getSuperclass match {
-          case null => null
-          case parent => inner(parent)
-        }
-      case annotation => annotation
-    }
-
-    Option(inner(klass).asInstanceOf[T])
-  }
-
   private def runJUnit4ParameterizedScript(testClass: Class[?]): Unit = {
-    findAnnotation(testClass, classOf[RunWith]) match {
+    Annotations.findAnnotation(testClass, classOf[RunWith]) match {
       case Some(annotation) =>
         val correct = annotation.value() == classOf[JUnitParamsRunner]
         if (!correct) {

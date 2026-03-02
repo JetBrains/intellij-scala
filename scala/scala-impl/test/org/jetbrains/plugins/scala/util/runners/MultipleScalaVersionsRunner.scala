@@ -5,6 +5,7 @@ import junit.extensions.TestDecorator
 import junit.framework.{Test, TestCase, TestResult, TestSuite}
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.{InjectableJdk, ScalaSdkOwner}
+import org.jetbrains.plugins.scala.util.Annotations
 import org.jetbrains.plugins.scala.util.teamcity.TeamcityUtils
 import org.jetbrains.plugins.scala.util.teamcity.TeamcityUtils.Status.Warning
 import org.junit.experimental.categories.Category
@@ -12,9 +13,8 @@ import org.junit.internal.runners.JUnit38ClassRunner
 import org.junit.runner.manipulation.{Filter, Filterable}
 import org.junit.runner.{Describable, Description}
 
-import java.lang.annotation.Annotation
 import java.util
-import scala.annotation.{tailrec, unused}
+import scala.annotation.unused
 import scala.jdk.CollectionConverters._
 
 @Deprecated(forRemoval = true)
@@ -227,31 +227,17 @@ object MultipleScalaVersionsRunner {
   }
 
   private[runners] def scalaVersionsToRun(klass: Class[_ <: TestCase]): Seq[TestScalaVersion] = {
-    val annotation = findAnnotation(klass, classOf[RunWithScalaVersions])
+    val annotation = Annotations.findAnnotation(klass, classOf[RunWithScalaVersions])
     annotation
       .map(_.value.toSeq)
       .getOrElse(DefaultScalaVersionsToRun)
   }
 
   private[runners] def jdkVersionsToRun(klass: Class[_ <: TestCase]): Seq[TestJdkVersion] = {
-    val annotation = findAnnotation(klass, classOf[RunWithJdkVersions])
+    val annotation = Annotations.findAnnotation(klass, classOf[RunWithJdkVersions])
     annotation
       .map(_.value.toSeq)
       .getOrElse(Seq(DefaultJdkVersionToRun))
-  }
-
-  private[runners] def findAnnotation[T <: Annotation](klass: Class[_], annotationClass: Class[T]): Option[T] = {
-    @tailrec
-    def inner(c: Class[_]): Annotation = c.getAnnotation(annotationClass) match {
-      case null =>
-        c.getSuperclass match {
-          case null => null
-          case parent => inner(parent)
-        }
-      case annotation => annotation
-    }
-
-    Option(inner(klass).asInstanceOf[T])
   }
 
   @unused
@@ -274,7 +260,7 @@ object MultipleScalaVersionsRunner {
       Description.createSuiteDescription(s"[SKIPPED] ${tc.getName}", tc.getClass)
     case ts: TestSuite =>
       val name = Option(ts.getName).getOrElse(createSuiteDescriptionName(ts))
-      val annotations =  findAnnotation(klass, classOf[Category]).toSeq
+      val annotations =  Annotations.findAnnotation(klass, classOf[Category]).toSeq
       val description = Description.createSuiteDescription(name, annotations: _*)
       ts.tests.asScala.foreach { childTest =>
         // compiler fails on TeamCity without this case, no idea why

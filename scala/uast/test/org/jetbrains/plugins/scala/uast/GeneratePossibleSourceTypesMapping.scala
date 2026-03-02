@@ -6,18 +6,16 @@ import junitparams.JUnitParamsRunner
 import org.jetbrains.plugins.scala.base.SdkFileSetTestBase
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.uast.withPossibleSourceTypesCheck
-import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.plugins.scala.util.{Annotations, TestUtils}
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage, ScalaVersion}
 import org.jetbrains.uast.UElement
 import org.junit.Ignore
 import org.junit.runner.{Computer, JUnitCore, RunWith, Runner}
 import org.junit.runners.model.{FrameworkMethod, RunnerBuilder}
 
-import java.lang.annotation.Annotation
 import java.nio.file.{Files, Path, Paths}
 import java.text.SimpleDateFormat
 import java.util.Calendar
-import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.IterableHasAsScala
 import scala.util.Try
@@ -174,7 +172,7 @@ object GeneratePossibleSourceTypesMapping {
     class Scala3ParserNewest extends GatheringTestSuite(Path.of("parser", "scala3Import", "newest", "success"), Scala3Language.INSTANCE, ".test")
 
     def runScript(testClass: Class[?]): Unit = {
-      findAnnotation(testClass, classOf[RunWith]) match {
+      Annotations.findAnnotation(testClass, classOf[RunWith]) match {
         case Some(annotation) =>
           val correct = annotation.value() == classOf[JUnitParamsRunner]
           if (!correct) {
@@ -196,20 +194,6 @@ object GeneratePossibleSourceTypesMapping {
         case Some(failure) => throw failure.getException
         case None =>
       }
-    }
-
-    def findAnnotation[T <: Annotation](klass: Class[_], annotationClass: Class[T]): Option[T] = {
-      @tailrec
-      def inner(c: Class[_]): Annotation = c.getAnnotation(annotationClass) match {
-        case null =>
-          c.getSuperclass match {
-            case null => null
-            case parent => inner(parent)
-          }
-        case annotation => annotation
-      }
-
-      Option(inner(klass).asInstanceOf[T])
     }
 
     try {
