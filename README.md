@@ -17,7 +17,13 @@ It enables multiple features such as:
 
 ## General information
 
-- To get information about how to install and use this plugin in IDEA, please
+- [The landing page for Scala Plugin](https://www.jetbrains.com/scala/)
+
+- [Scala Plugin at JetBrains Marketplace](https://plugins.jetbrains.com/plugin/1347-scala)
+
+- For release notes and articles about new features, please visit our [blog](https://blog.jetbrains.com/scala/)
+
+- For more detailed information about how to use this plugin and its features, please
   use [IntelliJ IDEA online help](https://www.jetbrains.com/idea/help/scala.html)
 
 ### Social media
