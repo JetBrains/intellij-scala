@@ -46,7 +46,7 @@ object MultipleScalaVersionsJUnit4Runner {
   private val DefaultJdkVersionToRun: TestJdkVersion =
     TestJdkVersion.from(InjectableJdk.DefaultJdk)
 
-  lazy val filterJdkVersionRegistry: Option[TestJdkVersion] = {
+  private lazy val filterJdkVersionRegistry: Option[TestJdkVersion] = {
     val result = Option(System.getProperty("filter.test.jdk.version")).map(TestJdkVersion.valueOf)
     result.foreach(v => TeamcityUtils.logUnderTeamcity(s"MultipleScalaVersionsJUnit4Runner: running jdk filter: $v", status = Warning))
     result
