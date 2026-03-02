@@ -1,23 +1,18 @@
 import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.projectRoots.JavaSdkVersion
-import com.intellij.openapi.roots.CompilerModuleExtension
 import com.intellij.openapi.util.io.{FileUtilRt, NioFiles}
 import com.intellij.platform.templates.github.{DownloadUtil, ZipUtil => GithubZipUtil}
-import com.intellij.pom.java.LanguageLevel
 import junit.framework.TestCase
 import junitparams.JUnitParamsRunner
-import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
-import org.jetbrains.plugins.scala.compiler.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.lang.parser.scala3.imported.{Scala3ImportedParserTestConfig, Scala3ImportedParserTest_Move_Fixed_Tests_LTS, Scala3ImportedParserTest_Move_Fixed_Tests_Newest}
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ReferenceComparisonTestBase.disambiguatedStoreFileNameForUppercaseNames
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb._
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.configurations._
-import org.jetbrains.plugins.scala.project.VirtualFileExt
 import org.jetbrains.plugins.scala.util.{Annotations, TestUtils}
 import org.jetbrains.sbt.lang.completion.UpdateScalacOptionsInfo
-import org.junit.Assert.{assertEquals, assertTrue, fail}
+import org.junit.Assert.fail
 import org.junit.runner.{Computer, JUnitCore, RunWith, Runner}
 import org.junit.runners.MethodSorters
 import org.junit.runners.model.{FrameworkMethod, RunnerBuilder}
@@ -46,26 +41,17 @@ class AfterUpdateDottyVersionScript {
   import AfterUpdateDottyVersionScript._
 
   /**
-   * Not needed to be run for each new Scala version. It is only here for convenient running.
-   */
-  // TODO: Factor this out to a separate script file.
-  @Test def test_1_RecompileMacroPrinter3(): Unit = {
-    runScript(Script.FromTestCase(classOf[RecompileMacroPrinter_3_0_0]))
-    runScript(Script.FromTestCase(classOf[RecompileMacroPrinter_3_8_3]))
-  }
-
-  /**
    * NOTE:
    * if it fails because there are compilation errors in [[dotty.tools.dotc.FromTastyTests.posTestFromTasty]]
    * add the failing tests to the patched blacklist file [[AfterUpdateDottyVersionScript.`pos-from-tasty.blacklist`]].
    * See `patchFile` usages.
    */
-  @Test def test_2_Scala3ImportedParserTest_Import_FromDottyDirectory_LTS(): Unit =
+  @Test def test_1_Scala3ImportedParserTest_Import_FromDottyDirectory_LTS(): Unit =
     runScript(Script.FromTestCase(classOf[Scala3ImportedParserTest_Import_FromDottyDirectory_LTS]))
-  @Test def test_3_Scala3ImportedParserTest_Import_FromDottyDirectory_Newest(): Unit =
+  @Test def test_2_Scala3ImportedParserTest_Import_FromDottyDirectory_Newest(): Unit =
     runScript(Script.FromTestCase(classOf[Scala3ImportedParserTest_Import_FromDottyDirectory_Newest]))
 
-  @Test def test_4_Scala3ImportedParserTest_Move_Fixed_Tests(): Unit = {
+  @Test def test_3_Scala3ImportedParserTest_Move_Fixed_Tests(): Unit = {
     runJUnit4ParameterizedScript(classOf[Scala3ImportedParserTest_Move_Fixed_Tests_LTS])
     runJUnit4ParameterizedScript(classOf[Scala3ImportedParserTest_Move_Fixed_Tests_Newest])
   }
@@ -76,10 +62,10 @@ class AfterUpdateDottyVersionScript {
    * add the failing tests to the patched blacklist file [[AfterUpdateDottyVersionScript.`pos-from-tasty.blacklist`]].
    * See `patchFile` usages.
    */
-  @Test def test_5_Scala3ImportedSemanticDbTest_Import_FromDottyDirectory_LTS(): Unit =
+  @Test def test_4_Scala3ImportedSemanticDbTest_Import_FromDottyDirectory_LTS(): Unit =
     runScript(Script.FromTestCase(classOf[Scala3ImportedSemanticDbTest_Import_FromDottyDirectory_Scala3_LTS]))
 
-  @Test def test_6_ReferenceComparisonTestsGenerator_LTS(): Unit =
+  @Test def test_5_ReferenceComparisonTestsGenerator_LTS(): Unit =
     runScript(Script.FromTestCase(classOf[ReferenceComparisonTestsGenerator_Scala3.TestCase_Scala3_LTS]))
 
   /**
@@ -88,15 +74,15 @@ class AfterUpdateDottyVersionScript {
    * add the failing tests to the patched blacklist file [[AfterUpdateDottyVersionScript.`pos-from-tasty.blacklist`]].
    * See `patchFile` usages.
    */
-  @Test def test_7_Scala3ImportedSemanticDbTest_Import_FromDottyDirectory_Newest(): Unit =
+  @Test def test_6_Scala3ImportedSemanticDbTest_Import_FromDottyDirectory_Newest(): Unit =
     runScript(Script.FromTestCase(classOf[Scala3ImportedSemanticDbTest_Import_FromDottyDirectory_Scala3_Newest]))
 
-  @Test def test_8_ReferenceComparisonTestsGenerator_Newest(): Unit =
+  @Test def test_7_ReferenceComparisonTestsGenerator_Newest(): Unit =
     runScript(Script.FromTestCase(classOf[ReferenceComparisonTestsGenerator_Scala3.TestCase_Scala3_Newest]))
 
 
 
-  @Test def test_9_UpdateScalacOptionsInfo(): Unit =
+  @Test def test_8_UpdateScalacOptionsInfo(): Unit =
     runScript(Script.FromTestCase(classOf[UpdateScalacOptionsInfo.ScriptTestCase]))
 }
 
@@ -234,78 +220,6 @@ object AfterUpdateDottyVersionScript {
     val commands: Seq[String] = "git" :: "stash" :: Nil
     val rc = Process(commands, repository.toFile).!
     assert(rc == 0, s"Failed to stash changes in repository $repository")
-  }
-
-  private def versionError(version: String): Nothing =
-    sys.error(s"Scala $version is not recognized as an official Scala release")
-
-  class RecompileMacroPrinter_3_0_0 extends AbstractRecompileMacroPrinter(
-    scalaVersion = ScalaVersion.fromString("3.0.0").getOrElse(versionError("3.0.0")),
-    macroPrinterName = "MacroPrinter_3_0_0"
-  ) {
-    override def testProjectJdkVersion: LanguageLevel = LanguageLevel.JDK_1_8
-  }
-
-  class RecompileMacroPrinter_3_8_3 extends AbstractRecompileMacroPrinter(
-    scalaVersion = ScalaVersion.fromString("3.8.3-RC1").getOrElse(versionError("3.8.3-RC1")),
-    macroPrinterName = "MacroPrinter_3_8_3"
-  ) {
-    override def testProjectJdkVersion: LanguageLevel = LanguageLevel.JDK_17
-  }
-
-  abstract class AbstractRecompileMacroPrinter(scalaVersion: ScalaVersion, macroPrinterName: String)
-    extends ScalaCompilerTestBase {
-
-    // Set an exact Scala version.
-    injectedScalaVersion = scalaVersion
-
-    override protected val includeCompilerAsLibrary: Boolean = true
-
-    private def log(msg: String): Unit =
-      println(s"${this.getClass.getSimpleName}: $msg")
-
-    def test(): Unit = {
-      log("start")
-
-      val resourcesPath = scalaUltimateProjectDir.resolve(Path.of(
-        "community", "scala", "runners", "resources"
-      ))
-      val packagePath = Path.of("org", "jetbrains", "plugins", "scala", "worksheet")
-      val sourceFileName = s"${macroPrinterName}_source.scala"
-      val targetDir = resourcesPath.resolve(packagePath)
-      val sourceFile = targetDir.resolve(Path.of("src", sourceFileName))
-      assertTrue(Path.of(sourceFile.toUri).exists)
-
-      log("reading source file")
-      val sourceContent = readFile(sourceFile)
-      addFileToProjectSources(sourceFileName, sourceContent)
-      log(s"compiling using Scala ${scalaVersion.minor}")
-      compiler.make().assertNoProblems()
-
-      val compileOutput = CompilerModuleExtension.getInstance(getModule).getCompilerOutputPath
-      assertTrue("compilation output not found", compileOutput.exists())
-
-      val folderWithClasses = compileOutput.toPath.resolve(packagePath).toFile
-      assertTrue(folderWithClasses.exists())
-
-      val classes = folderWithClasses.listFiles.toSeq
-      assertEquals(
-        Set(s"$macroPrinterName$$.class", s"$macroPrinterName.class", s"$macroPrinterName.tasty"),
-        classes.map(_.getName).toSet
-      )
-
-      log(
-        s"""copying ${classes.length} classes: $targetDir
-           |    from : $folderWithClasses
-           |    to   : $targetDir""".stripMargin
-      )
-
-      classes.foreach { compiledFile =>
-        val resultFile = targetDir.resolve(compiledFile.getName)
-        Files.copy(compiledFile.toPath, resultFile, StandardCopyOption.REPLACE_EXISTING)
-      }
-      log("end")
-    }
   }
 
   /**
