@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.util.runners
 
 import com.intellij.pom.java.LanguageLevel
-import junit.framework.TestCase
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.{InjectableJdk, ScalaSdkOwner}
 import org.jetbrains.plugins.scala.util.Annotations
@@ -53,14 +52,14 @@ object MultipleScalaVersionsJUnit4Runner {
     result
   }
 
-  private def scalaVersionsToRun(klass: Class[_ <: TestCase]): Seq[TestScalaVersion] = {
+  private def scalaVersionsToRun(klass: Class[_ <: ScalaSdkOwner]): Seq[TestScalaVersion] = {
     val annotation = Annotations.findAnnotation(klass, classOf[RunWithScalaVersions])
     annotation
       .map(_.value.toSeq)
       .getOrElse(DefaultScalaVersionsToRun)
   }
 
-  private def jdkVersionsToRun(klass: Class[_ <: TestCase]): Seq[TestJdkVersion] = {
+  private def jdkVersionsToRun(klass: Class[_ <: ScalaSdkOwner]): Seq[TestJdkVersion] = {
     val annotation = Annotations.findAnnotation(klass, classOf[RunWithJdkVersions])
     annotation
       .map(_.value.toSeq)
