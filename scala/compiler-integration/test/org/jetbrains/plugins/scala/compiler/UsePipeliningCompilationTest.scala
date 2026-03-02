@@ -2,24 +2,36 @@ package org.jetbrains.plugins.scala.compiler
 
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.testFramework.CompilerTester
+import org.jetbrains.plugins.scala.base.ScalaSdkOwner
+import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader
 import org.jetbrains.plugins.scala.compiler.CompilerMessagesUtil.assertNoErrorsOrWarnings
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsJUnit4Runner, TestJdkVersion, TestScalaVersion}
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsJUnit4Runner, RunWithJdkVersions, RunWithScalaVersions, TestJdkVersion, TestScalaVersion}
 import org.jetbrains.plugins.scala.{CompilationTests_IDEA, CompilationTests_Zinc}
 import org.junit.Assert.assertNotNull
 import org.junit.Test
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
-import org.junit.runners.{JUnit4, Parameterized}
 
 import scala.jdk.CollectionConverters._
 
-@RunWith(classOf[Parameterized])
-class UsePipeliningCompilationTest(scalaVersion: TestScalaVersion, jdkVersion: TestJdkVersion)
-  extends SbtProjectCompilationTestBase {
+@RunWith(classOf[MultipleScalaVersionsJUnit4Runner])
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_2_12,
+  TestScalaVersion.Scala_2_13
+))
+@RunWithJdkVersions(Array(
+  TestJdkVersion.JDK_1_8,
+  TestJdkVersion.JDK_11,
+  TestJdkVersion.JDK_17,
+  TestJdkVersion.JDK_21
+))
+class UsePipeliningCompilationTest extends SbtProjectCompilationTestBase with ScalaSdkOwner {
 
-  override protected def jdkVersionForTest: TestJdkVersion = jdkVersion
+  override protected def librariesLoaders: Seq[LibraryLoader] = Seq.empty
+
+  override protected def jdkVersionForTest: TestJdkVersion = TestJdkVersion.from(testProjectJdkVersion)
 
   private var module1: Module = _
   private var module2: Module = _
@@ -44,9 +56,9 @@ class UsePipeliningCompilationTest(scalaVersion: TestScalaVersion, jdkVersion: T
     createProjectSubFile("module2/src/main/scala/GoodMorningGreeter.scala",
       """object GoodMorningGreeter extends Greeter { override def greeting: String = "Good morning" }""")
     createProjectSubFile("module3/src/main/scala/GoodEveningGreeter.scala",
-      """object GoodEveningGreeter extends Greeter { override def greeting: String = "Good evenging" }""")
+      """object GoodEveningGreeter extends Greeter { override def greeting: String = "Good evening" }""")
     createProjectConfig(
-      s"""ThisBuild / scalaVersion := "${scalaVersion.toProductionVersion.minor}"
+      s"""ThisBuild / scalaVersion := "${version.minor}"
          |ThisBuild / usePipelining := true
          |
          |lazy val root = project.in(file("."))
@@ -89,22 +101,6 @@ class UsePipeliningCompilationTest(scalaVersion: TestScalaVersion, jdkVersion: T
   }
 }
 
-private object UsePipeliningCompilationTest {
-  @Parameterized.Parameters(name = "{0}, {1}")
-  def parameters: java.util.Collection[Array[AnyRef]] = {
-    val scalaVersions = Seq(TestScalaVersion.Scala_2_12, TestScalaVersion.Scala_2_13)
-    val registry = MultipleScalaVersionsJUnit4Runner.filterJdkVersionRegistry
-    val jdkFilter = (version: TestJdkVersion) => registry.forall(_ == version)
-    val jdkVersions = TestJdkVersion.values().toSeq.filter(jdkFilter)
-
-    val combinations = for {
-      sv <- scalaVersions
-      jv <- jdkVersions
-    } yield Array[AnyRef](sv, jv)
-
-    combinations.asJavaCollection
-  }
-}
-
-@RunWith(classOf[JUnit4])
-class UsePipeliningCompilationTest_Scala_Next_RC extends UsePipeliningCompilationTest(TestScalaVersion.Scala_3_Next_RC, TestJdkVersion.JDK_17)
+@RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Next_RC))
+@RunWithJdkVersions(Array(TestJdkVersion.JDK_17, TestJdkVersion.JDK_21))
+class UsePipeliningCompilationTest_Scala_Next_RC extends UsePipeliningCompilationTest
