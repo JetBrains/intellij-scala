@@ -14,7 +14,7 @@
   ~ limitations under the License.
   -->
 
-<idea-plugin url="https://confluence.jetbrains.com/display/SCA/Scala+Plugin+for+IntelliJ+IDEA"
+<idea-plugin url="https://jetbrains.com/scala"
              xmlns:xi="http://www.w3.org/2001/XInclude">
     <id>org.intellij.scala</id>
     <name>Scala</name>
