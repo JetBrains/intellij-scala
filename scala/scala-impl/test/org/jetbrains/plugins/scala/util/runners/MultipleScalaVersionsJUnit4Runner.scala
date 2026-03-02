@@ -2,7 +2,10 @@ package org.jetbrains.plugins.scala.util.runners
 
 import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.base.ScalaSdkOwner
+import org.jetbrains.plugins.scala.base.{InjectableJdk, ScalaSdkOwner}
+import org.jetbrains.plugins.scala.util.Annotations
+import org.jetbrains.plugins.scala.util.teamcity.TeamcityUtils
+import org.jetbrains.plugins.scala.util.teamcity.TeamcityUtils.Status.Warning
 import org.junit.Test
 import org.junit.runner.Runner
 import org.junit.runners.model.{FrameworkMethod, InvalidTestClassError}
@@ -13,11 +16,6 @@ import scala.jdk.CollectionConverters._
 
 /**
  * Custom JUnit 4 runner for running a test with multiple Scala and JDK versions.
- * It is a JUnit 4 based replacement for [[MultipleScalaVersionsRunner]].
- *
- * This runner is an improvement over [[MultipleScalaVersionsRunner]] because it allows each test case to have a unique
- * name reported in sbt and TeamCity. This helps with the reported execution time of each test and will help us with the
- * automatic bucketing of tests in the future.
  *
  * It extends the [[Suite]] JUnit 4 runner. Behind the scenes, a test suite is created for each pair of
  * Scala and JDK versions.
@@ -27,7 +25,7 @@ import scala.jdk.CollectionConverters._
  *
  * @note Must be applied to a test which mixes in the trait [[ScalaSdkOwner]].
  * @note Because this is a JUnit 4 test runner, only the methods annotated with [[org.junit.Test]] are executed.
- * @note Use `@RunWith(classOf[MultipleScalaVersionsRuner])` to run a test with this runner.
+ * @note Use `@RunWith(classOf[MultipleScalaVersionsJUnit4Runner])` to run a test with this runner.
  * @note The result of [[ScalaSdkOwner.skip]] is not taken into account by this runner. This matches the philosophy of
  *       JUnit 4 and matches the [[org.junit.runners.Parameterized]] runner. If a combination of Scala and JDK version
  *       is specified, a corresponding suite will be created and the tests will be run.
@@ -36,7 +34,37 @@ import scala.jdk.CollectionConverters._
 class MultipleScalaVersionsJUnit4Runner(cls: Class[?])
   extends Suite(cls, MultipleScalaVersionsJUnit4Runner.createRunners(cls).asJava)
 
-private object MultipleScalaVersionsJUnit4Runner {
+object MultipleScalaVersionsJUnit4Runner {
+
+  private val DefaultScalaVersionsToRun: Seq[TestScalaVersion] =
+    Seq(
+      TestScalaVersion.Scala_2_11,
+      TestScalaVersion.Scala_2_12,
+      TestScalaVersion.Scala_2_13,
+    )
+
+  private val DefaultJdkVersionToRun: TestJdkVersion =
+    TestJdkVersion.from(InjectableJdk.DefaultJdk)
+
+  private lazy val filterJdkVersionRegistry: Option[TestJdkVersion] = {
+    val result = Option(System.getProperty("filter.test.jdk.version")).map(TestJdkVersion.valueOf)
+    result.foreach(v => TeamcityUtils.logUnderTeamcity(s"MultipleScalaVersionsJUnit4Runner: running jdk filter: $v", status = Warning))
+    result
+  }
+
+  private def scalaVersionsToRun(klass: Class[_ <: ScalaSdkOwner]): Seq[TestScalaVersion] = {
+    val annotation = Annotations.findAnnotation(klass, classOf[RunWithScalaVersions])
+    annotation
+      .map(_.value.toSeq)
+      .getOrElse(DefaultScalaVersionsToRun)
+  }
+
+  private def jdkVersionsToRun(klass: Class[_ <: ScalaSdkOwner]): Seq[TestJdkVersion] = {
+    val annotation = Annotations.findAnnotation(klass, classOf[RunWithJdkVersions])
+    annotation
+      .map(_.value.toSeq)
+      .getOrElse(Seq(DefaultJdkVersionToRun))
+  }
 
   /**
    * Inspired by [[org.junit.runners.Parameterized]].
@@ -48,11 +76,10 @@ private object MultipleScalaVersionsJUnit4Runner {
       throw new InvalidTestClassError(cls, java.util.List.of(notScalaSdkOwner))
     }
     val scalaSdkOwnerCls = cls.asInstanceOf[Class[? <: ScalaSdkOwner]]
-    val scalaVersions = MultipleScalaVersionsRunner.scalaVersionsToRun(scalaSdkOwnerCls)
+    val scalaVersions = scalaVersionsToRun(scalaSdkOwnerCls)
 
-    val registryValue = MultipleScalaVersionsRunner.filterJdkVersionRegistry
-    val jdkFilter = (version: TestJdkVersion) => registryValue.forall(_ == version)
-    val jdkVersions = MultipleScalaVersionsRunner.jdkVersionsToRun(scalaSdkOwnerCls).filter(jdkFilter)
+    val jdkFilter = (version: TestJdkVersion) => filterJdkVersionRegistry.forall(_ == version)
+    val jdkVersions = jdkVersionsToRun(scalaSdkOwnerCls).filter(jdkFilter)
 
     for {
       sv <- scalaVersions.map(_.toProductionVersion).distinct
