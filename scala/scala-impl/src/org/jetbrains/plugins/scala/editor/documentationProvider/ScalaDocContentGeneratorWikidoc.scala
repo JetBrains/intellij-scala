@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.resolve.ResolvableStableCodeReference
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScalaDocSyntaxElementType
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api._
@@ -93,12 +94,10 @@ private class ScalaDocContentGeneratorWikidoc(
     plainLink: Boolean,
     isContentChild: PsiElement => Boolean
   ): String = {
-    val result = for {
-      ref <- element.children.findByType[ScStableCodeReference].toRight {
-        unresolvedReference(nodesText(element.children.filter(isContentChild).to(Iterable)))
-      }
-    } yield generatePsiElementLinkWithLabel(ref, plainLink, isContentChild)
-    result.merge
+    element.children.findByType[ScDocReferenceLink] match {
+      case Some(ref) => generatePsiElementLinkWithLabel(ref, plainLink, isContentChild)
+      case None      => unresolvedReference(nodesText(element.children.filter(isContentChild).to(Iterable)))
+    }
   }
 
   // NOTE: assuming nested ScDocDescriptionPart is not the case
@@ -110,19 +109,17 @@ private class ScalaDocContentGeneratorWikidoc(
     }
 
   private def generatePsiElementLinkWithLabel(
-    ref: ScStableCodeReference,
+    link: ScDocReferenceLink,
     plainLink: Boolean,
     isContentChild: PsiElement => Boolean
   ): String = {
-    val resolved = resolvePsiElementLink(ref, resolveContext)
-    resolved
-      .map { (res: PsiElementResolveResult) =>
-        val label = labelFromSiblings(ref, isContentChild).getOrElse(escapeHtml4(res.label))
+    resolveQuery(link.query, resolveContext) match {
+      case Some(res) =>
+        val label = labelFromSiblings(link, isContentChild).getOrElse(escapeHtml4(res.label))
         hyperLinkToPsi(res.refText, label, plainLink)
-      }
-      .getOrElse {
-        unresolvedReference(labelFromSiblings(ref, isContentChild).getOrElse(escapeHtml4(ref.getText)))
-      }
+      case None =>
+        unresolvedReference(labelFromSiblings(link, isContentChild).getOrElse(escapeHtml4(link.getText)))
+    }
   }
 
   private def labelFromSiblings(element: PsiElement, siblingFilter: PsiElement => Boolean): Option[String] = {
@@ -387,14 +384,14 @@ object ScalaDocContentGeneratorWikidoc {
 
   private case class PsiElementResolveResult(refText: String, label: String)
 
-  def generatePsiElementLink(ref: ScStableCodeReference, context: PsiElement): String = {
-    val resolved = resolvePsiElementLink(ref, context)
+  def generatePsiElementLink(ref: ResolvableStableCodeReference, context: PsiElement): String = {
+    val resolved = resolveQuery(ref, context)
     resolved
       .map(res => hyperLinkToPsi(res.refText, escapeHtml4(res.label), plainLink = false))
       .getOrElse(unresolvedReference(ref.getText))
   }
 
-  private def resolvePsiElementLink(ref: ScStableCodeReference, context: PsiElement): Option[PsiElementResolveResult] = {
+  private def resolveQuery(ref: ResolvableStableCodeReference, context: PsiElement): Option[PsiElementResolveResult] = {
     lazy val refText = ref.getText.trim
     val resolveResults = ref.multiResolveScala(false)
     val singleResolveResult = resolveResults match {

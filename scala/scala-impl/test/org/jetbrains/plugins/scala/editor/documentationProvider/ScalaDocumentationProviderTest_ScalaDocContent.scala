@@ -668,8 +668,8 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
     val expectedDoc =
       s"""<a href="psi_element://scala.util.DynamicVariable"><code>scala.util.DynamicVariable</code></a><br>
          | <a href="psi_element://scala.util.DynamicVariable"><code>scala.util.DynamicVariable</code></a><br>
-         | <a href="psi_element://scala.util.DynamicVariable"><code>scala.util.DynamicVariable</code></a><br>
-         | <a href="psi_element://scala.util.DynamicVariable"><code>scala.util.DynamicVariable</code></a><br>
+         | <code>scala.util.DynamicVariable</code><br>
+         | <code>scala.util.DynamicVariable </code><br>
          |""".stripMargin
     doGenerateDocContentTest(fileText, expectedDoc)
   }
@@ -743,7 +743,7 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
       s"""<a href="psi_element://scala.util.DynamicVariable"><code>label</code></a><br>
          | <a href="psi_element://scala.util.DynamicVariable"><code>label </code></a><br>
          | <a href="psi_element://scala.util.DynamicVariable"><code>label with   spaces </code></a><br>
-         | <a href="psi_element://scala.util.DynamicVariable"><code>label with   spaces </code></a><br>
+         | <code>scala.util.DynamicVariable   label with   spaces </code><br>
          |""".stripMargin
     doGenerateDocContentTest(fileText, expectedDoc)
   }
@@ -767,8 +767,8 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
          | <a href="psi_element://scala.util.DynamicVariable"><code><b>label with markdown</b> text</code></a><br>
          | <a href="psi_element://scala.util.DynamicVariable"><code>label <b>with markdown</b> text</code></a><br>
          | <a href="psi_element://scala.util.DynamicVariable"><code>label <b><u>with nested</u> markdown</b> text</code></a><br>
-         | <a href="psi_element://scala.util.DynamicVariable"><code>label <b><u>with nested</u> markdown</b> text  </code></a><br>
-         | <a href="psi_element://scala.util.DynamicVariable"><code>label <b><u>with nested</u> markdown</b> text and special chars >>> <<< </code></a><br>
+         | <code>scala.util.DynamicVariable label <b><u>with nested</u> markdown</b> text  </code><br>
+         | <code>scala.util.DynamicVariable label <b><u>with nested</u> markdown</b> text and special chars >>> <<< </code><br>
          |""".stripMargin
     doGenerateDocContentTest(fileText, expectedDoc)
   }

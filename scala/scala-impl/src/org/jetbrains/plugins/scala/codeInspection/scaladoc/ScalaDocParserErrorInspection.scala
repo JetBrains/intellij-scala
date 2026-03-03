@@ -2,7 +2,8 @@ package org.jetbrains.plugins.scala.codeInspection.scaladoc
 
 import com.intellij.codeInspection._
 import com.intellij.openapi.project.DumbAware
-import com.intellij.psi.{PsiElement, PsiElementVisitor, PsiErrorElement}
+import com.intellij.psi.{PsiElementVisitor, PsiErrorElement}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.incremental.Highlighting._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
@@ -19,18 +20,19 @@ final class ScalaDocParserErrorInspection extends LocalInspectionTool with DumbA
         if (!element.isVisible(holder.getProject, holder.getFile)) return
 
         element.getChildren.foreach {
-          case a: PsiErrorElement =>
-            val startElement: PsiElement = if (a.getPrevSibling == null) a else a.getPrevSibling
-            val endElement: PsiElement = if (a.getPrevSibling != null) {
-              a
-            } else if (a.getNextSibling != null) {
-              a.getNextSibling
-            } else {
-              a.getParent
-            }
-            //noinspection ReferencePassedToNls
-            holder.registerProblem(holder.getManager.createProblemDescriptor(startElement, endElement,
-              a.getErrorDescription, ProblemHighlightType.GENERIC_ERROR_OR_WARNING, isOnTheFly));
+          case errorElement: PsiErrorElement =>
+            val markedElement =
+              if (element.getTextLength > 0) element
+              else element.nextLeafs.find(_.getTextLength > 0).get
+            holder.registerProblem(
+              holder.getManager.createProblemDescriptor(
+                markedElement,
+                errorElement.getErrorDescription,
+                isOnTheFly,
+                null,
+                ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
+              )
+            );
           case b: ScalaPsiElement if b.getChildren.nonEmpty => visitScaladocElement(b)
           case _ => //do nothing
         }

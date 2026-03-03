@@ -17,12 +17,11 @@ import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdenti
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, CompletionProcessor, ResolveProcessor}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing.TagNames
-import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocReference, ScDocTag, ScDocTagValue}
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocTag, ScDocTagValue}
 
 final class ScDocTagValueImpl(node: ASTNode)
   extends ScReferenceImpl(node)
-    with ScDocTagValue
-    with ScDocReference {
+    with ScDocTagValue {
 
   import ResolveTargets._
 

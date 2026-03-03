@@ -529,7 +529,9 @@ class MyScaladocParsing(private val builder: PsiBuilder,
     tagName match {
       case TagNames.Throws =>
         consumeWhiteSpaces()
+        val marker = builder.mark()
         parseScalaDocRef()
+        marker.done(DOC_TAG_VALUE_TOKEN)
       case TagNames.Param | TagNames.TypeParam | TagNames.Define =>
         if (builder.lookAhead(DOC_WHITESPACE, DOC_TAG_VALUE_TOKEN)) {
           builder.advanceLexer() // ate space

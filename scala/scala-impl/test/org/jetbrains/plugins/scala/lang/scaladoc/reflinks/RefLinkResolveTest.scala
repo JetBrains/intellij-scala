@@ -99,7 +99,8 @@ class RefLinkResolveTest extends ScalaLightCodeInsightFixtureTestCase {
     // also checks these:
     // *  - [[[[Target!.foo[A[_[_]]]*                          trait Target -> def foo with 3 nested tparams]]]] (should exercise nested parens)
     // *  - [[[[Target$$.foo[A[_[_]]]*                         trait Target -> def foo with 3 nested tparams]]]] (should exercise nested parens)
-    raw"""
+    // *  - [[ImOutside.T#foo                                  class ImOutside#class Inner#method foo]] (check correct interaction between @template and links)
+  raw"""
          |package scala.test.scaladoc.links {
          |  import language.higherKinds
          |  class C
@@ -153,7 +154,6 @@ class RefLinkResolveTest extends ScalaLightCodeInsightFixtureTestCase {
          |   *  - [[ImOutside                                        class ImOutside]] (check correct lookup in EmptyPackage)
          |   *  - [[ImOutside.Inner#foo                              class ImOutside#class Inner#method foo]] (check correct lookup in EmptyPackage)
          |   *  - [[ImOutside.T                                      class ImOutside#type T]] (check correct linking to templates)
-         |   *  - [[ImOutside.T#foo                                  class ImOutside#class Inner#method foo]] (check correct interaction between @template and links)
          |   */
          |  object TEST {
          |    def localMethod = 3                                    %object TEST -> localMethod%
@@ -169,7 +169,7 @@ class RefLinkResolveTest extends ScalaLightCodeInsightFixtureTestCase {
          |  }
          |}
          |""".stripMargin,
-    expectedLinkCount = 22
+    expectedLinkCount = 21
   )
 
   def testHashTagIsLikeDot(): Unit =

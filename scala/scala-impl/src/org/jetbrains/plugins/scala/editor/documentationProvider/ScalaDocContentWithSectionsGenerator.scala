@@ -9,10 +9,10 @@ import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.editor.ScalaEditorBundle
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocContentWithSectionsGenerator.{ParamInfo, Section}
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt, PsiNamedElementExt}
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOwner, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.resolve.ResolvableStableCodeReference
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api._
@@ -221,7 +221,7 @@ private class ScalaDocContentWithSectionsGenerator(
   private def prepareThrowsSection(tags: Seq[ScDocTag]): Option[Section] = {
     val throwTags      = tags.filter(_.name == MyScaladocParsing.TagNames.Throws)
     val throwTagsInfos =
-      if (isMarkdownComment)
+      if (isMarkdownComment && false)
         throwTags.flatMap(tag => {
           // TODO-md-emi: Should not be an ASTWrapperPsiElement
           val exceptionRef = tag.children.findByType[ASTWrapperPsiElement]
@@ -254,9 +254,9 @@ private class ScalaDocContentWithSectionsGenerator(
   }
 
   private def throwsInfo(tag: ScDocTag): Option[ParamInfo] = {
-    val exceptionRef = tag.children.findByType[ScStableCodeReference]
-    exceptionRef.map { ref =>
-      val value = ScalaDocContentGeneratorWikidoc.generatePsiElementLink(ref, resolveContext)
+    val tagValue = tag.children.findByType[ScDocThrowTagValue]
+    tagValue.map { tagValue =>
+      val value = ScalaDocContentGeneratorWikidoc.generatePsiElementLink(tagValue.query, resolveContext)
       val description = contentGenerator.tagDescriptionText(tag)
       ParamInfo(value, description)
     }

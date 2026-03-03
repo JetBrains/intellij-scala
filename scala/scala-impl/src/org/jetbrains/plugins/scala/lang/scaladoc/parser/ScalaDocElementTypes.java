@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocElementType;
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType;
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.ScaladocMarkdownParsing;
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl.ScDocCommentImpl;
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl.ScDocReferenceLinkImpl;
 import org.jetbrains.plugins.scala.lang.scaladoc.reflinks.ScalaDocRefLinkLanguage;
 import org.jetbrains.plugins.scalaDoc.ScalaDocLanguage;
 import org.jetbrains.plugins.scalaDoc.lang.parser.ScalaDocParserDefinition;
@@ -37,6 +38,14 @@ public interface ScalaDocElementTypes {
             PsiBuilder builder = PsiBuilderFactory.getInstance().createBuilder(project, lazyNode, lexer, language, lazyNode.getChars());
             parser.parse(ScalaDocElementTypes.SCALA_DOC_REFERENCE_LINK, builder);
             return builder.getTreeBuilt().getFirstChildNode();
+        }
+
+        @Nullable
+        @Override
+        public ASTNode createNode(CharSequence text) {
+            return text != null ?
+                    new ScDocReferenceLinkImpl(this, text) :
+                    null;
         }
     };
 
