@@ -174,7 +174,9 @@ private class ScaladocMarkdownParsing(builder: MkBuilder, content: String) exten
 
       // Disabled because `builder` is not the right thing to pass here, but I'm not sure how to do it nicely.
       if (isThrows) {
+        val marker = builder.mark()
         ensureBuilderInPosition(childIt.currentEndOffset, ScalaDocElementTypes.SCALA_DOC_REFERENCE_LINK)
+        marker.done(ScalaDocTokenType.DOC_TAG_VALUE_TOKEN)
       } else {
         visitNode(childIt)
       }

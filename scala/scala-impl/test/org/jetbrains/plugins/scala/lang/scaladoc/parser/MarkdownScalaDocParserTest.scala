@@ -534,7 +534,7 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |      ScPsiDocToken(DOC_COMMENT_DATA)('See ')
       |      DocSyntaxElement 64
       |        ScPsiDocToken(DOC_LINK_TAG 64)('[[')
-      |        ASTWrapperPsiElement(SCALA_DOC_REFERENCE_LINK)
+      |        ScDocReferenceLink
       |          ScDocRefQuerySegment('List')
       |            ScDocRefQuerySegment('immutable')
       |              ScDocRefQuerySegment('collection')
@@ -554,7 +554,7 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |      ScPsiDocToken(DOC_COMMENT_DATA)('Also check ')
       |      DocSyntaxElement 64
       |        ScPsiDocToken(DOC_LINK_TAG 64)('[[')
-      |        ASTWrapperPsiElement(SCALA_DOC_REFERENCE_LINK)
+      |        ScDocReferenceLink
       |          ScDocRefQuerySegment('Option')
       |            ScDocRefQuerySegment('scala')
       |              PsiElement(identifier)('scala')
@@ -871,9 +871,10 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      ScPsiDocToken(DOC_TAG_NAME)('@throws')
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
-      |      ASTWrapperPsiElement(SCALA_DOC_REFERENCE_LINK)
-      |        ScDocRefQuerySegment('IllegalArgumentException')
-      |          PsiElement(identifier)('IllegalArgumentException')
+      |      ScDocThrowTagValueImpl(DOC_TAG_VALUE_TOKEN)
+      |        ScDocReferenceLink
+      |          ScDocRefQuerySegment('IllegalArgumentException')
+      |            PsiElement(identifier)('IllegalArgumentException')
       |      ScDocParagraph
       |        ScPsiDocToken(DOC_WHITESPACE)(' ')
       |        ScPsiDocToken(DOC_COMMENT_DATA)('if the argument is invalid')
@@ -883,9 +884,10 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      ScPsiDocToken(DOC_TAG_NAME)('@throws')
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
-      |      ASTWrapperPsiElement(SCALA_DOC_REFERENCE_LINK)
-      |        ScDocRefQuerySegment('NullPointerException')
-      |          PsiElement(identifier)('NullPointerException')
+      |      ScDocThrowTagValueImpl(DOC_TAG_VALUE_TOKEN)
+      |        ScDocReferenceLink
+      |          ScDocRefQuerySegment('NullPointerException')
+      |            PsiElement(identifier)('NullPointerException')
       |      ScDocParagraph
       |        ScPsiDocToken(DOC_WHITESPACE)(' ')
       |        ScPsiDocToken(DOC_COMMENT_DATA)('if the input is null')
@@ -981,7 +983,7 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |          ScPsiDocToken(DOC_COMMENT_DATA)('List item with ')
       |          DocSyntaxElement 64
       |            ScPsiDocToken(DOC_LINK_TAG 64)('[[')
-      |            ASTWrapperPsiElement(SCALA_DOC_REFERENCE_LINK)
+      |            ScDocReferenceLink
       |              ScDocRefQuerySegment('Option')
       |                ScDocRefQuerySegment('scala')
       |                  PsiElement(identifier)('scala')
@@ -1063,7 +1065,7 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |        ScPsiDocToken(DOC_WHITESPACE)(' ')
       |        DocSyntaxElement 64
       |          ScPsiDocToken(DOC_LINK_TAG 64)('[[')
-      |          ASTWrapperPsiElement(SCALA_DOC_REFERENCE_LINK)
+      |          ScDocReferenceLink
       |            ScDocRefQuerySegment('Option')
       |              ScDocRefQuerySegment('scala')
       |                PsiElement(identifier)('scala')
@@ -1077,9 +1079,10 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      ScPsiDocToken(DOC_TAG_NAME)('@throws')
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
-      |      ASTWrapperPsiElement(SCALA_DOC_REFERENCE_LINK)
-      |        ScDocRefQuerySegment('NullPointerException')
-      |          PsiElement(identifier)('NullPointerException')
+      |      ScDocThrowTagValueImpl(DOC_TAG_VALUE_TOKEN)
+      |        ScDocReferenceLink
+      |          ScDocRefQuerySegment('NullPointerException')
+      |            PsiElement(identifier)('NullPointerException')
       |      ScDocParagraph
       |        ScPsiDocToken(DOC_WHITESPACE)(' ')
       |        ScPsiDocToken(DOC_COMMENT_DATA)('if name is null')
@@ -1285,7 +1288,7 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |      ScPsiDocToken(DOC_COMMENT_DATA)('It also contains a code reference to ')
       |      DocSyntaxElement 64
       |        ScPsiDocToken(DOC_LINK_TAG 64)('[[')
-      |        ASTWrapperPsiElement(SCALA_DOC_REFERENCE_LINK)
+      |        ScDocReferenceLink
       |          ScDocRefQuerySegment('List')
       |            ScDocRefQuerySegment('immutable')
       |              ScDocRefQuerySegment('collection')
@@ -1404,7 +1407,7 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |        ScPsiDocToken(DOC_COMMENT_DATA)('An ')
       |        DocSyntaxElement 64
       |          ScPsiDocToken(DOC_LINK_TAG 64)('[[')
-      |          ASTWrapperPsiElement(SCALA_DOC_REFERENCE_LINK)
+      |          ScDocReferenceLink
       |            ScDocRefQuerySegment('Option')
       |              ScDocRefQuerySegment('scala')
       |                PsiElement(identifier)('scala')
@@ -1429,9 +1432,10 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      ScPsiDocToken(DOC_TAG_NAME)('@throws')
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
-      |      ASTWrapperPsiElement(SCALA_DOC_REFERENCE_LINK)
-      |        ScDocRefQuerySegment('IllegalArgumentException')
-      |          PsiElement(identifier)('IllegalArgumentException')
+      |      ScDocThrowTagValueImpl(DOC_TAG_VALUE_TOKEN)
+      |        ScDocReferenceLink
+      |          ScDocRefQuerySegment('IllegalArgumentException')
+      |            PsiElement(identifier)('IllegalArgumentException')
       |      ScDocParagraph
       |        ScPsiDocToken(DOC_WHITESPACE)(' ')
       |        ScPsiDocToken(DOC_COMMENT_DATA)('if input is empty')
@@ -1441,9 +1445,10 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      ScPsiDocToken(DOC_TAG_NAME)('@throws')
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
-      |      ASTWrapperPsiElement(SCALA_DOC_REFERENCE_LINK)
-      |        ScDocRefQuerySegment('NullPointerException')
-      |          PsiElement(identifier)('NullPointerException')
+      |      ScDocThrowTagValueImpl(DOC_TAG_VALUE_TOKEN)
+      |        ScDocReferenceLink
+      |          ScDocRefQuerySegment('NullPointerException')
+      |            PsiElement(identifier)('NullPointerException')
       |      ScDocParagraph
       |        ScPsiDocToken(DOC_WHITESPACE)(' ')
       |        ScPsiDocToken(DOC_COMMENT_DATA)('if input is null')
@@ -2462,7 +2467,7 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      DocSyntaxElement 64
       |        ScPsiDocToken(DOC_LINK_TAG 64)('[[')
-      |        ASTWrapperPsiElement(SCALA_DOC_REFERENCE_LINK)
+      |        ScDocReferenceLink
       |          ScDocRefQuerySegment('ref')
       |            ScDocRefQuerySegment('ref')
       |              PsiElement(identifier)('ref')
@@ -2474,7 +2479,7 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      DocSyntaxElement 64
       |        ScPsiDocToken(DOC_LINK_TAG 64)('[[')
-      |        ASTWrapperPsiElement(SCALA_DOC_REFERENCE_LINK)
+      |        ScDocReferenceLink
       |          ScDocRefQuerySegment('ref')
       |            ScDocRefQuerySegment('ref')
       |              PsiElement(identifier)('ref')
@@ -2488,7 +2493,7 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      DocSyntaxElement 64
       |        ScPsiDocToken(DOC_LINK_TAG 64)('[[')
-      |        ASTWrapperPsiElement(SCALA_DOC_REFERENCE_LINK)
+      |        ScDocReferenceLink
       |          ScDocRefQuerySegment(<error>)
       |            PsiErrorElement:Identifier, 'this', or 'package' expected
       |              <empty list>
@@ -2500,7 +2505,7 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      DocSyntaxElement 64
       |        ScPsiDocToken(DOC_LINK_TAG 64)('[[')
-      |        ASTWrapperPsiElement(SCALA_DOC_REFERENCE_LINK)
+      |        ScDocReferenceLink
       |          ScDocRefQuerySegment('ref')
       |            PsiElement(identifier)('ref')
       |        ScPsiDocToken(DOC_WHITESPACE)('  ')

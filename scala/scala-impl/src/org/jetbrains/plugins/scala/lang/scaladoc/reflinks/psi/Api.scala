@@ -9,12 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScDocCommentOwn
 import org.jetbrains.plugins.scala.lang.resolve.ResolvableStableCodeReference
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
 
-
-sealed trait ScDocRefElement extends ScalaPsiElement {
-
-}
-
-sealed trait ScDocRefQuery extends ScDocRefElement with ResolvableStableCodeReference with ScPathElement
+sealed trait ScDocRefQuery extends ResolvableStableCodeReference with ScPathElement
 
 object ScDocRefQuery {
   private val backSlashReplaceRegex = raw"\\(?=.)".r
