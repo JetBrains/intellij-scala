@@ -164,7 +164,7 @@ trait TypeVariableUnification { self: ScalaConformance with ProjectContextOwner 
 
 object TypeVariableUnification {
   @scala.annotation.tailrec
-  private final def extractTypeParameters(tpe: ScType): Seq[TypeParameter] = tpe match {
+  final def extractTypeParameters(tpe: ScType): Seq[TypeParameter] = tpe match {
     case ParameterizedType(des, _)         => extractTypeParameters(des)
     case AliasType(alias, _, _, _)         => alias.typeParameters.map(TypeParameter(_))
     case ScAbstractType(tp, _, _)          => tp.typeParameters

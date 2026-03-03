@@ -1229,8 +1229,36 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
 
       val skolemizeExistentialsOnTheRight = r match {
         case etpe: ScExistentialType =>
-          new ExistentialArgumentsToTypeParameters(etpe.wildcards, TypeParameterType(_))
-            .remapExistentials(etpe.quantified)
+          val designatedClass                     = etpe.extractDesignated(expandAliases = false)
+          val isDesignatedToJavaClass             = designatedClass.exists(des => des.is[PsiClass] && !des.is[PsiClassAdapter])
+          val shouldPropagateDefinitionSiteBounds = isDesignatedToJavaClass /*|| context.isScala3 @TODO*/
+
+          val withPropagatedBounds =
+            if (!shouldPropagateDefinitionSiteBounds) etpe
+            else
+              etpe.quantified match {
+                case ParameterizedType(des, args) =>
+                  val desTypeParameters = TypeVariableUnification.extractTypeParameters(des)
+
+                  val newArgs = desTypeParameters.zip(args).map {
+                    case (tparam, ex @ ScExistentialArgument(name, tparams, lower, upper)) if !ex.isDeferred =>
+                      val propagatedLower = if (lower.isNothing) tparam.lowerType else lower
+                      val propagatedUpper = if (upper.isAny) tparam.upperType else upper
+                      ScExistentialArgument(name, tparams, propagatedLower, propagatedUpper)
+                    case (_, arg) => arg
+                  }
+
+                  val newWildcards = newArgs.collect { case ex: ScExistentialArgument => ex }.toList
+
+                  val updatedQuantified = ScParameterizedType(des, newArgs)
+                  ScExistentialType(updatedQuantified, Option(newWildcards), doNotSimplify = true)
+                case _                          => etpe
+              }
+
+          new ExistentialArgumentsToTypeParameters(
+            withPropagatedBounds.wildcards,
+            TypeParameterType(_)
+          ).remapExistentials(withPropagatedBounds.quantified)
         case t => t
       }
 
