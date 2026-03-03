@@ -1,6 +1,7 @@
 "\u005c \u005c\u005c  \u005c0 \u005c\u005c\u005c \u005c\\"
 s"\u005c \u005c\u005c  \u005c0 \u005c\u005c\u005c \u005c\\"
 raw"\u005c \u005c\u005c  \u005c0 \u005c\u005c\u005c \u005c\"
+
 """\u005c \u005c\u005c  \u005c0 \u005c\u005c\u005c \u005c\"""
 s"""\u005c \u005c\u005c  \u005c0 \u005c\u005c\u005c \u005c\\"""
 raw"""\u005c \u005c\u005c  \u005c0 \u005c\u005c\u005c \u005c\"""
@@ -57,6 +58,7 @@ VALID_STRING_ESCAPE_TOKEN {\u005c}
 interpolated string {\}
 interpolated string end {"}
 white space in line {
+
 }
 multiline string {"""}
 VALID_STRING_ESCAPE_TOKEN {\u005c}

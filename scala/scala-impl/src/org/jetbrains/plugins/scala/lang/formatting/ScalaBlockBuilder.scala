@@ -214,7 +214,7 @@ final class ScalaBlockBuilder(
         }
       case typeParameterOwner: ScTypeParametersOwner if child.getElementType == ScalaElementType.TYPE_PARAM_CLAUSE =>
         // if type param clauses are over multiple lines, do not align multiple param clauses
-        if (child.textContains('\n')) {
+        if (!commonSettings.ALIGN_MULTILINE_PARAMETERS || child.textContains('\n')) {
           sharedAlignment
         } else {
           val alignment = Alignment.createAlignment(true)

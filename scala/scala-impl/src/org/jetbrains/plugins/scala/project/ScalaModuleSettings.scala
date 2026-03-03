@@ -227,21 +227,8 @@ object ScalaModuleSettings {
     }
   }
 
-  @TestOnly
-  def assignDummyModuleSettingsForTests(
-    module: Module,
-    isBuildModule: Boolean,
-    scalaLanguageLevel: ScalaLanguageLevel
-  ): Unit = {
-    val versionProvider = ScalaVersionProvider.Explicit(scalaLanguageLevel, None)
-    val settings = new ScalaModuleSettings(module, isBuildModule = isBuildModule, versionProvider)
-    module.putUserData(TestModuleSettingsKey, settings)
-  }
-
-  private val TestModuleSettingsKey = new Key[ScalaModuleSettings]("ScalaModuleSettings.DummySettings")
-
   private[project]
-  def apply(module: Module): Option[ScalaModuleSettings] = Option(module.getUserData(TestModuleSettingsKey)).orElse {
+  def apply(module: Module): Option[ScalaModuleSettings] = Option(module.getUserData(TestUtils.TestBuildModuleScalaModuleSettingsKey)).orElse {
     if (module.isBuildModule) {
       // build module doesn't have Scala SDK
       forSbtBuildModule(module)
@@ -253,12 +240,15 @@ object ScalaModuleSettings {
         .forEachLibrary(processor)
       val scalaSdk = processor.getFoundValue.asInstanceOf[LibraryEx]
 
-      val scalaVersionProvider: Option[ScalaVersionProvider] = Option(scalaSdk).map(ScalaVersionProvider.FromScalaSdk).orElse(
-        Option(module.getUserData(UserDataKeys.LightTestScalaVersion)).map(v => ScalaVersionProvider.Explicit(v.languageLevel, Some(v.minor)))
-      )
+      val scalaVersionProviderFromScalaSdk = Option(scalaSdk).map(ScalaVersionProvider.FromScalaSdk)
+      val scalaVersionProvider: Option[ScalaVersionProvider] = scalaVersionProviderFromScalaSdk.orElse {
+        val lightTestsScalaVersion = Option(module.getUserData(TestUtils.LightTestScalaVersion))
+        lightTestsScalaVersion.map(v => ScalaVersionProvider.Explicit(v.languageLevel, Some(v.minor)))
+      }
       scalaVersionProvider.map(new ScalaModuleSettings(module, isBuildModule = false, _))
     }
   }
+
 
   //TODO: instead of relying of some classpath, just register module-level Scala SDK for `-build` modules
   // the same way as we do for normal modules
@@ -348,4 +338,36 @@ object ScalaModuleSettings {
       Log.error(ex)
       false
   })
+
+  @TestOnly
+  object TestUtils {
+    @TestOnly
+    private[ScalaModuleSettings] val TestBuildModuleScalaModuleSettingsKey = new Key[ScalaModuleSettings]("ScalaModuleSettings.DummySettings")
+
+    @TestOnly
+    def assignDummyBuildModuleScalaModuleSettingsForTests(
+      module: Module,
+      scalaLanguageLevel: ScalaLanguageLevel
+    ): Unit = {
+      val versionProvider = ScalaVersionProvider.Explicit(scalaLanguageLevel, None)
+      val settings = new ScalaModuleSettings(module, isBuildModule = true, versionProvider)
+      module.putUserData(TestBuildModuleScalaModuleSettingsKey, settings)
+    }
+
+    @TestOnly
+    private[ScalaModuleSettings] val LightTestScalaVersion: Key[ScalaVersion] = Key.create("light-test-scala-version")
+
+    /**
+     * Designed to be used in light tests without any libraries
+     *
+     *
+     */
+    @TestOnly
+    def setModuleScalaVersionForLightTests(module: Module, scalaVersion: ScalaVersion): Unit = {
+      module.putUserData(LightTestScalaVersion, scalaVersion)
+      // Make sure the cached module data is invalidated
+      // This will make sure that cached value `ModuleExt#scalaModuleSettings` will be recalculated
+      settings.ScalaCompilerConfiguration.incModificationCount()
+    }
+  }
 }
