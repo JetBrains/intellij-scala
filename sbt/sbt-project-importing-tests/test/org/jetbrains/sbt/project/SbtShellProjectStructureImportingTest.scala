@@ -2,7 +2,7 @@ package org.jetbrains.sbt.project
 
 import com.intellij.testFramework.fixtures.IdeaTestFixtureFactory
 
-class SbtShellProjectStructureImportingTest extends SbtProjectStructureImportingTestBase_ProdTestSourcesSeparated {
+class SbtShellProjectStructureImportingTest extends SbtProjectStructureImportingTest_ProdTestSourcesSeparated {
 
   override def setUp(): Unit = {
     getCurrentExternalProjectSettings.useSbtShellForImport = true

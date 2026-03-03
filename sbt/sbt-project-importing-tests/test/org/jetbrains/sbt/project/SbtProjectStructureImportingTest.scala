@@ -1282,7 +1282,7 @@ final class SbtProjectStructureImportingTest extends SbtProjectStructureImportin
   )
 
   /**
-   * @see [[org.jetbrains.sbt.project.SbtProjectStructureImportingTestBase_ProdTestSourcesSeparated.testSimpleSbt2Latest]]
+   * @see [[org.jetbrains.sbt.project.SbtProjectStructureImportingTest_ProdTestSourcesSeparated.testSimpleSbt2Latest]]
    */
   @RequiresJdk(LanguageLevel.JDK_17)
   def testSimpleSbt2Latest(): Unit = {

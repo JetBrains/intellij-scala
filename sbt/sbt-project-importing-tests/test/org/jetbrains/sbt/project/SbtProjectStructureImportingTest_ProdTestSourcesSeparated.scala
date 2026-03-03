@@ -27,7 +27,7 @@ import java.net.URI
  * @see [[SbtProjectStructureImportingTest]]
  */
 @Category(Array(classOf[SlowTests]))
-/*abstract*/ class SbtProjectStructureImportingTestBase_ProdTestSourcesSeparated extends SbtProjectStructureImportingLike {
+/*abstract*/ class SbtProjectStructureImportingTest_ProdTestSourcesSeparated extends SbtProjectStructureImportingLike {
 
   import ProjectStructureDsl._
 
@@ -781,7 +781,7 @@ import java.net.URI
   //noinspection TypeAnnotation
   // SCL-16204, SCL-17597
   def testJavaLanguageLevelAndTargetByteCodeLevel_NoOptions(): Unit = {
-    val projectLangaugeLevel = SbtProjectStructureImportingTestBase_ProdTestSourcesSeparated.this.projectJdkLanguageLevel
+    val projectLangaugeLevel = SbtProjectStructureImportingTest_ProdTestSourcesSeparated.this.projectJdkLanguageLevel
     val projectName = "java-language-level-and-target-byte-code-level-no-options"
     def doRunTest(): Unit = runTest(
       new project(projectName) {
@@ -915,7 +915,7 @@ import java.net.URI
         // no storing project level options
         javacOptions := Nil
         javaTargetBytecodeLevel := null
-        javaLanguageLevel := SbtProjectStructureImportingTestBase_ProdTestSourcesSeparated.this.projectJdkLanguageLevel
+        javaLanguageLevel := SbtProjectStructureImportingTest_ProdTestSourcesSeparated.this.projectJdkLanguageLevel
 
         val root: module = new module("javac-special-options-for-root-project")
         val rootMain: module = new module("javac-special-options-for-root-project.main") {
