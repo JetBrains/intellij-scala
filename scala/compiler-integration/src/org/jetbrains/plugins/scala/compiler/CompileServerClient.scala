@@ -57,6 +57,6 @@ class CompileServerClientImpl(project: Project)
 
   override def execCommand(command: CompileServerCommand, client: Client): Unit =
     new RemoteServerRunner(project)
-      .buildProcess(command.id, command.asArgs, client)
+      .buildProcess(command.id, command.asArgs(EelPathTranslator), client)
       .runSync()
 }

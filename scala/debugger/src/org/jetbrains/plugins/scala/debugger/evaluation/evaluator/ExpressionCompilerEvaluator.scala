@@ -8,13 +8,14 @@ import com.intellij.debugger.impl.DebuggerUtilsEx
 import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.OrderEnumerator
+import com.intellij.platform.eel.provider.utils.EelPathUtils
 import com.intellij.psi.PsiElement
 import com.sun.jdi.{ArrayType, ClassLoaderReference, ClassType, ObjectReference, Value}
 import org.jetbrains.jps.incremental.scala.remote.CommandIds
 import org.jetbrains.jps.incremental.scala.{Client, DummyClient, MessageKind}
 import org.jetbrains.plugins.scala.NlsString
 import org.jetbrains.plugins.scala.compiler.data.ExpressionEvaluationArguments
-import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, CompilerManagerUtil, RemoteServerRunner}
+import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, CompilerManagerUtil, EelPathTranslator, RemoteServerRunner}
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ExpressionCompilerEvaluator.filteredScalacOptions
 import org.jetbrains.plugins.scala.debugger.evaluation.{EvaluationException, ExpressionCompilerResolverListener}
 import org.jetbrains.plugins.scala.debugger.{DebuggerBundle, ScalaPositionManager}
@@ -101,7 +102,7 @@ private[evaluation] final class ExpressionCompilerEvaluator(codeFragment: PsiEle
         }
       }
 
-      val process = new RemoteServerRunner(context.getProject).buildProcess(CommandIds.EvaluateExpression, arguments.asStrings, client)
+      val process = new RemoteServerRunner(context.getProject).buildProcess(CommandIds.EvaluateExpression, arguments.asStrings(EelPathTranslator), client)
 
       var result: Either[Seq[NlsString], Unit] = Right(())
       process.addTerminationCallback { _ =>
@@ -195,8 +196,8 @@ private[evaluation] final class ExpressionCompilerEvaluator(codeFragment: PsiEle
     val process = context.getDebugProcess
     val thread = context.getFrameProxy.getStackFrame.thread()
     val classLoader = context.getClassLoader
-
-    val pathURL = DebuggerUtilsEx.mirrorOfString(outDir.toUri.toURL.toString, context)
+    val uriString = targetEelUriString(outDir)
+    val pathURL = DebuggerUtilsEx.mirrorOfString(uriString, context)
     val urlType = process.findClass(context, "java.net.URL", classLoader).asInstanceOf[ClassType]
     val urlConstructor = urlType.concreteMethodByName("<init>", "(Ljava/lang/String;)V")
     val url = urlType.newInstance(thread, urlConstructor, List(pathURL).asJava, ObjectReference.INVOKE_SINGLE_THREADED)
@@ -207,6 +208,10 @@ private[evaluation] final class ExpressionCompilerEvaluator(codeFragment: PsiEle
     val urlClassLoaderConstructor = urlClassLoaderType.concreteMethodByName("<init>", "([Ljava/net/URL;Ljava/lang/ClassLoader;)V")
     urlClassLoaderType.newInstance(thread, urlClassLoaderConstructor, List(array, classLoader).asJava, ObjectReference.INVOKE_SINGLE_THREADED).asInstanceOf[ClassLoaderReference]
   }
+
+  //noinspection ApiStatus,UnstableApiUsage
+  private def targetEelUriString(directory: Path): String =
+    EelPathUtils.getUriLocalToEel(directory).toURL.toString + "/"
 }
 
 private object ExpressionCompilerEvaluator {

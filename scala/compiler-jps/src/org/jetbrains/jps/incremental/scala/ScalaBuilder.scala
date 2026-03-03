@@ -210,7 +210,7 @@ object ScalaBuilder {
       val port = remoteServerPort.get
       Log.info(s"Using remote server with port: $port")
       val socketConnectTimeout = Option(System.getProperty("scala.compile.server.socket.connect.timeout.milliseconds")).map(_.toInt.milliseconds).getOrElse(10.milliseconds)
-      new remote.RemoteServer(InetAddress.getByName(null), port, socketConnectTimeout)
+      new remote.RemoteServer(InetAddress.getByName(null), CompileServerPort.Local(port), socketConnectTimeout)
     } else {
       Log.info("Using local server")
       localServer

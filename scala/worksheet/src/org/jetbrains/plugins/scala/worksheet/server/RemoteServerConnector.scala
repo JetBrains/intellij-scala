@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.remote.CommandIds
 import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgs
-import org.jetbrains.plugins.scala.compiler.{CompilationProcess, RemoteServerConnectorBase, RemoteServerRunner}
+import org.jetbrains.plugins.scala.compiler.{CompilationProcess, EelPathTranslator, RemoteServerConnectorBase, RemoteServerRunner}
 import org.jetbrains.plugins.scala.console.configuration.ScalaSdkJLineFixer
 import org.jetbrains.plugins.scala.console.configuration.ScalaSdkJLineFixer.JlineResolveResult
 import org.jetbrains.plugins.scala.extensions.LoggerExt
@@ -114,7 +114,7 @@ final class RemoteServerConnector(
     }
 
     val process: CompilationProcess = {
-      val argumentsRaw = arguments.asStrings
+      val argumentsRaw = arguments.asStrings(EelPathTranslator)
 
       val worksheetProcess: CompilationProcess = makeType match {
         case InProcessServer | OutOfProcessServer =>

@@ -7,6 +7,7 @@ import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.process.{ProcessEvent, ProcessListener}
 import com.intellij.notification.{Notification, NotificationType, Notifications}
 import com.intellij.openapi.application.{ApplicationInfo, ApplicationManager, PathManager}
+import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.options.advanced.AdvancedSettings
 import com.intellij.openapi.project.{Project, ProjectManager, ProjectUtil}
@@ -22,9 +23,10 @@ import org.jetbrains.jps.api.GlobalOptions
 import org.jetbrains.jps.cmdline.ClasspathBootstrap
 import org.jetbrains.plugins.scala.compiler.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.kotlin.util.EelTunnelsKt
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
-import org.jetbrains.plugins.scala.server.{CompileServerProperties, CompileServerToken}
+import org.jetbrains.plugins.scala.server.{CompileServerPort, CompileServerProperties, CompileServerToken}
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.util._
 import org.jetbrains.plugins.scala.util.teamcity.TeamcityUtils
@@ -32,6 +34,7 @@ import org.jetbrains.plugins.scala.util.teamcity.TeamcityUtils
 import java.io.{BufferedReader, IOException, InputStream, InputStreamReader}
 import java.nio.file.{Files, Path}
 import java.util.concurrent.ConcurrentHashMap
+import kotlinx.coroutines.CoroutineScope
 import scala.collection.mutable
 import scala.concurrent.duration._
 import scala.io.Source
@@ -224,14 +227,25 @@ object CompileServerLauncher {
           .either(builder.createProcess())
           .left.map(e => CompileServerProblem.UnexpectedException(e))
           .map { process =>
-            val port =
-              waitUntilNailgunServerIsReady(compileServerSystemDir, process.getInputStream) match {
+            val local = EelPathUtils.isProjectLocal(project)
+            val port = {
+              val portReportedByServer = waitUntilNailgunServerIsReady(compileServerSystemDir, process.getInputStream) match {
                 case Some(p) => p
                 case None =>
                   return Left(CompileServerProblem.Error(CompilerIntegrationBundle.message("compile.server.missing.tcp.port")))
               }
 
-            val watcher = new ProcessWatcher(process, "scalaCompileServer", local = EelPathUtils.isProjectLocal(project))
+              if (local) CompileServerPort.Local(portReportedByServer)
+              else {
+                val eelApi = EelProviderUtil.toEelApiBlocking(eelDescriptor)
+                val tunnels = eelApi.getTunnels
+                val scope = CoroutineScopeProvider.scope(project)
+                val forwardedLocalPort = EelTunnelsKt.forwardLocalPort(scope, tunnels, portReportedByServer)
+                CompileServerPort.Remote(forwardedLocalPort, portReportedByServer)
+              }
+            }
+
+            val watcher = new ProcessWatcher(process, "scalaCompileServer", local)
             val instance = new ServerInstance(
               watcher = watcher,
               compileServerSystemDir = compileServerSystemDir,
@@ -248,7 +262,7 @@ object CompileServerLauncher {
             watcher.startNotify()
             watcher.addProcessListener(new ProcessListener {
               override def processTerminated(event: ProcessEvent): Unit = {
-                CompileServerToken.removeTokenFileForPort(compileServerSystemDir, port)
+                CompileServerToken.removeTokenFileForPort(compileServerSystemDir, port.forToken)
                 val isExpectedProcessTermination = watcher.isTerminatedByIdleTimeout || instance.stopped
                 if (!isExpectedProcessTermination) {
                   LOG.warn(s"Compile server terminated unexpectedly: ${instance.summary}")
@@ -337,7 +351,7 @@ object CompileServerLauncher {
       }
 
       if (stopped) {
-        CompileServerToken.removeTokenFileForPort(it.compileServerSystemDir, it.port)
+        CompileServerToken.removeTokenFileForPort(it.compileServerSystemDir, it.port.forToken)
       }
 
       stopped
@@ -355,7 +369,13 @@ object CompileServerLauncher {
 
   def running: Boolean = serverInstance.exists(_.running)
 
-  def port: Option[Int] = serverInstance.map(_.port)
+  @deprecated(message = "Use compileServerPort. Kept for preserving binary compatibility", since = "2026.1")
+  @Deprecated(since = "2026.1", forRemoval = true)
+  @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
+  def port: Option[Int] = compileServerPort.map(_.forCommunication)
+
+  def compileServerPort: Option[CompileServerPort] = serverInstance.map(_.port)
+
   def pid: Option[Long] = serverInstance.flatMap(_.watcher.pid)
 
   def defaultSdk(project: Project): Sdk =
@@ -780,4 +800,12 @@ object CompileServerLauncher {
     ).flatMap { modulePackage =>
       Seq("--add-opens", s"$modulePackage=ALL-UNNAMED")
     }
+
+  @Service(Array(Service.Level.PROJECT))
+  private final class CoroutineScopeProvider(private val scope: CoroutineScope)
+
+  private object CoroutineScopeProvider {
+    def scope(project: Project): CoroutineScope =
+      project.getService(classOf[CoroutineScopeProvider]).scope
+  }
 }

@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.incremental.scala.remote.CommandIds
 import org.jetbrains.jps.incremental.scala.{Client, DummyClient, MessageKind}
 import org.jetbrains.plugins.scala.compiler.actions.internal.compilertrees.phasesParser.PhaseCollector
-import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, CompilerIntegrationBundle, RemoteServerConnectorBase, RemoteServerRunner}
+import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, CompilerIntegrationBundle, EelPathTranslator, RemoteServerConnectorBase, RemoteServerRunner}
 import org.jetbrains.plugins.scala.extensions.invokeLater
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
 import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaLanguageLevel}
@@ -227,7 +227,7 @@ private final class CompilerTreesGenerator(
 
     def run(): Unit = {
       new RemoteServerRunner(module.getProject)
-        .buildProcess(CommandIds.Compile, arguments.asStrings, client)
+        .buildProcess(CommandIds.Compile, arguments.asStrings(EelPathTranslator), client)
         .runSync()
     }
   }

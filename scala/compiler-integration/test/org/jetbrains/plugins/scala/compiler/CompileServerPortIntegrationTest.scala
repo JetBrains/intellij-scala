@@ -29,10 +29,10 @@ class CompileServerPortIntegrationTest extends ScalaCompilerTestBase {
     assertNoErrorsOrWarnings(messages)
 
     val compileServerSystemDir = CompileServerLauncher.scalaCompileServerSystemDir(getProject)
-    val expected = CompileServerLauncher.port
+    val expected = CompileServerLauncher.compileServerPort
     assertTrue(s"Compile server is not running", CompileServerLauncher.running)
     assertTrue(s"Compile server port is not defined", expected.isDefined)
-    val actual = CompileServerPort.readPortFile(compileServerSystemDir)
+    val actual = CompileServerPort.readPortFile(compileServerSystemDir).map(CompileServerPort.Local.apply)
     assertEquals(expected, actual)
   }
 }

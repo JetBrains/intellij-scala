@@ -471,6 +471,7 @@ lazy val compilerIntegrationServerManagement =
   newProject("compiler-integration-server-management", file("scala/compiler-integration-server-management"))
     .dependsOn(
       scalaImpl % "test->test;compile->compile",
+      kotlinUtils
     )
     .settings(
       // It's fine to merge it into the same module

@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala.compiler.data
 
+import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.jps.incremental.scala.Extractor
+import org.jetbrains.jps.incremental.scala.remote.{NioPathTranslator, PathTranslator}
 import org.jetbrains.plugins.scala.compiler.data.Extractors.{StringToPath, StringToPaths}
 
 import java.nio.file.Path
@@ -10,9 +12,17 @@ case class CompilerData(compilerJars: Option[CompilerJars],
                         incrementalType: IncrementalityType)
 
 object CompilerData {
-  import serialization.SerializationUtils.{optionToString, pathToString, pathsToString}
+  import serialization.SerializationUtils.{optionToString, sequenceToString}
 
-  def serialize(data: CompilerData): Seq[String] = {
+  @deprecated(message = "Use serialize(CompilerData, PathTranslator). Kept for preserving binary compatibility.", since = "2026.1")
+  @Deprecated
+  @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
+  def serialize(data: CompilerData): Seq[String] = serialize(data, NioPathTranslator)
+
+  def serialize(data: CompilerData, translator: PathTranslator): Seq[String] = {
+    val pathToString: Path => String = translator.translate
+    val pathsToString: Seq[Path] => String = paths => sequenceToString(paths.map(pathToString))
+
     val compilerJarPaths = data.compilerJars.map(jars => pathsToString(jars.allJars))
     val customCompilerBridgeJarPath = data.compilerJars.flatMap(_.customCompilerBridgeJar.map(pathToString))
     val replClasspath = data.compilerJars.map(jars => pathsToString(jars.replClasspath))

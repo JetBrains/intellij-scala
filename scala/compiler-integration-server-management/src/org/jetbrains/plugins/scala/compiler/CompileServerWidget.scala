@@ -46,7 +46,7 @@ private final class CompileServerWidget(project: Project) extends StatusBarWidge
 
   //noinspection ReferencePassedToNls
   override def getTooltipText: String = {
-    val portDetail = launcher.port.map(p => s"TCP $p")
+    val portDetail = launcher.compileServerPort.map(p => s"TCP $p")
     val pidDetail = launcher.pid.map(p => s"PID $p")
     val details = portDetail ++ pidDetail
     val detailsText = if (details.isEmpty) "" else details.mkString(" (", ", ", ")")

@@ -1,7 +1,8 @@
 package org.jetbrains.jps.incremental.scala.remote
 
-import org.jetbrains.annotations.Nullable
+import org.jetbrains.annotations.{ApiStatus, Nullable}
 import org.jetbrains.jps.incremental.scala.*
+import org.jetbrains.plugins.scala.server.CompileServerPort
 
 import java.io.{BufferedInputStream, BufferedOutputStream, DataInputStream, DataOutputStream}
 import java.net.{InetAddress, InetSocketAddress, Socket}
@@ -13,7 +14,15 @@ import scala.util.Using
 trait RemoteResourceOwner {
 
   protected def address: InetAddress
-  protected def port: Int
+
+  @deprecated(message = "Use compileServerPort. Currently kept for preserving binary compatibility.", since = "2026.1")
+  @Deprecated
+  @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
+  protected def port: Int = compileServerPort.forCommunication
+
+  protected def compileServerPort: CompileServerPort = {
+    throw AbstractMethodError("Needs to be implemented, this exception here is thrown for preserving binary compatibility")
+  }
 
   protected def socketConnectTimeout: FiniteDuration = 10.seconds
 
@@ -27,7 +36,7 @@ trait RemoteResourceOwner {
   def send(command: String, arguments: Seq[String], client: Client): Unit = {
     client.internalTrace(s"sending command to server: `$command`")
     val socket = new Socket()
-    val socketAddress = new InetSocketAddress(address, port)
+    val socketAddress = new InetSocketAddress(address, compileServerPort.forCommunication)
     socket.connect(socketAddress, socketConnectTimeout.toMillis.toInt)
     client.internalTrace(s"socket connected")
 

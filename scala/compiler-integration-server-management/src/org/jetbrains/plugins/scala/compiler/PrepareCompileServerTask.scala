@@ -43,22 +43,22 @@ private final class PrepareCompileServerTask extends ScalaCompileTask {
   private def writePortNumber(force: Boolean, project: Project): Unit = {
     val compileServerSystemDir = CompileServerLauncher.scalaCompileServerSystemDir(project)
 
-    val currentPort = CompileServerLauncher.port
+    val currentPort = CompileServerLauncher.compileServerPort
     currentPort match {
       case Some(port) if force =>
         // Unconditionally write the port number to disk.
-        writePortFile(compileServerSystemDir, port)
+        writePortFile(compileServerSystemDir, port.forToken)
 
       case Some(port) =>
         // Only write the port number to disk if the old port number differs.
         CompileServerPort.readPortFile(compileServerSystemDir) match {
-          case Some(oldPort) if port != oldPort =>
-            writePortFile(compileServerSystemDir, port)
+          case Some(oldPort) if port.forToken != oldPort =>
+            writePortFile(compileServerSystemDir, port.forToken)
           case Some(_) =>
             // The port written in the port file matches the current one. Proceed.
           case None =>
             // The port file might not exist or there was a problem with reading it. Write the new port number to disk.
-            writePortFile(compileServerSystemDir, port)
+            writePortFile(compileServerSystemDir, port.forToken)
         }
 
       case None =>

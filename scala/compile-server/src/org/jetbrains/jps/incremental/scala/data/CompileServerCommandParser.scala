@@ -4,6 +4,7 @@ import org.jetbrains.jps.incremental.scala.ScalaJpsProjectMetadata
 import org.jetbrains.jps.incremental.scala.remote.{CommandIds, CompileServerCommand, SourceScope}
 import org.jetbrains.plugins.scala.compiler.data.{ComputeStampsArguments, DocumentCompilationArguments, ExpressionEvaluationArguments}
 
+import java.nio.file.Paths
 import scala.util.Try
 
 trait CompileServerCommandParser {
@@ -33,9 +34,9 @@ object CompileServerCommandParser
         args match {
           case Seq(projectPath, globalOptionsPath, dataStorageRootPath, StringToSequence(moduleNames), sourceScope, projectMetadataJson, other@_*) =>
             CompileServerCommand.CompileJps(
-              projectPath = projectPath,
-              globalOptionsPath = globalOptionsPath,
-              dataStorageRootPath = dataStorageRootPath,
+              projectPath = Paths.get(projectPath),
+              globalOptionsPath = Paths.get(globalOptionsPath),
+              dataStorageRootPath = Paths.get(dataStorageRootPath),
               moduleNames = moduleNames,
               sourceScope = SourceScope.fromString(sourceScope),
               projectMetadata = ScalaJpsProjectMetadata.parseCompactJsonString(projectMetadataJson),

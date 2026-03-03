@@ -5,10 +5,14 @@ import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.platform.eel.EelDescriptor
+import com.intellij.platform.eel.path.EelPath
+import com.intellij.platform.eel.provider.{EelNioBridgeServiceKt, EelProviderUtil}
 import com.intellij.psi.{PsiFile, PsiManager}
 import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import org.jetbrains.jps.incremental.scala.Client.{ClientMsg, PosInfo}
 import org.jetbrains.jps.incremental.scala.MessageKind
+import org.jetbrains.jps.incremental.scala.remote.SerializablePath
 import org.jetbrains.plugins.scala.compiler.highlighting.BackgroundExecutorService.executeOnBackgroundThreadInNotDisposed
 import org.jetbrains.plugins.scala.compiler.highlighting.ExternalHighlighting.RangeInfo
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener}
@@ -17,10 +21,20 @@ import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectPsiFileExt}
 import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
 
+import java.nio.file.Path
+
+//noinspection ApiStatus,UnstableApiUsage
 private class UpdateCompilerGeneratedStateListener(project: Project) extends CompilerEventListener {
   private final val CompilerPluginTypePrefix = "<type>" // CompilerPlugin.TypePrefix
 
   private final val CompilerPluginTypeSuffix = "</type>" // CompilerPlugin.TypeSuffix
+
+  private val eelDescriptor: EelDescriptor = EelProviderUtil.getEelDescriptor(project)
+
+  private def sourceToPath(source: SerializablePath): Path = {
+    val eel = EelPath.parse(SerializablePath.unsafePathAsString(source), eelDescriptor)
+    EelNioBridgeServiceKt.asNioPath(eel)
+  }
 
   override def eventReceived(event: CompilerEvent): Unit = {
     val oldState = CompilerGeneratedStateManager.get(project)
@@ -31,7 +45,7 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
         val newState = oldState.copy(highlightOnCompilationFinished = newHighlightOnCompilationFinished)
         CompilerGeneratedStateManager.update(project, newState)
       case CompilerEvent.MessageEmitted(compilationId, _, _, ClientMsg(MessageKind.Info, text, Some(source), _, Some(begin), Some(end), _)) if text.startsWith(CompilerPluginTypePrefix) =>
-        val virtualFile = source.toPath.toVirtualFile.get
+        val virtualFile = sourceToPath(source).toVirtualFile.get
         val tpe = text.substring(CompilerPluginTypePrefix.length, text.indexOf(CompilerPluginTypeSuffix).ensuring(_ != -1))
         val fileState = FileCompilerGeneratedState(compilationId, Set.empty, Map(((begin, end), tpe)))
         val newState = replaceOrAppendFileState(oldState, virtualFile, fileState)
@@ -40,7 +54,7 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
         for {
           text <- Option(msg.text)
           source <- msg.source
-          virtualFile <- source.toPath.toVirtualFile
+          virtualFile <- sourceToPath(source).toVirtualFile
         } {
           def calculateRangeInfo(startInfo: Option[PosInfo], endInfo: Option[PosInfo], debugTag: String): Option[RangeInfo] =
             for {
@@ -95,7 +109,7 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
       case CompilerEvent.CompilationFinished(compilationId, _, sources) =>
         val vFiles = for {
           source <- sources
-          virtualFile <- source.toPath.toVirtualFile
+          virtualFile <- sourceToPath(source).toVirtualFile
         } yield virtualFile
         val emptyState = FileCompilerGeneratedState(compilationId, Set.empty, Map.empty)
         val intermediateState = vFiles.foldLeft(oldState) { case (acc, file) =>

@@ -8,7 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.{FileUtil, NioFiles}
 import org.jetbrains.jps.incremental.scala.remote.CommandIds
 import org.jetbrains.jps.incremental.scala.{Client, DummyClient, MessageKind}
-import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, RemoteServerConnectorBase, RemoteServerRunner}
+import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, EelPathTranslator, RemoteServerConnectorBase, RemoteServerRunner}
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 
@@ -105,7 +105,7 @@ private class ServerConnector(module: Module, filesToCompile: Seq[Path], outputD
 
   type CompileResult = Either[Seq[NlsString], Array[(Path, String)]]
   def compile(): CompileResult = {
-    val compilationProcess = new RemoteServerRunner(module.getProject).buildProcess(CommandIds.Compile, arguments.asStrings, client)
+    val compilationProcess = new RemoteServerRunner(module.getProject).buildProcess(CommandIds.Compile, arguments.asStrings(EelPathTranslator), client)
     var result: CompileResult = Left(Seq(NlsString(DebuggerBundle.message("compilation.failed"))))
     compilationProcess.addTerminationCallback { _ => // TODO: do not ignore possible exception
       val foundErrors = errors.result()

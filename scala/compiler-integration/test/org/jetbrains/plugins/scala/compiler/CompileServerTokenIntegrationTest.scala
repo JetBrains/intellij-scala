@@ -29,8 +29,8 @@ class CompileServerTokenIntegrationTest extends ScalaCompilerTestBase {
     assertNoErrorsOrWarnings(messages)
 
     val compileServerSystemDir = CompileServerLauncher.scalaCompileServerSystemDir(getProject)
-    val token = CompileServerLauncher.port match {
-      case Some(port) => CompileServerToken.tokenForPort(compileServerSystemDir, port)
+    val token = CompileServerLauncher.compileServerPort match {
+      case Some(port) => CompileServerToken.tokenForPort(compileServerSystemDir, port.forToken)
       case None => throw new AssertionError("Cannot connect to Scala Compile Server: unknown TCP port, make sure the server is running")
     }
     assertTrue("Could not read the Scala Compile Server token for the test project", token.nonEmpty)

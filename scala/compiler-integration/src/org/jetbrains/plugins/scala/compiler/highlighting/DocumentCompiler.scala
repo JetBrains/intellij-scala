@@ -13,7 +13,7 @@ import org.jetbrains.jps.incremental.scala.remote.{CommandIds, SerializablePath,
 import org.jetbrains.jps.incremental.scala.{Client, DelegateClient}
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.compiler.data.{CompilerData, CompilerJarsFactory, DocumentCompilationArguments, DocumentCompilationData, IncrementalityType}
-import org.jetbrains.plugins.scala.compiler.{CompilerManagerUtil, RemoteServerConnectorBase, RemoteServerRunner}
+import org.jetbrains.plugins.scala.compiler.{CompilerManagerUtil, EelPathTranslator, RemoteServerConnectorBase, RemoteServerRunner}
 import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaLanguageLevel, VirtualFileExt}
@@ -141,7 +141,7 @@ private final class DocumentCompiler(project: Project) {
         }
       }
       new RemoteServerRunner(module.getProject)
-        .buildProcess(CommandIds.Compile, arguments.asStrings, fixedClient)
+        .buildProcess(CommandIds.Compile, arguments.asStrings(EelPathTranslator), fixedClient)
         .runSync()
     }
   }
@@ -167,7 +167,7 @@ private final class DocumentCompiler(project: Project) {
       )
 
       new RemoteServerRunner(module.getProject)
-        .buildProcess(CommandIds.CompileDocument, DocumentCompilationArguments.serialize(arguments), client)
+        .buildProcess(CommandIds.CompileDocument, DocumentCompilationArguments.serialize(arguments, EelPathTranslator), client)
         .runSync()
     }
   }

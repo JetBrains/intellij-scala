@@ -1,13 +1,14 @@
 package org.jetbrains.plugins.scala.compiler
 
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
+import org.jetbrains.plugins.scala.server.CompileServerPort
 
 import java.nio.file.Path
 
 private final class ServerInstance(
   val watcher: ProcessWatcher,
   val compileServerSystemDir: Path,
-  val port: Int,
+  val port: CompileServerPort,
   val workingDir: Option[Path],
   val jdk: JDK,
   val jvmParameters: Set[String],

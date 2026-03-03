@@ -25,4 +25,7 @@ object SerializablePath {
   def apply(path: Path): SerializablePath = new SerializablePath(path.toAbsolutePath.normalize().toString)
 
   def unapply(path: SerializablePath): Some[Path] = Some(path.toPath)
+
+  private[jetbrains] def unsafePathAsString(serializablePath: SerializablePath): String =
+    serializablePath.pathAsString
 }

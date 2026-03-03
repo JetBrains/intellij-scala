@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventType}
 import org.jetbrains.plugins.scala.util.ObjectSerialization
 
 import java.io.{DataOutputStream, FileNotFoundException, FileOutputStream, IOException}
-import java.nio.file.{Files, Path, Paths}
+import java.nio.file.{Files, Path}
 import java.util.concurrent.ConcurrentMap
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.locks.{Lock, ReentrantLock}
@@ -25,7 +25,7 @@ import scala.util.{Try, Using}
 private object Jps {
   private val systemRootSet: AtomicBoolean = new AtomicBoolean(false)
 
-  private val projectLock: ConcurrentMap[String, Lock] = ContainerUtil.createConcurrentSoftValueMap()
+  private val projectLock: ConcurrentMap[Path, Lock] = ContainerUtil.createConcurrentSoftValueMap()
 
   def compileJpsLogic(command: CompileServerCommand.CompileJps, client: Client, jpsBuildSystemDir: Path): Unit = {
     if (systemRootSet.compareAndSet(false, true)) {
@@ -36,8 +36,7 @@ private object Jps {
     val lock = projectLock.computeIfAbsent(dataStorageRootPath, _ => new ReentrantLock())
     lock.lock()
     try {
-      val dataStorageRoot = Paths.get(dataStorageRootPath)
-      val loader = new JpsModelLoaderImpl(projectPath, globalOptionsPath, false, null)
+      val loader = new JpsModelLoaderImpl(projectPath.toString, globalOptionsPath.toString, false, null)
       val buildRunner = new BuildRunner(loader)
       val customBuildId = UUID.randomUUID()
       val jpsProjectMetadata = projectMetadata.asCompactJsonString
@@ -70,7 +69,7 @@ private object Jps {
 
       val fsState = new BuildFSState(true)
       val descriptor = withModifiedExternalProjectPath(externalProjectConfig) {
-        buildRunner.load(messageHandler, dataStorageRoot, fsState)
+        buildRunner.load(messageHandler, dataStorageRootPath, fsState)
       }
 
       try {
