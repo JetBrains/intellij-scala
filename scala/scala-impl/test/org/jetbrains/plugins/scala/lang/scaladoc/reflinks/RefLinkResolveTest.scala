@@ -353,6 +353,11 @@ class RefLinkResolveTest extends ScalaLightCodeInsightFixtureTestCase {
       | */
       |class Test {
       |  object Target %inTest%
+      |
+      |  /**
+      |   * [[#Target  inTest]] strictmember lookup looks into the current class/object not function
+      |   */
+      |  def foo = 3
       |}
       |
       |/**
