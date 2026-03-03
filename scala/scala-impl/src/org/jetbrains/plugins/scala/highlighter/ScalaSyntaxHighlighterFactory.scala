@@ -9,7 +9,7 @@ import com.intellij.psi.LanguageSubstitutors
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighterFactory.createScalaSyntaxHighlighter
 import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
-import org.jetbrains.plugins.scala.project.ScalaFeaturePusher
+import org.jetbrains.plugins.scala.project.{ScalaFeaturePusher, ScalaFeatures}
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
 import org.jetbrains.plugins.scalaDirective.ScalaDirectiveLanguage
 import org.jetbrains.plugins.scalaDoc.ScalaDocLanguage
@@ -36,10 +36,8 @@ object ScalaSyntaxHighlighterFactory {
 
     import SyntaxHighlighterFactory.{getSyntaxHighlighter => findByLanguage}
 
-    val noUnicodeEscapesInRawStrings = file != null && {
-      val featuresOpt = ScalaFeaturePusher.getFeatures(file)
-      featuresOpt.exists(_.noUnicodeEscapesInRawStrings)
-    }
+    val features = getPushedFeaturesOrDefault(file, language)
+    val noUnicodeEscapesInRawStrings = features.noUnicodeEscapesInRawStrings
 
     val isScala3 = language.isKindOf(Scala3Language.INSTANCE)
     val customScalaLexer = new ScalaSyntaxHighlighter.CustomScalaLexer(
@@ -53,5 +51,10 @@ object ScalaSyntaxHighlighterFactory {
       findByLanguage(ScalaDirectiveLanguage.INSTANCE, project, file),
       findByLanguage(HTMLLanguage.INSTANCE, project, file)
     )
+  }
+
+  private def getPushedFeaturesOrDefault(@Nullable file: VirtualFile, language: Language): ScalaFeatures = {
+    val fromPusher = Option(file).flatMap(ScalaFeaturePusher.getFeatures)
+    fromPusher.getOrElse(ScalaFeatures.defaultForLanguage(language))
   }
 }

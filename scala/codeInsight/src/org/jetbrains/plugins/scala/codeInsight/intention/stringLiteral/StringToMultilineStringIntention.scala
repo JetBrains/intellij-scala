@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.format._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt}
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
 
 final class StringToMultilineStringIntention extends PsiElementBaseIntentionAction {
@@ -103,7 +103,12 @@ object StringToMultilineStringIntention {
 
     val parts = ScStringLiteralParser.parse(literal, checkStripMargin = true).getOrElse(Nil)
     val prefix = interpolatorPrefix(literal)
-    val content = InterpolatedStringFormatter.formatContent(parts, prefix, toMultiline = true)
+    val content = InterpolatedStringFormatter.formatContent(
+      parts,
+      prefix,
+      toMultiline = true,
+      noUnicodeEscapesInRawStrings = literal.noUnicodeEscapesInRawStrings
+    )
     val newLiteralText = s"$prefix$Quotes$content$Quotes"
     val newLiteral = createExpressionFromText(newLiteralText, literal)
     val replaced = literal.replace(newLiteral).asInstanceOf[ScStringLiteral]
@@ -162,7 +167,12 @@ object StringToMultilineStringIntention {
       case "raw" if parts.exists(hasNewLine) => "s"
       case p => p
     }
-    val content = InterpolatedStringFormatter.formatContent(parts, prefix, toMultiline = false)
+    val content = InterpolatedStringFormatter.formatContent(
+      parts,
+      prefix,
+      toMultiline = false,
+      noUnicodeEscapesInRawStrings = literal.noUnicodeEscapesInRawStrings
+    )
     val newLiteralText = s"$prefix$Quote$content$Quote"
     val newLiteral = createExpressionFromText(newLiteralText, literal)
     elementToReplace.replace(newLiteral)
