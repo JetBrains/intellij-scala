@@ -20,7 +20,12 @@ private object ScalaStringUtils {
   }
 
   // just run the tests...
-  def escapePlainText(s0: String, toMultiline: Boolean, prefix: String): String = {
+  def escapePlainText(
+    s0: String,
+    toMultiline: Boolean,
+    prefix: String,
+    noUnicodeEscapesInRawStrings: Boolean
+  ): String = {
     val escapeDollar = prefix.nonEmpty
     val isRawContent = prefix == "raw" || prefix.isEmpty && toMultiline
 
@@ -29,7 +34,7 @@ private object ScalaStringUtils {
     val s2 = if (toMultiline) s1.replace("\r", "") else s1
 
     val s3 = if (isRawContent) {
-      escapeForRawContent(s2, toMultiline)
+      escapeForRawContent(s2, toMultiline, noUnicodeEscapesInRawStrings)
     }
     else {
       val additionalEscape = if (toMultiline) "" else "\"" // we can use single '"' inside multiline strings
@@ -63,10 +68,8 @@ private object ScalaStringUtils {
    *     This hack is required due to \" is not recognised inside strings (raw"\"")<br>
    *     (see [[https://github.com/scala/bug/issues/6476]])
    *
-   *
-   * TODO: handle Scala 3 case, where raw strings don't support Unicode escapes
    */
-  private def escapeForRawContent(content: String, toMultiline: Boolean): String = {
+  private def escapeForRawContent(content: String, toMultiline: Boolean, noUnicodeEscapesInRawStrings: Boolean): String = {
     val buffer = new lang.StringBuilder(content.length)
 
     var idx = 0
@@ -77,7 +80,7 @@ private object ScalaStringUtils {
         case '\\' if idx + 1 < content.length =>
           val chNext = content.charAt(idx + 1)
           chNext match {
-            case 'u' =>
+            case 'u' if !noUnicodeEscapesInRawStrings =>
               UnicodeEscapeRegex.findPrefixMatchOf(new CharSequenceSubSequence(content, idx, content.length)) match {
                 case Some(mat) =>
                   val matchedCode = mat.matched
@@ -87,6 +90,9 @@ private object ScalaStringUtils {
                   buffer.append("\\u")
                   idx += 2
               }
+            case 'u' =>
+              buffer.append('\\').append(chNext)
+              idx += 2
             case '"' if !toMultiline  =>
               buffer.append("\\u005c\\u0022")
               idx += 2

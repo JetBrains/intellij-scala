@@ -44,14 +44,19 @@ object InterpolatedStringFormatter {
   def apply(kind: ScInterpolatedStringLiteral.Kind): InterpolatedStringFormatter =
     new InterpolatedStringFormatter(kind)
 
-  def formatContent(parts: Seq[StringPart], prefix: String, toMultiline: Boolean): String = {
+  def formatContent(
+    parts: Seq[StringPart],
+    prefix: String,
+    toMultiline: Boolean,
+    noUnicodeEscapesInRawStrings: Boolean = false
+  ): String = {
     val strings = parts.collect {
       case text: Text                         =>
-        ScalaStringUtils.escapePlainText(text.value, toMultiline, prefix)
+        ScalaStringUtils.escapePlainText(text.value, toMultiline, prefix, noUnicodeEscapesInRawStrings)
       case textFormatted: SpecialFormatEscape =>
         val isFormat = prefix == ScInterpolatedStringLiteral.Format.prefix
         val content = if (isFormat) textFormatted.originalText else textFormatted.unescapedText
-        ScalaStringUtils.escapePlainText(content, toMultiline, prefix)
+        ScalaStringUtils.escapePlainText(content, toMultiline, prefix, noUnicodeEscapesInRawStrings)
       case it: Injection =>
         if (injectByValue(it))
           it.value

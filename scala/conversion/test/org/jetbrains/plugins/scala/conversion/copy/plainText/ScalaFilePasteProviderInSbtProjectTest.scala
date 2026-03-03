@@ -88,7 +88,7 @@ class ScalaFilePasteProviderInSbtProjectTest
       modifiableModel.renameModule(module, newModuleName)
       modifiableModel.commit()
 
-      ScalaModuleSettings.assignDummyModuleSettingsForTests(module, isBuildModule = true, ScalaLanguageLevel.Scala_2_12)
+      ScalaModuleSettings.TestUtils.assignDummyBuildModuleScalaModuleSettingsForTests(module, ScalaLanguageLevel.Scala_2_12)
 
       // Need to invalidate caches as some module settings are cached during setUp
       // (e.g. org.jetbrains.plugins.scala.project.ModuleExt#scalaModuleSettings)

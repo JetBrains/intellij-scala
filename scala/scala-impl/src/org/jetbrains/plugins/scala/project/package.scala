@@ -61,9 +61,7 @@ package object project {
      */
     val SCALA_ATTACHED_MODULE = new Key[Reference[Module]]("ScalaAttachedModule")
 
-    /** Designed to be used in light tests without any libraries */
-    @TestOnly
-    val LightTestScalaVersion: Key[ScalaVersion] = Key.create("light-test-scala-version")
+    //TODO: make sure that any modification to module increments the moddule mod counter
   }
 
   implicit class LibraryExt(private val library: Library) extends AnyVal with LibraryBase {
@@ -431,6 +429,20 @@ package object project {
 
     def features: SerializableScalaFeatures =
       scalaModuleSettings.fold(ScalaFeatures.default)(_.features)
+
+    /**
+     * Similar as [[features]] but when we don't expect a fallback to the default features.
+     * It's designed for tests primarily as in production we expect a fail-safe solution without exceptions.
+     *
+     * We could consider logging an error in tests universally, everywhere where [[scalaModuleSettings]] returns None in tests.
+     * This might identify a lot of tests with a potentially broken setup.
+     */
+    @TestOnly
+    def featuresNonDefault: SerializableScalaFeatures = scalaModuleSettings match {
+      case Some(settings) => settings.features
+      case None =>
+        throw new AssertionError(s"Module ${module.getName} has no ScalaModuleSettings, which is unexpected at this moment")
+    }
 
     def isPartialUnificationEnabled: Boolean =
       scalaModuleSettings.exists(_.isPartialUnificationEnabled)
