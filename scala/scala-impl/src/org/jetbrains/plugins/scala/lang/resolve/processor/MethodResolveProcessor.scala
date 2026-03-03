@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.resolve.processor
 
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightDefaultConstructor
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base._
@@ -129,37 +130,46 @@ class MethodResolveProcessor(
         )
 
       namedElement match {
-        case m: PsiMethod => addResult(resultBuilder(m))
-        case o: ScObject if o.isPackageObject =>  // do not resolve to package object
-        case obj: ScObject if ref.getParent.is[ScMethodCall, ScGenericCall] =>
-          addResult(resultBuilder(obj))
-        case cls: PsiClass
-          if ref.isInScala3Module &&
-            (ref.getParent.is[ScMethodCall, ScGenericCall]) =>
-          // process constructor proxies
-          val constructors = cls.constructors match {
-            case Seq() =>
-              LightDefaultConstructor.create(cls).toOption.toSeq
-            case other => other
+        case m: PsiMethod                                                   => addResult(resultBuilder(m))
+        case o: ScObject if o.isPackageObject                               =>  // do not resolve to package object
+        case obj: ScObject if ref.getParent.is[ScMethodCall, ScGenericCall] => addResult(resultBuilder(obj))
+        case target @ (_: PsiClass | _: ScTypeAliasDefinition)
+          if ref.isInScala3Module && ref.getParent.is[ScMethodCall, ScGenericCall] =>
+
+          val targetCls = target match {
+            case alias: ScTypeAliasDefinition =>
+              val rhsOption = alias.aliasedType.toOption
+              rhsOption.flatMap(_.extractClass)
+            case cls: PsiClass                => Option(cls)
+            case _                            => throw new IllegalArgumentException(ScalaBundle.message("unexpected.resolve.target", target))
           }
 
-          val withAccessibilityCheck =
-            constructors.view.map { cons =>
-              new ScalaResolveResult(
-                cons,
-                ScSubstitutor.empty,
-                importsUsed,
-                renamed,
-                implicitConversion = implFunction,
-                implicitType       = implType,
-                fromType           = fromType,
-                parentElement      = Option(cls),
-                isAccessible       = isAccessible(cons, ref),
-                isForwardReference = forwardReference
-              )
-            }.filter(srr => !accessibility || srr.isAccessible)
+          targetCls.foreach { cls =>
+            // process constructor proxies
+            val constructors = cls.constructors match {
+              case Seq() =>
+                LightDefaultConstructor.create(cls).toOption.toSeq
+              case other => other
+            }
 
-          addResults(withAccessibilityCheck)
+            val withAccessibilityCheck =
+              constructors.view.map { cons =>
+                new ScalaResolveResult(
+                  cons,
+                  ScSubstitutor.empty,
+                  importsUsed,
+                  renamed,
+                  implicitConversion = implFunction,
+                  implicitType       = implType,
+                  fromType           = fromType,
+                  parentElement      = Option(cls),
+                  isAccessible       = isAccessible(cons, ref),
+                  isForwardReference = forwardReference
+                )
+              }.filter(srr => !accessibility || srr.isAccessible)
+
+            addResults(withAccessibilityCheck)
+          }
         case synthetic: ScSyntheticFunction => addResult(resultBuilder(synthetic))
         case pack: PsiPackage               => addResult(resultBuilder(ScPackageImpl(pack)))
         case _                              => addResult(resultBuilder(namedElement))
