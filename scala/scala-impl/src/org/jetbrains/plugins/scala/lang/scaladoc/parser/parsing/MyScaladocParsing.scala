@@ -221,9 +221,15 @@ class MyScaladocParsing(private val builder: PsiBuilder,
     if (isNewLine)
       hasLineBreak = true
 
+  private val docRefEnd = TokenSet.create(
+    DOC_LINK_CLOSE_TAG,
+    DOC_COMMENT_END,
+    DOC_WHITESPACE,
+    DOC_INLINE_TAG_END,
+  )
   private def parseScalaDocRef(): Unit = {
     val refMarker = builder.mark()
-    while (builder.getTokenType != DOC_LINK_CLOSE_TAG && builder.getTokenType != DOC_WHITESPACE) {
+    while (!docRefEnd.contains(builder.getTokenType)) {
       builder.advanceLexer()
     }
     refMarker.collapse(ScalaDocElementTypes.SCALA_DOC_REFERENCE_LINK)
@@ -484,8 +490,7 @@ class MyScaladocParsing(private val builder: PsiBuilder,
         if (!isEndOfComment && builder.getTokenType == ScalaDocTokenType.DOC_WHITESPACE)
           builder.advanceLexer()
 
-        val psiBuilder = mkScalaPsiBuilder(builder, isScala3 = false)
-        StableIdForImport(DOC_TAG_VALUE_TOKEN)(psiBuilder)
+        parseScalaDocRef()
       case _ => // do nothing
     }
 
