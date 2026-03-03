@@ -72,9 +72,9 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
 
   @tailrec
   private def getContextInfo(
-    ref:                    ScReferenceExpression,
-    e:                      ScExpression,
-    typeArgs:               Seq[ScTypeElement] = Seq.empty
+    ref:      ScReferenceExpression,
+    e:        ScExpression,
+    typeArgs: Seq[ScTypeElement] = Seq.empty
   ): ContextInfo = {
     e.getContext match {
       case generic: ScGenericCall if typeArgs.isEmpty && generic.referencedExpr == ref =>
@@ -224,16 +224,28 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
     def resolveConstructorProxies(srrs: Array[ScalaResolveResult]): Array[ScalaResolveResult] = {
       def tryResolveSpecificProxies: Array[ScalaResolveResult] =
         if (srrs.length != 1) srrs
-        else srrs.head.element match {
-          case obj: ScObject if obj.allFunctionsByName(CommonNames.Apply).isEmpty =>
-            val cls  = obj.baseCompanion
-            val proc = processor(kinds = Set(ResolveTargets.CLASS))
-            cls.foreach(proc.execute(_, ScalaResolveState.withImportsUsed(srrs.head.importsUsed)))
-            val proxies = proc.candidates
+        else {
+          val element = srrs.head.element
 
-            if (proxies.nonEmpty) proxies
-            else                  srrs
-          case _ => srrs
+          val targetDesignator = element match {
+            case Typeable(tpe) =>
+              val widened = tpe.tryExtractDesignatorSingleton
+              widened.extractDesignated(expandAliases = true)
+            case _             => None
+          }
+
+          targetDesignator match {
+            case Some(obj: ScObject) if obj.allFunctionsByName(CommonNames.Apply).isEmpty =>
+              val proc           = processor(name = obj.name, kinds = Set(ResolveTargets.CLASS))
+              val companionClass = obj.baseCompanion
+              companionClass.foreach(proc.execute(_, ScalaResolveState.withImportsUsed(srrs.head.importsUsed)))
+
+              val proxies = proc.candidates
+
+              if (proxies.nonEmpty) proxies
+              else                  srrs
+            case _ => srrs
+          }
         }
 
       if (!inMethodCallContext(reference))  srrs
