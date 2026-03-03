@@ -19,10 +19,6 @@ class ScalaLibraryHighlightingTest_2_12 extends ScalaLibraryHighlightingTest {
     "scala/Predef.scala" -> Set(
       (6399, 6408), // Cannot resolve symbol `package`
     ),
-    "scala/StringContext.scala" -> Set(
-      (3215, 3237), // Cannot resolve symbol InvalidEscapeException
-      (5964, 5986), // Cannot resolve symbol InvalidEscapeException
-    ),
     "scala/collection/CustomParallelizable.scala" -> Set(
       (473, 476), // Method 'par' overrides nothing
     ),

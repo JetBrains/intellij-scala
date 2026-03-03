@@ -41,10 +41,6 @@ class ScalaLibraryHighlightingTest_2_13 extends ScalaLibraryHighlightingTest {
     "scala/Singleton.scala" -> Set(
       (1797, 1802), // 'final' modifier not allowed with trait
     ),
-    "scala/StringContext.scala" -> Set(
-      (3011, 3033), // Cannot resolve symbol InvalidEscapeException
-      (7221, 7243), // Cannot resolve symbol InvalidEscapeException
-    ),
     "scala/collection/immutable/SortedMap.scala" -> Set(
       (7427, 7521), // Expression of type mutable.Builder[(K, Nothing), WithDefault[K, V]] doesn't conform to expected type mutable.Builder[(K, V), WithDefault[K, V]]
     ),
