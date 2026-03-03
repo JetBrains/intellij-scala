@@ -363,10 +363,11 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
           ProgressManager.checkCanceled()
 
           if (localReferenceSearch) {
-            // We should only search the first DocOwner (aka the one the scaladoc reference is in)
+            // We should only search until the first DocOwner that is a type definition
+            // (aka the one the scaladoc reference is in)
             if (searchedDocOwner) return
             place match {
-              case _: ScDocCommentOwner =>
+              case _: ScTypeDefinition =>
                 searchedDocOwner = true
               case _ =>
             }
