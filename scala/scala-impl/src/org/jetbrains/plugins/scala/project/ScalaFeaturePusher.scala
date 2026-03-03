@@ -48,30 +48,44 @@ class ScalaFeaturePusher extends com.intellij.FilePropertyPusherBase[SerializedS
 object ScalaFeaturePusher {
   type SerializedScalaFeatures = Integer
 
-  def getFeatures(file: PsiFile): Option[ScalaFeatures] =
-    Option(file.getContainingDirectory)
-      .flatMap(dir => getFeatures(dir.getVirtualFile))
-      .orElse {
-        // while indexing the parser will get a dummy file that only references the real file
-        Option(file.getUserData(IndexingDataKeys.VIRTUAL_FILE))
-          .flatMap(vFile => if (vFile.isDirectory) Some(vFile) else Option(vFile.getParent))
-          .flatMap(getFeatures)
-      }.orElse {
-        Option(file.getVirtualFile).flatMap { vFile =>
-          getFeatures(vFile).orElse {
-            // todo: this is a quick hack for idea253 release
-            //       it should be improved by having a comprehensive return value from ScalaLanguageSubstitutor
-            val path = vFile.getPath
-            val isIn3_8StdLibSource =
-              ScalaLanguageSubstitutor.isInSourceJar(path) &&
-                ScalaLanguageSubstitutor.looksLikeScala3LibSourcesJar(path)
-            Option.when(isIn3_8StdLibSource)(
-              ScalaFeatures.onlyByVersion(ScalaVersion.Latest.Scala_3_8)
-                .copy(ScalaVersion.Latest.Scala_3_8, hasCaptureCheckingEnabled = true)
-            )
-          }
-        }
+  /**
+   * @param file can represent a file or a directory
+   */
+  def getFeatures(file: PsiFile): Option[ScalaFeatures] = {
+    val fromContainingDir: Option[ScalaFeatures] =
+      Option(file.getContainingDirectory)
+        .flatMap(dir => getFeatures(dir.getVirtualFile))
+
+    def fromIndexedDirOrContainingDir: Option[ScalaFeatures] = {
+      // while indexing, the parser will get a dummy file that only references the real file
+      Option(file.getUserData(IndexingDataKeys.VIRTUAL_FILE))
+        .flatMap(vFile => if (vFile.isDirectory) Some(vFile) else Option(vFile.getParent))
+        .flatMap(getFeatures)
+    }
+
+    // Original commit: [cc] force scala 3 stdlib source to support capture checking #SCL-24630
+    def fromVirtualFile(vFile: VirtualFile): Option[ScalaFeatures] = {
+      getFeatures(vFile).orElse {
+        // Original commit: [cc] parse capture checking only if it is enabled by settings #SCL-24630
+        // todo: this is a quick hack for idea253 release
+        //       it should be improved by having a comprehensive return value from ScalaLanguageSubstitutor
+        val path = vFile.getPath
+        val isIn3_8StdLibSource =
+          ScalaLanguageSubstitutor.isInSourceJar(path) &&
+            ScalaLanguageSubstitutor.looksLikeScala3LibSourcesJar(path)
+        Option.when(isIn3_8StdLibSource)(
+          ScalaFeatures.onlyByVersion(ScalaVersion.Latest.Scala_3_8)
+            .copy(ScalaVersion.Latest.Scala_3_8, hasCaptureCheckingEnabled = true)
+        )
       }
+    }
+
+    val fromPsi = fromContainingDir.orElse(fromIndexedDirOrContainingDir)
+    fromPsi.orElse {
+      val virtualFile = Option(file.getVirtualFile)
+      virtualFile.flatMap(fromVirtualFile)
+    }
+  }
 
   def getFeatures(file: VirtualFile): Option[ScalaFeatures] =
     Option(key.getPersistentValue(file)).map(ScalaFeatures.deserializeFromInt(_))
