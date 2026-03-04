@@ -427,7 +427,11 @@ lazy val testUtilsPlatform: sbt.Project =
     .projectWithTestsOnly
     .settings(
       resolvers += Versions.IntellijTestFrameworkArtifactsResolver,
-      libraryDependencies += Dependencies.intellijTestFramework % Test,
+      libraryDependencies ++= Seq(
+        Dependencies.intellijTestFramework % Test,
+        Dependencies.intellijTestFrameworkCommon % Test,
+        Dependencies.intellijTestFrameworkCore % Test
+      ),
     )
 
 lazy val sbtImpl =
