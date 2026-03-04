@@ -147,6 +147,7 @@ object Dependencies {
   val junit: ModuleID = "junit" % "junit" % junitVersion
   val junitParams: ModuleID = "pl.pragmatists" % "JUnitParams" % junitParamsVersion
   val junitInterface: ModuleID = "com.github.sbt" % "junit-interface" % junitInterfaceVersion
+  def jupiterInterface(version: String): ModuleID = "com.github.sbt.junit" % "jupiter-interface" % version
 
   val opentest4j: ModuleID = "org.opentest4j" % "opentest4j" % "1.3.0"
 
