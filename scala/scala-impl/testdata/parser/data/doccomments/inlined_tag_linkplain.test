@@ -21,8 +21,9 @@ ScalaFile
         PsiErrorElement:Inline tag
           <empty list>
         ScPsiDocToken(DOC_WHITESPACE)(' ')
-        CodeReferenceElement (scalaDoc): org
-          PsiElement(identifier)('org')
+        ScDocReferenceLink
+          ScDocRefQuerySegment('org')
+            PsiElement(identifier)('org')
         ScPsiDocToken(DOC_INLINE_TAG_END)('}')
       ScPsiDocToken(DOC_WHITESPACE)('\n ')
       ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
@@ -33,11 +34,12 @@ ScalaFile
         PsiErrorElement:Inline tag
           <empty list>
         ScPsiDocToken(DOC_WHITESPACE)(' ')
-        CodeReferenceElement (scalaDoc): org.Example
-          CodeReferenceElement (scalaDoc): org
-            PsiElement(identifier)('org')
-          PsiElement(.)('.')
-          PsiElement(identifier)('Example')
+        ScDocReferenceLink
+          ScDocRefQuerySegment('Example')
+            ScDocRefQuerySegment('org')
+              PsiElement(identifier)('org')
+            PsiElement(.)('.')
+            PsiElement(identifier)('Example')
         ScPsiDocToken(DOC_INLINE_TAG_END)('}')
       ScPsiDocToken(DOC_WHITESPACE)('\n ')
       ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
@@ -48,11 +50,12 @@ ScalaFile
         PsiErrorElement:Inline tag
           <empty list>
         ScPsiDocToken(DOC_WHITESPACE)(' ')
-        CodeReferenceElement (scalaDoc): org.Example
-          CodeReferenceElement (scalaDoc): org
-            PsiElement(identifier)('org')
-          PsiElement(.)('.')
-          PsiElement(identifier)('Example')
+        ScDocReferenceLink
+          ScDocRefQuerySegment('Example')
+            ScDocRefQuerySegment('org')
+              PsiElement(identifier)('org')
+            PsiElement(.)('.')
+            PsiElement(identifier)('Example')
         ScPsiDocToken(DOC_WHITESPACE)('  ')
         ScPsiDocToken(DOC_INLINE_TAG_END)('}')
       ScPsiDocToken(DOC_WHITESPACE)('\n ')
@@ -64,8 +67,9 @@ ScalaFile
         PsiErrorElement:Inline tag
           <empty list>
         ScPsiDocToken(DOC_WHITESPACE)(' ')
-        CodeReferenceElement (scalaDoc): org
-          PsiElement(identifier)('org')
+        ScDocReferenceLink
+          ScDocRefQuerySegment('org')
+            PsiElement(identifier)('org')
         ScPsiDocToken(DOC_WHITESPACE)(' ')
         ScPsiDocToken(DOC_COMMENT_DATA)('label text')
         ScPsiDocToken(DOC_INLINE_TAG_END)('}')
@@ -78,8 +82,9 @@ ScalaFile
         PsiErrorElement:Inline tag
           <empty list>
         ScPsiDocToken(DOC_WHITESPACE)(' ')
-        CodeReferenceElement (scalaDoc): org
-          PsiElement(identifier)('org')
+        ScDocReferenceLink
+          ScDocRefQuerySegment('org')
+            PsiElement(identifier)('org')
         ScPsiDocToken(DOC_WHITESPACE)(' ')
         ScPsiDocToken(DOC_COMMENT_DATA)('label text  ')
         ScPsiDocToken(DOC_INLINE_TAG_END)('}')
@@ -92,11 +97,12 @@ ScalaFile
         PsiErrorElement:Inline tag
           <empty list>
         ScPsiDocToken(DOC_WHITESPACE)(' ')
-        CodeReferenceElement (scalaDoc): org.Example
-          CodeReferenceElement (scalaDoc): org
-            PsiElement(identifier)('org')
-          PsiElement(.)('.')
-          PsiElement(identifier)('Example')
+        ScDocReferenceLink
+          ScDocRefQuerySegment('Example')
+            ScDocRefQuerySegment('org')
+              PsiElement(identifier)('org')
+            PsiElement(.)('.')
+            PsiElement(identifier)('Example')
         ScPsiDocToken(DOC_WHITESPACE)(' ')
         ScPsiDocToken(DOC_COMMENT_DATA)('label text')
         ScPsiDocToken(DOC_INLINE_TAG_END)('}')
@@ -109,11 +115,12 @@ ScalaFile
         PsiErrorElement:Inline tag
           <empty list>
         ScPsiDocToken(DOC_WHITESPACE)(' ')
-        CodeReferenceElement (scalaDoc): org.Example
-          CodeReferenceElement (scalaDoc): org
-            PsiElement(identifier)('org')
-          PsiElement(.)('.')
-          PsiElement(identifier)('Example')
+        ScDocReferenceLink
+          ScDocRefQuerySegment('Example')
+            ScDocRefQuerySegment('org')
+              PsiElement(identifier)('org')
+            PsiElement(.)('.')
+            PsiElement(identifier)('Example')
         ScPsiDocToken(DOC_WHITESPACE)(' ')
         ScPsiDocToken(DOC_COMMENT_DATA)('label text  ')
         ScPsiDocToken(DOC_INLINE_TAG_END)('}')

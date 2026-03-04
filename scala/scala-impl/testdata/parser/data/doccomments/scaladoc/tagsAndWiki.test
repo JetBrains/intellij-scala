@@ -70,8 +70,9 @@ ScalaFile
             PsiErrorElement:Inline tag
               <empty list>
             ScPsiDocToken(DOC_WHITESPACE)(' ')
-            CodeReferenceElement (scalaDoc): linjkl
-              PsiElement(identifier)('linjkl')
+            ScDocReferenceLink
+              ScDocRefQuerySegment('linjkl')
+                PsiElement(identifier)('linjkl')
             ScPsiDocToken(DOC_INLINE_TAG_END)('}')
           ScPsiDocToken(DOC_ITALIC_TAG 2)('''')
         ScPsiDocToken(DOC_BOLD_TAG 1)(''''')
