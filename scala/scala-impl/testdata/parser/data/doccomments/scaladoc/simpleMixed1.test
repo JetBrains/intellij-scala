@@ -53,6 +53,10 @@ ScalaFile
         PsiErrorElement:Inline tag
           <empty list>
         ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScDocReferenceLink
+          ScDocRefQuerySegment(<error>)
+            PsiErrorElement:Identifier, 'this', or 'package' expected
+              <empty list>
         ScPsiDocToken(DOC_COMMENT_BAD_CHARACTER)('[')
         ScPsiDocToken(DOC_COMMENT_BAD_CHARACTER)('[')
         PsiElement(identifier)('illegal')

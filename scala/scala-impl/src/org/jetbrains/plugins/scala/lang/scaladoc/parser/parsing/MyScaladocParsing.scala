@@ -229,8 +229,11 @@ class MyScaladocParsing(private val builder: PsiBuilder,
   )
   private def parseScalaDocRef(): Unit = {
     val refMarker = builder.mark()
-    while (!docRefEnd.contains(builder.getTokenType)) {
-      builder.advanceLexer()
+
+    if (builder.getTokenType != DOC_COMMENT_BAD_CHARACTER) {
+      while (!docRefEnd.contains(builder.getTokenType)) {
+        builder.advanceLexer()
+      }
     }
     refMarker.collapse(ScalaDocElementTypes.SCALA_DOC_REFERENCE_LINK)
   }
