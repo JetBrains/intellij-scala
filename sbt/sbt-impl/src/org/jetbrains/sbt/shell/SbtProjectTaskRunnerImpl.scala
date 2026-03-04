@@ -10,20 +10,22 @@ import com.intellij.notification.{NotificationAction, NotificationType}
 import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
 import org.jetbrains.plugins.scala.build.BuildToolWindowReporter
 import com.intellij.openapi.externalSystem.model.execution.ExternalSystemTaskExecutionSettings
-import com.intellij.openapi.externalSystem.util.{ExternalSystemUtil, ExternalSystemApiUtil => ES}
+import com.intellij.openapi.externalSystem.util.{ExternalSystemUtil, ExternalSystemApiUtil as ES}
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.module.ModuleType
 import com.intellij.openapi.progress.{PerformInBackgroundOption, ProcessCanceledException, ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
-import com.intellij.task._
+import com.intellij.task.*
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.concurrency.{AsyncPromise, Promise => JPromise}
+import org.jetbrains.concurrency.{AsyncPromise, Promise as JPromise}
 import org.jetbrains.plugins.scala.build.BuildToolWindowReporter.CancelBuildAction
 import org.jetbrains.plugins.scala.build.{BuildMessages, CompositeReporter, IndicatorReporter, TaskRunnerResult}
 import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.util.{ExternalSystemVfsUtil, ScalaNotificationGroups}
+import org.jetbrains.sbt.SbtSourceSetUtil.SbtSourceSetModuleExt
 import org.jetbrains.sbt.project.SbtProjectSystem
+import org.jetbrains.sbt.project.data.SbtModuleData
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.settings.SbtSettings
 import org.jetbrains.sbt.{SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabilities, SbtVersionDetector}
@@ -57,6 +59,11 @@ final class SbtProjectTaskRunnerImpl
       ES.isExternalSystemAwareModule(SbtProjectSystem.Id, module)
   }
 
+  /** Represents the sbt source set scope (main or test) for which a build command should be generated. */
+  private enum SbtScope:
+    case Main
+    case Test
+
   override def run(
     project: Project,
     context: ProjectTaskContext,
@@ -74,9 +81,30 @@ final class SbtProjectTaskRunnerImpl
       .flatMap(_.sbtVersionUsedDuringProcessStart)
       .getOrElse(SbtVersionDetector.detectSbtVersion(project))
 
+    // Collect the sbt scopes (main/test) per sbt module. This is done to:
+    //   - Avoid duplicate commands. Triggering "Build project" for a project with a single sbt module
+    //     results in 3 ProjectTasks — one for the parent module, one for the main module, and one for the
+    //     test module. For this only 2 `products` commands are needed (one for Compile scope, one for Test scope in the given sbt module).
+    //     The logic below ensures duplicates are filtered out.
+    //   - Run the `products` task only in the relevant scope. When a build is triggered for a main or test module,
+    //     only the `products` task in the Compile or Test scope (respectively) should be executed.
+    val scopesPerModule = validTasks.foldLeft(Map.empty[SbtModuleData, Set[SbtScope]]) { (acc, task) =>
+      val module = task.getModule
+      SbtUtil.getSbtModuleData(module) match
+        case Some(sbtModuleData) =>
+          val scopes =
+            if !module.isSbtSourceSetModule then Set(SbtScope.Main, SbtScope.Test)
+            else if module.isMain then Set(SbtScope.Main)
+            else Set(SbtScope.Test)
+
+          val merged = acc.getOrElse(sbtModuleData, Set.empty) ++ scopes
+          acc.updated(sbtModuleData, merged)
+        case None => acc
+      }
+
     // the "build" button in IDEA always runs the build for all individual modules,
     // and may work differently than just calling the products task from the main module in sbt
-    val moduleCommands = validTasks.flatMap(buildCommands(_, sbtVersion))
+    val moduleCommands = buildCommands(sbtVersion, scopesPerModule)
 
     if (moduleCommands.isEmpty && validTasks.nonEmpty) {
       // sometimes external system loses information about sbt modules
@@ -123,20 +151,23 @@ final class SbtProjectTaskRunnerImpl
     promiseResult
   }
 
-  private def buildCommands(task: ModuleBuildTask, sbtVersion: SbtVersion): Seq[String] = {
-    // TODO sensible way to find out what scopes to run it for besides compile and test?
-    // TODO make tasks should be user-configurable
-    SbtUtil.getSbtModuleData(task.getModule).toSeq.flatMap { sbtModuleData =>
+  /**
+   * Builds the list of sbt shell commands for the given modules and their scopes.
+   *
+   * @todo sensible way to find out what scopes to run it for besides compile and test?
+   * @todo make tasks should be user-configurable
+   */
+  private def buildCommands(sbtVersion: SbtVersion, scopesPerModule: Map[SbtModuleData, Set[SbtScope]]): Seq[String] =
+    scopesPerModule.toSeq.flatMap { case (sbtModuleData, scopes) =>
       val projectScope = SbtUtil.makeSbtProjectId(sbtModuleData)
       // `products` task is a little more general than just `compile`
-      val buildMain = s"$projectScope/products"
-      val buildTest = if (SbtVersionCapabilities.isSlashSyntaxSupported(sbtVersion))
-        s"$projectScope/Test/products"
-      else
-        s"$projectScope/test:products"
-      Seq(buildMain, buildTest)
+      scopes.map {
+        case SbtScope.Main => s"$projectScope/products"
+        case SbtScope.Test =>
+          if SbtVersionCapabilities.isSlashSyntaxSupported(sbtVersion) then s"$projectScope/Test/products"
+          else s"$projectScope/test:products"
+      }
     }
-  }
 
   @Nullable
   override def createExecutionEnvironment(project: Project,
