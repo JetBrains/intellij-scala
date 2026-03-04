@@ -11,6 +11,7 @@ import org.jetbrains.bsp.BspUtil
 
 import java.nio.file.Path
 import java.util.concurrent.TimeoutException
+import scala.concurrent.duration.DurationInt
 import scala.util.Try
 
 private object ScalaCliUtils {
@@ -145,11 +146,12 @@ private object ScalaCliUtils {
       val commandLine = new GeneralCommandLine((getScalaStandaloneCommand:+ "-version"): _*)
         .withWorkDirectory(directory.toString)
 
+      val timeout = 45.seconds
       val handler = new CapturingProcessHandler(commandLine)
-      val output = handler.runProcessWithProgressIndicator(indicator, 45000) // 45s timeout
+      val output = handler.runProcessWithProgressIndicator(indicator, timeout.toMillis.toInt)
 
       if (output.isTimeout) {
-        throw new TimeoutException("Command 'scala -version' timed out after 45s")
+        throw new TimeoutException(s"Command 'scala -version' timed out after $timeout")
       }
 
       output.getStdout + output.getStderr

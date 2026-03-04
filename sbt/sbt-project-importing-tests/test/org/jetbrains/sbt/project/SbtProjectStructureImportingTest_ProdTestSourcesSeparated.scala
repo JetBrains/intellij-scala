@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.compiler.data.CompileOrder
 import org.jetbrains.plugins.scala.extensions.{PathExt, inWriteAction}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.external.JdkByName
+import org.jetbrains.sbt.project.ProjectStructureTestUtils.expectedScalaSdkLibraryFromCoursier
 import org.jetbrains.sbt.{Sbt, SbtVersion}
 import org.junit.Assert
 import org.junit.Assert.{assertEquals, assertTrue}
@@ -2577,6 +2578,300 @@ import java.net.URI
             sources := Seq("")
             excluded := Seq("project/target", "target")
           }
+        )
+      }
+    )
+  }
+
+  def testBspDisabledProject(): Unit = {
+    injectVariable(
+      getTestProjectPath / "project" / "build.properties",
+      "$SBT_VERSION$",
+      "1.12.5"
+    )
+
+    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
+    runTest(
+      new project("root") {
+        libraries := scalaLibraries
+        modules := Seq(
+          new module("root") {
+            contentRoots := Seq(getProjectPath)
+            excluded := Seq("target")
+          },
+          new module("root.main") {
+            contentRoots := Seq(
+              s"$getProjectPath/src/main",
+              s"$getProjectPath/target/scala-2.13/src_managed/main",
+              s"$getProjectPath/target/scala-2.13/resource_managed/main"
+            )
+            sources := Seq("scala")
+            resources := Nil
+            testSources := Nil
+            testResources := Nil
+            libraryDependencies := scalaLibraries
+          },
+          new module("root.test") {
+            contentRoots := Seq(
+              s"$getProjectPath/src/test",
+              s"$getProjectPath/target/scala-2.13/src_managed/test",
+              s"$getProjectPath/target/scala-2.13/resource_managed/test"
+            )
+            sources := Nil
+            resources := Nil
+            testSources := Seq("scala")
+            testResources := Nil
+            libraryDependencies := scalaLibraries
+          },
+          new module("root.root-build") {
+            sources := Seq("")
+            excluded := Seq("project/target", "target")
+          },
+          new module("root.foo") {
+            contentRoots := Seq(s"$getProjectPath/foo")
+            excluded := Seq("target")
+          },
+          new module("root.foo.main") {
+            contentRoots := Seq(
+              s"$getProjectPath/foo/src/main",
+              s"$getProjectPath/foo/target/scala-2.13/src_managed/main",
+              s"$getProjectPath/foo/target/scala-2.13/resource_managed/main"
+            )
+            sources := Seq("scala")
+            resources := Nil
+            testSources := Nil
+            testResources := Nil
+            libraryDependencies := scalaLibraries
+          },
+          new module("root.foo.test") {
+            contentRoots := Seq(
+              s"$getProjectPath/foo/src/test",
+              s"$getProjectPath/foo/target/scala-2.13/src_managed/test",
+              s"$getProjectPath/foo/target/scala-2.13/resource_managed/test"
+            )
+            sources := Nil
+            resources := Nil
+            testSources := Seq("scala")
+            testResources := Nil
+            libraryDependencies := scalaLibraries
+          }
+        )
+      }
+    )
+  }
+
+  @RequiresJdk(LanguageLevel.JDK_17)
+  def testBspDisabledProject_sbt_2_0_0_RC9(): Unit = {
+    injectVariable(
+      getTestProjectPath / "project" / "build.properties",
+      "$SBT_VERSION$",
+      "2.0.0-RC9"
+    )
+
+    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
+    runTest(
+      new project("root") {
+        libraries := scalaLibraries
+        modules := Seq(
+          new module("root") {
+            contentRoots := Seq(getProjectPath)
+            excluded := Seq("target")
+          },
+          new module("root.main") {
+            contentRoots := Seq(
+              s"$getProjectPath/src/main",
+              s"$getProjectPath/target/out/jvm/scala-2.13.14/root/src_managed/main",
+              s"$getProjectPath/target/out/jvm/scala-2.13.14/root/resource_managed/main"
+            )
+            sources := Seq("scala")
+            resources := Nil
+            testSources := Nil
+            testResources := Nil
+            libraryDependencies := scalaLibraries
+            compileOutputPath := "%PROJECT_ROOT%/target/out/jvm/scala-2.13.14/root/classes"
+            compileTestOutputPath := null
+          },
+          new module("root.test") {
+            contentRoots := Seq(
+              s"$getProjectPath/src/test",
+              s"$getProjectPath/target/out/jvm/scala-2.13.14/root/src_managed/test",
+              s"$getProjectPath/target/out/jvm/scala-2.13.14/root/resource_managed/test"
+            )
+            sources := Nil
+            resources := Nil
+            testSources := Seq("scala")
+            testResources := Nil
+            libraryDependencies := scalaLibraries
+            compileOutputPath := null
+            compileTestOutputPath := "%PROJECT_ROOT%/target/out/jvm/scala-2.13.14/root/test-classes"
+          },
+          new module("root.root-build") {
+            sources := Seq("")
+            excluded := Seq("project/target", "target")
+          },
+          new module("root.foo") {
+            contentRoots := Seq(s"$getProjectPath/foo")
+            excluded := Seq("target")
+          },
+          new module("root.foo.main") {
+            contentRoots := Seq(
+              s"$getProjectPath/foo/src/main",
+              s"$getProjectPath/target/out/jvm/scala-2.13.14/foo/src_managed/main",
+              s"$getProjectPath/target/out/jvm/scala-2.13.14/foo/resource_managed/main"
+            )
+            sources := Seq("scala")
+            resources := Nil
+            testSources := Nil
+            testResources := Nil
+            libraryDependencies := scalaLibraries
+            compileOutputPath := "%PROJECT_ROOT%/target/out/jvm/scala-2.13.14/foo/classes"
+            compileTestOutputPath := null
+          },
+          new module("root.foo.test") {
+            contentRoots := Seq(
+              s"$getProjectPath/foo/src/test",
+              s"$getProjectPath/target/out/jvm/scala-2.13.14/foo/src_managed/test",
+              s"$getProjectPath/target/out/jvm/scala-2.13.14/foo/resource_managed/test"
+            )
+            sources := Nil
+            resources := Nil
+            testSources := Seq("scala")
+            testResources := Nil
+            libraryDependencies := scalaLibraries
+            compileOutputPath := null
+            compileTestOutputPath := "%PROJECT_ROOT%/target/out/jvm/scala-2.13.14/foo/test-classes"
+          }
+        )
+      }
+    )
+  }
+
+  def testScalafixConfigDisabled(): Unit = {
+    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
+    runTest(
+      new project("root") {
+        libraries := scalaLibraries
+        modules := Seq(
+          new module("root") {
+            contentRoots := Seq(getProjectPath)
+            excluded := Seq("target")
+          },
+          new module("root.main") {
+            contentRoots := Seq(
+              s"$getProjectPath/src/main",
+              s"$getProjectPath/target/scala-2.13/src_managed/main",
+              s"$getProjectPath/target/scala-2.13/resource_managed/main"
+            )
+            sources := Seq("scala")
+            resources := Nil
+            testSources := Nil
+            testResources := Nil
+            libraryDependencies := scalaLibraries
+          },
+          new module("root.test") {
+            contentRoots := Seq(
+              s"$getProjectPath/src/test",
+              s"$getProjectPath/target/scala-2.13/src_managed/test",
+              s"$getProjectPath/target/scala-2.13/resource_managed/test"
+            )
+            sources := Nil
+            resources := Nil
+            testSources := Seq("scala")
+            testResources := Nil
+            libraryDependencies := scalaLibraries
+          },
+          new module("root.root-build") {
+            sources := Seq("")
+            excluded := Seq("project/target", "target")
+          },
+        )
+      }
+    )
+  }
+
+  def testBspDisabledConfigLevel(): Unit = {
+    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
+    val scalaSdk = expectedScalaSdkLibraryFromCoursier(useEnv = true)("2.13.14", SbtProjectSystem.Id)
+    runTest(
+      new project("root") {
+        libraries := scalaLibraries
+        modules := Seq(
+          new module("root") {
+            contentRoots := Seq(getProjectPath)
+            excluded := Seq("target")
+          },
+          new module("root.main") {
+            contentRoots := Seq(
+              s"$getProjectPath/src/main",
+              s"$getProjectPath/target/scala-2.13/src_managed/main",
+              s"$getProjectPath/target/scala-2.13/resource_managed/main"
+            )
+            sources := Seq("scala")
+            resources := Nil
+            testSources := Nil
+            testResources := Nil
+            libraryDependencies := scalaLibraries
+          },
+          new module("root.test") {
+            contentRoots := Seq(
+              s"$getProjectPath/src/test",
+              s"$getProjectPath/target/scala-2.13/src_managed/test",
+              s"$getProjectPath/target/scala-2.13/resource_managed/test"
+            )
+            sources := Nil
+            resources := Nil
+            testSources := Seq("scala")
+            testResources := Nil
+            libraryDependencies := scalaLibraries
+          },
+          new module("root.root-build") {
+            sources := Seq("")
+            excluded := Seq("project/target", "target")
+          },
+          new module("root.foo") {
+            contentRoots := Seq(s"$getProjectPath/foo")
+            excluded := Seq("target")
+          },
+          new module("root.foo.main") {
+            contentRoots := Nil
+            sources := Nil
+            resources := Nil
+            testSources := Nil
+            testResources := Nil
+            libraryDependencies += scalaSdk
+          },
+          new module("root.foo.test") {
+            contentRoots := Nil
+            sources := Nil
+            resources := Nil
+            testSources := Nil
+            testResources := Nil
+            libraryDependencies += scalaSdk
+          },
+          new module("root.bar") {
+            contentRoots := Seq(s"$getProjectPath/bar")
+            excluded := Seq("target")
+          },
+          new module("root.bar.main") {
+            contentRoots := Seq(
+              s"$getProjectPath/bar/src/main",
+              s"$getProjectPath/bar/target/scala-2.13/src_managed/main",
+              s"$getProjectPath/bar/target/scala-2.13/resource_managed/main"
+            )
+            sources := Seq("scala")
+            resources := Nil
+            testSources := Nil
+            testResources := Nil
+            libraryDependencies := scalaLibraries
+          },
+          new module("root.bar.test") {
+            contentRoots := Nil
+            sources := Nil
+            resources := Nil
+            testSources := Nil
+            testResources := Nil
+            libraryDependencies += scalaSdk
+          },
         )
       }
     )

@@ -122,6 +122,11 @@ object ProjectStructureTestUtils {
     )
   }
 
+  def expectedScalaSdkLibraryFromCoursier(useEnv: Boolean)(scalaVersionStr: String, projectSystemId: ProjectSystemId): library = {
+    val scalaVersion = ScalaVersion.fromString(scalaVersionStr).get
+    expectedScalaSdkLibraryFromCoursier(useEnv)(scalaVersion, projectSystemId)
+  }
+
   private def expectedScalaSdkLibraryFromCoursier(useEnv: Boolean)(scalaVersion: ScalaVersion, projectSystemId: ProjectSystemId): library = {
     val scalaVersionStr = scalaVersion.minor
 
