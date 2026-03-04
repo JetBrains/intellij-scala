@@ -294,6 +294,7 @@ lazy val tastyReader = Project("tasty-reader", file("scala/tasty-reader"))
       Dependencies.junit % Test,
       Dependencies.junitInterface % Test,
       Dependencies.jupiterInterface(JupiterKeys.jupiterVersion.value) % Test,
+      Dependencies.junitJupiterParams(JupiterKeys.junitJupiterVersion.value) % Test,
       Dependencies.jetbrainsAnnotations % Provided,
     )
   )
@@ -534,6 +535,7 @@ def compilerPluginProject(
         Dependencies.junit % Test,
         Dependencies.junitInterface % Test,
         Dependencies.jupiterInterface(JupiterKeys.jupiterVersion.value) % Test,
+        Dependencies.junitJupiterParams(JupiterKeys.junitJupiterVersion.value) % Test,
         Dependencies.opentest4j % Test
       ),
       Compile / scalacOptions := Seq("--release", "8") ++ extraScalacOptions,
