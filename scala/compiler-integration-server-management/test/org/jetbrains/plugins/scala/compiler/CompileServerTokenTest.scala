@@ -2,34 +2,35 @@ package org.jetbrains.plugins.scala.compiler
 
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.server.CompileServerToken
-import org.junit.Assert.{assertEquals, assertFalse, assertTrue}
-import org.junit.rules.TemporaryFolder
-import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
-import org.junit.{Rule, Test}
+import org.junit.jupiter.api.Assertions.{assertEquals, assertFalse, assertTrue}
+import org.junit.jupiter.api.io.TempDir
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.MethodSource
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
-import scala.annotation.meta.getter
+import java.util.stream.IntStream
 import scala.jdk.CollectionConverters.SetHasAsScala
 
-@RunWith(classOf[Parameterized])
-class CompileServerTokenTest(port: Int) {
+class CompileServerTokenTest {
 
-  @(Rule @getter)
-  val temporaryDirectory: TemporaryFolder = new TemporaryFolder()
+  @TempDir
+  var temporaryDirectory: Path = _
 
-  @Test
-  def tokenPathForPort(): Unit = {
-    val systemDir = temporaryScalaCompileServerSystemDir
+  private def systemDir: Path =
+    temporaryDirectory / "compile-server-token-test" / "system" / "scala-compile-server"
+
+  @ParameterizedTest(name = "port = {0}")
+  @MethodSource(Array("ports"))
+  def tokenPathForPort(port: Int): Unit = {
     val expected = systemDir / CompileServerToken.Tokens / port.toString
     val actual = CompileServerToken.tokenPathForPort(systemDir, port)
     assertEquals(expected, actual)
   }
 
-  @Test
-  def tokenForPort(): Unit = {
-    val systemDir = temporaryScalaCompileServerSystemDir
+  @ParameterizedTest(name = "port = {0}")
+  @MethodSource(Array("ports"))
+  def tokenForPort(port: Int): Unit = {
     val tokensDirectory = systemDir / CompileServerToken.Tokens
     Files.createDirectories(tokensDirectory)
     val tokenFilePath = tokensDirectory / port.toString
@@ -39,44 +40,39 @@ class CompileServerTokenTest(port: Int) {
     assertEquals(Some(tokenString), actual)
   }
 
-  @Test
-  def generateAndWriteTokenForPort(): Unit = {
-    val systemDir = temporaryScalaCompileServerSystemDir
+  @ParameterizedTest(name = "port = {0}")
+  @MethodSource(Array("ports"))
+  def generateAndWriteTokenForPort(port: Int): Unit = {
     val tokenFilePath = CompileServerToken.generateAndWriteTokenFor(systemDir, port)
 
-    assertTrue("The token file was not created", tokenFilePath.exists)
+    assertTrue(tokenFilePath.exists, "The token file was not created")
 
     val isPosix = tokenFilePath.getFileSystem.supportedFileAttributeViews().contains("posix")
     if (isPosix) {
       import java.nio.file.attribute.PosixFilePermission.{OWNER_READ, OWNER_WRITE}
       val permissions = Files.getPosixFilePermissions(tokenFilePath).asScala.toSet
-      assertEquals("The token file was created with wrong posix filesystem permissions", Set(OWNER_READ, OWNER_WRITE), permissions)
+      assertEquals(Set(OWNER_READ, OWNER_WRITE), permissions, "The token file was created with wrong posix filesystem permissions")
     } else {
       val file = tokenFilePath.toFile
-      assertTrue("The token file on Windows must be readable", file.canRead)
-      assertTrue("The token file on Windows must be writable", file.canWrite)
+      assertTrue(file.canRead, "The token file on Windows must be readable")
+      assertTrue(file.canWrite, "The token file on Windows must be writable")
     }
   }
 
-  @Test
-  def removeTokenFileForPortIsIdempotent(): Unit = {
-    val systemDir = temporaryScalaCompileServerSystemDir
+  @ParameterizedTest(name = "port = {0}")
+  @MethodSource(Array("ports"))
+  def removeTokenFileForPortIsIdempotent(port: Int): Unit = {
     val tokenFilePath = CompileServerToken.generateAndWriteTokenFor(systemDir, port)
-    assertTrue("The token file was not created", tokenFilePath.exists)
+    assertTrue(tokenFilePath.exists, "The token file was not created")
 
     for (_ <- 1 to 5) {
       CompileServerToken.removeTokenFileForPort(systemDir, port)
     }
 
-    assertFalse("The token file should have been removed", tokenFilePath.exists)
+    assertFalse(tokenFilePath.exists, "The token file should have been removed")
   }
-
-  private def temporaryScalaCompileServerSystemDir: Path =
-    temporaryDirectory.newFolder("compile-server-token-test", "system", "scala-compile-server").toPath
 }
 
 private object CompileServerTokenTest {
-  @Parameterized.Parameters(name = "port = {0}")
-  def parameters: java.util.Collection[Int] =
-    java.util.List.of(3200, 6400, 10501, 50005, 55055)
+  def ports(): IntStream = IntStream.of(3200, 6400, 10501, 50005, 55055)
 }
