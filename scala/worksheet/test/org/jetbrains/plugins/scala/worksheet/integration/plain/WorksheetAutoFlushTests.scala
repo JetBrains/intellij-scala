@@ -13,18 +13,17 @@ import org.junit.{ComparisonFailure, Test}
 
 import scala.concurrent.duration.{Duration, DurationInt, FiniteDuration}
 
-@Category(Array(classOf[FlakyTests]))
 class WorksheetPlainCompileOnServerRunLocallyAutoFlushTest extends WorksheetPlainAutoFlushTestBase {
   override def useCompileServer = true
   override def runInCompileServerProcess = false
 }
 
-@Category(Array(classOf[FlakyTests]))
 class WorksheetPlainCompileLocallyRunLocallyAutoFlushTest extends WorksheetPlainAutoFlushTestBase {
   override def useCompileServer = false
   override def runInCompileServerProcess = false
 }
 
+@Category(Array(classOf[FlakyTests]))
 abstract class WorksheetPlainAutoFlushTestBase extends PlainWorksheetTestBase {
   @Test
   def testAutoFlushOnLongEvaluation_DefaultAutoFlushTimeout(): Unit =
