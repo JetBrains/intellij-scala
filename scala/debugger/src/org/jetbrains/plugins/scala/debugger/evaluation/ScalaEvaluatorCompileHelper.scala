@@ -5,7 +5,8 @@ package evaluation
 import com.intellij.debugger.impl.{DebuggerManagerListener, DebuggerSession}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.io.{FileUtil, NioFiles}
+import com.intellij.openapi.util.io.NioFiles
+import com.intellij.platform.eel.provider.utils.EelPathUtils
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 
@@ -13,7 +14,7 @@ import java.nio.file.{Files, Path}
 import scala.collection.mutable
 import scala.concurrent.duration.Duration
 
-//noinspection ApiStatus
+//noinspection ApiStatus,UnstableApiUsage
 class ScalaEvaluatorCompileHelper(project: Project) extends EvaluatorCompileHelper {
 
   private val tempFiles = mutable.Set[Path]()
@@ -24,13 +25,13 @@ class ScalaEvaluatorCompileHelper(project: Project) extends EvaluatorCompileHelp
   }
 
   private def tempDir(): Path = {
-    val dir = FileUtil.createTempDirectory("classfilesForDebugger", null, true).toPath
+    val dir = EelPathUtils.createTemporaryDirectory(project, "classfilesForDebugger", "", true)
     tempFiles += dir
     dir
   }
 
   private def tempFile(): Path = {
-    val file = FileUtil.createTempFile("FileToCompile", ".scala", true).toPath
+    val file = EelPathUtils.createTemporaryFile(project, "FileToCompile", ".scala", true)
     tempFiles += file
     file
   }
