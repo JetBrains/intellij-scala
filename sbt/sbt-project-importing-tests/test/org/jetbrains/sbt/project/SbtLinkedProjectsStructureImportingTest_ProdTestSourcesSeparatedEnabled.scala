@@ -10,7 +10,7 @@ import com.intellij.openapi.util.io.FileUtil
  * (see [[https://youtrack.jetbrains.com/issue/SCL-24168/Sbt-shell-doesnt-take-into-account-linked-projects]]).
  */
 final class SbtLinkedProjectsStructureImportingTest_ProdTestSourcesSeparatedEnabled
-  extends SbtProjectStructureImportingTest_ProdTestSourcesSeparated {
+  extends SbtProjectStructureImportingLike {
 
   import ProjectStructureDsl._
 
