@@ -69,7 +69,9 @@ object Tracing {
     }
 
     override def daemonFinished(fileEditors: util.Collection[_ <: FileEditor]): Unit = {
-      Highlighting.suppress = false
+      if (fileEditors.stream.anyMatch(e => isScalaIn(e.getFile))) {
+        Highlighting.suppress = false
+      }
       if (!isHighlightingTracingEnabled) return
       val editors = fileEditors.asScala.filter(e => isScalaIn(e.getFile))
       if (editors.isEmpty) return
