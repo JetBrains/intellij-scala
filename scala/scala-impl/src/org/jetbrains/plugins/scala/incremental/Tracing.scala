@@ -69,7 +69,9 @@ object Tracing {
     }
 
     override def daemonFinished(fileEditors: util.Collection[_ <: FileEditor]): Unit = {
-      Highlighting.suppress = false
+      if (fileEditors.stream.anyMatch(e => isScalaIn(e.getFile))) {
+        Highlighting.suppress = false
+      }
       if (!isHighlightingTracingEnabled) return
       val editors = fileEditors.asScala.filter(e => isScalaIn(e.getFile))
       if (editors.isEmpty) return
@@ -87,9 +89,7 @@ object Tracing {
     val containingFile = e.getContainingFile
     if (containingFile == null) return
 
-    val project = containingFile.getProject // Avoid tree walk-up
-
-    VisibleRange.editorsFor(project, containingFile).foreach { editor =>
+    VisibleRange.editorsFor(containingFile).foreach { editor =>
       if (isHighlightingTracingInEditorEnabled) {
         reason match {
           case "Resolve" => highlightElement(editor, e, start, RESOLVE_STATE_KEY, RESOLVE_COLOR)

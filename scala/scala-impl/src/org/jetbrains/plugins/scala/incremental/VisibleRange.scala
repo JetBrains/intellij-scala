@@ -2,10 +2,9 @@ package org.jetbrains.plugins.scala
 package incremental
 
 import com.intellij.openapi.editor.{Editor, LogicalPosition}
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.util.{Key, TextRange}
-import com.intellij.psi.{PsiDocumentManager, PsiFile}
+import com.intellij.psi.PsiFile
 
 import java.awt.Point
 
@@ -16,8 +15,8 @@ private object VisibleRange {
 
   private def lookaround: Int = Registry.intValue("scala.incremental.highlighting.lookaround")
 
-  private[incremental] def isVisible(project: Project, psiFile: PsiFile, range: TextRange): Boolean =
-    editorsFor(project, psiFile).exists { editor =>
+  private[incremental] def isVisible(psiFile: PsiFile, range: TextRange): Boolean =
+    editorsFor(psiFile).exists { editor =>
       val visibleRange = editor.getUserData(VISIBLE_RANGE_KEY)
       visibleRange == null || range.intersects(visibleRange) && !isFolded(editor, range)
     }
@@ -30,8 +29,8 @@ private object VisibleRange {
     region1 == region2
   }
 
-  private[incremental] def editorsFor(project: Project, psiFile: PsiFile): Iterable[Editor] = {
-    val document = PsiDocumentManager.getInstance(project).getDocument(psiFile)
+  private[incremental] def editorsFor(psiFile: PsiFile): Iterable[Editor] = {
+    val document = psiFile.getViewProvider.getDocument // Cached
     if (document == null) return Seq.empty
 
     Highlighting.editors.filter(_.getDocument == document)
