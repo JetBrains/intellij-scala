@@ -36,14 +36,13 @@ class ScalaEvaluatorCompileHelper(project: Project) extends EvaluatorCompileHelp
   }
 
   override def compile(fileText: String, module: Module): Array[(Path, String)] = {
-    compile(fileText, module, tempDir())
-  }
-
-  def compile(files: Seq[Path], module: Module, outputDir: Path): Array[(Path, String)] = {
     if (EvaluatorCompileHelper.needCompileServer) {
       CompileServerLauncher.ensureServerRunning(project)
     }
-    val connector = new ServerConnector(module, files, outputDir)
+    val outputDir = tempDir()
+    val sourceFile = tempFile()
+    Files.writeString(sourceFile, fileText)
+    val connector = new ServerConnector(module, Seq(sourceFile), outputDir)
     try {
       connector.compile() match {
         case Right(output) => output
@@ -53,16 +52,6 @@ class ScalaEvaluatorCompileHelper(project: Project) extends EvaluatorCompileHelp
     catch {
       case e: Exception => throw EvaluationException(DebuggerBundle.message("could.not.compile", e.getMessage))
     }
-  }
-
-  def compile(fileText: String, module: Module, outputDir: Path): Array[(Path, String)] = {
-    compile(Seq(writeToTempFile(fileText)), module, outputDir)
-  }
-
-  private def writeToTempFile(text: String): Path = {
-    val file = tempFile()
-    Files.writeString(file, text)
-    file
   }
 }
 
