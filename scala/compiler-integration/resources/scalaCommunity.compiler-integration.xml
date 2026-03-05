@@ -34,8 +34,6 @@
 
         <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.compiler.PrepareCompileServerTask"/>
 
-        <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.compiler.TransferCompilerBridgeSourcesTask"/>
-
         <compiler.isUpToDateCheckConsumer implementation="org.jetbrains.plugins.scala.compiler.highlighting.CompilerHighlightingUpToDateChecker"/>
         <compiler.isUpToDateCheckConsumer implementation="org.jetbrains.plugins.scala.compiler.references.compilation.IsUpToDateChecker"/>
 
