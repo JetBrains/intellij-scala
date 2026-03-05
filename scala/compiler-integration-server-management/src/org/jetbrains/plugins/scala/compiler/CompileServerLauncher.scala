@@ -783,6 +783,9 @@ object CompileServerLauncher {
     }
   }
 
+  @deprecated(message = "No longer used", since = "2026.1")
+  @Deprecated(since = "2026.1", forRemoval = true)
+  @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
   def transferToRemoteProjectCacheDirectory(path: Path, project: Project): Path = {
     val eelDescriptor = EelProviderUtil.getEelDescriptor(project)
     transferredRemotePath(path, project, eelDescriptor)
