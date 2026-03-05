@@ -17,7 +17,7 @@ import scala.concurrent.duration.Duration
 //noinspection ApiStatus,UnstableApiUsage
 class ScalaEvaluatorCompileHelper(project: Project) extends EvaluatorCompileHelper {
 
-  private val tempFiles = mutable.Set[Path]()
+  private val tempFiles: mutable.Set[Path] = mutable.Set.empty
 
   private def clearTempFiles(): Unit = {
     tempFiles.foreach(NioFiles.deleteRecursively)
