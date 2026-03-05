@@ -132,4 +132,27 @@ class Scala3OverloadingResolutionTest extends SimpleResolveTestBase {
       |}
       |""".stripMargin
   )
+
+  def testSCL24823(): Unit = checkTextHasNoErrors(
+    """
+      |import java.util.function.{Function => JFunction}
+      |
+      |object BugReproduction {
+      |
+      |  class Stream[T] {
+      |    // Overload 1: Scala Function
+      |    def keyBy[K: Ordering](fun: T => K): String = "scala"
+      |
+      |    // Overload 2: Java Functional Interface
+      |    def keyBy[K: Ordering](fun: JFunction[T, K]): String = "java"
+      |  }
+      |
+      |  val stream: Stream[String] = ???
+      |  stream.keyBy(s => s.length)
+      |
+      |}
+      |""".stripMargin
+  )
+
+  def testTemp(): Unit = assert(false)
 }

@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.implicits.{DivergenceChecker, Implic
 import org.jetbrains.plugins.scala.lang.psi.light.LightContextFunctionParameter
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.{ApplicabilityCheckResult, Expression}
 import org.jetbrains.plugins.scala.lang.psi.types.ConstraintSystem.SubstitutionBounds
+import org.jetbrains.plugins.scala.lang.psi.types.FunctionTypeMarker.{ContextFunctionN, FunctionN}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
@@ -463,9 +464,12 @@ object InferUtil {
             case _ => mt
           }
         case _ =>
+          val functionLikeType = FunctionLikeType(expr)
+
           expectedType match {
             case Some(expected) if result.conforms(expected) => mt
-            case Some(FunctionType(expectedRet, expectedParams)) if expectedParams.length == params.length =>
+            case Some(functionLikeType(ContextFunctionN | FunctionN, expectedRet, expectedParams))
+              if expectedParams.length == params.length =>
               if (expectedRet.equiv(Unit)) { //value discarding
                 mt.copy(result = Unit)
               }

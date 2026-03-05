@@ -137,7 +137,7 @@ trait ScExpression extends ScBlockStatement
         generator.desugared.flatMap { _.generatorExpr }.flatMap { _.implicitConversion(expectedOption = expectedOption) }
       case _: ScParenthesisedExpr => None
       case _ =>
-        this.getTypeAfterImplicitConversion(expectedOption = expectedOption, fromUnderscore = fromUnderscore).implicitConversion
+        this.getTypeAfterImplicitConversion(fromUnderscore = fromUnderscore).implicitConversion
     }
 
     inner(this)

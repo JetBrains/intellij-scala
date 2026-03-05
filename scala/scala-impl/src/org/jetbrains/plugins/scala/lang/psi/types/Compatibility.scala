@@ -437,9 +437,7 @@ object Compatibility {
       arg:   Expression
     ): List[ApplicabilityProblem] = {
       val typeResult =
-        arg.getTypeAfterImplicitConversion(
-          withImplicits, shapesOnly, Option(param.expectedType)
-        ).tr
+        arg.getTypeAfterImplicitConversion(withImplicits, shapesOnly, None).tr
 
       typeResult.toOption match {
         case None => Nil
