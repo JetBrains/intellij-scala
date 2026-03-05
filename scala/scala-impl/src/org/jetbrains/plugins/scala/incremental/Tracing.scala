@@ -87,9 +87,7 @@ object Tracing {
     val containingFile = e.getContainingFile
     if (containingFile == null) return
 
-    val project = containingFile.getProject // Avoid tree walk-up
-
-    VisibleRange.editorsFor(project, containingFile).foreach { editor =>
+    VisibleRange.editorsFor(containingFile).foreach { editor =>
       if (isHighlightingTracingInEditorEnabled) {
         reason match {
           case "Resolve" => highlightElement(editor, e, start, RESOLVE_STATE_KEY, RESOLVE_COLOR)
