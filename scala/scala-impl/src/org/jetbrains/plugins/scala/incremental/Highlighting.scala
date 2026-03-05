@@ -43,7 +43,7 @@ object Highlighting {
     def isVisible(project: Project, @Nullable file: PsiFile): Boolean = {
       if (builtInHighlightingDisabledIn(project)) return false
 
-      !enabledIn(project) || (file != null && VisibleRange.isVisible(project, file, e.getTextRange))
+      !enabledIn(project) || (file != null && VisibleRange.isVisible(file, e.getTextRange))
     }
   }
 }
