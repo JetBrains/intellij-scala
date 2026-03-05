@@ -28,6 +28,7 @@ object ScalaPluginJars {
   val runnersJarName: String = "runners.jar"
   val runnersJar: Path = libRoot / runnersJarName
   val replInterface: Path = libRoot / "repl-interface.jar"
+  val worksheetReplInterfaceImplsJar: Path = libRoot.getParent / "worksheet-repl-interface" / "impls.jar"
   val utilsRt: Path = libRoot / "utils_rt.jar"
 
   val nailgunJar: Path = jpsRoot / "nailgun.jar"
