@@ -137,8 +137,7 @@ object CompileServerLauncher {
           CompilerBridgeSourcesJars.allBridgeSources.foreach { path =>
             transferredRemotePath(path, project, eelDescriptor)
           }
-          val impls = ScalaPluginJars.worksheetReplInterfaceImplsJar
-          transferredRemotePath(impls, project, eelDescriptor)
+          transferWorksheetReplInterfaceImpls(project, eelDescriptor)
         }
 
         val id = settings.COMPILE_SERVER_ID
@@ -773,6 +772,16 @@ object CompileServerLauncher {
       case None =>
         path
     }
+
+  private def transferWorksheetReplInterfaceImpls(project: Project, eelDescriptor: EelDescriptor): Unit = {
+    remoteProjectCacheDirectory(project, eelDescriptor).foreach { cacheDir =>
+      val impls = ScalaPluginJars.worksheetReplInterfaceImplsJar
+      val nameCount = impls.getNameCount
+      val targetDir = cacheDir.getParent / impls.subpath(nameCount - 2, nameCount - 1) // worksheet-repl-interface
+      if (!targetDir.exists) Files.createDirectories(targetDir)
+      EelPathUtils.transferLocalContentToRemote(impls, new EelPathUtils.TransferTarget.Explicit(targetDir / impls.getFileName))
+    }
+  }
 
   def transferToRemoteProjectCacheDirectory(path: Path, project: Project): Path = {
     val eelDescriptor = EelProviderUtil.getEelDescriptor(project)
