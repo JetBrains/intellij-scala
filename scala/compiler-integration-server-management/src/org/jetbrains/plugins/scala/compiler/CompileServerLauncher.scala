@@ -112,7 +112,7 @@ object CompileServerLauncher {
 
         val nailgunClasspath =
           nailgunCpFiles
-            .map(transferredRemotePath(_, project, eelDescriptor))
+            .map(p => transferredRemotePath(p, project, eelDescriptor)(_ / p.getFileName))
             .map(asTargetLocalPathString(_, eelDescriptor))
             .mkString(targetPathSeparator)
 
@@ -128,15 +128,18 @@ object CompileServerLauncher {
 
         val classpath =
           (jdk.tools.toSeq ++ classpathFiles ++ buildProcessClasspath)
-            .map(transferredRemotePath(_, project, eelDescriptor))
+            .map(p => transferredRemotePath(p, project, eelDescriptor)(_ / p.getFileName))
             .map(asTargetLocalPathString(_, eelDescriptor))
             .mkString(targetPathSeparator)
 
-        // Remote eel-specific preparation: transfer compiler bridge sources to the remote machine.
+        // Remote eel-specific preparation: transfer compiler bridge sources and worksheet repl interface impls jar to the remote machine.
         if (eelDescriptor != LocalEelDescriptor.INSTANCE) {
           CompilerBridgeSourcesJars.allBridgeSources.foreach { path =>
-            transferredRemotePath(path, project, eelDescriptor)
+            transferredRemotePath(path, project, eelDescriptor)(_ / path.getFileName)
           }
+          val impls = ScalaPluginJars.worksheetReplInterfaceImplsJar
+          val nameCount = impls.getNameCount
+          transferredRemotePath(impls, project, eelDescriptor)(_.getParent / impls.subpath(nameCount - 2, nameCount))
         }
 
         val id = settings.COMPILE_SERVER_ID
@@ -540,7 +543,7 @@ object CompileServerLauncher {
               .resolve(s"$java9rtExportString.jar")
 
           val transferredJava9rtExportJarPath = asTargetLocalPathString(
-            transferredRemotePath(java9rtExportJar, project, eelDescriptor),
+            transferredRemotePath(java9rtExportJar, project, eelDescriptor)(_ / java9rtExportJar.getFileName),
             eelDescriptor
           )
 
@@ -764,17 +767,17 @@ object CompileServerLauncher {
   def scalaCompileServerSystemDir: Path =
     PathManager.getSystemDir.resolve(ScalaCompileServerDirName)
 
-  private def transferredRemotePath(path: Path, project: Project, eelDescriptor: EelDescriptor): Path =
+  private def transferredRemotePath(path: Path, project: Project, eelDescriptor: EelDescriptor)(relativeToCacheDir: Path => Path): Path =
     remoteProjectCacheDirectory(project, eelDescriptor) match {
       case Some(cacheDir) =>
-        EelPathUtils.transferLocalContentToRemote(path, new EelPathUtils.TransferTarget.Explicit(cacheDir / path.getFileName.toString))
+        EelPathUtils.transferLocalContentToRemote(path, new EelPathUtils.TransferTarget.Explicit(relativeToCacheDir(cacheDir)))
       case None =>
         path
     }
 
   def transferToRemoteProjectCacheDirectory(path: Path, project: Project): Path = {
     val eelDescriptor = EelProviderUtil.getEelDescriptor(project)
-    transferredRemotePath(path, project, eelDescriptor)
+    transferredRemotePath(path, project, eelDescriptor)(_ / path.getFileName)
   }
 
   /**
