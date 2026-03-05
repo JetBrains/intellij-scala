@@ -23,9 +23,13 @@ import org.junit.experimental.categories.Category
 
 import java.net.URI
 
-// TODO: ensure there is test for SCL-19673 for BSO external system as well
 /**
+ * Extend this class only if you want all tests from this class to be run in the child class.
+ * If you only need sbt importing test utilities, extend [[SbtProjectStructureImportingLike]]
+ * or create a version for main/test modules if needed.
+ *
  * @see [[SbtProjectStructureImportingTest]]
+ * @todo ensure there is a test for SCL-19673 for the BSP external system as well
  */
 @Category(Array(classOf[SlowTests]))
 /*abstract*/ class SbtProjectStructureImportingTest_ProdTestSourcesSeparated extends SbtProjectStructureImportingLike {
@@ -201,23 +205,6 @@ import java.net.URI
       expectedSbtCompletionVariantsForTestModule,
       getMyProject.baseDir.getPath
     )
-  }
-
-  protected def assertDirectoryCompletionVariantsForProjectPaths(
-    expectedSbtCompletionVariantsForParentModule: Seq[ExpectedDirectoryCompletionVariant],
-    expectedSbtCompletionVariantsForMainModule: Seq[ExpectedDirectoryCompletionVariant],
-    expectedSbtCompletionVariantsForTestModule: Seq[ExpectedDirectoryCompletionVariant],
-    projectPaths: String*
-  ): Unit = {
-    projectPaths.foreach { projectPath =>
-      Seq(
-        (projectPath, expectedSbtCompletionVariantsForParentModule),
-        (s"$projectPath/src/main", expectedSbtCompletionVariantsForMainModule),
-        (s"$projectPath/src/test", expectedSbtCompletionVariantsForTestModule)
-      ).foreach { case(path, variants) =>
-        assertSbtDirectoryCompletionContributorVariants(findVirtualFile(path), variants)
-      }
-    }
   }
 
   /**

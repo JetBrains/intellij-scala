@@ -191,6 +191,22 @@ abstract class SbtProjectStructureImportingLike extends SbtExternalSystemImporti
     )
   }
 
+  protected def assertDirectoryCompletionVariantsForProjectPaths(
+    expectedSbtCompletionVariantsForParentModule: Seq[ExpectedDirectoryCompletionVariant],
+    expectedSbtCompletionVariantsForMainModule: Seq[ExpectedDirectoryCompletionVariant],
+    expectedSbtCompletionVariantsForTestModule: Seq[ExpectedDirectoryCompletionVariant],
+    projectPaths: String*
+  ): Unit =
+    projectPaths.foreach { projectPath =>
+      Seq(
+        (projectPath, expectedSbtCompletionVariantsForParentModule),
+        (s"$projectPath/src/main", expectedSbtCompletionVariantsForMainModule),
+        (s"$projectPath/src/test", expectedSbtCompletionVariantsForTestModule)
+      ).foreach { case (path, variants) =>
+        assertSbtDirectoryCompletionContributorVariants(findVirtualFile(path), variants)
+      }
+    }
+
   protected def findVirtualFile(projectPath: String): VirtualFile = {
     val vfm = VirtualFileManager.getInstance()
     val projectPathVirtualFile = vfm.findFileByNioPath(Path.of(projectPath))
