@@ -132,6 +132,13 @@ object CompileServerLauncher {
             .map(asTargetLocalPathString(_, eelDescriptor))
             .mkString(targetPathSeparator)
 
+        // Remote eel-specific preparation: transfer compiler bridge sources to the remote machine.
+        if (eelDescriptor != LocalEelDescriptor.INSTANCE) {
+          CompilerBridgeSourcesJars.allBridgeSources.foreach { path =>
+            transferredRemotePath(path, project, eelDescriptor)
+          }
+        }
+
         val id = settings.COMPILE_SERVER_ID
 
         val compileServerSystemDir = scalaCompileServerSystemDir(project)
