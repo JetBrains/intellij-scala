@@ -6,7 +6,9 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.{Editor, EditorFactory}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.platform.eel.provider.utils.EelPathUtils
 import org.jetbrains.annotations.{ApiStatus, TestOnly}
+import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.CompilerMessagesCollector
 import org.jetbrains.plugins.scala.worksheet.ui.printers.{WorksheetEditorPrinter, WorksheetEditorPrinterRepl}
 
@@ -19,7 +21,7 @@ import scala.util.{Failure, Try}
 
 @ApiStatus.Internal
 @Service(Array(Service.Level.PROJECT))
-final class WorksheetCache extends Disposable {
+final class WorksheetCache(project: Project) extends Disposable {
 
   //TODO: why this map value has collection type?
   // One worksheet editor can have only one viewer so instead it should be some bidirectional map Editor <-> Editor
@@ -44,12 +46,12 @@ final class WorksheetCache extends Disposable {
         compilationInfo.put(filePath, (it + 1, src, out))
         result
       case _ =>
-        val tempDirAbsolute = tempDirName match {
-          case Some(tempDir) => Path.of(FileUtil.getTempDirectory, tempDir)
-          case _             => Path.of(FileUtil.getTempDirectory)
-        }
-        val src = FileUtil.createTempFile(tempDirAbsolute.toFile, fileName, null, true).toPath
-        val out = FileUtil.createTempDirectory(tempDirAbsolute.toFile, fileName, null, true).toPath
+        val prefix = tempDirName.getOrElse("")
+        //noinspection ApiStatus,UnstableApiUsage
+        val tempDir = EelPathUtils.createTemporaryDirectory(project, prefix, "", true)
+        val src = tempDir / fileName
+        val out = tempDir / "out"
+        Files.createDirectories(out)
         compilationInfo.put(filePath, (1, src, out))
         (0, src, out)
     }
