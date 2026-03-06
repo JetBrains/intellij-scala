@@ -42,7 +42,7 @@ case class Arguments(sbtData: SbtData,
         pathsToString(caches),
         pathsToString(sourceRoots),
         pathsToString(outputDirs),
-        sequenceToString(worksheetArgs.map(WorksheetArgsSerializer.serialize).getOrElse(Nil)),
+        sequenceToString(worksheetArgs.map(WorksheetArgsSerializer.serialize(_, translator)).getOrElse(Nil)),
         //sbtIncOptions
         pathsToString(compilationData.zincData.allSources),
         compilationData.zincData.compilationStartDate.toString,

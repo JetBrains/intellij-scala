@@ -5,6 +5,8 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.platform.eel.provider.EelProviderUtil
+import com.intellij.platform.eel.provider.utils.EelPathUtils
 import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.remote.CommandIds
@@ -50,9 +52,14 @@ final class RemoteServerConnector(
       case _ =>
         val argsTransformed = args match {
           case Args.PlainModeArgs(sourceFile, outputDir, className) =>
+            //noinspection ApiStatus,UnstableApiUsage
+            val transferredRunnersJar = EelPathUtils.transferLocalContentToRemote(
+              ScalaPluginJars.runnersJar,
+              new EelPathUtils.TransferTarget.Temporary(EelProviderUtil.getEelDescriptor(project))
+            )
             Some(WorksheetArgs.RunPlain(
               className,
-              ScalaPluginJars.runnersJar,
+              transferredRunnersJar,
               sourceFile,
               sourceFile.getFileName.toString,
               outputDir +: outputDirs
