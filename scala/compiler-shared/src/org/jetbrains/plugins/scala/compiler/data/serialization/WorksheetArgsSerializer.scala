@@ -4,6 +4,8 @@ import org.jetbrains.jps.incremental.scala.remote.PathTranslator
 import org.jetbrains.plugins.scala.compiler.data.serialization.ArgListSerializer._
 import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgs
 
+import java.nio.file.Path
+
 /** TODO: cover with property-based tests */
 object WorksheetArgsSerializer extends ArgListSerializer[WorksheetArgs] {
 
@@ -26,15 +28,18 @@ object WorksheetArgsSerializer extends ArgListSerializer[WorksheetArgs] {
 
 object WorksheetArgsPlainSerializer extends ArgListSerializer[WorksheetArgs.RunPlain] {
 
-  import SerializationUtils.{notNull, pathToString, pathsToString, stringToPath, stringToPathValidated}
+  import SerializationUtils.{notNull, sequenceToString, stringToPath, stringToPathValidated}
 
-  override def serialize(value: WorksheetArgs.RunPlain, translator: PathTranslator): ArgList = Seq(
-    value.worksheetClassName,
-    pathToString(value.pathToRunnersJar),
-    pathToString(value.worksheetTempFile),
-    value.originalFileName,
-    pathsToString(value.outputDirs)
-  )
+  override def serialize(value: WorksheetArgs.RunPlain, translator: PathTranslator): ArgList =
+    val pathToString: Path => String = translator.translate
+    val pathsToString: Seq[Path] => String = paths => sequenceToString(paths.map(pathToString))
+    Seq(
+      value.worksheetClassName,
+      pathToString(value.pathToRunnersJar),
+      pathToString(value.worksheetTempFile),
+      value.originalFileName,
+      pathsToString(value.outputDirs)
+    )
 
   override def deserialize(args: ArgList): Either[DeserializationError, WorksheetArgs.RunPlain] =
     (for {
