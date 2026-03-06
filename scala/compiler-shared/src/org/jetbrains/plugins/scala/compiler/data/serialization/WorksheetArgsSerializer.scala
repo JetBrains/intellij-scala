@@ -7,8 +7,8 @@ import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgs
 /** TODO: cover with property-based tests */
 object WorksheetArgsSerializer extends ArgListSerializer[WorksheetArgs] {
 
-  private val ReplMode  = "repl"
-  private val PlainMode = "plain"
+  private final val ReplMode  = "repl"
+  private final val PlainMode = "plain"
 
   override def serialize(value: WorksheetArgs, translator: PathTranslator): ArgList = value match {
     case plain: WorksheetArgs.RunPlain => PlainMode +: WorksheetArgsPlainSerializer.serialize(plain, translator)
@@ -17,10 +17,10 @@ object WorksheetArgsSerializer extends ArgListSerializer[WorksheetArgs] {
 
   override def deserialize(args: ArgList): Either[DeserializationError, WorksheetArgs] =
     args match {
-      case Seq()                      => error("Args are empty")
-      case Seq(PlainMode, other@_*)   => WorksheetArgsPlainSerializer.deserialize(other)
-      case Seq(ReplMode, other@_*)    => WorksheetArgsReplSerializer.deserialize(other)
-      case Seq(unknown, _*)           => error(s"Unknown worksheet run mode: $unknown")
+      case Seq()                  => error("Args are empty")
+      case Seq(PlainMode, other*) => WorksheetArgsPlainSerializer.deserialize(other)
+      case Seq(ReplMode, other*)  => WorksheetArgsReplSerializer.deserialize(other)
+      case Seq(unknown, _*)       => error(s"Unknown worksheet run mode: $unknown")
     }
 }
 
