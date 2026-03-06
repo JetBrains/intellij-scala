@@ -58,13 +58,12 @@ object CompileServerCommand {
     override def id: String = CommandIds.CompileJps
 
     override def asArgs(translator: PathTranslator): Seq[String] = {
-      import org.jetbrains.plugins.scala.compiler.data.serialization.SerializationUtils.sequenceToString
-      val pathToString: Path => String = translator.translate
+      import org.jetbrains.plugins.scala.compiler.data.serialization.SerializationUtils.{pathToString, sequenceToString}
 
       Seq(
-        pathToString(projectPath),
-        pathToString(globalOptionsPath),
-        pathToString(dataStorageRootPath),
+        pathToString(projectPath, translator),
+        pathToString(globalOptionsPath, translator),
+        pathToString(dataStorageRootPath, translator),
         sequenceToString(moduleNames),
         sourceScope.toString,
         projectMetadata.asCompactJsonString

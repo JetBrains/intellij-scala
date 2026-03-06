@@ -5,7 +5,6 @@ import org.jetbrains.jps.incremental.scala.remote.{NioPathTranslator, PathTransl
 import org.jetbrains.plugins.scala.compiler.data.serialization.{SerializationUtils, WorksheetArgsSerializer}
 import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgs
 
-import java.nio.file.Path
 
 case class Arguments(sbtData: SbtData,
                      compilerData: CompilerData,
@@ -13,7 +12,7 @@ case class Arguments(sbtData: SbtData,
                      // TODO: separate different kinds of requests: Compile / Run worksheet / Run Repl worksheet / (potentially run tests)
                      worksheetArgs: Option[WorksheetArgs]) {
 
-  import SerializationUtils.sequenceToString
+  import SerializationUtils.{pathToString, pathsToString, sequenceToString}
 
   @deprecated(message = "Use asStrings(PathTranslator). Kept for preserving binary compatibility.", since = "2026.1")
   @Deprecated
@@ -25,26 +24,23 @@ case class Arguments(sbtData: SbtData,
     val (outputs, caches) = compilationData.outputToCacheMap.toSeq.unzip
     val (sourceRoots, outputDirs) = compilationData.outputGroups.unzip
 
-    val pathToString: Path => String = translator.translate
-    val pathsToString: Seq[Path] => String = paths => sequenceToString(paths.map(pathToString))
-
     SbtData.serialize(sbtData, translator) ++
       CompilerData.serialize(compilerData, translator) ++
       Seq(
-        pathsToString(compilationData.sources),
-        pathsToString(compilationData.classpath),
-        pathToString(compilationData.output),
+        pathsToString(compilationData.sources, translator),
+        pathsToString(compilationData.classpath, translator),
+        pathToString(compilationData.output, translator),
         sequenceToString(compilationData.scalaOptions),
         sequenceToString(compilationData.javaOptions),
         compilationData.order.toString,
-        pathToString(compilationData.cacheFile),
-        pathsToString(outputs),
-        pathsToString(caches),
-        pathsToString(sourceRoots),
-        pathsToString(outputDirs),
+        pathToString(compilationData.cacheFile, translator),
+        pathsToString(outputs, translator),
+        pathsToString(caches, translator),
+        pathsToString(sourceRoots, translator),
+        pathsToString(outputDirs, translator),
         sequenceToString(worksheetArgs.map(WorksheetArgsSerializer.serialize(_, translator)).getOrElse(Nil)),
         //sbtIncOptions
-        pathsToString(compilationData.zincData.allSources),
+        pathsToString(compilationData.zincData.allSources, translator),
         compilationData.zincData.compilationStartDate.toString,
         compilationData.zincData.isCompile.toString
       )

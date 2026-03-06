@@ -24,16 +24,14 @@ case class ExpressionEvaluationArguments(
   def asStrings: Seq[String] = asStrings(NioPathTranslator)
 
   def asStrings(translator: PathTranslator): Seq[String] = {
-    import org.jetbrains.plugins.scala.compiler.data.serialization.SerializationUtils.sequenceToString
-    val pathToString: Path => String = translator.translate
-    val pathsToString: Seq[Path] => String = paths => sequenceToString(paths.map(pathToString))
+    import org.jetbrains.plugins.scala.compiler.data.serialization.SerializationUtils.{pathToString, pathsToString, sequenceToString}
 
     Seq(
       useBuiltInExpressionCompiler.toString,
-      pathToString(outDir),
-      pathsToString(classpath),
+      pathToString(outDir, translator),
+      pathsToString(classpath, translator),
       sequenceToString(scalacOptions),
-      pathToString(source),
+      pathToString(source, translator),
       line.toString,
       expression,
       sequenceToString(localVariableNames),
