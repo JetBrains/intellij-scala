@@ -15,13 +15,11 @@ final case class ComputeStampsArguments(
   def asStrings: Seq[String] = asStrings(NioPathTranslator)
 
   def asStrings(translator: PathTranslator): Seq[String] = {
-    import org.jetbrains.plugins.scala.compiler.data.serialization.SerializationUtils.sequenceToString
-    val pathToString: Path => String = translator.translate
-    val pathsToString: Seq[Path] => String = paths => sequenceToString(paths.map(pathToString))
+    import org.jetbrains.plugins.scala.compiler.data.serialization.SerializationUtils.{pathToString, pathsToString}
 
     Seq(
-      pathsToString(outputFiles),
-      pathToString(analysisFile)
+      pathsToString(outputFiles, translator),
+      pathToString(analysisFile, translator)
     )
   }
 }

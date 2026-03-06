@@ -12,7 +12,7 @@ case class CompilerData(compilerJars: Option[CompilerJars],
                         incrementalType: IncrementalityType)
 
 object CompilerData {
-  import serialization.SerializationUtils.{optionToString, sequenceToString}
+  import serialization.SerializationUtils.{optionToString, pathToString, pathsToString}
 
   @deprecated(message = "Use serialize(CompilerData, PathTranslator). Kept for preserving binary compatibility.", since = "2026.1")
   @Deprecated
@@ -20,13 +20,10 @@ object CompilerData {
   def serialize(data: CompilerData): Seq[String] = serialize(data, NioPathTranslator)
 
   def serialize(data: CompilerData, translator: PathTranslator): Seq[String] = {
-    val pathToString: Path => String = translator.translate
-    val pathsToString: Seq[Path] => String = paths => sequenceToString(paths.map(pathToString))
-
-    val compilerJarPaths = data.compilerJars.map(jars => pathsToString(jars.allJars))
-    val customCompilerBridgeJarPath = data.compilerJars.flatMap(_.customCompilerBridgeJar.map(pathToString))
-    val replClasspath = data.compilerJars.map(jars => pathsToString(jars.replClasspath))
-    val javaHomePath = data.javaHome.map(pathToString)
+    val compilerJarPaths = data.compilerJars.map(jars => pathsToString(jars.allJars, translator))
+    val customCompilerBridgeJarPath = data.compilerJars.flatMap(_.customCompilerBridgeJar.map(pathToString(_, translator)))
+    val replClasspath = data.compilerJars.map(jars => pathsToString(jars.replClasspath, translator))
+    val javaHomePath = data.javaHome.map(pathToString(_, translator))
 
     Seq(
       optionToString(compilerJarPaths),

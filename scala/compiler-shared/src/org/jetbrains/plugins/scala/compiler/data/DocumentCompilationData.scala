@@ -25,16 +25,13 @@ object DocumentCompilationData {
   def serialize(data: DocumentCompilationData, translator: PathTranslator): Seq[String] = {
     val DocumentCompilationData(sourcePath, sourceContent, output, classpath, scalacOptions) = data
 
-    import serialization.SerializationUtils.sequenceToString
-
-    val pathToString: Path => String = translator.translate
-    val pathsToString: Seq[Path] => String = paths => sequenceToString(paths.map(pathToString))
+    import serialization.SerializationUtils.{pathToString, pathsToString, sequenceToString}
 
     Seq(
-      pathToString(sourcePath),
+      pathToString(sourcePath, translator),
       sourceContent,
-      pathToString(output),
-      pathsToString(classpath),
+      pathToString(output, translator),
+      pathsToString(classpath, translator),
       sequenceToString(scalacOptions)
     )
   }
