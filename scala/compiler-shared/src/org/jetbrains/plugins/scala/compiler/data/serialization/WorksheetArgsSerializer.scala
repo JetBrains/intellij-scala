@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.compiler.data.serialization
 
+import org.jetbrains.jps.incremental.scala.remote.PathTranslator
 import org.jetbrains.plugins.scala.compiler.data.serialization.ArgListSerializer._
 import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgs
 
@@ -9,9 +10,9 @@ object WorksheetArgsSerializer extends ArgListSerializer[WorksheetArgs] {
   private val ReplMode  = "repl"
   private val PlainMode = "plain"
 
-  override def serialize(value: WorksheetArgs): ArgList = value match {
-    case plain: WorksheetArgs.RunPlain => PlainMode +: WorksheetArgsPlainSerializer.serialize(plain)
-    case repl: WorksheetArgs.RunRepl   => ReplMode +: WorksheetArgsReplSerializer.serialize(repl)
+  override def serialize(value: WorksheetArgs, translator: PathTranslator): ArgList = value match {
+    case plain: WorksheetArgs.RunPlain => PlainMode +: WorksheetArgsPlainSerializer.serialize(plain, translator)
+    case repl: WorksheetArgs.RunRepl   => ReplMode +: WorksheetArgsReplSerializer.serialize(repl, translator)
   }
 
   override def deserialize(args: ArgList): Either[DeserializationError, WorksheetArgs] =
@@ -27,7 +28,7 @@ object WorksheetArgsPlainSerializer extends ArgListSerializer[WorksheetArgs.RunP
 
   import SerializationUtils.{notNull, pathToString, pathsToString, stringToPath, stringToPathValidated}
 
-  override def serialize(value: WorksheetArgs.RunPlain): ArgList = Seq(
+  override def serialize(value: WorksheetArgs.RunPlain, translator: PathTranslator): ArgList = Seq(
     value.worksheetClassName,
     pathToString(value.pathToRunnersJar),
     pathToString(value.worksheetTempFile),
@@ -55,7 +56,7 @@ object WorksheetArgsReplSerializer extends ArgListSerializer[WorksheetArgs.RunRe
 
   import SerializationUtils.{boolean, notNull, pathsToString}
 
-  override def serialize(value: WorksheetArgs.RunRepl): ArgList = Seq(
+  override def serialize(value: WorksheetArgs.RunRepl, translator: PathTranslator): ArgList = Seq(
     value.sessionId,
     value.codeChunk,
     value.dropCachedReplInstance.toString,
