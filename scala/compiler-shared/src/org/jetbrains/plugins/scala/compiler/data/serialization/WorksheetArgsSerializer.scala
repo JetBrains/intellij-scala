@@ -59,15 +59,18 @@ object WorksheetArgsPlainSerializer extends ArgListSerializer[WorksheetArgs.RunP
 
 object WorksheetArgsReplSerializer extends ArgListSerializer[WorksheetArgs.RunRepl] {
 
-  import SerializationUtils.{boolean, notNull, pathsToString}
+  import SerializationUtils.{boolean, notNull, sequenceToString}
 
-  override def serialize(value: WorksheetArgs.RunRepl, translator: PathTranslator): ArgList = Seq(
-    value.sessionId,
-    value.codeChunk,
-    value.dropCachedReplInstance.toString,
-    value.continueOnChunkError.toString,
-    pathsToString(value.outputDirs)
-  )
+  override def serialize(value: WorksheetArgs.RunRepl, translator: PathTranslator): ArgList =
+    val pathToString: Path => String = translator.translate
+    val pathsToString: Seq[Path] => String = paths => sequenceToString(paths.map(pathToString))
+    Seq(
+      value.sessionId,
+      value.codeChunk,
+      value.dropCachedReplInstance.toString,
+      value.continueOnChunkError.toString,
+      pathsToString(value.outputDirs)
+    )
 
   override def deserialize(args: ArgList): Either[DeserializationError, WorksheetArgs.RunRepl] =
     (for {
