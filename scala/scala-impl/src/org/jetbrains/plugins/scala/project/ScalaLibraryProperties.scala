@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.project
 import com.intellij.openapi.roots.libraries.LibraryProperties
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.VfsUtilCore
-import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.util.HashBuilder._
 
@@ -89,26 +88,6 @@ object ScalaLibraryProperties {
 
   def apply(): ScalaLibraryProperties =
     apply(None, Seq.empty, Seq.empty, None, ReplClasspath.Bundled)
-
-  // Extra constructor added not to break compatibility with plugins using this class before version 2023.3
-  @deprecated(message = "Use apply with a repl classpath parameter", since = "2025.3")
-  def apply(
-    version: Option[String],
-    compilerClasspath: Seq[Path],
-    scaladocExtraClasspath: Seq[Path],
-  ): ScalaLibraryProperties =
-    apply(version, compilerClasspath, scaladocExtraClasspath, compilerBridgeBinaryJar = None, replClasspath = ReplClasspath.Bundled)
-
-  @deprecated(message = "Use apply with a repl classpath parameter", since = "2025.3")
-  @Deprecated(forRemoval = true)
-  @ApiStatus.ScheduledForRemoval(inVersion = "2026.1")
-  def apply(
-    version: Option[String],
-    compilerClasspath: Seq[Path],
-    scaladocExtraClasspath: Seq[Path],
-    compilerBridgeBinaryJar: Option[Path]
-  ): ScalaLibraryProperties =
-    apply(version, compilerClasspath, scaladocExtraClasspath, compilerBridgeBinaryJar, replClasspath = ReplClasspath.Bundled)
 
   def apply(
     version: Option[String],
