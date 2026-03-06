@@ -28,18 +28,6 @@ final class ScalaLibraryProperties private(
 ) extends LibraryProperties[ScalaLibraryPropertiesState] {
   import ScalaLibraryProperties._
 
-  @Deprecated(forRemoval = true)
-  @deprecated("Use ScalaLibraryProperties.apply")
-  @ApiStatus.ScheduledForRemoval(inVersion = "2024.2")
-  def this(languageLevel: ScalaLanguageLevel, compilerClasspath: Seq[Path], scaladocExtraClasspath: Seq[Path]) =
-    this(languageLevel, compilerClasspath, scaladocExtraClasspath, _compilerBridgeBinaryJar = None, ReplClasspath.Bundled)
-
-  @Deprecated(forRemoval = true)
-  @deprecated("Use ScalaLibraryProperties.apply")
-  @ApiStatus.ScheduledForRemoval(inVersion = "2024.2")
-  def this(languageLevel: ScalaLanguageLevel, compilerClasspath: Seq[Path]) =
-    this(languageLevel, compilerClasspath, scaladocExtraClasspath = Nil)
-
   def compilerBridgeBinaryJar: Option[Path] = _compilerBridgeBinaryJar
   def compilerBridgeBinaryJar_=(value: Option[Path]): Unit = _compilerBridgeBinaryJar = value
 
