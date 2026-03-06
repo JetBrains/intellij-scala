@@ -21,12 +21,12 @@ object SbtData {
   def serialize(data: SbtData): Seq[String] = serialize(data, NioPathTranslator)
 
   def serialize(data: SbtData, translator: PathTranslator): Seq[String] = {
+    import serialization.SerializationUtils.pathToString
     val SbtData(_, _, _, interfacesHome, javaClassVersion) = data
-    val pathToString: Path => String = translator.translate
 
     Seq(
-      pathToString(data.pluginJpsDirectory),
-      pathToString(interfacesHome),
+      pathToString(data.pluginJpsDirectory, translator),
+      pathToString(interfacesHome, translator),
       javaClassVersion
     )
   }
