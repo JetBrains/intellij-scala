@@ -7,7 +7,7 @@ import com.intellij.openapi.util.Key
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.debugger.DebuggerBundle
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt, ScalaLanguageLevel}
-import org.jetbrains.plugins.scala.{DependencyManagerBase, ScalaVersion}
+import org.jetbrains.plugins.scala.{EelAwareDependencyManager, ScalaVersion}
 
 import java.nio.file.Path
 import scala.util.control.NonFatal
@@ -45,7 +45,8 @@ private final class ExpressionCompilerResolverListener(project: Project) extends
 
   private def resolveExpressionCompilerJar(scalaVersion: ScalaVersion, indicator: ProgressIndicator): Option[Path] = {
     val dep = "ch.epfl.scala" % s"scala-expression-compiler_${scalaVersion.minor}" % ScalaExpressionCompilerVersion
-    val manager = new DependencyManagerBase {
+    //noinspection ApiStatus
+    val manager = new EelAwareDependencyManager(project) {
       override protected def progressIndicator: Option[ProgressIndicator] = Some(indicator)
     }
     manager.resolveSafe(dep).toOption.flatMap(_.headOption).map(_.file)

@@ -74,6 +74,8 @@ abstract class DependencyManagerBase {
      """.stripMargin
   }
 
+  protected def ivyHomeDirectory: Path = DependencyManagerBase.ivyHome
+
   protected def customizeIvySettings(settings: IvySettings): Unit = ()
 
   protected def progressIndicator: Option[ProgressIndicator] = {
@@ -114,7 +116,7 @@ abstract class DependencyManagerBase {
 
     def mkIvySettings(): IvySettings = {
       val ivySettings = new IvySettings
-      ivySettings.setDefaultIvyUserDir(ivyHome.toFile)
+      ivySettings.setDefaultIvyUserDir(ivyHomeDirectory.toFile)
 
       val useFileSystemOnly = useFileSystemResolversOnly
       val myResolvers = resolvers
@@ -265,7 +267,7 @@ abstract class DependencyManagerBase {
       case info@DependencyDescription(org, artId, version, _, kind, false, _) if !ignoreArtifact(artId) =>
         val relativePath = Path.of("cache", org, artId, s"${kind}s", s"$artId-$version${info.classifierBare.fold("")("-" + _)}.jar")
 
-        val file = ivyHome.resolve(relativePath)
+        val file = ivyHomeDirectory.resolve(relativePath)
         if (Files.exists(file))
           Right(ResolvedDependency(info, file))
         else
