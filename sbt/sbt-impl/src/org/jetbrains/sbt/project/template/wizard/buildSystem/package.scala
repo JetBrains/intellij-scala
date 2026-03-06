@@ -14,7 +14,6 @@ import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
-import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.plugins.scala.actions.ShowTypeInfoAction
 import org.jetbrains.plugins.scala.extensions.{CharSeqExt, inWriteAction}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
@@ -86,20 +85,6 @@ package object buildSystem {
         VfsUtil.saveText(file, sourceCode)
         file
       }
-    }
-  }
-
-  @deprecated("Don't use this method. .gitignore is now added in the wizard via AssetsNewProjectWizardStep")
-  @ApiStatus.ScheduledForRemoval(inVersion = "2025.1")
-  private[buildSystem]
-  def addGitIgnore(project: Project, path: String): VirtualFile = {
-    val manager = FileTemplateManager.getInstance(project)
-    val contents = manager.getInternalTemplate("scala-gitignore.txt").getText
-    inWriteAction {
-      val fileDirectory = createDirectoryIfMissing(path)
-      val file = fileDirectory.findOrCreateChildData(this, ".gitignore")
-      VfsUtil.saveText(file, contents)
-      file
     }
   }
 
