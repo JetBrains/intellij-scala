@@ -42,7 +42,7 @@ class CompatibilityTest extends ScalaFixtureTestCase {
         shapesOnly    = false
       )
 
-    val matchedParameters: Seq[Parameter] = conformanceExtResult.matched.map(_._1)
+    val matchedParameters: Seq[Parameter] = conformanceExtResult.matched.map(_.parameter)
 
     assertTrue(parameters == matchedParameters)
   }
