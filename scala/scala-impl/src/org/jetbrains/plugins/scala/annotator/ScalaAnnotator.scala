@@ -97,7 +97,7 @@ class ScalaAnnotator extends Annotator
 
         if (typeAware) {
           expr.getTypeAfterImplicitConversion() match {
-            case ExpressionTypeResult(Right(_), _, Some(_)) =>
+            case ExpressionTypeResult(Right(_), _, Some(_), _) =>
               highlightImplicitView(expr)
             case _ =>
           }

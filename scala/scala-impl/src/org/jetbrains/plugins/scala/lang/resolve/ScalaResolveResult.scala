@@ -77,7 +77,8 @@ class ScalaResolveResult(
   val intersectedReturnType:    Option[ScType]               = None,
   val matchClauseSubstitutor:   ScSubstitutor                = ScSubstitutor.empty,
   val exportedInfo:             Option[ExportedSigInfo]      = None,
-  val isExtensionFromGiven:     Boolean                      = false
+  val isExtensionFromGiven:     Boolean                      = false,
+  val samAdapted:               Boolean                      = false
 ) extends ResolveResult
     with ProjectContextOwner {
   if (element == null) throw new NullPointerException("element is null")
@@ -161,7 +162,8 @@ class ScalaResolveResult(
     intersectedReturnType:    Option[ScType]               = intersectedReturnType,
     exportedInfo:             Option[ExportedSigInfo]      = exportedInfo,
     parentElement:            Option[PsiNamedElement]      = parentElement,
-    isExtensionFromGiven:     Boolean                      = isExtensionFromGiven
+    isExtensionFromGiven:     Boolean                      = isExtensionFromGiven,
+    samAdapted:               Boolean                      = samAdapted
   ): ScalaResolveResult =
     new ScalaResolveResult(
       element,
@@ -194,7 +196,8 @@ class ScalaResolveResult(
       matchClauseSubstitutor   = matchClauseSubstitutor,
       intersectedReturnType    = intersectedReturnType,
       exportedInfo             = exportedInfo,
-      isExtensionFromGiven     = isExtensionFromGiven
+      isExtensionFromGiven     = isExtensionFromGiven,
+      samAdapted               = samAdapted
     )
 
   override def equals(other: Any): Boolean = other match {
