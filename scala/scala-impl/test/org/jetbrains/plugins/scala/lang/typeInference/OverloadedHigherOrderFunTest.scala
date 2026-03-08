@@ -217,4 +217,20 @@ class OverloadedHigherOrderFunTest extends ScalaLightCodeInsightFixtureTestCase 
       |  ???
       |}""".stripMargin
   )
+
+  // SCL-24823
+  def testSCL24823(): Unit = checkTextHasNoErrors(
+    """
+      |import java.util.function.{Function => JFunction}
+      |
+      |object BugReproduction {
+      |  class Stream[T] {
+      |    def keyBy[K: Ordering](fun: T => K): String = "scala"
+      |    def keyBy[K: Ordering](fun: JFunction[T, K]): String = "java"
+      |  }
+      |  val stream = new Stream[String]
+      |  stream.keyBy(s => s.length)
+      |}
+      |""".stripMargin
+  )
 }
