@@ -95,13 +95,14 @@ class ScalaGradleDataService extends ScalaAbstractProjectDataService[ScalaModelD
     val compilerVersion = scalaLibrariesInCompilerClasspath.flatMap(runtimeVersion).headOption
     compilerVersion match {
       case Some(version) =>
-        configureScalaSdk(module, version, compilerClasspath)
+        configureScalaSdk(project, module, version, compilerClasspath)
       case None        =>
         showWarning(NlsString(ScalaGradleBundle.message("gradle.dataService.scalaVersionCantBeDetected", module.getName)))
     }
   }
 
   private def configureScalaSdk(
+    project: Project,
     module: Module,
     compilerVersion: String,
     compilerClasspath: Seq[Path]
@@ -115,7 +116,7 @@ class ScalaGradleDataService extends ScalaAbstractProjectDataService[ScalaModelD
         }
       } else None
 
-    val replClasspath = ScalaSdkUtils.resolveReplClasspath(compilerVersion)
+    val replClasspath = ScalaSdkUtils.resolveReplClasspath(project, compilerVersion)
 
     ScalaSdkUtils.configureScalaSdk(
       module,

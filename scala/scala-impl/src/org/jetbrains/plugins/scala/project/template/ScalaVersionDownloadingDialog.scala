@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.project.template
 
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator}
 import com.intellij.openapi.ui.Messages
+import scala.annotation.nowarn
 import org.apache.ivy.util.MessageLogger
 import org.jetbrains.annotations.VisibleForTesting
 import org.jetbrains.plugins.scala.components.libextensions.ProgressIndicatorLogger
@@ -134,7 +135,7 @@ object ScalaVersionDownloadingDialog {
 
     val compilerBridge = ScalaSdkUtils.resolveCompilerBridgeJar(scalaVersion.minor)
 
-    val replClasspath = ScalaSdkUtils.resolveReplClasspath(scalaVersion.minor)
+    val replClasspath = (ScalaSdkUtils.resolveReplClasspath(scalaVersion.minor)): @nowarn("msg=deprecated")
 
     ScalaVersionResolveResult(
       scalaVersion.minor,
