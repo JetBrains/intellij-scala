@@ -4,7 +4,6 @@ import com.intellij.codeInsight.daemon.impl.HighlightInfoType
 import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.platform.eel.EelDescriptor
 import com.intellij.platform.eel.path.EelPath
@@ -33,10 +32,8 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
   private val eelDescriptor: EelDescriptor = EelProviderUtil.getEelDescriptor(project)
 
   private def sourceToPath(source: SerializablePath): Path = {
-    val pathString = FileUtil.toSystemIndependentName(SerializablePath.unsafePathAsString(source))
-    val eel = EelPath.parse(pathString, eelDescriptor)
-    val o = EelNioBridgeServiceKt.asNioPath(eel)
-    o
+    val eel = EelPath.parse(SerializablePath.unsafePathAsString(source), eelDescriptor)
+    EelNioBridgeServiceKt.asNioPath(eel)
   }
 
   override def eventReceived(event: CompilerEvent): Unit = {

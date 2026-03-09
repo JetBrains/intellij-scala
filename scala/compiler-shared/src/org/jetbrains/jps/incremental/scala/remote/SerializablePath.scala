@@ -22,11 +22,7 @@ final class SerializablePath private (private val pathAsString: String) extends 
 }
 
 object SerializablePath {
-  def apply(path: Path, translator: PathTranslator = NioPathTranslator): SerializablePath = {
-    val old = path.toAbsolutePath.normalize().toString
-    val x1 = translator.translate(path)
-    new SerializablePath(translator.translate(path))
-  }
+  def apply(path: Path): SerializablePath = new SerializablePath(path.toAbsolutePath.normalize().toString)
 
   def unapply(path: SerializablePath): Some[Path] = Some(path.toPath)
 
