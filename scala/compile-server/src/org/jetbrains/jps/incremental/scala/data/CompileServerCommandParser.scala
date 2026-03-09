@@ -40,7 +40,7 @@ object CompileServerCommandParser
               moduleNames = moduleNames,
               sourceScope = SourceScope.fromString(sourceScope),
               projectMetadata = ScalaJpsProjectMetadata.parseCompactJsonString(projectMetadataJson),
-              externalProjectConfig = other.headOption.map(Paths.get(_))
+              externalProjectConfig = other.headOption
             )
           case _ =>
             throwIllegalArgs(commandId, args)

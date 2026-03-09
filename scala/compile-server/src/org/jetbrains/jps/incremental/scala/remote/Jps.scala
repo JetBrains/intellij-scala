@@ -176,7 +176,7 @@ private object Jps {
    * @see `com.intellij.compiler.server.BuildManager.launchBuildProcess`
    * @see `org.jetbrains.plugins.scala.compiler.highlighting.IncrementalCompiler.compile`
    */
-  private def withModifiedExternalProjectPath[T](externalProjectConfig: Option[Path])(body: => T): T = {
+  private def withModifiedExternalProjectPath[T](externalProjectConfig: Option[String])(body: => T): T = {
     externalProjectConfig match {
       case Some(value) =>
         //NOTE: We have use lock here because currently we can only pass the external project config path via System.get/setProperty
@@ -187,7 +187,7 @@ private object Jps {
           val Key = GlobalOptions.EXTERNAL_PROJECT_CONFIG
           val previousValue = System.getProperty(Key)
           try {
-            System.setProperty(Key, value.toString)
+            System.setProperty(Key, value)
             body
           }
           finally {
