@@ -96,21 +96,17 @@ class Scala3OverloadingResolutionTest extends SimpleResolveTestBase {
       |""".stripMargin
   )
 
-  // Chained apply expansion wins overload resolution correctly, but the typer fails because
-  // the resolve result has 3 levels of innerResolveResult nesting (Baz.apply -> Bar.apply -> foo),
-  // while the type checker only supports 2 levels. This causes "213" to be checked against
-  // Baz.apply(b: Boolean) instead of Bar.apply(s: String), producing a spurious type mismatch.
-  //def testLateApplyExpansionChainedApplyTyper(): Unit = checkTextHasNoErrors(
-  //  """
-  //    |class Example {
-  //    |  class Baz { def apply(b: Boolean): String = "" }
-  //    |  class Bar { def apply(s: String): Baz = ??? }
-  //    |  def foo(i: Int): Bar = ???
-  //    |  def foo(i: Int)(s: String)(d: Double): String = ???
-  //    |  foo(1)("213")(true)
-  //    |}
-  //    |""".stripMargin
-  //)
+  def testLateApplyExpansionChainedApplyTyper(): Unit = checkTextHasNoErrors(
+    """
+      |class Example {
+      |  class Baz { def apply(b: Boolean): String = "" }
+      |  class Bar { def apply(s: String): Baz = ??? }
+      |  def foo(i: Int): Bar = ???
+      |  def foo(i: Int)(s: String)(d: Double): String = ???
+      |  foo(1)("213")(true)
+      |}
+      |""".stripMargin
+  )
 
   def testLateApplyExpansionChainedApplyAmbiguous(): Unit = checkHasErrorAroundCaret(
     s"""
