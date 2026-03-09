@@ -20,10 +20,10 @@ class ScalaSdkService extends ScalaAbstractProjectDataService[ScalaSdkData, Libr
     project: Project,
     modelsProvider: IdeModifiableModelsProvider
   ): Unit = {
-    toImport.forEach(doImport(_)(modelsProvider))
+    toImport.forEach(doImport(_, project)(modelsProvider))
   }
 
-  private def doImport(dataNode: DataNode[ScalaSdkData])
+  private def doImport(dataNode: DataNode[ScalaSdkData], project: Project)
                       (implicit modelsProvider: IdeModifiableModelsProvider): Unit =
     for {
       module <- modelsProvider.getIdeModuleByNode(dataNode)
@@ -31,6 +31,7 @@ class ScalaSdkService extends ScalaAbstractProjectDataService[ScalaSdkData, Libr
       val ScalaSdkData(_, scalaVersion, scalacClasspath, _, scalacOptions) = dataNode.getData
       module.configureScalaCompilerSettingsFrom("bsp", scalacOptions)
       configureScalaSdk(
+        project,
         module,
         scalaVersion,
         scalacClasspath.map(_.toPath)
@@ -38,6 +39,7 @@ class ScalaSdkService extends ScalaAbstractProjectDataService[ScalaSdkData, Libr
     }
 
   private def configureScalaSdk(
+    project: Project,
     module: Module,
     scalaVersionOpt: Option[String],
     compilerClasspath: Seq[Path]
@@ -46,7 +48,7 @@ class ScalaSdkService extends ScalaAbstractProjectDataService[ScalaSdkData, Libr
     if ScalaLanguageLevel.findByVersion(scalaVersion).isDefined
   } {
     val compilerBridgeBinaryJar = ScalaSdkUtils.resolveCompilerBridgeJar(scalaVersion)
-    val replClasspath = ScalaSdkUtils.resolveReplClasspath(scalaVersion)
+    val replClasspath = ScalaSdkUtils.resolveReplClasspath(project, scalaVersion)
     ScalaSdkUtils.configureScalaSdk(
       module,
       scalaVersion,

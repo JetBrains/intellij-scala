@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.base.libraryLoaders
 
 import com.intellij.openapi.module.Module
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar
 import com.intellij.openapi.roots.ui.configuration.libraryEditor.ExistingLibraryEditor
 import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
@@ -71,8 +72,8 @@ case class ScalaSDKLoader(
     else None
   }
 
-  private def resolveReplClasspath(version: ScalaVersion): ReplClasspath =
-    ScalaSdkUtils.resolveReplClasspath(version.minor)
+  private def resolveReplClasspath(project: Project, version: ScalaVersion): ReplClasspath =
+    ScalaSdkUtils.resolveReplClasspath(project, version.minor)
 
   override final def init(implicit module: Module, version: ScalaVersion): Unit = {
     val dependencies = binaryDependencies
@@ -96,7 +97,8 @@ case class ScalaSDKLoader(
     // Manually resolve a compiler bridge only if it hasn't been provided. This allows testing with a custom bridge.
     val compilerBridge = compilerBridgeBinaryJar.orElse(resolveCompilerBridge(version))
 
-    val replClasspath = resolveReplClasspath(version)
+    val project = module.getProject
+    val replClasspath = resolveReplClasspath(project, version)
 
     assertTrue(
       s"Some SDK jars were resolved but for some reason do not exist:\n$resolvedMissing",
@@ -124,7 +126,7 @@ case class ScalaSDKLoader(
       if (includeScalaLibrarySources) scalaLibrarySources
       else Nil
 
-    val libraryTable = LibraryTablesRegistrar.getInstance.getLibraryTable(module.getProject)
+    val libraryTable = LibraryTablesRegistrar.getInstance.getLibraryTable(project)
 
     val featuresHash = Seq[Any](
       includeScalaReflectIntoCompilerClasspath,
