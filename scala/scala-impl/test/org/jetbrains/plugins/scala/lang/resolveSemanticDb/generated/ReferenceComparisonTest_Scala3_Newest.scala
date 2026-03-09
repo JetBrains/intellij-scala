@@ -749,7 +749,7 @@ final class ReferenceComparisonTest_Scala3_Newest_Part7 extends ReferenceCompari
   def test_i4526b(): Unit = doTest("i4526b", true)
   def test_i4557(): Unit = doTest("i4557", true)
   def test_i4557a(): Unit = doTest("i4557a", true)
-  def test_i4561(): Unit = doTest("i4561", false)
+  def test_i4561(): Unit = doTest("i4561", true)
   def test_i4564(): Unit = doTest("i4564", false)
   def test_i4582(): Unit = doTest("i4582", false) // #traitParameters
   def test_i4586(): Unit = doTest("i4586", true)

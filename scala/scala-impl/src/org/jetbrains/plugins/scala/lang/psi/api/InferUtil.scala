@@ -558,7 +558,7 @@ object InferUtil {
   }
 
   def extractImplicitParameterType(result: ScalaResolveResult): Option[ScType] =
-    result.implicitResultType.orElse {
+    result.inferredType.orElse {
       val ScalaResolveResult(element, substitutor) = result
 
       val maybeType = element match {
