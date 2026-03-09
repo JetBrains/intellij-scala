@@ -4,9 +4,9 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
 import org.jetbrains.annotations.Nls
-import org.jetbrains.jps.incremental.scala.remote.SerializablePath
+import org.jetbrains.jps.incremental.scala.remote.{PathTranslator, SerializablePath}
 import org.jetbrains.jps.incremental.scala.{Client, DummyClient, MessageKind}
-import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener, CompilerIntegrationBundle}
+import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener, CompilerIntegrationBundle, EelPathTranslator}
 import org.jetbrains.plugins.scala.util.{CanonicalPath, CompilationId}
 
 import java.nio.file.Path
@@ -18,6 +18,8 @@ private class CompilerEventGeneratingClient(
   refreshVfs: Boolean,
   documentVersions: Map[CanonicalPath, Long] with Serializable
 ) extends DummyClient {
+
+  override def pathTranslator: PathTranslator = EelPathTranslator
 
   final val compilationId = CompilationId(timestamp = System.nanoTime(), documentVersions = documentVersions)
 
@@ -56,7 +58,7 @@ private class CompilerEventGeneratingClient(
     if (refreshVfs) {
       VfsUtil.refreshOutputPaths(project, sources)
     }
-    sendEvent(CompilerEvent.CompilationFinished(compilationId, None, sources.map(SerializablePath(_))))
+    sendEvent(CompilerEvent.CompilationFinished(compilationId, None, sources.map(SerializablePath(_, pathTranslator))))
   }
 
   override def isCanceled: Boolean = indicator.isCanceled
