@@ -8,14 +8,10 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.NioFiles
 import com.intellij.openapi.util.registry.Registry
-import com.intellij.platform.eel.provider.utils.EelPathUtils.TransferTarget
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.platform.eel.provider.EelProviderUtil
-import com.intellij.platform.eel.provider.utils.EelPathUtils
 import org.jetbrains.jps.incremental.scala.remote.{CommandIds, SerializablePath, SourceScope}
 import org.jetbrains.jps.incremental.scala.{Client, DelegateClient}
 import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.compiler.EelCompilerUtils.asTargetLocalPathString
 import org.jetbrains.plugins.scala.compiler.data.{CompilerData, CompilerJarsFactory, DocumentCompilationArguments, DocumentCompilationData, IncrementalityType}
 import org.jetbrains.plugins.scala.compiler.{CompilerManagerUtil, EelPathTranslator, RemoteServerConnectorBase, RemoteServerRunner}
 import org.jetbrains.plugins.scala.editor.DocumentExt
@@ -192,12 +188,7 @@ private final class DocumentCompiler(project: Project) {
           case _ => None
         }
         compilerPluginJar.foreach { jar =>
-          val eelDescriptor = EelProviderUtil.getEelDescriptor(project)
-          val remoteJarPath = asTargetLocalPathString(
-            path = EelPathUtils.transferLocalContentToRemote(jar, new TransferTarget.Temporary(eelDescriptor)),
-            eelDescriptor
-          )
-          scalacOptions :++= Seq("-Xplugin:" + remoteJarPath, "-Xplugin-require:intellij-compiler-plugin")
+          scalacOptions :++= Seq("-Xplugin:" + jar.toAbsolutePath.toString, "-Xplugin-require:intellij-compiler-plugin")
           if (module.scalaLanguageLevel.contains(ScalaLanguageLevel.Scala_2_12)) {
             scalacOptions :+= "-Yrangepos"
           }

@@ -52,7 +52,7 @@ object CompileServerCommand {
     moduleNames: Seq[String],
     sourceScope: SourceScope,
     projectMetadata: ScalaJpsProjectMetadata,
-    externalProjectConfig: Option[Path]
+    externalProjectConfig: Option[String]
   ) extends CompileServerCommand {
 
     override def id: String = CommandIds.CompileJps
@@ -67,7 +67,7 @@ object CompileServerCommand {
         sequenceToString(moduleNames),
         sourceScope.toString,
         projectMetadata.asCompactJsonString
-      ) ++ externalProjectConfig.map(pathToString)
+      ) ++ externalProjectConfig
     }
 
     override def isCompileCommand: Boolean = true
