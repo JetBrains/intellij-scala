@@ -21,6 +21,7 @@ import org.apache.commons.lang3.StringUtils
 import org.jetbrains.annotations.{ApiStatus, Nls, Nullable}
 import org.jetbrains.jps.api.GlobalOptions
 import org.jetbrains.jps.cmdline.ClasspathBootstrap
+import org.jetbrains.plugins.scala.compiler.EelCompilerUtils.asTargetLocalPathString
 import org.jetbrains.plugins.scala.compiler.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.kotlin.util.EelTunnelsKt
@@ -743,29 +744,18 @@ object CompileServerLauncher {
     asTargetLocalPathString(dir, eelDescriptor)
   }
 
-  /**
-   * Given a [[java.nio.file.Path]] instance, returns a local path string which can be used inside the target machine.
-   * For example, it returns a UNIX filesystem path for a given path inside WSL.
-   *
-   * @note The code is duplicated in `org.jetbrains.sbt.eelPathExtensions`. Should be deduplicated in the future after
-   *       we fully migrate to Scala 3.
-   */
-  private def asTargetLocalPathString(path: Path, eelDescriptor: EelDescriptor): String =
-    eelDescriptor match {
-      case LocalEelDescriptor.INSTANCE =>
-        path.toString
-      case remote =>
-        val eelPath = EelNioBridgeServiceKt.asEelPath(path, remote)
-        eelPath.toString
-    }
-
   @deprecated(message = "Use scalaCompileServerSystemDir(Project)", since = "2026.1")
   @Deprecated(since = "2026.1", forRemoval = true)
   @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
   def scalaCompileServerSystemDir: Path =
     PathManager.getSystemDir.resolve(ScalaCompileServerDirName)
 
-  private def transferredRemotePath(path: Path, project: Project, eelDescriptor: EelDescriptor): Path =
+  /**
+   * Transfers a local file to the remote project cache directory if the project is remote, or returns the path as-is for local projects.
+   *
+   * @see [[remoteProjectCacheDirectory]]
+   */
+  def transferredRemotePath(path: Path, project: Project, eelDescriptor: EelDescriptor): Path =
     remoteProjectCacheDirectory(project, eelDescriptor) match {
       case Some(cacheDir) =>
         EelPathUtils.transferLocalContentToRemote(path, new EelPathUtils.TransferTarget.Explicit(cacheDir / path.getFileName))
