@@ -612,85 +612,73 @@ object MethodResolveProcessor {
     import proc.{candidates => _, _}
     val maxArgClauseIdx = argumentClauses.size - 1
 
-    // Each candidate carries an arg clause shift: 0 for direct candidates,
-    // expansionClauseIdx for apply-expanded ones. At global clauseIdx, a candidate
-    // with shift s is checked at effective index (clauseIdx - s) using argumentClauses.drop(s).
     @tailrec
     def candidatesForArgClause(
-      prevResults: Set[(ScalaResolveResult, Int)],
-      clauseIdx:   Int
+      prevClauseResults: Set[ScalaResolveResult],
+      clauseIdx:         Int
     ): Set[ScalaResolveResult] = {
+      //@TODO: since we care about multiple argument clauses in scala 3,
+      //       we now need to expand apply methods at each step.
+      //       (note: properly recalculate param clause index for apply methods)
+      val expandedInput = prevClauseResults.flatMap(expandApplyOrUpdateMethod(_, proc, clauseIdx))
 
-      // Step 1: Expand candidates in a single pass.
-      //   clauseIdx == 0: expandApplyOrUpdateMethod (handles apply/update expansion)
-      //   clauseIdx > 0, exhausted at effective index, Scala 3: expandApplyForReturnType
-      //   otherwise: pass through
-      val allExpanded: Set[((ScalaResolveResult, Boolean), Int)] =
-        if (clauseIdx == 0)
-          prevResults.flatMap { case (r, _) =>
-            expandApplyOrUpdateMethod(r, proc, clauseIdx).map(_ -> 0)
-          }
-        else
-          prevResults.flatMap { case (r, shift) =>
-            val isExhausted = Compatibility.correspondingParamClause(
-              r.functionParamClauses, argumentClauses.drop(shift), clauseIdx - shift
-            ).isEmpty
-
-            if (isExhausted && useScala3OverloadingRules)
-              expandApplyForReturnType(r, proc, clauseIdx).map(_ -> clauseIdx)
-            else
-              Set(((r, false), shift))
-          }
-
-      // Step 2: Shape check all candidates (grouped by shift for correct arg indexing)
-      val shapeChecked = allExpanded.groupBy(_._2).flatMap { case (shift, group) =>
-        checkResultsApplicability(
-          proc, group.map(_._1),
+      val mappedShapesOnly = {
+        val shapeResolved = checkResultsApplicability(
+          proc,
+          expandedInput,
           checkWithImplicits = false,
           useExpectedType    = true,
-          args               = argumentClauses.drop(shift),
-          argClauseIdx       = clauseIdx - shift,
+          args               = argumentClauses,
+          argClauseIdx       = clauseIdx,
           shapesOnly         = true
-        ).map(_ -> shift)
-      }.toSet
+        )
 
-      val applicableToShape = shapeChecked.filter(_._1._1.isApplicable(withExpectedType = true))
+        shapeResolved
+      }
 
-      // Step 3: Full applicability check (grouped by shift)
-      val resultsWithShift: Set[(ScalaResolveResult, Int)] =
+      val applicableToShape = mappedShapesOnly.filter {
+        case (srr, _) => srr.isApplicable(withExpectedType = true)
+      }
+
+      val resultsForCurrentClause =
         if (isShapeResolve) {
-          val res = if (applicableToShape.nonEmpty) applicableToShape else shapeChecked
-          res.map { case ((srr, _), shift) => (srr, shift) }
+          val res =
+            if (applicableToShape.nonEmpty) applicableToShape
+            else                            mappedShapesOnly
+
+          res.map(_._1)
         } else {
-          val preselected = if (applicableToShape.isEmpty) allExpanded else applicableToShape
-          preselected.groupBy(_._2).flatMap { case (shift, group) =>
-            candidates(proc, group.map(_._1), argumentClauses.drop(shift), clauseIdx - shift)
-              .map(_ -> shift)
-          }.toSet
+          val preselected = {
+            if (applicableToShape.isEmpty) expandedInput
+            else                           applicableToShape
+          }
+
+          candidates(proc, preselected, argumentClauses, clauseIdx)
         }
 
-      val applicable = resultsWithShift.filter(_._1.isApplicable())
-      val effectiveApplicable = applicable.map(_._1)
+      val applicableForCurrentClause = resultsForCurrentClause.filter(_.isApplicable())
 
-      if (effectiveApplicable.isEmpty)
-        resultsWithShift.map(_._1)
-      else if (useScala3OverloadingRules && effectiveApplicable.size > 1) {
+      if (applicableForCurrentClause.isEmpty)
+        resultsForCurrentClause
+      else if (useScala3OverloadingRules&& applicableForCurrentClause.size > 1) {
         if (clauseIdx < maxArgClauseIdx)
-          candidatesForArgClause(applicable, clauseIdx + 1)
+          candidatesForArgClause(applicableForCurrentClause, clauseIdx + 1)
         else
-          applicable.collect {
-            case (cand, shift) if
+          applicableForCurrentClause.filter { cand =>
+            val nextParamClause =
               Compatibility.correspondingParamClause(
                 cand.functionParamClauses,
-                argumentClauses.drop(shift) ++ Seq(Seq.empty),
-                clauseIdx + 1 - shift
-              ).isEmpty => cand // prefer alternatives that need no eta expansion
+                argumentClauses ++ Seq(Seq.empty),
+                clauseIdx + 1
+              )
+
+            nextParamClause.isEmpty // prefer alternatives that need no eta expansion
           }
       } else
-        effectiveApplicable
+        applicableForCurrentClause
     }
 
-    candidatesForArgClause(input.map(_ -> 0), 0)
+    candidatesForArgClause(input, 0)
   }
 
   private def candidates(
@@ -852,63 +840,6 @@ object MethodResolveProcessor {
         )
       }
     }
-  }
-
-  private def callContextForClauseIdx(
-    ref:       PsiElement,
-    clauseIdx: Int,
-    hasArgs:   Boolean
-  ): Option[MethodInvocation] = {
-    val base = ref.getContext match {
-      case gen: ScGenericCall if hasArgs => gen.getContext
-      case other                         => other
-    }
-
-    @tailrec
-    def traverse(ctx: PsiElement, remaining: Int): Option[MethodInvocation] =
-      if (remaining <= 0) ctx.asOptionOf[MethodInvocation]
-      else ctx match {
-        case inv: MethodInvocation => traverse(inv.getContext, remaining - 1)
-        case _                     => None
-      }
-
-    traverse(base, clauseIdx)
-  }
-
-  private def expandApplyForReturnType(
-    r:         ScalaResolveResult,
-    proc:      MethodResolveProcessor,
-    clauseIdx: Int
-  ): Set[(ScalaResolveResult, Boolean)] = {
-    import proc._
-
-    val returnType: Option[ScType] = r.element match {
-      case fun: ScFunction => fun.returnType.toOption.map(r.substitutor(_))
-      case m: PsiMethod    => Option(m.getReturnType).map(_.toScType()).map(r.substitutor(_))
-      case _               => None
-    }
-
-    returnType.map { tp =>
-      val callCtx = callContextForClauseIdx(ref, clauseIdx, argumentClauses.nonEmpty)
-
-      val applyCandidates = callCtx.toArray.flatMap { call =>
-        call.resolveApplyOrUpdateMethod(
-          call, tp,
-          shapesOnly    = isShapeResolve,
-          stripTypeArgs = false,
-          withImplicits = false
-        )
-      }
-
-      applyCandidates.collect {
-        case rr if !accessibility || isAccessible(rr.element, ref) =>
-          (rr.copy(
-            innerResolveResult = Option(r),
-            parentElement      = r.element.toOption,
-            importsUsed        = r.importsUsed
-          ), false)
-      }.toSet
-    }.getOrElse(Set.empty)
   }
 
   private def expandApplyOrUpdateMethod(

@@ -29,100 +29,17 @@ class Scala3OverloadingResolutionTest extends SimpleResolveTestBase {
   )
 
 
-  def testLateApplyExpansion(): Unit = checkHasErrorAroundCaret(
-    s"""
-      |class Example {
-      |  class Bar { def apply(s: String): String = s; def apply(d: Double): Double = d }
-      |  def foo(i: Int): Bar = ???
-      |  def foo(i: Int)(s: String): String = ???
-      |  fo${CARET}o(1)("213")
-      |}
-      |""".stripMargin
-  )
-
-  def testLateApplyExpansionInapplicable(): Unit = checkTextHasNoErrors(
-    """
-      |class Example {
-      |  class Bar { def apply(d: Double): Double = d }
-      |  def foo(i: Int): Bar = ???
-      |  def foo(i: Int)(s: String): String = ???
-      |  foo(1)("213")
-      |}
-      |""".stripMargin
-  )
-
-  def testLateApplyExpansionPolymorphicReturnType(): Unit = checkTextHasNoErrors(
-    """
-      |class Example {
-      |  class Bar[T] { def apply(t: T): T = t }
-      |  def foo(i: Int): Bar[String] = ???
-      |  def foo(i: Int)(d: Double): Double = ???
-      |  foo(1)("213")
-      |}
-      |""".stripMargin
-  )
-
-  def testLateApplyExpansionMultiClauseApplyAmbiguous(): Unit = checkHasErrorAroundCaret(
-    s"""
-      |class Example {
-      |  class Bar { def apply(s: String)(b: Boolean): String = s }
-      |  def foo(i: Int): Bar = ???
-      |  def foo(i: Int)(s: String)(b: Boolean): String = ???
-      |  fo${CARET}o(1)("213")(true)
-      |}
-      |""".stripMargin
-  )
-
-  def testLateApplyExpansionMultiClauseApplyWins(): Unit = checkTextHasNoErrors(
-    """
-      |class Example {
-      |  class Bar { def apply(s: String)(b: Boolean): String = s }
-      |  def foo(i: Int): Bar = ???
-      |  def foo(i: Int)(s: String)(d: Double): String = ???
-      |  foo(1)("213")(true)
-      |}
-      |""".stripMargin
-  )
-
-  def testLateApplyExpansionChainedApply(): Unit = doResolveTest(
-    s"""
-      |class Example {
-      |  class Baz { def ${REFTGT}apply(b: Boolean): String = "" }
-      |  class Bar { def apply(s: String): Baz = ??? }
-      |  def foo(i: Int): Bar = ???
-      |  def foo(i: Int)(s: String)(d: Double): String = ???
-      |  ${REFSRC}foo(1)("213")(true)
-      |}
-      |""".stripMargin
-  )
-
-  // Chained apply expansion wins overload resolution correctly, but the typer fails because
-  // the resolve result has 3 levels of innerResolveResult nesting (Baz.apply -> Bar.apply -> foo),
-  // while the type checker only supports 2 levels. This causes "213" to be checked against
-  // Baz.apply(b: Boolean) instead of Bar.apply(s: String), producing a spurious type mismatch.
-  //def testLateApplyExpansionChainedApplyTyper(): Unit = checkTextHasNoErrors(
-  //  """
-  //    |class Example {
-  //    |  class Baz { def apply(b: Boolean): String = "" }
-  //    |  class Bar { def apply(s: String): Baz = ??? }
-  //    |  def foo(i: Int): Bar = ???
-  //    |  def foo(i: Int)(s: String)(d: Double): String = ???
-  //    |  foo(1)("213")(true)
-  //    |}
-  //    |""".stripMargin
-  //)
-
-  def testLateApplyExpansionChainedApplyAmbiguous(): Unit = checkHasErrorAroundCaret(
-    s"""
-      |class Example {
-      |  class Baz { def apply(b: Boolean): String = "" }
-      |  class Bar { def apply(s: String): Baz = ??? }
-      |  def foo(i: Int): Bar = ???
-      |  def foo(i: Int)(s: String)(b: Boolean): String = ???
-      |  fo${CARET}o(1)("213")(true)
-      |}
-      |""".stripMargin
-  )
+  //@TODO
+//  def testLateApplyExpansion(): Unit = checkTextHasNoErrors(
+//    """
+//      |class Example {
+//      |  class Bar { def apply(s: String): String = s; def apply(d: Double): Double = d }
+//      |  def foo(i: Int): Bar = ???
+//      |  def foo(i: Int)(s: String): String = ???
+//      |  foo(1)("213")
+//      |}
+//      |""".stripMargin
+//  )
 
   def testDecideByFirstClause(): Unit = checkHasErrorAroundCaret(
     s"""
