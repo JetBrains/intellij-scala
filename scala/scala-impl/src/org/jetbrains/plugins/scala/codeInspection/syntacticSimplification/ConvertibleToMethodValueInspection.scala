@@ -81,7 +81,7 @@ class ConvertibleToMethodValueInspection extends LocalInspectionTool {
     }
 
   private def involvesImplicitsOrByNameParams(srr: ScalaResolveResult): Boolean = {
-    srr.implicitType.nonEmpty ||
+    srr.implicitConversionResultType.nonEmpty ||
       srr.implicitFunction.nonEmpty ||
       hasByNameOrImplicitParam(srr.getElement) ||
       hasContextOrViewBoundTypeParam(srr.getElement)
