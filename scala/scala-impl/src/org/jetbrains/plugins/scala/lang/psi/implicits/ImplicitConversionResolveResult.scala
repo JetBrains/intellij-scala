@@ -44,8 +44,8 @@ object ImplicitConversionResolveResult {
       this
     }
 
-    def withImplicitType: ResolverStateBuilder = {
-      innerState = innerState.withImplicitType(result.`type`)
+    def withImplicitConversionResultType: ResolverStateBuilder = {
+      innerState = innerState.withImplicitConversionResultType(result.`type`)
       this
     }
   }

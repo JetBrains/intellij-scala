@@ -207,6 +207,6 @@ class ComparingUnrelatedTypesInspection extends LocalInspectionTool {
   }
 
   private def receiverType(expr: ScExpression, invoked: ScReferenceExpression): Option[ScType] =
-    invoked.bind().flatMap(_.implicitType).
+    invoked.bind().flatMap(_.implicitConversionResultType).
       orElse(expr.`type`().toOption)
 }

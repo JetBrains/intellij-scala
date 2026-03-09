@@ -30,55 +30,176 @@ import org.jetbrains.plugins.scala.util.HashBuilder._
 import scala.annotation.tailrec
 
 /**
- * @param parentElement          Class for constructor or object/val of `apply/unapply` methods
- * @param nameArgForDynamic      `name` argument to scala.Dynamic method invocation
- * @param implicitArguments      If this result was resolved implicitly (i.e. this is a conversion/implicit arg.), its implicit arguments
- * @param isExtensionCall        True, iff resolved reference was an infix invocation of an extension method
- * @param extensionContext       Enclosing (relative to the place, where resolve was invoked) extension, if any
- * @param implicitScopeType      If this result was resolved implicitly, the type (part of implicit scope) it was resolved from
- * @param intersectedReturnType  If this result was created from an intersected signature, its return type
- * @param matchClauseSubstitutor Substitutor accumulated during upwards context traversal
- *                               of [[org.jetbrains.plugins.scala.lang.psi.api.expr.ScMatch]] expressions,
- *                               see [[https://www.scala-lang.org/files/archive/spec/2.13/08-pattern-matching.html#type-parameter-inference-in-patterns Type Inference in Patterns]]
- * @param exportedInfo           If this [[element]] was resolved through export statement,
- *                               the owner of this statement (extension or template body) and
- *                               the type of the export statement qualifier
- * @param isExtensionFromGiven   True iff element is an extension method, which was resolved from a given instance during implicit search
+ * Result of Scala reference resolution. Wraps a resolved PSI element with all metadata
+ * accumulated during the resolution process: type substitutions, applicability information,
+ * implicit conversion details, etc.
+ *
+ * @param element                      The resolved PSI element (method, val, class, type alias, etc.)
+ *
+ * @param substitutor                  Type parameter bindings accumulated during resolution.
+ *                                     For qualified references like `foo.bar`, includes substitutions
+ *                                     from the qualifier's type. Does NOT include constraints from
+ *                                     argument type checking (those live in [[applicabilityConstraints]]).
+ *
+ * @param importsUsed                  Import statements that were used to reach this element.
+ *                                     Consumed by "optimize imports" and unused import highlighting.
+ *
+ * @param renamed                      If the element was imported under an alias, the alias name.
+ *                                     {{{import java.util.{List => JList}  // renamed = Some("JList")}}}
+ *
+ * @param problems                     Applicability problems found during type checking
+ *                                     (e.g., TypeMismatch, MissedValueParameter, ExcessArgument).
+ *                                     Empty means the candidate is applicable.
+ *
+ * @param implicitConversion           If this member was resolved through an implicit conversion,
+ *                                     the resolve result of the conversion itself.
+ *                                     {{{
+ *                                     implicit class RichInt(n: Int) { def isEven: Boolean = ... }
+ *                                     42.isEven  // isEven's SRR has implicitConversion = Some(SRR for RichInt)
+ *                                     }}}
+ *
+ * @param implicitConversionResultType The type the qualifier was converted to via implicit conversion.
+ *                                     In the example above, `implicitConversionResultType = Some(RichInt)`.
+ *                                     Used by inspections to determine the actual receiver type.
+ *
+ * @param defaultParameterUsed         Whether applicability required default parameter values
+ *                                     to fill missing arguments. Used in overload resolution
+ *                                     (Scala 2 prefers alternatives without defaults).
+ *
+ * @param innerResolveResult           For sugared apply/update calls, the resolve result of the
+ *                                     original object before `.apply`/`.update` expansion.
+ *                                     {{{
+ *                                     val m = Map.empty[String, Int]
+ *                                     m("key")  // resolves to Map.apply; innerResolveResult = SRR for `m`
+ *                                     }}}
+ *
+ * @param parentElement                For constructors: the class. For apply/unapply methods:
+ *                                     the containing object or val.
+ *                                     {{{
+ *                                     new Foo(1)     // element = Foo.<init>, parentElement = Some(Foo)
+ *                                     Foo(1)         // element = Foo.apply, parentElement = Some(Foo)
+ *                                     }}}
+ *
+ * @param isNamedParameter             Whether this resolved to a named parameter in a method call.
+ *                                     {{{foo(name = "bar")  // "name" reference has isNamedParameter = true}}}
+ *
+ * @param fromType                     The qualifier's type from which this member was accessed.
+ *                                     For `foo.bar`, this is the type of `foo`.
+ *
+ * @param tuplingUsed                  Whether auto-tupling was needed to make the call applicable.
+ *                                     {{{
+ *                                     def f(t: (Int, Int)): Unit = ...
+ *                                     f(1, 2)  // auto-tupled to f((1, 2)); tuplingUsed = true
+ *                                     }}}
+ *
+ * @param isAssignment                 Whether this is an assignment context (e.g., `foo.bar = x`
+ *                                     resolving the setter `bar_=`).
+ *
+ * @param isAccessible                 Whether the element is accessible from the reference site
+ *                                     (visibility/access modifier check passed).
+ *
+ * @param applicabilityConstraints     Unsolved type inference constraints from applicability checking
+ *                                     during overload resolution. Kept separate from [[substitutor]]
+ *                                     because the substitutor feeds into reference type computation,
+ *                                     while these constraints are only consumed by
+ *                                     [[org.jetbrains.plugins.scala.lang.psi.implicits.ExtensionConversionData]]
+ *                                     and type argument hint display.
+ *
+ * @param prefixCompletion             Used by code completion: whether this result needs a qualifying prefix.
+ *
+ * @param nameArgForDynamic            For `scala.Dynamic` dispatch, the method name string passed to
+ *                                     `selectDynamic`/`applyDynamic`/`updateDynamic`.
+ *                                     {{{
+ *                                     x.foo  // if x extends Dynamic: nameArgForDynamic = Some("foo")
+ *                                     }}}
+ *
+ * @param isForwardReference           Whether the reference points to a declaration that appears
+ *                                     later in the source (forward reference).
+ *
+ * @param inferredType                 The inferred value type of this implicit candidate after type
+ *                                     parameter inference. Set by [[org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector]]
+ *                                     during implicit search.
+ *                                     {{{
+ *                                     implicit def ord[T: Numeric]: Ordering[T] = ...
+ *                                     // when found for Ordering[Int]: inferredType = Some(Ordering[Int])
+ *                                     }}}
+ *
+ * @param implicitArguments            Resolved implicit parameter clauses. Each clause is a sequence
+ *                                     of resolve results for individual implicit parameters.
+ *
+ * @param implicitReason               Why implicit search succeeded or failed for this candidate
+ *                                     (OkResult, TypeDoesntConformResult, DivergedImplicitResult, etc.).
+ *
+ * @param implicitSearchState          The implicit search state that produced this result.
+ *                                     Contains the searched type, place, and recursion depth.
+ *                                     Used for error reporting and further implicit resolution.
+ *
+ * @param unresolvedTypeParameters     Type parameters that couldn't be fully inferred during resolution.
+ *
+ * @param implicitScopeType            If this implicit was found via implicit scope search (not lexical scope),
+ *                                     the type whose companion object provided it. Used for deduplication
+ *                                     during implicit search.
+ *
+ * @param isExtensionCall              Whether this is a Scala 3 extension method invocation.
+ *
+ * @param extensionContext             The enclosing `extension` block at the call site, if any.
+ *                                     Used to determine whether extension clauses should be dropped
+ *                                     from the method's polymorphic type.
+ *
+ * @param intersectedReturnType        If this result was created from an intersected/merged signature
+ *                                     (e.g., during linearization), the merged return type.
+ *
+ * @param matchClauseSubstitutor       Type narrowing substitutor accumulated from pattern match scrutinee
+ *                                     during upward scope traversal.
+ *                                     {{{
+ *                                     x match { case s: String => s.length }
+ *                                     // resolving `length` carries matchClauseSubstitutor with x := String
+ *                                     }}}
+ *                                     See [[https://www.scala-lang.org/files/archive/spec/2.13/08-pattern-matching.html#type-parameter-inference-in-patterns Type Inference in Patterns]]
+ *
+ * @param exportedInfo                 If resolved through a Scala 3 `export` statement, carries the
+ *                                     export owner (extension or template body) and the qualifier type.
+ *
+ * @param isExtensionFromGiven         Whether this extension method was found inside a `given` instance
+ *                                     during implicit search.
+ *
+ * @param samAdapted                   Whether this candidate was only applicable through SAM
+ *                                     (Single Abstract Method) type adaptation. Used in overload resolution
+ *                                     to prefer alternatives that are directly applicable over SAM-adapted ones.
  */
 class ScalaResolveResult(
-  val element:                  PsiNamedElement,
-  val substitutor:              ScSubstitutor                = ScSubstitutor.empty,
-  val importsUsed:              Set[ImportUsed]              = Set.empty,
-  val renamed:                  Option[String]               = None,
-  val problems:                 Seq[ApplicabilityProblem]    = Seq.empty,
-  val implicitConversion:       Option[ScalaResolveResult]   = None,
-  val implicitType:             Option[ScType]               = None,
-  val defaultParameterUsed:     Boolean                      = false,
-  val innerResolveResult:       Option[ScalaResolveResult]   = None,
-  val parentElement:            Option[PsiNamedElement]      = None,
-  val isNamedParameter:         Boolean                      = false,
-  val fromType:                 Option[ScType]               = None,
-  val tuplingUsed:              Boolean                      = false,
-  val isAssignment:             Boolean                      = false,
-  val notCheckedResolveResult:  Boolean                      = false, //TODO: does not seem to be used anywhere
-  val isAccessible:             Boolean                      = true,
-  val resultUndef:              Option[ConstraintSystem]     = None,
-  val prefixCompletion:         Boolean                      = false,
-  val nameArgForDynamic:        Option[String]               = None,
-  val isForwardReference:       Boolean                      = false,
-  val implicitResultType:       Option[ScType]               = None,
-  val implicitArguments:        Seq[ImplicitArgumentsClause] = Seq.empty,
-  val implicitReason:           ImplicitResult               = NoResult,
-  val implicitSearchState:      Option[ImplicitState]        = None,
-  val unresolvedTypeParameters: Option[Seq[TypeParameter]]   = None,
-  val implicitScopeType:        Option[ScType]               = None,
-  val isExtensionCall:          Boolean                      = false,
-  val extensionContext:         Option[ScExtension]          = None,
-  val intersectedReturnType:    Option[ScType]               = None,
-  val matchClauseSubstitutor:   ScSubstitutor                = ScSubstitutor.empty,
-  val exportedInfo:             Option[ExportedSigInfo]      = None,
-  val isExtensionFromGiven:     Boolean                      = false,
-  val samAdapted:               Boolean                      = false
+  val element:                        PsiNamedElement,
+  val substitutor:                    ScSubstitutor                = ScSubstitutor.empty,
+  val importsUsed:                    Set[ImportUsed]              = Set.empty,
+  val renamed:                        Option[String]               = None,
+  val problems:                       Seq[ApplicabilityProblem]    = Seq.empty,
+  val implicitConversion:             Option[ScalaResolveResult]   = None,
+  val implicitConversionResultType:   Option[ScType]               = None,
+  val defaultParameterUsed:           Boolean                      = false,
+  val innerResolveResult:             Option[ScalaResolveResult]   = None,
+  val parentElement:                  Option[PsiNamedElement]      = None,
+  val isNamedParameter:               Boolean                      = false,
+  val fromType:                       Option[ScType]               = None,
+  val tuplingUsed:                    Boolean                      = false,
+  val isAssignment:                   Boolean                      = false,
+  val isAccessible:                   Boolean                      = true,
+  val applicabilityConstraints:                    Option[ConstraintSystem]     = None,
+  val prefixCompletion:               Boolean                      = false,
+  val nameArgForDynamic:              Option[String]               = None,
+  val isForwardReference:             Boolean                      = false,
+  val inferredType:                   Option[ScType]               = None,
+  val implicitArguments:              Seq[ImplicitArgumentsClause] = Seq.empty,
+  val implicitReason:                 ImplicitResult               = NoResult,
+  val implicitSearchState:            Option[ImplicitState]        = None,
+  val unresolvedTypeParameters:       Option[Seq[TypeParameter]]   = None,
+  val implicitScopeType:              Option[ScType]               = None,
+  val isExtensionCall:                Boolean                      = false,
+  val extensionContext:               Option[ScExtension]          = None,
+  val intersectedReturnType:          Option[ScType]               = None,
+  val matchClauseSubstitutor:         ScSubstitutor                = ScSubstitutor.empty,
+  val exportedInfo:                   Option[ExportedSigInfo]      = None,
+  val isExtensionFromGiven:           Boolean                      = false,
+  val samAdapted:                     Boolean                      = false
 ) extends ResolveResult
     with ProjectContextOwner {
   if (element == null) throw new NullPointerException("element is null")
@@ -138,32 +259,31 @@ class ScalaResolveResult(
   def isImplicitParameterProblem: Boolean = isNotFoundImplicitParameter || isAmbiguousImplicitParameter
 
   def copy(
-    subst:                    ScSubstitutor                = substitutor,
-    problems:                 Seq[ApplicabilityProblem]    = problems,
-    defaultParameterUsed:     Boolean                      = defaultParameterUsed,
-    innerResolveResult:       Option[ScalaResolveResult]   = innerResolveResult,
-    tuplingUsed:              Boolean                      = tuplingUsed,
-    isAssignment:             Boolean                      = isAssignment,
-    notCheckedResolveResult:  Boolean                      = notCheckedResolveResult,
-    isAccessible:             Boolean                      = isAccessible,
-    resultUndef:              Option[ConstraintSystem]     = None, //@TODO: why not just add constraints to subst?
-    nameArgForDynamic:        Option[String]               = nameArgForDynamic,
-    isForwardReference:       Boolean                      = isForwardReference,
-    implicitResultType:       Option[ScType]               = implicitResultType,
-    importsUsed:              Set[ImportUsed]              = importsUsed,
-    implicitArguments:        Seq[ImplicitArgumentsClause] = implicitArguments,
-    implicitReason:           ImplicitResult               = implicitReason,
-    implicitSearchState:      Option[ImplicitState]        = implicitSearchState,
-    unresolvedTypeParameters: Option[Seq[TypeParameter]]   = unresolvedTypeParameters,
-    implicitScopeType:        Option[ScType]               = implicitScopeType,
-    isExtensionCall:          Boolean                      = isExtensionCall,
-    extensionContext:         Option[ScExtension]          = extensionContext,
-    matchClauseSubstitutor:   ScSubstitutor                = matchClauseSubstitutor,
-    intersectedReturnType:    Option[ScType]               = intersectedReturnType,
-    exportedInfo:             Option[ExportedSigInfo]      = exportedInfo,
-    parentElement:            Option[PsiNamedElement]      = parentElement,
-    isExtensionFromGiven:     Boolean                      = isExtensionFromGiven,
-    samAdapted:               Boolean                      = samAdapted
+    subst:                          ScSubstitutor                = substitutor,
+    problems:                       Seq[ApplicabilityProblem]    = problems,
+    defaultParameterUsed:           Boolean                      = defaultParameterUsed,
+    innerResolveResult:             Option[ScalaResolveResult]   = innerResolveResult,
+    tuplingUsed:                    Boolean                      = tuplingUsed,
+    isAssignment:                   Boolean                      = isAssignment,
+    isAccessible:                   Boolean                      = isAccessible,
+    applicabilityConstraints:                    Option[ConstraintSystem]     = None,
+    nameArgForDynamic:              Option[String]               = nameArgForDynamic,
+    isForwardReference:             Boolean                      = isForwardReference,
+    inferredType:                   Option[ScType]               = inferredType,
+    importsUsed:                    Set[ImportUsed]              = importsUsed,
+    implicitArguments:              Seq[ImplicitArgumentsClause] = implicitArguments,
+    implicitReason:                 ImplicitResult               = implicitReason,
+    implicitSearchState:            Option[ImplicitState]        = implicitSearchState,
+    unresolvedTypeParameters:       Option[Seq[TypeParameter]]   = unresolvedTypeParameters,
+    implicitScopeType:              Option[ScType]               = implicitScopeType,
+    isExtensionCall:                Boolean                      = isExtensionCall,
+    extensionContext:               Option[ScExtension]          = extensionContext,
+    matchClauseSubstitutor:         ScSubstitutor                = matchClauseSubstitutor,
+    intersectedReturnType:          Option[ScType]               = intersectedReturnType,
+    exportedInfo:                   Option[ExportedSigInfo]      = exportedInfo,
+    parentElement:                  Option[PsiNamedElement]      = parentElement,
+    isExtensionFromGiven:           Boolean                      = isExtensionFromGiven,
+    samAdapted:                     Boolean                      = samAdapted
   ): ScalaResolveResult =
     new ScalaResolveResult(
       element,
@@ -172,7 +292,7 @@ class ScalaResolveResult(
       renamed,
       problems,
       implicitConversion,
-      implicitType,
+      implicitConversionResultType,
       defaultParameterUsed,
       innerResolveResult,
       parentElement,
@@ -180,24 +300,23 @@ class ScalaResolveResult(
       fromType,
       tuplingUsed,
       isAssignment,
-      notCheckedResolveResult,
       isAccessible,
-      resultUndef,
-      nameArgForDynamic        = nameArgForDynamic,
-      isForwardReference       = isForwardReference,
-      implicitResultType       = implicitResultType,
-      implicitArguments        = implicitArguments,
-      implicitReason           = implicitReason,
-      implicitSearchState      = implicitSearchState,
-      unresolvedTypeParameters = unresolvedTypeParameters,
-      implicitScopeType        = implicitScopeType,
-      isExtensionCall          = isExtensionCall,
-      extensionContext         = extensionContext,
-      matchClauseSubstitutor   = matchClauseSubstitutor,
-      intersectedReturnType    = intersectedReturnType,
-      exportedInfo             = exportedInfo,
-      isExtensionFromGiven     = isExtensionFromGiven,
-      samAdapted               = samAdapted
+      applicabilityConstraints,
+      nameArgForDynamic              = nameArgForDynamic,
+      isForwardReference             = isForwardReference,
+      inferredType                   = inferredType,
+      implicitArguments              = implicitArguments,
+      implicitReason                 = implicitReason,
+      implicitSearchState            = implicitSearchState,
+      unresolvedTypeParameters       = unresolvedTypeParameters,
+      implicitScopeType              = implicitScopeType,
+      isExtensionCall                = isExtensionCall,
+      extensionContext               = extensionContext,
+      matchClauseSubstitutor         = matchClauseSubstitutor,
+      intersectedReturnType          = intersectedReturnType,
+      exportedInfo                   = exportedInfo,
+      isExtensionFromGiven           = isExtensionFromGiven,
+      samAdapted                     = samAdapted
     )
 
   override def equals(other: Any): Boolean = other match {
