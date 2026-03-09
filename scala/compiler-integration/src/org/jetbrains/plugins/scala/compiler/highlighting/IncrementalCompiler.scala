@@ -5,12 +5,13 @@ import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.{Project, ProjectUtil, ProjectUtilCore}
 import com.intellij.openapi.vfs.VirtualFileManager
+import com.intellij.platform.eel.provider.EelProviderUtil
 import com.intellij.platform.eel.provider.utils.EelPathUtils
 import com.intellij.util.io.PathKt
 import org.jetbrains.jps.incremental.Utils
 import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.remote.{CompileServerCommand, SourceScope}
-import org.jetbrains.plugins.scala.compiler.{CompileServerClient, ProjectMetadataUtil}
+import org.jetbrains.plugins.scala.compiler.{CompileServerClient, CompileServerLauncher, ProjectMetadataUtil}
 
 import java.nio.file.Path
 
@@ -34,8 +35,15 @@ private object IncrementalCompiler {
 
     /** @see `org.jetbrains.jps.incremental.scala.remote.Main.withModifiedExternalProjectPath` */
     val externalConfigurationDir =
-      if (ProjectUtilCore.isExternalStorageEnabled(project)) Some(ProjectUtil.getExternalConfigurationDir(project).toString)
-      else None
+      if (ProjectUtilCore.isExternalStorageEnabled(project)) {
+        // The implementation was created based on `com.intellij.compiler.server.EelBuildCommandLineBuilder.syncProjectSpecificPathWithTarget`
+        val remoteExternalProjectConfig = CompileServerLauncher.transferredRemotePath(
+          path = ProjectUtil.getExternalConfigurationDir(project),
+          project,
+          eelDescriptor = EelProviderUtil.getEelDescriptor(project)
+        )
+        Some(remoteExternalProjectConfig)
+      } else None
 
     val moduleNames = modules.map(_.getName)
 
