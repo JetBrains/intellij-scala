@@ -153,10 +153,19 @@ object ScalaSdkUtils {
     setProperties(properties)
   }
 
+  @deprecated("Use resolveCompilerBridgeJar(EelDescriptor, String) instead", since = "2026.1")
+  @Deprecated(since = "2026.1", forRemoval = true)
+  @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
   def resolveCompilerBridgeJar(scalaVersion: String): Option[Path] =
+    resolveCompilerBridgeJar(LocalEelDescriptor.INSTANCE, scalaVersion)
+
+  def resolveCompilerBridgeJar(project: Project, scalaVersion: String): Option[Path] =
+    resolveCompilerBridgeJar(EelProviderUtil.getEelDescriptor(project), scalaVersion)
+
+  def resolveCompilerBridgeJar(eelDescriptor: EelDescriptor, scalaVersion: String): Option[Path] =
     compilerBridgeName(scalaVersion)
       .map(name => "org.scala-lang" % name % scalaVersion)
-      .flatMap(dep => DependencyManager.resolveSafe(dep).toOption)
+      .flatMap(dep => new EelAwareDependencyManager(eelDescriptor).resolveSafe(dep).toOption)
       .flatMap(_.headOption)
       .map(_.file)
 
