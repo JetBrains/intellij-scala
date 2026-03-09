@@ -596,7 +596,7 @@ class ImplicitCollector(
 
       Option(c.copy(
         problems                 = Seq(WrongTypeParameterInferred),
-        implicitResultType       = Option(valueType),
+        inferredType             = Option(valueType),
         implicitReason           = result,
         unresolvedTypeParameters = Option(typeParams)
       ))
@@ -620,7 +620,7 @@ class ImplicitCollector(
       reportWrong(
         c.copy(
           implicitArguments        = implicitArgClauses,
-          implicitResultType       = Option(valueType),
+          inferredType             = Option(valueType),
           unresolvedTypeParameters = Option(typeParams)
         ),
         ImplicitParameterNotFoundResult,
@@ -636,7 +636,7 @@ class ImplicitCollector(
 
       val result = c.copy(
         subst                    = c.substitutor.followed(subst),
-        implicitResultType       = Option(valueType),
+        inferredType             = Option(valueType),
         implicitReason           = OkResult,
         unresolvedTypeParameters = Option(typeParams)
       )
@@ -663,7 +663,7 @@ class ImplicitCollector(
 
         val result = c.copy(
           subst                    = c.substitutor.followed(subst),
-          implicitResultType       = Option(valueType),
+          inferredType             = Option(valueType),
           implicitArguments        = c.implicitArguments ++ implicitArgClauses,
           implicitReason           = OkResult,
           unresolvedTypeParameters = Option(typeParams),
@@ -681,7 +681,7 @@ class ImplicitCollector(
       else
         filterTypeParamsAndInferValueType(nonValueType) match {
           case (FunctionType(rt, _), _) =>
-            val newCandidate = c.copy(implicitResultType = Some(rt))
+            val newCandidate = c.copy(inferredType = Some(rt))
             if (applyExtensionPredicate(newCandidate).isEmpty)
               wrongTypeParam(nonValueType, CantFindExtensionMethodResult)
             else None
@@ -924,8 +924,8 @@ class ImplicitCollector(
             val methodType =
               if (shouldApplyToLeadingImplicits) {
                 //If we applied the original candidate to its leading implicit arguments,
-                //nonValueFunctionTypes.method type is no longer valid => use implicitResultType instead
-                cand.implicitResultType
+                //nonValueFunctionTypes.method type is no longer valid => use inferredType instead
+                cand.inferredType
               } else nonValueFunctionTypes.methodType
 
             //are there any implicit param clauses left, after we have applied the candidate to the leading ones.
