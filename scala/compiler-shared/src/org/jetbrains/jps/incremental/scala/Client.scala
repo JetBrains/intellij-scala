@@ -2,7 +2,7 @@ package org.jetbrains.jps.incremental.scala
 
 import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.incremental.scala.Client.{ClientMsg, PosInfo}
-import org.jetbrains.jps.incremental.scala.remote.{CompileServerMetrics, SerializablePath}
+import org.jetbrains.jps.incremental.scala.remote.{CompileServerMetrics, NioPathTranslator, PathTranslator, SerializablePath}
 import org.jetbrains.plugins.scala.compiler.diagnostics.Action
 
 import java.nio.file.Path
@@ -11,6 +11,8 @@ import java.nio.file.Path
  * TODO: add documentation with method contracts, currently there are too many methods with vague meaning
  */
 trait Client {
+
+  def pathTranslator: PathTranslator = NioPathTranslator
 
   def message(msg: ClientMsg): Unit
 
@@ -21,7 +23,7 @@ trait Client {
                     problemStart: Option[PosInfo] = None,
                     problemEnd: Option[PosInfo] = None,
                     diagnostics: List[Action] = Nil): Unit =
-    message(ClientMsg(kind, text, source.map(SerializablePath(_)), pointer, problemStart, problemEnd, diagnostics))
+    message(ClientMsg(kind, text, source.map(SerializablePath(_, pathTranslator)), pointer, problemStart, problemEnd, diagnostics))
 
   final def error(@Nls text: String,
                   source: Option[Path] = None,
