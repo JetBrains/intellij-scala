@@ -60,7 +60,7 @@ final class ScalaSyntaxHighlighter(
     case TYPE_IDENTIFIER => Array(DefaultHighlighter.TYPE_ALIAS)
     case _: ScalaDocElementType if scalaLexer.isScala3 =>
       // Do not highlight any special syntax in Scala 3
-      // Instead [[ScalaSyntaxHighlightingAnnotator]] will highlight it based on the psi tree
+      // Instead [[ScalaSyntaxHighlightingVisitor]] will highlight it based on the psi tree
       SyntaxHighlighterBase.pack(DefaultHighlighter.DOC_COMMENT)
     case _ =>
       SyntaxHighlighterBase.pack(
@@ -638,15 +638,14 @@ object ScalaSyntaxHighlighter {
         elements.pop() //will never be empty there
       }
 
-      super.getTokenType match {
-        case tokenType if SyntaxToSwap.contains(tokenType) =>
-          val item = if (isOnTop(tokenType))
-            DOC_COMMON_CLOSE_WIKI_TAG
-          else
-            tokenType
+      val tokenType = super.getTokenType
+      if (SyntaxToSwap.contains(tokenType)) {
+        val item = if (isOnTop(tokenType))
+          DOC_COMMON_CLOSE_WIKI_TAG
+        else
+          tokenType
 
-          elements.push(item)
-        case _ =>
+        elements.push(item)
       }
     }
 
