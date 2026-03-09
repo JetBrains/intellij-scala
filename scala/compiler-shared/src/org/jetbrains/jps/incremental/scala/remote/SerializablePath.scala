@@ -22,7 +22,11 @@ final class SerializablePath private (private val pathAsString: String) extends 
 }
 
 object SerializablePath {
-  def apply(path: Path): SerializablePath = new SerializablePath(path.toAbsolutePath.normalize().toString)
+  // An eel path translator is not passed in all places where SerializablePath#apply is used.
+  // I only adjusted the places that were problematic in the given test cases (https://youtrack.jetbrains.com/issue/SCL-25114)
+  // It might be extended in the future.
+  def apply(path: Path, translator: PathTranslator = NioPathTranslator): SerializablePath =
+    new SerializablePath(translator.translate(path))
 
   def unapply(path: SerializablePath): Some[Path] = Some(path.toPath)
 

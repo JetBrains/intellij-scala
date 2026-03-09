@@ -8,6 +8,10 @@ import java.nio.file.Path
 
 object EelPathTranslator extends PathTranslator {
   //noinspection ApiStatus,UnstableApiUsage
+  /**
+   * Translates the path to be local within the remote environment.
+   * If the path is already local, it is returned as is.
+   */
   override def translate(path: Path): String = {
     val canonical = path.toCanonicalPath
     val eelPath = EelNioBridgeServiceKt.asEelPath(canonical)
