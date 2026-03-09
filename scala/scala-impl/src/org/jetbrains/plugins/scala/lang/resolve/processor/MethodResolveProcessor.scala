@@ -633,7 +633,9 @@ object MethodResolveProcessor {
         else
           prevResults.flatMap { case (r, shift) =>
             val isExhausted = Compatibility.correspondingParamClause(
-              r.functionParamClauses, argumentClauses.drop(shift), clauseIdx - shift
+              r.functionParamClauses,
+              argumentClauses.drop(shift),
+              clauseIdx - shift
             ).isEmpty
 
             if (isExhausted && useScala3OverloadingRules)
@@ -645,7 +647,8 @@ object MethodResolveProcessor {
       // Step 2: Shape check all candidates (grouped by shift for correct arg indexing)
       val shapeChecked = allExpanded.groupBy(_._2).flatMap { case (shift, group) =>
         checkResultsApplicability(
-          proc, group.map(_._1),
+          proc,
+          group.map(_._1),
           checkWithImplicits = false,
           useExpectedType    = true,
           args               = argumentClauses.drop(shift),
@@ -657,19 +660,28 @@ object MethodResolveProcessor {
       val applicableToShape = shapeChecked.filter(_._1._1.isApplicable(withExpectedType = true))
 
       // Step 3: Full applicability check (grouped by shift)
-      val resultsWithShift: Set[(ScalaResolveResult, Int)] =
+      val resultsWithShift =
         if (isShapeResolve) {
-          val res = if (applicableToShape.nonEmpty) applicableToShape else shapeChecked
+          val res =
+            if (applicableToShape.nonEmpty) applicableToShape
+            else                            shapeChecked
+
           res.map { case ((srr, _), shift) => (srr, shift) }
         } else {
-          val preselected = if (applicableToShape.isEmpty) allExpanded else applicableToShape
-          preselected.groupBy(_._2).flatMap { case (shift, group) =>
-            candidates(proc, group.map(_._1), argumentClauses.drop(shift), clauseIdx - shift)
-              .map(_ -> shift)
-          }.toSet
+          val preselected =
+            if (applicableToShape.isEmpty) allExpanded
+            else                           applicableToShape
+
+          preselected
+            .groupBy(_._2)
+            .flatMap {
+              case (shift, group) =>
+                candidates(proc, group.map(_._1), argumentClauses.drop(shift), clauseIdx - shift)
+                  .map(_ -> shift)
+            }.toSet
         }
 
-      val applicable = resultsWithShift.filter(_._1.isApplicable())
+      val applicable          = resultsWithShift.filter(_._1.isApplicable())
       val effectiveApplicable = applicable.map(_._1)
 
       if (effectiveApplicable.isEmpty)
@@ -686,8 +698,7 @@ object MethodResolveProcessor {
                 clauseIdx + 1 - shift
               ).isEmpty => cand // prefer alternatives that need no eta expansion
           }
-      } else
-        effectiveApplicable
+      } else effectiveApplicable
     }
 
     candidatesForArgClause(input.map(_ -> 0), 0)
@@ -737,6 +748,17 @@ object MethodResolveProcessor {
      */
     if (filtered.size > 1 && !isShapeResolve && !useScala3OverloadingRules)
       filtered = filtered.filterNot(_.defaultParameterUsed)
+
+    /**
+     * SCL-24823: Prefer alternatives applicable without SAM adaptation.
+     * If some overloads are directly applicable and others only via SAM,
+     * the directly applicable ones win.
+     */
+    if (filtered.size > 1 && !isShapeResolve) {
+      val nonSAM = filtered.filterNot(_.samAdapted)
+
+      if (nonSAM.nonEmpty) filtered = nonSAM
+    }
 
     if (
       filtered.isEmpty &&
@@ -1072,7 +1094,8 @@ object MethodResolveProcessor {
         problems             = conformanceResult.problems,
         defaultParameterUsed = conformanceResult.defaultParameterUsed,
         resultUndef          = Option(conformanceResult.constraints),
-        subst                = typeArgsSubst
+        subst                = typeArgsSubst,
+        samAdapted           = conformanceResult.matched.exists(_.samAdapted)
       )
 
       resultBuilder += result -> cleanTypeArgs
