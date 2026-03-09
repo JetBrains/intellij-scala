@@ -130,7 +130,7 @@ private final class DocumentCompiler(project: Project) {
            * see [[org.jetbrains.plugins.scala.compiler.highlighting.ExternalHighlightersService.toHighlightInfo]]
            * (we assume that `from` and `to` are also empty for such files)
            */
-          val fixedSource = Some(SerializablePath(originalSourceFile)) //msg.source.map(_ => originalSourceFile)
+          val fixedSource = Some(SerializablePath(originalSourceFile, EelPathTranslator)) //msg.source.map(_ => originalSourceFile)
           val fixedMsg = msg.copy(source = fixedSource)
           client.message(fixedMsg)
         }
