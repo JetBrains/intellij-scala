@@ -10,7 +10,7 @@ import com.intellij.openapi.util.io.NioFiles
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.platform.eel.provider.utils.EelPathUtils.TransferTarget
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.platform.eel.provider.EelProviderUtil
+import com.intellij.platform.eel.provider.{EelNioBridgeServiceKt, EelProviderUtil, LocalEelDescriptor}
 import com.intellij.platform.eel.provider.utils.EelPathUtils
 import org.jetbrains.jps.incremental.scala.remote.{CommandIds, SerializablePath, SourceScope}
 import org.jetbrains.jps.incremental.scala.{Client, DelegateClient}
@@ -134,7 +134,7 @@ private final class DocumentCompiler(project: Project) {
            * see [[org.jetbrains.plugins.scala.compiler.highlighting.ExternalHighlightersService.toHighlightInfo]]
            * (we assume that `from` and `to` are also empty for such files)
            */
-          val fixedSource = Some(SerializablePath(originalSourceFile)) //msg.source.map(_ => originalSourceFile)
+          val fixedSource = Some(SerializablePath(originalSourceFile, EelPathTranslator)) //msg.source.map(_ => originalSourceFile)
           val fixedMsg = msg.copy(source = fixedSource)
           client.message(fixedMsg)
         }
