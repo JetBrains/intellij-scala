@@ -181,13 +181,11 @@ trait ScExpression extends ScBlockStatement
               if (this.isSAMEnabled) this.tryAdaptTypeToSAM(tp, expType, fromUnderscore, checkImplicits = checkImplicits)
               else                   None
 
-            adapted match {
-              case Some(result) => result.copy(samAdapted = true)
-              case None =>
-                if (isJavaReflectPolymorphic)        ExpressionTypeResult(Right(expType))
-                else if (!checkImplicits || isShape) ExpressionTypeResult(initialType)
-                else                                 this.updateTypeWithImplicitConversion(tp, expType)
-            }
+            adapted.getOrElse(
+              if (isJavaReflectPolymorphic)        ExpressionTypeResult(Right(expType))
+              else if (!checkImplicits || isShape) ExpressionTypeResult(initialType)
+              else                                 this.updateTypeWithImplicitConversion(tp, expType)
+            )
           case _ => ExpressionTypeResult(initialType)
         }
       }
@@ -202,8 +200,7 @@ object ScExpression {
   final case class ExpressionTypeResult(
     tr:                 TypeResult,
     importsUsed:        Set[ImportUsed]            = Set.empty,
-    implicitConversion: Option[ScalaResolveResult] = None,
-    samAdapted:         Boolean                    = false
+    implicitConversion: Option[ScalaResolveResult] = None
   ) {
     def implicitFunction: Option[PsiNamedElement] = implicitConversion.map(_.element)
   }

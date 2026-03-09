@@ -260,7 +260,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
   ): RegularCase = {
     def asRegularCase(expressions: Seq[Expression]): RegularCase = {
       val (tp, ApplicabilityCheckResult(problems, _, _, matched)) = function(expressions)
-      RegularCase(tp, maybeResolveResult, problems, matched.map(m => (m.parameter, m.argument, m.tpe)))
+      RegularCase(tp, maybeResolveResult, problems, matched)
     }
 
     def tupledWithSubstitutedType =
@@ -429,7 +429,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
                 case t             => t
               }
             ) match {
-              case ExpressionTypeResult(typeResult, imports, _, _) =>
+              case ExpressionTypeResult(typeResult, imports, _) =>
                 ExpressionTypeResult(typeResult.map(SecondType(_, context = expr)), imports)
             }
           }

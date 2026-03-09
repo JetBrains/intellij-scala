@@ -111,17 +111,13 @@ object Compatibility {
             ) {
               expectedOption.collect {
                 case etpe if !tpe.conforms(etpe) =>
-                  val adapted = e.tryAdaptTypeToSAM(
+                  e.tryAdaptTypeToSAM(
                     tpe,
                     etpe,
                     fromUnderscore = false,
                     checkResolve = false,
                     checkImplicits = checkImplicits
-                  )
-                  adapted match {
-                    case Some(result) => result.copy(samAdapted = true)
-                    case None         => e.updateTypeWithImplicitConversion(tpe, etpe)
-                  }
+                  ).getOrElse(e.updateTypeWithImplicitConversion(tpe, etpe))
               }.getOrElse(default)
             }
         }
@@ -180,7 +176,7 @@ object Compatibility {
                       val newTp = FunctionType(ptRetTpe, params)
                       conformanceSubst(newTp, methodType).map(expectedResult)
                     } else if (checkImplicits) {
-                      val implicitResult@ExpressionTypeResult(Right(newRetTpe), _, _, _) =
+                      val implicitResult@ExpressionTypeResult(Right(newRetTpe), _, _) =
                         updateTypeWithImplicitConversion(retTpe, ptRetTpe)
 
                       if (retTpe == newRetTpe) None
@@ -294,18 +290,11 @@ object Compatibility {
     assignments.filter(p => clashedNames.contains(p._1)).map(_._2)
   }
 
-  case class MatchedParameter(
-    parameter:  Parameter,
-    argument:   ScExpression,
-    tpe:        ScType,
-    samAdapted: Boolean = false
-  )
-
   case class ApplicabilityCheckResult(
     problems:             Seq[ApplicabilityProblem],
     constraints:          ConstraintSystem,
-    defaultParameterUsed: Boolean               = false,
-    matched:              Seq[MatchedParameter]  = Seq.empty
+    defaultParameterUsed: Boolean                                = false,
+    matched:              Seq[(Parameter, ScExpression, ScType)] = Seq.empty
   )
 
   object ApplicabilityCheckResult {
@@ -439,7 +428,7 @@ object Compatibility {
     var namedMode            = false //todo: optimization, when namedMode enabled, args.length <= parameters.length
     val used                 = new Array[Boolean](parameters.length)
     var problems             = List.empty[ApplicabilityProblem]
-    val matched              = Seq.newBuilder[MatchedParameter]
+    val matched              = Seq.newBuilder[(Parameter, ScExpression, ScType)]
     var defaultParameterUsed = false
 
     def processParamConformance(
@@ -447,17 +436,17 @@ object Compatibility {
       pt:    ScType,
       arg:   Expression
     ): List[ApplicabilityProblem] = {
-      val exprTypeResult =
+      val typeResult =
         arg.getTypeAfterImplicitConversion(
           withImplicits, shapesOnly, Option(param.expectedType)
-        )
+        ).tr
 
-      exprTypeResult.tr.toOption match {
+      typeResult.toOption match {
         case None => Nil
         case Some(exprType) =>
           val approximatedPt = approximateDependent(pt, approximateDependentsFor).getOrElse(pt)
           val conforms = exprType.conforms(approximatedPt, ConstraintSystem.empty, checkWeak = true)
-          matched += MatchedParameter(param, arg.scExpressionOrNull, exprType, exprTypeResult.samAdapted)
+          matched.addOne(param, arg.scExpressionOrNull, exprType)
 
           conforms match {
             case ConstraintsResult.Left =>
@@ -655,7 +644,7 @@ object Compatibility {
                   .flatMap(_.getDefaultExpression)
                   .get // safe (see defaultType implementation)
 
-              matched += MatchedParameter(param, expr, defaultTp)
+              matched.addOne(param, expr, defaultTp)
 
               constraintAccumulator += defaultTp
                 .conforms(paramType, ConstraintSystem.empty)

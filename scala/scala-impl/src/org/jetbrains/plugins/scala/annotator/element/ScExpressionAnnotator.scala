@@ -174,7 +174,7 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
     ): Unit = {
       val smartExpectedType = element.smartExpectedType(fromUnderscore)
 
-      val ExpressionTypeResult(exprType, _, implicitFunction, _) =
+      val ExpressionTypeResult(exprType, _, implicitFunction) =
         element.getTypeAfterImplicitConversion(expectedOption = smartExpectedType, fromUnderscore = fromUnderscore)
 
       if (isTooBigToHighlight(element) || (!fromFunctionLiteral && isInArgumentPosition(element)) || shouldNotHighlight(element)) return
