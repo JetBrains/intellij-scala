@@ -601,4 +601,27 @@ class ScalaColorSchemeAnnotatorTest extends ScalaColorSchemeAnnotatorTestBase[Te
     )
   }
 
+  // SCL-25122
+  @Test
+  def testScalaDocRefLinkDotHighlighting(): Unit = {
+    val text =
+      """/**
+        | * [[Target.func]]
+        | * [[Target#func]]
+        | * [[#blub]]
+        | * [[this.blub]]
+        | * [[package.SomeClass]]
+        | */
+        |""".stripMargin
+
+    testAnnotations(text, Set(DOT, KEYWORD),
+      """Info((15,16),.,Scala Dot)
+        |Info((34,35),#,Scala Dot)
+        |Info((47,48),#,Scala Dot)
+        |Info((60,64),this,Scala Keyword)
+        |Info((64,65),.,Scala Dot)
+        |Info((77,84),package,Scala Keyword)
+        |Info((84,85),.,Scala Dot)""".stripMargin)
+  }
+
 }
