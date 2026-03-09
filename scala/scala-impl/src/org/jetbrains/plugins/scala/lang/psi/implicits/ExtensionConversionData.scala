@@ -70,14 +70,14 @@ object ExtensionConversionHelper {
   private def update(candidate: ScalaResolveResult, foundInType: ScalaResolveResult)
                     (implicit context: ProjectContext = foundInType.projectContext): ScalaResolveResult = {
 
-    foundInType.applicabilityConstraints match {
+    foundInType.resultUndef match {
       case Some(ConstraintSystem(substitutor)) =>
-        val parameterType = candidate.inferredType
+        val parameterType = candidate.implicitResultType
 
         val combinedSubstitutor = candidate.substitutor.followed(foundInType.substitutor).followed(substitutor)
         candidate.copy(
           subst = combinedSubstitutor,
-          inferredType = parameterType.map(combinedSubstitutor)
+          implicitResultType = parameterType.map(combinedSubstitutor)
         )
       case _ => candidate
     }

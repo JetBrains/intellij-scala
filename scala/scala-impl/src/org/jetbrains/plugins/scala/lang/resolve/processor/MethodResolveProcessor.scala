@@ -86,7 +86,7 @@ class MethodResolveProcessor(
                                 (implicit state: ResolveState): Boolean = {
 
     def implFunction: Option[ScalaResolveResult]             = state.implicitConversion
-    def implType: Option[ScType]                             = state.implicitConversionResultType
+    def implType: Option[ScType]                             = state.implicitType
     def implScopeType: Option[ScType]                        = state.implicitScopeType
     def isExtensionFromGiven: Boolean                        = state.isExtensionFromGiven
     def isNamedParameter: Boolean                            = state.isNamedParameter
@@ -113,20 +113,20 @@ class MethodResolveProcessor(
           s,
           importsUsed,
           renamed,
-          implicitConversion             = implFunction,
-          implicitConversionResultType   = implType,
-          fromType                       = fromType,
-          isNamedParameter               = isNamedParameter,
-          isAccessible                   = accessible,
-          isForwardReference             = forwardReference,
-          unresolvedTypeParameters       = unresolvedTypeParameters,
-          isExtensionCall                = extensionMethod,
-          extensionContext               = extensionContext,
-          matchClauseSubstitutor         = state.matchClauseSubstitutor,
-          intersectedReturnType          = intersectedReturnType,
-          exportedInfo                   = exportedInfo,
-          implicitScopeType              = implScopeType,
-          isExtensionFromGiven           = isExtensionFromGiven,
+          implicitConversion       = implFunction,
+          implicitType             = implType,
+          fromType                 = fromType,
+          isNamedParameter         = isNamedParameter,
+          isAccessible             = accessible,
+          isForwardReference       = forwardReference,
+          unresolvedTypeParameters = unresolvedTypeParameters,
+          isExtensionCall          = extensionMethod,
+          extensionContext         = extensionContext,
+          matchClauseSubstitutor   = state.matchClauseSubstitutor,
+          intersectedReturnType    = intersectedReturnType,
+          exportedInfo             = exportedInfo,
+          implicitScopeType        = implScopeType,
+          isExtensionFromGiven     = isExtensionFromGiven,
         )
 
       namedElement match {
@@ -159,12 +159,12 @@ class MethodResolveProcessor(
                   ScSubstitutor.empty,
                   importsUsed,
                   renamed,
-                  implicitConversion           = implFunction,
-                  implicitConversionResultType = implType,
-                  fromType                     = fromType,
-                  parentElement                = Option(cls),
-                  isAccessible                 = isAccessible(cons, ref),
-                  isForwardReference           = forwardReference
+                  implicitConversion = implFunction,
+                  implicitType       = implType,
+                  fromType           = fromType,
+                  parentElement      = Option(cls),
+                  isAccessible       = isAccessible(cons, ref),
+                  isForwardReference = forwardReference
                 )
               }.filter(srr => !accessibility || srr.isAccessible)
 
@@ -1091,11 +1091,11 @@ object MethodResolveProcessor {
 
 
       val result = cand.copy(
-        problems                 = conformanceResult.problems,
-        defaultParameterUsed     = conformanceResult.defaultParameterUsed,
-        applicabilityConstraints = Option(conformanceResult.constraints),
-        subst                    = typeArgsSubst,
-        samAdapted               = conformanceResult.matched.exists(_.samAdapted)
+        problems             = conformanceResult.problems,
+        defaultParameterUsed = conformanceResult.defaultParameterUsed,
+        resultUndef          = Option(conformanceResult.constraints),
+        subst                = typeArgsSubst,
+        samAdapted           = conformanceResult.matched.exists(_.samAdapted)
       )
 
       resultBuilder += result -> cleanTypeArgs

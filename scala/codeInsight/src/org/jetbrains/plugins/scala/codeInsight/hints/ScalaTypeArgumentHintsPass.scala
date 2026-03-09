@@ -26,7 +26,7 @@ private[codeInsight] trait ScalaTypeArgumentHintsPass {
 
   private def doCollectTypeArgumentHints(editor: Editor, root: PsiFile): Iterator[Hint] = root.elements(_.isVisible(editor.getProject, root)).flatMap {
     case ci@ScConstructorInvocation.reference(Resolved(r@ScalaResolveResult(TypeParamsOfMethodLike(typeParams), _))) =>
-      r.applicabilityConstraints.flatMap { cs =>
+      r.resultUndef.flatMap { cs =>
         xRayTypeArgumentsHints(ci.typeElement, cs, typeParams, editor)
       }.getOrElse(Seq.empty)
     case CallWithTypeArguments(invoked, typeParams, methodCalls) =>

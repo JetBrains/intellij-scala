@@ -16,11 +16,11 @@ class CollectMethodsProcessor(place: PsiElement, name: String)
       namedElement match {
         case method: PsiMethod =>
           addResult(new ScalaResolveResult(method,
-            substitutor                    = state.substitutor,
-            importsUsed                    = state.importsUsed,
-            implicitConversion             = state.implicitConversion,
-            implicitConversionResultType   = state.implicitConversionResultType,
-            isAccessible                   = accessible))
+            substitutor        = state.substitutor,
+            importsUsed        = state.importsUsed,
+            implicitConversion = state.implicitConversion,
+            implicitType       = state.implicitType,
+            isAccessible       = accessible))
         case _ =>
       }
     }

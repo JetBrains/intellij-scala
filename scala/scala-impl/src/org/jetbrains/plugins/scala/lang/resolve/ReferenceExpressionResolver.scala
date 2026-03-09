@@ -806,7 +806,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
           procForConversions,
           noImplicitsForArgs = candidates.nonEmpty,
           forCompletion      = procForConversions.is[CompletionProcessor]
-        )(_.withImports.withImplicitConversionResultType.withType)(qualifier)
+        )(_.withImports.withImplicitType.withType)(qualifier)
 
         val fromImplicits = (procForConversions, procForConversions.candidates) match {
           case (methodProcessor: MethodResolveProcessor, Array()) if conformsToDynamic(fromType, ref.resolveScope) =>

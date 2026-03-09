@@ -55,8 +55,8 @@ trait ResolveStateOps extends Any {
   def withForwardRef: ResolveState =
     resolveState.put(FORWARD_REFERENCE_KEY, TRUE)
 
-  def withImplicitConversionResultType(tp: ScType): ResolveState =
-    resolveState.put(IMPLICIT_CONVERSION_RESULT_TYPE, tp)
+  def withImplicitType(tp: ScType): ResolveState =
+    resolveState.put(IMPLICIT_TYPE, tp)
 
   def withImplicitConversion(result: ScalaResolveResult): ResolveState =
     resolveState.put(IMPLICIT_CONVERSION, result)
@@ -121,8 +121,8 @@ trait ResolveStateOps extends Any {
   def unresolvedTypeParams: Option[Seq[TypeParameter]] =
     option(UNRESOLVED_TYPE_PARAMETERS_KEY)
 
-  def implicitConversionResultType: Option[ScType] =
-    option(IMPLICIT_CONVERSION_RESULT_TYPE)
+  def implicitType: Option[ScType] =
+    option(IMPLICIT_TYPE)
 
   def implicitConversion: Option[ScalaResolveResult] =
     option(IMPLICIT_CONVERSION)
@@ -177,7 +177,7 @@ private object ResolveStateOps {
 
   private val FORWARD_REFERENCE_KEY: Key[TRUE.type] = Key.create("forward.reference.key")
 
-  private val IMPLICIT_CONVERSION_RESULT_TYPE: Key[ScType] = Key.create("implicit.type")
+  private val IMPLICIT_TYPE: Key[ScType] = Key.create("implicit.type")
 
   private val IMPLICIT_CONVERSION: Key[ScalaResolveResult] = Key.create("implicit.function")
 
@@ -192,7 +192,7 @@ private object ResolveStateOps {
   //covers several cases like import alias, deprecated parameter names and default to "_root_" package
   private val RENAMED_KEY: Key[String] = Key.create("scala.renamed.key")
 
-  //specifies the designator type of part of an implicit scope, which provided this resolve result
+  //specifies the designator type of a part of an implicit scope, which provided this resolve result
   private val IMPLICIT_SCOPE_TYPE: Key[ScType] = Key.create("scala.implicit.scope.object")
 
   private val MATCH_SUBSTITUTOR: Key[ScSubstitutor] = Key.create("scala.match.subsitutor")

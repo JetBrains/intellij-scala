@@ -22,16 +22,16 @@ final class ExtensionProcessor(
       addResult(
         new ScalaResolveResult(
           namedElement,
-          renamed                        = state.renamed,
-          substitutor                    = state.substitutor,
-          importsUsed                    = state.importsUsed,
-          implicitConversion             = state.implicitConversion,
-          implicitConversionResultType   = state.implicitConversionResultType,
-          implicitScopeType              = state.implicitScopeType,
-          unresolvedTypeParameters       = state.unresolvedTypeParams,
-          isExtensionCall                = true,
-          exportedInfo                   = state.exportedInfo,
-          isExtensionFromGiven           = true
+          renamed                  = state.renamed,
+          substitutor              = state.substitutor,
+          importsUsed              = state.importsUsed,
+          implicitConversion       = state.implicitConversion,
+          implicitType             = state.implicitType,
+          implicitScopeType        = state.implicitScopeType,
+          unresolvedTypeParameters = state.unresolvedTypeParams,
+          isExtensionCall          = true,
+          exportedInfo             = state.exportedInfo,
+          isExtensionFromGiven     = true
         )
       )
     }

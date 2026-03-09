@@ -84,7 +84,7 @@ abstract class ImplicitConversionData {
 
     for {
       srr            <- compatible
-      conversionType <- srr.inferredType
+      conversionType <- srr.implicitResultType
       resultType     <- resultType(conversionType)
     } yield
       ImplicitConversionApplication(
