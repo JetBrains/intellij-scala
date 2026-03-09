@@ -391,10 +391,14 @@ object ScalaResolveResult {
 
   object ApplyMethodInnerResolve {
     def unapply(srr: ScalaResolveResult): Option[ScalaResolveResult] = {
-      val nameFits  = srr.name == CommonNames.Apply
-
-      if (nameFits) srr.innerResolveResult
-      else          None
+      if (srr.name != CommonNames.Apply) None
+      else {
+        var current = srr.innerResolveResult
+        while (current.exists(r => r.name == CommonNames.Apply && r.innerResolveResult.isDefined)) {
+          current = current.flatMap(_.innerResolveResult)
+        }
+        current
+      }
     }
   }
 
