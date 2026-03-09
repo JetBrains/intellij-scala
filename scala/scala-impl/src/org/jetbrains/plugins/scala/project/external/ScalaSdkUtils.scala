@@ -7,7 +7,10 @@ import com.intellij.openapi.roots.impl.libraries.LibraryEx
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.platform.workspace.jps.entities.{LibraryEntity, ModuleEntity}
 import com.intellij.platform.workspace.storage.MutableEntityStorage
-import org.jetbrains.plugins.scala.DependencyManager
+import com.intellij.platform.eel.EelDescriptor
+import com.intellij.platform.eel.provider.{EelProviderUtil, LocalEelDescriptor}
+import org.jetbrains.annotations.ApiStatus
+import org.jetbrains.plugins.scala.{DependencyManager, EelAwareDependencyManager}
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.project.{LibraryBase, LibraryEntityExt, LibraryExt, ModuleEntityExt, MutableEntityStorageExt, ReplClasspath, ScalaLibraryProperties, ScalaLibraryType, Version}
 
@@ -15,6 +18,7 @@ import java.nio.file.Path
 import scala.jdk.CollectionConverters.IteratorHasAsScala
 import scala.language.implicitConversions
 
+//noinspection ApiStatus,UnstableApiUsage
 object ScalaSdkUtils {
 
   def configureScalaSdk(
@@ -156,11 +160,20 @@ object ScalaSdkUtils {
       .flatMap(_.headOption)
       .map(_.file)
 
-  def resolveReplClasspath(scalaVersion: String): ReplClasspath = {
+  @deprecated("Use resolveReplClasspath(EelDescriptor, ScalaVersion) instead", since = "2026.1")
+  @Deprecated(since = "2026.1", forRemoval = true)
+  @ApiStatus.ScheduledForRemoval(inVersion = "2026.2")
+  def resolveReplClasspath(scalaVersion: String): ReplClasspath =
+    resolveReplClasspath(LocalEelDescriptor.INSTANCE, scalaVersion)
+
+  def resolveReplClasspath(project: Project, scalaVersion: String): ReplClasspath =
+    resolveReplClasspath(EelProviderUtil.getEelDescriptor(project), scalaVersion)
+
+  def resolveReplClasspath(eelDescriptor: EelDescriptor, scalaVersion: String): ReplClasspath = {
     val version = Version(scalaVersion)
     if (version.major(2) < Version("3.8")) return ReplClasspath.Bundled
     val dep = ("org.scala-lang" % "scala3-repl_3" % scalaVersion).transitive()
-    val paths = DependencyManager.resolveSafe(dep).toOption.toSeq.flatten.map(_.file)
+    val paths = new EelAwareDependencyManager(eelDescriptor).resolveSafe(dep).toOption.toSeq.flatten.map(_.file)
     ReplClasspath.Provided(paths)
   }
 
@@ -181,7 +194,7 @@ object ScalaSdkUtils {
 
   /**
    * Revert the Scala SDK kind from all existing Scala libraries that shouldn't currently be SDKs.
-   * For a detailed explanation of why this method is needed, see [[org.jetbrains.sbt.project.data.service.SbtProjectDataService#revertScalaSdkFromLibraries]].
+   * For a detailed explanation of why this method is needed, see `org.jetbrains.sbt.project.data.service.SbtProjectDataService#revertScalaSdkFromLibraries`.
    */
   def revertScalaSdkFromLibraries(modelsProvider: IdeModifiableModelsProvider, externalSystemName: String): Unit = {
     def isFromExternalSource(library: Library): Boolean =

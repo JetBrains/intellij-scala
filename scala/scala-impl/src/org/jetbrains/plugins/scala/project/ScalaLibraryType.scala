@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.project.external.ScalaSdkUtils
 
+import scala.annotation.nowarn
 import java.nio.file.Path
 import java.{util => ju}
 import javax.swing.{Icon, JComponent}
@@ -103,7 +104,7 @@ object ScalaLibraryType {
 
       val replClasspath = optReplClasspath.orElse {
         ProgressManager.getInstance().runProcessWithProgressSynchronously(
-          () => version.map(ScalaSdkUtils.resolveReplClasspath),
+          () => version.map(ScalaSdkUtils.resolveReplClasspath): @nowarn("msg=deprecated"),
           ScalaBundle.message("resolving.scala.repl.classpath"),
           true,
           null

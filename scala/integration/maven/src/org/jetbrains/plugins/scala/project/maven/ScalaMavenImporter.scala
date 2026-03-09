@@ -140,7 +140,7 @@ final class ScalaMavenImporter extends MavenApplicableConfigurator(PluginGroupId
         compilerClasspathFull.find(_.getFileName.toString == bridgeJarName)
       }
 
-      val replClasspath = ScalaSdkUtils.resolveReplClasspath(compilerVersion)
+      val replClasspath = ScalaSdkUtils.resolveReplClasspath(project, compilerVersion)
 
       val toRemove = compilerBridgeBinaryJar.toSeq ++ replClasspath.asPaths
 

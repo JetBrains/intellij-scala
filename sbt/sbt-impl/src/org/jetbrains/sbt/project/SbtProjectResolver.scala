@@ -841,7 +841,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   }
 
   protected def createScalaSdkData(scala: Option[ScalaData])(using context: ImportContext): ScalaSdkNode = {
-    val replClasspath = scala.map(_.version).map(ScalaSdkUtils.resolveReplClasspath).getOrElse(ReplClasspath.Bundled)
+    val replClasspath = scala.map(_.version).map(ScalaSdkUtils.resolveReplClasspath(context.eelDescriptor, _)).getOrElse(ReplClasspath.Bundled)
 
     val data = SbtScalaSdkData(
       scalaVersion = scala.map(_.version),
