@@ -177,9 +177,15 @@ trait ScExpression extends ScBlockStatement
             if !tp.conforms(expType) =>
             //do not try implicit conversions for shape check or already correct type
 
-            if (isJavaReflectPolymorphic)        ExpressionTypeResult(Right(expType))
-            else if (!checkImplicits || isShape) ExpressionTypeResult(initialType)
-            else                                 this.updateTypeWithImplicitConversion(tp, expType)
+            val adapted =
+              if (this.isSAMEnabled) this.tryAdaptTypeToSAM(tp, expType, fromUnderscore, checkImplicits = checkImplicits)
+              else                   None
+
+            adapted.getOrElse(
+              if (isJavaReflectPolymorphic)        ExpressionTypeResult(Right(expType))
+              else if (!checkImplicits || isShape) ExpressionTypeResult(initialType)
+              else                                 this.updateTypeWithImplicitConversion(tp, expType)
+            )
           case _ => ExpressionTypeResult(initialType)
         }
       }
@@ -372,21 +378,12 @@ object ScExpression {
                 .synthesizePartialFunctionType(expr, expectedType)
                 .untupleFunction(expr, expectedType)
 
-            //SCL-24823
-            val adapted = expectedType match {
-              case Some(expected) if !valueType.conforms(expected) =>
-                expr.tryAdaptTypeToSAM(valueType, expected, fromUnderscore)
-                  .flatMap(_.tr.toOption)
-                  .getOrElse(valueType)
-              case _ => valueType
-            }
-
-            if (ignoreBaseType) Right(adapted)
+            if (ignoreBaseType) Right(valueType)
             else
               expectedType match {
-                case None                                                   => Right(adapted)
+                case None                                                   => Right(valueType)
                 case Some(expected) if expected.removeAbstracts.equiv(Unit) => Right(Unit) //value discarding
-                case Some(expected)                                         => Right(numericWideningOrNarrowing(adapted, expected, expr))
+                case Some(expected)                                         => Right(numericWideningOrNarrowing(valueType, expected, expr))
               }
           }
       }
