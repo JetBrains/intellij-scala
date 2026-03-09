@@ -66,9 +66,9 @@ case class ScalaSDKLoader(
     resolvedSecondPass.map(_.file).map(findJarFile)
   }
 
-  private def resolveCompilerBridge(version: ScalaVersion): Option[Path] = {
+  private def resolveCompilerBridge(project: Project, version: ScalaVersion): Option[Path] = {
     if (version >= ScalaVersion.fromString("2.13.12").get)
-      ScalaSdkUtils.resolveCompilerBridgeJar(version.minor)
+      ScalaSdkUtils.resolveCompilerBridgeJar(project, version.minor)
     else None
   }
 
@@ -94,10 +94,10 @@ case class ScalaSDKLoader(
     val (resolvedOk, resolvedMissing) = resolved.partition(_.file.exists)
     val compilerClasspath = resolvedOk.map(_.file)
 
-    // Manually resolve a compiler bridge only if it hasn't been provided. This allows testing with a custom bridge.
-    val compilerBridge = compilerBridgeBinaryJar.orElse(resolveCompilerBridge(version))
-
     val project = module.getProject
+
+    // Manually resolve a compiler bridge only if it hasn't been provided. This allows testing with a custom bridge.
+    val compilerBridge = compilerBridgeBinaryJar.orElse(resolveCompilerBridge(project, version))
     val replClasspath = resolveReplClasspath(project, version)
 
     assertTrue(
