@@ -133,9 +133,9 @@ object ScalaVersionDownloadingDialog {
       if (scalaVersion.isScala3) getScala2LibrarySources
       else Seq.empty
 
-    val compilerBridge = ScalaSdkUtils.resolveCompilerBridgeJar(scalaVersion.minor)
+    val compilerBridge = ScalaSdkUtils.resolveCompilerBridgeJar(scalaVersion.minor): @nowarn("msg=deprecated")
 
-    val replClasspath = (ScalaSdkUtils.resolveReplClasspath(scalaVersion.minor)): @nowarn("msg=deprecated")
+    val replClasspath = ScalaSdkUtils.resolveReplClasspath(scalaVersion.minor): @nowarn("msg=deprecated")
 
     ScalaVersionResolveResult(
       scalaVersion.minor,

@@ -95,7 +95,7 @@ object ScalaLibraryType {
 
       val compilerBridge = compilerBridgeJar.orElse {
         ProgressManager.getInstance().runProcessWithProgressSynchronously(
-          () => version.flatMap(ScalaSdkUtils.resolveCompilerBridgeJar),
+          () => version.flatMap(ScalaSdkUtils.resolveCompilerBridgeJar): @nowarn("msg=deprecated"),
           ScalaBundle.message("resolving.compiler.bridge.progress.message"),
           true,
           null

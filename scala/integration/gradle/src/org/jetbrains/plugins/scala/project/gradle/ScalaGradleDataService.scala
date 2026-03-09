@@ -112,7 +112,7 @@ class ScalaGradleDataService extends ScalaAbstractProjectDataService[ScalaModelD
     val compilerBridgeBinaryJar =
       if (compilerVersion.startsWith("3.")) {
         ScalaSdkUtils.compilerBridgeJarName(compilerVersion).flatMap { bridgeJarName =>
-          compilerClasspath.find(_.getFileName.toString == bridgeJarName).orElse(ScalaSdkUtils.resolveCompilerBridgeJar(compilerVersion))
+          compilerClasspath.find(_.getFileName.toString == bridgeJarName).orElse(ScalaSdkUtils.resolveCompilerBridgeJar(project, compilerVersion))
         }
       } else None
 
