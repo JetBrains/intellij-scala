@@ -535,8 +535,7 @@ def compilerPluginProject(
         Dependencies.junit % Test,
         Dependencies.junitInterface % Test,
         Dependencies.jupiterInterface(JupiterKeys.jupiterVersion.value) % Test,
-        Dependencies.junitJupiterParams(JupiterKeys.junitJupiterVersion.value) % Test,
-        Dependencies.opentest4j % Test
+        Dependencies.junitJupiterParams(JupiterKeys.junitJupiterVersion.value) % Test
       ),
       Compile / scalacOptions := Seq("--release", "8") ++ extraScalacOptions,
       packageMethod := PackagingMethod.Standalone(packagingOutputPath),

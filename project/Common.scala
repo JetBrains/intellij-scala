@@ -133,8 +133,7 @@ object Common {
       Dependencies.junitParams % Test,
       Dependencies.junitInterface % Test,
       Dependencies.jupiterInterface(JupiterKeys.jupiterVersion.value) % Test,
-      Dependencies.junitJupiterParams(JupiterKeys.junitJupiterVersion.value) % Test,
-      Dependencies.opentest4j % Test
+      Dependencies.junitJupiterParams(JupiterKeys.junitJupiterVersion.value) % Test
     ),
   ) ++ projectDirectoriesSettings ++
     compilationCacheSettings
