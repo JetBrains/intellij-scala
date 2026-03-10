@@ -40,7 +40,8 @@ class ScalaFindUsagesHandler(
           case Some(clazz) => Array(clazz)
           case _ => Array.empty
         }
-      case t: ScTrait => Array(t.fakeCompanionClass)
+      case t: ScTrait =>
+        Array(t.fakeCompanionClass)
       case f: ScFunction if Seq("apply", "unapply", "unapplySeq").contains(f.name) =>
         f.containingClass match {
           case obj: ScObject if obj.isSyntheticObject => Array(obj)
@@ -57,7 +58,8 @@ class ScalaFindUsagesHandler(
           }
           a.map[PsiElement](role => t.getTypedDefinitionWrapper(isStatic = false, isAbstract = false, role = role, cClass = None))
         }
-      case _ => Array.empty
+      case _ =>
+        Array.empty
     }
   }
 
