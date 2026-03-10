@@ -2,58 +2,59 @@ package org.jetbrains.plugins.scala.lang.lexer.highlightingLexer
 
 import com.intellij.lang.Language
 import com.intellij.lexer.Lexer
-import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.module.Module
-import com.intellij.testFramework.LightVirtualFile
+import com.intellij.openapi.project.RootsChangeRescanningInfo
+import com.intellij.openapi.roots.ModuleRootManager
+import com.intellij.openapi.roots.ex.ProjectRootManagerEx
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.testFramework.IndexingTestUtil
+import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighterFactory
 import org.jetbrains.plugins.scala.lang.lexer.ScalaLexerTestBase
+import org.jetbrains.plugins.scala.project.ScalaModuleSettings
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettingsProfile
-import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaFeaturePusher, ScalaFeatures, ScalaModuleSettings}
-import org.jetbrains.plugins.scala.{Scala3Language, ScalaFileType, ScalaVersion}
+import org.jetbrains.plugins.scala.{Scala3Language, ScalaVersion}
 
 abstract class ScalaHighlightingLexerTestBase extends ScalaLexerTestBase {
-  private val LOG = Logger.getInstance(getClass)
 
   protected def scalaVersion: ScalaVersion
 
   protected def additionalCompilerOptions: Seq[String] = Seq.empty
 
   override protected def createLexer: Lexer = {
-    val scalaFeatures = configureScalaFeatures
-    LOG.info(
-      s"ScalaHighlightingLexerTestBase.createLexer: scalaVersion=$scalaVersion, " +
-        s"languageLevel=${scalaFeatures.languageLevel}, " +
-        s"noUnicodeEscapesInRawStrings=${scalaFeatures.noUnicodeEscapesInRawStrings}"
-    )
-    val virtualFile = createScalaFileWithFeatures(scalaFeatures)
+    configureModuleScalaVersionAndAdditionalCompilerOptions()
+
+    val virtualFile = createScalaFileInModuleSourceRoot()
     createHighlightingLexer(virtualFile)
   }
 
-  private def configureScalaFeatures: ScalaFeatures.SerializableScalaFeatures = {
+  private def configureModuleScalaVersionAndAdditionalCompilerOptions(): Unit = inWriteAction {
     val module = getModule
-    configureModuleScalaVersionAndAdditionalCompilerOptions(module)
-    //Q: Could we try to avoid configureModuleScalaVersionAndAdditionalCompilerOptions?
-    // Can't we directly construct the features from the `scalaVersion`and `additionalCompilerOptions`?
-    module.featuresNonDefault
+    val project = module.getProject
+
+    // Touch the module root model so IntelliJ reruns file property pushers and indexes after module-level settings change.
+    // We need this to ensure the ScalaFeatures are recalculated correctly.
+    ProjectRootManagerEx.getInstanceEx(project).makeRootsChange(() => {
+      ScalaModuleSettings.TestUtils.setModuleScalaVersionForLightTests(module, scalaVersion)
+
+      if (additionalCompilerOptions.nonEmpty) {
+        val profile = ScalaCompilerSettingsProfile.forModule(module)
+        val newSettings = profile.getSettings.copy(additionalCompilerOptions = additionalCompilerOptions)
+        profile.setSettings(newSettings)
+      }
+    }, RootsChangeRescanningInfo.TOTAL_RESCAN)
+
+    // Ensure we wait for the files to be indexed
+    IndexingTestUtil.waitUntilIndexesAreReady(project)
   }
 
-  private def configureModuleScalaVersionAndAdditionalCompilerOptions(module: Module): Unit = {
-    ScalaModuleSettings.TestUtils.setModuleScalaVersionForLightTests(module, scalaVersion)
+  protected def scalaFileName: String = "example.scala"
 
-    if (additionalCompilerOptions.nonEmpty) {
-      val profile = ScalaCompilerSettingsProfile.forModule(module)
-      val newSettings = profile.getSettings.copy(additionalCompilerOptions = additionalCompilerOptions)
-      profile.setSettings(newSettings)
-    }
+  private def createScalaFileInModuleSourceRoot(): VirtualFile = inWriteAction {
+    val sourceRoot = ModuleRootManager.getInstance(getModule).getSourceRoots.head
+    sourceRoot.createChildData(this, scalaFileName)
   }
 
-  private def createScalaFileWithFeatures(scalaFeatures: ScalaFeatures.SerializableScalaFeatures): LightVirtualFile = {
-    val virtualFile = new LightVirtualFile("dummy.scala", ScalaFileType.INSTANCE, "")
-    ScalaFeaturePusher.setFeatures(virtualFile, scalaFeatures)
-    virtualFile
-  }
-
-  private def createHighlightingLexer(virtualFile: LightVirtualFile) = {
+  private def createHighlightingLexer(virtualFile: VirtualFile) = {
     val scalaSyntaxHighlighter = ScalaSyntaxHighlighterFactory.createScalaSyntaxHighlighter(project, virtualFile, language)
     scalaSyntaxHighlighter.getHighlightingLexer
   }
