@@ -17,8 +17,26 @@ import org.jetbrains.plugins.scala.project.ScalaFeatures.SerializableScalaFeatur
 import scala.annotation.nowarn
 
 /**
- * Used [[com.intellij.openapi.roots.impl.JavaLanguageLevelPusher]] as a reference
+ * Persists the effective [[ScalaFeatures]] for source directories
+ * and exposes them to parser/highlighter code through file properties.
+ *
+ * The pusher stores module-derived feature flags on directories in source content.
+ * Consumers can then read those features for a [[com.intellij.psi.PsiFile]] without resolving a module on every access.
+ * When the pushed value changes, all Scala-like files in the affected directory are invalidated,
+ * so syntax highlighting and parsing are recomputed with the new language feature set.
+ *
+ * Typical scenarios:
+ *  - Scala 3 experimental capture checking should be parsed only when enabled in settings, while still working
+ *    for Scala 3.8 standard-library sources loaded from source jars<br>
+ *    (see [[https://youtrack.jetbrains.com/issue/SCL-24630 SCL-24630]])
+ *  - Raw string unicode-escape behavior differs between Scala 2 and Scala 3,
+ *    so lexer/parser consumers must read the pushed feature flags instead of assuming one global behavior<br>
+ *    (see [[https://youtrack.jetbrains.com/issue/SCL-18631 SCL-18631]]).
+ *
+ * @see [[ScalaFeatures]]
+ * @see [[com.intellij.openapi.roots.impl.JavaLanguageLevelPusher]]
  */
+//noinspection UnstableApiUsage,ApiStatus
 class ScalaFeaturePusher extends com.intellij.FilePropertyPusherBase[SerializedScalaFeatures] {
 
   override def propertyChanged(project: Project, fileOrDir: VirtualFile, actualProperty: SerializedScalaFeatures): Unit = {
@@ -50,22 +68,24 @@ object ScalaFeaturePusher {
 
   /**
    * @param file can represent a file or a directory
+   * @note if it can't detect features from PsiFile, it fall backs from the features from VirtualFile (if exist).
+   *       Q: Though maybe it could do the opposite? First try teh virtual file and if there are not features there, find the file?
    */
   def getFeatures(file: PsiFile): Option[ScalaFeatures] = {
-    val fromContainingDir: Option[ScalaFeatures] =
-      Option(file.getContainingDirectory)
-        .flatMap(dir => getFeatures(dir.getVirtualFile))
+    val containingDir = Option(file.getContainingDirectory)
+    val featuresPersistedInContainingDir: Option[ScalaFeatures] =
+      containingDir.flatMap(dir => getPersistedFeatures(dir.getVirtualFile))
 
     def fromIndexedDirOrContainingDir: Option[ScalaFeatures] = {
+      val indexedVFile = Option(file.getUserData(IndexingDataKeys.VIRTUAL_FILE))
       // while indexing, the parser will get a dummy file that only references the real file
-      Option(file.getUserData(IndexingDataKeys.VIRTUAL_FILE))
-        .flatMap(vFile => if (vFile.isDirectory) Some(vFile) else Option(vFile.getParent))
-        .flatMap(getFeatures)
+      val dir = indexedVFile.flatMap(vFile => if (vFile.isDirectory) Some(vFile) else Option(vFile.getParent))
+      dir.flatMap(getPersistedFeatures)
     }
 
     // Original commit: [cc] force scala 3 stdlib source to support capture checking #SCL-24630
     def fromVirtualFile(vFile: VirtualFile): Option[ScalaFeatures] = {
-      getFeatures(vFile).orElse {
+      getPersistedFeatures(vFile).orElse {
         // Original commit: [cc] parse capture checking only if it is enabled by settings #SCL-24630
         // todo: this is a quick hack for idea253 release
         //       it should be improved by having a comprehensive return value from ScalaLanguageSubstitutor
@@ -80,16 +100,20 @@ object ScalaFeaturePusher {
       }
     }
 
-    val fromPsi = fromContainingDir.orElse(fromIndexedDirOrContainingDir)
+    val fromPsi = featuresPersistedInContainingDir.orElse(fromIndexedDirOrContainingDir)
     fromPsi.orElse {
       val virtualFile = Option(file.getVirtualFile)
       virtualFile.flatMap(fromVirtualFile)
     }
   }
 
-  def getFeatures(file: VirtualFile): Option[ScalaFeatures] =
-    Option(key.getPersistentValue(file)).map(ScalaFeatures.deserializeFromInt(_))
+  private def getPersistedFeatures(dir: VirtualFile): Option[ScalaFeatures] = {
+    val persisted = Option(key.getPersistentValue(dir))
+    persisted.map(ScalaFeatures.deserializeFromInt(_))
+  }
 
+  //TODO: don't use it. Use approach similar to org.jetbrains.plugins.scala.lang.lexer.highlightingLexer.ScalaHighlightingLexerTestBase.configureModuleScalaVersionAndAdditionalCompilerOptions
+  // It's closer to the production code
   @TestOnly
   def setFeatures(dir: VirtualFile, features: SerializableScalaFeatures): Unit =
     key.setPersistentValue(dir, features.serializeToInt)
