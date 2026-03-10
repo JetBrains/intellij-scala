@@ -5,7 +5,7 @@ import com.intellij.lang.{Language, LanguageParserDefinitions}
 import com.intellij.openapi.fileTypes.SyntaxHighlighterFactory
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.LanguageSubstitutors
+import com.intellij.psi.{LanguageSubstitutors, PsiManager}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighterFactory.createScalaSyntaxHighlighter
 import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
@@ -14,9 +14,15 @@ import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
 import org.jetbrains.plugins.scalaDirective.ScalaDirectiveLanguage
 import org.jetbrains.plugins.scalaDoc.ScalaDocLanguage
 
+/**
+ * @see java analog in [[com.intellij.lang.java.JavaSyntaxHighlighterFactory]]
+ */
 final class ScalaSyntaxHighlighterFactory extends SyntaxHighlighterFactory {
 
-  override def getSyntaxHighlighter(project: Project, file: VirtualFile): ScalaSyntaxHighlighter = {
+  override def getSyntaxHighlighter(
+    @Nullable project: Project,
+    @Nullable file: VirtualFile
+  ): ScalaSyntaxHighlighter = {
     val language = if (project != null && file != null)
       LanguageSubstitutors.getInstance.substituteLanguage(ScalaLanguage.INSTANCE, file, project)
     else
@@ -28,7 +34,11 @@ final class ScalaSyntaxHighlighterFactory extends SyntaxHighlighterFactory {
 
 object ScalaSyntaxHighlighterFactory {
 
-  def createScalaSyntaxHighlighter(@Nullable project: Project, @Nullable file: VirtualFile, language: Language): ScalaSyntaxHighlighter = {
+  def createScalaSyntaxHighlighter(
+    @Nullable project: Project,
+    @Nullable file: VirtualFile,
+    language: Language
+  ): ScalaSyntaxHighlighter = {
     val scalaLexer = LanguageParserDefinitions.INSTANCE
       .forLanguage(language)
       .createLexer(project)
@@ -36,7 +46,9 @@ object ScalaSyntaxHighlighterFactory {
 
     import SyntaxHighlighterFactory.{getSyntaxHighlighter => findByLanguage}
 
-    val features = getPushedFeaturesOrDefault(file, language)
+    val featuresFromFile = getScalaFeaturesForFile(project, file)
+    val featuresFromFileOrLanguageDefault = featuresFromFile.getOrElse(ScalaFeatures.defaultForLanguage(language))
+    val features = featuresFromFileOrLanguageDefault
     val noUnicodeEscapesInRawStrings = features.noUnicodeEscapesInRawStrings
 
     val isScala3 = language.isKindOf(Scala3Language.INSTANCE)
@@ -53,8 +65,26 @@ object ScalaSyntaxHighlighterFactory {
     )
   }
 
-  private def getPushedFeaturesOrDefault(@Nullable file: VirtualFile, language: Language): ScalaFeatures = {
-    val fromPusher = Option(file).flatMap(ScalaFeaturePusher.getFeatures)
-    fromPusher.getOrElse(ScalaFeatures.defaultForLanguage(language))
+  private def getScalaFeaturesForFile(
+    @Nullable project: Project,
+    @Nullable file: VirtualFile,
+  ): Option[ScalaFeatures] = {
+    val psiFile = if (project != null && file != null) {
+      // If we try to search for a file in a non-valid state, we get an exception that fails tests "Accessing invalid virtual file ..."
+      // Known reasons when the file might be non-valid:
+      //  1. Synthetical file created during language injection (example: "VirtualFileWindow in /src/A.scala")<br>
+      //     (see com.intellij.psi.impl.source.tree.injected.InjectionRegistrarImpl)
+      //     Language injection can happen in many places: string literals in Scala code, Markdown code snippets with Scala language, etc...
+      if (file.isValid)
+        PsiManager.getInstance(project).findFile(file)
+      else
+        null
+    } else
+      null
+
+    if (psiFile != null)
+      ScalaFeaturePusher.getFeatures(psiFile)
+    else
+       None
   }
 }
