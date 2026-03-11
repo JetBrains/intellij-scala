@@ -159,6 +159,9 @@ object ScalaStringParser {
       case '\"' =>
         outChars.append('\"')
         true
+      case '\'' =>
+        outChars.append('\'')
+        true
       case '\n' =>
         //don't append anything
         true
