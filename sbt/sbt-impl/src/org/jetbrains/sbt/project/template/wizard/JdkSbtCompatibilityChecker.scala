@@ -54,21 +54,27 @@ object JdkSbtCompatibilityChecker {
   }
 
   /**
-   * Determines the highest JDK version that is compatible with the given sbt version.
+   * Returns the highest JDK version that is compatible with the given sbt version.
    * It's done based on hardcoded [[compatibilityTable]].
    *
    * For example - for sbt version 1.5.0, this method will return JDK 16, meaning that sbt 1.5.0 is only compatible with JDK <= 16.
    *
-   * @return [[Option]] containing the highest compatible JDK for the given sbt version <br>
-   *         [[None]] if the versions are compatible
+   * @return the highest compatible JDK for the given sbt version, or `None` if there is no requirement for the given sbt version.
+   */
+  def getHighestCompatibleJdkForSbt(sbtVersion: SbtVersion): Option[JavaVersion] = {
+    val higherSbtVersions = compatibilityTable.filter { case (_, v) => sbtVersion < v }
+    val lowestIncompatibleVersion = higherSbtVersions.keys.minOption
+    lowestIncompatibleVersion.map(javaVersion => JavaVersion.compose(javaVersion.feature - 1))
+  }
+
+  /**
+   * Returns `None` if the `jdk` is compatible with the given `sbtVersion`, or the highest compatible JDK otherwise.
+   *
+   * @see [[getHighestCompatibleJdkForSbt]]
    */
   def getHighestCompatibleJdkForSbt(jdk: JavaVersion, sbtVersion: SbtVersion): Option[JavaVersion] = {
     val isCompatible = isSbtAndJdkVersionCompatible(jdk, sbtVersion)
     if (isCompatible) None
-    else {
-      val higherSbtVersions = compatibilityTable.filter { case (_, v) => sbtVersion < v }
-      val lowestIncompatibleVersion = higherSbtVersions.keys.minOption
-      lowestIncompatibleVersion.map(javaVersion => JavaVersion.compose(javaVersion.feature - 1))
-    }
+    else getHighestCompatibleJdkForSbt(sbtVersion)
   }
 }
