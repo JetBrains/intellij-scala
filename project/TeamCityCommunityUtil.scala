@@ -78,6 +78,7 @@ object TeamCityCommunityUtil {
     def number(number: String): BuildLocator = add("number", number)
     def branch(value: String): BuildLocator = add("branch", value)
     def status(value: String): BuildLocator = add("status", value)
+    def state(value: String): BuildLocator = add("state", value)
     def personal(value: Boolean): BuildLocator = add("personal", value.toString)
     def count(num: Int): BuildLocator = add("count", num.toString)
     def defaultFilter(value: Boolean): BuildLocator = add("defaultFilter", value.toString)
@@ -132,12 +133,13 @@ object TeamCityCommunityUtil {
       .number(buildNumber)
       .failedToStart(false)
       .defaultFilter(false)
+      .status("FAILURE")
+      .state("finished")
       .count(1000) // only get a thousand builds... we expect to get at most 10 or so.
       .getXml
     // If more builds are returned nextHref will be set and we'll fail here
     assert(builds.attribute("nextHref").isEmpty)
     (builds \\ "build")
-      .filter(build => (build \@ "state") == "finished")
       .map(build => build \@ "id")
       .map(_.toLong)
       .toList
