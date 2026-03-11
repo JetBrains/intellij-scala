@@ -10,7 +10,6 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.TokenSets.TokenSetExt
 import org.jetbrains.plugins.scala.lang.parser.PsiBuilderExt
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.{ScalaPsiBuilder, ScalaPsiBuilderImpl}
-import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableIdForImport
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType._
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScalaDocSyntaxElementType
@@ -221,19 +220,11 @@ class MyScaladocParsing(private val builder: PsiBuilder,
     if (isNewLine)
       hasLineBreak = true
 
-  private val docRefEnd = TokenSet.create(
-    DOC_LINK_CLOSE_TAG,
-    DOC_COMMENT_END,
-    DOC_WHITESPACE,
-    DOC_INLINE_TAG_END,
-  )
   private def parseScalaDocRef(): Unit = {
     val refMarker = builder.mark()
 
-    if (builder.getTokenType != DOC_COMMENT_BAD_CHARACTER) {
-      while (!docRefEnd.contains(builder.getTokenType)) {
-        builder.advanceLexer()
-      }
+    while (builder.getTokenType == DOC_COMMENT_DATA) {
+      builder.advanceLexer()
     }
     refMarker.collapse(ScalaDocElementTypes.SCALA_DOC_REFERENCE_LINK)
   }
@@ -336,6 +327,8 @@ class MyScaladocParsing(private val builder: PsiBuilder,
         return false
       case DOC_LINK_TAG =>
         parseScalaDocRef()
+      case DOC_HTTP_LINK_TAG =>
+        builder.advanceLexer()
       case DOC_MONOSPACE_TAG =>
         parseUntilAndConvertToData(monospaceEndTokenSet)
         marker.done(syntaxElementType)
@@ -343,14 +336,32 @@ class MyScaladocParsing(private val builder: PsiBuilder,
       case _ =>
     }
 
+    val isInLink = syntaxElementType == DOC_LINK_TAG || syntaxElementType == DOC_HTTP_LINK_TAG
+
+    var hadCommentData = false
+
     while (!isEndOfComment) {
       val tokenType = builder.getTokenType
 
       val isLeadingAsterisks = tokenType == DOC_COMMENT_LEADING_ASTERISKS
-      if (isNewLine || isLeadingAsterisks) {
+
+      if (isNewLine && !hadCommentData && isInLink) {
+        // In a link after the actual reference, if there is no description but a newline, the link is closed
+        // example:
+        //   [[ref
+        //   [[ref this would be a new link
+        scaladocError(builder, ScalaBundle.message("scaladoc.parsing.expected.description.or.closing.link.tag"))
+        clearFlag(syntaxElementType.getFlagConst)
+        marker.done(syntaxElementType)
+        return true
+      } else if (isNewLine || isLeadingAsterisks) {
         //skip
       } else {
         hasClosingElementsInWikiSyntax = false
+
+        if (tokenType != DOC_WHITESPACE) {
+          hadCommentData = true
+        }
       }
 
       tokenType match {

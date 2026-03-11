@@ -299,22 +299,26 @@ private class ScalaDocContentGeneratorWikidoc(
 
     val isHttpLink = firstChild.elementType == ScalaDocTokenType.DOC_HTTP_LINK_TAG
     if (isHttpLink)
-      generateHttpLink(linkElement).getOrElse(linkElement.getText)
+      generateHttpLink(linkElement)
     else
       generatePsiElementLinkWithLabelForChildren(linkElement, plainLink = false, isMarkupInner)
   }
 
-  private def generateHttpLink(linkElement: ScDocSyntaxElement): Option[String] = {
-    val linkValue = linkElement.findFirstChildByType(ScalaDocTokenType.DOC_HTTP_LINK_VALUE).orNull
-    if (linkValue == null) return None
-
-    val href = linkValue.getText
-    val labelNodes = linkValue.nextSiblings.dropLeadingDocWhitespaces.filter(isMarkupInner)
+  private def generateHttpLink(linkElement: ScDocSyntaxElement): String = {
+    val linkValue = linkElement.findFirstChildByType(ScalaDocTokenType.DOC_HTTP_LINK_VALUE)
+    val href = linkValue.map(_.getText)
+    val labelNodes =
+      linkValue.getOrElse(linkElement.getFirstChild)
+        .nextSiblings.dropLeadingDocWhitespaces.filter(isMarkupInner)
     val label = if (labelNodes.nonEmpty)
       nodesText(labelNodes.to(Iterable))
     else
-      href
-    Some(HtmlPsiUtils.hyperLink(href, label))
+      href.getOrElse("")
+
+    href match {
+      case Some(href) => HtmlPsiUtils.hyperLink(href, label)
+      case None       => label
+    }
   }
 
   private def visitLeafNode(result: StringBuilder, element: PsiElement): Unit =

@@ -561,8 +561,8 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
          |$ContentStart
          |<a href="http://example.org">http://example.org</a><br>
          | <a href="http://example.org">http://example.org</a><br>
-         | <a href="http://example.org">http://example.org</a><br>
-         | <a href="http://example.org">http://example.org</a><br>
+         | http://example.org<br>
+         | http://example.org <br>
          |$ContentEnd""".stripMargin
     doGenerateDocBodyTestWithoutContainerInfo(fileText, expectedDoc)
   }
@@ -582,7 +582,7 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
          |$ContentStart<a href="http://example.org">label</a><br>
          | <a href="http://example.org">label </a><br>
          | <a href="http://example.org">label with spaces </a><br>
-         | <a href="http://example.org">label with spaces </a><br>
+         | http://example.org label with spaces <br>
          |$ContentEnd""".stripMargin
     doGenerateDocBodyTestWithoutContainerInfo(fileText, expectedDoc)
   }
@@ -607,7 +607,7 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
          | <a href="http://example.org"><b>label with markdown</b> text 3 </a><br>
          | <a href="http://example.org">label <b>with markdown</b> text 4 </a><br>
          | <a href="http://example.org">label <b><u>with nested</u> markdown </b> text 5</a><br>
-         | <a href="http://example.org">label <b><u>with nested</u> markdown</b> text 6 </a><br>
+         | http://example.org label <b><u>with nested</u> markdown</b> text 6 <br>
          |$ContentEnd""".stripMargin
     }
     doGenerateDocBodyTestWithoutContainerInfo(fileText, expectedDoc)
