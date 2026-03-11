@@ -77,9 +77,7 @@ DOC_COMMENT_LEADING_ASTERISKS {*}
 DOC_WHITESPACE { }
 DOC_TAG_NAME {@throws}
 DOC_WHITESPACE { }
-identifier {my}
-. {.}
-identifier {Exception}
+DOC_COMMENT_DATA {my.Exception}
 DOC_WHITESPACE { }
 DOC_COMMENT_DATA {some description}
 DOC_WHITESPACE {

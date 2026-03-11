@@ -20,20 +20,12 @@ DOC_WHITESPACE {
 DOC_COMMENT_LEADING_ASTERISKS {*}
 DOC_WHITESPACE { }
 DOC_LINK_TAG 64 {[[}
-identifier {java}
-. {.}
-identifier {lang}
-. {.}
-identifier {String}
+DOC_COMMENT_DATA {java.lang.String}
 DOC_LINK_CLOSE_TAG 0 {]]}
 DOC_COMMENT_DATA { }
 DOC_SUPERSCRIPT_TAG 16 {^}
 DOC_LINK_TAG 64 {[[}
-identifier {java}
-. {.}
-identifier {lang}
-. {.}
-identifier {Integer}
+DOC_COMMENT_DATA {java.lang.Integer}
 DOC_LINK_CLOSE_TAG 0 {]]}
 DOC_SUPERSCRIPT_TAG 16 {^}
 DOC_WHITESPACE {

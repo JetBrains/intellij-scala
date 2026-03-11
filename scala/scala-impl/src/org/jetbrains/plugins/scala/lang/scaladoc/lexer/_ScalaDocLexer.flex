@@ -51,6 +51,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 
   private boolean isOddItalicBold = false;;
   private int braceCount = 0; // tracks deepness of nested doc comments (/** and */)
+  private int linkBracketCount = -1; // for tracking how many [ opened a link
 
   public boolean checkAhead(char c) {
     if (zzMarkedPos >= zzBuffer.length()) return false;
@@ -92,11 +93,8 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 %state INLINE_LINK_TAG_VALUE
 %state INLINE_DOC_TAG_VALUE
 %state INLINE_TAG_DOC_SPACE
-%state CODE_LINK_INNER_START
-%state CODE_LINK_INNER
-%state HTTP_LINK_INNER_START
-%state HTTP_LINK_INNER
-%state CODE_BAD_LINK
+%state LINK_CODEREF_PART
+%state LINK_HTTP_PART
 %state DOC_TAG_VALUE_SPACE
 %xstate COMMENT_INNER_CODE
 %xstate INNER_CODE_WHITESPACE
@@ -133,7 +131,7 @@ op         = {opchar1} {opchar}+
            | {opchar2} {opchar}*
 idrest     = [:jletterdigit:]* ("_" ({op} | {opchar1}))?
 varid      = [:jletter:] {idrest}
-plainid = {varid} | {op}
+plainid    = {varid} | {op}
 
 charEscapeSeq = \\[^\r\n]
 LineTerminator = \r | \n | \r\n | \u0085 |  \u2028 | \u2029 | \u000A | \u000a
@@ -147,6 +145,8 @@ stringLiteralExtra = {stringElementExtra}*
 //symbolLiteral = "\'" {plainid}
 //scalaIdentifierWithPath = (({plainid} | "`" {stringLiteralExtra} "`")["."]?)+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+scalaRefLinkText = ("`" {stringLiteralExtra} "`" | ("\\" .) | [^}\]\\`{WHITE_DOC_SPACE_CHAR}])+
 
 %%
 
@@ -176,7 +176,7 @@ stringLiteralExtra = {stringElementExtra}*
 ////////////////////////////////////////////////////////////////////////////////////////////
 // looks like jlex doesn't support {2,} syntax (2 or more), using fixed big magic constant
 <COMMENT_DATA_START> {WHITE_DOC_SPACE_NO_NL}{2,999} / {LIST_ITEM_HEAD_REG}{WHITE_DOC_SPACE_CHAR} {
-  yybegin(LIST_ITEM_HEAD); return DOC_WHITESPACE;
+  yybegin(LIST_ITEM_HEAD);return DOC_WHITESPACE;
 }
 <LIST_ITEM_HEAD> {LIST_ITEM_HEAD_REG} / {WHITE_DOC_SPACE_CHAR} { yybegin(LIST_ITEM_DATA_START); return DOC_LIST_ITEM_HEAD; }
 <LIST_ITEM_DATA_START> {WHITE_DOC_SPACE_CHAR}+ { yybegin(COMMENT_DATA); return DOC_WHITESPACE; }
@@ -190,7 +190,9 @@ stringLiteralExtra = {stringElementExtra}*
     : DOC_COMMENT_DATA;
 }
 <COMMENT_DATA>  {WHITE_DOC_SPACE_NO_NL}+ { return DOC_COMMENT_DATA; }
-<COMMENT_DATA, COMMENT_INNER_CODE>  [\n\r]+{WHITE_DOC_SPACE_CHAR}* { return DOC_WHITESPACE; }
+<COMMENT_DATA, COMMENT_INNER_CODE>  [\n\r]+ {WHITE_DOC_SPACE_CHAR}* {
+  return DOC_WHITESPACE;
+}
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -241,59 +243,60 @@ stringLiteralExtra = {stringElementExtra}*
 // Code links e.g. [[scala.collection.Seq]], [[scala.collection.Seq label text]]
 // HTTP links e.g. [[http://example.org]], [[https://example.org label text]]
 ////////////////////////////////////////////////////////////////////////////////////////////
-<COMMENT_DATA, COMMENT_DATA_START, TAG_DOC_SPACE> ("[["|"\u005b\u005b") {
-  yybegin(CODE_LINK_INNER_START);
+<COMMENT_DATA, COMMENT_DATA_START, TAG_DOC_SPACE> ("[" "["+) {
+  linkBracketCount = yylength();
+  yybegin(LINK_CODEREF_PART);
   return DOC_LINK_TAG;
 }
-<COMMENT_DATA, COMMENT_DATA_START, TAG_DOC_SPACE> ("[["|"\u005b\u005b") / {WHITE_DOC_SPACE_NO_NL}*("http:" | "https:") {
-  yybegin(HTTP_LINK_INNER_START);
+
+<COMMENT_DATA, COMMENT_DATA_START, TAG_DOC_SPACE> ("[" "["+) / {WHITE_DOC_SPACE_NO_NL}*("http:" | "https:") {
+  linkBracketCount = yylength();
+  yybegin(LINK_HTTP_PART);
   return DOC_HTTP_LINK_TAG;
 }
 
-<HTTP_LINK_INNER_START> {WHITE_DOC_SPACE_NO_NL}+ {
-  yybegin(HTTP_LINK_INNER);
-  return DOC_WHITESPACE;
-}
-
-<HTTP_LINK_INNER> {WHITE_DOC_SPACE_NO_NL}+ {
-  yybegin(COMMENT_DATA);
-  return DOC_WHITESPACE;
-}
-<HTTP_LINK_INNER_START, HTTP_LINK_INNER> [^\ \t\f\n\r\]\u005d]+ {
-  yybegin(HTTP_LINK_INNER);
+<LINK_HTTP_PART> [^\ \t\f\n\r\]]+ {
   return DOC_HTTP_LINK_VALUE;
 }
 
-<CODE_LINK_INNER, CODE_LINK_INNER_START,HTTP_LINK_INNER, HTTP_LINK_INNER_START, CODE_BAD_LINK,COMMENT_DATA, COMMENT_DATA_START> ("]]"|"\u005d\u005d") {
-  yybegin(COMMENT_DATA);
-  return DOC_LINK_CLOSE_TAG;
+<LINK_CODEREF_PART> {scalaRefLinkText} {
+  return DOC_COMMENT_DATA;
 }
 
-<CODE_LINK_INNER_START> {WHITE_DOC_SPACE_NO_NL}+ {
-  yybegin(CODE_LINK_INNER);
-  return DOC_WHITESPACE;
-}
-//note: actually `| {opchar1} doesn't look correct but it behaved so before
-// TODO: fix this within SCL-5428, SCL-8125, SCL-13263
-<CODE_LINK_INNER_START, CODE_LINK_INNER> ({plainid} | "`" {stringLiteralExtra} "`" | {opchar1}) {
-  yybegin(CODE_LINK_INNER);
-  return tIDENTIFIER;
-}
-<CODE_LINK_INNER> "." {
-  return tDOT;
-}
-<CODE_LINK_INNER> {WHITE_DOC_SPACE_NO_NL}+ {
-  yybegin(COMMENT_DATA);
-  return DOC_WHITESPACE;
-}
-<CODE_BAD_LINK> [\n\r]+({WHITE_DOC_SPACE_CHAR})* {
-  yybegin(COMMENT_DATA);
-  return DOC_WHITESPACE;
-}
-<CODE_BAD_LINK> . {
-  return DOC_COMMENT_BAD_CHARACTER;
+// handle whitespaces and newlines correctly after the initial value
+<LINK_HTTP_PART, LINK_CODEREF_PART> {
+    {WHITE_DOC_SPACE_NO_NL}+ / {LineTerminator} {
+      linkBracketCount = -1;
+      yybegin(COMMENT_DATA);
+      return DOC_WHITESPACE;
+    }
+
+    [\n\r]+ {WHITE_DOC_SPACE_NO_NL}+ {
+      linkBracketCount = -1;
+      yybegin(COMMENT_DATA);
+      return DOC_WHITESPACE;
+    }
+
+    {WHITE_DOC_SPACE_NO_NL}+ {
+      yybegin(COMMENT_DATA);
+      return DOC_WHITESPACE;
+    }
 }
 
+<LINK_HTTP_PART, LINK_CODEREF_PART, COMMENT_DATA, COMMENT_DATA_START> ("]"+) {
+  int len = yylength();
+  if (len == linkBracketCount) {
+      linkBracketCount = -1;
+      yybegin(COMMENT_DATA);
+      return DOC_LINK_CLOSE_TAG;
+  } else {
+      if (linkBracketCount > 0 && len > linkBracketCount) {
+          // we read to many ], so keep the once that are too many and read the correct number again to close the link
+          yypushback(linkBracketCount);
+      }
+      return DOC_COMMENT_DATA;
+  }
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 // JavaDoc - style inlie tags e.g. {@code 2 + 2 == 4}
@@ -305,8 +308,7 @@ stringLiteralExtra = {stringElementExtra}*
 <INLINE_TAG_NAME> "@"("link" | "linkplain") { yybegin(INLINE_LINK_TAG_DOC_SPACE); return DOC_TAG_NAME; }
 <INLINE_TAG_NAME> "@"{TAG_IDENTIFIER} {  yybegin(INLINE_TAG_DOC_SPACE); return DOC_TAG_NAME;  }
 <INLINE_LINK_TAG_DOC_SPACE> {WHITE_DOC_SPACE_NO_NL}+ { yybegin(INLINE_LINK_TAG_VALUE); return DOC_WHITESPACE;  }
-<INLINE_LINK_TAG_VALUE> ({plainid} | "`" {stringLiteralExtra} "`") { return tIDENTIFIER; }
-<INLINE_LINK_TAG_VALUE> "." { return tDOT; }
+<INLINE_LINK_TAG_VALUE> {scalaRefLinkText} { return DOC_COMMENT_DATA; }
 <INLINE_LINK_TAG_VALUE> {WHITE_DOC_SPACE_CHAR}+ { yybegin(INLINE_DOC_TAG_VALUE); return DOC_WHITESPACE;  }
 <INLINE_TAG_DOC_SPACE> {WHITE_DOC_SPACE_CHAR}+ { yybegin(INLINE_DOC_TAG_VALUE);return DOC_WHITESPACE; }
 <INLINE_DOC_TAG_VALUE> [^\}]+ { return DOC_COMMENT_DATA; }
@@ -344,12 +346,10 @@ stringLiteralExtra = {stringElementExtra}*
 <COMMENT_DATA_START> "@throws" {yybegin(PARAM_THROWS_TAG_DOC_SPACE); return DOC_TAG_NAME; }
 <PARAM_THROWS_TAG_DOC_SPACE> {WHITE_DOC_SPACE_NO_NL}+ {yybegin(PARAM_DOC_THROWS_TAG_VALUE); return DOC_WHITESPACE;}
 <PARAM_THROWS_TAG_DOC_SPACE> {WHITE_DOC_SPACE_CHAR}+ {yybegin(COMMENT_DATA); return DOC_WHITESPACE;}
-<PARAM_DOC_THROWS_TAG_VALUE> ({plainid} | "`" {stringLiteralExtra} "`") {
+<PARAM_DOC_THROWS_TAG_VALUE> {scalaRefLinkText} {
   yybegin(DOC_TAG_VALUE_SPACE);
-  return tIDENTIFIER;
+  return DOC_COMMENT_DATA;
 }
-<PARAM_DOC_THROWS_TAG_VALUE> ({plainid} | "`" {stringLiteralExtra} "`") / ["."] { return tIDENTIFIER; }
-<PARAM_DOC_THROWS_TAG_VALUE> "." { return tDOT; }
 
 <COMMENT_DATA_START> "@"("param"|"tparam") {yybegin(PARAM_TAG_DOC_SPACE); return DOC_TAG_NAME; }
 <PARAM_TAG_DOC_SPACE> {WHITE_DOC_SPACE_NO_NL}+ {yybegin(PARAM_DOC_TAG_VALUE); return DOC_WHITESPACE;}

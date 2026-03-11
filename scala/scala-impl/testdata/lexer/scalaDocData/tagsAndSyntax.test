@@ -49,11 +49,7 @@ DOC_WHITESPACE {
 DOC_COMMENT_LEADING_ASTERISKS {*}
 DOC_WHITESPACE { }
 DOC_LINK_TAG 64 {[[}
-identifier {code}
-. {.}
-identifier {Link}
-. {.}
-identifier {~}
+DOC_COMMENT_DATA {code.Link.~}
 DOC_WHITESPACE { }
 DOC_COMMENT_DATA {code link label}
 DOC_LINK_CLOSE_TAG 0 {]]}
@@ -135,9 +131,7 @@ DOC_WHITESPACE { }
 DOC_TAG_NAME {@see}
 DOC_WHITESPACE { }
 DOC_LINK_TAG 64 {[[}
-identifier {another}
-. {.}
-identifier {Class}
+DOC_COMMENT_DATA {another.Class}
 DOC_LINK_CLOSE_TAG 0 {]]}
 DOC_WHITESPACE {
   }
