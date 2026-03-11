@@ -20,6 +20,7 @@ import java.awt.FlowLayout
 import java.util.concurrent.atomic.AtomicReference
 import java.util.function.Consumer
 import javax.swing.{JLabel, JPanel}
+import scala.annotation.nowarn
 import scala.concurrent.duration.{Duration, DurationInt}
 import scala.util.Try
 import scala.util.chaining.scalaUtilChainingOps
@@ -104,8 +105,9 @@ private[actions] object TaskRunnerWithLoadingProgress {
   ): CancellablePromise[T] = {
     // Unfortunately, the Editor interface is not disposable, so we fall back to the project as disposable.
     // Though the main implementation `EditorImpl` has the disposable.
+    // TODO: SCL-25149 Needs to be rewritten using `com.intellij.openapi.editor.ex.util.EditorUtil.disposeWithEditor`.
     val editorOrProjectDisposable = editor match {
-      case impl: EditorImpl => impl.getDisposable
+      case impl: EditorImpl => impl.getDisposable: @nowarn("cat=deprecation")
       case _ => project
     }
 

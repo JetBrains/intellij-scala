@@ -16,7 +16,6 @@ import com.intellij.ui.{EditorTextField, EditorTextFieldWithBrowseButton, EnumCo
 import com.intellij.uiDesigner.core.{GridConstraints, Spacer}
 import com.intellij.util.ui.JBUI
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.settings.SimpleMappingListCellRenderer
@@ -29,6 +28,7 @@ import org.jetbrains.sbt.settings.SbtSettings
 import java.awt._
 import java.util
 import javax.swing._
+import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
 //noinspection ConvertNullInitializerToUnderscore
@@ -274,7 +274,7 @@ final class TestRunConfigurationForm(val myProject: Project) {
       ExecutionBundle.message("application.configuration.use.classpath.and.jdk.of.module.label"),
       new ModuleDescriptionsComboBox
     ))
-    myJrePathEditor = append(new JrePathEditor)
+    myJrePathEditor = append(new JrePathEditor(): @nowarn("cat=deprecation")) // TODO: SCL-25150
     myShortenClasspathMode = append(labeledComponent(
       ExecutionBundle.message("application.configuration.shorten.command.line.label"),
       new ShortenCommandLineModeCombo(myProject, myJrePathEditor, myModule.getComponent())
