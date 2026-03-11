@@ -50,11 +50,7 @@ DOC_ITALIC_TAG 2 {''}
 DOC_SUBSCRIPT_TAG 32 {,,}
 DOC_COMMENT_DATA { }
 DOC_LINK_TAG 64 {[[}
-identifier {some}
-. {.}
-identifier {code}
-. {.}
-identifier {Link}
+DOC_COMMENT_DATA {some.code.Link}
 DOC_WHITESPACE {   }
 DOC_COMMENT_DATA {description  text}
 DOC_LINK_CLOSE_TAG 0 {]]}

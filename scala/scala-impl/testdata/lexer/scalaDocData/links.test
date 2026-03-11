@@ -3,9 +3,15 @@
   * [[code.Link code link label]]
   * [[code.link.with.Some#`escaped identifier`]]
   * [[code.link.with.Some#`escaped identifier` code link label]]
+  * [[\
+  * [[\\\
+  * [[\ ` `\backslash\ ]]
   * [[http://google.com http link]]
   * [[http://scala-lang.org loooooooooooooooooooong multi line
   * http link to official scala lang site]]
+  * [[[ref]]
+  * [[[ref]]]
+  * [[[ref]]]]]]
   * {@code this.is.actually.just.a.Code}
   * {@code [[this.is.actually.just.a.Code]]}
   * {@link inline.tag.code.Link}
@@ -22,20 +28,14 @@ DOC_WHITESPACE {
 DOC_COMMENT_LEADING_ASTERISKS {*}
 DOC_WHITESPACE { }
 DOC_LINK_TAG 64 {[[}
-identifier {simple}
-. {.}
-identifier {code}
-. {.}
-identifier {Link}
+DOC_COMMENT_DATA {simple.code.Link}
 DOC_LINK_CLOSE_TAG 0 {]]}
 DOC_WHITESPACE {
   }
 DOC_COMMENT_LEADING_ASTERISKS {*}
 DOC_WHITESPACE { }
 DOC_LINK_TAG 64 {[[}
-identifier {code}
-. {.}
-identifier {Link}
+DOC_COMMENT_DATA {code.Link}
 DOC_WHITESPACE { }
 DOC_COMMENT_DATA {code link label}
 DOC_LINK_CLOSE_TAG 0 {]]}
@@ -44,32 +44,36 @@ DOC_WHITESPACE {
 DOC_COMMENT_LEADING_ASTERISKS {*}
 DOC_WHITESPACE { }
 DOC_LINK_TAG 64 {[[}
-identifier {code}
-. {.}
-identifier {link}
-. {.}
-identifier {with}
-. {.}
-identifier {Some}
-identifier {#}
-identifier {`escaped identifier`}
+DOC_COMMENT_DATA {code.link.with.Some#`escaped identifier`}
 DOC_LINK_CLOSE_TAG 0 {]]}
 DOC_WHITESPACE {
   }
 DOC_COMMENT_LEADING_ASTERISKS {*}
 DOC_WHITESPACE { }
 DOC_LINK_TAG 64 {[[}
-identifier {code}
-. {.}
-identifier {link}
-. {.}
-identifier {with}
-. {.}
-identifier {Some}
-identifier {#}
-identifier {`escaped identifier`}
+DOC_COMMENT_DATA {code.link.with.Some#`escaped identifier`}
 DOC_WHITESPACE { }
 DOC_COMMENT_DATA {code link label}
+DOC_LINK_CLOSE_TAG 0 {]]}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_LINK_TAG 64 {[[}
+DOC_COMMENT_BAD_CHARACTER {\}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_LINK_TAG 64 {[[}
+DOC_COMMENT_DATA {\\}
+DOC_COMMENT_BAD_CHARACTER {\}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_LINK_TAG 64 {[[}
+DOC_COMMENT_DATA {\ ` `\backslash\ }
 DOC_LINK_CLOSE_TAG 0 {]]}
 DOC_WHITESPACE {
   }
@@ -98,6 +102,26 @@ DOC_WHITESPACE {
   }
 DOC_COMMENT_LEADING_ASTERISKS {*}
 DOC_WHITESPACE { }
+DOC_LINK_TAG 64 {[[[}
+DOC_COMMENT_DATA {ref]]}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_LINK_TAG 64 {[[[}
+DOC_COMMENT_DATA {ref}
+DOC_LINK_CLOSE_TAG 0 {]]]}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_LINK_TAG 64 {[[[}
+DOC_COMMENT_DATA {ref]]]}
+DOC_LINK_CLOSE_TAG 0 {]]]}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
 DOC_INLINE_TAG_START {{}
 DOC_TAG_NAME {@code}
 DOC_WHITESPACE { }
@@ -119,13 +143,7 @@ DOC_WHITESPACE { }
 DOC_INLINE_TAG_START {{}
 DOC_TAG_NAME {@link}
 DOC_WHITESPACE { }
-identifier {inline}
-. {.}
-identifier {tag}
-. {.}
-identifier {code}
-. {.}
-identifier {Link}
+DOC_COMMENT_DATA {inline.tag.code.Link}
 DOC_INLINE_TAG_END {}}
 DOC_WHITESPACE {
   }
@@ -134,13 +152,7 @@ DOC_WHITESPACE { }
 DOC_INLINE_TAG_START {{}
 DOC_TAG_NAME {@link}
 DOC_WHITESPACE { }
-identifier {inline}
-. {.}
-identifier {tag}
-. {.}
-identifier {code}
-. {.}
-identifier {Link}
+DOC_COMMENT_DATA {inline.tag.code.Link}
 DOC_WHITESPACE { }
 DOC_COMMENT_DATA {inline tag label}
 DOC_INLINE_TAG_END {}}
@@ -151,13 +163,7 @@ DOC_WHITESPACE { }
 DOC_INLINE_TAG_START {{}
 DOC_TAG_NAME {@link}
 DOC_WHITESPACE { }
-DOC_COMMENT_BAD_CHARACTER {[}
-DOC_COMMENT_BAD_CHARACTER {[}
-identifier {http}
-identifier {://}
-identifier {google}
-. {.}
-identifier {ocm}
+DOC_COMMENT_DATA {[[http://google.ocm}
 DOC_WHITESPACE { }
 DOC_COMMENT_DATA {illegal illegal http link in inline tag]]}
 DOC_INLINE_TAG_END {}}
@@ -168,11 +174,7 @@ DOC_WHITESPACE { }
 DOC_INLINE_TAG_START {{}
 DOC_TAG_NAME {@link}
 DOC_WHITESPACE { }
-identifier {http}
-identifier {://}
-identifier {google}
-. {.}
-identifier {ocm}
+DOC_COMMENT_DATA {http://google.ocm}
 DOC_WHITESPACE { }
 DOC_COMMENT_DATA {illegal illegal http link in inline tag}
 DOC_INLINE_TAG_END {}}
@@ -183,13 +185,7 @@ DOC_WHITESPACE { }
 DOC_TAG_NAME {@see}
 DOC_WHITESPACE { }
 DOC_LINK_TAG 64 {[[}
-identifier {valid}
-. {.}
-identifier {code}
-. {.}
-identifier {Link}
-. {.}
-identifier {inTag}
+DOC_COMMENT_DATA {valid.code.Link.inTag}
 DOC_LINK_CLOSE_TAG 0 {]]}
 DOC_WHITESPACE {
   }

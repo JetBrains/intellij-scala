@@ -28,18 +28,6 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
     assertEquals(expected.trim, transformed.trim.withNormalizedSeparator)
   }
 
-  private def checkWhitespaceTokensOnlyContainWhitespacs(tree: String): Unit = {
-    val wsRegex = raw"\s+ScPsiDocToken\(DOC_WHITESPACE\)\('(.*)'\)".r
-    val allowedWs = raw"(\s|\\n)*".r
-    for {
-      line <- tree.linesIterator
-      m <- wsRegex.findAllMatchIn(line)
-      wsToken = m.group(1)
-    } {
-      assert(allowedWs.matches(wsToken), s"Whitespace token contained non-ws character: '$wsToken'")
-    }
-  }
-
   private def transformScala2TreeToScala3Tree(code: String): String = code
     .replace("ScPsiDocToken(DOC_BOLD_TAG 1)(''''')", "ScPsiDocToken(DOC_BOLD_TAG 1)('**')")
     .replace("ScPsiDocToken(DOC_ITALIC_TAG 2)('''')", "ScPsiDocToken(DOC_ITALIC_TAG 2)('*')")
@@ -2436,7 +2424,6 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
-  // TODO: fix alt text
   def test_ref_link(): Unit = checkTree(
     """
       |/**
@@ -2528,7 +2515,6 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
-  // TODO: fix alt text
   def test_http_link(): Unit = checkTree(
     """
       |/**
