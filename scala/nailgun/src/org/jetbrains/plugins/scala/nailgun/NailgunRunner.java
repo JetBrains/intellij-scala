@@ -51,7 +51,7 @@ public class NailgunRunner {
     URLClassLoader classLoader = constructClassLoader(classpath);
 
     InetAddress address = InetAddress.getByName(null);
-    NGServer server = createServer(address, 0, id, scalaCompileServerSystemDir, jpsBuildSystemDir, classLoader);
+    NGServer server = createServer(address, id, scalaCompileServerSystemDir, jpsBuildSystemDir, classLoader);
 
     Thread thread = new Thread(server);
     thread.setName("Scala Compile Server NGServer");
@@ -126,7 +126,6 @@ public class NailgunRunner {
 
   private static NGServer createServer(
           InetAddress address,
-          int port,
           String id,
           Path scalaCompileServerSystemDir,
           Path jpsBuildSystemDir,
@@ -135,7 +134,7 @@ public class NailgunRunner {
 
     NGServer server = new NGServer(
             address,
-            port,
+            0,
             0,
             NGConstants.HEARTBEAT_TIMEOUT_MILLIS
     );
