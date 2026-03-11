@@ -75,45 +75,45 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
       case named: ScNamedElement =>
         val usages = pipeline.runSearchPipeline(named, isOnTheFly)
 
-        if (usages.isEmpty && !isFunctionDeclarationOfUsedSAMableClass) {
-
-          val dontReportPublicDeclarationsQuickFix = if (isOnlyVisibleInLocalFile(named)) None
-          else Some(
-            LocalQuickFix.from(
-              new UpdateInspectionOptionFix(
-                this,
-                reportPublicDeclarationsPropertyName,
-                ScalaInspectionBundle.message("fix.unused.declaration.report.public.declarations"),
-                false
-              )
-            )
-          )
-
-          val addScalaAnnotationUnusedQuickFix =
-            if (named.scalaLanguageLevelOrDefault < ScalaLanguageLevel.Scala_2_13 || named.is[ScTypeParam]) {
-              None
-            } else {
-              Some(new AddScalaAnnotationUnusedQuickFix(named))
-            }
-
-          val message = if (isOnTheFly) {
-            ScalaUnusedDeclarationInspection.annotationDescription
-          } else {
-            UnusedDeclarationVerboseProblemInfoMessage(named)
-          }
-
-          Seq(
-            ProblemInfo(
-              named.nameId,
-              message,
-              DeleteUnusedElementFix.quickfixesFor(named) ++
-                dontReportPublicDeclarationsQuickFix ++
-                addScalaAnnotationUnusedQuickFix
-            )
-          )
-        } else Seq.empty
+        if (usages.isEmpty && !isFunctionDeclarationOfUsedSAMableClass) Seq(unusedProblemInfoFor(named, isOnTheFly))
+        else Seq.empty
       case _ => Seq.empty
     }
+  }
+
+  private def unusedProblemInfoFor(named: ScNamedElement, isOnTheFly: Boolean): ProblemInfo = {
+    val dontReportPublicDeclarationsQuickFix = if (isOnlyVisibleInLocalFile(named)) None
+    else Some(
+      LocalQuickFix.from(
+        new UpdateInspectionOptionFix(
+          this,
+          reportPublicDeclarationsPropertyName,
+          ScalaInspectionBundle.message("fix.unused.declaration.report.public.declarations"),
+          false
+        )
+      )
+    )
+
+    val addScalaAnnotationUnusedQuickFix =
+      if (named.scalaLanguageLevelOrDefault < ScalaLanguageLevel.Scala_2_13 || named.is[ScTypeParam]) {
+        None
+      } else {
+        Some(new AddScalaAnnotationUnusedQuickFix(named))
+      }
+
+    val message = if (isOnTheFly) {
+      ScalaUnusedDeclarationInspection.annotationDescription
+    } else {
+      UnusedDeclarationVerboseProblemInfoMessage(named)
+    }
+
+    ProblemInfo(
+      named.nameId,
+      message,
+      DeleteUnusedElementFix.quickfixesFor(named) ++
+        dontReportPublicDeclarationsQuickFix ++
+        addScalaAnnotationUnusedQuickFix
+    )
   }
 
   override def shouldProcessElement(element: PsiElement): Boolean = {
