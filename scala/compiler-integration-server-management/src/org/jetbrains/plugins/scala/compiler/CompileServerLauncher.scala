@@ -33,6 +33,7 @@ import org.jetbrains.plugins.scala.util._
 import org.jetbrains.plugins.scala.util.teamcity.TeamcityUtils
 
 import java.io.{BufferedReader, IOException, InputStream, InputStreamReader}
+import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
 import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.CoroutineScope
@@ -253,6 +254,8 @@ object CompileServerLauncher {
                 CompileServerPort.Remote(forwardedLocalPort, portReportedByServer)
               }
             }
+
+            writePortFile(compileServerSystemDir, port.forToken)
 
             val watcher = new ProcessWatcher(process, "scalaCompileServer", local)
             val instance = new ServerInstance(
@@ -801,6 +804,12 @@ object CompileServerLauncher {
   private val java9rtExportString: String = "java9-rt-export"
 
   private val scalaExtDirsParameterString: String = "-Dscala.ext.dirs"
+
+  private def writePortFile(compileServerSystemDir: Path, port: Int): Unit = {
+    import java.nio.file.StandardOpenOption.{CREATE, TRUNCATE_EXISTING}
+    val path = CompileServerPort.portFilePath(compileServerSystemDir)
+    Files.writeString(path, port.toString, StandardCharsets.UTF_8, TRUNCATE_EXISTING, CREATE)
+  }
 
   private[compiler] val compileServerJvmAddOpensExtraParams: Seq[String] =
     Seq(
