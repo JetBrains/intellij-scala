@@ -118,16 +118,23 @@ object JdkScalaCompatibilityChecker:
       getMinimumScalaToJdkCompatibleVersion(jdk, scalaVersion).isEmpty
 
   /**
-   * Returns the minimum required JDK version if the current JDK is incompatible with the given Scala version.
+   * Returns the minimum JDK version required for the given Scala version.
    *
    * Currently, it handles the special case where Scala 3.8+ requires JDK 17 or higher.
    * See: [[https://www.scala-lang.org/news/next-scala-lts-jdk.html]]
    *
-   * @return the minimum JDK version required for compatibility, or `None` if the current JDK is enough.
+   * @return the minimum JDK version required, or `None` if there is no requirement for the given Scala version
+   */
+  def getMinimumJdkVersionForScala(scalaVersion: ScalaVersion): Option[JavaVersion] =
+    if isScala3_8Plus(scalaVersion) then Some(JavaVersion.compose(17)) else None
+
+  /**
+   * Returns `None` if the `jdk` is compatible with the given `scalaVersion`, or the minimum required JDK version otherwise.
+   *
+   * @see [[getMinimumJdkVersionForScala]]
    */
   def getMinimumJdkRequiredForScala(jdk: JavaVersion, scalaVersion: ScalaVersion): Option[JavaVersion] =
-    val required = if (isScala3_8Plus(scalaVersion)) Some(JavaVersion.compose(17)) else None
-    required.filter(jdk < _)
+    getMinimumJdkVersionForScala(scalaVersion).filter(jdk < _)
 
   /**
    * Determines the highest JDK version that is compatible with the given Scala version.
