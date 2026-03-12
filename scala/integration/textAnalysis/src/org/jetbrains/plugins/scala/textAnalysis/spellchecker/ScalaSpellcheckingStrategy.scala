@@ -9,6 +9,7 @@ import com.intellij.spellchecker.tokenizer.{SpellcheckingStrategy, TokenConsumer
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.incremental.Highlighting.ElementHighlightingExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
@@ -17,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 
 final class ScalaSpellcheckingStrategy extends SpellcheckingStrategy {
-  private val myLiteralExpressionTokenizer: ScLiteralExpressionTokenizer = new ScLiteralExpressionTokenizer
+  private val myStringLiteralExpressionTokenizer: ScLiteralExpressionTokenizer = new ScLiteralExpressionTokenizer
   private val myDocCommentTokenizer: ScalaDocCommentTokenizer = new ScalaDocCommentTokenizer
   private val codeTokenizer: Tokenizer[PsiElement] = new TokenizerBase[PsiElement](PlainTextSplitter.getInstance()) {
     override def consumeToken(element: PsiElement, consumer: TokenConsumer, splitter: Splitter): Unit = {
@@ -28,7 +29,7 @@ final class ScalaSpellcheckingStrategy extends SpellcheckingStrategy {
   override def getTokenizer(element: PsiElement): Tokenizer[? <: PsiElement] =
     if useTextLevelSpellchecking() && element.is[PsiComment, ScLiteral] then emptyTokenizer
     else element match {
-      case _: ScLiteral => myLiteralExpressionTokenizer
+      case _: ScStringLiteral => myStringLiteralExpressionTokenizer
       case _: ScDocComment => myDocCommentTokenizer
       case _: PsiComment => super.getTokenizer(element)
       case leaf: LeafPsiElement if leaf.getElementType == ScalaTokenTypes.tIDENTIFIER =>
