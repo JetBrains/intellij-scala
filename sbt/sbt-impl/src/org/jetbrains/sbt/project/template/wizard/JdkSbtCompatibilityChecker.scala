@@ -27,6 +27,11 @@ object JdkSbtCompatibilityChecker {
     JDK_8  -> SbtVersion("1.0.0")
   )
 
+  /** Maps sbt versions to their minimum required JDK version */
+  private val sbtToMinJdkVersionTable: Map[SbtVersion, JavaVersion] = Map(
+    SbtVersion("2.0.0-RC9") -> JavaVersion.compose(17)
+  )
+
   /**
    * Determines the minimum compatible sbt version required for a specific JDK version.
    * It's done based on hardcoded [[compatibilityTable]].
@@ -43,13 +48,32 @@ object JdkSbtCompatibilityChecker {
   }
 
   /**
+   * Returns the minimum JDK version required for the given sbt version, or `None` if there is no minimum JDK constraint.
+   *
+   * @see [[org.jetbrains.sbt.project.template.wizard.JdkScalaCompatibilityChecker.getMinimumJdkVersionForScala]]
+   */
+  def getMinimumJdkVersionForSbt(sbtVersion: SbtVersion): Option[JavaVersion] = {
+    val nearestCompatibleSbt = sbtToMinJdkVersionTable.keys.filter(_ <= sbtVersion).maxOption
+    nearestCompatibleSbt.map(sbtToMinJdkVersionTable)
+  }
+
+  /**
+   * Returns `None` if the `jdk` is compatible with the given `sbtVersion`, or the minimum required JDK version otherwise.
+   *
+   * @see [[getMinimumJdkVersionForSbt]]
+   */
+  def getMinimumJdkToSbtCompatibleVersion(jdk: JavaVersion, sbtVersion: SbtVersion): Option[JavaVersion] =
+    getMinimumJdkVersionForSbt(sbtVersion).filter(jdk < _)
+
+  /**
    * @param strict if set to <code>true</code>, JDK versions below 1.8 or greater than or equal to 24 are treated as incompatible
    */
   def isSbtAndJdkVersionCompatible(jdk: JavaVersion, sbtVersion: SbtVersion, strict: Boolean = false): Boolean = {
     val isOutsideOfRange = jdk < JDK_8 || jdk >= JavaVersion.compose(24)
     if (strict && isOutsideOfRange) false
     else {
-      getMinimumSbtToJdkCompatibleVersion(jdk, sbtVersion).isEmpty
+      getMinimumSbtToJdkCompatibleVersion(jdk, sbtVersion).isEmpty &&
+        getMinimumJdkToSbtCompatibleVersion(jdk, sbtVersion).isEmpty
     }
   }
 
