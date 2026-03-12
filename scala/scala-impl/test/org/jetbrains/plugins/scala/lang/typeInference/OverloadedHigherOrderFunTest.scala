@@ -234,3 +234,56 @@ class OverloadedHigherOrderFunTest extends ScalaLightCodeInsightFixtureTestCase 
       |""".stripMargin
   )
 }
+
+@Category(Array(classOf[TypecheckerTests]))
+class OverloadedHigherOrderFunScala3Test extends ScalaLightCodeInsightFixtureTestCase {
+  override protected def supportedIn(version: ScalaVersion) = version >= LatestScalaVersions.Scala_3_0
+
+  def testOverloadDisambiguatedByNonFunctionArg(): Unit = checkTextHasNoErrors(
+    """
+      |object Test {
+      |  def foo(x: Int, f: Int => Long): Int = ???
+      |  def foo(x: String, f: String => Int): Double = ???
+      |
+      |  val result1 = foo(1, i => i * 10L)
+      |  val result2 = foo("hello", s => s.length)
+      |}
+      |""".stripMargin
+  )
+
+  def testOverloadDisambiguatedByNonFunctionArgUnderscore(): Unit = checkTextHasNoErrors(
+    """
+      |object Test {
+      |  def foo(x: Int, f: Int => Long): Int = ???
+      |  def foo(x: String, f: String => Int): Double = ???
+      |
+      |  val result1 = foo(1, _ * 10L)
+      |  val result2 = foo("hello", _.length)
+      |}
+      |""".stripMargin
+  )
+
+  def testOverloadDisambiguatedByNonFunctionArgBlock(): Unit = checkTextHasNoErrors(
+    """
+      |object Test {
+      |  def foo(x: Int, f: Int => Long): Int = ???
+      |  def foo(x: String, f: String => Int): Double = ???
+      |
+      |  val result1 = foo(1, { i => i * 10L })
+      |  val result2 = foo("hello", { s => s.length })
+      |}
+      |""".stripMargin
+  )
+
+  def testOverloadDisambiguatedByNonFunctionArgPartialFunction(): Unit = checkTextHasNoErrors(
+    """
+      |object Test {
+      |  def foo(x: Int, f: Int => Long): Int = ???
+      |  def foo(x: String, f: String => Int): Double = ???
+      |
+      |  val result1 = foo(1, { case i => i * 10L })
+      |  val result2 = foo("hello", { case s => s.length })
+      |}
+      |""".stripMargin
+  )
+}

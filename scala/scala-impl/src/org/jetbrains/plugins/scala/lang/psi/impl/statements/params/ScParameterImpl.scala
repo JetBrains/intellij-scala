@@ -135,7 +135,8 @@ class ScParameterImpl protected(
             }
           case None => expectedParamType.map(_.unpackedType) match {
             case Some(t) => success(t)
-            case None => success(Nothing)
+            case None =>
+              success(Nothing)
           }
           case Some(e) => e.`type`()
         }
@@ -158,9 +159,9 @@ class ScParameterImpl protected(
     case clause: ScParameterClause => clause.getContext.getContext match {
       case fn: ScFunctionExpr =>
         val functionLikeType = FunctionLikeType(this)
-        val eTpe             = fn.expectedType(fromUnderscore = false)
-        val idx              = clause.parameters.indexOf(this)
         val isUnderscoreFn   = ScUnderScoreSectionUtil.isUnderscoreFunction(fn)
+        val eTpe             = fn.expectedType(fromUnderscore = !isUnderscoreFn)
+        val idx              = clause.parameters.indexOf(this)
 
         @tailrec
         def extractFromFunctionType(tpe: ScType, checkDeep: Boolean = false): Option[ScType] =

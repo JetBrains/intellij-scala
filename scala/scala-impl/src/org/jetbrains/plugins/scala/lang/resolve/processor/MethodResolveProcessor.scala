@@ -31,6 +31,38 @@ import org.jetbrains.plugins.scala.util.SAMUtil
 
 import scala.annotation.tailrec
 
+/**
+  * @param prevTypeInfo      Unresolved type parameters from the qualifier's [[ScTypePolymorphicType]],
+  *                          propagated so that the current resolution can contribute constraints for their
+  *                          inference. Extracted via `reference.getPrevTypeInfoParams`.
+  *
+  *                          Example:
+  *                          {{{
+  *                          def foo[A]: List[A] = ???
+  *                          foo.map(x => x.toString)
+  *                          }}}
+  *                          The reference `foo` has non-value type `ScTypePolymorphicType(List[A], Seq(A))`
+  *                          — `A` is not yet inferred. When resolving `map`, `A` is passed as `prevTypeInfo`
+  *                          so that the argument `x => x.toString` can contribute constraints
+  *                          (here: `A` must support `toString`, ultimately inferred from context).
+  * @param expectedOption    Lazy expected return type of the resolved method at the call site.
+  *                          Used to filter candidates whose return type doesn't conform.
+  * @param isUnderscore      Whether the reference appears inside a placeholder syntax underscore section
+  *                          (e.g. `_ + 1`, `_.foo()`). NOT eta-expansion (`foo _`). Affects how arguments
+  *                          and expected types are handled — placeholder sections have no explicit arguments
+  *                          and rely on expected type inference.
+  * @param noImplicitsForArgs When `true`, skip implicit conversions when checking argument applicability.
+  * @param nameArgForDynamic When set, enables Dynamic method resolution (applyDynamic/selectDynamic)
+  *                          with the given method name.
+  * @param isSubResolve      When `true` (default), indicates this resolve is happening as part of a larger
+  *                          resolve operation (e.g. during implicit resolution or apply/update expansion),
+  *                          NOT as the top-level resolve initiated by [[ReferenceExpressionResolver]].
+  *                          Passed through to [[Compatibility]] as `isIncompleteExpectedType` to prevent
+  *                          permanent caching of argument types computed with transient expected types from
+  *                          overloaded alternatives. Only the top-level resolve (which sets `isSubResolve = false`)
+  *                          is allowed to permanently cache these results, because at that point the known
+  *                          expected types reflect the final set of alternatives.
+  */
 class MethodResolveProcessor(
   override val ref:           PsiElement,
   val refName:                String,
@@ -45,7 +77,8 @@ class MethodResolveProcessor(
   val enableTupling:          Boolean                   = false,
   val noImplicitsForArgs:     Boolean                   = false,
   val selfConstructorResolve: Boolean                   = false,
-  val nameArgForDynamic:      Option[String]            = None
+  val nameArgForDynamic:      Option[String]            = None,
+  val isSubResolve:           Boolean                   = true
 ) extends ResolveProcessor(kinds, ref, refName) {
   def copy(
     ref:                    PsiElement                = ref,
@@ -61,7 +94,8 @@ class MethodResolveProcessor(
     enableTupling:          Boolean                   = enableTupling,
     noImplicitsForArgs:     Boolean                   = noImplicitsForArgs,
     selfConstructorResolve: Boolean                   = selfConstructorResolve,
-    nameArgForDynamic:      Option[String]            = nameArgForDynamic
+    nameArgForDynamic:      Option[String]            = nameArgForDynamic,
+    isSubResolve:           Boolean                   = isSubResolve
   ): MethodResolveProcessor = new MethodResolveProcessor(
     ref,
     refName,
@@ -76,7 +110,8 @@ class MethodResolveProcessor(
     enableTupling,
     noImplicitsForArgs,
     selfConstructorResolve,
-    nameArgForDynamic
+    nameArgForDynamic,
+    isSubResolve
   )
 
   private def isDynamic: Boolean                 = nameArgForDynamic.nonEmpty
@@ -201,6 +236,7 @@ object MethodResolveProcessor {
   private def problemsFor(
     place:                  PsiElement,
     c:                      ScalaResolveResult,
+    alts:                   Set[ScalaResolveResult],
     checkWithImplicits:     Boolean,
     ref:                    PsiElement,
     argumentClauses:        Seq[Seq[Expression]],
@@ -210,7 +246,8 @@ object MethodResolveProcessor {
     selfConstructorResolve: Boolean,
     isUnderscore:           Boolean,
     shapesOnly:             Boolean,
-    argClauseIdx:           Int
+    argClauseIdx:           Int,
+    isSubResolve:           Boolean
   ): ApplicabilityCheckResult = {
 
     implicit val projectContext: ProjectContext = c.element
@@ -259,12 +296,14 @@ object MethodResolveProcessor {
     })
 
     def addExpectedTypeProblems(): ApplicabilityCheckResult = {
-      if (expectedOption().isEmpty) {
+      val expectedO = expectedOption()
+
+      if (expectedO.isEmpty) {
         val problemsSeq = problems.result()
         return ApplicabilityCheckResult(problemsSeq)
       }
 
-      val expected = expectedOption().get
+      val expected = expectedO.get
 
       val retType: ScType = element match {
         case cons @ ScalaConstructor.in(td: ScTypeDefinition) =>
@@ -465,17 +504,18 @@ object MethodResolveProcessor {
               })
 
             (args, argClauseIdx + 1)
-          } else
-      (argumentClauses, argClauseIdx)
+          } else (argumentClauses, argClauseIdx)
 
         val argsApplicability =
           Compatibility.compatible(
             c,
+            alts.toSeq,
             substitutorWithExpected,
             argsWithDynamic,
             checkWithImplicits,
             shapesOnly,
             ref,
+            isSubResolve,
             argClauseIdxAdjusted
           )
 
@@ -1065,6 +1105,7 @@ object MethodResolveProcessor {
       val conformanceResult = problemsFor(
         getPlace,
         cand,
+        expandedInput.map(_._1),
         checkWithImplicits,
         ref,
         args,
@@ -1074,7 +1115,8 @@ object MethodResolveProcessor {
         selfConstructorResolve = selfConstructorResolve,
         isUnderscore           = isUnderscore,
         shapesOnly             = shapesOnly,
-        argClauseIdx           = argClauseIdx
+        argClauseIdx           = argClauseIdx,
+        isSubResolve           = proc.isSubResolve
       )
 
       val typeArgsSubst =

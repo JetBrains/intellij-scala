@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes.ParameterType
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, InferUtil, ScalaPsiElement, ScalaRecursiveElementVisitor}
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ExpectedTypesImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.{CompilerType, ScalaPsiElementFactory}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible
 import org.jetbrains.plugins.scala.lang.psi.light.LightContextFunctionParameter
@@ -234,16 +235,25 @@ object ScExpression {
 
     def expectedTypes(fromUnderscore: Boolean = true): Seq[ScType] = expectedTypesEx(fromUnderscore).map(_._1).toSeq
 
-    def expectedTypesEx(fromUnderscore: Boolean = true): Array[ParameterType] =
-      cachedWithRecursionGuard(
-        "expectedTypesEx",
-        expr,
-        Array.empty[ParameterType],
-        BlockModificationTracker(expr),
-        Tuple1(fromUnderscore)
-      ) {
-        ExpectedTypes.instance().expectedExprTypes(expr, fromUnderscore = fromUnderscore)
+    def expectedTypesEx(fromUnderscore: Boolean = true): Array[ParameterType] = {
+      val propagatedExpectedTypes = ExpectedTypesImpl.propagatedExpectedTypesFor(expr)
+
+      val res = propagatedExpectedTypes match {
+        case Some(pts) => pts
+        case None =>
+          cachedWithRecursionGuard(
+            "expectedTypesEx",
+            expr,
+            Array.empty[ParameterType],
+            BlockModificationTracker(expr),
+            Tuple1(fromUnderscore)
+          ) {
+            ExpectedTypes.instance().expectedExprTypes(expr, fromUnderscore = fromUnderscore)
+          }
       }
+
+      res.map(ExpectedTypesImpl.unwrapIfUnderscoreFunction(expr, _, fromUnderscore))
+    }
 
     def smartExpectedType(fromUnderscore: Boolean = true): Option[ScType] =
       cachedWithRecursionGuard(
@@ -253,8 +263,8 @@ object ScExpression {
         BlockModificationTracker(expr),
         Tuple1(fromUnderscore)
       ) {
-      ExpectedTypes.instance().smartExpectedType(expr, fromUnderscore)
-    }
+        ExpectedTypes.instance().smartExpectedType(expr, fromUnderscore)
+      }
 
     def getTypeIgnoreBaseType: TypeResult = expr.getTypeAfterImplicitConversion(ignoreBaseTypes = true).tr
 
@@ -274,8 +284,8 @@ object ScExpression {
         if (fromUnderscore) expr.innerType
         else {
           val unders = ScUnderScoreSectionUtil.underscores(expr)
-          if (unders.isEmpty)
-            expr.innerType
+
+          if (unders.isEmpty) expr.innerType
           else {
             val params =
               unders.zipWithIndex.map {
@@ -410,10 +420,10 @@ object ScExpression {
     }
 
     def updatedWithImplicitArguments(
-      tpe:               ScType,
-      checkExpectedType: Boolean,
-      updateDeep:        Boolean,
-      isLeadingClause:   Boolean = false
+      tpe:             ScType,
+      canThrowSCE:     Boolean,
+      updateDeep:      Boolean,
+      isLeadingClause: Boolean = false
     ): (ScType, Seq[ImplicitArgumentsClause]) =  {
       val shouldUpdate = expr.is[MethodInvocation] || ScalaPsiUtil.isEtaExpandedExpression(expr)
 
@@ -423,7 +433,7 @@ object ScExpression {
             tpe,
             expr,
             None,
-            canThrowSCE     = checkExpectedType,
+            canThrowSCE     = canThrowSCE,
             fullInfo        = false,
             updateDeep      = updateDeep,
             isLeadingClause = isLeadingClause
@@ -546,7 +556,7 @@ object ScExpression {
     /**
      * https://github.com/scala/scala/pull/8172
      *
-     * Adapt type of a function literal, if the expected type is
+     * Adapt type of function literal if the expected type is
      * PartialFunction with matching type arguments.
      */
     final def synthesizePartialFunctionType(
@@ -690,7 +700,7 @@ object ScExpression {
   }
 
   private def shape(expression: ScExpression, ignoreAssign: Boolean = false): Option[ScType] = {
-    import expression.{projectContext, elementScope}
+    import expression.{elementScope, projectContext}
     implicit val context: Context = Context(expression)
 
     def shapeIgnoringAssign(maybeExpression: Option[ScExpression]) = maybeExpression.flatMap {

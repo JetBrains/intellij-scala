@@ -367,7 +367,7 @@ object InferUtil {
 
     def implicitSearchFails(tp: ScType): Boolean = expr match {
       case e: ScExpression =>
-        val appliedClauses = e.updatedWithImplicitArguments(tp, checkExpectedType = false, updateDeep = true)._2
+        val appliedClauses = e.updatedWithImplicitArguments(tp, canThrowSCE = false, updateDeep = true)._2
         appliedClauses.exists {
           _.args.exists {
             case srr if srr.isNotFoundImplicitParameter  => true
