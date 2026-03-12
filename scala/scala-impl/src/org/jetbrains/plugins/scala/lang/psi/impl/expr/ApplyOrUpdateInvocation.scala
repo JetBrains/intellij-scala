@@ -43,16 +43,16 @@ case class ApplyOrUpdateInvocation(
 
     val candidates =
       if (simpleCandidates.forall(!_.isApplicable()) && withImplicits) {
-        val noImplicitsForArgs = simpleCandidates.nonEmpty
-        candidatesWithConversion(proc, noImplicitsForArgs)
+        val tryImplicitConversionsForArgs = simpleCandidates.isEmpty
+        candidatesWithConversion(proc, tryImplicitConversionsForArgs)
       } else simpleCandidates
 
     candidates.toArray
   }
 
   private def candidatesWithConversion(
-    processor:          MethodResolveProcessor,
-    noImplicitsForArgs: Boolean
+    processor:                     MethodResolveProcessor,
+    tryImplicitConversionsForArgs: Boolean
   ): Set[ScalaResolveResult] = {
     processor.resetPrecedence()
 
@@ -61,7 +61,7 @@ case class ApplyOrUpdateInvocation(
       baseExpr,
       processor,
       Option(targetType.inferValueType),
-      noImplicitsForArgs,
+      tryImplicitConversionsForArgs = tryImplicitConversionsForArgs,
       forCompletion = false
     ) {
       _.withImports.withType

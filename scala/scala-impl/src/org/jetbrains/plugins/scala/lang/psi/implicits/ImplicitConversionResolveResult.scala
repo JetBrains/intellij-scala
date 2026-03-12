@@ -51,11 +51,11 @@ object ImplicitConversionResolveResult {
   }
 
   def processImplicitConversionsAndExtensions(
-    refName: Option[String],
-    ref: PsiElement,
-    processor: BaseProcessor,
-    noImplicitsForArgs: Boolean = false,
-    forCompletion: Boolean = false,
+    refName:                       Option[String],
+    ref:                           PsiElement,
+    processor:                     BaseProcessor,
+    tryImplicitConversionsForArgs: Boolean = true,
+    forCompletion:                 Boolean = false,
   )(build: ResolverStateBuilder => ResolverStateBuilder
   )(implicit
     place: ScExpression
@@ -65,18 +65,18 @@ object ImplicitConversionResolveResult {
       ref,
       processor,
       this.expressionType,
-      noImplicitsForArgs,
+      tryImplicitConversionsForArgs,
       forCompletion
     )(build)
 
   def processImplicitConversionsAndExtensions(
-    refName:            Option[String],
-    ref:                PsiElement,
-    processor:          BaseProcessor,
-    precalculatedType:  Option[ScType],
-    noImplicitsForArgs: Boolean,
-    forCompletion:      Boolean,
-  )(build:              ResolverStateBuilder => ResolverStateBuilder
+    refName:                       Option[String],
+    ref:                           PsiElement,
+    processor:                     BaseProcessor,
+    precalculatedType:             Option[ScType],
+    tryImplicitConversionsForArgs: Boolean,
+    forCompletion:                 Boolean,
+  )(build:                         ResolverStateBuilder => ResolverStateBuilder
   )(implicit
     place: PsiElement
   ): Unit = {
@@ -85,7 +85,7 @@ object ImplicitConversionResolveResult {
     for {
       expressionType <- precalculatedType
       if !expressionType.equiv(Nothing) // do not proceed with nothing type, due to performance problems.
-      resolveResult <- findImplicitConversionOrExtension(expressionType, refName, ref, processor, noImplicitsForArgs, forCompletion)
+      resolveResult <- findImplicitConversionOrExtension(expressionType, refName, ref, processor, tryImplicitConversionsForArgs, forCompletion)
     } resolveResult match {
         case srr if srr.isExtensionCall =>
           val state = ScalaResolveState
@@ -131,23 +131,23 @@ object ImplicitConversionResolveResult {
 
 
   private[this] def findImplicitConversionOrExtension(
-    expressionType:     ScType,
-    refName:            Option[String],
-    ref:                PsiElement,
-    processor:          BaseProcessor,
-    noImplicitsForArgs: Boolean,
-    forCompletion:      Boolean
+    expressionType:                ScType,
+    refName:                       Option[String],
+    ref:                           PsiElement,
+    processor:                     BaseProcessor,
+    tryImplicitConversionsForArgs: Boolean,
+    forCompletion:                 Boolean
   )(implicit
     place: PsiElement
   ): Seq[ScalaResolveResult] = {
     implicit val elementScope: ElementScope = ElementScope(place)
 
     val functionType          = FunctionType(Any(place.getProject), Seq(expressionType))
-    val expandedFunctionType  = FunctionType(expressionType, arguments(processor, noImplicitsForArgs))
+    val expandedFunctionType  = FunctionType(expressionType, arguments(processor, tryImplicitConversionsForArgs))
 
     def checkImplicits(
       noApplicability:         Boolean = false,
-      withoutImplicitsForArgs: Boolean = noImplicitsForArgs
+      tryImplicitsForArgs:     Boolean = tryImplicitConversionsForArgs
     ): Seq[ScalaResolveResult] = {
       val data = refName.map(
         ExtensionConversionData(
@@ -156,7 +156,7 @@ object ImplicitConversionResolveResult {
           _,
           processor,
           noApplicability,
-          withoutImplicitsForArgs
+          tryImplicitsForArgs
         )
       )
 
@@ -177,7 +177,7 @@ object ImplicitConversionResolveResult {
     val found = checkImplicits() match {
       case Seq()        => checkImplicits(noApplicability = true)
       case seq @ Seq(_) => seq
-      case _            => checkImplicits(withoutImplicitsForArgs = true)
+      case _            => checkImplicits(tryImplicitsForArgs = false)
     }
 
     found
@@ -188,9 +188,9 @@ object ImplicitConversionResolveResult {
       .map(_.tryExtractDesignatorSingleton)
       .toOption
 
-  private[this] def arguments(processor: BaseProcessor, noImplicitsForArgs: Boolean) =
+  private[this] def arguments(processor: BaseProcessor, tryImplicitConversionsForArgs: Boolean) =
     processor match {
-      case methodProcessor: MethodResolveProcessor if noImplicitsForArgs =>
+      case methodProcessor: MethodResolveProcessor if !tryImplicitConversionsForArgs =>
         for {
           expressions <- methodProcessor.argumentClauses
           expression  <- expressions

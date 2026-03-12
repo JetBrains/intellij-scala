@@ -14,12 +14,12 @@ import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveRes
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 case class ExtensionConversionData(
-  place:                   PsiElement,
-  ref:                     PsiElement,
-  refName:                 String,
-  processor:               BaseProcessor,
-  noApplicability:         Boolean,
-  withoutImplicitsForArgs: Boolean
+  place:                         PsiElement,
+  ref:                           PsiElement,
+  refName:                       String,
+  processor:                     BaseProcessor,
+  noApplicability:               Boolean,
+  tryImplicitConversionsForArgs: Boolean
 ) {
   val kinds: Set[ResolveTargets.Value] = processor.kinds
 }
@@ -107,7 +107,7 @@ object ExtensionConversionHelper {
           refName            = refName,
           prevTypeInfo       = typeParams,
           kinds              = kinds,
-          noImplicitsForArgs = withoutImplicitsForArgs
+          tryImplicitConversionsForArgs = tryImplicitConversionsForArgs
         )
       }
   }

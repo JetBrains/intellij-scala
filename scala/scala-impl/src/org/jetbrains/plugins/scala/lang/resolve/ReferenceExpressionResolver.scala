@@ -797,13 +797,13 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
         else                                      candidates
 
       if (shouldTryImplicitConversions(withExplicitApply) || withImplicitConversion) {
-        val procForConversions = updateResolveProcessor(proc)(_.copy(noImplicitsForArgs = candidates.nonEmpty))
+        val procForConversions = updateResolveProcessor(proc)(_.copy(tryImplicitConversionsForArgs = candidates.isEmpty))
 
         ImplicitConversionResolveResult.processImplicitConversionsAndExtensions(
           targetNameForImplicitProcessor(proc),
           ref,
           procForConversions,
-          noImplicitsForArgs = candidates.nonEmpty,
+          tryImplicitConversionsForArgs = candidates.isEmpty,
           forCompletion      = procForConversions.is[CompletionProcessor]
         )(_.withImports.withImplicitConversionResultType.withType)(qualifier)
 

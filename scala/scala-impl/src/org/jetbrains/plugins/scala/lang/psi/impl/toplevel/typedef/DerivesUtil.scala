@@ -203,7 +203,7 @@ object DerivesUtil {
         place,
         processor,
         companionType.toOption,
-        noImplicitsForArgs = false,
+        tryImplicitConversionsForArgs = true,
         forCompletion = false
       )(identity)(place)
 

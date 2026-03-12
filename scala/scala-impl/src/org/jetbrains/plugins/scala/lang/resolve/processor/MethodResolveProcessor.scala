@@ -32,70 +32,61 @@ import org.jetbrains.plugins.scala.util.SAMUtil
 import scala.annotation.tailrec
 
 /**
-  * @param prevTypeInfo      Unresolved type parameters from the qualifier's [[ScTypePolymorphicType]],
-  *                          propagated so that the current resolution can contribute constraints for their
-  *                          inference. Extracted via `reference.getPrevTypeInfoParams`.
-  *
-  *                          Example:
-  *                          {{{
-  *                          def foo[A]: List[A] = ???
-  *                          foo.map(x => x.toString)
-  *                          }}}
-  *                          The reference `foo` has non-value type `ScTypePolymorphicType(List[A], Seq(A))`
-  *                          — `A` is not yet inferred. When resolving `map`, `A` is passed as `prevTypeInfo`
-  *                          so that the argument `x => x.toString` can contribute constraints
-  *                          (here: `A` must support `toString`, ultimately inferred from context).
-  * @param expectedOption    Lazy expected return type of the resolved method at the call site.
-  *                          Used to filter candidates whose return type doesn't conform.
-  * @param isUnderscore      Whether the reference appears inside a placeholder syntax underscore section
-  *                          (e.g. `_ + 1`, `_.foo()`). NOT eta-expansion (`foo _`). Affects how arguments
-  *                          and expected types are handled — placeholder sections have no explicit arguments
-  *                          and rely on expected type inference.
-  * @param noImplicitsForArgs When `true`, skip implicit conversions when checking argument applicability.
-  * @param nameArgForDynamic When set, enables Dynamic method resolution (applyDynamic/selectDynamic)
-  *                          with the given method name.
-  * @param isSubResolve      When `true` (default), indicates this resolve is happening as part of a larger
-  *                          resolve operation (e.g. during implicit resolution or apply/update expansion),
-  *                          NOT as the top-level resolve initiated by [[ReferenceExpressionResolver]].
-  *                          Passed through to [[Compatibility]] as `isIncompleteExpectedType` to prevent
-  *                          permanent caching of argument types computed with transient expected types from
-  *                          overloaded alternatives. Only the top-level resolve (which sets `isSubResolve = false`)
-  *                          is allowed to permanently cache these results, because at that point the known
-  *                          expected types reflect the final set of alternatives.
+  * @param prevTypeInfo                  Unresolved type parameters from the qualifier's [[ScTypePolymorphicType]],
+  *                                      propagated so that the current resolution can contribute constraints for their
+  *                                      inference. Extracted via `reference.getPrevTypeInfoParams`.
+  * @param expectedOption                Lazy expected return type of the resolved method at the call site.
+  *                                      Used to filter candidates whose return type doesn't conform.
+  * @param isUnderscore                  Whether the reference appears inside a placeholder syntax underscore section
+  *                                      (e.g. `_ + 1`, `_.foo()`). NOT eta-expansion (`foo _`). Affects how arguments
+  *                                      and expected types are handled — placeholder sections have no explicit arguments
+  *                                      and rely on expected type inference.
+  * @param tryImplicitConversionsForArgs When `true` (default), allow implicit conversions when checking argument
+  *                                      applicability. Set to `false` when direct candidates already exist.
+  * @param nameArgForDynamic             When set, enables Dynamic method resolution (applyDynamic/selectDynamic)
+  *                                      with the given method name.
+  * @param isSubResolve                  When `true` (default), indicates this resolve is happening as part of a larger
+  *                                      resolve operation (e.g. during implicit resolution or apply/update expansion),
+  *                                      NOT as the top-level resolve initiated by [[ReferenceExpressionResolver]].
+  *                                      Passed through to [[Compatibility]] as `isIncompleteExpectedType` to prevent
+  *                                      permanent caching of argument types computed with transient expected types from
+  *                                      overloaded alternatives. Only the top-level resolve (which sets `isSubResolve = false`)
+  *                                      is allowed to permanently cache these results, because at that point the known
+  *                                      expected types reflect the final set of alternatives.
   */
 class MethodResolveProcessor(
-  override val ref:           PsiElement,
-  val refName:                String,
-  val argumentClauses:        Seq[Seq[Expression]],
-  val typeArgElements:        Seq[ScTypeElement],
-  val prevTypeInfo:           Seq[TypeParameter],
-  override val kinds:         Set[ResolveTargets.Value] = StdKinds.methodRef,
-  val expectedOption:         () => Option[ScType]      = () => None,
-  val isUnderscore:           Boolean                   = false,
-  var isShapeResolve:         Boolean                   = false,
-  val constructorResolve:     Boolean                   = false,
-  val enableTupling:          Boolean                   = false,
-  val noImplicitsForArgs:     Boolean                   = false,
-  val selfConstructorResolve: Boolean                   = false,
-  val nameArgForDynamic:      Option[String]            = None,
-  val isSubResolve:           Boolean                   = true
+  override val ref:                  PsiElement,
+  val refName:                       String,
+  val argumentClauses:               Seq[Seq[Expression]],
+  val typeArgElements:               Seq[ScTypeElement],
+  val prevTypeInfo:                  Seq[TypeParameter],
+  override val kinds:                Set[ResolveTargets.Value] = StdKinds.methodRef,
+  val expectedOption:                () => Option[ScType]      = () => None,
+  val isUnderscore:                  Boolean                   = false,
+  var isShapeResolve:                Boolean                   = false,
+  val constructorResolve:            Boolean                   = false,
+  val enableTupling:                 Boolean                   = false,
+  val tryImplicitConversionsForArgs: Boolean                   = true,
+  val selfConstructorResolve:        Boolean                   = false,
+  val nameArgForDynamic:             Option[String]            = None,
+  val isSubResolve:                  Boolean                   = true
 ) extends ResolveProcessor(kinds, ref, refName) {
   def copy(
-    ref:                    PsiElement                = ref,
-    refName:                String                    = refName,
-    argumentClauses:        Seq[Seq[Expression]]      = argumentClauses,
-    typeArgElements:        Seq[ScTypeElement]        = typeArgElements,
-    prevTypeInfo:           Seq[TypeParameter]        = prevTypeInfo,
-    kinds:                  Set[ResolveTargets.Value] = kinds,
-    expectedOption:         () => Option[ScType]      = expectedOption,
-    isUnderscore:           Boolean                   = isUnderscore,
-    isShapeResolve:         Boolean                   = isShapeResolve,
-    constructorResolve:     Boolean                   = constructorResolve,
-    enableTupling:          Boolean                   = enableTupling,
-    noImplicitsForArgs:     Boolean                   = noImplicitsForArgs,
-    selfConstructorResolve: Boolean                   = selfConstructorResolve,
-    nameArgForDynamic:      Option[String]            = nameArgForDynamic,
-    isSubResolve:           Boolean                   = isSubResolve
+    ref:                           PsiElement                = ref,
+    refName:                       String                    = refName,
+    argumentClauses:               Seq[Seq[Expression]]      = argumentClauses,
+    typeArgElements:               Seq[ScTypeElement]        = typeArgElements,
+    prevTypeInfo:                  Seq[TypeParameter]        = prevTypeInfo,
+    kinds:                         Set[ResolveTargets.Value] = kinds,
+    expectedOption:                () => Option[ScType]      = expectedOption,
+    isUnderscore:                  Boolean                   = isUnderscore,
+    isShapeResolve:                Boolean                   = isShapeResolve,
+    constructorResolve:            Boolean                   = constructorResolve,
+    enableTupling:                 Boolean                   = enableTupling,
+    tryImplicitConversionsForArgs: Boolean                   = tryImplicitConversionsForArgs,
+    selfConstructorResolve:        Boolean                   = selfConstructorResolve,
+    nameArgForDynamic:             Option[String]            = nameArgForDynamic,
+    isSubResolve:                  Boolean                   = isSubResolve
   ): MethodResolveProcessor = new MethodResolveProcessor(
     ref,
     refName,
@@ -108,7 +99,7 @@ class MethodResolveProcessor(
     isShapeResolve,
     constructorResolve,
     enableTupling,
-    noImplicitsForArgs,
+    tryImplicitConversionsForArgs,
     selfConstructorResolve,
     nameArgForDynamic,
     isSubResolve
@@ -767,7 +758,7 @@ object MethodResolveProcessor {
 
     var filtered = applicableResults(mapped)
 
-    if (filtered.isEmpty && !noImplicitsForArgs) {
+    if (filtered.isEmpty && tryImplicitConversionsForArgs) {
       /**
        * Allow implicit conversions, when typing argument expressions.
        */
