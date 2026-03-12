@@ -154,10 +154,16 @@ abstract class SbtNewProjectWizardStep(parent: NewProjectWizardStep)
   private def jdkWithSbtValidation(javaVersion: JavaVersion): String = {
     if (javaVersion == null) return null
     val sbtVersion = sbtVersionProperty.get()
-    val highestCompatibleJdk = JdkSbtCompatibilityChecker.getHighestCompatibleJdkForSbt(javaVersion, sbtVersion)
-    highestCompatibleJdk.map { version =>
-      SbtBundle.message("sbt.incompatible.versions.message", sbtVersion.minor, version.toFeatureString)
-    }.orNull
+    val minimumRequiredJdk = JdkSbtCompatibilityChecker.getMinimumJdkToSbtCompatibleVersion(javaVersion, sbtVersion)
+    minimumRequiredJdk match {
+      case Some(minJdk) =>
+        SbtBundle.message("sbt.incompatible.versions.jdk.too.low.message", sbtVersion.minor, minJdk.toFeatureString)
+      case None =>
+        val highestCompatibleJdk = JdkSbtCompatibilityChecker.getHighestCompatibleJdkForSbt(javaVersion, sbtVersion)
+        highestCompatibleJdk.map { version =>
+          SbtBundle.message("sbt.incompatible.versions.message", sbtVersion.minor, version.toFeatureString)
+        }.orNull
+    }
   }
 
   @Nullable
