@@ -325,16 +325,20 @@ object ScalaPsiUtil {
   }
 
   @tailrec
-  def isAnonymousExpression(expr: ScExpression): (Int, ScExpression) = {
+  /** Returns the arity and unwrapped body of an anonymous function expression.
+    * Handles function literals (`x => ...`), underscore sections (`_ + 1`, `_.foo`),
+    * blocks wrapping function literals (`{ x => ... }`), and parenthesized variants.
+    * Returns `(-1, expr)` if the expression is not an anonymous function. */
+  def anonymousFunctionArityAndBody(expr: ScExpression): (Int, ScExpression) = {
     val seq = ScUnderScoreSectionUtil.underscores(expr)
     if (seq.nonEmpty) return (seq.length, expr)
     expr match {
       case b: ScBlockExpr =>
         if (b.statements.length != 1) (-1, expr)
         else if (b.resultExpression.isEmpty) (-1, expr)
-        else isAnonymousExpression(b.resultExpression.get)
+        else anonymousFunctionArityAndBody(b.resultExpression.get)
       case p: ScParenthesisedExpr => p.innerElement match {
-        case Some(x) => isAnonymousExpression(x)
+        case Some(x) => anonymousFunctionArityAndBody(x)
         case _ => (-1, expr)
       }
       case f: ScFunctionExpr => (f.parameters.length, expr)
@@ -342,7 +346,7 @@ object ScalaPsiUtil {
     }
   }
 
-  def isAnonExpression(expr: ScExpression): Boolean = isAnonymousExpression(expr)._1 >= 0
+  def isAnonymousFunction(expr: ScExpression): Boolean = anonymousFunctionArityAndBody(expr)._1 >= 0
 
   def getModule(element: PsiElement): Module =
     element.getContainingFile.getVirtualFile match {

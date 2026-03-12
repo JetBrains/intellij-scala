@@ -92,7 +92,7 @@ object DynamicResolveProcessor {
           ref               = qualifier,
           refName           = name,
           argumentClauses   = List(List(emptyStringExpression), expressionsOrContext.getOrElse(Seq.empty)),
-          nameArgForDynamic = Option(ref.refName)
+          dynamicMethodName = Option(ref.refName)
         )
       case _ =>
         new MethodResolveProcessor(
@@ -101,7 +101,7 @@ object DynamicResolveProcessor {
           List(List(emptyStringExpression), expressionsOrContext.getOrElse(Seq.empty)),
           Seq.empty,
           Seq.empty,
-          nameArgForDynamic = Some(ref.refName)
+          dynamicMethodName = Some(ref.refName)
         )
     }
   }

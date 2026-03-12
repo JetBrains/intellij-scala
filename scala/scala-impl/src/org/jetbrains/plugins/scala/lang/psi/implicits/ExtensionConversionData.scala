@@ -103,10 +103,10 @@ object ExtensionConversionHelper {
       .asOptionOf[MethodResolveProcessor]
       .map { processor =>
         processor.copy(
-          ref                = ref,
-          refName            = refName,
-          prevTypeInfo       = typeParams,
-          kinds              = kinds,
+          ref                 = ref,
+          refName             = refName,
+          qualifierTypeParams = typeParams,
+          kinds               = kinds,
           tryImplicitConversionsForArgs = tryImplicitConversionsForArgs
         )
       }

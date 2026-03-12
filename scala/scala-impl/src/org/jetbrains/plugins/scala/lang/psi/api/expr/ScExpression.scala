@@ -5,7 +5,7 @@ import com.intellij.psi._
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedWithRecursionGuard}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{MethodValue, isAnonymousExpression}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{MethodValue, anonymousFunctionArityAndBody}
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.{ImplicitArgumentsClause, SafeCheckException}
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes.ParameterType
@@ -625,7 +625,7 @@ object ScExpression {
       else if (isTrivialSAM) None
       else expr match {
         case ScFunctionExpr(_, _) if fromUnderscore                      => checkForSAM(scType)
-        case _ if !fromUnderscore && ScalaPsiUtil.isAnonExpression(expr) => checkForSAM(scType)
+        case _ if !fromUnderscore && ScalaPsiUtil.isAnonymousFunction(expr) => checkForSAM(scType)
         case MethodValue(_)                                              => checkForSAM(scType)
         case _                                                           => None
       }
@@ -711,7 +711,7 @@ object ScExpression {
       case assign: ScAssignment if !ignoreAssign && assign.referenceName.isDefined =>
         shapeIgnoringAssign(assign.rightExpression)
       case _ =>
-        val arityAndResultType = Option(isAnonymousExpression(expression)).filter {
+        val arityAndResultType = Option(anonymousFunctionArityAndBody(expression)).filter {
           case (-1, _) => false
           case _ => true
         }.map {

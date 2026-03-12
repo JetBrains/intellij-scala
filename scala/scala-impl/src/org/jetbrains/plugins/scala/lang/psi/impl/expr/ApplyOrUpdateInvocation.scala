@@ -25,7 +25,7 @@ case class ApplyOrUpdateInvocation(
 ) {
 
   def collectCandidates(isShape: Boolean, withImplicits: Boolean = true): Array[ScalaResolveResult] = {
-    val nameArgForDynamic = Option.when(isDynamic)(CommonNames.Apply)
+    val dynamicMethodName = Option.when(isDynamic)(CommonNames.Apply)
 
     val proc = new MethodResolveProcessor(
       baseExpr,
@@ -33,10 +33,10 @@ case class ApplyOrUpdateInvocation(
       argClauses,
       typeArgs,
       curriedTypeParams,
-      expectedOption    = expectedType,
-      isShapeResolve    = isShape,
-      enableTupling     = true,
-      nameArgForDynamic = nameArgForDynamic
+      expectedReturnType = expectedType,
+      isShapeResolve     = isShape,
+      enableTupling      = true,
+      dynamicMethodName  = dynamicMethodName
     )
 
     val simpleCandidates = candidatesFromType(proc, targetType)

@@ -107,10 +107,10 @@ import scala.annotation.tailrec
  *
  * @param prefixCompletion             Used by code completion: whether this result needs a qualifying prefix.
  *
- * @param nameArgForDynamic            For `scala.Dynamic` dispatch, the method name string passed to
+ * @param dynamicMethodName            For `scala.Dynamic` dispatch, the method name string passed to
  *                                     `selectDynamic`/`applyDynamic`/`updateDynamic`.
  *                                     {{{
- *                                     x.foo  // if x extends Dynamic: nameArgForDynamic = Some("foo")
+ *                                     x.foo  // if x extends Dynamic: dynamicMethodName = Some("foo")
  *                                     }}}
  *
  * @param isForwardReference           Whether the reference points to a declaration that appears
@@ -185,7 +185,7 @@ class ScalaResolveResult(
   val isAccessible:                   Boolean                      = true,
   val applicabilityConstraints:       Option[ConstraintSystem]     = None,
   val prefixCompletion:               Boolean                      = false,
-  val nameArgForDynamic:              Option[String]               = None,
+  val dynamicMethodName:              Option[String]               = None,
   val isForwardReference:             Boolean                      = false,
   val inferredType:                   Option[ScType]               = None,
   val implicitArguments:              Seq[ImplicitArgumentsClause] = Seq.empty,
@@ -250,7 +250,7 @@ class ScalaResolveResult(
 
   def implicitFunction: Option[PsiNamedElement] = implicitConversion.map(_.element)
 
-  def isDynamic: Boolean = nameArgForDynamic.nonEmpty
+  def isDynamic: Boolean = dynamicMethodName.nonEmpty
 
   def isNotFoundImplicitParameter : Boolean = problems.size == 1 && problems.head.isInstanceOf[NotFoundImplicitParameter]
   // TODO Seems to be unreliable, so it's better to check whether ImplicitCollector.probableArgumentsFor(it).size > 1
@@ -267,7 +267,7 @@ class ScalaResolveResult(
     isAssignment:                   Boolean                      = isAssignment,
     isAccessible:                   Boolean                      = isAccessible,
     applicabilityConstraints:       Option[ConstraintSystem]     = None,
-    nameArgForDynamic:              Option[String]               = nameArgForDynamic,
+    dynamicMethodName:              Option[String]               = dynamicMethodName,
     isForwardReference:             Boolean                      = isForwardReference,
     inferredType:                   Option[ScType]               = inferredType,
     importsUsed:                    Set[ImportUsed]              = importsUsed,
@@ -302,7 +302,7 @@ class ScalaResolveResult(
       isAssignment,
       isAccessible,
       applicabilityConstraints,
-      nameArgForDynamic              = nameArgForDynamic,
+      dynamicMethodName              = dynamicMethodName,
       isForwardReference             = isForwardReference,
       inferredType                   = inferredType,
       implicitArguments              = implicitArguments,

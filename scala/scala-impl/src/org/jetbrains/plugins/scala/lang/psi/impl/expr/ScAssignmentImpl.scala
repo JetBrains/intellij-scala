@@ -102,7 +102,7 @@ class ScAssignmentImpl(node: ASTNode) extends ScExpressionImplBase(node) with Sc
                   ScalaNamesUtil.clean(fun.name) + "_=",
                   rightExpression.map(expr => List(Seq(expr))).getOrElse(Nil),
                   Nil,
-                  ref.getPrevTypeInfoParams,
+                  ref.qualifierTypeParams,
                   isShapeResolve = shapeResolve,
                   kinds          = StdKinds.methodsOnly
                 )

@@ -32,26 +32,27 @@ import org.jetbrains.plugins.scala.util.SAMUtil
 import scala.annotation.tailrec
 
 /**
-  * @param prevTypeInfo                  Unresolved type parameters from the qualifier's [[ScTypePolymorphicType]],
-  *                                      propagated so that the current resolution can contribute constraints for their
-  *                                      inference. Extracted via `reference.getPrevTypeInfoParams`.
-  * @param expectedOption                Lazy expected return type of the resolved method at the call site.
+  * @param qualifierTypeParams           Unresolved type parameters from the qualifier's [[ScTypePolymorphicType]],
+  *                                      propagated so that the current resolution can contribute constraints for
+  *                                      their inference. Extracted via `reference.qualifierTypeParams`.
+  * @param expectedReturnType            Lazy expected return type of the resolved method at the call site.
   *                                      Used to filter candidates whose return type doesn't conform.
-  * @param isUnderscore                  Whether the reference appears inside a placeholder syntax underscore section
-  *                                      (e.g. `_ + 1`, `_.foo()`). NOT eta-expansion (`foo _`). Affects how arguments
-  *                                      and expected types are handled — placeholder sections have no explicit arguments
-  *                                      and rely on expected type inference.
+  * @param isInUnderscoreSection         Whether the reference appears inside a placeholder syntax underscore
+  *                                      section (e.g. `_ + 1`, `_.foo()`). NOT eta-expansion (`foo _`).
+  *                                      Affects how arguments and expected types are handled — placeholder
+  *                                      sections have no explicit arguments and rely on expected type inference.
   * @param tryImplicitConversionsForArgs When `true` (default), allow implicit conversions when checking argument
   *                                      applicability. Set to `false` when direct candidates already exist.
-  * @param nameArgForDynamic             When set, enables Dynamic method resolution (applyDynamic/selectDynamic)
-  *                                      with the given method name.
-  * @param isSubResolve                  When `true` (default), indicates this resolve is happening as part of a larger
-  *                                      resolve operation (e.g. during implicit resolution or apply/update expansion),
-  *                                      NOT as the top-level resolve initiated by [[ReferenceExpressionResolver]].
-  *                                      Passed through to [[Compatibility]] as `isIncompleteExpectedType` to prevent
-  *                                      permanent caching of argument types computed with transient expected types from
-  *                                      overloaded alternatives. Only the top-level resolve (which sets `isSubResolve = false`)
-  *                                      is allowed to permanently cache these results, because at that point the known
+  * @param dynamicMethodName             The method name passed as a string argument to `applyDynamic`/`selectDynamic`
+  *                                      when the receiver extends `scala.Dynamic`. When set, enables Dynamic resolution.
+  * @param isSubResolve                  When `true` (default), indicates this resolve is happening as part of a
+  *                                      larger resolve operation (e.g. during implicit resolution or apply/update
+  *                                      expansion), NOT as the top-level resolve initiated by
+  *                                      [[ReferenceExpressionResolver]]. Passed through to [[Compatibility]] as
+  *                                      `isIncompleteExpectedType` to prevent permanent caching of argument types
+  *                                      computed with transient expected types from overloaded alternatives.
+  *                                      Only the top-level resolve (which sets `isSubResolve = false`) is allowed
+  *                                      to permanently cache these results, because at that point the known
   *                                      expected types reflect the final set of alternatives.
   */
 class MethodResolveProcessor(
@@ -59,16 +60,16 @@ class MethodResolveProcessor(
   val refName:                       String,
   val argumentClauses:               Seq[Seq[Expression]],
   val typeArgElements:               Seq[ScTypeElement],
-  val prevTypeInfo:                  Seq[TypeParameter],
+  val qualifierTypeParams:           Seq[TypeParameter],
   override val kinds:                Set[ResolveTargets.Value] = StdKinds.methodRef,
-  val expectedOption:                () => Option[ScType]      = () => None,
-  val isUnderscore:                  Boolean                   = false,
+  val expectedReturnType:            () => Option[ScType]      = () => None,
+  val isInUnderscoreSection:         Boolean                   = false,
   var isShapeResolve:                Boolean                   = false,
   val constructorResolve:            Boolean                   = false,
   val enableTupling:                 Boolean                   = false,
   val tryImplicitConversionsForArgs: Boolean                   = true,
   val selfConstructorResolve:        Boolean                   = false,
-  val nameArgForDynamic:             Option[String]            = None,
+  val dynamicMethodName:             Option[String]            = None,
   val isSubResolve:                  Boolean                   = true
 ) extends ResolveProcessor(kinds, ref, refName) {
   def copy(
@@ -76,36 +77,36 @@ class MethodResolveProcessor(
     refName:                       String                    = refName,
     argumentClauses:               Seq[Seq[Expression]]      = argumentClauses,
     typeArgElements:               Seq[ScTypeElement]        = typeArgElements,
-    prevTypeInfo:                  Seq[TypeParameter]        = prevTypeInfo,
+    qualifierTypeParams:           Seq[TypeParameter]        = qualifierTypeParams,
     kinds:                         Set[ResolveTargets.Value] = kinds,
-    expectedOption:                () => Option[ScType]      = expectedOption,
-    isUnderscore:                  Boolean                   = isUnderscore,
+    expectedReturnType:            () => Option[ScType]      = expectedReturnType,
+    isInUnderscoreSection:         Boolean                   = isInUnderscoreSection,
     isShapeResolve:                Boolean                   = isShapeResolve,
     constructorResolve:            Boolean                   = constructorResolve,
     enableTupling:                 Boolean                   = enableTupling,
     tryImplicitConversionsForArgs: Boolean                   = tryImplicitConversionsForArgs,
     selfConstructorResolve:        Boolean                   = selfConstructorResolve,
-    nameArgForDynamic:             Option[String]            = nameArgForDynamic,
+    dynamicMethodName:             Option[String]            = dynamicMethodName,
     isSubResolve:                  Boolean                   = isSubResolve
   ): MethodResolveProcessor = new MethodResolveProcessor(
     ref,
     refName,
     argumentClauses,
     typeArgElements,
-    prevTypeInfo,
+    qualifierTypeParams,
     kinds,
-    expectedOption,
-    isUnderscore,
+    expectedReturnType,
+    isInUnderscoreSection,
     isShapeResolve,
     constructorResolve,
     enableTupling,
     tryImplicitConversionsForArgs,
     selfConstructorResolve,
-    nameArgForDynamic,
+    dynamicMethodName,
     isSubResolve
   )
 
-  private def isDynamic: Boolean                 = nameArgForDynamic.nonEmpty
+  private def isDynamic: Boolean                 = dynamicMethodName.nonEmpty
   private def useScala3OverloadingRules: Boolean = ref.isInScala3File
 
   override protected def execute(namedElement: PsiNamedElement)
@@ -208,7 +209,7 @@ class MethodResolveProcessor(
     if (isDynamic) {
       collectCandidates(
         super.candidatesS.collect {
-          case srr if srr.isApplicable() => srr.copy(nameArgForDynamic = nameArgForDynamic)
+          case srr if srr.isApplicable() => srr.copy(dynamicMethodName = dynamicMethodName)
         }
       )
     } else {
@@ -232,10 +233,10 @@ object MethodResolveProcessor {
     ref:                    PsiElement,
     argumentClauses:        Seq[Seq[Expression]],
     typeArgElements:        Seq[ScTypeElement],
-    prevTypeInfo:           Seq[TypeParameter],
-    expectedOption:         () => Option[ScType],
+    qualifierTypeParams:           Seq[TypeParameter],
+    expectedReturnType:         () => Option[ScType],
     selfConstructorResolve: Boolean,
-    isUnderscore:           Boolean,
+    isInUnderscoreSection:           Boolean,
     shapesOnly:             Boolean,
     argClauseIdx:           Int,
     isSubResolve:           Boolean
@@ -275,9 +276,9 @@ object MethodResolveProcessor {
     val unresolvedTps = c.unresolvedTypeParameters.getOrElse(Seq.empty)
 
     val substitutor =
-      tempSubstitutor.followed(ScSubstitutor.bind(prevTypeInfo ++ unresolvedTps)(UndefinedType(_)))
+      tempSubstitutor.followed(ScSubstitutor.bind(qualifierTypeParams ++ unresolvedTps)(UndefinedType(_)))
 
-    val typeParameters: Seq[TypeParameter] = prevTypeInfo ++ (element match {
+    val typeParameters: Seq[TypeParameter] = qualifierTypeParams ++ (element match {
       case ScalaConstructor(cons) => cons.getConstructorTypeParameters.map(TypeParameter(_))
       case cons @ Constructor.ofClass(cls) =>
         (cls.getTypeParameters ++ cons.getTypeParameters).toSeq.map(TypeParameter(_))
@@ -287,7 +288,7 @@ object MethodResolveProcessor {
     })
 
     def addExpectedTypeProblems(): ApplicabilityCheckResult = {
-      val expectedO = expectedOption()
+      val expectedO = expectedReturnType()
 
       if (expectedO.isEmpty) {
         val problemsSeq = problems.result()
@@ -342,15 +343,15 @@ object MethodResolveProcessor {
           case _: ScFunction
             if c.functionParamClauses.isEmpty ||
               (c.functionParamClauses.head.parameters.isEmpty && canBeNullaryMethodApplication) ||
-              isUnderscore => ApplicabilityCheckResult(problems.result())
+              isInUnderscoreSection => ApplicabilityCheckResult(problems.result())
           case fun: ScSyntheticFunction
             if fun.paramClauses == Seq() ||
               (fun.paramClauses == Seq(Seq()) && canBeNullaryMethodApplication) ||
-              isUnderscore =>
+              isInUnderscoreSection =>
             addExpectedTypeProblems()
           case method: PsiMethod
             if (method.parameters.isEmpty && canBeNullaryMethodApplication) ||
-              isUnderscore =>
+              isInUnderscoreSection =>
             addExpectedTypeProblems()
           case _ =>
             problems += MissedParametersClause(null)
@@ -416,7 +417,7 @@ object MethodResolveProcessor {
 
       val functionLikeType = FunctionLikeType(ref)
 
-      expectedOption().map {
+      expectedReturnType().map {
         case abs: ScAbstractType => abs.simplifyType
         case t                   => t
       } match {
@@ -468,7 +469,7 @@ object MethodResolveProcessor {
           expectedTypeSubst.fold(substitutor)(bounds => substitutor.followed(bounds.substitutor))
 
         val (argsWithDynamic, argClauseIdxAdjusted) =
-          if (c.nameArgForDynamic.contains(CommonNames.Apply)) {
+          if (c.dynamicMethodName.contains(CommonNames.Apply)) {
             //this is a weird case, where at first apply method expansion has to happen
             //and then applyDynamic method is resolved with `apply` as it's first argument.
             //See LaminarProjectHighlightingTest ShadowDomSpec.scala
@@ -523,7 +524,7 @@ object MethodResolveProcessor {
       //objects
       case obj: ScObject =>
         if (argumentClauses.isEmpty) {
-          expectedOption().map(_.removeAbstracts) match {
+          expectedReturnType().map(_.removeAbstracts) match {
             case Some(FunctionType(_, _)) => problems += ExpectedTypeMismatch
             case Some(tp: ScType) if obj.isSAMEnabled =>
               SAMUtil.SAMToFunctionType(tp, obj) match {
@@ -1101,10 +1102,10 @@ object MethodResolveProcessor {
         ref,
         args,
         actualTypeArgs,
-        prevTypeInfo,
-        if (useExpectedType) expectedOption else () => None,
+        qualifierTypeParams,
+        if (useExpectedType) expectedReturnType else () => None,
         selfConstructorResolve = selfConstructorResolve,
-        isUnderscore           = isUnderscore,
+        isInUnderscoreSection           = isInUnderscoreSection,
         shapesOnly             = shapesOnly,
         argClauseIdx           = argClauseIdx,
         isSubResolve           = proc.isSubResolve

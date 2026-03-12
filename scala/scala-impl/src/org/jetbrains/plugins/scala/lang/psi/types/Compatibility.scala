@@ -214,7 +214,7 @@ object Compatibility {
         case ScFunctionExpr(_, _) if fromUnderscore => checkForSAM()
         case ScUnderscoreSection.binding(ResolvesTo(param: ScParameter)) if param.isCallByNameParameter =>
           checkForSAM() // SCL-18195 `def bar(block: => Int): Foo = block _`
-        case e: ScExpression if !fromUnderscore && ScalaPsiUtil.isAnonExpression(e) =>
+        case e: ScExpression if !fromUnderscore && ScalaPsiUtil.isAnonymousFunction(e) =>
           checkForSAM()
         case _ if !checkResolve => checkForSAM(etaExpansionHappened = true)
         case methodValue(_)     => checkForSAM(etaExpansionHappened = true)
@@ -508,7 +508,7 @@ object Compatibility {
         val maybeAnonymousExpr: Option[(Int, ScExpression)] = arg match {
           case block: ScBlockExpr if block.isPartialFunction => Some((1, block))
           case expr: ScExpression =>
-            val (arity, unwrapped) = ScalaPsiUtil.isAnonymousExpression(expr)
+            val (arity, unwrapped) = ScalaPsiUtil.anonymousFunctionArityAndBody(expr)
             Option.when(arity >= 0)((arity, unwrapped))
           case _ => None
         }

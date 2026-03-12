@@ -603,7 +603,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     Right(matchClauseSubst(withUnresolvedTypeParams))
   }
 
-  override def getPrevTypeInfoParams: Seq[TypeParameter] = {
+  override def qualifierTypeParams: Seq[TypeParameter] = {
     val maybeExpression = qualifier match {
       case Some(_: ScSuperReference) => None
       case None => getContext match {

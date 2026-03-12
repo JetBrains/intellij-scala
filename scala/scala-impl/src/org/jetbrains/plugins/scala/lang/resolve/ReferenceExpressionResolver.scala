@@ -42,11 +42,11 @@ import scala.language.implicitConversions
 class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
 
   private case class ContextInfo(
-    arguments:    Seq[Seq[Expression]],
-    typeArgs:     Seq[ScTypeElement],
-    expectedType: () => Option[ScType],
-    isUnderscore: Boolean,
-    invokedExpr:  Option[ScExpression]
+    arguments:             Seq[Seq[Expression]],
+    typeArgs:              Seq[ScTypeElement],
+    expectedType:          () => Option[ScType],
+    isInUnderscoreSection: Boolean,
+    invokedExpr:           Option[ScExpression]
   )
 
   private def argumentsOf(ref: PsiElement): Seq[Expression] = {
@@ -84,7 +84,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
           collectPossibleMethodCallArgs(call),
           typeArgs,
           () => call.expectedType(),
-          isUnderscore = false,
+          isInUnderscoreSection = false,
           Option(call.getInvokedExpr)
         )
       case call: ScMethodCall if call.getInvokedExpr == e =>
@@ -95,7 +95,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
           Seq(args),
           typeArgs,
           () => None,
-          isUnderscore = false,
+          isInUnderscoreSection = false,
           None
         )
       case section: ScUnderscoreSection =>
@@ -103,7 +103,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
           Seq.empty,
           typeArgs,
           () => section.expectedType(),
-          isUnderscore = true,
+          isInUnderscoreSection = true,
           None
         )
       case infix @ ScInfixExpr.withAssoc(baseExpr, `ref`, argument) =>
@@ -126,7 +126,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
           args,
           typeArgs,
           () => infix.expectedType(),
-          isUnderscore = false,
+          isInUnderscoreSection = false,
           Option(postFixRef)
         )
       case parents: ScParenthesisedExpr                   => getContextInfo(ref, parents, typeArgs)
@@ -136,7 +136,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
         Seq.empty,
         typeArgs,
         () => e.expectedType(),
-        isUnderscore = false,
+        isInUnderscoreSection = false,
         None
       )
     }
@@ -195,13 +195,13 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
 
     val info = getContextInfo(reference, reference)
 
-    //expectedOption different for cases
+    //expectedReturnType different for cases
     // val a: (Int) => Int = foo
     // and for case
     // val a: (Int) => Int = _.foo
-    val expectedOption = () => info.expectedType()
+    val expectedReturnType = () => info.expectedType()
 
-    val prevInfoTypeParams = reference.getPrevTypeInfoParams
+    val qualifierTypeParams = reference.qualifierTypeParams
 
     def processor(
       name:           String                    = name,
@@ -212,10 +212,10 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
         name,
         info.arguments.toList,
         info.typeArgs,
-        prevInfoTypeParams,
+        qualifierTypeParams,
         kinds,
-        expectedOption,
-        info.isUnderscore,
+        expectedReturnType,
+        info.isInUnderscoreSection,
         isShapeResolve = shapesOnly,
         enableTupling  = true,
         isSubResolve   = false
@@ -283,7 +283,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
           reference.refName.init,
           List(argumentsOf(reference)),
           Nil,
-          prevInfoTypeParams,
+          qualifierTypeParams,
           isShapeResolve = shapesOnly,
           enableTupling  = true
         )

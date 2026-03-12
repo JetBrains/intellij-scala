@@ -34,7 +34,7 @@ object ShapelessProductArgs extends ScalaMacroExpandable with ShapelessUtils {
   override def expandMacro(macros: ScFunction, context: MacroInvocationContext): Option[ScExpression] = {
     val MacroInvocationContext(mc, resolveResult) = context
 
-    val nameArg = resolveResult.nameArgForDynamic match {
+    val nameArg = resolveResult.dynamicMethodName match {
       case Some(name) => name
       case _ =>
         //todo: support explicit invocation like x.applyDynamic("methodName")(args)
