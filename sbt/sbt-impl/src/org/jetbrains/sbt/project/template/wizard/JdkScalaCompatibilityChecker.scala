@@ -172,6 +172,8 @@ object JdkScalaCompatibilityChecker:
   /**
    * Returns `None` if the `jdk` is compatible with the given `scalaVersion`, or the highest compatible JDK otherwise.
    *
+   * @note In some UI checks, before verifying the highest compatible version, we should first check the minimum JDK compatibility
+   *       [[getMinimumJdkRequiredForScala]]
    * @see [[getHighestCompatibleJdkForScala]]
    */
   def getHighestCompatibleJdkForScala(jdk: JavaVersion, scalaVersion: ScalaVersion): Option[JavaVersion] = {
