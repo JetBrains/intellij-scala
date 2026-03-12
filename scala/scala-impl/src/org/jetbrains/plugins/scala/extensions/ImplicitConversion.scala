@@ -5,5 +5,5 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 object ImplicitConversion {
   def unapply(e: ScExpression): Option[PsiNamedElement] =
-    e.implicitElement(fromUnderscore = true)
+    e.implicitElement(unwrapUnderscoreFunction = true)
 }

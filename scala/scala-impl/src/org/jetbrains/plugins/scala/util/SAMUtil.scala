@@ -22,7 +22,7 @@ object SAMUtil {
     def samTypeParent: Option[PsiClass] = cachedInUserData("samTypeParent", expr, ModTracker.physicalPsiChange(expr.getProject)) {
       if (expr.isSAMEnabled && isFunctionalExpression(expr)) {
         for {
-          pt  <- expr.expectedType(fromUnderscore = false)
+          pt  <- expr.expectedType(unwrapUnderscoreFunction = false)
           cls <- pt.extractClass
           if cls.isSAMable
         } yield cls

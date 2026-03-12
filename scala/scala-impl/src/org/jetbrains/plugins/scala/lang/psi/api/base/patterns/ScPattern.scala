@@ -144,7 +144,7 @@ object ScPattern {
               case _                                                             => None
             }
 
-            b.expectedType(fromUnderscore = false) match {
+            b.expectedType(unwrapUnderscoreFunction = false) match {
               case Some(et) => extractPtFromFunctionType(et.removeAbstracts)
               case None     => None
             }

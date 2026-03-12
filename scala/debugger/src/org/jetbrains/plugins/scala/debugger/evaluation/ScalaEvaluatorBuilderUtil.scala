@@ -1607,7 +1607,7 @@ object ScalaEvaluatorBuilderUtil {
 
   object implicitlyConvertedTo {
     def unapply(expr: ScExpression): Option[ScExpression] = {
-      expr.implicitElement(fromUnderscore = true).collect {
+      expr.implicitElement(unwrapUnderscoreFunction = true).collect {
         case function: ScFunction => function
       }.map { fun =>
         val callText = s"${fun.name}(${expr.getText})"

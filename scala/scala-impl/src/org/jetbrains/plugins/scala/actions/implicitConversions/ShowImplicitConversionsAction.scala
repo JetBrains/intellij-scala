@@ -158,7 +158,7 @@ final class ShowImplicitConversionsAction(cs: CoroutineScope) extends AnAction(
           }
         case expr: ScExpression if guard || expr.implicitElement().isDefined ||
           (ScUnderScoreSectionUtil.isUnderscoreFunction(expr) &&
-            expr.implicitElement(fromUnderscore = true).isDefined) || expr.getAdditionalExpression.flatMap {
+            expr.implicitElement(unwrapUnderscoreFunction = true).isDefined) || expr.getAdditionalExpression.flatMap {
           case (additional, tp) => additional.implicitElement(expectedOption = Some(tp))
         }.isDefined =>
           res += expr
@@ -171,13 +171,13 @@ final class ShowImplicitConversionsAction(cs: CoroutineScope) extends AnAction(
 
   @RequiresBackgroundThread // Can involve heavy resolution in complex code bases
   private def calculateConversionsData(expr: ScExpression): (Option[PsiNamedElement], Seq[PsiNamedElement]) = {
-    val (implicitElement: Option[PsiNamedElement], fromUnderscore: Boolean) = {
+    val (implicitElement: Option[PsiNamedElement], unwrapUnderscoreFunction: Boolean) = {
       def additionalImplicitElement: Option[PsiNamedElement] = expr.getAdditionalExpression.flatMap {
         case (additional, tp) => additional.implicitElement(expectedOption = Some(tp))
       }
 
       if (ScUnderScoreSectionUtil.isUnderscoreFunction(expr)) {
-        expr.implicitElement(fromUnderscore = true) match {
+        expr.implicitElement(unwrapUnderscoreFunction = true) match {
           case someElement@Some(_) =>
             (someElement, true)
           case _ =>
@@ -188,7 +188,7 @@ final class ShowImplicitConversionsAction(cs: CoroutineScope) extends AnAction(
       }
     }
 
-    val conversions = expr.implicitConversions(fromUnderscore = fromUnderscore)
+    val conversions = expr.implicitConversions(unwrapUnderscoreFunction = unwrapUnderscoreFunction)
     (implicitElement, conversions)
   }
 

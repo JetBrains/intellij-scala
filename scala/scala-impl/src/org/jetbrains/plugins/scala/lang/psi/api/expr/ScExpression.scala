@@ -42,7 +42,7 @@ trait ScExpression extends ScBlockStatement
 
   override protected def updateImplicitArguments(): Unit = {
     if (ScUnderScoreSectionUtil.isUnderscoreFunction(this))
-      this.getTypeWithoutImplicits(fromUnderscore = true)
+      this.getTypeWithoutImplicits(unwrapUnderscoreFunction = true)
     else
       `type`()
   }
@@ -115,12 +115,12 @@ trait ScExpression extends ScBlockStatement
     additionalExpression
   }
 
-  def implicitElement(fromUnderscore: Boolean = false,
+  def implicitElement(unwrapUnderscoreFunction: Boolean = false,
                       expectedOption: => Option[ScType] = this.smartExpectedType()): Option[PsiNamedElement] = {
-    implicitConversion(fromUnderscore, expectedOption).map(_.element)
+    implicitConversion(unwrapUnderscoreFunction, expectedOption).map(_.element)
   }
 
-  def implicitConversion(fromUnderscore: Boolean = false,
+  def implicitConversion(unwrapUnderscoreFunction: Boolean = false,
                          expectedOption: => Option[ScType] = this.smartExpectedType()): Option[ScalaResolveResult] = {
 
     def conversionForReference(reference: ScReferenceExpression) = reference.multiResolveScala(false) match {
@@ -138,25 +138,25 @@ trait ScExpression extends ScBlockStatement
         generator.desugared.flatMap { _.generatorExpr }.flatMap { _.implicitConversion(expectedOption = expectedOption) }
       case _: ScParenthesisedExpr => None
       case _ =>
-        this.getTypeAfterImplicitConversion(expectedOption = expectedOption, fromUnderscore = fromUnderscore).implicitConversion
+        this.getTypeAfterImplicitConversion(expectedOption = expectedOption, unwrapUnderscoreFunction = unwrapUnderscoreFunction).implicitConversion
     }
 
     inner(this)
   }
 
   override def getTypeAfterImplicitConversion(
-    checkImplicits:  Boolean        = true,
-    isShape:         Boolean        = false,
-    expectedOption:  Option[ScType] = None,
-    ignoreBaseTypes: Boolean        = false,
-    fromUnderscore:  Boolean        = false
+    checkImplicits:          Boolean        = true,
+    isShape:                 Boolean        = false,
+    expectedOption:          Option[ScType] = None,
+    ignoreBaseTypes:         Boolean        = false,
+    unwrapUnderscoreFunction: Boolean        = false
   ): ExpressionTypeResult =
     cachedWithRecursionGuard(
       "ScExpression.getTypeAfterImplicitConversion",
       this,
       ExpressionTypeResult(Failure(NlsString.force("Recursive getTypeAfterImplicitConversion"))),
       BlockModificationTracker(this),
-      (checkImplicits, isShape, expectedOption, ignoreBaseTypes, fromUnderscore)
+      (checkImplicits, isShape, expectedOption, ignoreBaseTypes, unwrapUnderscoreFunction)
     ) {
       Tracing.inference(this)
 
@@ -168,10 +168,10 @@ trait ScExpression extends ScBlockStatement
         if (isShape)
           Right(shape(this).getOrElse(Nothing))
         else
-          this.getTypeWithoutImplicits(ignoreBaseTypes, fromUnderscore)
+          this.getTypeWithoutImplicits(ignoreBaseTypes, unwrapUnderscoreFunction)
 
       val result = {
-        val expected = expectedOption.orElse(this.expectedType(fromUnderscore = fromUnderscore))
+        val expected = expectedOption.orElse(this.expectedType(unwrapUnderscoreFunction = unwrapUnderscoreFunction))
 
         (expected, initialType.toOption) match {
           case (Some(expType), Some(tp))
@@ -179,7 +179,7 @@ trait ScExpression extends ScBlockStatement
             //do not try implicit conversions for shape check or already correct type
 
             val adapted =
-              if (this.isSAMEnabled) this.tryAdaptTypeToSAM(tp, expType, fromUnderscore, checkImplicits = checkImplicits)
+              if (this.isSAMEnabled) this.tryAdaptTypeToSAM(tp, expType, unwrapUnderscoreFunction, checkImplicits = checkImplicits)
               else                   None
 
             adapted match {
@@ -221,21 +221,21 @@ object ScExpression {
       expr match {
         case fun: ScFunctionExpr if fun.isContext => Seq.empty
         case _ =>
-          pt.orElse(expectedType(fromUnderscore = false)).toSeq.flatMap {
+          pt.orElse(expectedType(unwrapUnderscoreFunction = false)).toSeq.flatMap {
             case p: ParameterizedType => p.contextParameters
             case _                    => Seq.empty
           }
       }
 
-    def expectedType(fromUnderscore: Boolean = true): Option[ScType] =
-      expectedTypeEx(fromUnderscore).map(_._1)
+    def expectedType(unwrapUnderscoreFunction: Boolean = true): Option[ScType] =
+      expectedTypeEx(unwrapUnderscoreFunction).map(_._1)
 
-    def expectedTypeEx(fromUnderscore: Boolean = true): Option[ParameterType] =
-      ExpectedTypes.instance().expectedExprType(expr, fromUnderscore)
+    def expectedTypeEx(unwrapUnderscoreFunction: Boolean = true): Option[ParameterType] =
+      ExpectedTypes.instance().expectedExprType(expr, unwrapUnderscoreFunction)
 
-    def expectedTypes(fromUnderscore: Boolean = true): Seq[ScType] = expectedTypesEx(fromUnderscore).map(_._1).toSeq
+    def expectedTypes(unwrapUnderscoreFunction: Boolean = true): Seq[ScType] = expectedTypesEx(unwrapUnderscoreFunction).map(_._1).toSeq
 
-    def expectedTypesEx(fromUnderscore: Boolean = true): Array[ParameterType] = {
+    def expectedTypesEx(unwrapUnderscoreFunction: Boolean = true): Array[ParameterType] = {
       val propagatedExpectedTypes = ExpectedTypesImpl.propagatedExpectedTypesFor(expr)
 
       val res = propagatedExpectedTypes match {
@@ -246,42 +246,42 @@ object ScExpression {
             expr,
             Array.empty[ParameterType],
             BlockModificationTracker(expr),
-            Tuple1(fromUnderscore)
+            Tuple1(unwrapUnderscoreFunction)
           ) {
-            ExpectedTypes.instance().expectedExprTypes(expr, fromUnderscore = fromUnderscore)
+            ExpectedTypes.instance().expectedExprTypes(expr, unwrapUnderscoreFunction = unwrapUnderscoreFunction)
           }
       }
 
-      res.map(ExpectedTypesImpl.unwrapIfUnderscoreFunction(expr, _, fromUnderscore))
+      res.map(ExpectedTypesImpl.unwrapIfUnderscoreFunction(expr, _, unwrapUnderscoreFunction))
     }
 
-    def smartExpectedType(fromUnderscore: Boolean = true): Option[ScType] =
+    def smartExpectedType(unwrapUnderscoreFunction: Boolean = true): Option[ScType] =
       cachedWithRecursionGuard(
         "smartExpectedType",
         expr,
         Option.empty[ScType],
         BlockModificationTracker(expr),
-        Tuple1(fromUnderscore)
+        Tuple1(unwrapUnderscoreFunction)
       ) {
-        ExpectedTypes.instance().smartExpectedType(expr, fromUnderscore)
+        ExpectedTypes.instance().smartExpectedType(expr, unwrapUnderscoreFunction)
       }
 
     def getTypeIgnoreBaseType: TypeResult = expr.getTypeAfterImplicitConversion(ignoreBaseTypes = true).tr
 
     def getNonValueType(
       ignoreBaseType: Boolean = false,
-      fromUnderscore: Boolean = false
+      unwrapUnderscoreFunction: Boolean = false
     ): TypeResult =
       cachedWithRecursionGuard(
         "getNonValueType",
         expr,
         Failure(NlsString.force("Recursive getNonValueType")),
         BlockModificationTracker(expr),
-        (ignoreBaseType, fromUnderscore)
+        (ignoreBaseType, unwrapUnderscoreFunction)
       ) {
         ProgressManager.checkCanceled()
 
-        if (fromUnderscore) expr.innerType
+        if (unwrapUnderscoreFunction) expr.innerType
         else {
           val unders = ScUnderScoreSectionUtil.underscores(expr)
 
@@ -299,7 +299,7 @@ object ScExpression {
                 expr
                   .getTypeAfterImplicitConversion(
                     ignoreBaseTypes = ignoreBaseType,
-                    fromUnderscore = true
+                    unwrapUnderscoreFunction = true
                   )
                   .tr
                   .getOrAny,
@@ -313,14 +313,14 @@ object ScExpression {
 
     def getTypeWithoutImplicits(
       ignoreBaseType: Boolean = false,
-      fromUnderscore: Boolean = false
+      unwrapUnderscoreFunction: Boolean = false
     ): TypeResult =
       cachedWithRecursionGuard(
         "getTypeWithoutImplicits",
         expr,
         Failure(NlsString.force("Recursive getTypeWithoutImplicits")),
         BlockModificationTracker(expr),
-        (ignoreBaseType, fromUnderscore)
+        (ignoreBaseType, unwrapUnderscoreFunction)
       ) {
         ProgressManager.checkCanceled()
 
@@ -331,22 +331,22 @@ object ScExpression {
               Right(ScalaPsiElementFactory.createTypeFromText(s, expr, null).get)
             } else {
               CompilerType(expr) = None
-              getTypeWithoutImplicits0(ignoreBaseType, fromUnderscore)
+              getTypeWithoutImplicits0(ignoreBaseType, unwrapUnderscoreFunction)
             }
           case None =>
-            getTypeWithoutImplicits0(ignoreBaseType, fromUnderscore)
+            getTypeWithoutImplicits0(ignoreBaseType, unwrapUnderscoreFunction)
         }
       }
 
-    private def getTypeWithoutImplicits0(ignoreBaseType: Boolean, fromUnderscore: Boolean): TypeResult = {
+    private def getTypeWithoutImplicits0(ignoreBaseType: Boolean, unwrapUnderscoreFunction: Boolean): TypeResult = {
       expr match {
         case literals.ScNullLiteral(typeWithoutImplicits) => Right(typeWithoutImplicits)
         case _ =>
-          val maybeNonValueType = expr.getNonValueType(ignoreBaseType, fromUnderscore)
+          val maybeNonValueType = expr.getNonValueType(ignoreBaseType, unwrapUnderscoreFunction)
           maybeNonValueType.flatMap { nonValueType =>
-            val expectedType = this.expectedType(fromUnderscore = fromUnderscore)
+            val expectedType = this.expectedType(unwrapUnderscoreFunction = unwrapUnderscoreFunction)
             val widened      = nonValueType.widenLiteralType(expr, expectedType)
-            val maybeSAMpt   = expectedType.flatMap(widened.expectedSAMType(expr, fromUnderscore, _))
+            val maybeSAMpt   = expectedType.flatMap(widened.expectedSAMType(expr, unwrapUnderscoreFunction, _))
 
             def inferValueTypeRetractingNothing(tpe: ScType): ScType = tpe match {
               case tpt @ ScTypePolymorphicType(internalType, _) =>
@@ -382,7 +382,7 @@ object ScExpression {
             val withExpected =
               widened
                 .dropMethodTypeEmptyParams(expr, expectedType)
-                .updateWithExpected(expr, maybeSAMpt.orElse(expectedType), fromUnderscore)
+                .updateWithExpected(expr, maybeSAMpt.orElse(expectedType), unwrapUnderscoreFunction)
 
             val valueType =
               inferValueType(withExpected)
@@ -406,13 +406,13 @@ object ScExpression {
     private[ScExpression] def updateWithImplicitParameters(
       tpe:               ScType,
       checkExpectedType: Boolean,
-      fromUnderscore:    Boolean,
+      unwrapUnderscoreFunction:    Boolean,
       pt:                Option[ScType]
     ): ScType = {
       val updateDeep                 = pt.exists(FunctionType.isFunctionType) || expr.is[ScUnderscoreSection]
       val (newType, implicitClauses) = updatedWithImplicitArguments(tpe, checkExpectedType, updateDeep = updateDeep)
 
-      if (ScUnderScoreSectionUtil.isUnderscoreFunction(expr) == fromUnderscore) {
+      if (ScUnderScoreSectionUtil.isUnderscoreFunction(expr) == unwrapUnderscoreFunction) {
         expr.setImplicitArguments(implicitClauses)
       }
 
@@ -442,8 +442,8 @@ object ScExpression {
       } else (tpe, Seq.empty)
     }
 
-    def implicitConversions(fromUnderscore: Boolean = false): Seq[PsiNamedElement] = {
-      ScImplicitlyConvertible.findImplicitConversions(expr, fromUnderscore)
+    def implicitConversions(unwrapUnderscoreFunction: Boolean = false): Seq[PsiNamedElement] = {
+      ScImplicitlyConvertible.findImplicitConversions(expr, unwrapUnderscoreFunction)
         .sortWith {
           case (first, second) =>
             val firstName = first.name
@@ -601,7 +601,7 @@ object ScExpression {
 
     def expectedSAMType(
       expr:           ScExpression,
-      fromUnderscore: Boolean,
+      unwrapUnderscoreFunction: Boolean,
       expected:       ScType
     ): Option[ScType] = {
       implicit val context: Context = Context(expr)
@@ -624,8 +624,8 @@ object ScExpression {
       if (!expr.isSAMEnabled) None
       else if (isTrivialSAM) None
       else expr match {
-        case ScFunctionExpr(_, _) if fromUnderscore                      => checkForSAM(scType)
-        case _ if !fromUnderscore && ScalaPsiUtil.isAnonymousFunction(expr) => checkForSAM(scType)
+        case ScFunctionExpr(_, _) if unwrapUnderscoreFunction                      => checkForSAM(scType)
+        case _ if !unwrapUnderscoreFunction && ScalaPsiUtil.isAnonymousFunction(expr) => checkForSAM(scType)
         case MethodValue(_)                                              => checkForSAM(scType)
         case _                                                           => None
       }
@@ -637,7 +637,7 @@ object ScExpression {
         case _                                                      => true
       }
 
-    def updateWithExpected(expr: ScExpression, expectedType: Option[ScType], fromUnderscore: Boolean): ScType = {
+    def updateWithExpected(expr: ScExpression, expectedType: Option[ScType], unwrapUnderscoreFunction: Boolean): ScType = {
       implicit val context: Context = Context(expr)
 
       if (shouldUpdateImplicitParams(expr) && expectedType.forall(shouldApplyContextParameters)) {
@@ -654,7 +654,7 @@ object ScExpression {
           expr.updateWithImplicitParameters(
             updatedWithExpected,
             checkExpectedType = true,
-            fromUnderscore    = fromUnderscore,
+            unwrapUnderscoreFunction    = unwrapUnderscoreFunction,
             pt                = expectedType
           )
         } catch {
@@ -662,7 +662,7 @@ object ScExpression {
             expr.updateWithImplicitParameters(
               scType,
               checkExpectedType = false,
-              fromUnderscore    = fromUnderscore,
+              unwrapUnderscoreFunction    = unwrapUnderscoreFunction,
               pt                = expectedType
             )
         }

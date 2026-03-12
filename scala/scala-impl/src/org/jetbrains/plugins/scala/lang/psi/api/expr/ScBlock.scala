@@ -54,7 +54,7 @@ trait ScBlock extends ScExpression
           if (throwable == null) return Failure(ScalaBundle.message("cannot.find.throwable.class"))
           return Right(ScParameterizedType(ScDesignatorType(fun), Seq(ScDesignatorType(throwable), clausesLubType)))
         case _ =>
-          val et = this.expectedType(fromUnderscore = false)
+          val et = this.expectedType(unwrapUnderscoreFunction = false)
             .getOrElse(return Failure(ScalaBundle.message("cannot.infer.type.without.expected.type")))
 
           val paramInfo = extractExpectedTypeParams(et)

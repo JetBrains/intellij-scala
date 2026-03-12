@@ -53,23 +53,31 @@ object Compatibility {
      * Returns actual type of expression, after applying implicit conversions
      * and SAM adaptations, along with imports used in conversions.
      *
-     * @param ignoreBaseTypes parameter to avoid value discarding, literal narrowing/widening,
-     *                        useful for refactorings (introduce variable)
-     * @param isShape         used during [[https://scala-lang.org/files/archive/spec/2.13/06-expressions.html#overloading-resolution overloading-resolution]]:<br>
-     *                        The shape of an argument expression e, written shape(e), is a type that is defined as follows:
-     *                        - For a function expression `(p1: T1,…,pn: Tn) => b`: `(Any ,…, Any) => shape(b)`,<br>
-     *                          where Any occurs n times in the argument type.
-     *                        - For a pattern-matching anonymous function definition `{ case ... }`: `PartialFunction[Any, Nothing]`
-     *                        - For a named argument `n = e`: `shape(e)`
-     *                        - For all other expressions: `Nothing`
-     *
+     * @param ignoreBaseTypes          parameter to avoid value discarding, literal narrowing/widening,
+     *                                 useful for refactorings (introduce variable)
+     * @param isShape                  used during [[https://scala-lang.org/files/archive/spec/2.13/06-expressions.html#overloading-resolution overloading-resolution]]:<br>
+     *                                 The shape of an argument expression e, written shape(e), is a type that is defined as follows:
+     *                                 - For a function expression `(p1: T1,…,pn: Tn) => b`: `(Any ,…, Any) => shape(b)`,<br>
+     *                                   where Any occurs n times in the argument type.
+     *                                 - For a pattern-matching anonymous function definition `{ case ... }`: `PartialFunction[Any, Nothing]`
+     *                                 - For a named argument `n = e`: `shape(e)`
+     *                                 - For all other expressions: `Nothing`
+     * @param unwrapUnderscoreFunction When `true`, type the expression as the body of a desugared
+     *                                 underscore section, not as the function itself.
+     *                                 Underscore sections like `_ + 1` desugar to `x => x + 1`.
+     *                                 The expression has two types depending on perspective:
+     *                                 {{{
+     *                                 val f: Int => Int = _ + 1
+     *                                 // unwrapUnderscoreFunction = false → type is Int => Int (the function)
+     *                                 // unwrapUnderscoreFunction = true  → type is Int (the body result)
+     *                                 }}}
      */
     def getTypeAfterImplicitConversion(
-      checkImplicits:  Boolean,
-      isShape:         Boolean,
-      expectedOption:  Option[ScType],
-      ignoreBaseTypes: Boolean = false,
-      fromUnderscore:  Boolean = false
+      checkImplicits:          Boolean,
+      isShape:                 Boolean,
+      expectedOption:          Option[ScType],
+      ignoreBaseTypes:         Boolean = false,
+      unwrapUnderscoreFunction: Boolean = false
     ): ExpressionTypeResult
   }
 
@@ -104,7 +112,7 @@ object Compatibility {
         isShape:         Boolean,
         expectedOption:  Option[ScType],
         ignoreBaseTypes: Boolean,
-        fromUnderscore:  Boolean
+        unwrapUnderscoreFunction:  Boolean
       ): ExpressionTypeResult = {
         place.fold(default) { e =>
           if (isShape) ExpressionTypeResult(Right(api.Nothing))
@@ -122,7 +130,7 @@ object Compatibility {
                   val adapted = e.tryAdaptTypeToSAM(
                     tpe,
                     etpe,
-                    fromUnderscore = false,
+                    unwrapUnderscoreFunction = false,
                     checkResolve = false,
                     checkImplicits = checkImplicits
                   )
@@ -151,7 +159,7 @@ object Compatibility {
     final def tryAdaptTypeToSAM(
       tp:             ScType,
       pt:             ScType,
-      fromUnderscore: Boolean,
+      unwrapUnderscoreFunction: Boolean,
       checkResolve:   Boolean = true,
       checkImplicits: Boolean = false
     ): Option[ExpressionTypeResult] = {
@@ -211,10 +219,10 @@ object Compatibility {
       val methodValue = new MethodValueExtractor(Option(pt))
 
       place match {
-        case ScFunctionExpr(_, _) if fromUnderscore => checkForSAM()
+        case ScFunctionExpr(_, _) if unwrapUnderscoreFunction => checkForSAM()
         case ScUnderscoreSection.binding(ResolvesTo(param: ScParameter)) if param.isCallByNameParameter =>
           checkForSAM() // SCL-18195 `def bar(block: => Int): Foo = block _`
-        case e: ScExpression if !fromUnderscore && ScalaPsiUtil.isAnonymousFunction(e) =>
+        case e: ScExpression if !unwrapUnderscoreFunction && ScalaPsiUtil.isAnonymousFunction(e) =>
           checkForSAM()
         case _ if !checkResolve => checkForSAM(etaExpansionHappened = true)
         case methodValue(_)     => checkForSAM(etaExpansionHappened = true)
@@ -1248,7 +1256,7 @@ object Compatibility {
 
       val typeWithExpected = expectedType match {
         case Some(expected) if withExpected =>
-          val fromUnderscore = {
+          val unwrapUnderscoreFunction = {
             val underscores = for {
               consInv  <- constrInvocation.asOptionOf[ScConstructorInvocation]
               template <- consInv.newTemplate
@@ -1257,7 +1265,7 @@ object Compatibility {
             underscores.getOrElse(false)
           }
 
-          if (!fromUnderscore) updateWithExpected(previousTpe, expected)
+          if (!unwrapUnderscoreFunction) updateWithExpected(previousTpe, expected)
           else expected match {
             case FunctionType(retType, _) => updateWithExpected(previousTpe, retType)
             case _                        => previousTpe //do not update res, we haven't expected type

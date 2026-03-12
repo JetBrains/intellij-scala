@@ -76,7 +76,7 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScExpressionImplBase(node) 
               case i =>
                 val untuplingEnabled = this.isInScala3Module
 
-                expr.expectedType(fromUnderscore = false).map(unwrapContextFunctionType(_)) match {
+                expr.expectedType(unwrapUnderscoreFunction = false).map(unwrapContextFunctionType(_)) match {
                   case Some(functionLikeType(_, _, params)) =>
                     val param = params match {
                       case Seq(TupleType(comps)) if untuplingEnabled && comps.size == unders.size =>

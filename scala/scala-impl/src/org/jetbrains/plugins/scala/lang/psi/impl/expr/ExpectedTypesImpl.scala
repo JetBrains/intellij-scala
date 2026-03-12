@@ -39,17 +39,17 @@ import java.util
 import scala.annotation.tailrec
 
 class ExpectedTypesImpl extends ExpectedTypes {
-  override def smartExpectedType(expr: ScExpression, fromUnderscore: Boolean = true): Option[ScType] =
-    expectedExprType(expr, fromUnderscore).map(_._1)
+  override def smartExpectedType(expr: ScExpression, unwrapUnderscoreFunction: Boolean = true): Option[ScType] =
+    expectedExprType(expr, unwrapUnderscoreFunction).map(_._1)
 
-  private def smartExpectedTypeEx(expr: ScExpression, fromUnderscore: Boolean = true): Option[ParameterType] = {
-    val types = expectedExprTypes(expr, withResolvedFunction = true, fromUnderscore = fromUnderscore)
+  private def smartExpectedTypeEx(expr: ScExpression, unwrapUnderscoreFunction: Boolean = true): Option[ParameterType] = {
+    val types = expectedExprTypes(expr, withResolvedFunction = true, unwrapUnderscoreFunction = unwrapUnderscoreFunction)
 
     filterAlternatives(types.toSeq, expr)
   }
 
-  override def expectedExprType(expr: ScExpression, fromUnderscore: Boolean = true): Option[ParameterType] = {
-    val types = expr.expectedTypesEx(fromUnderscore)
+  override def expectedExprType(expr: ScExpression, unwrapUnderscoreFunction: Boolean = true): Option[ParameterType] = {
+    val types = expr.expectedTypesEx(unwrapUnderscoreFunction)
 
     filterAlternatives(types.toSeq, expr)
   }
@@ -60,7 +60,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
   override def expectedExprTypes(
     expr:                 ScExpression,
     withResolvedFunction: Boolean = true,
-    fromUnderscore:       Boolean = true
+    unwrapUnderscoreFunction:       Boolean = true
   ): Array[ParameterType] = {
     import expr.projectContext
     implicit val context: Context = Context(expr)
@@ -126,8 +126,8 @@ class ExpectedTypesImpl extends ExpectedTypes {
       }
     }
 
-    def expectedTypesUnwrapContextFunction(e: ScExpression, fromUnderscore: Boolean): Array[ParameterType] =
-      e.expectedTypesEx(fromUnderscore).map(pt =>
+    def expectedTypesUnwrapContextFunction(e: ScExpression, unwrapUnderscoreFunction: Boolean): Array[ParameterType] =
+      e.expectedTypesEx(unwrapUnderscoreFunction).map(pt =>
         expr match {
           case fn: ScFunctionExpr if fn.isContext => pt
           case _                                  =>
@@ -211,18 +211,18 @@ class ExpectedTypesImpl extends ExpectedTypes {
     }
 
     val result: Array[ParameterType] = sameInContext.getContext match {
-      case p: ScParenthesisedExpr => expectedTypesUnwrapContextFunction(p, fromUnderscore = false)
+      case p: ScParenthesisedExpr => expectedTypesUnwrapContextFunction(p, unwrapUnderscoreFunction = false)
       //see SLS[6.11]
       case b: ScBlockExpr =>
         b.resultExpression match {
-          case Some(e) if b.needCheckExpectedType && e == sameInContext => expectedTypesUnwrapContextFunction(b, fromUnderscore = true)
+          case Some(e) if b.needCheckExpectedType && e == sameInContext => expectedTypesUnwrapContextFunction(b, unwrapUnderscoreFunction = true)
           case _                                                        => Array.empty
         }
       //see SLS[6.16]
       case ifExpr: ScIf if ifExpr.condition.contains(sameInContext) => Array((api.Boolean, None))
-      case ifExpr: ScIf if ifExpr.elseExpression.isDefined => expectedTypesUnwrapContextFunction(ifExpr, fromUnderscore = true)
+      case ifExpr: ScIf if ifExpr.elseExpression.isDefined => expectedTypesUnwrapContextFunction(ifExpr, unwrapUnderscoreFunction = true)
       //see SLA[6.22]
-      case tr @ ScTry(Some(`sameInContext`), _, _) => expectedTypesUnwrapContextFunction(tr, fromUnderscore = true)
+      case tr @ ScTry(Some(`sameInContext`), _, _) => expectedTypesUnwrapContextFunction(tr, unwrapUnderscoreFunction = true)
       case wh: ScWhile if wh.condition.contains(sameInContext) => Array((api.Boolean, None))
       case _: ScWhile                                          => Array((Unit, None))
       case d: ScDo if d.condition.contains(sameInContext)      => Array((api.Boolean, None))
@@ -245,9 +245,9 @@ class ExpectedTypesImpl extends ExpectedTypes {
             expectedForMatch.map { case (tpe, elem) => (matchSubst(tpe), elem) }
           }
         case b: ScBlockExpr if b.isInCatchBlock =>
-          b.getContext.getContext.asInstanceOf[ScTry].expectedTypesEx(fromUnderscore = true)
+          b.getContext.getContext.asInstanceOf[ScTry].expectedTypesEx(unwrapUnderscoreFunction = true)
         case b: ScBlockExpr if b.isPartialFunction =>
-          val expectedForPf    = expectedTypesUnwrapContextFunction(b, fromUnderscore = true)
+          val expectedForPf    = expectedTypesUnwrapContextFunction(b, unwrapUnderscoreFunction = true)
           val functionLikeType = FunctionLikeType(expr)
 
           expectedForPf.collect {
@@ -266,10 +266,10 @@ class ExpectedTypesImpl extends ExpectedTypes {
         case _ => Array.empty
       }
       //see SLS[6.23]
-      case f: ScFunctionExpr => f.expectedTypesEx(fromUnderscore = true).flatMap(fromFunction(_, f.isContext))
-      case f: ScPolyFunctionExpr => f.expectedTypesEx(fromUnderscore = true).flatMap(fromPolyFunction(f.typeParameters))
+      case f: ScFunctionExpr => f.expectedTypesEx(unwrapUnderscoreFunction = true).flatMap(fromFunction(_, f.isContext))
+      case f: ScPolyFunctionExpr => f.expectedTypesEx(unwrapUnderscoreFunction = true).flatMap(fromPolyFunction(f.typeParameters))
       case t: ScTypedExpression if t.getLastChild.is[ScSequenceArg] =>
-        t.expectedTypesEx(fromUnderscore = true)
+        t.expectedTypesEx(unwrapUnderscoreFunction = true)
       //SLS[6.13]
       case t: ScTypedExpression =>
         t.typeElement match {
@@ -295,7 +295,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
                   case f: ScFunction if f.paramClauses.clauses.isEmpty =>
                     a.mirrorMethodCall match {
                       case Some(call) =>
-                        call.args.exprs.head.expectedTypesEx(fromUnderscore = fromUnderscore)
+                        call.args.exprs.head.expectedTypesEx(unwrapUnderscoreFunction = unwrapUnderscoreFunction)
                       case None => Array.empty
                     }
                   case p: ScParameter =>
@@ -310,7 +310,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
           case _: ScReferenceExpression => expectedExprTypes(a)
           case _: ScMethodCall =>
             a.mirrorMethodCall match {
-              case Some(mirrorCall) => mirrorCall.args.exprs.last.expectedTypesEx(fromUnderscore = fromUnderscore)
+              case Some(mirrorCall) => mirrorCall.args.exprs.last.expectedTypesEx(unwrapUnderscoreFunction = unwrapUnderscoreFunction)
               case _ => Array.empty
             }
           case _ => Array.empty
@@ -414,7 +414,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
         }
       case guard: ScGuard =>
         guard.desugared flatMap { _.content } match {
-          case Some(content) => content.expectedTypesEx(fromUnderscore = fromUnderscore)
+          case Some(content) => content.expectedTypesEx(unwrapUnderscoreFunction = unwrapUnderscoreFunction)
           case _ => Array.empty
         }
       case b: ScBlock if {
@@ -427,7 +427,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
           }
       } =>
         b.resultExpression match {
-          case Some(e) if sameInContext == e => b.expectedTypesEx(fromUnderscore = true)
+          case Some(e) if sameInContext == e => b.expectedTypesEx(unwrapUnderscoreFunction = true)
           case _ => Array.empty
         }
       case _ => Array.empty
@@ -902,14 +902,14 @@ object ExpectedTypesImpl {
   def unwrapIfUnderscoreFunction(
     expr:           ScExpression,
     parameterType:  ParameterType,
-    fromUnderscore: Boolean
+    unwrapUnderscoreFunction: Boolean
   ): ParameterType = {
     val functionLikeType = FunctionLikeType(expr)
 
-    if (fromUnderscore && checkIsUnderscore(expr)) {
+    if (unwrapUnderscoreFunction && checkIsUnderscore(expr)) {
       parameterType._1 match {
         case functionLikeType(marker, rt, _) => marker match {
-          case ContextFunctionN => unwrapIfUnderscoreFunction(expr, (rt, None), fromUnderscore)
+          case ContextFunctionN => unwrapIfUnderscoreFunction(expr, (rt, None), unwrapUnderscoreFunction)
           case _                => (rt, None)
         }
         case _                               => parameterType

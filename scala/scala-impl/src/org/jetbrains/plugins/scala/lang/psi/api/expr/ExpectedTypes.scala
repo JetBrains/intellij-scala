@@ -6,14 +6,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes.ParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 trait ExpectedTypes {
-  def smartExpectedType(expr: ScExpression, fromUnderscore: Boolean = true): Option[ScType]
+  def smartExpectedType(expr: ScExpression, unwrapUnderscoreFunction: Boolean = true): Option[ScType]
 
-  def expectedExprType(expr: ScExpression, fromUnderscore: Boolean = true): Option[ParameterType]
+  def expectedExprType(expr: ScExpression, unwrapUnderscoreFunction: Boolean = true): Option[ParameterType]
 
   def expectedExprTypes(
     expr:                 ScExpression,
     withResolvedFunction: Boolean = true,
-    fromUnderscore:       Boolean = true
+    unwrapUnderscoreFunction:       Boolean = true
   ): Array[ParameterType]
 }
 

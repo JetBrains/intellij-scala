@@ -385,13 +385,13 @@ object ScalaPsiUtil {
         } res ++= arg.importsUsed
 
         //implicit conversions
-        def addConversions(fromUnderscore: Boolean): Unit = {
-          res = res ++ expr.getTypeAfterImplicitConversion(expectedOption = expr.smartExpectedType(fromUnderscore),
-            fromUnderscore = fromUnderscore).importsUsed
+        def addConversions(unwrapUnderscoreFunction: Boolean): Unit = {
+          res = res ++ expr.getTypeAfterImplicitConversion(expectedOption = expr.smartExpectedType(unwrapUnderscoreFunction),
+            unwrapUnderscoreFunction = unwrapUnderscoreFunction).importsUsed
         }
 
-        if (ScUnderScoreSectionUtil.isUnderscoreFunction(expr)) addConversions(fromUnderscore = true)
-        addConversions(fromUnderscore = false)
+        if (ScUnderScoreSectionUtil.isUnderscoreFunction(expr)) addConversions(unwrapUnderscoreFunction = true)
+        addConversions(unwrapUnderscoreFunction = false)
 
         expr match {
           case f: ScFor =>
@@ -1322,7 +1322,7 @@ object ScalaPsiUtil {
     private def expectedFunctionalTypeKind(expr: ScExpression): Option[ExpectedFunctionalTypeKind] = {
       implicit val context: Context = Context(expr)
 
-      val expectedType = pt.orElse(expr.expectedType(fromUnderscore = false))
+      val expectedType = pt.orElse(expr.expectedType(unwrapUnderscoreFunction = false))
       expectedType.flatMap(expectedFunctionalTypeKind(_, expr))
     }
 

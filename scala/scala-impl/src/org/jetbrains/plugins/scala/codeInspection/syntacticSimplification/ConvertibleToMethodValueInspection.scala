@@ -127,7 +127,7 @@ class ConvertibleToMethodValueInspection extends LocalInspectionTool {
     implicit val context: Context = Context(oldExpr)
 
     val newExpr = createExpressionWithContextFromText(newExprText, oldExpr.getContext, oldExpr)
-    oldExpr.expectedType(fromUnderscore = false) match {
+    oldExpr.expectedType(unwrapUnderscoreFunction = false) match {
       case Some(expectedType) if FunctionType.isFunctionType(expectedType) =>
         def conformsExpected(expr: ScExpression): Boolean = expr.`type`().getOrAny conforms expectedType
 

@@ -33,7 +33,7 @@ private[codeInsight] trait ScalaTypeArgumentHintsPass {
       val cs = methodCalls
         .flatMap { mc =>
           for {
-            typePoly <- mc.getNonValueType(fromUnderscore = true).toOption.flatMap(_.asOptionOf[ScTypePolymorphicType])
+            typePoly <- mc.getNonValueType(unwrapUnderscoreFunction = true).toOption.flatMap(_.asOptionOf[ScTypePolymorphicType])
             matchedParameters = mc.matchedParameters
             inferRes = InferUtil.localTypeInferenceWithApplicabilityExt(
               typePoly.internalType,

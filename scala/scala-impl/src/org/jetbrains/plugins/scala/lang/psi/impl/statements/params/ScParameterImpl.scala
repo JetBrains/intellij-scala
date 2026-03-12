@@ -160,7 +160,7 @@ class ScParameterImpl protected(
       case fn: ScFunctionExpr =>
         val functionLikeType = FunctionLikeType(this)
         val isUnderscoreFn   = ScUnderScoreSectionUtil.isUnderscoreFunction(fn)
-        val eTpe             = fn.expectedType(fromUnderscore = !isUnderscoreFn)
+        val eTpe             = fn.expectedType(unwrapUnderscoreFunction = !isUnderscoreFn)
         val idx              = clause.parameters.indexOf(this)
 
         @tailrec

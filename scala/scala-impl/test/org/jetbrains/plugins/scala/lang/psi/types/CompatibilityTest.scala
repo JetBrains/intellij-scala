@@ -16,7 +16,7 @@ class CompatibilityTest extends ScalaFixtureTestCase {
       isShape: Boolean,
       expectedOption: Option[ScType],
       ignoreBaseTypes: Boolean,
-      fromUnderscore: Boolean): ScExpression.ExpressionTypeResult = ExpressionTypeResult(Right(`type`))
+      unwrapUnderscoreFunction: Boolean): ScExpression.ExpressionTypeResult = ExpressionTypeResult(Right(`type`))
   }
 
   def test_checkConformanceExt_matched_parameters_order(): Unit = {

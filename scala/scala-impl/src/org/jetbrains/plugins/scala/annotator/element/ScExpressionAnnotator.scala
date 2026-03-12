@@ -169,17 +169,17 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
     }
 
     def checkExpressionTypeInner(
-      fromUnderscore: Boolean,
+      unwrapUnderscoreFunction: Boolean,
       ptSubst:        ScSubstitutor
     ): Unit = {
-      val smartExpectedType = element.smartExpectedType(fromUnderscore)
+      val smartExpectedType = element.smartExpectedType(unwrapUnderscoreFunction)
 
       val ExpressionTypeResult(exprType, _, implicitFunction, _) =
-        element.getTypeAfterImplicitConversion(expectedOption = smartExpectedType, fromUnderscore = fromUnderscore)
+        element.getTypeAfterImplicitConversion(expectedOption = smartExpectedType, unwrapUnderscoreFunction = unwrapUnderscoreFunction)
 
       if (isTooBigToHighlight(element) || (!fromFunctionLiteral && isInArgumentPosition(element)) || shouldNotHighlight(element)) return
 
-      val typeEx = element.expectedTypeEx(fromUnderscore).map {
+      val typeEx = element.expectedTypeEx(unwrapUnderscoreFunction).map {
         case (pt, elem) => ptSubst(pt) -> elem
       }
 
@@ -271,8 +271,8 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
     }
 
     if (ScUnderScoreSectionUtil.isUnderscoreFunction(element)) {
-      checkExpressionTypeInner(fromUnderscore = true, ptSubst)
+      checkExpressionTypeInner(unwrapUnderscoreFunction = true, ptSubst)
     }
-    checkExpressionTypeInner(fromUnderscore = false, ptSubst)
+    checkExpressionTypeInner(unwrapUnderscoreFunction = false, ptSubst)
   }
 }

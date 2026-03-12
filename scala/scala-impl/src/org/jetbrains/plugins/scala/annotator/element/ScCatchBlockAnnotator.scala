@@ -62,7 +62,7 @@ object ScCatchBlockAnnotator extends ElementAnnotator[ScCatchBlock] {
           } else {
             element.getContext match {
               case t: ScTry =>
-                t.expectedTypeEx(fromUnderscore = false) match {
+                t.expectedTypeEx(unwrapUnderscoreFunction = false) match {
                   case Some((tp: ScType, _)) if tp equiv api.Unit => //do nothing
                   case Some((tp: ScType, typeElement)) =>
                     val returnType = candidates(0) match {

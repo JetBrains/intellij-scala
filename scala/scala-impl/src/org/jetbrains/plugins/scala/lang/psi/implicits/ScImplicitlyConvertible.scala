@@ -11,11 +11,11 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
   * Utility class for implicit conversions.
  */
 object ScImplicitlyConvertible {
-  def findImplicitConversions(place: ScExpression, fromUnderscore: Boolean): Seq[PsiNamedElement] = {
+  def findImplicitConversions(place: ScExpression, unwrapUnderscoreFunction: Boolean): Seq[PsiNamedElement] = {
     implicit val elementScope: ElementScope = place.elementScope
     implicit val context: Context = Context(place)
 
-    findPlaceType(place, fromUnderscore).toSeq.flatMap { placeType =>
+    findPlaceType(place, unwrapUnderscoreFunction).toSeq.flatMap { placeType =>
       val regulars =
         cachedWithRecursionGuard(
           "collectRegulars",
@@ -34,7 +34,7 @@ object ScImplicitlyConvertible {
           }
       }
 
-      val argumentTypes = place.expectedTypes(fromUnderscore)
+      val argumentTypes = place.expectedTypes(unwrapUnderscoreFunction)
 
       val companions =
         cachedWithRecursionGuard(
@@ -58,7 +58,7 @@ object ScImplicitlyConvertible {
     }
   }
 
-  private def findPlaceType(place: ScExpression, fromUnderscore: Boolean): Option[ScType] =
-    place.getTypeWithoutImplicits(fromUnderscore = fromUnderscore).toOption
+  private def findPlaceType(place: ScExpression, unwrapUnderscoreFunction: Boolean): Option[ScType] =
+    place.getTypeWithoutImplicits(unwrapUnderscoreFunction = unwrapUnderscoreFunction).toOption
       .map(_.tryExtractDesignatorSingleton)
 }

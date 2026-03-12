@@ -25,7 +25,7 @@ class MakeImplicitConversionExplicit extends PsiElementBaseIntentionAction {
     for {
       (expression, function) <- findImplicitElement(element)
 
-      importStatically = expression.implicitConversions(fromUnderscore = true).contains(function)
+      importStatically = expression.implicitConversions(unwrapUnderscoreFunction = true).contains(function)
     } MakeExplicitAction.replaceWithExplicit(expression, function, importStatically)(project, editor)
 }
 
@@ -34,7 +34,7 @@ object MakeImplicitConversionExplicit {
     parent <- element.withParentsInFile.takeWhile(!_.is[ScBlock]).findByType[ScExpression]
     if parent.isValid
 
-    function <- parent.implicitElement(fromUnderscore = true)
+    function <- parent.implicitElement(unwrapUnderscoreFunction = true)
     if function.is[ScFunction]
   } yield (parent, function.asInstanceOf[ScFunction])
 
