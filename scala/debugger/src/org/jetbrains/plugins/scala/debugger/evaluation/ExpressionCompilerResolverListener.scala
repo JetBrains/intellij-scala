@@ -4,6 +4,7 @@ import com.intellij.debugger.impl.{DebuggerManagerListener, DebuggerSession}
 import com.intellij.openapi.progress.{ProgressIndicator, Task}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
+import com.intellij.platform.eel.provider.EelProviderUtil
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.debugger.DebuggerBundle
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt, ScalaLanguageLevel}
@@ -43,13 +44,15 @@ private final class ExpressionCompilerResolverListener(project: Project) extends
     }.queue()
   }
 
+  //noinspection ApiStatus
   private def resolveExpressionCompilerJar(scalaVersion: ScalaVersion, indicator: ProgressIndicator): Option[Path] = {
     val dep = "ch.epfl.scala" % s"scala-expression-compiler_${scalaVersion.minor}" % ScalaExpressionCompilerVersion
     //noinspection ApiStatus
-    val manager = new EelAwareDependencyManager(project) {
+    val eelDescriptor = EelProviderUtil.getEelDescriptor(project)
+    val manager = new EelAwareDependencyManager {
       override protected def progressIndicator: Option[ProgressIndicator] = Some(indicator)
     }
-    manager.resolveSafe(dep).toOption.flatMap(_.headOption).map(_.file)
+    manager.resolveSafeAndTransferToRemoteEel(eelDescriptor, dep).headOption
   }
 }
 
