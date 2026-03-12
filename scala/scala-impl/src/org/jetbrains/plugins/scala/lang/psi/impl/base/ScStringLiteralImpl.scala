@@ -34,10 +34,7 @@ class ScStringLiteralImpl(node: ASTNode,
       case s: ScInterpolatedStringLiteral => s.kind == ScInterpolatedStringLiteral.Raw
       case _ => this.isMultiLineString
     }
-    val parser = new ScalaStringParser(null, isRaw, noUnicodeEscapesInRawStrings = noUnicodeEscapesInRawStrings, exitOnEscapingWrongSymbol = false)
-    val builder = new java.lang.StringBuilder()
-    parser.parse(text, builder)
-    builder.toString
+    ScalaStringParser.unescapeTextGracefully(text, isRaw, noUnicodeEscapesInRawStrings)
   }
 
   override protected final def wrappedValue(value: String): ScLiteral.Value[String] =
