@@ -22,12 +22,13 @@ import com.intellij.openapi.roots.ui.configuration.SdkLookupProvider.SdkInfo
 import com.intellij.openapi.roots.ui.configuration.{ProjectSettingsService, SdkLookupProvider}
 import com.intellij.pom.Navigatable
 import com.intellij.util.lang.JavaVersion
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.build.ExternalSystemNotificationReporter
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.sbt.project.execution.SbtExecutionAware.{OpenProjectJDKSettingsQuickFix, OpenProjectJDKSettingsQuickFixID}
 import org.jetbrains.sbt.project.template.wizard.JdkSbtCompatibilityChecker
 import org.jetbrains.sbt.settings.SbtSettings
-import org.jetbrains.sbt.{SbtBundle, SbtVersion, SbtVersionDetector}
+import org.jetbrains.sbt.{SbtBundle, SbtVersionDetector}
 
 import java.util
 import java.util.concurrent.CompletableFuture
@@ -78,9 +79,17 @@ class SbtExecutionAware extends ExternalSystemExecutionAware {
 
         versionString.foreach { version =>
           val sbtVersion = SbtVersionDetector.detectSbtVersion(project, externalProjectPath)
-          val highestCompatibleJdk = JdkSbtCompatibilityChecker.getHighestCompatibleJdkForSbt(version, sbtVersion)
-          highestCompatibleJdk.foreach { javaVersion =>
-            displayJDKSbtCompatibilityWarning(externalSystemTask, taskNotificationListener, externalProjectPath, javaVersion, sbtVersion)
+          val minimumRequiredJdk = JdkSbtCompatibilityChecker.getMinimumJdkToSbtCompatibleVersion(version, sbtVersion)
+          minimumRequiredJdk match {
+            case Some(minJdk) =>
+              val description = SbtBundle.message("sbt.jdk.compatibility.issue.jdk.too.low.description", sbtVersion.value.presentation, minJdk.feature)
+              displayJDKSbtCompatibilityWarning(externalSystemTask, taskNotificationListener, externalProjectPath, description)
+            case None =>
+              val highestCompatibleJdk = JdkSbtCompatibilityChecker.getHighestCompatibleJdkForSbt(version, sbtVersion)
+              highestCompatibleJdk.foreach { javaVersion =>
+                val description =  SbtBundle.message("sbt.jdk.compatibility.issue.description", javaVersion.feature, sbtVersion.value.presentation)
+                displayJDKSbtCompatibilityWarning(externalSystemTask, taskNotificationListener, externalProjectPath, description)
+              }
           }
         }
       case _ =>
@@ -145,14 +154,14 @@ class SbtExecutionAware extends ExternalSystemExecutionAware {
     task: ExternalSystemTask,
     taskNotificationListener: ExternalSystemTaskNotificationListener,
     externalProjectPath: String,
-    highestCompatibleJdk: JavaVersion,
-    sbtVersion: SbtVersion,
+    @Nls description: String
   ): Unit = {
     val esReporter = new ExternalSystemNotificationReporter(externalProjectPath, task.getId, taskNotificationListener)
     val buildIssue = new BuildIssue {
       override def getTitle: String = SbtBundle.message("sbt.jdk.compatibility.issue.title")
 
-      override def getDescription: String = SbtBundle.message("sbt.jdk.compatibility.issue.description", highestCompatibleJdk.feature, sbtVersion.value.presentation, OpenProjectJDKSettingsQuickFixID)
+      override def getDescription: String =
+        description + SbtBundle.message("sbt.jdk.compatibility.issue.open.settings", OpenProjectJDKSettingsQuickFixID)
 
       override def getQuickFixes: util.List[BuildIssueQuickFix] = java.util.List.of(OpenProjectJDKSettingsQuickFix)
 
