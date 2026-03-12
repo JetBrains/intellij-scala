@@ -20,7 +20,7 @@ object JdkSbtCompatibilityChecker {
    *  - Warning on JDK combo box - JDK <=20 is recommended with sbt 1.6.2
    */
   private val compatibilityTable: Map[JavaVersion, SbtVersion] = Map(
-    JavaVersion.compose(23) -> SbtVersion("1.9.0"),
+    JavaVersion.compose(25) -> SbtVersion("1.9.0"),
     JavaVersion.compose(21) -> SbtVersion("1.9.0"),
     JavaVersion.compose(17) -> SbtVersion("1.6.0"),
     JavaVersion.compose(11) -> SbtVersion("1.1.0"),
@@ -71,10 +71,10 @@ object JdkSbtCompatibilityChecker {
     getMinimumJdkVersionForSbt(sbtVersion).filter(jdk < _)
 
   /**
-   * @param strict if set to <code>true</code>, JDK versions below 1.8 or greater than or equal to 24 are treated as incompatible
+   * @param strict if set to `true`, JDK versions below 1.8 or greater than 25 are treated as incompatible
    */
   def isSbtAndJdkVersionCompatible(jdk: JavaVersion, sbtVersion: SbtVersion, strict: Boolean = false): Boolean = {
-    val isOutsideOfRange = jdk < JDK_8 || jdk >= JavaVersion.compose(24)
+    val isOutsideOfRange = jdk < JDK_8 || jdk > JavaVersion.compose(25)
     if (strict && isOutsideOfRange) false
     else {
       getMinimumSbtToJdkCompatibleVersion(jdk, sbtVersion).isEmpty &&
@@ -99,6 +99,8 @@ object JdkSbtCompatibilityChecker {
   /**
    * Returns `None` if the `jdk` is compatible with the given `sbtVersion`, or the highest compatible JDK otherwise.
    *
+   * @note In some UI checks, before verifying the highest compatible version, we should first check the minimum JDK compatibility.
+   *       [[getMinimumJdkToSbtCompatibleVersion]]
    * @see [[getHighestCompatibleJdkForSbt]]
    */
   def getHighestCompatibleJdkForSbt(jdk: JavaVersion, sbtVersion: SbtVersion): Option[JavaVersion] = {
