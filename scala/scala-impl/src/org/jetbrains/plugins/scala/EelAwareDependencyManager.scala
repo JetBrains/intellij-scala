@@ -1,19 +1,33 @@
 //noinspection ApiStatus,UnstableApiUsage
 package org.jetbrains.plugins.scala
 
-import com.intellij.openapi.project.Project
 import com.intellij.platform.eel.EelDescriptor
-import org.jetbrains.annotations.ApiStatus
-import com.intellij.platform.eel.provider.{EelProviderUtil, LocalEelDescriptor}
+import com.intellij.platform.eel.provider.LocalEelDescriptor
 import com.intellij.platform.eel.provider.utils.EelPathUtils
-import java.nio.file.Path
+import org.jetbrains.annotations.ApiStatus
+import org.jetbrains.plugins.scala.DependencyManagerBase.{DependencyDescription, ivyHome}
+import org.jetbrains.plugins.scala.extensions.PathExt
 
-@ApiStatus.Experimental
-class EelAwareDependencyManager(eelDescriptor: EelDescriptor) extends DependencyManagerBase {
-  def this(project: Project) = this(EelProviderUtil.getEelDescriptor(project))
+import java.nio.file.{Files, Path}
 
-  override protected val ivyHomeDirectory: Path = eelDescriptor match {
-    case LocalEelDescriptor.INSTANCE => super.ivyHomeDirectory
-    case remote => EelPathUtils.getHomePath(remote).resolve(".ivy2")
+@ApiStatus.Internal
+private[scala] class EelAwareDependencyManager extends DependencyManagerBase {
+  @ApiStatus.Internal
+  def resolveSafeAndTransferToRemoteEel(eelDescriptor: EelDescriptor, dependencies: DependencyDescription*): Seq[Path] = {
+    val resolvedPaths = resolveSafe(dependencies: _*).toOption.getOrElse(Seq.empty).map(_.file)
+    eelDescriptor match {
+      case LocalEelDescriptor.INSTANCE =>
+        resolvedPaths
+      case remote =>
+        val localIvyHome = ivyHome
+        val remoteIvyHome = EelPathUtils.getHomePath(remote) / ".ivy2"
+        Files.createDirectories(remoteIvyHome)
+        resolvedPaths.map { path =>
+          val relativePath = localIvyHome.relativize(path)
+          val targetPath = remoteIvyHome / relativePath
+          Files.createDirectories(targetPath.getParent)
+          EelPathUtils.transferLocalContentToRemote(path, new EelPathUtils.TransferTarget.Explicit(remoteIvyHome / relativePath))
+        }
+    }
   }
 }
