@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.util.SAMUtil.PsiClassToSAMExt
 
 import scala.beans.{BeanProperty, BooleanBeanProperty}
 
-final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection {
+final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection with ScalaUnusedDeclarationIncrementalInspection {
 
   import ScalaUnusedDeclarationInspection._
   import org.jetbrains.plugins.scala.codeInspection.ui.CompilerInspectionOptions._
@@ -81,7 +81,7 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
     }
   }
 
-  private def unusedProblemInfoFor(named: ScNamedElement, isOnTheFly: Boolean): ProblemInfo = {
+  protected def unusedProblemInfoFor(named: ScNamedElement, isOnTheFly: Boolean): ProblemInfo = {
     val dontReportPublicDeclarationsQuickFix = if (isOnlyVisibleInLocalFile(named)) None
     else Some(
       LocalQuickFix.from(
@@ -173,7 +173,7 @@ object ScalaUnusedDeclarationInspection {
   @NonNls
   private val reportLocalDeclarationsPropertyName: String = "reportLocalDeclarations"
 
-  private def hasUnusedAnnotation(holder: PsiAnnotationOwner): Boolean =
+  private[declarationRedundancy] def hasUnusedAnnotation(holder: PsiAnnotationOwner): Boolean =
     holder.hasAnnotation("scala.annotation.unused") ||
       // not entirely correct, but if we find @nowarn here in this situation
       // we can assume that it is directed at the unusedness of the symbol
