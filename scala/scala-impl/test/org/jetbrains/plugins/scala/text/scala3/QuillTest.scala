@@ -52,7 +52,6 @@ class QuillTest extends TextToTextTestBase(
     "io.getquill.context.ReflectivePathChainLookup", // scala.Option[java.lang.Object] | scala.Any
     "io.getquill.context.StaticState", // [?, ?, ?] | [_$1, _$2, _$3]]) forSome {type _$1; type _$2; type _$3}]
     "io.getquill.context.StaticSpliceMacro", // scala.Boolean | scala.Any
-    "io.getquill.context.sql.idiom.SqlIdiom", // SqlIdiom | SqlIdiom with _root_.java.lang.Object { def...
     "io.getquill.dsl.InfixDsl", // \" | " (in annotation)
     "io.getquill.generic.DeconstructElaboratedEntityLevels", // Multiple scala.quoted.Exp
     "io.getquill.generic.ConstructDecoded", // scala.quoted.Exp | scala.Any
