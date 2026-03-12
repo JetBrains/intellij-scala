@@ -102,7 +102,7 @@ final class ScInterpolatedStringLiteralImpl(node: ASTNode,
   }
 
   override def createLiteralTextEscaper: LiteralTextEscaper[ScStringLiteral] =
-    if (kind == Raw)
+    if (kind == Kind.Raw)
       new ScLiteralRawEscaper(this)
     else
       new ScLiteralEscaper(this)

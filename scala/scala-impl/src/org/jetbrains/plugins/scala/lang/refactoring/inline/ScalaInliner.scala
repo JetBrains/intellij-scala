@@ -301,7 +301,7 @@ final class ScalaInliner {
     // (notice how `\` became escaped
     val interpolatorName = targetString.reference.refName
     val kind = ScInterpolatedStringLiteral.Kind.fromPrefix(interpolatorName)
-    val enforceInterpolator = kind == ScInterpolatedStringLiteral.Raw
+    val enforceInterpolator = kind == ScInterpolatedStringLiteral.Kind.Raw
 
     val newStringText = InterpolatedStringFormatter(kind).format(
       newParts,

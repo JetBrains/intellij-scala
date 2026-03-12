@@ -41,7 +41,7 @@ object InterpolatedStringParser extends StringParser {
       elements.zipAll(elements.drop(1).map(Some(_)), null, None)
     }
 
-    val isRaw = literal.kind == ScInterpolatedStringLiteral.Raw
+    val isRaw = literal.kind == ScInterpolatedStringLiteral.Kind.Raw
     val parts = pairs.collect {
       // `str` or `{2 + 2}`
       // in input: s"$str ${2 + 2}"

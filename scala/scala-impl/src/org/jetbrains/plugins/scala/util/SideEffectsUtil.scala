@@ -76,9 +76,9 @@ object SideEffectsUtil {
       case lit: ScInterpolatedStringLiteral =>
         import ScInterpolatedStringLiteral._
         lit.kind match {
-          case Standard |
-               Format |
-               Raw => true
+          case Kind.Standard |
+               Kind.Format |
+               Kind.Raw => true
           case _ => false
         }
       case _: ScLiteral => true

@@ -31,7 +31,7 @@ class ScStringLiteralImpl(node: ASTNode,
   override protected final def toValue(text: String): String = {
     val noUnicodeEscapesInRawStrings = this.noUnicodeEscapesInRawStrings
     val isRaw = this match {
-      case s: ScInterpolatedStringLiteral => s.kind == ScInterpolatedStringLiteral.Raw
+      case s: ScInterpolatedStringLiteral => s.kind == ScInterpolatedStringLiteral.Kind.Raw
       case _ => this.isMultiLineString
     }
     ScalaStringParser.unescapeTextGracefully(text, isRaw, noUnicodeEscapesInRawStrings)

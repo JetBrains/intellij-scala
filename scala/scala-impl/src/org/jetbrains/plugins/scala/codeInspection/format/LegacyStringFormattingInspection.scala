@@ -32,7 +32,7 @@ object LegacyStringFormattingInspection {
 
     override protected def invoke(context: ActionContext, element: PsiElement, updater: ModPsiUpdater): Unit =
       AnyStringParser.parse(element).foreach { parts =>
-        val expression = createExpressionFromText(InterpolatedStringFormatter(ScInterpolatedStringLiteral.Standard).format(parts), element)(context.project())
+        val expression = createExpressionFromText(InterpolatedStringFormatter(ScInterpolatedStringLiteral.Kind.Standard).format(parts), element)(context.project())
         element.replace(expression)
       }
   }

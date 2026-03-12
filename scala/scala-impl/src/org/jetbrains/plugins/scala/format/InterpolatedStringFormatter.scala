@@ -26,11 +26,11 @@ class InterpolatedStringFormatter(val kind: ScInterpolatedStringLiteral.Kind) ex
     enforceInterpolator: Boolean
   ): String = {
     val prefix =
-      if (!kind.is[ScInterpolatedStringLiteral.Pattern]) {
+      if (!kind.is[ScInterpolatedStringLiteral.Kind.Pattern]) {
         val injections = parts.filterByType[Injection]
 
         if (injections.forall(injectByValue) && !enforceInterpolator) ""
-        else if (injections.exists(_.isFormattingRequired)) ScInterpolatedStringLiteral.Format.prefix
+        else if (injections.exists(_.isFormattingRequired)) ScInterpolatedStringLiteral.Kind.Format.prefix
         else kind.prefix
       }
       else kind.prefix
@@ -54,7 +54,7 @@ object InterpolatedStringFormatter {
       case text: Text                         =>
         ScalaStringUtils.escapePlainText(text.value, toMultiline, prefix, noUnicodeEscapesInRawStrings)
       case textFormatted: SpecialFormatEscape =>
-        val isFormat = prefix == ScInterpolatedStringLiteral.Format.prefix
+        val isFormat = prefix == ScInterpolatedStringLiteral.Kind.Format.prefix
         val content = if (isFormat) textFormatted.originalText else textFormatted.unescapedText
         ScalaStringUtils.escapePlainText(content, toMultiline, prefix, noUnicodeEscapesInRawStrings)
       case it: Injection =>

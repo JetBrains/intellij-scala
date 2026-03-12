@@ -164,11 +164,11 @@ class InterpolatedStringParserTest extends ScalaLightCodeInsightFixtureTestCase 
     }
 
   private def parseF(content: String, multiline: Boolean = false): List[StringPart] =
-    parse(content, ScInterpolatedStringLiteral.Format, multiline)
+    parse(content, ScInterpolatedStringLiteral.Kind.Format, multiline)
   private def parseS(content: String, multiline: Boolean = false): List[StringPart] =
-    parse(content, ScInterpolatedStringLiteral.Standard, multiline)
+    parse(content, ScInterpolatedStringLiteral.Kind.Standard, multiline)
   private def parseRaw(content: String, multiline: Boolean = false): List[StringPart] =
-    parse(content, ScInterpolatedStringLiteral.Raw, multiline)
+    parse(content, ScInterpolatedStringLiteral.Kind.Raw, multiline)
 
   private def parse(content: String, kind: ScInterpolatedStringLiteral.Kind, multiline: Boolean = false): List[StringPart] = {
     val element = literal(content, kind, multiline)
