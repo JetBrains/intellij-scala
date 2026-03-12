@@ -7,11 +7,14 @@ import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.incremental
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 trait HighlightingPassInspection extends LocalInspectionTool {
   override final def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
-    if (isOnTheFly)
-      PsiElementVisitor.EMPTY_VISITOR //highlighting pass should take care of that
+    if (isOnTheFly) {
+      if (ScalaProjectSettings.in(holder.getProject).isIncrementalHighlighting) buildIncrementalHighlightingVisitor(holder) //highlighting pass is disabled
+      else PsiElementVisitor.EMPTY_VISITOR //highlighting pass should take care of that
+    }
     else {
       //REMINDER: this is for the case when inspection are run in batch mode
       new PsiElementVisitor {
@@ -23,6 +26,8 @@ trait HighlightingPassInspection extends LocalInspectionTool {
       }
     }
   }
+
+  def buildIncrementalHighlightingVisitor(holder: ProblemsHolder): PsiElementVisitor = PsiElementVisitor.EMPTY_VISITOR
 
   def invoke(element: PsiElement, isOnTheFly: Boolean): Seq[ProblemInfo]
 
