@@ -23,7 +23,7 @@ class DynamicTest extends ResolveTestBase {
     super.doEachTest(reference, referenceIndex, expectedResolveResult)
 
     reference.bind().foreach { result =>
-      Assert.assertEquals(result.nameArgForDynamic, Some(reference.refName))
+      Assert.assertEquals(result.dynamicMethodName, Some(reference.refName))
     }
   }
 }

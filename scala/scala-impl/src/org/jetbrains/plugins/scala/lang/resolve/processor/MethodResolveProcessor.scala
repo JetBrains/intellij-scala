@@ -233,10 +233,10 @@ object MethodResolveProcessor {
     ref:                    PsiElement,
     argumentClauses:        Seq[Seq[Expression]],
     typeArgElements:        Seq[ScTypeElement],
-    qualifierTypeParams:           Seq[TypeParameter],
-    expectedReturnType:         () => Option[ScType],
+    qualifierTypeParams:    Seq[TypeParameter],
+    expectedReturnType:     () => Option[ScType],
     selfConstructorResolve: Boolean,
-    isInUnderscoreSection:           Boolean,
+    isInUnderscoreSection:  Boolean,
     shapesOnly:             Boolean,
     argClauseIdx:           Int,
     isSubResolve:           Boolean
