@@ -61,6 +61,11 @@ object JdkSbtCompatibilityChecker {
    * Returns `None` if the `jdk` is compatible with the given `sbtVersion`, or the minimum required JDK version otherwise.
    *
    * @see [[getMinimumJdkVersionForSbt]]
+   * @todo (IMPORTANT) Currently, when checking the minimum required JDK for sbt version, the upper bound does not need to be checked,
+   *       because sbt 2.0.0-RC9 supports all available JDKs. However, this will likely change in the future.
+   *       For example, if JDK 27 is introduced and supported only in sbt 2.1, then when the user has sbt 2.0.0 & JDK 11 in the NPW,
+   *       the warning "JDK >= 17 is required for sbt 2.0.0" would be incomplete - it should also include an upper bound,
+   *       e.g. "JDK >= 17 and < 27 is required for sbt 2.0.0" (or sth similar, it's just an example).
    */
   def getMinimumJdkToSbtCompatibleVersion(jdk: JavaVersion, sbtVersion: SbtVersion): Option[JavaVersion] =
     getMinimumJdkVersionForSbt(sbtVersion).filter(jdk < _)

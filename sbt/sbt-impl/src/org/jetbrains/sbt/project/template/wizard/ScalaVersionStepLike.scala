@@ -45,9 +45,6 @@ trait ScalaVersionStepLike extends IndentationSyntaxStepLike with AsynchronousVe
     ScalaVersion.fromString(scalaVersionStr)
   }
 
-  protected def getMinimumJdkVersionForScala: Option[JavaVersion] =
-    getScalaVersion.flatMap(JdkScalaCompatibilityChecker.getMinimumJdkVersionForScala)
-
   private def downloadScalaVersions(disposable: Disposable): Unit = {
     val scalaDownloadVersions: ProgressIndicator => Seq[Version] = indicator => {
       Versions.Scala.loadVersionsWithProgress(indicator)
