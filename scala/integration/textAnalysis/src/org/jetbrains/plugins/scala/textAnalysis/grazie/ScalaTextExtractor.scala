@@ -84,7 +84,9 @@ final class ScalaTextExtractor extends TextExtractor:
       root match
         case string: ScStringLiteral =>
           val content = TextContentBuilder.FromPsi.build(string, TextDomain.LITERALS)
-          if (content != null) {
+
+          //TODO: extract this body to a separate method
+          if content != null then
             // NOTE: `content` has trimmed whitespace, so the text inside can be not equal to the original string inner content.
             // Thus, `offsetFromLiteralStart` might not be equal to content start in string literal.
             val offsetFromLiteralStart = content.getRangesInFile.get(0).getStartOffset - string.getTextOffset
@@ -94,6 +96,7 @@ final class ScalaTextExtractor extends TextExtractor:
             // We need to pass some language just because API requires it. It doesn't matter which language we pass
             val injectionInfos = ScalaInjectionInfosCollector.collectInjectionInfos(Seq(string), PlainTextLanguage.INSTANCE, "", "")
             val contentRangesInLiteral = injectionInfos.ranges
+
             val excludedRanges = contentRangesInLiteral.zip(contentRangesInLiteral.tail).flatMap { case (prev, next) =>
               // We need to use `max` and `max`
               // because `TextContentBuilder.build` returns content with spaces trimmed from both sides
@@ -104,20 +107,22 @@ final class ScalaTextExtractor extends TextExtractor:
               // We need to filter such empty ranges because `Exclusion` constructor will fail otherwise
               if (start == end) None else {
                 val isInterpolationInjectionExclusion = contentText.lift(start).contains('$')
-                // Treat ${} injection as "Unknown" in order grammar check uses it as a border at which a new analyses should be started
-                // In s"this is example" we can reliable run the check and detect missing article "an"
-                // But in s"this is $text example" we can't do it because $text could inject the article
+                // Treat ${} injection as "Unknown" in order grammar check uses it as a border at which a new analysis should be started.
+                // In string `s"this is example"` we can reliably run the check and detect missing article "an",
+                // But in string `s"this is $text example"` we can't do it because $text could inject the article
                 val isUnknown = isInterpolationInjectionExclusion
                 Some(new Exclusion(start, end, isUnknown))
               }
-            }
-            return ContainerUtil.createMaybeSingletonList(content.excludeRanges(excludedRanges.asJava))
-          }
+            } //end flatMap
+
+            val contentWithExcludedRanges = content.excludeRanges(excludedRanges.asJava)
+            val contentWithProcessedEscapes = TextContentEscapeUtils.replaceBackslashEscapes(contentWithExcludedRanges, string)
+            return ContainerUtil.createMaybeSingletonList(contentWithProcessedEscapes)
+          end if
         case _ =>
       end match
     end if
 
     util.List.of()
   end buildTextContents
-
 end ScalaTextExtractor
