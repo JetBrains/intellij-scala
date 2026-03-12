@@ -18,7 +18,7 @@ final class ScalaInjectedStringLiteralManipulator extends AbstractElementManipul
     val text = literal.getText
 
     val needEscape = literal match {
-      case s: ScInterpolatedStringLiteral => s.kind != ScInterpolatedStringLiteral.Raw
+      case s: ScInterpolatedStringLiteral => s.kind != ScInterpolatedStringLiteral.Kind.Raw
       case _                              => !literal.isMultiLineString
     }
     val isInterpolated = literal.is[ScInterpolatedStringLiteral]
