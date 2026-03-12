@@ -19,7 +19,7 @@
   <!-- TARGETS DEFINITION -->
 
   <target name="generate.lexer.all"
-          depends="generate.lexer.scala.core, generate.lexer.scaladoc, generate.lexer.scaladoc.reflinks, generate.lexer.sbt.shell, generate.lexer.scaladirective"
+          depends="generate.lexer.scala.core, generate.lexer.scaladoc.wikidoc, generate.lexer.scaladoc.markdown, generate.lexer.scaladoc.reflinks, generate.lexer.sbt.shell, generate.lexer.scaladirective"
           description="main target"/>
 
   <target name="generate.lexer.scala.core" depends="generate.lexer.scala.splitting">
@@ -30,7 +30,7 @@
     <flex flexFileName="_ScalaSplittingLexer.flex" flexFileDir="${scala.lexer.path}"/>
   </target>
 
-  <target name="generate.lexer.scaladoc">
+  <target name="generate.lexer.scaladoc.wikidoc">
     <flex flexFileName="_ScalaDocLexer.flex" flexFileDir="${scaladoc.lexer.path}"/>
   </target>
 
@@ -38,9 +38,9 @@
     <flex flexFileName="_ScalaDocRefLink.flex" flexFileDir="${scaladoc.reflinks.lexer.path}"/>
   </target>
 
-    <target name="generate.lexer.markdown">
-        <flex flexFileName="_CustomGFMLexer.flex" flexFileDir="${scaladoc.lexer.path}/markdown"/>
-    </target>
+  <target name="generate.lexer.scaladoc.markdown">
+      <flex flexFileName="_CustomGFMLexer.flex" flexFileDir="${scaladoc.lexer.path}/markdown"/>
+  </target>
 
   <target name="generate.lexer.scaladirective">
     <flex flexFileName="_ScalaDirectiveLexer.flex" flexFileDir="${scaladirective.lexer.path}"/>
