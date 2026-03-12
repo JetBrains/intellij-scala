@@ -175,6 +175,23 @@ object ScalaStringParser {
     )
   }
 
+  /** Unescapes a given string literal content gracefully (when a wrong escape sequence is encountered, it is replaced with a placeholder char) */
+  def unescapeTextGracefully(
+    content: String,
+    isRaw: Boolean,
+    noUnicodeEscapesInRawStrings: Boolean
+  ): String = {
+    val parser = new ScalaStringParser(
+      sourceOffsets = null,
+      isRaw = isRaw,
+      noUnicodeEscapesInRawStrings = noUnicodeEscapesInRawStrings,
+      exitOnEscapingWrongSymbol = false
+    )
+    val builder = new java.lang.StringBuilder()
+    parser.parse(content, builder)
+    builder.toString
+  }
+
   private def parseEscapedChar(c: Char, outChars: JStringBuilder): Boolean =
     c match {
       case 'b'  =>

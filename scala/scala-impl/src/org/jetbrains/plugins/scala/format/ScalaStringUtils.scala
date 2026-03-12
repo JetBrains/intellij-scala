@@ -12,12 +12,8 @@ import java.lang
  */
 private object ScalaStringUtils {
 
-  def unescapeStringCharacters(content: String, isRaw: Boolean, noUnicodeEscapesInRawStrings: Boolean): String = {
-    val parser = new ScalaStringParser(null, isRaw, noUnicodeEscapesInRawStrings = noUnicodeEscapesInRawStrings, exitOnEscapingWrongSymbol = false)
-    val builder = new java.lang.StringBuilder()
-    parser.parse(content, builder)
-    builder.toString
-  }
+  def unescapeStringCharacters(content: String, isRaw: Boolean, noUnicodeEscapesInRawStrings: Boolean): String =
+    ScalaStringParser.unescapeTextGracefully(content, isRaw, noUnicodeEscapesInRawStrings)
 
   // just run the tests...
   def escapePlainText(
