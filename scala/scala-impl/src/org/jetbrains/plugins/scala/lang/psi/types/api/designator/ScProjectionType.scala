@@ -195,7 +195,7 @@ final class ScProjectionType private(val projected: ScType,
         val lElement = actualElement
         val rElement = proj2.actualElement
 
-        val sameElements = lElement == rElement || {
+        val sameElements = ScEquivalenceUtil.smartEquivalence(lElement, rElement) || {
           lElement.name == rElement.name &&
             (isEligibleForPrefixUnification(projected) || isEligibleForPrefixUnification(p1))
         }
