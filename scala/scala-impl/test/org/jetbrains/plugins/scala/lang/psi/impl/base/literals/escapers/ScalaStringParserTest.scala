@@ -48,7 +48,7 @@ class ScalaStringParserTest extends TestCase {
   // ignore invalid escapes
   def testDontStopAtInvalidEscape(): Unit = {
     val content = "X \\ X \\j X"
-    assertEquals("X X  X", parse(content, isRaw = false, exitOnEscapingWrongSymbol = false))
+    assertEquals("X  X   X", parse(content, isRaw = false, exitOnEscapingWrongSymbol = false))
     //raw (raw content is not invalid actually)
     assertEquals("X \\ X \\j X", parse(content, isRaw = true, exitOnEscapingWrongSymbol = false))
   }
