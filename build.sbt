@@ -1031,6 +1031,7 @@ lazy val scalastyleIntegration = newProject("scalastyle", file("scala/integratio
 lazy val textAnalysis =
   newProject("textAnalysis", file("scala/integration/textAnalysis"))
     .dependsOn(
+      textAnalysisTestFramework % "test->test",
       scalaImpl % "test->test;compile->compile",
       intelliLangIntegration //uses logic related to parsing interpolated strings
     )
@@ -1055,6 +1056,17 @@ lazy val textAnalysis =
         ("ai.grazie.spell" % "hunspell-de" % Versions.HunspellDictionaryVersion % Test).notTransitive()
       ),
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.textAnalysis"),
+    )
+
+// Contains Kotlin code for tests. Has to be a separate module as mixed Scala/Kotlin compilation is not supported
+lazy val textAnalysisTestFramework =
+  newProjectWithKotlin("textAnalyses-test-framework", file("scala/integration/textAnalysis/test-framework"))
+    .projectWithTestsOnly
+    .dependsOn(
+      testUtilsPlatform % "test->test",
+    )
+    .settings(
+      intellijPlugins += "tanvd.grazi".toPlugin
     )
 
 lazy val featuresTrainerIntegration =
