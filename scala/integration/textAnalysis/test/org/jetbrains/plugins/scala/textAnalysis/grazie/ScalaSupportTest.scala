@@ -10,7 +10,7 @@ import com.intellij.util.ThrowableRunnable
  * Test data was adapted to Scala syntax.
  * When tests fail, you might look into the corresponding changes in Java tests first.
  */
-class ScalaSupportTest extends GrazieScalaTestBase:
+class ScalaSupportTest extends GrazieTest_WithScalaSdkAndJdk:
 
   override def getTestDataPath: String =
     super.getTestDataPath() + "/ide/language/scala"
@@ -19,11 +19,11 @@ class ScalaSupportTest extends GrazieScalaTestBase:
     runHighlightTestForFile("Constructs.scala")
 
   def testGrammarCheckInComments(): Unit =
-    enableProofreadingFor(Set(Lang.GERMANY_GERMAN))
+    enableProofreadingFor(java.util.Set.of(Lang.GERMANY_GERMAN))
     runHighlightTestForFile("Comments.scala")
 
   def testGrammarCheckInDocs(): Unit =
-    enableProofreadingFor(Set(Lang.GERMANY_GERMAN, Lang.RUSSIAN))
+    enableProofreadingFor(java.util.Set.of(Lang.GERMANY_GERMAN, Lang.RUSSIAN))
     runHighlightTestForFile("Docs.scala")
 
   def testGrammarCheckInStringLiterals(): Unit =
@@ -31,7 +31,8 @@ class ScalaSupportTest extends GrazieScalaTestBase:
 
   def testSplitLineQuickFix(): Unit =
     runHighlightTestForFile("SplitLine.scala")
-    myFixture.launchAction(myFixture.findSingleIntention(", but"))
+    val action = myFixture.findSingleIntention(", but")
+    myFixture.launchAction(action)
     myFixture.checkResultByFile("SplitLine_after.scala")
 
   def testDoNotMergeTextWithNonText(): Unit =
