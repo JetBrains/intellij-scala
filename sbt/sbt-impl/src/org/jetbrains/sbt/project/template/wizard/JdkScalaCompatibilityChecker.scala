@@ -90,7 +90,7 @@ object JdkScalaCompatibilityChecker:
   /**
    * Determines the minimum Scala version required to be compatible with the specified JDK.
    *
-   * '''Examples:'''
+   * Examples:
    *  - JDK 17 + Scala 2.11.10: Returns Scala 2.12.15 because Scala 2.11.10 doesn't support JDK 17.
    *
    *  - JDK 16 + Scala 2.12.10: Returns `None`(compatible). The nearest JDK below or equal to 16 is 11,
@@ -132,40 +132,52 @@ object JdkScalaCompatibilityChecker:
    * Returns `None` if the `jdk` is compatible with the given `scalaVersion`, or the minimum required JDK version otherwise.
    *
    * @see [[getMinimumJdkVersionForScala]]
+   * @todo (IMPORTANT) Currently, when checking the minimum required JDK for a Scala version, the upper bound does not need to be checked,
+   *       because Scala 3.8+ supports all available JDKs. However, this will likely change in the future.
+   *       For example, if JDK 27 is introduced and supported only in Scala 3.9+, then when the user has Scala 3.8.1 & JDK 11 in the NPW,
+   *       the warning "JDK >= 17 is required for Scala 3.8.1" would be incomplete - it should also include an upper bound,
+   *       e.g. "JDK >= 17 and < 27 is required for Scala 3.8.1" (or sth similar, it's just an example).
    */
   def getMinimumJdkRequiredForScala(jdk: JavaVersion, scalaVersion: ScalaVersion): Option[JavaVersion] =
     getMinimumJdkVersionForScala(scalaVersion).filter(jdk < _)
 
   /**
-   * Determines the highest JDK version that is compatible with the given Scala version.
+   * Returns the highest JDK version that is compatible with the given Scala version.
    * Mirrors the logic from [[JdkSbtCompatibilityChecker.getHighestCompatibleJdkForSbt]].
    *
-   * '''Examples:'''
+   * Examples:
    *  - JDK 21 + Scala 2.12.10: Returns JDK 16. Scala 2.12.10 is incompatible with JDK 21, and the highest compatible JDK
    *    for Scala 2.12.10 is JDK 16. JDK 17 requires Scala 2.12.15+.
    *
    *  - JDK 21 + Scala 3.3.0: Returns JDK 20. Scala 3.3.1 is the first version that supports JDK 21, so the highest compatible JDK for Scala 3.3.0 is JDK 20.
-   *
    *  - JDK 21 + Scala 2.13.15: Returns `None` (compatible) because JDK 21 requires Scala 2.13.11+ and version 2.13.15 meets this requirement.
    *
-   * @return [[Option]] containing the highest compatible JDK for the given Scala version <br>
-   *         [[None]] if the versions are compatible
+   * @return the highest compatible JDK for the given Scala version, or `None` if there is no upper-bound constraint.
+   */
+  def getHighestCompatibleJdkForScala(scalaVersion: ScalaVersion): Option[JavaVersion] = {
+    val lowestIncompatibleJdk = compatibilityTable.keys
+      .toSeq
+      .sorted
+      .find { javaVersion =>
+        val scalaMinimumsPerJdk = compatibilityTable(javaVersion)
+        minimumRequiredScala(scalaMinimumsPerJdk, scalaVersion) match {
+          case Some(min) => scalaVersion < min
+          case None => true
+        }
+      }
+
+    lowestIncompatibleJdk.map(j => JavaVersion.compose(j.feature - 1))
+  }
+
+  /**
+   * Returns `None` if the `jdk` is compatible with the given `scalaVersion`, or the highest compatible JDK otherwise.
+   *
+   * @note In some UI checks, before verifying the highest compatible version, we should first check the minimum JDK compatibility
+   *       [[getMinimumJdkRequiredForScala]]
+   * @see [[getHighestCompatibleJdkForScala]]
    */
   def getHighestCompatibleJdkForScala(jdk: JavaVersion, scalaVersion: ScalaVersion): Option[JavaVersion] = {
     val isCompatible = isScalaAndJdkVersionCompatible(jdk, scalaVersion)
     if (isCompatible) None
-    else {
-      val lowestIncompatibleJdk = compatibilityTable.keys
-        .toSeq
-        .sorted
-        .find { javaVersion =>
-          val scalaMinimumsPerJdk = compatibilityTable(javaVersion)
-          minimumRequiredScala(scalaMinimumsPerJdk, scalaVersion) match {
-            case Some(min) => scalaVersion < min
-            case None => true
-          }
-        }
-
-      lowestIncompatibleJdk.map(j => JavaVersion.compose(j.feature - 1))
-    }
+    else getHighestCompatibleJdkForScala(scalaVersion)
   }

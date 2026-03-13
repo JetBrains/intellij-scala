@@ -64,7 +64,7 @@ abstract class SbtNewProjectWizardStep(parent: NewProjectWizardStep)
 
   private var jdkComboBox: ProjectWizardJdkComboBox = scala.compiletime.uninitialized
 
-  protected def setupSbtUI(panel: Panel): Unit =
+  protected def setupSbtUI(panel: Panel): Unit = {
     panel.row(SbtBundle.message("sbt.settings.sbt"), (row: Row) => {
       row.layout(RowLayout.PARENT_GRID)
 
@@ -86,6 +86,22 @@ abstract class SbtNewProjectWizardStep(parent: NewProjectWizardStep)
       KUnit
     })
 
+    sbtVersionComboBox.addActionListener { _ =>
+      if isJdkBelow(minJdkFeatureForSbt) then autoSelectJdkIfNeeded()
+    }
+  }
+
+  private def minJdkFeatureForScala: Int =
+    getScalaVersion.flatMap(JdkScalaCompatibilityChecker.getMinimumJdkVersionForScala).map(_.feature).getOrElse(0)
+
+  private def minJdkFeatureForSbt: Int =
+    JdkSbtCompatibilityChecker.getMinimumJdkVersionForSbt(sbtVersionProperty.get()).map(_.feature).getOrElse(0)
+
+  private def isJdkBelow(minJdkFeature: Int): Boolean = {
+    val jdkFeature = getExpectedJavaSdkVersion.map(_.getMaxLanguageLevel.feature).getOrElse(0)
+    jdkFeature < minJdkFeature || isNoJdkSelected
+  }
+
   protected def startJdkDownloadIfNeeded(project: Project): Unit = {
     val sdkDownloadTask = jdkIntent.flatMap(intent => Option(intent.getDownloadTask))
     startJdkDownload(sdkDownloadTask, project)
@@ -98,30 +114,41 @@ abstract class SbtNewProjectWizardStep(parent: NewProjectWizardStep)
       jdkValidationCtx = Some(ScalaJdkValidationContext(jdkIntentProperty, () => getExpectedJavaSdkVersion))
     )
 
-    // Auto-select a compatible JDK when the Scala version requires a minimum JDK
-    // (currently the only requirement is for Scala 3.8+ & JDK 17)
     scalaVersionComboBox.addActionListener { _ =>
-      getMinimumJdkVersionForScala.foreach { minJdkVersionForScala =>
-        val minJdk = minJdkVersionForScala.feature
-        val isJdkIncompatible = getExpectedJavaSdkVersion.exists(_.getMaxLanguageLevel.feature < minJdk) || isNoJdkSelected
-        if (isJdkIncompatible) {
-          // Determine the max JDK the selected sbt version supports
-          val maxJdkForSbt = JdkSbtCompatibilityChecker.getHighestCompatibleJdkForSbt(sbtVersionProperty.get())
+      if isJdkBelow(minJdkFeatureForScala) then autoSelectJdkIfNeeded()
+    }
+  }
 
-          def selectJdk[T <: ProjectWizardJdkIntent](jdks: JList[T]): Option[T] = {
-            val jdksForScalaMinJdk = jdks.asScala.filter(_.getJavaVersion.feature >= minJdk)
-            val (withinSbtRange, outsideSbtRange) = jdksForScalaMinJdk.partition(jdk => maxJdkForSbt.forall(_.feature >= jdk.getJavaVersion.feature))
-            // Prefer the highest JDK for JDKs suitable with required sbt, since a newer JDK is always recommended.
-            // If no JDK satisfies both scala and sbt constraints (all JDKs from `jdksForScalaMinJdk` exceed `maxJdkForSbt`), fall back to the lowest
-            // Scala-compatible JDK to avoid proposing an unnecessarily extremely high version (e.g., JDK 25 for sbt 1.5).
-            withinSbtRange.maxByOption(_.getJavaVersion.feature)
-              .orElse(outsideSbtRange.minByOption(_.getJavaVersion.feature))
-          }
+  /**
+   * Auto-selects a compatible JDK when the current one does not meet the minimum requirement for the selected Scala/sbt versions.
+   * In addition to the lower bound, it also respects the upper bound — the highest JDK compatible with both Scala and sbt.
+   * This is important, because when e.g., the user changes sbt to 2.0.0-RC9 while Scala 2.13.10 and JDK 11 are selected,
+   * we cannot simply pick the highest available JDK, because Scala 2.13.10 only supports JDK < 21.
+   * In this case, the selected JDK must satisfy both the sbt minimum (JDK 17+) and the Scala upper bound (JDK < 21).
+   */
+  private def autoSelectJdkIfNeeded(): Unit = {
+    // Take the higher of the two minimum constraints to satisfy both Scala and sbt requirements.
+    // Currently, the only constraint is JDK 17 for Scala 3.8+ or sbt 2.0.0-RC9+, so `requiredMinJdk` is effectively
+    // either 0 or 17, but it will be useful in the future.
+    val requiredMinJdk = minJdkFeatureForScala max minJdkFeatureForSbt
+    if (requiredMinJdk > 0 && isJdkBelow(requiredMinJdk)) {
+      // It's explained in the Scaladoc why this is needed
+      val maxJdkForSbt = JdkSbtCompatibilityChecker.getHighestCompatibleJdkForSbt(sbtVersionProperty.get())
+      val maxJdkForScala = getScalaVersion.flatMap(JdkScalaCompatibilityChecker.getHighestCompatibleJdkForScala)
+      val requiredMaxJdk = (maxJdkForSbt ++ maxJdkForScala).minOption
 
-          val suitableJdk = selectJdk(jdkComboBox.getRegistered).orElse(selectJdk(jdkComboBox.getDetectedJDKs))
-          suitableJdk.foreach(jdkIntentProperty.set)
-        }
+      def selectJdk[T <: ProjectWizardJdkIntent](jdks: JList[T]): Option[T] = {
+        val jdksAboveMin = jdks.asScala.filter(_.getJavaVersion.feature >= requiredMinJdk)
+        val (withinRange, outsideRange) = jdksAboveMin.partition(jdk => requiredMaxJdk.forall(_.feature >= jdk.getJavaVersion.feature))
+        // Prefer the highest JDK within range, since a newer JDK is always recommended.
+        // If no JDK satisfies both scala and sbt constraints (all JDKs from `jdksAboveMin` exceed `requiredMaxJdk`), fall back to the lowest JDK
+        // from `jdksAboveMin` to avoid proposing an unnecessarily extremely high version (e.g., JDK 25 for sbt 1.5).
+        withinRange.maxByOption(_.getJavaVersion.feature)
+          .orElse(outsideRange.minByOption(_.getJavaVersion.feature))
       }
+
+      val suitableJdk = selectJdk(jdkComboBox.getRegistered).orElse(selectJdk(jdkComboBox.getDetectedJDKs))
+      suitableJdk.foreach(jdkIntentProperty.set)
     }
   }
 
@@ -161,10 +188,16 @@ abstract class SbtNewProjectWizardStep(parent: NewProjectWizardStep)
   private def jdkWithSbtValidation(javaVersion: JavaVersion): String = {
     if (javaVersion == null) return null
     val sbtVersion = sbtVersionProperty.get()
-    val highestCompatibleJdk = JdkSbtCompatibilityChecker.getHighestCompatibleJdkForSbt(javaVersion, sbtVersion)
-    highestCompatibleJdk.map { version =>
-      SbtBundle.message("sbt.incompatible.versions.message", sbtVersion.minor, version.toFeatureString)
-    }.orNull
+    val minimumRequiredJdk = JdkSbtCompatibilityChecker.getMinimumJdkToSbtCompatibleVersion(javaVersion, sbtVersion)
+    minimumRequiredJdk match {
+      case Some(minJdk) =>
+        SbtBundle.message("sbt.incompatible.versions.jdk.too.low.message", sbtVersion.minor, minJdk.toFeatureString)
+      case None =>
+        val highestCompatibleJdk = JdkSbtCompatibilityChecker.getHighestCompatibleJdkForSbt(javaVersion, sbtVersion)
+        highestCompatibleJdk.map { version =>
+          SbtBundle.message("sbt.incompatible.versions.message", sbtVersion.minor, version.toFeatureString)
+        }.orNull
+    }
   }
 
   @Nullable

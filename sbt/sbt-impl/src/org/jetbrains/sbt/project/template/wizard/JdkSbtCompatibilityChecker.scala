@@ -20,11 +20,16 @@ object JdkSbtCompatibilityChecker {
    *  - Warning on JDK combo box - JDK <=20 is recommended with sbt 1.6.2
    */
   private val compatibilityTable: Map[JavaVersion, SbtVersion] = Map(
-    JavaVersion.compose(23) -> SbtVersion("1.9.0"),
+    JavaVersion.compose(25) -> SbtVersion("1.9.0"),
     JavaVersion.compose(21) -> SbtVersion("1.9.0"),
     JavaVersion.compose(17) -> SbtVersion("1.6.0"),
     JavaVersion.compose(11) -> SbtVersion("1.1.0"),
     JDK_8  -> SbtVersion("1.0.0")
+  )
+
+  /** Maps sbt versions to their minimum required JDK version */
+  private val sbtToMinJdkVersionTable: Map[SbtVersion, JavaVersion] = Map(
+    SbtVersion("2.0.0-RC9") -> JavaVersion.compose(17)
   )
 
   /**
@@ -43,13 +48,37 @@ object JdkSbtCompatibilityChecker {
   }
 
   /**
-   * @param strict if set to <code>true</code>, JDK versions below 1.8 or greater than or equal to 24 are treated as incompatible
+   * Returns the minimum JDK version required for the given sbt version, or `None` if there is no minimum JDK constraint.
+   *
+   * @see [[org.jetbrains.sbt.project.template.wizard.JdkScalaCompatibilityChecker.getMinimumJdkVersionForScala]]
+   */
+  def getMinimumJdkVersionForSbt(sbtVersion: SbtVersion): Option[JavaVersion] = {
+    val nearestCompatibleSbt = sbtToMinJdkVersionTable.keys.filter(_ <= sbtVersion).maxOption
+    nearestCompatibleSbt.map(sbtToMinJdkVersionTable)
+  }
+
+  /**
+   * Returns `None` if the `jdk` is compatible with the given `sbtVersion`, or the minimum required JDK version otherwise.
+   *
+   * @see [[getMinimumJdkVersionForSbt]]
+   * @todo (IMPORTANT) Currently, when checking the minimum required JDK for sbt version, the upper bound does not need to be checked,
+   *       because sbt 2.0.0-RC9 supports all available JDKs. However, this will likely change in the future.
+   *       For example, if JDK 27 is introduced and supported only in sbt 2.1, then when the user has sbt 2.0.0 & JDK 11 in the NPW,
+   *       the warning "JDK >= 17 is required for sbt 2.0.0" would be incomplete - it should also include an upper bound,
+   *       e.g. "JDK >= 17 and < 27 is required for sbt 2.0.0" (or sth similar, it's just an example).
+   */
+  def getMinimumJdkToSbtCompatibleVersion(jdk: JavaVersion, sbtVersion: SbtVersion): Option[JavaVersion] =
+    getMinimumJdkVersionForSbt(sbtVersion).filter(jdk < _)
+
+  /**
+   * @param strict if set to `true`, JDK versions below 1.8 or greater than 25 are treated as incompatible
    */
   def isSbtAndJdkVersionCompatible(jdk: JavaVersion, sbtVersion: SbtVersion, strict: Boolean = false): Boolean = {
-    val isOutsideOfRange = jdk < JDK_8 || jdk >= JavaVersion.compose(24)
+    val isOutsideOfRange = jdk < JDK_8 || jdk > JavaVersion.compose(25)
     if (strict && isOutsideOfRange) false
     else {
-      getMinimumSbtToJdkCompatibleVersion(jdk, sbtVersion).isEmpty
+      getMinimumSbtToJdkCompatibleVersion(jdk, sbtVersion).isEmpty &&
+        getMinimumJdkToSbtCompatibleVersion(jdk, sbtVersion).isEmpty
     }
   }
 
@@ -70,6 +99,8 @@ object JdkSbtCompatibilityChecker {
   /**
    * Returns `None` if the `jdk` is compatible with the given `sbtVersion`, or the highest compatible JDK otherwise.
    *
+   * @note In some UI checks, before verifying the highest compatible version, we should first check the minimum JDK compatibility.
+   *       [[getMinimumJdkToSbtCompatibleVersion]]
    * @see [[getHighestCompatibleJdkForSbt]]
    */
   def getHighestCompatibleJdkForSbt(jdk: JavaVersion, sbtVersion: SbtVersion): Option[JavaVersion] = {
