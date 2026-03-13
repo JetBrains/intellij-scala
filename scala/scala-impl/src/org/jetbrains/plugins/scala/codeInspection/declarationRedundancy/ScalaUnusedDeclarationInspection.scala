@@ -4,6 +4,7 @@ import com.intellij.codeInspection.options.OptPane
 import com.intellij.codeInspection.options.OptPane.{checkbox, dropdown, option, pane}
 import com.intellij.codeInspection.{LocalQuickFix, UpdateInspectionOptionFix}
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.text.HtmlChunk
 import com.intellij.psi.{PsiAnnotationOwner, PsiElement}
 import org.jetbrains.annotations.{Nls, NonNls}
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
@@ -155,6 +156,8 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
       }
     }
   }
+
+  override def getDescriptionAddendum: HtmlChunk = HtmlChunk.empty
 }
 
 object ScalaUnusedDeclarationInspection {
