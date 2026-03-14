@@ -24,18 +24,18 @@ object ScInterpolatedStringLiteral {
   sealed abstract class Kind(val prefix: String)
 
   object Kind {
-    val stdLibKinds: Set[Kind] = Set(Standard, Format, Raw)
+    case object Standard extends Kind("s")
+    case object Format extends Kind("f")
+    case object Raw extends Kind("raw")
+    case class Pattern(override val prefix: String) extends Kind(prefix)
+
+    private val StdLibKinds: Set[Kind] = Set(
+      Standard,
+      Format,
+      Raw
+    )
 
     def fromPrefix(prefix: String): Kind =
-      stdLibKinds.find(_.prefix == prefix).getOrElse(Pattern(prefix))
+      StdLibKinds.find(_.prefix == prefix).getOrElse(Pattern(prefix))
   }
-
-  case object Standard extends Kind("s")
-
-  case object Format extends Kind("f")
-
-  case object Raw extends Kind("raw")
-
-  case class Pattern(override val prefix: String) extends Kind(prefix)
-
 }

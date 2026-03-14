@@ -423,7 +423,7 @@ final class SyntheticClasses(project: Project) {
         val resourcePath = s"scalaLibraryAnyValTypesSources/${typ.name}.scala"
         Option(classLoader.getResourceAsStream(resourcePath)).foreach { stream =>
           val fileText = scala.io.Source.fromInputStream(stream).mkString
-          val dummyFile = createDummyFile(fileName.toLowerCase, fileText)
+          val dummyFile = createDummyFile(typ.name.toLowerCase, fileText)
 
           val classes = dummyFile.typeDefinitions.filterByType[ScClass]
           val objects = dummyFile.typeDefinitions.filterByType[ScObject]

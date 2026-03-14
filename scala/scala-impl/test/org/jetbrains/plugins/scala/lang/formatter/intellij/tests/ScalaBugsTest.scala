@@ -3834,4 +3834,108 @@ final class ScalaBugsTest extends AbstractScalaFormatterTestBase {
         |""".stripMargin
     )
   }
+
+  //SCL-24861
+  def testTypeParamsInMethodDefinition_DontForceAlignWhenMultilineDisabled(): Unit = {
+    getCommonSettings.ALIGN_MULTILINE_PARAMETERS = false
+
+    doTextTest(
+      """class Main {
+        |  def foo1(
+        |    x: Int
+        |  ) = 0
+        |
+        |  def foo2[T](
+        |               x: Int
+        |             ) = 0
+        |}
+        |""".stripMargin,
+      """class Main {
+        |  def foo1(
+        |    x: Int
+        |  ) = 0
+        |
+        |  def foo2[T](
+        |    x: Int
+        |  ) = 0
+        |}
+        |""".stripMargin
+    )
+  }
+
+  //SCL-24861
+  def testTypeParamsInMethodDefinition_AlignWhenMultilineEnabled(): Unit = {
+    getCommonSettings.ALIGN_MULTILINE_PARAMETERS = true
+
+    doTextTest(
+      """class Main {
+        |  def foo1(
+        |    x: Int
+        |  ) = 0
+        |
+        |  def foo2[T](
+        |    x: Int
+        |  ) = 0
+        |}
+        |""".stripMargin,
+      """class Main {
+        |  def foo1(
+        |            x: Int
+        |          ) = 0
+        |
+        |  def foo2[T](
+        |               x: Int
+        |             ) = 0
+        |}
+        |""".stripMargin
+    )
+  }
+
+  //SCL-24861
+  def testTypeParamsInClassDefinition_DontForceAlignWhenMultilineDisabled(): Unit = {
+    getCommonSettings.ALIGN_MULTILINE_PARAMETERS = false
+
+    doTextTest(
+      """class Foo1(
+        |  x: Int
+        |)
+        |
+        |class Foo2[T](
+        |               x: Int
+        |             )
+        |""".stripMargin,
+      """class Foo1(
+        |  x: Int
+        |)
+        |
+        |class Foo2[T](
+        |  x: Int
+        |)
+        |""".stripMargin
+    )
+  }
+
+  //SCL-24861
+  def testTypeParamsInClassDefinition_AlignWhenMultilineEnabled(): Unit = {
+    getCommonSettings.ALIGN_MULTILINE_PARAMETERS = true
+
+    doTextTest(
+      """class Foo1(
+        |  x: Int
+        |)
+        |
+        |class Foo2[T](
+        |  x: Int
+        |)
+        |""".stripMargin,
+      """class Foo1(
+        |            x: Int
+        |          )
+        |
+        |class Foo2[T](
+        |               x: Int
+        |             )
+        |""".stripMargin
+    )
+  }
 }

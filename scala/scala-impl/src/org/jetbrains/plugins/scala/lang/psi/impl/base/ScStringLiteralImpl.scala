@@ -31,13 +31,10 @@ class ScStringLiteralImpl(node: ASTNode,
   override protected final def toValue(text: String): String = {
     val noUnicodeEscapesInRawStrings = this.noUnicodeEscapesInRawStrings
     val isRaw = this match {
-      case s: ScInterpolatedStringLiteral => s.kind == ScInterpolatedStringLiteral.Raw
+      case s: ScInterpolatedStringLiteral => s.kind == ScInterpolatedStringLiteral.Kind.Raw
       case _ => this.isMultiLineString
     }
-    val parser = new ScalaStringParser(null, isRaw, noUnicodeEscapesInRawStrings = noUnicodeEscapesInRawStrings, exitOnEscapingWrongSymbol = false)
-    val builder = new java.lang.StringBuilder()
-    parser.parse(text, builder)
-    builder.toString
+    ScalaStringParser.unescapeTextGracefully(text, isRaw, noUnicodeEscapesInRawStrings)
   }
 
   override protected final def wrappedValue(value: String): ScLiteral.Value[String] =

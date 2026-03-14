@@ -123,11 +123,11 @@ class InterpolatedStringFormatterTest extends ScalaLightCodeInsightFixtureTestCa
   }
 
   private def formatS(parts: StringPart*): String =
-    InterpolatedStringFormatter.formatContent(parts, ScInterpolatedStringLiteral.Standard.prefix, toMultiline = false)
+    InterpolatedStringFormatter.formatContent(parts, ScInterpolatedStringLiteral.Kind.Standard.prefix, toMultiline = false)
   private def formatF(parts: StringPart*): String =
-    InterpolatedStringFormatter.formatContent(parts, ScInterpolatedStringLiteral.Format.prefix, toMultiline = false)
+    InterpolatedStringFormatter.formatContent(parts, ScInterpolatedStringLiteral.Kind.Format.prefix, toMultiline = false)
   private def formatRaw(parts: StringPart*): String =
-    InterpolatedStringFormatter.formatContent(parts, ScInterpolatedStringLiteral.Raw.prefix, toMultiline = false)
+    InterpolatedStringFormatter.formatContent(parts, ScInterpolatedStringLiteral.Kind.Raw.prefix, toMultiline = false)
 
   //with prefix and quotes
   private def formatFull(prefix: String)(parts: StringPart*): String = {

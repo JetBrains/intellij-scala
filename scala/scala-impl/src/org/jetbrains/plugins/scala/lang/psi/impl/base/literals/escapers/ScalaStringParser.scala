@@ -2,6 +2,9 @@ package org.jetbrains.plugins.scala.lang.psi.impl.base.literals.escapers
 
 import com.intellij.openapi.diagnostic.Logger
 import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
+import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStringLiteralImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.escapers.ScalaStringParser.Log
 
 import java.lang.{StringBuilder => JStringBuilder}
@@ -53,24 +56,38 @@ final class ScalaStringParser(
       index += 1;
 
       if (sourceOffsets != null) {
-        sourceOffsets(outChars.length - outOffset) = index - 1
-        sourceOffsets(outChars.length + 1 - outOffset) = index
+        val idx1 = outChars.length - outOffset
+        sourceOffsets(idx1) = index - 1
+        sourceOffsets(idx1 + 1) = index
       }
 
-      if (c != '\\')
+      val isEscapeSequenceStart = c == '\\'
+      if (!isEscapeSequenceStart)
         outChars.append(c)
       else {
-        val res = parseEscapedSymbol(chars, outChars, index, outOffset)
-        if (res == -1) {
-          if (exitOnEscapingWrongSymbol)
-            return false
-          else if (index < chars.length)
-            index += 1 // skip wrong escaped char: "a\j\ b" -> "ab"
-        } else
-          index = res
+        val maybeIndexOfEscapeEnd = parseEscapedSymbol(chars, outChars, index, outOffset)
+        val indexNew: Int = if (maybeIndexOfEscapeEnd != -1)
+          maybeIndexOfEscapeEnd
+        else if (exitOnEscapingWrongSymbol)
+          return false
+        else {
+          // IMPL NOTE: even if we have an invalid escape sequence, we still need to append some placeholder char content for `\`.
+          // This seems to be an implicit contract of those places that use the parser results.
+          // If in doubt, just try to comment this line and run all tests in the "spellchecker" module to see the failures.
+          outChars.append(" ")
 
-        if (sourceOffsets != null)
-          sourceOffsets(outChars.length - outOffset) = index
+          if (index < chars.length)
+            index + 1 // skip wrong escaped char: "a \x\ b" -> "a b"
+          else
+            index
+        }
+
+        if (sourceOffsets != null) {
+          val idx2 = outChars.length - outOffset
+          sourceOffsets(idx2) = indexNew
+        }
+
+        index = indexNew
       }
     }
 
@@ -84,7 +101,8 @@ final class ScalaStringParser(
         outChars.append("\\")
         return index
       }
-      else return -1
+      else
+        return -1
     }
 
     val c = chars.charAt(index)
@@ -95,7 +113,8 @@ final class ScalaStringParser(
         index
       else if (c == 'u' && !(isRaw && noUnicodeEscapesInRawStrings))
         parseUnicodeEscape(chars, outChars, index - 1)
-      else -1
+      else
+        -1
 
     if (newIndex == -1 & isRaw) {
       // just add whatever escape-looking char sequence
@@ -135,6 +154,48 @@ object ScalaStringParser {
 
   private val Log = Logger.getInstance(this.getClass)
 
+  def fromStringLiteral(
+    literal: ScStringLiteral,
+    @Nullable outSourceOffsets: Array[Int],
+    exitOnEscapingWrongSymbol: Boolean
+  ): ScalaStringParser = {
+    //TODO: introduce isRaw API method in ScStringLiteralImpl
+    // Reuse it in org.jetbrains.plugins.scala.lang.psi.impl.base.ScStringLiteralImpl.toValue
+    // Make a note that a custom string interpolator can still be raw
+    val isRaw = literal match {
+      case s: ScInterpolatedStringLiteral =>
+        s.kind == ScInterpolatedStringLiteral.Kind.Raw
+      case s: ScStringLiteralImpl =>
+        s.isMultiLineString
+      case _ =>
+        false
+    }
+
+    new ScalaStringParser(
+      outSourceOffsets,
+      isRaw = isRaw,
+      noUnicodeEscapesInRawStrings = literal.features.noUnicodeEscapesInRawStrings,
+      exitOnEscapingWrongSymbol = exitOnEscapingWrongSymbol
+    )
+  }
+
+  /** Unescapes a given string literal content gracefully (when a wrong escape sequence is encountered, it is replaced with a placeholder char) */
+  def unescapeTextGracefully(
+    content: String,
+    isRaw: Boolean,
+    noUnicodeEscapesInRawStrings: Boolean
+  ): String = {
+    val parser = new ScalaStringParser(
+      sourceOffsets = null,
+      isRaw = isRaw,
+      noUnicodeEscapesInRawStrings = noUnicodeEscapesInRawStrings,
+      exitOnEscapingWrongSymbol = false
+    )
+    val builder = new java.lang.StringBuilder()
+    parser.parse(content, builder)
+    builder.toString
+  }
+
   private def parseEscapedChar(c: Char, outChars: JStringBuilder): Boolean =
     c match {
       case 'b'  =>
@@ -158,6 +219,9 @@ object ScalaStringParser {
         true
       case '\"' =>
         outChars.append('\"')
+        true
+      case '\'' =>
+        outChars.append('\'')
         true
       case '\n' =>
         //don't append anything

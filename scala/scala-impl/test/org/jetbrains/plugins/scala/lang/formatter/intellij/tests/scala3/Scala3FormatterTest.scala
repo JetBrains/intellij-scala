@@ -943,4 +943,116 @@ class Scala3FormatterTest extends Scala3FormatterBaseTest {
         |""".stripMargin
     )
   }
+
+  //SCL-24861
+  def testTypeParamsInMethodDefinition_DontForceAlignWhenMultilineDisabled(): Unit = {
+    getCommonSettings.ALIGN_MULTILINE_PARAMETERS = false
+
+    doTextTest(
+      """class Main {
+        |  def foo1(
+        |    x: Int
+        |  ) = 0
+        |
+        |  def foo2[T](
+        |               x: Int
+        |             ) = 0
+        |}
+        |""".stripMargin,
+      """class Main {
+        |  def foo1(
+        |    x: Int
+        |  ) = 0
+        |
+        |  def foo2[T](
+        |    x: Int
+        |  ) = 0
+        |}
+        |""".stripMargin
+    )
+  }
+
+  //SCL-24861
+  def testTypeParamsInMethodDefinition_AlignWhenMultilineEnabled(): Unit = {
+    getCommonSettings.ALIGN_MULTILINE_PARAMETERS = true
+
+    doTextTest(
+      """class Main {
+        |  def foo1(
+        |    x: Int
+        |  ) = 0
+        |
+        |  def foo2[T](
+        |    x: Int
+        |  ) = 0
+        |}
+        |""".stripMargin,
+      """class Main {
+        |  def foo1(
+        |            x: Int
+        |          ) = 0
+        |
+        |  def foo2[T](
+        |               x: Int
+        |             ) = 0
+        |}
+        |""".stripMargin
+    )
+  }
+
+  //SCL-24861
+  def testTypeParamsInClassDefinition_DontForceAlignWhenMultilineDisabled(): Unit = {
+    getCommonSettings.ALIGN_MULTILINE_PARAMETERS = false
+
+    doTextTest(
+      """class Foo1(
+        |  x: Int
+        |)
+        |
+        |class Foo2[T](
+        |               x: Int
+        |             )
+        |""".stripMargin,
+      """class Foo1(
+        |  x: Int
+        |)
+        |
+        |class Foo2[T](
+        |  x: Int
+        |)
+        |""".stripMargin
+    )
+  }
+
+  //SCL-24861
+  def testTypeParamsInClassDefinition_AlignWhenMultilineEnabled(): Unit = {
+    getCommonSettings.ALIGN_MULTILINE_PARAMETERS = true
+
+    doTextTest(
+      """class Foo1(
+        |  x: Int
+        |)
+        |
+        |class Foo2[T](
+        |  x: Int
+        |)
+        |""".stripMargin,
+
+      // NOTE: formatting of class parameters in this case is not quite consistent with the formatting of the method parameters
+      // It might be a separate issue that could be addressed separately
+      // The issue could be different, though.
+      // The setting is called "ALIGN_MULTILINE_PARAMETERS", but it's located in the "Method declaration parameters" section in the UI,
+      // So from user POV it might be treated as "For methods only"
+      // But here it's a primary constructor that doesn't have a separate setting.
+      // So we need to decide if the primary constrictor should be also treated as a method or a separate set of settings is needed.
+      """class Foo1(
+        |            x: Int
+        |          )
+        |
+        |class Foo2[T](
+        |               x: Int
+        |             )
+        |""".stripMargin
+    )
+  }
 }

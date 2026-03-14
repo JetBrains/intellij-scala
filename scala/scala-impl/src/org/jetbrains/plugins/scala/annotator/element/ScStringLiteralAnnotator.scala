@@ -56,7 +56,7 @@ object ScStringLiteralAnnotator extends ElementAnnotator[ScStringLiteral] {
       case (true, true)   => SET_INTERPOLATED_MULTILINE_STRING
     }
 
-    val isRaw = literal.asOptionOf[ScInterpolatedStringLiteral].exists(_.kind == ScInterpolatedStringLiteral.Raw)
+    val isRaw = literal.asOptionOf[ScInterpolatedStringLiteral].exists(_.kind == ScInterpolatedStringLiteral.Kind.Raw)
 
     val scalaMinorVersion = literal.scalaMinorVersion
     val isSource3Enabled = literal.isSource3Enabled

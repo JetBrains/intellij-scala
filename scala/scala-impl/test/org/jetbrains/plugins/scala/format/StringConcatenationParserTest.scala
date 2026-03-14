@@ -18,7 +18,7 @@ class StringConcatenationParserTest extends ScalaLightCodeInsightFixtureTestCase
 
   def testFromPlainString_WithEscapeChar(): Unit = doTest(
     s""""a \\ a \\\\ a \\\\\\ a" + "text"""",
-    Text("a a \\ a \\a") :: Text("text") :: Nil
+    Text("a  a \\ a \\ a") :: Text("text") :: Nil
   )
 
   def testFromPlainString_WithEscapeUnicode(): Unit = doTest(
@@ -29,7 +29,7 @@ class StringConcatenationParserTest extends ScalaLightCodeInsightFixtureTestCase
   // s"string"
   def testFromInterpolatedString_WithEscapeChar(): Unit = doTest(
     s"""s"a \\ a \\\\ a \\\\\\ a" + "text"""",
-    Text("a a \\ a \\a") :: Text("text") :: Nil
+    Text("a  a \\ a \\ a") :: Text("text") :: Nil
   )
 
   def testFromInterpolatedString_WithEscapeUnicode(): Unit = doTest(
@@ -76,7 +76,7 @@ class StringConcatenationParserTest extends ScalaLightCodeInsightFixtureTestCase
 
   def testFromInterpolatedMultiline_WithEscapeChar(): Unit = doTest(
     s"""s\"\"\"a \\ a \\\\ a \\\\\\ a\"\"\" + "text"""",
-    Text("a a \\ a \\a") :: Text("text") :: Nil
+    Text("a  a \\ a \\ a") :: Text("text") :: Nil
   )
 
   def testFromInterpolatedMultiline_WithEscapeUnicode(): Unit = doTest(
@@ -143,9 +143,9 @@ class StringConcatenationParserTest extends ScalaLightCodeInsightFixtureTestCase
          |  |a \\ a \\\\ a \\\\\\ a
          |  |\"\"\".stripMargin + "text"
          |""".stripMargin,
-      Text("a a \\ a \\a\n" +
-        "a a \\ a \\a\n" +
-        "a a \\ a \\a\n") ::
+      Text("a  a \\ a \\ a\n" +
+        "a  a \\ a \\ a\n" +
+        "a  a \\ a \\ a\n") ::
         Text("text") :: Nil
     )
 

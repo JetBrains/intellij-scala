@@ -69,7 +69,7 @@ object FormatConversionIntention {
   final class FormattedToInterpolated extends FormatConversionIntention(
     ConvertToInterpolated,
     FormattedStringParser,
-    InterpolatedStringFormatter(ScInterpolatedStringLiteral.Standard)
+    InterpolatedStringFormatter(ScInterpolatedStringLiteral.Kind.Standard)
   )
 
   final class InterpolatedToFormatted extends FormatConversionIntention(
@@ -88,7 +88,7 @@ object FormatConversionIntention {
   final class StringConcatenationToInterpolated extends FormatConversionIntention(
     ConvertToInterpolated,
     StringConcatenationParser,
-    InterpolatedStringFormatter(ScInterpolatedStringLiteral.Standard)
+    InterpolatedStringFormatter(ScInterpolatedStringLiteral.Kind.Standard)
   ) with StringConcatenationToAnyBase
 
   trait StringConcatenationToAnyBase {

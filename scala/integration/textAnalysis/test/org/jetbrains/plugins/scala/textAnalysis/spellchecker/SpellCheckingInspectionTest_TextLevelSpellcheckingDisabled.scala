@@ -5,6 +5,7 @@ import com.intellij.grazie.spellcheck.GrazieSpellCheckingInspection
 import com.intellij.openapi.util.registry.Registry
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 
+//noinspection SpellCheckingInspection (Mute spell check inspeciton as the test data is supposed to sometime has the errors)
 abstract class SpellCheckingInspectionTestBase extends ScalaInspectionTestBase {
   protected def textLevelSpellcheckingEnabled: Boolean
 
@@ -100,7 +101,6 @@ abstract class SpellCheckingInspectionTestBase extends ScalaInspectionTestBase {
        |""".stripMargin
   )
 
-
   def testMultiLineMultipleLinesWithoutStripMarginPlain(): Unit = checkTextHasError(
     s"""println(
        |  \"\"\"Hello \\\\\\\\\\\\\\\\ ${START}Abcdef$END world\\\\\\\\
@@ -148,12 +148,63 @@ abstract class SpellCheckingInspectionTestBase extends ScalaInspectionTestBase {
       | */
       |""".stripMargin
   )
+
+  def testEscapeNewLine_SingleLineString(): Unit = {
+    checkTextHasNoErrors(
+      """val value = "wrong object class\nexpected 1\nactual: 2"
+        |""".stripMargin
+    )
+  }
+
+  def testEscapeNewLine_SingleLineString_Interpolated_S(): Unit = {
+    checkTextHasNoErrors(
+      """val value = s"wrong object class\nexpected 1\nactual: 2"
+        |""".stripMargin
+    )
+  }
+
+  def testEscapeNewLine_SingleLineString_Interpolated_Raw(): Unit = {
+    checkTextHasError(
+      s"""val value = raw"wrong object class\\${START}nexpected$END 1\\${START}nactual$END: 2"
+        |""".stripMargin
+    )
+  }
+
+  def testEscapeNewLine_MultiLineString(): Unit = {
+    checkTextHasError(
+      s"""val value = ""\"wrong object class\\${START}nexpected$END 1\\${START}nactual$END: 2""\"
+        |""".stripMargin
+    )
+  }
+
+  def testEscapeNewLine_MultiLineString_Interpolated_S(): Unit = {
+    checkTextHasNoErrors(
+      s"""val value = s""\"wrong object class\\nexpected 1\\nactual: 2""\"
+        |""".stripMargin
+    )
+  }
+
+  def testEscapeNewLine_MultiLineString_Raw(): Unit = {
+    checkTextHasError(
+      s"""val value = raw""\"wrong object class\\${START}nexpected$END 1\\${START}nactual$END: 2""\"
+         |""".stripMargin
+    )
+  }
+
+  def testInvalidEscapeSequence(): Unit = {
+    // We gracefully handle incorrect escape sequences mostly for custom string interpolators (SCL-25082)
+    checkTextHasError(
+      s"""val value = s"${START}Mispeled$END \\   ${START}Mispeled$END \\x   ${START}Mispeled$END"
+         |val value = custom"${START}Mispeled$END \\   ${START}Mispeled$END \\x   ${START}Mispeled$END"
+         |""".stripMargin
+    )
+  }
 }
 
-final class SpellCheckingInspectionTest extends SpellCheckingInspectionTestBase {
+final class SpellCheckingInspectionTest_TextLevelSpellcheckingDisabled extends SpellCheckingInspectionTestBase {
   override def textLevelSpellcheckingEnabled: Boolean = false
 }
 
-final class SpellCheckingInspectionTest_WithTextLevelSpellchecking extends SpellCheckingInspectionTestBase {
+final class SpellCheckingInspectionTest_TextLevelSpellcheckingEnabled extends SpellCheckingInspectionTestBase {
   override def textLevelSpellcheckingEnabled: Boolean = true
 }
