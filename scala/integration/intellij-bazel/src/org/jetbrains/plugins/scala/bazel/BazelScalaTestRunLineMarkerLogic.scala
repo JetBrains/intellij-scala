@@ -52,9 +52,10 @@ private object BazelScalaTestRunLineMarkerLogic {
    */
   def getExtraProgramArguments(psiElement: PsiElement): Seq[String] = {
     val testElement = psiElement.getParent
-    val testName = getTestName(testElement)
-    // Use the test name as a single extra parameter
-    testName.toSeq
+    getTestName(testElement) match {
+      case Some(testName) => Seq(TestArg, testName)
+      case None => Seq.empty
+    }
   }
 
   private def getTestName(testElement: PsiElement): Option[String] = testElement match {
@@ -75,8 +76,7 @@ private object BazelScalaTestRunLineMarkerLogic {
 
   private def getTestNameImpl(psiElement: PsiElement): Option[String] = {
     val scalaTestName = getScalaTestTestName(psiElement)
-    val testName = scalaTestName.orElse(getZioTestTestName(psiElement))
-    testName.map(escape)
+    scalaTestName.orElse(getZioTestTestName(psiElement))
   }
 
   private def getScalaTestTestName(psiElement: PsiElement): Option[String] =
@@ -101,12 +101,4 @@ private object BazelScalaTestRunLineMarkerLogic {
         }
       case _ => None
     }
-
-  private def escape(testName: String): String =
-    testName.split("\n")
-      // Scalatest names can contain spaces, so the name needs to be quoted
-      // This means we need to escape " in the test name
-      .map(name => name.replace("\"", "\\\""))
-      .map(name => s"$TestArg \"$name\"")
-      .mkString(" ")
 }
