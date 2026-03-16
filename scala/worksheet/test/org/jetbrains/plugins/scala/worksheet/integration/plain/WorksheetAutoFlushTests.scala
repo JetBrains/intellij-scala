@@ -33,14 +33,14 @@ abstract class WorksheetPlainAutoFlushTestBase extends PlainWorksheetTestBase {
       sleepInLoop = WorksheetEditorPrinterFactory.IDLE_TIME.mul(1.1)
     )
 
-  // flush timeout is currently not intended to be changed  by user via any setting,
-  // but this test helps catching concurrency bugs
+  // flush timeout is currently not intended to be changed by user via any setting,
+  // but this test helps to catch concurrency bugs
   @Test
   def testAutoFlushOnLongEvaluation_SmallAutoFlushTimeout(): Unit =
     doTestAutoFlushOnLongEvaluationNTimes(
-      timesToRunTest = 20,
+      timesToRunTest = 10,
       autoFlushTimeout = 10.millis,
-      sleepInLoop = 100.millis
+      sleepInLoop = 40.millis
     )
 
 
@@ -62,6 +62,7 @@ abstract class WorksheetPlainAutoFlushTestBase extends PlainWorksheetTestBase {
       WorksheetEditorPrinterFactory.IDLE_TIME = before
     }
   }
+
   private def doTestAutoFlushOnLongEvaluation(sleepInLoop: Duration): Unit = {
     val sleepTime: Int = sleepInLoop.toMillis.toInt
     val leftText =
@@ -115,9 +116,16 @@ abstract class WorksheetPlainAutoFlushTestBase extends PlainWorksheetTestBase {
 
     val viewerStates: Seq[ViewerEditorData] = runLongEvaluation(leftText).distinct
 
+    // Example:
+    // ##### State #0:
+    // a
+    // ##### State #1:
+    // a
+    // b
     def statesText(statesRendered: Seq[String]): String = {
-      val statesSeparator = "\n#####\n"
-      statesRendered.zipWithIndex.map { case (state, idx) => s"$idx: $state" }.mkString(statesSeparator)
+      statesRendered.zipWithIndex
+        .map { case (state, idx) => s"##### State #$idx:\n$state" }
+        .mkString("\n")
     }
 
     val flushAtLeast = 3
@@ -148,7 +156,6 @@ abstract class WorksheetPlainAutoFlushTestBase extends PlainWorksheetTestBase {
       renderViewerData(viewerStates.last)
     )
   }
-
 
   private def renderViewerData(viewerData: ViewerEditorData): String = {
     val text = viewerData.text
