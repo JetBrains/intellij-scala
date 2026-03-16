@@ -5,8 +5,10 @@ import com.intellij.execution.configurations.ParametersList
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.platform.eel.EelDescriptor
+import com.intellij.platform.eel.provider.LocalEelDescriptor
 import com.intellij.platform.eel.provider.utils.EelPathUtils
 import com.intellij.platform.eel.provider.utils.EelPathUtils.TransferTarget
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
@@ -14,11 +16,11 @@ import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.sbt.SbtUtil.SbtProcessOptions
 import org.jetbrains.sbt.process.{ProcessOutputCollector, SbtRunner}
+import org.jetbrains.sbt.project.EelPathKotlinUtils
 import org.jetbrains.sbt.project.SbtProjectResolver.ImportContext
 import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication}
 import org.jetbrains.sbt.{Sbt, SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabilities, normalizedLocalPath}
 
-import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
 import java.util.UUID
 import scala.annotation.unused
@@ -294,13 +296,18 @@ object SbtStructureDumper:
         if !globalPluginsDir.exists then
           Files.createDirectories(globalPluginsDir)
 
-        val pluginFile = globalPluginsDir / s"idea-structure${Sbt.Extension}"
+        val tempPluginFile =
+          if eelDescriptor == LocalEelDescriptor.INSTANCE then
+            FileUtil.createTempFile(globalPluginsDir.toFile, "idea-structure", Sbt.Extension).toPath
+          else
+            EelPathKotlinUtils.createTemporaryFile("idea-structure", Sbt.Extension, globalPluginsDir, eelDescriptor)
+
         // Unfortunately, when using an sbt file in the global plugin directory instead of `--addPluginSbtFile`,
         // the plugin jar cannot be added with `unmanagedJars` settings. The `unmanagedJars` setting is not considered
         // in the global plugin build, which differs from `--addPluginSbtFile`, which behaves more like adding an sbt file as part of the project build.
         val pluginContent = SbtUtil.sbtStructurePluginDeclaration(sbtVersion)
-        Files.writeString(pluginFile, pluginContent, StandardCharsets.UTF_8)
-        StructureDumpConfig(commands, extraSbtFileToRemove = Some(pluginFile), launcherArgs = Nil)
+        Files.writeString(tempPluginFile, pluginContent)
+        StructureDumpConfig(commands, extraSbtFileToRemove = Some(tempPluginFile), launcherArgs = Nil)
       }
     }
 

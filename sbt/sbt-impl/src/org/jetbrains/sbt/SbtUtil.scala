@@ -480,8 +480,7 @@ object SbtUtil {
    * When `project` is provided, it uses a built-in EEL utility for creating temporary files; otherwise, it creates a local temporary file
    * and transfers it to the remote target.
    *
-   * @todo Ideally, there should be a platform utility to create a temporary file using only the [[EelDescriptor]].
-   *       Right now, I couldn't find one.
+   * @todo Ideally, there should be a platform utility to create a temporary file using only the [[EelDescriptor]] ( https://youtrack.jetbrains.com/issue/IJPL-23919).
    */
   @RequiresBackgroundThread
   def createTemporarySbtFile(content: String, eelDescriptor: EelDescriptor, projectOpt: Option[Project]): Path = {
