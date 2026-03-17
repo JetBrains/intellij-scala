@@ -11,6 +11,7 @@ import com.intellij.platform.eel.EelDescriptor
 import com.intellij.platform.eel.provider.LocalEelDescriptor
 import com.intellij.platform.eel.provider.utils.EelPathUtils
 import com.intellij.platform.eel.provider.utils.EelPathUtils.TransferTarget
+import org.jetbrains.annotations.VisibleForTesting
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}
 import org.jetbrains.plugins.scala.extensions.PathExt
@@ -175,11 +176,13 @@ object SbtStructureDumper:
       val isNewImportEnabled =
         sbtVersion >= (if sbtVersion.isSbt2 then SbtVersion("2.0.0-RC9") else SbtVersion("1.5.0"))
 
+      val importId = UUID.randomUUID().toString
       val additionalVmOptionsForNewImport =
         if (isNewImportEnabled)
           Seq(
             s"-Dsbt.structure.outputFile=${structureFile.normalizedLocalPath}",
             s"-Dsbt.structure.options=$optString",
+            s"-D$IdeaImportId=$importId"
           )
         else Nil
 
@@ -206,7 +209,8 @@ object SbtStructureDumper:
           dumpStructureCommand,
           sbtVersion,
           sbtProcessOptions,
-          project
+          project,
+          importId
         )
 
       val buildMessages = runner.runSbt(
@@ -266,7 +270,8 @@ object SbtStructureDumper:
       dumpStructureCommand: String,
       sbtVersion: SbtVersion,
       sbtProcessOptions: SbtProcessOptions,
-      project: Option[Project]
+      project: Option[Project],
+      importId: String
     ): StructureDumpConfig = {
       val commands = buildSbtCompositeCommand(maybePreferScala2Command, dumpStructureCommand)
 
@@ -305,7 +310,10 @@ object SbtStructureDumper:
         // Unfortunately, when using an sbt file in the global plugin directory instead of `--addPluginSbtFile`,
         // the plugin jar cannot be added with `unmanagedJars` settings. The `unmanagedJars` setting is not considered
         // in the global plugin build, which differs from `--addPluginSbtFile`, which behaves more like adding an sbt file as part of the project build.
-        val pluginContent = SbtUtil.sbtStructurePluginDeclaration(sbtVersion)
+        val pluginContent = createGuardedPluginContent(
+          importId, sbtVersion, SbtUtil.sbtStructurePluginDeclaration(sbtVersion)
+        )
+
         Files.writeString(tempPluginFile, pluginContent)
         StructureDumpConfig(commands, extraSbtFileToRemove = Some(tempPluginFile), launcherArgs = Nil)
       }
@@ -320,7 +328,8 @@ object SbtStructureDumper:
       dumpStructureCommand: String,
       sbtVersion: SbtVersion,
       @unused sbtProcessOptions: SbtProcessOptions,
-      @unused project: Option[Project]
+      @unused project: Option[Project],
+      @unused importId: String
     ): StructureDumpConfig = {
       val SeqFqn = SbtVersionCapabilities.collectionsSeqClassFqn(sbtVersion)
       val setCommands = Seq(
@@ -341,6 +350,31 @@ object SbtStructureDumper:
       StructureDumpConfig(commands, extraSbtFileToRemove = None, launcherArgs = Nil)
     }
   end FromProcess
+
+
+  /**
+   * JVM system property used to identify a specific sbt import.
+   * Its value (a unique import id) is passed to the sbt import process and checked inside the generated global plugin file
+   * to ensure the plugin settings are activated only for the current import.
+   *
+   * The idea for this implementation is based on [[org.jetbrains.sbt.shell.SbtProcessManager#IdeaRunIdVmOption]]
+   *
+   * @see [[createGuardedPluginContent]]
+   */
+  private val IdeaImportId = "idea.import.id"
+
+  /**
+   * Wraps the given sbt settings in a guard condition that activates them only when the sbt import process
+   * was launched with the matching `importId` set with the [[IdeaImportId]] system property.
+   *
+   * This prevents the temporary global plugin file from interfering with other concurrently running imports or sbt sessions.
+   */
+  @VisibleForTesting
+  private[project] def createGuardedPluginContent(importId: String, sbtVersion: SbtVersion, settings: Seq[String]): String = {
+    val SeqFqn = SbtVersionCapabilities.collectionsSeqClassFqn(sbtVersion)
+    val settingsString = s"$SeqFqn(${settings.mkString(",")})"
+    s"""if (java.lang.System.getProperty("$IdeaImportId", "false") == "$importId") { $settingsString } else $SeqFqn.empty"""
+  }
 
   private def buildSbtCompositeCommand(commands: String*): String =
     commands.filter(_.nonEmpty).mkString(";", ";", "")

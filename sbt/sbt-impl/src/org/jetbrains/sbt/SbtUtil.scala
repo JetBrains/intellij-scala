@@ -178,15 +178,15 @@ object SbtUtil {
   }
 
   /**
-   * Creates the sbt file content that adds the sbt-structure plugin from the local Scala plugin repository.
+   * Returns the sbt settings (as individual lines) that add the sbt-structure plugin from the local Scala plugin repository.
    */
-  private[sbt] def sbtStructurePluginDeclaration(sbtVersion: SbtVersion): String = {
+  private[sbt] def sbtStructurePluginDeclaration(sbtVersion: SbtVersion): Seq[String] = {
     val repoPath = SbtUtil.normalizePath(SbtUtil.getRepoDir)
     val sbtStructurePluginBinVersion = structurePluginBinaryVersion(sbtVersion)
-    raw"""resolvers += MavenCache("Scala Plugin Bundled Repository", file(raw"$repoPath"))
-         |
-         |addSbtPlugin("org.jetbrains.scala" % "sbt-structure-extractor" % "${BuildInfo.sbtStructureVersion}", "$sbtStructurePluginBinVersion")
-         |""".stripMargin
+    Seq(
+      s"""resolvers += MavenCache("Scala Plugin Bundled Repository", file(raw"$repoPath"))""",
+      s"""addSbtPlugin("org.jetbrains.scala" % "sbt-structure-extractor" % "${BuildInfo.sbtStructureVersion}", "$sbtStructurePluginBinVersion")"""
+    )
   }
 
   def detectSbtVersion(project: Project): SbtVersion = {
