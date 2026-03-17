@@ -5,6 +5,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.roots.DependencyScope
+import com.intellij.openapi.util.io.FileUtil
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.IdeaTestUtil
 import org.jetbrains.annotations.Nullable
@@ -16,12 +17,16 @@ import org.jetbrains.plugins.scala.extensions.{PathExt, inWriteAction}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.external.JdkByName
 import org.jetbrains.sbt.project.ProjectStructureTestUtils.expectedScalaSdkLibraryFromCoursier
+import org.jetbrains.sbt.project.structure.SbtStructureDumper
+import org.jetbrains.sbt.settings.SbtSettings
 import org.jetbrains.sbt.{Sbt, SbtVersion}
 import org.junit.Assert
 import org.junit.Assert.{assertEquals, assertTrue}
 import org.junit.experimental.categories.Category
 
 import java.net.URI
+import java.util.UUID
+import java.nio.file.Files
 
 /**
  * Extend this class only if you want all tests from this class to be run in the child class.
@@ -154,6 +159,35 @@ import java.net.URI
         )
       }
     )
+  }
+
+  /*
+  Simulates a scenario where the global plugins directory contains an .sbt file from a concurrent sbt import, or it's left orphaned by a
+  previous import (which shouldn't happen in real life, as the file is removed). The current import should ignore such files.
+  The external/orphan file intentionally contains a non-existent sbt-structure plugin
+  version, which would cause the import to fail if it were taken into account. It verifies that .sbt files from other imports are not picked up.
+  */
+  def testGlobalSbtFilesFromConcurrentImports(): Unit = {
+    val settings = SbtSettings.getInstance(getMyProject)
+
+    val tempGlobalPluginsDir = FileUtil.createTempDirectory("sbt-global-plugins-test", null)
+    val updatedVmParams = settings.getVmParameters() + s" -Dsbt.global.plugins=${tempGlobalPluginsDir.toPath.toAbsolutePath}"
+    settings.setVmParameters(updatedVmParams)
+
+    val sbtFileFromOtherImport = FileUtil.createTempFile(tempGlobalPluginsDir, "idea-structure.sbt", null)
+    val fileContent =
+      SbtStructureDumper.createGuardedPluginContent(
+        importId = UUID.randomUUID().toString,
+        sbtVersion = SbtVersion("1.9.6"),
+        settings = Seq(
+          s"""resolvers += MavenCache("Scala Plugin Bundled Repository", file(raw"${getMyProject.getBasePath}"))""",
+          s"""addSbtPlugin("org.jetbrains.scala" % "sbt-structure-extractor" % "1.121212.43243232.3232", "202232.1")"""
+        )
+      )
+    Files.writeString(sbtFileFromOtherImport.toPath, fileContent)
+
+    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
+    runSimpleTest("root", "2.13", scalaLibraries)
   }
 
   protected def runSimpleTest(
