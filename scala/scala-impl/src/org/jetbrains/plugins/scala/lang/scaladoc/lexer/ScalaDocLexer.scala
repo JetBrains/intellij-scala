@@ -16,12 +16,6 @@ object ScalaDocLexer {
   private val TokensToMerge = TokenSet.create(DOC_COMMENT_DATA, DOC_WHITESPACE, DOC_INNER_CODE)
 }
 
-final class ScalaDocMarkdownLexer extends MergingLexerAdapter(new _ScalaDocMarkdownLexer, ScalaDocMarkdownLexer.TokensToMerge)
-
-object ScalaDocMarkdownLexer {
-  private val TokensToMerge = TokenSet.EMPTY
-}
-
 private final class ScalaDocAsteriskStripperLexer private[lexer](
   val myFlex: _ScalaDocLexer
 ) extends LexerBase {
