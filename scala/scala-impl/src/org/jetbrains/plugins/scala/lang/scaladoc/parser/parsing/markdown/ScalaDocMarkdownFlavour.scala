@@ -168,15 +168,8 @@ object ScalaDocMarkdownFlavour {
               (argStart, argEnd)
             }
           } else {
-            if (currentLine.charAt(argStart) == '`') {
-              val argEnd = nextMatchingChar(currentLine, argStart+1, _ == '`')
-                .map(_ + 1)
-                .getOrElse(currentLine.length)
-              (argStart, argEnd)
-            } else {
-              val argEnd = nextMatchingChar(currentLine, argStart, Character.isWhitespace).getOrElse(currentLine.length)
-              (argStart, argEnd)
-            }
+            val argEnd = indexAfterWikiDocRef(currentLine, argStart)
+            (argStart, argEnd)
           }
         })
       }.flatten
@@ -188,5 +181,22 @@ object ScalaDocMarkdownFlavour {
   private def nextMatchingChar(line: CharSequence, from: Int, predicate: Char => Boolean): Option[Int] = {
     (from until line.length)
       .find(i => predicate(line.charAt(i)))
+  }
+
+  private def indexAfterWikiDocRef(line: CharSequence, i: Int, inTicks: Boolean = false): Int = {
+    if (i >= line.length()) {
+      i
+    } else {
+      val c = line.charAt(i)
+      if (c == '`') {
+        indexAfterWikiDocRef(line, i+1, inTicks = !inTicks)
+      } else if (c.isWhitespace && !inTicks) {
+        i
+      } else if (c == '\\') {
+        indexAfterWikiDocRef(line, Math.min(i+2, line.length()), inTicks)
+      } else {
+        indexAfterWikiDocRef(line, i+1, inTicks)
+      }
+    }
   }
 }
