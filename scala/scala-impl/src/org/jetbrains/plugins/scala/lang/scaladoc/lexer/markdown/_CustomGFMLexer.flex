@@ -149,7 +149,10 @@ import java.util.Set;
   }
 
   private boolean canInline() {
-    return yystate() == AFTER_LINE_START || yystate() == PARSE_DELIMITED && parseDelimited.inlinesAllowed || yystate() == CODE_SPAN && parseDelimited.inlinesAllowed;
+    return yystate() == AFTER_LINE_START ||
+        yystate() == PARSE_DELIMITED && parseDelimited.inlinesAllowed ||
+        yystate() == CODE_SPAN && parseDelimited.inlinesAllowed ||
+        yystate() == IN_WIKILINK && parseDelimited.inlinesAllowed;
   }
 
   private IElementType getReturnGeneralized(IElementType defaultType) {
@@ -226,7 +229,7 @@ import java.util.Set;
 DIGIT = [0-9]
 ALPHANUM = [\p{Letter}\p{Number}]
 WHITE_SPACE = [ \t\f]
-WIKILINK_REF_CONTENT = [^ \t\f\]\[\r\n\u2028\u2029\u000B\u000C\u0085]
+WIKILINK_REF_CONTENT = [^ \\\t\f\]\[\r\n\u2028\u2029\u000B\u000C\u0085]
 EOL = \R
 ANY_CHAR = [^]
 
@@ -280,6 +283,12 @@ GFM_AUTOLINK = (("http" "s"? | "ftp" | "file")"://" | "www.") {HOST_PART} ("." {
 
   {WHITE_SPACE}* {EOL} {
     resetState();
+  }
+}
+
+<IN_WIKILINK> {
+  \\ . {
+    return getReturnGeneralized(MarkdownTokenTypes.TEXT);
   }
 }
 
