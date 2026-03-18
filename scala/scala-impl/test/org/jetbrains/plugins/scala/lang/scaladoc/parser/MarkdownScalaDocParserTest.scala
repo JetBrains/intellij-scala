@@ -2589,6 +2589,12 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       | * [[\\]]
       | * [[\ ]]
       | * [[\\\]]]
+      | *
+      | * @throws \\ty some exception
+      | * @throws \  exception
+      | * @throws \ ty exception
+      | * @throws
+      | * @throws \
       | */
       |""".stripMargin,
     """
@@ -2624,6 +2630,62 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |          ScDocRefQuerySegment('\]')
       |            PsiElement(identifier)('\\\]')
       |        ScPsiDocToken(DOC_LINK_CLOSE_TAG 0)(']]')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    DocTag
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      ScPsiDocToken(DOC_TAG_NAME)('@throws')
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      ScDocThrowTagValueImpl(DOC_TAG_VALUE_TOKEN)
+      |        ScDocReferenceLink
+      |          ScDocRefQuerySegment('\ty')
+      |            PsiElement(identifier)('\\ty')
+      |      ScDocParagraph
+      |        ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |        ScPsiDocToken(DOC_COMMENT_DATA)('some exception')
+      |        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    DocTag
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      ScPsiDocToken(DOC_TAG_NAME)('@throws')
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      ScDocThrowTagValueImpl(DOC_TAG_VALUE_TOKEN)
+      |        ScDocReferenceLink
+      |          ScDocRefQuerySegment(' ')
+      |            PsiElement(identifier)('\ ')
+      |      ScDocParagraph
+      |        ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |        ScPsiDocToken(DOC_COMMENT_DATA)('exception')
+      |        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    DocTag
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      ScPsiDocToken(DOC_TAG_NAME)('@throws')
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      ScDocThrowTagValueImpl(DOC_TAG_VALUE_TOKEN)
+      |        ScDocReferenceLink
+      |          ScDocRefQuerySegment(' ty')
+      |            PsiElement(identifier)('\ ty')
+      |      ScDocParagraph
+      |        ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |        ScPsiDocToken(DOC_COMMENT_DATA)('exception')
+      |        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    DocTag
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      ScPsiDocToken(DOC_TAG_NAME)('@throws')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    DocTag
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      ScPsiDocToken(DOC_TAG_NAME)('@throws')
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      ScDocThrowTagValueImpl(DOC_TAG_VALUE_TOKEN)
+      |        ScDocReferenceLink
+      |          ScDocRefQuerySegment('\')
+      |            PsiElement(identifier)('\')
       |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |    ScPsiDocToken(DOC_COMMENT_END)('*/')
       |  PsiWhiteSpace('\n')

@@ -18,6 +18,11 @@
  * [[http//example.com]]
  * [[http://example.com some alt text]]
  * [[http://example.com some alt text]]
+ *
+ * @throws \ \\\  some exception
+ * @throws \ \\\
+ * @throws \
+ * @throws
  */
 -----
 DOC_COMMENT_START {/**}
@@ -189,6 +194,38 @@ DOC_WHITESPACE { }
 DOC_COMMENT_DATA {some alt text}
 DOC_RIGHT_BRACKET {]}
 DOC_RIGHT_BRACKET {]}
+DOC_WHITESPACE {
+ }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE {
+ }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {@throws}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {\ \\\ }
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {some exception}
+DOC_WHITESPACE {
+ }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {@throws}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {\ \\}
+DOC_COMMENT_DATA {\}
+DOC_WHITESPACE {
+ }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {@throws}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {\}
+DOC_WHITESPACE {
+ }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {@throws}
 DOC_WHITESPACE {
  }
 DOC_COMMENT_END {*/}
