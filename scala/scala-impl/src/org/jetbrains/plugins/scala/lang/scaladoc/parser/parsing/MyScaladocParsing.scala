@@ -637,6 +637,9 @@ object MyScaladocParsing {
       Param,
       TypeParam,
       Throws,
+      GroupDesc,
+      GroupName,
+      GroupPrio,
     )
 
     val ParamOrTParamSet: ListSet[String] = ListSet(

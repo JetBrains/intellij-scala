@@ -264,7 +264,10 @@ PATH=({PATH_PART}+ | ("(" {PATH_PART}* ")"? {PATH_PART}*)) ("(" {PATH_PART}* ")"
 // See pushbackAutolink method
 GFM_AUTOLINK = (("http" "s"? | "ftp" | "file")"://" | "www.") {HOST_PART} ("." {HOST_PART})* (":" [0-9]+)? ("/" {PATH})? "/"?
 
-%state TAG_START, AFTER_LINE_START, PARSE_DELIMITED, CODE_SPAN, IN_WIKILINK
+// ScalaDoc directive
+DIRECTIVE_NAME = \S*
+
+%state TAG_START, AFTER_LINE_START, PARSE_DELIMITED, CODE_SPAN, IN_WIKILINK, AFTER_TAG_WITH_PARAMETER
 
 %%
 
@@ -388,6 +391,17 @@ GFM_AUTOLINK = (("http" "s"? | "ftp" | "file")"://" | "www.") {HOST_PART} ("." {
   }
 }
 
+<AFTER_LINE_START> {
+  "@" ("param" | "tparam" | "throws" | "groupdesc" | "groupname" | "groupprio") {
+    yybegin(AFTER_TAG_WITH_PARAMETER);
+    return MarkdownTokenTypes.TEXT;
+  }
+
+  "@" {DIRECTIVE_NAME} {
+    return MarkdownTokenTypes.TEXT;
+  }
+}
+
 <AFTER_LINE_START, CODE_SPAN> {
   {WHITE_SPACE}+ {
     return MarkdownTokenTypes.WHITE_SPACE;
@@ -427,6 +441,17 @@ GFM_AUTOLINK = (("http" "s"? | "ftp" | "file")"://" | "www.") {HOST_PART} ("." {
 
   {ANY_CHAR} { return MarkdownTokenTypes.TEXT; }
 
+}
+
+<AFTER_TAG_WITH_PARAMETER> {
+  {WHITE_SPACE}+ {
+    yybegin(IN_WIKILINK);
+    return MarkdownTokenTypes.WHITE_SPACE;
+  }
+
+  [^] {
+    resetState();
+  }
 }
 
 <PARSE_DELIMITED, CODE_SPAN, IN_WIKILINK> {
