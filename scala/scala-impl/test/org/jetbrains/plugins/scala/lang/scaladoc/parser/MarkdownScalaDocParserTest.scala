@@ -2582,6 +2582,54 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
+  // SCL-25121
+  def test_backslash_link_escaping(): Unit = checkTree(
+    """
+      |/**
+      | * [[\\]]
+      | * [[\ ]]
+      | * [[\\\]]]
+      | */
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  DocComment
+      |    ScPsiDocToken(DOC_COMMENT_START)('/**')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    ScDocParagraph
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      DocSyntaxElement 64
+      |        ScPsiDocToken(DOC_LINK_TAG 64)('[[')
+      |        ScDocReferenceLink
+      |          ScDocRefQuerySegment('\')
+      |            PsiElement(identifier)('\\')
+      |        ScPsiDocToken(DOC_LINK_CLOSE_TAG 0)(']]')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      DocSyntaxElement 64
+      |        ScPsiDocToken(DOC_LINK_TAG 64)('[[')
+      |        ScDocReferenceLink
+      |          ScDocRefQuerySegment(' ')
+      |            PsiElement(identifier)('\ ')
+      |        ScPsiDocToken(DOC_LINK_CLOSE_TAG 0)(']]')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      DocSyntaxElement 64
+      |        ScPsiDocToken(DOC_LINK_TAG 64)('[[')
+      |        ScDocReferenceLink
+      |          ScDocRefQuerySegment('\]')
+      |            PsiElement(identifier)('\\\]')
+      |        ScPsiDocToken(DOC_LINK_CLOSE_TAG 0)(']]')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_END)('*/')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
   def test_strikethrough(): Unit = checkTree(
     """
       |/**
