@@ -382,7 +382,7 @@ object SafeDeleteProcessorUtil {
                   newText.append(")*/")
                   usages.add(new SafeDeleteReferenceJavaDeleteUsageInfo(element, parameter, true) {
                     override def deleteElement(): Unit = {
-                      val javadocMethodReference = element.getReference.asInstanceOf[PsiDocMethodOrFieldRef#MyReference]
+                      val javadocMethodReference = element.getReference.asInstanceOf[PsiDocMethodOrFieldRef.MethodOrFieldReference]
                       if (javadocMethodReference != null) {
                         javadocMethodReference.bindToText(newText)
                       }
