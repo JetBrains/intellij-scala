@@ -6,13 +6,16 @@ import com.intellij.lang.annotation.{AnnotationHolder, Annotator}
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
+import com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
 import org.jetbrains.plugins.scala.annotator.annotationHolder.ScalaAnnotationHolderAdapter
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.highlighter.ScalaColorsSchemeUtils.NamedArgument
+import org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter.Attributes
 import org.jetbrains.plugins.scala.incremental.Highlighting._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAssignment
@@ -22,6 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedExpressionPrefix
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, ScTypeExt, ScalaType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.scaladoc.reflinks.psi.ScDocRefQuery
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.ScalaCollectionHighlightingLevel
 import org.jetbrains.plugins.scala.statistics.ScalaAnnotatorUsagesCollector
@@ -180,9 +184,17 @@ object ScalaColorSchemeAnnotator {
         r.getParent match {
           case NamedArgument(a: ScAssignment) if a.leftExpression eq r =>
             //parameter reference in the named argument is handled separately below
-          case _ =>
+          case _ if r.getTextLength > 0 =>
             highlightReferenceElement(r)
+          case _ =>
         }
+      case _: LeafPsiElement if element.getParent.is[ScDocRefQuery] =>
+        val tokenType = element.elementType match {
+          case ScalaTokenTypes.tINNER_CLASS => ScalaTokenTypes.tDOT
+          case t => t
+        }
+        Attributes.get(tokenType)
+          .foreach(key => createInfoAnnotation(element, key))
       case _ =>
     }
 

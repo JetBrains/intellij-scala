@@ -12,11 +12,11 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeRefe
 sealed trait ScDocRefQuery extends ResolvableStableCodeReference with ScPathElement
 
 object ScDocRefQuery {
-  private val backSlashReplaceRegex = raw"\\(?=.)".r
+  private val backSlashReplaceRegex = raw"\\(.)".r
   def cleanId(idText: String): String = {
     if (idText.isEmpty) idText
     else if (idText.head == '`') idText
-    else backSlashReplaceRegex.replaceAllIn(idText, "")
+    else backSlashReplaceRegex.replaceAllIn(idText, "$1")
   }
 }
 

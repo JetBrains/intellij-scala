@@ -4,7 +4,6 @@ import com.intellij.lexer.LexerBase
 import com.intellij.psi.tree.IElementType
 import org.intellij.markdown.MarkdownTokenTypes
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.markdown.ScalaDocMarkdownFlavour
 
 class _ScalaDocMarkdownLexer extends LexerBase {
@@ -50,12 +49,6 @@ class _ScalaDocMarkdownLexer extends LexerBase {
       ScalaDocTokenType.DOC_COMMENT_START
     case _ScalaDocMarkdownLexer.END =>
       if (offset < originalEndOffset) ScalaDocTokenType.DOC_COMMENT_END else null // Over when we advance from the end.
-    case _ScalaDocMarkdownLexer.AT_DIRECTIVE =>
-      ScalaDocTokenType.DOC_TAG_NAME
-    case _ScalaDocMarkdownLexer.AT_DIRECTIVE_VALUE =>
-      ScalaDocTokenType.DOC_TAG_VALUE_TOKEN
-    case _ScalaDocMarkdownLexer.MACRO_VALUE =>
-      ScalaDocTokenType.DOC_TAG_VALUE_TOKEN
     case x if _ScalaDocMarkdownLexer.isWhitespaceState(x) =>
       ScalaDocTokenType.DOC_WHITESPACE
   }
@@ -83,7 +76,6 @@ class _ScalaDocMarkdownLexer extends LexerBase {
    * @return whether lexing has been overridden
    */
   private def startNewMarkdownLine(): Boolean = {
-    // Check for @-directives.
     // First, find the first non-whitespace, non-newline character after `offset`:
     val firstNonWhitespaceIndex = (offset until originalEndOffset)
       .find { idx =>
@@ -98,25 +90,10 @@ class _ScalaDocMarkdownLexer extends LexerBase {
           // Make sure that these whitespaces become their own token.
           myState = _ScalaDocMarkdownLexer.WS_AFTER_LEADING_ASTERISK
           true
-        case '@' =>
-          val nextIndex = index + 1
-          if (nextIndex < originalEndOffset && !originalBuffer.charAt(nextIndex).isWhitespace) {
-
-            if (index > offset) {
-              myState = _ScalaDocMarkdownLexer.AT_DIRECTIVE_WS_START
-            } else {
-              myState = _ScalaDocMarkdownLexer.AT_DIRECTIVE
-            }
-
-            true
-          } else {
-            false
-          }
         case _ =>
           false
       }
     }
-    // For now, we won't deal with values in @-directives at all
   }
 
   private def calcTokenEnd(): Unit = {
@@ -128,39 +105,6 @@ class _ScalaDocMarkdownLexer extends LexerBase {
         offset + 3 // /** is always 3 characters
       case _ScalaDocMarkdownLexer.END =>
         offset + 2 // "*/" is always 2 characters
-      case _ScalaDocMarkdownLexer.AT_DIRECTIVE =>
-        // Until the first whitespace character after the @.
-        (offset + 1 until originalEndOffset)
-          .find(originalBuffer.charAt(_).isWhitespace)
-          .getOrElse(originalEndOffset)
-      case _ScalaDocMarkdownLexer.AT_DIRECTIVE_VALUE =>
-        // In wikidoc, we expect specifically valid identifiers.
-        // But the official tool uses \s+(\S*)\s*
-        // Which also seems quite reasonable
-        // (the official tool doesn't support raw identifiers, but we do, so that's needed as well)
-        var currentOffset = offset
-        while (currentOffset < originalEndOffset && !originalBuffer.charAt(currentOffset).isWhitespace) {
-          if (originalBuffer.charAt(currentOffset) == '`') {
-            currentOffset = (currentOffset + 1 until originalEndOffset)
-              .find(originalBuffer.charAt(_) == '`')
-              .map(_ + 1)
-              .getOrElse(originalEndOffset)
-          } else {
-            currentOffset += 1
-          }
-        }
-        currentOffset
-      case _ScalaDocMarkdownLexer.MACRO_VALUE =>
-        if (originalBuffer.charAt(offset) == '{') {
-          (offset + 1 until originalEndOffset)
-            .find(originalBuffer.charAt(_) == '}')
-            .map(_ + 1)
-            .getOrElse(originalEndOffset)
-        } else {
-          (offset + 1 until originalEndOffset)
-            .find(o => !Character.isLetterOrDigit(originalBuffer.charAt(o)))
-            .getOrElse(originalEndOffset)
-        }
       case x if _ScalaDocMarkdownLexer.isWhitespaceState(x) =>
         (offset until originalEndOffset)
           .find(!originalBuffer.charAt(_).isWhitespace)
@@ -201,42 +145,6 @@ class _ScalaDocMarkdownLexer extends LexerBase {
         offset = tokenEnd
         if (!startNewMarkdownLine()) unpauseDelegate()
       case _ScalaDocMarkdownLexer.END => offset = originalEndOffset
-      case _ScalaDocMarkdownLexer.AT_DIRECTIVE_WS_START =>
-        offset = tokenEnd
-        myState = _ScalaDocMarkdownLexer.AT_DIRECTIVE
-      case _ScalaDocMarkdownLexer.AT_DIRECTIVE =>
-        val text = originalBuffer.subSequence(offset+1, tokenEnd).toString
-        offset = tokenEnd
-
-        if (MyScaladocParsing.TagNames.TagNamesWithParameters.contains(text)) {
-          // If there is no value after the tag, we should unpause the delegate instead of trying to lex
-          // a nonexistent parameter
-          val endOfWhitespaceOrLine = (offset until originalEndOffset)
-            .find(o => !originalBuffer.charAt(o).isWhitespace || originalBuffer.charAt(o) == '\n')
-            .getOrElse(originalEndOffset)
-          
-          if (endOfWhitespaceOrLine == originalEndOffset || originalBuffer.charAt(endOfWhitespaceOrLine) == '\n') {
-            unpauseDelegate()
-          } else if (text == MyScaladocParsing.TagNames.Define) {
-            myState = _ScalaDocMarkdownLexer.MACRO_WS_VALUE
-          } else {
-            myState = _ScalaDocMarkdownLexer.AT_DIRECTIVE_WS_VALUE
-          }
-        } else {
-          unpauseDelegate()
-        }
-      case _ScalaDocMarkdownLexer.AT_DIRECTIVE_WS_VALUE =>
-        offset = tokenEnd
-        myState = _ScalaDocMarkdownLexer.AT_DIRECTIVE_VALUE
-      case _ScalaDocMarkdownLexer.AT_DIRECTIVE_VALUE =>
-        offset = tokenEnd
-        unpauseDelegate()
-      case _ScalaDocMarkdownLexer.MACRO_WS_VALUE =>
-        offset = tokenEnd
-        myState = _ScalaDocMarkdownLexer.MACRO_VALUE
-      case _ScalaDocMarkdownLexer.MACRO_VALUE =>
-        offset = tokenEnd
-        unpauseDelegate()
     }
     calcTokenEnd()
   }
@@ -254,20 +162,9 @@ object _ScalaDocMarkdownLexer {
   private val WS_AFTER_LEADING_ASTERISK = 4
   private val END = 5
 
-  private val AT_DIRECTIVE_WS_START = 6
-  private val AT_DIRECTIVE = 7
-  private val AT_DIRECTIVE_WS_VALUE = 8
-  private val AT_DIRECTIVE_VALUE = 9
-
-  private val MACRO_WS_VALUE = 10
-  private val MACRO_VALUE = 11
-
   private def isWhitespaceState(state: Int): Boolean = {
     state == LINE_SPACE ||
-      state == WS_AFTER_LEADING_ASTERISK ||
-      state == AT_DIRECTIVE_WS_START ||
-      state == AT_DIRECTIVE_WS_VALUE ||
-      state == MACRO_WS_VALUE
+      state == WS_AFTER_LEADING_ASTERISK
   }
 
   // Note that some of these will never be produced by the lexer, but might as well still add them.

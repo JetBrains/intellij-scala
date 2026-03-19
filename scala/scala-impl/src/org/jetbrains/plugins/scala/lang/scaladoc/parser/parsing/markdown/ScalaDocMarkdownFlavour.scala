@@ -55,18 +55,21 @@ class ScalaDocMarkdownFlavour extends GFMFlavourDescriptor {
 
         WikiLinkParser.WIKI_LINK -> new OpenCloseGeneratingProvider {
           override def openTag(visitor: HtmlGenerator#HtmlGeneratingVisitor, s: String, astNode: ASTNode): Unit = {
-            val innerText = s.substring(astNode.getStartOffset+2, astNode.getEndOffset-2)
-            val (link, linkText) = wsRegex.findFirstMatchIn(innerText) match {
-              case Some(m) if m.start > 0 && m.end < innerText.length - 1 => (innerText.substring(0, m.start), innerText.substring(m.end))
-              case _ => (innerText.trim, innerText)
+            val children = astNode.getChildren
+            val info = WikiLinkParser.ChildrenInfo(astNode)
+            def text(i: (Int, Int)): String = {
+              s.substring(children.get(i._1).getStartOffset, children.get(i._2).getStartOffset)
             }
 
+            val refText = info.refTokens.fold("")(text)
+            val description = info.descriptionTokens.fold(refText)(text)
+
             val html =
-              if (link.startsWith("http:") || link.startsWith("https:")) {
-                HtmlPsiUtils.hyperLink(link, linkText)
+              if (refText.startsWith("http:") || refText.startsWith("https:")) {
+                HtmlPsiUtils.hyperLink(refText, description)
               } else {
                 val buffer = new java.lang.StringBuilder
-                DocumentationManagerUtil.createHyperlink(buffer, link, linkText, false)
+                DocumentationManagerUtil.createHyperlink(buffer, refText, description, false)
                 buffer.toString
               }
             visitor.consumeHtml(html)
@@ -168,15 +171,8 @@ object ScalaDocMarkdownFlavour {
               (argStart, argEnd)
             }
           } else {
-            if (currentLine.charAt(argStart) == '`') {
-              val argEnd = nextMatchingChar(currentLine, argStart+1, _ == '`')
-                .map(_ + 1)
-                .getOrElse(currentLine.length)
-              (argStart, argEnd)
-            } else {
-              val argEnd = nextMatchingChar(currentLine, argStart, Character.isWhitespace).getOrElse(currentLine.length)
-              (argStart, argEnd)
-            }
+            val argEnd = indexAfterWikiDocRef(currentLine, argStart)
+            (argStart, argEnd)
           }
         })
       }.flatten
@@ -188,5 +184,22 @@ object ScalaDocMarkdownFlavour {
   private def nextMatchingChar(line: CharSequence, from: Int, predicate: Char => Boolean): Option[Int] = {
     (from until line.length)
       .find(i => predicate(line.charAt(i)))
+  }
+
+  private def indexAfterWikiDocRef(line: CharSequence, i: Int, inTicks: Boolean = false): Int = {
+    if (i >= line.length()) {
+      i
+    } else {
+      val c = line.charAt(i)
+      if (c == '`') {
+        indexAfterWikiDocRef(line, i+1, inTicks = !inTicks)
+      } else if (c.isWhitespace && !inTicks) {
+        i
+      } else if (c == '\\') {
+        indexAfterWikiDocRef(line, Math.min(i+2, line.length()), inTicks)
+      } else {
+        indexAfterWikiDocRef(line, i+1, inTicks)
+      }
+    }
   }
 }
