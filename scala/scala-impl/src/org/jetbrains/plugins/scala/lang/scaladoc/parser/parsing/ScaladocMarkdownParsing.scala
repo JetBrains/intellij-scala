@@ -10,8 +10,6 @@ import org.intellij.markdown.flavours.gfm.GFMElementTypes
 import org.intellij.markdown.parser.MarkdownParser
 import org.intellij.markdown.{MarkdownElementType, MarkdownElementTypes, MarkdownTokenTypes}
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilderImpl
-import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableIdForImport
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScalaDocSyntaxElementType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
@@ -22,7 +20,6 @@ import java.{util => ju}
 import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
 import scala.jdk.CollectionConverters.ListHasAsScala
-import scala.util.matching.Regex
 
 /**
  *
@@ -233,32 +230,49 @@ private class ScaladocMarkdownParsing(builder: MkBuilder, content: String) exten
   }
 
   private def visitWikiDocLink(treeIt: MkTreeIt): Unit = {
+    val info = WikiLinkParser.ChildrenInfo(treeIt.current)
     val childIt = treeIt.startIterateCurrentChildren()
-    ensureBuilderInPosition(childIt.currentStartOffset)
+    ensureBuilderInPosition(treeIt.currentStartOffset)
 
     val marker = builder.mark()
 
-    childIt.advance() // eat [
-    childIt.advance() // eat [
+    // the first child is [[, or [[[ or even more [[[
+    // second child is part of the reference
+    childIt.advance()
+    val linkOffset = childIt.currentStartOffset
+    val firstText = nodeText(childIt.current)
+    val isHttpLink = firstText.startsWith("http:") || firstText.startsWith("https:")
 
-    val textOffset = childIt.currentStartOffset
-    val text = nodeText(childIt.current)
-    val isHttpLink = text.startsWith("http:") || text.startsWith("https:")
-    childIt.dropRest()
-
-    val (elementType, refTegType) =
+    val (elementType, refType) =
       if (isHttpLink) (ScalaDocTokenType.DOC_HTTP_LINK_TAG, ScalaDocTokenType.DOC_HTTP_LINK_VALUE)
       else (ScalaDocTokenType.DOC_LINK_TAG, ScalaDocElementTypes.SCALA_DOC_REFERENCE_LINK)
 
-    ensureBuilderInPosition(textOffset, elementType) // mark [[
-    if (text != "]") {
-      ensureBuilderInPosition(textOffset + text.length, refTegType) // mark the link/reference
-      if (builder.getTokenType == ScalaDocTokenType.DOC_WHITESPACE) {
-        builder.advanceLexer()
+    ensureBuilderInPosition(linkOffset, elementType) // mark [[
+    // if we have a whitespace right after [[ we want to mark that whitespace as refType
+    if (childIt.currentNodeType == MarkdownTokenTypes.WHITE_SPACE) {
+      childIt.advance()
+    } else {
+      while (!childIt.ended && childIt.currentNodeType == MarkdownTokenTypes.TEXT) {
+        childIt.advance()
       }
     }
-    ensureBuilderInPosition(treeIt.currentEndOffset - 2, ScalaDocTokenType.DOC_COMMENT_DATA) // mark the link text
-    ensureBuilderInPosition(treeIt.currentEndOffset, ScalaDocTokenType.DOC_LINK_CLOSE_TAG) // mark ]]
+
+    ensureBuilderInPosition(if (childIt.ended) treeIt.currentEndOffset else childIt.currentStartOffset, refType)
+
+    if (builder.getTokenType == ScalaDocTokenType.DOC_WHITESPACE) {
+      builder.advanceLexer()
+    }
+
+    while (childIt.availableNodesOnLevel > info.closingBracketTokenCount) {
+      visitNode(childIt)
+      childIt.advance()
+    }
+
+    ensureBuilderInPosition(childIt.currentStartOffset)
+    if (!childIt.ended) {
+      childIt.dropRest()
+      ensureBuilderInPosition(treeIt.currentEndOffset, ScalaDocTokenType.DOC_LINK_CLOSE_TAG)
+    }
 
     marker.done(elementType)
   }
@@ -682,6 +696,7 @@ object ScaladocMarkdownParsing {
   private final class MkTreeIt(private var idx: Int, list: ju.List[ASTNode], val parent: Option[MkTreeIt]) {
     private var processesChildren: Boolean = false
 
+    def index: Int = idx
     def current: ASTNode = list.get(idx)
     def currentNodeType: org.intellij.markdown.IElementType = current.getType
     def currentStartOffset: Int = current.getStartOffset
@@ -720,8 +735,12 @@ object ScaladocMarkdownParsing {
     }
 
     def startIterateCurrentChildren(): MkTreeIt = {
+      startChildIt(idx)
+    }
+
+    def startChildIt(idx: Int): MkTreeIt = {
       assert(!processesChildren)
-      val children = currentChildren
+      val children = list.get(idx).getChildren
       if (!children.isEmpty) {
         processesChildren = true
       }

@@ -1,12 +1,14 @@
 package org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.markdown
 
-import org.intellij.markdown.{MarkdownElementType, MarkdownElementTypes, MarkdownTokenTypes}
-import org.intellij.markdown.parser.sequentialparsers.RangesListBuilder
-import org.intellij.markdown.parser.sequentialparsers.SequentialParser
-import org.intellij.markdown.parser.sequentialparsers.TokensCache
+import org.intellij.markdown.ast.ASTNode
+import org.intellij.markdown.parser.sequentialparsers.{RangesListBuilder, SequentialParser, TokensCache}
+import org.intellij.markdown.{MarkdownElementType, MarkdownTokenTypes}
+import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.markdown.WikiLinkParser.ChildrenInfo.{astNodeLen, calcClosingTokens}
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.markdown.WikiLinkParser.WIKI_LINK
 
 import kotlin.ranges.IntRange
+import scala.annotation.tailrec
+import scala.collection.immutable.ArraySeq
 
 // TODO:
 // Process the interior.
@@ -19,42 +21,50 @@ class WikiLinkParser extends SequentialParser {
     var iterator: TokensCache#RangesListIterator = new tokens.RangesListIterator(rangesToGlue)
 
     while (iterator.getType != null) {
-      if (isOpeningBracket(iterator)) {
-        val startIndex = iterator.getIndex
-        // Advance twice; each '[' is one token.
-        iterator = iterator.advance().advance()
-
-        while (iterator.getType != null && !isClosingBracket(iterator)) {
+      isOpeningBracket(iterator) match {
+        case Some(bracketLength) =>
+          val startIndex = iterator.getIndex
+          // Advance twice; each '[' is one token.
           iterator = iterator.advance()
-        }
 
-        if (iterator.getType != null && isClosingBracket(iterator)) {
+          @tailrec
+          def eatUntilClosingBracket(iterator: TokensCache#RangesListIterator): Option[TokensCache#RangesListIterator] = {
+            val x = isClosingBracket(iterator, bracketLength)
+            if (x.nonEmpty || iterator.getType == null) x
+            else eatUntilClosingBracket(iterator.advance())
+          }
 
-          val range = new IntRange(startIndex, iterator.getIndex + 2)
-          result.withNode(new SequentialParser.Node(range, WIKI_LINK))
-
-          // Advance twice; each ']' is one token.
-          iterator = iterator.advance().advance()
-        } else {
-          iterator = new tokens.RangesListIterator(rangesToGlue)
-          iterator = advanceToIndex(iterator, startIndex + 1)
-        }
-      } else {
-        delegateIndices.put(iterator.getIndex)
-        iterator = iterator.advance()
+          eatUntilClosingBracket(iterator) match {
+            case Some(closingBracketIterator) =>
+              val range = new IntRange(startIndex, closingBracketIterator.getIndex)
+              result.withNode(new SequentialParser.Node(range, WIKI_LINK))
+              iterator = closingBracketIterator
+            case None =>
+              iterator = new tokens.RangesListIterator(rangesToGlue)
+              iterator = advanceToIndex(iterator, startIndex + 1)
+          }
+        case None =>
+          delegateIndices.put(iterator.getIndex)
+          iterator = iterator.advance()
       }
     }
 
     result.withFurtherProcessing(delegateIndices.get())
   }
 
-  private def isOpeningBracket(iterator: TokensCache#RangesListIterator): Boolean =
-    iterator.getType == MarkdownTokenTypes.LBRACKET &&
-      iterator.advance().getType == MarkdownTokenTypes.LBRACKET
+  private def isOpeningBracket(iterator: TokensCache#RangesListIterator): Option[Int] =
+    Option.when(iterator.getType == MarkdownTokenTypes.LBRACKET && iterator.getLength > 1)(iterator.getLength)
 
-  private def isClosingBracket(iterator: TokensCache#RangesListIterator): Boolean =
-    iterator.getType == MarkdownTokenTypes.RBRACKET &&
-      iterator.advance().getType == MarkdownTokenTypes.RBRACKET
+  @tailrec
+  private def isClosingBracket(iterator: TokensCache#RangesListIterator, expectedLen: Int): Option[TokensCache#RangesListIterator] = {
+    if (expectedLen < 0) {
+      None
+    } else if (iterator.getType == MarkdownTokenTypes.RBRACKET) {
+      isClosingBracket(iterator.advance(), expectedLen - iterator.getLength)
+    } else {
+      Option.when(expectedLen == 0)(iterator)
+    }
+  }
 
   private def advanceToIndex(iterator: TokensCache#RangesListIterator, targetIndex: Int): TokensCache#RangesListIterator = {
     var current = iterator
@@ -67,4 +77,58 @@ class WikiLinkParser extends SequentialParser {
 
 object WikiLinkParser {
   val WIKI_LINK = new MarkdownElementType("WIKI_LINK", false)
+
+  class ChildrenInfo private(val children: ArraySeq[ASTNode]) {
+    val childCount: Int = children.length
+
+    // amount of [ that opens this wiki link
+    val bracketCount: Int = astNodeLen(children(0))
+
+    // number of tokens that close this wiki link
+    // one of these tokens may contain multiple ]
+    lazy val closingBracketTokenCount: Int = calcClosingTokens(children, bracketCount)
+
+    lazy val refTokens: Option[(Int, Int)] = {
+      val refTokenCount = children.iterator
+        .drop(1) // the initial brackets
+        .takeWhile(_.getType == MarkdownTokenTypes.TEXT)
+        .length
+      Option.when(refTokenCount > 0)(1 -> (1 + refTokenCount))
+    }
+
+    lazy val descriptionTokens: Option[(Int, Int)] = {
+      val start = refTokens.fold(1)(_._2) + 1 // skip the whitespace that comes afterwards
+      Option.when(start < closingBracketsChildIndex)(start, closingBracketsChildIndex)
+    }
+
+    def closingBracketsChildIndex: Int = childCount - closingBracketTokenCount
+  }
+
+  object ChildrenInfo {
+    def apply(node: ASTNode): ChildrenInfo = {
+      assert(node.getType == WIKI_LINK)
+      val children = node.getChildren.toArray(Array.empty[ASTNode])
+      new ChildrenInfo(ArraySeq.unsafeWrapArray(children))
+    }
+
+    private def calcClosingTokens(children: ArraySeq[ASTNode], openingBracketCount: Int): Int = {
+      @tailrec
+      def check(i: Int, restNeeded: Int): Int = {
+        if (i < 1) children.size
+        else {
+          val child = children(i)
+          if (child.getType == MarkdownTokenTypes.RBRACKET) {
+            val len = astNodeLen(child)
+            if (len >= restNeeded) i
+            else check(i - 1, restNeeded - len)
+          } else {
+            children.size
+          }
+        }
+      }
+      children.size - check(children.size - 1, openingBracketCount)
+    }
+
+    private def astNodeLen(ast: ASTNode): Int = ast.getEndOffset - ast.getStartOffset
+  }
 }

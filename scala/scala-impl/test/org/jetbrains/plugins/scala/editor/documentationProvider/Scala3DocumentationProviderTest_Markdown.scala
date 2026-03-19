@@ -236,19 +236,27 @@ class Scala3DocumentationProviderTest_Markdown
          | * [[http://example.com/]]
          | * [[http://example.com/ Alt text]]
          | * [[http://example.com/ Alt text ]]
+         | * [[[Foo]]]
+         | * [[[Foo foo]]]
+         | * [[[Foo]]]]
+         | * [[[Foo ]]foo]]]
          | */
          |class ${|}Foo
          |""".stripMargin,
       """
         |<div class='content'><p><a href="psi_element://"><code></code></a>
-        |<a href="psi_element://"><code> </code></a>
+        |<a href="psi_element://"><code></code></a>
         |<a href="psi_element://Foo"><code>Foo</code></a>
-        |<a href="psi_element://Foo"><code> Foo</code></a>
-        |<a href="psi_element://Foo"><code>Foo </code></a>
+        |<a href="psi_element://"><code>Foo</code></a>
+        |<a href="psi_element://Foo"><code>Foo</code></a>
         |<a href="psi_element://Foo"><code>Alt text</code></a>
         |<a href="http://example.com/">http://example.com/</a>
         |<a href="http://example.com/">Alt text</a>
-        |<a href="http://example.com/">Alt text </a></p></div>
+        |<a href="http://example.com/">Alt text </a>
+        |<a href="psi_element://Foo"><code>Foo</code></a>
+        |<a href="psi_element://Foo"><code>foo</code></a>
+        |<a href="psi_element://Foo]"><code>Foo]</code></a>
+        |<a href="psi_element://Foo"><code>]]foo</code></a></p></div>
         |""".stripMargin,
       HtmlSpacesComparisonMode.DontIgnore,
     )

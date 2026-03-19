@@ -33,9 +33,9 @@ import java.util.Set;
 
   private boolean isHeader = false;
 
-  private int codeSpanBacktickslength = 0;
+  private int wikilinkOpenLength = 0;
 
-  private int stateBeforeWikilink = 0;
+  private int codeSpanBacktickslength = 0;
 
   private ParseDelimited parseDelimited = new ParseDelimited();
 
@@ -229,7 +229,6 @@ import java.util.Set;
 DIGIT = [0-9]
 ALPHANUM = [\p{Letter}\p{Number}]
 WHITE_SPACE = [ \t\f]
-WIKILINK_REF_CONTENT = [^ \\\t\f\]\[\r\n\u2028\u2029\u000B\u000C\u0085]
 EOL = \R
 ANY_CHAR = [^]
 
@@ -267,6 +266,13 @@ GFM_AUTOLINK = (("http" "s"? | "ftp" | "file")"://" | "www.") {HOST_PART} ("." {
 // ScalaDoc directive
 DIRECTIVE_NAME = \S*
 
+charEscapeSeq = \\[^\r\n]
+LineTerminator = \r | \n | \r\n | \u0085 |  \u2028 | \u2029 | \u000A | \u000a
+charExtra = !( ![^"\""`] | {LineTerminator})             //This is for `type` identifiers
+stringElementExtra = {charExtra} | {charEscapeSeq}
+stringLiteralExtra = {stringElementExtra}*
+SCALA_REF_LINK_TEXT = ("`" {stringLiteralExtra} "`" | ("\\" .) | [^\]\\`\ \t\f\n\r])+
+
 %state TAG_START, AFTER_LINE_START, PARSE_DELIMITED, CODE_SPAN, IN_WIKILINK, AFTER_TAG_WITH_PARAMETER
 
 %%
@@ -290,12 +296,41 @@ DIRECTIVE_NAME = \S*
 }
 
 <IN_WIKILINK> {
-  \\ . {
-    return getReturnGeneralized(MarkdownTokenTypes.TEXT);
+  {SCALA_REF_LINK_TEXT} {
+    return MarkdownTokenTypes.TEXT;
+  }
+
+  {WHITE_SPACE}+ {
+    if (wikilinkOpenLength == 0) {
+      // link was started after @tag
+      popState();
+    } else {
+      yybegin(AFTER_LINE_START);
+    }
+    return MarkdownTokenTypes.WHITE_SPACE;
+  }
+
+  "]" "]"+ {
+    int len = yylength();
+    if (wikilinkOpenLength == len) {
+      wikilinkOpenLength = 0;
+      popState();
+      return getDelimiterTokenType(']');
+    } else {
+      if (len > wikilinkOpenLength) {
+        // close it again after
+        yypushback(wikilinkOpenLength);
+      }
+      return MarkdownTokenTypes.TEXT;
+    }
+  }
+
+  {ANY_CHAR} {
+      resetState();
   }
 }
 
-<AFTER_LINE_START, PARSE_DELIMITED, IN_WIKILINK> {
+<AFTER_LINE_START, PARSE_DELIMITED> {
   // Escaping
   \\[\\\"'`*_{}\[\]()#+.,!:@#$%&~<>/-] {
     return getReturnGeneralized(MarkdownTokenTypes.TEXT);
@@ -331,22 +366,6 @@ DIRECTIVE_NAME = \S*
   }
 }
 
-<IN_WIKILINK> {
-  {WIKILINK_REF_CONTENT}+ {
-    return MarkdownTokenTypes.TEXT;
-  }
-
-  {WHITE_SPACE}+ {
-    yybegin(stateBeforeWikilink);
-    return MarkdownTokenTypes.WHITE_SPACE;
-  }
-
-  "]" / "]" {
-    yybegin(stateBeforeWikilink);
-    return getDelimiterTokenType(']');
-  }
-}
-
 <AFTER_LINE_START, PARSE_DELIMITED, CODE_SPAN> {
 
   // Emphasis
@@ -369,16 +388,17 @@ DIRECTIVE_NAME = \S*
 
 }
 
-<AFTER_LINE_START, CODE_SPAN> {
-  "[" / "[" {
-    stateBeforeWikilink = yystate();
+<AFTER_LINE_START> {
+  "[" "["+ {
+    wikilinkOpenLength = yylength();
+    stateStack.add(yystate());
     yybegin(IN_WIKILINK);
     return getDelimiterTokenType(yycharat(0));
   }
 }
 
 
-<AFTER_LINE_START, CODE_SPAN, IN_WIKILINK> {
+<AFTER_LINE_START, CODE_SPAN> {
 
   \" | "'"| "(" | ")" | "[" | "]" | "<" | ">" {
     return getDelimiterTokenType(yycharat(0));
