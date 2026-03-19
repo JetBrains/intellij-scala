@@ -364,8 +364,6 @@ class WikidocParserTest extends SimpleScalaParserTestBase {
       |""".stripMargin
   )
 
-  def test_fail(): Unit = assert(false)
-
   def test_http_link(): Unit = checkTree(
     """
       |/**
