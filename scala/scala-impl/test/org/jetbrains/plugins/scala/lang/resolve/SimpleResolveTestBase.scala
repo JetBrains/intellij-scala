@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala
 package lang.resolve
 
+import com.intellij.openapi.editor.Document
+import com.intellij.openapi.fileTypes.BinaryFileTypeDecompilers
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiReference}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
@@ -15,6 +17,7 @@ import org.junit.experimental.categories.Category
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
+import scala.annotation.nowarn
 import scala.util.{Failure, Success, Try}
 
 @Category(Array(classOf[TypecheckerTests]))
@@ -162,7 +165,11 @@ abstract class SimpleResolveTestBase extends ScalaLightCodeInsightFixtureTestCas
     assertNotNull("file is null", file)
     val vFile = file.getVirtualFile
     assertNotNull(s"vFile is null for file ${file.getName}", vFile)
-    val document = PsiDocumentManager.getInstance(element.getProject).getDocument(file)
+
+    val document = BinaryFileTypeDecompilers.getInstance().allowDecompilerSlowOperation[Document] { () =>
+      PsiDocumentManager.getInstance(element.getProject).getDocument(file)
+    }: @nowarn("cat=deprecation") // TODO: SCL-25196 Rewrite call on a background thread.
+
     s"location: ${vFile.getPath}:${document.getLineNumber(element.startOffset)}"
   }
 

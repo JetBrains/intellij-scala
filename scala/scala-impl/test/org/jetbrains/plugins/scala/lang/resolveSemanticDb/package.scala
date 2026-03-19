@@ -1,8 +1,11 @@
 package org.jetbrains.plugins.scala.lang
 
+import com.intellij.openapi.fileTypes.BinaryFileTypeDecompilers
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScRefinement
+
+import scala.annotation.nowarn
 
 package object resolveSemanticDb {
 
@@ -26,7 +29,11 @@ package object resolveSemanticDb {
   object TextPos {
     def fromZeroBased(line: Int, col: Int): TextPos =
       TextPos(line + 1, col + 1)
-    def of(e: PsiElement): TextPos = at(e.getTextOffset, e.getContainingFile)
+
+    def of(e: PsiElement): TextPos = BinaryFileTypeDecompilers.getInstance().allowDecompilerSlowOperation[TextPos] { () =>
+      at(e.getTextOffset, e.getContainingFile)
+    }: @nowarn("cat=deprecation") // TODO: SCL-25196 Rewrite call on a background thread.
+
     def at(offset: Int, file: PsiFile): TextPos = {
       if (offset < 0) {
         return TextPos(-1, -1)
