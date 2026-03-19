@@ -55,18 +55,21 @@ class ScalaDocMarkdownFlavour extends GFMFlavourDescriptor {
 
         WikiLinkParser.WIKI_LINK -> new OpenCloseGeneratingProvider {
           override def openTag(visitor: HtmlGenerator#HtmlGeneratingVisitor, s: String, astNode: ASTNode): Unit = {
-            val innerText = s.substring(astNode.getStartOffset+2, astNode.getEndOffset-2)
-            val (link, linkText) = wsRegex.findFirstMatchIn(innerText) match {
-              case Some(m) if m.start > 0 && m.end < innerText.length - 1 => (innerText.substring(0, m.start), innerText.substring(m.end))
-              case _ => (innerText.trim, innerText)
+            val children = astNode.getChildren
+            val info = WikiLinkParser.ChildrenInfo(astNode)
+            def text(i: (Int, Int)): String = {
+              s.substring(children.get(i._1).getStartOffset, children.get(i._2).getStartOffset)
             }
 
+            val refText = info.refTokens.fold("")(text)
+            val description = info.descriptionTokens.fold(refText)(text)
+
             val html =
-              if (link.startsWith("http:") || link.startsWith("https:")) {
-                HtmlPsiUtils.hyperLink(link, linkText)
+              if (refText.startsWith("http:") || refText.startsWith("https:")) {
+                HtmlPsiUtils.hyperLink(refText, description)
               } else {
                 val buffer = new java.lang.StringBuilder
-                DocumentationManagerUtil.createHyperlink(buffer, link, linkText, false)
+                DocumentationManagerUtil.createHyperlink(buffer, refText, description, false)
                 buffer.toString
               }
             visitor.consumeHtml(html)
