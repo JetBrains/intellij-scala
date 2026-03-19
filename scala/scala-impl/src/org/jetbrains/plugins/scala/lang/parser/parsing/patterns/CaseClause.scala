@@ -2,12 +2,13 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.patterns
 
 import com.intellij.lang.WhitespacesAndCommentsBinder
 import com.intellij.psi.tree.IElementType
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.{ClassKeyword, ObjectKeyword}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType}
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Block, BlockInIndentationRegion, ExprInIndentationRegion}
 import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.CaseClause.RightCommentBinder
+import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType}
 
 import java.{util => ju}
 import scala.jdk.CollectionConverters.ListHasAsScala
@@ -20,6 +21,31 @@ abstract class CaseClause extends ParsingRule {
 
   protected def isCaseKeywordAcceptable(implicit builder: ScalaPsiBuilder): Boolean =
     true
+  /**
+   * Detects Scala 3 nested partial-function result after `case ... =>` {{{
+   *   case "foo" =>
+   *     case 1 => true
+   * }}}
+   *
+   * The inner `case` should be treated as the result expression of the outer case
+   * only when it starts a new braceless indentation region.
+   */
+  protected final def startsNestedPartialFunctionResult(builder: ScalaPsiBuilder): Boolean =
+    builder.isScala3IndentationBasedSyntaxEnabled &&
+      builder.getTokenType == ScalaTokenTypes.kCASE &&
+      !builder.lookAhead(1, ClassKeyword) &&
+      !builder.lookAhead(1, ObjectKeyword) &&
+      builder.newBracelessIndentationRegionHere.nonEmpty
+
+  /**
+   * Parses nested case clauses as a single expression in the indentation region.<br>
+   * Used when [[startsNestedPartialFunctionResult]] is true.
+   */
+  protected final def parseNestedPartialFunctionResult()(implicit builder: ScalaPsiBuilder): Unit = {
+    if (!ExprInIndentationRegion()) {
+      builder.wrongExpressionError()
+    }
+  }
 
   override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val caseClauseMarker = builder.mark()
@@ -58,18 +84,38 @@ abstract class CaseClause extends ParsingRule {
   }
 }
 
+/**
+ * Generic case-clause parser used in regular (mostly braced) case-clauses contexts.
+ *
+ * Example:
+ * {{{
+ * x match {
+ *   case a =>
+ *     expr
+ *   case b =>
+ *     expr2
+ * }
+ * }}}
+ */
 object CaseClause extends CaseClause {
   private val RightCommentBinder: WhitespacesAndCommentsBinder =
     (tokens: ju.List[_ <: IElementType], _: Boolean, _: WhitespacesAndCommentsBinder.TokenTextGetter) => {
       tokens.size() - tokens.asScala.reverseIterator.takeWhile(token => !ScalaTokenTypes.COMMENTS_TOKEN_SET.contains(token)).length
     }
 
-  override protected def parseBody()(implicit builder: ScalaPsiBuilder): Unit =
-    builder.withIndentationRegion(builder.newBracelessIndentationRegionHere) {
-      if (!Block.Braceless(stopOnOutdent = false, needNode = true)) {
-        builder.wrongExpressionError()
+  override protected def parseBody()(implicit builder: ScalaPsiBuilder): Unit = {
+    val startsNestedPartialFunction = startsNestedPartialFunctionResult(builder)
+    if (startsNestedPartialFunction) {
+      // In Scala 3, an extra-indented `case` after `=>` can start a nested partial function.
+      parseNestedPartialFunctionResult()
+    } else {
+      builder.withIndentationRegion(builder.newBracelessIndentationRegionHere) {
+        if (!Block.Braceless(stopOnOutdent = false, needNode = true)) {
+          builder.wrongExpressionError()
+        }
       }
     }
+  }
 }
 
 /**
@@ -86,11 +132,18 @@ object CaseClause extends CaseClause {
  */
 object CaseClauseInBracelessCaseClauses extends CaseClause {
   override protected def parseBody()(implicit builder: ScalaPsiBuilder): Unit =
-  builder.withIndentationRegion(builder.newBracelessIndentationRegionHere) {
     builder.withEnabledNewlines {
-      BlockInIndentationRegion()
+      val startsNestedPartialFunction = startsNestedPartialFunctionResult(builder)
+      if (startsNestedPartialFunction) {
+        // Nested partial-function branch (see startsNestedPartialFunctionResult).
+        parseNestedPartialFunctionResult()
+      } else {
+        // Regular braceless case body branch.
+        builder.withIndentationRegion(builder.newBracelessIndentationRegionHere) {
+          BlockInIndentationRegion()
+        }
+      }
     }
-  }
 
   override protected def isCaseKeywordAcceptable(implicit builder: ScalaPsiBuilder): Boolean = {
     // using `forall`, not `exists` because if there is no new line before case, it still can be allowed, e.g. here:
