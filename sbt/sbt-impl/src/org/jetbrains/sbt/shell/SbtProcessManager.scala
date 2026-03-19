@@ -11,7 +11,7 @@ import com.intellij.openapi.actionSystem.{ActionGroup, AnActionEvent, DefaultAct
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileDocumentManager
-import org.jetbrains.sbt.{JvmMemorySize, Sbt, SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabilities, SbtVersionDetector, eelDescriptor, normalizedLocalPath}
+import org.jetbrains.sbt.{JvmMemorySize, Sbt, SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabilities, SbtVersionDetector, normalizedLocalPath}
 import com.intellij.openapi.options.ex.SingleConfigurableEditor
 import com.intellij.openapi.options.newEditor.SettingsDialog
 import com.intellij.openapi.progress.ProgressManager
@@ -24,6 +24,7 @@ import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vfs.encoding.EncodingProjectManager
 import com.intellij.platform.eel.EelDescriptor
+import com.intellij.platform.eel.provider.EelProviderUtil
 import com.intellij.platform.eel.provider.utils.EelPathUtils
 import com.intellij.platform.eel.provider.utils.EelPathUtils.TransferTarget
 import com.intellij.terminal.{ProcessHandlerTtyConnector, TerminalExecutionConsole, TerminalExecutionConsoleBuilder}
@@ -76,7 +77,9 @@ final class SbtProcessManager(project: Project) extends Disposable {
   @volatile private var processData: Option[ProcessData] = None
   private val processDataMutex = new Object
 
-  @NonNls private def repoPath: String = normalizePath(getRepoDir)
+  private val eelDescriptor = EelProviderUtil.getEelDescriptor(project)
+
+  @NonNls private def repoPath: String = SbtUtil.getRepoDir(eelDescriptor).normalizedLocalPath
 
   @NonNls private def pluginResolverSetting: String =
     raw"""resolvers += MavenCache("Scala Plugin Bundled Repository", file(raw"$repoPath"))
@@ -120,8 +123,6 @@ final class SbtProcessManager(project: Project) extends Disposable {
     log.debug("createShellProcessHandler")
     val workingDirPath = getWorkingDirPath(project)
     val workingDir = Path.of(workingDirPath)
-
-    val eelDescriptor = workingDir.eelDescriptor
 
     val sbtSettings = getSbtSettings(workingDirPath)
     lazy val launcher = EelPathUtils.transferLocalContentToRemote(
