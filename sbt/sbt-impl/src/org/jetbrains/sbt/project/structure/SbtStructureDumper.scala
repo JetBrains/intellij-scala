@@ -9,8 +9,6 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.platform.eel.EelDescriptor
 import com.intellij.platform.eel.provider.LocalEelDescriptor
-import com.intellij.platform.eel.provider.utils.EelPathUtils
-import com.intellij.platform.eel.provider.utils.EelPathUtils.TransferTarget
 import org.jetbrains.annotations.VisibleForTesting
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}
@@ -149,9 +147,6 @@ object SbtStructureDumper:
 
       val maybePreferScala2Command = if (preferScala2) "preferScala2" else ""
 
-      val transferredSbtStructureJar =
-        EelPathUtils.transferLocalContentToRemote(sbtStructureJar, TransferTarget.Temporary(context.eelDescriptor))
-
       val dumpStructureCommand = SbtUtil.sbtStructureGlobalCommand("dumpStructure", sbtVersion)
 
       val sbtTaskTimingOption =
@@ -204,7 +199,7 @@ object SbtStructureDumper:
           structureFile,
           context.eelDescriptor,
           optString,
-          transferredSbtStructureJar,
+          sbtStructureJar,
           maybePreferScala2Command,
           dumpStructureCommand,
           sbtVersion,
@@ -272,7 +267,7 @@ object SbtStructureDumper:
       sbtProcessOptions: SbtProcessOptions,
       project: Option[Project],
       importId: String
-    ): StructureDumpConfig = {
+    )(using context: ImportContext): StructureDumpConfig = {
       val commands = buildSbtCompositeCommand(maybePreferScala2Command, dumpStructureCommand)
 
       val isAddPluginSbtFileEnabled = sbtVersion.isSbt2 || sbtVersion >= SbtVersion("1.12.1")
@@ -311,7 +306,7 @@ object SbtStructureDumper:
         // the plugin jar cannot be added with `unmanagedJars` settings. The `unmanagedJars` setting is not considered
         // in the global plugin build, which differs from `--addPluginSbtFile`, which behaves more like adding an sbt file as part of the project build.
         val pluginContent = createGuardedPluginContent(
-          importId, sbtVersion, SbtUtil.sbtStructurePluginDeclaration(sbtVersion)
+          importId, sbtVersion, SbtUtil.sbtStructurePluginDeclaration(sbtVersion, context.repoDir)
         )
 
         Files.writeString(tempPluginFile, pluginContent)

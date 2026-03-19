@@ -239,7 +239,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
             val sbtStructureJar = settings
               .customSbtStructureFile
               .map(_.toPath)
-              .orElse(SbtUtil.getSbtStructureJar(sbtVersion))
+              .orElse(SbtUtil.getSbtStructureJar(sbtVersion, context.repoDir))
               .getOrElse(throw new ExternalSystemException(s"Could not find sbt-structure-extractor for sbt version $sbtVersion"))
 
             log.debug(s"sbtStructureJar: $sbtStructureJar")
@@ -1323,7 +1323,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
               one bundled in the Scala plugin and another from a different location (this one configured by the user).
               Because of this, we can safely ignore the sbt-structure jar from the plugin's repo directory.
             */
-            val isStructureJarInRepoDir = path.startsWith(getRepoDir) && path.nameContains("sbt-structure")
+            val isStructureJarInRepoDir = path.startsWith(context.repoDir) && path.nameContains("sbt-structure")
             useShellImport || !isStructureJarInRepoDir
           )
           .map(_.toCanonicalPath.toString)
@@ -1617,6 +1617,11 @@ object SbtProjectResolver {
     eelDescriptor: EelDescriptor,
     timingCollector: Option[SbtImportTimingCollector.TimingCollector]
   ) {
+    /**
+     * @see [[org.jetbrains.sbt.SbtUtil#getRepoDir]]
+     */
+    val repoDir: Path = SbtUtil.getRepoDir(eelDescriptor)
+
     /**
      * The sbt version used for the project import.
      *

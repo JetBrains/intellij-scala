@@ -180,11 +180,10 @@ object SbtUtil {
   /**
    * Returns the sbt settings (as individual lines) that add the sbt-structure plugin from the local Scala plugin repository.
    */
-  private[sbt] def sbtStructurePluginDeclaration(sbtVersion: SbtVersion): Seq[String] = {
-    val repoPath = SbtUtil.normalizePath(SbtUtil.getRepoDir)
+  private[sbt] def sbtStructurePluginDeclaration(sbtVersion: SbtVersion, repoDir: Path): Seq[String] = {
     val sbtStructurePluginBinVersion = structurePluginBinaryVersion(sbtVersion)
     Seq(
-      s"""resolvers += MavenCache("Scala Plugin Bundled Repository", file(raw"$repoPath"))""",
+      s"""resolvers += MavenCache("Scala Plugin Bundled Repository", file(raw"${repoDir.normalizedLocalPath}"))""",
       s"""addSbtPlugin("org.jetbrains.scala" % "sbt-structure-extractor" % "${BuildInfo.sbtStructureVersion}", "$sbtStructurePluginBinVersion")"""
     )
   }
@@ -258,9 +257,24 @@ object SbtUtil {
 
   private def getLauncherDir: Path = getDirInPlugin("launcher")
 
-  def getRepoDir: Path = getDirInPlugin("repo")
+  /**
+   * Returns the plugin repo directory, transferring it to the remote environment if needed.
+   * When transferred, all subdirectories and their jars are migrated as well.
+   *
+   * During project import, prefer using the repo dir from the import context to avoid redundant copying of multiple jars
+   * (but in practice, it shouldn't happen due to caching).
+   * In other contexts (e.g., generating managed sources), if the repo dir was already transferred, it should return the same
+   * temporary directory thanks to caching. Otherwise, it will transfer again.
+   *
+   * The returned path is not local in the context of the remote environment and may contain the "remote label".
+   * If necessary, normalize the path before usage.
+   */
+  def getRepoDir(eelDescriptor: EelDescriptor): Path = EelPathUtils.transferLocalContentToRemote(
+    getDirInPlugin("repo"),
+    TransferTarget.Temporary(eelDescriptor)
+  )
 
-  def getSbtStructureJar(sbtVersion: SbtVersion): Option[Path] = {
+  def getSbtStructureJar(sbtVersion: SbtVersion, repoDir: Path): Option[Path] = {
     val binVersion = structurePluginBinaryVersion(sbtVersion)
     val structurePath =
       if (binVersion ~= Version("2"))
@@ -275,7 +289,7 @@ object SbtUtil {
         None
 
     structurePath.map { relativePath =>
-      getRepoDir / relativePath
+      repoDir / relativePath
     }
   }
 
