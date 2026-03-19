@@ -88,9 +88,12 @@ private final class SbtGenerateManagedSourcesAction extends AnAction(
             viewManager.onEvent(taskId, finishEvent)
             return
           }
-          
-          val sbtFileContent = SbtUtil.sbtStructurePluginDeclaration(sbtVersion).mkString(System.lineSeparator())
+
           val descriptor = projectBasePath.eelDescriptor
+          val sbtFileContent = SbtUtil.sbtStructurePluginDeclaration(
+            sbtVersion,
+            SbtUtil.getRepoDir(descriptor)
+          ).mkString(System.lineSeparator())
           val tmpPluginsSbtFile = SbtUtil.createTemporarySbtFile(sbtFileContent, descriptor, Option(project))
           val setupOptions = Seq(s"-addPluginSbtFile=${tmpPluginsSbtFile.normalizedLocalPath}")
 
