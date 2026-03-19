@@ -134,7 +134,8 @@ class SbtUtilTest extends UsefulTestCase {
     val all = SbtVersion.Latest.AllSbt1 ++ SbtVersion.Latest.AllSbt2
     val allMinor = all.flatMap(_.generateAllMinorVersions).map(SbtVersion(_))
     allMinor.foreach { version =>
-      val maybeFile = SbtUtil.getSbtStructureJar(version)
+      val repoDir = SbtUtil.getRepoDir(LocalEelDescriptor.INSTANCE)
+      val maybeFile = SbtUtil.getSbtStructureJar(version, repoDir)
       assertTrue(s"Can't detect sbt-structure.jar for $version", maybeFile.isDefined)
     }
   }
