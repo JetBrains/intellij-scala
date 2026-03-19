@@ -902,7 +902,14 @@ lazy val intellijBazelIntegration =
         val plugin = "org.jetbrains.bazel::super-early-bird".toPlugin
         val oldSettings = plugin.resolveSettings
         plugin.resolveSettings = oldSettings.copy(
-          excludedIds = Set("intellij.bazel.commons", "intellij.bazel.connector", "intellij.bazel.projectview")
+          excludedIds = Set(
+            "intellij.bazel.bazelisk",
+            "intellij.bazel.commons",
+            "intellij.bazel.connector",
+            "intellij.bazel.importer",
+            "intellij.bazel.projectview",
+            "intellij.bazel.protobuf"
+          )
         )
         plugin
       },
