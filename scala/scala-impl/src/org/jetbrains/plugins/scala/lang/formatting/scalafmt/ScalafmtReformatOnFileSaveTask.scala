@@ -11,7 +11,7 @@ import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.registry.RegistryManager
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
-import org.jetbrains.plugins.scala.extensions.IterableOnceExt
+import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, ObjectExt, inReadAction}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.processors.ScalaFmtPreFormatProcessor
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -30,11 +30,11 @@ final class ScalafmtReformatOnFileSaveTask extends AnActionListener {
         if (editor != null) {
           reformatIfNeededInUndoTransparentAction(Seq(editor.getDocument))(project)
         }
-      case _: SaveAllAction => //Ctrl+S or Cmd+S by default
-        //NOTE: for now we reformat only selected editor, because it was how it worked before
-        //But actually "Save All" action saves all documents.
+      case _: SaveAllAction => // Ctrl/Cmd + S (by default)
+        //NOTE: for now we reformat only the selected editor, because it was how it worked before
+        //But actually the "Save All" action saves all documents.
         //Maybe it makes sense to reformat all open editors? Maybe add an extra setting for that?
-        //Anyway it's not for 2022.2 release, maybe it's ok to have it later
+        //Anyway, it's not for the 2022.2 release, maybe it's ok to have it later
         val reformatOnlySelectedEditor = true
         val editors =
           if (reformatOnlySelectedEditor) Option(FileEditorManager.getInstance(project).getSelectedEditor).toSeq
@@ -56,7 +56,8 @@ final class ScalafmtReformatOnFileSaveTask extends AnActionListener {
     val currentTimeMs = System.currentTimeMillis()
 
     //debouncing: don't let "format on save" action be invoked too frequently
-    if (currentTimeMs > ScalafmtReformatOnFileSaveTask.LastFormatOnSaveTimeMs + ScalafmtReformatOnFileSaveTask.MinTimeBetweenFormatOnSaveActionMs) {
+    val debouncingPassed = currentTimeMs > ScalafmtReformatOnFileSaveTask.LastFormatOnSaveTimeMs + ScalafmtReformatOnFileSaveTask.MinTimeBetweenFormatOnSaveActionMs
+    if (debouncingPassed) {
       CommandProcessor.runUndoTransparentAction { () =>
         documents.foreach { document =>
           reformat(document, fileDocumentManager)
@@ -75,7 +76,10 @@ final class ScalafmtReformatOnFileSaveTask extends AnActionListener {
     if (psiFile == null)
       return
 
-    if (isFileSupported(psiFile) && isInProjectSources(psiFile, vFile)) {
+    val isFileSupportedAndInSources = inReadAction {
+      isFileSupported(psiFile) && isInProjectSources(psiFile, vFile)
+    }
+    if (isFileSupportedAndInSources) {
       ScalaFmtPreFormatProcessor.formatWithoutCommit(psiFile, document, respectProjectMatcher = true)
     }
   }
@@ -96,18 +100,18 @@ final class ScalafmtReformatOnFileSaveTask extends AnActionListener {
   }
 
   private def isFileSupported(file: PsiFile): Boolean =
-    file.isInstanceOf[ScalaFile]
+    file.is[ScalaFile]
 }
 
-object ScalafmtReformatOnFileSaveTask {
+private object ScalafmtReformatOnFileSaveTask {
 
   /**
-   * Timestamp (e.g. System.currentTimeMillis) of the last invocation "Save All" or "Save Document" action.
-   * The primary purpose of it is to debounce "reformat on save" action if user invokes it to frequently.
+   * Timestamp (e.g., System.currentTimeMillis) of the last invocation "Save All" or "Save Document" action.
+   * The primary purpose of it is to debounce the "reformat on save" action if the user invokes it too frequently.
    *
    * NOTE: I intentionally decided that it would be enough to have a global static variable for all documents in all projects.
    * This was done not to overcomplicate the architecture.
-   * "Save" actions are not supposed to be invoked too frequently by user so this should be enough for our needs.
+   * "Save" actions are not supposed to be invoked too frequently by user, so this should be enough for our needs.
    */
   private var LastFormatOnSaveTimeMs: Long = 0
 
