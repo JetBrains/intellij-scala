@@ -88,21 +88,55 @@ package object editor {
     @inline def tokenLength: Int = hiterator.getEnd - hiterator.getStart
   }
 
-
-  private[editor] def indentKeyword[T <: PsiElement: ClassTag](keywordType: IElementType, file: PsiFile)
-                                                              (document: Document, project: Project, element: PsiElement, offset: Int): Unit = {
+  /**
+   * Adjusts line indentation for a just-typed keyword when the keyword belongs to a parent element of type `T`.
+   *
+   * @tparam T expected parent PSI type for the typed keyword
+   * @param keywordType token type of the typed keyword
+   * @param file PSI file where indentation should be adjusted
+   * @param document editor document where typing happened
+   * @param project current project
+   * @param element PSI element at caret after typing
+   * @param offset caret offset after typing
+   */
+  private[editor] def indentKeyword[T <: PsiElement: ClassTag](
+    keywordType: IElementType,
+    file: PsiFile
+  )(
+    document: Document,
+    project: Project,
+    element: PsiElement,
+    offset: Int
+  ): Unit = {
     indentElement(file)(document, project, element, offset)(
-      elem => elem.getNode.getElementType == keywordType && elem.getParent.is[T]
+      prevCondition = { elem =>
+        elem.getNode.getElementType == keywordType &&
+          elem.getParent.is[T]
+      }
     )
   }
 
-  private[editor] def indentElement(file: PsiFile, checkVisibleOnly: Boolean = true)
-                                   (document: Document, project: Project, element: PsiElement, offset: Int)
-                                   (prevCondition: PsiElement => Boolean,
-                                    condition: PsiElement => Boolean = _.is[PsiWhiteSpace]): Unit = {
-    if (condition(element)) {
+  //TODO: rename it to "adjustLineIndentIfNeeded"
+  // "indent" sounds like it always does it, but the `com.intellij.psi.codeStyle.CodeStyleManager.adjustLineIndent`
+  // might actually not modify it if it's already a valid indent
+  private[editor] def indentElement(
+    file: PsiFile,
+    checkVisibleOnly: Boolean = true
+  )(
+    document: Document,
+    project: Project,
+    element: PsiElement,
+    //TODO: unused. Why? investigate VCS and see if it's a mistake or we can delete it
+    offset: Int
+  )(
+    prevCondition: PsiElement => Boolean,
+    condition: PsiElement => Boolean = _.is[PsiWhiteSpace]
+  ): Unit = {
+    val res1 = condition(element)
+    if (res1) {
       val prev = if (checkVisibleOnly) PsiTreeUtil.prevVisibleLeaf(element) else PsiTreeUtil.prevLeaf(element)
-      if (prevCondition(prev)) {
+      val res2 = prevCondition(prev)
+      if (res2) {
         document.commit(project)
         CodeStyleManager.getInstance(project).adjustLineIndent(file, prev.getTextRange)
       }
