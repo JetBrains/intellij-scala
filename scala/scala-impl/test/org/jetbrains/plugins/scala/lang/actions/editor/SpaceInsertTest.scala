@@ -1,10 +1,12 @@
 package org.jetbrains.plugins.scala.lang.actions.editor
 
-class SpaceInsertTest extends EditorTypeActionTestBase {
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
+
+abstract class SpaceInsertTestBase extends EditorTypeActionTestBase {
 
   override protected def typedChar: Char = ' '
 
-  def testIfElse(): Unit =
+  def testIfElse_Unindented(): Unit =
     doTestWithEmptyLastLine(
       s"""def test = {
          |  val x =
@@ -18,7 +20,21 @@ class SpaceInsertTest extends EditorTypeActionTestBase {
          |}""".stripMargin
     )
 
-  def testIfElse_1(): Unit = {
+  def testIfElse_Indented(): Unit =
+    doTestWithEmptyLastLine(
+      s"""def test = {
+         |  val x =
+         |    if (true) 8
+         |    else$CARET
+         |}""".stripMargin,
+      s"""def test = {
+         |  val x =
+         |    if (true) 8
+         |    else $CARET
+         |}""".stripMargin
+    )
+
+  def testIfElse_AlignIfElseEnabled_IfKeywordDoesntStartTheLine(): Unit = {
     getScalaCodeStyleSettings.ALIGN_IF_ELSE = true
     doTestWithEmptyLastLine(
       s"""def test = {
@@ -36,7 +52,7 @@ class SpaceInsertTest extends EditorTypeActionTestBase {
     doTestWithEmptyLastLine(
       s"""val x =
          |  if (true) 8
-         | else$CARET
+         |  else$CARET
          |""".stripMargin,
       s"""val x =
          |  if (true) 8
@@ -44,7 +60,7 @@ class SpaceInsertTest extends EditorTypeActionTestBase {
          |""".stripMargin
     )
 
-  def testIfElse_EndOfTheFile_ElseAtLeftMostPosition(): Unit =
+  def testIfElse_EndOfTheFile_Unindented(): Unit =
     doTestWithEmptyLastLine(
       s"""val x =
          |  if (true) 8
@@ -68,7 +84,7 @@ class SpaceInsertTest extends EditorTypeActionTestBase {
          |}""".stripMargin
     )
 
-  def testTryCatch(): Unit =
+  def testTryCatch_Unindented(): Unit =
     doTestWithEmptyLastLine(
       s"""def test = {
          |  val x =
@@ -82,12 +98,40 @@ class SpaceInsertTest extends EditorTypeActionTestBase {
          |}""".stripMargin
     )
 
-  def testTryFinally(): Unit =
+  def testTryCatch_Indented(): Unit =
+    doTestWithEmptyLastLine(
+      s"""def test = {
+         |  val x =
+         |    try ()
+         |    catch$CARET
+         |}""".stripMargin,
+      s"""def test = {
+         |  val x =
+         |    try ()
+         |    catch $CARET
+         |}""".stripMargin
+    )
+
+  def testTryFinally_Unindented(): Unit =
     doTestWithEmptyLastLine(
       s"""def test = {
          |  val x =
          |    try ()
          |  finally$CARET
+         |}""".stripMargin,
+      s"""def test = {
+         |  val x =
+         |    try ()
+         |    finally $CARET
+         |}""".stripMargin
+    )
+
+  def testTryFinally_Indented(): Unit =
+    doTestWithEmptyLastLine(
+      s"""def test = {
+         |  val x =
+         |    try ()
+         |    finally$CARET
          |}""".stripMargin,
       s"""def test = {
          |  val x =
@@ -108,4 +152,69 @@ class SpaceInsertTest extends EditorTypeActionTestBase {
          |}""".stripMargin,
       "    "
     )
+}
+
+final class SpaceInsertTest_2_13 extends SpaceInsertTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version.languageLevel == LatestScalaVersions.Scala_2_13.languageLevel
+}
+
+final class SpaceInsertTest_3 extends SpaceInsertTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version.languageLevel == LatestScalaVersions.Scala_3.languageLevel
+
+  override def testIfElse_Unindented(): Unit =
+    doTestWithEmptyLastLine(
+      s"""def test = {
+         |  val x =
+         |    if (true) 8
+         |  else$CARET
+         |}""".stripMargin,
+      s"""def test = {
+         |  val x =
+         |    if (true) 8
+         |  else $CARET
+         |}""".stripMargin
+    )
+
+  override def testIfElse_EndOfTheFile_Unindented(): Unit =
+    doTestWithEmptyLastLine(
+      s"""val x =
+         |  if (true) 8
+         |else$CARET
+         |""".stripMargin,
+      s"""val x =
+         |  if (true) 8
+         |else $CARET
+         |""".stripMargin
+    )
+
+//TODO: uncomment when SCL-25203 is fixed
+//  override def testTryCatch_Unindented(): Unit =
+//    doTestWithEmptyLastLine(
+//      s"""def test = {
+//         |  val x =
+//         |    try ()
+//         |  catch$CARET
+//         |}""".stripMargin,
+//      s"""def test = {
+//         |  val x =
+//         |    try ()
+//         |  catch $CARET
+//         |}""".stripMargin
+//    )
+//
+//  override def testTryFinally_Unindented(): Unit =
+//    doTestWithEmptyLastLine(
+//      s"""def test = {
+//         |  val x =
+//         |    try ()
+//         |  finally$CARET
+//         |}""".stripMargin,
+//      s"""def test = {
+//         |  val x =
+//         |    try ()
+//         |  finally $CARET
+//         |}""".stripMargin
+//    )
 }
