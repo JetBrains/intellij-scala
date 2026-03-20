@@ -293,32 +293,31 @@ final class SpaceInsertTest_3 extends SpaceInsertTestBase {
          |""".stripMargin
     )
 
-//TODO: uncomment when SCL-25203 is fixed
-//  override def testTryCatch_Unindented(): Unit =
-//    doTestWithEmptyLastLine(
-//      s"""def test = {
-//         |  val x =
-//         |    try ()
-//         |  catch$CARET
-//         |}""".stripMargin,
-//      s"""def test = {
-//         |  val x =
-//         |    try ()
-//         |  catch $CARET
-//         |}""".stripMargin
-//    )
-//
-//  override def testTryFinally_Unindented(): Unit =
-//    doTestWithEmptyLastLine(
-//      s"""def test = {
-//         |  val x =
-//         |    try ()
-//         |  finally$CARET
-//         |}""".stripMargin,
-//      s"""def test = {
-//         |  val x =
-//         |    try ()
-//         |  finally $CARET
-//         |}""".stripMargin
-//    )
+  override def testTryCatch_Unindented(): Unit =
+    doTestWithEmptyLastLine(
+      s"""def test = {
+         |  val x =
+         |    try ()
+         |  catch$CARET
+         |}""".stripMargin,
+      s"""def test = {
+         |  val x =
+         |    try ()
+         |  catch $CARET
+         |}""".stripMargin
+    )
+
+  override def testTryFinally_Unindented(): Unit =
+    doTestWithEmptyLastLine(
+      s"""def test = {
+         |  val x =
+         |    try ()
+         |  finally$CARET
+         |}""".stripMargin,
+      s"""def test = {
+         |  val x =
+         |    try ()
+         |  finally $CARET
+         |}""".stripMargin
+    )
 }
