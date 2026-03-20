@@ -1,3 +1,4 @@
+import com.github.sbt.junit.jupiter.sbt.Import.JupiterKeys
 import Common.*
 import CompilationCache.compilationCacheSettings
 import Dependencies.provided
@@ -56,6 +57,12 @@ Global / onLoad := {
 Global / excludeLintKeys ++= Set(idePackagePrefix, ideSkipProject, ideExcludedDirectories, ideaConfigOptions, intellijPlugins)
 
 ThisBuild / cleanAll := Common.cleanAllTask.value
+
+// Disable Jupiter auto-registration of launcher and test execution listeners to suppress
+// log spam during test discovery (see SCL-25184)
+ThisBuild / JupiterKeys.jupiterTestDiscoveryLauncherSessionListenerAutoRegistrationEnabled := false
+ThisBuild / JupiterKeys.jupiterTestDiscoveryLauncherDiscoveryListenerAutoRegistrationEnabled := false
+ThisBuild / JupiterKeys.jupiterTestDiscoveryTestExecutionListenerAutoRegistrationEnabled := false
 
 val definedTestsScopeFilter: ScopeFilter =
   ScopeFilter(inDependencies(scalaCommunity, includeRoot = false), inConfigurations(Test))
