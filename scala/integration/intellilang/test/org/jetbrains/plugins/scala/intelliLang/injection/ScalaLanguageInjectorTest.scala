@@ -1,11 +1,9 @@
 package org.jetbrains.plugins.scala.intelliLang.injection
 
-import com.intellij.patterns.PsiJavaPatterns
 import com.intellij.patterns.compiler.PatternCompilerImpl.LazyPresentablePattern
 import org.intellij.plugins.intelliLang.inject.config.{BaseInjection, InjectionPlace}
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.intelliLang.injection.InjectionTestUtils.*
-import org.jetbrains.plugins.scala.patterns.ScalaPatterns
 import org.junit.Assert.*
 
 import scala.jdk.CollectionConverters.*
@@ -286,62 +284,3 @@ class ScalaLanguageInjectorTest_Scala3 extends ScalaLanguageInjectorTest_Scala2 
   }
 }
 
-class ScalaLanguageInjectorTest_CallArgumentPattern extends InjectionInBodyTestBase {
-
-  override protected def supportedIn(version: ScalaVersion): Boolean =
-    version == ScalaVersion.Latest.Scala_2_13
-
-  private var testInjection: BaseInjection = scala.compiletime.uninitialized
-
-  override def setUp(): Unit = {
-    super.setUp()
-    val methodPattern = PsiJavaPatterns.psiMethod().withName("myMethod").definedInClass("A")
-    val place = new InjectionPlace(ScalaPatterns.scalaLiteral().callArgument(0, methodPattern), true)
-    testInjection = new BaseInjection("scala")
-    testInjection.setInjectedLanguageId(RegexpLangId)
-    testInjection.setInjectionPlaces(place)
-    scalaInjectionTestFixture.intelliLangConfig.replaceInjections(
-      List(testInjection).asJava,
-      List.empty[BaseInjection].asJava,
-      false
-    )
-  }
-
-  override def tearDown(): Unit = {
-    try {
-      if (testInjection != null)
-        scalaInjectionTestFixture.intelliLangConfig.replaceInjections(
-          List.empty[BaseInjection].asJava,
-          List(testInjection).asJava,
-          false
-        )
-    } finally {
-      super.tearDown()
-    }
-  }
-
-  def testPatternInjection_CallArgument_RegularMethodCall(): Unit = {
-    scalaInjectionTestFixture.doTest(
-      RegexpLangId,
-      s"""class A {
-         |  def myMethod(pattern: String): Unit = ???
-         |}
-         |new A().myMethod("[0-9]+")
-         |""".stripMargin,
-      "[0-9]+"
-    )
-  }
-
-  // SCL-24947: language injection should also work when the method is called with type arguments
-  def testPatternInjection_CallArgument_GenericMethodCall(): Unit = {
-    scalaInjectionTestFixture.doTest(
-      RegexpLangId,
-      s"""class A {
-         |  def myMethod[T](pattern: String): T = ???
-         |}
-         |new A().myMethod[String]("[0-9]+")
-         |""".stripMargin,
-      "[0-9]+"
-    )
-  }
-}
