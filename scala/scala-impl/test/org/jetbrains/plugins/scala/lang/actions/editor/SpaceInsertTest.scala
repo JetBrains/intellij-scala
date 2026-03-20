@@ -84,6 +84,80 @@ abstract class SpaceInsertTestBase extends EditorTypeActionTestBase {
          |}""".stripMargin
     )
 
+  // SCL-25190
+  def testNestedPartialFunctionCaseClause(): Unit =
+    doTestWithEmptyLastLine(
+      s"""object NestedPFFormat {
+         |  def example(pf: PartialFunction[String, PartialFunction[Int, Boolean]]): Int = 42
+         |
+         |  example {
+         |    case "foo" =>
+         |      case${CARET}1 => true
+         |  }
+         |}""".stripMargin,
+      s"""object NestedPFFormat {
+         |  def example(pf: PartialFunction[String, PartialFunction[Int, Boolean]]): Int = 42
+         |
+         |  example {
+         |    case "foo" =>
+         |    case ${CARET}1 => true
+         |  }
+         |}""".stripMargin
+    )
+
+  def testNotANestedPartialFunctionCaseClause(): Unit =
+    doTestWithEmptyLastLine(
+      s"""object NestedPFFormat {
+         |  def example(pf: PartialFunction[String, PartialFunction[Int, Boolean]]): Int = 42
+         |
+         |  example {
+         |    case "foo" =>
+         |      println(42)
+         |      case${CARET}1 => true
+         |  }
+         |}""".stripMargin,
+      s"""object NestedPFFormat {
+         |  def example(pf: PartialFunction[String, PartialFunction[Int, Boolean]]): Int = 42
+         |
+         |  example {
+         |    case "foo" =>
+         |      println(42)
+         |    case ${CARET}1 => true
+         |  }
+         |}""".stripMargin
+    )
+
+  // SCL-25190
+  def testNestedPartialFunctionCaseClause_DeepNesting(): Unit =
+    doTestWithEmptyLastLine(
+      s"""object NestedPFFormat {
+         |  def example(
+         |    pf: PartialFunction[String, PartialFunction[Int, PartialFunction[Int, PartialFunction[Int, PartialFunction[Int, Boolean]]]]]
+         |  ): Int = 42
+         |
+         |  example {
+         |    case "foo" =>
+         |      case 1 =>
+         |        case 2 =>
+         |          case 3 =>
+         |            case$CARET
+         |  }
+         |}""".stripMargin,
+      s"""object NestedPFFormat {
+         |  def example(
+         |    pf: PartialFunction[String, PartialFunction[Int, PartialFunction[Int, PartialFunction[Int, PartialFunction[Int, Boolean]]]]]
+         |  ): Int = 42
+         |
+         |  example {
+         |    case "foo" =>
+         |      case 1 =>
+         |        case 2 =>
+         |          case 3 =>
+         |          case $CARET
+         |  }
+         |}""".stripMargin
+    )
+
   def testTryCatch_Unindented(): Unit =
     doTestWithEmptyLastLine(
       s"""def test = {
@@ -157,6 +231,36 @@ abstract class SpaceInsertTestBase extends EditorTypeActionTestBase {
 final class SpaceInsertTest_2_13 extends SpaceInsertTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version.languageLevel == LatestScalaVersions.Scala_2_13.languageLevel
+
+  override def testNestedPartialFunctionCaseClause_DeepNesting(): Unit =
+    doTestWithEmptyLastLine(
+      s"""object NestedPFFormat {
+         |  def example(
+         |    pf: PartialFunction[String, PartialFunction[Int, PartialFunction[Int, PartialFunction[Int, PartialFunction[Int, Boolean]]]]]
+         |  ): Int = 42
+         |
+         |  example {
+         |    case "foo" =>
+         |      case 1 =>
+         |        case 2 =>
+         |          case 3 =>
+         |            case$CARET
+         |  }
+         |}""".stripMargin,
+      s"""object NestedPFFormat {
+         |  def example(
+         |    pf: PartialFunction[String, PartialFunction[Int, PartialFunction[Int, PartialFunction[Int, PartialFunction[Int, Boolean]]]]]
+         |  ): Int = 42
+         |
+         |  example {
+         |    case "foo" =>
+         |      case 1 =>
+         |        case 2 =>
+         |          case 3 =>
+         |    case $CARET
+         |  }
+         |}""".stripMargin
+    )
 }
 
 final class SpaceInsertTest_3 extends SpaceInsertTestBase {

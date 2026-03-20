@@ -12,6 +12,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.{CodeStyleManager, CodeStyleSettings}
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.editor.typedHandler.AutoBraceInsertionTools._
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler._
@@ -28,9 +29,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.IndentUtil
 
@@ -77,7 +79,7 @@ final class ScalaTypedHandler extends TypedHandlerDelegate
         documentText.substring(offset - prefix.length, offset) == prefix
 
     val myTask: Task = if (c == ' ' && hasPrefix(" case ")) {
-      indentKeyword[ScCaseClause](ScalaTokenTypes.kCASE, file)
+      indentCaseKeyword(file)
     } else if (c == ' ' && hasPrefix("else ")) {
       indentKeyword[ScIf](ScalaTokenTypes.kELSE, file)
     } else if (c == ' ' && hasPrefix("catch ")) {
@@ -318,6 +320,96 @@ final class ScalaTypedHandler extends TypedHandlerDelegate
       ScalaPsiUtil.isLineTerminator,
       ScalaPsiUtil.getParent(_, 2).exists(_.is[ScValue])
     )
+
+  private def indentCaseKeyword(file: PsiFile)(document: Document, project: Project, element: PsiElement, offset: Int): Unit = {
+    indentKeyword[ScCaseClause](ScalaTokenTypes.kCASE, file)(document, project, element, offset)
+
+    if (file.features.indentationBasedSyntaxEnabled) {
+      alignNestedCaseClauseInBracelessSyntax(document, project, element)
+    }
+  }
+
+  /**
+   * Keeps `case ` space-typing behavior aligned with Scala 2.
+   *
+   * In Scala 3 indentation-based syntax, an inner `case` after `case ... =>` may be parsed as a nested partial-function.
+   * It's parsed in `ExprInIndentationRegion` and represented as [[ScBlockExpr]] rather than as a regular [[ScCaseClause]]<br>
+   * Example: {{{
+   *   val pf: PartialFunction[String, PartialFunction[Int, Boolean]] = {
+   *     case "foo" =>
+   *       case 1 => true // this is a nested partial function, it's not a sibling of `case "foo" =>`
+   *   }
+   * }}}
+   *
+   * In this case when we type `case 1` this check `indentKeyword[ScCaseClause]` will not detect the case.
+   * And technically that would be true, technically we might don't need to insert the space as the user might want to
+   * type a partial function manually.
+   *
+   * However, we still intentionally keep Scala 2-style unindent to preserve long-standing typing habits.<br>
+   * We consider the nested partial function as a rare edge case (with no hard evidence though, just intuition).<br>
+   * If a nested partial function is intended, the user can manually indent the inner `case`
+   * or invoke the "Undo" action to remove the auto-added indentation.
+   */
+  private def alignNestedCaseClauseInBracelessSyntax(document: Document, project: Project, element: PsiElement): Unit = {
+    val caseKeyword = Option(PsiTreeUtil.prevVisibleLeaf(element))
+      .filter(_.elementType == ScalaTokenTypes.kCASE)
+      .orNull
+    if (caseKeyword == null) return
+
+    val targetCaseClause = findTargetCaseClause(caseKeyword)
+    if (targetCaseClause == null) return
+
+    // If we reached here, the caret is in an inner `case` nested under an outer one.
+    // Example:
+    //   case "foo" =>
+    //     case "bar" => // <== nearest previous `case` and its case clause (targetCaseClause)
+    //       case <CARET>
+
+    val targetIndent = getIndent(document, targetCaseClause)
+    if (targetIndent == null) return
+
+    adjustCaseIndentation(document, project, caseKeyword, targetIndent)
+  }
+
+  private def adjustCaseIndentation(
+    document: Document,
+    project: Project,
+    caseKeyword: PsiElement,
+    targetIndent: CharSequence
+  ): Unit = {
+    val currentCaseStart = caseKeyword.startOffset
+    val currentLineStart = document.lineStartOffset(currentCaseStart)
+    val currentIndent = document.getImmutableCharSequence.subSequence(currentLineStart, currentCaseStart)
+
+    if (CharSequence.compare(currentIndent, targetIndent) != 0) {
+      document.replaceString(currentLineStart, currentCaseStart, targetIndent)
+      document.commit(project)
+    }
+  }
+
+  @Nullable
+  private def findTargetCaseClause(caseKeyword: PsiElement): ScCaseClause = {
+    val previousCaseKeyword = PsiTreeUtil.prevVisibleLeaf(caseKeyword)
+    if (previousCaseKeyword == null)
+      return null
+
+    previousCaseKeyword.getParent match {
+      case clause: ScCaseClause => clause
+      case _ => null
+    }
+  }
+
+  @Nullable
+  private def getIndent(document: Document, psiElement: PsiElement): CharSequence = {
+    val startOffset = psiElement.startOffset
+    val lineStartOffset = document.lineStartOffset(startOffset)
+    val indent = document.getImmutableCharSequence.subSequence(lineStartOffset, startOffset)
+    val indentContainsOnlySpaces = indent.forall(ch => ch == ' ' || ch == '\t')
+    if (indentContainsOnlySpaces)
+      indent
+    else
+      null
+  }
 
   private def replaceArrowTask()(document: Document, project: Project, element: PsiElement, offset: Int): Unit = {
     @inline def replaceElement(replaceWith: String): Unit = {
