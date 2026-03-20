@@ -355,6 +355,65 @@ class Scala3FormatterControlSyntaxTest extends Scala3FormatterBaseTest {
       |""".stripMargin
   )
 
+  def testTry_SCL25203_KeepOutdentedFinallyOwnership(): Unit = doTextTest(
+    """val x =
+      |  try
+      |    try
+      |      1
+      |  finally
+      |    2
+      |""".stripMargin
+  )
+
+  def testTry_SCL25203_KeepOutdentedCatchOwnership(): Unit = doTextTest(
+    """val x =
+      |  try
+      |    try
+      |      1
+      |  catch
+      |    case _ => 2
+      |""".stripMargin
+  )
+
+  def testTry_SCL25203_KeepOutdentedFinallyAfterInnerCatchOwnership(): Unit = doTextTest(
+    """val x =
+      |  try
+      |    try
+      |      1
+      |    catch
+      |      case _: IllegalArgumentException => 2
+      |  finally
+      |    3
+      |""".stripMargin
+  )
+
+  def testTry_SCL25203_OkAlignedFinally(): Unit = doTextTest(
+    """val ok1 =
+      |  try ()
+      |  finally {}
+      |""".stripMargin
+  )
+
+  def testTry_SCL25203_OkAlignedCatch(): Unit = doTextTest(
+    """val ok2 =
+      |  try ()
+      |  catch {
+      |    case _ =>
+      |  }
+      |""".stripMargin
+  )
+
+  def testTry_SCL25203_OutdentedFinally_BrokenCase(): Unit = doTextTest(
+    """val x =
+      |    try ()
+      |  finally {}
+      |""".stripMargin,
+    """val x =
+      |  try ()
+      |finally
+      |{}""".stripMargin
+  )
+
   def testTryCatch_IndentedCaseClause(): Unit = doTextTestWithExtraSpaces(
     """try println(42)
       |catch
