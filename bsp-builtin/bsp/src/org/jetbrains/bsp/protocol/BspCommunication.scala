@@ -12,8 +12,8 @@ import com.intellij.openapi.vfs.VfsUtil
 import org.jetbrains.bsp._
 import org.jetbrains.bsp.project.BspExternalSystemManager
 import org.jetbrains.bsp.project.importing.BspProjectOpenProcessor.isScalaCliOrMill
-import org.jetbrains.bsp.project.importing.{BspProjectOpenProcessor, bspConfigSteps}
-import org.jetbrains.bsp.project.importing.setup.{BspConfigSetup, NoConfigSetup}
+import org.jetbrains.bsp.project.importing.bspConfigSteps
+import org.jetbrains.bsp.project.importing.setup.{BspConfigSetup, CommandBasedBspConfigSetup, NoConfigSetup}
 import org.jetbrains.bsp.protocol.BspCommunication._
 import org.jetbrains.bsp.protocol.BspNotifications.BspNotification
 import org.jetbrains.bsp.protocol.session.BspServerConnector._
@@ -117,7 +117,9 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
     project: => Option[Project],
     canGenerateBspConfigFile: Boolean
   )(implicit reporter: BuildReporter): Either[BspError, Builder] = {
-    val hasBspConfigs = BspProjectOpenProcessor.hasBspConfiguration(base)
+    val bspConnectionFiles = BspConnectionConfig.workspaceConfigurationFiles(base)
+    val bloopProject = BspUtil.bloopConfigDir(base).isDefined
+    val hasBspConfigs = bspConnectionFiles.nonEmpty || bloopProject
 
     lazy val settings = project.flatMap(bspSettings)
     def generateForScalaCliOrMill: Boolean =
@@ -127,7 +129,11 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
         s.autoRegenerateBspConfigOnServerStartup && s.getConnectionFileHash() != null
       }
 
-    val shouldGenerate = canGenerateBspConfigFile && (!hasBspConfigs || generateForScalaCliOrMill)
+    // Skip regeneration when AutoConfig is set and multiple connection files are present - in such a case the GenericConnector#connect simply picks the first
+    // available connection file, so regenerating (which may create or overwrite a file) would not reliably affect which connection file is actually used.
+    val hasMultipleConnectionsWithAutoConfig = config == BspProjectSettings.AutoConfig && bspConnectionFiles.size > 1
+
+    val shouldGenerate = canGenerateBspConfigFile && !hasMultipleConnectionsWithAutoConfig && (!hasBspConfigs || generateForScalaCliOrMill)
     if (shouldGenerate) {
       val indicator = ProgressManager.getInstance().getProgressIndicator
       if (indicator != null)
