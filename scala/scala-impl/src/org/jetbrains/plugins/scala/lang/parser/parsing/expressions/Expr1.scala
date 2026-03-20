@@ -102,7 +102,8 @@ object Expr1 extends ParsingRule {
         }
         val catchMarker = builder.mark()
         builder.getTokenType match {
-          case ScalaTokenTypes.kCATCH =>
+          case ScalaTokenTypes.kCATCH
+            if !(builder.isScala3IndentationBasedSyntaxEnabled && builder.isOutdentHere) =>
             builder.advanceLexer() //Ate catch
             if (!CaseClausesOrExprCaseClause() && !ExprInIndentationRegion()) {
               builder.wrongExpressionError()
@@ -113,7 +114,8 @@ object Expr1 extends ParsingRule {
         }
         val finallyMarker = builder.mark()
         builder.getTokenType match {
-          case ScalaTokenTypes.kFINALLY =>
+          case ScalaTokenTypes.kFINALLY
+            if !(builder.isScala3IndentationBasedSyntaxEnabled && builder.isOutdentHere) =>
             builder.advanceLexer() //Ate finally
             if (!ExprInIndentationRegion()) {
               builder.wrongExpressionError()
