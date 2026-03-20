@@ -5,7 +5,10 @@ import org.jetbrains.plugins.scala.lang.actions.editor.enter.Scala2AndScala3Ente
 import org.jetbrains.plugins.scala.lang.actions.editor.enter_long_tests.scala3.Scala3TestDataBracelessCode
 import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 
-/** NOTE: much more tests are generated and run in [[Scala3BracelessSyntaxEnterHandlerTest_Exhaustive]] */
+/**
+ * NOTE: much more tests are generated and run in these test suites:
+ * [[org.jetbrains.plugins.scala.lang.actions.editor.enter_long_tests.scala3.Scala3BracelessSyntaxEnterHandlerTest_ExhaustiveBase]]
+ */
 class Scala3EnterTest extends DoEditorStateTestOps with Scala2AndScala3EnterActionCommonTests {
 
   import org.jetbrains.plugins.scala.lang.actions.editor.enter_long_tests.scala3.Scala3TestDataBracelessCode._
