@@ -12,5 +12,6 @@ addSbtPlugin("org.jetbrains.scala" % "sbt-kotlin-plugin" % "3.1.7")
 addSbtPlugin("org.scoverage" %% "sbt-scoverage" % "2.4.4")
 
 libraryDependencies ++= Seq(
-  "io.get-coursier" %% "coursier-sbt-maven-repository" % "2.1.24"
+  "io.get-coursier" %% "coursier-sbt-maven-repository" % "2.1.24",
+  "com.lihaoyi" %% "upickle" % "4.4.3",
 )
