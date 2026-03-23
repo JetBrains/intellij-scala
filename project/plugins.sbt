@@ -3,7 +3,7 @@ ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" 
 //NOTE: KEEP VERSIONS IN SYNC WITH ultimate/project/plugins.sbt
 addSbtPlugin("org.jetbrains.scala" % "sbt-ide-settings" % "1.1.4")
 addSbtPlugin("com.github.sbt.junit" % "sbt-jupiter-interface" % "0.18.0")
-addSbtPlugin("org.jetbrains.scala" % "sbt-idea-plugin" % "5.1.3")
+addSbtPlugin("org.jetbrains.scala" % "sbt-idea-plugin" % "5.1.4")
 addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.13.1")
 addSbtPlugin("org.jetbrains.scala" % "sbt-kotlin-plugin" % "3.1.7")
 
@@ -12,5 +12,6 @@ addSbtPlugin("org.jetbrains.scala" % "sbt-kotlin-plugin" % "3.1.7")
 addSbtPlugin("org.scoverage" %% "sbt-scoverage" % "2.4.4")
 
 libraryDependencies ++= Seq(
-  "io.get-coursier" %% "coursier-sbt-maven-repository" % "2.1.24"
+  "io.get-coursier" %% "coursier-sbt-maven-repository" % "2.1.24",
+  "com.lihaoyi" %% "upickle" % "4.4.3",
 )
