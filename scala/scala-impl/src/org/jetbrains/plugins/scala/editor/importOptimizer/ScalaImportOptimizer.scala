@@ -85,6 +85,7 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
     val project: Project = scalaFile.getProject
     val documentManager = PsiDocumentManager.getInstance(project)
     val document: Document = documentManager.getDocument(scalaFile)
+    if (document == null) return EmptyRunnable.getInstance()
     val analyzingDocumentText = document.getText
 
     val usedImports = ContainerUtil.newConcurrentSet[ImportUsed]()
@@ -113,6 +114,8 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
         indicator.setIndeterminate(false)
       }
       JobLauncher.getInstance().invokeConcurrentlyUnderProgress(elements, indicator, true, false, (element: T) => {
+        ProgressManager.checkCanceled()
+
         val count: Int = counter.getAndIncrement
         if (count <= size && indicator != null) {
           indicator.setFraction(count.toDouble / size)
@@ -177,6 +180,7 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
       override def run(): Unit = {
         val documentManager = PsiDocumentManager.getInstance(project)
         val document: Document = documentManager.getDocument(scalaFile)
+        if (document == null) return
         documentManager.commitDocument(document)
 
         val ranges: Seq[(ImportRangeInfo, Seq[ImportInfo])] =
@@ -1378,6 +1382,8 @@ object ScalaImportOptimizer {
     }
 
     def withImplicits(srr: ScalaResolveResult): Seq[ScalaResolveResult] = {
+      ProgressManager.checkCanceled()
+
       srr +:
         srr.implicitConversion.toSeq.flatMap(withImplicits) ++:
         srr.implicitArguments.flatMap(_.args).flatMap(withImplicits)
