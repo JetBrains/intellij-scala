@@ -11,24 +11,6 @@ abstract class ScLiteralEscaperBase[T <: ScStringLiteral](literal: T)
 
   protected var outSourceOffsets: Array[Int] = _
 
-  protected final def decodeWithParser(
-    rangeInsideHost: TextRange,
-    outChars: java.lang.StringBuilder,
-    isRaw: Boolean
-  ): Boolean = {
-    TextRange.assertProperRange(rangeInsideHost)
-
-    val chars = myHost.getText.substring(rangeInsideHost.getStartOffset, rangeInsideHost.getEndOffset)
-    outSourceOffsets = new Array[Int](chars.length + 1)
-
-    val parser = new ScalaStringParser(
-      outSourceOffsets,
-      isRaw = isRaw,
-      noUnicodeEscapesInRawStrings = myHost.noUnicodeEscapesInRawStrings
-    )
-    parser.parse(chars, outChars)
-  }
-
   override final def getOffsetInHost(offsetInDecoded: Int, rangeInsideHost: TextRange): Int = {
     val offset =
       if (offsetInDecoded < outSourceOffsets.length) outSourceOffsets(offsetInDecoded)

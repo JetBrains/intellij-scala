@@ -6,10 +6,10 @@ import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.LeafElement
 import com.intellij.psi.tree.IElementType
 import org.apache.commons.text.StringEscapeUtils
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.QuotedLiteralImplBase
-import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.escapers.{ScLiteralEscaper, ScLiteralRawEscaper, ScalaStringParser}
+import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.escapers.{ScLiteralEscaper, ScalaStringParser}
 import org.jetbrains.plugins.scala.lang.psi.types._
 
 // todo: move to "literals" subpackage, but check usages
@@ -30,11 +30,10 @@ class ScStringLiteralImpl(node: ASTNode,
 
   override protected final def toValue(text: String): String = {
     val noUnicodeEscapesInRawStrings = this.noUnicodeEscapesInRawStrings
-    val isRaw = this match {
-      case s: ScInterpolatedStringLiteral => s.kind == ScInterpolatedStringLiteral.Kind.Raw
-      case _ => this.isMultiLineString
-    }
-    ScalaStringParser.unescapeTextGracefully(text, isRaw, noUnicodeEscapesInRawStrings)
+    val parser = new ScalaStringParser(null, isRaw, noUnicodeEscapesInRawStrings = noUnicodeEscapesInRawStrings, exitOnEscapingWrongSymbol = false)
+    val builder = new java.lang.StringBuilder()
+    parser.parse(text, builder)
+    builder.toString
   }
 
   override protected final def wrappedValue(value: String): ScLiteral.Value[String] =
@@ -45,6 +44,8 @@ class ScStringLiteralImpl(node: ASTNode,
   override def hasValidClosingQuotes: Boolean = firstChildElementType != `tWRONG_STRING`
 
   override def isMultiLineString: Boolean = firstChildElementType == `tMULTILINE_STRING`
+
+  override def isRaw: Boolean = this.isMultiLineString
 
   private def firstChildElementType: IElementType = firstNode.getElementType
 
@@ -60,8 +61,7 @@ class ScStringLiteralImpl(node: ASTNode,
   }
 
   override def createLiteralTextEscaper: LiteralTextEscaper[ScStringLiteral] =
-    if (isMultiLineString) new ScLiteralRawEscaper(this)
-    else new ScLiteralEscaper(this)
+    new ScLiteralEscaper(this)
 
   override def getReferences: Array[PsiReference] = PsiReferenceService.getService.getContributedReferences(this)
 }

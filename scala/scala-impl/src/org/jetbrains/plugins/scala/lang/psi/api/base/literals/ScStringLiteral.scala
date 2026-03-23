@@ -39,6 +39,14 @@ trait ScStringLiteral extends ScLiteral
    *         false - otherwise
    */
   def isMultiLineString: Boolean
+
+  /**
+   * Determines if the string literal is a raw string literal.
+   *
+   * @return true if the string literal is a raw string,
+   *         false otherwise.
+   */
+  def isRaw: Boolean
 }
 
 object ScStringLiteral {

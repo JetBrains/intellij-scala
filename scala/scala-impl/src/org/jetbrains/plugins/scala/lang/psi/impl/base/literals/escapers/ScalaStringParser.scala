@@ -159,21 +159,9 @@ object ScalaStringParser {
     @Nullable outSourceOffsets: Array[Int],
     exitOnEscapingWrongSymbol: Boolean
   ): ScalaStringParser = {
-    //TODO: introduce isRaw API method in ScStringLiteralImpl
-    // Reuse it in org.jetbrains.plugins.scala.lang.psi.impl.base.ScStringLiteralImpl.toValue
-    // Make a note that a custom string interpolator can still be raw
-    val isRaw = literal match {
-      case s: ScInterpolatedStringLiteral =>
-        s.kind == ScInterpolatedStringLiteral.Kind.Raw
-      case s: ScStringLiteralImpl =>
-        s.isMultiLineString
-      case _ =>
-        false
-    }
-
     new ScalaStringParser(
       outSourceOffsets,
-      isRaw = isRaw,
+      isRaw = literal.isRaw,
       noUnicodeEscapesInRawStrings = literal.features.noUnicodeEscapesInRawStrings,
       exitOnEscapingWrongSymbol = exitOnEscapingWrongSymbol
     )
