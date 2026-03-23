@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.lang.psi.impl.base.literals.escapers
 import junit.framework.TestCase
 import org.junit.Assert._
 
-import java.lang
 import scala.annotation.nowarn
 
 //noinspection RedundantDefaultArgument
@@ -14,17 +13,7 @@ class ScalaStringParserTest extends TestCase {
     isRaw: Boolean,
     noUnicodeEscapesInRawStrings: Boolean = false,
     exitOnEscapingWrongSymbol: Boolean = true,
-  ): String = {
-    val parser = new ScalaStringParser(
-      null,
-      isRaw,
-      noUnicodeEscapesInRawStrings = noUnicodeEscapesInRawStrings,
-      exitOnEscapingWrongSymbol = exitOnEscapingWrongSymbol
-    )
-    val builder = new lang.StringBuilder()
-    parser.parse(content, builder)
-    builder.toString
-  }
+  ): String = ScalaStringParser.unescape(content, isRaw, noUnicodeEscapesInRawStrings, exitOnEscapingWrongSymbol)
 
   def testValidContent(): Unit = {
     val content = "X \\\\ X \t X \\t X \\\\t X \\u0023 X \\\\u0023 X"

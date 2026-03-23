@@ -13,7 +13,7 @@ import java.lang
 private object ScalaStringUtils {
 
   def unescapeStringCharacters(content: String, isRaw: Boolean, noUnicodeEscapesInRawStrings: Boolean): String =
-    ScalaStringParser.unescapeTextGracefully(content, isRaw, noUnicodeEscapesInRawStrings)
+    ScalaStringParser.unescape(content, isRaw, noUnicodeEscapesInRawStrings)
 
   // just run the tests...
   def escapePlainText(

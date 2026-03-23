@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.extensions.IterableOnceExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.escapers.ScalaStringParser
 
-import java.lang
+import java.lang.{StringBuilder => JStringBuilder}
 import scala.jdk.CollectionConverters.SeqHasAsJava
 
 /**
@@ -31,41 +31,24 @@ object TextContentEscapeUtils {
    * All of that is incapsulated in [[ScalaStringParser$]]
    */
   def replaceBackslashEscapes(content: TextContent, stringLiteral: ScStringLiteral): TextContent = {
-    val escapeSequencesRanges: Seq[TextRange] = extractBackslashEscapedRanges(content, stringLiteral) match {
-      case Some(ranges) => ranges
-      case _ =>
-        return content
-    }
+    val escapeSequencesRanges: Seq[TextRange] = extractBackslashEscapedRanges(content, stringLiteral)
     val actions = buildBackslashEscapeActions(content.toString, escapeSequencesRanges)
     val result = applyBackslashEscapeActions(content, actions)
     result
   }
 
 
-  private def extractBackslashEscapedRanges(content: TextContent, stringLiteral: ScStringLiteral): Option[Seq[TextRange]] = {
-    val outSourceOffsets = new Array[Int](content.length + 1)
-
+  private def extractBackslashEscapedRanges(content: TextContent, stringLiteral: ScStringLiteral): Seq[TextRange] = {
     // We gracefully handle incorrect escape sequences mostly for custom string interpolators (SCL-25082)
-    val parser = ScalaStringParser.fromStringLiteral(stringLiteral, outSourceOffsets, exitOnEscapingWrongSymbol = false)
-    val unescapedText = new lang.StringBuilder()
-
     // Performance note.
     // The current parsing implementation is not quite optimal in terms of RAM usage:
     //   1. We call `content.toString` to parse the TextContent because the `parse` method requires String and not CharSequence (which TextContent extends).
     //      In theory, it would be nice if we didn't have to do it and could work with CharSequences directly.
-    //   2. The API of the parser requires passing `StringBuilder` to store the intermidiate parse results.
-    //      However, we don't really need this materialized string. In theory this could be also improved.
-    // Bot of the points worth investigating in principle.
+    // This is worth investigating in principle.
     // However, it seems that for now the most practical (without rewriting too much code) and correct solution is to use it as is.
-    val parseSuccessful = parser.parse(content.toString, unescapedText)
-
-    // expected to be true while `exitOnEscapingWrongSymbol` is false, but we still check just in case
-    if (parseSuccessful) {
-      val escapedRanges = extractBackslashEscapedRanges(outSourceOffsets, unescapedText.length)
-      Some(escapedRanges)
-    } else {
-      None
-    }
+    val unescapedText = new JStringBuilder()
+    val outSourceOffsets = ScalaStringParser.parseFull(content.toString, stringLiteral, unescapedText)
+    extractBackslashEscapedRanges(outSourceOffsets, unescapedText.length)
   }
 
   /**
