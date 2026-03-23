@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy
 
-import com.intellij.codeInsight.FileModificationService
+import com.intellij.codeInsight.actions.OptimizeImportsProcessor
 import com.intellij.codeInsight.daemon.QuickFixBundle
 import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo
 import com.intellij.codeInsight.intention.{HighPriorityAction, IntentionAction, LowPriorityAction}
@@ -10,7 +10,6 @@ import com.intellij.psi.PsiFile
 import com.intellij.util.FileContentUtil
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
-import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer
 import org.jetbrains.plugins.scala.extensions.PsiFileExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
@@ -19,23 +18,18 @@ import scala.jdk.CollectionConverters._
 
 sealed abstract class ScalaOptimizeImportsFixBase extends IntentionAction {
 
-  override final def startInWriteAction: Boolean = true
+  override final def startInWriteAction: Boolean = false
 
   override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean =
     file.hasScalaPsi
 
   /**
-   * We can't just select ScalaImportOptimizer because of Play2 templates
+   * OptimizeImportsProcessor will select a suitable import optimizer, handling Play2 templates
    *
    * @param file Any parallel psi file
    */
-  override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = for {
-    scalaFile <- file.findAnyScalaFile
-    if FileModificationService.getInstance.prepareFileForWrite(scalaFile)
-
-    optimizer <- ScalaImportOptimizer.findOptimizerFor(scalaFile)
-    runner = optimizer.processFile(scalaFile)
-  } runner.run()
+  override def invoke(project: Project, editor: Editor, file: PsiFile): Unit =
+    new OptimizeImportsProcessor(project, file).run()
 
   override final def getFamilyName: String = getText
 }

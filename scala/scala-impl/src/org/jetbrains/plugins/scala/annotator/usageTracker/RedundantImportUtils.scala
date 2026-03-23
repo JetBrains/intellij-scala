@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.annotator.usageTracker
 
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiClass, PsiNamedElement, PsiPackage, ResolveState}
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiClassExt, PsiElementExt}
@@ -93,6 +94,7 @@ object RedundantImportUtils {
 
       importExpr <- importExprs
     } {
+      ProgressManager.checkCanceled()
       val importQualifierFqnResolved = resolvedImportQualifierFqn(importExpr)
 
       val isImportFromAvailableQualifier =
