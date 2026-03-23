@@ -30,10 +30,7 @@ class ScStringLiteralImpl(node: ASTNode,
 
   override protected final def toValue(text: String): String = {
     val noUnicodeEscapesInRawStrings = this.noUnicodeEscapesInRawStrings
-    val parser = new ScalaStringParser(null, isRaw, noUnicodeEscapesInRawStrings = noUnicodeEscapesInRawStrings, exitOnEscapingWrongSymbol = false)
-    val builder = new java.lang.StringBuilder()
-    parser.parse(text, builder)
-    builder.toString
+    ScalaStringParser.unescape(text, isRaw, noUnicodeEscapesInRawStrings)
   }
 
   override protected final def wrappedValue(value: String): ScLiteral.Value[String] =

@@ -19,17 +19,11 @@ private final class ScLiteralExpressionTokenizer extends EscapeSequenceTokenizer
     rangeInHost: TextRange,
     consumer: TokenConsumer
   ): Unit = {
-    val unescapedText = new java.lang.StringBuilder
-    val offsets: Array[Int] = new Array[Int](text.length + 1)
-
     // We gracefully handle incorrect escape sequences mostly for custom string interpolators (SCL-25082)
-    val parser = ScalaStringParser.fromStringLiteral(element, offsets, exitOnEscapingWrongSymbol = false)
-    val parseSuccessful = parser.parse(text, unescapedText)
-    // expected to be true while `exitOnEscapingWrongSymbol` is false, but we still check just in case
-    if (parseSuccessful) {
-      val startOffset = rangeInHost.getStartOffset
-      EscapeSequenceTokenizer.processTextWithOffsets(element, consumer, unescapedText, offsets, startOffset)
-    }
+    val unescapedText = new java.lang.StringBuilder
+    val offsets = ScalaStringParser.parseFull(text, element, unescapedText)
+    val startOffset = rangeInHost.getStartOffset
+    EscapeSequenceTokenizer.processTextWithOffsets(element, consumer, unescapedText, offsets, startOffset)
   }
 
   override def tokenize(element: ScStringLiteral, consumer: TokenConsumer): Unit = {

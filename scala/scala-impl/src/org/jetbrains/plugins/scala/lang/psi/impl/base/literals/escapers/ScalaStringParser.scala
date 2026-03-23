@@ -4,7 +4,6 @@ import com.intellij.openapi.diagnostic.Logger
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
-import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStringLiteralImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.escapers.ScalaStringParser.Log
 
 import java.lang.{StringBuilder => JStringBuilder}
@@ -28,17 +27,17 @@ import java.util
  * @see [[org.jetbrains.plugins.scala.highlighter.lexer.ScalaStringLiteralLexer]] and other lexers in same package
  * @see [[org.jetbrains.plugins.scala.format.ScalaStringUtils]]
  */
-final class ScalaStringParser(
+final class ScalaStringParser private(
   @Nullable
   sourceOffsets: Array[Int],
   isRaw: Boolean,
   noUnicodeEscapesInRawStrings: Boolean,
-  exitOnEscapingWrongSymbol: Boolean = true
+  exitOnEscapingWrongSymbol: Boolean
 ) {
 
   private val onlyUnicode: Boolean = isRaw
 
-  def parse(chars: String, outChars: JStringBuilder): Boolean = {
+  private def parse(chars: String, outChars: JStringBuilder): Boolean = {
     Log.assertTrue(sourceOffsets == null || sourceOffsets.length == chars.length() + 1);
 
     val hasAnyEscapeCandidates = chars.indexOf('\\') >= 0
@@ -53,13 +52,15 @@ final class ScalaStringParser(
     val outOffset = outChars.length
     while (index < chars.length) {
       val c = chars.charAt(index)
-      index += 1;
 
       if (sourceOffsets != null) {
         val idx1 = outChars.length - outOffset
-        sourceOffsets(idx1) = index - 1
-        sourceOffsets(idx1 + 1) = index
+        sourceOffsets(idx1) = index
+        sourceOffsets(idx1 + 1) = index + 1
       }
+
+      // move to next char
+      index += 1;
 
       val isEscapeSequenceStart = c == '\\'
       if (!isEscapeSequenceStart)
@@ -154,17 +155,60 @@ object ScalaStringParser {
 
   private val Log = Logger.getInstance(this.getClass)
 
-  def fromStringLiteral(
+  /**
+   * Parses string content, returning the unescaped string and source offsets.
+   * Derives string kind (raw/non-raw) from `literal`.
+   *
+   * @return Mapping from old if parsing completed successfully, None otherwise
+   */
+  def parseFull(
+    chars: String,
     literal: ScStringLiteral,
-    @Nullable outSourceOffsets: Array[Int],
-    exitOnEscapingWrongSymbol: Boolean
-  ): ScalaStringParser = {
-    new ScalaStringParser(
-      outSourceOffsets,
+    outBuilder: JStringBuilder,
+  ): Array[Int] = {
+    val (success, sourceOffsets) = parse(chars, literal, outBuilder, exitOnEscapingWrongSymbol = false)
+    assert(success, "Should not have returned false, because exitOnEscapingWrongSymbol was false")
+    sourceOffsets
+  }
+
+  /**
+   * Parses string content, returning the unescaped string and source offsets.
+   * Derives string kind (raw/non-raw) from `literal`.
+   *
+   * @return Some(sourceOffsets) if parsing completed successfully, None otherwise
+   */
+  def parse(
+    chars: String,
+    literal: ScStringLiteral,
+    outBuilder: JStringBuilder,
+    exitOnEscapingWrongSymbol: Boolean,
+  ): (Boolean, Array[Int]) = {
+    val sourceOffsets = new Array[Int](chars.length + 1)
+    val parser = new ScalaStringParser(
+      sourceOffsets,
       isRaw = literal.isRaw,
-      noUnicodeEscapesInRawStrings = literal.features.noUnicodeEscapesInRawStrings,
-      exitOnEscapingWrongSymbol = exitOnEscapingWrongSymbol
+      noUnicodeEscapesInRawStrings = literal.noUnicodeEscapesInRawStrings,
+      exitOnEscapingWrongSymbol = exitOnEscapingWrongSymbol,
     )
+    val success = parser.parse(chars, outBuilder)
+    (success, sourceOffsets)
+  }
+
+  /**
+   * Parses string content to its unescaped value.
+   *
+   * @return The unescaped string (only to the first wrong symbol if exitOnEscapingWrongSymbol is true)
+   */
+  def unescape(
+    chars: String,
+    isRaw: Boolean,
+    noUnicodeEscapesInRawStrings: Boolean,
+    exitOnEscapingWrongSymbol: Boolean = false
+  ): String = {
+    val builder = new JStringBuilder()
+    val parser = new ScalaStringParser(null, isRaw, noUnicodeEscapesInRawStrings, exitOnEscapingWrongSymbol = exitOnEscapingWrongSymbol)
+    parser.parse(chars, builder)
+    builder.toString
   }
 
   /** Unescapes a given string literal content gracefully (when a wrong escape sequence is encountered, it is replaced with a placeholder char) */

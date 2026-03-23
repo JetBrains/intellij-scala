@@ -9,13 +9,8 @@ class ScLiteralEscaper(val literal: ScStringLiteral) extends ScLiteralEscaperBas
     TextRange.assertProperRange(rangeInsideHost)
 
     val chars = myHost.getText.substring(rangeInsideHost.getStartOffset, rangeInsideHost.getEndOffset)
-    outSourceOffsets = new Array[Int](chars.length + 1)
-
-    val parser = new ScalaStringParser(
-      outSourceOffsets,
-      isRaw = literal.isRaw,
-      noUnicodeEscapesInRawStrings = literal.noUnicodeEscapesInRawStrings
-    )
-    parser.parse(chars, outChars)
+    val (success, sourceOffsets) = ScalaStringParser.parse(chars, literal, outChars, exitOnEscapingWrongSymbol = true)
+    outSourceOffsets = sourceOffsets
+    success
   }
 }
