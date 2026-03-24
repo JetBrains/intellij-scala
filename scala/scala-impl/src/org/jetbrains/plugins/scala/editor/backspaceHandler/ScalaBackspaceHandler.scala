@@ -429,6 +429,16 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
       return false
     }
 
+    val lineEnd = document.getLineEndOffset(lineNum)
+    if (lineEnd > offset) {
+      val lineAfterOffset = document.getText(
+        TextRange.create(offset, lineEnd)
+      )
+      if (lineAfterOffset.stripLeading().startsWith("*/")) {
+        return true
+      }
+    }
+
     val lineStart = document.getLineStartOffset(lineNum)
     val beforeCaret = document.getText(
       TextRange.create(lineStart, offset)
