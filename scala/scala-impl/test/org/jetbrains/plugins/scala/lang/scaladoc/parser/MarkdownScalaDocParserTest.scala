@@ -2514,6 +2514,9 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       | * [[[[ref]]]]]
       | * [[]
       | */
+      |/**
+      | * [[[[blub [] ]]]
+      | */
       |""".stripMargin,
     """
       |ScalaFile
@@ -2614,6 +2617,22 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      ScPsiDocToken(DOC_COMMENT_DATA)('[[]')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_END)('*/')
+      |  PsiWhiteSpace('\n')
+      |  DocComment
+      |    ScPsiDocToken(DOC_COMMENT_START)('/**')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    ScDocParagraph
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      DocSyntaxElement 64
+      |        ScPsiDocToken(DOC_LINK_TAG 64)('[[[[')
+      |        ScDocReferenceLink
+      |          ScDocRefQuerySegment('blub')
+      |            PsiElement(identifier)('blub')
+      |        ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |        ScPsiDocToken(DOC_COMMENT_DATA)('[] ]]]')
       |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |    ScPsiDocToken(DOC_COMMENT_END)('*/')
       |  PsiWhiteSpace('\n')
