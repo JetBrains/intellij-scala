@@ -123,9 +123,14 @@ object BspUtil {
     }
   }
 
-  def findFileByName(dir: Path, name: String): Option[Path] =
-    dir.children()
-      .find(x => x.getFileName.toString == name && !x.isDirectory)
+  /**
+   * Try to find a file by its name in a given directory.
+   * Returns it only if it exists and is a regular file.
+   */
+  def findFileByName(dir: Path, name: String): Option[Path] = {
+    val candidate = dir / name
+    Option.when(candidate.isRegularFile)(candidate)
+  }
 
   private def isBspScalaCliProjectImpl(project: Project, rootProjectPath: Option[String]): Boolean =
     BspExternalSystemUtil.getBspProjectData(project, rootProjectPath) match {
