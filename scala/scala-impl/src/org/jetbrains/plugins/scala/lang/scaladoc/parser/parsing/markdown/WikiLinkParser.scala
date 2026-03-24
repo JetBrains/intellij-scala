@@ -88,20 +88,25 @@ object WikiLinkParser {
     // one of these tokens may contain multiple ]
     lazy val closingBracketTokenCount: Int = calcClosingTokens(children, bracketCount)
 
+    // range is inclusive
     lazy val refTokens: Option[(Int, Int)] = {
       val refTokenCount = children.iterator
         .drop(1) // the initial brackets
         .takeWhile(_.getType == MarkdownTokenTypes.TEXT)
         .length
-      Option.when(refTokenCount > 0)(1 -> (1 + refTokenCount))
+      Option.when(refTokenCount > 0)(1 -> refTokenCount)
     }
 
+    // range is inclusive
     lazy val descriptionTokens: Option[(Int, Int)] = {
       val start = refTokens.fold(1)(_._2) + 1 // skip the whitespace that comes afterwards
-      Option.when(start < closingBracketsChildIndex)(start, closingBracketsChildIndex)
+      val end = closingBracketsChildIndex
+        .map(_ - 1)
+        .getOrElse(children.indices.last)
+      Option.when(start <= end)(start -> end)
     }
 
-    def closingBracketsChildIndex: Int = childCount - closingBracketTokenCount
+    def closingBracketsChildIndex: Option[Int] = Option.when(closingBracketTokenCount > 0)(childCount - closingBracketTokenCount)
   }
 
   object ChildrenInfo {

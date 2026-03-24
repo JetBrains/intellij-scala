@@ -268,10 +268,12 @@ private class ScaladocMarkdownParsing(builder: MkBuilder, content: String) exten
       childIt.advance()
     }
 
-    ensureBuilderInPosition(childIt.currentStartOffset)
     if (!childIt.ended) {
+      ensureBuilderInPosition(childIt.currentStartOffset)
       childIt.dropRest()
       ensureBuilderInPosition(treeIt.currentEndOffset, ScalaDocTokenType.DOC_LINK_CLOSE_TAG)
+    } else {
+      ensureBuilderInPosition(treeIt.currentEndOffset)
     }
 
     marker.done(elementType)
