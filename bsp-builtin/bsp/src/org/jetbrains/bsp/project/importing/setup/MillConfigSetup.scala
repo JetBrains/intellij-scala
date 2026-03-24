@@ -22,7 +22,7 @@ final class MillConfigSetup(workspace: Path) extends CommandBasedBspConfigSetup(
     val isLegacyMill = !SystemInfo.isWindows && isLegacyBspCompatible(workspace)
     val millFileOpt = getMillFile(workspace)
     millFileOpt match {
-      case Some(file) if isLegacyMill && !isMillFileBspCompatible(file, workspace) =>
+      case Some(file) if isLegacyMill && !isMillFileBspCompatible(file) =>
         // run this only if we're confident this is legacy Mill
         Success(Seq(file.toCanonicalPath.toString, "-i", "mill.contrib.BSP/install"))
       case Some(file) =>
@@ -57,36 +57,32 @@ private[bsp] object MillConfigSetup {
       case _ => false
     }
 
+  /** Get mill executable script, if exists. */
   private def getMillFile(workspace: Path): Option[Path] =
     if (SystemInfo.isWindows) BspUtil.findFileByName(workspace, "mill.bat")
     else BspUtil.findFileByName(workspace, "mill")
 
   private def isBspCompatible(workspace: Path): Boolean = {
     val fileOpt = getMillFile(workspace)
-    fileOpt.exists(isMillFileBspCompatible(_, workspace))
+    fileOpt.exists(isMillFileBspCompatible)
   }
 
-  private def isMillFileBspCompatible(millFile: Path, workspace: Path): Boolean = {
-    if (SystemInfo.isWindows) {
-      checkMillVersionWithBatFile(millFile, workspace)
-    } else {
-      Using.resource(Files.lines(millFile, Charset.defaultCharset())) { lines =>
-        lines.anyMatch(t => !t.matches(versionPattern))
-      }
+  // LEGACY:
+  // This logic appears to be unreliable and may not work correctly.
+  // It checks whether any line in the Mill script does not match the legacy version pattern (0.6.x, 0.7.x, 0.8.0).
+  // As I checked, in e.g., 0.7.0 version, the first line of the script is a shebang line (`#!/usr/bin/env sh`),
+  // which never matches `versionPattern`, so `anyMatch` with `!t.matches(versionPattern)` always returns true.
+  // To check this, you can download the script for the 0.7.0 version with `sudo curl -L https://github.com/lihaoyi/mill/releases/download/0.7.0/0.7.0`.
+  // As a result, this method effectively always returns true for those versions, making the check meaningless.
+  // I don't know, maybe it used to work properly for some older versions.
+  /**
+   * Checks whether the Mill version is not a legacy (it is higher than 0.8.0).
+   * For a Windows system, it always returns `true` because we agreed to not support Mill legacy with the Windows `mill.bat` file.
+   */
+  private def isMillFileBspCompatible(millFile: Path): Boolean =
+    SystemInfo.isWindows || Using.resource(Files.lines(millFile, Charset.defaultCharset())) { lines =>
+      lines.anyMatch(t => !t.matches(versionPattern))
     }
-  }
-
-  private def checkMillVersionWithBatFile(file: Path, workspace: Path): Boolean = {
-    val stdout = new StringBuilder
-    val versionCommand = s"${file.toCanonicalPath} --version"
-    Process(versionCommand, workspace.toFile) ! ProcessLogger(stdout append _ + "\n", _ => ())
-
-    stdout.toString()
-      .linesIterator
-      .exists { line =>
-        line.contains("Mill Build Tool version") && !line.matches(versionPattern)
-      }
-  }
 
   // Legacy Mill =< 0.8.0
   private def isLegacyBspCompatible(workspace: Path): Boolean =
