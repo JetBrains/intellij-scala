@@ -58,7 +58,7 @@ class ScalaDocMarkdownFlavour extends GFMFlavourDescriptor {
             val children = astNode.getChildren
             val info = WikiLinkParser.ChildrenInfo(astNode)
             def text(i: (Int, Int)): String = {
-              s.substring(children.get(i._1).getStartOffset, children.get(i._2).getStartOffset)
+              s.substring(children.get(i._1).getStartOffset, children.get(i._2).getEndOffset)
             }
 
             val refText = info.refTokens.fold("")(text)
