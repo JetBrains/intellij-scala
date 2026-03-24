@@ -12,8 +12,10 @@ trait ScalaBackspaceHandlerTestLike
 
 abstract class ScalaBackspaceHandlerBaseTest extends EditorActionTestBase with ScalaBackspaceHandlerTestLike {
 
-  protected def doTest(before: String, after: String): Unit = {
-    doBackspaceTest(before, after)
+  protected def doTest(before: String, after: String*): Unit = {
+    (before +: after).sliding(2).foreach { case Seq(before, after) =>
+      doBackspaceTest(before, after)
+    }
   }
 
   protected def doBackspaceTest(before: String, after: String): Unit = {
