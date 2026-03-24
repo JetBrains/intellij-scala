@@ -134,4 +134,27 @@ class ScalaDocLineDeletionBackspaceHandler_StartsOnFirstLine extends ScalaDocLin
          | */
          |""".stripMargin,
     )
+
+  def test_delete_before_comment_end(): Unit =
+    doTest(
+      s"""
+         |/**
+         | * Test Comment
+         | * $CARET*/
+         |""".stripMargin,
+      s"""
+         |/**
+         | * Test Comment
+         | *$CARET*/
+         |""".stripMargin,
+      s"""
+         |/**
+         | * Test Comment
+         | $CARET*/
+         |""".stripMargin,
+      s"""
+         |/**
+         | * Test Comment $CARET*/
+         |""".stripMargin,
+    )
 }
