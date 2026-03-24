@@ -143,8 +143,7 @@ object BspUtil {
    * Checks whether a specified directory contains at least one file with a name from a given sequence of file names.
    */
   def directoryContainsFile(directory: Path, fileNames: String*): Boolean =
-    directory.children()
-      .exists(x => !x.isDirectory && fileNames.contains(x.getFileName.toString))
+    fileNames.exists(name => (directory / name).isRegularFile)
 
   /**
    * Checks whether a command-line tool is installed by invoking its version command.
