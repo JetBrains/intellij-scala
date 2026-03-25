@@ -1,12 +1,13 @@
-package org.jetbrains.plugins.scala.text.scala3
+package org.jetbrains.plugins.scala.text
+package scala3
 
+import org.jetbrains.plugins.scala.DependencyManagerBase
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
-import org.jetbrains.plugins.scala.text.TextToTextTestBase
 
-class DoobieTest extends TextToTextTestBase(
-  dependencies = Seq(
+class DoobieTest extends ProjectCorpusTestImpl(DoobieTest)
+
+object DoobieTest extends Scala3ProjectCorpusTestDef {
+  override val dependencies: Seq[DependencyManagerBase.DependencyDescription] = Seq(
     "org.tpolecat" %% "doobie-core" % "1.0.0-RC11",
-  ),
-  packages = Seq("doobie"),
-  minClassCount = 124
-)
+  )
+}

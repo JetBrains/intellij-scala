@@ -1,21 +1,14 @@
-package org.jetbrains.plugins.scala.text.scala2
+package org.jetbrains.plugins.scala.text
+package scala2
 
+import org.jetbrains.plugins.scala.DependencyManagerBase
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
-import org.jetbrains.plugins.scala.text.TextToTextTestBase
 
-class ScalatestTest extends TextToTextTestBase(
-  dependencies = Seq(
-    "org.scalatest" %% "scalatest" % "3.2.19"
-  ),
-  packages = Seq("org.scalatest"),
-  minClassCount = 678,
-  classExceptions = Set(
-    "org.scalatest.Suite", // Existential type
-    "org.scalatest.enablers.InspectorAsserting", // Tuple2 type argument
-    "org.scalatest.tools.Framework", // Any
-    "org.scalatest.tools.Runner", // Existential type
-    "org.scalatest.tools.ScalaTestAntTask", // Cannot resolve reference
-    "org.scalatest.tools.ScalaTestFramework", // Any
-  ),
-  includeScalaReflect = true
-)
+class ScalatestTest extends ProjectCorpusTestImpl(ScalatestTest)
+
+object ScalatestTest extends Scala2ProjectCorpusTestDef {
+  override val dependencies: Seq[DependencyManagerBase.DependencyDescription] = Seq(
+    "org.scalatest" %% "scalatest" % "3.2.19",
+  )
+  override val includeScalaReflect = true
+}

@@ -1,30 +1,17 @@
 package org.jetbrains.plugins.scala.text
 
-import com.intellij.openapi.module.Module
-import com.intellij.openapi.projectRoots.Sdk
-import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
-import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.PsiPackage
-import com.intellij.testFramework.{PsiTestUtil, TestLoggerKt}
+import com.intellij.testFramework.TestLoggerKt
 import com.intellij.util.AstLoadingFilter
-import org.jetbrains.plugins.scala.DependencyManagerBase.DependencyDescription
-import org.jetbrains.plugins.scala.{ScalaVersion, TextToTextTests}
-import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
-import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, ScalaReflectLibraryLoader, SmartJDKLoader}
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PathExt, PsiElementExt}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 import org.jetbrains.plugins.scala.text.TextToTextTestBase._
 import org.junit.{Assert, Test}
-import org.junit.experimental.categories.Category
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
-import java.nio.file.Path
-import java.util.Collections
-import scala.jdk.CollectionConverters.{ListHasAsScala, SeqHasAsJava}
+import scala.jdk.CollectionConverters.ListHasAsScala
 
 /**
  * https://youtrack.jetbrains.com/issue/SCL-24777/Decompiler-tests-documentation
@@ -38,48 +25,9 @@ import scala.jdk.CollectionConverters.{ListHasAsScala, SeqHasAsJava}
  * Implementation: [[org.jetbrains.plugins.scala.tasty.reader.TreePrinter]]
  * Unit tests:     [[org.jetbrains.plugins.scala.tasty.reader.DecompilerTest3]]
  */
-@RunWith(classOf[JUnit4])
-@Category(Array(classOf[TextToTextTests]))
-abstract class TextToTextTestBase(dependencies: Seq[DependencyDescription],
-                                  packages: Seq[String],
-                                  packageExceptions: Set[String] = Set.empty,
-                                  minClassCount: Int,
-                                  classExceptions: Set[String] = Set.empty,
-                                  withSources: Boolean = false,
-                                  classesWithoutSource: Set[String] = Set.empty,
-                                  sourceExceptions: Set[String] = Set.empty,
-                                  includeScalaReflect: Boolean = false,
-                                  includeScalaCompiler: Boolean = false,
-                                  astLoadingFilter: Boolean = true,
-                                  transformed: (Content, String) => String = (_, s) => s,
-                                  aliasJava: Boolean = true,
-                                  aliasScala: Boolean = true)(implicit scalaVersion: ScalaVersion) extends ScalaFixtureTestCase {
-
-  override protected val includeCompilerAsLibrary = includeScalaCompiler
-
-  override protected def supportedIn(version: ScalaVersion) = version >= scalaVersion
-
-  override protected lazy val jdk: Sdk = SmartJDKLoader.createJdk(LanguageLevel.JDK_17)
-
-  override def librariesLoaders =
-    super.librariesLoaders :++
-      (if (includeScalaReflect) Seq(ScalaReflectLibraryLoader) else Seq.empty)
-
-  override protected def setUpLibraries(module: Module): Unit = {
-    super.setUpLibraries(module)
-
-    val classes = IvyManagedLoader(dependencies.map(_.transitive()): _*).resolve(scalaVersion)
-    val sources = IvyManagedLoader(classes.filter(it => !ArtifactsWithoutSources(it.info.org, it.info.artId)).map(_.info.sources()): _*).resolve(scalaVersion)
-    classes.foreach { cls =>
-      val source = sources.find(_.info == cls.info.sources())
-      val classRoots = Collections.singletonList(findJarFile(cls.file))
-      val sourceRoots = source.map(it => findJarFile(it.file)).toSeq.asJava
-      PsiTestUtil.addProjectLibrary(module, cls.info.toString, classRoots, sourceRoots)
-    }
-  }
-
-  private def findJarFile(file: Path): VirtualFile =
-    JarFileSystem.getInstance.refreshAndFindFileByPath(file.toCanonicalPath.toString + "!/")
+trait TextToTextTestBase extends ProjectCorpusTestBase {
+  private val config: TextToTextTestConfig = TextToTextTestConfig.projectConfigs(projectDef)
+  import config._
 
   @Test
   def textToText(): Unit = {
@@ -109,7 +57,7 @@ abstract class TextToTextTestBase(dependencies: Seq[DependencyDescription],
     val classes = packages
       .map(name => manager.getCachedPackage(name).getOrElse(throw new AssertionError(name)))
       .flatMap(pkg => classesIn(pkg, packageExceptions))
-      .filter(cls => if (scalaVersion.isScala3) cls.isInScala3File else !cls.isInScala3File)
+      .filter(cls => if (version.isScala3) cls.isInScala3File else !cls.isInScala3File)
 
     val total = classes.length
 
@@ -160,7 +108,7 @@ abstract class TextToTextTestBase(dependencies: Seq[DependencyDescription],
           }
 
           // TODO Remove the exception when the ^ syntax in Scala 3.8 is parsed correctly
-          if (!(scalaVersion.isScala3 && includeScalaLibrarySources && packages == Seq("scala") && sourceCls.getContainingFile.textContains('^'))) {
+          if (!(version.isScala3 && includeScalaLibrarySources && packages == Seq("scala") && sourceCls.getContainingFile.textContains('^'))) {
             if (sourceExceptions(cls.qualifiedName)) {
               Assert.assertNotEquals(s"Expected to contain errors: ${cls.qualifiedName}", decompiledVsSourceOutline, sourceOutline)
             } else {
@@ -199,7 +147,7 @@ abstract class TextToTextTestBase(dependencies: Seq[DependencyDescription],
 
     sb ++= "package " + packageName + "\n"
 
-    val printer = new ClassPrinter(scalaVersion.isScala3, withPrivate = withPrivate, normalize = normalize)
+    val printer = new ClassPrinter(version.isScala3, withPrivate = withPrivate, normalize = normalize)
     companionTypeAlias.foreach(printer.printTo(sb, _))
     printer.printTo(sb, cls)
     cls.baseCompanionTypeDefinition.foreach(printer.printTo(sb, _))
@@ -216,11 +164,6 @@ abstract class TextToTextTestBase(dependencies: Seq[DependencyDescription],
 }
 
 private object TextToTextTestBase {
-  private val ArtifactsWithoutSources = Set(
-    ("com.google.guava", "listenablefuture"),
-    ("guru.nidi", "graphviz-java-min-deps")
-  )
-
   sealed abstract class Content extends Product with Serializable
   object Content {
     case object DecompiledVsStub extends Content

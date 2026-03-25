@@ -1,22 +1,14 @@
-package org.jetbrains.plugins.scala.text.scala2
+package org.jetbrains.plugins.scala.text
+package scala2
 
+import org.jetbrains.plugins.scala.DependencyManagerBase
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
-import org.jetbrains.plugins.scala.text.TextToTextTestBase
 
-class ScalazTest extends TextToTextTestBase(
-  dependencies = Seq(
+class ScalazTest extends ProjectCorpusTestImpl(ScalazTest)
+
+object ScalazTest extends Scala2ProjectCorpusTestDef {
+  override val dependencies: Seq[DependencyManagerBase.DependencyDescription] = Seq(
     "org.scalaz" %% "scalaz-core" % "7.3.8",
     "org.scalaz" %% "scalaz-effect" % "7.3.8",
-  ),
-  packages = Seq("scalaz"),
-  minClassCount = 1588,
-  classExceptions = Set(
-    "scalaz.Foralls", // Excessive parentheses in existential type
-    "scalaz.FreeFunctions", // Tuple2
-    "scalaz.LanApply", // Any
-    "scalaz.std.StringInstances", // No this. prefix for object
-    "scalaz.syntax.ToApplicativeErrorOps", // Existential type
-    "scalaz.syntax.ToMonadErrorOps", // Existential type
-    "scalaz.syntax.ToMonadTellOps", // Existential type
   )
-)
+}

@@ -1,12 +1,10 @@
-package org.jetbrains.plugins.scala.text.scala2
+package org.jetbrains.plugins.scala.text
+package scala2
 
-import org.jetbrains.plugins.scala.text.TextToTextTestBase
+import org.jetbrains.plugins.scala.DependencyManagerBase
 
-class ScalaLibraryTest extends TextToTextTestBase(
-  dependencies = Seq.empty,
-  packages = Seq("scala"),
-  minClassCount = 787,
-  classExceptions = Set(
-    "scala.concurrent.impl.Promise", // Function1
-  )
-)
+class ScalaLibraryTest extends ProjectCorpusTestImpl(ScalaLibraryTest)
+
+object ScalaLibraryTest extends Scala2ProjectCorpusTestDef {
+  override val dependencies: Seq[DependencyManagerBase.DependencyDescription] = Seq.empty
+}

@@ -1,22 +1,13 @@
-package org.jetbrains.plugins.scala.text.scala3
+package org.jetbrains.plugins.scala.text
+package scala3
 
+import org.jetbrains.plugins.scala.DependencyManagerBase
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
-import org.jetbrains.plugins.scala.text.TextToTextTestBase
 
-class ScalacticTest extends TextToTextTestBase(
-  dependencies = Seq(
+class ScalacticTest extends ProjectCorpusTestImpl(ScalacticTest)
+
+object ScalacticTest extends Scala3ProjectCorpusTestDef {
+  override val dependencies: Seq[DependencyManagerBase.DependencyDescription] = Seq(
     "org.scalactic" %% "scalactic" % "3.2.19",
-  ),
-  packages = Seq("org.scalactic"),
-  minClassCount = 167,
-  classExceptions = Set(
-    "org.scalactic.Accumulation", // No parentheses in repeated function type
-    "org.scalactic.FutureSugar", // No parentheses in repeated function type
-    "org.scalactic.TrySugar", // No parentheses for repeated function type
-  ),
-  withSources = true,
-  sourceExceptions = Set(
-    "org.scalactic.Every", // :\ | :\\ (in annotation)
-    "org.scalactic.anyvals.NonEmptyList", // :\ | :\\ (in annotation)
   )
-)
+}
