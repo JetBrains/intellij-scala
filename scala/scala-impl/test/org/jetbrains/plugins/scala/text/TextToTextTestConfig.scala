@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.text
 
+import org.jetbrains.plugins.scala.corpus.{CorpusProjects, ProjectCorpusTestDef}
 import org.jetbrains.plugins.scala.text.TextToTextTestBase.Content
 
 private case class TextToTextTestConfig(
@@ -509,7 +510,7 @@ private object TextToTextTestConfig {
         "scala.util.TupledFunction", // duplicate annotation
       ),
     ),
-    scala3.ScalaLibrary_3_8_Test -> TextToTextTestConfig(
+    CorpusProjects.ScalaLibrary_3_8.scala3 -> TextToTextTestConfig(
       packages = Seq("scala"),
       minClassCount = 910,
       classExceptions = Set(
@@ -583,7 +584,7 @@ private object TextToTextTestConfig {
     ),
 
     // ScalaReflect (Scala 2 only)
-    scala2.ScalaReflectTest -> TextToTextTestConfig(
+    CorpusProjects.ScalaReflect.scala2 -> TextToTextTestConfig(
       packages = Seq("scala.reflect"),
       minClassCount = 217,
       classExceptions = Set(
