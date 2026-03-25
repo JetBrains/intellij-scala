@@ -4,7 +4,6 @@ import org.jetbrains.plugins.scala.corpus.{CorpusProjects, ProjectCorpusTestDef}
 import org.jetbrains.plugins.scala.text.TextToTextTestBase.Content
 
 private case class TextToTextTestConfig(
-  packages: Seq[String],
   packageExceptions: Set[String] = Set.empty,
   minClassCount: Int,
   classExceptions: Set[String] = Set.empty,
@@ -19,14 +18,12 @@ private case class TextToTextTestConfig(
 
 private object TextToTextTestConfig {
   def default: TextToTextTestConfig = TextToTextTestConfig(
-    packages = Seq.empty,
     minClassCount = 0,
   )
 
   val projectConfigs: Map[ProjectCorpusTestDef, TextToTextTestConfig] = Map(
     // Akka
     CorpusProjects.Akka.scala2 -> TextToTextTestConfig(
-      packages = Seq("akka"),
       packageExceptions = Set("akka.persistence.journal.leveldb", "akka.remote.artery.aeron", "akka.remote.transport.netty"),
       minClassCount = 2567,
       classExceptions = Set(
@@ -44,7 +41,6 @@ private object TextToTextTestConfig {
       ),
     ),
     CorpusProjects.Akka.scala3 -> TextToTextTestConfig(
-      packages = Seq("akka"),
       packageExceptions = Set("akka.parboiled2", "akka.persistence.journal.leveldb", "akka.remote.artery.aeron", "akka.remote.transport.netty"),
       minClassCount = 2521,
       classExceptions = Set(
@@ -60,7 +56,6 @@ private object TextToTextTestConfig {
 
     // Ammonite
     CorpusProjects.Ammonite.scala2 -> TextToTextTestConfig(
-      packages = Seq("ammonite"),
       minClassCount = 156,
       classExceptions = Set(
         "ammonite.compiler.Parsers", // extra space in [_ : ...]
@@ -68,7 +63,6 @@ private object TextToTextTestConfig {
       ),
     ),
     CorpusProjects.Ammonite.scala3 -> TextToTextTestConfig(
-      packages = Seq("ammonite"),
       minClassCount = 161,
       classExceptions = Set(
         "ammonite.repl.Repl", // Unknown vs Any
@@ -77,7 +71,6 @@ private object TextToTextTestConfig {
 
     // Cats
     CorpusProjects.Cats.scala2 -> TextToTextTestConfig(
-      packages = Seq("cats"),
       minClassCount = 1694,
       classExceptions = Set(
         "cats.effect.Platform", // Cannot resolve org.typelevel.scalaccompat.annotation.static3
@@ -91,7 +84,6 @@ private object TextToTextTestConfig {
       )
     ),
     CorpusProjects.Cats.scala3 -> TextToTextTestConfig(
-      packages = Seq("cats"),
       minClassCount = 1693,
       classExceptions = Set(
         "cats.effect.Platform", // Cannot resolve _root_.org.typelevel.scalaccompat.annotation.static3
@@ -104,7 +96,6 @@ private object TextToTextTestConfig {
 
     // Circe
     CorpusProjects.Circe.scala2 -> TextToTextTestConfig(
-      packages = Seq("io.circe"),
       minClassCount = 79,
       classExceptions = Set(
         "io.circe.Encoder", // export (correct, see ScalaNamesValidator)
@@ -119,7 +110,6 @@ private object TextToTextTestConfig {
       )
     ),
     CorpusProjects.Circe.scala3 -> TextToTextTestConfig(
-      packages = Seq("io.circe"),
       minClassCount = 87,
       withSources = true,
       classesWithoutSource = Set(
@@ -134,17 +124,14 @@ private object TextToTextTestConfig {
 
     // Doobie
     CorpusProjects.Doobie.scala2 -> TextToTextTestConfig(
-      packages = Seq("doobie"),
       minClassCount = 136,
     ),
     CorpusProjects.Doobie.scala3 -> TextToTextTestConfig(
-      packages = Seq("doobie"),
       minClassCount = 124
     ),
 
     // FS2
     CorpusProjects.Fs2.scala2 -> TextToTextTestConfig(
-      packages = Seq("fs2"),
       minClassCount = 72,
       classExceptions = Set(
         "fs2.Pull", // Any
@@ -152,7 +139,6 @@ private object TextToTextTestConfig {
       )
     ),
     CorpusProjects.Fs2.scala3 -> TextToTextTestConfig(
-      packages = Seq("fs2"),
       minClassCount = 70,
       classExceptions = Set(
         "fs2.Chunk", // Cannot resolve @org.typelevel.scalaccompat.annotation.internal.nowarnIgnored
@@ -171,18 +157,15 @@ private object TextToTextTestConfig {
 
     // Jsoniter
     CorpusProjects.Jsoniter.scala2 -> TextToTextTestConfig(
-      packages = Seq("com.github.plokhotnyuk.jsoniter_scala"),
       minClassCount = 15
     ),
     CorpusProjects.Jsoniter.scala3 -> TextToTextTestConfig(
-      packages = Seq("com.github.plokhotnyuk.jsoniter_scala"),
       minClassCount = 23,
       withSources = true
     ),
 
     // Mill
     CorpusProjects.Mill.scala2 -> TextToTextTestConfig(
-      packages = Seq("mill"),
       minClassCount = 140,
       classExceptions = Set(
         "mill.api.AggWrapper", // AggWrapper.this.
@@ -190,7 +173,6 @@ private object TextToTextTestConfig {
       ),
     ),
     CorpusProjects.Mill.scala3 -> TextToTextTestConfig(
-      packages = Seq("mill"),
       minClassCount = 134,
       withSources = true,
       sourceExceptions = Set(
@@ -214,7 +196,6 @@ private object TextToTextTestConfig {
 
     // Play
     CorpusProjects.Play.scala2 -> TextToTextTestConfig(
-      packages = Seq("controllers", "models", "play", "views"),
       minClassCount = 624,
       classExceptions = Set(
         "views.html.helper.form", // By-name function type parameter
@@ -225,7 +206,6 @@ private object TextToTextTestConfig {
       ),
     ),
     CorpusProjects.Play.scala3 -> TextToTextTestConfig(
-      packages = Seq("controllers", "models", "play", "views"),
       minClassCount = 628,
       classExceptions = Set(
         "play.api.mvc.ActionBuilder", // Extra [Nothing] type argument
@@ -239,7 +219,6 @@ private object TextToTextTestConfig {
 
     // Quill
     CorpusProjects.Quill.scala2 -> TextToTextTestConfig(
-      packages = Seq("io.getquill"),
       minClassCount = 508,
       classExceptions = Set(
         "io.getquill.EntityQuery", // No parentheses for repeated function type
@@ -256,7 +235,6 @@ private object TextToTextTestConfig {
       ),
     ),
     CorpusProjects.Quill.scala3 -> TextToTextTestConfig(
-      packages = Seq("io.getquill"),
       minClassCount = 661,
       classExceptions = Set(
         "io.getquill.DynamicInsert", // No parentheses for repeated function type
@@ -357,11 +335,9 @@ private object TextToTextTestConfig {
 
     // Scalacheck
     CorpusProjects.Scalacheck.scala2 -> TextToTextTestConfig(
-      packages = Seq("org.scalacheck"),
       minClassCount = 38
     ),
     CorpusProjects.Scalacheck.scala3 -> TextToTextTestConfig(
-      packages = Seq("org.scalacheck"),
       minClassCount = 39,
       withSources = true,
       sourceExceptions = Set(
@@ -373,7 +349,6 @@ private object TextToTextTestConfig {
 
     // ScalaCompiler
     CorpusProjects.ScalaCompiler.scala2 -> TextToTextTestConfig(
-      packages = Seq("scala.tools", "scala.reflect.quasiquotes", "scala.reflect.reify"),
       minClassCount = 710,
       classExceptions = Set(
         "scala.tools.nsc.CompilationUnits", // Reference to object without this. prefix
@@ -415,7 +390,6 @@ private object TextToTextTestConfig {
       ),
     ),
     CorpusProjects.ScalaCompiler.scala3 -> TextToTextTestConfig(
-      packages = Seq("dotty", "scala.quoted.runtime.impl"),
       minClassCount = 919,
       classExceptions = Set(
         "dotty.tools.backend.jvm.BTypesFromSymbols", // New error since Scala 3.3.1
@@ -438,7 +412,6 @@ private object TextToTextTestConfig {
 
     // Scalactic
     CorpusProjects.Scalactic.scala2 -> TextToTextTestConfig(
-      packages = Seq("org.scalactic"),
       minClassCount = 170,
       classExceptions = Set(
         "org.scalactic.Accumulation", // No parentheses for repeated function type
@@ -448,7 +421,6 @@ private object TextToTextTestConfig {
       ),
     ),
     CorpusProjects.Scalactic.scala3 -> TextToTextTestConfig(
-      packages = Seq("org.scalactic"),
       minClassCount = 167,
       classExceptions = Set(
         "org.scalactic.Accumulation", // No parentheses in repeated function type
@@ -464,7 +436,6 @@ private object TextToTextTestConfig {
 
     // ScalaJavaTime
     CorpusProjects.ScalaJavaTime.scala2 -> TextToTextTestConfig(
-      packages = Seq("java.time", "java.util"),
       minClassCount = 186,
       classExceptions = Set(
         "java.time.temporal.TemporalAdjusters", // Private object reference
@@ -472,7 +443,6 @@ private object TextToTextTestConfig {
       )
     ),
     CorpusProjects.ScalaJavaTime.scala3 -> TextToTextTestConfig(
-      packages = Seq("java.time", "java.util"),
       minClassCount = 162,
       classExceptions = Set(
         "java.time.temporal.TemporalAdjusters", // Private object reference
@@ -482,14 +452,12 @@ private object TextToTextTestConfig {
 
     // ScalaLibrary
     CorpusProjects.ScalaLibrary.scala2 -> TextToTextTestConfig(
-      packages = Seq("scala"),
       minClassCount = 787,
       classExceptions = Set(
         "scala.concurrent.impl.Promise", // Function1
       )
     ),
     CorpusProjects.ScalaLibrary.scala3 -> TextToTextTestConfig(
-      packages = Seq("scala"),
       minClassCount = 92,
       classExceptions = Set(
         "scala.Tuple", // _ in match types, SCL-23189
@@ -510,7 +478,6 @@ private object TextToTextTestConfig {
       ),
     ),
     CorpusProjects.ScalaLibrary_3_8.scala3 -> TextToTextTestConfig(
-      packages = Seq("scala"),
       minClassCount = 910,
       classExceptions = Set(
         "scala.NamedTuple", // def map[F[_]](f: [t] => t => F[t])
@@ -584,7 +551,6 @@ private object TextToTextTestConfig {
 
     // ScalaReflect (Scala 2 only)
     CorpusProjects.ScalaReflect.scala2 -> TextToTextTestConfig(
-      packages = Seq("scala.reflect"),
       minClassCount = 217,
       classExceptions = Set(
         "scala.reflect.api.TypeTags", // TypeTags.this. vs Universe.this
@@ -603,7 +569,6 @@ private object TextToTextTestConfig {
 
     // Scalatest
     CorpusProjects.Scalatest.scala2 -> TextToTextTestConfig(
-      packages = Seq("org.scalatest"),
       minClassCount = 678,
       classExceptions = Set(
         "org.scalatest.Suite", // Existential type
@@ -615,7 +580,6 @@ private object TextToTextTestConfig {
       ),
     ),
     CorpusProjects.Scalatest.scala3 -> TextToTextTestConfig(
-      packages = Seq("org.scalatest"),
       minClassCount = 667,
       classExceptions = Set(
         "org.scalatest.enablers.InspectorAsserting", // Tuple2 type argument
@@ -661,7 +625,6 @@ private object TextToTextTestConfig {
 
     // Scalaz
     CorpusProjects.Scalaz.scala2 -> TextToTextTestConfig(
-      packages = Seq("scalaz"),
       minClassCount = 1588,
       classExceptions = Set(
         "scalaz.Foralls", // Excessive parentheses in existential type
@@ -674,7 +637,6 @@ private object TextToTextTestConfig {
       )
     ),
     CorpusProjects.Scalaz.scala3 -> TextToTextTestConfig(
-      packages = Seq("scalaz"),
       minClassCount = 1588,
       classExceptions = Set(
         "scalaz.\\&/", // id$
@@ -684,11 +646,9 @@ private object TextToTextTestConfig {
 
     // ZIO
     CorpusProjects.Zio.scala2 -> TextToTextTestConfig(
-      packages = Seq("zio"),
       minClassCount = 266,
     ),
     CorpusProjects.Zio.scala3 -> TextToTextTestConfig(
-      packages = Seq("zio"),
       minClassCount = 266,
       classExceptions = Set(
         "zio.internal.stacktracer.SourceLocation", // Given without a name
