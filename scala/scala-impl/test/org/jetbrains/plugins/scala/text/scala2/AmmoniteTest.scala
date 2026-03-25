@@ -1,18 +1,15 @@
-package org.jetbrains.plugins.scala.text.scala2
+package org.jetbrains.plugins.scala.text
+package scala2
 
+import org.jetbrains.plugins.scala.DependencyManagerBase
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
-import org.jetbrains.plugins.scala.text.TextToTextTestBase
 
-class AmmoniteTest extends TextToTextTestBase(
-  dependencies = Seq(
+class AmmoniteTest extends ProjectCorpusTestImpl(AmmoniteTest)
+
+object AmmoniteTest extends Scala2ProjectCorpusTestDef {
+  override val dependencies: Seq[DependencyManagerBase.DependencyDescription] = Seq(
     "com.lihaoyi" % "ammonite_2.13.18" % "3.0.6",
-  ),
-  packages = Seq("ammonite"),
-  minClassCount = 156,
-  classExceptions = Set(
-    "ammonite.compiler.Parsers", // extra space in [_ : ...]
-    "ammonite.util.WhiteListClassLoader", // [x0] forSome {type x0 <: _root_.java.lang.Object}
-  ),
-  includeScalaCompiler = true,
-  includeScalaReflect = true
-)
+  )
+  override val includeScalaCompiler = true
+  override val includeScalaReflect = true
+}
