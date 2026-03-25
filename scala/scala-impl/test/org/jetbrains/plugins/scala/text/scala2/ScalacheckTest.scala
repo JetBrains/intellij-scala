@@ -1,12 +1,13 @@
-package org.jetbrains.plugins.scala.text.scala2
+package org.jetbrains.plugins.scala.text
+package scala2
 
+import org.jetbrains.plugins.scala.DependencyManagerBase
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
-import org.jetbrains.plugins.scala.text.TextToTextTestBase
 
-class ScalacheckTest extends TextToTextTestBase(
-  dependencies = Seq(
+class ScalacheckTest extends ProjectCorpusTestImpl(ScalacheckTest)
+
+object ScalacheckTest extends Scala2ProjectCorpusTestDef {
+  override val dependencies: Seq[DependencyManagerBase.DependencyDescription] = Seq(
     "org.scalacheck" %% "scalacheck" % "1.19.0",
-  ),
-  packages = Seq("org.scalacheck"),
-  minClassCount = 38
-)
+  )
+}

@@ -1,17 +1,14 @@
-package org.jetbrains.plugins.scala.text.scala2
+package org.jetbrains.plugins.scala.text
+package scala2
 
+import org.jetbrains.plugins.scala.DependencyManagerBase
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
-import org.jetbrains.plugins.scala.text.TextToTextTestBase
 
-class MillTest extends TextToTextTestBase(
-  dependencies = Seq(
+class MillTest extends ProjectCorpusTestImpl(MillTest)
+
+object MillTest extends Scala2ProjectCorpusTestDef {
+  override val dependencies: Seq[DependencyManagerBase.DependencyDescription] = Seq(
     "com.lihaoyi" %% "mill-main" % "0.12.15",
-  ),
-  packages = Seq("mill"),
-  minClassCount = 140,
-  classExceptions = Set(
-    "mill.api.AggWrapper", // AggWrapper.this.
-    "mill.resolve.ExpandBraces", // private trait ExpandBraces.Fragment
-  ),
-  includeScalaReflect = true
-)
+  )
+  override val includeScalaReflect = true
+}

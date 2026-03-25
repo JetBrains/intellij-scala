@@ -1,23 +1,11 @@
-package org.jetbrains.plugins.scala.text.scala2
+package org.jetbrains.plugins.scala.text
+package scala2
 
-import org.jetbrains.plugins.scala.text.TextToTextTestBase
+import org.jetbrains.plugins.scala.DependencyManagerBase
 
-class ScalaReflectTest extends TextToTextTestBase(
-  dependencies = Seq.empty,
-  packages = Seq("scala.reflect"),
-  minClassCount = 217,
-  classExceptions = Set(
-    "scala.reflect.api.TypeTags", // TypeTags.this. vs Universe.this
-    "scala.reflect.internal.Definitions", // type NameTypeDefinitions.this.TermName in type refinement
-    "scala.reflect.internal.Kinds", // No this. prefix for object
-    "scala.reflect.internal.StdNames", // No this. prefix for object
-    "scala.reflect.internal.Symbols", // Symbols.this. vs SymbolTable.this.
-    "scala.reflect.internal.Types", // Typs.this. vs SymbolTable.this.
-    "scala.reflect.internal.tpe.CommonOwners", // CommonOwners.this. vs SymbolTable.this.
-    "scala.reflect.internal.tpe.FindMembers", // Cannot resolve reference
-    "scala.reflect.internal.tpe.TypeMaps", // TypeMaps.this. vs SymbolTable.this.
-    "scala.reflect.internal.transform.Transforms", // $1, _1, cannot resolve reference
-    "scala.reflect.runtime.ReflectionUtils", // Existential type
-  ),
-  includeScalaReflect = true
-)
+class ScalaReflectTest extends ProjectCorpusTestImpl(ScalaReflectTest)
+
+object ScalaReflectTest extends Scala2ProjectCorpusTestDef {
+  override val dependencies: Seq[DependencyManagerBase.DependencyDescription] = Seq.empty
+  override val includeScalaReflect = true
+}

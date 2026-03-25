@@ -1,12 +1,13 @@
-package org.jetbrains.plugins.scala.text.scala2
+package org.jetbrains.plugins.scala.text
+package scala2
 
+import org.jetbrains.plugins.scala.DependencyManagerBase
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
-import org.jetbrains.plugins.scala.text.TextToTextTestBase
 
-class JsoniterTest extends TextToTextTestBase(
-  dependencies = Seq(
-    "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-macros" % "2.38.6"
-  ),
-  packages = Seq("com.github.plokhotnyuk.jsoniter_scala"),
-  minClassCount = 15
-)
+class JsoniterTest extends ProjectCorpusTestImpl(JsoniterTest)
+
+object JsoniterTest extends Scala2ProjectCorpusTestDef {
+  override val dependencies: Seq[DependencyManagerBase.DependencyDescription] = Seq(
+    "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-macros" % "2.38.6",
+  )
+}

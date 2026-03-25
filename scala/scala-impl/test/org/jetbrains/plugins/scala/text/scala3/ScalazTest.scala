@@ -1,17 +1,14 @@
-package org.jetbrains.plugins.scala.text.scala3
+package org.jetbrains.plugins.scala.text
+package scala3
 
+import org.jetbrains.plugins.scala.DependencyManagerBase
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
-import org.jetbrains.plugins.scala.text.TextToTextTestBase
 
-class ScalazTest extends TextToTextTestBase(
-  dependencies = Seq(
+class ScalazTest extends ProjectCorpusTestImpl(ScalazTest)
+
+object ScalazTest extends Scala3ProjectCorpusTestDef {
+  override val dependencies: Seq[DependencyManagerBase.DependencyDescription] = Seq(
     "org.scalaz" %% "scalaz-core" % "7.3.8",
     "org.scalaz" %% "scalaz-effect" % "7.3.8",
-  ),
-  packages = Seq("scalaz"),
-  minClassCount = 1588,
-  classExceptions = Set(
-    "scalaz.\\&/", // id$
-    "scalaz.\\/", // id$
   )
-)
+}

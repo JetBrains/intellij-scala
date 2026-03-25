@@ -1,13 +1,14 @@
-package org.jetbrains.plugins.scala.text.scala2
+package org.jetbrains.plugins.scala.text
+package scala2
 
+import org.jetbrains.plugins.scala.DependencyManagerBase
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
-import org.jetbrains.plugins.scala.text.TextToTextTestBase
 
-class DoobieTest extends TextToTextTestBase(
-  dependencies = Seq(
+class DoobieTest extends ProjectCorpusTestImpl(DoobieTest)
+
+object DoobieTest extends Scala2ProjectCorpusTestDef {
+  override val dependencies: Seq[DependencyManagerBase.DependencyDescription] = Seq(
     "org.tpolecat" %% "doobie-core" % "1.0.0-RC11",
-  ),
-  packages = Seq("doobie"),
-  minClassCount = 136,
-  includeScalaReflect = true,
-)
+  )
+  override val includeScalaReflect = true
+}

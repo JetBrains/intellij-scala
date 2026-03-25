@@ -1,23 +1,15 @@
-package org.jetbrains.plugins.scala.text.scala3
+package org.jetbrains.plugins.scala.text
+package scala3
 
+import org.jetbrains.plugins.scala.DependencyManagerBase
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
-import org.jetbrains.plugins.scala.text.TextToTextTestBase
 
-class CirceTest extends TextToTextTestBase(
-  dependencies = Seq(
+class CirceTest extends ProjectCorpusTestImpl(CirceTest)
+
+object CirceTest extends Scala3ProjectCorpusTestDef {
+  override val dependencies: Seq[DependencyManagerBase.DependencyDescription] = Seq(
     "io.circe" %% "circe-core" % "0.14.15",
     "io.circe" %% "circe-generic" % "0.14.15",
     "io.circe" %% "circe-parser" % "0.14.15",
-  ),
-  packages = Seq("io.circe"),
-  minClassCount = 87,
-  withSources = true,
-  classesWithoutSource = Set(
-    // Why are sources not found for these classes?
-    "io.circe.ProductCodecs",
-    "io.circe.ProductDecoders",
-    "io.circe.ProductEncoders",
-    "io.circe.TupleDecoders",
-    "io.circe.TupleEncoders",
   )
-)
+}

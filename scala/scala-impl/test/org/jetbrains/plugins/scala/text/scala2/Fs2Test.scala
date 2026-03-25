@@ -1,16 +1,13 @@
-package org.jetbrains.plugins.scala.text.scala2
+package org.jetbrains.plugins.scala.text
+package scala2
 
+import org.jetbrains.plugins.scala.DependencyManagerBase
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
-import org.jetbrains.plugins.scala.text.TextToTextTestBase
 
-class Fs2Test extends TextToTextTestBase(
-  dependencies = Seq(
+class Fs2Test extends ProjectCorpusTestImpl(Fs2Test)
+
+object Fs2Test extends Scala2ProjectCorpusTestDef {
+  override val dependencies: Seq[DependencyManagerBase.DependencyDescription] = Seq(
     "co.fs2" %% "fs2-core" % "3.12.2",
-  ),
-  packages = Seq("fs2"),
-  minClassCount = 72,
-  classExceptions = Set(
-    "fs2.Pull", // Any
-    "fs2.interop.flow.StreamSubscriber", // Cannot resolve fs2.interop.flow.StreamSubscriber (in private object)
   )
-)
+}
