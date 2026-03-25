@@ -55,7 +55,7 @@ trait TextToTextTestBase extends ProjectCorpusTestBase {
 
     println("Collecting classes...")
 
-    val classes = packages
+    val classes = projectDef.packages
       .map(name => manager.getCachedPackage(name).getOrElse(throw new AssertionError(name)))
       .flatMap(pkg => classesIn(pkg, packageExceptions))
       .filter(cls => if (version.isScala3) cls.isInScala3File else !cls.isInScala3File)
@@ -109,7 +109,7 @@ trait TextToTextTestBase extends ProjectCorpusTestBase {
           }
 
           // TODO Remove the exception when the ^ syntax in Scala 3.8 is parsed correctly
-          if (!(version.isScala3 && includeScalaLibrarySources && packages == Seq("scala") && sourceCls.getContainingFile.textContains('^'))) {
+          if (!(version.isScala3 && includeScalaLibrarySources && projectDef.packages == Seq("scala") && sourceCls.getContainingFile.textContains('^'))) {
             if (sourceExceptions(cls.qualifiedName)) {
               Assert.assertNotEquals(s"Expected to contain errors: ${cls.qualifiedName}", decompiledVsSourceOutline, sourceOutline)
             } else {
