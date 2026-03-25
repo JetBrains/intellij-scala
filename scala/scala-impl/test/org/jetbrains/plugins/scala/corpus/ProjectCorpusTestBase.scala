@@ -25,6 +25,7 @@ import scala.jdk.CollectionConverters.SeqHasAsJava
  */
 abstract class ProjectCorpusTestDef {
   implicit val scalaVersion: ScalaVersion
+  val packages: Seq[String]
   val dependencies: Seq[DependencyDescription]
   val includeScalaReflect: Boolean = false
   val includeScalaCompiler: Boolean = false

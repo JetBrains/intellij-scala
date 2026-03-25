@@ -10,5 +10,6 @@ class ScalaLibrary_3_8_Test extends ProjectCorpusTestImpl(ScalaLibrary_3_8_Test)
 }
 
 object ScalaLibrary_3_8_Test extends Scala3ProjectCorpusTestDef {
+  override val packages = Seq("scala")
   override val dependencies: Seq[DependencyManagerBase.DependencyDescription] = Seq.empty
 }
