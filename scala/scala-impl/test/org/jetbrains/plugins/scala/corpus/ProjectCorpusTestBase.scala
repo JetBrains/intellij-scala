@@ -5,13 +5,18 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
 import com.intellij.pom.java.LanguageLevel
+import com.intellij.psi.PsiPackage
 import com.intellij.testFramework.PsiTestUtil
+import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.DependencyManagerBase.DependencyDescription
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, ScalaReflectLibraryLoader, SmartJDKLoader}
 import org.jetbrains.plugins.scala.corpus.ProjectCorpusTestBase.ArtifactsWithoutSources
-import org.jetbrains.plugins.scala.extensions.PathExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PathExt}
+import org.jetbrains.plugins.scala.lang.psi.api.ScFile
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
@@ -50,6 +55,7 @@ abstract class ProjectCorpusTestDef {
 abstract class ProjectCorpusTestBase(val projectDef: ProjectCorpusTestDef) extends ScalaFixtureTestCase {
 
   override def getProject: Project = super.getProject
+  def getMyFixture: CodeInsightTestFixture = myFixture
 
   override protected val includeCompilerAsLibrary = projectDef.includeScalaCompiler
 
@@ -79,6 +85,32 @@ abstract class ProjectCorpusTestBase(val projectDef: ProjectCorpusTestDef) exten
 
   private def findJarFile(file: Path): VirtualFile =
     JarFileSystem.getInstance.refreshAndFindFileByPath(file.toCanonicalPath.toString + "!/")
+
+  protected def allClasses(excludePackages: Set[String]): Seq[ScTypeDefinition] = {
+    val manager = ScalaPsiManager.instance(getProject)
+    projectDef.packages
+      .map(name => manager.getCachedPackage(name).getOrElse(throw new AssertionError(s"Package not found: $name")))
+      .flatMap(classesIn(_, excludePackages))
+  }
+
+  protected def allSources(excludePackages: Set[String]): Set[ScFile] =
+    allClasses(excludePackages)
+      .map(_.getSourceMirrorClass.getContainingFile)
+      .collect { case file: ScFile if !file.isCompiled => file }
+      .toSet
+
+  protected def classesIn(pkg: PsiPackage, excludePackages: Set[String]): Seq[ScTypeDefinition] = {
+    val packageClasses = pkg.getClasses
+      .collect { case c: ScTypeDefinition if c.isInCompiledFile && !(c.is[ScObject] && c.baseCompanion.isDefined) => c }
+      .sortBy(_.qualifiedName)
+
+    val subpackageClasses = pkg.getSubPackages
+      .filter(pkg => !excludePackages(pkg.getQualifiedName))
+      .sortBy(_.getQualifiedName)
+      .flatMap(classesIn(_, excludePackages))
+
+    packageClasses.toSeq ++ subpackageClasses.toSeq
+  }
 }
 
 object ProjectCorpusTestBase {

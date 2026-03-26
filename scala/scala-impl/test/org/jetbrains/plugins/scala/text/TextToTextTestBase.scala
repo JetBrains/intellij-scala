@@ -55,9 +55,7 @@ trait TextToTextTestBase extends ProjectCorpusTestBase {
 
     println("Collecting classes...")
 
-    val classes = projectDef.packages
-      .map(name => manager.getCachedPackage(name).getOrElse(throw new AssertionError(name)))
-      .flatMap(pkg => classesIn(pkg, packageExceptions))
+    val classes = allClasses(packageExceptions)
       .filter(cls => if (version.isScala3) cls.isInScala3File else !cls.isInScala3File)
 
     val total = classes.length
@@ -122,19 +120,6 @@ trait TextToTextTestBase extends ProjectCorpusTestBase {
     }
 
     println("Done.")
-  }
-
-  private def classesIn(pkg: PsiPackage, exceptions: Set[String]): Seq[ScTypeDefinition] = {
-    val packageClasses = pkg.getClasses
-      .collect({ case c: ScTypeDefinition if c.isInCompiledFile && !(c.is[ScObject] && c.baseCompanion.isDefined) => c })
-      .sortBy(_.qualifiedName)
-
-    val subpackageClasses = pkg.getSubPackages
-      .filter(pkg => !exceptions(pkg.getQualifiedName))
-      .sortBy(_.getQualifiedName)
-      .flatMap(classesIn(_, exceptions))
-
-    packageClasses.toSeq ++ subpackageClasses.toSeq
   }
 
   private def textOfCompilationUnit(cls: ScTypeDefinition, withPrivate: Boolean, normalize: Boolean): String = {
