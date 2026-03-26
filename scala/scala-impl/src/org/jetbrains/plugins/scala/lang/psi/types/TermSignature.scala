@@ -93,7 +93,7 @@ class TermSignature(
     case _ => false
   }
 
-  def javaErasedEquiv(other: TermSignature): Boolean = {
+  private def javaErasedEquiv(other: TermSignature): Boolean = {
     (this, other) match {
       case (ps1: PhysicalMethodSignature, ps2: PhysicalMethodSignature) if !(ps1.isScala || ps2.isScala) =>
         implicit val elementScope: ElementScope = ps1.method.elementScope
@@ -106,7 +106,7 @@ class TermSignature(
     }
   }
 
-  def paramTypesEquiv(other: TermSignature): Boolean = {
+  private def paramTypesEquiv(other: TermSignature): Boolean = {
     paramTypesEquivExtended(other, ConstraintSystem.empty, falseUndef = true).isRight
   }
 
@@ -129,18 +129,24 @@ class TermSignature(
     val otherClauseIterator = other.substitutedTypes.iterator
     var lastConstraints     = constraints
 
+    val boundsEquiv = typeParams.zip(other.typeParams).forall { case (lhsTp, rhsTp) =>
+      lhsTp.upperType.equiv(rhsTp.upperType, lastConstraints, falseUndef).isRight
+    }
+
+    if (!boundsEquiv) return ConstraintsResult.Left
+
     while (clauseIterator.hasNext && otherClauseIterator.hasNext) {
       val clause1 = clauseIterator.next()
       val clause2 = otherClauseIterator.next()
 
       val result  = paramTypesEquivInner(
-        other = other,
-        typesIterator = clause1.iterator,
+        other              = other,
+        typesIterator      = clause1.iterator,
         otherTypesIterator = clause2.iterator,
-        depParamTypeSubst = depParamTypeSubst,
-        unified = unified,
-        constraints = lastConstraints,
-        falseUndef = falseUndef,
+        depParamTypeSubst  = depParamTypeSubst,
+        unified            = unified,
+        constraints        = lastConstraints,
+        falseUndef         = falseUndef,
       )
 
       result match {
@@ -160,24 +166,24 @@ class TermSignature(
       return ConstraintsResult.Left
 
     paramTypesEquivInner(
-      other = other,
-      typesIterator = substitutedTypes.flatten.iterator,
+      other              = other,
+      typesIterator      = substitutedTypes.flatten.iterator,
       otherTypesIterator = other.substitutedTypes.flatten.iterator,
-      depParamTypeSubst = depParamTypeSubstitutor(other),
-      unified = other.substitutor.withBindings(typeParams, other.typeParams),
-      constraints = constraints,
-      falseUndef = falseUndef,
+      depParamTypeSubst  = depParamTypeSubstitutor(other),
+      unified            = other.substitutor.withBindings(typeParams, other.typeParams),
+      constraints        = constraints,
+      falseUndef         = falseUndef,
     )
   }
 
   private def paramTypesEquivInner(
-    other: TermSignature,
-    typesIterator: Iterator[() => ScType],
+    other:              TermSignature,
+    typesIterator:      Iterator[() => ScType],
     otherTypesIterator: Iterator[() => ScType],
-    depParamTypeSubst: ScSubstitutor,
-    unified: ScSubstitutor,
-    constraints: ConstraintSystem,
-    falseUndef: Boolean,
+    depParamTypeSubst:  ScSubstitutor,
+    unified:            ScSubstitutor,
+    constraints:        ConstraintSystem,
+    falseUndef:         Boolean,
   ): ConstraintsResult = {
     var lastConstraints = constraints
     while (typesIterator.hasNext && otherTypesIterator.hasNext) {
@@ -190,12 +196,15 @@ class TermSignature(
       if (t.isLeft && tp1.equiv(api.AnyRef) && !this.isScala) {
         t = tp2.equiv(Any, lastConstraints, falseUndef)
       }
+
       if (t.isLeft && tp2.equiv(api.AnyRef) && !other.isScala) {
         t = Any.equiv(tp1, lastConstraints, falseUndef)
       }
+
       if (t.isLeft) {
         return ConstraintsResult.Left
       }
+
       lastConstraints = t.constraints
     }
     lastConstraints
@@ -231,15 +240,15 @@ class TermSignature(
   override def hashCode: Int = equivHashCode * 31 + parameterlessKind
 
   /**
-    * Use it, while building class hierarchy.
-    * Because for class hierarchy def foo(): Int is the same thing as def foo: Int and val foo: Int.
-    */
+   * Use it, while building class hierarchy.
+   * Because for class hierarchy def foo(): Int is the same thing as def foo: Int and val foo: Int.
+   */
   override def equivHashCode: Int = name #+ parameterSizeHash
 
   /** can be Java, Kotlin or other JVM lang (see SCL-19926) */
   def isScala: Boolean = false
 
-  def parameterlessKind: Int = {
+  private def parameterlessKind: Int = {
     if (paramLength > 0) HasParameters
     else namedElement match {
       case f: ScFunction                => if (!f.hasParameterClause) Parameterless else EmptyParentheses
