@@ -67,4 +67,17 @@ class OverloadedResolutionTest extends ScalaLightCodeInsightFixtureTestCase {
       |}
       |""".stripMargin
   )
+
+  def testSCL25229(): Unit = checkTextHasNoErrors(
+    """
+      |object Test {
+      | trait Foo
+      | trait Bar
+      | def foo[A <: Foo](a: A): String = ???
+      | def foo[B <: Bar](a: B): Int = ???
+      |
+      |  val ff: Int = foo(new Bar {})
+      |}
+      |""".stripMargin
+  )
 }
