@@ -152,17 +152,17 @@ final case class ScTypePolymorphicType private (
     r match {
       case p: ScTypePolymorphicType =>
         if (typeParameters.length != p.typeParameters.length) return ConstraintsResult.Left
+        val subst = ScSubstitutor.bind(typeParameters, p.typeParameters)(TypeParameterType(_))
         var i = 0
         while (i < typeParameters.length) {
-          var t = typeParameters(i).lowerType.equiv(p.typeParameters(i).lowerType, lastConstraints, falseUndef)
+          var t = subst(typeParameters(i).lowerType).equiv(p.typeParameters(i).lowerType, lastConstraints, falseUndef)
           if (t.isLeft) return ConstraintsResult.Left
           lastConstraints = t.constraints
-          t = typeParameters(i).upperType.equiv(p.typeParameters(i).upperType, lastConstraints, falseUndef)
+          t = subst(typeParameters(i).upperType).equiv(p.typeParameters(i).upperType, lastConstraints, falseUndef)
           if (t.isLeft) return ConstraintsResult.Left
           lastConstraints = t.constraints
           i = i + 1
         }
-        val subst = ScSubstitutor.bind(typeParameters, p.typeParameters)(TypeParameterType(_))
         subst(internalType).equiv(p.internalType, lastConstraints, falseUndef)
       case _ =>
         r.typeConstructor match {

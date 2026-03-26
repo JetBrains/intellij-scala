@@ -130,7 +130,8 @@ class TermSignature(
     var lastConstraints     = constraints
 
     val boundsEquiv = typeParams.zip(other.typeParams).forall { case (lhsTp, rhsTp) =>
-      lhsTp.upperType.equiv(rhsTp.upperType, lastConstraints, falseUndef).isRight
+      val res = unified(lhsTp.upperType).equiv(unified(rhsTp.upperType), lastConstraints, falseUndef).isRight
+      res
     }
 
     if (!boundsEquiv) return ConstraintsResult.Left
