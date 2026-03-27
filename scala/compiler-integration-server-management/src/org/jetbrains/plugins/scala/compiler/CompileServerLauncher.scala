@@ -182,6 +182,12 @@ object CompileServerLauncher {
             Seq("--enable-native-access=ALL-UNNAMED", "--sun-misc-unsafe-memory-access=allow")
           else Seq.empty
 
+        // SCL-25201 Final field mutation warning in JDK 26+
+        val finalFieldMutationOptions =
+          if (isJdkAtLeast(jdk, JavaSdkVersion.JDK_26))
+            Seq("--enable-final-field-mutation=ALL-UNNAMED")
+          else Seq.empty
+
         val userJvmParameters = jvmParameters
         val java9rtJarParams = prepareJava9rtJar(project, jdk)
 
@@ -210,6 +216,7 @@ object CompileServerLauncher {
             isScalaCompileServer +:
             addOpensOptions ++:
             unsafeMemoryAccessOptions ++:
+            finalFieldMutationOptions ++:
             vmOptions ++:
             loggingParameters ++:
             NailgunRunnerFQN +:
