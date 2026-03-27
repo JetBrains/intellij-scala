@@ -99,7 +99,7 @@ object WikiLinkParser {
 
     // range is inclusive
     lazy val descriptionTokens: Option[(Int, Int)] = {
-      val start = refTokens.fold(1)(_._2) + 1 // skip the whitespace that comes afterwards
+      val start = refTokens.fold(1)(_._2) + 2 // skip the whitespace that comes afterwards
       val end = closingBracketsChildIndex
         .map(_ - 1)
         .getOrElse(children.indices.last)
