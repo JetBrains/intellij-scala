@@ -398,54 +398,8 @@ object ScalaDocContentGeneratorWikidoc {
   private def resolveQuery(ref: ResolvableStableCodeReference, context: PsiElement): Option[PsiElementResolveResult] = {
     lazy val refText = ref.getText.trim
     val resolveResults = ref.multiResolveScala(false)
-    val singleResolveResult = resolveResults match {
-      case Array(head) => Some(head)
-      case companions if companions.length == 2 =>
-        // TODO: this actually can be triggered for non companions but e.g. for
-        //  type :: = String
-        //  val :: = 42
-        val selectCompanion = refText.endsWith("$")
-        val result = if (selectCompanion)
-          companions.find(_.element.is[ScObject])
-        else
-          companions.find(!_.element.is[ScObject])
-        result.orElse(companions.find(_.element.is[ScTypeAlias]))
-      case _ => None
-    }
-
-    val resolvedElement = singleResolveResult.map(result => ScNamedElement.adjusted(result.element))
-    resolvedElement match {
-      case Some(function: ScFunction) =>
-        val clazz: PsiClass = function.containingClass
-        if (clazz!= null) {
-          val fqn = clazz.qualifiedName
-          if (fqn != null) {
-            val result = Some(PsiElementResolveResult(s"${clazz.qualifiedName}#${function.name}", ref.getText))
-            return result
-          }
-        }
-      case _                          =>
-    }
-
-    for {
-      element       <- resolvedElement
-      qualifiedName <- qualifiedNameForElement(element)
-    } yield {
-      val shortestName = element match {
-        case clazz: PsiClass        => ScalaDocUtil.shortestClassName(clazz, context)
-        case typeAlias: ScTypeAlias => ScalaDocUtil.shortestClassName(typeAlias, context)
-        case _                      => refText
-      }
-      PsiElementResolveResult(qualifiedName, shortestName)
-    }
+    Option.when(resolveResults.nonEmpty)(PsiElementResolveResult(refText, refText))
   }
-
-  private def qualifiedNameForElement(element: PsiElement): Option[String] =
-    element match {
-      case clazz: PsiClass    => Option(clazz.qualifiedName)
-      case alias: ScTypeAlias => alias.qualifiedNameOpt
-      case _                  => None
-    }
 
   /**
    * TODO: unify with [[org.jetbrains.plugins.scala.editor.documentationProvider.HtmlPsiUtils.psiElementLink]]

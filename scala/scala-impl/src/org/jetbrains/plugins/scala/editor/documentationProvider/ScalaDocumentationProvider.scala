@@ -16,10 +16,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticNamedElement
+import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, ScFunctionWrapper}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
+import org.jetbrains.plugins.scala.lang.scaladoc.reflinks.ScalaDocRefLinkLanguage
+import org.jetbrains.plugins.scala.lang.scaladoc.reflinks.psi.ScDocRefQuery
 
 import java.util.function.Consumer
 import scala.annotation.tailrec
@@ -52,19 +53,14 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
   override def getDocumentationElementForLink(psiManager: PsiManager, link: String, context: PsiElement): PsiElement =
     if (!isInScalaFile(context)) null
     else JavaDocUtil.findReferenceTarget(psiManager, link, context) match {
-      case null                        => findScalaReferenceTarget(psiManager, link, context).orNull
+      case null                        => findScalaReferenceTarget(link, context).orNull
       case PsiClassWrapper(definition) => definition
       case other                       => other
     }
 
-  private def findScalaReferenceTarget(psiManager: PsiManager, link: String, context: PsiElement): Option[PsiElement] = {
-    val scalaPsiManager = ScalaPsiManager.instance(psiManager.getProject)
-    val scope = context.containingFile.map(_.resolveScope)
-    scope.flatMap { s =>
-      val res1 = scalaPsiManager.getCachedClass(s, link)
-      val res2 = res1.orElse(scalaPsiManager.getStableAliasesByFqn(link, s).headOption)
-      res2
-    }
+  private def findScalaReferenceTarget(link: String, context: PsiElement): Option[PsiElement] = {
+    val fragment = ScalaCodeFragment.create(link, ScalaDocRefLinkLanguage.INSTANCE, context)(context.getProject)
+    fragment.getFirstChild.asInstanceOf[ScDocRefQuery].multiResolveScala(false).headOption.map(_.element)
   }
 
   override def generateDoc(element: PsiElement, @Nullable originalElement: PsiElement): String = {

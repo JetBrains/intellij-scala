@@ -77,7 +77,7 @@ abstract class DocumentationProviderTestBase
     generateRenderedDoc(referredElement)
   }
 
-  private def createEditorAndFile(fileContent: String): (Editor, PsiFile) = {
+  protected def createEditorAndFile(fileContent: String): (Editor, PsiFile) = {
     configureFixtureFromText(fileContent)
     (myFixture.getEditor, getFixture.getFile)
   }
