@@ -321,13 +321,13 @@ class BspProjectOpenProcessor extends ProjectOpenProcessor {
 object BspProjectOpenProcessor {
 
   def canOpenProject(workspace: VirtualFile): Boolean = {
-    val ioWorkspace = Path.of(workspace.getPath)
+    val ioWorkspace = workspace.toNioPath
 
     // val sbtProject = SbtProjectImportProvider.canImport(workspace)
     // temporarily disable sbt importing via bloop from welcome screen (SCL-17359)
     val sbtProject = false
 
-    hasBspConfiguration(ioWorkspace) || sbtProject || isScalaCliOrMill(workspace.toNioPath)
+    hasBspConfiguration(ioWorkspace) || sbtProject || isScalaCliOrMill(ioWorkspace)
   }
 
   private[bsp] def hasBspConfiguration(workspace: Path): Boolean = {
