@@ -52,11 +52,13 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
 
   override def getDocumentationElementForLink(psiManager: PsiManager, link: String, context: PsiElement): PsiElement =
     if (!isInScalaFile(context)) null
-    else JavaDocUtil.findReferenceTarget(psiManager, link, context) match {
-      case null                        => findScalaReferenceTarget(link, context).orNull
-      case PsiClassWrapper(definition) => definition
-      case other                       => other
-    }
+    else findScalaReferenceTarget(link, context)
+      .getOrElse(
+        JavaDocUtil.findReferenceTarget(psiManager, link, context) match {
+          case PsiClassWrapper(definition) => definition
+          case other                       => other
+        }
+      )
 
   private def findScalaReferenceTarget(link: String, context: PsiElement): Option[PsiElement] = {
     val fragment = ScalaCodeFragment.create(link, ScalaDocRefLinkLanguage.INSTANCE, context)(context.getProject)
