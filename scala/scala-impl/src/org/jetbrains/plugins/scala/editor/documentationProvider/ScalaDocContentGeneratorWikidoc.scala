@@ -263,7 +263,7 @@ private class ScalaDocContentGeneratorWikidoc(
   private def visitSyntaxNode(buffer: StringBuilder, syntax: ScDocSyntaxElement): Unit = {
     val markupTagElement = syntax.firstChild.filter(_.elementType.is[ScalaDocSyntaxElementType])
     val markupTag = markupTagElement.map(_.getText)
-    if (markupTag.contains("[["))
+    if (markupTag.exists(_.startsWith("[[")))
       buffer.append(generateLink(syntax))
     else
       markupTag.flatMap(markupTagToHtmlTag) match {
