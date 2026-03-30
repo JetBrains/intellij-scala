@@ -130,4 +130,49 @@ class ScalaDocumentationProviderTest_Links
         |psi_element://_root_.org.example.Test -> Test
         |""".stripMargin,
     )
+
+  def test_link_to_sdt(): Unit =
+    runTest(
+      s"""package org.example
+         |/**
+         | * [[Seq]]
+         | * [[Seq.isEmpty]]
+         | * [[Seq.fill]]
+         | * [[Seq.empty]]
+         | * [[Seq.empty[T]]]
+         | *
+         | * @syntax
+         | */
+         |class Te${CARET}st
+         |""".stripMargin,
+      """
+        |psi_element://Seq -> Seq
+        |psi_element://Seq.isEmpty -> Seq.isEmpty
+        |psi_element://Seq.fill -> Seq.fill
+        |psi_element://Seq.empty -> Seq.empty
+        |psi_element://Seq.empty[T] -> Seq.empty[T]
+        |""".stripMargin,
+    )
+
+  // SCL-25227
+  def test_type_ref(): Unit =
+    runTest(
+      s"""
+         |class Target1 {
+         |  def foo = 42
+         |}
+         |
+         |/**
+         | * Link [[Target1#foo]]
+         | * Link [[Target1!#foo]]
+         | *
+         | * @syntax
+         | */
+         |object Te${CARET}st1
+         |""".stripMargin,
+      """
+        |psi_element://Target1#foo -> Target1#foo
+        |psi_element://Target1!#foo -> Target1!#foo
+        |""".stripMargin
+    )
 }

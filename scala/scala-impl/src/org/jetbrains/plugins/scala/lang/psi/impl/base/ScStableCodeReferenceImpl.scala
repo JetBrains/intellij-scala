@@ -568,6 +568,9 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
       case ScalaResolveResult(pack: ScPackage, s) =>
         pack.processDeclarations(processor, ScalaResolveState.withSubstitutor(s),
           null, this)
+      case ScalaResolveResult(ta: ScTypeAlias, substitutor) if qualifier.is[ScDocRefQuery, ScDocResolvableCodeReference] =>
+        val upperBound = ta.upperBound.getOrAny
+        processor.processType(substitutor(upperBound), this, ScalaResolveState.withSubstitutor(substitutor))
       case other: ScalaResolveResult =>
         other.element.processDeclarations(processor, ScalaResolveState.withSubstitutor(other.substitutor),
           null, this)
