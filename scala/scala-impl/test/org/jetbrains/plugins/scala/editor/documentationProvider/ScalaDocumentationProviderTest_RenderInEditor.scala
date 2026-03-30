@@ -67,7 +67,7 @@ class ScalaDocumentationProviderTest_RenderInEditor extends ScalaDocumentationPr
          |<tr><td valign='top' class='section'><p>Returns:</td>
          |<td valign='top'>some text</td>
          |<tr><td valign='top' class='section'><p>Throws:</td>
-         |<td valign='top'><a href="psi_element://$exceptionClass"><code>java.lang.Exception</code></a> &ndash; some text</td>
+         |<td valign='top'><a href="psi_element://Exception"><code>Exception</code></a> &ndash; some text</td>
          |<tr><td valign='top' class='section'><p>Note:</td>
          |<td valign='top'>some text</td>
          |<tr><td valign='top' class='section'><p>Example:</td>

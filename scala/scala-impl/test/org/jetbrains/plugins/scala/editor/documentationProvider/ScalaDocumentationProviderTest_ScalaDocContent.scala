@@ -269,7 +269,7 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
          |<tr><td valign='top' class='section'><p>Returns:</td>
          |<td valign='top'>some text</td>
          |<tr><td valign='top' class='section'><p>Throws:</td>
-         |<td valign='top'><a href="psi_element://$exceptionClass"><code>java.lang.Exception</code></a> &ndash; some text</td>
+         |<td valign='top'><a href="psi_element://Exception"><code>Exception</code></a> &ndash; some text</td>
          |<tr><td valign='top' class='section'><p>Note:</td>
          |<td valign='top'>some text</td>
          |<tr><td valign='top' class='section'><p>Example:</td>
@@ -340,9 +340,9 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
     val expectedDoc =
       s"""<tr><td valign='top' class='section'><p>Throws:</td>
          |<td valign='top'>
-         |<a href="psi_element://$exceptionClass"><code>java.lang.Exception</code></a>
+         |<a href="psi_element://Exception"><code>Exception</code></a>
          | &ndash; some condition 1
-         |<p><a href="psi_element://java.lang.IllegalAccessException"><code>IllegalAccessException</code></a>
+         |<p><a href="psi_element://java.lang.IllegalAccessException"><code>java.lang.IllegalAccessException</code></a>
          | &ndash; some condition 2
          |<p><a href="psi_element://java.util.ConcurrentModificationException"><code>java.util.ConcurrentModificationException</code></a>
          | &ndash; some condition 3</td>
@@ -359,7 +359,7 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
     val expectedDoc =
       s"""<tr><td valign='top' class='section'><p>Throws:</td>
          |<td valign='top'>
-         |<a href="psi_element://java.util.ConcurrentModificationException"><code>ConcurrentModificationException</code></a>
+         |<a href="psi_element://java.util.ConcurrentModificationException"><code>java.util.ConcurrentModificationException</code></a>
          | &ndash; some condition</td>
          |""".stripMargin
     doGenerateDocSectionsTest(fileText, expectedDoc)
@@ -821,10 +821,10 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
          |class ${|}A
          |""".stripMargin
     val expectedDoc =
-      s"""<a href="psi_element://scala.util.DynamicVariable"><code>DynamicVariable</code></a><br>
-         | <a href="psi_element://scala.util.DynamicVariable"><code>DynamicVariable</code></a><br>
-         | <a href="psi_element://scala.util.DynamicVariable"><code>DynamicVariable</code></a><br>
-         | <a href="psi_element://scala.util.DynamicVariable"><code>DynamicVariable</code></a><br>
+      s"""<a href="psi_element://DynamicVariable"><code>DynamicVariable</code></a><br>
+         | <a href="psi_element://scala.util.DynamicVariable"><code>scala.util.DynamicVariable</code></a><br>
+         | <a href="psi_element://DynamicVariable"><code>DynamicVariable</code></a><br>
+         | <a href="psi_element://scala.util.DynamicVariable"><code>scala.util.DynamicVariable</code></a><br>
          |""".stripMargin
     doGenerateDocContentTest(fileText, expectedDoc)
   }
@@ -839,9 +839,9 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
          |class ${|}A
          |""".stripMargin
     val expectedDoc =
-      s"""<a href="psi_element://java.lang.Exception"><code>${if (aliasExportsEnabled) "java.lang.Exception" else "java.lang.Exception"}</code></a><br>
-         | <a href="psi_element://java.lang.Exception"><code>java.lang.Exception</code></a><br>
-         | <a href="psi_element://java.lang.Exception"><code>${if (aliasExportsEnabled) "java.lang.Exception" else "java.lang.Exception"}</code></a><br>
+      s"""<a href="psi_element://java.lang.Exception"><code>java.lang.Exception</code></a><br>
+         | <a href="psi_element://Exception"><code>Exception</code></a><br>
+         | <a href="psi_element://scala.Exception"><code>scala.Exception</code></a><br>
          |""".stripMargin
     doGenerateDocContentTest(fileText, expectedDoc)
   }
@@ -891,15 +891,15 @@ final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocument
        |""".stripMargin
 
     val expectedContent =
-      """<a href="psi_element://com.example.MyClass1"><code>MyClass1</code></a> <br>
-        | <a href="psi_element://com.example.MyClass1"><code>MyClass1</code></a> <br>
-        | <a href="psi_element://com.example.MyClass1"><code>MyClass1</code></a> <br>
-        | <a href="psi_element://com.example.MyClass2"><code>MyClass2</code></a> <br>
-        | <a href="psi_element://com.example.MyClass2"><code>MyClass2</code></a> <br>
-        | <a href="psi_element://com.example.MyClass2"><code>MyClass2</code></a> <br>
-        | <a href="psi_element://com.example.MyClass3"><code>MyClass3</code></a> <br>
-        | <a href="psi_element://com.example.MyClass3"><code>MyClass3</code></a> <br>
-        | <a href="psi_element://com.example.MyClass3"><code>MyClass3</code></a> <br>
+      """<a href="psi_element://MyClass1"><code>MyClass1</code></a> <br>
+        | <a href="psi_element://example.MyClass1"><code>example.MyClass1</code></a> <br>
+        | <a href="psi_element://com.example.MyClass1"><code>com.example.MyClass1</code></a> <br>
+        | <a href="psi_element://MyClass2"><code>MyClass2</code></a> <br>
+        | <a href="psi_element://example.MyClass2"><code>example.MyClass2</code></a> <br>
+        | <a href="psi_element://com.example.MyClass2"><code>com.example.MyClass2</code></a> <br>
+        | <a href="psi_element://MyClass3"><code>MyClass3</code></a> <br>
+        | <a href="psi_element://example.MyClass3"><code>example.MyClass3</code></a> <br>
+        | <a href="psi_element://com.example.MyClass3"><code>com.example.MyClass3</code></a> <br>
         |""".stripMargin
 
     doGenerateDocContentTest(
