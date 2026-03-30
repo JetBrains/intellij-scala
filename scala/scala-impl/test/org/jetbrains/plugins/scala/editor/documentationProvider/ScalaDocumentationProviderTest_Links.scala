@@ -175,4 +175,23 @@ class ScalaDocumentationProviderTest_Links
         |psi_element://Target1!#foo -> Target1!#foo
         |""".stripMargin
     )
+
+  def test_ref_to_type_alias(): Unit =
+    runTest(
+      s"""
+         |class TypeLink {
+         |  type T = Int
+         |}
+         |
+         |/**
+         | * [[TypeLink.T]]
+         | *
+         | * @syntax
+         | */
+         |class Te${CARET}st
+         |""".stripMargin,
+      """
+        |psi_element://TypeLink.T -> TypeLink.T
+        |""".stripMargin
+    )
 }
