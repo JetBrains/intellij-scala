@@ -139,7 +139,7 @@ class ScalaDocumentationProviderTest_Links
          | * [[Seq.isEmpty]]
          | * [[Seq.fill]]
          | * [[Seq.empty]]
-         | * [[Seq.empty[T]]]
+         | * [[Seq.empty[A]]]
          | *
          | * @syntax
          | */
@@ -150,7 +150,7 @@ class ScalaDocumentationProviderTest_Links
         |psi_element://Seq.isEmpty -> Seq.isEmpty
         |psi_element://Seq.fill -> Seq.fill
         |psi_element://Seq.empty -> Seq.empty
-        |psi_element://Seq.empty[T] -> Seq.empty[T]
+        |psi_element://Seq.empty[A] -> Seq.empty[A]
         |""".stripMargin,
     )
 
