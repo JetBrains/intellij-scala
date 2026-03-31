@@ -256,7 +256,7 @@ private class ScalaDocContentWithSectionsGenerator(
   private def throwsInfo(tag: ScDocTag): Option[ParamInfo] = {
     val tagValue = tag.children.findByType[ScDocThrowTagValue]
     tagValue.map { tagValue =>
-      val value = ScalaDocContentGeneratorWikidoc.generatePsiElementLink(tagValue.query, resolveContext)
+      val value = ScalaDocContentGeneratorWikidoc.generatePsiElementLink(tagValue.referenceLink, resolveContext)
       val description = contentGenerator.tagDescriptionText(tag)
       ParamInfo(value, description)
     }

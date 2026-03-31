@@ -113,7 +113,7 @@ private class ScalaDocContentGeneratorWikidoc(
     plainLink: Boolean,
     isContentChild: PsiElement => Boolean
   ): String = {
-    resolveQuery(link.query, resolveContext) match {
+    resolveQuery(link, resolveContext) match {
       case Some(res) =>
         val label = labelFromSiblings(link, isContentChild).getOrElse(escapeHtml4(res.label))
         hyperLinkToPsi(res.refText, label, plainLink)
@@ -388,16 +388,16 @@ object ScalaDocContentGeneratorWikidoc {
 
   private case class PsiElementResolveResult(refText: String, label: String)
 
-  def generatePsiElementLink(ref: ResolvableStableCodeReference, context: PsiElement): String = {
+  def generatePsiElementLink(ref: ScDocReferenceLink, context: PsiElement): String = {
     val resolved = resolveQuery(ref, context)
     resolved
       .map(res => hyperLinkToPsi(res.refText, escapeHtml4(res.label), plainLink = false))
       .getOrElse(unresolvedReference(ref.getText))
   }
 
-  private def resolveQuery(ref: ResolvableStableCodeReference, context: PsiElement): Option[PsiElementResolveResult] = {
-    lazy val refText = ref.getText.trim
-    val resolveResults = ref.multiResolveScala(false)
+  private def resolveQuery(link: ScDocReferenceLink, context: PsiElement): Option[PsiElementResolveResult] = {
+    lazy val refText = link.getText.trim
+    val resolveResults = link.query.multiResolveScala(false)
     Option.when(resolveResults.nonEmpty)(PsiElementResolveResult(refText, refText))
   }
 
@@ -405,9 +405,9 @@ object ScalaDocContentGeneratorWikidoc {
    * TODO: unify with [[org.jetbrains.plugins.scala.editor.documentationProvider.HtmlPsiUtils.psiElementLink]]
    *  and [[org.jetbrains.plugins.scala.editor.documentationProvider.HtmlPsiUtils.psiElementLinkWithCodeTag]]
    */
-  private def hyperLinkToPsi(refText: String, label: String, plainLink: Boolean): String = {
+  private def hyperLinkToPsi(linkText: String, label: String, plainLink: Boolean): String = {
     val buffer = new java.lang.StringBuilder
-    DocumentationManagerUtil.createHyperlink(buffer, refText, label, plainLink)
+    DocumentationManagerUtil.createHyperlink(buffer, linkText, label, plainLink)
     buffer.toString
   }
 
