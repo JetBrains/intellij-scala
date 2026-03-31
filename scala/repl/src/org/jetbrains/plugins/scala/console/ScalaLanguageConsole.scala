@@ -19,7 +19,6 @@ import com.intellij.testFramework.LightVirtualFile
 import com.intellij.ui.{Gray, JBColor, SideBorder}
 import org.jetbrains.plugins.scala.console.ScalaLanguageConsole.*
 import org.jetbrains.plugins.scala.console.actions.ScalaConsoleExecuteAction
-import org.jetbrains.plugins.scala.extensions.invokeAndWait
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
@@ -356,7 +355,7 @@ object ScalaLanguageConsole {
   private class Builder(module: Module) extends TextConsoleBuilderImpl(module.getProject) {
 
     override def createConsole: LanguageConsoleImpl = {
-      val consoleView = invokeAndWait(new ScalaLanguageConsole(module))
+      val consoleView = new ScalaLanguageConsole(module)
       ScalaConsoleInfo.setIsConsole(consoleView.getFile, flag = true)
 
       //pretend that we are a prompt from Scala REPL process
