@@ -1,7 +1,7 @@
 package warmup
 
 object Warmup {
-  def filter[A](p: Any => Boolean): Any = filter[Any](p)
+  def filter[A](p: Any => Boolean): Int = 1 + filter[Any](p)
 }
 -----
 ScalaFile
@@ -62,26 +62,33 @@ ScalaFile
                 PsiElement())(')')
             PsiElement(:)(':')
             PsiWhiteSpace(' ')
-            SimpleType: Any
-              CodeReferenceElement: Any
-                PsiElement(identifier)('Any')
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
             PsiWhiteSpace(' ')
             PsiElement(=)('=')
             PsiWhiteSpace(' ')
-            MethodCall
-              GenericCall
-                ReferenceExpression: filter
-                  PsiElement(identifier)('filter')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: Any
-                    CodeReferenceElement: Any
-                      PsiElement(identifier)('Any')
-                  PsiElement(])(']')
-              ArgumentList
-                PsiElement(()('(')
-                ReferenceExpression: p
-                  PsiElement(identifier)('p')
-                PsiElement())(')')
+            InfixExpression
+              IntegerLiteral
+                PsiElement(integer)('1')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: +
+                PsiElement(identifier)('+')
+              PsiWhiteSpace(' ')
+              MethodCall
+                GenericCall
+                  ReferenceExpression: filter
+                    PsiElement(identifier)('filter')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: Any
+                      CodeReferenceElement: Any
+                        PsiElement(identifier)('Any')
+                    PsiElement(])(']')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: p
+                    PsiElement(identifier)('p')
+                  PsiElement())(')')
           PsiWhiteSpace('\n')
           PsiElement(})('}')

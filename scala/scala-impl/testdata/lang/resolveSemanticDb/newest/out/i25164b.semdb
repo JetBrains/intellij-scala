@@ -1,0 +1,17 @@
+Document tests/pos/i25164b.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:35) scala/language.experimental.
+(1:36..1:46) scala/language.experimental.modularity.
+(3:42..3:47) _empty_/Entry# -> 3:16
+(4:15..4:19) scala/package.List#
+(6:13..6:18) _empty_/Entry# -> 3:16
+(6:21..6:25) scala/package.List#
+(6:26..6:32) scala/Predef.String#
+(7:3..7:4) _empty_/i25164b$package.test().(e) -> 6:10
+(7:5..7:9) _empty_/Entry#walk(). -> 4:7
+(7:12..7:19) scala/collection/immutable/List#flatMap().
+(8:5..8:9) scala/package.List.
+(8:10..8:15) local1 -> 7:22
+(8:16..8:24) scala/Any#toString().
+

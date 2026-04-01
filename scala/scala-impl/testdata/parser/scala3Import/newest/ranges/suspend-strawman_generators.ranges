@@ -48,8 +48,8 @@
 [274,285]: AppliedTypeTree
 [274,282]: Ident
 [283,284]: Ident
-[297,828]: New
-[297,828]: Template
+[288,828]: New
+[288,828]: Template
 [297,297]: DefDef
 [297,297]: TypeTree
 [297,327]: ValDef
@@ -224,8 +224,8 @@
 [1229,1241]: AppliedTypeTree
 [1229,1238]: Ident
 [1239,1240]: Ident
-[1254,1545]: New
-[1254,1545]: Template
+[1244,1545]: New
+[1244,1545]: Template
 [1254,1254]: DefDef
 [1254,1254]: TypeTree
 [1254,1294]: DefDef

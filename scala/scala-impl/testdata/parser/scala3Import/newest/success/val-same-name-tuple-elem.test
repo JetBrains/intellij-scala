@@ -1,0 +1,62 @@
+// https://github.com/scala/scala3/issues/23893
+val foo: (f: String) = "" *: EmptyTuple
+val f = foo.f // previously: error: recursive value foo needs type
+-----
+ScalaFile
+  ScPatternDefinition: foo
+    PsiComment(comment)('// https://github.com/scala/scala3/issues/23893')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: foo
+        PsiElement(identifier)('foo')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    NamedTupleType: (f: String)
+      PsiElement(()('(')
+      NamedTupleTypeComponent: f: String
+        PsiElement(identifier)('f')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        SimpleType: String
+          CodeReferenceElement: String
+            PsiElement(identifier)('String')
+      PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    InfixExpression
+      StringLiteral
+        PsiElement(string content)('""')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: *:
+        PsiElement(identifier)('*:')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: EmptyTuple
+        PsiElement(identifier)('EmptyTuple')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: f
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: f
+        PsiElement(identifier)('f')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: foo.f
+      ReferenceExpression: foo
+        PsiElement(identifier)('foo')
+      PsiElement(.)('.')
+      PsiElement(identifier)('f')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// previously: error: recursive value foo needs type')

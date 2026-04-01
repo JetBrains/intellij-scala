@@ -34,8 +34,8 @@
 [321,326]: Ident
 [327,328]: TypeBoundsTree
 [332,338]: Ident
-[345,375]: New
-[345,375]: Template
+[341,375]: New
+[341,375]: Template
 [345,345]: DefDef
 [345,345]: TypeTree
 [345,351]: Ident

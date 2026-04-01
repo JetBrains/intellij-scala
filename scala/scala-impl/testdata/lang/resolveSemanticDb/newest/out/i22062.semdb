@@ -32,7 +32,7 @@ Document tests/pos/i22062.scala
 (28:48..28:56) _empty_/TreeRenderers#Renderer# -> 21:9
 (28:57..28:58) _empty_/TreeRenderers#DefaultRenderer#[A] -> 28:26
 (29:37..29:45) _empty_/TreeRenderers#Renderer. -> 24:10
-(29:46..29:54) _empty_/TreeRenderers#Renderer.CellInfo# -> 25:26
+(29:46..29:54) _empty_/TreeRenderers#Renderer.CellInfo# -> 25:17
 (29:57..29:66) _empty_/Component# -> 2:7
 (29:69..29:72) scala/Predef.`???`().
 (31:20..31:29) _empty_/Component# -> 2:7

@@ -79,8 +79,8 @@
 [484,488]: Ident
 [499,659]: ValDef
 [513,513]: TypeTree
-[520,659]: New
-[520,659]: Template
+[516,659]: New
+[516,659]: Template
 [520,520]: DefDef
 [520,520]: TypeTree
 [520,537]: Ident

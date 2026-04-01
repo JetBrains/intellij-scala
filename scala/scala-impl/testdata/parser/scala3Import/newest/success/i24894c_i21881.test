@@ -1,0 +1,217 @@
+class C:
+
+  //inline val Seconds = java.util.concurrent.TimeUnit.SECONDS // not a literal
+  inline transparent def Seconds = java.util.concurrent.TimeUnit.SECONDS
+
+  @OutputTimeUnit(Seconds)
+  def f(): Unit = ()
+
+  final val SecondsFinalVal = java.util.concurrent.TimeUnit.SECONDS
+
+  @OutputTimeUnit(SecondsFinalVal)
+  def f2(): Unit = ()
+
+  @OutputTimeUnit(java.util.concurrent.TimeUnit.SECONDS)
+  def ok(): Unit = ()
+-----
+ScalaFile
+  ScClass: C
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('C')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: Seconds
+          PsiComment(comment)('//inline val Seconds = java.util.concurrent.TimeUnit.SECONDS // not a literal')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+            PsiWhiteSpace(' ')
+            PsiElement(transparent)('transparent')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Seconds')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: java.util.concurrent.TimeUnit.SECONDS
+            ReferenceExpression: java.util.concurrent.TimeUnit
+              ReferenceExpression: java.util.concurrent
+                ReferenceExpression: java.util
+                  ReferenceExpression: java
+                    PsiElement(identifier)('java')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('util')
+                PsiElement(.)('.')
+                PsiElement(identifier)('concurrent')
+              PsiElement(.)('.')
+              PsiElement(identifier)('TimeUnit')
+            PsiElement(.)('.')
+            PsiElement(identifier)('SECONDS')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: f
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: OutputTimeUnit
+                    CodeReferenceElement: OutputTimeUnit
+                      PsiElement(identifier)('OutputTimeUnit')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: Seconds
+                      PsiElement(identifier)('Seconds')
+                    PsiElement())(')')
+          Modifiers
+            <empty list>
+          PsiWhiteSpace('\n  ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('f')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          UnitExpression
+            PsiElement(()('(')
+            PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: SecondsFinalVal
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(final)('final')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: SecondsFinalVal
+              PsiElement(identifier)('SecondsFinalVal')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: java.util.concurrent.TimeUnit.SECONDS
+            ReferenceExpression: java.util.concurrent.TimeUnit
+              ReferenceExpression: java.util.concurrent
+                ReferenceExpression: java.util
+                  ReferenceExpression: java
+                    PsiElement(identifier)('java')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('util')
+                PsiElement(.)('.')
+                PsiElement(identifier)('concurrent')
+              PsiElement(.)('.')
+              PsiElement(identifier)('TimeUnit')
+            PsiElement(.)('.')
+            PsiElement(identifier)('SECONDS')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: f2
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: OutputTimeUnit
+                    CodeReferenceElement: OutputTimeUnit
+                      PsiElement(identifier)('OutputTimeUnit')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: SecondsFinalVal
+                      PsiElement(identifier)('SecondsFinalVal')
+                    PsiElement())(')')
+          Modifiers
+            <empty list>
+          PsiWhiteSpace('\n  ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('f2')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          UnitExpression
+            PsiElement(()('(')
+            PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: ok
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: OutputTimeUnit
+                    CodeReferenceElement: OutputTimeUnit
+                      PsiElement(identifier)('OutputTimeUnit')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: java.util.concurrent.TimeUnit.SECONDS
+                      ReferenceExpression: java.util.concurrent.TimeUnit
+                        ReferenceExpression: java.util.concurrent
+                          ReferenceExpression: java.util
+                            ReferenceExpression: java
+                              PsiElement(identifier)('java')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('util')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('concurrent')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('TimeUnit')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('SECONDS')
+                    PsiElement())(')')
+          Modifiers
+            <empty list>
+          PsiWhiteSpace('\n  ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ok')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          UnitExpression
+            PsiElement(()('(')
+            PsiElement())(')')

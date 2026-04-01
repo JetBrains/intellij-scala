@@ -90,10 +90,9 @@ class AfterUpdateDottyVersionScript {
 
 object AfterUpdateDottyVersionScript {
   private val scala3_repo_lts_branch = "lts-3.3"
-  private val scala3_repo_newest_branch = "release-3.8.2"
+  private val scala3_repo_newest_branch = "release-3.8.3"
 
-  private val scala3_lts_module_name = "scala3-bootstrapped"
-  private val scala3_newest_module_name = "scala3-bootstrapped-new"
+  private val scala3_bootstrapped_module_name = "scala3-bootstrapped"
 
   class ScalaRepository private (branch: String) {
     lazy val path: Path = {
@@ -242,9 +241,9 @@ object AfterUpdateDottyVersionScript {
    * Imports Tests from the dotty repositiory
    */
   class Scala3ImportedParserTest_Import_FromDottyDirectory_LTS
-    extends Scala3ImportedParserTest_Import_FromDottyDirectory(Scala3ImportedParserTestConfig.LTS, scala3_repo_lts_branch, scala3_lts_module_name)
+    extends Scala3ImportedParserTest_Import_FromDottyDirectory(Scala3ImportedParserTestConfig.LTS, scala3_repo_lts_branch, scala3_bootstrapped_module_name)
   class Scala3ImportedParserTest_Import_FromDottyDirectory_Newest
-    extends Scala3ImportedParserTest_Import_FromDottyDirectory(Scala3ImportedParserTestConfig.Newest, scala3_repo_newest_branch, scala3_newest_module_name)
+    extends Scala3ImportedParserTest_Import_FromDottyDirectory(Scala3ImportedParserTestConfig.Newest, scala3_repo_newest_branch, scala3_bootstrapped_module_name)
 
   abstract class Scala3ImportedParserTest_Import_FromDottyDirectory(config: Scala3ImportedParserTestConfig, branch: String, sbtTestModule: String)
     extends TestCase {
@@ -469,9 +468,9 @@ object AfterUpdateDottyVersionScript {
    * Imports semanticdb tests from the dotty repositiory
    */
   class Scala3ImportedSemanticDbTest_Import_FromDottyDirectory_Scala3_LTS
-    extends Scala3ImportedSemanticDbTest_Import_FromDottyDirectory(ReferenceComparisonTestConfig_Scala3_LTS, scala3_repo_lts_branch, scala3_lts_module_name)
+    extends Scala3ImportedSemanticDbTest_Import_FromDottyDirectory(ReferenceComparisonTestConfig_Scala3_LTS, scala3_repo_lts_branch, scala3_bootstrapped_module_name)
   class Scala3ImportedSemanticDbTest_Import_FromDottyDirectory_Scala3_Newest
-    extends Scala3ImportedSemanticDbTest_Import_FromDottyDirectory(ReferenceComparisonTestConfig_Scala3_Newest, scala3_repo_newest_branch, scala3_newest_module_name)
+    extends Scala3ImportedSemanticDbTest_Import_FromDottyDirectory(ReferenceComparisonTestConfig_Scala3_Newest, scala3_repo_newest_branch, scala3_bootstrapped_module_name)
   abstract class Scala3ImportedSemanticDbTest_Import_FromDottyDirectory(config: ReferenceComparisonTestConfig, branch: String, sbtTestModule: String)
     extends TestCase {
 
