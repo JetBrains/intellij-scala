@@ -203,7 +203,7 @@ object ShowTypeInfoAction {
   }
 
   private def typeTextOf(elem: PsiElement, subst: ScSubstitutor)
-                        (implicit tpc: TypePresentationContext, context: Context): Option[String] = {
+                        (implicit ctx: TypePresentationContext with Context): Option[String] = {
     val scType = elem.typeOfNamedElement(subst).orElse {
       elem match {
         case under: ScUnderscoreSection => under.`type`().toOption
@@ -215,6 +215,6 @@ object ShowTypeInfoAction {
   }
 
   private[this] def typeText(optType: Option[ScType])
-                            (implicit tpc: TypePresentationContext, context: Context): Option[String] =
+                            (implicit ctx: TypePresentationContext with Context): Option[String] =
     optType.map(TypePresentation.withoutAliases)
 }

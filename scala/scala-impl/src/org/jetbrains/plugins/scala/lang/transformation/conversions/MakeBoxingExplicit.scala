@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
 import org.jetbrains.plugins.scala.lang.psi.types
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
+import org.jetbrains.plugins.scala.lang.psi.PsiElementContext
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.transformation.{AbstractTransformer, bindTo, simpleNameOf}
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -34,7 +35,7 @@ class MakeBoxingExplicit extends AbstractTransformer {
 
   override protected def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
     case (e: ScExpression) & Typeable(t) & ExpectedType(et)
-      if boxMethodName(t).nonEmpty && et != AnyRef && et != t && !isSpecializedFor(et, t)(TypePresentationContext(e), types.Context(e)) =>
+      if boxMethodName(t).nonEmpty && et != AnyRef && et != t && !isSpecializedFor(et, t)(PsiElementContext(e)) =>
 
       val target = s"$Class.${boxMethodName(t).get}"
 
@@ -42,14 +43,14 @@ class MakeBoxingExplicit extends AbstractTransformer {
       bindTo(r, target)
   }
 
-  private def isSpecializedFor(target: ScType, source: ScType)(implicit tpc: TypePresentationContext, context: types.Context): Boolean = target match {
+  private def isSpecializedFor(target: ScType, source: ScType)(implicit ctx: TypePresentationContext with Context): Boolean = target match {
     case it: TypeParameterType =>
       isSpecializedFor(it.psiTypeParameter.asInstanceOf[ScAnnotationsHolder], source)
     case _ =>
       false
   }
 
-  private def isSpecializedFor(holder: ScAnnotationsHolder, t: ScType)(implicit tpc: TypePresentationContext, context: types.Context): Boolean = {
+  private def isSpecializedFor(holder: ScAnnotationsHolder, t: ScType)(implicit ctx: TypePresentationContext with Context): Boolean = {
     holder.annotations.exists { it =>
       val name = it.annotationExpr.constructorInvocation.typeElement.getText
       val arguments = it.annotationExpr.getAnnotationParameters

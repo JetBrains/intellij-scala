@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.lang.completion.lookups
 
 import com.intellij.codeInsight.completion.{InsertionContext, JavaCompletionUtil}
 import com.intellij.codeInsight.lookup._
-import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil._
 import org.jetbrains.plugins.scala.autoImport.quickFix._
@@ -10,7 +9,6 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.completion.handlers.{ScalaImportingInsertHandler, ScalaInsertHandler}
 import org.jetbrains.plugins.scala.lang.completion.{InsertionContextExt, ScalaKeyword}
-import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
@@ -24,8 +22,10 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticF
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.{PsiElementContext, ScImportsHolder}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.escapeKeyword
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
+import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings._
 import org.jetbrains.plugins.scala.util.HashBuilder._
 
@@ -144,8 +144,7 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
     if (someSmartCompletion) 5 else 0
 
   private lazy val typeText: String = {
-    implicit val pc: Project = getPsiElement.getProject
-    implicit val tpc: TypePresentationContext = TypePresentationContext(getPsiElement)
+    implicit val tpc: TypePresentationContext with ProjectContext = PsiElementContext(getPsiElement)
     import LookupItemPresentationUtil.{presentationStringForJavaType, presentationStringForScalaType}
     getPsiElement match {
       case fun: ScFunction =>
@@ -174,8 +173,7 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
   }
 
   private lazy val tailText: String = {
-    implicit val pc: Project = getPsiElement.getProject
-    implicit val tpc: TypePresentationContext = TypePresentationContext(getPsiElement)
+    implicit val tpc: TypePresentationContext with ProjectContext = PsiElementContext(getPsiElement)
     getPsiElement match {
       //scala
       case _: ScReferencePattern => // todo should be a ScValueOrVariable instance
@@ -212,7 +210,7 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
   }
 
   private def typeParametersText(typeParameters: Seq[_ <: PsiTypeParameter])
-                                (implicit project: Project, tpc: TypePresentationContext, context: Context): String =
+                                (implicit tpc: TypePresentationContext with ProjectContext, context: Context): String =
     if (typeParameters.isEmpty)
       ""
     else
@@ -225,7 +223,7 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
       }.commaSeparated(Model.SquareBrackets)
 
   private def typeParametersText(owner: PsiTypeParameterListOwner)
-                                (implicit project: Project, tpc: TypePresentationContext, context: Context): String = owner match {
+                                (implicit tpc: TypePresentationContext with ProjectContext, context: Context): String = owner match {
     case owner: ScTypeParametersOwner =>
       owner.typeParametersClause.fold("") {
         LookupItemPresentationUtil.presentationStringForPsiElement(_, substitutor)
@@ -235,7 +233,7 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
   }
 
   private def parametersText(parametersList: PsiParameterList)
-                            (implicit project: Project, tpc: TypePresentationContext, context: Context) =
+                            (implicit tpc: TypePresentationContext with ProjectContext, context: Context) =
     if (Option(JavaCompletionUtil.getAllMethods(this)).exists(_.size > 1))
       "(...)"
     else

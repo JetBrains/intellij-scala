@@ -30,7 +30,7 @@ private object LookupItemPresentationUtil {
     substitutor(scType).presentableText
 
   def presentationStringForJavaType(psiType: PsiType, substitutor: ScSubstitutor)
-                                   (implicit project: ProjectContext, tpc: TypePresentationContext, context: Context): String =
+                                   (implicit tpc: TypePresentationContext with ProjectContext, context: Context): String =
     psiType match {
       case tp: PsiEllipsisType =>
         presentationStringForJavaType(tp.getComponentType, substitutor) + "*"
@@ -40,7 +40,7 @@ private object LookupItemPresentationUtil {
 
 
   def presentationStringForPsiElement(element: PsiElement, substitutor: ScSubstitutor)
-                                     (implicit project: ProjectContext, tpc: TypePresentationContext, context: Context): String = {
+                                     (implicit tpc: TypePresentationContext with ProjectContext, context: Context): String = {
     def typeRenderer: TypeRenderer =
       presentationStringForScalaType(_, substitutor)
 
@@ -96,7 +96,7 @@ private object LookupItemPresentationUtil {
   }
 
   private def renderPsiParameter(substitutor: ScSubstitutor, param: PsiParameter)
-                                (implicit project: ProjectContext, tpc: TypePresentationContext, context: Context): String = {
+                                (implicit tpc: TypePresentationContext with ProjectContext, context: Context): String = {
     val buffer: StringBuilder = new StringBuilder("")
     val list = param.getModifierList
     if (list == null)
