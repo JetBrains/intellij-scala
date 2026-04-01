@@ -252,9 +252,9 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
     }
   })
 
-  override def getExtendsListTypes: Array[PsiClassType] = innerExtendsListTypes
+  override def getExtendsListTypes: Array[PsiClassType] = innerExtendsListTypes(forImplementsList = false)
 
-  override def getImplementsListTypes: Array[PsiClassType] = innerExtendsListTypes
+  override def getImplementsListTypes: Array[PsiClassType] = innerExtendsListTypes(forImplementsList = true)
 
   override def getQualifiedNameForDebugger: String = {
     import ScalaNamesUtil.toJavaName

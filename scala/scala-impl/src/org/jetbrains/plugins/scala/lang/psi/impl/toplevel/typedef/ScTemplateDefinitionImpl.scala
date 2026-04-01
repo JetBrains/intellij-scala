@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.TokenSets.RBRACE_OR_END_STMT
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isLineTerminator
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
@@ -37,7 +38,6 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionE
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, ScalaType, SmartSuperTypeUtil, TermSignature, TypeSignature}
-import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
@@ -86,8 +86,7 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
     allSignatures.filter(isValSignature)
 
   override final def allMethods: Iterator[PhysicalMethodSignature] =
-    allSignatures.filter(_.isInstanceOf[PhysicalMethodSignature])
-      .map(_.asInstanceOf[PhysicalMethodSignature])
+    allSignatures.filterByType[PhysicalMethodSignature]
 
   override final def allSignatures: Iterator[TermSignature] =
     getSignatures(this).allSignatures
@@ -525,20 +524,35 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
     member.getParent.getNode.removeChild(member.getNode)
   }
 
-  def innerExtendsListTypes: Array[PsiClassType] = {
+  /**
+   * Returns the array of class types for the type definitions that this template definition implements.
+   *
+   * @param forImplementsList if true, return class types for interfaces, otherwise for classes
+   * @see [[PsiClass#getExtendsListTypes()]]
+   * @see [[PsiClass#getImplementsListTypes()]]
+   */
+  protected def innerExtendsListTypes(forImplementsList: Boolean): Array[PsiClassType] = {
     val eb = extendsBlock
     if (eb != null) {
-      val tp = eb.templateParents
-
-      implicit val elementScope: ElementScope = ElementScope(getProject)
-      tp match {
-        case Some(tp1) => (for (te <- tp1.allTypeElements;
-                                t = te.`type`().getOrAny;
-                                asPsi = t.toPsiType
-                                if asPsi.isInstanceOf[PsiClassType]) yield asPsi.asInstanceOf[PsiClassType]).toArray[PsiClassType]
-        case _ => PsiClassType.EMPTY_ARRAY
+      val templateParents = eb.templateParents
+      templateParents match {
+        case Some(tp) =>
+          val typeElements  = tp.allTypeElements
+          val psiTypes      = typeElements.map(_.calcType.toPsiType)
+          val psiClassTypes = psiTypes.filterByType[PsiClassType].filter { tpe =>
+            tpe.resolve() match {
+              case cls: PsiClass =>
+                forImplementsList == cls.isInterface
+              case _ => false
+            }
+          }
+          psiClassTypes.toArray[PsiClassType]
+        case _ =>
+          PsiClassType.EMPTY_ARRAY
       }
-    } else PsiClassType.EMPTY_ARRAY
+    } else {
+      PsiClassType.EMPTY_ARRAY
+    }
   }
 
   override def superClass: Option[PsiClass] =

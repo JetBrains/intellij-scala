@@ -16,16 +16,15 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{JavaConstructor, ScConstructorInvocation, ScalaConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScTypeAlias}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScBegin, ScalaElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionWithContextFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.{ScTemplateDefinitionImpl, TypeDefinitionMembers}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.AnyRef
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 import javax.swing.Icon
@@ -196,9 +195,9 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
                                    place: PsiElement): Boolean =
     processDeclarationsImpl(processor, state, lastParent, place)
 
-  override def getExtendsListTypes: Array[PsiClassType] = innerExtendsListTypes
+  override def getExtendsListTypes: Array[PsiClassType] = innerExtendsListTypes(forImplementsList = false)
 
-  override def getImplementsListTypes: Array[PsiClassType] = innerExtendsListTypes
+  override def getImplementsListTypes: Array[PsiClassType] = innerExtendsListTypes(forImplementsList = true)
 
   override def getTypeWithProjections(thisProjections: Boolean = false): TypeResult = `type`() //no projections for new template definition
 
