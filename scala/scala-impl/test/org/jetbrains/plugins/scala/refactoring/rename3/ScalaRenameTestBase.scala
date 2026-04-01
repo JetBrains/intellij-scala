@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala.refactoring
-package rename3
+package org.jetbrains.plugins.scala.refactoring.rename3
 
 import com.intellij.codeInsight.TargetElementUtil
 import com.intellij.openapi.editor.Editor
@@ -15,6 +14,7 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.refactoring.refactoringCommonTestDataRoot
 import org.jetbrains.plugins.scala.util.WriteCommandActionEx
 
 import java.nio.file.Path
@@ -125,17 +125,15 @@ abstract class ScalaRenameTestBase extends ScalaLightCodeInsightFixtureTestCase 
     val searchInComments = element.getText != null && element.getText.contains("Comments")
     var oldName: String = ""
 
-    WriteCommandActionEx.runWriteCommandAction(getProject, () => {
-      val subst = RenamePsiElementProcessor.forElement(element).substituteElementToRename(element, getEditor)
-      if (subst != null) {
-        oldName = ScalaNamesUtil.scalaName(subst)
-        val renameRefactoring = RefactoringFactory.getInstance(getProject).createRename(subst, newName, searchInComments, false)
-        if (withAutoRenames) {
-          renameRefactoring.respectEnabledAutomaticRenames()
-        }
-        renameRefactoring.run()
+    val subst = RenamePsiElementProcessor.forElement(element).substituteElementToRename(element, getEditor)
+    if (subst != null) {
+      oldName = ScalaNamesUtil.scalaName(subst)
+      val renameRefactoring = RefactoringFactory.getInstance(getProject).createRename(subst, newName, searchInComments, false)
+      if (withAutoRenames) {
+        renameRefactoring.respectEnabledAutomaticRenames()
       }
-    })
+      renameRefactoring.run()
+    }
 
     val document = PsiDocumentManager.getInstance(getProject).getDocument(file)
     PsiDocumentManager.getInstance(getProject).doPostponedOperationsAndUnblockDocument(document)
