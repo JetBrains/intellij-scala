@@ -150,7 +150,7 @@
 [836,837]: Ident
 [839,839]: TypeTree
 [846,999]: New
-[850,999]: Template
+[846,999]: Template
 [850,850]: DefDef
 [850,850]: TypeTree
 [850,864]: AppliedTypeTree
