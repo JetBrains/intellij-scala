@@ -146,7 +146,7 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
         boolean nullText = myTypes.exists((ty) -> ty.toString() == null);
         // Type specification
         if (myTypes.nonEmpty() && !nullText) {
-            TypePresentationContext context = TypePresentationContext$.MODULE$.psiElementPresentationContext(expression);
+            TypePresentationContext context = TypePresentationContext$.MODULE$.apply(expression);
             myTypeMap = ScalaRefactoringUtil.getCompatibleTypeNames(myTypes, context);
             for (String typeName : myTypeMap.keySet()) {
                 myTypeComboBox.addItem(typeName);

@@ -23,7 +23,7 @@ final case class ScMethodType(
 
   def isImplicit: Boolean = hasImplicitKW || hasUsingKW
 
-  override implicit def projectContext: ProjectContext = elementScope.projectContext
+  override implicit def projectContext: ProjectContext = elementScope
 
   override def visitType(visitor: ScalaTypeVisitor): Unit = visitor.visitMethodType(this)
 

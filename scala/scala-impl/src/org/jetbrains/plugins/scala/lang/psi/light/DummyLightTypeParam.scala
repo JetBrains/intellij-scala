@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
 
-class DummyLightTypeParam(override val name: String)(implicit pc: ProjectContext)
+class DummyLightTypeParam(override val name: String)(pc: ProjectContext)
   extends LightElement(pc, ScalaLanguage.INSTANCE) with ScTypeParam with PsiClassFake {
 
   override def getIndex: Int = 0

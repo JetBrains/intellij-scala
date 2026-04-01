@@ -28,14 +28,17 @@ trait TypePresentationContext {
 object TypePresentationContext {
   import scala.language.implicitConversions
 
-  def apply(place: PsiElement): TypePresentationContext = psiElementPresentationContext(place)
+  def apply(place: PsiElement): PsiBased = new PsiBased {
+    override protected def placeForTypePresentation: PsiElement = place
+  }
 
-  class PsiBased(place: PsiElement) extends TypePresentationContext {
+  trait PsiBased extends TypePresentationContext {
+    protected def placeForTypePresentation: PsiElement
     override def nameResolvesTo(name: String, target: PsiElement): Boolean =
-      if (place.isValid) {
-        val context = place.getContext
+      if (placeForTypePresentation.isValid) {
+        val context = placeForTypePresentation.getContext
         if (context != null) {
-          val element = ScalaPsiElementFactory.createTypeElementFromText(name, context, place)
+          val element = ScalaPsiElementFactory.createTypeElementFromText(name, context, placeForTypePresentation)
           element match {
             case ScSimpleTypeElement(ResolvesTo(reference)) =>
               ScEquivalenceUtil.smartEquivalence(reference, target)(Context(context))
@@ -45,11 +48,11 @@ object TypePresentationContext {
       }
       else true //let's just show short version for invalid elements
 
-    override lazy val compoundTypeWithAndToken: Boolean = place.containingFile.exists(_.isScala3OrSource3Enabled)
-    override lazy val infixTypesConsiderPrecedence: Option[Boolean] = place.containingFile.map(_.isInScala3File)
+    override lazy val compoundTypeWithAndToken: Boolean = placeForTypePresentation.containingFile.exists(_.isScala3OrSource3Enabled)
+    override lazy val infixTypesConsiderPrecedence: Option[Boolean] = placeForTypePresentation.containingFile.map(_.isInScala3File)
   }
 
-  implicit def psiElementPresentationContext(place: PsiElement): PsiBased = new PsiBased(place)
+  implicit def psiElementToPresentationContext(place: PsiElement): PsiBased = TypePresentationContext(place)
 
   abstract class EmptyPresentationContext extends TypePresentationContext {
     override final def nameResolvesTo(name: String, target: PsiElement): Boolean = false

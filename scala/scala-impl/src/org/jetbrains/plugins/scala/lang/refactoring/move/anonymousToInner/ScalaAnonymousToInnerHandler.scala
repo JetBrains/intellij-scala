@@ -90,7 +90,7 @@ object ScalaAnonymousToInnerHandler {
     }, RefactoringTitle, null)
 
   private def newTemplateForInnerClass(project: Project, name: String, variables: Seq[ScalaVariableData], newTemplate: ScNewTemplateDefinition) = {
-    implicit val projectContext: ProjectContext = new ProjectContext(project)
+    implicit val projectContext: ProjectContext = ProjectContext(project)
 
     val args = variables.map(_.variable.getName).mkString(", ")
     val text = s"""new $name($args)""".stripMargin
@@ -141,7 +141,7 @@ object ScalaAnonymousToInnerHandler {
   }
 
   private def createClass(name: String, anonClass: ScExtendsBlock, variables: Seq[ScalaVariableData], project: Project): ScClass = {
-    implicit val projectContext: ProjectContext = new ProjectContext(project)
+    implicit val projectContext: ProjectContext = ProjectContext(project)
 
     val parameters = variables.map(v => s"${v.name}: ${v.`type`.getPresentableText}").mkString(", ")
     val text = s"private class $name($parameters) extends ${anonClass.getText}"

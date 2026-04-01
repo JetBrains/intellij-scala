@@ -534,7 +534,7 @@ class ScalaPsiManager(implicit val project: Project) extends Disposable {
     )
 
   private def clearCaches(): Unit = {
-    new ProjectContext(project).typeSystem.clearCache()
+    ProjectContext(project).typeSystem.clearCache()
     if (!project.isDisposed) {
       ScMatchType.clearReductionCache(project)
       ParameterizedType.substitutorCache(project).clear()
@@ -598,7 +598,7 @@ class ScalaPsiManager(implicit val project: Project) extends Disposable {
     )
 
   private def andType(psiTypes: Seq[PsiType]): ScType =
-    new ProjectContext(project).typeSystem.andType(psiTypes.map(_.toScType()))
+    ProjectContext(project).typeSystem.andType(psiTypes.map(_.toScType()))
 
   def getStableTypeAliasesNames: Iterable[String] =
     if (DumbService.getInstance(project).isDumb) Iterable.empty

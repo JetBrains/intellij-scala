@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
 import com.intellij.psi.{PsiDirectory, PsiElement, PsiFile}
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.lang.psi.PsiElementContext
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
@@ -29,7 +30,9 @@ trait Context {
 }
 
 object Context {
-  def apply(place: PsiElement): Context = new Context() {
+  def apply(place: PsiElement): Context = PsiElementContext(place)
+
+  trait PsiBasedImpl extends Context with PsiElementContext {
     override def isInScopeOf(opaqueTypeAlias: ScTypeAliasDefinition): Boolean = {
       if (!opaqueTypeAlias.isOpaque)
         throw new IllegalArgumentException("Opaque type alias expected")
@@ -40,11 +43,11 @@ object Context {
         case _ => true
       }
 
-      containingFileOf(opaqueTypeAlias).getOriginalFile == containingFileOf(place).getOriginalFile &&
-        place.contexts.takeWhile(p).contains(opaqueTypeAlias.getContext)
+      containingFileOf(opaqueTypeAlias).getOriginalFile == containingFileOf(psiElement).getOriginalFile &&
+        psiElement.contexts.takeWhile(p).contains(opaqueTypeAlias.getContext)
     }
 
-    override def toString: String = place.toString
+    override def toString: String = s"ConformanceContext(${psiElement.toString})"
   }
 
   @tailrec
@@ -66,11 +69,12 @@ object Context {
    *
    * TODO Use dedicated Transparent and Opaque contexts for opaque type aliases in the future
    */
-  object Empty extends Context {
+  trait Empty extends Context {
     override def isInScopeOf(opaqueTypeAlias: ScTypeAliasDefinition): Boolean = true
 
     override def toString: String = "<empty>"
   }
+  object Empty extends Empty
 
   /**
    * Default argument for [[Context]] parameters, to maintain source compatibility.

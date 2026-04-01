@@ -361,7 +361,8 @@ object TypeAdjuster {
               .flatMap(infoToMappings)
               .toMap
 
-            val presentationContext: TypePresentationContext = new TypePresentationContext.PsiBased(simple.place) {
+            val presentationContext: TypePresentationContext = new TypePresentationContext.PsiBased() {
+              override protected val placeForTypePresentation: PsiElement = simple.place
               override def nameResolvesTo(name: String, target: PsiElement): Boolean =
                 mappings.get(name).exists(smartEquivalence(_, target))
             }

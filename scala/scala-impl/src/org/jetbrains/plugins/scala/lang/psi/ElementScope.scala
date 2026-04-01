@@ -12,8 +12,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, UndefinedTy
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, ScalaType}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-case class ElementScope(project: Project, scope: GlobalSearchScope) {
-  implicit def projectContext: ProjectContext = project
+trait ElementScope extends ProjectContext {
+  def scope: GlobalSearchScope
 
   def getCachedClass(fqn: String): Option[PsiClass] =
     getCachedClasses(fqn).find {
@@ -24,7 +24,7 @@ case class ElementScope(project: Project, scope: GlobalSearchScope) {
     getCachedClasses(fqn).findByType[ScObject]
 
   def cachedFunction1Type: Option[ScParameterizedType] =
-    manager.cachedFunction1Type(this)
+    ScalaPsiManager.instance(project).cachedFunction1Type(this)
 
   def getFunctionTrait(parametersCount: Int = 1): Option[ScTrait] =
     getCachedClass(FunctionType.TypeName + parametersCount).filterByType[ScTrait]
@@ -39,29 +39,33 @@ case class ElementScope(project: Project, scope: GlobalSearchScope) {
     }.filterByType[ScParameterizedType]
 
   def getCachedClasses(fqn: String): Array[PsiClass] =
-    manager.getCachedClasses(scope, fqn)
+    ScalaPsiManager.instance(project).getCachedClasses(scope, fqn)
 
   def scalaSeqType: Option[ScType] =
-    manager.scalaSeqAlias(scope).map(ScDesignatorType.apply)
+    ScalaPsiManager.instance(project).scalaSeqAlias(scope).map(ScDesignatorType.apply)
 
   def scalaNamedTupleType: Option[ScTypeAlias] =
-    manager.scalaNamedTupleAlias(scope)
-
-  private lazy val manager =
-    ScalaPsiManager.instance(project)
+    ScalaPsiManager.instance(project).scalaNamedTupleAlias(scope)
 }
 
 object ElementScope {
+  def apply(project: Project, scope: GlobalSearchScope): ElementScope =
+    new SimpleElementScope(project, scope)
+
   def apply(element: PsiElement): ElementScope = {
     val project = element.getProject
     val scope   = element.resolveScope
-
-    ElementScope(project, scope)
+    new SimpleElementScope(project, scope)
   }
 
   def apply(project: Project): ElementScope =
-    ElementScope(project, GlobalSearchScope.allScope(project))
+    new SimpleElementScope(project, GlobalSearchScope.allScope(project))
 
-  implicit def toProjectContext(implicit elementScope: ElementScope): ProjectContext =
-    elementScope.project
+  def unapply(scope: ElementScope): Some[(Project, GlobalSearchScope)] =
+    Some((scope.project, scope.scope))
+
+  private class SimpleElementScope(
+    override val project: Project,
+    override val scope: GlobalSearchScope
+  ) extends ElementScope
 }

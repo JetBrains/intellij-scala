@@ -219,7 +219,7 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
         if (myTypes.size() == 0 || nullText) {
             myTypeComboBox.setEnabled(false);
         } else {
-            TypePresentationContext context = TypePresentationContext$.MODULE$.psiElementPresentationContext(myClass);
+            TypePresentationContext context = TypePresentationContext$.MODULE$.apply(myClass);
             myTypeMap = ScalaRefactoringUtil.getCompatibleTypeNames(myTypes, context);
             for (String typeName : myTypeMap.keySet()) {
                 myTypeComboBox.addItem(typeName);
