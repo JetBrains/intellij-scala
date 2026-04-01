@@ -51,6 +51,14 @@ class ScalaRenameTest extends ScalaRenameTestBase {
 
   def testMultipleBaseMembers(): Unit = doTest()
 
+  def testMultipleBaseMembersWithJava(): Unit = doTest()
+
+  def testSuperMethodsChain(): Unit = doTest()
+
+  def testSuperMethodsChainWithJava(): Unit = doTest()
+
+  def testSuperMethodsChainWithJava2(): Unit = doTest()
+
   def testTypeAlias(): Unit = doTest()
 
   def testOverriddenFromJava(): Unit = doTest()
