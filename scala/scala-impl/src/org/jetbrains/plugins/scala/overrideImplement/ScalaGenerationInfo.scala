@@ -10,7 +10,7 @@ import com.intellij.psi.codeStyle.CodeStyleManager
 import org.jetbrains.plugins.scala.actions.ScalaFileTemplateUtil
 import org.jetbrains.plugins.scala.codeInspection.targetNameAnnotation.addTargetNameAnnotationIfNeeded
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.{TypeAdjuster, types}
+import org.jetbrains.plugins.scala.lang.psi.{PsiElementContext, TypeAdjuster, types}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -199,8 +199,7 @@ object ScalaGenerationInfo {
     td: ScTemplateDefinition,
     isImplement: Boolean
   ): String = {
-    implicit val tpc: TypePresentationContext = TypePresentationContext(td)
-    implicit val context: types.Context = types.Context(td)
+    implicit val ctx: PsiElementContext = PsiElementContext(td)
 
     val templateName =
       if (isImplement) ScalaFileTemplateUtil.SCALA_IMPLEMENTED_METHOD_TEMPLATE

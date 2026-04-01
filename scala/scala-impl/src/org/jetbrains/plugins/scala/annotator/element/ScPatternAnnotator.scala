@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ComparingUtil.{isNeverSubClass
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypePresentation
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, AnyVal, NamedTupleType, Nothing, Null, TupleType, TypeParameterType, arrayType}
+import org.jetbrains.plugins.scala.lang.psi.PsiElementContext
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScAbstractType, ScParameterizedType, ScType, ScalaType, TypePresentationContext}
 import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 
@@ -57,9 +58,7 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
     */
   private def checkPatternType(_patType: ScType, exprType: ScType, pattern: ScPattern)
                               (implicit holder: ScalaAnnotationHolder): Unit = {
-    import pattern.projectContext
-    implicit val tpc: TypePresentationContext = TypePresentationContext(pattern)
-    implicit val context: Context = Context(pattern)
+    implicit val ctx: PsiElementContext = PsiElementContext(pattern)
 
     val dealiased = ScalaType.expandAliases(exprType).getOrElse(exprType)
     val exTp      = widen(dealiased)

@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypePresentation
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
+import org.jetbrains.plugins.scala.lang.psi.PsiElementContext
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, ScTypeExt, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getSelectedExpression
 import org.jetbrains.plugins.scala.statistics.ScalaActionUsagesCollector
@@ -104,8 +105,7 @@ class ShowTypeInfoAction extends AnAction(
       val pattern = Option(PsiTreeUtil.findElementOfClassAtRange(file, start, end, classOf[ScBindingPattern]))
         .orElse(Option(PsiTreeUtil.findElementOfClassAtRange(file, start, end, classOf[ScWildcardPattern])))
       pattern.flatMap { p =>
-        implicit val tpc: TypePresentationContext = TypePresentationContext(p)
-        implicit val context: Context = Context(p)
+        implicit val ctx: PsiElementContext = PsiElementContext(p)
 
         typeTextOf(p, ScSubstitutor.empty).map("Type: " + _)
       }
@@ -125,8 +125,7 @@ class ShowTypeInfoAction extends AnAction(
       val parameter = PsiTreeUtil.findElementOfClassAtRange(file, start, end, classOf[ScParameter])
       if (parameter == null) None
       else {
-        implicit val tpc: TypePresentationContext = parameter
-        implicit val context: Context = Context(parameter)
+        implicit val ctx: PsiElementContext = PsiElementContext(parameter)
 
         val scType = parameter.typeOfNamedElement(ScSubstitutor.empty)
         scType.map(_.presentableText)
@@ -140,8 +139,7 @@ class ShowTypeInfoAction extends AnAction(
   }
 
   private def expressionTypeHintForSelection(expr: ScExpression, tpe: ScType): String = {
-    implicit val tpc: TypePresentationContext = expr
-    implicit val context: Context = Context(expr)
+    implicit val ctx: PsiElementContext = PsiElementContext(expr)
 
     val tpeText = tpe.presentableText
     val withoutAliases = Some(TypePresentation.withoutAliases(tpe))
@@ -171,16 +169,14 @@ object ShowTypeInfoAction {
   private def getTypeInfoHint(file: PsiFile, offset: Int): Option[String] = {
     val typeInfoFromRef = file.findReferenceAt(offset) match {
       case ref @ ResolvedWithSubst(e, subst) =>
-        implicit val tpc: TypePresentationContext = TypePresentationContext(ref.getElement)
-        implicit val context: Context = Context(ref.getElement)
+        implicit val ctx: PsiElementContext = PsiElementContext(ref.getElement)
 
         typeTextOf(e, subst)
       case _ =>
         val element = file.findElementAt(offset)
         if (element == null) return None
 
-        implicit val tpc: TypePresentationContext = TypePresentationContext(element)
-        implicit val context: Context = Context(element)
+        implicit val ctx: PsiElementContext = PsiElementContext(element)
 
         element.elementType match {
           case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER =>
@@ -197,8 +193,7 @@ object ShowTypeInfoAction {
     typeInfoFromRef.orElse {
       val pattern = PsiTreeUtil.findElementOfClassAtOffset(file, offset, classOf[ScBindingPattern], false)
       if (pattern != null) {
-        implicit val tpc: TypePresentationContext = TypePresentationContext(pattern)
-        implicit val context: Context = Context(pattern)
+        implicit val ctx: PsiElementContext = PsiElementContext(pattern)
 
         typeTextOf(pattern, ScSubstitutor.empty)
       } else {

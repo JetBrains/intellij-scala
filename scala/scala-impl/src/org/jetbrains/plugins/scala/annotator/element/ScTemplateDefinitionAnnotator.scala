@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScNewTemplateDefinition, S
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaration, ScEnumCase, ScEnumSingletonCase, ScFunctionDefinition, ScTypeAliasDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
+import org.jetbrains.plugins.scala.lang.psi.PsiElementContext
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, PhysicalMethodSignature, ScType, TermSignature, TypePresentationContext, ValueClassType}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -64,8 +65,7 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
       sig:        TermSignature,
       superTrait: PsiClass
     ): Unit = {
-      implicit val tpc: TypePresentationContext = TypePresentationContext(tdef)
-      implicit val context: Context = Context(tdef)
+      implicit val ctx: PsiElementContext = PsiElementContext(tdef)
 
       val collector = new ImplicitCollector(
         tdef.getContext,
@@ -285,8 +285,7 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
 
   def annotateIllegalInheritance(element: ScTemplateDefinition)
                                 (implicit holder: ScalaAnnotationHolder): Unit = {
-    implicit val tpc: TypePresentationContext = TypePresentationContext(element)
-    implicit val context: Context = Context(element)
+    implicit val ctx: PsiElementContext = PsiElementContext(element)
 
     element.selfTypeElement.flatMap(_.`type`().toOption).
       orElse(element.`type`().toOption)

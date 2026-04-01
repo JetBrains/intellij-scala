@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ConstructorInvocationLike,
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScArgumentExprList
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAliasDeclaration, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScConstructorOwner, ScEnum, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.PsiElementContext
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.UndefinedType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
@@ -37,8 +38,7 @@ object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorIn
   // TODO duplication with application annotator.
   private def annotateConstructorInvocation(constrInvocation: ScConstructorInvocation)
                                            (implicit holder: ScalaAnnotationHolder): Unit = {
-    implicit val context: Context = Context(constrInvocation)
-    implicit val tps: TypePresentationContext = TypePresentationContext(constrInvocation)
+    implicit val ctx: PsiElementContext = PsiElementContext(constrInvocation)
 
     constrInvocation.typeElement match {
       case lit: ScLiteralTypeElement =>

@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.Boolean
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypePresentation
+import org.jetbrains.plugins.scala.lang.psi.PsiElementContext
 import org.jetbrains.plugins.scala.lang.psi.types.{Compatibility, Context, ScType, TypePresentationContext, api}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
@@ -22,13 +23,11 @@ object ScCatchBlockAnnotator extends ElementAnnotator[ScCatchBlock] {
 
   override def annotate(element: ScCatchBlock, typeAware: Boolean)
                        (implicit holder: ScalaAnnotationHolder): Unit = {
-    implicit val projectContext: ProjectContext = element
-    implicit val context: Context = Context(element)
+    implicit val ctx: PsiElementContext = PsiElementContext(element)
 
     element.expression match {
       case Some(expr) =>
-        implicit val tpc: TypePresentationContext = TypePresentationContext(expr)
-        implicit val context: Context = Context(expr)
+        implicit val ctx: PsiElementContext = PsiElementContext(expr)
 
         val tp = expr.`type`().getOrAny
         val throwable = ScalaPsiManager.instance(expr.getProject).getCachedClass(expr.resolveScope, "java.lang.Throwable").orNull

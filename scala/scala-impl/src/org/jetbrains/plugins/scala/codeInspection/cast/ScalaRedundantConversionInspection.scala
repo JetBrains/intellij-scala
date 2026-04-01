@@ -10,7 +10,8 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScPostfixExpr, ScReferenceExpression, ScUnderscoreSection}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScTypeExt, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.PsiElementContext
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 
 class ScalaRedundantConversionInspection extends LocalInspectionTool {
 
@@ -23,8 +24,7 @@ class ScalaRedundantConversionInspection extends LocalInspectionTool {
   }
 
   private def process(element: PsiElement, left: ScExpression, target: PsiElement, offset: Int, holder: ProblemsHolder): Unit = {
-    implicit val tpc: TypePresentationContext = TypePresentationContext(element)
-    implicit val context: Context = Context(element)
+    implicit val context: PsiElementContext = PsiElementContext(element)
 
     target match {
       case f: ScSyntheticFunction if f.name.startsWith("to") =>

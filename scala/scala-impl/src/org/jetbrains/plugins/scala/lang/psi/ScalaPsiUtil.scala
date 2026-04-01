@@ -217,8 +217,7 @@ object ScalaPsiUtil {
    * See SCL-2001, SCL-3485
    */
   def tupled(s: Seq[Expression], context: PsiElement): Option[Seq[Expression]] = {
-    implicit val scope: ElementScope = context.elementScope
-    implicit val elementContext: Context = Context(context)
+    implicit val psiCtx: PsiElementContext = PsiElementContext(context)
 
     val maybeType = s match {
       case Seq() => Some(Unit)

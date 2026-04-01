@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeElementFromText
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TupleType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.psi.PsiElementContext
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScMatchType, ScParameterizedType, TypePresentationContext}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 
@@ -94,8 +95,7 @@ object KindProjectorSimplifyTypeProjectionInspection {
   }
 
   private[this] def tryConvertToInlineSyntax(alias: ScTypeAliasDefinition): Option[String] = {
-    implicit val tpc: TypePresentationContext = TypePresentationContext(alias)
-    implicit val context: Context = Context(alias)
+    implicit val ctx: PsiElementContext = PsiElementContext(alias)
 
     def simpleTypeArgumentOccurrences(tpe: ScParameterizedType): Map[String, Int] =
       tpe.typeArguments.collect { case tpt: TypeParameterType => tpt.name }
@@ -154,8 +154,7 @@ object KindProjectorSimplifyTypeProjectionInspection {
   }
 
   private[this] def convertToFunctionSyntax(alias: ScTypeAliasDefinition): String = {
-    implicit val tpc: TypePresentationContext = TypePresentationContext(alias)
-    implicit val context: Context = Context(alias)
+    implicit val ctx: PsiElementContext = PsiElementContext(alias)
 
     val builder = new mutable.StringBuilder()
 

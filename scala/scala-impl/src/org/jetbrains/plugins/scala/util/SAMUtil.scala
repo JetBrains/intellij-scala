@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.util
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.caches.{ModTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ElementScope
+import org.jetbrains.plugins.scala.lang.psi.{ElementScope, PsiElementContext}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.MethodValue
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression, ScFunctionExpr, ScUnderScoreSectionUtil}
@@ -110,8 +110,7 @@ object SAMUtil {
     */
     def SAMToFunctionType(expected: ScType, element: PsiElement): Option[ScType] = {
       // @TODO: ContextFunctions for method with implicit/using parameters
-      implicit val scope: ElementScope = element.elementScope
-      implicit val context: Context = Context(element)
+      implicit val ctx: PsiElementContext = PsiElementContext(element)
 
       val languageLevel                = element.scalaLanguageLevelOrDefault
 

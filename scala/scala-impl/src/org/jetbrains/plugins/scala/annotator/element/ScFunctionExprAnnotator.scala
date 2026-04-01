@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQui
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScFunctionExpr, ScParenthesisedExpr, ScTypedExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.PsiElementContext
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TupleType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType.isFunctionType
@@ -69,8 +70,7 @@ object ScFunctionExprAnnotator extends ElementAnnotator[ScFunctionExpr] {
 
   private def missingParametersIn(literal: ScFunctionExpr, parameters: Iterable[ScParameter], expectedTypes: Iterable[ScType])
                                  (implicit holder: ScalaAnnotationHolder): Boolean = {
-    implicit val tpc: TypePresentationContext = TypePresentationContext(literal)
-    implicit val context: Context = Context(literal)
+    implicit val psiCtx: PsiElementContext = PsiElementContext(literal)
 
     val missing = parameters.size < expectedTypes.size
     if (missing) {
@@ -138,8 +138,7 @@ object ScFunctionExprAnnotator extends ElementAnnotator[ScFunctionExpr] {
   )(implicit
     holder: ScalaAnnotationHolder
   ): Boolean = {
-    implicit val tpc: TypePresentationContext = TypePresentationContext(ctx)
-    implicit val context: Context = Context(ctx)
+    implicit val psiCtx: PsiElementContext = PsiElementContext(ctx)
 
     var typeMismatch                = false
     val expectedTypesAfterUntupling = untupledExpectedType(ctx, parameters, expectedTypes).getOrElse(expectedTypes)

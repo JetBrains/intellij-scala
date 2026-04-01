@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypePa
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, Stop}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
+import org.jetbrains.plugins.scala.lang.psi.PsiElementContext
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScExistentialArgument, ScExistentialType, ScType, TypePresentationContext, extractTypeParameters}
 
 object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameterizedTypeElement] {
@@ -26,8 +27,7 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
   )(implicit
     holder: ScalaAnnotationHolder
   ): Unit = {
-    implicit val tpc: TypePresentationContext = TypePresentationContext(element)
-    implicit val context: Context = Context(element)
+    implicit val ctx: PsiElementContext = PsiElementContext(element)
 
     if (!typeAware) return
 

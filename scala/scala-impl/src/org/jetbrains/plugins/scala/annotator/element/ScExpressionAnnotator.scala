@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
+import org.jetbrains.plugins.scala.lang.psi.PsiElementContext
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
@@ -116,9 +117,7 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
   )(implicit
     holder: ScalaAnnotationHolder
   ): Unit = {
-    implicit val projectContext: ProjectContext = element
-    implicit val tpc: TypePresentationContext = TypePresentationContext(element)
-    implicit val context: Context = Context(element)
+    implicit val ctx: PsiElementContext = PsiElementContext(element)
 
     val parameterParent =
       ScalaPsiUtil.contextOfType(element, strict = true, classOf[ScParameter]).toOption

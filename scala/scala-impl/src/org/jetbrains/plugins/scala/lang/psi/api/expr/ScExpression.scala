@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.psi.{ElementScope, PsiElementContext, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.{Scala_2_11, Scala_2_13}
@@ -553,8 +553,7 @@ object ScExpression {
       expr:        ScExpression,
       expectedTpe: Option[ScType]
     ): ScType = {
-      implicit val elementScope: ElementScope = expr.elementScope
-      implicit val context: Context = Context(expr)
+      implicit val ctx: PsiElementContext = PsiElementContext(expr)
 
       def flattenParamTypes(t: ScType): Seq[ScType] = t match {
         case TupleType(comps) => comps

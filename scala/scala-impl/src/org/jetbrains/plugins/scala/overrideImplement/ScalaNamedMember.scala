@@ -6,7 +6,7 @@ import com.intellij.psi._
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.NlsString
 import org.jetbrains.plugins.scala.extensions.{PsiNamedElementExt, PsiTypeExt}
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiPresentationUtils, types}
+import org.jetbrains.plugins.scala.lang.psi.{PsiElementContext, ScalaPsiPresentationUtils, types}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -197,9 +197,7 @@ class JavaFieldMember private(override val getElement: PsiField,
 object JavaFieldMember {
 
   def apply(field: PsiField, substitutor: ScSubstitutor): JavaFieldMember = {
-    implicit val project: Project = field.getProject
-    implicit val tpc: TypePresentationContext = TypePresentationContext(field)
-    implicit val context: types.Context = types.Context(field)
+    implicit val ctx: PsiElementContext = PsiElementContext(field)
 
     val fieldType = field.getType.toScType()
     val scType = substitutor(fieldType)

@@ -7,8 +7,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiMethod}
 import org.jetbrains.plugins.scala.codeInsight.intention.types.AddOnlyStrategy._
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScPattern, ScReferencePattern, ScTypedPatternLike, ScWildcardPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScPattern, ScReferencePattern, ScTypedPatternLike, ScWildcardPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -20,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.ScTypeText
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, StdTypes}
 import org.jetbrains.plugins.scala.lang.psi.types.{BaseTypes, Context, ScType, TermSignature, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.{PsiElementContext, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring._
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.annotations.Implementation
@@ -154,8 +154,7 @@ object AddOnlyStrategy {
   case class TypeAnnotationWithVariants(annotation: ScTypeElement, validVariants: Seq[ScTypeText])
 
   def typeAnnotationWithVariants(types: Seq[TypeForAnnotation], context: PsiElement): Option[TypeAnnotationWithVariants] = {
-    implicit val tpc: TypePresentationContext = TypePresentationContext(context)
-    implicit val elementContext: Context = Context(context)
+    implicit val psiCtx: PsiElementContext = PsiElementContext(context)
 
     val tps = types.flatMap(_.typeWithSuperTypes)
     tps.headOption.map { typeElement =>
@@ -282,9 +281,7 @@ object AddOnlyStrategy {
   }
 
   def annotationsFor(`type`: ScType, ctx: PsiElement): Seq[ScTypeElement] = {
-    implicit val projectContext: ProjectContext = ctx
-    implicit val tpc: TypePresentationContext = TypePresentationContext(ctx)
-    implicit val context: Context = Context(ctx)
+    implicit val psiCtx: PsiElementContext = PsiElementContext(ctx)
 
     canonicalTypes(`type`)
       .map(createTypeElementFromText(_, ctx))
