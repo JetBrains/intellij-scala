@@ -82,7 +82,8 @@ sealed class ValType(override val name: String)(implicit projectContext: Project
   override def isFinalType(implicit context: Context) = true
 }
 
-class StdTypes(implicit private val projectContext: ProjectContext) extends Disposable {
+class StdTypes(project: Project) extends Disposable {
+  implicit private val projectContext: ProjectContext = project
   // Scala 2 library bootstrap classes, which are not present in the `.class` files
   // https://github.com/scala/scala/tree/2.13.x/src/library-aux/scala
   lazy val Any = new StdType(Name.Any, None)
