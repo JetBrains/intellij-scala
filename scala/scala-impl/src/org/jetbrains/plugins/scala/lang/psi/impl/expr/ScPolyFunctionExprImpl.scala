@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterCla
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.result.{OptionTypeExt, TypeResult}
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScType, TypePresentationContext}
 
 class ScPolyFunctionExprImpl(node: ASTNode)
   extends ScExpressionImplBase(node)
@@ -87,7 +87,7 @@ class ScPolyFunctionExprImpl(node: ASTNode)
             }.mkString("(", ", ", ")")
 
             text ->
-              this.flatMapType(fn.result).getOrAny.presentableText(this, Context.Empty)
+              this.flatMapType(fn.result).getOrAny.presentableText(this, ConformanceContext.Empty)
           case _ => "()" -> "scala.Any"
         }
 

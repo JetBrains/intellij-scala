@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.codeInsight.template.util.VariablesCompletion
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, ScTypeExt, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScType, ScTypeExt, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState, StdKinds}
 
 sealed abstract class ScalaVariableOfTypeMacro extends ScalaMacro {
@@ -66,7 +66,7 @@ sealed abstract class ScalaVariableOfTypeMacro extends ScalaMacro {
   }
 
   protected def typeText(expressions: Array[String], `type`: ScType): Option[String] = expressions match {
-    case Array("", _*) => Some(`type`.presentableText(TypePresentationContext.emptyContext, Context.Empty))
+    case Array("", _*) => Some(`type`.presentableText(TypePresentationContext.emptyContext, ConformanceContext.Empty))
     case Array(IterableId, _*) =>
       if (isArray(`type`) || isIterable(`type`)) {
         Some(null)

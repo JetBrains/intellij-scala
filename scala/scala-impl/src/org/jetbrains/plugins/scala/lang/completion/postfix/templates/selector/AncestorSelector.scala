@@ -8,7 +8,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.types.api.ExtractClass
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, api}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScType, api}
 import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression.ScalaExpressionSurrounder
 
 import java.{util => ju}
@@ -63,16 +63,16 @@ object AncestorSelector {
   val AnyExpression: Condition[PsiElement] = (_: PsiElement).is[ScExpression]
 
   val AnyRefExpression: Condition[PsiElement] = expressionTypeCondition {
-    case (expression, scType) => scType.conforms(api.AnyRef(expression))(Context(expression))
+    case (expression, scType) => scType.conforms(api.AnyRef(expression))(ConformanceContext(expression))
   }
 
   val BooleanExpression: Condition[PsiElement] = expressionTypeCondition {
-    case (expression, scType) => scType.conforms(api.Boolean(expression))(Context(expression))
+    case (expression, scType) => scType.conforms(api.Boolean(expression))(ConformanceContext(expression))
   }
 
   def isSameOrInheritor(fqns: String*): Condition[PsiElement] =
     expressionTypeCondition { (expression, scType) =>
-      implicit val context: Context = Context(expression)
+      implicit val context: ConformanceContext = ConformanceContext(expression)
 
       (expression, scType) match {
         case (expression, ExtractClass(clazz)) =>

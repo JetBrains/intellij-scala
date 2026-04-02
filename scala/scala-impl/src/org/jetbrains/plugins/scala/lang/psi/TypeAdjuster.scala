@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScExpres
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypePresentation
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScalaTypePresentation, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScalaTypePresentation, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.{isOperatorName, qualifiedName, splitName}
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
@@ -175,7 +175,7 @@ object TypeAdjuster {
       private[this] val Target = "this."
 
       def unapply(info: SimpleInfo): Option[ReplacementInfo] = {
-        implicit val context: Context = Context(info.place)
+        implicit val context: ConformanceContext = ConformanceContext(info.place)
 
         val SimpleInfo(place, replacement, resolve, _) = info
 
@@ -351,7 +351,7 @@ object TypeAdjuster {
       case simple: SimpleInfo =>
         simple.place match {
           case e@CanBeInfixType() =>
-            implicit val context: Context = Context(simple.place)
+            implicit val context: ConformanceContext = ConformanceContext(simple.place)
 
             ToRewrite(e)
 
@@ -366,7 +366,7 @@ object TypeAdjuster {
                 mappings.get(name).exists(smartEquivalence(_, target))
             }
 
-            val newTypeText = e.calcType.presentableText(presentationContext, Context(info.place))
+            val newTypeText = e.calcType.presentableText(presentationContext, ConformanceContext(info.place))
             simple.copy(replacement = newTypeText)
           case _ => simple
         }
@@ -459,7 +459,7 @@ object TypeAdjuster {
   }
 
   private def availableTypeAliasFor(clazz: PsiClass, position: PsiElement, useTypeAliases: Boolean): Option[ScTypeAliasDefinition] = {
-    implicit val context: Context = Context(position)
+    implicit val context: ConformanceContext = ConformanceContext(position)
 
     if (!useTypeAliases) None
     else {
@@ -514,7 +514,7 @@ object TypeAdjuster {
                                       replacement: String,
                                       resolve: Option[PsiElement],
                                       override val pathsToImport: List[String] = Nil) extends ReplacementInfo {
-    private implicit def context: Context = Context(place)
+    private implicit def context: ConformanceContext = ConformanceContext(place)
 
     def updateTarget(target: PsiNamedElement): SimpleInfo = {
       def prefixAndPath(qualifiedName: String, prefixLength: Int): Option[(String, Some[String])] =

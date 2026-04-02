@@ -195,7 +195,7 @@ package object collections {
   object returnsBoolean {
     def unapply(expr: ScExpression): Boolean = {
       import expr.projectContext
-      implicit val context: Context = Context(expr)
+      implicit val context: ConformanceContext = ConformanceContext(expr)
 
       expr.`type`() match {
         case Right(result) =>
@@ -421,17 +421,17 @@ package object collections {
     }
   }
 
-  private def isOfClassFrom(expr: ScExpression, patterns: Seq[String])(implicit context: Context): Boolean = {
+  private def isOfClassFrom(expr: ScExpression, patterns: Seq[String])(implicit context: ConformanceContext): Boolean = {
     val typ = expr.`type`().toOption
     typ.exists(isOfClassFrom(_, patterns))
   }
 
-  private def isOfClassFrom(`type`: ScType, patterns: Seq[String])(implicit context: Context): Boolean = {
+  private def isOfClassFrom(`type`: ScType, patterns: Seq[String])(implicit context: ConformanceContext): Boolean = {
     val typeExtracted = `type`.tryExtractDesignatorSingleton
     isOfClassFromForExtractedType(typeExtracted, patterns)
   }
 
-  private def isOfClassFromForExtractedType(typeExtracted: ScType, patterns: Seq[String])(implicit context: Context): Boolean = {
+  private def isOfClassFromForExtractedType(typeExtracted: ScType, patterns: Seq[String])(implicit context: ConformanceContext): Boolean = {
     val clazz = typeExtracted.extractClass
     clazz.exists(qualifiedNameFitToPatterns(_, patterns))
   }
@@ -440,16 +440,16 @@ package object collections {
     Option(clazz).flatMap(c => Option(c.qualifiedName))
       .exists(ScalaNamesUtil.nameFitToPatterns(_, patterns, strict = false))
 
-  def isOption(`type`: ScType)(implicit context: Context): Boolean = isOfClassFrom(`type`, likeOptionClasses)
+  def isOption(`type`: ScType)(implicit context: ConformanceContext): Boolean = isOfClassFrom(`type`, likeOptionClasses)
 
   def isOption(expr: ScExpression): Boolean = {
-    implicit val context: Context = Context(expr)
+    implicit val context: ConformanceContext = ConformanceContext(expr)
 
     isOfClassFrom(expr, likeOptionClasses)
   }
 
   def isArray(expr: ScExpression): Boolean = {
-    implicit val context: Context = Context(expr)
+    implicit val context: ConformanceContext = ConformanceContext(expr)
 
     expr match {
       case Typeable(JavaArrayType(_)) => true
@@ -462,7 +462,7 @@ package object collections {
     }
   }
 
-  private def isArray(typeExtracted: ScType)(implicit context: Context): Boolean =
+  private def isArray(typeExtracted: ScType)(implicit context: ConformanceContext): Boolean =
     isOfClassFromForExtractedType(typeExtracted, ArraySeq("scala.Array"))
 
   private def isIArray(typeExtracted: ScType): Boolean =
@@ -509,7 +509,7 @@ package object collections {
         case element: Typeable => isExpressionOfType(fqns: _*)(element)
         case _ => false
       }
-    case Typeable(scType) => fqns.exists(conformsToTypeFromClass(scType, _)(scType.projectContext, Context.Empty))
+    case Typeable(scType) => fqns.exists(conformsToTypeFromClass(scType, _)(scType.projectContext, ConformanceContext.Empty))
     case _                => false
   }
 

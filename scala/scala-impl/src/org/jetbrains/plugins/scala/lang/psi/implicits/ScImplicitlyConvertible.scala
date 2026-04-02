@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 object ScImplicitlyConvertible {
   def findImplicitConversions(place: ScExpression, fromUnderscore: Boolean): Seq[PsiNamedElement] = {
     implicit val elementScope: ElementScope = place.elementScope
-    implicit val context: Context = Context(place)
+    implicit val context: ConformanceContext = ConformanceContext(place)
 
     findPlaceType(place, fromUnderscore).toSeq.flatMap { placeType =>
       val regulars =

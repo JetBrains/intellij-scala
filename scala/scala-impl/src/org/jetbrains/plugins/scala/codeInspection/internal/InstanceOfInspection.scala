@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.codeInspection.collections.{OperationOnCollec
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.isUnitTestMode
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScGenericCall}
-import org.jetbrains.plugins.scala.lang.psi.types.Context
+import org.jetbrains.plugins.scala.lang.psi.types.ConformanceContext
 import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.immutable.ArraySeq
@@ -21,7 +21,7 @@ object InstanceOfShouldBeIsInspection extends SimplificationType() {
   private val `.isInstanceOf`: Qualified = invocation("isInstanceOf")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
-    implicit val context: Context = Context(expr)
+    implicit val context: ConformanceContext = ConformanceContext(expr)
 
     expr match {
       case _ if !expr.getProject.isIntellijScalaPluginProject && !isUnitTestMode => None

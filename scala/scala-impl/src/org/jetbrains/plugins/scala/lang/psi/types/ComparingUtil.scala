@@ -32,7 +32,7 @@ object ComparingUtil {
     areUnrelatedClasses && (oneFinal || twoNonTraitsOrInterfaces || oneClazzIsSealedAndAllChildrenAreIrreconcilable)
   }
 
-  def isNeverSubType(sub: ScType, sup: ScType, sameType: Boolean = false)(implicit context: Context): Boolean = {
+  def isNeverSubType(sub: ScType, sup: ScType, sameType: Boolean = false)(implicit context: ConformanceContext): Boolean = {
     if (sup.weakConforms(sub) || sub.weakConforms(sup))
       return false
 

@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypePresentation
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, NamedTupleType, ParameterizedType, TupleType, Variance}
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScAndType, ScCompoundType, ScExistentialArgument, ScExistentialType, ScOrType, ScParameterizedType, ScType, ScalaTypePresentation, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScAndType, ScCompoundType, ScExistentialArgument, ScExistentialType, ScOrType, ScParameterizedType, ScType, ScalaTypePresentation, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
@@ -33,19 +33,19 @@ object TypeDiff {
   }
 
   // To display a type hint
-  def parse(tpe: ScType)(implicit ctx: TypePresentationContext with Context): Tree[TypeDiff] =
+  def parse(tpe: ScType)(implicit ctx: TypePresentationContext with ConformanceContext): Tree[TypeDiff] =
     diff(tpe, tpe)((_, _) => true, ctx)
 
   // To highlight a type ascription
-  def forExpected(expected: ScType, actual: ScType)(implicit ctx: TypePresentationContext with Context): Tree[TypeDiff] =
+  def forExpected(expected: ScType, actual: ScType)(implicit ctx: TypePresentationContext with ConformanceContext): Tree[TypeDiff] =
     diff(actual, expected)(_.conforms(_), ctx)
 
   // To display a type mismatch hint
-  def forActual(expected: ScType, actual: ScType)(implicit ctx: TypePresentationContext with Context): Tree[TypeDiff] =
+  def forActual(expected: ScType, actual: ScType)(implicit ctx: TypePresentationContext with ConformanceContext): Tree[TypeDiff] =
     diff(expected, actual)(reversed(_.conforms(_)), ctx)
 
   // To display a type mismatch tooltip
-  def forBoth(expected: ScType, actual: ScType)(implicit ctx: TypePresentationContext with Context): (Tree[TypeDiff], Tree[TypeDiff]) =
+  def forBoth(expected: ScType, actual: ScType)(implicit ctx: TypePresentationContext with ConformanceContext): (Tree[TypeDiff], Tree[TypeDiff]) =
     (forExpected(expected, actual), forActual(expected, actual))
 
   def lengthOf(nodeLength: Int)(diff: Tree[TypeDiff]): Int = diff match {
@@ -61,7 +61,7 @@ object TypeDiff {
   private type Conformance = (ScType, ScType) => Boolean
 
   // TODO refactor (decompose, unify, etc.)
-  private def diff(tpe1: ScType, tpe2: ScType)(implicit conformance: Conformance, ctx: TypePresentationContext with Context): Tree[TypeDiff] = {
+  private def diff(tpe1: ScType, tpe2: ScType)(implicit conformance: Conformance, ctx: TypePresentationContext with ConformanceContext): Tree[TypeDiff] = {
     def conformanceFor(variance: Variance): Conformance = variance match {
       case Variance.Invariant => (t1: ScType, t2: ScType) => t1.equiv(t2)
       case Variance.Covariant => conformance
@@ -191,14 +191,14 @@ object TypeDiff {
 
   // TODO Move to ParameterizedType.scala / FunctionType.scala?
   private object InfixType {
-    def unapply(tpe: ScType)(implicit context: Context): Option[(ScType, Option[ScType], String, ScType)] = Some(tpe) collect {
+    def unapply(tpe: ScType)(implicit context: ConformanceContext): Option[(ScType, Option[ScType], String, ScType)] = Some(tpe) collect {
       case ParameterizedType(d@InfixOp(op), Seq(l, r)) => (l, Some(d), op, r)
       case ScAndType(left, right) => (left, None, "&", right)
       case ScOrType(left, right) => (left, None, "|", right)
     }
 
     private object InfixOp {
-      def unapply(designatorType: ScType)(implicit context: Context): Option[String] = {
+      def unapply(designatorType: ScType)(implicit context: ConformanceContext): Option[String] = {
         val designator = designatorType.extractDesignated(expandAliases = false)
         designator.collect {
           case elem if ScalaNamesUtil.isOperatorName(elem.name) => elem.name

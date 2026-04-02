@@ -21,7 +21,7 @@ final class ScExistentialType private (
 
   override implicit def projectContext: ProjectContext = quantified.projectContext
 
-  override protected def calculateAliasType(implicit context: Context): Option[AliasType] =
+  override protected def calculateAliasType(implicit context: ConformanceContext): Option[AliasType] =
     quantified
       .aliasType
       .map(a =>
@@ -32,7 +32,7 @@ final class ScExistentialType private (
         )
       )
 
-  override def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean)(implicit context: Context): ConstraintsResult = {
+  override def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean)(implicit context: ConformanceContext): ConstraintsResult = {
     if (r.equiv(Nothing)) return quantified.equiv(Nothing, constraints)
     val simplified = simplify()
     if (this != simplified) return simplified.equiv(r, constraints, falseUndef)
@@ -237,7 +237,7 @@ object ScExistentialType {
     right:       ScExistentialType,
     constraints: ConstraintSystem,
     falseUndef:  Boolean
-  )(implicit context: Context): ConstraintsResult = {
+  )(implicit context: ConformanceContext): ConstraintsResult = {
     val rightToLeft: java.util.Map[ScExistentialArgument, ScExistentialArgument] = {
       val byNameStrategy: Hash.Strategy[ScExistentialArgument] = new Hash.Strategy[ScExistentialArgument] {
 

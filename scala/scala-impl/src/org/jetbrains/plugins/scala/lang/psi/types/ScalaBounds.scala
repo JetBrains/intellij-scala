@@ -23,7 +23,7 @@ trait ScalaBounds extends api.Bounds {
 
   import ScalaBounds._
 
-  override def glb(t1: ScType, t2: ScType, checkWeak: Boolean = false)(implicit context: Context): ScType = {
+  override def glb(t1: ScType, t2: ScType, checkWeak: Boolean = false)(implicit context: ConformanceContext): ScType = {
     if (conforms(t1, t2, checkWeak)) t1
     else if (conforms(t2, t1, checkWeak)) t2
     else {
@@ -53,7 +53,7 @@ trait ScalaBounds extends api.Bounds {
     depth:     Int
   )(implicit
     stopAddingUpperBound: Boolean,
-    context: Context
+    context: ConformanceContext
   ): Seq[TypeParameter] =
     lhsParams.zip(rhsParams).map {
       case (p1, p2) =>
@@ -74,7 +74,7 @@ trait ScalaBounds extends api.Bounds {
     depth:     Int
   )(implicit
     stopAddingUpperBound: Boolean,
-    context: Context
+    context: ConformanceContext
   ): ScTypePolymorphicType = {
     val ScTypePolymorphicType(lhsInt, lhsParams) = lhs
     val ScTypePolymorphicType(rhsInt, rhsParams) = rhs
@@ -91,7 +91,7 @@ trait ScalaBounds extends api.Bounds {
     ScTypePolymorphicType(intTpe, newParams)
   }
 
-  override def lub(t1: ScType, t2: ScType, checkWeak: Boolean)(implicit context: Context): ScType = {
+  override def lub(t1: ScType, t2: ScType, checkWeak: Boolean)(implicit context: ConformanceContext): ScType = {
     lubInner(t1, t2, lubDepth(Seq(t1, t2)), checkWeak)(stopAddingUpperBound = false, context = context)
   }
 
@@ -119,7 +119,7 @@ trait ScalaBounds extends api.Bounds {
     lubDepthAdjust(td, td max bd)
   }
 
-  private def conforms(t1: ScType, t2: ScType, checkWeak: Boolean)(implicit context: Context) = t1.conforms(t2, ConstraintSystem.empty, checkWeak).isRight
+  private def conforms(t1: ScType, t2: ScType, checkWeak: Boolean)(implicit context: ConformanceContext) = t1.conforms(t2, ConstraintSystem.empty, checkWeak).isRight
 
   //This weird method is copy from Scala compiler. See scala.reflect.internal.Types#lubDepthAdjust
   private def lubDepthAdjust(td: Int, bd: Int): Int = {
@@ -129,7 +129,7 @@ trait ScalaBounds extends api.Bounds {
     else (td - 1) max (bd - 3)
   }
 
-  private class ClassLike(_tp: ScType)(implicit context: Context) {
+  private class ClassLike(_tp: ScType)(implicit context: ConformanceContext) {
     val tp: ScType = _tp match {
       case ex: ScExistentialType => ex.quantified
       case other => other
@@ -295,11 +295,11 @@ trait ScalaBounds extends api.Bounds {
     }
   }
 
-  private def lubInner(l: ScType, r: ScType, checkWeak: Boolean, stopAddingUpperBound: Boolean)(implicit context: Context): ScType = {
+  private def lubInner(l: ScType, r: ScType, checkWeak: Boolean, stopAddingUpperBound: Boolean)(implicit context: ConformanceContext): ScType = {
     lubInner(l, r, lubDepth(Seq(l, r)), checkWeak)(stopAddingUpperBound, context)
   }
 
-  private def lubInner(t1: ScType, t2: ScType, depth : Int, checkWeak: Boolean)(implicit stopAddingUpperBound: Boolean, context: Context): ScType = {
+  private def lubInner(t1: ScType, t2: ScType, depth : Int, checkWeak: Boolean)(implicit stopAddingUpperBound: Boolean, context: ConformanceContext): ScType = {
     if (conforms(t1, t2, checkWeak)) t2
     else if (conforms(t2, t1, checkWeak)) t1
     else {
@@ -398,7 +398,7 @@ trait ScalaBounds extends api.Bounds {
   }
 
   private def calcForTypeParamWithoutVariance(substed1: ScType, substed2: ScType, checkWeak: Boolean, count: Int = 1)
-                                             (implicit stopAddingUpperBound: Boolean, context: Context): (ScType, Option[ScExistentialArgument]) = {
+                                             (implicit stopAddingUpperBound: Boolean, context: ConformanceContext): (ScType, Option[ScExistentialArgument]) = {
     if (substed1 equiv substed2) (substed1, None) else {
       if (substed1 conforms substed2) {
         val ex = ScExistentialArgument("_$" + count, List.empty, substed1, substed2)
@@ -434,7 +434,7 @@ trait ScalaBounds extends api.Bounds {
   }
 
   private def getTypeForAppending(clazz1: ClassLike, clazz2: ClassLike, baseClass: ClassLike, depth: Int, checkWeak: Boolean)
-                                 (implicit stopAddingUpperBound: Boolean, context: Context): ScType = {
+                                 (implicit stopAddingUpperBound: Boolean, context: ConformanceContext): ScType = {
     val baseClassDesignator = baseClass.baseDesignator
     if (baseClass.getTypeParameters.length == 0) return baseClassDesignator
     (baseClass.superSubstitutor(clazz1), baseClass.superSubstitutor(clazz2)) match {

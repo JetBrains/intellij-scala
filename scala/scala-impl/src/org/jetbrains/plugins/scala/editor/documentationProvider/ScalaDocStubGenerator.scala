@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScParameterOwner, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait}
-import org.jetbrains.plugins.scala.lang.psi.types.Context
+import org.jetbrains.plugins.scala.lang.psi.types.ConformanceContext
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
@@ -23,7 +23,7 @@ import scala.collection.mutable
 object ScalaDocStubGenerator {
 
   def createScalaDocStub(commentOwner: PsiDocCommentOwner): String = {
-    implicit val context: Context = Context(commentOwner)
+    implicit val context: ConformanceContext = ConformanceContext(commentOwner)
 
     if (!commentOwner.getContainingFile.is[ScalaFile])
       return ""

@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariableDefi
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createBlockWithGivenExpressions, createScalaElementFromTextWithContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.psi.uast.controlStructures.ScUIfExpression
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter.UConvertible
 import org.jetbrains.plugins.scala.lang.psi.uast.expressions._
@@ -193,7 +193,7 @@ final class ScalaUastElementFactory(project: Project) extends UastElementFactory
 
       scType match {
         case Some(tp) =>
-          implicit val ctx: TypePresentationContext with Context =
+          implicit val ctx: TypePresentationContext with ConformanceContext =
             Option(context).map(PsiElementContext(_)).getOrElse(TypePresentationContext.emptyContext)
           s"$name: ${tp.presentableText}"
         case _ => name

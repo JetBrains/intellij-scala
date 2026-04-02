@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.PsiClassFake
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, api}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, api}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
@@ -33,9 +33,9 @@ class DummyLightTypeParam(override val name: String)(pc: ProjectContext)
 
   override def isHigherKindedTypeParameter: Boolean = false
 
-  override def lowerBound(implicit context: Context): TypeResult = Right(api.Nothing)
+  override def lowerBound(implicit context: ConformanceContext): TypeResult = Right(api.Nothing)
 
-  override def upperBound(implicit context: Context): TypeResult = Right(api.Any)
+  override def upperBound(implicit context: ConformanceContext): TypeResult = Right(api.Any)
 
   override def toString: String = name
 

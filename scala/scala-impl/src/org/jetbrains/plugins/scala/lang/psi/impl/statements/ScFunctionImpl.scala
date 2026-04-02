@@ -40,7 +40,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, Parameteriz
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, PhysicalMethodSignature, ScType, TermSignature, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, PhysicalMethodSignature, ScType, TermSignature, TypePresentationContext}
 
 import javax.swing.Icon
 import scala.annotation.{nowarn, tailrec}
@@ -446,7 +446,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
           val typeTextsFromStub = paramType match {
             case Right(tpe) =>
               val tpc: TypePresentationContext = paramFromStub
-              val context: Context             = Context(paramFromStub)
+              val context: ConformanceContext             = ConformanceContext(paramFromStub)
 
               Seq(tpe.presentableText(tpc, context), tpe.canonicalText(tpc)(context))
             case Left(_)    => Seq.empty

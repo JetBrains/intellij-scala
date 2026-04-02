@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ExtractDesignated, ScExistentialType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ExtractDesignated, ScExistentialType, ScType}
 
 import scala.annotation.{switch, tailrec}
 
@@ -21,7 +21,7 @@ object TypeIntrinsics {
     arguments:   Seq[ScType],
     substitutor: ScSubstitutor
   )(implicit
-    context: Context
+    context: ConformanceContext
   ): Option[ScType] =
     designator match {
       case ScProjectionType.withActual(alias: ScTypeAlias, _) =>

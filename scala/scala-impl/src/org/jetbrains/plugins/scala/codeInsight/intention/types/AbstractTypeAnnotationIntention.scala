@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScPattern, ScRefe
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScFunctionExpr, ScTypedExpression, ScUnderscoreSection}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.Context
+import org.jetbrains.plugins.scala.lang.psi.types.ConformanceContext
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker.checkIntention
 
@@ -86,7 +86,7 @@ object AbstractTypeAnnotationIntention {
     }
 
   def complete(element: PsiElement, strategy: Strategy): Boolean = {
-    implicit val context: Context = Context(element)
+    implicit val context: ConformanceContext = ConformanceContext(element)
 
     functionParent(element).foreach { function =>
       return function.returnTypeElement match {

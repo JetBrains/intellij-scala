@@ -7,7 +7,7 @@ import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
-import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, Context, LeafType, NamedType, ScType, ScalaTypeVisitor}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, ConformanceContext, LeafType, NamedType, ScType, ScalaTypeVisitor}
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdType.Name
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -32,7 +32,7 @@ sealed class StdType private[api](
     if (classes.isClassesRegistered) classes.byName(name) else None
   }
 
-  override def equivInner(`type`: ScType, constraints: ConstraintSystem, falseUndef: Boolean)(implicit context: Context): ConstraintsResult = {
+  override def equivInner(`type`: ScType, constraints: ConstraintSystem, falseUndef: Boolean)(implicit context: ConformanceContext): ConstraintsResult = {
     val success = `type` match {
       case stdType: StdType => this == stdType
       case _ =>
@@ -80,7 +80,7 @@ object StdType {
 sealed class ValType(override val name: String)(implicit projectContext: ProjectContext)
   extends StdType(name, Some(StdTypes.instance.AnyVal)) with LeafType {
 
-  override def isFinalType(implicit context: Context) = true
+  override def isFinalType(implicit context: ConformanceContext) = true
 }
 
 class StdTypes(project: Project) extends Disposable {
@@ -90,13 +90,13 @@ class StdTypes(project: Project) extends Disposable {
   lazy val Any = new StdType(Name.Any, None)
   lazy val AnyRef = new StdType(Name.AnyRef, Some(Any))
   lazy val Null: StdType = new StdType(Name.Null, Some(AnyRef)) {
-    override def isFinalType(implicit context: Context) = true
+    override def isFinalType(implicit context: ConformanceContext) = true
   }
   lazy val Nothing: StdType = new StdType(Name.Nothing, Some(Any)) {
-    override def isFinalType(implicit context: Context) = true
+    override def isFinalType(implicit context: ConformanceContext) = true
   }
   lazy val Singleton: StdType = new StdType(Name.Singleton, Some(AnyRef)) {
-    override def isFinalType(implicit context: Context) = true
+    override def isFinalType(implicit context: ConformanceContext) = true
   }
 
   // Scala 2 library AnyVal classes

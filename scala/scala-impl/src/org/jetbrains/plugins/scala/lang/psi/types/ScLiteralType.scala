@@ -49,7 +49,7 @@ object ScLiteralType {
   def unapply(literalType: ScLiteralType): Some[(Value[_], Boolean)] =
     Some(literalType.value, literalType.allowWiden)
 
-  def widenRecursive(`type`: ScType)(implicit context: Context): ScType = {
+  def widenRecursive(`type`: ScType)(implicit context: ConformanceContext): ScType = {
     import api._
     import recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith, Stop}
 

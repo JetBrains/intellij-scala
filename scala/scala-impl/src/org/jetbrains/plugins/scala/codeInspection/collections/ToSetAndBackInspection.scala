@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScType, ScTypeExt}
 
 import scala.collection.immutable.ArraySeq
 
@@ -16,7 +16,7 @@ object ToSetAndBackToDistinct extends SimplificationType {
   override def hint: String = ScalaInspectionBundle.message("replace.toSet.and.back.with.distinct")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
-    implicit val context: Context = Context(expr)
+    implicit val context: ConformanceContext = ConformanceContext(expr)
 
     def sameCollectionType(tp1: ScType, tp2: ScType): Boolean = {
       (tp1, tp2) match {

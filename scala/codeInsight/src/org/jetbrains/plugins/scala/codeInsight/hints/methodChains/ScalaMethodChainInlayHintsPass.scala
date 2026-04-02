@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.PsiElementContext
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScArgumentExprList, ScBlockExpr, ScExpression, ScFunctionExpr, ScInfixExpr, ScMethodCall, ScParenthesisedExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.settings.annotations.Expression
 
@@ -196,7 +196,7 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
 
   private def textFor(expr: ScExpression, ty: ScType, editor: Editor): Seq[Text] = {
     implicit val scheme: EditorColorsScheme = editor.getColorsScheme
-    implicit val ctx: TypePresentationContext with Context = PsiElementContext(expr)
+    implicit val ctx: TypePresentationContext with ConformanceContext = PsiElementContext(expr)
 
     Text(": ") +: textPartsOf(ty, settings.presentationLength, expr)
   }

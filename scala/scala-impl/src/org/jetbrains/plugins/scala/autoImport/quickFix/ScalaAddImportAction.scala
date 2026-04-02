@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelector
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createReferenceExpressionFromText, createScalaDocLinkValue}
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
 
 import java.awt.Point

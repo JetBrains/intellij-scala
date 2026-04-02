@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.ScBegin
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.types.api.Unit
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 

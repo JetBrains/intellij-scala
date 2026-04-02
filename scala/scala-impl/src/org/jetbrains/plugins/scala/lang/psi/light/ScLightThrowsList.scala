@@ -4,7 +4,7 @@ import com.intellij.psi.impl.light.LightReferenceListBuilder
 import com.intellij.psi.{PsiClassType, PsiManager, PsiNamedElement, PsiReferenceList}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScAnnotationsHolder}
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ExtractClass, ParameterizedType}
 
 private object ScLightThrowsList {
@@ -41,7 +41,7 @@ private object ScLightThrowsList {
 
   //for `def this(clazz: Class[T])` constructor or `scala.throws`
   private def fromClassArgument(annotation: ScAnnotation): Option[PsiClassType] = {
-    implicit val context: Context = Context(annotation)
+    implicit val context: ConformanceContext = ConformanceContext(annotation)
 
     for {
       expression <- annotation.constructorInvocation.args.flatMap(_.exprs.headOption)
@@ -53,7 +53,7 @@ private object ScLightThrowsList {
   }
 
 
-  private def extractExceptionClassType(classOFException: ScType)(implicit context: Context): Option[PsiClassType] = classOFException match {
+  private def extractExceptionClassType(classOFException: ScType)(implicit context: ConformanceContext): Option[PsiClassType] = classOFException match {
     case ParameterizedType(ExtractClass(clazz), Seq(arg)) if clazz.qualifiedName == "java.lang.Class" =>
       arg.toPsiType match {
         case ct: PsiClassType => Some(ct)

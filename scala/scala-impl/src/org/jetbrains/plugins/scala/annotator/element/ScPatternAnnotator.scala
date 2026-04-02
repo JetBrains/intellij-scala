@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypePresentation
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, AnyVal, NamedTupleType, Nothing, Null, TupleType, TypeParameterType, arrayType}
 import org.jetbrains.plugins.scala.lang.psi.PsiElementContext
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScAbstractType, ScParameterizedType, ScType, ScalaType, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScAbstractType, ScParameterizedType, ScType, ScalaType, TypePresentationContext}
 import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 
 import scala.annotation.tailrec
@@ -287,7 +287,7 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
 
   // TODO Should be in ScPattern, not in the annotator?
   @tailrec
-  def matchesPattern(matching: ScType, matched: ScType)(implicit context: Context): Boolean = {
+  def matchesPattern(matching: ScType, matched: ScType)(implicit context: ConformanceContext): Boolean = {
     matching.weakConforms(matched) || ((matching, matched) match {
       case (arrayType(arg1), arrayType(arg2)) => matchesPattern(arg1, arg2)
       case (_, parameterized: ScParameterizedType) =>
@@ -301,7 +301,7 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
   //computes type of the pattern itself, shouldn't rely on expected type
   def patternType(pattern: ScPattern): Option[ScType] = {
     import pattern.projectContext
-    implicit val context: Context = Context(pattern)
+    implicit val context: ConformanceContext = ConformanceContext(pattern)
 
     def constrPatternType(patternRef: ScStableCodeReference): Option[ScType] = {
       patternRef.bind() match {

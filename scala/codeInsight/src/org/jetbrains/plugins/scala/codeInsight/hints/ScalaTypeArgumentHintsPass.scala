@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
-import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, Context, ScAbstractType, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConformanceContext, ScAbstractType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 
@@ -51,7 +51,7 @@ private[codeInsight] trait ScalaTypeArgumentHintsPass {
   }
 
   private def xRayTypeArgumentsHints(invoked: PsiElement, cs: ConstraintSystem, typeParams: Seq[ScTypeParam], editor: Editor) = {
-    cs.substitutionBounds(canThrowSCE = false)(invoked, Context(invoked)).map { bounds =>
+    cs.substitutionBounds(canThrowSCE = false)(invoked, ConformanceContext(invoked)).map { bounds =>
       def typeParamSubst(tp: ScTypeParam) = {
         bounds.substitutor(ScAbstractType(TypeParameter(tp), tp.lowerBound.getOrNothing, tp.upperBound.getOrAny))
       }

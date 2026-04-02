@@ -351,7 +351,7 @@ object ScalaSmartCompletionContributor {
                           isSmart: Boolean)
                          (implicit place: PsiElement): Unit = {
     implicit val projectContext: Project = place.getProject
-    implicit val context: Context = Context(place)
+    implicit val context: ConformanceContext = ConformanceContext(place)
 
     if (typez.isEmpty || typez.forall(_ == Nothing)) return
 
@@ -658,7 +658,7 @@ object ScalaSmartCompletionContributor {
                                 reference: ScReferenceExpression) = {
     implicit val project: Project = reference.getProject
     implicit val tpc: TypePresentationContext = reference
-    implicit val context: Context = Context(reference)
+    implicit val context: ConformanceContext = ConformanceContext(reference)
     val isBraceArgs = args.isBraceArgs
 
     reference.expectedTypes().collect {
@@ -673,7 +673,7 @@ object ScalaSmartCompletionContributor {
 
   private[this] def createLookupElement(params: Iterable[ScType],
                                         builder: AnonymousFunctionTextBuilder)
-                                       (implicit project: Project, tpc: TypePresentationContext, context: Context) =
+                                       (implicit project: Project, tpc: TypePresentationContext, context: ConformanceContext) =
     LookupElementBuilder.create("").withRenderer {
       new AnonymousFunctionElementRenderer(params, builder)
     }.withInsertHandler {
@@ -688,7 +688,7 @@ object ScalaSmartCompletionContributor {
 
   private class AnonymousFunctionElementRenderer(params: Iterable[ScType],
                                                  builder: AnonymousFunctionTextBuilder)
-                                                (implicit project: Project, tpc: TypePresentationContext, context: Context) extends LookupElementRenderer[LookupElement] {
+                                                (implicit project: Project, tpc: TypePresentationContext, context: ConformanceContext) extends LookupElementRenderer[LookupElement] {
 
     private val presentableParams = for {
       parameterType <- params
@@ -764,7 +764,7 @@ object ScalaSmartCompletionContributor {
       }.toMap
 
       def seekAbstracts(te: ScTypeElement)(implicit tpc: TypePresentationContext): Unit = {
-        implicit val context: Context = Context(te)
+        implicit val context: ConformanceContext = ConformanceContext(te)
 
         val visitor = new ScalaRecursiveElementVisitor {
 

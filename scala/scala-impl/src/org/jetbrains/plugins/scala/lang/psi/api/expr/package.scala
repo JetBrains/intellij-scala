@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.literals.{ScDoubleLiteral, 
 import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.ScIntegerLiteralImpl
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{StdType, StdTypes, ValType}
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScLiteralType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScLiteralType, ScType}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 package object expr {
@@ -15,7 +15,7 @@ package object expr {
     expected:  ScType
   )(implicit
     project: ProjectContext,
-    context: Context
+    context: ConformanceContext
   ): Boolean = {
     (getStdType(valueType) zip getStdType(expected))
       .exists { case (from, to) => project.stdTypes.canWiden(from, to) }
@@ -28,7 +28,7 @@ package object expr {
   )(implicit
     project: ProjectContext
   ): ScType = {
-    implicit val context: Context = Context(expr)
+    implicit val context: ConformanceContext = ConformanceContext(expr)
 
     val narrowing = isNumericNarrowing(expr, valType, expected)
     if (narrowing.isDefined)
@@ -47,7 +47,7 @@ package object expr {
   )(implicit
     ctx: ProjectContext
   ): Option[ScType] = {
-    implicit val context: Context = Context(expr)
+    implicit val context: ConformanceContext = ConformanceContext(expr)
 
     sealed abstract class NumLit
     final case class IntLit(value: Int) extends NumLit
@@ -114,7 +114,7 @@ package object expr {
     t: ScType
   )(implicit
     project: ProjectContext,
-    context: Context
+    context: ConformanceContext
   ): Option[StdType] = {
     val stdTypes  = project.stdTypes
     val dealiased = t.widenIfLiteral.removeAliasDefinitions()

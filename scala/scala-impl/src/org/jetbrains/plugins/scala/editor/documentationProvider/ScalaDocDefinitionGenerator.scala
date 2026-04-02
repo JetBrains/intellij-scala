@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGivenDefinition.DesugaredTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGivenDefinition, ScMember, ScObject, ScTemplateDefinition, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypeAnnotationRenderer.ParameterTypeDecorator
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation._
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -70,7 +70,7 @@ private class ScalaDocDefinitionGenerator private(
   }
 
   private implicit val projectContext: ProjectContext = elementWithDoc.projectContext
-  private implicit val context: Context = originalElement.map(Context(_)).getOrElse(Context.Empty)
+  private implicit val context: ConformanceContext = originalElement.map(ConformanceContext(_)).getOrElse(ConformanceContext.Empty)
   private implicit val typePresentationContext: TypePresentationContext =
     originalElement match {
       case Some(element) => element

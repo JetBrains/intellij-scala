@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, ScTypeExt, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScType, ScTypeExt, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.overrideImplement.ScalaGenerationInfo._
 import org.jetbrains.plugins.scala.project.ScalaFeatures
@@ -54,7 +54,7 @@ class ScalaGenerationInfo(classMember: ClassMember0, needsOverrideModifier: Bool
       case member: ScExtensionMember =>
         myMember = insertExtension(member, templDef, anchor, typeAdjuster)
       case ScAliasMember(alias, substitutor, _) =>
-        val m = createOverrideImplementType(alias, substitutor, needsOverrideModifier, aClass, comment)(alias.getManager, Context(anchor))
+        val m = createOverrideImplementType(alias, substitutor, needsOverrideModifier, aClass, comment)(alias.getManager, ConformanceContext(anchor))
 
         val added = templDef.addMember(m, Option(anchor))
         addTargetNameAnnotationIfNeeded(added, alias)

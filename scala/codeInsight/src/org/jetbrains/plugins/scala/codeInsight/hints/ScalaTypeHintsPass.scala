@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScPatternDefinition, ScValueOrVariable, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.settings.annotations.Definition
@@ -59,7 +59,7 @@ private[codeInsight] trait ScalaTypeHintsPass {
     case _ => Seq.empty
   }
 
-  private def xRayHintsFor(e: PsiElement, t: ScType)(implicit scheme: EditorColorsScheme, ctx: TypePresentationContext with Context, settings: ScalaHintsSettings): Seq[Hint] = e match {
+  private def xRayHintsFor(e: PsiElement, t: ScType)(implicit scheme: EditorColorsScheme, ctx: TypePresentationContext with ConformanceContext, settings: ScalaHintsSettings): Seq[Hint] = e match {
     case e: ScParameter if e.typeElement.isEmpty && ScalaApplicationSettings.XRAY_SHOW_LAMBDA_PARAMETER_HINTS =>
       hints(e, t, inParentheses = e.getParent.is[ScParameterClause] && e.getParent.getFirstChild.elementType != ScalaTokenTypes.tLPARENTHESIS)
     case e: ScUnderscoreSection if !e.getParent.is[ScTypedExpression] && ScalaApplicationSettings.XRAY_SHOW_LAMBDA_PLACEHOLDER_HINTS =>
@@ -69,7 +69,7 @@ private[codeInsight] trait ScalaTypeHintsPass {
     case _ => Seq.empty
   }
 
-  private def hints(e: PsiElement, t: ScType, inParentheses: Boolean)(implicit scheme: EditorColorsScheme, ctx: TypePresentationContext with Context, settings: ScalaHintsSettings) = {
+  private def hints(e: PsiElement, t: ScType, inParentheses: Boolean)(implicit scheme: EditorColorsScheme, ctx: TypePresentationContext with ConformanceContext, settings: ScalaHintsSettings) = {
     if (inParentheses)
       Seq(
         Hint(Seq(Text("(")), e, position = HintPosition.BeforeElement, corners = Corners.Left),
@@ -151,7 +151,7 @@ private object ScalaTypeHintsPass {
   }
 
   private def hintFor(definition: Definition, returnType: ScType, menu: MenuProvider)
-                     (implicit scheme: EditorColorsScheme, ctx: TypePresentationContext with Context, settings: ScalaHintsSettings): Option[Hint] =
+                     (implicit scheme: EditorColorsScheme, ctx: TypePresentationContext with ConformanceContext, settings: ScalaHintsSettings): Option[Hint] =
     for {
       anchor <- definition.parameterList
       suffix = definition match {

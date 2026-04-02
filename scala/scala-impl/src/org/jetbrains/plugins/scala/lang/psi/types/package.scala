@@ -36,7 +36,7 @@ package object types {
   }
 
   object ExtractDesignated {
-    def unapply(tpe: ScType): Option[PsiNamedElement] = tpe.extractDesignated(expandAliases = false)(Context.Empty)
+    def unapply(tpe: ScType): Option[PsiNamedElement] = tpe.extractDesignated(expandAliases = false)(ConformanceContext.Empty)
   }
 
   implicit class ScTypeExt(private val scType: ScType) extends AnyVal {
@@ -44,23 +44,23 @@ package object types {
     private def projectContext = scType.projectContext
     private def stdTypes = projectContext.stdTypes
 
-    def equiv(`type`: ScType)(implicit context: Context): Boolean = {
+    def equiv(`type`: ScType)(implicit context: ConformanceContext): Boolean = {
       typeSystem.equiv(scType, `type`)
     }
 
-    def equiv(`type`: ScType, constraints: ConstraintSystem, falseUndef: Boolean = true)(implicit context: Context): ConstraintsResult = {
+    def equiv(`type`: ScType, constraints: ConstraintSystem, falseUndef: Boolean = true)(implicit context: ConformanceContext): ConstraintsResult = {
       typeSystem.equivInner(scType, `type`, constraints, falseUndef)
     }
 
-    def conforms(`type`: ScType)(implicit context: Context): Boolean = {
+    def conforms(`type`: ScType)(implicit context: ConformanceContext): Boolean = {
       typeSystem.conformsInner(`type`, scType).isRight
     }
 
-    def weakConforms(`type`: ScType)(implicit context: Context): Boolean = {
+    def weakConforms(`type`: ScType)(implicit context: ConformanceContext): Boolean = {
       typeSystem.conformsInner(`type`, scType, checkWeak = true).isRight
     }
 
-    def conformanceSubstitutor(`type`: ScType)(implicit context: Context): Option[ScSubstitutor] = {
+    def conformanceSubstitutor(`type`: ScType)(implicit context: ConformanceContext): Option[ScSubstitutor] = {
       implicit val projectContext: ProjectContext = `type`.projectContext
       conforms(`type`, ConstraintSystem.empty) match {
         case ConstraintSystem(substitutor) => Some(substitutor)
@@ -69,7 +69,7 @@ package object types {
     }
 
     /** see scala.tools.nsc.typechecker.Infer.Inferencer#isConservativelyCompatible from scalac */
-    def isConservativelyCompatible(pt: ScType)(implicit context: Context): ConstraintsResult = {
+    def isConservativelyCompatible(pt: ScType)(implicit context: ConformanceContext): ConstraintsResult = {
       def tryConformanceNoParams(fullResults: ConstraintsResult): ConstraintsResult = scType match {
         case ScMethodType(retTpe, ps, _) if ps.isEmpty => retTpe.conforms(pt, ConstraintSystem.empty, checkWeak = true)
         case FunctionType(retTpe, ps)    if ps.isEmpty => retTpe.conforms(pt, ConstraintSystem.empty, checkWeak = true)
@@ -86,15 +86,15 @@ package object types {
 
     def conforms(`type`: ScType,
                  constraints: ConstraintSystem,
-                 checkWeak: Boolean = false)(implicit context: Context): ConstraintsResult = {
+                 checkWeak: Boolean = false)(implicit context: ConformanceContext): ConstraintsResult = {
       typeSystem.conformsInner(`type`, scType, constraints = constraints, checkWeak = checkWeak)
     }
 
-    def glb(`type`: ScType, checkWeak: Boolean = false)(implicit context: Context): ScType = {
+    def glb(`type`: ScType, checkWeak: Boolean = false)(implicit context: ConformanceContext): ScType = {
       typeSystem.glb(scType, `type`, checkWeak)
     }
 
-    def lub(`type`: ScType, checkWeak: Boolean = true)(implicit context: Context): ScType = {
+    def lub(`type`: ScType, checkWeak: Boolean = true)(implicit context: ConformanceContext): ScType = {
       typeSystem.lub(scType, `type`, checkWeak)
     }
 
@@ -126,7 +126,7 @@ package object types {
       case _          => false
     }
 
-    def equivalentToLiteral(b: Boolean)(implicit context: Context): Boolean =
+    def equivalentToLiteral(b: Boolean)(implicit context: ConformanceContext): Boolean =
       scType.equiv(ScLiteralType(ScBooleanLiteralImpl.Value(b), allowWiden = false)(projectContext.project))
 
     def isNumericType: Boolean = scType match {
@@ -142,7 +142,7 @@ package object types {
       * This method is important for parameters expected type.
       * There shouldn't be any abstract type in this expected type.
       **/
-    def removeAbstracts(implicit context: Context): ScType = scType.updateLeaves {
+    def removeAbstracts(implicit context: ConformanceContext): ScType = scType.updateLeaves {
       case a: ScAbstractType => a.simplifyType
     }
 
@@ -180,24 +180,24 @@ package object types {
       * @param expandAliases need to expand alias or not
       * @return element and substitutor
       */
-    def extractDesignatedType(expandAliases: Boolean)(implicit context: Context): Option[(PsiNamedElement, ScSubstitutor)] = {
+    def extractDesignatedType(expandAliases: Boolean)(implicit context: ConformanceContext): Option[(PsiNamedElement, ScSubstitutor)] = {
       new DesignatorExtractor(expandAliases, needSubstitutor = true)
         .extractFrom(scType)
     }
 
-    def extractDesignated(expandAliases: Boolean)(implicit context: Context): Option[PsiNamedElement] = {
+    def extractDesignated(expandAliases: Boolean)(implicit context: ConformanceContext): Option[PsiNamedElement] = {
       new DesignatorExtractor(expandAliases, needSubstitutor = false)
         .extractFrom(scType).map(_._1)
     }
 
 
 
-    def extractClassType(implicit context: Context): Option[(PsiClass, ScSubstitutor)] = {
+    def extractClassType(implicit context: ConformanceContext): Option[(PsiClass, ScSubstitutor)] = {
       new ClassTypeExtractor(needSubstitutor = true)
         .extractFrom(scType)
     }
 
-    def extractClass(implicit context: Context): Option[PsiClass] = {
+    def extractClass(implicit context: ConformanceContext): Option[PsiClass] = {
       new ClassTypeExtractor(needSubstitutor = false)
         .extractFrom(scType).map(_._1)
     }
@@ -205,7 +205,7 @@ package object types {
     //performance critical method!
     //may return None even if extractClass is not empty
     @scala.annotation.tailrec
-    final def extractClassSimple(visited: Set[ScTypeAlias] = Set.empty)(implicit context: Context): Option[PsiClass] = scType match {
+    final def extractClassSimple(visited: Set[ScTypeAlias] = Set.empty)(implicit context: ConformanceContext): Option[PsiClass] = scType match {
       case ScDesignatorType(c: PsiClass) => Some(c)
       case _: StdType => None
       case ParameterizedType(des, _) => des.extractClassSimple(visited)
@@ -218,14 +218,14 @@ package object types {
     }
 
     //performance critical method!
-    def canBeSameOrInheritor(t: ScType)(implicit context: Context): Boolean = checkSimpleClasses(t,
+    def canBeSameOrInheritor(t: ScType)(implicit context: ConformanceContext): Boolean = checkSimpleClasses(t,
       (c1, c2) => c1.sameOrInheritor(c2)
     )
 
     //performance critical method!
-    def canBeSameClass(t: ScType)(implicit context: Context): Boolean = checkSimpleClasses(t, areClassesEquivalent)
+    def canBeSameClass(t: ScType)(implicit context: ConformanceContext): Boolean = checkSimpleClasses(t, areClassesEquivalent)
 
-    private def checkSimpleClasses(t: ScType, condition: (PsiClass, PsiClass) => Boolean)(implicit context: Context) = {
+    private def checkSimpleClasses(t: ScType, condition: (PsiClass, PsiClass) => Boolean)(implicit context: ConformanceContext) = {
       (scType.extractClassSimple(), t.extractClassSimple()) match {
         case (Some(c1), Some(c2)) if !condition(c1, c2) => false
         case _ => true
@@ -233,12 +233,12 @@ package object types {
     }
 
     def removeAliasDefinitionsIn(place: PsiElement): ScType =
-      removeAliasDefinitions()(Context(place))
+      removeAliasDefinitions()(ConformanceContext(place))
 
     def removeAliasDefinitionsAndReduceMatchTypes(
       expandableOnly: Boolean = false,
     )(implicit
-      context: Context
+      context: ConformanceContext
     ): ScType = removeAliasDefinitions(
       expandableOnly = expandableOnly,
       processMatchType = mt => mt.reduce match {
@@ -251,7 +251,7 @@ package object types {
       expandableOnly: Boolean                      = false,
       processMatchType: ScMatchType => AfterUpdate = Function.const(Stop)
     )(implicit
-      context: Context
+      context: ConformanceContext
     ): ScType = {
       def needExpand(ta: ScTypeAliasDefinition) = !expandableOnly || shouldExpand(ta)
 
@@ -338,10 +338,10 @@ package object types {
   }
 
   implicit class ScTypesExt(private val types: IterableOnce[ScType]) extends AnyVal {
-    def glb(checkWeak: Boolean = false)(implicit project: ProjectContext, context: Context): ScType =
+    def glb(checkWeak: Boolean = false)(implicit project: ProjectContext, context: ConformanceContext): ScType =
       types.iterator.reduce(project.typeSystem.glb(_, _, checkWeak))
 
-    def lub(checkWeak: Boolean = true)(implicit project: ProjectContext, context: Context): ScType =
+    def lub(checkWeak: Boolean = true)(implicit project: ProjectContext, context: ConformanceContext): ScType =
       types.iterator.reduce(project.typeSystem.lub(_, _, checkWeak))
   }
 
@@ -351,7 +351,7 @@ package object types {
     def needSubstitutor: Boolean
 
     def extractFrom(scType: ScType,
-                    visitedAliases: Set[ScTypeAlias] = Set.empty)(implicit context: Context): Option[(T, ScSubstitutor)] = {
+                    visitedAliases: Set[ScTypeAlias] = Set.empty)(implicit context: ConformanceContext): Option[(T, ScSubstitutor)] = {
 
       def needExpand(definition: ScTypeAliasDefinition) = expandAliases && !visitedAliases(definition)
 
@@ -427,7 +427,7 @@ package object types {
   private object RecursionException extends NoStackTrace
 
   object ImplicitMethodOrFunctionType {
-    def unapply(tpe: ScType)(implicit context: Context): Option[(ScType, Seq[Parameter])] = tpe match {
+    def unapply(tpe: ScType)(implicit context: ConformanceContext): Option[(ScType, Seq[Parameter])] = tpe match {
       case ContextFunctionType(retTpe, paramTpes) =>
         Option((retTpe, paramTpes.mapWithIndex((tp, i) => Parameter(tp, isRepeated = false, i, s"evidence$$$i"))))
       case ScMethodType(retType, params, isImplicit) if isImplicit => Option((retType, params))
@@ -506,7 +506,7 @@ package object types {
     ty:      ScType,
     visited: Set[ScTypeAlias] = Set.empty
   )(implicit
-    context: Context
+    context: ConformanceContext
   ): Seq[TypeParameter] = ty match {
     case _: ScThisType                    => Seq.empty
     case designatorOwner: DesignatorOwner =>

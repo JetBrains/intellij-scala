@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, TypePresentationContext}
 import org.jetbrains.plugins.scala.runner.Scala3MainMethodSyntheticClass.MainMethodParameters
 import org.jetbrains.plugins.scala.runner.Scala3MainMethodSyntheticClass.MainMethodParameters.CustomParameter
 
@@ -74,7 +74,7 @@ private final class Scala3MainMethodSyntheticClassFinder(project: Project)
   }
 
   private def customParameter(param: ScParameter): CustomParameter = {
-    val typeText = param.`type`().fold(_ => "", _.presentableText(TypePresentationContext.emptyContextIn(scala3 = true), Context.Empty))
+    val typeText = param.`type`().fold(_ => "", _.presentableText(TypePresentationContext.emptyContextIn(scala3 = true), ConformanceContext.Empty))
     CustomParameter(param.name, typeText, param.isVarArgs)
   }
 

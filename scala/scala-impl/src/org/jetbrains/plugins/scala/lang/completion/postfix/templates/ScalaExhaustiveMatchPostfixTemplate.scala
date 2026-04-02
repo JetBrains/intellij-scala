@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
 import org.jetbrains.plugins.scala.lang.completion.clauses.{ClauseCompletionParameters, ExhaustiveMatchCompletionContributor, PatternGenerationStrategy}
 import org.jetbrains.plugins.scala.lang.psi.PsiElementContext
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression, ScFunctionExpr, ScMatch}
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression.ScalaPsiElementExt
 

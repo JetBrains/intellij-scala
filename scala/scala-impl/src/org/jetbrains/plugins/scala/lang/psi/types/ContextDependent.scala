@@ -7,14 +7,14 @@ import scala.collection.immutable.SeqMap
 private class ContextDependent[A] private (stateToValue: Map[SeqMap[ScTypeAliasDefinition, Boolean], A]) { // Use a trie?
   def this() = this(Map.empty)
 
-  def get(implicit context: Context): Option[A] = stateToValue.collectFirst {
+  def get(implicit context: ConformanceContext): Option[A] = stateToValue.collectFirst {
     case (state, value) if state.forall { case (opaqueTypeAlias, isInScope) => context.isInScopeOf(opaqueTypeAlias) == isInScope} => value
   }
 
-  def updatedUsing(f: Context => A)(implicit context: Context): (A, ContextDependent[A]) = {
+  def updatedUsing(f: ConformanceContext => A)(implicit context: ConformanceContext): (A, ContextDependent[A]) = {
     var state = SeqMap.empty[ScTypeAliasDefinition, Boolean]
 
-    val value = f(new Context {
+    val value = f(new ConformanceContext {
       override def isInScopeOf(opaqueTypeAlias: ScTypeAliasDefinition): Boolean = {
         val isInScope = context.isInScopeOf(opaqueTypeAlias)
         state += opaqueTypeAlias -> isInScope

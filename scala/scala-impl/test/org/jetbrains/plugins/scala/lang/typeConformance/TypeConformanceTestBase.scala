@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, ScTypeExt, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScType, ScTypeExt, TypePresentationContext}
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.TestUtils.ExpectedResultFromLastComment
 import org.jetbrains.plugins.scala.{ScalaFileType, TypecheckerTests}
@@ -135,8 +135,8 @@ abstract class TypeConformanceTestBase extends ScalaLightCodeInsightFixtureTestC
         errors +=
           s"""
              |Expected: $expectedResult
-             |Param tp: ${param.paramType.presentableText(TypePresentationContext.emptyContext, Context.Empty)}
-             |Arg   tp: ${exprTp.presentableText(TypePresentationContext.emptyContext, Context.Empty)}
+             |Param tp: ${param.paramType.presentableText(TypePresentationContext.emptyContext, ConformanceContext.Empty)}
+             |Arg   tp: ${exprTp.presentableText(TypePresentationContext.emptyContext, ConformanceContext.Empty)}
           """.stripMargin
     }
     assertTrue(if (shouldPass) "Conformance failure:\n"+ errors.mkString("\n\n").trim else failingPassed, !shouldPass ^ errors.isEmpty)

@@ -4,7 +4,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression}
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScType}
 import org.jetbrains.plugins.scala.lang.psi.types.ScalaType.expandAliases
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -50,7 +50,7 @@ case class Injection(expression: ScExpression, specifier: Option[Specifier]) ext
   import Injection._
 
   private implicit def projectContext: ProjectContext = expression
-  private implicit def context: Context = Context(expression)
+  private implicit def context: ConformanceContext = ConformanceContext(expression)
 
   def text: String = expression.getText
 

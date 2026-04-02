@@ -214,7 +214,7 @@ object ScExpression {
 
   implicit class Ext(private val expr: ScExpression) extends AnyVal {
     private implicit def elementScope: ElementScope = expr.elementScope
-    private implicit def context: Context = Context(expr)
+    private implicit def context: ConformanceContext = ConformanceContext(expr)
 
     def contextFunctionParameters(pt: Option[ScType] = None): Seq[Seq[LightContextFunctionParameter]] =
       expr match {
@@ -470,7 +470,7 @@ object ScExpression {
 
   private implicit class ExprTypeUpdates(private val scType: ScType) extends AnyVal {
     def widenLiteralType(expr: ScExpression, expectedType: Option[ScType]): ScType = {
-      implicit val context: Context = Context(expr)
+      implicit val context: ConformanceContext = ConformanceContext(expr)
 
       def isLiteralType(tp: ScType) = tp.removeAliasDefinitions().is[ScLiteralType]
 
@@ -486,7 +486,7 @@ object ScExpression {
      * E is not already a context function literal, E is converted to a context function literal by rewriting it to
      * (x_1: T1, ..., x_n: Tn) ?=> E
      */
-    final def synthesizeContextFunctionType(pt: Option[ScType], expr: ScExpression)(implicit scope: ElementScope, context: Context): ScType =
+    final def synthesizeContextFunctionType(pt: Option[ScType], expr: ScExpression)(implicit scope: ElementScope, context: ConformanceContext): ScType =
       scType match {
         case cft @ ContextFunctionType(_, _) => cft
         case _ =>
@@ -525,7 +525,7 @@ object ScExpression {
     final def untupleFunction(
       expr: ScExpression,
       pt:   Option[ScType]
-    )(implicit context: Context): ScType =
+    )(implicit context: ConformanceContext): ScType =
       if (expr.isInScala3Module && SAMUtil.isFunctionalExpression(expr))
         scType match {
           case FunctionType(resTpe, paramTypes) =>
@@ -540,7 +540,7 @@ object ScExpression {
         }
       else scType
 
-    private def parameterTypesMatch(params: Seq[ScType], ptParams: Seq[ScType])(implicit context: Context): Boolean =
+    private def parameterTypesMatch(params: Seq[ScType], ptParams: Seq[ScType])(implicit context: ConformanceContext): Boolean =
       ptParams.corresponds(params)(_.conforms(_))
 
     /**
@@ -593,7 +593,7 @@ object ScExpression {
       fromUnderscore: Boolean,
       expected:       ScType
     ): Option[ScType] = {
-      implicit val context: Context = Context(expr)
+      implicit val context: ConformanceContext = ConformanceContext(expr)
 
       @scala.annotation.tailrec
       def checkForSAM(tp: ScType): Option[ScType] =
@@ -620,14 +620,14 @@ object ScExpression {
       }
     }
 
-    private def shouldApplyContextParameters(pt: ScType)(implicit context: Context): Boolean =
+    private def shouldApplyContextParameters(pt: ScType)(implicit context: ConformanceContext): Boolean =
       (scType, pt) match {
         case (ContextFunctionType(_, _), ContextFunctionType(_, _)) => false
         case _                                                      => true
       }
 
     def updateWithExpected(expr: ScExpression, expectedType: Option[ScType], fromUnderscore: Boolean): ScType = {
-      implicit val context: Context = Context(expr)
+      implicit val context: ConformanceContext = ConformanceContext(expr)
 
       if (shouldUpdateImplicitParams(expr) && expectedType.forall(shouldApplyContextParameters)) {
         try {
@@ -659,7 +659,7 @@ object ScExpression {
     }
 
     def dropMethodTypeEmptyParams(expr: ScExpression, expectedType: Option[ScType]): ScType = {
-      implicit val context: Context = Context(expr)
+      implicit val context: ConformanceContext = ConformanceContext(expr)
 
       val (retType, typeParams) = scType match {
         case ScTypePolymorphicType(ScMethodType(rt, params, _), tps) if params.isEmpty => (rt, Some(tps))
@@ -690,7 +690,7 @@ object ScExpression {
 
   private def shape(expression: ScExpression, ignoreAssign: Boolean = false): Option[ScType] = {
     import expression.{projectContext, elementScope}
-    implicit val context: Context = Context(expression)
+    implicit val context: ConformanceContext = ConformanceContext(expression)
 
     def shapeIgnoringAssign(maybeExpression: Option[ScExpression]) = maybeExpression.flatMap {
       shape(_, ignoreAssign = true)

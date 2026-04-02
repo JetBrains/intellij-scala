@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorTy
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, ScalaType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScType, ScalaType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil._
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.ScExpressionForExpectedTypesEx
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
@@ -335,7 +335,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
     tryThisQualifier:   Boolean,
     contextInfo:        Option[ContextInfo]
   ): Array[ScalaResolveResult] = {
-    implicit val context: Context = Context(ref)
+    implicit val context: ConformanceContext = ConformanceContext(ref)
 
     val info = contextInfo.getOrElse(getContextInfo(ref, ref))
 

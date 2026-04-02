@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticC
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, ConstraintSystem, ConstraintsResult, Context, ScCompoundType, ScLiteralType, ScType, ScalaTypeVisitor}
+import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, ConstraintSystem, ConstraintsResult, ConformanceContext, ScCompoundType, ScLiteralType, ScType, ScalaTypeVisitor}
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult, ScalaResolveState}
 import org.jetbrains.plugins.scala.util.HashBuilder._
@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 final class ScProjectionType private(val projected: ScType,
                                      override val element: PsiNamedElement) extends DesignatorOwner {
 
-  override protected def calculateAliasType(implicit context: Context): Option[AliasType] = calculateAliasTypeAux(actualElement, actualSubst)
+  override protected def calculateAliasType(implicit context: ConformanceContext): Option[AliasType] = calculateAliasTypeAux(actualElement, actualSubst)
 
   override def isStable: Boolean = (projected match {
     case designatorOwner: DesignatorOwner => designatorOwner.isStable
@@ -37,7 +37,7 @@ final class ScProjectionType private(val projected: ScType,
 
   override private[types] def designatorSingletonType: Option[ScType] = super.designatorSingletonType.map(actualSubst)
 
-  private def actualImpl(projected: ScType, updateWithProjectionSubst: Boolean)(implicit context: Context): Option[(PsiNamedElement, ScSubstitutor)] = cachedWithRecursionGuard("actualImpl", element, Option.empty[(PsiNamedElement, ScSubstitutor)], BlockModificationTracker(element), (projected, updateWithProjectionSubst)) {
+  private def actualImpl(projected: ScType, updateWithProjectionSubst: Boolean)(implicit context: ConformanceContext): Option[(PsiNamedElement, ScSubstitutor)] = cachedWithRecursionGuard("actualImpl", element, Option.empty[(PsiNamedElement, ScSubstitutor)], BlockModificationTracker(element), (projected, updateWithProjectionSubst)) {
     val resolvePlace = {
       def fromClazz(definition: ScTypeDefinition): PsiElement =
         definition.extendsBlock.templateBody
@@ -141,13 +141,13 @@ final class ScProjectionType private(val projected: ScType,
     }
   }
 
-  private def actual(updateWithProjectionSubst: Boolean = true)(implicit context: Context): (PsiNamedElement, ScSubstitutor) =
+  private def actual(updateWithProjectionSubst: Boolean = true)(implicit context: ConformanceContext): (PsiNamedElement, ScSubstitutor) =
     actualImpl(projected, updateWithProjectionSubst).getOrElse(element, ScSubstitutor.empty)
 
   def actualElement: PsiNamedElement = actual()._1
   def actualSubst: ScSubstitutor = actual()._2
 
-  override def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean)(implicit context: Context): ConstraintsResult = {
+  override def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean)(implicit context: ConformanceContext): ConstraintsResult = {
     def isEligibleForPrefixUnification(proj: ScType): Boolean = proj.subtypeExists {
       case _: UndefinedType => true
       case _                => false
@@ -233,7 +233,7 @@ final class ScProjectionType private(val projected: ScType,
     }
   }
 
-  override def isFinalType(implicit context: Context): Boolean = actualElement match {
+  override def isFinalType(implicit context: ConformanceContext): Boolean = actualElement match {
     case cl: PsiClass if cl.isEffectivelyFinal => true
     case alias: ScTypeAliasDefinition if !alias.isEffectivelyOpaque => alias.aliasedType.exists(_.isFinalType)
     case _                                     => false
@@ -304,7 +304,7 @@ object ScProjectionType {
   }
 
   class withActual(updateWithProjectionSubst: Boolean) {
-    def unapply(proj: ScProjectionType)(implicit context: Context): Some[(PsiNamedElement, ScSubstitutor)] =
+    def unapply(proj: ScProjectionType)(implicit context: ConformanceContext): Some[(PsiNamedElement, ScSubstitutor)] =
       Some(proj.actual(updateWithProjectionSubst))
   }
 }

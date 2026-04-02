@@ -1043,7 +1043,7 @@ object ScalaPsiElementFactory {
     @NonNls comment:       String = ""
   )(implicit
     projectContext: ProjectContext,
-    context: Context
+    context: ConformanceContext
   ): ScTypeAlias = {
     val typeSign = getOverrideImplementTypeSign(alias, substitutor, needsOverrideModifier)
     createClassWithBody(s"$comment $typeSign", features, forceBraces = true).aliases.head
@@ -1262,7 +1262,7 @@ object ScalaPsiElementFactory {
     }
   }
 
-  def getOverrideImplementTypeSign(alias: ScTypeAlias, substitutor: ScSubstitutor, needsOverride: Boolean)(implicit context: Context): String =
+  def getOverrideImplementTypeSign(alias: ScTypeAlias, substitutor: ScSubstitutor, needsOverride: Boolean)(implicit context: ConformanceContext): String =
     try alias match {
       case alias: ScTypeAliasDefinition if !alias.isEffectivelyOpaque =>
         val overrideText = if (needsOverride && !alias.hasModifierProperty("override")) "override " else ""

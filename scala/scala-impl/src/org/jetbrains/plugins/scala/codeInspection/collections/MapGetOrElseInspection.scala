@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.collections
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.Context
+import org.jetbrains.plugins.scala.lang.psi.types.ConformanceContext
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
@@ -36,7 +36,7 @@ object MapGetOrElse extends SimplificationType() {
   }
 
   def checkTypes(qual: ScExpression, mapArg: ScExpression, replacementText: String): Boolean = {
-    implicit val context: Context = Context(qual)
+    implicit val context: ConformanceContext = ConformanceContext(qual)
 
     val mapArgRetType = mapArg match {
       case Typeable(FunctionType(retType, _)) => retType

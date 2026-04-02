@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.extensions.BooleanExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.Context
+import org.jetbrains.plugins.scala.lang.psi.types.ConformanceContext
 
 import scala.collection.immutable.ArraySeq
 
@@ -28,7 +28,7 @@ object MapFlatten extends SimplificationType {
   }
 
   private def sameType(expr: ScExpression, text: String): Boolean = {
-    implicit val context: Context = Context(expr)
+    implicit val context: ConformanceContext = ConformanceContext(expr)
 
     val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(text, expr.getContext, expr)
     expr.`type`().exists { oldType =>

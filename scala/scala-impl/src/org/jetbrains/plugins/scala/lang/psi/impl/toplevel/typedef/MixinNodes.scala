@@ -144,7 +144,7 @@ object MixinNodes {
         SuperTypesData(superTypes, thisType)
       }
 
-    def apply(cp: ScCompoundType, compoundThisType: Option[ScType])(implicit context: Context): SuperTypesData = {
+    def apply(cp: ScCompoundType, compoundThisType: Option[ScType])(implicit context: ConformanceContext): SuperTypesData = {
       val superTypes = MixinNodes.linearization(cp)
       val thisType = compoundThisType.getOrElse(cp)
       SuperTypesData(superTypes, thisType)
@@ -511,7 +511,7 @@ object MixinNodes {
 
   def linearization(clazz: PsiClass): Seq[ScType] =
     cachedWithRecursionGuard("linearization", clazz, Seq.empty[ScType], ModTracker.libraryAware(clazz)) {
-      implicit val context: Context = Context(clazz)
+      implicit val context: ConformanceContext = ConformanceContext(clazz)
 
       clazz match {
         case obj: ScObject if obj.isPackageObject && obj.qualifiedName == "scala" =>
@@ -549,13 +549,13 @@ object MixinNodes {
       }
     }
 
-  def linearization(compound: ScCompoundType, addTp: Boolean = false)(implicit context: Context): Seq[ScType] = {
+  def linearization(compound: ScCompoundType, addTp: Boolean = false)(implicit context: ConformanceContext): Seq[ScType] = {
     val comps     = compound.components
     val classType = Option.when(addTp)(compound)
     generalLinearization(classType, comps)
   }
 
-  private def generalLinearization(classType: Option[ScType], supers: Iterable[ScType])(implicit context: Context): Seq[ScType] = {
+  private def generalLinearization(classType: Option[ScType], supers: Iterable[ScType])(implicit context: ConformanceContext): Seq[ScType] = {
     val baseTypes      = mutable.ArrayBuffer.empty[ScType]
     val qualifiedNames = mutable.HashSet.empty[String]
 

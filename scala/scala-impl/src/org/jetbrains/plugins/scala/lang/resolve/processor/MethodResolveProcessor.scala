@@ -214,7 +214,7 @@ object MethodResolveProcessor {
   ): ApplicabilityCheckResult = {
 
     implicit val projectContext: ProjectContext = c.element
-    implicit val context: Context               = Context(place)
+    implicit val context: ConformanceContext               = ConformanceContext(place)
 
     val problems             = Seq.newBuilder[ApplicabilityProblem]
     val element              = c.element

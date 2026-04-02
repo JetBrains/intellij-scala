@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.ScTypeText
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, StdTypes}
-import org.jetbrains.plugins.scala.lang.psi.types.{BaseTypes, Context, ScType, TermSignature, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{BaseTypes, ConformanceContext, ScType, TermSignature, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.psi.{PsiElementContext, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring._
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -165,7 +165,7 @@ object AddOnlyStrategy {
 
   def typesForMember(element: ScMember): Seq[TypeForAnnotation] = {
     implicit val projectContext: ProjectContext = element.projectContext
-    implicit val context: Context = Context(element)
+    implicit val context: ConformanceContext = ConformanceContext(element)
 
     def signatureType(sign: TermSignature): Option[ScType] = {
       val substitutor = sign.substitutor
@@ -287,7 +287,7 @@ object AddOnlyStrategy {
       .map(createTypeElementFromText(_, ctx))
   }
 
-  private[this] def canonicalTypes(tpe: ScType)(implicit ctx: TypePresentationContext with Context): Seq[String] = {
+  private[this] def canonicalTypes(tpe: ScType)(implicit ctx: TypePresentationContext with ConformanceContext): Seq[String] = {
     import BaseTypes.get
 
     tpe.canonicalCodeText +: (tpe.extractClass match {

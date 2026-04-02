@@ -4,7 +4,7 @@ import com.intellij.psi.PsiTypeParameter
 import org.jetbrains.plugins.scala.lang.psi.light.DummyLightTypeParam
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType.isMaskedExtensionTypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
-import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, Context, LeafType, NamedType, ScType, ScalaTypeVisitor}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, ConformanceContext, LeafType, NamedType, ScType, ScalaTypeVisitor}
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
@@ -13,7 +13,7 @@ class TypeParameterType private (val typeParameter: TypeParameter)
 
   override implicit def projectContext: ProjectContext = psiTypeParameter
 
-  protected implicit def thisContext: Context = Context(psiTypeParameter)
+  protected implicit def thisContext: ConformanceContext = ConformanceContext(psiTypeParameter)
 
   def typeParameters: Seq[TypeParameter] = typeParameter.typeParameters
 
@@ -41,7 +41,7 @@ class TypeParameterType private (val typeParameter: TypeParameter)
     `type`:      ScType,
     constraints: ConstraintSystem,
     falseUndef:  Boolean
-  )(implicit context: Context): ConstraintsResult =
+  )(implicit context: ConformanceContext): ConstraintsResult =
     `type` match {
       case that: TypeParameterType =>
         if (that.psiTypeParameter eq psiTypeParameter) constraints
@@ -72,7 +72,7 @@ class TypeParameterType private (val typeParameter: TypeParameter)
 }
 
 object TypeParameterType {
-  private def isMaskedExtensionTypeParameter(lhs: TypeParameterType, rhs: TypeParameterType)(implicit context: Context): Boolean =
+  private def isMaskedExtensionTypeParameter(lhs: TypeParameterType, rhs: TypeParameterType)(implicit context: ConformanceContext): Boolean =
     lhs.psiTypeParameter match {
       case _: DummyLightTypeParam => lhs.lowerType.equiv(rhs) && lhs.upperType.equiv(rhs)
       case _                      => false

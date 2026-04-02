@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScExtractorPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScExtractorPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createPatternFromText
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScalaType, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScalaType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 
 

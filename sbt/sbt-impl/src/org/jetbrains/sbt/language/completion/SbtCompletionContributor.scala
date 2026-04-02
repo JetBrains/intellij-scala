@@ -28,7 +28,7 @@ final class SbtCompletionContributor extends ScalaCompletionContributor {
   extend(CompletionType.BASIC, afterInfixOperator, new CompletionProvider[CompletionParameters] {
     override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet): Unit = {
       implicit val projectContext: ProjectContext = parameters.getPosition.getProject
-      implicit val context: Context = Context(parameters.getPosition)
+      implicit val context: ConformanceContext = ConformanceContext(parameters.getPosition)
 
       val place     = positionFromParameters(using parameters)
       val infixExpr = place.getContext.getContext.asInstanceOf[ScInfixExpr]

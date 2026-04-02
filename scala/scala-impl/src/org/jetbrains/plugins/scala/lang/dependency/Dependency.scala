@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScPack
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceExpressionImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -124,7 +124,7 @@ object Dependency {
   }
 
   private def dependencyFor(reference: ScReference, target: PsiElement, fromType: Option[ScType]): Option[Dependency] = {
-    implicit val context: Context = Context(reference)
+    implicit val context: ConformanceContext = ConformanceContext(reference)
 
     def pathFor(entity: PsiNamedElement, member: Option[String] = None): Option[DependencyPath] = {
       if (!ScalaPsiUtil.hasStablePath(entity)) return None

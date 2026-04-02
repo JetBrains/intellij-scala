@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.collections
 
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 import scala.collection.immutable.ArraySeq
@@ -11,7 +11,7 @@ object RedundantCollectionConversion extends SimplificationType {
   override def hint: String = ScalaInspectionBundle.message("redundant.collection.conversion")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
-    implicit val context: Context = Context(expr)
+    implicit val context: ConformanceContext = ConformanceContext(expr)
 
     val typeAfterConversion = expr.`type`().getOrAny
 

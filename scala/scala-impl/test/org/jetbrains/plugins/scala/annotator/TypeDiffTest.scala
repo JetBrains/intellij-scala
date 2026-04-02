@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScTypedExpression
 import org.jetbrains.plugins.scala.lang.psi.types.result.Failure
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScType, TypePresentationContext}
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
 

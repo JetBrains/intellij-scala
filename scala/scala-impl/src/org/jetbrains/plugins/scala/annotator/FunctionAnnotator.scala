@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScTypesExt}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScTypesExt}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -27,7 +27,7 @@ trait FunctionAnnotator {
   def annotateFunction(function: ScFunctionDefinition, typeAware: Boolean)
                       (implicit holder: ScalaAnnotationHolder): Unit = {
     implicit val projectContext: ProjectContext = function.projectContext
-    implicit val context: Context = Context(function)
+    implicit val context: ConformanceContext = ConformanceContext(function)
 
     if (!function.hasExplicitType && function.definedReturnType.isLeft) {
       val message = ScalaBundle.message("function.recursive.need.result.type", function.name)

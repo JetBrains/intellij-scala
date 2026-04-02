@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.collections
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.extensions.ResolvesTo
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScParameterizedType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScParameterizedType}
 
 import scala.collection.immutable.ArraySeq
 
@@ -59,7 +59,7 @@ object FlattenSimplification extends SimplificationType {
   }
 
   private def isNestedOption(qual: ScExpression) = {
-    implicit val context: Context = Context(qual)
+    implicit val context: ConformanceContext = ConformanceContext(qual)
 
     qual.`type`().toOption.map(_.tryExtractDesignatorSingleton) match {
       case Some(outer: ScParameterizedType) if isOption(outer.designator) => outer.typeArguments match {

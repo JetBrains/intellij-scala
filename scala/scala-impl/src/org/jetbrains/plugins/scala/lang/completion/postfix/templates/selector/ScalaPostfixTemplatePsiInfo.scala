@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionWithContextFromText
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, api}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, api}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression.ScalaWithUnaryNotSurrounder
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -44,7 +44,7 @@ object ScalaPostfixTemplatePsiInfo extends PostfixTemplatePsiInfo {
                              _: ScParenthesisedExpr)) =>
         "!" + expression.getNode.getText
       case Array(ScPrefixExpr(operation, operand@Typeable(operandType)), _*)
-        if operation.refName == "!" && operandType.conforms(api.Boolean(operand))(Context(operation)) =>
+        if operation.refName == "!" && operandType.conforms(api.Boolean(operand))(ConformanceContext(operation)) =>
         operand.getNode.getText
       case _ => super.getTemplateAsString(elements)
     }

@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScFunctionExpr, ScParenthesisedExpr, ScTypedExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.PsiElementContext
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TupleType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType.isFunctionType
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
@@ -26,7 +26,7 @@ object ScFunctionExprAnnotator extends ElementAnnotator[ScFunctionExpr] {
 
   private[annotator] def annotateImpl(literal: ScFunctionExpr, typeAware: Boolean, fromBlock: Boolean = false)
                                      (implicit holder: ScalaAnnotationHolder): Unit = {
-    implicit val context: Context = Context(literal)
+    implicit val context: ConformanceContext = ConformanceContext(literal)
 
     if (!typeAware || isImplicitlyConverted(literal))
       return
@@ -50,7 +50,7 @@ object ScFunctionExprAnnotator extends ElementAnnotator[ScFunctionExpr] {
   }
 
   private def isImplicitlyConverted(literal: ScFunctionExpr) = {
-    implicit val context: Context = Context(literal)
+    implicit val context: ConformanceContext = ConformanceContext(literal)
 
     (literal.`type`().toOption, literal.getTypeWithoutImplicits().toOption) match {
       case (Some(t1), Some(t2)) if t1.equiv(t2) => false
@@ -59,7 +59,7 @@ object ScFunctionExprAnnotator extends ElementAnnotator[ScFunctionExpr] {
   }
 
   private def expectedFunctionTypeOf(literal: ScFunctionExpr) = {
-    implicit val context: Context = Context(literal)
+    implicit val context: ConformanceContext = ConformanceContext(literal)
 
     literal.expectedType() match {
       case Some(t @ FunctionType(_, _)) => Some(t)
@@ -93,7 +93,7 @@ object ScFunctionExprAnnotator extends ElementAnnotator[ScFunctionExpr] {
     parameters:    Iterable[ScParameter],
     expectedTypes: Iterable[ScType]
   ): Option[Seq[ScType]] = {
-    implicit val context: Context = Context(ctx)
+    implicit val context: ConformanceContext = ConformanceContext(ctx)
 
     if (ctx.isInScala3Module && expectedTypes.size == 1)
       expectedTypes.head match {
@@ -173,7 +173,7 @@ object ScFunctionExprAnnotator extends ElementAnnotator[ScFunctionExpr] {
   }
 
   private def resultTypeMismatchIn(literal: ScFunctionExpr)(implicit holder: ScalaAnnotationHolder): Unit = {
-    implicit val context: Context = Context(literal)
+    implicit val context: ConformanceContext = ConformanceContext(literal)
 
     val typeAscription = literal match {
       case Parent((_: ScParenthesisedExpr | _: ScBlockExpr) & Parent(ta: ScTypedExpression)) => Some(ta)

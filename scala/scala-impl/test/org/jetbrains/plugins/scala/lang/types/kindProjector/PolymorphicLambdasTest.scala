@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.types.kindProjector
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.lang.psi.PsiElementContext
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.types.utils.ScPsiElementAssertionTestBase
 
 import java.nio.file.Path

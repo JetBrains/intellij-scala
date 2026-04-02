@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiMethodExt, PsiT
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScParameterizedType, ScTypeExt, ScalaType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScParameterizedType, ScTypeExt, ScalaType}
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.testingSupport.test.CustomTestRunnerBasedStateProvider.TestFrameworkRunnerInfo
 import org.jetbrains.plugins.scala.testingSupport.test._
@@ -61,7 +61,7 @@ object ScalaTestRunConfiguration {
 
   private def lackConfigMapConstructor(clazz: PsiClass): Boolean = {
     implicit val projectContext: ProjectContext = clazz.projectContext
-    implicit val context: Context = Context(clazz)
+    implicit val context: ConformanceContext = ConformanceContext(clazz)
 
     val constructors = clazz match {
       case c: ScClass => c.secondaryConstructors.filter(_.isConstructor).toList ::: c.constructor.toList

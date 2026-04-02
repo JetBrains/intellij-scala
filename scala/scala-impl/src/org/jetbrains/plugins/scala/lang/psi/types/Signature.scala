@@ -18,7 +18,7 @@ trait Signature {
 
   def namedElement: PsiNamedElement
 
-  protected implicit def thisContext: Context = Context(namedElement)
+  protected implicit def thisContext: ConformanceContext = ConformanceContext(namedElement)
 
   /**
     * Sometimes one element generate several signatures with different names.

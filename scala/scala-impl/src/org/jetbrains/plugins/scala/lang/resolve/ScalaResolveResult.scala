@@ -537,7 +537,7 @@ object ScalaResolveResult {
                             isLocalVariable: Boolean = false,
                             isInSimpleString: Boolean = false,
                             isInInterpolatedString: Boolean = false,
-                            isInStableElementPattern: Boolean = false)(implicit context: Context): ScalaLookupItem = {
+                            isInStableElementPattern: Boolean = false)(implicit context: ConformanceContext): ScalaLookupItem = {
       val ScalaResolveResult(element, substitutor) = resolveResult
       if (!element.isValid) {
         throw new IllegalArgumentException(s"`$element` is supposed to be valid (please consider using ${classOf[com.intellij.openapi.application.ReadAction[_]].getName})")
@@ -547,7 +547,7 @@ object ScalaResolveResult {
         val classExtractedFromType: Option[PsiClass] = {
           val fromType = resolveResult.fromType
 
-          def isPredef = fromType.exists(_.presentableText(TypePresentationContext.emptyContext, Context.Empty) == "Predef.type")
+          def isPredef = fromType.exists(_.presentableText(TypePresentationContext.emptyContext, ConformanceContext.Empty) == "Predef.type")
 
           import resolveResult.projectContext
           val maybeType = qualifierType.orElse(fromType).map(_.widen)

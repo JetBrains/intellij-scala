@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlo
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.{CompilerType, ScalaPsiManager}
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator
@@ -102,7 +102,7 @@ package object completion {
     def withType(fqn: String): PsiElementPattern.Capture[T] =
       pattern.`with`(condition[T](s"hasType $fqn") {
         case typeable: Typeable =>
-          implicit val context: Context = Context(typeable)
+          implicit val context: ConformanceContext = ConformanceContext(typeable)
 
           val psiManager = ScalaPsiManager.instance(typeable.getProject)
           val resolveScope = typeable.resolveScope

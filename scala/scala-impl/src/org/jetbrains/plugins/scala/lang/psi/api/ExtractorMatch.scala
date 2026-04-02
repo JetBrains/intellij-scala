@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScCon
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ExtractClass, FunctionType, NamedTupleType, ParameterizedType, TupleType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.{BaseTypes, Context, ScType, ScalaSeqExt, api}
+import org.jetbrains.plugins.scala.lang.psi.types.{BaseTypes, ConformanceContext, ScType, ScalaSeqExt, api}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -227,7 +227,7 @@ object ExtractorMatch {
   }
 
   private[this] case class ApplyBasedExtractor(place: PsiElement) {
-    private implicit def context: Context = Context(place)
+    private implicit def context: ConformanceContext = ConformanceContext(place)
 
     def unapply(tpe: ScType): Option[ScType] =
       for {
@@ -241,7 +241,7 @@ object ExtractorMatch {
   }
 
   private[this] case class SeqLikeType(place: PsiElement) {
-    private implicit def context: Context = Context(place)
+    private implicit def context: ConformanceContext = ConformanceContext(place)
 
     private[this] val seqFqn = place.scalaSeqFqn
 
@@ -255,7 +255,7 @@ object ExtractorMatch {
   }
 
   private[this] def extractedType(returnTpe: ScType, place: PsiElement, fun: ScFunction): Option[(ScType, Boolean)] = {
-    implicit val context: Context = Context(place)
+    implicit val context: ConformanceContext = ConformanceContext(place)
 
     returnTpe match {
       case ParameterizedType(ExtractClass(cls), Seq(arg))
@@ -302,7 +302,7 @@ object ExtractorMatch {
     }
   }
 
-  private def isProduct(tpe: ScType)(implicit context: Context): Boolean = {
+  private def isProduct(tpe: ScType)(implicit context: ConformanceContext): Boolean = {
     val productFqn = "scala.Product"
     val baseTpes = Iterator(tpe) ++ BaseTypes.iterator(tpe)
     baseTpes.exists {
@@ -319,7 +319,7 @@ object ExtractorMatch {
    */
   private[this] def scala3UnapplyExtractorMatches(tpe: ScType, place: PsiElement, fun: ScFunction): LazyList[ExtractorMatch.Unapply] = {
     implicit val projectContext: ProjectContext = place
-    implicit val context: Context = Context(place)
+    implicit val context: ConformanceContext = ConformanceContext(place)
 
     def withAutoTupling(unapply: Unapply): Seq[Unapply] =
       unapply.productTypes match {
@@ -386,7 +386,7 @@ object ExtractorMatch {
 
   private def scala2UnapplyExtractorMatches(tpe: ScType, place: PsiElement, fun: ScFunction): LazyList[ExtractorMatch.Unapply] = {
     implicit val projectContext: ProjectContext = place
-    implicit val context: Context = Context(place)
+    implicit val context: ConformanceContext = ConformanceContext(place)
     /*
      * Scala 2 boolean match
      */
@@ -469,7 +469,7 @@ object ExtractorMatch {
    * See https://docs.scala-lang.org/scala3/reference/changed-features/pattern-matching.html#
    */
   private[this] def scala3UnapplySeqMatches(tpe: ScType, place: PsiElement, fun: ScFunction): LazyList[ExtractorMatch.UnapplySeq] = {
-    implicit val context: Context = Context(place)
+    implicit val context: ConformanceContext = ConformanceContext(place)
 
     // v is the V from https://docs.scala-lang.org/scala3/reference/changed-features/pattern-matching.html#
     def inner(v: ScType, extract: Boolean, irrefutable: Boolean): LazyList[ExtractorMatch.UnapplySeq] = {
@@ -517,7 +517,7 @@ object ExtractorMatch {
   }
 
   private def scala2UnapplySeqMatches(tpe: ScType, place: PsiElement, fun: ScFunction): LazyList[ExtractorMatch.UnapplySeq] = {
-    implicit val context: Context = Context(place)
+    implicit val context: ConformanceContext = ConformanceContext(place)
 
     val extractorTypeAndIrrefutability = extractedType(tpe, place, fun)
 

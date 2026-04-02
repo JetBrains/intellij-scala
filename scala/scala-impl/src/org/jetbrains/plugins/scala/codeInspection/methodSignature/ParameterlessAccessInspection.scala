@@ -99,7 +99,7 @@ object ParameterlessAccessInspection {
   private object HasFunctionType {
 
     def unapply(expression: ScExpression): Option[Seq[ScType]] = {
-      implicit val context: Context = Context(expression)
+      implicit val context: ConformanceContext = ConformanceContext(expression)
 
       expression match {
         case result.Typeable(api.FunctionType(_, seq)) => Some(seq)

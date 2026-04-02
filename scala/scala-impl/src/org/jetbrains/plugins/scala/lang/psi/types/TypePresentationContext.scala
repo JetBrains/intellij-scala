@@ -41,7 +41,7 @@ object TypePresentationContext {
           val element = ScalaPsiElementFactory.createTypeElementFromText(name, context, placeForTypePresentation)
           element match {
             case ScSimpleTypeElement(ResolvesTo(reference)) =>
-              ScEquivalenceUtil.smartEquivalence(reference, target)(Context(context))
+              ScEquivalenceUtil.smartEquivalence(reference, target)(ConformanceContext(context))
             case _ => false
           }
         } else true
@@ -54,7 +54,7 @@ object TypePresentationContext {
 
   implicit def psiElementToPresentationContext(place: PsiElement): PsiBased = TypePresentationContext(place)
 
-  abstract class EmptyPresentationContext extends TypePresentationContext with Context.Empty {
+  abstract class EmptyPresentationContext extends TypePresentationContext with ConformanceContext.Empty {
     override final def nameResolvesTo(name: String, target: PsiElement): Boolean = false
   }
 

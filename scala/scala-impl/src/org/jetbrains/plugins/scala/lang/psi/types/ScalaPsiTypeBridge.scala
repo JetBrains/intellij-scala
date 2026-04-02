@@ -169,7 +169,7 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
       val exception = new IllegalStateException(
         s"""Infinite recursion detected while calculating ScalaPsiTypeBridge.toPsiTypeInner
            |recursionCallDepth    : $recursionCallDepth
-           |type presentable text : ${prevTypeValue.presentableText(TypePresentationContext.emptyContext, Context.Empty)}
+           |type presentable text : ${prevTypeValue.presentableText(TypePresentationContext.emptyContext, ConformanceContext.Empty)}
            |noPrimitives          : $prevNoPrimitivesValue
            |""".stripMargin.trim
       )

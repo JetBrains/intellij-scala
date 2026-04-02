@@ -40,7 +40,7 @@ class ScThisReferenceImpl(node: ASTNode) extends ScExpressionImplBase(node) with
 object ScThisReferenceImpl {
   def getThisTypeForTypeDefinition(td: ScTemplateDefinition, expr: ScExpression): TypeResult = {
     import td.projectContext
-    implicit val context: Context = Context(expr)
+    implicit val context: ConformanceContext = ConformanceContext(expr)
 
     // SLS 6.5:  If the expression’s expected type is a stable type,
     // or C.this occurs as the prefix of a selection, its type is C.this.type,

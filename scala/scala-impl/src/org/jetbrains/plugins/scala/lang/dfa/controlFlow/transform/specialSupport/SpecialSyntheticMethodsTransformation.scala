@@ -16,12 +16,12 @@ import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils._
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScNullLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
-import org.jetbrains.plugins.scala.lang.psi.types.Context
+import org.jetbrains.plugins.scala.lang.psi.types.ConformanceContext
 
 trait SpecialSyntheticMethodsTransformation { this: ScalaDfaControlFlowBuilder =>
   final def tryTransformSyntheticFunctionSpecially(function: ScSyntheticFunction,
                                                    invocationInfo: InvocationInfo): Option[StackValue] = {
-    implicit val context: Context = Context(invocationInfo.place)
+    implicit val context: ConformanceContext = ConformanceContext(invocationInfo.place)
 
     val argCount = invocationInfo.argListsInEvaluationOrder match {
       case head :: Nil => head.size

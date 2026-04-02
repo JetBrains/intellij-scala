@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.collections
 import com.intellij.codeInsight.PsiEquivalenceUtil
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.types.Context
+import org.jetbrains.plugins.scala.lang.psi.types.ConformanceContext
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdTypes
 
 import scala.collection.immutable.ArraySeq
@@ -16,7 +16,7 @@ object IfElseToOption extends SimplificationType {
   override def hint: String = ScalaInspectionBundle.message("hint.replace.with.option.expr")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
-    implicit val context: Context = Context(expr)
+    implicit val context: ConformanceContext = ConformanceContext(expr)
 
     val inner = expr match {
       case IfStmt(x `==` literal("null"), scalaNone(), scalaSome(x1))

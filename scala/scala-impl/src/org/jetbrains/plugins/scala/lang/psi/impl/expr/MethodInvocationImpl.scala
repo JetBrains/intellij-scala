@@ -445,7 +445,7 @@ object MethodInvocationImpl {
   private object FunctionTypeParameters {
 
     def unapply(`type`: ScType)
-               (implicit elementScope: ElementScope, context: Context): Option[(ScType, Seq[Parameter])] = `type` match {
+               (implicit elementScope: ElementScope, context: ConformanceContext): Option[(ScType, Seq[Parameter])] = `type` match {
       case FunctionType(returnType, types) =>
         elementScope.getFunctionTrait(types.length)
           .flatMap(_.functions.find(_.isApplyMethod))
@@ -471,7 +471,7 @@ object MethodInvocationImpl {
       api.TupleType(Seq(maybeStringType.getOrElse(api.Any), `type`), context)
     }
 
-    def unapply(`type`: ScType)(implicit context: Context): Option[ScType] = `type` match {
+    def unapply(`type`: ScType)(implicit context: ConformanceContext): Option[ScType] = `type` match {
       case api.TupleType(Seq(_, result)) => Some(result)
       case _ => None
     }

@@ -154,7 +154,7 @@ class ImplicitCollector(
 
   private val project = place.getProject
   private implicit def projectContext: ProjectContext = project
-  private implicit def context: Context = Context(place)
+  private implicit def context: ConformanceContext = ConformanceContext(place)
 
   private val targetClass: Option[PsiClass]         = tp.extractClass
   private lazy val targetFunctionArity: Option[Int] = targetClass.flatMap(extractTargetFunctionArity)
@@ -527,7 +527,7 @@ class ImplicitCollector(
     val subst = c.substitutor
     ty match {
       case Right(t) =>
-        val conformance = subst(t).conforms(tp, ConstraintSystem.empty)(Context(place))
+        val conformance = subst(t).conforms(tp, ConstraintSystem.empty)(ConformanceContext(place))
         conformance match {
           case ConstraintSystem(subst) =>
             //Update synthetic parameters, coming from expected context-function type
@@ -972,7 +972,7 @@ class ImplicitCollector(
 
   private def checkExtensionConformance(place: PsiElement, tpe: ScType, pt: ScType): ConstraintsResult = {
     implicit val elementScope: ElementScope = place.elementScope
-    implicit val context: Context = Context(place)
+    implicit val context: ConformanceContext = ConformanceContext(place)
 
     val conformanceResult =
       for {
@@ -1094,7 +1094,7 @@ class ImplicitCollector(
   }
 
   private def checkWeakConformance(place: PsiElement, tpe: ScType, pt: ScType): ConstraintsResult = {
-    implicit val context: Context = Context(place)
+    implicit val context: ConformanceContext = ConformanceContext(place)
 
     extractFunction1TypeArgs(tpe, strict = false) match {
       case Some((tpeArg, tpeRes)) =>

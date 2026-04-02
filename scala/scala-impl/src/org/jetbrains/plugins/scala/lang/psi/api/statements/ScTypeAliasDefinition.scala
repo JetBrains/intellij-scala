@@ -16,7 +16,7 @@ trait ScTypeAliasDefinition extends ScTypeAlias {
 
   def isOpaque: Boolean = hasModifierProperty("opaque")
 
-  def isEffectivelyOpaque(implicit context: Context): Boolean = isOpaque && !context.isInScopeOf(this)
+  def isEffectivelyOpaque(implicit context: ConformanceContext): Boolean = isOpaque && !context.isInScopeOf(this)
 
   override def canHaveCompanion: Boolean = isOpaque
 
@@ -28,13 +28,13 @@ trait ScTypeAliasDefinition extends ScTypeAlias {
     }.getOrElse(Failure(ScalaBundle.message("no.alias.type")))
   }
 
-  override def lowerBound(implicit context: Context): TypeResult =
+  override def lowerBound(implicit context: ConformanceContext): TypeResult =
     if (!isEffectivelyOpaque(context)) aliasedType else lowerTypeElement match {
       case Some(te) => te.`type`()
       case _ => Right(Nothing)
     }
 
-  override def upperBound(implicit context: Context): TypeResult =
+  override def upperBound(implicit context: ConformanceContext): TypeResult =
     if (!isEffectivelyOpaque(context) && !isMatchTypeAlias) aliasedType
     else
       upperTypeElement match {
@@ -52,12 +52,12 @@ trait ScTypeAliasDefinition extends ScTypeAlias {
 
   def isMatchTypeAlias: Boolean = aliasedTypeElement.exists(_.is[ScMatchTypeElement])
 
-  def isAliasFor(cls: PsiClass)(implicit context: Context): Boolean =
+  def isAliasFor(cls: PsiClass)(implicit context: ConformanceContext): Boolean =
     ScTypeAliasDefinition.isAliasFor(this, cls)(context)
 }
 
 private object ScTypeAliasDefinition {
-  def isAliasFor(that: ScTypeAliasDefinition, cls: PsiClass)(implicit context: Context): Boolean = {
+  def isAliasFor(that: ScTypeAliasDefinition, cls: PsiClass)(implicit context: ConformanceContext): Boolean = {
     import that.{typeParameters, aliasedType, isEffectivelyOpaque}
 
     if (isEffectivelyOpaque) return false

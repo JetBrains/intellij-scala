@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedExpressionPrefix
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, ScTypeExt, ScalaType, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScType, ScTypeExt, ScalaType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.scaladoc.reflinks.psi.ScDocRefQuery
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings

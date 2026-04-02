@@ -26,7 +26,7 @@ object ScalaType {
   // TODO perhaps we need to choose the lower bound if we are in a contravariant position. We get away
   //      with this as we currently only rely on this method to determine covariant types: the parameter
   //      types of FunctionN, or the elements of TupleN
-  def expandAliases(tp: ScType, visited: Set[ScType] = Set.empty)(implicit context: Context): TypeResult = {
+  def expandAliases(tp: ScType, visited: Set[ScType] = Set.empty)(implicit context: ConformanceContext): TypeResult = {
     if (visited contains tp) return Right(tp)
     tp match {
       case proj@ScProjectionType(_, _) => proj.actualElement match {

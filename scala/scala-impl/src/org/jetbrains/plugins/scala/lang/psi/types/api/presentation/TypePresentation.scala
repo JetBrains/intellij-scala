@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAliasDeclarati
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypePresentation._
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, ScTypeExt, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScType, ScTypeExt, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 
@@ -18,10 +18,10 @@ trait TypePresentation {
     `type`: ScType,
     nameRenderer: NameRenderer,
     options: PresentationOptions = PresentationOptions.Default
-  )(implicit tpc: TypePresentationContext, context: Context): String
+  )(implicit tpc: TypePresentationContext, context: ConformanceContext): String
 
   final def presentableText(`type`: ScType, withPrefix: Boolean = true)
-                           (implicit tpc: TypePresentationContext, context: Context): String = {
+                           (implicit tpc: TypePresentationContext, context: ConformanceContext): String = {
     val renderer = new NameRenderer {
       override def renderName(e: PsiNamedElement): String = e match {
         case c: PsiClass if withPrefix => ScalaPsiUtil.nameWithPrefixIfNeeded(c)
@@ -37,7 +37,7 @@ trait TypePresentation {
     typeText(`type`, renderer, PresentationOptions.Default)(tpc, context)
   }
 
-  final def canonicalText(`type`: ScType, tpc: TypePresentationContext)(implicit context: Context): String = {
+  final def canonicalText(`type`: ScType, tpc: TypePresentationContext)(implicit context: ConformanceContext): String = {
     val renderer: NameRenderer = new NameRenderer {
       override def renderName(e: PsiNamedElement): String = renderNameImpl(e, withPoint = false)
       override def renderNameWithPoint(e: PsiNamedElement): String = renderNameImpl(e, withPoint = true)
@@ -98,7 +98,7 @@ object TypePresentation {
   // TODO Why the presentable text for java.lang.Long is "Long" in Scala? (see SCL-15899)
   // TODO (and why the canonical text for scala.Long is "Long", for that matter)
   def different(t1: ScType, t2: ScType)
-               (implicit tpc: TypePresentationContext, context: Context): (String, String) = {
+               (implicit tpc: TypePresentationContext, context: ConformanceContext): (String, String) = {
     val (p1, p2) = (t1.presentableText, t2.presentableText)
     if (p1 != p2) (p1, p2)
     else (t1.canonicalText.replace("_root_.", ""), t2.canonicalText.replace("_root_.", ""))
@@ -110,6 +110,6 @@ object TypePresentation {
   }
 
   def withoutAliases(`type`: ScType)
-                    (implicit tpc: TypePresentationContext, context: Context): String =
+                    (implicit tpc: TypePresentationContext, context: ConformanceContext): String =
     `type`.removeAliasDefinitions(expandableOnly = true).presentableText
 }

@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, TypePresentationContext}
 
 import java.awt.datatransfer.StringSelection
 import scala.annotation.tailrec

@@ -9,7 +9,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, _}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScPattern, ScTypePattern, ScTypedPatternLike}
@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createPatternFromText
 import org.jetbrains.plugins.scala.lang.psi.types.api.TupleType
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScType, ScTypeExt}
 
 /**
   * Expands reference or wildcard pattern to a constructor/tuple pattern.
@@ -61,7 +61,7 @@ class ExpandPatternIntention extends PsiElementBaseIntentionAction {
   }
 
   private def findReferencePattern(element: PsiElement): Option[(ScPattern, String)] = {
-    implicit val context: Context = Context(element)
+    implicit val context: ConformanceContext = ConformanceContext(element)
 
     element.parents
       .takeWhile(_.is[ScPattern, ScTypeElement, ScTypePattern, ScReference])
@@ -82,7 +82,7 @@ class ExpandPatternIntention extends PsiElementBaseIntentionAction {
       .nextOption()
   }
 
-  private def nestedPatternText(expectedType: ScType)(implicit context: Context): Option[String] = {
+  private def nestedPatternText(expectedType: ScType)(implicit context: ConformanceContext): Option[String] = {
     expectedType match {
       case TupleType(comps) =>
         import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester.suggestNamesByType

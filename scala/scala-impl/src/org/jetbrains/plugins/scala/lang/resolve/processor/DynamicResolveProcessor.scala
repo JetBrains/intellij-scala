@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.resolve.{DynamicTypeReferenceResolver, ScalaResolveResult}
@@ -39,7 +39,7 @@ object DynamicResolveProcessor {
     }
 
     private def hasValidType(expression: ScReferenceExpression): Boolean = {
-      implicit val context: Context = Context(expression)
+      implicit val context: ConformanceContext = ConformanceContext(expression)
 
       expression.qualifier
         .flatMap(_.getNonValueType().toOption)
@@ -47,7 +47,7 @@ object DynamicResolveProcessor {
     }
   }
 
-  def conformsToDynamic(tp: ScType, scope: GlobalSearchScope)(implicit context: Context): Boolean =
+  def conformsToDynamic(tp: ScType, scope: GlobalSearchScope)(implicit context: ConformanceContext): Boolean =
     ElementScope(tp.projectContext, scope)
       .getCachedClass("scala.Dynamic")
       .map(ScDesignatorType(_))

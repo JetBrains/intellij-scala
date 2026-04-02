@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.PsiElementContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScLiteralType, ScType, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScLiteralType, ScType, TypePresentationContext}
 
 object ScTypedExpressionAnnotator extends ElementAnnotator[ScTypedExpression] {
 
@@ -35,7 +35,7 @@ object ScTypedExpressionAnnotator extends ElementAnnotator[ScTypedExpression] {
   // SCL-15544
   private def checkUpcasting(expression: ScExpression, typeElement: ScTypeElement)
                             (implicit holder: ScalaAnnotationHolder, tpc: TypePresentationContext): Unit = {
-    implicit val context: Context = Context(expression)
+    implicit val context: ConformanceContext = ConformanceContext(expression)
 
     expression.getTypeAfterImplicitConversion().tr.foreach { actual =>
       val expected = typeElement.calcType
@@ -59,7 +59,7 @@ object ScTypedExpressionAnnotator extends ElementAnnotator[ScTypedExpression] {
 
   // SCL-15481
   def mismatchRangesIn(expected: ScTypeElement, actual: ScType): Seq[TextRange] = {
-    implicit val context: TypePresentationContext with Context = PsiElementContext(expected)
+    implicit val context: TypePresentationContext with ConformanceContext = PsiElementContext(expected)
 
     val diff = TypeDiff.forExpected(expected.calcType, actual)
 

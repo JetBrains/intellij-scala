@@ -133,7 +133,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
     alternatives: Seq[ScType],
     e:            PsiElement
   ): Option[ParameterType] = {
-    implicit val context: Context = Context(e)
+    implicit val context: ConformanceContext = ConformanceContext(e)
 
     def equiv(ltpe: ScType, rtpe: ScType): Boolean = {
       val comparingAbstractTypes = ltpe.is[ScAbstractType] && rtpe.is[ScAbstractType]
@@ -243,7 +243,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
   override def expectedExprTypes(expr: ScExpression, withResolvedFunction: Boolean = false,
                                  fromUnderscore: Boolean = true): Array[ParameterType] = {
     import expr.projectContext
-    implicit val context: Context = Context(expr)
+    implicit val context: ConformanceContext = ConformanceContext(expr)
 
     val sameInContext = expr.getDeepSameElementInContext
 
@@ -272,7 +272,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
 
           val bodyType = {
             val paramTypes = sig.substitutedTypes.head.map(_.apply())
-            FunctionType((retType, paramTypes))(expr.elementScope, Context.Empty)
+            FunctionType((retType, paramTypes))(expr.elementScope, ConformanceContext.Empty)
           }
 
           //val f2: [T, S] => T => S => Unit = [_, _] => x => y => ???
@@ -342,7 +342,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
       else argExprs.indexWhere(_ == sameInContext).max(0)
 
     def expectedTypesForArg(invocation: MethodInvocation): Array[ParameterType] = {
-      implicit val context: Context = Context(invocation)
+      implicit val context: ConformanceContext = ConformanceContext(invocation)
 
       val argExprs = invocation.argumentExpressions
       val invoked  = invocation.getEffectiveInvokedExpr
@@ -648,7 +648,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
     isDynamicNamed:  Boolean                  = false,
     stripTypeArgs:   Boolean                  = false
   ): Option[ParameterType] = {
-    implicit val context: Context = Context(expr)
+    implicit val context: ConformanceContext = ConformanceContext(expr)
 
     def fromMethodParams(
       params: Seq[Parameter],

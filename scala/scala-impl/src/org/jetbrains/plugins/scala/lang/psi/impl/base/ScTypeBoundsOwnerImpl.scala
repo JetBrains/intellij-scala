@@ -6,14 +6,14 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScContextBound, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, api}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScType, api}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 
 trait ScTypeBoundsOwnerImpl extends ScTypeBoundsOwner {
 
-  override def lowerBound(implicit context: Context): TypeResult = typeOf(lowerTypeElement, isLower = true)
+  override def lowerBound(implicit context: ConformanceContext): TypeResult = typeOf(lowerTypeElement, isLower = true)
 
-  override def upperBound(implicit context: Context): TypeResult = typeOf(upperTypeElement, isLower = false)
+  override def upperBound(implicit context: ConformanceContext): TypeResult = typeOf(upperTypeElement, isLower = false)
 
   protected def extractBound(in: ScType, isLower: Boolean): ScType = in
 

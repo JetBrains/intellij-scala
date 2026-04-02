@@ -145,7 +145,7 @@ object PsiTypeBridge {
 }
 
 object ExtractClass {
-  def unapply(`type`: ScType)(implicit context: Context): Option[PsiClass] =
+  def unapply(`type`: ScType)(implicit context: ConformanceContext): Option[PsiClass] =
     `type`.extractClass
 }
 

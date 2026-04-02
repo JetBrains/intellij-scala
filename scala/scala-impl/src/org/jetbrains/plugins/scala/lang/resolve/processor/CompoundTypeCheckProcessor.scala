@@ -40,7 +40,7 @@ class CompoundTypeCheckSignatureProcessor(s: TermSignature,
 
   override protected def execute(namedElement: PsiNamedElement)
                                 (implicit state: ResolveState): Boolean = {
-    implicit val context: Context = Context(namedElement)
+    implicit val context: ConformanceContext = ConformanceContext(namedElement)
 
     val subst = state.substitutor
     if (ScalaNamesUtil.clean(namedElement.name) != s.name) return true
@@ -172,7 +172,7 @@ class CompoundTypeCheckTypeAliasProcessor(
 
   override protected def execute(namedElement: PsiNamedElement)
                                 (implicit state: ResolveState): Boolean = {
-    implicit val context: Context = Context(namedElement)
+    implicit val context: ConformanceContext = ConformanceContext(namedElement)
 
     val subst = state.substitutor.followed(substitutor)
     if (namedElement.name != name) return true

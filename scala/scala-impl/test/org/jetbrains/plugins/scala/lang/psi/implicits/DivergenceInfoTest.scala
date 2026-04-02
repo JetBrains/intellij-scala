@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, PsiElementExt, P
 import org.jetbrains.plugins.scala.lang.psi.PsiElementContext
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers.AssertMatchersExt
 
 class DivergenceInfoTest extends ScalaLightCodeInsightFixtureTestCase {

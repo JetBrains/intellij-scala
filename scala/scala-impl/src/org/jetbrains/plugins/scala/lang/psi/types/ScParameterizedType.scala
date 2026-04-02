@@ -17,7 +17,7 @@ final class ScParameterizedType private (override val designator: ScType, overri
     extends ParameterizedType
     with ScalaType {
 
-  override protected def calculateAliasType(implicit context: Context): Option[AliasType] =
+  override protected def calculateAliasType(implicit context: ConformanceContext): Option[AliasType] =
     designator match {
       case ScDesignatorType(ta: ScTypeAlias) =>                   computeAliasType(ta, ta.lowerBound, ta.upperBound)
       case ScProjectionType.withActual(ta: ScTypeAlias, subst) => computeAliasType(ta, ta.lowerBound, ta.upperBound, subst)
@@ -36,7 +36,7 @@ final class ScParameterizedType private (override val designator: ScType, overri
     upper:                      TypeResult,
     subst:                      ScSubstitutor = ScSubstitutor.empty,
     isGuaranteedToBeTypeLambda: Boolean       = false
-  )(implicit context: Context): Some[AliasType] = {
+  )(implicit context: ConformanceContext): Some[AliasType] = {
     @tailrec
     def stripParamsFromTypeLambdas(ta: ScTypeAlias, t: ScType): (ScType, Seq[TypeParameter]) =
       if (!isGuaranteedToBeTypeLambda && ta.typeParameters.nonEmpty)
@@ -99,7 +99,7 @@ final class ScParameterizedType private (override val designator: ScType, overri
     }
   }
 
-  override def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean)(implicit context: Context): ConstraintsResult = {
+  override def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean)(implicit context: ConformanceContext): ConstraintsResult = {
     val Conformance: ScalaConformance = typeSystem
     val Nothing = projectContext.stdTypes.Nothing
 
@@ -189,7 +189,7 @@ object ScParameterizedType {
     typeArgs:    Seq[ScType],
     substitutor: ScSubstitutor = ScSubstitutor.empty
   )(implicit
-    context: Context
+    context: ConformanceContext
   ): ScType =
     TypeIntrinsics(designator, typeArgs, substitutor).getOrElse {
       def simple = new ScParameterizedType(designator, typeArgs)

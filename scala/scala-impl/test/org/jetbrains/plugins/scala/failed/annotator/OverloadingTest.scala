@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeElement, ScTyp
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypePresentation
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScTypeExt, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScTypeExt, TypePresentationContext}
 import org.jetbrains.plugins.scala.util.assertions.MatcherAssertionsExt
 import org.junit.Assert._
 import org.junit.experimental.categories.Category

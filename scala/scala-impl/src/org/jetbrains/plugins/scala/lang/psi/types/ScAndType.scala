@@ -17,7 +17,7 @@ final case class ScAndType private(lhs: ScType, rhs: ScType) extends ScalaType w
     r:           ScType,
     constraints: ConstraintSystem,
     falseUndef:  Boolean
-  )(implicit context: Context): ConstraintsResult = r match {
+  )(implicit context: ConformanceContext): ConstraintsResult = r match {
     case ScAndType(rLhs, rRhs) =>
       if (r eq this) constraints
       else {
@@ -43,10 +43,10 @@ object ScAndType {
     else if (!ScalaApplicationSettings.PRECISE_TEXT && lhs.isAny)            rhs
     else                                                                     makeAndType(lhs, rhs)
 
-  private[this] def checkEquiv(lhs: ScType, rhs: ScType)(implicit context: Context): Boolean =
+  private[this] def checkEquiv(lhs: ScType, rhs: ScType)(implicit context: ConformanceContext): Boolean =
     lhs.equiv(rhs, ConstraintSystem.empty, falseUndef = false).isRight
 
-  private[this] def makeAndType(lhs: ScType, rhs: ScType)(implicit context: Context): ScType = (lhs, rhs) match {
+  private[this] def makeAndType(lhs: ScType, rhs: ScType)(implicit context: ConformanceContext): ScType = (lhs, rhs) match {
     case (ParameterizedType(des1, args1), ParameterizedType(des2, args2))
       if !ScalaApplicationSettings.PRECISE_TEXT && checkEquiv(des1, des2) =>
       val jointArgs = glbArgs(args1, args2, extractTypeParameters(des1))
@@ -58,7 +58,7 @@ object ScAndType {
     args1:      Seq[ScType],
     args2:      Seq[ScType],
     typeParams: Seq[TypeParameter]
-  )(implicit context: Context): Option[Seq[ScType]] = {
+  )(implicit context: ConformanceContext): Option[Seq[ScType]] = {
     val zippedArgs = args1.lazyZip(args2).lazyZip(typeParams).iterator
     val jointArgs  = Seq.newBuilder[ScType]
 

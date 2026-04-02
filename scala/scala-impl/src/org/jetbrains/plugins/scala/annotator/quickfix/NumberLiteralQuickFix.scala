@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral.Numeric
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.{ScIntegerLiteral, ScLongLiteral}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, api}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScType, api}
 
 sealed abstract class NumberLiteralQuickFix[L <: Numeric](private[this] val literal: L)
   extends IntentionAction
@@ -61,7 +61,7 @@ object NumberLiteralQuickFix {
     val Marker = 'L'
 
     def isApplicableTo(literal: ScLiteral, expectedType: ScType): Boolean = {
-      implicit val context: Context = Context(literal)
+      implicit val context: ConformanceContext = ConformanceContext(literal)
 
       val types = api.Long(literal.getProject) ::
         ScalaPsiElementFactory.createTypeFromText(

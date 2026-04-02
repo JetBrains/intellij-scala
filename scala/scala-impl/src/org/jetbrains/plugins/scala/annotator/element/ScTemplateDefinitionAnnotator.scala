@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
 import org.jetbrains.plugins.scala.annotator.quickfix.{ImplementMembersQuickFix, ModifierQuickFix}
 import org.jetbrains.plugins.scala.annotator.template._
-import org.jetbrains.plugins.scala.extensions.{&, _}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaModifier, ScalaTokenType}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.PsiElementContext
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, PhysicalMethodSignature, ScType, TermSignature, TypePresentationContext, ValueClassType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, PhysicalMethodSignature, ScType, TermSignature, TypePresentationContext, ValueClassType}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.overrideImplement.{ScMethodMember, ScalaOIUtil, ScalaTypedMember}
 import org.jetbrains.plugins.scala.{NlsString, ScalaBundle, overrideImplement}
@@ -346,7 +346,7 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
   // TODO package private
   def annotateObjectCreationImpossible(element: ScTemplateDefinition)
                                       (implicit holder: ScalaAnnotationHolder): Unit = {
-    implicit val context: Context = Context(element)
+    implicit val context: ConformanceContext = ConformanceContext(element)
 
     if (!element.is[ScNewTemplateDefinition, ScObject] || element.is[ScEnumSingletonCase]) return
 

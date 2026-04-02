@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.annotator.Tree.{Leaf, Node}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScType, TypePresentationContext}
 
 class TypeConstructorDiff(val text: String, val isMismatch: Boolean, val isMissing: Boolean) {
   def hasError: Boolean = isMismatch || isMissing
@@ -19,10 +19,10 @@ object TypeConstructorDiff {
 
   type TyConstr = (String, Seq[TypeParameter])
 
-  def forActual(expected: TyConstr, actual: TyConstr, substitute: ScSubstitutor)(implicit tpc: TypePresentationContext, context: Context): Tree[TypeConstructorDiff] =
+  def forActual(expected: TyConstr, actual: TyConstr, substitute: ScSubstitutor)(implicit tpc: TypePresentationContext, context: ConformanceContext): Tree[TypeConstructorDiff] =
     diff(actual._1, actual._2, expected._2, substitute)((lower, upper) => lower.conforms(upper), tpc)
 
-  def forExpected(expected: TyConstr, actual: TyConstr, substitute: ScSubstitutor)(implicit tpc: TypePresentationContext, context: Context): Tree[TypeConstructorDiff] =
+  def forExpected(expected: TyConstr, actual: TyConstr, substitute: ScSubstitutor)(implicit tpc: TypePresentationContext, context: ConformanceContext): Tree[TypeConstructorDiff] =
     diff(expected._1, expected._2, actual._2, substitute)((lower, upper) => upper.conforms(lower), tpc)
 
   private def aMatch(text: String) = Leaf(new TypeConstructorDiff(text, false, false))

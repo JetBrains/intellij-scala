@@ -11,14 +11,14 @@ import org.jetbrains.plugins.scala.annotator.Format.{InnerParentheses, OuterPare
 import org.jetbrains.plugins.scala.annotator.Tree.{Leaf, Node}
 import org.jetbrains.plugins.scala.annotator.TypeDiff.{Match, Mismatch}
 import org.jetbrains.plugins.scala.annotator.hints.Hint.{HintPosition, MenuProvider}
-import org.jetbrains.plugins.scala.annotator.hints.{Text, _}
+import org.jetbrains.plugins.scala.annotator.hints._
 import org.jetbrains.plugins.scala.caches.CachesUtil.fileModCount
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.PsiElementContext
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.settings.sections.EditorSettingsSectionConfigurable
 import org.jetbrains.plugins.scala.settings.{ScalaProjectSettings, ShowSettingsUtilImplExt}
 
@@ -86,7 +86,7 @@ object TypeMismatchHints {
     AnnotatorHints(hints, fileModCount(element.getContainingFile))
   }
 
-  private def partsOf(expected: ScType, actual: ScType, message: String)(implicit scheme: EditorColorsScheme, ctx: TypePresentationContext with Context): Seq[Text] = {
+  private def partsOf(expected: ScType, actual: ScType, message: String)(implicit scheme: EditorColorsScheme, ctx: TypePresentationContext with ConformanceContext): Seq[Text] = {
     def toText(diff: Tree[TypeDiff]): Text = diff match {
       case Node(diffs @_*) =>
         Text(foldedString,
@@ -128,7 +128,7 @@ object TypeMismatchHints {
   )
 
   @Nls
-  private[annotator] def tooltipFor(expectedType: ScType, actualType: ScType)(implicit ctx: TypePresentationContext with Context): String = {
+  private[annotator] def tooltipFor(expectedType: ScType, actualType: ScType)(implicit ctx: TypePresentationContext with ConformanceContext): String = {
     val (diff1, diff2) = TypeDiff.forBoth(expectedType, actualType)
 
     tooltipForDiffTrees(ScalaBundle.message("type.mismatch.dot"), diff1, diff2)

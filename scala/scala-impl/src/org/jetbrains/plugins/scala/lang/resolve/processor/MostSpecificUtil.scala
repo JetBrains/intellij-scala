@@ -29,7 +29,7 @@ class MostSpecificUtil(
   argsLength: Int
 ) {
   private implicit def ctx: ProjectContext = place
-  private implicit def context: Context = Context(place)
+  private implicit def context: ConformanceContext = ConformanceContext(place)
 
   def mostSpecificForParameterClause(
     cands:                   Set[(ScalaResolveResult, Option[ScParameterClause])],

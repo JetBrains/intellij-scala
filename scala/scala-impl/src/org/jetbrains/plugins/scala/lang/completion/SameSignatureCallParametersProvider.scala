@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonName
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScConstructorOwner, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createExpressionWithContextFromText}
-import org.jetbrains.plugins.scala.lang.psi.types.{Compatibility, Context}
+import org.jetbrains.plugins.scala.lang.psi.types.{Compatibility, ConformanceContext}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -203,7 +203,7 @@ object SameSignatureCallParametersProvider {
 
     final def conformsTo(parameter: ScParameter,
                          substitutor: ScSubstitutor): Boolean = {
-      implicit val context: Context = Context(iconable)
+      implicit val context: ConformanceContext = ConformanceContext(iconable)
 
       val parameterType = substitutor(parameter.`type`().getOrAny)
       typeable.`type`().getOrAny.conforms(parameterType)

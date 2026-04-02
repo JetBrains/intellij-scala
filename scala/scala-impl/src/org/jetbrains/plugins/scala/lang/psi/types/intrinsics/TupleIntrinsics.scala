@@ -3,12 +3,12 @@ package org.jetbrains.plugins.scala.lang.psi.types.intrinsics
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.types.api.{StdTypes, TupleType}
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScOrType, ScParameterizedType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScOrType, ScParameterizedType, ScType}
 
 import scala.annotation.switch
 
 object TupleIntrinsics {
-  def tupleOp(opName: String, operands: Seq[ScType], originalOperands: Seq[ScType])(implicit project: Project, context: Context): Option[ScType] = {
+  def tupleOp(opName: String, operands: Seq[ScType], originalOperands: Seq[ScType])(implicit project: Project, context: ConformanceContext): Option[ScType] = {
     implicit val elementScope: ElementScope = ElementScope(project)
 
     @inline def mkTuple(comps: Seq[ScType]): ScType =

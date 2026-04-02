@@ -16,7 +16,7 @@ trait ScType extends ProjectContextOwner {
 
   private var cachedAliasType = new ContextDependent[Option[AliasType]]()
 
-  final def aliasType(implicit context: Context): Option[AliasType] = cachedAliasType.get match {
+  final def aliasType(implicit context: ConformanceContext): Option[AliasType] = cachedAliasType.get match {
     case Some(value) => value
     case None =>
       ProgressManager.checkCanceled()
@@ -25,7 +25,7 @@ trait ScType extends ProjectContextOwner {
       value
   }
 
-  final def isAliasType(implicit context: Context): Boolean = aliasType.isDefined
+  final def isAliasType(implicit context: ConformanceContext): Boolean = aliasType.isDefined
 
   private var unpacked: ScType = _
 
@@ -37,17 +37,17 @@ trait ScType extends ProjectContextOwner {
     unpacked
   }
 
-  protected def calculateAliasType(implicit context: Context): Option[AliasType] = None
+  protected def calculateAliasType(implicit context: ConformanceContext): Option[AliasType] = None
 
   // TODO: we must not override toString which does such a complex stuff (resolve, tree traversal etc...)
   //  for such things we should always use explicit methods oText/mkString/presentableText/etc...
   override final def toString: String = ifReadAllowed {
-    presentableText(TypePresentationContext.emptyContext, Context.Empty)
+    presentableText(TypePresentationContext.emptyContext, ConformanceContext.Empty)
   }(getClass.getSimpleName)
 
   def isValue: Boolean
 
-  def isFinalType(implicit context: Context): Boolean = false
+  def isFinalType(implicit context: ConformanceContext): Boolean = false
 
   def inferValueType: api.ValueType
 
@@ -57,7 +57,7 @@ trait ScType extends ProjectContextOwner {
     case ex                                                                => ex
   }
 
-  def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean)(implicit context: Context): ConstraintsResult = {
+  def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean)(implicit context: ConformanceContext): ConstraintsResult = {
     ConstraintsResult.Left
   }
 
@@ -66,14 +66,14 @@ trait ScType extends ProjectContextOwner {
   def typeDepth: Int = 1
 
   @Nls
-  def presentableText(implicit tpc: TypePresentationContext, context: Context): String =
+  def presentableText(implicit tpc: TypePresentationContext, context: ConformanceContext): String =
     typeSystem.presentableText(this)
 
-  def canonicalText: String = canonicalText(TypePresentationContext.emptyContext)(Context.Empty)
+  def canonicalText: String = canonicalText(TypePresentationContext.emptyContext)(ConformanceContext.Empty)
 
-  def canonicalText(tpc: TypePresentationContext)(implicit context: Context): String = typeSystem.canonicalText(this, tpc)
+  def canonicalText(tpc: TypePresentationContext)(implicit context: ConformanceContext): String = typeSystem.canonicalText(this, tpc)
 
-  def typeText(nameRenderer: NameRenderer, options: PresentationOptions)(implicit tpc: TypePresentationContext, context: Context): String =
+  def typeText(nameRenderer: NameRenderer, options: PresentationOptions)(implicit tpc: TypePresentationContext, context: ConformanceContext): String =
     typeSystem.typeText(this, nameRenderer, options)
 }
 
@@ -84,7 +84,7 @@ object ScType {
 trait NamedType extends ScType {
   val name: String
 
-  override def presentableText(implicit tpc: TypePresentationContext, context: Context): String = name
+  override def presentableText(implicit tpc: TypePresentationContext, context: ConformanceContext): String = name
 
   override def canonicalText: String =
     if (ScalaApplicationSettings.PRECISE_TEXT) super.canonicalText // #SCL-21178

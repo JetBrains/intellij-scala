@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, Librar
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, PhysicalMethodSignature}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, PhysicalMethodSignature}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
@@ -53,7 +53,7 @@ class CirceCodecTest_2_11 extends ScalaLightCodeInsightFixtureTestCase {
     assertTrue("no implicit defs were generated", implicitDefs0.forall(_.isRight))
 
     val implicitDefs: Set[String] =
-      implicitDefs0.collect { case Right(tpe) => tpe.presentableText(clazz, Context(clazz)) }
+      implicitDefs0.collect { case Right(tpe) => tpe.presentableText(clazz, ConformanceContext(clazz)) }
 
     assertEquals(
       s"$implicitDefs != Set(Encoder[$codecTypeName], Decoder[$codecTypeName])",

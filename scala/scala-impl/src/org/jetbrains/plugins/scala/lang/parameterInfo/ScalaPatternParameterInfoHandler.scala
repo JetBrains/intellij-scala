@@ -166,7 +166,7 @@ class ScalaPatternParameterInfoHandler extends ScalaParameterInfoHandler[ScPatte
     implicit val project: ProjectContext = file.projectContext
     val args: ScPatternArgumentList = PsiTreeUtil.getParentOfType(element, getArgumentListClass)
     if (args != null) {
-      implicit val elementContext: Context = Context(args)
+      implicit val elementContext: ConformanceContext = ConformanceContext(args)
 
       context match {
         case context: CreateParameterInfoContext =>

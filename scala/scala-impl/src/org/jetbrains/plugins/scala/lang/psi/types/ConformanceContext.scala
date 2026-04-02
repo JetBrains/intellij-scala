@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 import scala.annotation.tailrec
 
 /**
- * Context of an operation - location in code in abstract representation. Abstracts over a concrete [[PsiElement]], which might also be absent.
+ * Context of a conformance operation - location in code in abstract representation. Abstracts over a concrete [[PsiElement]], which might also be absent.
  *
  * Currently, it's a location relative to opaque type aliases. However, the name is intentionally generic to subsequently unify more context parameters.
  *
@@ -22,17 +22,15 @@ import scala.annotation.tailrec
  * @see [[org.jetbrains.plugins.scala.project.ProjectContext]]
  * @see [[org.jetbrains.plugins.scala.project.ScalaFeatures]]
  * @see [[org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext]]
- *
- * TODO [[https://youtrack.jetbrains.com/issue/SCL-23892/Unify-context-parameters]]
  */
-trait Context {
+trait ConformanceContext {
   def isInScopeOf(opaqueTypeAlias: ScTypeAliasDefinition): Boolean
 }
 
-object Context {
-  def apply(place: PsiElement): Context = PsiElementContext(place)
+object ConformanceContext {
+  def apply(place: PsiElement): ConformanceContext = PsiElementContext(place)
 
-  trait PsiBasedImpl extends Context with PsiElementContext {
+  trait PsiBasedImpl extends ConformanceContext with PsiElementContext {
     override def isInScopeOf(opaqueTypeAlias: ScTypeAliasDefinition): Boolean = {
       if (!opaqueTypeAlias.isOpaque)
         throw new IllegalArgumentException("Opaque type alias expected")
@@ -65,11 +63,11 @@ object Context {
    *
    * Currently, represents a context where all opaque type aliases are effectively transparent (to reproduce how opaque type aliases were handled before).
    *
-   * The name is intentionally generic because subsequently [[Context]] may unify more context parameters.
+   * The name is intentionally generic because subsequently [[ConformanceContext]] may unify more context parameters.
    *
    * TODO Use dedicated Transparent and Opaque contexts for opaque type aliases in the future
    */
-  trait Empty extends Context {
+  trait Empty extends ConformanceContext {
     override def isInScopeOf(opaqueTypeAlias: ScTypeAliasDefinition): Boolean = true
 
     override def toString: String = "<empty>"
@@ -77,7 +75,7 @@ object Context {
   object Empty extends Empty
 
   /**
-   * Default argument for [[Context]] parameters, to maintain source compatibility.
+   * Default argument for [[ConformanceContext]] parameters, to maintain source compatibility.
    *
    * Functionally, it's equivalent to the [[Empty]] context, but differs statically and dynamically to distinguish the intention.
    *
@@ -90,7 +88,7 @@ object Context {
    * TODO Remove the default argument in the future
    */
 //  @deprecated("Provide Context(element) or use EmptyContext")
-  implicit val Default: Context = new Context {
+  implicit val Default: ConformanceContext = new ConformanceContext {
     override def isInScopeOf(opaqueTypeAlias: ScTypeAliasDefinition): Boolean = true
 
     override def toString: String = "<default>"

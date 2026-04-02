@@ -4,16 +4,16 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, TypePresentationContext}
 
 /**
- * A unified context derived from a [[PsiElement]], combining [[ElementScope]], [[Context]], and [[TypePresentationContext]].
+ * A unified context derived from a [[PsiElement]], combining [[ElementScope]], [[ConformanceContext]], and [[TypePresentationContext]].
  *
  * Use this instead of creating multiple separate context objects from the same element.
  *
  * @see [[https://youtrack.jetbrains.com/issue/SCL-23892/Unify-context-parameters]]
  */
-trait PsiElementContext extends ElementScope with Context with TypePresentationContext.PsiBased {
+trait PsiElementContext extends ElementScope with ConformanceContext with TypePresentationContext.PsiBased {
   def psiElement: PsiElement
 }
 
@@ -22,7 +22,7 @@ object PsiElementContext {
 
   private class PsiElementContextImpl(override val psiElement: PsiElement)
     extends PsiElementContext
-      with Context.PsiBasedImpl
+      with ConformanceContext.PsiBasedImpl
   {
     override val project: Project = psiElement.getProject
     override lazy val scope: GlobalSearchScope = psiElement.resolveScope

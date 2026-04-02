@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParameter}
-import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, Context, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConformanceContext, ScType}
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, MethodResolveProcessor, ResolveProcessor}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult, ScalaResolveState}
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -26,7 +26,7 @@ case class ExtensionConversionData(
 
 object ExtensionConversionHelper {
 
-  def specialExtractParameterType(resolveResult: ScalaResolveResult)(implicit context: Context): Option[ScType] =
+  def specialExtractParameterType(resolveResult: ScalaResolveResult)(implicit context: ConformanceContext): Option[ScType] =
     InferUtil.extractImplicitParameterType(resolveResult).flatMap {
       case FunctionType(resultType, _) => Some(resultType)
       case implicitParameterType =>
@@ -42,7 +42,7 @@ object ExtensionConversionHelper {
         } yield resultType
     }
 
-  def extensionConversionCheck(data: ExtensionConversionData, candidate: ScalaResolveResult)(implicit context: Context): Option[ScalaResolveResult] = {
+  def extensionConversionCheck(data: ExtensionConversionData, candidate: ScalaResolveResult)(implicit context: ConformanceContext): Option[ScalaResolveResult] = {
     ProgressManager.checkCanceled()
     import data._
 

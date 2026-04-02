@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwne
 import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, ParameterizedType, StdType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
-import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, Context, ScAbstractType, ScAndType, ScCompoundType, ScExistentialArgument, ScExistentialType, ScMatchType, ScOrType, ScParameterizedType, ScType, api}
+import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, ConformanceContext, ScAbstractType, ScAndType, ScCompoundType, ScExistentialArgument, ScExistentialType, ScMatchType, ScOrType, ScParameterizedType, ScType, api}
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
@@ -134,7 +134,7 @@ abstract class ImplicitProcessor(
     val scopeParts =
       ImplicitProcessor
         .findImplicitScopeParts(
-          expandedType.removeAliasDefinitionsAndReduceMatchTypes()(Context(getPlace)),
+          expandedType.removeAliasDefinitionsAndReduceMatchTypes()(ConformanceContext(getPlace)),
           getPlace.resolveScope,
           includePackagePrefix
         )
@@ -185,7 +185,7 @@ object ImplicitProcessor {
     includePackagePrefix: Boolean
   )(implicit
     projectContext: ProjectContext,
-    context: Context
+    context: ConformanceContext
   ): Seq[ScType] = {
     val implicitObjectsCache = ScalaPsiManager.instance.collectImplicitObjectsCache
     val cacheKey             = (`type`, scope, includePackagePrefix)
@@ -208,7 +208,7 @@ object ImplicitProcessor {
     includePackagePrefix: Boolean
   )(implicit
     elementScope: ElementScope,
-    context: Context
+    context: ConformanceContext
   ): Seq[ScType] = {
     val visited   = mutable.HashSet.empty[ScType]
     val parts     = mutable.Queue.empty[ScType]
@@ -421,7 +421,7 @@ object ImplicitProcessor {
     collectParts(`type`)
     val res = mutable.HashMap.empty[String, Seq[ScType]]
 
-    def addResult(fqn: String, tp: ScType)(implicit context: Context): Unit = {
+    def addResult(fqn: String, tp: ScType)(implicit context: ConformanceContext): Unit = {
       res.get(fqn) match {
         case Some(s) =>
           if (s.forall(!_.equiv(tp))) {
@@ -432,7 +432,7 @@ object ImplicitProcessor {
       }
     }
 
-    def workWithTypeAlias(alias: ScTypeAlias, subst: ScSubstitutor = ScSubstitutor.empty)(implicit context: Context): Unit = alias match {
+    def workWithTypeAlias(alias: ScTypeAlias, subst: ScSubstitutor = ScSubstitutor.empty)(implicit context: ConformanceContext): Unit = alias match {
       case alias: ScTypeAliasDefinition =>
         if (alias.isEffectivelyOpaque) {
           for (fqn <- alias.qualifiedNameOpt;
@@ -450,7 +450,7 @@ object ImplicitProcessor {
       case _ =>
     }
 
-    def collectObjects(tp: ScType)(implicit context: Context): Unit =
+    def collectObjects(tp: ScType)(implicit context: ConformanceContext): Unit =
       tp match {
         case _ if tp.isAny =>
         case tp: StdType if stdTypes.contains(tp.name) =>

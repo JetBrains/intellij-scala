@@ -24,7 +24,7 @@ abstract class ScalaTypePresentationTestBase extends ScalaLightCodeInsightFixtur
 
   def assertPresentationIs(tpe: String, expected: String, header: String): Unit = {
     val typeElement = makeTypeElement(tpe, header)
-    val actual = typeElement.`type`().get.presentableText(TypePresentationContext(typeElement), Context(typeElement))
+    val actual = typeElement.`type`().get.presentableText(TypePresentationContext(typeElement), ConformanceContext(typeElement))
     assertEquals(expected, actual)
 
     if (tpe != expected) {

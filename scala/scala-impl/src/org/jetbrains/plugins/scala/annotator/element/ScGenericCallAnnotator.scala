@@ -5,7 +5,7 @@ import com.intellij.psi.impl.light.LightDefaultConstructor
 import com.intellij.psi.{PsiMethod, PsiNamedElement, PsiTypeParameter, PsiTypeParameterListOwner}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, _}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScalaConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScGenericCall, ScReferenceExpression}
@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ApplyOrUpdateInvocation
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types.api.{PsiTypeParametersExt, TypeParameter, TypeParameterType}
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, DefaultTypeParameterMismatch, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, DefaultTypeParameterMismatch, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 
@@ -31,7 +31,7 @@ object ScGenericCallAnnotator extends ElementAnnotator[ScGenericCall] {
     else Seq.empty
 
   override def annotate(genCall: ScGenericCall, typeAware: Boolean)(implicit holder: ScalaAnnotationHolder): Unit = {
-    implicit val context: Context = Context(genCall)
+    implicit val context: ConformanceContext = ConformanceContext(genCall)
 
     if (typeAware) {
       for {

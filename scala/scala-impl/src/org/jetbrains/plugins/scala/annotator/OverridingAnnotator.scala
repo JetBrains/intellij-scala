@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, Sc
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, TermSignature, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScType, TermSignature, TypePresentationContext}
 import org.jetbrains.plugins.scala.statistics.ScalaAnnotatorUsagesCollector
 
 trait OverridingAnnotator {
@@ -153,7 +153,7 @@ trait OverridingAnnotator {
   )(implicit
     holder: ScalaAnnotationHolder
   ): Unit = {
-    implicit val context: Context = Context(namedElement)
+    implicit val context: ConformanceContext = ConformanceContext(namedElement)
 
     import lang.lexer.{ScalaModifier, ScalaTokenTypes}
     import ScalaModifier.{OVERRIDE, Override}

@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.types.api.UndefinedType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScParameterizedType, ScType, api}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScParameterizedType, ScType, api}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 package object codeInspection {
@@ -75,7 +75,7 @@ package object codeInspection {
     definition.returnType.exists(_.isUnit)
 
   private[codeInspection] def conformsToTypeFromClass(scType: ScType, fqn: String)
-                                                     (implicit projectContext: ProjectContext, context: Context): Boolean =
+                                                     (implicit projectContext: ProjectContext, context: ConformanceContext): Boolean =
     (scType != api.Null) && (scType != api.Nothing) && {
       ElementScope(projectContext)
         .getCachedClass(fqn)
@@ -83,7 +83,7 @@ package object codeInspection {
         .exists(scType.conforms)
     }
 
-  private[this] def createParameterizedType(clazz: PsiClass)(implicit context: Context) = {
+  private[this] def createParameterizedType(clazz: PsiClass)(implicit context: ConformanceContext) = {
     val designatorType = ScDesignatorType(clazz)
     clazz.getTypeParameters match {
       case Array() => designatorType
@@ -94,7 +94,7 @@ package object codeInspection {
   private[codeInspection] class ExpressionOfTypeMatcher(fqn: String) {
     def unapply(expr: ScExpression): Option[ScExpression] = {
       expr match {
-        case Typeable(ty) if conformsToTypeFromClass(ty, fqn)(expr, Context(expr)) => Some(expr)
+        case Typeable(ty) if conformsToTypeFromClass(ty, fqn)(expr, ConformanceContext(expr)) => Some(expr)
         case _ => None
       }
     }

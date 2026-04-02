@@ -448,7 +448,7 @@ object ResolveUtils {
         BlockModificationTracker(expr),
         (call, tp, shapesOnly, withImplicits)
       ) {
-        implicit val context: Context = Context(call)
+        implicit val context: ConformanceContext = ConformanceContext(call)
 
         val cands =
           ScalaPsiUtil.processTypeForUpdateOrApplyCandidates(

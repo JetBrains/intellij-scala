@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.api
 
-import com.intellij.psi.{PsiElement, PsiNamedElement}
 import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.search.searches.ClassInheritorsSearch
+import com.intellij.psi.{PsiElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
@@ -13,8 +13,8 @@ import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
 import org.jetbrains.plugins.scala.lang.psi.types.SmartSuperTypeUtil.TraverseSupers
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ExtractClass, ParameterizedType, StdTypes, TypeParameterType}
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScCompoundType, ScLiteralType, ScType, ScalaType, SmartSuperTypeUtil}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScCompoundType, ScLiteralType, ScType, SmartSuperTypeUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.util.CommonQualifiedNames
@@ -81,7 +81,7 @@ object SyntheticImplicitInstances {
     tp:    ScType,
     place: PsiElement
   )(implicit
-    context: Context
+    context: ConformanceContext
   ): Option[ScalaResolveResult] =
     tp.removeAliasDefinitions() match {
       case p @ ParameterizedType(_, params) =>
@@ -113,7 +113,7 @@ object SyntheticImplicitInstances {
     typeFqn: String,
     place:   PsiElement
   )(implicit
-    context: Context
+    context: ConformanceContext
   ): Boolean =
     (typeFqn, params) match {
       case (TypeTest, Seq(lhs, rhs))      => eligibleForTypeTest(lhs, rhs)
@@ -299,7 +299,7 @@ object SyntheticImplicitInstances {
       case _ => None
     }
 
-  private def eligibleForValueOf(t: ScType)(implicit context: Context): Boolean = {
+  private def eligibleForValueOf(t: ScType)(implicit context: ConformanceContext): Boolean = {
     t.removeAliasDefinitions().inferValueType match {
       case _: ScLiteralType         => true
       case _ if t.isUnit            => true

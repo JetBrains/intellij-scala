@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createId
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTypeDefinitionLikeImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeAliasStub
-import org.jetbrains.plugins.scala.lang.psi.types.Context
+import org.jetbrains.plugins.scala.lang.psi.types.ConformanceContext
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
@@ -33,7 +33,7 @@ final class ScTypeAliasDeclarationImpl private(stub: ScTypeAliasStub, node: ASTN
 
   def this(stub: ScTypeAliasStub) = this(stub, null)
 
-  override def isEffectivelyOpaque(implicit context: Context): Boolean = false
+  override def isEffectivelyOpaque(implicit context: ConformanceContext): Boolean = false
 
   override def navigate(requestFocus: Boolean): Unit = {
     val descriptor = EditSourceUtil.getDescriptor(this)
@@ -49,12 +49,12 @@ final class ScTypeAliasDeclarationImpl private(stub: ScTypeAliasStub, node: ASTN
 
   override def toString: String = "ScTypeAliasDeclaration: " + ifReadAllowed(name)("")
 
-  override def lowerBound(implicit context: Context): TypeResult = lowerTypeElement match {
+  override def lowerBound(implicit context: ConformanceContext): TypeResult = lowerTypeElement match {
     case Some(te) => te.`type`()
     case None => Right(Nothing)
   }
 
-  override def upperBound(implicit context: Context): TypeResult = upperTypeElement match {
+  override def upperBound(implicit context: ConformanceContext): TypeResult = upperTypeElement match {
     case Some(te) => te.`type`()
     case None => Right(Any)
   }

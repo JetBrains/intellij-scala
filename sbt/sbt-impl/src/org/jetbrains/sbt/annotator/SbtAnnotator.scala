@@ -72,7 +72,7 @@ object SbtAnnotator {
     expressionType: ScType,
     allowedTypes: String*
   ): Boolean = {
-    implicit val context: Context = Context(expression)
+    implicit val context: ConformanceContext = ConformanceContext(expression)
 
     val maybeExpectedType = for {
       typeName <- allowedTypes

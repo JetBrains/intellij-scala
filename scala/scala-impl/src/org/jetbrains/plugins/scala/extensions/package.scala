@@ -52,7 +52,7 @@ import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, PsiTypedDefi
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, PsiTypeBridge, PsiTypeConstants}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, ScTypeExt, TermSignature}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScType, ScTypeExt, TermSignature}
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt}
@@ -90,7 +90,7 @@ package object extensions {
     import PsiMethodExt._
 
     private implicit def projectContext: ProjectContext = repr.getProject
-    private implicit def context: Context = Context(repr)
+    private implicit def context: ConformanceContext = ConformanceContext(repr)
 
     def isAccessor: Boolean = isParameterless &&
       hasQueryLikeName &&
@@ -126,7 +126,7 @@ package object extensions {
     def isParameterless: Boolean =
       repr.getParameterList.getParametersCount == 0
 
-    def functionType(implicit scope: ElementScope, context: Context): Option[ScType] = repr match {
+    def functionType(implicit scope: ElementScope, context: ConformanceContext): Option[ScType] = repr match {
       case fun: ScFunction =>
         fun.`type`().toOption
       case method => // java method
@@ -623,7 +623,7 @@ package object extensions {
   }
 
   implicit class PsiElementExt[E <: PsiElement](private val element: E) extends AnyVal {
-    private implicit def context: Context = Context(element)
+    private implicit def context: ConformanceContext = ConformanceContext(element)
 
     @inline def startOffset: Int = element.getTextRange.getStartOffset
 

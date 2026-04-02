@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScTypeExt, ScalaType, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScTypeExt, ScalaType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaRefactoringActionHandler
 import org.jetbrains.plugins.scala.lang.refactoring.memberPullUp.ScalaPullUpProcessor
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaDirectoryService
@@ -197,7 +197,7 @@ class ScalaExtractTraitHandler extends ScalaRefactoringActionHandler {
 
     private object inSelfType {
       def unapply(elem: PsiElement): Option[PsiClass] = {
-        implicit val context: Context = Context(elem)
+        implicit val context: ConformanceContext = ConformanceContext(elem)
 
         val selfTypeOfClazz = clazz.extendsBlock.selfType
         if (selfTypeOfClazz.isEmpty) return None

@@ -49,18 +49,18 @@ sealed trait ConstraintSystem extends ConstraintsResult {
 
   def withTypeParamId(id: Long): ConstraintSystem
 
-  def withLower(id: Long, lower: ScType, variance: Variance = Contravariant)(implicit context: Context): ConstraintSystem
+  def withLower(id: Long, lower: ScType, variance: Variance = Contravariant)(implicit context: ConformanceContext): ConstraintSystem
 
-  def withUpper(id: Long, upper: ScType, variance: Variance = Covariant)(implicit context: Context): ConstraintSystem
+  def withUpper(id: Long, upper: ScType, variance: Variance = Covariant)(implicit context: ConformanceContext): ConstraintSystem
 
-  def +(constraints: ConstraintSystem)(implicit context: Context): ConstraintSystem
+  def +(constraints: ConstraintSystem)(implicit context: ConformanceContext): ConstraintSystem
 
   def isApplicable(id: Long): Boolean
 
   def removeTypeParamIds(ids: Set[Long]): ConstraintSystem
 
   def substitutionBounds(canThrowSCE: Boolean, checkWeak: Boolean = true)
-                        (implicit projectContext: ProjectContext, context: Context): Option[ConstraintSystem.SubstitutionBounds]
+                        (implicit projectContext: ProjectContext, context: ConformanceContext): Option[ConstraintSystem.SubstitutionBounds]
 }
 
 object ConstraintSystem {
@@ -94,7 +94,7 @@ object ConstraintSystem {
   }
 
   def unapply(constraints: ConstraintSystem)
-             (implicit projectContext: ProjectContext, context: Context): Option[ScSubstitutor] =
+             (implicit projectContext: ProjectContext, context: ConformanceContext): Option[ScSubstitutor] =
     constraints.substitutionBounds(canThrowSCE = true).map {
       _.substitutor
     }
@@ -117,7 +117,7 @@ private final case class ConstraintSystemImpl(upperMap: LongMap[Set[ScType]],
 
   override def isEmpty: Boolean = upperMap.isEmpty && lowerMap.isEmpty
 
-  override def +(constraints: ConstraintSystem)(implicit context: Context): ConstraintSystem = constraints match {
+  override def +(constraints: ConstraintSystem)(implicit context: ConformanceContext): ConstraintSystem = constraints match {
     case ConstraintSystemImpl(otherUpperMap, otherLowerMap, otherAdditionalIds) => ConstraintSystemImpl(
       upperMap.merge(otherUpperMap)(isAny),
       lowerMap.merge(otherLowerMap)(isNothing),
@@ -130,20 +130,20 @@ private final case class ConstraintSystemImpl(upperMap: LongMap[Set[ScType]],
     additionalIds = additionalIds + id
   )
 
-  override def withLower(id: Long, rawLower: ScType, variance: Variance)(implicit context: Context): ConstraintSystem =
+  override def withLower(id: Long, rawLower: ScType, variance: Variance)(implicit context: ConformanceContext): ConstraintSystem =
     computeLower(variance, rawLower) match {
       case None => this
       case Some(lower) => copy(lowerMap = lowerMap.update(id, lower))
     }
 
-  override def withUpper(id: Long, rawUpper: ScType, variance: Variance)(implicit context: Context): ConstraintSystem =
+  override def withUpper(id: Long, rawUpper: ScType, variance: Variance)(implicit context: ConformanceContext): ConstraintSystem =
     computeUpper(variance, rawUpper) match {
       case None => this
       case Some(upper) => copy(upperMap = upperMap.update(id, upper))
     }
 
   override def substitutionBounds(canThrowSCE: Boolean, checkWeak: Boolean)
-                                 (implicit projectContext: ProjectContext, context: Context): Option[SubstitutionBounds] = {
+                                 (implicit projectContext: ProjectContext, context: ConformanceContext): Option[SubstitutionBounds] = {
     def init(get: => Option[SubstitutionBounds])
             (set: Option[SubstitutionBounds] => Unit) = get match {
       case null =>
@@ -163,7 +163,7 @@ private final case class ConstraintSystemImpl(upperMap: LongMap[Set[ScType]],
   )
 
   private def substitutionBoundsImpl(canThrowSCE: Boolean, checkWeak: Boolean)
-                                    (implicit projectContext: ProjectContext, context: Context): Option[SubstitutionBounds] = {
+                                    (implicit projectContext: ProjectContext, context: ConformanceContext): Option[SubstitutionBounds] = {
     var tvMap = LongMap.empty[ScType]
     var lMap = LongMap.empty[ScType]
     var uMap = LongMap.empty[ScType]
@@ -288,22 +288,22 @@ private object ConstraintSystemImpl {
     }
   }
 
-  private def computeUpper(variance: Variance, rawUpper: ScType)(implicit context: Context): Option[ScType]  =
+  private def computeUpper(variance: Variance, rawUpper: ScType)(implicit context: ConformanceContext): Option[ScType]  =
     updateUpper(variance, rawUpper)
       .unpackedType
       .ifNot(isAny)
 
-  private def computeLower(variance: Variance, rawLower: ScType)(implicit context: Context): Option[ScType] =
+  private def computeLower(variance: Variance, rawLower: ScType)(implicit context: ConformanceContext): Option[ScType] =
     updateLower(variance, rawLower)
       .unpackedType
       .ifNot(isNothing)
 
-  private def isAny(`type`: ScType)(implicit context: Context) = {
+  private def isAny(`type`: ScType)(implicit context: ConformanceContext) = {
     import `type`.projectContext
     `type`.equiv(Any)
   }
 
-  private def isNothing(`type`: ScType)(implicit context: Context) = {
+  private def isNothing(`type`: ScType)(implicit context: ConformanceContext) = {
     import `type`.projectContext
     `type`.equiv(Nothing)
   }
@@ -396,16 +396,16 @@ private final case class MultiConstraintSystem(impls: Set[ConstraintSystemImpl])
     _.withTypeParamId(id)
   }
 
-  override def withLower(id: Long, lower: ScType, variance: Variance)(implicit context: Context): ConstraintSystem = map {
+  override def withLower(id: Long, lower: ScType, variance: Variance)(implicit context: ConformanceContext): ConstraintSystem = map {
     _.withLower(id, lower, variance)
   }
 
-  override def withUpper(id: Long, upper: ScType, variance: Variance)(implicit context: Context): ConstraintSystem = map {
+  override def withUpper(id: Long, upper: ScType, variance: Variance)(implicit context: ConformanceContext): ConstraintSystem = map {
     _.withUpper(id, upper, variance)
   }
 
   override def substitutionBounds(canThrowSCE: Boolean, checkWeak: Boolean)
-                                 (implicit projectContext: ProjectContext, context: Context): Option[ConstraintSystem.SubstitutionBounds] =
+                                 (implicit projectContext: ProjectContext, context: ConformanceContext): Option[ConstraintSystem.SubstitutionBounds] =
     impls.iterator.flatMap {
       _.substitutionBounds(canThrowSCE, checkWeak)
     }.nextOption()
@@ -414,7 +414,7 @@ private final case class MultiConstraintSystem(impls: Set[ConstraintSystemImpl])
     _.removeTypeParamIds(ids)
   }
 
-  override def +(constraints: ConstraintSystem)(implicit context: Context): ConstraintSystem = {
+  override def +(constraints: ConstraintSystem)(implicit context: ConformanceContext): ConstraintSystem = {
     val otherImpls = constraints match {
       case impl: ConstraintSystemImpl => Set(impl)
       case MultiConstraintSystem(otherSubstitutors) => otherSubstitutors

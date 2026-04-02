@@ -6,7 +6,7 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil.isContextAncestor
 import org.jetbrains.plugins.scala.extensions.Valid
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
-import org.jetbrains.plugins.scala.lang.psi.types.Context
+import org.jetbrains.plugins.scala.lang.psi.types.ConformanceContext
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
 
 import scala.collection.immutable.ArraySeq
@@ -15,7 +15,7 @@ import scala.reflect.{ClassTag, classTag}
 trait ScalaPsiElement extends PsiElement
   with ProjectContextOwner {
 
-  protected implicit def thisContext: Context = Context(this)
+  protected implicit def thisContext: ConformanceContext = ConformanceContext(this)
 
   import ScalaPsiElement._
 

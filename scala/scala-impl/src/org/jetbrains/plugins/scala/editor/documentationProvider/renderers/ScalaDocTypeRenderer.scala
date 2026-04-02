@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.{NameRenderer
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ContextFunctionType, FunctionType, NamedTupleType, ParameterizedType, StdType, TupleType, TypeParameter, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScAbstractType, ScAndType, ScCompoundType, ScExistentialArgument, ScExistentialType, ScLiteralType, ScMatchType, ScOrType, ScType, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScAbstractType, ScAndType, ScCompoundType, ScExistentialArgument, ScExistentialType, ScLiteralType, ScMatchType, ScOrType, ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -31,7 +31,7 @@ import scala.annotation.tailrec
 private [documentationProvider] class ScalaDocTypeRenderer(
   nameRenderer: NameRenderer,
   substitutor: Option[ScSubstitutor]
-)(implicit projectContext: ProjectContext, typePresentationContext: TypePresentationContext, context: Context) extends TypeRenderer {
+)(implicit projectContext: ProjectContext, typePresentationContext: TypePresentationContext, context: ConformanceContext) extends TypeRenderer {
   private lazy val boundsRenderer = new TypeBoundsRenderer(nameRenderer)
 
   private val renderedAnd      = renderWithAttrKey("&", DefaultHighlighter.TYPE_ALIAS)
@@ -78,7 +78,7 @@ private [documentationProvider] class ScalaDocTypeRenderer(
     case ScOrType(lhs, rhs) =>
       infixTypeText(Infix("|"), renderedOr, lhs, rhs, render)
     case mt@ScMethodType(retType, params, _) =>
-      render(FunctionType(retType, params.map(_.paramType))(mt.elementScope, Context.Empty))
+      render(FunctionType(retType, params.map(_.paramType))(mt.elementScope, ConformanceContext.Empty))
     case ScLiteralType(value, _) =>
       nameRenderer.escapeName(value.presentation)
     case ScMatchType(scrutinee, cases, _) =>
@@ -356,15 +356,15 @@ private [documentationProvider] object ScalaDocTypeRenderer {
     }
   }
 
-  def apply()(implicit projectContext: ProjectContext, typePresentationContext: TypePresentationContext, context: Context): TypeRenderer =
+  def apply()(implicit projectContext: ProjectContext, typePresentationContext: TypePresentationContext, context: ConformanceContext): TypeRenderer =
     new ScalaDocTypeRenderer(nameRenderer, None)
 
-  def forAnnotations()(implicit projectContext: ProjectContext, typePresentationContext: TypePresentationContext, context: Context): TypeRenderer =
+  def forAnnotations()(implicit projectContext: ProjectContext, typePresentationContext: TypePresentationContext, context: ConformanceContext): TypeRenderer =
     new ScalaDocTypeRenderer(annotationsRenderer, None)
 
   def forQuickInfo(originalElement: PsiElement, substitutor: ScSubstitutor)(implicit projectContext: ProjectContext): TypeRenderer = {
     implicit val typePresentationContext: TypePresentationContext = originalElement
-    implicit val context: Context = Context(originalElement)
+    implicit val context: ConformanceContext = ConformanceContext(originalElement)
 
     new ScalaDocTypeRenderer(quickInfoNameRenderer, Some(substitutor)) {
       override protected def renderWithAttrKey(name: String, attrKey: TextAttributesKey): String = escapeHtml4(name)

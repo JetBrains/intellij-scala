@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.extensions.{NullSafe, ObjectExt}
 import org.jetbrains.plugins.scala.lang.psi.PsiElementContext
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 import scala.reflect.ClassTag
@@ -49,7 +49,7 @@ package object hints {
     } yield segment.toLowerCase
   }
 
-  private[hints] def textPartsOf(tpe: ScType, maxChars: Int, originalElement: PsiElement)(implicit scheme: EditorColorsScheme, ctx: TypePresentationContext with Context): Seq[Text] = {
+  private[hints] def textPartsOf(tpe: ScType, maxChars: Int, originalElement: PsiElement)(implicit scheme: EditorColorsScheme, ctx: TypePresentationContext with ConformanceContext): Seq[Text] = {
     def toText(diff: Tree[TypeDiff]): Text = diff match {
       case Node(diffs @_*) =>
         Text(foldedString,

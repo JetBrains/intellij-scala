@@ -154,7 +154,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
   )(implicit
     recState: RecursionState
   ): Boolean = {
-    implicit val context: Context = Context(place)
+    implicit val context: ConformanceContext = ConformanceContext(place)
 
     ProgressManager.checkCanceled()
 
@@ -318,7 +318,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
 
   private def processElement(e: PsiNamedElement, s: ScSubstitutor, place: PsiElement, state: ResolveState)
                             (implicit recState: RecursionState): Boolean = {
-    implicit val context: Context = Context(place)
+    implicit val context: ConformanceContext = ConformanceContext(place)
 
     val subst = state.substitutor
     val compoundOrThis = state.compoundOrThisType //todo: looks like ugly workaround

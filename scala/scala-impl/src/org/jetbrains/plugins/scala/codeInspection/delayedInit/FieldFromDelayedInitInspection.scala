@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScValueOrVariable, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTemplateDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.Context
+import org.jetbrains.plugins.scala.lang.psi.types.ConformanceContext
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 final class FieldFromDelayedInitInspection extends LocalInspectionTool {
@@ -17,7 +17,7 @@ final class FieldFromDelayedInitInspection extends LocalInspectionTool {
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
     case ref: ScReferenceExpression =>
-      implicit val context: Context = Context(ref)
+      implicit val context: ConformanceContext = ConformanceContext(ref)
 
       for {
         FieldInDelayedInit(delayedInitClass) <- ref.bind()
@@ -32,7 +32,7 @@ object FieldFromDelayedInitInspection {
 
   private object FieldInDelayedInit {
 
-    def unapply(result: ScalaResolveResult)(implicit context: Context): Option[ScTemplateDefinition] =
+    def unapply(result: ScalaResolveResult)(implicit context: ConformanceContext): Option[ScTemplateDefinition] =
       result.fromType.flatMap { scType =>
         result.getElement.nameContext match {
           case LazyVal(_) => None

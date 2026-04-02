@@ -4,7 +4,7 @@ import com.intellij.openapi.util.registry.Registry
 import junit.framework.TestCase.assertEquals
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScMatchType, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScMatchType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.typeInference.shims.TupleIntrinsicsTest
 import org.jetbrains.plugins.scala.project.ScalaFeatures
 
@@ -40,7 +40,7 @@ class MatchTypeReductionTest extends TupleIntrinsicsTest {
             }
             else tpe
 
-          val text = res.presentableText(TypePresentationContext(typeElement), Context.Empty)
+          val text = res.presentableText(TypePresentationContext(typeElement), ConformanceContext.Empty)
           text
         }
         .getOrElse("<error>")

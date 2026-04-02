@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.impl.ScalaControlFlowBuilder.{CatchScope, DeferredScope, FinallyScope, InstructionBuilder}
-import org.jetbrains.plugins.scala.lang.psi.types.Context
+import org.jetbrains.plugins.scala.lang.psi.types.ConformanceContext
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
@@ -159,7 +159,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   }
 
   override def visitMethodCallExpression(call: ScMethodCall): Unit = {
-    implicit val context: Context = Context(call)
+    implicit val context: ConformanceContext = ConformanceContext(call)
 
     val matchedParams = call.matchedParameters
     def isByNameOrFunction(arg: ScExpression) = {

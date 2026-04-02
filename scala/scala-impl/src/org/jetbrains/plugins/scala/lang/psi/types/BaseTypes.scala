@@ -14,11 +14,11 @@ import scala.collection.mutable
 
 object BaseTypes {
 
-  def iterator(tp: ScType)(implicit context: Context): Iterator[ScType] = new BaseTypesIterator(tp)
+  def iterator(tp: ScType)(implicit context: ConformanceContext): Iterator[ScType] = new BaseTypesIterator(tp)
 
-  def get(t: ScType)(implicit context: Context): Seq[ScType] = reduce(iterator(t).toList)
+  def get(t: ScType)(implicit context: ConformanceContext): Seq[ScType] = reduce(iterator(t).toList)
 
-  private def reduce(types: Seq[ScType])(implicit context: Context): Seq[ScType] = {
+  private def reduce(types: Seq[ScType])(implicit context: ConformanceContext): Seq[ScType] = {
     val res = new mutable.HashMap[PsiClass, ScType]
     @nowarn("cat=deprecation")
     object all extends mutable.HashMap[PsiClass, mutable.Set[ScType]] with mutable.MultiMap[PsiClass, ScType]
@@ -40,7 +40,7 @@ object BaseTypes {
   }
 }
 
-private class BaseTypesIterator(tp: ScType)(implicit context: Context) extends Iterator[ScType] {
+private class BaseTypesIterator(tp: ScType)(implicit context: ConformanceContext) extends Iterator[ScType] {
   import tp.projectContext
 
   private val initialCapacity = 4

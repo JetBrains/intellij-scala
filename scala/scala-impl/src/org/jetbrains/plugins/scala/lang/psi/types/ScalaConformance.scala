@@ -29,7 +29,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
   typeSystem: api.TypeSystem =>
 
   override protected def conformsComputable(key: Key,
-                                            visited: Set[PsiClass])(implicit context: Context): Supplier[ConstraintsResult] =
+                                            visited: Set[PsiClass])(implicit context: ConformanceContext): Supplier[ConstraintsResult] =
     new Supplier[ConstraintsResult] {
       override def get(): ConstraintsResult = {
         val Key(left, right, checkWeak) = key
@@ -90,7 +90,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
     l:           ScType,
     r:           ScType,
     constraints: ConstraintSystem
-  )(implicit context: Context): ConstraintsResult = {
+  )(implicit context: ConformanceContext): ConstraintsResult = {
     val lo = lhs.lowerType
 
     if (!lhs.lowerType.equiv(lhs)) {
@@ -108,7 +108,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
     visited:            Set[PsiClass],
     checkWeak:          Boolean,
     checkEquivalence:   Boolean = false
-  )(implicit context: Context): ConstraintsResult = {
+  )(implicit context: ConformanceContext): ConstraintsResult = {
     var constraints = _constraints
 
     def addAbstract(upper: ScType, lower: ScType, tp: ScType): Boolean = {
@@ -183,7 +183,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
     constraints
   }
 
-  private class LeftConformanceVisitor(key: Key, visited: Set[PsiClass])(implicit context: Context) extends ScalaTypeVisitor {
+  private class LeftConformanceVisitor(key: Key, visited: Set[PsiClass])(implicit context: ConformanceContext) extends ScalaTypeVisitor {
 
     private val Key(l, r, checkWeak) = key
 
@@ -305,7 +305,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       }
     }
 
-    private def checkEquiv()(implicit context: Context): Unit = {
+    private def checkEquiv()(implicit context: ConformanceContext): Unit = {
       val equiv = l.equiv(r, constraints)
       if (equiv.isRight) result = equiv
     }
@@ -1670,7 +1670,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
 
 private object ScalaConformance {
   private[psi] object HKAbstract {
-    def unapply(tpe: ParameterizedType)(implicit context: Context): Boolean = tpe match {
+    def unapply(tpe: ParameterizedType)(implicit context: ConformanceContext): Boolean = tpe match {
       case ParameterizedType(abs: ScAbstractType, tArgs) =>
         import abs.projectContext
         abs.upper.equiv(Any) && tArgs.forall {

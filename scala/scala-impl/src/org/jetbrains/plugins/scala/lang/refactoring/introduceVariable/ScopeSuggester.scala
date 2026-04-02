@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlo
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScTypeParametersOwner}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
 import org.jetbrains.plugins.scala.lang.refactoring._
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester

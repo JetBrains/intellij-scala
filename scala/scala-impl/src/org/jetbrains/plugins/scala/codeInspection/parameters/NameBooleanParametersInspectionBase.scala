@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScBooleanLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.types.api.Boolean
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -51,12 +51,12 @@ abstract class NameBooleanParametersInspectionBase extends LocalInspectionTool {
       }
 
       def isArgForBooleanParam(expr: ScExpression, argList: ScArgumentExprList): Boolean = {
-        implicit val context: Context = Context(expr)
+        implicit val context: ConformanceContext = ConformanceContext(expr)
 
         argList.parameterOf(expr).exists(isBooleanParam)
       }
 
-      def isBooleanParam(p: Parameter)(implicit context: Context): Boolean = {
+      def isBooleanParam(p: Parameter)(implicit context: ConformanceContext): Boolean = {
         implicit val projectContext: ProjectContext = holder.getProject
 
         if (p.isRepeated) false

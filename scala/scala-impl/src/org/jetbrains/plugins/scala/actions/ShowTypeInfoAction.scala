@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypePresentat
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.PsiElementContext
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, ScTypeExt, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScType, ScTypeExt, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getSelectedExpression
 import org.jetbrains.plugins.scala.statistics.ScalaActionUsagesCollector
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
@@ -203,7 +203,7 @@ object ShowTypeInfoAction {
   }
 
   private def typeTextOf(elem: PsiElement, subst: ScSubstitutor)
-                        (implicit ctx: TypePresentationContext with Context): Option[String] = {
+                        (implicit ctx: TypePresentationContext with ConformanceContext): Option[String] = {
     val scType = elem.typeOfNamedElement(subst).orElse {
       elem match {
         case under: ScUnderscoreSection => under.`type`().toOption
@@ -215,6 +215,6 @@ object ShowTypeInfoAction {
   }
 
   private[this] def typeText(optType: Option[ScType])
-                            (implicit ctx: TypePresentationContext with Context): Option[String] =
+                            (implicit ctx: TypePresentationContext with ConformanceContext): Option[String] =
     optType.map(TypePresentation.withoutAliases)
 }

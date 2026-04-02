@@ -26,7 +26,7 @@ object AnnotatorUtils {
   def checkConformance(expression: ScExpression, typeElement: ScTypeElement)
                       (implicit holder: ScalaAnnotationHolder): Unit = {
     implicit val projectContext: ProjectContext = expression
-    implicit val context: Context = Context(expression)
+    implicit val context: ConformanceContext = ConformanceContext(expression)
 
     if (ScMethodType.hasMethodType(expression)) {
       return
@@ -107,7 +107,7 @@ object AnnotatorUtils {
   def registerTypeMismatchError(actualType: ScType, expectedType: ScType,
                                 expression: ScExpression)
                                (implicit holder: ScalaAnnotationHolder): Unit = {
-    implicit val context: Context = Context(expression)
+    implicit val context: ConformanceContext = ConformanceContext(expression)
 
     // See comments in ScMethodType.hasMethodType
     // The workaround is nice but there is a situation where we want to show the mismatch error with function types:
@@ -130,7 +130,7 @@ object AnnotatorUtils {
     * Check conformance in case l = r.
     */
   def smartCheckConformance(place: PsiElement, l: TypeResult, r: TypeResult): Boolean = {
-    implicit val context: Context = Context(place)
+    implicit val context: ConformanceContext = ConformanceContext(place)
 
     val leftType = l match {
       case Right(res) => res

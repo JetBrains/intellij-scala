@@ -148,7 +148,7 @@ object ScExtensionMethodMember {
     s"$extensionSignatureText $extensionMethodText"
   }
 
-  private val typeRenderer: TypeRenderer = _.presentableText(TypePresentationContext.emptyContext, Context.Empty)
+  private val typeRenderer: TypeRenderer = _.presentableText(TypePresentationContext.emptyContext, ConformanceContext.Empty)
   private val typeParamsRenderer = new TypeParamsRenderer(typeRenderer)
   private val parametersRenderer = new ParametersRenderer(new ParameterRenderer(
     typeRenderer,
@@ -166,7 +166,7 @@ sealed abstract class ScValueOrVariableMember[T <: ScValueOrVariable](
 )(
   override val name: String = element.name,
   override val scType: ScType = substitutor(element.`type`().getOrAny)
-) extends PsiElementClassMember[T](member, NlsString.force(s"$name: ${scType.presentableText(element, Context(element))}"))
+) extends PsiElementClassMember[T](member, NlsString.force(s"$name: ${scType.presentableText(element, ConformanceContext(element))}"))
   with ScalaFieldMember
 
 class ScValueMember(

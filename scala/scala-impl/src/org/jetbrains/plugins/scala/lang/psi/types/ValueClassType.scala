@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{ExtractClass, ValType}
 object ValueClassType {
 
   object Param {
-    def unapply(tp: ScType)(implicit context: Context): Option[ScClassParameter] = tp match {
+    def unapply(tp: ScType)(implicit context: ConformanceContext): Option[ScClassParameter] = tp match {
       case _: ValType => None
       case ExtractClass(cl: ScClass) if isValueClass(cl) =>
         cl.constructors match {
@@ -24,7 +24,7 @@ object ValueClassType {
     }
   }
 
-  def unapply(tp: ScType)(implicit context: Context): Option[ScType] =
+  def unapply(tp: ScType)(implicit context: ConformanceContext): Option[ScType] =
     ValueClassType.Param.unapply(tp).map(_.paramType())
 
   def isValueType(tp: ScType): Boolean = unapply(tp).isDefined

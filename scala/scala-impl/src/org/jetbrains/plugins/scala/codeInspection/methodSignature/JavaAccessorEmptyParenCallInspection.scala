@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.codeInspection.methodSignature.JavaAccessorEm
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, ScTypeExt, result}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScType, ScTypeExt, result}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.CollectMethodsProcessor
 
@@ -39,7 +39,7 @@ object JavaAccessorEmptyParenCallInspection {
 
   private def hasSameType(call: ScMethodCall,
                           place: ScReferenceExpression) = {
-    implicit val context: Context = Context(call)
+    implicit val context: ConformanceContext = ConformanceContext(call)
 
     (call, place) match {
       case (result.Typeable(left), result.Typeable(right)) => left.equiv(right)

@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceE
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScMacroDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.Context
+import org.jetbrains.plugins.scala.lang.psi.types.ConformanceContext
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 
 import scala.ref.WeakReference
@@ -93,7 +93,7 @@ private final class ElementUsageWithKnownReference private(
   private def isIndirectReferenceToImplicitClassExtensionMethodFromWithinThatClass(typeDef: ScTypeDefinition): Boolean = {
 
     def firstChildIsNonThisTypedExpression(refExpr: ScReferenceExpression): Boolean = {
-      implicit val context: Context = Context(refExpr)
+      implicit val context: ConformanceContext = ConformanceContext(refExpr)
 
       refExpr.getFirstChild match {
         case e: ScExpression =>
@@ -131,7 +131,7 @@ private final class ElementUsageWithKnownReference private(
      * and `Bar.b` is our reference to that target.
      */
     def referenceIsExpressionWhoseFirstChildHasTargetContainerType = {
-      implicit val context: Context = Context(refElement)
+      implicit val context: ConformanceContext = ConformanceContext(refElement)
 
       refElement match {
         case refExpr: ScReferenceExpression if refExpr.children.size > 1 =>

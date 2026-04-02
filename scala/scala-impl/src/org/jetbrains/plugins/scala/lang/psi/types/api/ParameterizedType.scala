@@ -4,7 +4,7 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.light.LightContextFunctionParameter
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType.substitutorCache
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -31,7 +31,7 @@ trait ParameterizedType extends ValueType {
     }
   }
 
-  override def isFinalType(implicit context: Context): Boolean =
+  override def isFinalType(implicit context: ConformanceContext): Boolean =
     designator.isFinalType && typeArguments.filterByType[TypeParameterType].forall(_.isInvariant)
 
   /**

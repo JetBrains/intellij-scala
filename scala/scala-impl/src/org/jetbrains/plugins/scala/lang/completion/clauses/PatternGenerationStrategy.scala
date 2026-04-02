@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScEnumSingletonCase
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScEnum, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.types.api.ExtractClass
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType}
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScCompoundType, ScType, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScCompoundType, ScType, TypePresentationContext}
 
 sealed trait PatternGenerationStrategy {
   def canBeExhaustive: Boolean
@@ -47,7 +47,7 @@ object PatternGenerationStrategy {
   }
 
   def unapply(`type`: ScType)
-             (implicit parameters: ClauseCompletionParameters, ctx: TypePresentationContext with Context): Option[PatternGenerationStrategy] = {
+             (implicit parameters: ClauseCompletionParameters, ctx: TypePresentationContext with ConformanceContext): Option[PatternGenerationStrategy] = {
     val valueType = toValueType(`type`)
     val strategy = valueType match {
       case ScProjectionType(DesignatorOwner(enumClass@ScalaEnumeration(values)), _) =>

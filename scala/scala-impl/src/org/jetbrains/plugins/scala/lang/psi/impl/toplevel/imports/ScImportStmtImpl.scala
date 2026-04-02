@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScSimpleTypeElementI
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaStubBasedElementImpl}
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.{ScExportStmtElementType, ScImportOrExportStmtElementType, ScImportStmtElementType}
 import org.jetbrains.plugins.scala.lang.psi.stubs.{ScExportStmtStub, ScImportOrExportStmtStub, ScImportStmtStub}
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Typeable}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.clean
@@ -115,7 +115,7 @@ object ScImportOrExportImpl {
     importExpr: ScImportExpr,
     isScala3: Boolean,
   ): Boolean = {
-    implicit val context: Context = Context(place)
+    implicit val context: ConformanceContext = ConformanceContext(place)
 
     val ref = importExpr.reference match {
       case Some(element) => element
@@ -471,14 +471,14 @@ object ScImportOrExportImpl {
   }
 
   trait GivenImports {
-    def conformingGivenSelector(ty: TypeResult)(implicit context: Context): Option[ScImportSelector]
+    def conformingGivenSelector(ty: TypeResult)(implicit context: ConformanceContext): Option[ScImportSelector]
     def hasWildcard: Boolean
     def hasImports: Boolean
   }
 
   object GivenImports {
     def empty: GivenImports = new GivenImports {
-      override def conformingGivenSelector(ty: TypeResult)(implicit context: Context): Option[ScImportSelector] = None
+      override def conformingGivenSelector(ty: TypeResult)(implicit context: ConformanceContext): Option[ScImportSelector] = None
       override def hasWildcard: Boolean = false
       override def hasImports: Boolean = false
     }
@@ -494,7 +494,7 @@ object ScImportOrExportImpl {
           maybeType.map(_ -> sel)
         }.toMap
 
-      def conformingGivenSelector(ty: TypeResult)(implicit context: Context): Option[ScImportSelector] = ty match {
+      def conformingGivenSelector(ty: TypeResult)(implicit context: ConformanceContext): Option[ScImportSelector] = ty match {
         case Right(ty) =>
           val conformingSelectors = {
             val selectors = filterSelectors.filter { case (fTy, _) => ty conforms fTy }.values

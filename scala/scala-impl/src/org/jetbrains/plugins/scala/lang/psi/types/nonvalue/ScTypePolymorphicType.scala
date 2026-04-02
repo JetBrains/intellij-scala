@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ConstraintSystem.SubstitutionB
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.ProcessSubtypes
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, Context, ScAbstractType, ScType, ScalaTypeVisitor}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, ConformanceContext, ScAbstractType, ScType, ScalaTypeVisitor}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec
@@ -60,7 +60,7 @@ final case class ScTypePolymorphicType private (
   /**
     * See [[scala.tools.nsc.typechecker.Infer.Inferencer#protoTypeArgs]]
     */
-  def argsProtoTypeSubst(pt: ScType)(implicit context: Context): ScSubstitutor = {
+  def argsProtoTypeSubst(pt: ScType)(implicit context: ConformanceContext): ScSubstitutor = {
     val maybeTypeParts = internalType match {
       case ScMethodType(retTpe, params, _) => Option((retTpe, params.map(_.paramType)))
       case FunctionType(retTpe, params)    => Option((retTpe, params))
@@ -112,7 +112,7 @@ final case class ScTypePolymorphicType private (
   def undefinedSubstitutor: ScSubstitutor =
     ScSubstitutor.bind(typeParameters)(UndefinedType(_))
 
-  def abstractOrLowerTypeSubstitutor(implicit context: Context): ScSubstitutor = {
+  def abstractOrLowerTypeSubstitutor(implicit context: ConformanceContext): ScSubstitutor = {
     //approximation of logic from scala.tools.nsc.typechecker.Infer.Inferencer#exprTypeArgs#variance
     val forVarianceCheck = internalType match {
       case mt: ScMethodType if mt.isImplicit => mt.copy(result = Any)(mt.elementScope)
@@ -130,7 +130,7 @@ final case class ScTypePolymorphicType private (
     }
   }
 
-  def typeParameterOrLowerSubstitutor(implicit context: Context): ScSubstitutor =
+  def typeParameterOrLowerSubstitutor(implicit context: ConformanceContext): ScSubstitutor =
     ScSubstitutor.bind(typeParameters) { tp =>
       val lowerType: ScType = if (hasRecursiveTypeParameters(tp.lowerType)) Nothing else tp.lowerType
 
@@ -147,7 +147,7 @@ final case class ScTypePolymorphicType private (
   }
 
   @tailrec
-  override def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean)(implicit context: Context): ConstraintsResult = {
+  override def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean)(implicit context: ConformanceContext): ConstraintsResult = {
     var lastConstraints = constraints
     r match {
       case p: ScTypePolymorphicType =>

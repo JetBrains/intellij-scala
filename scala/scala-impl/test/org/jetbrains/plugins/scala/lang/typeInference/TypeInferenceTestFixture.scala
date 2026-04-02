@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypePresentation
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestFixture.extractTextForCurrentVersion
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.assertions.PsiAssertions.assertNoParserErrors
@@ -69,7 +69,7 @@ final class TypeInferenceTestFixture(
 
   private def assertExpressionType(expression: ScExpression, expressionType: ScType, expectedTextForCurrentVersion: => String): Unit = {
     implicit val tpc: TypePresentationContext = TypePresentationContext.emptyContextIn(scalaVersion)
-    implicit val context: Context = Context.Empty
+    implicit val context: ConformanceContext = ConformanceContext.Empty
 
     val expressionTypeText = expressionType.presentableText
 

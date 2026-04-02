@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.{ScControlFlowOwner, ScalaElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ContextFunctionType, FunctionType}
 
 trait ScPolyFunctionExpr extends ScExpression with ScControlFlowOwner with ScTypeParametersOwner {
@@ -23,7 +23,7 @@ object ScPolyFunctionExpr {
   private[psi] def propagateContextBounds(
     tpe: ScType,
     bounds: Seq[ScType]
-  )(implicit scope: ElementScope, context: Context): ScType = tpe match {
+  )(implicit scope: ElementScope, context: ConformanceContext): ScType = tpe match {
     case FunctionType(inner, args) => FunctionType((propagateContextBounds(inner, bounds), args))
     case other                     => ContextFunctionType((other, bounds))
   }

@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTem
 import org.jetbrains.plugins.scala.lang.psi.impl.OptionalBracesCode._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createMethodWithContext
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, PhysicalMethodSignature, ScType, TermSignature}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, PhysicalMethodSignature, ScType, TermSignature}
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil._
 import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures}
 
@@ -213,7 +213,7 @@ object ScalaGenerateEqualsAction {
     }
 
     private def findSuchMethod(clazz: ScClass, name: String, returnType: ScType, paramTypes: Seq[ScType]): Option[ScFunction] = {
-      implicit val context: Context = Context(clazz)
+      implicit val context: ConformanceContext = ConformanceContext(clazz)
 
       def equivParamTypes(f: ScFunction): Boolean = {
         val funParamTypes = f.parameters.flatMap(_.`type`().toOption)

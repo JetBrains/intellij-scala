@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{P
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.psi.PsiElementContext
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScExistentialArgument, ScExistentialType, ScType, TypePresentationContext, extractTypeParameters}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScExistentialArgument, ScExistentialType, ScType, TypePresentationContext, extractTypeParameters}
 
 object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameterizedTypeElement] {
 
@@ -72,7 +72,7 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
   )(implicit
     tpc:    TypePresentationContext,
     holder: ScalaAnnotationHolder,
-    context: Context
+    context: ConformanceContext
   ): Unit = {
 
     if (args.length < params.length) {
@@ -159,7 +159,7 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
   )(implicit
     holder: ScalaAnnotationHolder,
     tpc:    TypePresentationContext,
-    context: Context
+    context: ConformanceContext
   ): Unit = {
     lazy val argTyText = argTy.presentableText
 
@@ -221,7 +221,7 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
     holder: ScalaAnnotationHolder,
     tpc:    TypePresentationContext
   ): Unit = {
-    implicit val context: Context = Context(param.psiTypeParameter)
+    implicit val context: ConformanceContext = ConformanceContext(param.psiTypeParameter)
 
     val paramTyParams = param.typeParameters
 
@@ -267,7 +267,7 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
 
   private object TypeParameters {
     import org.jetbrains.plugins.scala.lang.psi.types.extractTypeParameters
-    def unapply(ty: ScType)(implicit context: Context): Option[Seq[TypeParameter]] =
+    def unapply(ty: ScType)(implicit context: ConformanceContext): Option[Seq[TypeParameter]] =
       Option(extractTypeParameters(ty))
   }
 }

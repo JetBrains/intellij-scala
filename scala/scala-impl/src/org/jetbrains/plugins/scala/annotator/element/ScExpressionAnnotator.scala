@@ -35,7 +35,7 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
 
   private[annotator] def annotateImpl(element: ScExpression, typeAware: Boolean, fromBlock: Boolean = false)
                                      (implicit holder: ScalaAnnotationHolder): Unit = {
-    implicit val context: Context = Context(element)
+    implicit val context: ConformanceContext = ConformanceContext(element)
 
     // TODO Annotating ScUnderscoreSection is technically correct, but reveals previously hidden red code in ScalacTestdataHighlightingTest.tuples_1.scala
     // TODO see visitUnderscoreExpression in ScalaAnnotator
@@ -92,7 +92,7 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
   def adjusted(tpe: ScType, expected: Option[ScType]): ScType = if (expected.exists(_.is[ScLiteralType])) tpe else tpe.widenIfLiteral
 
   def isAggregate(e: ScExpression): Boolean = {
-    implicit val context: Context = Context(e)
+    implicit val context: ConformanceContext = ConformanceContext(e)
 
     e match {
       case ScIf(_, thenExpr, elseExpr) =>

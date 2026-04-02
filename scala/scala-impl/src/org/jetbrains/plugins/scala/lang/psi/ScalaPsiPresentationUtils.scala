@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi
 import com.intellij.psi._
 import com.intellij.psi.util.{PsiFormatUtil, PsiFormatUtilBase}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation._
 
 // TODO 2: unify with org.jetbrains.plugins.scala.lang.psi.PresentationUtil

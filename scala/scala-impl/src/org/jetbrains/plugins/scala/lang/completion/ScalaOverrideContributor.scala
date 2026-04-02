@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.PsiElementContext
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, TypePresentationContext}
 import org.jetbrains.plugins.scala.overrideImplement._
 import org.jetbrains.plugins.scala.project.ScalaFeatures
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
@@ -106,7 +106,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
 
     override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, resultSet: CompletionResultSet): Unit = {
       val position = positionFromParameters(parameters)
-      implicit val ctx: TypePresentationContext with Context = PsiElementContext(position)
+      implicit val ctx: TypePresentationContext with ConformanceContext = PsiElementContext(position)
 
       Option(PsiTreeUtil.getContextOfType(position, classOf[ScDeclaration])).collect {
         case ml: ScModifierListOwner => ml
@@ -139,7 +139,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
     }
   })
 
-  private def createText(classMember: ClassMember, clazz: ScTemplateDefinition, full: Boolean, withBody: Boolean)(implicit context: Context): String = {
+  private def createText(classMember: ClassMember, clazz: ScTemplateDefinition, full: Boolean, withBody: Boolean)(implicit context: ConformanceContext): String = {
     import ScalaPsiElementFactory._
     import TypeAnnotationUtil._
     import clazz.projectContext
@@ -235,7 +235,7 @@ object ScalaOverrideContributor {
       (clazz, getMembersToOverride(clazz) ++ getMembersToImplement(clazz, withSelfType = true))
   }
 
-  private def createLookupElement(member: ClassMember, lookupString: String, hasOverride: Boolean)(implicit ctx: TypePresentationContext with Context) = {
+  private def createLookupElement(member: ClassMember, lookupString: String, hasOverride: Boolean)(implicit ctx: TypePresentationContext with ConformanceContext) = {
     import Iconable._
 
     val lookupObject = member match {
@@ -307,7 +307,7 @@ object ScalaOverrideContributor {
   }
 
   private def expensiveRenderer(member: ClassMember, icon: Icon)
-                               (implicit ctx: TypePresentationContext with Context): LookupElementRenderer[LookupElement] = { (element, presentation) =>
+                               (implicit ctx: TypePresentationContext with ConformanceContext): LookupElementRenderer[LookupElement] = { (element, presentation) =>
     def typeText: String = {
       val maybeType = member match {
         case member: ScalaTypedMember if !member.is[JavaFieldMember] => Some(member.scType)

@@ -46,7 +46,7 @@ object ComparingUnrelatedTypesInspection {
   }
 
   // see this check in scalac: https://github.com/scala/scala/blob/8c86b7d7136839538cca0ff8fca50f59437564c0/src/compiler/scala/tools/nsc/typechecker/RefChecks.scala#L968
-  private def checkComparability(type1: ScType, type2: ScType, isBuiltinOperation: => Boolean)(implicit context: Context): Comparability = {
+  private def checkComparability(type1: ScType, type2: ScType, isBuiltinOperation: => Boolean)(implicit context: ConformanceContext): Comparability = {
     val stdTypes = type1.projectContext.stdTypes
     import stdTypes._
 
@@ -109,18 +109,18 @@ object ComparingUnrelatedTypesInspection {
     }
   }
 
-  private def undefinedTypeAlias(`type`: ScType)(implicit context: Context) = `type` match {
+  private def undefinedTypeAlias(`type`: ScType)(implicit context: ConformanceContext) = `type` match {
     case AliasType(_, Right(lower), Right(upper), _) => !lower.equiv(upper)
     case _                                        => false
   }
 
   @tailrec
-  private def extractActualType(`type`: ScType)(implicit context: Context): ScType = `type` match {
+  private def extractActualType(`type`: ScType)(implicit context: ConformanceContext): ScType = `type` match {
     case AliasType(_, _, Right(rhs), _) => extractActualType(rhs)
     case _                           => `type`.widen
   }
 
-  private def hasNonDefaultEquals(ty: ScType)(implicit context: Context): Boolean = {
+  private def hasNonDefaultEquals(ty: ScType)(implicit context: ConformanceContext): Boolean = {
     ty.extractClassSimple().exists { ty =>
       ty.findMethodsByName("equals", true).exists { m =>
         !m.containingClass.isJavaLangObject && !m.isInstanceOf[ScSyntheticFunction] && MethodUtils.isEquals(m)
@@ -134,7 +134,7 @@ class ComparingUnrelatedTypesInspection extends LocalInspectionTool {
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
     case e if e.isInScala3File => () // TODO Handle Scala 3 code (`CanEqual` instances, etc.), SCL-19722
     case MethodRepr(expr, Some(left), Some(oper), Seq(right)) if isComparingFunctions(oper.refName) =>
-      implicit val context: Context = Context(expr)
+      implicit val context: ConformanceContext = ConformanceContext(expr)
 
       // "blub" == 3
       val needHighlighting = oper.resolve() match {
@@ -155,7 +155,7 @@ class ComparingUnrelatedTypesInspection extends LocalInspectionTool {
         }
       }
     case MethodRepr(expr, Some(baseExpr), Some(ref @ ResolvesTo(fun: ScFunction)), Seq(arg, _*)) if mayNeedHighlighting(fun) =>
-      implicit val context: Context = Context(expr)
+      implicit val context: ConformanceContext = ConformanceContext(expr)
 
       // Seq("blub").contains(3)
       for {
@@ -168,7 +168,7 @@ class ComparingUnrelatedTypesInspection extends LocalInspectionTool {
         holder.registerProblem(arg, message)
       }
     case IsInstanceOfCall(call) =>
-      implicit val context: Context = Context(call)
+      implicit val context: ConformanceContext = ConformanceContext(call)
 
       // "blub".isInstanceOf[Integer]
       val qualType = call.referencedExpr match {

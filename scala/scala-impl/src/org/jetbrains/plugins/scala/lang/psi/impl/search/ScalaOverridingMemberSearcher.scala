@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefi
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors
-import org.jetbrains.plugins.scala.lang.psi.types.Context
+import org.jetbrains.plugins.scala.lang.psi.types.ConformanceContext
 
 import scala.collection.mutable
 
@@ -160,7 +160,7 @@ object ScalaOverridingMemberSearcher {
     withSelfType: Boolean,
     resultBuffer: mutable.Set[PsiNamedElement]
   ): Boolean = {
-    implicit val context: Context = Context(originalMember)
+    implicit val context: ConformanceContext = ConformanceContext(originalMember)
 
     def collectInheritorsOfType(name: String): Boolean = {
       inheritor match {

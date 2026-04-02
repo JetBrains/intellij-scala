@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorTy
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Failure
 import org.jetbrains.plugins.scala.lang.psi.PsiElementContext
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScMatchType, TypePresentationContext, extractTypeParameters}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScMatchType, TypePresentationContext, extractTypeParameters}
 
 object ScTypeBoundsOwnerAnnotator extends ElementAnnotator[ScTypeBoundsOwner] {
 

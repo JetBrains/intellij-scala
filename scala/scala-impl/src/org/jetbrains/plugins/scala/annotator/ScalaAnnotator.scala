@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.ProcessSubtypes
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, ScalaType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScType, ScalaType}
 import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.statistics.ScalaAnnotatorUsagesCollector
 import org.jetbrains.plugins.scala.{ScalaBundle, Tracing}
@@ -273,7 +273,7 @@ class ScalaAnnotator extends Annotator
 
   private def checkFunctionForVariance(fun: ScFunction)
                                       (implicit holder: ScalaAnnotationHolder): Unit = {
-    implicit val context: Context = Context(fun)
+    implicit val context: ConformanceContext = ConformanceContext(fun)
 
     if (!modifierIsThis(fun) && !compoundType(fun)) { //if modifier contains [this] or if it is a compound type we do not highlight it
       checkBoundsVariance(fun, fun.nameId, fun.getParent)
@@ -298,7 +298,7 @@ class ScalaAnnotator extends Annotator
 
   private def checkTypeVariance(typeable: Typeable, variance: Variance, toHighlight: PsiElement, checkParentOf: PsiElement)
                                (implicit holder: ScalaAnnotationHolder): Unit = {
-    implicit val context: Context = Context(toHighlight)
+    implicit val context: ConformanceContext = ConformanceContext(toHighlight)
 
     typeable.`type`() match {
       case Right(tp) =>

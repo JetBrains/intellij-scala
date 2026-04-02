@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.parser
 import org.jetbrains.plugins.scala.lang.psi.PsiElementContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression.ScalaPsiElementExt
 
 final class ExhaustiveMatchCompletionContributor extends ScalaCompletionContributor {

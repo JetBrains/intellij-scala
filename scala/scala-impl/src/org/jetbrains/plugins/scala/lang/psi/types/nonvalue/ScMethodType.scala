@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ValueType}
-import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, Context, MissedParametersClause, MissedValueParameter, ScType, ScalaTypeVisitor}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, ConformanceContext, MissedParametersClause, MissedValueParameter, ScType, ScalaTypeVisitor}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec
@@ -37,7 +37,7 @@ final case class ScMethodType(
       else               inferredParamType.tryWrapIntoSeqType
     }))
 
-  override def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean)(implicit context: Context): ConstraintsResult = {
+  override def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean)(implicit context: ConformanceContext): ConstraintsResult = {
     var lastConstraints = constraints
     r match {
       case m: ScMethodType =>

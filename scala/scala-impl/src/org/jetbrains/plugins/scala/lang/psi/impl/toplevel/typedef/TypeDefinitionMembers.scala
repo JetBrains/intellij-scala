@@ -99,7 +99,7 @@ object TypeDefinitionMembers {
   def getSignatures(tp: ScAndType): TermNodes.Map =
     ScalaPsiManager.instance(tp.projectContext).getSignatures(tp)
 
-  def getSelfTypeSignatures(clazz: PsiClass)(implicit context: Context): TermNodes.Map = {
+  def getSelfTypeSignatures(clazz: PsiClass)(implicit context: ConformanceContext): TermNodes.Map = {
     @annotation.tailrec
     def extractFromThisType(clsType: ScType, thisType: ScType): TermNodes.Map = thisType match {
       case c: ScCompoundType       => getSignatures(c, Option(clsType))
@@ -122,7 +122,7 @@ object TypeDefinitionMembers {
     }
   }
 
-  def getSelfTypeTypes(clazz: PsiClass)(implicit context: Context): TypeNodes.Map = {
+  def getSelfTypeTypes(clazz: PsiClass)(implicit context: ConformanceContext): TypeNodes.Map = {
     clazz match {
       case td: ScTypeDefinition =>
         td.selfType match {
@@ -488,7 +488,7 @@ object TypeDefinitionMembers {
   }
 
   def processNamedTuple(p: ScType, state: ResolveState, execute: (PsiElement, ResolveState) => Boolean)
-                       (implicit context: Context): Boolean = {
+                       (implicit context: ConformanceContext): Boolean = {
     // Components of named tuples can be accessed in reference expressions via their names, even though
     // there are no physical accessor methods. Rather, the compiler rewrites these accesses to the
     // corresponding component index. We just link to the component that is referenced in its name literal
@@ -562,7 +562,7 @@ object TypeDefinitionMembers {
     true
   }
 
-  private def isSelectable(tpe: ScType)(implicit context: Context): Boolean = {
+  private def isSelectable(tpe: ScType)(implicit context: ConformanceContext): Boolean = {
     val selectableFqn = "scala.Selectable"
     val baseTpes = BaseTypes.iterator(tpe)
     baseTpes.exists {
@@ -572,7 +572,7 @@ object TypeDefinitionMembers {
   }
 
   def processSelectable(typ: ScType, place: PsiElement, state: ResolveState, execute: (PsiElement, ResolveState) => Boolean)
-                       (implicit context: Context): Boolean = {
+                       (implicit context: ConformanceContext): Boolean = {
     if (!isSelectable(typ)) {
       return true
     }

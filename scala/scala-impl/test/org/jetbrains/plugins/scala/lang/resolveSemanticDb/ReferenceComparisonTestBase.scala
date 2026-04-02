@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScExportStmt, 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScDerivesClause
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScEnum, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, ScalaFile}
-import org.jetbrains.plugins.scala.lang.psi.types.Context
+import org.jetbrains.plugins.scala.lang.psi.types.ConformanceContext
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ReferenceComparisonTestBase.RefInfo.{assignmentTarget, opaqueTarget, physicalRefTarget}
@@ -241,7 +241,7 @@ object ReferenceComparisonTestBase {
                      fileName: String,
                      problems: Option[String],
                      isImplicit: Boolean,
-                     isScalaDocRef: Boolean)(implicit context: Context) {
+                     isScalaDocRef: Boolean)(implicit context: ConformanceContext) {
     override def toString: String = s"$name at $pos in $fileName"
 
     lazy val targets: Seq[RefTarget] = resolved
@@ -276,7 +276,7 @@ object ReferenceComparisonTestBase {
         problems,
         isImplicit = false,
         isScalaDocRef = ref.parentOfType[ScDocComment].isDefined
-      )(Context(ref))
+      )(ConformanceContext(ref))
     }
 
     def forImplicitArguments(iao: ImplicitArgumentsOwner): Seq[RefInfo] = {
@@ -295,7 +295,7 @@ object ReferenceComparisonTestBase {
             problems,
             isImplicit = true,
             isScalaDocRef = false,
-          )(Context(iao)))
+          )(ConformanceContext(iao)))
         }
       }
     }
@@ -320,7 +320,7 @@ object ReferenceComparisonTestBase {
       _.allFunctionsByName(fun.name + "_=").nonEmpty
     }
 
-    private def opaqueTarget(resolved: PsiNamedElement)(implicit context: Context): Option[PhysicalRefTarget] = resolved match {
+    private def opaqueTarget(resolved: PsiNamedElement)(implicit context: ConformanceContext): Option[PhysicalRefTarget] = resolved match {
       case typeDef: ScTypeAliasDefinition if !typeDef.isEffectivelyOpaque =>
         val aliased = typeDef.aliasedType.toOption.flatMap(_.extractClass)
         aliased.map(PhysicalRefTarget)

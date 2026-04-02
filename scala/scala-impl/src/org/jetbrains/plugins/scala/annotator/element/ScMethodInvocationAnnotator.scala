@@ -202,7 +202,7 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
   }
 
   private def checkMissingArgumentClauses(call: MethodInvocation)(implicit holder: ScalaAnnotationHolder): Unit = {
-    implicit val context: Context = Context(call)
+    implicit val context: ConformanceContext = ConformanceContext(call)
 
     def functionTypeExpected = call.expectedType().exists(FunctionType.isFunctionType)
     def isScala3dotcErrorsMode: Boolean = ScalaHighlightingMode.showCompilerErrorsScala3(call.getProject) && call.isInScala3Module

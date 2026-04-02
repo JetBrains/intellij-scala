@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createElementFromText, createExpressionFromText, createExpressionWithContextFromText}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticNamedElement
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.{InplaceRenameHelper, ScalaVariableValidator}
 import org.jetbrains.plugins.scala.project.ProjectExt
@@ -272,7 +272,7 @@ object TypeCheckCanBeMatchInspection {
   private def findAsInstanceOfCalls(maybeBody: Option[ScExpression],
                                     isInstOfCall: ScGenericCall): Iterable[ScGenericCall] = maybeBody match {
     case Some(body) =>
-      implicit val context: Context = Context(body)
+      implicit val context: ConformanceContext = ConformanceContext(body)
 
       def baseAndType(call: ScGenericCall) = for {
         base <- baseExpr(call)

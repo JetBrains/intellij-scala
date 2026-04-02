@@ -11,11 +11,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceE
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScEnum, ScMember, ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScType}
 
 sealed abstract class GlobalMembersFinder protected(protected val place: ScExpression,
                                                     protected val accessAll: Boolean) {
-  protected implicit def context: Context = Context(place)
+  protected implicit def context: ConformanceContext = ConformanceContext(place)
 
   protected final def isAccessible(member: PsiMember): Boolean =
     accessAll ||

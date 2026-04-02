@@ -77,10 +77,10 @@ object Compatibility {
       place: Option[PsiElement] = None
     )(implicit
       projectContext: ProjectContext,
-      context: Context
+      context: ConformanceContext
     ): Expression = OfType(tpe, place)
 
-    def apply(tpe: ScType, place: PsiElement)(implicit projectContext: ProjectContext, context: Context): Expression =
+    def apply(tpe: ScType, place: PsiElement)(implicit projectContext: ProjectContext, context: ConformanceContext): Expression =
       apply(tpe, Option(place))
 
     def unapply(e: Expression): Option[ScExpression] = e match {
@@ -88,7 +88,7 @@ object Compatibility {
       case _ => None
     }
 
-    final case class OfType(tpe: ScType, place: Option[PsiElement])(implicit projectContext: ProjectContext, context: Context) extends Expression {
+    final case class OfType(tpe: ScType, place: Option[PsiElement])(implicit projectContext: ProjectContext, context: ConformanceContext) extends Expression {
       private def default: ExpressionTypeResult = ExpressionTypeResult(Right(tpe))
 
       override def getTypeAfterImplicitConversion(
@@ -137,7 +137,7 @@ object Compatibility {
 
   implicit class PsiElementExt(private val place: PsiElement) extends AnyVal {
     private implicit def elementScope: ElementScope = ElementScope(place)
-    private implicit def context: Context = Context(place)
+    private implicit def context: ConformanceContext = ConformanceContext(place)
 
     final def tryAdaptTypeToSAM(
       tp:             ScType,
@@ -402,7 +402,7 @@ object Compatibility {
     withImplicits:            Boolean,
     shapesOnly:               Boolean,
     approximateDependentsFor: Set[ScParameter] = Set.empty
-  )(implicit context: Context): ApplicabilityCheckResult = {
+  )(implicit context: ConformanceContext): ApplicabilityCheckResult = {
 
     ProgressManager.checkCanceled()
 
@@ -702,7 +702,7 @@ object Compatibility {
     shapesOnly:    Boolean,
     ref:           PsiElement,
     argClauseIdx:  Int = 0
-  )(implicit context: Context): ApplicabilityCheckResult = {
+  )(implicit context: ConformanceContext): ApplicabilityCheckResult = {
     val named = srr.element
     val args  = argClauses.lift(argClauseIdx).getOrElse(Seq.empty)
 

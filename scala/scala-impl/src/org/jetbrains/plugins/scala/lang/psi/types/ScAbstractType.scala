@@ -24,7 +24,7 @@ final class ScAbstractType(val typeParameter: TypeParameter) extends ScalaType w
     case _ => false
   }
 
-  override def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean)(implicit context: Context): ConstraintsResult = {
+  override def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean)(implicit context: ConformanceContext): ConstraintsResult = {
     r match {
       case _ if falseUndef => ConstraintsResult.Left
       case _ =>
@@ -37,7 +37,7 @@ final class ScAbstractType(val typeParameter: TypeParameter) extends ScalaType w
 
   override def inferValueType: TypeParameterType = TypeParameterType(typeParameter)
 
-  def simplifyType(implicit context: Context): ScType = {
+  def simplifyType(implicit context: ConformanceContext): ScType = {
     if (upper.equiv(Any)) lower else if (lower.equiv(Nothing)) upper else lower
   }
 

@@ -246,7 +246,7 @@ object InferUtil {
   ): (Seq[Parameter], Seq[Compatibility.Expression], Seq[ScalaResolveResult]) = {
 
     implicit val projectContext: ProjectContext = place.getProject
-    implicit val context: Context = Context(place)
+    implicit val context: ConformanceContext = ConformanceContext(place)
 
     val inferredParams = ArraySeq.newBuilder[Parameter]
     val exprs          = ArraySeq.newBuilder[Compatibility.Expression]
@@ -350,7 +350,7 @@ object InferUtil {
     shouldTruncateMethodType: Boolean = true
   ): ScType = {
     implicit val projectContext: ProjectContext = expr
-    implicit val context: Context = Context(expr)
+    implicit val context: ConformanceContext = ConformanceContext(expr)
 
     val Unit = projectContext.stdTypes.Unit
 
@@ -608,7 +608,7 @@ object InferUtil {
     shouldUndefineParameters: Boolean = true,
     canThrowSCE:              Boolean = false,
     filterTypeParams:         Boolean = true
-  )(implicit context: Context): ScTypePolymorphicType =
+  )(implicit context: ConformanceContext): ScTypePolymorphicType =
     localTypeInferenceWithApplicabilityExt(
       retType,
       params,
@@ -630,7 +630,7 @@ object InferUtil {
     canThrowSCE:              Boolean               = false,
     filterTypeParams:         Boolean               = true,
     paramSubst:               Option[ScSubstitutor] = None
-  )(implicit context: Context): (ScTypePolymorphicType, ApplicabilityCheckResult) = {
+  )(implicit context: ConformanceContext): (ScTypePolymorphicType, ApplicabilityCheckResult) = {
     implicit val projectContext: ProjectContext = retType.projectContext
 
     val typeParamIds = typeParams.map(_.typeParamId).toSet

@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, Sc
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, ParameterizedType, StdTypes, TypeParameterType, arrayType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
-import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, Context, ScLiteralType, ScParameterizedType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, ConformanceContext, ScLiteralType, ScParameterizedType, ScType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 import scala.collection.immutable.ArraySeq
@@ -154,7 +154,7 @@ trait ScopeAnnotator extends ElementAnnotator[ScalaPsiElement] {
       if a
         .parametersTypes(withExtension = true)
         .zip(b.parametersTypes(withExtension = true))
-        .forall { case (a, b) => a.equiv(b)(Context(element)) }
+        .forall { case (a, b) => a.equiv(b)(ConformanceContext(element)) }
     } result ++= Seq(a, b)
 
     result.result().iterator
@@ -194,7 +194,7 @@ trait ScopeAnnotator extends ElementAnnotator[ScalaPsiElement] {
 
   private def erasedReturnType(f: ScFunction, isInStructuralType: Boolean, forPresentableText: Boolean): String = {
     if (!isInStructuralType) {
-      val returnType = f.returnType.getOrAny.removeAliasDefinitions()(Context.Empty)
+      val returnType = f.returnType.getOrAny.removeAliasDefinitions()(ConformanceContext.Empty)
       erased(returnType, forPresentableText).canonicalText
     }
     else ""
@@ -242,7 +242,7 @@ trait ScopeAnnotator extends ElementAnnotator[ScalaPsiElement] {
     val `*` = if (p.isRepeatedParameter) "*" else ""
 
     val paramType = p.`type`().getOrAny
-    val paramTypeExpanded = paramType.removeAliasDefinitions()(Context.Empty)
+    val paramTypeExpanded = paramType.removeAliasDefinitions()(ConformanceContext.Empty)
     val erasedType =
       if (eraseParamType) erased(paramTypeExpanded, forPresentableText)
       else paramTypeExpanded

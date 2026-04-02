@@ -72,7 +72,7 @@ case class ScMatchType private (
     constraints: ConstraintSystem,
     falseUndef:   Boolean
   )(implicit
-    context: Context
+    context: ConformanceContext
   ): ConstraintsResult = other match {
     case mt: ScMatchType =>
       val scrutineeEquiv = scrutinee.equiv(mt.scrutinee, constraints, falseUndef = false)
@@ -136,7 +136,7 @@ object ScMatchType {
     tpe:     ScMatchType,
     depth:   Int
   )(implicit
-    ctx: Context
+    ctx: ConformanceContext
   ): TypeResult =
     if (depth >= maxRecursionDepth) throw new MaximumRecursionDepthExceeded
     else {

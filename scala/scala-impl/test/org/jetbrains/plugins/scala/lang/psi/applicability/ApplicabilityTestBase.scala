@@ -157,6 +157,6 @@ abstract class ApplicabilityTestBase extends SimpleTestCase {
   }
     
   object Type {
-    def unapply(t: ScType): Option[String] = t.toOption.map(_.presentableText(TypePresentationContext.emptyContext, Context.Empty))
+    def unapply(t: ScType): Option[String] = t.toOption.map(_.presentableText(TypePresentationContext.emptyContext, ConformanceContext.Empty))
   }
 }

@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScBegin
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScType, ScTypeExt}
 
 class ScMatchImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScMatch with ScBegin {
 

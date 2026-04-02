@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFuncti
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportSelector, ScImportSelectors}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.types.Context
+import org.jetbrains.plugins.scala.lang.psi.types.ConformanceContext
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor
@@ -132,7 +132,7 @@ object ScalaGoToDeclarationHandler {
   private def getGotoDeclarationTargetsForGivenImport(maybeParent: Option[PsiElement]): Array[PsiElement] =
     maybeParent match {
       case Some(selector: ScImportSelector) if selector.isGivenSelector =>
-        implicit val context: Context = Context(selector)
+        implicit val context: ConformanceContext = ConformanceContext(selector)
 
         val reference = selector
           .parentImportExpression
@@ -268,7 +268,7 @@ object ScalaGoToDeclarationHandler {
     case element           => element
   }
 
-  private def extractTypeDef(element: PsiElement)(implicit context: Context): Option[ScTemplateDefinition] = {
+  private def extractTypeDef(element: PsiElement)(implicit context: ConformanceContext): Option[ScTemplateDefinition] = {
     element match {
       case td: ScTemplateDefinition => Some(td)
       case Typeable(tpe)            => tpe.extractClass.filterByType[ScTemplateDefinition]

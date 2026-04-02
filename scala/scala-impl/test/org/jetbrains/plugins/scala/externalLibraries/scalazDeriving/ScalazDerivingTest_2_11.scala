@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, PhysicalMethodSignature}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, PhysicalMethodSignature}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
@@ -52,7 +52,7 @@ class ScalazDerivingTest_2_11 extends ScalaLightCodeInsightFixtureTestCase {
         case Some(method) =>
           method.returnType match {
             case Right(t) =>
-              val tyText = t.presentableText(clazz, Context(clazz))
+              val tyText = t.presentableText(clazz, ConformanceContext(clazz))
               assertEquals(s"$tyText != $expectedType", expectedType, tyText)
             case Failure(cause) => fail(cause)
           }

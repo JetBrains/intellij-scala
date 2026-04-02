@@ -31,7 +31,7 @@ object SmartSuperTypeUtil {
     if (areClassesEquivalent(leftClass, rightClass))  None
     else if (!isInheritorDeep(leftClass, rightClass)) None
     else {
-      implicit val context: Context = Context(rightClass)
+      implicit val context: ConformanceContext = ConformanceContext(rightClass)
 
       var resTpe: ScType = null
 

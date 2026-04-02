@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScBlock, ScBlockExpr, ScExpression, ScGenericCall, ScNewTemplateDefinition, ScParenthesisedExpr, ScReferenceExpression, ScSugarCallExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.project._
 
@@ -27,7 +27,7 @@ abstract class BaseJavaConvertersIntention(methodName: String) extends PsiElemen
 
   override def isAvailable(project: Project, e: Editor, element: PsiElement): Boolean =
     Option(getTargetExpression(element)).exists { scExpr =>
-      implicit val context: Context = Context(scExpr)
+      implicit val context: ConformanceContext = ConformanceContext(scExpr)
 
       val scope = scExpr.getResolveScope
 
@@ -44,7 +44,7 @@ abstract class BaseJavaConvertersIntention(methodName: String) extends PsiElemen
       properTargetCollection && parentNonConvertedCollection(scExpr)
     }
 
-  private def isProperTargetCollection(project: Project, scope: GlobalSearchScope, typeResult: TypeResult)(implicit context: Context): Boolean =
+  private def isProperTargetCollection(project: Project, scope: GlobalSearchScope, typeResult: TypeResult)(implicit context: ConformanceContext): Boolean =
     typeResult.exists { scType =>
       scType.extractClass.exists { psiClass =>
         val colls = targetCollections(project, scope)
@@ -52,7 +52,7 @@ abstract class BaseJavaConvertersIntention(methodName: String) extends PsiElemen
       }
     }
 
-  private def isAlreadyConvertedCollection(typeResult: TypeResult)(implicit context: Context): Boolean =
+  private def isAlreadyConvertedCollection(typeResult: TypeResult)(implicit context: ConformanceContext): Boolean =
     typeResult.exists { scType =>
       scType.extractClass.exists { psiClass =>
         alreadyConvertedPrefixes.exists(psiClass.qualifiedName.startsWith)

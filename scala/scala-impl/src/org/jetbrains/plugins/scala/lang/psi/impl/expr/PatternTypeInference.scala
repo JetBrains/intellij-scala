@@ -44,7 +44,7 @@ object PatternTypeInference {
     pattern:       ScPattern,
     scrutineeType: ScType
   ): Either[ScSubstitutor, (ScType, ScSubstitutor)] = {
-    implicit val context: Context = Context(pattern)
+    implicit val context: ConformanceContext = ConformanceContext(pattern)
 
     val noTypeInference = Left(ScSubstitutor.empty)
 
@@ -87,7 +87,7 @@ object PatternTypeInference {
   /**
    * Do component-wise pattern type inference and return combined substitutor.
    */
-  private def doForTuplePattern(tuplePattern: ScTuplePattern, scrutineeType: ScType)(implicit context: Context): ScSubstitutor = {
+  private def doForTuplePattern(tuplePattern: ScTuplePattern, scrutineeType: ScType)(implicit context: ConformanceContext): ScSubstitutor = {
     val patterns = tuplePattern.patternList.toSeq.flatMap(_.patterns)
 
     scrutineeType match {
@@ -108,7 +108,7 @@ object PatternTypeInference {
   /**
    * Do component-wise pattern type inference and return combined substitutor.
    */
-  private def doForNamedTuplePattern(tuplePattern: ScNamedTuplePattern, scrutineeType: ScType)(implicit context: Context): ScSubstitutor = {
+  private def doForNamedTuplePattern(tuplePattern: ScNamedTuplePattern, scrutineeType: ScType)(implicit context: ConformanceContext): ScSubstitutor = {
     scrutineeType match {
       case NamedTupleType(comps) =>
         val patternComponents = tuplePattern.components.flatMap(comp => comp.subPattern.map(comp.name -> _))
@@ -136,7 +136,7 @@ object PatternTypeInference {
     pattern:       ScPattern,
     scrutineeType: ScType
   ): ScSubstitutor = {
-    implicit val context: Context = Context(pattern)
+    implicit val context: ConformanceContext = ConformanceContext(pattern)
 
     val noTopLevelTypeVariables = scrutineeType.removeAliasDefinitionsIn(pattern).recursiveUpdate {
       case abs: ScAbstractType    if !abs.upper.isAny     => ReplaceWith(abs.upper) //arguments inside are considered bound
@@ -261,7 +261,7 @@ object PatternTypeInference {
     patType:       ScType,
     scrutineeType: ScType,
     constraints:   ConstraintSystem
-  )(implicit context: Context): ConstraintsResult = {
+  )(implicit context: ConformanceContext): ConstraintsResult = {
     import SmartSuperTypeUtil.TraverseSupers
     val scrutineeBaseBuilder = Map.newBuilder[PsiClass, ScSubstitutor]
     val patternBaseBuilder   = Map.newBuilder[PsiClass, ScSubstitutor]
@@ -351,7 +351,7 @@ object PatternTypeInference {
     shouldSolveForMaxType: Boolean,
     tvars:                 Seq[TypeParameter],
     enclosingTypeParams:   Seq[TypeParameter]
-  )(implicit projectContext: ProjectContext, context: Context): Option[ScSubstitutor] = {
+  )(implicit projectContext: ProjectContext, context: ConformanceContext): Option[ScSubstitutor] = {
     import projectContext.stdTypes
 
     constraints match {

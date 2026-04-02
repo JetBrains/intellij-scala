@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScCompoundType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScCompoundType, ScType}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec
@@ -108,7 +108,7 @@ object Declaration {
       element match {
         case Typeable(tpe @ ScCompoundType(comps, defs, _)) if !effectivelyEmpty(comps) =>
           implicit val projectContext: ProjectContext = tpe.projectContext
-          implicit val context: Context = Context(element)
+          implicit val context: ConformanceContext = ConformanceContext(element)
 
           val noAliases = ScCompoundType(comps, defs, Map.empty)
           !ScCompoundType(comps).conforms(noAliases)

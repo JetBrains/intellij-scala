@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorTyp
 import org.jetbrains.plugins.scala.lang.psi.types.api.Boolean
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypePresentation
 import org.jetbrains.plugins.scala.lang.psi.PsiElementContext
-import org.jetbrains.plugins.scala.lang.psi.types.{Compatibility, Context, ScType, TypePresentationContext, api}
+import org.jetbrains.plugins.scala.lang.psi.types.{Compatibility, ConformanceContext, ScType, TypePresentationContext, api}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.project.ProjectContext

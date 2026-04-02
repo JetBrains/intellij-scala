@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.Implicit
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ExtensionIndex
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, Context, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, ConformanceContext, ScType}
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -37,7 +37,7 @@ class ExtensionMethodData(val function: ScFunction,
   override def toString: String = function.name
 
   def application(fromType: ScType, place: PsiElement): Option[ExtensionMethodApplication] = {
-    implicit val context: Context = Context(place)
+    implicit val context: ConformanceContext = ConformanceContext(place)
 
     // to prevent infinite recursion
     if (PsiTreeUtil.isContextAncestor(function.nameContext, place, false))

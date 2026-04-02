@@ -6,13 +6,13 @@ import org.jetbrains.plugins.scala.annotator.template.PrivateBeanProperty
 import org.jetbrains.plugins.scala.annotator.{ScalaAnnotationHolder, isDumbMode}
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
-import org.jetbrains.plugins.scala.lang.psi.types.Context
+import org.jetbrains.plugins.scala.lang.psi.types.ConformanceContext
 
 object ScAnnotationAnnotator extends ElementAnnotator[ScAnnotation] with DumbAware {
 
   override def annotate(element: ScAnnotation, typeAware: Boolean)
                        (implicit holder: ScalaAnnotationHolder): Unit = {
-    implicit val context: Context = Context(element)
+    implicit val context: ConformanceContext = ConformanceContext(element)
 
     PrivateBeanProperty.annotate(element, typeAware)
 

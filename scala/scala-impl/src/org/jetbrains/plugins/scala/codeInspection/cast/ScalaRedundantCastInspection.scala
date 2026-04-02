@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnTwoPsiElements, 
 import org.jetbrains.plugins.scala.extensions.{ElementText, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.PsiElementContext
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScGenericCall}
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScTypeExt, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScTypeExt, TypePresentationContext}
 
 class ScalaRedundantCastInspection extends LocalInspectionTool {
 

@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ParameterizedType, Variance}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, PhysicalMethodSignature, ScExistentialArgument, ScExistentialType, ScParameterizedType, ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, PhysicalMethodSignature, ScExistentialArgument, ScExistentialType, ScParameterizedType, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.project._
 
 
@@ -66,7 +66,7 @@ object SAMUtil {
   }
 
   private[this] def hasValidConstructorAndSelfType(cls: PsiClass): Boolean = {
-    implicit val context: Context = Context(cls)
+    implicit val context: ConformanceContext = ConformanceContext(cls)
 
     def selfTypeValid(tdef: ScTemplateDefinition): Boolean =
       tdef.selfType match {

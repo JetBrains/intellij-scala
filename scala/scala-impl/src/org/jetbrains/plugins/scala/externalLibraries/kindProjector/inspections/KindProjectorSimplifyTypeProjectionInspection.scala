@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiElementVisitor, PsiFile}
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, ScalaInspectionBundle}
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, _}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.{KindProjectorUtil, TypeLambda}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTy
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TupleType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.PsiElementContext
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScMatchType, ScParameterizedType, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScMatchType, ScParameterizedType, TypePresentationContext}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 
 import scala.collection.mutable

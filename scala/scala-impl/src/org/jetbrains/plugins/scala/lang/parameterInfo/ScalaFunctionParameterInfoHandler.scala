@@ -413,7 +413,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
           if (namedMode) buffer.append(namedPostfix)
         }
         def doNoNamed(expr: ScExpression): Unit = {
-          implicit val context: Context = Context(expr)
+          implicit val context: ConformanceContext = ConformanceContext(expr)
 
           if (namedMode) {
             isGrey = true
@@ -440,7 +440,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
           } else {
             exprs(k) match {
               case assign@ScAssignment.Named(name) =>
-                implicit val context: Context = Context(assign)
+                implicit val context: ConformanceContext = ConformanceContext(assign)
 
                 val ind = parameters.indexWhere(param => ScalaNamesUtil.equivalent(param._1.name, name))
                 if (ind == -1 || used(ind)) {
@@ -499,7 +499,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
           while (!isGrey && k < exprs.length.min(index)) {
             if (k < index) {
               for (exprType <- exprs(k).`type`()) {
-                implicit val context: Context = Context(exprs(k))
+                implicit val context: ConformanceContext = ConformanceContext(exprs(k))
 
                 if (!exprType.conforms(paramType)) isGrey = true
               }

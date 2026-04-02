@@ -43,7 +43,7 @@ trait ScalaTypePresentation extends TypePresentation {
     `type`: ScType,
     nameRenderer: NameRenderer,
     options: PresentationOptions
-  )(implicit tpc: TypePresentationContext, context: Context): String = {
+  )(implicit tpc: TypePresentationContext, context: ConformanceContext): String = {
     val textEscaper: TextEscaper = nameRenderer
     val boundsRenderer = new TypeBoundsRenderer(textEscaper)
 

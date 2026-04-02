@@ -24,7 +24,7 @@ class UnnecessaryPartialFunctionInspection extends LocalInspectionTool {
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
     case expression: ScBlockExpr =>
-      implicit val context: Context = Context(expression)
+      implicit val context: ConformanceContext = ConformanceContext(expression)
 
       def isNotPartialFunction(expectedType: ScType) =
         findPartialFunctionType(holder.getFile).exists(!expectedType.conforms(_))
@@ -43,7 +43,7 @@ class UnnecessaryPartialFunctionInspection extends LocalInspectionTool {
     case _ =>
   }
 
-  private def findType(file: PsiFile, className: String, parameterTypes: PsiClass => Seq[ScType])(implicit context: Context): Option[ValueType] = {
+  private def findType(file: PsiFile, className: String, parameterTypes: PsiClass => Seq[ScType])(implicit context: ConformanceContext): Option[ValueType] = {
     implicit val ctx: ProjectContext = file
     ScalaPsiManager.instance
       .getCachedClass(file.resolveScope, className)

@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Nothing, ParameterizedType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, ScalaType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConformanceContext, ScType, ScalaType}
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 
 final class ScalaByExpectedTypeWeigher(maybeDefinition: Option[ScExpression])
@@ -35,14 +35,14 @@ final class ScalaByExpectedTypeWeigher(maybeDefinition: Option[ScExpression])
 
       elementAndSubstitutor match {
         case (element: PsiNamedElement, substitutor) if isAccessible(element) &&
-          computeType(element, substitutor).exists(expectedType(_)(Context(element))) => 0
+          computeType(element, substitutor).exists(expectedType(_)(ConformanceContext(element))) => 0
         case _ => 1
       }
     } else {
       1
     }
 
-  private def expectedType(scType: ScType)(implicit context: Context): Boolean = (scType != null) &&
+  private def expectedType(scType: ScType)(implicit context: ConformanceContext): Boolean = (scType != null) &&
     (!scType.equiv(Nothing)) &&
     expectedTypes.exists {
       case tp if scType.conforms(tp) => true

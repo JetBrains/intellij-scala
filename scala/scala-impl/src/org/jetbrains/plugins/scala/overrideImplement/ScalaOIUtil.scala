@@ -216,7 +216,7 @@ object ScalaOIUtil {
     f1: PhysicalMethodSignature => Boolean,
     f2: PsiNamedElement => Boolean
   ): Seq[ClassMember] = {
-    implicit val context: Context = Context(definition)
+    implicit val context: ConformanceContext = ConformanceContext(definition)
 
     val maybeThisType = if (withSelfType)
       for {

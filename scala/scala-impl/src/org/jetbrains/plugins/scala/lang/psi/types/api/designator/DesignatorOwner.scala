@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeConstructorOps, TypeParameter, ValueType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, Context, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, ConformanceContext, ScType}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 trait DesignatorOwner extends ValueType {
@@ -24,7 +24,7 @@ trait DesignatorOwner extends ValueType {
 
   def isStable: Boolean = isSingleton || element.is[ScObject]
 
-  override def isFinalType(implicit context: Context): Boolean = element match {
+  override def isFinalType(implicit context: ConformanceContext): Boolean = element match {
     case clazz: PsiClass if clazz.isEffectivelyFinal => true
     case _                                           => false
   }
@@ -36,7 +36,7 @@ trait DesignatorOwner extends ValueType {
     case _                                                    => None
   }
 
-  protected def calculateAliasTypeAux(actualElement: PsiElement, subst: ScSubstitutor)(implicit context: Context): Option[AliasType] = {
+  protected def calculateAliasTypeAux(actualElement: PsiElement, subst: ScSubstitutor)(implicit context: ConformanceContext): Option[AliasType] = {
     actualElement match {
       case ta: ScTypeAlias if ta.typeParameters.isEmpty =>
         Some(AliasType(ta, ta.lowerBound.map(subst), ta.upperBound.map(subst), ta.isEffectivelyOpaque))
