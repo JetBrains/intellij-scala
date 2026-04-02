@@ -261,7 +261,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     * SLS 6.4
     *
     * 1. The expected type `pt` is stable
-    * 2. Type `tpe` of the entity reffered to by `p` does not conform to `pt` AND either:
+    * 2. Type `tpe` of the entity referred to by `p` does not conform to `pt` AND either:
     *      * `pt` is an abstract type with a stable type as lower bound OR
     *      *  (not in the spec, but in the impl) `pt` denotes type refinement
     */
@@ -271,10 +271,10 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
       case Some(t) if t eq Singleton                        => true
       case Some(other) if !t.conforms(other) =>
         other match {
-          case AliasType(_, Right(lower: DesignatorOwner), _, _)                => lower.isStable
+          case AliasType(_, Right(lower: DesignatorOwner), _, _)                                                         => lower.isStable
           case AliasType(_: ScTypeAliasDefinition, Right(c: ScCompoundType), _, effectivelyOpaque) if !effectivelyOpaque => isRefinement(c)
-          case c: ScCompoundType                                                => isRefinement(c)
-          case _                                                                => false
+          case c: ScCompoundType                                                                                         => isRefinement(c)
+          case _                                                                                                         => false
         }
       case _ => false
     }
@@ -369,30 +369,6 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
           case f                       => f
         }
 
-        def isMethodDependent(function: ScFunction): Boolean = {
-          def checkte(te: ScTypeElement): Boolean = {
-            var res = false
-            te.accept(new ScalaRecursiveElementVisitor {
-              override def visitReference(ref: ScReference): Unit = {
-                if (ref.resolve() == param) res = true
-                super.visitReference(ref)
-              }
-            })
-            res
-          }
-
-          function.returnTypeElement match {
-            case Some(te) if checkte(te) => return true
-            case _ =>
-          }
-          !function.parameters.forall { param =>
-            param.typeElement match {
-              case Some(te) => !checkte(te)
-              case _        => true
-            }
-          }
-        }
-
         val paramType = param.insideParamType
         val stableTypeRequired = paramType.exists(isStableContext)
 
@@ -405,7 +381,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
           case _ =>
             owner match {
               case function: ScFunction if PsiTreeUtil.isContextAncestor(function, this, true) &&
-                isMethodDependent(function) => ScalaType.designator(param)
+                ScalaPsiUtil.isParamReferencedInMethodSig(param, function) => ScalaType.designator(param)
               case _ =>
                 s(paramType match {
                   case Right(tp) => tp

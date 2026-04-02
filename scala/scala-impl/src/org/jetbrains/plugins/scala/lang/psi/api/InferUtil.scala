@@ -2,9 +2,10 @@ package org.jetbrains.plugins.scala.lang.psi.api
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.PsiElement
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMacroEvaluator}
-import org.jetbrains.plugins.scala.lang.psi.ElementScope
+import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScPostfixExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam, TypeParamIdOwner}
@@ -19,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.{ApplicabilityCh
 import org.jetbrains.plugins.scala.lang.psi.types.ConstraintSystem.SubstitutionBounds
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
@@ -256,6 +258,11 @@ object InferUtil {
       val param     = paramsIterator.next()
       val paramType = abstractSubstitutor(param.paramType)
 
+      val isParamToDepTypedMethod = param.psiParam.exists { psiParam =>
+        val functionOwner = PsiTreeUtil.getContextOfType(psiParam, classOf[ScFunction]).toOption
+        functionOwner.exists(ScalaPsiUtil.isParamReferencedInMethodSig(psiParam, _))
+      }
+
       val implicitState =
         ImplicitState(
           place,
@@ -283,7 +290,7 @@ object InferUtil {
             srr.getElement,
             MacroContext(place, Option(paramType))
           ).orElse(
-            extractImplicitParameterType(srr)
+            extractImplicitParameterType(srr, preserveSingletonType = isParamToDepTypedMethod)
           )
 
         inferredParams  += param
@@ -320,6 +327,12 @@ object InferUtil {
         }
 
         resolveResults += result
+
+        compilerGenerated.foreach { srr =>
+          val resultType = srr.inferredType.getOrElse(paramType)
+          inferredParams += param
+          exprs         += Expression(resultType)
+        }
       }
     }
 
@@ -557,19 +570,29 @@ object InferUtil {
     }
   }
 
-  def extractImplicitParameterType(result: ScalaResolveResult): Option[ScType] =
+  def extractImplicitParameterType(
+    result:                ScalaResolveResult,
+    preserveSingletonType: Boolean = false
+  ): Option[ScType] =
     result.inferredType.orElse {
       val ScalaResolveResult(element, substitutor) = result
 
       val maybeType = element match {
         case lightParam: LightContextFunctionParameter =>
           lightParam.contextFunctionParameterType.toOption
+        case obj: ScObject => obj.`type`().toOption
         case param: ScParameter =>
-          param.insideParamType.toOption
-        case _: ScObject |
-             _: ScParameter |
-             _: patterns.ScBindingPattern |
-             _: ScFieldId => element.asInstanceOf[Typeable].`type`().toOption
+          if (preserveSingletonType) ScalaType.designator(param).toOption
+          else                       param.outsideParamType.toOption
+        case elem @ (_: patterns.ScBindingPattern | _: ScFieldId) =>
+          val fromType = result.fromType
+
+          if (preserveSingletonType) {
+            fromType match {
+              case Some(tpe) => ScProjectionType(tpe, elem).toOption
+              case None      => ScalaType.designator(elem).toOption
+            }
+          } else elem.asInstanceOf[Typeable].`type`().toOption
         case function: ScFunction =>
           val extensionOwner = result.exportedInExtension
           functionTypeNoImplicits(function, extensionOwner)
@@ -700,7 +723,7 @@ object InferUtil {
               if (un.isApplicable(typeParamId) || substedLower != Nothing) {
                 //todo: add only one of them according to variance
 
-                //add constraints for tp from its' bounds
+                //add constraints for tp from its bounds
                 if (!substedLower.isNothing && !hasRecursiveTypeParams(substedLower)) {
                   result = result.withLower(typeParamId, substedLower)
                     .withTypeParamId(typeParamId)
