@@ -237,4 +237,22 @@ class Scala3ResolveTest extends SimpleResolveTestBase {
       "JUsage.java"
     )
   }
+
+  def testSameParameterClause(): Unit = doResolveTest(
+    s"""
+      |object A {
+      |  trait X { type XX = Int }
+      |  def foo(${REFTGT}x: X, y: ${REFSRC}x.XX) = 1
+      |}
+      |""".stripMargin
+  )
+
+  def testSameParameterClauseNeg(): Unit = testNoResolve(
+    s"""
+       |object A {
+       |  trait X { type XX = Int }
+       |  def foo(z: ${REFSRC}x.XX, x: X, y: x.XX) = 1
+       |}
+       |""".stripMargin
+  )
 }
