@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.refactoring.changeSignature
 import com.intellij.psi.PsiElement
 import com.intellij.refactoring.changeSignature.MethodDescriptor
 import com.intellij.refactoring.changeSignature.MethodDescriptor.ReadWriteOption
+import org.jetbrains.plugins.scala.lang.psi.PsiElementContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScalaConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, TypePresentationContext}
@@ -13,8 +14,7 @@ import java.util
 import scala.jdk.CollectionConverters._
 
 class ScalaMethodDescriptor(val fun: ScMethodLike) extends MethodDescriptor[ScalaParameterInfo, String] {
-  protected implicit def tpc: TypePresentationContext = TypePresentationContext(fun)
-  protected implicit def context: Context = Context(fun)
+  protected implicit def context: PsiElementContext = PsiElementContext(fun)
 
   override def getName: String = fun match {
     case ScalaConstructor.in(c) => c.name

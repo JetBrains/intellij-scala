@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.annotator.element.ScReferenceAnnotator.{creat
 import org.jetbrains.plugins.scala.annotator.quickfix.AddParametersQuickfix
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.PsiElementContext
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -42,8 +43,7 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
 
   def annotateMethodInvocation(call: MethodInvocation, inDesugaring: Boolean = false)
                               (implicit holder: ScalaAnnotationHolder): Unit = {
-    implicit val ctx: ProjectContext = call
-    implicit val tpc: TypePresentationContext = TypePresentationContext(call)
+    implicit val tpc: TypePresentationContext with ProjectContext = PsiElementContext(call)
 
     // this has to be checked in every case
     checkMissingArgumentClauses(call)

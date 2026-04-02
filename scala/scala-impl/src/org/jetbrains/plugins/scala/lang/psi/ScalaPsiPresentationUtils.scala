@@ -14,8 +14,7 @@ object ScalaPsiPresentationUtils {
   def methodPresentableText(
     method: PsiMethod,
   ): String = {
-    implicit val tpc: TypePresentationContext = TypePresentationContext(method)
-    implicit val context: Context = Context(method)
+    implicit val context: PsiElementContext = PsiElementContext(method)
 
     method match {
       case function: ScFunction =>

@@ -48,8 +48,7 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
     val builder = Seq.newBuilder[(Seq[AlignedHintTemplate], ScExpression)]
 
     def gatherFor(elem: PsiElement): Set[Int] = {
-      implicit val tpc: TypePresentationContext = TypePresentationContext(elem)
-      implicit val context: Context = Context(elem)
+      implicit val context: PsiElementContext = PsiElementContext(elem)
 
       if (!elem.isVisible(editor.getProject, root)) return Set.empty
 
@@ -309,8 +308,7 @@ private object ScalaMethodChainInlayHintsPass {
 
     val (expr, ty) = methodAndTypes
 
-    implicit val tpc: TypePresentationContext = TypePresentationContext(expr)
-    implicit val context: Context = Context(expr)
+    implicit val context: PsiElementContext = PsiElementContext(expr)
 
     Expression(expr).hasStableType ||
       isTypeObvious("", ty.presentableText, methodName(expr))

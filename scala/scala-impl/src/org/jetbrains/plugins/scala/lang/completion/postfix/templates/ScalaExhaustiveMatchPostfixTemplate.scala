@@ -10,6 +10,7 @@ import com.intellij.psi.{PsiComment, PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiFileExt}
 import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
 import org.jetbrains.plugins.scala.lang.completion.clauses.{ClauseCompletionParameters, ExhaustiveMatchCompletionContributor, PatternGenerationStrategy}
+import org.jetbrains.plugins.scala.lang.psi.PsiElementContext
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression, ScFunctionExpr, ScMatch}
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
@@ -56,8 +57,7 @@ object ScalaExhaustiveMatchPostfixTemplate {
            _: ScFunctionExpr => None
       case expression =>
         implicit val parameters: ClauseCompletionParameters = ClauseCompletionParameters(expression, expression.getContainingFile.getResolveScope)
-        implicit val tpc: TypePresentationContext = TypePresentationContext(context)
-        implicit val elementContext: Context = Context(context)
+        implicit val elementContext: PsiElementContext = PsiElementContext(context)
 
         expression match {
           case Typeable(PatternGenerationStrategy(strategy)) => Some(expression, strategy)

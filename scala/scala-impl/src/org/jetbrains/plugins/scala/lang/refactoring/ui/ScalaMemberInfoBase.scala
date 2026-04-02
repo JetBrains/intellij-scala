@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiPresentationUtils, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.psi.{PsiElementContext, ScalaPsiPresentationUtils, ScalaPsiUtil}
 
 abstract class ScalaMemberInfoBase[Member <: PsiElement](member: Member) extends MemberInfoBase[Member](member: Member) {
 
@@ -71,8 +71,7 @@ object ScalaMemberInfoBase {
     if (typeAlias.nameId != null) typeAlias.nameId.getText else ScalaBundle.message("presentable.type.unnamed")
 
   private def getValOrVarPresentableText(elem: ScNamedElement): String = {
-    implicit val tpc: TypePresentationContext = TypePresentationContext(elem)
-    implicit val context: Context = Context(elem)
+    implicit val context: PsiElementContext = PsiElementContext(elem)
 
     val typeText = elem match {
       case typed: Typeable => ": " + typed.`type`().getOrAny.presentableText

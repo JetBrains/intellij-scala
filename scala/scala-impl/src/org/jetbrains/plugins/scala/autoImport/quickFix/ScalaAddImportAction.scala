@@ -16,7 +16,7 @@ import com.intellij.util.ui.JBUI
 import org.jetbrains.annotations.{Nls, TestOnly}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
+import org.jetbrains.plugins.scala.lang.psi.{PsiElementContext, ScImportsHolder}
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
@@ -265,8 +265,7 @@ object ScalaAddImportAction {
                                       place: ImplicitArgumentsOwner,
                                       popupPosition: PopupPosition)
     extends ScalaAddImportAction[ImplicitArgumentsOwner, ImplicitToImport](editor, variants, place, popupPosition) {
-    private implicit def tpc: TypePresentationContext = TypePresentationContext(place)
-    private implicit def context: Context = Context(place)
+    private implicit def context: PsiElementContext = PsiElementContext(place)
 
     override protected def chooserTitle(variants: Seq[ImplicitToImport]): String =
       ScalaBundle.message("import.implicit.chooser.title")

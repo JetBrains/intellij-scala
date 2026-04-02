@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{Model, ObjectExt, StringsExt}
+import org.jetbrains.plugins.scala.lang.psi.PsiElementContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScDerivesClauseOwner, ScObject, ScTrait, ScTypeDefinition}
@@ -212,8 +213,7 @@ object DerivesUtil {
   }
 
   def resolveTypeClassReference(ref: ScReference): Either[String, ScTypeDefinition] = {
-    implicit val tpc: TypePresentationContext = TypePresentationContext(ref)
-    implicit val context: Context = Context(ref)
+    implicit val context: PsiElementContext = PsiElementContext(ref)
 
     ref.bind().toRight(ScalaBundle.message("derives.scala.no.resolve")).flatMap {
       srr => srr.element match {

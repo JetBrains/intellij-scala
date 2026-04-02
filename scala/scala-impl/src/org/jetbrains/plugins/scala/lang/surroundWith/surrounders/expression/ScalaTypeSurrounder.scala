@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.lang.psi.PsiElementContext
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -10,8 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 class ScalaTypeSurrounder extends ScalaExpressionSurrounder {
   override def getTemplateAsString(elements: Array[PsiElement]): String = {
     val expression = elements(0).asInstanceOf[ScExpression]
-    implicit val tpc: TypePresentationContext = TypePresentationContext(expression)
-    implicit val context: Context = Context(expression)
+    implicit val context: PsiElementContext = PsiElementContext(expression)
 
     val result = expression.`type`().getOrAny
     s"(${super.getTemplateAsString(elements)}: ${result.presentableText})"

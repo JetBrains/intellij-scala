@@ -11,6 +11,7 @@ import com.intellij.psi.{PsiElement, PsiFile, PsiReference}
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.PsiElementContext
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -183,8 +184,7 @@ sealed abstract class ScalaTextLookupItem(protected val reference: ScReference)
 
     arguments.zipMapped(createParameter).map {
       case (argument, (parameterName, scType)) =>
-        implicit val tpc: TypePresentationContext = TypePresentationContext(argument)
-        implicit val context: Context = Context(argument)
+        implicit val PsiElementContext: Context = PsiElementContext(argument)
 
         s"$parameterName${ScalaTokenTypes.tCOLON} ${scType.presentableText}"
     }.commaSeparated(model = Model.Parentheses)

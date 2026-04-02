@@ -8,6 +8,7 @@ import com.intellij.psi.search.{GlobalSearchScope, GlobalSearchScopesCore, PsiSe
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.Processor
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.lang.psi.PsiElementContext
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
@@ -174,8 +175,7 @@ object ScopeSuggester {
 
   def handleOnePackage(typeElement: ScTypeElement, inPackageName: String, containingDirectory: PsiDirectory,
                        conflictsReporter: ConflictsReporter, project: Project, isReplaceAll: Boolean, inputName: String): PackageScopeItem = {
-    implicit val tpc: TypePresentationContext = TypePresentationContext(typeElement)
-    implicit val context: Context = Context(typeElement)
+    implicit val context: PsiElementContext = PsiElementContext(typeElement)
 
     def getFilesToSearchIn(currentDirectory: PsiDirectory): Array[ScalaFile] = {
       if (!isReplaceAll) {

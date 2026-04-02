@@ -8,7 +8,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.{PsiElementContext, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.ExtractorMatch
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScExtractorPattern.ArgPatternShape
@@ -47,9 +47,7 @@ class ScalaPatternParameterInfoHandler extends ScalaParameterInfoHandler[ScPatte
     if (context == null || context.getParameterOwner == null || !context.getParameterOwner.isValid) return
     context.getParameterOwner match {
       case args: ScPatternArgumentList =>
-        implicit val ctx: ProjectContext = args
-        implicit val tpc: TypePresentationContext = TypePresentationContext(args)
-        implicit val elementContext: Context = Context(args)
+        implicit val elementContext: PsiElementContext = PsiElementContext(args)
 
         val color: Color = context.getDefaultParameterColor
         val hoverIndex = context.getCurrentParameterIndex

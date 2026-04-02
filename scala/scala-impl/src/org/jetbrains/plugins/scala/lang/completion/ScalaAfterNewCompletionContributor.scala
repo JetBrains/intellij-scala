@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.isUnitTestMode
 import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaConstructorInsertHandler
 import org.jetbrains.plugins.scala.lang.completion.lookups.{PresentationExt, ScalaLookupItem}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.psi.PsiElementContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScNewTemplateDefinition, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScEnum, ScObject}
@@ -51,8 +52,7 @@ object ScalaAfterNewCompletionContributor {
                                 result: CompletionResultSet): Unit = {
       val place = positionFromParameters(parameters)
       implicit val project: Project = place.getProject
-      implicit val tpc: TypePresentationContext = TypePresentationContext(place)
-      implicit val placeContext: Context = Context(place)
+      implicit val placeContext: PsiElementContext = PsiElementContext(place)
 
       val types = expectedTypes(place, parentExprClass)
 
@@ -94,8 +94,7 @@ object ScalaAfterNewCompletionContributor {
       .orElse(expectedTypeInUniversalApply(place, context))
 
   private def expectedTypeConstructor[E <: ScExpression](place: PsiElement, parentExprClass: Class[E]): Option[PropsConstructor] = {
-    implicit val tpc: TypePresentationContext = TypePresentationContext(place)
-    implicit val context: Context = Context(place)
+    implicit val context: PsiElementContext = PsiElementContext(place)
 
     val types = expectedTypes(place, parentExprClass)
     Some((clazz: PsiClass) => {

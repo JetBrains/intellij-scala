@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions.{&, ElementType, NextSibling, ObjectExt, PsiElementExt, PsiTypeExt, StringExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.{kVAL, kVAR}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.{PsiElementContext, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.{ScLongLiteral, ScNullLiteral, ScStringLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -193,8 +193,8 @@ final class ScalaUastElementFactory(project: Project) extends UastElementFactory
 
       scType match {
         case Some(tp) =>
-          implicit val tpc: TypePresentationContext = Option(context).map(TypePresentationContext(_)).getOrElse(TypePresentationContext.emptyContext)
-          implicit val elementContext: Context = Option(context).map(Context(_)).getOrElse(Context.Empty)
+          implicit val ctx: TypePresentationContext with Context =
+            Option(context).map(PsiElementContext(_)).getOrElse(TypePresentationContext.emptyContext)
           s"$name: ${tp.presentableText}"
         case _ => name
       }

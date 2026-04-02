@@ -200,8 +200,7 @@ object TypeAdjuster {
     object withExpandableTypeAlias {
 
       def unapply(info: SimpleInfo): Option[ReplacementInfo] = {
-        implicit val tpc: TypePresentationContext = TypePresentationContext(info.place)
-        implicit val context: Context = Context(info.place)
+        implicit val context: PsiElementContext = PsiElementContext(info.place)
 
         val SimpleInfo(place, replacement, _, _) = info
 

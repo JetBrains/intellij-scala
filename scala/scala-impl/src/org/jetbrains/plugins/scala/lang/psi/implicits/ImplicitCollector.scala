@@ -7,7 +7,7 @@ import com.intellij.util.SlowOperations
 import org.jetbrains.plugins.scala.caches.measure
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMacroEvaluator}
-import org.jetbrains.plugins.scala.lang.psi.ElementScope
+import org.jetbrains.plugins.scala.lang.psi.{ElementScope, PsiElementContext}
 import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, SyntheticImplicitInstances}
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.{ImplicitArgumentsClause, SafeCheckException}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -67,8 +67,7 @@ object ImplicitCollector {
     previousDivergenceStack:    Option[DivergenceChecker.DivergenceStack]
   ) {
     def presentableTypeText: String = {
-      implicit val tpc: TypePresentationContext = TypePresentationContext(place)
-      implicit val context: Context = Context(place)
+      implicit val context: PsiElementContext = PsiElementContext(place)
 
       Using.resource(SlowOperations.knownIssue("SCL-23054"))(_ => tp.presentableText)
     }

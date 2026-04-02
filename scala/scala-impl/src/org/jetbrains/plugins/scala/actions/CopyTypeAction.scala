@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.actions.utils.TaskRunnerWithLoadingProgress
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, Parent, PsiElementExt}
+import org.jetbrains.plugins.scala.lang.psi.PsiElementContext
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
@@ -82,8 +83,7 @@ final class CopyTypeAction extends AnAction(ScalaBundle.message("copy.scala.type
         element.`type`()
     }
     typeResult.toOption.map { typ =>
-      implicit val tpc: TypePresentationContext = TypePresentationContext(element)
-      implicit val context: Context = Context(element)
+      implicit val context: PsiElementContext = PsiElementContext(element)
 
       val typeProcessed = typ.removeAliasDefinitions().tryExtractDesignatorSingleton
 

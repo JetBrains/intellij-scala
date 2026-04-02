@@ -13,7 +13,7 @@ import com.intellij.psi.util.PsiTreeUtil.{findElementOfClassAtRange, getChildOfT
 import org.jetbrains.annotations.{Nls, TestOnly}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, ValidSmartPointer, executeWriteActionCommand, inWriteAction}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.{PsiElementContext, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
@@ -251,8 +251,7 @@ trait IntroduceTypeAlias {
 
   private def replaceTypeElements(occurrences: Array[ScTypeElement], name: String, typeAlias: ScTypeAlias): Array[ScTypeElement] = {
     def replaceHelper(typeElement: ScTypeElement, inName: String): ScTypeElement = {
-      implicit val tpc: TypePresentationContext = TypePresentationContext(typeElement)
-      implicit val context: Context = Context(typeElement)
+      implicit val context: PsiElementContext = PsiElementContext(typeElement)
 
       val replacement = ScalaPsiElementFactory.createTypeElementFromText(inName, typeElement.getContext, typeElement)
       //remove parethesis around typeElement

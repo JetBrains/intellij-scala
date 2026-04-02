@@ -8,7 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.{PsiElementContext, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeElementFromText
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypePresentation
@@ -49,10 +49,9 @@ final class ChangeTypeFix(
     if (!IntentionPreviewUtils.prepareElementForWrite(typeElement.getContainingFile)) return
     if (typeElement.getParent == null || typeElement.getParent.getNode == null) return
 
-    implicit val projectContext: ProjectContext = ProjectContext.fromPsi(typeElement)
-    implicit val context: Context = Context(typeElement)
+    implicit val context: PsiElementContext = PsiElementContext(typeElement)
 
-    val replaced = typeElement.replace(createTypeElementFromText(newType.canonicalText(TypePresentationContext(typeElement)), typeElement))
+    val replaced = typeElement.replace(createTypeElementFromText(newType.canonicalText(context), typeElement))
     ScalaPsiUtil.adjustTypes(replaced)
     UndoUtil.markPsiFileForUndo(file)
   }

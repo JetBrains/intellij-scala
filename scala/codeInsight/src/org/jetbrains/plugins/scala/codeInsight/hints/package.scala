@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.annotator.{Tree, TypeDiff}
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocQuickInfoGenerator
 import org.jetbrains.plugins.scala.extensions.{NullSafe, ObjectExt}
+import org.jetbrains.plugins.scala.lang.psi.PsiElementContext
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, TypePresentationContext}
@@ -74,8 +75,7 @@ package object hints {
   private val NonIdentifierChars = Set('\n', '(', '[', '{', ';', ',')
 
   def isTypeObvious(name: Option[String], tpe: ScType, body: ScExpression): Boolean = {
-    implicit val tpc: TypePresentationContext = TypePresentationContext(body)
-    implicit val context: Context = Context(body)
+    implicit val context: PsiElementContext = PsiElementContext(body)
 
     isTypeObvious(
       name.getOrElse(""),

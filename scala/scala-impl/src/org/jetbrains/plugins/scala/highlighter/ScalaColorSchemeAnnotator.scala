@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.highlighter.ScalaColorsSchemeUtils.NamedArgum
 import org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter.Attributes
 import org.jetbrains.plugins.scala.incremental.Highlighting._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.PsiElementContext
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAssignment
@@ -91,8 +92,7 @@ object ScalaColorSchemeAnnotator {
     refElement: ScReference,
     resolvedElement: => PsiElement
   )(implicit holder: ScalaAnnotationHolder): Unit = {
-    implicit val tpc: TypePresentationContext = TypePresentationContext(refElement)
-    implicit val context: Context = Context(refElement)
+    implicit val context: PsiElementContext = PsiElementContext(refElement)
 
     def annotateCollectionByType(resolvedType: ScType): Unit = {
       val resolvedTypeName = resolvedType.presentableText

@@ -7,6 +7,7 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.{CaptureExt, ScalaCompletionContributor, ScalaKeyword}
 import org.jetbrains.plugins.scala.lang.parser
+import org.jetbrains.plugins.scala.lang.psi.PsiElementContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, TypePresentationContext}
@@ -83,8 +84,7 @@ object ExhaustiveMatchCompletionContributor {
 
     override final protected def addCompletions(expression: E, result: CompletionResultSet)
                                                (implicit parameters: ClauseCompletionParameters): Unit = {
-      implicit val tpc: TypePresentationContext = TypePresentationContext(expression)
-      implicit val context: Context = Context(expression)
+      implicit val context: PsiElementContext = PsiElementContext(expression)
 
       for {
         PatternGenerationStrategy(strategy) <- targetType(expression)(parameters.place)
