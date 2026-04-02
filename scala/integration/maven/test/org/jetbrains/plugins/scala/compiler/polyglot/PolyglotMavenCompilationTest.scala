@@ -53,7 +53,9 @@ class PolyglotMavenCompilationTest(jdkVersion: TestJdkVersion) extends MavenImpo
         |  <module>module1</module>
         |  <module>module2</module>
         |</modules>
-        |""".stripMargin)
+        |""".stripMargin,
+      false,
+    )
     createModulePom("module1",
       """<!-- parent pom -->
         |<parent>
@@ -151,7 +153,9 @@ class PolyglotMavenCompilationTest(jdkVersion: TestJdkVersion) extends MavenImpo
         |        </plugin>
         |    </plugins>
         |</build>
-        |""".stripMargin)
+        |""".stripMargin,
+      false,
+    )
     createModulePom("module2",
       """<!-- parent pom -->
         |<parent>
@@ -189,7 +193,9 @@ class PolyglotMavenCompilationTest(jdkVersion: TestJdkVersion) extends MavenImpo
         |    </plugin>
         |  </plugins>
         |</build>
-        |""".stripMargin)
+        |""".stripMargin,
+      false,
+    )
 
     createProjectSubFile("module1/src/main/java/Greeter.java",
       """public interface Greeter {
