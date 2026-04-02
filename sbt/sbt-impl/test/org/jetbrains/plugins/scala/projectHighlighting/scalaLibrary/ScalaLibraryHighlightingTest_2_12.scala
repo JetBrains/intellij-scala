@@ -40,21 +40,6 @@ class ScalaLibraryHighlightingTest_2_12 extends ScalaLibraryHighlightingTest {
     "scala/collection/parallel/ParIterableLike.scala" -> Set(
       (36198, 36200), // Type mismatch, expected: T <:< (Nothing, Nothing), actual: T <:< (K, V)
     ),
-    "scala/concurrent/duration/DurationConversions.scala" -> Set(
-      (1429, 1443), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
-      (1506, 1520), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
-      (1577, 1591), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
-      (1740, 1755), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
-      (1819, 1834), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
-      (1892, 1907), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
-      (2056, 2071), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
-      (2135, 2150), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
-      (2208, 2223), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
-      (2362, 2372), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
-      (2511, 2521), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
-      (2654, 2662), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
-      (2792, 2799), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
-    ),
     "scala/reflect/ClassManifestDeprecatedApis.scala" -> Set(
       (2723, 2730), // Cannot resolve symbol subargs
       (2956, 2963), // Cannot resolve symbol subtype

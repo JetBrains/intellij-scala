@@ -14,54 +14,6 @@ class MeerkatProjectHighlightingTest extends GithubSbtAllProjectHighlightingTest
   import org.jetbrains.plugins.scala.util.TextRangeUtils.ImplicitConversions.tupleToTextRange
 
   override protected def filesWithProblems: Map[String, Set[TextRange]] = Map(
-    "src/main/scala/org/meerkat/parsers/AbstractOperatorParsers.scala" -> Set(
-      (5254, 5259), // Overriding type ((Int, Int), (Int, Int)) => AbstractCPSParsers.CanBuildSequence[A, B, ValA, ValB]#SequenceBuilder does not conform to base type (T1, T2) => R
-      (5288, 5328), // Expression of type AbstractCPSParsers.CanBuildSequence[A, B, ValA, ValB]#SequenceBuilder doesn't conform to expected type builder.o.SequenceBuilder
-      (6094, 6099), // Overriding type ((Int, Int), (Int, Int)) => AbstractCPSParsers.CanBuildSequence[A, B, ValA, ValB]#SequenceBuilder does not conform to base type (T1, T2) => R
-      (6128, 6170), // Expression of type AbstractCPSParsers.CanBuildSequence[A, B, ValA, ValB]#SequenceBuilder doesn't conform to expected type builder.o.SequenceBuilder
-      (6759, 6764), // Overriding type ((Int, Int), (Int, Int)) => AbstractCPSParsers.CanBuildSequence[A, B, ValA, ValB]#SequenceBuilder does not conform to base type (T1, T2) => R
-      (6793, 6828), // Expression of type AbstractCPSParsers.CanBuildSequence[A, B, ValA, ValB]#SequenceBuilder doesn't conform to expected type builder.o.SequenceBuilder
-      (7363, 7368), // Overriding type ((Int, Int), (Int, Int)) => AbstractCPSParsers.CanBuildSequence[A, B, ValA, ValB]#SequenceBuilder does not conform to base type (T1, T2) => R
-      (7397, 7430), // Expression of type AbstractCPSParsers.CanBuildSequence[A, B, ValA, ValB]#SequenceBuilder doesn't conform to expected type builder.o.SequenceBuilder
-      (7987, 7992), // Overriding type ((Int, Int), (Int, Int)) => AbstractCPSParsers.CanBuildSequence[A, B, ValA, ValB]#SequenceBuilder does not conform to base type (T1, T2) => R
-      (8021, 8054), // Expression of type AbstractCPSParsers.CanBuildSequence[A, B, ValA, ValB]#SequenceBuilder doesn't conform to expected type builder.o.SequenceBuilder
-      (8619, 8624), // Overriding type ((Int, Int), (Int, Int)) => AbstractCPSParsers.CanBuildSequence[A, B, ValA, ValB]#SequenceBuilder does not conform to base type (T1, T2) => R
-      (8653, 8686), // Expression of type AbstractCPSParsers.CanBuildSequence[A, B, ValA, ValB]#SequenceBuilder doesn't conform to expected type builder.o.SequenceBuilder
-      (9394, 9435), // Expression of type AbstractCPSParsers.CanBuildAlternation[A, B, ValA, ValB]#AlternationBuilder doesn't conform to expected type builder.o.AlternationBuilder
-      (10182, 10226), // Expression of type AbstractCPSParsers.CanBuildAlternation[A, B, ValA, ValB]#AlternationBuilder doesn't conform to expected type builder.o.AlternationBuilder
-      (10700, 10744), // Expression of type AbstractCPSParsers.CanBuildAlternation[A, B, ValA, ValB]#AlternationBuilder doesn't conform to expected type builder.o.AlternationBuilder
-      (11476, 11520), // Expression of type AbstractCPSParsers.CanBuildAlternation[A, B, ValA, ValB]#AlternationBuilder doesn't conform to expected type builder.o.AlternationBuilder
-      (12365, 12406), // Expression of type AbstractCPSParsers.CanBuildAlternation[A, B, ValA, ValB]#AlternationBuilder doesn't conform to expected type builder.o.AlternationBuilder
-      (13029, 13073), // Expression of type AbstractCPSParsers.CanBuildAlternation[A, B, ValA, ValB]#AlternationBuilder doesn't conform to expected type builder.o.AlternationBuilder
-      (13539, 13583), // Expression of type AbstractCPSParsers.CanBuildAlternation[A, B, ValA, ValB]#AlternationBuilder doesn't conform to expected type builder.o.AlternationBuilder
-      (14211, 14255), // Expression of type AbstractCPSParsers.CanBuildAlternation[A, B, ValA, ValB]#AlternationBuilder doesn't conform to expected type builder.o.AlternationBuilder
-      (14555, 14596), // Expression of type AbstractCPSParsers.CanBuildAlternation[A, B, ValA, ValB]#AlternationBuilder doesn't conform to expected type builder.o.AlternationBuilder
-      (16000, 16041), // Expression of type AbstractCPSParsers.CanBuildAlternation[A, B, ValA, ValB]#AlternationBuilder doesn't conform to expected type builder.o.AlternationBuilder
-      (16305, 16346), // Expression of type AbstractCPSParsers.CanBuildAlternation[A, B, ValA, ValB]#AlternationBuilder doesn't conform to expected type builder.o.AlternationBuilder
-      (17136, 17180), // Expression of type AbstractCPSParsers.CanBuildAlternation[A, B, ValA, ValB]#AlternationBuilder doesn't conform to expected type builder.o.AlternationBuilder
-      (17627, 17671), // Expression of type AbstractCPSParsers.CanBuildAlternation[A, B, ValA, ValB]#AlternationBuilder doesn't conform to expected type builder.o.AlternationBuilder
-      (18473, 18517), // Expression of type AbstractCPSParsers.CanBuildAlternation[A, B, ValA, ValB]#AlternationBuilder doesn't conform to expected type builder.o.AlternationBuilder
-      (18791, 18835), // Expression of type AbstractCPSParsers.CanBuildAlternation[A, B, ValA, ValB]#AlternationBuilder doesn't conform to expected type builder.o.AlternationBuilder
-      (19745, 19786), // Expression of type AbstractCPSParsers.CanBuildAlternation[A, B, ValA, ValB]#AlternationBuilder doesn't conform to expected type builder.o.AlternationBuilder
-      (20212, 20253), // Expression of type AbstractCPSParsers.CanBuildAlternation[A, B, ValA, ValB]#AlternationBuilder doesn't conform to expected type builder.o.AlternationBuilder
-      (21026, 21102), // Expression of type AbstractCPSParsers.CanBuildNonterminal[A, ValA]#Nonterminal doesn't conform to expected type builder.o1.Nonterminal
-      (21383, 21467), // Expression of type AbstractCPSParsers.CanBuildNonterminal[A, ValA]#Nonterminal doesn't conform to expected type builder.o1.Nonterminal
-      (21743, 21935), // Type mismatch, expected: ((Int, Int)) => builder.o1.Nonterminal, actual: ((Int, Int)) => AbstractCPSParsers.CanBuildNonterminal[A, ValA]#Nonterminal
-      (21934, 21935), // Expression of type ((Int, Int)) => AbstractCPSParsers.CanBuildNonterminal[A, ValA]#Nonterminal doesn't conform to expected type ((Int, Int)) => builder.o1.Nonterminal
-    ),
-    "src/main/scala/org/meerkat/parsers/AbstractParsers.scala" -> Set(
-      (5603, 5654), // Expression of type CanBuildSequence[A, B, ValA, ValB]#Sequence doesn't conform to expected type builder.Sequence
-      (5858, 5880), // Expression of type CanBuildSequence[A, B, ValA, ValB]#Sequence doesn't conform to expected type builder.Sequence
-      (6923, 6954), // Expression of type CanBuildAlternation[A, B, ValA, ValB]#Alternation doesn't conform to expected type builder.Alternation
-      (7221, 7262), // Expression of type AbstractParsers.this.CanBuildAlternation[A, B, ValA, ValB]#Alternation doesn't conform to expected type builder.Alternation
-      (7535, 7576), // Expression of type AbstractParsers.this.CanBuildAlternation[A, B, ValA, ValB]#Alternation doesn't conform to expected type builder.Alternation
-      (7840, 7881), // Expression of type AbstractParsers.this.CanBuildAlternation[A, B, ValA, ValB]#Alternation doesn't conform to expected type builder.Alternation
-      (8145, 8186), // Expression of type AbstractParsers.this.CanBuildAlternation[A, B, ValA, ValB]#Alternation doesn't conform to expected type builder.Alternation
-      (8453, 8499), // Expression of type AbstractParsers.this.CanBuildAlternation[A, B, ValA, ValB]#Alternation doesn't conform to expected type builder.Alternation
-      (8760, 8806), // Expression of type AbstractParsers.this.CanBuildAlternation[A, B, ValA, ValB]#Alternation doesn't conform to expected type builder.Alternation
-      (9075, 9121), // Expression of type AbstractParsers.this.CanBuildAlternation[A, B, ValA, ValB]#Alternation doesn't conform to expected type builder.Alternation
-      (9370, 9416), // Expression of type AbstractParsers.this.CanBuildAlternation[A, B, ValA, ValB]#Alternation doesn't conform to expected type builder.Alternation
-    ),
     "src/main/scala/org/meerkat/parsers/OperatorParsers.scala" -> Set(
       (2148, 2153), // Overriding type ((Int, Int), (Int, Int)) => this.o.SequenceBuilder does not conform to base type (T1, T2) => R
       (2182, 2197), // Expression of type this.o.SequenceBuilder doesn't conform to expected type SequenceBuilder[this.o.V]

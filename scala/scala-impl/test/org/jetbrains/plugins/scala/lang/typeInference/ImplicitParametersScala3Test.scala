@@ -8,6 +8,20 @@ class ImplicitParametersScala3Test extends ImplicitParametersTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version >= LatestScalaVersions.Scala_3_6
 
+  private def checkMirrorMissing(
+    definitions: String,
+    mirrorKind:  String,
+    targetType:  String
+  ): Unit = checkHasErrorAroundCaret(
+    s"""
+       |import scala.deriving.Mirror
+       |
+       |$definitions
+       |
+       |object Test { sum${CARET}mon[Mirror.$mirrorKind[$targetType]] }
+       |""".stripMargin
+  )
+
   def testSCL21117(): Unit = checkNoImplicitParameterProblems(
     s"""
        |object Main:
@@ -79,6 +93,73 @@ class ImplicitParametersScala3Test extends ImplicitParametersTestBase {
        |""".stripMargin
   )
 
+  def testMirrorOfGenericProductElemTypes(): Unit = checkTextHasNoErrors(
+    s"""
+       |import scala.compiletime.summonAll
+       |import scala.deriving.Mirror
+       |
+       |type Sc[X] = X
+       |case class Row[T[_]](name: T[String])
+       |
+       |class DialectTypeMappers:
+       |  given String = ???
+       |
+       |inline def metadata(dialect: DialectTypeMappers)(using m: Mirror.Of[Row[Sc]]): m.MirroredElemTypes =
+       |  import dialect.given
+       |  summonAll[m.MirroredElemTypes]
+       |
+       |def f: String *: EmptyTuple = metadata(???)
+       |""".stripMargin
+  )
+
+  def testMirrorsFoundForDifferentTargetTypes(): Unit = checkTextHasNoErrors(
+    s"""
+       |import scala.deriving.Mirror
+       |
+       |case class CaseClass(i: Int)
+       |case object CaseObject
+       |
+       |sealed trait Base
+       |case class BaseClass(i: Int) extends Base
+       |case object BaseObject extends Base
+       |
+       |enum Enum:
+       |  case Singleton
+       |  case ClassCase(i: Int)
+       |
+       |val caseClassOf = summon[Mirror.Of[CaseClass]]
+       |val caseClassProduct = summon[Mirror.ProductOf[CaseClass]]
+       |
+       |val caseObjectOf = summon[Mirror.Of[CaseObject.type]]
+       |val caseObjectProduct = summon[Mirror.ProductOf[CaseObject.type]]
+       |
+       |val sealedOf = summon[Mirror.Of[Base]]
+       |val sealedSum = summon[Mirror.SumOf[Base]]
+       |
+       |val enumOf = summon[Mirror.Of[Enum]]
+       |val enumSum = summon[Mirror.SumOf[Enum]]
+       |
+       |val enumSingletonOf = summon[Mirror.Of[Enum.Singleton.type]]
+       |val enumSingletonProduct = summon[Mirror.ProductOf[Enum.Singleton.type]]
+       |
+       |val enumClassCaseOf = summon[Mirror.Of[Enum.ClassCase]]
+       |val enumClassCaseProduct = summon[Mirror.ProductOf[Enum.ClassCase]]
+       |""".stripMargin
+  )
+
+  def testMirrorProductOfSingleton(): Unit = checkTextHasNoErrors(
+    s"""
+       |import scala.compiletime.summonAll
+       |import scala.deriving.Mirror
+       |
+       |case object Foo
+       |
+       |val productMirror = summon[Mirror.ProductOf[Foo.type]]
+       |val elems: productMirror.MirroredElemTypes = summonAll[productMirror.MirroredElemTypes]
+       |val foo: Foo.type = productMirror.fromProduct(elems)
+       |""".stripMargin
+  )
+
   def testMirrorOfSealed(): Unit = checkNoImplicitParameterProblems(
     s"""
        |sealed trait Foo
@@ -92,6 +173,80 @@ class ImplicitParametersScala3Test extends ImplicitParametersTestBase {
        |}
        |""".stripMargin
   )
+
+  def testMirrorMissingForUnsupportedTargets(): Unit = {
+    checkMirrorMissing(
+      "object PlainObject",
+      "Of",
+      "PlainObject.type"
+    )
+
+    checkMirrorMissing(
+      "class PlainClass(i: Int)",
+      "Of",
+      "PlainClass"
+    )
+
+    checkMirrorMissing(
+      "case class Curried(i: Int)(s: String)",
+      "Of",
+      "Curried"
+    )
+  }
+
+  def testOnlyRightMirrorKindsAreSynthesized(): Unit = {
+    checkMirrorMissing(
+      "case class CaseClass(i: Int)",
+      "SumOf",
+      "CaseClass"
+    )
+
+    checkMirrorMissing(
+      "case object CaseObject",
+      "SumOf",
+      "CaseObject.type"
+    )
+
+    checkMirrorMissing(
+      """
+        |sealed trait Base
+        |case class BaseClass(i: Int) extends Base
+        |case object BaseObject extends Base
+        |""".stripMargin,
+      "ProductOf",
+      "Base"
+    )
+
+    checkMirrorMissing(
+      """
+        |enum Enum:
+        |  case Singleton
+        |  case ClassCase(i: Int)
+        |""".stripMargin,
+      "ProductOf",
+      "Enum"
+    )
+
+    checkMirrorMissing(
+      """
+        |enum Enum:
+        |  case Singleton
+        |  case ClassCase(i: Int)
+        |""".stripMargin,
+      "SumOf",
+      "Enum.Singleton.type"
+    )
+
+    checkMirrorMissing(
+      """
+        |enum Enum:
+        |  case Singleton
+        |  case ClassCase(i: Int)
+        |""".stripMargin,
+      "SumOf",
+      "Enum.ClassCase"
+    )
+  }
 
   def testMirrorNeg(): Unit = {
     checkHasErrorAroundCaret(

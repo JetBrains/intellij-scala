@@ -40,6 +40,7 @@ private[implicits] final class ImplicitParametersProcessor(
           namedElement,
           state.substitutorWithThisType,
           renamed           = state.renamed,
+          fromType          = state.fromType,
           importsUsed       = state.importsUsed,
           implicitScopeType = state.implicitScopeType,
           isExtensionCall   = isDeclaredOrExportedInExtension,

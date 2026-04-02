@@ -143,6 +143,31 @@ object ScalaPsiUtil {
     firstLeaf(firstChild)
   }
 
+  def isParamReferencedInMethodSig(param: PsiParameter, function: ScFunction): Boolean = {
+    def checkte(te: ScTypeElement): Boolean = {
+      var res = false
+      te.accept(new ScalaRecursiveElementVisitor {
+        override def visitReference(ref: ScReference): Unit = {
+          if (ref.resolve() == param) res = true
+          super.visitReference(ref)
+        }
+      })
+      res
+    }
+
+    function.returnTypeElement match {
+      case Some(te) if checkte(te) => return true
+      case _                             => ()
+    }
+
+    !function.parameters.forall { param =>
+      param.typeElement match {
+        case Some(te) => !checkte(te)
+        case _        => true
+      }
+    }
+  }
+
   @tailrec
   def isEtaExpandedExpression(expr: ScExpression): Boolean =
     expr.getContext match {

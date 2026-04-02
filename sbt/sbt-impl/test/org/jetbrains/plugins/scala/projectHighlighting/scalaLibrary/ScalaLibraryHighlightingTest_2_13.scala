@@ -51,21 +51,6 @@ class ScalaLibraryHighlightingTest_2_13 extends ScalaLibraryHighlightingTest {
       (4055, 4149), // Expression of type mutable.Builder[(K, Nothing), Nothing] doesn't conform to expected type mutable.Builder[(K, V), WithDefault[K, V]]
       (4090, 4105), // Type mismatch, expected: mutable.SortedMap[K, Nothing], actual: SortedMap[K, V]
     ),
-    "scala/concurrent/duration/DurationConversions.scala" -> Set(
-      (1757, 1771), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
-      (1836, 1850), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
-      (1915, 1929), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
-      (2084, 2099), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
-      (2164, 2179), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
-      (2244, 2259), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
-      (2414, 2429), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
-      (2494, 2509), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
-      (2574, 2589), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
-      (2739, 2749), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
-      (2899, 2909), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
-      (3057, 3065), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
-      (3212, 3219), // Expression of type Classifier[C]#R doesn't conform to expected type ev.R
-    ),
     "scala/reflect/ClassManifestDeprecatedApis.scala" -> Set(
       (2771, 2778), // Cannot resolve symbol subargs
       (3004, 3011), // Cannot resolve symbol subtype
