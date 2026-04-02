@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.annotator.annotationHolder.DelegateAnnotation
 import org.jetbrains.plugins.scala.annotator.hints.onlyErrorStripeAttributes
 import org.jetbrains.plugins.scala.annotator.quickfix.{EnableTypeMismatchHints, ReportHighlightingErrorQuickFix}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.lang.psi.PsiElementContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScMatchTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
@@ -26,8 +27,7 @@ private object TypeMismatchError {
               (formatMessage: (String, String) => String)
               (implicit holder: ScalaAnnotationHolder): Unit = {
     val annotatedElement = elementAt(element, blockLevel)
-    implicit val tpc: TypePresentationContext = TypePresentationContext(annotatedElement)
-    implicit val context: Context = Context(element)
+    implicit val context: TypePresentationContext with Context = PsiElementContext(element)
 
     val dealiasedMatchTypeInExpected = expectedType match {
       case ParameterizedType(DesignatorOwner(ta: ScTypeAliasDefinition), _) if

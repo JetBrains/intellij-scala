@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.codeInsight.implicits.{ImplicitHints, TextPar
 import org.jetbrains.plugins.scala.codeInsight.{ScalaCodeInsightBundle, ScalaCodeInsightSettings}
 import org.jetbrains.plugins.scala.extensions.{&, ObjectExt, Parent, PsiElementExt, PsiFileExt, ToNullSafe}
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
+import org.jetbrains.plugins.scala.lang.psi.PsiElementContext
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScArgumentExprList, ScBlockExpr, ScExpression, ScFunctionExpr, ScInfixExpr, ScMethodCall, ScParenthesisedExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, TypePresentationContext}
@@ -194,9 +195,9 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
       inlay.putUserData(ScalaMethodChainKey, true)
     }
 
-  private def textFor(expr: ScExpression, ty: ScType, editor: Editor)(implicit context: Context): Seq[Text] = {
+  private def textFor(expr: ScExpression, ty: ScType, editor: Editor): Seq[Text] = {
     implicit val scheme: EditorColorsScheme = editor.getColorsScheme
-    implicit val tpc: TypePresentationContext = TypePresentationContext(expr)
+    implicit val ctx: TypePresentationContext with Context = PsiElementContext(expr)
 
     Text(": ") +: textPartsOf(ty, settings.presentationLength, expr)
   }

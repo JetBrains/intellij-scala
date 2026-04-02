@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.caches.CachesUtil.fileModCount
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.PsiElementContext
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.settings.sections.EditorSettingsSectionConfigurable
@@ -27,8 +28,8 @@ object TypeMismatchHints {
   private val ElementsPreceededByWhitespace = TokenSet.create(
     ScalaTokenTypes.kELSE, ScalaTokenTypes.kMACRO, ScalaTokenTypes.kCATCH, ScalaTokenTypes.tRBRACE)
 
-  private[annotator] def createFor(element: PsiElement, expectedType: ScType, actualType: ScType)(implicit scheme: EditorColorsScheme, presentationContext: TypePresentationContext): AnnotatorHints = {
-    implicit val context: Context = Context(element)
+  private[annotator] def createFor(element: PsiElement, expectedType: ScType, actualType: ScType)(implicit scheme: EditorColorsScheme): AnnotatorHints = {
+    implicit val ctx: PsiElementContext = PsiElementContext(element)
 
     val format = element match {
       case Parent(infix: ScInfixExpr) if infix.isRightAssoc && infix.argsElement == element => OuterParentheses
@@ -85,7 +86,7 @@ object TypeMismatchHints {
     AnnotatorHints(hints, fileModCount(element.getContainingFile))
   }
 
-  private def partsOf(expected: ScType, actual: ScType, message: String)(implicit scheme: EditorColorsScheme, tpc: TypePresentationContext, context: Context): Seq[Text] = {
+  private def partsOf(expected: ScType, actual: ScType, message: String)(implicit scheme: EditorColorsScheme, ctx: TypePresentationContext with Context): Seq[Text] = {
     def toText(diff: Tree[TypeDiff]): Text = diff match {
       case Node(diffs @_*) =>
         Text(foldedString,
@@ -127,7 +128,7 @@ object TypeMismatchHints {
   )
 
   @Nls
-  private[annotator] def tooltipFor(expectedType: ScType, actualType: ScType)(implicit tpc: TypePresentationContext, context: Context): String = {
+  private[annotator] def tooltipFor(expectedType: ScType, actualType: ScType)(implicit ctx: TypePresentationContext with Context): String = {
     val (diff1, diff2) = TypeDiff.forBoth(expectedType, actualType)
 
     tooltipForDiffTrees(ScalaBundle.message("type.mismatch.dot"), diff1, diff2)

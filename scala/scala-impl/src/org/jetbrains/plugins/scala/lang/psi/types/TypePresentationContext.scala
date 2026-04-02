@@ -54,7 +54,7 @@ object TypePresentationContext {
 
   implicit def psiElementToPresentationContext(place: PsiElement): PsiBased = TypePresentationContext(place)
 
-  abstract class EmptyPresentationContext extends TypePresentationContext {
+  abstract class EmptyPresentationContext extends TypePresentationContext with Context.Empty {
     override final def nameResolvesTo(name: String, target: PsiElement): Boolean = false
   }
 

@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.types.api
 
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.project.Project
 import com.intellij.psi.CommonClassNames._
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.extensions.PsiClassExt

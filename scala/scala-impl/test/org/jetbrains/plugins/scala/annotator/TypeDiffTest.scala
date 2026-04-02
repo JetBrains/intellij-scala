@@ -647,11 +647,11 @@ class TypeDiffTest extends ScalaFixtureTestCase {
       case Node(diffs @_*) => "<" + diffs.map(asString).mkString + ">"
       case _ => ???
     }
-    assertEquals(structure, asString(TypeDiff.parse(typesIn(context, tpe).head)(TypePresentationContext.emptyContextIn(version), Context.Empty)))
+    assertEquals(structure, asString(TypeDiff.parse(typesIn(context, tpe).head)(TypePresentationContext.emptyContextIn(version))))
   }
 
   private def assertDiffsAre(context: String, expectedDiff1: String, expectedDiff2: String, verifyPresentation: Boolean = true): Unit = {
-    implicit val tpc: TypePresentationContext = TypePresentationContext.emptyContextIn(version)
+    implicit val tpc: TypePresentationContext.EmptyPresentationContext = TypePresentationContext.emptyContextIn(version)
     // Make sure that the expected diffs are coherent
     assertTrue(s"""The number of mismatches must match:
                   |$expectedDiff1

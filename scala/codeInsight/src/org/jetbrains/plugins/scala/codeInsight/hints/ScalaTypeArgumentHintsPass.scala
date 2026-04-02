@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.annotator.hints.{Hint, Text}
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings
 import org.jetbrains.plugins.scala.extensions.{IterableExt, ObjectExt, PsiElementExt, Resolved}
 import org.jetbrains.plugins.scala.incremental.Highlighting.ElementHighlightingExt
+import org.jetbrains.plugins.scala.lang.psi.PsiElementContext
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScMethodLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScParenthesisedExpr}
@@ -57,7 +58,7 @@ private[codeInsight] trait ScalaTypeArgumentHintsPass {
 
       typeParams.map { tp =>
         val ty = typeParamSubst(tp).removeAbstracts
-        textPartsOf(ty, ScalaCodeInsightSettings.getInstance.presentationLength, invoked)(editor.getColorsScheme, TypePresentationContext(invoked), Context(invoked))
+        textPartsOf(ty, ScalaCodeInsightSettings.getInstance.presentationLength, invoked)(editor.getColorsScheme, PsiElementContext(invoked))
       }
     }.map(texts =>
       Seq(

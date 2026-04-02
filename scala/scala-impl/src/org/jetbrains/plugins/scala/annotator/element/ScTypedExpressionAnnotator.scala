@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.annotator.{ScalaAnnotationHolder, TypeDiff}
 import org.jetbrains.plugins.scala.annotator.TypeDiff.{Mismatch, asString}
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.lang.psi.PsiElementContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScLiteralType, ScType, TypePresentationContext}
@@ -57,8 +58,8 @@ object ScTypedExpressionAnnotator extends ElementAnnotator[ScTypedExpression] {
   }
 
   // SCL-15481
-  def mismatchRangesIn(expected: ScTypeElement, actual: ScType)(implicit tpc: TypePresentationContext): Seq[TextRange] = {
-    implicit val context: Context = Context(expected)
+  def mismatchRangesIn(expected: ScTypeElement, actual: ScType): Seq[TextRange] = {
+    implicit val context: TypePresentationContext with Context = PsiElementContext(expected)
 
     val diff = TypeDiff.forExpected(expected.calcType, actual)
 

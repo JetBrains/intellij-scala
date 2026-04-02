@@ -33,19 +33,19 @@ object TypeDiff {
   }
 
   // To display a type hint
-  def parse(tpe: ScType)(implicit tpc: TypePresentationContext, context: Context): Tree[TypeDiff] =
-    diff(tpe, tpe)((_, _) => true, tpc, context)
+  def parse(tpe: ScType)(implicit ctx: TypePresentationContext with Context): Tree[TypeDiff] =
+    diff(tpe, tpe)((_, _) => true, ctx)
 
   // To highlight a type ascription
-  def forExpected(expected: ScType, actual: ScType)(implicit tpc: TypePresentationContext, context: Context): Tree[TypeDiff] =
-    diff(actual, expected)(_.conforms(_), tpc, context)
+  def forExpected(expected: ScType, actual: ScType)(implicit ctx: TypePresentationContext with Context): Tree[TypeDiff] =
+    diff(actual, expected)(_.conforms(_), ctx)
 
   // To display a type mismatch hint
-  def forActual(expected: ScType, actual: ScType)(implicit tpc: TypePresentationContext, context: Context): Tree[TypeDiff] =
-    diff(expected, actual)(reversed(_.conforms(_)), tpc, context)
+  def forActual(expected: ScType, actual: ScType)(implicit ctx: TypePresentationContext with Context): Tree[TypeDiff] =
+    diff(expected, actual)(reversed(_.conforms(_)), ctx)
 
   // To display a type mismatch tooltip
-  def forBoth(expected: ScType, actual: ScType)(implicit tpc: TypePresentationContext, context: Context): (Tree[TypeDiff], Tree[TypeDiff]) =
+  def forBoth(expected: ScType, actual: ScType)(implicit ctx: TypePresentationContext with Context): (Tree[TypeDiff], Tree[TypeDiff]) =
     (forExpected(expected, actual), forActual(expected, actual))
 
   def lengthOf(nodeLength: Int)(diff: Tree[TypeDiff]): Int = diff match {
@@ -61,7 +61,7 @@ object TypeDiff {
   private type Conformance = (ScType, ScType) => Boolean
 
   // TODO refactor (decompose, unify, etc.)
-  private def diff(tpe1: ScType, tpe2: ScType)(implicit conformance: Conformance, tpc: TypePresentationContext, context: Context): Tree[TypeDiff] = {
+  private def diff(tpe1: ScType, tpe2: ScType)(implicit conformance: Conformance, ctx: TypePresentationContext with Context): Tree[TypeDiff] = {
     def conformanceFor(variance: Variance): Conformance = variance match {
       case Variance.Invariant => (t1: ScType, t2: ScType) => t1.equiv(t2)
       case Variance.Covariant => conformance
@@ -71,7 +71,7 @@ object TypeDiff {
     (tpe1, tpe2) match {
       // TODO Comparison (now, it's just "parsing" for the type annotation hints)
       case (_: ScCompoundType, ScCompoundType(cs2, tms2, tps2)) if tpe1 == tpe2 =>
-        val components = (cs2 lazyZip cs2).map(diff).intersperse(aMatch(tpc.compoundTypeSeparatorText))
+        val components = (cs2 lazyZip cs2).map(diff).intersperse(aMatch(ctx.compoundTypeSeparatorText))
         if (tms2.isEmpty && tps2.isEmpty) Node(components: _*) else {
           val declarations = {
             val members = (tms2.keys.map(_.namedElement) ++ tps2.values.map(_.typeAlias)).toSeq
@@ -82,13 +82,13 @@ object TypeDiff {
 
       // TODO More flexible comparison, unify with the clause above
       case (ScCompoundType(cs1, EmptyMap(), EmptyMap()), ScCompoundType(cs2, EmptyMap(), EmptyMap())) if cs1.length == cs2.length =>
-        Node((cs1 lazyZip cs2).map(diff).intersperse(aMatch(tpc.compoundTypeSeparatorText)): _*)
+        Node((cs1 lazyZip cs2).map(diff).intersperse(aMatch(ctx.compoundTypeSeparatorText)): _*)
 
       // TODO Comparison (now, it's just "parsing" for the type annotation hints)
       case (_: ScExistentialType, ScExistentialType(q2: ScParameterizedType, ws2)) if tpe1 == tpe2 =>
         val wildcards = ws2.map { case ScExistentialArgument(_, _, lower, upper) =>
           Node(aMatch("_") +:
-            ((if (lower.isNothing) Seq.empty else Seq(aMatch(" >: "), diff(lower, lower)(reversed(conformance), tpc, context))) ++
+            ((if (lower.isNothing) Seq.empty else Seq(aMatch(" >: "), diff(lower, lower)(reversed(conformance), ctx))) ++
               (if (upper.isAny) Seq.empty else Seq(aMatch(" <: "), diff(upper, upper)))): _*)
         }
         Node(diff(q2.designator, q2.designator), aMatch("["), Node(wildcards.intersperse(aMatch(", ")): _*), aMatch("]"))
@@ -99,7 +99,7 @@ object TypeDiff {
         val diffComponent: ((ScType, ScType), (ScType, ScType)) => Tree[TypeDiff] = {
           case ((name1, tpe1), (name2, tpe2)) =>
             val name = NamedTupleType.NameType.from(name2).getOrElse(tpe2.presentableText)
-            Node(if (name1.conforms(name2)) aMatch(name) else aMismatch(name), aMatch(": "), diff(tpe1, tpe2)(conformance, tpc, context))
+            Node(if (name1.conforms(name2)) aMatch(name) else aMismatch(name), aMatch(": "), diff(tpe1, tpe2)(conformance, ctx))
         }
 
         if (comps1.length == comps2.length) Node(aMatch("("), Node((comps1 lazyZip comps2).map(diffComponent).intersperse(aMatch(", ")): _*), aMatch(")"))
@@ -139,20 +139,20 @@ object TypeDiff {
 
         Node(
           leftPBefore,
-          diff(l1, l2)(conformanceFor(v1), tpc, context),
+          diff(l1, l2)(conformanceFor(v1), ctx),
           leftPAfter,
           aMatch(" "),
           opDiff,
           aMatch(" "),
           rightPBefore,
-          diff(r1, r2)(conformanceFor(v2), tpc, context),
+          diff(r1, r2)(conformanceFor(v2), ctx),
           rightPAfter,
         )
       case (FunctionType(r1, p1), FunctionType(r2, p2)) =>
         val needsParens = (t: ScType) => FunctionType.isFunctionType(t) || TupleType.TupleN.tupleNArity(t).exists(_ >= 2)
         val left = {
           if (p1.length == p2.length) {
-            val parameters = (p1 lazyZip p2).map(diff(_, _)(reversed, tpc, context)).intersperse(aMatch(", "))
+            val parameters = (p1 lazyZip p2).map(diff(_, _)(reversed, ctx)).intersperse(aMatch(", "))
             if (p2.isEmpty) Seq(aMatch("()"))
             else if (p2.length > 1) Seq(aMatch("("), Node(parameters: _*), aMatch(")"))
             else if (p2.exists(needsParens)) Seq(aMatch("("), parameters.head, aMatch(")"))
@@ -171,7 +171,7 @@ object TypeDiff {
           case _ => Seq.fill(args2.length)((t1: ScType, t2: ScType) => t1.equiv(t2))
         }
         val inner = if (args1.length == args2.length)
-          (args1 lazyZip args2 lazyZip conformances).map(diff(_, _)(_, tpc, context)).intersperse(aMatch(", "))
+          (args1 lazyZip args2 lazyZip conformances).map(diff(_, _)(_, ctx)).intersperse(aMatch(", "))
         else
           Seq(aMismatch(args2.map(_.presentableText).mkString(", ")))
 

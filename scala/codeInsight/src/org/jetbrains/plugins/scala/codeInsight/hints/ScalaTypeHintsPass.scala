@@ -8,33 +8,27 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.EditorColorsScheme
 import com.intellij.psi.{PsiElement, PsiFile, PsiWhiteSpace}
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.incremental.Highlighting._
 import org.jetbrains.plugins.scala.annotator.TypeMismatchHints
 import org.jetbrains.plugins.scala.annotator.hints.Hint.{HintPosition, MenuProvider}
 import org.jetbrains.plugins.scala.annotator.hints.{Corners, Hint, Text}
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsPass._
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.incremental.Highlighting._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScMethodLike, ScPatternList, ScPrimaryConstructor}
+import org.jetbrains.plugins.scala.lang.psi.PsiElementContext
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPatternList
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScReferencePattern, ScTypedPatternLike, ScWildcardPattern}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr, ScMethodCall, ScReferenceExpression, ScTypedExpression, ScUnderscoreSection}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr, ScReferenceExpression, ScTypedExpression, ScUnderscoreSection}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScPatternDefinition, ScValueOrVariable, ScVariableDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
-import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ScAbstractType, ScType, TypePresentationContext}
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.settings.annotations.Definition
 import org.jetbrains.plugins.scala.settings.annotations.Definition.{FunctionDefinition, ValueDefinition, VariableDefinition}
-
-import scala.annotation.tailrec
 
 private[codeInsight] trait ScalaTypeHintsPass {
   protected implicit def settings: ScalaHintsSettings
@@ -55,17 +49,17 @@ private[codeInsight] trait ScalaTypeHintsPass {
         if !(settings.preserveIndents && (!element.textContains('\n') && definition.hasCustomIndents || adjacentDefinitionsHaveCustomIndent(element)))
         if !ScMethodType.hasMethodType(body)
         if settings.showObviousType || !(definition.hasStableType || isTypeObvious(definition.name, tpe, body))
-        info <- hintFor(definition, tpe, menu)(editor.getColorsScheme, TypePresentationContext(element), Context(element), settings)
+        info <- hintFor(definition, tpe, menu)(editor.getColorsScheme, PsiElementContext(element), settings)
       } yield info) ++ (if (ScalaHintsSettings.xRayMode) collectXRayHints(editor, root) else Seq.empty)
     }.toSeq
   }
 
   private def collectXRayHints(editor: Editor, root: PsiFile) = root.elements(_.isVisible(editor.getProject, root)).flatMap {
-    case e @ Typeable(t) => xRayHintsFor(e, t)(editor.getColorsScheme, TypePresentationContext(e), Context(e), settings)
+    case e @ Typeable(t) => xRayHintsFor(e, t)(editor.getColorsScheme, PsiElementContext(e), settings)
     case _ => Seq.empty
   }
 
-  private def xRayHintsFor(e: PsiElement, t: ScType)(implicit scheme: EditorColorsScheme, tpc: TypePresentationContext, context: Context, settings: ScalaHintsSettings): Seq[Hint] = e match {
+  private def xRayHintsFor(e: PsiElement, t: ScType)(implicit scheme: EditorColorsScheme, ctx: TypePresentationContext with Context, settings: ScalaHintsSettings): Seq[Hint] = e match {
     case e: ScParameter if e.typeElement.isEmpty && ScalaApplicationSettings.XRAY_SHOW_LAMBDA_PARAMETER_HINTS =>
       hints(e, t, inParentheses = e.getParent.is[ScParameterClause] && e.getParent.getFirstChild.elementType != ScalaTokenTypes.tLPARENTHESIS)
     case e: ScUnderscoreSection if !e.getParent.is[ScTypedExpression] && ScalaApplicationSettings.XRAY_SHOW_LAMBDA_PLACEHOLDER_HINTS =>
@@ -75,7 +69,7 @@ private[codeInsight] trait ScalaTypeHintsPass {
     case _ => Seq.empty
   }
 
-  private def hints(e: PsiElement, t: ScType, inParentheses: Boolean)(implicit scheme: EditorColorsScheme, tpc: TypePresentationContext, context: Context, settings: ScalaHintsSettings) = {
+  private def hints(e: PsiElement, t: ScType, inParentheses: Boolean)(implicit scheme: EditorColorsScheme, ctx: TypePresentationContext with Context, settings: ScalaHintsSettings) = {
     if (inParentheses)
       Seq(
         Hint(Seq(Text("(")), e, position = HintPosition.BeforeElement, corners = Corners.Left),
@@ -157,7 +151,7 @@ private object ScalaTypeHintsPass {
   }
 
   private def hintFor(definition: Definition, returnType: ScType, menu: MenuProvider)
-                     (implicit scheme: EditorColorsScheme, tpc: TypePresentationContext, context: Context, settings: ScalaHintsSettings): Option[Hint] =
+                     (implicit scheme: EditorColorsScheme, ctx: TypePresentationContext with Context, settings: ScalaHintsSettings): Option[Hint] =
     for {
       anchor <- definition.parameterList
       suffix = definition match {
