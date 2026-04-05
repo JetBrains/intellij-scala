@@ -11,12 +11,13 @@ import org.jetbrains.bsp.project.importing.experimental.GenerateBspConfig.Genera
 import org.jetbrains.bsp.project.importing.preimport.BloopPreImporter
 import org.jetbrains.bsp.project.importing.setup.NoConfigSetup
 import org.jetbrains.bsp.project.importing.{BspSetupConfigStep, BspSetupConfigStepUi, bspConfigSteps}
-import org.jetbrains.bsp.settings.PreImportConfig
-import org.jetbrains.bsp.{BspBundle, BspJdkUtil}
+import org.jetbrains.bsp.protocol.BspConnectionConfig
+import org.jetbrains.bsp.settings.{BspProjectSettings, PreImportConfig}
+import org.jetbrains.bsp.{BspBundle, BspJdkUtil, BspUtil}
 import org.jetbrains.plugins.scala.build.IndicatorReporter
 import org.jetbrains.plugins.scala.project.external.SdkUtils
 
-import java.nio.file.Path
+import java.nio.file.{Files, Path}
 import java.util
 import javax.swing.JComponent
 
@@ -67,6 +68,8 @@ final class GenerateBspConfig(project: Project, workspace: Path) {
   //TODO: make it cancellable for both: SBT and Bloop
   //TODO: it duplicates some code with BspProjectResolver.installBSPs
   private def runConfigSetupSynchronously(setup: ConfigSetup, sdk: Sdk): Unit = {
+    val filesBefore = BspConnectionConfig.workspaceConfigurationFiles(workspace).toSet
+
     val parameters = bspConfigSteps.getBuilderConfigurationParameters(sdk, workspace, setup)
     parameters.bspConfigSetup match {
       case NoConfigSetup =>
@@ -83,7 +86,32 @@ final class GenerateBspConfig(project: Project, workspace: Path) {
         val runSetupTask = new BspSetupConfigStep.BspConfigSetupTask(setup)
         runSetupTask.queue()
     }
+
+    updateStaleServerConfig(filesBefore)
   }
+
+  /**
+   * When [[BspProjectSettings.serverConfig]] is a [[BspProjectSettings.BspConfigFile]] whose path no longer exists
+   * and the generation produced a new, differently named connection file, resets the config to
+   * [[BspProjectSettings.AutoConfig]] so that the newly generated file can be discovered on BSP server startup.
+   *
+   * Without this, a stale [[BspProjectSettings.BspConfigFile]] reference would cause the BSP server startup to fail
+   * (see [[BspCommunication.prepareSession]]).
+   */
+  private def updateStaleServerConfig(filesBefore: Set[Path]): Unit =
+    for {
+      settings <- BspUtil.getBspProjectSettings(project, workspace)
+      serverConfig = settings.serverConfig
+      BspProjectSettings.BspConfigFile(oldPath) <- Some(serverConfig)
+      if !Files.exists(oldPath)
+    } {
+      val filesAfter = BspConnectionConfig.workspaceConfigurationFiles(workspace).toSet
+      val createdFiles = filesAfter -- filesBefore
+      if (createdFiles.nonEmpty) {
+        settings.setServerConfig(BspProjectSettings.AutoConfig)
+        settings.setConnectionFileHash(null) // set this to null, to not regenerate connection file on the subsequent BSP server startup
+      }
+    }
 }
 
 private[bsp] object GenerateBspConfig {
