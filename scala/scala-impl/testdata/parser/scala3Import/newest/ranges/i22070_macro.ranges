@@ -52,8 +52,8 @@
 [272,286]: Select
 [272,278]: Ident
 [293,610]: Quote
-[306,604]: New
-[306,604]: Template
+[302,604]: New
+[302,604]: Template
 [306,306]: DefDef
 [306,306]: TypeTree
 [306,319]: AppliedTypeTree

@@ -1,0 +1,11 @@
+Document tests/pos/i25164c.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:35) scala/language.experimental.
+(1:36..1:46) scala/language.experimental.modularity.
+(3:30..3:33) scala/Any#
+(5:13..5:17) scala/Unit#
+(6:15..6:21) scala/Option#
+(6:38..6:42) scala/Some.
+(6:43..6:46) _empty_/Box# -> 3:7
+

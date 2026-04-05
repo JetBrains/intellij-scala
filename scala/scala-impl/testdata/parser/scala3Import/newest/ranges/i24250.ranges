@@ -50,7 +50,7 @@
 [201,246]: ValDef
 [206,206]: TypeTree
 [211,246]: New
-[215,236]: Template
+[211,236]: Template
 [215,215]: DefDef
 [215,215]: TypeTree
 [215,216]: Ident

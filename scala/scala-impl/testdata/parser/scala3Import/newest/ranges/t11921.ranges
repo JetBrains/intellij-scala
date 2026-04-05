@@ -30,8 +30,8 @@
 [86,87]: Ident
 [92,122]: ValDef
 [97,97]: TypeTree
-[104,122]: New
-[104,122]: Template
+[100,122]: New
+[100,122]: Template
 [104,104]: DefDef
 [104,104]: TypeTree
 [104,105]: Ident
