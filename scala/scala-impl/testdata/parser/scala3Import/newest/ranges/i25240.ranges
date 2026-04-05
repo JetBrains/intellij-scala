@@ -1,0 +1,10 @@
+[25,53]: PackageDef
+[25,25]: Ident
+[25,53]: ValDef
+[33,33]: TypeTree
+[36,53]: InfixOp
+[36,37]: Number
+[38,40]: Ident
+[41,53]: Tuple
+[42,52]: NamedArg
+[51,52]: Number

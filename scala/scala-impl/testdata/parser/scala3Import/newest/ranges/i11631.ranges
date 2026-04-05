@@ -49,8 +49,8 @@
 [244,364]: Block
 [244,310]: ValDef
 [250,250]: TypeTree
-[257,310]: New
-[257,310]: Template
+[253,310]: New
+[253,310]: Template
 [257,257]: DefDef
 [257,257]: TypeTree
 [257,264]: Ident
