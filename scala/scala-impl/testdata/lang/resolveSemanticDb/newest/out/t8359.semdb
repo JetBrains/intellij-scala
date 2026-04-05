@@ -1,0 +1,14 @@
+Document tests/pos/t8359.scala
+(14:14..14:21) scala/Boolean#
+(14:26..14:33) scala/Boolean#
+(14:36..14:40) scala/Unit#
+(15:6..15:12) scala/inline#
+(16:16..16:20) scala/Unit#
+(17:12..17:15) scala/Any#
+(17:33..17:34) test/Typer#bar().(a) -> 14:11
+(17:36..17:37) test/Typer#bar().(b) -> 14:23
+(17:40..17:45) scala/Function1#apply().
+(19:10..19:13) scala/Any#
+(19:18..19:21) local0 -> 16:9
+(19:25..19:30) scala/Function1#apply().
+

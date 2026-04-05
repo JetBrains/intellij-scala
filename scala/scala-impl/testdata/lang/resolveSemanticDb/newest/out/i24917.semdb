@@ -1,0 +1,71 @@
+Document tests/pos/i24917.scala
+(6:15..6:18) scala/Int#
+(6:23..6:29) scala/Predef.String#
+(9:3..9:6) scala/Predef.`???`().
+(10:17..10:20) scala/Int#
+(10:25..10:31) scala/Predef.String#
+(10:36..10:39) scala/Predef.`???`().
+(14:5..14:7) _empty_/Test.ab. -> 6:7
+(15:17..15:20) scala/Int#
+(15:25..15:31) scala/Predef.String#
+(15:36..15:37) local0 -> 15:10
+(15:36..15:37) scala/NamedTuple.apply(+1).
+(15:40..15:41) scala/collection/StringOps#`*`().
+(15:42..15:43) local0 -> 15:10
+(15:42..15:43) scala/NamedTuple.apply(+1).
+(18:3..18:6) scala/Predef.`???`().
+(19:17..19:20) scala/Int#
+(19:25..19:31) scala/Predef.String#
+(19:36..19:39) scala/Predef.`???`().
+(23:3..23:6) scala/Predef.`???`().
+(24:20..24:26) scala/Predef.String#
+(24:31..24:34) scala/Predef.`???`().
+(28:3..28:6) scala/Predef.`???`().
+(29:17..29:20) scala/Int#
+(29:25..29:28) scala/Int#
+(29:33..29:36) scala/Int#
+(29:41..29:44) scala/Predef.`???`().
+(33:3..33:6) scala/Predef.`???`().
+(34:20..34:27) scala/Boolean#
+(34:36..34:40) scala/Long#
+(34:48..34:52) scala/package.List#
+(34:53..34:56) scala/Int#
+(34:62..34:65) scala/Predef.`???`().
+(38:3..38:6) scala/Predef.`???`().
+(39:34..39:37) scala/Int#
+(39:42..39:48) scala/Predef.String#
+(39:55..39:58) scala/Predef.`???`().
+(43:15..43:19) scala/Unit#
+(44:5..44:8) scala/Predef.`???`().
+(45:22..45:23) _empty_/Test.foo().[T] -> 43:11
+(45:28..45:31) scala/Predef.`???`().
+(50:3..50:6) scala/Predef.`???`().
+(51:17..51:20) scala/Int#
+(51:25..51:28) scala/Predef.`???`().
+(52:17..52:20) scala/Int#
+(52:25..52:28) scala/Int#
+(52:33..52:36) scala/Predef.`???`().
+(53:17..53:20) scala/Int#
+(53:25..53:28) scala/Int#
+(53:33..53:36) scala/Int#
+(53:41..53:44) scala/Predef.`???`().
+(54:15..54:18) scala/Predef.`???`().
+(58:14..58:17) scala/Int#
+(58:22..58:25) scala/Int#
+(58:29..58:32) scala/Predef.`???`().
+(61:18..61:21) scala/Int#
+(61:26..61:32) scala/Predef.String#
+(61:36..61:39) scala/Int#
+(61:42..61:43) _empty_/Test.bar().(t) -> 61:11
+(62:17..62:20) scala/Int#
+(62:25..62:31) scala/Predef.String#
+(68:24..68:30) scala/Predef.String#
+(68:37..68:40) scala/Int#
+(69:15..69:21) _empty_/NamedPatternTest.Person# -> 68:8
+(72:29..72:35) _empty_/NamedPatternTest.person. -> 69:7
+(75:3..75:9) _empty_/NamedPatternTest.person. -> 69:7
+(76:33..76:40) scala/Predef.println(+1).
+(76:41..76:42) scala/StringContext#s().
+(76:44..76:45) local3 -> 76:18
+(76:50..76:51) local4 -> 76:27
+

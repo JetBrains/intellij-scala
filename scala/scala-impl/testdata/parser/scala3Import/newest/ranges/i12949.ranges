@@ -43,7 +43,7 @@
 [228,230]: Ident
 [231,232]: Ident
 [242,278]: New
-[246,278]: Template
+[242,278]: Template
 [246,246]: DefDef
 [246,246]: TypeTree
 [246,251]: AppliedTypeTree

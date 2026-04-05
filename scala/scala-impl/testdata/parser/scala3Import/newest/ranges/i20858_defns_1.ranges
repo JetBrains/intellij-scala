@@ -145,8 +145,8 @@
 [675,682]: Ident
 [684,685]: Ident
 [689,692]: Ident
-[701,966]: New
-[701,966]: Template
+[697,966]: New
+[697,966]: Template
 [701,701]: DefDef
 [701,701]: TypeTree
 [701,713]: AppliedTypeTree

@@ -1,0 +1,80 @@
+@Param(Bar.bar()) class Foo
+@Param(Array("hi", "bi")) class Baz
+-----
+ScalaFile
+  ScClass: Foo
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: Param
+              CodeReferenceElement: Param
+                PsiElement(identifier)('Param')
+            ArgumentList
+              PsiElement(()('(')
+              MethodCall
+                ReferenceExpression: Bar.bar
+                  ReferenceExpression: Bar
+                    PsiElement(identifier)('Bar')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('bar')
+                ArgumentList
+                  PsiElement(()('(')
+                  PsiElement())(')')
+              PsiElement())(')')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScClass: Baz
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: Param
+              CodeReferenceElement: Param
+                PsiElement(identifier)('Param')
+            ArgumentList
+              PsiElement(()('(')
+              MethodCall
+                ReferenceExpression: Array
+                  PsiElement(identifier)('Array')
+                ArgumentList
+                  PsiElement(()('(')
+                  StringLiteral
+                    PsiElement(string content)('"hi"')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  StringLiteral
+                    PsiElement(string content)('"bi"')
+                  PsiElement())(')')
+              PsiElement())(')')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Baz')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
