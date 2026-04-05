@@ -108,7 +108,7 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
   private def storeConnectionFileHash(): Unit =
     for {
       project <- findProject
-      settings <- bspSettings(project)
+      settings <- BspUtil.getBspProjectSettings(project, base)
     } {
       val currentHash = BspConnectionConfig.workspaceBspConfigsHash(base)
       settings.setConnectionFileHash(currentHash)
@@ -122,7 +122,7 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
     val bloopProject = BspUtil.bloopConfigDir(base).isDefined
     val hasBspConfigs = bspConnectionFiles.nonEmpty || bloopProject
 
-    lazy val settings = project.flatMap(bspSettings)
+    lazy val settings = project.flatMap(BspUtil.getBspProjectSettings(_, base))
     def generateForScalaCliOrMill: Boolean =
       isScalaCliOrMill(base) && settings.exists { s =>
         // If the connection file hash is null, it means that it's the first BSP startup in a freshly imported project,
@@ -271,14 +271,11 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
       project <- Option(ProjectUtil.guessProjectForFile(vfsPath))
     } yield project
 
-  private def bspSettings(project: Project): Option[BspProjectSettings] =
-    Option(BspSettings.getInstance(project).getLinkedProjectSettings(base.toCanonicalPath.toString))
-
   private val projectCallback: NotificationCallback = {
     case BspNotifications.DidChangeBuildTarget(didChange) =>
       for {
         project <- findProject
-        settings <- bspSettings(project)
+        _ <- BspUtil.getBspProjectSettings(project, base)
       } {
         FileDocumentManager.getInstance.saveAllDocuments()
         ExternalSystemUtil.refreshProjects(new ImportSpecBuilder(project, BSP.ProjectSystemId))
