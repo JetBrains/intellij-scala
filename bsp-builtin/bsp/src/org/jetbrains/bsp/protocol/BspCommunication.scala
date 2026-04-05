@@ -22,11 +22,11 @@ import org.jetbrains.bsp.protocol.session.BspSession._
 import org.jetbrains.bsp.protocol.session._
 import org.jetbrains.bsp.protocol.session.jobs.BspSessionJob
 import org.jetbrains.bsp.settings.BspProjectSettings.BspServerConfig
-import org.jetbrains.bsp.settings.{BspExecutionSettings, BspProjectSettings, BspSettings}
+import org.jetbrains.bsp.settings.{BspExecutionSettings, BspProjectSettings}
 import org.jetbrains.plugins.scala.build.BuildReporter
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PathExt}
+import org.jetbrains.plugins.scala.extensions.PathExt
 
-import java.nio.file.Path
+import java.nio.file.{Files, Path}
 import java.util.concurrent.atomic.AtomicReference
 import scala.concurrent.Future
 import scala.concurrent.duration._
@@ -40,6 +40,13 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
   private val session: AtomicReference[Option[BspSession]] = new AtomicReference[Option[BspSession]](None)
 
   private val runningBspConfigSetup: AtomicReference[Option[BspConfigSetup]] = new AtomicReference[Option[BspConfigSetup]](None)
+
+  /**
+   * Tracks the active server config, which may differ from the original `config` passed at construction.
+   * If `config` points to a connection file that no longer exists and a new one is generated at a different path,
+   * `effectiveConfig` is set to `AutoConfig` so that the standard discovery mechanism can pick up the new file.
+   */
+  private var effectiveConfig: BspServerConfig = config
 
   private[protocol] var connectionFileHash = BspConnectionConfig.workspaceBspConfigsHash(base)
 
@@ -137,8 +144,25 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
     val shouldGenerate = canGenerateBspConfigFile && !hasMultipleConnectionsWithAutoConfig && (!hasBspConfigs || generateForScalaCliOrMill)
     if (shouldGenerate) {
       val indicator = ProgressManager.getInstance().getProgressIndicator
-      if (indicator != null)
+      if (indicator != null) {
         tryToGenerateBspConfig(indicator, project, hasBspConfigs, bspConnectionFiles, settings)
+
+        effectiveConfig match {
+          case BspProjectSettings.BspConfigFile(path)
+            if !Files.exists(path) && !hasBspConfigs && BspConnectionConfig.workspaceConfigurationFiles(base).nonEmpty =>
+            effectiveConfig = BspProjectSettings.AutoConfig
+            // Update BspProjectSettings to AutoConfig so that future BspCommunication instances reuse the existing
+            // connection file without relying on a specific file name from BspConfigFile.
+            // NOTE: it comes with a trade-off — changing the serverConfig type causes a new BspCommunication session
+            // to be created alongside the existing one, since BspCommunication is keyed by project path and serverConfig type.
+            // A proper fix would be to disallow multiple sessions for the same project path: we don't support switching
+            // between sessions or using multiple sessions simultaneously anyway.
+            // Historically it worked that way (see BspCommunicationService.closeCommunication docs), but when serverConfig
+            // was introduced, BspCommunication was additionally scoped per serverConfig — I don't see any advantage of this today.
+            settings.foreach(_.serverConfig = BspProjectSettings.AutoConfig)
+          case _ =>
+        }
+      }
     }
 
     // TODO supported languages should be extendable
@@ -154,7 +178,7 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
         case None => Left(BspNoJdkConfiguredError)
       }
 
-    val connector: Either[BspError, BspServerConnector] = config match {
+    val connector: Either[BspError, BspServerConnector] = effectiveConfig match {
 
       case BspProjectSettings.AutoConfig =>
         // only use workspace configs for auto-detection, system configs might not be applicable
@@ -221,18 +245,14 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
           //
           // When regenerating the BSP connection file, we must preserve the originally used installation kind to avoid
           // creating duplicate connection files (e.g., generating scala.json when scala-cli.json already exists).
+          // This only matters when a BSP connection file already exists; if none exists, any available tool can be used.
+          // If the path of the newly generated connection file differs from the one stored in BspConfigFile,
+          // effectiveConfig will handle this case, because otherwise the BSP server startup would fail.
           //
-          // `isScalaCliWithKnownConnectionFile` determines whether we should identify the specific connection file to regenerate:
-          //   - If config == BspConfigFile(path), we know the exact file path from this
-          //   - If config == AutoConfig with exactly 1 connection file, we use that file's name
-          //   - If config == AutoConfig and there is no existing connection file, we don't need to worry, because any generated file will work
-          //
-          // Notes:
-          //  - If a custom-named connection file exists (e.g., custom.json), regeneration is skipped to prevent creating standard-named files alongside it.
-          //    This is handled in CommandBasedBspConfigSetup.run.
-          val isScalaCliWithKnownConnectionFile = setupChoice == ScalaCliSetup && (hasBspConfigs || config.is[BspProjectSettings.BspConfigFile])
+          // If a custom-named connection file exists (e.g., custom.json), regeneration is skipped to prevent creating an additional file alongside it
+          // (see CommandBasedBspConfigSetup.run). Right now, skipping regeneration works only for Scala CLI.
           val targetConnectionFileName =
-            if (isScalaCliWithKnownConnectionFile) resolveTargetConnectionFileName(bspConnectionFiles)
+            if (setupChoice == ScalaCliSetup && hasBspConfigs) resolveTargetConnectionFileName(bspConnectionFiles)
             else None
 
           setup.run(indicator, targetConnectionFileName)
