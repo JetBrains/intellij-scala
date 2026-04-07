@@ -12,7 +12,16 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScModifierList}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaration, ScExtensionBody, ScPatternDefinition, ScTypeAlias, ScTypeAliasDefinition, ScValueDeclaration}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{
+  ScDeclaration,
+  ScExtensionBody,
+  ScPatternDefinition,
+  ScTypeAlias,
+  ScTypeAliasDefinition,
+  ScValueDeclaration,
+  ScVariableDeclaration,
+  ScVariableDefinition
+}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner, ScPackaging}
@@ -31,6 +40,7 @@ private[annotator] object ModifierChecker {
       (Final, Open),
       (Sealed, Open),
       (Lazy, Inline),
+      (Lazy, Erased),
       //NOTE: there are other illegal combinations,
       //which is expressed with more complex logic and which provide more detailed messages
       //Such illegal combinations are not checked by this class
@@ -316,6 +326,37 @@ private[annotator] object ModifierChecker {
                 if (!allowed) {
                   createErrorWithQuickFix(
                     ScalaBundle.message("into.modifier.is.only.allowed.on"),
+                    modifierPsi,
+                    owner,
+                  )
+                }
+              case ERASED =>
+                var reportNotAllowedError = true
+
+                val allowed = owner match {
+                  case _: ScPatternDefinition => true
+                  case _: ScClass             => true
+                  case parameter: ScParameter =>
+                    if (parameter.isCallByNameParameter) {
+                      createErrorWithQuickFix(
+                        ScalaBundle.message("topic.parameters.may.not.be.call.by.name", "'erased'"),
+                        modifierPsi,
+                        owner,
+                      )
+                      reportNotAllowedError = false
+                      false
+                    } else true
+                  case given: ScGiven if given.parameters.isEmpty         => true
+                  case _: ScVariableDeclaration | _: ScVariableDefinition => false
+                  case _: ScObject                                        => false
+                  case _                                                  => false
+                }
+
+                if (allowed) {
+                  checkIllegalCombinations(modifierPsi, Erased)
+                } else if (reportNotAllowedError) {
+                  createErrorWithQuickFix(
+                    ScalaBundle.message("access.modifier.is.not.allowed.here", ERASED),
                     modifierPsi,
                     owner,
                   )

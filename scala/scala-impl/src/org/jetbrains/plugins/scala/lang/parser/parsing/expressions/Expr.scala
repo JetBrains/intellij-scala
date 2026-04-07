@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.expressions
 
+import com.intellij.lang.PsiBuilder
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
@@ -21,23 +22,47 @@ import org.jetbrains.plugins.scala.lang.parser.util.InScala3
  * from the Scala Reference does not match the implementation in Parsers.scala.
  */
 object Expr extends ParsingRule {
+  private def parseSimpleLambdaParamMarker()(implicit builder: ScalaPsiBuilder): Option[PsiBuilder.Marker] = {
+    val paramMarker = builder.mark()
+
+    val modifierMarker = builder.mark()
+    val hasErasedModifier = builder.isScala3 &&
+      builder.getTokenType == ScalaTokenTypes.tIDENTIFIER &&
+      builder.lookAhead(1, ScalaTokenTypes.tIDENTIFIER) &&
+      builder.tryParseSoftKeyword(ScalaTokenType.ErasedKeyword)
+    if (hasErasedModifier) modifierMarker.done(ScalaElementType.MODIFIERS)
+    else modifierMarker.drop()
+
+    builder.getTokenType match {
+      case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER =>
+        builder.advanceLexer() // ate id or _
+        Some(paramMarker)
+      case _ =>
+        paramMarker.rollbackTo()
+        None
+    }
+  }
+
   override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val exprMarker = builder.mark()
 
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER =>
-        val pmarker = builder.mark()
-        builder.advanceLexer() //Ate id
-        builder.getTokenType match {
-          case ScalaTokenTypes.tFUNTYPE | ScalaTokenType.ImplicitFunctionArrow =>
-            completeParamClauses(pmarker)()
+        parseSimpleLambdaParamMarker() match {
+          case Some(pmarker) =>
+            builder.getTokenType match {
+              case ScalaTokenTypes.tFUNTYPE | ScalaTokenType.ImplicitFunctionArrow =>
+                completeParamClauses(pmarker)()
 
-            builder.advanceLexer() //Ate =>
-            if (!ExprInIndentationRegion()) builder.wrongExpressionError()
-            exprMarker.done(ScalaElementType.FUNCTION_EXPR)
-            return true
-          case _ =>
-            pmarker.drop()
+                builder.advanceLexer() //Ate =>
+                if (!ExprInIndentationRegion()) builder.wrongExpressionError()
+                exprMarker.done(ScalaElementType.FUNCTION_EXPR)
+                return true
+              case _ =>
+                pmarker.drop()
+                exprMarker.rollbackTo()
+            }
+          case None =>
             exprMarker.rollbackTo()
         }
 

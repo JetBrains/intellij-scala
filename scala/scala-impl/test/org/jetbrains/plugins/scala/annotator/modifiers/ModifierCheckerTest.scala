@@ -283,6 +283,9 @@ class ModifierCheckerTest_Scala_3 extends ModifierCheckerTest_Scala_2 {
   protected val IllegalOpaqueModifier = "'opaque' modifier allowed only for type aliases"
   protected val RepeatedModifier = "repeated modifier"
   protected val IllegalIntoModifier = ScalaBundle.message("into.modifier.is.only.allowed.on")
+  protected val ErasedModifierNotAllowedHere = ScalaBundle.message("access.modifier.is.not.allowed.here", "erased")
+  protected val ErasedParametersMayNotBeCallByName =
+    ScalaBundle.message("topic.parameters.may.not.be.call.by.name", "'erased'")
 
   def testOpenModifierIsRedundant(): Unit = {
     assertMessages(messages(
@@ -389,4 +392,51 @@ class ModifierCheckerTest_Scala_3 extends ModifierCheckerTest_Scala_2 {
       |into enum AnEnum
       |""".stripMargin
   ))
+
+  def testErasedValIsAllowed(): Unit =
+    assertNothing(messages("erased val x = 1"))
+
+  def testErasedParameterIsAllowed(): Unit =
+    assertNothing(messages("def test(erased x: Int): Int = x"))
+
+  def testErasedGivenWithoutParametersIsAllowed(): Unit =
+    assertNothing(messages("erased given testGiven: Ordering[Int] = Ordering.Int"))
+
+  def testErasedClassIsAllowed(): Unit =
+    assertNothing(messages("erased class Test"))
+
+  def testErasedIsNotAllowedOnDef(): Unit =
+    assertMessages(messages("erased def test: Int = 1"))(
+      Error("erased", ErasedModifierNotAllowedHere)
+    )
+
+  def testErasedIsNotAllowedOnVar(): Unit =
+    assertMessages(messages("erased var x = 1"))(
+      Error("erased", ErasedModifierNotAllowedHere)
+    )
+
+  def testErasedIsNotAllowedOnObject(): Unit =
+    assertMessages(messages("erased object Test"))(
+      Error("erased", ErasedModifierNotAllowedHere)
+    )
+
+  def testErasedIsNotAllowedOnNonParameterlessGiven(): Unit =
+    assertMessages(messages("erased given testGiven(using x: Int): Ordering[Int] = Ordering.Int"))(
+      Error("erased", ErasedModifierNotAllowedHere)
+    )
+
+  def testErasedCannotBeUsedOnCallByNameParameter(): Unit =
+    assertMessages(messages("def test(erased x: => Int): Int = 1"))(
+      Error("erased", ErasedParametersMayNotBeCallByName)
+    )
+
+  def testIllegalCombination_ErasedLazy(): Unit =
+    assertMessages(messages("erased lazy val x = 1"))(
+      illegalCombinationPairedErrors("erased", "lazy"): _*
+    )
+
+  def testIllegalCombination_LazyErased(): Unit =
+    assertMessages(messages("lazy erased val x = 1"))(
+      illegalCombinationPairedErrors("lazy", "erased"): _*
+    )
 }
