@@ -162,12 +162,16 @@ package object types {
     }
 
     // into[Ty] -> Ty
-    def removeInto(): ScType = {
+    def removeInto()(implicit context: Context): ScType =
+      tryRemoveInto().getOrElse(scType)
+
+    def tryRemoveInto()(implicit context: Context): Option[ScType] = {
       scType match {
         case ParameterizedType(alias, Seq(inner)) if alias.aliasType.exists(_.ta.qualifiedNameOpt.contains("scala.Conversion.into")) =>
-          inner
+          Some(inner)
+        case AliasType(_, ty, _, _) => ty.toOption.flatMap(_.tryRemoveInto())
         case _ =>
-          scType
+          None
       }
     }
 
