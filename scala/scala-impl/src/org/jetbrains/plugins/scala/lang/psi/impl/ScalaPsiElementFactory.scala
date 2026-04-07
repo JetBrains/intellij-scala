@@ -1042,8 +1042,7 @@ object ScalaPsiElementFactory {
     features:              ScalaFeatures,
     @NonNls comment:       String = ""
   )(implicit
-    projectContext: ProjectContext,
-    context: ConformanceContext
+    context: ConformanceContext with ProjectContext
   ): ScTypeAlias = {
     val typeSign = getOverrideImplementTypeSign(alias, substitutor, needsOverrideModifier)
     createClassWithBody(s"$comment $typeSign", features, forceBraces = true).aliases.head

@@ -54,7 +54,8 @@ class ScalaGenerationInfo(classMember: ClassMember0, needsOverrideModifier: Bool
       case member: ScExtensionMember =>
         myMember = insertExtension(member, templDef, anchor, typeAdjuster)
       case ScAliasMember(alias, substitutor, _) =>
-        val m = createOverrideImplementType(alias, substitutor, needsOverrideModifier, aClass, comment)(alias.getManager, ConformanceContext(anchor))
+        implicit val ctx: PsiElementContext = PsiElementContext(aClass)
+        val m = createOverrideImplementType(alias, substitutor, needsOverrideModifier, aClass, comment)
 
         val added = templDef.addMember(m, Option(anchor))
         addTargetNameAnnotationIfNeeded(added, alias)
