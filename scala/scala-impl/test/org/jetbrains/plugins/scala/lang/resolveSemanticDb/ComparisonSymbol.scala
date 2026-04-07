@@ -26,26 +26,26 @@ object ComparisonSymbol {
       .replaceAll(raw"[^#./()]+\$$package.", "") // ignore package object path part
     )
 
+  def escapedName(s: String): String = {
+    def isStart(c: Char): Boolean = c.isUnicodeIdentifierStart || c == '_' || c == '$'
+    def isPart(c: Char): Boolean = c.isUnicodeIdentifierPart || c == '$'
+    if (s.headOption.contains('`')) s
+    else if (s.headOption.forall(isStart) && s.forall(isPart)) s
+    else s"`$s`"
+  }
+
   def fromPsi(e: PsiNamedElement): String = {
     val buffer = new StringBuilder()
 
     def add(s: String): Unit = buffer ++= s
 
-    def escaped(s: String): String = {
-      def isStart(c: Char): Boolean = c.isUnicodeIdentifierStart || c == '_' || c == '$'
-      def isPart(c: Char): Boolean = c.isUnicodeIdentifierPart || c == '$'
-      if (s.headOption.contains('`')) s
-      else if (s.headOption.forall(isStart) && s.forall(isPart)) s
-      else s"`$s`"
-    }
-
     def addName(name: String): Unit = {
       assert(name != null)
-      add(escaped(name))
+      add(escapedName(name))
     }
 
     def addFqn(fqn: String): Unit = {
-      val parts = fqn.split('.').map(escaped)
+      val parts = fqn.split('.').map(escapedName)
       add(parts.mkString("/"))
     }
 

@@ -7,6 +7,7 @@ import scala.collection.mutable
 case class SDbRef(symbol: String, position: TextPos, endPosition: TextPos, targetPosition: Option[TextPos]) {
   def range: (TextPos, TextPos) = (position, endPosition)
   lazy val pointsToLocal: Boolean = symbol.matches(raw"local\d+")
+  lazy val isTypeParamRef: Boolean = symbol.endsWith("]")
 
   override def toString: String =
     s"$symbol($position..$endPosition) -> ${targetPosition.fold("<no position>")(_.toString)}"
