@@ -23,3 +23,8 @@ class ScalaCliConfigSetupProvider extends BspSetupProvider {
   private def isScalaCli(directory: Path): Boolean =
     BspUtil.findFileByName(directory, ProjectDefinitionFileName).isDefined
 }
+
+private[scalaCli] object ScalaCliConfigSetupProvider {
+  val BundledConfigFileName = "scala.json"
+  val StandaloneConfigFileName = "scala-cli.json"
+}

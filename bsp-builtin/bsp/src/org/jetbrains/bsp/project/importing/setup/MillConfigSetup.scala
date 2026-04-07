@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.extensions.PathExt
 
 import java.nio.charset.Charset
 import java.nio.file.{Files, Path}
-import scala.sys.process._
+import scala.annotation.unused
 import scala.util.{Failure, Success, Try, Using}
 
 /** Handles Mill BSP configuration generation. */
@@ -16,7 +16,9 @@ final class MillConfigSetup(workspace: Path) extends CommandBasedBspConfigSetup(
 
   override protected def serverName: String = "Mill"
 
-  override protected def installCommand(workspace: Path, indicator: ProgressIndicator): Try[Seq[String]] = {
+  protected type ConnectionTarget = Nothing
+
+  override protected def installCommand(workspace: Path, indicator: ProgressIndicator, @unused target: Option[Nothing]): Try[Seq[String]] = {
     // note: The legacy part is only executed for mill bootstrap script so it is not applicable for Windows.
     // Maybe it could be, but we decided to support mill.bat file only for the newer bsp approach
     val isLegacyMill = !SystemInfo.isWindows && isLegacyBspCompatible(workspace)

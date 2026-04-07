@@ -12,7 +12,8 @@ import com.intellij.openapi.vfs.VfsUtil
 import org.jetbrains.bsp._
 import org.jetbrains.bsp.project.BspExternalSystemManager
 import org.jetbrains.bsp.project.importing.BspProjectOpenProcessor.isScalaCliOrMill
-import org.jetbrains.bsp.project.importing.{BspProjectOpenProcessor, bspConfigSteps}
+import org.jetbrains.bsp.project.importing.bspConfigSteps
+import org.jetbrains.bsp.project.importing.bspConfigSteps.ScalaCliSetup
 import org.jetbrains.bsp.project.importing.setup.{BspConfigSetup, NoConfigSetup}
 import org.jetbrains.bsp.protocol.BspCommunication._
 import org.jetbrains.bsp.protocol.BspNotifications.BspNotification
@@ -21,11 +22,11 @@ import org.jetbrains.bsp.protocol.session.BspSession._
 import org.jetbrains.bsp.protocol.session._
 import org.jetbrains.bsp.protocol.session.jobs.BspSessionJob
 import org.jetbrains.bsp.settings.BspProjectSettings.BspServerConfig
-import org.jetbrains.bsp.settings.{BspExecutionSettings, BspProjectSettings, BspSettings}
+import org.jetbrains.bsp.settings.{BspExecutionSettings, BspProjectSettings}
 import org.jetbrains.plugins.scala.build.BuildReporter
 import org.jetbrains.plugins.scala.extensions.PathExt
 
-import java.nio.file.Path
+import java.nio.file.{Files, Path}
 import java.util.concurrent.atomic.AtomicReference
 import scala.concurrent.Future
 import scala.concurrent.duration._
@@ -39,6 +40,13 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
   private val session: AtomicReference[Option[BspSession]] = new AtomicReference[Option[BspSession]](None)
 
   private val runningBspConfigSetup: AtomicReference[Option[BspConfigSetup]] = new AtomicReference[Option[BspConfigSetup]](None)
+
+  /**
+   * Tracks the active server config, which may differ from the original `config` passed at construction.
+   * If `config` points to a connection file that no longer exists and a new one is generated at a different path,
+   * `effectiveConfig` is set to `AutoConfig` so that the standard discovery mechanism can pick up the new file.
+   */
+  private var effectiveConfig: BspServerConfig = config
 
   private[protocol] var connectionFileHash = BspConnectionConfig.workspaceBspConfigsHash(base)
 
@@ -107,7 +115,7 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
   private def storeConnectionFileHash(): Unit =
     for {
       project <- findProject
-      settings <- bspSettings(project)
+      settings <- BspUtil.getBspProjectSettings(project, base)
     } {
       val currentHash = BspConnectionConfig.workspaceBspConfigsHash(base)
       settings.setConnectionFileHash(currentHash)
@@ -117,9 +125,11 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
     project: => Option[Project],
     canGenerateBspConfigFile: Boolean
   )(implicit reporter: BuildReporter): Either[BspError, Builder] = {
-    val hasBspConfigs = BspProjectOpenProcessor.hasBspConfiguration(base)
+    val bspConnectionFiles = BspConnectionConfig.workspaceConfigurationFiles(base)
+    val bloopProject = BspUtil.bloopConfigDir(base).isDefined
+    val hasBspConfigs = bspConnectionFiles.nonEmpty || bloopProject
 
-    lazy val settings = project.flatMap(bspSettings)
+    lazy val settings = project.flatMap(BspUtil.getBspProjectSettings(_, base))
     def generateForScalaCliOrMill: Boolean =
       isScalaCliOrMill(base) && settings.exists { s =>
         // If the connection file hash is null, it means that it's the first BSP startup in a freshly imported project,
@@ -127,11 +137,32 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
         s.autoRegenerateBspConfigOnServerStartup && s.getConnectionFileHash() != null
       }
 
-    val shouldGenerate = canGenerateBspConfigFile && (!hasBspConfigs || generateForScalaCliOrMill)
+    // Skip regeneration when AutoConfig is set and multiple connection files are present - in such a case the GenericConnector#connect simply picks the first
+    // available connection file, so regenerating (which may create or overwrite a file) would not reliably affect which connection file is actually used.
+    val hasMultipleConnectionsWithAutoConfig = config == BspProjectSettings.AutoConfig && bspConnectionFiles.size > 1
+
+    val shouldGenerate = canGenerateBspConfigFile && !hasMultipleConnectionsWithAutoConfig && (!hasBspConfigs || generateForScalaCliOrMill)
     if (shouldGenerate) {
       val indicator = ProgressManager.getInstance().getProgressIndicator
-      if (indicator != null)
-        tryToGenerateBspConfig(indicator, project, hasBspConfigs, settings)
+      if (indicator != null) {
+        tryToGenerateBspConfig(indicator, project, hasBspConfigs, bspConnectionFiles, settings)
+
+        effectiveConfig match {
+          case BspProjectSettings.BspConfigFile(path)
+            if !Files.exists(path) && !hasBspConfigs && BspConnectionConfig.workspaceConfigurationFiles(base).nonEmpty =>
+            effectiveConfig = BspProjectSettings.AutoConfig
+            // Update BspProjectSettings to AutoConfig so that future BspCommunication instances reuse the existing
+            // connection file without relying on a specific file name from BspConfigFile.
+            // NOTE: it comes with a trade-off — changing the serverConfig type causes a new BspCommunication session
+            // to be created alongside the existing one, since BspCommunication is keyed by project path and serverConfig type.
+            // A proper fix would be to disallow multiple sessions for the same project path: we don't support switching
+            // between sessions or using multiple sessions simultaneously anyway.
+            // Historically it worked that way (see BspCommunicationService.closeCommunication docs), but when serverConfig
+            // was introduced, BspCommunication was additionally scoped per serverConfig — I don't see any advantage of this today.
+            settings.foreach(_.serverConfig = BspProjectSettings.AutoConfig)
+          case _ =>
+        }
+      }
     }
 
     // TODO supported languages should be extendable
@@ -147,7 +178,7 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
         case None => Left(BspNoJdkConfiguredError)
       }
 
-    val connector: Either[BspError, BspServerConnector] = config match {
+    val connector: Either[BspError, BspServerConnector] = effectiveConfig match {
 
       case BspProjectSettings.AutoConfig =>
         // only use workspace configs for auto-detection, system configs might not be applicable
@@ -185,6 +216,7 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
     indicator: ProgressIndicator,
     findProject: => Option[Project],
     hasBspConfigs: Boolean,
+    bspConnectionFiles: Seq[Path],
     settings: => Option[BspProjectSettings]
   )(implicit reporter: BuildReporter): Unit = {
     val setupChoices = bspConfigSteps.workspaceSetupChoices(base)
@@ -193,7 +225,8 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
     if (setupChoices.size != 1) return
 
     BspJdkUtil.findOrCreateBestJdkForProject(findProject).foreach { jdk =>
-      val parameters = bspConfigSteps.getBuilderConfigurationParameters(jdk, base, setupChoices.head, considerExistingConfigs = false)
+      val setupChoice = setupChoices.head
+      val parameters = bspConfigSteps.getBuilderConfigurationParameters(jdk, base, setupChoice, considerExistingConfigs = false)
       val setup = parameters.bspConfigSetup
       if (setup == NoConfigSetup) return
 
@@ -206,7 +239,23 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
         }
 
         try {
-          setup.run(indicator)
+          // Scala CLI has two installation kinds that produce different connection files:
+          //   - Bundled (Scala 3.5+): generates scala.json
+          //   - Standalone: generates scala-cli.json
+          //
+          // When regenerating the BSP connection file, we must preserve the originally used installation kind to avoid
+          // creating duplicate connection files (e.g., generating scala.json when scala-cli.json already exists).
+          // This only matters when a BSP connection file already exists; if none exists, any available tool can be used.
+          // If the path of the newly generated connection file differs from the one stored in BspConfigFile,
+          // effectiveConfig will handle this case, because otherwise the BSP server startup would fail.
+          //
+          // If a custom-named connection file exists (e.g., custom.json), regeneration is skipped to prevent creating an additional file alongside it
+          // (see CommandBasedBspConfigSetup.run). Right now, skipping regeneration works only for Scala CLI.
+          val targetConnectionFileName =
+            if (setupChoice == ScalaCliSetup && hasBspConfigs) resolveTargetConnectionFileName(bspConnectionFiles)
+            else None
+
+          setup.run(indicator, targetConnectionFileName)
         } finally {
           runningBspConfigSetup.set(None)
         }
@@ -224,20 +273,29 @@ class BspCommunication private[protocol](base: Path, config: BspServerConfig) ex
     }
   }
 
+  /** Resolves the name of the BSP connection file that should be preserved during regeneration. */
+  private def resolveTargetConnectionFileName(bspConnectionFiles: Seq[Path]): Option[String] =
+    config match {
+      case BspProjectSettings.BspConfigFile(path) =>
+        Some(path.getFileName.toString)
+      // When config = AutoConfig, `bspConnectionFiles` can be either empty or contain 1 file, because a case with AutoConfig and
+      // multiple bsp connection files is prohibited. See related code in BspCommunication.prepareSession
+      case BspProjectSettings.AutoConfig if bspConnectionFiles.size == 1 =>
+        Some(bspConnectionFiles.head.getFileName.toString)
+      case _ => None
+    }
+
   private def findProject =
     for {
       vfsPath <- Option(VfsUtil.findFile(base, false))
       project <- Option(ProjectUtil.guessProjectForFile(vfsPath))
     } yield project
 
-  private def bspSettings(project: Project): Option[BspProjectSettings] =
-    Option(BspSettings.getInstance(project).getLinkedProjectSettings(base.toCanonicalPath.toString))
-
   private val projectCallback: NotificationCallback = {
     case BspNotifications.DidChangeBuildTarget(didChange) =>
       for {
         project <- findProject
-        settings <- bspSettings(project)
+        _ <- BspUtil.getBspProjectSettings(project, base)
       } {
         FileDocumentManager.getInstance.saveAllDocuments()
         ExternalSystemUtil.refreshProjects(new ImportSpecBuilder(project, BSP.ProjectSystemId))

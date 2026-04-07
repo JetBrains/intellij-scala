@@ -14,7 +14,7 @@ import java.util.concurrent.TimeoutException
 import scala.concurrent.duration.DurationInt
 import scala.util.Try
 
-private object ScalaCliUtils {
+private[scalaCli] object ScalaCliUtils {
   private val log = Logger.getInstance(getClass)
 
   /** Checks if Scala CLI is installed, showing a cancelable progress dialog. */
@@ -33,7 +33,7 @@ private object ScalaCliUtils {
   /** Describes how Scala CLI is installed on the system. */
   sealed trait ScalaCliInstallKind
 
-  private object ScalaCliInstallKind {
+  object ScalaCliInstallKind {
     /** Scala CLI is available as part of the Scala distribution (available since Scala 3.5.0) */
     case object Bundled extends ScalaCliInstallKind
 
@@ -42,20 +42,30 @@ private object ScalaCliUtils {
   }
   
   /**
-   * Detects how and whether Scala CLI is installed.
+   * Detects or verifies Scala CLI installation based on the provided `targetInstallKind`:
+   *   - when `targetInstallKind` is specified: verifies if the specific installation kind is available
+   *   - when `targetInstallKind` is empty: detects which installation kind is available,
+   *     checking bundled first, then standalone
    *
    * @param workspace directory in which the installation is checked
-   * @return Some([[ScalaCliInstallKind]]) if Scala CLI is installed
-   *         or `None` if it's not.
+   * @param targetInstallKind optional install kind to verify; when `None`, detects any available kind
+   * @return `Some` if the requested or detected installation is available, or `None` otherwise.
    */
   @RequiresBackgroundThread
-  def detectScalaCliInstallKind(workspace: Path, indicator: ProgressIndicator): Option[ScalaCliInstallKind] =
-    if (isBundledScalaCliInstalled(workspace, indicator))
-      Some(ScalaCliInstallKind.Bundled)
-    else if (isScalaCliStandaloneInstalled(workspace, indicator))
-      Some(ScalaCliInstallKind.Standalone)
-    else
-      None
+  def detectScalaCliInstallKind(
+    workspace: Path,
+    indicator: ProgressIndicator,
+    targetInstallKind: Option[ScalaCliInstallKind] = None
+  ): Option[ScalaCliInstallKind] = {
+    val candidates = targetInstallKind match {
+      case Some(value) => Seq(value)
+      case None => Seq(ScalaCliInstallKind.Bundled, ScalaCliInstallKind.Standalone)
+    }
+    candidates.find {
+      case ScalaCliInstallKind.Bundled => isBundledScalaCliInstalled(workspace, indicator)
+      case ScalaCliInstallKind.Standalone => isScalaCliStandaloneInstalled(workspace, indicator)
+    }
+  }
 
   private def isScalaCliStandaloneInstalled(workspace: Path, indicator: ProgressIndicator): Boolean =
     BspUtil.isToolInstalledCheckViaVersion(workspace, indicator, getScalaCliStandaloneCommand: _*)

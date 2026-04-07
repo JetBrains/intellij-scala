@@ -7,7 +7,6 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator}
-import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.{Project, ProjectUtil}
 import com.intellij.openapi.roots.CompilerProjectExtension
 import com.intellij.openapi.vfs.VirtualFileManager
@@ -17,7 +16,7 @@ import org.eclipse.lsp4j.jsonrpc.messages.ResponseErrorCode
 import org.jetbrains.annotations.Nls
 import org.jetbrains.bsp.data.BspProjectData
 import org.jetbrains.bsp.project.BspExternalSystemUtil
-import org.jetbrains.bsp.settings.BspSettings
+import org.jetbrains.bsp.settings.{BspProjectSettings, BspSettings}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.BuildReporter
 import org.jetbrains.plugins.scala.extensions.PathExt
@@ -197,4 +196,7 @@ object BspUtil {
       case Failure(exc) => Left(exc)
     }
   }
+
+  private[bsp] def getBspProjectSettings(project: Project, linkedProjectPath: Path): Option[BspProjectSettings] =
+    Option(BspSettings.getInstance(project).getLinkedProjectSettings(linkedProjectPath.toCanonicalPath.toString))
 }
