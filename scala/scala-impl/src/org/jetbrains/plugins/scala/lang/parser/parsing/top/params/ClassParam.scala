@@ -29,8 +29,9 @@ object ClassParam extends ParsingRule {
     while (Modifier()) {
       isModifier = true
     }
-    if (builder.isScala3 && canFollowInlineKeyword(builder.lookAhead(1))) {
-      builder.tryParseSoftKeyword(ScalaTokenType.InlineKeyword)
+    if (builder.isScala3 && canFollowParameterSoftKeyword(builder.lookAhead(1))) {
+      builder.tryParseSoftKeyword(ScalaTokenType.InlineKeyword) ||
+        builder.tryParseSoftKeyword(ScalaTokenType.ErasedKeyword)
     }
     modifierMarker.done(ScalaElementType.MODIFIERS)
 
@@ -79,7 +80,7 @@ object ClassParam extends ParsingRule {
     ignoreErrors || !hasError
   }
 
-  private val canFollowInlineKeyword = Set(
+  private val canFollowParameterSoftKeyword = Set(
     ScalaTokenTypes.kVAL,
     ScalaTokenTypes.kVAR,
     ScalaTokenTypes.tIDENTIFIER
