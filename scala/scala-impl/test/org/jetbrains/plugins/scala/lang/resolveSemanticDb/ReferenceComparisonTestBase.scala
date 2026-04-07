@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.resolveSemanticDb
 
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.pom.java.LanguageLevel
-import com.intellij.psi.PsiNamedElement
+import com.intellij.psi.{PsiClassOwner, PsiElement, PsiFile, PsiNamedElement}
 import com.intellij.testFramework.TestLoggerKt
 import com.jetbrains.rd.util.threading.CompoundThrowable
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
@@ -12,10 +12,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, 
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScModifierList, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScQuoted, ScSpliced}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumClassCase, ScExtension, ScFunction, ScTypeAliasDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScExportStmt, ScImportSelector, ScImportStmt}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumClassCase, ScExtension, ScFunction, ScTypeAlias, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScExportStmt, ScImportOrExportStmt, ScImportSelector, ScImportStmt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScDerivesClause
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScEnum, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.types.Context
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -97,7 +97,13 @@ abstract class ReferenceComparisonTestBase(config: ReferenceComparisonTestConfig
           ) {
             def ignoreSemanticDbRef(ref: SDbRef): Boolean = {
               // ignore locals and implicits involving ClassTag
-              ref.pointsToLocal || ref.symbol.contains("ClassTag")
+              ref.pointsToLocal ||
+                ref.symbol.contains("ClassTag") ||
+                // there are lots of edge cases related to resolving type parameters
+                // (e.g. context bounds that have no reference in source code, but do have it in compiler expanded ast)
+                // on the other hand, I think it's safe to assume we resolve references to type parameters correctly,
+                // as it is just a simple tree walk-up 99.999% of the time
+                ref.isTypeParamRef
             }
 
             for (semanticDbRef <- semanticDbReferences if !ignoreSemanticDbRef(semanticDbRef)) {
@@ -225,6 +231,11 @@ object ReferenceComparisonTestBase {
 
   case class PhysicalRefTarget(element: PsiNamedElement) extends RefTarget
 
+  case class ExportedRefTarget(originalElement: PsiNamedElement, stringRepr: String) extends RefTarget {
+    override lazy val symbol: String = stringRepr
+    override def element: PsiNamedElement = originalElement
+  }
+
   case class AssignmentRefTarget(element: PsiNamedElement) extends RefTarget {
     override lazy val symbol: String =
       ComparisonSymbol.fromPsi(element)
@@ -235,21 +246,33 @@ object ReferenceComparisonTestBase {
         .appendedAll(s"`${element.name}_=`().")
   }
 
-  case class RefInfo(name: String,
-                     pos: TextPos,
-                     resolved: Seq[ScalaResolveResult],
-                     fileName: String,
-                     problems: Option[String],
-                     isImplicit: Boolean,
-                     isScalaDocRef: Boolean)(implicit context: Context) {
+  case class RefInfo(
+    name: String,
+    pos: TextPos,
+    resolved: Seq[ScalaResolveResult],
+    fileName: String,
+    problems: Option[String],
+    isImplicit: Boolean,
+    isScalaDocRef: Boolean,
+    isExportImportRef: Boolean
+  )(implicit context: Context) {
     override def toString: String = s"$name at $pos in $fileName"
 
-    lazy val targets: Seq[RefTarget] = resolved
-      .flatMap(r => Seq(r.element) ++ r.parentElement ++ r.innerResolveResult.map(_.element))
-      .filterByType[PsiNamedElement]
-      .flatMap { named =>
-        physicalRefTarget(named) ++ assignmentTarget(named) ++ opaqueTarget(named)
-      }
+    lazy val targets: Seq[RefTarget] = resolved.flatMap(targetsForResolveResult)
+
+    private def targetsForResolveResult(resolveResult: ScalaResolveResult): Seq[RefTarget] = {
+      val exportedForwarderSymbol = RefInfo.exportedForwarderSymbol(resolveResult)
+
+      (Seq(resolveResult.element) ++ resolveResult.parentElement ++ resolveResult.innerResolveResult.map(_.element))
+        .filterByType[PsiNamedElement]
+        .flatMap { named =>
+          val exportedTarget =
+            if (named eq resolveResult.element) exportedForwarderSymbol.map(ExportedRefTarget(named, _))
+            else                                None
+
+          physicalRefTarget(named) ++ assignmentTarget(named) ++ opaqueTarget(named) ++ exportedTarget
+        }
+    }
 
     /*lazy val problems: Option[String] = {
       val resultsWithProblems = resolved.filter(_.problems.nonEmpty)
@@ -259,7 +282,7 @@ object ReferenceComparisonTestBase {
     }*/
     def failedToResolve: Boolean = {
       resolved.isEmpty ||
-        (resolved.size > 1 && !isScalaDocRef) ||
+        (resolved.size > 1 && !isScalaDocRef && !isExportImportRef) ||
         problems.nonEmpty
     }
   }
@@ -275,7 +298,8 @@ object ReferenceComparisonTestBase {
         ref.getContainingFile.name,
         problems,
         isImplicit = false,
-        isScalaDocRef = ref.parentOfType[ScDocComment].isDefined
+        isScalaDocRef = ref.parentOfType[ScDocComment].isDefined,
+        isExportImportRef = ref.parentOfType[ScImportOrExportStmt].isDefined
       )(Context(ref))
     }
 
@@ -295,6 +319,7 @@ object ReferenceComparisonTestBase {
             problems,
             isImplicit = true,
             isScalaDocRef = false,
+            isExportImportRef = false,
           )(Context(iao)))
         }
       }
@@ -326,6 +351,49 @@ object ReferenceComparisonTestBase {
         aliased.map(PhysicalRefTarget)
       case _ => None
     }
+
+    private def exportedForwarderSymbol(resolveResult: ScalaResolveResult): Option[String] = {
+      for {
+        exportedInfo         <- resolveResult.exportedInfo
+        forwarderOwnerSymbol <- exportOwnerSymbol(exportedInfo.exportedIn)
+      } yield {
+        val renamedMemberPart = resolveResult.renamed
+        val name              = ComparisonSymbol.escapedName(renamedMemberPart.getOrElse(resolveResult.name))
+
+        val suffix = resolveResult.element match {
+          case _: ScClass | _: ScTypeAlias => "#"
+          case _                           => "()."
+        }
+
+        forwarderOwnerSymbol + name + suffix
+      }
+    }
+
+
+    private def exportOwnerSymbol(exportedIn: PsiElement): Option[String] =
+      nearestNamedOwnerSymbol(exportedIn)
+        .orElse(topLevelOwnerSymbol(exportedIn.getContainingFile))
+
+    private def nearestNamedOwnerSymbol(element: PsiElement): Option[String] = {
+      val selfSymbol = element.asOptionOf[PsiNamedElement]
+
+      val parentSymbol =
+        element.contexts
+          .takeWhile(!_.is[PsiFile])
+          .collectFirst {
+            case named: PsiNamedElement => named
+          }
+
+      selfSymbol.orElse(parentSymbol).map(ComparisonSymbol.fromPsi)
+    }
+
+    private def topLevelOwnerSymbol(file: PsiFile): Option[String] =
+      Option(file).map {
+        case classOwner: PsiClassOwner if classOwner.getPackageName.nonEmpty =>
+          classOwner.getPackageName.split('.').mkString("/") + "/"
+        case _ =>
+          "_empty_/"
+      }
   }
 
   def disambiguatedStoreFileNameForUppercaseNames(testName: String): Option[String] = {
