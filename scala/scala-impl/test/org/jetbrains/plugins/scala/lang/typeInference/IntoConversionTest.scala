@@ -156,4 +156,49 @@ class IntoConversionTest extends ScalaLightCodeInsightFixtureTestCase {
         |""".stripMargin
     )
   }
+
+  // SCL-25263
+  def testTypeAlias(): Unit = {
+    checkTextHasNoErrors(
+      """import Conversion.into
+        |trait Target { def fooTT: Int = 42 }
+        |
+        |object Test:
+        |  type ToTargetType = into[Target]
+        |  def foo(tt: ToTargetType): Unit =
+        |    val _ = tt: Target
+        |    tt.fooTT
+        |""".stripMargin
+    )
+  }
+
+  def testOpaqueTypeAlias(): Unit = {
+    checkTextHasNoErrors(
+      """import Conversion.into
+        |trait Target { def fooTT: Int = 42 }
+        |
+        |object Test:
+        |  opaque type ToTargetType = into[Target]
+        |
+        |  def foo(tt: ToTargetType): Unit =
+        |    val _ = tt: Target
+        |    tt.fooTT
+        |""".stripMargin
+    )
+  }
+
+  def testOpaqueTypeAlias2(): Unit =
+    checkHasErrorAroundCaret(
+      s"""import Conversion.into
+        |trait Target { def fooTT: Int = 42 }
+        |
+        |object Container:
+        |  opaque type ToTargetType = into[Target]
+        |
+        |object Test:
+        |  def foo(tt: Container.ToTargetType): Unit =
+        |    val _ = tt: Tar${CARET}get
+        |    tt.fooTT
+        |""".stripMargin
+    )
 }
