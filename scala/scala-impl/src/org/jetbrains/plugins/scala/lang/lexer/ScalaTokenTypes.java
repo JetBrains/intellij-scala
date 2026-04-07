@@ -252,6 +252,7 @@ public interface ScalaTokenTypes {
             ExtensionKeyword(),
             OpaqueKeyword(),
             InlineKeyword(),
+            ErasedKeyword(),
             TransparentKeyword(),
             UsingKeyword(),
             OpenKeyword(),

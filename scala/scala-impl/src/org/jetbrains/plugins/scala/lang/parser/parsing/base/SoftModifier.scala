@@ -12,6 +12,7 @@ object SoftModifier extends ParsingRule {
 
   private val modifiers = Seq(
     Inline,
+    Erased,
     Transparent,
     Open,
     Infix,

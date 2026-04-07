@@ -249,13 +249,13 @@ final class ReferenceComparisonTest_Scala3_LTS_Part3 extends ReferenceComparison
   def test_enum_variance(): Unit = doTest("enum-variance", true) // #enum
   def test_enum_widen(): Unit = doTest("enum-widen", true) // #enum, #intersectionType
   def test_enums_capture(): Unit = doTest("enums-capture", false) // #enum
-  def test_erased_args_lifted(): Unit = doTest("erased-args-lifted", false)
-  def test_erased_asInstanceOf(): Unit = doTest("erased-asInstanceOf", false)
-  def test_erased_class_as_args(): Unit = doTest("erased-class-as-args", false)
-  def test_erased_class_separate(): Unit = doTest("erased-class-separate", false)
-  def test_erased_conforms(): Unit = doTest("erased-conforms", false) // #extension
-  def test_erased_deep_context(): Unit = doTest("erased-deep-context", false)
-  def test_erased_extension_method(): Unit = doTest("erased-extension-method", false)
+  def test_erased_args_lifted(): Unit = doTest("erased-args-lifted", true)
+  def test_erased_asInstanceOf(): Unit = doTest("erased-asInstanceOf", true)
+  def test_erased_class_as_args(): Unit = doTest("erased-class-as-args", true)
+  def test_erased_class_separate(): Unit = doTest("erased-class-separate", true)
+  def test_erased_conforms(): Unit = doTest("erased-conforms", true) // #extension
+  def test_erased_deep_context(): Unit = doTest("erased-deep-context", true)
+  def test_erased_extension_method(): Unit = doTest("erased-extension-method", true)
   def test_erased_lub(): Unit = doTest("erased-lub", true)
   def test_erased_lub_2(): Unit = doTest("erased-lub-2", true)
   def test_erased_soft_keyword(): Unit = doTest("erased-soft-keyword", false)
@@ -272,12 +272,12 @@ final class ReferenceComparisonTest_Scala3_LTS_Part3 extends ReferenceComparison
   def test_existential_java_case_class(): Unit = doTest("existential-java-case-class", true)
   def test_existentials(): Unit = doTest("existentials", true)
   def test_existentials_harmful(): Unit = doTest("existentials-harmful", true)
-  def test_experimental_erased(): Unit = doTest("experimental-erased", false)
-  def test_experimental_erased_2(): Unit = doTest("experimental-erased-2", false)
+  def test_experimental_erased(): Unit = doTest("experimental-erased", true)
+  def test_experimental_erased_2(): Unit = doTest("experimental-erased-2", true)
   def test_experimental_imports_empty(): Unit = doTest("experimental-imports-empty", true)
-  def test_experimental_imports_top(): Unit = doTest("experimental-imports-top", false)
+  def test_experimental_imports_top(): Unit = doTest("experimental-imports-top", true)
   def test_experimental_inheritance(): Unit = doTest("experimental-inheritance", true)
-  def test_experimentalErased(): Unit = doTest("experimentalErased", false)
+  def test_experimentalErased(): Unit = doTest("experimentalErased", true)
   def test_experimentalExperimental(): Unit = doTest("experimentalExperimental", true)
   def test_explicitOuter(): Unit = doTest("explicitOuter", true)
   def test_exponential_spec(): Unit = doTest("exponential-spec", true)
@@ -1176,8 +1176,8 @@ final class ReferenceComparisonTest_Scala3_LTS_Part11 extends ReferenceCompariso
   def test_i10715_scala(): Unit = doTest("i10715-scala", true)
   def test_i10769(): Unit = doTest("i10769", true)
   def test_i10769b(): Unit = doTest("i10769b", true)
-  def test_i10848a(): Unit = doTest("i10848a", false)
-  def test_i10848b(): Unit = doTest("i10848b", false)
+  def test_i10848a(): Unit = doTest("i10848a", true)
+  def test_i10848b(): Unit = doTest("i10848b", true)
   def test_i10871(): Unit = doTest("i10871", true)
 }
 
@@ -1263,15 +1263,15 @@ final class ReferenceComparisonTest_Scala3_LTS_Part12 extends ReferenceCompariso
   def test_i11729(): Unit = doTest("i11729", true) // #matchType
   def test_i11731(): Unit = doTest("i11731", true)
   def test_i11732(): Unit = doTest("i11732", true)
-  def test_i11743(): Unit = doTest("i11743", false) // #extension
+  def test_i11743(): Unit = doTest("i11743", true) // #extension
   def test_i11781(): Unit = doTest("i11781", true)
   def test_i11819(): Unit = doTest("i11819", true) // #opaque
-  def test_i11864(): Unit = doTest("i11864", false) // #transparentInline
+  def test_i11864(): Unit = doTest("i11864", true) // #transparentInline
   def test_i11866(): Unit = doTest("i11866", false)
   def test_i11894(): Unit = doTest("i11894", true)
   def test_i11894a(): Unit = doTest("i11894a", true) // #extension, #transparentInline
   def test_i11894b(): Unit = doTest("i11894b", true) // #extension
-  def test_i11896(): Unit = doTest("i11896", false)
+  def test_i11896(): Unit = doTest("i11896", true)
   def test_i11922(): Unit = doTest("i11922", false) // #export
   def test_i11955(): Unit = doTest("i11955", true)
   def test_i11968(): Unit = doTest("i11968", true) // #intersectionType
@@ -1380,7 +1380,7 @@ final class ReferenceComparisonTest_Scala3_LTS_Part13 extends ReferenceCompariso
   def test_i13346(): Unit = doTest("i13346", false) // #export
   def test_i13349(): Unit = doTest("i13349", true)
   def test_i13349min(): Unit = doTest("i13349min", true)
-  def test_i13392(): Unit = doTest("i13392", false)
+  def test_i13392(): Unit = doTest("i13392", true)
   def test_i13411(): Unit = doTest("i13411", true)
   def test_i13411b(): Unit = doTest("i13411b", true)
   def test_i13426(): Unit = doTest("i13426", true)
@@ -1678,7 +1678,7 @@ final class ReferenceComparisonTest_Scala3_LTS_Part16 extends ReferenceCompariso
   def test_i17394b(): Unit = doTest("i17394b", true) // #givenImport
   def test_i17525(): Unit = doTest("i17525", true) // #transparentInline
   def test_i17556(): Unit = doTest("i17556", true)
-  def test_i17584a(): Unit = doTest("i17584a", false)
+  def test_i17584a(): Unit = doTest("i17584a", true)
   def test_i17588(): Unit = doTest("i17588", true) // #export
   def test_i17631(): Unit = doTest("i17631", true)
   def test_i17735(): Unit = doTest("i17735", true)
@@ -3003,7 +3003,7 @@ final class ReferenceComparisonTest_Scala3_LTS_Part29 extends ReferenceCompariso
   def test_t112606A(): Unit = doTest("t112606A", true)
   def test_tagging(): Unit = doTest("tagging", false) // #opaque
   def test_tailcall(): Unit = doTest("tailcall", true)
-  def test_tailrec(): Unit = doTest("tailrec", false)
+  def test_tailrec(): Unit = doTest("tailrec", true)
   def test_tailrec_super(): Unit = doTest("tailrec-super", true)
   def test_tangledCompanion(): Unit = doTest("tangledCompanion", true)
   def test_targetName(): Unit = doTest("targetName", true)

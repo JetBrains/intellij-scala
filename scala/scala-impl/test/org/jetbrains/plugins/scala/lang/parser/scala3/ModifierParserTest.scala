@@ -56,6 +56,50 @@ class ModifierParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
+  def test_toplevel_erased_def(): Unit = checkTree(
+    """
+      |package test
+      |erased def foo() = ()
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScPackaging
+      |    PsiElement(package)('package')
+      |    PsiWhiteSpace(' ')
+      |    CodeReferenceElement: test
+      |      PsiElement(identifier)('test')
+      |    PsiWhiteSpace('\n')
+      |    ScFunctionDefinition: foo
+      |      AnnotationsList
+      |        <empty list>
+      |      Modifiers
+      |        PsiElement(erased)('erased')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(def)('def')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(identifier)('foo')
+      |      Parameters
+      |        ParametersClause
+      |          PsiElement(()('(')
+      |          PsiElement())(')')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(=)('=')
+      |      PsiWhiteSpace(' ')
+      |      UnitExpression
+      |        PsiElement(()('(')
+      |        PsiElement())(')')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  def test_toplevel_erased_class(): Unit = checkParseErrors(
+    """
+      |package test
+      |erased class Test
+      |""".stripMargin
+  )
+
   def test_inline_def_param(): Unit = checkTree(
     """
       |def test(inline i: Int): Unit = ()
@@ -79,6 +123,53 @@ class ModifierParserTest extends SimpleScala3ParserTestBase {
       |            <empty list>
       |          Modifiers
       |            PsiElement(inline)('inline')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(identifier)('i')
+      |          PsiElement(:)(':')
+      |          PsiWhiteSpace(' ')
+      |          ParameterType
+      |            SimpleType: Int
+      |              CodeReferenceElement: Int
+      |                PsiElement(identifier)('Int')
+      |        PsiElement())(')')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    SimpleType: Unit
+      |      CodeReferenceElement: Unit
+      |        PsiElement(identifier)('Unit')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    UnitExpression
+      |      PsiElement(()('(')
+      |      PsiElement())(')')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  def test_erased_def_param(): Unit = checkTree(
+    """
+      |def test(erased i: Int): Unit = ()
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScFunctionDefinition: test
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(def)('def')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('test')
+      |    Parameters
+      |      ParametersClause
+      |        PsiElement(()('(')
+      |        Parameter: i
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            PsiElement(erased)('erased')
       |          PsiWhiteSpace(' ')
       |          PsiElement(identifier)('i')
       |          PsiElement(:)(':')
@@ -146,6 +237,49 @@ class ModifierParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
+  def test_erased_class_parameter(): Unit = checkTree(
+    """
+      |class Test(erased x: int)
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScClass: Test
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(class)('class')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('Test')
+      |    PrimaryConstructor
+      |      AnnotationsList
+      |        <empty list>
+      |      Modifiers
+      |        <empty list>
+      |      Parameters
+      |        ParametersClause
+      |          PsiElement(()('(')
+      |          ClassParameter: x
+      |            AnnotationsList
+      |              <empty list>
+      |            Modifiers
+      |              PsiElement(erased)('erased')
+      |            PsiWhiteSpace(' ')
+      |            PsiElement(identifier)('x')
+      |            PsiElement(:)(':')
+      |            PsiWhiteSpace(' ')
+      |            ParameterType
+      |              SimpleType: int
+      |                CodeReferenceElement: int
+      |                  PsiElement(identifier)('int')
+      |          PsiElement())(')')
+      |    ExtendsBlock
+      |      <empty list>
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
   def test_transparent(): Unit = checkParseErrors(
     """
       |transparent inline def choose(b: Boolean): A =
@@ -183,6 +317,89 @@ class ModifierParserTest extends SimpleScala3ParserTestBase {
       |          Modifiers
       |            <empty list>
       |          PsiElement(identifier)('inline')
+      |          PsiElement(:)(':')
+      |          PsiWhiteSpace(' ')
+      |          ParameterType
+      |            SimpleType: T
+      |              CodeReferenceElement: T
+      |                PsiElement(identifier)('T')
+      |        PsiElement())(')')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    UnitExpression
+      |      PsiElement(()('(')
+      |      PsiElement())(')')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  def test_parameter_named_erased(): Unit = checkTree(
+    """
+      |def test(erased: T) = ()
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScFunctionDefinition: test
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(def)('def')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('test')
+      |    Parameters
+      |      ParametersClause
+      |        PsiElement(()('(')
+      |        Parameter: erased
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(identifier)('erased')
+      |          PsiElement(:)(':')
+      |          PsiWhiteSpace(' ')
+      |          ParameterType
+      |            SimpleType: T
+      |              CodeReferenceElement: T
+      |                PsiElement(identifier)('T')
+      |        PsiElement())(')')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    UnitExpression
+      |      PsiElement(()('(')
+      |      PsiElement())(')')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  def test_erased_parameter_named_erased(): Unit = checkTree(
+    """
+      |def test(erased erased: T) = ()
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScFunctionDefinition: test
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(def)('def')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('test')
+      |    Parameters
+      |      ParametersClause
+      |        PsiElement(()('(')
+      |        Parameter: erased
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            PsiElement(erased)('erased')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(identifier)('erased')
       |          PsiElement(:)(':')
       |          PsiWhiteSpace(' ')
       |          ParameterType
