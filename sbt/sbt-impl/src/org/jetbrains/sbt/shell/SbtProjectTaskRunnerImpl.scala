@@ -14,7 +14,7 @@ import com.intellij.openapi.externalSystem.util.{ExternalSystemUtil, ExternalSys
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.module.ModuleType
-import com.intellij.openapi.progress.{PerformInBackgroundOption, ProcessCanceledException, ProgressIndicator, ProgressManager, Task}
+import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
 import com.intellij.task.*
 import org.jetbrains.annotations.Nullable
@@ -31,7 +31,6 @@ import org.jetbrains.sbt.settings.SbtSettings
 import org.jetbrains.sbt.{SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabilities, SbtVersionDetector}
 
 import java.util.UUID
-import scala.annotation.nowarn
 import scala.concurrent.{Future, Promise}
 import scala.util.{Failure, Success}
 
@@ -187,8 +186,12 @@ final class SbtProjectTaskRunnerImpl
 }
 
 // TODO: PerformInBackgroundOption is deprecated, ProgressManager.run(Task) is obsolete. See IJPL-384
-private class CommandTask(project: Project, command: String, projectTaskPromise: AsyncPromise[ProjectTaskRunner.Result]) extends
-  Task.Backgroundable(project, SbtBundle.message("sbt.shell.sbt.build"), true, PerformInBackgroundOption.ALWAYS_BACKGROUND: @nowarn("cat=deprecation")) {
+private class CommandTask(
+  project: Project,
+  command: String,
+  projectTaskPromise:
+  AsyncPromise[ProjectTaskRunner.Result]
+) extends Task.Backgroundable(project, SbtBundle.message("sbt.shell.sbt.build"), true) {
 
   private val resultPromise: Promise[BuildMessages] = Promise()
 
