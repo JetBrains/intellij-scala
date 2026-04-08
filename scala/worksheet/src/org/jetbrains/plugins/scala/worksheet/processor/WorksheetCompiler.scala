@@ -295,8 +295,7 @@ object WorksheetCompiler {
 
     sealed trait Precondition
     object Precondition {
-      final case object ReplRequiresCompileServerProcess extends Precondition
-      final case object ProjectShouldBeInSmartState extends Precondition
+      case object ReplRequiresCompileServerProcess extends Precondition
     }
   }
 

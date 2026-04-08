@@ -28,18 +28,8 @@ class WorksheetEvaluationErrorReporter(
     val WCR = WorksheetCompilerResult
     error match {
       case WCR.PreprocessError(error)            => showCompilationError(error.message, error.position)
-      case WCR.PreconditionError(precondition)   =>
-        precondition match {
-          case Precondition.ReplRequiresCompileServerProcess =>
-            showReplRequiresCompileServerNotification()
-          case Precondition.ProjectShouldBeInSmartState =>
-            WorksheetNotificationsGroup
-              .createNotification(
-                WorksheetBundle.message("worksheet.configuration.errors.project.indexing.not.finished"),
-                NotificationType.WARNING
-              )
-              .notify(project)
-        }
+      case WCR.PreconditionError(Precondition.ReplRequiresCompileServerProcess) =>
+        showReplRequiresCompileServerNotification()
       case WCR.UnknownError(exception)           => reportUnexpectedError(exception)
       case WCR.CompilationError                  => // assuming that compilation errors are already reported by CompilerTask in WorksheetCompiler
       case WCR.ProcessTerminatedError(_, _)      => // not handled, used to cancel evaluation
