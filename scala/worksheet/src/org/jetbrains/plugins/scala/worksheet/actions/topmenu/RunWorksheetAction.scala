@@ -7,7 +7,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.progress.{ProgressIndicator, Task}
-import com.intellij.openapi.project.{DumbService, IndexNotReadyException, Project}
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.task.{ProjectTaskContext, ProjectTaskManager}
 import org.jetbrains.annotations.NonNls
@@ -74,11 +74,6 @@ object RunWorksheetAction {
     final case object NoModuleError extends Error
     final case object NoWorksheetFileError extends Error
     final case object NoWorksheetEditorError extends Error
-    final case class IndexNotReady(ex: IndexNotReadyException) extends Error
-
-    object IndexNotReady {
-      def apply(): IndexNotReady = IndexNotReady(IndexNotReadyException.create())
-    }
   }
 
   private final class RunImmediatelyExecutionContext extends ExecutionContext {
@@ -89,18 +84,9 @@ object RunWorksheetAction {
   }
 
   def runCompilerForEditor(editor: Editor, psiFile: WorksheetFile, auto: Boolean): Future[RunWorksheetActionResult] = {
-    // SCL-16786: do not allow to run worksheet in dumb mode
-    // - it is required during resolve in WorksheetDefaultSourcePreprocessor.preprocess
-    // - run could be triggered automatically in "Incremental mode" bypassing AnAction
-    // - also in theory preprocess could be delayed when "Build project before run" setting is enabled
-    // TODO: SCL-25277 - We can potentially remove the `isDumb` check here as well.
     val project = psiFile.getProject
-    val future = if (DumbService.getInstance(project).isDumb)
-       Future.successful(RunWorksheetActionResult.IndexNotReady())
-    else {
-      ScalaActionUsagesCollector.logRunWorksheet(project)
-      runCompiler(editor, psiFile, auto)
-    }
+    ScalaActionUsagesCollector.logRunWorksheet(project)
+    val future = runCompiler(editor, psiFile, auto)
 
     future.onComplete {
       case Success(error: RunWorksheetActionResult.Error) => reportError(project, error)
@@ -119,7 +105,6 @@ object RunWorksheetAction {
       case WorksheetRunError(_)             => // skip, already reported in WorksheetEvaluationErrorReporter
       case NoWorksheetFileError             => // skip for now
       case NoWorksheetEditorError           => // skip for now
-      case IndexNotReady(_)                 => // skip for now
     }
   }
 
