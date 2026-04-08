@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.console.ScalaLanguageConsoleUtils
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition, ScTypeDefinitionLike}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGivenDefinition, ScObject, ScTypeDefinition, ScTypeDefinitionLike}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
@@ -50,6 +50,9 @@ final class ScalaFileNameInspection extends LocalInspectionTool {
     val members = scalaFile.members
     val typeDefinitions: Seq[ScTypeDefinitionLike] = members.collect {
       case td: ScTypeDefinitionLike if td.canHaveCompanion => td
+    }.filter {
+      case g: ScGivenDefinition if g.nameElement.isEmpty => false
+      case _ => true
     }
     if (members.size != typeDefinitions.size)
       Seq.empty
