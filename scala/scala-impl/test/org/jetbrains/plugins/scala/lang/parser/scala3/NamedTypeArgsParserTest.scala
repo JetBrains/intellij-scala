@@ -10,6 +10,17 @@ class NamedTypeArgsParserTest extends SimpleScala3ParserTestBase {
         |""".stripMargin
     )
 
+  def test_named_type_args_in_method_call_multiline_after_bracket(): Unit =
+    checkParseErrors(
+      """
+        |def construct[Elem, Coll[_]](xs: Elem*): Coll[Elem] = ???
+        |val xs = construct[
+        |  Coll = List,
+        |  Elem = Int
+        |](1, 2, 3)
+        |""".stripMargin
+    )
+
   def test_named_type_args_in_infix_call(): Unit =
     checkParseErrors(
       """
@@ -36,6 +47,16 @@ class NamedTypeArgsParserTest extends SimpleScala3ParserTestBase {
     checkParseErrors(
       s"""
         |construct[Coll = List, ${err("Named and positional type arguments cannot be mixed")}Int](1)
+        |""".stripMargin
+    )
+
+  def test_mixed_positional_and_named_type_args_named_first_multiline_after_bracket(): Unit =
+    checkParseErrors(
+      s"""
+        |construct[
+        |  Coll = List,
+        |  ${err("Named and positional type arguments cannot be mixed")}Int
+        |](1)
         |""".stripMargin
     )
 }

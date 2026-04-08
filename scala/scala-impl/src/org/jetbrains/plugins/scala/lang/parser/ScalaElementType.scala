@@ -192,6 +192,7 @@ object ScalaElementType {
   /** ********************************************************************************** */
   /** ************************************ TYPE PARTS ********************************** */
   /** ********************************************************************************** */
+  val TYPE_ARG: ScalaElementType = new ScalaElementType("type argument")
   val TYPE_ARGS: ScalaElementType = new ScalaElementType("type arguments")
   val EXISTENTIAL_CLAUSE: ScalaElementType = new ScalaElementType("existential clause")
   val TYPES: ScalaElementType = new ScalaElementType("common type")

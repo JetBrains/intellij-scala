@@ -64,6 +64,7 @@ object ASTNodeToPsiElement {
       case CAPTURE_TYPE => new ScCaptureTypeElementImpl(node)
 
       /* Type parts */
+      case TYPE_ARG => new ScTypeArgumentImpl(node)
       case TYPE_ARGS => new ScTypeArgsImpl(node)
       case EXISTENTIAL_CLAUSE => new ScExistentialClauseImpl(node)
       case TYPES => new ScTypesImpl(node)

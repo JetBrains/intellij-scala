@@ -50,20 +50,32 @@ trait TypeArgs {
           def parseTypeArg(): Boolean =
             checkTypeVariable || parseComponent(isPattern)
 
+          def parsePositionalTypeArg(): Boolean = {
+            val typeArgMarker = builder.mark()
+            val parsedTypeArg = parseTypeArg()
+            if (parsedTypeArg) typeArgMarker.done(ScalaElementType.TYPE_ARG)
+            else typeArgMarker.drop()
+            parsedTypeArg
+          }
+
           val mixedTypeArgsError = ScalaBundle.message("named.and.positional.type.arguments.cannot.be.mixed")
 
           def parseNamedTypeArg(): Boolean =
             if (builder.lookAhead(ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tASSIGN)) {
+              val typeArgMarker = builder.mark()
               builder.advanceLexer() // Ate id
               builder.advanceLexer() // Ate =
               if (!parseTypeArg()) builder error ScalaBundle.message("wrong.type")
+              typeArgMarker.done(ScalaElementType.TYPE_ARG)
               true
             } else {
-              val parsedType = parseTypeArg()
+              val mixedArgMarker = builder.mark()
+              val parsedType = parsePositionalTypeArg()
               if (parsedType) {
                 // Named and positional type arguments cannot be mixed.
-                builder error mixedTypeArgsError
+                mixedArgMarker.error(mixedTypeArgsError)
               } else {
+                mixedArgMarker.drop()
                 val token = builder.getTokenType
                 builder error ErrMsg("identifier.expected")
                 if (token == ScalaTokenTypes.tASSIGN) {
@@ -77,7 +89,7 @@ trait TypeArgs {
 
           var parsedType =
             if (parseNamedArgs) parseNamedTypeArg()
-            else parseTypeArg()
+            else parsePositionalTypeArg()
 
           if (!parsedType) builder error ScalaBundle.message("wrong.type")
 
@@ -90,7 +102,7 @@ trait TypeArgs {
                 // In positional mode we still consume the named argument for better recovery.
                 builder error mixedTypeArgsError
                 parseNamedTypeArg()
-              } else parseTypeArg()
+              } else parsePositionalTypeArg()
 
             if (!parsedType) builder error ScalaBundle.message("wrong.type")
           }
