@@ -26,6 +26,17 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
   )(implicit
     holder: ScalaAnnotationHolder
   ): Unit = {
+    val typeArgs = element.typeArgList
+    val namedTypeArgs = typeArgs.namedTypeArgs
+    if (element.isInScala3File && namedTypeArgs.nonEmpty) {
+      namedTypeArgs.headOption.flatMap(_.nameElement).foreach { firstNamedTypeArgName =>
+        holder.createErrorAnnotation(
+          firstNamedTypeArgName,
+          ScalaBundle.message("named.type.arguments.are.not.allowed.for.type.constructors")
+        )
+      }
+    }
+
     implicit val tpc: TypePresentationContext = TypePresentationContext(element)
     implicit val context: Context = Context(element)
 
