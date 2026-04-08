@@ -155,4 +155,75 @@ class Scala3FileNameInspectionTest extends ScalaInspectionTestBase {
          |object Boo
          |""".stripMargin
     )
+
+  def test_single_val(): Unit =
+    checkTextHasNoErrors(
+      s"""
+         |val a = 1
+         |""".stripMargin
+    )
+
+  def test_named_given_alias_wrong_but_its_ok(): Unit =
+    checkTextHasNoErrors(
+      s"""
+         |given Bar: Any = 1
+         |""".stripMargin
+    )
+
+  def test_named_given_alias_ok(): Unit =
+    checkTextHasNoErrors(
+      s"""
+         |given Foo: Any = 1
+         |""".stripMargin
+    )
+
+  def test_unnamed_given_alias_ok(): Unit =
+    checkTextHasNoErrors(
+      s"""
+         |given Any = 1
+         |""".stripMargin
+    )
+
+  def test_unnamed_given_alias_also_ok(): Unit =
+    checkTextHasNoErrors(
+      s"""
+         |given Any = 1
+         |""".stripMargin
+    )
+
+  def test_named_given_def_wrong(): Unit =
+    checkTextHasError(
+      s"""
+         |given ${START}Bar$END: Any: Int {
+         |  def foo = 3
+         |}
+         |""".stripMargin
+    )
+
+  def test_named_given_def_ok(): Unit =
+    checkTextHasNoErrors(
+      s"""
+         |given Foo: Any: Int = {
+         |  def foo = 3
+         |}
+         |""".stripMargin
+    )
+
+  def test_unnamed_given_def_ok(): Unit =
+    checkTextHasNoErrors(
+      s"""
+         |given Any {
+         |  def foo = 3
+         |}
+         |""".stripMargin
+    )
+
+  def test_unnamed_given_def_also_ok(): Unit =
+    checkTextHasNoErrors(
+      s"""
+         |given Foo {
+         |  def foo = 3
+         |}
+         |""".stripMargin
+    )
 }
