@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeArgument, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
@@ -33,7 +33,7 @@ case class DefaultTypeParameterMismatch(expectedType: ScType, actualType: ScType
 case object WrongTypeParameterInferred                                            extends ApplicabilityProblem
 
 case object DoesNotTakeTypeParameters                                    extends ApplicabilityProblem
-case class ExcessTypeArgument(argument: ScTypeElement)                   extends ApplicabilityProblem
+case class ExcessTypeArgument(argument: ScTypeArgument)                  extends ApplicabilityProblem
 case class MissedTypeParameter(param: TypeParameter)                     extends ApplicabilityProblem
 case object ExpectedTypeMismatch                                         extends ApplicabilityProblem
 case class NotFoundImplicitParameter(tpe: ScType)                        extends ApplicabilityProblem

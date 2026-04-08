@@ -277,8 +277,8 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
       ref.getParent match {
         case gen: ScGenericCall =>
-          gen.typeArgs.typeArgs match {
-            case Seq(arg) => arg.calcType
+          gen.typeArgs.typeArgsWithNamed match {
+            case Seq(arg) => arg.typeElement.map(_.calcType).getOrElse(missingTypeArgument())
             case _ => missingTypeArgument()
           }
         case _ => missingTypeArgument()
@@ -413,7 +413,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
   def classOfFunctionEvaluator(ref: ScReferenceExpression): Evaluator = {
     ref.getContext match {
       case gen: ScGenericCall =>
-        val tpe = gen.arguments.head.`type`().getOrAny
+        val tpe = gen.argumentsWithNamed.head.`type`().getOrAny
         new ClassOfEvaluator(tpe)
       case _ => ScalaLiteralEvaluator.empty
     }

@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.TokenSets
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScContextBound, ScTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScEnumCases, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScEnumCases, ScFunction, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
@@ -113,35 +113,35 @@ class ScTypeParamImpl private (stub: ScTypeParamStub, node: ASTNode)
     }
   }
 
-  override def getUseScope: SearchScope = {
-    val typeParamOwner = owner
-
-    val superSearchScope = super.getUseScope
-    val ownerSearchScope = new LocalSearchScope(typeParamOwner)
-
-
-    val result0 = ownerSearchScope.intersectWith(superSearchScope)
-
-    /**
-     * In case of scala 3 enum case the scaladoc is attached to ScEnumCases, not ScEnumCase
-     * (see comment to [[org.jetbrains.plugins.scala.lang.psi.api.statements.ScEnumCases]])
-     * so we need to add it's scope as well.
-     * In all other cases the document is attached to the owner and is included into ownerSearchScope
-     */
-    val extraScaladocScope = typeParamOwner match {
-      case enumCase: ScEnumCase =>
-        enumCase.getParent.asInstanceOf[ScEnumCases].docComment.map(new LocalSearchScope(_))
+  override def getUseScope: SearchScope =
+    owner match {
+      case fn: ScFunction =>
+        //With the introduction of named type arguments in Scala 3
+        //references to type parameters can be located anywhere.
+        fn.getUseScope
       case _ =>
-        None
-    }
+        val superSearchScope = super.getUseScope
+        val ownerSearchScope = new LocalSearchScope(owner)
 
-    extraScaladocScope match {
-      case Some(scope) =>
-        result0.union(scope)
-      case None =>
-        result0
+        val result0 = ownerSearchScope.intersectWith(superSearchScope)
+
+        /**
+         * In case of scala 3 enum case the scaladoc is attached to ScEnumCases, not ScEnumCase
+         * (see comment to [[org.jetbrains.plugins.scala.lang.psi.api.statements.ScEnumCases]])
+         * so we need to add its scope as well.
+         * In all other cases, the document is attached to the owner and is included into ownerSearchScope
+         */
+        val extraScaladocScope = owner match {
+          case enumCase: ScEnumCase =>
+            enumCase.getParent.asInstanceOf[ScEnumCases].docComment.map(new LocalSearchScope(_))
+          case _ => None
+        }
+
+        extraScaladocScope match {
+          case Some(scope) => result0.union(scope)
+          case None        => result0
+        }
     }
-  }
 
   override def nameId: PsiElement = findLastChildByType(TokenSets.ID_SET).orNull
 

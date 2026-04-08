@@ -46,9 +46,9 @@ class AppliedTypeLambdaCanBeSimplifiedInspection extends LocalInspectionTool {
       alias:         ScTypeAliasDefinition,
       parameterized: ScParameterizedTypeElement
     ): Unit = {
-      val typeArgs = parameterized.typeArgList.typeArgs
+      val typeArgs = parameterized.typeArgList
 
-      if (alias.typeParameters.size == typeArgs.size) {
+      if (alias.typeParameters.size == typeArgs.typeArgsWithNamed.size) {
         val fix = new SimplifyAppliedTypeLambdaQuickFix(parameterized, simplifyTypeProjection(alias, typeArgs)(parameterized))
         val problem = holder.getManager.createProblemDescriptor(
           parameterized,
@@ -87,14 +87,14 @@ object AppliedTypeLambdaCanBeSimplifiedInspection {
   private val inspectionId: String = "ScalaAppliedTypeLambdaCanBeSimplified"
   private val inspectionName: String = ScalaInspectionBundle.message("applied.type.lambda.can.be.simplified")
 
-  def simplifyTypeProjection(alias: ScTypeAliasDefinition, typeArgs: Seq[ScTypeElement])(implicit tpc: TypePresentationContext): String = {
+  private def simplifyTypeProjection(alias: ScTypeAliasDefinition, typeArgs: ScTypeArgs)(implicit tpc: TypePresentationContext): String = {
     val aliased     = alias.aliasedType.getOrAny
-    val subst       = ScSubstitutor.bind(alias.typeParameters, typeArgs)(_.calcType)
+    val subst       = ScSubstitutor.bind(alias.typeParameters, typeArgs)
     val substituted = subst(aliased)
     substituted.presentableText
   }
 
-  final class SimplifyAppliedTypeLambdaQuickFix(paramType: ScParameterizedTypeElement, @SafeFieldForPreview replacement: => String)
+  private final class SimplifyAppliedTypeLambdaQuickFix(paramType: ScParameterizedTypeElement, @SafeFieldForPreview replacement: => String)
     extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("simplify.type"), paramType) {
 
     override protected def doApplyFix(element: ScParameterizedTypeElement)(implicit project: Project): Unit =

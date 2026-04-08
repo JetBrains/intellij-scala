@@ -7,6 +7,7 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cached}
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.KindProjectorUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement.calcType
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
@@ -17,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.Any
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.annotation.tailrec
@@ -29,7 +31,7 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
       def convertParameterized(param: ScParameterizedTypeElement): String = {
         param.typeElement.getText match {
           case v@("+" | "-") => //λ[(-[A], +[B]) => Function2[A, Int, B]]
-            param.typeArgList.typeArgs match {
+            param.typeArgList.typeArgsWithNamed match {
               case Seq(simple) => v ++ simple.getText
               case _           => "" //should have only one type arg
             }
@@ -71,17 +73,21 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
         else res + (i / 25)
       }
 
-      val (paramOpt: Seq[Option[String]], body: Seq[String]) = typeArgList.typeArgs.zipWithIndex.map {
-        case (simple: ScSimpleTypeElement, i) if inlineSyntaxIds.contains(simple.getText) =>
-          val name = generateName(i)
-          val placeholderSymbol = simple.getText.takeRight(1)
-          (Some(simple.getText.replace(placeholderSymbol, name)), name)
-        case (param: ScParameterizedTypeElement, i) if inlineSyntaxIds.contains(param.typeElement.getText) =>
-          val name = generateName(i)
-          val placeholderSymbol = param.typeElement.getText.takeRight(1)
-          (Some(param.getText.replace(placeholderSymbol, name)), name)
-        case (a, _) => (None, a.getText)
-      }.unzip
+      val (paramOpt: Seq[Option[String]], body: Seq[String]) = {
+        val typeArgTypeElements = typeArgList.typeArgsWithNamed.flatMap(_.typeElement)
+
+        typeArgTypeElements.zipWithIndex.map {
+          case (simple: ScSimpleTypeElement, i) if inlineSyntaxIds.contains(simple.getText) =>
+            val name = generateName(i)
+            val placeholderSymbol = simple.getText.takeRight(1)
+            (Some(simple.getText.replace(placeholderSymbol, name)), name)
+          case (param: ScParameterizedTypeElement, i) if inlineSyntaxIds.contains(param.typeElement.getText) =>
+            val name = generateName(i)
+            val placeholderSymbol = param.typeElement.getText.takeRight(1)
+            (Some(param.getText.replace(placeholderSymbol, name)), name)
+          case (a, _) => (None, a.getText)
+        }.unzip
+      }
       val paramText = paramOpt.flatten.mkString(start = "[", sep = ", ", end = "]")
       val bodyText = body.mkString(start = "[", sep = ", ", end = "]")
 
@@ -92,8 +98,8 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
       val forSomeBuilder = new StringBuilder
       var count = 1
       forSomeBuilder.append(" forSome {")
-      val typeElements = typeArgList.typeArgs.map {
-        case w: ScWildcardTypeElement =>
+      val typeElements = typeArgList.typeArgsWithNamed.map(_.typeElement).map {
+        case Some(w: ScWildcardTypeElement) =>
           forSomeBuilder.append("type _" + "$" + count +
             w.lowerTypeElement.fold("")(te => s" >: ${te.getText}") +
             w.upperTypeElement.fold("")(te => s" <: ${te.getText}"))
@@ -101,7 +107,8 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
           val res = s"_$$$count"
           count += 1
           res
-        case t => t.getText
+        case Some(t) => t.getText
+        case None => ""
       }
       forSomeBuilder.delete(forSomeBuilder.length - 2, forSomeBuilder.length)
       forSomeBuilder.append("}")
@@ -125,7 +132,7 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
       }
     }
 
-    typeArgList.typeArgs.find {
+    typeArgList.typeArgsWithNamed.flatMap(_.typeElement).find {
       case _: ScFunctionalTypeElement if isKindProjectorFunctionSyntax => true
       case e if isKindProjectorInlineSyntax(e)                         => true
       case _: ScWildcardTypeElementImpl                                => true
@@ -183,7 +190,8 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
       case _ =>
     }
 
-    val typeArgs = typeArgList.typeArgs.map(_.`type`().getOrAny)
+    //Named arguments are disallowed for types, let's just pretend all args are positional here.
+    val typeArgs = typeArgList.typeArgsWithNamed.flatMap(_.typeElement).map(_.calcType)
 
     if (typeArgs.isEmpty) tr
     else                  Right(ScParameterizedType(res, typeArgs))

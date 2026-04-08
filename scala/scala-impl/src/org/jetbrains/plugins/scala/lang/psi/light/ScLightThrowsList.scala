@@ -29,14 +29,14 @@ private object ScLightThrowsList {
   //for primary constructor `class throws[T <: Throwable](cause: String = "")` of `scala.throws`
   private def fromTypeArgument(annotation: ScAnnotation): Option[PsiClassType] = {
     val typeArgList = annotation.constructorInvocation.typeArgList
+
     for {
-      taList <- typeArgList
-      typeArg <- taList.typeArgs.headOption
-      tpe <- typeArg.`type`().toOption
+      taList    <- typeArgList
+      typeArg   <- taList.typeArgsWithNamed.headOption
+      te        <- typeArg.typeElement
+      tpe       <- te.`type`().toOption
       classType <- tpe.toPsiType.asOptionOf[PsiClassType]
-    } yield {
-      classType
-    }
+    } yield classType
   }
 
   //for `def this(clazz: Class[T])` constructor or `scala.throws`

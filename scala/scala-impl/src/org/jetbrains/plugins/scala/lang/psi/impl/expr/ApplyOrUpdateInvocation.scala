@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeArgs, ScTypeArgument, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScAssignment, ScExpression, ScGenericCall}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
@@ -18,7 +18,7 @@ case class ApplyOrUpdateInvocation(
   baseExpr:          ScExpression,
   targetType:        ScType,
   curriedTypeParams: Seq[TypeParameter],
-  typeArgs:          Seq[ScTypeElement],
+  typeArgs:          Seq[ScTypeArgument],
   expectedType:      () => Option[ScType],
   isDynamic:         Boolean,
   isUpdate:          Boolean
@@ -93,7 +93,7 @@ object ApplyOrUpdateInvocation {
       gen.referencedExpr,
       if (stripTypeArgs) unpackPolyType(tp)._1 else tp,
       Seq.empty,
-      if (stripTypeArgs) Seq.empty else gen.typeArgs.typeArgs,
+      if (stripTypeArgs) Seq.empty else gen.typeArgs.typeArgsWithNamed,
       () => gen.expectedType(),
       isDynamic = isDynamic,
       isUpdate = false
@@ -112,7 +112,7 @@ object ApplyOrUpdateInvocation {
       call.getEffectiveInvokedExpr match {
         case gen: ScGenericCall =>
           if (stripTypeArgs) (gen, unpackPolyType(tp)._1, Seq.empty, Seq.empty)
-          else               (gen.referencedExpr, tp, Seq.empty, gen.arguments)
+          else               (gen.referencedExpr, tp, Seq.empty, gen.argumentsWithNamed)
         case expression =>
           val (targetType, curried) = unpackPolyType(tp)
           (expression, targetType, curried, Seq.empty)

@@ -6,8 +6,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 trait ScTypeArgs extends ScArguments {
   def typeArgsWithNamed: Seq[ScTypeArgument]
 
-  def typeArgs: Seq[ScTypeElement] =
-    typeArgsWithNamed.flatMap(_.typeElement)
+//  def typeArgs: Seq[ScTypeElement] =
+//    typeArgsWithNamed.flatMap(_.typeElement)
 
   def namedTypeArgs: Seq[ScTypeArgument] =
     typeArgsWithNamed.filter(_.isNamed)
@@ -15,5 +15,5 @@ trait ScTypeArgs extends ScArguments {
   def hasNamedTypeArgs: Boolean =
     namedTypeArgs.nonEmpty
 
-  override def getArgsCount: Int = typeArgs.length
+  override def getArgsCount: Int = typeArgsWithNamed.length
 }

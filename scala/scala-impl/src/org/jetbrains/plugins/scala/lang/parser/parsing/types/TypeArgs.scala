@@ -63,7 +63,9 @@ trait TypeArgs {
           def parseNamedTypeArg(): Boolean =
             if (builder.lookAhead(ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tASSIGN)) {
               val typeArgMarker = builder.mark()
+              val namedRefMarker = builder.mark()
               builder.advanceLexer() // Ate id
+              namedRefMarker.done(ScalaElementType.REFERENCE)
               builder.advanceLexer() // Ate =
               if (!parseTypeArg()) builder error ScalaBundle.message("wrong.type")
               typeArgMarker.done(ScalaElementType.TYPE_ARG)

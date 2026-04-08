@@ -64,11 +64,13 @@ trait ScUMethodCallCommon
   override def getTypeArgumentCount: Int =
     getTypeArgs.map(_.getArgsCount).getOrElse(0)
 
-  override def getTypeArguments: ju.List[PsiType] =
-    getTypeArgs
-      .map(_.typeArgs.flatMap(_.`type`().map(_.toPsiType).toOption))
-      .getOrElse(Seq.empty)
-      .asJava
+  override def getTypeArguments: ju.List[PsiType] = {
+    val targsList    = getTypeArgs
+    val targs        = targsList.toSeq.flatMap(_.typeArgsWithNamed)
+    val typeElements = targs.flatMap(_.typeElement)
+    val types        = typeElements.map(_.calcType.toPsiType)
+    types.toList.asJava
+  }
 
   @Nullable
   override def getArgumentForParameter(i: Int): UExpression = {

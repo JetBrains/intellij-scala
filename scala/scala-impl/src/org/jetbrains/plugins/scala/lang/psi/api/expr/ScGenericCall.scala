@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.expr
 
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeArgs, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeArgs, ScTypeArgument, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
@@ -11,7 +11,9 @@ trait ScGenericCall extends ScExpression {
 
   def typeArgs: ScTypeArgs = findChild[ScTypeArgs].get
 
-  def arguments: Seq[ScTypeElement] = typeArgs.typeArgs
+//  def arguments: Seq[ScTypeElement] = typeArgs.typeArgs
+
+  def argumentsWithNamed: Seq[ScTypeArgument] = typeArgs.typeArgsWithNamed
 
   def shapeType: TypeResult
 
@@ -31,10 +33,9 @@ trait ScGenericCall extends ScExpression {
 }
 
 object ScGenericCall {
-
-  def unapply(call: ScGenericCall): Option[(ScReferenceExpression, Seq[ScTypeElement])] =
+  def unapply(call: ScGenericCall): Option[(ScReferenceExpression, Seq[ScTypeArgument])] =
     Option(call.referencedExpr).collect {
-      case reference: ScReferenceExpression => (reference, call.arguments)
+      case reference: ScReferenceExpression => (reference, call.argumentsWithNamed)
     }
 }
 

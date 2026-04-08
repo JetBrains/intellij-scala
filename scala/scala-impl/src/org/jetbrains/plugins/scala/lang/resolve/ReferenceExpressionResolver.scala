@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.dependency.Dependency.DependencyProcessor
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScTypeArgument}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ConstructorInvocationLike, ScConstructorInvocation, ScMethodLike}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -43,7 +43,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
 
   private case class ContextInfo(
     arguments:    Seq[Seq[Expression]],
-    typeArgs:     Seq[ScTypeElement],
+    typeArgs:     Seq[ScTypeArgument],
     expectedType: () => Option[ScType],
     isUnderscore: Boolean,
     invokedExpr:  Option[ScExpression]
@@ -74,11 +74,11 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
   private def getContextInfo(
     ref:      ScReferenceExpression,
     e:        ScExpression,
-    typeArgs: Seq[ScTypeElement] = Seq.empty
+    typeArgs: Seq[ScTypeArgument] = Seq.empty
   ): ContextInfo = {
     e.getContext match {
       case generic: ScGenericCall if typeArgs.isEmpty && generic.referencedExpr == ref =>
-        getContextInfo(ref, generic, typeArgs = generic.arguments)
+        getContextInfo(ref, generic, typeArgs = generic.argumentsWithNamed)
       case call: ScMethodCall if !call.isUpdateCall && call.getInvokedExpr == e =>
 
         ContextInfo(
@@ -363,7 +363,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
         val newState = place match {
           /** An extension method `f` can be referenced by a simple identifier (and rewritten by the compiler to the qualified form)
            * if it is called from inside the body of an extension method `g`, which is defined in the same collective extension.
-           * To support resolve of such cases we store information about enclosing extension in the resolve state.
+           * To support resolution of such cases, we store information about enclosing extension in the resolve state.
            */
           case fdef: ScFunction => fdef.extensionMethodOwner.fold(state)(state.withExtensionContext)
           case (cc: ScCaseClause) & Parent(Parent(m: ScMatch)) =>
@@ -594,7 +594,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
             invocation,
             "this",
             arguments.map(_.exprs),
-            invocation.typeArgList.fold(Seq.empty[ScTypeElement])(_.typeArgs),
+            invocation.typeArgList.fold(Seq.empty[ScTypeArgument])(_.typeArgsWithNamed),
             Seq.empty /* todo: ? */ ,
             constructorResolve = true,
             enableTupling = true

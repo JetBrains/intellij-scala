@@ -28,7 +28,8 @@ class ScalaTypeParameterInfoHandler extends ScalaParameterInfoHandler[ScTypeArgs
 
   override def getActualParameterDelimiterType: IElementType = ScalaTokenTypes.tCOMMA
 
-  override def getActualParameters(o: ScTypeArgs): Array[ScTypeElement] = o.typeArgsWithNamed.map(_.typeElement).toArray
+  override def getActualParameters(o: ScTypeArgs): Array[ScTypeElement] =
+    o.typeArgsWithNamed.flatMap(_.typeElement).toArray
 
   override def getArgumentListClass: Class[ScTypeArgs] = classOf[ScTypeArgs]
 
@@ -89,13 +90,13 @@ class ScalaTypeParameterInfoHandler extends ScalaParameterInfoHandler[ScTypeArgs
   private def remapIndexForNamedTypeArgs(typeArgsOwner: ScTypeArgs, currentIndex: Int, parameterInfo: Any): Option[Int] = {
     val typeArgs                  = typeArgsOwner.typeArgsWithNamed
     val currentArg                = typeArgs.lift(currentIndex)
-    val hasNamedArgs              = typeArgs.exists(_.nameElement.isDefined)
-    val hasPositionalArgs         = typeArgs.exists(_.nameElement.isEmpty)
+    val hasNamedArgs              = typeArgs.exists(_.isNamed)
+    val hasPositionalArgs         = typeArgs.exists(!_.isNamed)
     val isMixedNamedAndPositional = hasNamedArgs && hasPositionalArgs
 
     if (currentIndex < 0 || !hasNamedArgs) Option(currentIndex)
     else {
-      val currentNamedArgName = currentArg.flatMap(_.nameElement).map(_.getText)
+      val currentNamedArgName = currentArg.flatMap(_.name)
 
       if (isMixedNamedAndPositional && currentNamedArgName.isEmpty) None
       else {
@@ -237,7 +238,7 @@ class ScalaTypeParameterInfoHandler extends ScalaParameterInfoHandler[ScTypeArgs
           case context: UpdateParameterInfoContext =>
             val typeArgs = args.typeArgsWithNamed
             val maybeCurrentTypeArg = typeArgs.find(typeArg =>
-              typeArg.typeElement.getTextRange.containsOffset(offset) ||
+              typeArg.typeElement.exists(_.getTextRange.containsOffset(offset)) ||
                 typeArg.nameElement.exists(_.getTextRange.containsOffset(offset))
             )
 

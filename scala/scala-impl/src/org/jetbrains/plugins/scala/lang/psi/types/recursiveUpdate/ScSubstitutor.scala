@@ -3,12 +3,14 @@ package org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.extensions.ArrayExt
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeArgs, ScTypeArgument, ScTypeElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, TypeParamId, TypeParamIdOwner}
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Covariant, TypeParameter, TypeParameterType, UndefinedType, Variance}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith, Stop}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 import scala.annotation.tailrec
 import scala.collection.immutable.LongMap
@@ -219,6 +221,31 @@ object ScSubstitutor {
   def bind[T: TypeParamId, S](typeParamsLike: Iterable[T], targets: Iterable[S])(toScType: S => ScType): ScSubstitutor = {
     val tvMap = TypeParamSubstitution.buildMap(typeParamsLike, targets)(toScType)
     ScSubstitutor(tvMap)
+  }
+
+  def bind[T: TypeParamId](typeParamsLike: Iterable[T], typeArguments: Seq[ScTypeArgument]): ScSubstitutor = {
+    if (!typeArguments.exists(_.isNamed))
+      bind(typeParamsLike, typeArguments.flatMap(_.typeElement))(_.calcType)
+    else {
+      val typeParamsSeq = typeParamsLike.toIndexedSeq
+
+      val matchedNamedTypeArgs = typeArguments.flatMap { typeArg =>
+        for {
+          argName     <- typeArg.name
+          typeElement <- typeArg.typeElement
+          typeParam   <- typeParamsSeq.find(typeParam =>
+            typeParam.typeParamName.exists(ScalaNamesUtil.equivalent(_, argName))
+          )
+        } yield typeParam -> typeElement.calcType
+      }
+
+      bind(matchedNamedTypeArgs.map(_._1), matchedNamedTypeArgs.map(_._2))
+    }
+  }
+
+  def bind[T: TypeParamId](typeParamsLike: Iterable[T], typeArgs: ScTypeArgs): ScSubstitutor = {
+    val typeArguments = typeArgs.typeArgsWithNamed
+    bind(typeParamsLike, typeArguments)
   }
 
   def bind[T: TypeParamId](typeParamsLike: Iterable[T], types: Iterable[ScType]): ScSubstitutor = {

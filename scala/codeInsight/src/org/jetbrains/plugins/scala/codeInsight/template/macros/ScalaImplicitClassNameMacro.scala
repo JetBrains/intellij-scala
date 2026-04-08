@@ -59,7 +59,7 @@ final class ScalaImplicitClassNameMacro extends ScalaMacro {
     }
 
   private def collectGenericParamNames(generic: ScParameterizedTypeElement): Seq[String] = {
-    val withResolvedTypes = generic.typeArgList.typeArgs.map(ta => (ta, ta.`type`()))
+    val withResolvedTypes = generic.typeArgList.typeArgsWithNamed.map(ta => (ta, ta.`type`()))
     val genericTypeParams = withResolvedTypes.filter(_._2.isLeft).map(_._1)
     genericTypeParams.map(_.getText)
   }

@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.resolve.processor
 
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeArgument
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAliasDeclaration, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
@@ -14,7 +14,7 @@ class ConstructorResolveProcessor(
   constr:          PsiElement,
   refName:         String,
   args:            List[Seq[Expression]],
-  typeArgs:        Seq[ScTypeElement],
+  typeArgs:        Seq[ScTypeArgument],
   kinds:           Set[ResolveTargets.Value],
   shapeResolve:    Boolean,
   allConstructors: Boolean

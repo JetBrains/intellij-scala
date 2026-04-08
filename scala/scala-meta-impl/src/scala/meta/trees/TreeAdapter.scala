@@ -347,7 +347,7 @@ trait TreeAdapter {
         }
         res
       case t: ScGenericCall =>
-        m.Term.ApplyType(ideaToMeta(t.referencedExpr).asInstanceOf[m.Term], t.arguments.map(toType).toList)
+        m.Term.ApplyType(ideaToMeta(t.referencedExpr).asInstanceOf[m.Term], t.argumentsWithNamed.map(toType).toList)
       case t: ScParenthesisedExpr =>
         t.innerElement.map(expression).getOrElse(unreachable)
       case t: ScAssignment =>
