@@ -21,7 +21,7 @@ class ConvertToInfixIntention extends PsiElementBaseIntentionAction with DumbAwa
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     element match {
       case Parent((ref: ScStableCodeReference) & Parent(Parent(param: ScParameterizedTypeElement)))
-       if param.typeArgList.typeArgs.size == 2 && !ref.refName.forall(_.isLetterOrDigit)  => true
+       if param.typeArgList.typeArgsWithNamed.size == 2 && !ref.refName.forall(_.isLetterOrDigit)  => true
       case _ => false
     }
   }
@@ -29,7 +29,7 @@ class ConvertToInfixIntention extends PsiElementBaseIntentionAction with DumbAwa
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
     if (element == null || !element.isValid) return
     val paramTypeElement: ScParameterizedTypeElement = PsiTreeUtil.getParentOfType(element, classOf[ScParameterizedTypeElement], false)
-    val Seq(targ1, targ2) = paramTypeElement.typeArgList.typeArgs
+    val Seq(targ1, targ2) = paramTypeElement.typeArgList.typeArgsWithNamed
     val needParens = paramTypeElement.getParent match {
       case _: ScTypeArgs | _: ScParenthesisedTypeElement => false
       case _ => true

@@ -139,7 +139,7 @@ final class ScalaSplitJoinTypeArgumentsContext extends AbstractScalaSplitJoinCon
   override def extractData(element: PsiElement): ListWithElements = {
     val list = getParentOfTypeWithinBlock(element, classOf[ScTypeArgs])
     if (list != null)
-      new ListWithElements(list, list.typeArgs.asJava)
+      new ListWithElements(list, list.typeArgsWithNamed.asJava)
     else
       null
   }

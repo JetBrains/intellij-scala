@@ -88,7 +88,7 @@ class TypeParameterInfoNamedTypeArgsTest extends ScalaLightCodeInsightFixtureTes
     assertNotNull("Expected ScTypeArgs at caret", typeArgs)
 
     val currentArgIndex = typeArgs.typeArgsWithNamed.indexWhere(typeArg =>
-      typeArg.typeElement.getTextRange.containsOffset(offset) ||
+      typeArg.typeElement.exists(_.getTextRange.containsOffset(offset)) ||
         typeArg.nameElement.exists(_.getTextRange.containsOffset(offset))
     )
     assertTrue(s"Expected caret to be inside a type argument, got index = $currentArgIndex", currentArgIndex >= 0)

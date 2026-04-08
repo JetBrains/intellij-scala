@@ -144,7 +144,7 @@ class ScConstructorInvocationImpl(node: ASTNode)
 
       s.getParent match {
         case p: ScParameterizedTypeElement =>
-          val appSubst = ScSubstitutor.bind(typeParameters, p.typeArgList.typeArgs)(_.calcType)
+          val appSubst = ScSubstitutor.bind(typeParameters, p.typeArgList)
           Right(appSubst(res))
         case _ =>
           var nonValueType = ScTypePolymorphicType(res, typeParameters)

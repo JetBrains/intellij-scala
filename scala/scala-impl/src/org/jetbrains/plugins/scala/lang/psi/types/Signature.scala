@@ -66,7 +66,6 @@ trait Signature {
 object Signature {
   def unapply(arg: Signature): Option[(PsiNamedElement, ScSubstitutor)] = Some((arg.namedElement, arg.substitutor))
 
-
   case class ExportedSigInfo(
     exportedIn:   ScExportsHolder,
     exportedFrom: Option[ScType]

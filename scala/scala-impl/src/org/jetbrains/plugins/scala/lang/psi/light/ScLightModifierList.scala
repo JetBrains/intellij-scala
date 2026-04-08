@@ -135,7 +135,7 @@ private[light] class ScLightModifierList(scalaElement: ScalaPsiElement,
         } else problem
       case call: ScGenericCall =>
         if (call.referencedExpr.getText.endsWith("classOf")) {
-          val arguments = call.arguments
+          val arguments = call.argumentsWithNamed
           if (arguments.length == 1) {
             val typeResult = arguments.head.`type`()
             typeResult match {

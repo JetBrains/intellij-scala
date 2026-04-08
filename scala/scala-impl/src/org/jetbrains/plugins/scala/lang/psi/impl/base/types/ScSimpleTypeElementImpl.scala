@@ -206,7 +206,7 @@ object ScSimpleTypeElementImpl {
       case _ => return res
     }
 
-    val appSubst = ScSubstitutor.bind(typeParameters, p.typeArgList.typeArgs)(_.calcType)
+    val appSubst = ScSubstitutor.bind(typeParameters, p.typeArgList)
     appSubst(res)
   }
 

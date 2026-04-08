@@ -46,10 +46,10 @@ class FunctionTupleSyntacticSugarInspection extends LocalInspectionTool {
                     if (ref.refName.startsWith("Tuple") || ref.refName.startsWith("Function") && ref.isValid) {
                       val referredElement = ref.bind().map(_.getElement)
                       referredElement match {
-                        case Some(QualifiedName(FunctionN(n))) if te.typeArgList.typeArgs.length == (n.toInt + 1) =>
+                        case Some(QualifiedName(FunctionN(n))) if te.typeArgList.typeArgsWithNamed.length == (n.toInt + 1) =>
                           holder.registerProblem(holder.getManager.createProblemDescriptor(te, ScalaInspectionBundle.message("syntactic.sugar.could.be.used"),
                             new FunctionTypeSyntacticSugarQuickFix(te), ProblemHighlightType.GENERIC_ERROR_OR_WARNING, false))
-                        case Some(QualifiedName(TupleN(n))) if (te.typeArgList.typeArgs.length == n.toInt) && n.toInt != 1 =>
+                        case Some(QualifiedName(TupleN(n))) if (te.typeArgList.typeArgsWithNamed.length == n.toInt) && n.toInt != 1 =>
                           holder.registerProblem(holder.getManager.createProblemDescriptor(te, ScalaInspectionBundle.message("syntactic.sugar.could.be.used"),
                             new TupleTypeSyntacticSugarQuickFix(te), ProblemHighlightType.GENERIC_ERROR_OR_WARNING, false))
                         case _ =>
@@ -94,25 +94,28 @@ object FunctionTupleSyntacticSugarInspection {
 
     override protected def doApplyFix(typeElement: ScParameterizedTypeElement)
                                      (implicit project: Project): Unit = {
-      val paramTypes = typeElement.typeArgList.typeArgs.dropRight(1)
-      val returnType = typeElement.typeArgList.typeArgs.last
+      val paramTypes = typeElement.typeArgList.typeArgsWithNamed.dropRight(1)
+      val returnType = typeElement.typeArgList.typeArgsWithNamed.last
       val elemsInParamTypes = if (paramTypes.isEmpty) Seq.empty else ScalaPsiUtil.getElementsRange(paramTypes.head, paramTypes.last)
 
       val returnTypeTextWithParens = {
-        val returnTypeNeedParens = returnType match {
+        val returnTypeNeedParens = returnType.typeElement.exists {
           case _: ScFunctionalTypeElement => true
-          case _: ScInfixTypeElement => true
-          case _ => false
+          case _: ScInfixTypeElement      => true
+          case _                          => false
         }
+        
         returnType.getText.parenthesize(returnTypeNeedParens)
       }
+
       val typeTextWithParens = {
         val needParens = typeElement.getContext match {
-          case _: ScFunctionalTypeElement => true
-          case _: ScInfixTypeElement => true
+          case _: ScFunctionalTypeElement                        => true
+          case _: ScInfixTypeElement                             => true
           case _: ScConstructorInvocation | _: ScTemplateParents => true
-          case _ => false
+          case _                                                 => false
         }
+
         val arrow = ScalaPsiUtil.functionArrow(project)
         s"(${elemsInParamTypes.map(_.getText).mkString}) $arrow $returnTypeTextWithParens".parenthesize(needParens)
       }

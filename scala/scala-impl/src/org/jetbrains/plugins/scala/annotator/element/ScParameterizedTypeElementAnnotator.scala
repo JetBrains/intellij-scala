@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQui
 import org.jetbrains.plugins.scala.annotator.{ScalaAnnotationHolder, TypeConstructorDiff, tooltipForDiffTrees}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.KindProjectorUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement, ScTypeVariableTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeArgument, ScTypeElement, ScTypeVariableTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
@@ -27,9 +27,8 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
     holder: ScalaAnnotationHolder
   ): Unit = {
     val typeArgs = element.typeArgList
-    val namedTypeArgs = typeArgs.namedTypeArgs
-    if (element.isInScala3File && namedTypeArgs.nonEmpty) {
-      namedTypeArgs.headOption.flatMap(_.nameElement).foreach { firstNamedTypeArgName =>
+    if (element.isInScala3File && typeArgs.hasNamedTypeArgs) {
+      typeArgs.namedTypeArgs.headOption.flatMap(_.nameElement).foreach { firstNamedTypeArgName =>
         holder.createErrorAnnotation(
           firstNamedTypeArgName,
           ScalaBundle.message("named.type.arguments.are.not.allowed.for.type.constructors")
@@ -60,9 +59,9 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
       val typeParams = extractTypeParameters(tpe)
 
       if (!isKindProjectorLambda) {
-        annotateTypeArgs[ScTypeElement](
+        annotateTypeArgs[ScTypeArgument](
           typeParams,
-          element.typeArgList.typeArgs,
+          element.typeArgList.typeArgsWithNamed,
           element.typeArgList.getTextRange,
           projSubstitutor,
           tpe.presentableText,

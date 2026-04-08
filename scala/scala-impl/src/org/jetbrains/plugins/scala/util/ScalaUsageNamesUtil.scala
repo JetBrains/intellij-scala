@@ -4,6 +4,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.{PsiElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods.{isBeanProperty, isBooleanBeanProperty}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeArgument
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFunctionDefinition, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
@@ -74,6 +75,8 @@ object ScalaUsageNamesUtil {
           case Some(o) => result.add(o.getName)
           case _ =>
         }
+      case targ: ScTypeArgument =>
+        targ.name.foreach(result.add)
       case f: ScFunctionDefinition if f.name.endsWith("_=") =>
         result.add(f.name)
         result.add(f.name.substring(0, f.name.length - 2))
