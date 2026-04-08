@@ -90,9 +90,10 @@ object RunWorksheetAction {
 
   def runCompilerForEditor(editor: Editor, psiFile: WorksheetFile, auto: Boolean): Future[RunWorksheetActionResult] = {
     // SCL-16786: do not allow to run worksheet in dumb mode
-    // - it is required during resolve in WorksheetSourceProcessor.processDefault
+    // - it is required during resolve in WorksheetDefaultSourcePreprocessor.preprocess
     // - run could be triggered automatically in "Incremental mode" bypassing AnAction
     // - also in theory preprocess could be delayed when "Build project before run" setting is enabled
+    // TODO: SCL-25277 - We can potentially remove the `isDumb` check here as well.
     val project = psiFile.getProject
     val future = if (DumbService.getInstance(project).isDumb)
        Future.successful(RunWorksheetActionResult.IndexNotReady())

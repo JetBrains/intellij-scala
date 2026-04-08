@@ -1,14 +1,17 @@
 package org.jetbrains.plugins.scala.worksheet.settings
 
+import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.editor.{Editor, LogicalPosition}
 import com.intellij.psi.PsiErrorElement
+import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import org.jetbrains.annotations.{Nls, NonNls}
-import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.worksheet.WorksheetBundle
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompilerUtil.WorksheetCompileRunRequest
 import org.jetbrains.plugins.scala.worksheet.processor.{WorksheetDefaultSourcePreprocessor, WorksheetIncrementalSourcePreprocessor}
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType.WorksheetPreprocessError
+
+import java.util.concurrent.Callable
 
 abstract sealed class WorksheetExternalRunType {
   @NonNls def getName: String
@@ -51,8 +54,18 @@ object WorksheetExternalRunType {
 
     override def isReplRunType: Boolean = false
 
+    @RequiresBackgroundThread
     override def process(srcFile: ScalaFile, editor: Editor): Either[WorksheetPreprocessError, WorksheetCompileRunRequest] = {
-      val result = inReadAction(WorksheetDefaultSourcePreprocessor.preprocess(srcFile, editor.getDocument))
+      val computable: Callable[Either[PsiErrorElement, WorksheetDefaultSourcePreprocessor.PreprocessResult]] =
+        () => WorksheetDefaultSourcePreprocessor.preprocess(srcFile, editor.getDocument)
+
+      val project = srcFile.getProject
+      val result = ReadAction.nonBlocking(computable)
+        .inSmartMode(project)
+        .withDocumentsCommitted(project)
+        .expireWhen(() => project.isDisposed)
+        .executeSynchronously()
+
       result
         .map { case WorksheetDefaultSourcePreprocessor.PreprocessResult(code, className) =>
           WorksheetCompileRunRequest.RunCompile(code, className)

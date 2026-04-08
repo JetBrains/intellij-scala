@@ -9,7 +9,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
-import com.intellij.openapi.project.{DumbService, Project}
+import com.intellij.openapi.project.Project
 import com.intellij.util.concurrency.annotations.RequiresEdt
 import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.incremental.scala.Client.PosInfo
@@ -241,9 +241,7 @@ class WorksheetCompiler(
                    (originalCallback: EvaluationCallback): Unit = try {
     Log.traceWithDebugInDev(s"compileAndRun, autoTriggered: $autoTriggered")
 
-    if (DumbService.getInstance(project).isDumb) {
-      originalCallback(PreconditionError(Precondition.ProjectShouldBeInSmartState))
-    } else if (runType.isReplRunType && makeType != InProcessServer) {
+    if (runType.isReplRunType && makeType != InProcessServer) {
       originalCallback(PreconditionError(Precondition.ReplRequiresCompileServerProcess))
     } else {
       runType.process(worksheetFile, editor) match {
