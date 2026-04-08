@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticF
 import org.jetbrains.plugins.scala.lang.psi.types.api.{PsiTypeParametersExt, TypeParameter, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, DefaultTypeParameterMismatch, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.project._
 
 
 object ScGenericCallAnnotator extends ElementAnnotator[ScGenericCall] {
@@ -32,6 +33,20 @@ object ScGenericCallAnnotator extends ElementAnnotator[ScGenericCall] {
 
   override def annotate(genCall: ScGenericCall, typeAware: Boolean)(implicit holder: ScalaAnnotationHolder): Unit = {
     implicit val context: Context = Context(genCall)
+
+    val typeArgs = genCall.typeArgs
+    val namedTypeArgs = typeArgs.namedTypeArgs
+    if (genCall.isInScala3File &&
+      namedTypeArgs.nonEmpty &&
+      !genCall.isNamedTypeArgumentsFeatureImported
+    ) {
+      namedTypeArgs.headOption.flatMap(_.nameElement).foreach { firstNamedTypeArgName =>
+        holder.createErrorAnnotation(
+          firstNamedTypeArgName,
+          ScalaBundle.message("named.type.arguments.require.language.experimental.named.type.arguments")
+        )
+      }
+    }
 
     if (typeAware) {
       for {

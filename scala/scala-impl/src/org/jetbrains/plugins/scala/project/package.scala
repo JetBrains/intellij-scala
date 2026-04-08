@@ -426,6 +426,7 @@ package object project {
     def isSource3MigrationEnabled: Boolean = scalaModuleSettings.exists(_.hasSource3Migration)
 
     def isStrictEqualityFlagEnabled: Boolean = scalaModuleSettings.exists(_.hasStrictEquality)
+    def isNamedTypeArgumentsFlagEnabled: Boolean = scalaModuleSettings.exists(_.hasNamedTypeArguments)
 
     def features: SerializableScalaFeatures =
       scalaModuleSettings.fold(ScalaFeatures.default)(_.features)
@@ -782,6 +783,7 @@ package object project {
     def isSAMEnabled: Boolean = isDefinedInModuleOrProject(_.isSAMEnabled)
 
     def isStrictEqualityFlagEnabled: Boolean = isDefinedInModuleOrProject(_.isStrictEqualityFlagEnabled)
+    def isNamedTypeArgumentsFlagEnabled: Boolean = isDefinedInModuleOrProject(_.isNamedTypeArgumentsFlagEnabled)
 
     def isStrictEqualityEnabled: Boolean = isStrictEqualityFlagEnabled || {
       val reference =
@@ -792,6 +794,19 @@ package object project {
           val fqn = obj.qualifiedName
           fqn == "scala.language.strictEquality" ||
             fqn == "scala.runtime.stdLibPatches.language.strictEquality"
+        case _ => false
+      }
+    }
+
+    def isNamedTypeArgumentsFeatureImported: Boolean = isNamedTypeArgumentsFlagEnabled || {
+      val reference =
+        ScalaPsiElementFactory.createReferenceFromText("namedTypeArguments", element, element)
+
+      reference.resolve() match {
+        case obj: ScObject =>
+          val fqn = obj.qualifiedName
+          fqn == "scala.language.experimental.namedTypeArguments" ||
+            fqn == "scala.runtime.stdLibPatches.language.experimental.namedTypeArguments"
         case _ => false
       }
     }
