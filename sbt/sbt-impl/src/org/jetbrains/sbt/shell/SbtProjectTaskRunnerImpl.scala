@@ -188,7 +188,7 @@ final class SbtProjectTaskRunnerImpl
 
 // TODO: PerformInBackgroundOption is deprecated, ProgressManager.run(Task) is obsolete. See IJPL-384
 private class CommandTask(project: Project, command: String, projectTaskPromise: AsyncPromise[ProjectTaskRunner.Result]) extends
-  Task.Backgroundable(project, SbtBundle.message("sbt.shell.sbt.build"), false, PerformInBackgroundOption.ALWAYS_BACKGROUND: @nowarn("cat=deprecation")) {
+  Task.Backgroundable(project, SbtBundle.message("sbt.shell.sbt.build"), true, PerformInBackgroundOption.ALWAYS_BACKGROUND: @nowarn("cat=deprecation")) {
 
   private val resultPromise: Promise[BuildMessages] = Promise()
 
