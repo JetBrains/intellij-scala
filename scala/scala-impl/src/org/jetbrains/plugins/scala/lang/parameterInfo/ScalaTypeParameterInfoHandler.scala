@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScGenericCall, ScInfixExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -27,7 +28,7 @@ class ScalaTypeParameterInfoHandler extends ScalaParameterInfoHandler[ScTypeArgs
 
   override def getActualParameterDelimiterType: IElementType = ScalaTokenTypes.tCOMMA
 
-  override def getActualParameters(o: ScTypeArgs): Array[ScTypeElement] = o.typeArgs.toArray
+  override def getActualParameters(o: ScTypeArgs): Array[ScTypeElement] = o.typeArgsWithNamed.map(_.typeElement).toArray
 
   override def getArgumentListClass: Class[ScTypeArgs] = classOf[ScTypeArgs]
 
@@ -41,45 +42,89 @@ class ScalaTypeParameterInfoHandler extends ScalaParameterInfoHandler[ScTypeArgs
   }
 
   override def updateUI(p: Any, context: ParameterInfoUIContext): Unit = {
-    if (context == null || context.getParameterOwner == null || !context.getParameterOwner.isValid) return
-    implicit val tpc: TypePresentationContext = TypePresentationContext(context.getParameterOwner)
-    context.getParameterOwner match {
-      case _: ScTypeArgs =>
-        val color: Color = context.getDefaultParameterColor
-        val index = context.getCurrentParameterIndex
-        val buffer: StringBuilder = new StringBuilder("")
-        p match {
-          case (owner: ScTypeParametersOwner, substitutor: ScSubstitutor) =>
-            val params = owner.typeParameters
-            appendScTypeParams(params, buffer, index, substitutor)
-          case (method: PsiMethod, substitutor: ScSubstitutor) =>
-            val params = method.getTypeParameters
-            appendPsiTypeParams(params, buffer, index, substitutor)
-          case (clazz: PsiClass, substitutor: ScSubstitutor) =>
-            clazz match {
-              case td: ScTypeDefinition =>
-                val params: Seq[ScTypeParam] = td.typeParameters
+    Option(context)
+      .flatMap(ctx => Option(ctx.getParameterOwner).filter(_.isValid).map(owner => (ctx, owner)))
+      .foreach { case (ctx, owner) =>
+        implicit val tpc: TypePresentationContext = TypePresentationContext(owner)
+        owner match {
+          case typeArgsOwner: ScTypeArgs =>
+            val color: Color = ctx.getDefaultParameterColor
+            val index = remapIndexForNamedTypeArgs(typeArgsOwner, ctx.getCurrentParameterIndex, p).getOrElse(-1)
+            val buffer: StringBuilder = new StringBuilder("")
+            p match {
+              case (owner: ScTypeParametersOwner, substitutor: ScSubstitutor) =>
+                val params = owner.typeParameters
                 appendScTypeParams(params, buffer, index, substitutor)
-              case _ =>
-                val params = clazz.getTypeParameters
+              case (method: PsiMethod, substitutor: ScSubstitutor) =>
+                val params = method.getTypeParameters
                 appendPsiTypeParams(params, buffer, index, substitutor)
+              case (clazz: PsiClass, substitutor: ScSubstitutor) =>
+                clazz match {
+                  case td: ScTypeDefinition =>
+                    val params: Seq[ScTypeParam] = td.typeParameters
+                    appendScTypeParams(params, buffer, index, substitutor)
+                  case _ =>
+                    val params = clazz.getTypeParameters
+                    appendPsiTypeParams(params, buffer, index, substitutor)
+                }
+              case _ =>
             }
+            val isGrey = buffer.indexOf("<g>")
+            if (isGrey != -1) buffer.replace(isGrey, isGrey + 3, "")
+            val startOffset = buffer.indexOf("<b>")
+            if (startOffset != -1) buffer.replace(startOffset, startOffset + 3, "")
+
+            val endOffset = buffer.indexOf("</b>")
+            if (endOffset != -1) buffer.replace(endOffset, endOffset + 4, "")
+
+            if (buffer.toString != "")
+              ctx.setupUIComponentPresentation(buffer.toString, startOffset, endOffset, false, false, false, color)
+            else
+              ctx.setUIComponentEnabled(false)
           case _ =>
         }
-        val isGrey = buffer.indexOf("<g>")
-        if (isGrey != -1) buffer.replace(isGrey, isGrey + 3, "")
-        val startOffset = buffer.indexOf("<b>")
-        if (startOffset != -1) buffer.replace(startOffset, startOffset + 3, "")
+      }
+  }
 
-        val endOffset = buffer.indexOf("</b>")
-        if (endOffset != -1) buffer.replace(endOffset, endOffset + 4, "")
+  private def remapIndexForNamedTypeArgs(typeArgsOwner: ScTypeArgs, currentIndex: Int, parameterInfo: Any): Option[Int] = {
+    val typeArgs                  = typeArgsOwner.typeArgsWithNamed
+    val currentArg                = typeArgs.lift(currentIndex)
+    val hasNamedArgs              = typeArgs.exists(_.nameElement.isDefined)
+    val hasPositionalArgs         = typeArgs.exists(_.nameElement.isEmpty)
+    val isMixedNamedAndPositional = hasNamedArgs && hasPositionalArgs
 
-        if (buffer.toString != "")
-          context.setupUIComponentPresentation(buffer.toString, startOffset, endOffset, false, false, false, color)
-        else
-          context.setUIComponentEnabled(false)
-      case _ =>
+    if (currentIndex < 0 || !hasNamedArgs) Option(currentIndex)
+    else {
+      val currentNamedArgName = currentArg.flatMap(_.nameElement).map(_.getText)
+
+      if (isMixedNamedAndPositional && currentNamedArgName.isEmpty) None
+      else {
+        val maybeFormalParamNames = formalTypeParameterNames(parameterInfo)
+
+        currentNamedArgName match {
+          case Some(argName) =>
+            val maybeFormalIndex = for {
+              formalParamNames <- maybeFormalParamNames
+              formalIndex      = formalParamNames.indexWhere(ScalaNamesUtil.equivalent(_, argName))
+              if formalIndex >= 0
+            } yield formalIndex
+
+            maybeFormalIndex.orElse(Option(currentIndex))
+          case None => Option(currentIndex)
+        }
+      }
     }
+  }
+
+  private def formalTypeParameterNames(parameterInfo: Any): Option[Seq[String]] = parameterInfo match {
+    case (owner: ScTypeParametersOwner, _) => Option(owner.typeParameters.map(_.name))
+    case (method: PsiMethod, _)            => Option(method.getTypeParameters.toSeq.map(_.getName))
+    case (clazz: PsiClass, _) =>
+      clazz match {
+        case td: ScTypeDefinition => Option(td.typeParameters.map(_.name))
+        case _                    => Option(clazz.getTypeParameters.toSeq.map(_.getName))
+      }
+    case _ => None
   }
 
   private def appendPsiTypeParams(params: Array[PsiTypeParameter], buffer: scala.StringBuilder, index: Int, substitutor: ScSubstitutor)(implicit tpc: TypePresentationContext): Unit = {
@@ -171,36 +216,42 @@ class ScalaTypeParameterInfoHandler extends ScalaParameterInfoHandler[ScTypeArgs
 
   override protected def findCall(context: ParameterInfoContext): ScTypeArgs = {
     val (file, offset) = (context.getFile, context.getOffset)
-    val element = file.findElementAt(offset)
-    if (element == null) return null
-    val args: ScTypeArgs = PsiTreeUtil.getParentOfType(element, getArgumentListClass)
-    if (args != null) {
-      context match {
-        case context: CreateParameterInfoContext =>
-          val res = args.getParent match {
-            case ScGenericCall(expr, _) => fromResolved(expr)
-            case ScInfixExpr(_, ref, _) => fromResolved(ref)
-            case ScParameterizedTypeElement(typeElement, _) =>
-              val maybeReferenceElement = typeElement match {
-                case projection: ScTypeProjection => Some(projection)
-                case ScSimpleTypeElement(reference) => Some(reference)
-                case _ => None
-              }
+    Option(file.findElementAt(offset)).flatMap { element =>
+      Option(PsiTreeUtil.getParentOfType(element, getArgumentListClass)).map { args =>
+        context match {
+          case context: CreateParameterInfoContext =>
+            val res = args.getParent match {
+              case ScGenericCall(expr, _) => fromResolved(expr)
+              case ScInfixExpr(_, ref, _) => fromResolved(ref)
+              case ScParameterizedTypeElement(typeElement, _) =>
+                val maybeReferenceElement = typeElement match {
+                  case projection: ScTypeProjection => Option(projection)
+                  case ScSimpleTypeElement(reference) => Option(reference)
+                  case _ => None
+                }
 
-              maybeReferenceElement.flatMap(fromResolved(_, useActualElement = true))
-            case _ => None // todo: ScMacroDefinition
-          }
-          context.setItemsToShow(res.toArray)
-        case context: UpdateParameterInfoContext =>
-          var el = element
-          while (el.getParent != args) el = el.getParent
-          var index = 1
-          for (typeElem <- args.typeArgs if typeElem != el) index += 1
-          context.setCurrentParameter(index)
-          context.setHighlightedParameter(el)
-        case _ =>
+                maybeReferenceElement.flatMap(fromResolved(_, useActualElement = true))
+              case _ => None // todo: ScMacroDefinition
+            }
+            context.setItemsToShow(res.toArray)
+          case context: UpdateParameterInfoContext =>
+            val typeArgs = args.typeArgsWithNamed
+            val maybeCurrentTypeArg = typeArgs.find(typeArg =>
+              typeArg.typeElement.getTextRange.containsOffset(offset) ||
+                typeArg.nameElement.exists(_.getTextRange.containsOffset(offset))
+            )
+
+            val index = maybeCurrentTypeArg.map(typeArgs.indexOf).filter(_ >= 0).getOrElse(-1)
+
+            context.setCurrentParameter(index)
+            context.setHighlightedParameter(
+              maybeCurrentTypeArg.getOrElse(element)
+            )
+          case _ =>
+        }
+
+        args
       }
-    }
-    args
+    }.orNull
   }
 }
