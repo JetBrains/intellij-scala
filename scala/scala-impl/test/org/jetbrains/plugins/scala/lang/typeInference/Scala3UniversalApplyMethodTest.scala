@@ -1,12 +1,11 @@
 package org.jetbrains.plugins.scala
 package lang.typeInference
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[TypecheckerTests]))
-class Scala3UniversalApplyMethodTest extends ScalaLightCodeInsightFixtureTestCase {
+class Scala3UniversalApplyMethodTest extends TypeInferenceTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version >= LatestScalaVersions.Scala_3_0
 
@@ -215,13 +214,47 @@ class Scala3UniversalApplyMethodTest extends ScalaLightCodeInsightFixtureTestCas
 //  )
 
 //  Compiles, but I don't think it's worth implementing
-//  def thisQualified(): Unit = checkTextHasNoErrors(
+//  def testThisQualified(): Unit = checkTextHasNoErrors(
 //    """
 //      |class Foo(i: Int)
 //      |object Foo {
 //      |  val fooInst = this.apply(123)
 //      |}
 //      |""".stripMargin
+//  )
+
+  // #SCL-24259
+  def testReferencingApply(): Unit = checkTextHasNoErrors(
+    """
+      |class Test(i: Int)
+      |
+      |object Foo {
+      |  def app = Test.apply
+      |}
+      |""".stripMargin
+  )
+
+  def testTypeOfApply(): Unit = doTest(
+    s"""
+      |class Test(i: Int)
+      |
+      |object Foo {
+      |  ${START}Test.apply$END
+      |}
+      |//Int => Test
+      |""".stripMargin
+  )
+
+  // This doesn't seem to be very well-supported by the compiler.
+//  def testTypeOfGenericApply(): Unit = doTest(
+//    s"""
+//       |class Test[T](i: Int, t: T)
+//       |
+//       |object Foo {
+//       |  ${START}Test.apply$END
+//       |}
+//       |//[T] =>> (Int, T) => Test
+//       |""".stripMargin
 //  )
 
   private def withError(text: String, description: String): String =
