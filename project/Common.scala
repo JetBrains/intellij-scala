@@ -362,4 +362,11 @@ object Common {
     val scopeFilter = ScopeFilter(inProjects(projects*), inAnyConfiguration)
     clean.all(scopeFilter).map(_ => ())
   }
+
+  def forkOptionsWithJBR: Def.Initialize[Task[ForkOptions]] = Def.task {
+    val opts = (Test / forkOptions).value
+    import org.jetbrains.sbtidea.download.jbr.JbrInstaller
+    val jbrHome = JbrInstaller.getJbrHome(intellijBaseDirectory.value.toPath)
+    opts.withJavaHome(jbrHome.toFile)
+  }
 }

@@ -138,6 +138,10 @@ lazy val scalaCommunity: sbt.Project =
       ),
       // all sub-project tests need to be run within main project's classpath
       Test / definedTests := definedTests.all(definedTestsScopeFilter).value.flatten,
+
+      // We modify `forkOptions` instead of setting `javaHome` because this way we can guarantee
+      // that the provided JDK will be used only for running the tests and not for compiling the test code.
+      Test / forkOptions := forkOptionsWithJBR.value
     )
 
 lazy val pluginXml = newProject("pluginXml", file("pluginXml"))
