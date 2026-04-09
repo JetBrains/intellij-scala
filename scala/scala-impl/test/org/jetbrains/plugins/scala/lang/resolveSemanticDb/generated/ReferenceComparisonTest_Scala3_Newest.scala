@@ -2219,7 +2219,7 @@ final class ReferenceComparisonTest_Scala3_Newest_Part22 extends ReferenceCompar
   def test_inline_case_intrinsics(): Unit = doTest("inline-case-intrinsics", true)
   def test_inline_caseclass(): Unit = doTest("inline-caseclass", true) // #transparentInline
   def test_inline_constfold(): Unit = doTest("inline-constfold", true) // #transparentInline
-  def test_inline_eta(): Unit = doTest("inline-eta", false)
+  def test_inline_eta(): Unit = doTest("inline-eta", true)
   def test_inline_i1773(): Unit = doTest("inline-i1773", true)
   def test_inline_i2570(): Unit = doTest("inline-i2570", true)
   def test_inline_joint(): Unit = doTest("inline-joint", true)

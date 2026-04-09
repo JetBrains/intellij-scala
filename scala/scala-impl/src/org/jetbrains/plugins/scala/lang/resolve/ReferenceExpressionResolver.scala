@@ -248,23 +248,28 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
           }
         }
 
-      if (!inMethodCallContext(reference))  srrs
-      else if (!reference.isInScala3Module) srrs
-      else if (srrs.isEmpty) {
-        val isExplicitApplyReference = name == CommonNames.Apply
+      val isExplicitApplyReference = name == CommonNames.Apply
 
+      if (!reference.isInScala3Module) srrs
+      else if (!inMethodCallContext(reference) && !isExplicitApplyReference) srrs
+      else if (srrs.isEmpty) {
         val amendedRef = reference match {
-          case ScReferenceExpression.withQualifier(qual: ScReferenceExpression)
-            if isExplicitApplyReference => qual
-          case _ => reference
+          case ScReferenceExpression.withQualifier(qual: ScReferenceExpression) if isExplicitApplyReference =>
+            qual
+          case Parent(sugarCall: ScSugarCallExpr) if isExplicitApplyReference =>
+            sugarCall.thisExpr.filterByType[ScReferenceExpression].getOrElse(reference)
+          case _ =>
+            reference
         }
 
+        val isNonCallApplyReference = isExplicitApplyReference && !inMethodCallContext(reference)
         val proc    = processor(name = amendedRef.refName, kinds = Set(ResolveTargets.CLASS))
         val proxies = doResolve(amendedRef, proc)
 
         if (proxies.nonEmpty && (amendedRef ne reference)) {
           /**
-           * This is the case, where constructor proxy is accessed with an explicit .apply call,
+           * This is the case, where constructor proxy is accessed with an explicit .apply call
+           * or reference (e.g. `Test.apply`),
            * to avoid having an unresolved reference to synthetic object, mark it with the
            * [[ReferenceExpressionResolver.ConstructorProxyHolderKey]] key.
            */
@@ -272,8 +277,25 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
           reference.qualifier.foreach(_.putUserData(ConstructorProxyHolderKey, true))
         }
 
-        proxies
-      } else tryResolveSpecificProxies
+        // For non-call explicit .apply references (e.g. `Test.apply` without calling it),
+        // replace the class resolve results with constructor resolve results so that the
+        // type is computed as a function type (e.g. Int => Test) instead of the class type.
+        if (isNonCallApplyReference) {
+          proxies.flatMap[ScalaResolveResult] { srr =>
+            srr.element match {
+              case cls: PsiClass =>
+                val constructors = cls.constructors
+                if (constructors.nonEmpty)
+                  constructors.map(cons =>
+                    new ScalaResolveResult(cons, ScSubstitutor.empty, srr.importsUsed, parentElement = Some(cls))
+                  )
+                else Seq(srr)
+              case _ => Seq(srr)
+            }
+          }
+        } else proxies
+      } else if (inMethodCallContext(reference)) tryResolveSpecificProxies
+      else srrs
     }
 
     def assignmentResolve(): Array[ScalaResolveResult] = {
@@ -294,6 +316,24 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
 
 
 
+    def resolveAsConstructorProxyHolder(): Array[ScalaResolveResult] = {
+      // In Scala 3, `Foo.apply(...)` where `Foo` is a class without a companion object
+      // uses "universal apply" (constructor proxies). The qualifier `Foo` should resolve
+      // to the class itself, even though CLASS is not normally in the expression-position kinds.
+      val isQualifierOfApplyRef = reference.getContext match {
+        case ref: ScReferenceExpression =>
+          ref.refName == CommonNames.Apply && ref.qualifier.contains(reference)
+        case infix: ScInfixExpr =>
+          reference == infix.left && infix.operation.refName == CommonNames.Apply
+        case _ => false
+      }
+
+      if (isQualifierOfApplyRef) {
+        val proc = processor(name = name, kinds = Set(ResolveTargets.CLASS))
+        doResolve(reference, proc)
+      } else Array.empty
+    }
+
     val result = {
       val initialResolve = doResolve(reference, processor())
       val withProxies    = resolveConstructorProxies(initialResolve)
@@ -307,9 +347,12 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
       else                                  doResolve(reference, processor(), tryThisQualifier = true)
     }
 
+    val resultOrProxyHolder =
+      if (result.isEmpty && reference.isInScala3Module) resolveAsConstructorProxyHolder()
+      else result
 
     val resolveAssignment: Boolean =
-      result.isEmpty &&
+      resultOrProxyHolder.isEmpty &&
         context.is[ScInfixExpr, ScMethodCall] &&
         name.endsWith("=") &&
         !name.startsWith("=") &&
@@ -317,7 +360,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
         !name.exists(_.isLetterOrDigit)
 
     if (resolveAssignment) assignmentResolve()
-    else                   result
+    else                   resultOrProxyHolder
   }
 
   def doResolve(
