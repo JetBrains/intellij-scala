@@ -44,4 +44,15 @@ class Scala3NamedTypeArgumentsAnnotatorTest extends ScalaHighlightingTestBase {
       |""".stripMargin,
     Error("T", "Named type arguments are not allowed for type constructors")
   )
+
+  def testMethodCallNamedTypeArgNameMustResolve(): Unit = assertErrors(
+    """
+      |import scala.language.experimental.namedTypeArguments
+      |
+      |def construct[Elem](xs: Elem*): Elem = ???
+      |
+      |val xs = construct[Unknown = Int](1)
+      |""".stripMargin,
+    Error("Unknown", "Cannot resolve symbol Unknown")
+  )
 }

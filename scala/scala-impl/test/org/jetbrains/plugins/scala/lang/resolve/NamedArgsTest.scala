@@ -85,4 +85,24 @@ class NamedArgsTest extends SimpleResolveTestBase {
        |}
        |""".stripMargin
   )
+
+  def testNamedTypeArgumentNameResolvesToTypeParameter(): Unit = doResolveTest(
+    s"""
+       |import scala.language.experimental.namedTypeArguments
+       |
+       |def construct[${REFTGT}A, B]: Unit = ()
+       |
+       |construct[${REFSRC}A = Int, B = String]
+       |""".stripMargin
+  )
+
+  def testNamedTypeArgumentUnknownNameDoesNotResolve(): Unit = testNoResolve(
+    s"""
+       |import scala.language.experimental.namedTypeArguments
+       |
+       |def construct[A, B]: Unit = ()
+       |
+       |construct[${REFSRC}MissingTypeArg42 = Int, B = String]
+       |""".stripMargin
+  )
 }
