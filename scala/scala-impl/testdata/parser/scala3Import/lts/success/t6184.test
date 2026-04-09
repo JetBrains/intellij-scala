@@ -49,9 +49,10 @@ ScalaFile
                 PsiElement(identifier)('Foo')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: TroubleSome
-                CodeReferenceElement: TroubleSome
-                  PsiElement(identifier)('TroubleSome')
+              TypeArgument
+                SimpleType: TroubleSome
+                  CodeReferenceElement: TroubleSome
+                    PsiElement(identifier)('TroubleSome')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         MatchStatement
@@ -79,8 +80,9 @@ ScalaFile
                           PsiElement(identifier)('Foo')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        TypeVariable: _
-                          PsiElement(_)('_')
+                        TypeArgument
+                          TypeVariable: _
+                            PsiElement(_)('_')
                         PsiElement(])(']')
                     PsiElement(#)('#')
                     PsiElement(identifier)('T')

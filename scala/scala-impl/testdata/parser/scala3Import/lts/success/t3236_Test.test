@@ -99,9 +99,10 @@ ScalaFile
               PsiElement(identifier)('classOf')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: AnnotationTest
-                CodeReferenceElement: AnnotationTest
-                  PsiElement(identifier)('AnnotationTest')
+              TypeArgument
+                SimpleType: AnnotationTest
+                  CodeReferenceElement: AnnotationTest
+                    PsiElement(identifier)('AnnotationTest')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScFunctionDefinition: annotation
@@ -150,9 +151,10 @@ ScalaFile
                         PsiElement(identifier)('Class')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: T
-                        CodeReferenceElement: T
-                          PsiElement(identifier)('T')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
                       PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
@@ -197,9 +199,10 @@ ScalaFile
                 PsiElement(identifier)('getAnnotation')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: T
-                  CodeReferenceElement: T
-                    PsiElement(identifier)('T')
+                TypeArgument
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
                 PsiElement(])(']')
             ArgumentList
               PsiElement(()('(')
@@ -286,9 +289,10 @@ ScalaFile
                         PsiElement(identifier)('Class')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: U
-                        CodeReferenceElement: U
-                          PsiElement(identifier)('U')
+                      TypeArgument
+                        SimpleType: U
+                          CodeReferenceElement: U
+                            PsiElement(identifier)('U')
                       PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
@@ -439,9 +443,10 @@ ScalaFile
                 PsiElement(identifier)('classOf')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: BooleanAnnotation
-                  CodeReferenceElement: BooleanAnnotation
-                    PsiElement(identifier)('BooleanAnnotation')
+                TypeArgument
+                  SimpleType: BooleanAnnotation
+                    CodeReferenceElement: BooleanAnnotation
+                      PsiElement(identifier)('BooleanAnnotation')
                 PsiElement(])(']')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
@@ -466,9 +471,10 @@ ScalaFile
                 PsiElement(identifier)('classOf')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: ByteAnnotation
-                  CodeReferenceElement: ByteAnnotation
-                    PsiElement(identifier)('ByteAnnotation')
+                TypeArgument
+                  SimpleType: ByteAnnotation
+                    CodeReferenceElement: ByteAnnotation
+                      PsiElement(identifier)('ByteAnnotation')
                 PsiElement(])(']')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
@@ -493,9 +499,10 @@ ScalaFile
                 PsiElement(identifier)('classOf')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: CharAnnotation
-                  CodeReferenceElement: CharAnnotation
-                    PsiElement(identifier)('CharAnnotation')
+                TypeArgument
+                  SimpleType: CharAnnotation
+                    CodeReferenceElement: CharAnnotation
+                      PsiElement(identifier)('CharAnnotation')
                 PsiElement(])(']')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
@@ -520,9 +527,10 @@ ScalaFile
                 PsiElement(identifier)('classOf')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: ShortAnnotation
-                  CodeReferenceElement: ShortAnnotation
-                    PsiElement(identifier)('ShortAnnotation')
+                TypeArgument
+                  SimpleType: ShortAnnotation
+                    CodeReferenceElement: ShortAnnotation
+                      PsiElement(identifier)('ShortAnnotation')
                 PsiElement(])(']')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
@@ -547,9 +555,10 @@ ScalaFile
                 PsiElement(identifier)('classOf')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: IntAnnotation
-                  CodeReferenceElement: IntAnnotation
-                    PsiElement(identifier)('IntAnnotation')
+                TypeArgument
+                  SimpleType: IntAnnotation
+                    CodeReferenceElement: IntAnnotation
+                      PsiElement(identifier)('IntAnnotation')
                 PsiElement(])(']')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
@@ -574,9 +583,10 @@ ScalaFile
                 PsiElement(identifier)('classOf')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: LongAnnotation
-                  CodeReferenceElement: LongAnnotation
-                    PsiElement(identifier)('LongAnnotation')
+                TypeArgument
+                  SimpleType: LongAnnotation
+                    CodeReferenceElement: LongAnnotation
+                      PsiElement(identifier)('LongAnnotation')
                 PsiElement(])(']')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
@@ -601,9 +611,10 @@ ScalaFile
                 PsiElement(identifier)('classOf')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: FloatAnnotation
-                  CodeReferenceElement: FloatAnnotation
-                    PsiElement(identifier)('FloatAnnotation')
+                TypeArgument
+                  SimpleType: FloatAnnotation
+                    CodeReferenceElement: FloatAnnotation
+                      PsiElement(identifier)('FloatAnnotation')
                 PsiElement(])(']')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
@@ -628,9 +639,10 @@ ScalaFile
                 PsiElement(identifier)('classOf')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: DoubleAnnotation
-                  CodeReferenceElement: DoubleAnnotation
-                    PsiElement(identifier)('DoubleAnnotation')
+                TypeArgument
+                  SimpleType: DoubleAnnotation
+                    CodeReferenceElement: DoubleAnnotation
+                      PsiElement(identifier)('DoubleAnnotation')
                 PsiElement(])(']')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
@@ -655,9 +667,10 @@ ScalaFile
                 PsiElement(identifier)('classOf')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: StringAnnotation
-                  CodeReferenceElement: StringAnnotation
-                    PsiElement(identifier)('StringAnnotation')
+                TypeArgument
+                  SimpleType: StringAnnotation
+                    CodeReferenceElement: StringAnnotation
+                      PsiElement(identifier)('StringAnnotation')
                 PsiElement(])(']')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
@@ -682,9 +695,10 @@ ScalaFile
                 PsiElement(identifier)('classOf')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: BooleanAnnotation
-                  CodeReferenceElement: BooleanAnnotation
-                    PsiElement(identifier)('BooleanAnnotation')
+                TypeArgument
+                  SimpleType: BooleanAnnotation
+                    CodeReferenceElement: BooleanAnnotation
+                      PsiElement(identifier)('BooleanAnnotation')
                 PsiElement(])(']')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
@@ -709,9 +723,10 @@ ScalaFile
                 PsiElement(identifier)('classOf')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: ByteAnnotation
-                  CodeReferenceElement: ByteAnnotation
-                    PsiElement(identifier)('ByteAnnotation')
+                TypeArgument
+                  SimpleType: ByteAnnotation
+                    CodeReferenceElement: ByteAnnotation
+                      PsiElement(identifier)('ByteAnnotation')
                 PsiElement(])(']')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
@@ -738,9 +753,10 @@ ScalaFile
                 PsiElement(identifier)('classOf')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: ShortAnnotation
-                  CodeReferenceElement: ShortAnnotation
-                    PsiElement(identifier)('ShortAnnotation')
+                TypeArgument
+                  SimpleType: ShortAnnotation
+                    CodeReferenceElement: ShortAnnotation
+                      PsiElement(identifier)('ShortAnnotation')
                 PsiElement(])(']')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
@@ -765,9 +781,10 @@ ScalaFile
                 PsiElement(identifier)('classOf')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: IntAnnotation
-                  CodeReferenceElement: IntAnnotation
-                    PsiElement(identifier)('IntAnnotation')
+                TypeArgument
+                  SimpleType: IntAnnotation
+                    CodeReferenceElement: IntAnnotation
+                      PsiElement(identifier)('IntAnnotation')
                 PsiElement(])(']')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
@@ -792,9 +809,10 @@ ScalaFile
                 PsiElement(identifier)('classOf')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: LongAnnotation
-                  CodeReferenceElement: LongAnnotation
-                    PsiElement(identifier)('LongAnnotation')
+                TypeArgument
+                  SimpleType: LongAnnotation
+                    CodeReferenceElement: LongAnnotation
+                      PsiElement(identifier)('LongAnnotation')
                 PsiElement(])(']')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
@@ -819,9 +837,10 @@ ScalaFile
                 PsiElement(identifier)('classOf')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: FloatAnnotation
-                  CodeReferenceElement: FloatAnnotation
-                    PsiElement(identifier)('FloatAnnotation')
+                TypeArgument
+                  SimpleType: FloatAnnotation
+                    CodeReferenceElement: FloatAnnotation
+                      PsiElement(identifier)('FloatAnnotation')
                 PsiElement(])(']')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
@@ -846,9 +865,10 @@ ScalaFile
                 PsiElement(identifier)('classOf')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: DoubleAnnotation
-                  CodeReferenceElement: DoubleAnnotation
-                    PsiElement(identifier)('DoubleAnnotation')
+                TypeArgument
+                  SimpleType: DoubleAnnotation
+                    CodeReferenceElement: DoubleAnnotation
+                      PsiElement(identifier)('DoubleAnnotation')
                 PsiElement(])(']')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
@@ -873,9 +893,10 @@ ScalaFile
                 PsiElement(identifier)('classOf')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: StringAnnotation
-                  CodeReferenceElement: StringAnnotation
-                    PsiElement(identifier)('StringAnnotation')
+                TypeArgument
+                  SimpleType: StringAnnotation
+                    CodeReferenceElement: StringAnnotation
+                      PsiElement(identifier)('StringAnnotation')
                 PsiElement(])(']')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
@@ -900,9 +921,10 @@ ScalaFile
                 PsiElement(identifier)('classOf')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: BooleanAnnotation
-                  CodeReferenceElement: BooleanAnnotation
-                    PsiElement(identifier)('BooleanAnnotation')
+                TypeArgument
+                  SimpleType: BooleanAnnotation
+                    CodeReferenceElement: BooleanAnnotation
+                      PsiElement(identifier)('BooleanAnnotation')
                 PsiElement(])(']')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
@@ -927,9 +949,10 @@ ScalaFile
                 PsiElement(identifier)('classOf')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: ByteAnnotation
-                  CodeReferenceElement: ByteAnnotation
-                    PsiElement(identifier)('ByteAnnotation')
+                TypeArgument
+                  SimpleType: ByteAnnotation
+                    CodeReferenceElement: ByteAnnotation
+                      PsiElement(identifier)('ByteAnnotation')
                 PsiElement(])(']')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
@@ -954,9 +977,10 @@ ScalaFile
                 PsiElement(identifier)('classOf')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: CharAnnotation
-                  CodeReferenceElement: CharAnnotation
-                    PsiElement(identifier)('CharAnnotation')
+                TypeArgument
+                  SimpleType: CharAnnotation
+                    CodeReferenceElement: CharAnnotation
+                      PsiElement(identifier)('CharAnnotation')
                 PsiElement(])(']')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
@@ -981,9 +1005,10 @@ ScalaFile
                 PsiElement(identifier)('classOf')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: ShortAnnotation
-                  CodeReferenceElement: ShortAnnotation
-                    PsiElement(identifier)('ShortAnnotation')
+                TypeArgument
+                  SimpleType: ShortAnnotation
+                    CodeReferenceElement: ShortAnnotation
+                      PsiElement(identifier)('ShortAnnotation')
                 PsiElement(])(']')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
@@ -1008,9 +1033,10 @@ ScalaFile
                 PsiElement(identifier)('classOf')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: IntAnnotation
-                  CodeReferenceElement: IntAnnotation
-                    PsiElement(identifier)('IntAnnotation')
+                TypeArgument
+                  SimpleType: IntAnnotation
+                    CodeReferenceElement: IntAnnotation
+                      PsiElement(identifier)('IntAnnotation')
                 PsiElement(])(']')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
@@ -1035,9 +1061,10 @@ ScalaFile
                 PsiElement(identifier)('classOf')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: LongAnnotation
-                  CodeReferenceElement: LongAnnotation
-                    PsiElement(identifier)('LongAnnotation')
+                TypeArgument
+                  SimpleType: LongAnnotation
+                    CodeReferenceElement: LongAnnotation
+                      PsiElement(identifier)('LongAnnotation')
                 PsiElement(])(']')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
@@ -1062,9 +1089,10 @@ ScalaFile
                 PsiElement(identifier)('classOf')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: LongAnnotation
-                  CodeReferenceElement: LongAnnotation
-                    PsiElement(identifier)('LongAnnotation')
+                TypeArgument
+                  SimpleType: LongAnnotation
+                    CodeReferenceElement: LongAnnotation
+                      PsiElement(identifier)('LongAnnotation')
                 PsiElement(])(']')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')

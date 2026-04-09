@@ -149,9 +149,10 @@ ScalaFile
               PsiElement(identifier)('asInstanceOf')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: RT
-                CodeReferenceElement: RT
-                  PsiElement(identifier)('RT')
+              TypeArgument
+                SimpleType: RT
+                  CodeReferenceElement: RT
+                    PsiElement(identifier)('RT')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScFunctionDefinition: selectDynamic
@@ -255,9 +256,10 @@ ScalaFile
                                 PsiElement(identifier)('Ifce')
                             TypeArgumentsList
                               PsiElement([)('[')
-                              LiteralType: true
-                                BooleanLiteral
-                                  PsiElement(true)('true')
+                              TypeArgument
+                                LiteralType: true
+                                  BooleanLiteral
+                                    PsiElement(true)('true')
                               PsiElement(])(']')
                   PsiElement())(')')
                 PsiElement(.)('.')

@@ -36,14 +36,15 @@ ScalaFile
                 PsiElement(identifier)('Set')
             TypeArgumentsList
               PsiElement([)('[')
-              WildcardType: _ >: Char
-                PsiElement(_)('_')
-                PsiWhiteSpace(' ')
-                PsiElement(>:)('>:')
-                PsiWhiteSpace(' ')
-                SimpleType: Char
-                  CodeReferenceElement: Char
-                    PsiElement(identifier)('Char')
+              TypeArgument
+                WildcardType: _ >: Char
+                  PsiElement(_)('_')
+                  PsiWhiteSpace(' ')
+                  PsiElement(>:)('>:')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Char
+                    CodeReferenceElement: Char
+                      PsiElement(identifier)('Char')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

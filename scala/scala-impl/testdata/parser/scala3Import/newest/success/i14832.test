@@ -83,9 +83,10 @@ ScalaFile
                 PsiElement(identifier)('Box')
             TypeArgumentsList
               PsiElement([)('[')
-              LiteralType: "text"
-                StringLiteral
-                  PsiElement(string content)('"text"')
+              TypeArgument
+                LiteralType: "text"
+                  StringLiteral
+                    PsiElement(string content)('"text"')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -139,14 +140,15 @@ ScalaFile
                           PsiElement(identifier)('Box')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        WildcardType: _ <: String
-                          PsiElement(_)('_')
-                          PsiWhiteSpace(' ')
-                          PsiElement(<:)('<:')
-                          PsiWhiteSpace(' ')
-                          SimpleType: String
-                            CodeReferenceElement: String
-                              PsiElement(identifier)('String')
+                        TypeArgument
+                          WildcardType: _ <: String
+                            PsiElement(_)('_')
+                            PsiWhiteSpace(' ')
+                            PsiElement(<:)('<:')
+                            PsiWhiteSpace(' ')
+                            SimpleType: String
+                              CodeReferenceElement: String
+                                PsiElement(identifier)('String')
                         PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')

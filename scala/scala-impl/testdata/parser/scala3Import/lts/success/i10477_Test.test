@@ -102,9 +102,10 @@ ScalaFile
                   PsiElement(identifier)('F')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Unit
-                  CodeReferenceElement: Unit
-                    PsiElement(identifier)('Unit')
+                TypeArgument
+                  SimpleType: Unit
+                    CodeReferenceElement: Unit
+                      PsiElement(identifier)('Unit')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(=)('=')
@@ -116,16 +117,18 @@ ScalaFile
                     PsiElement(identifier)('summon')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    ParametrizedType: CpsAsyncMonad[F]
-                      SimpleType: CpsAsyncMonad
-                        CodeReferenceElement: CpsAsyncMonad
-                          PsiElement(identifier)('CpsAsyncMonad')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        SimpleType: F
-                          CodeReferenceElement: F
-                            PsiElement(identifier)('F')
-                        PsiElement(])(']')
+                    TypeArgument
+                      ParametrizedType: CpsAsyncMonad[F]
+                        SimpleType: CpsAsyncMonad
+                          CodeReferenceElement: CpsAsyncMonad
+                            PsiElement(identifier)('CpsAsyncMonad')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: F
+                              CodeReferenceElement: F
+                                PsiElement(identifier)('F')
+                          PsiElement(])(']')
                     PsiElement(])(']')
                 PsiElement(.)('.')
                 PsiElement(identifier)('adoptCallbackStyle')
@@ -241,9 +244,10 @@ ScalaFile
                             PsiElement(identifier)('Try')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: Unit
-                            CodeReferenceElement: Unit
-                              PsiElement(identifier)('Unit')
+                          TypeArgument
+                            SimpleType: Unit
+                              CodeReferenceElement: Unit
+                                PsiElement(identifier)('Unit')
                           PsiElement(])(']')
                       PsiElement(=>)('=>')
                       SimpleType: Unit

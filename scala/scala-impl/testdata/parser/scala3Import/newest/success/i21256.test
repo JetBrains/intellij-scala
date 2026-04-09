@@ -55,8 +55,9 @@ ScalaFile
                       PsiElement(identifier)('List')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    TypeVariable: t
-                      PsiElement(identifier)('t')
+                    TypeArgument
+                      TypeVariable: t
+                        PsiElement(identifier)('t')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')

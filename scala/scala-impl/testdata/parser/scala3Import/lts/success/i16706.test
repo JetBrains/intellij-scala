@@ -130,27 +130,30 @@ ScalaFile
                 PsiElement(identifier)('TupleUnionLub')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: t
-                CodeReferenceElement: t
-                  PsiElement(identifier)('t')
+              TypeArgument
+                SimpleType: t
+                  CodeReferenceElement: t
+                    PsiElement(identifier)('t')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Lub
-                CodeReferenceElement: Lub
-                  PsiElement(identifier)('Lub')
+              TypeArgument
+                SimpleType: Lub
+                  CodeReferenceElement: Lub
+                    PsiElement(identifier)('Lub')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              InfixType: Acc | h
-                SimpleType: Acc
-                  CodeReferenceElement: Acc
-                    PsiElement(identifier)('Acc')
-                PsiWhiteSpace(' ')
-                CodeReferenceElement: |
-                  PsiElement(identifier)('|')
-                PsiWhiteSpace(' ')
-                SimpleType: h
-                  CodeReferenceElement: h
-                    PsiElement(identifier)('h')
+              TypeArgument
+                InfixType: Acc | h
+                  SimpleType: Acc
+                    CodeReferenceElement: Acc
+                      PsiElement(identifier)('Acc')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: |
+                    PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  SimpleType: h
+                    CodeReferenceElement: h
+                      PsiElement(identifier)('h')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScMatchTypeCaseImpl(match type case)
@@ -208,9 +211,10 @@ ScalaFile
                   PsiElement(identifier)('SumOf')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: A
-                  CodeReferenceElement: A
-                    PsiElement(identifier)('A')
+                TypeArgument
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
                 PsiElement(])(']')
         PsiElement(,)(',')
         PsiWhiteSpace('\n    ')
@@ -229,29 +233,33 @@ ScalaFile
                   PsiElement(identifier)('ClassTag')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: TupleUnionLub[m.MirroredElemTypes, A, Nothing]
-                  SimpleType: TupleUnionLub
-                    CodeReferenceElement: TupleUnionLub
-                      PsiElement(identifier)('TupleUnionLub')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: m.MirroredElemTypes
-                      CodeReferenceElement: m.MirroredElemTypes
-                        CodeReferenceElement: m
-                          PsiElement(identifier)('m')
-                        PsiElement(.)('.')
-                        PsiElement(identifier)('MirroredElemTypes')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    SimpleType: A
-                      CodeReferenceElement: A
-                        PsiElement(identifier)('A')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    SimpleType: Nothing
-                      CodeReferenceElement: Nothing
-                        PsiElement(identifier)('Nothing')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: TupleUnionLub[m.MirroredElemTypes, A, Nothing]
+                    SimpleType: TupleUnionLub
+                      CodeReferenceElement: TupleUnionLub
+                        PsiElement(identifier)('TupleUnionLub')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: m.MirroredElemTypes
+                          CodeReferenceElement: m.MirroredElemTypes
+                            CodeReferenceElement: m
+                              PsiElement(identifier)('m')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('MirroredElemTypes')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        SimpleType: Nothing
+                          CodeReferenceElement: Nothing
+                            PsiElement(identifier)('Nothing')
+                      PsiElement(])(']')
                 PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement())(')')
@@ -337,9 +345,10 @@ ScalaFile
         PsiElement(identifier)('derived')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: Foo
-          CodeReferenceElement: Foo
-            PsiElement(identifier)('Foo')
+        TypeArgument
+          SimpleType: Foo
+            CodeReferenceElement: Foo
+              PsiElement(identifier)('Foo')
         PsiElement(])(']')
   PsiWhiteSpace(' ')
   PsiComment(comment)('// error')

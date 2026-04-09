@@ -74,9 +74,10 @@ ScalaFile
                 PsiElement(identifier)('IArray')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Float
-                CodeReferenceElement: Float
-                  PsiElement(identifier)('Float')
+              TypeArgument
+                SimpleType: Float
+                  CodeReferenceElement: Float
+                    PsiElement(identifier)('Float')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScObject: Featureful
@@ -127,9 +128,10 @@ ScalaFile
                         PsiElement(identifier)('Of')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: T
-                        CodeReferenceElement: T
-                          PsiElement(identifier)('T')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiWhiteSpace(' ')
@@ -144,9 +146,10 @@ ScalaFile
                 PsiElement(identifier)('derivedImpl')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: T
-                  CodeReferenceElement: T
-                    PsiElement(identifier)('T')
+                TypeArgument
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(})('}')
@@ -203,16 +206,18 @@ ScalaFile
                 PsiElement(identifier)('Expr')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Featureful[T]
-                SimpleType: Featureful
-                  CodeReferenceElement: Featureful
-                    PsiElement(identifier)('Featureful')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: T
-                    CodeReferenceElement: T
-                      PsiElement(identifier)('T')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Featureful[T]
+                  SimpleType: Featureful
+                    CodeReferenceElement: Featureful
+                      PsiElement(identifier)('Featureful')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                    PsiElement(])(']')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -246,9 +251,10 @@ ScalaFile
                             PsiElement(identifier)('Featureful')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: T
-                            CodeReferenceElement: T
-                              PsiElement(identifier)('T')
+                          TypeArgument
+                            SimpleType: T
+                              CodeReferenceElement: T
+                                PsiElement(identifier)('T')
                           PsiElement(])(']')
                   ScTemplateBody
                     PsiElement(:)(':')
@@ -302,15 +308,17 @@ ScalaFile
                               PsiElement(identifier)('empty')
                             TypeArgumentsList
                               PsiElement([)('[')
-                              ParametrizedType: Featureful[?]
-                                SimpleType: Featureful
-                                  CodeReferenceElement: Featureful
-                                    PsiElement(identifier)('Featureful')
-                                TypeArgumentsList
-                                  PsiElement([)('[')
-                                  WildcardType: ?
-                                    PsiElement(?)('?')
-                                  PsiElement(])(']')
+                              TypeArgument
+                                ParametrizedType: Featureful[?]
+                                  SimpleType: Featureful
+                                    CodeReferenceElement: Featureful
+                                      PsiElement(identifier)('Featureful')
+                                  TypeArgumentsList
+                                    PsiElement([)('[')
+                                    TypeArgument
+                                      WildcardType: ?
+                                        PsiElement(?)('?')
+                                    PsiElement(])(']')
                               PsiElement(])(']')
                         PsiWhiteSpace('\n          ')
                         ScPatternDefinition: product
@@ -334,9 +342,10 @@ ScalaFile
                               PsiElement(identifier)('asInstanceOf')
                             TypeArgumentsList
                               PsiElement([)('[')
-                              SimpleType: Product
-                                CodeReferenceElement: Product
-                                  PsiElement(identifier)('Product')
+                              TypeArgument
+                                SimpleType: Product
+                                  CodeReferenceElement: Product
+                                    PsiElement(identifier)('Product')
                               PsiElement(])(']')
                         PsiWhiteSpace('\n          ')
                         MethodCall

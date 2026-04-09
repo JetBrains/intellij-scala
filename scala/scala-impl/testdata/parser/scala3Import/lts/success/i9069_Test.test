@@ -35,22 +35,24 @@ ScalaFile
             PsiElement(identifier)('summon')
           TypeArgumentsList
             PsiElement([)('[')
-            ParametrizedType: deriving.Mirror.SumOf[Foo]
-              SimpleType: deriving.Mirror.SumOf
-                CodeReferenceElement: deriving.Mirror.SumOf
-                  CodeReferenceElement: deriving.Mirror
-                    CodeReferenceElement: deriving
-                      PsiElement(identifier)('deriving')
+            TypeArgument
+              ParametrizedType: deriving.Mirror.SumOf[Foo]
+                SimpleType: deriving.Mirror.SumOf
+                  CodeReferenceElement: deriving.Mirror.SumOf
+                    CodeReferenceElement: deriving.Mirror
+                      CodeReferenceElement: deriving
+                        PsiElement(identifier)('deriving')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Mirror')
                     PsiElement(.)('.')
-                    PsiElement(identifier)('Mirror')
-                  PsiElement(.)('.')
-                  PsiElement(identifier)('SumOf')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: Foo
-                  CodeReferenceElement: Foo
-                    PsiElement(identifier)('Foo')
-                PsiElement(])(']')
+                    PsiElement(identifier)('SumOf')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: Foo
+                      CodeReferenceElement: Foo
+                        PsiElement(identifier)('Foo')
+                  PsiElement(])(']')
             PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       GenericCall
@@ -58,32 +60,33 @@ ScalaFile
           PsiElement(identifier)('summon')
         TypeArgumentsList
           PsiElement([)('[')
-          InfixType: mirror.MirroredElemTypes =:= (Foo.Baz.type, Bar)
-            SimpleType: mirror.MirroredElemTypes
-              CodeReferenceElement: mirror.MirroredElemTypes
-                CodeReferenceElement: mirror
-                  PsiElement(identifier)('mirror')
-                PsiElement(.)('.')
-                PsiElement(identifier)('MirroredElemTypes')
-            PsiWhiteSpace(' ')
-            CodeReferenceElement: =:=
-              PsiElement(identifier)('=:=')
-            PsiWhiteSpace(' ')
-            TupleType: (Foo.Baz.type, Bar)
-              PsiElement(()('(')
-              TypesList
-                SimpleType: Foo.Baz.type
-                  CodeReferenceElement: Foo.Baz
-                    CodeReferenceElement: Foo
-                      PsiElement(identifier)('Foo')
-                    PsiElement(.)('.')
-                    PsiElement(identifier)('Baz')
+          TypeArgument
+            InfixType: mirror.MirroredElemTypes =:= (Foo.Baz.type, Bar)
+              SimpleType: mirror.MirroredElemTypes
+                CodeReferenceElement: mirror.MirroredElemTypes
+                  CodeReferenceElement: mirror
+                    PsiElement(identifier)('mirror')
                   PsiElement(.)('.')
-                  PsiElement(type)('type')
-                PsiElement(,)(',')
-                PsiWhiteSpace(' ')
-                SimpleType: Bar
-                  CodeReferenceElement: Bar
-                    PsiElement(identifier)('Bar')
-              PsiElement())(')')
+                  PsiElement(identifier)('MirroredElemTypes')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              TupleType: (Foo.Baz.type, Bar)
+                PsiElement(()('(')
+                TypesList
+                  SimpleType: Foo.Baz.type
+                    CodeReferenceElement: Foo.Baz
+                      CodeReferenceElement: Foo
+                        PsiElement(identifier)('Foo')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Baz')
+                    PsiElement(.)('.')
+                    PsiElement(type)('type')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Bar
+                    CodeReferenceElement: Bar
+                      PsiElement(identifier)('Bar')
+                PsiElement())(')')
           PsiElement(])(']')

@@ -109,9 +109,10 @@ ScalaFile
                           PsiElement(identifier)('Function0')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: Any
-                          CodeReferenceElement: Any
-                            PsiElement(identifier)('Any')
+                        TypeArgument
+                          SimpleType: Any
+                            CodeReferenceElement: Any
+                              PsiElement(identifier)('Any')
                         PsiElement(])(']')
                 PsiElement())(')')
           ExtendsBlock
@@ -157,9 +158,10 @@ ScalaFile
                               PsiElement(identifier)('Function0')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: Any
-                              CodeReferenceElement: Any
-                                PsiElement(identifier)('Any')
+                            TypeArgument
+                              SimpleType: Any
+                                CodeReferenceElement: Any
+                                  PsiElement(identifier)('Any')
                             PsiElement(])(']')
                     PsiElement())(')')
                 PsiElement(:)(':')
@@ -355,9 +357,10 @@ ScalaFile
                         PsiElement(identifier)('Manifest')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: T1
-                        CodeReferenceElement: T1
-                          PsiElement(identifier)('T1')
+                      TypeArgument
+                        SimpleType: T1
+                          CodeReferenceElement: T1
+                            PsiElement(identifier)('T1')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')

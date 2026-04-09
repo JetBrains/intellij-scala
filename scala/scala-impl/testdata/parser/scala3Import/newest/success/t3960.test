@@ -84,20 +84,23 @@ ScalaFile
                         PsiElement(identifier)('HashMap')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      ParametrizedType: C[_]
-                        SimpleType: C
-                          CodeReferenceElement: C
-                            PsiElement(identifier)('C')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          WildcardType: _
-                            PsiElement(_)('_')
-                          PsiElement(])(']')
+                      TypeArgument
+                        ParametrizedType: C[_]
+                          SimpleType: C
+                            CodeReferenceElement: C
+                              PsiElement(identifier)('C')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              WildcardType: _
+                                PsiElement(_)('_')
+                            PsiElement(])(']')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: Int
-                        CodeReferenceElement: Int
-                          PsiElement(identifier)('Int')
+                      TypeArgument
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
                       PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScFunctionDefinition: c
@@ -118,8 +121,9 @@ ScalaFile
                 PsiElement(identifier)('C')
             TypeArgumentsList
               PsiElement([)('[')
-              WildcardType: _
-                PsiElement(_)('_')
+              TypeArgument
+                WildcardType: _
+                  PsiElement(_)('_')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -154,8 +158,9 @@ ScalaFile
                 PsiElement(identifier)('C')
             TypeArgumentsList
               PsiElement([)('[')
-              WildcardType: _
-                PsiElement(_)('_')
+              TypeArgument
+                WildcardType: _
+                  PsiElement(_)('_')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

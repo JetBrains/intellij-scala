@@ -107,18 +107,19 @@ ScalaFile
                             PsiElement(identifier)('Option')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          TupleType: (Any, Any)
-                            PsiElement(()('(')
-                            TypesList
-                              SimpleType: Any
-                                CodeReferenceElement: Any
-                                  PsiElement(identifier)('Any')
-                              PsiElement(,)(',')
-                              PsiWhiteSpace(' ')
-                              SimpleType: Any
-                                CodeReferenceElement: Any
-                                  PsiElement(identifier)('Any')
-                            PsiElement())(')')
+                          TypeArgument
+                            TupleType: (Any, Any)
+                              PsiElement(()('(')
+                              TypesList
+                                SimpleType: Any
+                                  CodeReferenceElement: Any
+                                    PsiElement(identifier)('Any')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                SimpleType: Any
+                                  CodeReferenceElement: Any
+                                    PsiElement(identifier)('Any')
+                              PsiElement())(')')
                           PsiElement(])(']')
                       PsiWhiteSpace(' ')
                       PsiElement(=)('=')
@@ -187,9 +188,10 @@ ScalaFile
                         PsiElement(identifier)('Array')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: String
-                        CodeReferenceElement: String
-                          PsiElement(identifier)('String')
+                      TypeArgument
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')

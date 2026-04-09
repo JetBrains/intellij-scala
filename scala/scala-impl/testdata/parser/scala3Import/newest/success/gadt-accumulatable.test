@@ -145,13 +145,15 @@ ScalaFile
                       PsiElement(identifier)('Or')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: G
-                      CodeReferenceElement: G
-                        PsiElement(identifier)('G')
+                    TypeArgument
+                      SimpleType: G
+                        CodeReferenceElement: G
+                          PsiElement(identifier)('G')
                     PsiElement(,)(',')
-                    SimpleType: Nothing
-                      CodeReferenceElement: Nothing
-                        PsiElement(identifier)('Nothing')
+                    TypeArgument
+                      SimpleType: Nothing
+                        CodeReferenceElement: Nothing
+                          PsiElement(identifier)('Nothing')
                     PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScClass: Bad
@@ -204,13 +206,15 @@ ScalaFile
                       PsiElement(identifier)('Or')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Nothing
-                      CodeReferenceElement: Nothing
-                        PsiElement(identifier)('Nothing')
+                    TypeArgument
+                      SimpleType: Nothing
+                        CodeReferenceElement: Nothing
+                          PsiElement(identifier)('Nothing')
                     PsiElement(,)(',')
-                    SimpleType: B
-                      CodeReferenceElement: B
-                        PsiElement(identifier)('B')
+                    TypeArgument
+                      SimpleType: B
+                        CodeReferenceElement: B
+                          PsiElement(identifier)('B')
                     PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScTrait: Validation
@@ -273,9 +277,10 @@ ScalaFile
                       PsiElement(identifier)('Validation')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Nothing
-                      CodeReferenceElement: Nothing
-                        PsiElement(identifier)('Nothing')
+                    TypeArgument
+                      SimpleType: Nothing
+                        CodeReferenceElement: Nothing
+                          PsiElement(identifier)('Nothing')
                     PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScClass: Fail
@@ -325,9 +330,10 @@ ScalaFile
                       PsiElement(identifier)('Validation')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: E
-                      CodeReferenceElement: E
-                        PsiElement(identifier)('E')
+                    TypeArgument
+                      SimpleType: E
+                        CodeReferenceElement: E
+                          PsiElement(identifier)('E')
                     PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScClass: Every
@@ -373,9 +379,10 @@ ScalaFile
                           PsiElement(identifier)('Vector')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: T
-                          CodeReferenceElement: T
-                            PsiElement(identifier)('T')
+                        TypeArgument
+                          SimpleType: T
+                            CodeReferenceElement: T
+                              PsiElement(identifier)('T')
                         PsiElement(])(']')
                 PsiElement())(')')
           PsiWhiteSpace(' ')
@@ -447,9 +454,10 @@ ScalaFile
                       PsiElement(identifier)('Every')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: T
-                      CodeReferenceElement: T
-                        PsiElement(identifier)('T')
+                    TypeArgument
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
                     PsiElement(])(']')
                 ArgumentList
                   PsiElement(()('(')
@@ -542,9 +550,10 @@ ScalaFile
                       PsiElement(identifier)('Every')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: T
-                      CodeReferenceElement: T
-                        PsiElement(identifier)('T')
+                    TypeArgument
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
                     PsiElement(])(']')
                 ArgumentList
                   PsiElement(()('(')
@@ -649,9 +658,10 @@ ScalaFile
                     PsiElement(identifier)('Every')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: b
-                    CodeReferenceElement: b
-                      PsiElement(identifier)('b')
+                  TypeArgument
+                    SimpleType: b
+                      CodeReferenceElement: b
+                        PsiElement(identifier)('b')
                   PsiElement(])(']')
             PsiElement(])(']')
           Parameters
@@ -680,9 +690,10 @@ ScalaFile
                           PsiElement(identifier)('EVERY')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: ERR
-                          CodeReferenceElement: ERR
-                            PsiElement(identifier)('ERR')
+                        TypeArgument
+                          SimpleType: ERR
+                            CodeReferenceElement: ERR
+                              PsiElement(identifier)('ERR')
                         PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -693,19 +704,22 @@ ScalaFile
                 PsiElement(identifier)('Accumulatable')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: G
-                CodeReferenceElement: G
-                  PsiElement(identifier)('G')
+              TypeArgument
+                SimpleType: G
+                  CodeReferenceElement: G
+                    PsiElement(identifier)('G')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: ERR
-                CodeReferenceElement: ERR
-                  PsiElement(identifier)('ERR')
+              TypeArgument
+                SimpleType: ERR
+                  CodeReferenceElement: ERR
+                    PsiElement(identifier)('ERR')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: EVERY
-                CodeReferenceElement: EVERY
-                  PsiElement(identifier)('EVERY')
+              TypeArgument
+                SimpleType: EVERY
+                  CodeReferenceElement: EVERY
+                    PsiElement(identifier)('EVERY')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -725,19 +739,22 @@ ScalaFile
                           PsiElement(identifier)('Accumulatable')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: G
-                          CodeReferenceElement: G
-                            PsiElement(identifier)('G')
+                        TypeArgument
+                          SimpleType: G
+                            CodeReferenceElement: G
+                              PsiElement(identifier)('G')
                         PsiElement(,)(',')
                         PsiWhiteSpace(' ')
-                        SimpleType: ERR
-                          CodeReferenceElement: ERR
-                            PsiElement(identifier)('ERR')
+                        TypeArgument
+                          SimpleType: ERR
+                            CodeReferenceElement: ERR
+                              PsiElement(identifier)('ERR')
                         PsiElement(,)(',')
                         PsiWhiteSpace(' ')
-                        SimpleType: EVERY
-                          CodeReferenceElement: EVERY
-                            PsiElement(identifier)('EVERY')
+                        TypeArgument
+                          SimpleType: EVERY
+                            CodeReferenceElement: EVERY
+                              PsiElement(identifier)('EVERY')
                         PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 ScTemplateBody
@@ -789,9 +806,10 @@ ScalaFile
                                       PsiElement(identifier)('Validation')
                                   TypeArgumentsList
                                     PsiElement([)('[')
-                                    SimpleType: OTHERERR
-                                      CodeReferenceElement: OTHERERR
-                                        PsiElement(identifier)('OTHERERR')
+                                    TypeArgument
+                                      SimpleType: OTHERERR
+                                        CodeReferenceElement: OTHERERR
+                                          PsiElement(identifier)('OTHERERR')
                                     PsiElement(])(']')
                               PsiElement())(')')
                             PsiElement(identifier)('*')
@@ -812,9 +830,10 @@ ScalaFile
                             PsiElement(identifier)('Every')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: OTHERERR
-                            CodeReferenceElement: OTHERERR
-                              PsiElement(identifier)('OTHERERR')
+                          TypeArgument
+                            SimpleType: OTHERERR
+                              CodeReferenceElement: OTHERERR
+                                PsiElement(identifier)('OTHERERR')
                           PsiElement(])(']')
                     PsiWhiteSpace(' ')
                     PsiElement(=)('=')

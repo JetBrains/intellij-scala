@@ -117,14 +117,16 @@ ScalaFile
                       PsiElement(identifier)('IsTypeInTuple')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: T
-                      CodeReferenceElement: T
-                        PsiElement(identifier)('T')
+                    TypeArgument
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    SimpleType: ts
-                      CodeReferenceElement: ts
-                        PsiElement(identifier)('ts')
+                    TypeArgument
+                      SimpleType: ts
+                        CodeReferenceElement: ts
+                          PsiElement(identifier)('ts')
                     PsiElement(])(']')
             PsiWhiteSpace('\n  ')
             PsiElement(})('}')
@@ -134,66 +136,10 @@ ScalaFile
             PsiElement(identifier)('summon')
           TypeArgumentsList
             PsiElement([)('[')
-            InfixType: (Int *: String *: EmptyTuple) =:= (Int, String)
-              TypeInParenthesis: (Int *: String *: EmptyTuple)
-                PsiElement(()('(')
-                InfixType: Int *: String *: EmptyTuple
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
-                  PsiWhiteSpace(' ')
-                  CodeReferenceElement: *:
-                    PsiElement(identifier)('*:')
-                  PsiWhiteSpace(' ')
-                  InfixType: String *: EmptyTuple
-                    SimpleType: String
-                      CodeReferenceElement: String
-                        PsiElement(identifier)('String')
-                    PsiWhiteSpace(' ')
-                    CodeReferenceElement: *:
-                      PsiElement(identifier)('*:')
-                    PsiWhiteSpace(' ')
-                    SimpleType: EmptyTuple
-                      CodeReferenceElement: EmptyTuple
-                        PsiElement(identifier)('EmptyTuple')
-                PsiElement())(')')
-              PsiWhiteSpace(' ')
-              CodeReferenceElement: =:=
-                PsiElement(identifier)('=:=')
-              PsiWhiteSpace(' ')
-              TupleType: (Int, String)
-                PsiElement(()('(')
-                TypesList
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: String
-                    CodeReferenceElement: String
-                      PsiElement(identifier)('String')
-                PsiElement())(')')
-            PsiElement(])(']')
-        PsiWhiteSpace(' ')
-        PsiComment(comment)('//they are the same')
-        PsiWhiteSpace('\n  ')
-        GenericCall
-          ReferenceExpression: summon
-            PsiElement(identifier)('summon')
-          TypeArgumentsList
-            PsiElement([)('[')
-            InfixType: IsTypeInTuple[String, Int *: String *: EmptyTuple] =:= true
-              ParametrizedType: IsTypeInTuple[String, Int *: String *: EmptyTuple]
-                SimpleType: IsTypeInTuple
-                  CodeReferenceElement: IsTypeInTuple
-                    PsiElement(identifier)('IsTypeInTuple')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: String
-                    CodeReferenceElement: String
-                      PsiElement(identifier)('String')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
+            TypeArgument
+              InfixType: (Int *: String *: EmptyTuple) =:= (Int, String)
+                TypeInParenthesis: (Int *: String *: EmptyTuple)
+                  PsiElement(()('(')
                   InfixType: Int *: String *: EmptyTuple
                     SimpleType: Int
                       CodeReferenceElement: Int
@@ -213,14 +159,74 @@ ScalaFile
                       SimpleType: EmptyTuple
                         CodeReferenceElement: EmptyTuple
                           PsiElement(identifier)('EmptyTuple')
-                  PsiElement(])(']')
-              PsiWhiteSpace(' ')
-              CodeReferenceElement: =:=
-                PsiElement(identifier)('=:=')
-              PsiWhiteSpace(' ')
-              LiteralType: true
-                BooleanLiteral
-                  PsiElement(true)('true')
+                  PsiElement())(')')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: =:=
+                  PsiElement(identifier)('=:=')
+                PsiWhiteSpace(' ')
+                TupleType: (Int, String)
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                  PsiElement())(')')
+            PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('//they are the same')
+        PsiWhiteSpace('\n  ')
+        GenericCall
+          ReferenceExpression: summon
+            PsiElement(identifier)('summon')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              InfixType: IsTypeInTuple[String, Int *: String *: EmptyTuple] =:= true
+                ParametrizedType: IsTypeInTuple[String, Int *: String *: EmptyTuple]
+                  SimpleType: IsTypeInTuple
+                    CodeReferenceElement: IsTypeInTuple
+                      PsiElement(identifier)('IsTypeInTuple')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      InfixType: Int *: String *: EmptyTuple
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: *:
+                          PsiElement(identifier)('*:')
+                        PsiWhiteSpace(' ')
+                        InfixType: String *: EmptyTuple
+                          SimpleType: String
+                            CodeReferenceElement: String
+                              PsiElement(identifier)('String')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: *:
+                            PsiElement(identifier)('*:')
+                          PsiWhiteSpace(' ')
+                          SimpleType: EmptyTuple
+                            CodeReferenceElement: EmptyTuple
+                              PsiElement(identifier)('EmptyTuple')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: =:=
+                  PsiElement(identifier)('=:=')
+                PsiWhiteSpace(' ')
+                LiteralType: true
+                  BooleanLiteral
+                    PsiElement(true)('true')
             PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiComment(comment)('//compiles')
@@ -230,38 +236,41 @@ ScalaFile
             PsiElement(identifier)('summon')
           TypeArgumentsList
             PsiElement([)('[')
-            InfixType: IsTypeInTuple[String, (Int, String)] =:= true
-              ParametrizedType: IsTypeInTuple[String, (Int, String)]
-                SimpleType: IsTypeInTuple
-                  CodeReferenceElement: IsTypeInTuple
-                    PsiElement(identifier)('IsTypeInTuple')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: String
-                    CodeReferenceElement: String
-                      PsiElement(identifier)('String')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  TupleType: (Int, String)
-                    PsiElement(()('(')
-                    TypesList
-                      SimpleType: Int
-                        CodeReferenceElement: Int
-                          PsiElement(identifier)('Int')
-                      PsiElement(,)(',')
-                      PsiWhiteSpace(' ')
+            TypeArgument
+              InfixType: IsTypeInTuple[String, (Int, String)] =:= true
+                ParametrizedType: IsTypeInTuple[String, (Int, String)]
+                  SimpleType: IsTypeInTuple
+                    CodeReferenceElement: IsTypeInTuple
+                      PsiElement(identifier)('IsTypeInTuple')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
                       SimpleType: String
                         CodeReferenceElement: String
                           PsiElement(identifier)('String')
-                    PsiElement())(')')
-                  PsiElement(])(']')
-              PsiWhiteSpace(' ')
-              CodeReferenceElement: =:=
-                PsiElement(identifier)('=:=')
-              PsiWhiteSpace(' ')
-              LiteralType: true
-                BooleanLiteral
-                  PsiElement(true)('true')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      TupleType: (Int, String)
+                        PsiElement(()('(')
+                        TypesList
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: String
+                            CodeReferenceElement: String
+                              PsiElement(identifier)('String')
+                        PsiElement())(')')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: =:=
+                  PsiElement(identifier)('=:=')
+                PsiWhiteSpace(' ')
+                LiteralType: true
+                  BooleanLiteral
+                    PsiElement(true)('true')
             PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiComment(comment)('//doesn't compile')

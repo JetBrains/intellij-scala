@@ -95,8 +95,9 @@ ScalaFile
               PsiElement(identifier)('Array')
           TypeArgumentsList
             PsiElement([)('[')
-            WildcardType: _
-              PsiElement(_)('_')
+            TypeArgument
+              WildcardType: _
+                PsiElement(_)('_')
             PsiElement(])(']')
       PsiElement(])(']')
     PrimaryConstructor
@@ -167,8 +168,9 @@ ScalaFile
               PsiElement(identifier)('List')
           TypeArgumentsList
             PsiElement([)('[')
-            WildcardType: _
-              PsiElement(_)('_')
+            TypeArgument
+              WildcardType: _
+                PsiElement(_)('_')
             PsiElement(])(']')
       PsiElement(])(']')
     PrimaryConstructor
@@ -197,16 +199,18 @@ ScalaFile
                 PsiElement(identifier)('Fooz')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Array[Int]
-                SimpleType: Array
-                  CodeReferenceElement: Array
-                    PsiElement(identifier)('Array')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Array[Int]
+                  SimpleType: Array
+                    CodeReferenceElement: Array
+                      PsiElement(identifier)('Array')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                    PsiElement(])(']')
               PsiElement(])(']')
       PsiWhiteSpace(' ')
       ScTemplateBody

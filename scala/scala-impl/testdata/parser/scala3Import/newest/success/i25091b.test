@@ -146,9 +146,10 @@ ScalaFile
                       PsiElement(identifier)('VersionComponent')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: MajorVersionType
-                      CodeReferenceElement: MajorVersionType
-                        PsiElement(identifier)('MajorVersionType')
+                    TypeArgument
+                      SimpleType: MajorVersionType
+                        CodeReferenceElement: MajorVersionType
+                          PsiElement(identifier)('MajorVersionType')
                     PsiElement(])(']')
             ScTemplateBody
               PsiElement(:)(':')
@@ -278,9 +279,10 @@ ScalaFile
                       PsiElement(identifier)('Increment')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: MajorVersionType
-                      CodeReferenceElement: MajorVersionType
-                        PsiElement(identifier)('MajorVersionType')
+                    TypeArgument
+                      SimpleType: MajorVersionType
+                        CodeReferenceElement: MajorVersionType
+                          PsiElement(identifier)('MajorVersionType')
                     PsiElement(])(']')
             ScTemplateBody
               PsiElement(:)(':')

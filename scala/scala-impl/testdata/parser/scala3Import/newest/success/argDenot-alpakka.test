@@ -90,19 +90,22 @@ ScalaFile
                         PsiElement(identifier)('Flow')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: I
-                        CodeReferenceElement: I
-                          PsiElement(identifier)('I')
+                      TypeArgument
+                        SimpleType: I
+                          CodeReferenceElement: I
+                            PsiElement(identifier)('I')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: Byte
-                        CodeReferenceElement: Byte
-                          PsiElement(identifier)('Byte')
+                      TypeArgument
+                        SimpleType: Byte
+                          CodeReferenceElement: Byte
+                            PsiElement(identifier)('Byte')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: M
-                        CodeReferenceElement: M
-                          PsiElement(identifier)('M')
+                      TypeArgument
+                        SimpleType: M
+                          CodeReferenceElement: M
+                            PsiElement(identifier)('M')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -113,22 +116,25 @@ ScalaFile
                 PsiElement(identifier)('SubFlow')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Byte
-                CodeReferenceElement: Byte
-                  PsiElement(identifier)('Byte')
+              TypeArgument
+                SimpleType: Byte
+                  CodeReferenceElement: Byte
+                    PsiElement(identifier)('Byte')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: M
-                CodeReferenceElement: M
-                  PsiElement(identifier)('M')
+              TypeArgument
+                SimpleType: M
+                  CodeReferenceElement: M
+                    PsiElement(identifier)('M')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: in.Repr
-                CodeReferenceElement: in.Repr
-                  CodeReferenceElement: in
-                    PsiElement(identifier)('in')
-                  PsiElement(.)('.')
-                  PsiElement(identifier)('Repr')
+              TypeArgument
+                SimpleType: in.Repr
+                  CodeReferenceElement: in.Repr
+                    CodeReferenceElement: in
+                      PsiElement(identifier)('in')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Repr')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScFunctionDefinition: test
@@ -172,19 +178,22 @@ ScalaFile
                                       PsiElement(identifier)('Flow')
                                   TypeArgumentsList
                                     PsiElement([)('[')
-                                    SimpleType: Int
-                                      CodeReferenceElement: Int
-                                        PsiElement(identifier)('Int')
+                                    TypeArgument
+                                      SimpleType: Int
+                                        CodeReferenceElement: Int
+                                          PsiElement(identifier)('Int')
                                     PsiElement(,)(',')
                                     PsiWhiteSpace(' ')
-                                    SimpleType: Byte
-                                      CodeReferenceElement: Byte
-                                        PsiElement(identifier)('Byte')
+                                    TypeArgument
+                                      SimpleType: Byte
+                                        CodeReferenceElement: Byte
+                                          PsiElement(identifier)('Byte')
                                     PsiElement(,)(',')
                                     PsiWhiteSpace(' ')
-                                    SimpleType: Unit
-                                      CodeReferenceElement: Unit
-                                        PsiElement(identifier)('Unit')
+                                    TypeArgument
+                                      SimpleType: Unit
+                                        CodeReferenceElement: Unit
+                                          PsiElement(identifier)('Unit')
                                     PsiElement(])(']')
                         PsiElement())(')')
                     PsiWhiteSpace('\n      ')
@@ -192,9 +201,10 @@ ScalaFile
                     PsiElement(identifier)('via')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Char
-                      CodeReferenceElement: Char
-                        PsiElement(identifier)('Char')
+                    TypeArgument
+                      SimpleType: Char
+                        CodeReferenceElement: Char
+                          PsiElement(identifier)('Char')
                     PsiElement(])(']')
                 PsiWhiteSpace('\n      ')
                 PsiElement(.)('.')
@@ -260,14 +270,16 @@ ScalaFile
                   PsiElement(identifier)('FlowOps')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: O
-                  CodeReferenceElement: O
-                    PsiElement(identifier)('O')
+                TypeArgument
+                  SimpleType: O
+                    CodeReferenceElement: O
+                      PsiElement(identifier)('O')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: Mat
-                  CodeReferenceElement: Mat
-                    PsiElement(identifier)('Mat')
+                TypeArgument
+                  SimpleType: Mat
+                    CodeReferenceElement: Mat
+                      PsiElement(identifier)('Mat')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             Refinement
@@ -302,9 +314,10 @@ ScalaFile
                       PsiElement(identifier)('Repr')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: O
-                      CodeReferenceElement: O
-                        PsiElement(identifier)('O')
+                    TypeArgument
+                      SimpleType: O
+                        CodeReferenceElement: O
+                          PsiElement(identifier)('O')
                     PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(})('}')
@@ -332,9 +345,10 @@ ScalaFile
                 PsiElement(identifier)('Repr')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: O
-                CodeReferenceElement: O
-                  PsiElement(identifier)('O')
+              TypeArgument
+                SimpleType: O
+                  CodeReferenceElement: O
+                    PsiElement(identifier)('O')
               PsiElement(])(']')
           PsiWhiteSpace('   ')
           PsiElement(=)('=')
@@ -362,9 +376,10 @@ ScalaFile
                 PsiElement(identifier)('Repr')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Out
-                CodeReferenceElement: Out
-                  PsiElement(identifier)('Out')
+              TypeArgument
+                SimpleType: Out
+                  CodeReferenceElement: Out
+                    PsiElement(identifier)('Out')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -415,14 +430,16 @@ ScalaFile
                 PsiElement(identifier)('FlowOps')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Out
-                CodeReferenceElement: Out
-                  PsiElement(identifier)('Out')
+              TypeArgument
+                SimpleType: Out
+                  CodeReferenceElement: Out
+                    PsiElement(identifier)('Out')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Mat
-                CodeReferenceElement: Mat
-                  PsiElement(identifier)('Mat')
+              TypeArgument
+                SimpleType: Mat
+                  CodeReferenceElement: Mat
+                    PsiElement(identifier)('Mat')
               PsiElement(])(']')
       ScTemplateBody
         PsiElement(:)(':')
@@ -450,39 +467,42 @@ ScalaFile
                 PsiElement(identifier)('Flow')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeWithAnnotation: In @uV
-                SimpleType: In
-                  CodeReferenceElement: In
-                    PsiElement(identifier)('In')
-                PsiWhiteSpace(' ')
-                AnnotationsList
-                  Annotation
-                    PsiElement(@)('@')
-                    AnnotationExpression
-                      ConstructorInvocation
-                        SimpleType: uV
-                          CodeReferenceElement: uV
-                            PsiElement(identifier)('uV')
+              TypeArgument
+                TypeWithAnnotation: In @uV
+                  SimpleType: In
+                    CodeReferenceElement: In
+                      PsiElement(identifier)('In')
+                  PsiWhiteSpace(' ')
+                  AnnotationsList
+                    Annotation
+                      PsiElement(@)('@')
+                      AnnotationExpression
+                        ConstructorInvocation
+                          SimpleType: uV
+                            CodeReferenceElement: uV
+                              PsiElement(identifier)('uV')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: O
-                CodeReferenceElement: O
-                  PsiElement(identifier)('O')
+              TypeArgument
+                SimpleType: O
+                  CodeReferenceElement: O
+                    PsiElement(identifier)('O')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              TypeWithAnnotation: Mat @uV
-                SimpleType: Mat
-                  CodeReferenceElement: Mat
-                    PsiElement(identifier)('Mat')
-                PsiWhiteSpace(' ')
-                AnnotationsList
-                  Annotation
-                    PsiElement(@)('@')
-                    AnnotationExpression
-                      ConstructorInvocation
-                        SimpleType: uV
-                          CodeReferenceElement: uV
-                            PsiElement(identifier)('uV')
+              TypeArgument
+                TypeWithAnnotation: Mat @uV
+                  SimpleType: Mat
+                    CodeReferenceElement: Mat
+                      PsiElement(identifier)('Mat')
+                  PsiWhiteSpace(' ')
+                  AnnotationsList
+                    Annotation
+                      PsiElement(@)('@')
+                      AnnotationExpression
+                        ConstructorInvocation
+                          SimpleType: uV
+                            CodeReferenceElement: uV
+                              PsiElement(identifier)('uV')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScClass: SubFlow
@@ -534,14 +554,16 @@ ScalaFile
                 PsiElement(identifier)('FlowOps')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Out
-                CodeReferenceElement: Out
-                  PsiElement(identifier)('Out')
+              TypeArgument
+                SimpleType: Out
+                  CodeReferenceElement: Out
+                    PsiElement(identifier)('Out')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Mat
-                CodeReferenceElement: Mat
-                  PsiElement(identifier)('Mat')
+              TypeArgument
+                SimpleType: Mat
+                  CodeReferenceElement: Mat
+                    PsiElement(identifier)('Mat')
               PsiElement(])(']')
       ScTemplateBody
         PsiElement(:)(':')
@@ -569,39 +591,42 @@ ScalaFile
                 PsiElement(identifier)('SubFlow')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: O
-                CodeReferenceElement: O
-                  PsiElement(identifier)('O')
+              TypeArgument
+                SimpleType: O
+                  CodeReferenceElement: O
+                    PsiElement(identifier)('O')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              TypeWithAnnotation: Mat @uV
-                SimpleType: Mat
-                  CodeReferenceElement: Mat
-                    PsiElement(identifier)('Mat')
-                PsiWhiteSpace(' ')
-                AnnotationsList
-                  Annotation
-                    PsiElement(@)('@')
-                    AnnotationExpression
-                      ConstructorInvocation
-                        SimpleType: uV
-                          CodeReferenceElement: uV
-                            PsiElement(identifier)('uV')
+              TypeArgument
+                TypeWithAnnotation: Mat @uV
+                  SimpleType: Mat
+                    CodeReferenceElement: Mat
+                      PsiElement(identifier)('Mat')
+                  PsiWhiteSpace(' ')
+                  AnnotationsList
+                    Annotation
+                      PsiElement(@)('@')
+                      AnnotationExpression
+                        ConstructorInvocation
+                          SimpleType: uV
+                            CodeReferenceElement: uV
+                              PsiElement(identifier)('uV')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              TypeWithAnnotation: F @uV
-                SimpleType: F
-                  CodeReferenceElement: F
-                    PsiElement(identifier)('F')
-                PsiWhiteSpace(' ')
-                AnnotationsList
-                  Annotation
-                    PsiElement(@)('@')
-                    AnnotationExpression
-                      ConstructorInvocation
-                        SimpleType: uV
-                          CodeReferenceElement: uV
-                            PsiElement(identifier)('uV')
+              TypeArgument
+                TypeWithAnnotation: F @uV
+                  SimpleType: F
+                    CodeReferenceElement: F
+                      PsiElement(identifier)('F')
+                  PsiWhiteSpace(' ')
+                  AnnotationsList
+                    Annotation
+                      PsiElement(@)('@')
+                      AnnotationExpression
+                        ConstructorInvocation
+                          SimpleType: uV
+                            CodeReferenceElement: uV
+                              PsiElement(identifier)('uV')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScFunctionDefinition: merge
@@ -622,9 +647,10 @@ ScalaFile
                 PsiElement(identifier)('F')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Out
-                CodeReferenceElement: Out
-                  PsiElement(identifier)('Out')
+              TypeArgument
+                SimpleType: Out
+                  CodeReferenceElement: Out
+                    PsiElement(identifier)('Out')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

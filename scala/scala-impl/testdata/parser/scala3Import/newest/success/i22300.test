@@ -70,9 +70,10 @@ ScalaFile
                 PsiElement(identifier)('erasedValue')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: T
-                  CodeReferenceElement: T
-                    PsiElement(identifier)('T')
+                TypeArgument
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(match)('match')
@@ -128,9 +129,10 @@ ScalaFile
                         PsiElement(identifier)('checkType')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: h
-                          CodeReferenceElement: h
-                            PsiElement(identifier)('h')
+                        TypeArgument
+                          SimpleType: h
+                            CodeReferenceElement: h
+                              PsiElement(identifier)('h')
                         PsiElement(])(']')
                     ArgumentList
                       PsiElement(()('(')
@@ -196,9 +198,10 @@ ScalaFile
                 PsiElement(identifier)('erasedValue')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: T
-                  CodeReferenceElement: T
-                    PsiElement(identifier)('T')
+                TypeArgument
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(match)('match')
@@ -286,16 +289,17 @@ ScalaFile
         PsiElement(identifier)('inlineMatch')
       TypeArgumentsList
         PsiElement([)('[')
-        TupleType: (Int, Boolean)
-          PsiElement(()('(')
-          TypesList
-            SimpleType: Int
-              CodeReferenceElement: Int
-                PsiElement(identifier)('Int')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            SimpleType: Boolean
-              CodeReferenceElement: Boolean
-                PsiElement(identifier)('Boolean')
-          PsiElement())(')')
+        TypeArgument
+          TupleType: (Int, Boolean)
+            PsiElement(()('(')
+            TypesList
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Boolean
+                CodeReferenceElement: Boolean
+                  PsiElement(identifier)('Boolean')
+            PsiElement())(')')
         PsiElement(])(']')

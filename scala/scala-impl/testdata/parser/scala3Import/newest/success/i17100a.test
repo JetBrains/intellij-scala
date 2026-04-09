@@ -175,30 +175,31 @@ ScalaFile
         PsiElement(identifier)('asInstanceOf')
       TypeArgumentsList
         PsiElement([)('[')
-        CompoundType: Sel{ def foo: String }
-          SimpleType: Sel
-            CodeReferenceElement: Sel
-              PsiElement(identifier)('Sel')
-          Refinement
-            PsiElement({)('{')
-            PsiWhiteSpace(' ')
-            ScFunctionDeclaration: foo
-              AnnotationsList
-                <empty list>
-              Modifiers
-                <empty list>
-              PsiElement(def)('def')
+        TypeArgument
+          CompoundType: Sel{ def foo: String }
+            SimpleType: Sel
+              CodeReferenceElement: Sel
+                PsiElement(identifier)('Sel')
+            Refinement
+              PsiElement({)('{')
               PsiWhiteSpace(' ')
-              PsiElement(identifier)('foo')
-              Parameters
-                <empty list>
-              PsiElement(:)(':')
+              ScFunctionDeclaration: foo
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('foo')
+                Parameters
+                  <empty list>
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
               PsiWhiteSpace(' ')
-              SimpleType: String
-                CodeReferenceElement: String
-                  PsiElement(identifier)('String')
-            PsiWhiteSpace(' ')
-            PsiElement(})('}')
+              PsiElement(})('}')
         PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScPatternDefinition: foo2

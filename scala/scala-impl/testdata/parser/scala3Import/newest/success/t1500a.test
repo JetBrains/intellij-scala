@@ -474,9 +474,10 @@ ScalaFile
             PsiElement(identifier)('implicitly')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: Step0
-              CodeReferenceElement: Step0
-                PsiElement(identifier)('Step0')
+            TypeArgument
+              SimpleType: Step0
+                CodeReferenceElement: Step0
+                  PsiElement(identifier)('Step0')
             PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         GenericCall
@@ -484,9 +485,10 @@ ScalaFile
             PsiElement(identifier)('implicitly')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: Step1
-              CodeReferenceElement: Step1
-                PsiElement(identifier)('Step1')
+            TypeArgument
+              SimpleType: Step1
+                CodeReferenceElement: Step1
+                  PsiElement(identifier)('Step1')
             PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         GenericCall
@@ -494,9 +496,10 @@ ScalaFile
             PsiElement(identifier)('implicitly')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: Step2
-              CodeReferenceElement: Step2
-                PsiElement(identifier)('Step2')
+            TypeArgument
+              SimpleType: Step2
+                CodeReferenceElement: Step2
+                  PsiElement(identifier)('Step2')
             PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         GenericCall
@@ -504,9 +507,10 @@ ScalaFile
             PsiElement(identifier)('implicitly')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: Step3
-              CodeReferenceElement: Step3
-                PsiElement(identifier)('Step3')
+            TypeArgument
+              SimpleType: Step3
+                CodeReferenceElement: Step3
+                  PsiElement(identifier)('Step3')
             PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         GenericCall
@@ -514,9 +518,10 @@ ScalaFile
             PsiElement(identifier)('implicitly')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: Step4
-              CodeReferenceElement: Step4
-                PsiElement(identifier)('Step4')
+            TypeArgument
+              SimpleType: Step4
+                CodeReferenceElement: Step4
+                  PsiElement(identifier)('Step4')
             PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         GenericCall
@@ -524,9 +529,10 @@ ScalaFile
             PsiElement(identifier)('implicitly')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: Step6
-              CodeReferenceElement: Step6
-                PsiElement(identifier)('Step6')
+            TypeArgument
+              SimpleType: Step6
+                CodeReferenceElement: Step6
+                  PsiElement(identifier)('Step6')
             PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

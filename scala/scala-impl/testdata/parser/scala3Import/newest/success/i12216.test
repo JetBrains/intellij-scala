@@ -109,9 +109,10 @@ ScalaFile
                       PsiElement(identifier)('CtorType')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: P
-                      CodeReferenceElement: P
-                        PsiElement(identifier)('P')
+                    TypeArgument
+                      SimpleType: P
+                        CodeReferenceElement: P
+                          PsiElement(identifier)('P')
                     PsiElement(])(']')
             PsiWhiteSpace(' ')
             ScTemplateBody
@@ -187,9 +188,10 @@ ScalaFile
               PsiElement(identifier)('CtorType')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: p
-              CodeReferenceElement: p
-                PsiElement(identifier)('p')
+            TypeArgument
+              SimpleType: p
+                CodeReferenceElement: p
+                  PsiElement(identifier)('p')
             PsiElement(])(']')
       PsiElement(])(']')
     PrimaryConstructor
@@ -222,9 +224,10 @@ ScalaFile
                 PsiElement(identifier)('CT')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: P
-                CodeReferenceElement: P
-                  PsiElement(identifier)('P')
+              TypeArgument
+                SimpleType: P
+                  CodeReferenceElement: P
+                    PsiElement(identifier)('P')
               PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
@@ -273,9 +276,10 @@ ScalaFile
                     PsiElement(identifier)('CtorType')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: p
-                    CodeReferenceElement: p
-                      PsiElement(identifier)('p')
+                  TypeArgument
+                    SimpleType: p
+                      CodeReferenceElement: p
+                        PsiElement(identifier)('p')
                   PsiElement(])(']')
             PsiElement(])(']')
           Parameters
@@ -296,14 +300,16 @@ ScalaFile
                         PsiElement(identifier)('Comp')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: P
-                        CodeReferenceElement: P
-                          PsiElement(identifier)('P')
+                      TypeArgument
+                        SimpleType: P
+                          CodeReferenceElement: P
+                            PsiElement(identifier)('P')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: CT
-                        CodeReferenceElement: CT
-                          PsiElement(identifier)('CT')
+                      TypeArgument
+                        SimpleType: CT
+                          CodeReferenceElement: CT
+                            PsiElement(identifier)('CT')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -314,9 +320,10 @@ ScalaFile
                 PsiElement(identifier)('CT')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: P
-                CodeReferenceElement: P
-                  PsiElement(identifier)('P')
+              TypeArgument
+                SimpleType: P
+                  CodeReferenceElement: P
+                    PsiElement(identifier)('P')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -360,17 +367,19 @@ ScalaFile
                 PsiElement(identifier)('Comp')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
+              TypeArgument
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: CtorType.Props
-                CodeReferenceElement: CtorType.Props
-                  CodeReferenceElement: CtorType
-                    PsiElement(identifier)('CtorType')
-                  PsiElement(.)('.')
-                  PsiElement(identifier)('Props')
+              TypeArgument
+                SimpleType: CtorType.Props
+                  CodeReferenceElement: CtorType.Props
+                    CodeReferenceElement: CtorType
+                      PsiElement(identifier)('CtorType')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Props')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

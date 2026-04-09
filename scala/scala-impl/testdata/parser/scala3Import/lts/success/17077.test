@@ -162,9 +162,10 @@ ScalaFile
               PsiElement(identifier)('isInstanceOf')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: MyProduct
-                CodeReferenceElement: MyProduct
-                  PsiElement(identifier)('MyProduct')
+              TypeArgument
+                SimpleType: MyProduct
+                  CodeReferenceElement: MyProduct
+                    PsiElement(identifier)('MyProduct')
               PsiElement(])(']')
         PsiWhiteSpace('\n    ')
         ScFunctionDefinition: _1

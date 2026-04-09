@@ -83,9 +83,10 @@ ScalaFile
                 PsiElement(identifier)('ClassTag')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Term
-                CodeReferenceElement: Term
-                  PsiElement(identifier)('Term')
+              TypeArgument
+                SimpleType: Term
+                  CodeReferenceElement: Term
+                    PsiElement(identifier)('Term')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -114,9 +115,10 @@ ScalaFile
                 PsiElement(identifier)('ClassTag')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Select
-                CodeReferenceElement: Select
-                  PsiElement(identifier)('Select')
+              TypeArgument
+                SimpleType: Select
+                  CodeReferenceElement: Select
+                    PsiElement(identifier)('Select')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

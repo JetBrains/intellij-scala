@@ -101,9 +101,10 @@ ScalaFile
                 PsiElement(identifier)('Option')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Token
-                CodeReferenceElement: Token
-                  PsiElement(identifier)('Token')
+              TypeArgument
+                SimpleType: Token
+                  CodeReferenceElement: Token
+                    PsiElement(identifier)('Token')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

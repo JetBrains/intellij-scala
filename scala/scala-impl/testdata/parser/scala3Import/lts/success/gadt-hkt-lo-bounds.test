@@ -90,9 +90,10 @@ ScalaFile
                 PsiElement(identifier)('Expr')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Const
-                CodeReferenceElement: Const
-                  PsiElement(identifier)('Const')
+              TypeArgument
+                SimpleType: Const
+                  CodeReferenceElement: Const
+                    PsiElement(identifier)('Const')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScFunctionDefinition: foo
@@ -135,9 +136,10 @@ ScalaFile
                   PsiElement(identifier)('Expr')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: F
-                  CodeReferenceElement: F
-                    PsiElement(identifier)('F')
+                TypeArgument
+                  SimpleType: F
+                    CodeReferenceElement: F
+                      PsiElement(identifier)('F')
                 PsiElement(])(']')
         PsiElement())(')')
     PsiElement(:)(':')
@@ -148,9 +150,10 @@ ScalaFile
           PsiElement(identifier)('F')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: A
-          CodeReferenceElement: A
-            PsiElement(identifier)('A')
+        TypeArgument
+          SimpleType: A
+            CodeReferenceElement: A
+              PsiElement(identifier)('A')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')

@@ -138,14 +138,16 @@ ScalaFile
                     PsiElement(identifier)('Lifecycle')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: F0
-                    CodeReferenceElement: F0
-                      PsiElement(identifier)('F0')
+                  TypeArgument
+                    SimpleType: F0
+                      CodeReferenceElement: F0
+                        PsiElement(identifier)('F0')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
-                  SimpleType: A0
-                    CodeReferenceElement: A0
-                      PsiElement(identifier)('A0')
+                  TypeArgument
+                    SimpleType: A0
+                      CodeReferenceElement: A0
+                        PsiElement(identifier)('A0')
                   PsiElement(])(']')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
@@ -171,9 +173,10 @@ ScalaFile
                 PsiElement(identifier)('LifecycleTag')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: R
-                CodeReferenceElement: R
-                  PsiElement(identifier)('R')
+              TypeArgument
+                SimpleType: R
+                  CodeReferenceElement: R
+                    PsiElement(identifier)('R')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -227,14 +230,16 @@ ScalaFile
                     PsiElement(identifier)('Lifecycle')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: LifecycleF
-                    CodeReferenceElement: LifecycleF
-                      PsiElement(identifier)('LifecycleF')
+                  TypeArgument
+                    SimpleType: LifecycleF
+                      CodeReferenceElement: LifecycleF
+                        PsiElement(identifier)('LifecycleF')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
-                  SimpleType: T
-                    CodeReferenceElement: T
-                      PsiElement(identifier)('T')
+                  TypeArgument
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
                   PsiElement(])(']')
             PsiElement(])(']')
           Parameters
@@ -257,9 +262,10 @@ ScalaFile
                         PsiElement(identifier)('LifecycleTag')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: R
-                        CodeReferenceElement: R
-                          PsiElement(identifier)('R')
+                      TypeArgument
+                        SimpleType: R
+                          CodeReferenceElement: R
+                            PsiElement(identifier)('R')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -358,14 +364,16 @@ ScalaFile
                 PsiElement(identifier)('Lifecycle')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Identity
-                CodeReferenceElement: Identity
-                  PsiElement(identifier)('Identity')
+              TypeArgument
+                SimpleType: Identity
+                  CodeReferenceElement: Identity
+                    PsiElement(identifier)('Identity')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Resource
-                CodeReferenceElement: Resource
-                  PsiElement(identifier)('Resource')
+              TypeArgument
+                SimpleType: Resource
+                  CodeReferenceElement: Resource
+                    PsiElement(identifier)('Resource')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScFunctionDefinition: Test
@@ -409,9 +417,10 @@ ScalaFile
               PsiElement(identifier)('MakeDSL')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: Resource
-              CodeReferenceElement: Resource
-                PsiElement(identifier)('Resource')
+            TypeArgument
+              SimpleType: Resource
+                CodeReferenceElement: Resource
+                  PsiElement(identifier)('Resource')
             PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiElement(=)('=')
@@ -440,9 +449,10 @@ ScalaFile
             PsiElement(identifier)('fromResource')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: DependentResource
-              CodeReferenceElement: DependentResource
-                PsiElement(identifier)('DependentResource')
+            TypeArgument
+              SimpleType: DependentResource
+                CodeReferenceElement: DependentResource
+                  PsiElement(identifier)('DependentResource')
             PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       ScPatternDefinition: works
@@ -467,9 +477,10 @@ ScalaFile
               PsiElement(identifier)('fromResource')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: DependentResource
-                CodeReferenceElement: DependentResource
-                  PsiElement(identifier)('DependentResource')
+              TypeArgument
+                SimpleType: DependentResource
+                  CodeReferenceElement: DependentResource
+                    PsiElement(identifier)('DependentResource')
               PsiElement(])(']')
           ArgumentList
             PsiElement(()('(')
@@ -483,19 +494,22 @@ ScalaFile
                 PsiElement(identifier)('resourceTag')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: DependentResource
-                  CodeReferenceElement: DependentResource
-                    PsiElement(identifier)('DependentResource')
+                TypeArgument
+                  SimpleType: DependentResource
+                    CodeReferenceElement: DependentResource
+                      PsiElement(identifier)('DependentResource')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: Identity
-                  CodeReferenceElement: Identity
-                    PsiElement(identifier)('Identity')
+                TypeArgument
+                  SimpleType: Identity
+                    CodeReferenceElement: Identity
+                      PsiElement(identifier)('Identity')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: Resource
-                  CodeReferenceElement: Resource
-                    PsiElement(identifier)('Resource')
+                TypeArgument
+                  SimpleType: Resource
+                    CodeReferenceElement: Resource
+                      PsiElement(identifier)('Resource')
                 PsiElement(])(']')
             PsiElement())(')')
       PsiWhiteSpace('\n')

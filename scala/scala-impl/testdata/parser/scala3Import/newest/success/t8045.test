@@ -116,9 +116,10 @@ ScalaFile
                       PsiElement(identifier)('Option')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Number
-                      CodeReferenceElement: Number
-                        PsiElement(identifier)('Number')
+                    TypeArgument
+                      SimpleType: Number
+                        CodeReferenceElement: Number
+                          PsiElement(identifier)('Number')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')
@@ -211,9 +212,10 @@ ScalaFile
                 PsiElement(identifier)('Option')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Number
-                CodeReferenceElement: Number
-                  PsiElement(identifier)('Number')
+              TypeArgument
+                SimpleType: Number
+                  CodeReferenceElement: Number
+                    PsiElement(identifier)('Number')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

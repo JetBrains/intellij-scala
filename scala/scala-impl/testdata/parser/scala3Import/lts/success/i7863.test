@@ -51,25 +51,26 @@ ScalaFile
         PsiElement(identifier)('f')
       TypeArgumentsList
         PsiElement([)('[')
-        TypeLambda: [R] =>> Int => R
-          TypeParameterClause
-            PsiElement([)('[')
-            TypeParameter: R
-              PsiElement(identifier)('R')
-            PsiElement(])(']')
-          PsiWhiteSpace(' ')
-          PsiElement(=>>)('=>>')
-          PsiWhiteSpace(' ')
-          FunctionalType: Int => R
-            SimpleType: Int
-              CodeReferenceElement: Int
-                PsiElement(identifier)('Int')
-            PsiWhiteSpace(' ')
-            PsiElement(=>)('=>')
-            PsiWhiteSpace(' ')
-            SimpleType: R
-              CodeReferenceElement: R
+        TypeArgument
+          TypeLambda: [R] =>> Int => R
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: R
                 PsiElement(identifier)('R')
+              PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(=>>)('=>>')
+            PsiWhiteSpace(' ')
+            FunctionalType: Int => R
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              SimpleType: R
+                CodeReferenceElement: R
+                  PsiElement(identifier)('R')
         PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScPatternDefinition: a

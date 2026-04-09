@@ -132,12 +132,13 @@ ScalaFile
               PsiElement(identifier)('optManifest')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: opaques.Inner
-                CodeReferenceElement: opaques.Inner
-                  CodeReferenceElement: opaques
-                    PsiElement(identifier)('opaques')
-                  PsiElement(.)('.')
-                  PsiElement(identifier)('Inner')
+              TypeArgument
+                SimpleType: opaques.Inner
+                  CodeReferenceElement: opaques.Inner
+                    CodeReferenceElement: opaques
+                      PsiElement(identifier)('opaques')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Inner')
               PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiComment(comment)('// NoManifest')
@@ -160,11 +161,12 @@ ScalaFile
               PsiElement(identifier)('optManifest')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: singleton.type
-                CodeReferenceElement: singleton
-                  PsiElement(identifier)('singleton')
-                PsiElement(.)('.')
-                PsiElement(type)('type')
+              TypeArgument
+                SimpleType: singleton.type
+                  CodeReferenceElement: singleton
+                    PsiElement(identifier)('singleton')
+                  PsiElement(.)('.')
+                  PsiElement(type)('type')
               PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiComment(comment)('// NoManifest')
@@ -190,12 +192,13 @@ ScalaFile
               PsiElement(identifier)('classTag')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: opaques.Inner
-                CodeReferenceElement: opaques.Inner
-                  CodeReferenceElement: opaques
-                    PsiElement(identifier)('opaques')
-                  PsiElement(.)('.')
-                  PsiElement(identifier)('Inner')
+              TypeArgument
+                SimpleType: opaques.Inner
+                  CodeReferenceElement: opaques.Inner
+                    CodeReferenceElement: opaques
+                      PsiElement(identifier)('opaques')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Inner')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScPatternDefinition: ct_singleton
@@ -219,11 +222,12 @@ ScalaFile
               PsiElement(identifier)('classTag')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: singleton.type
-                CodeReferenceElement: singleton
-                  PsiElement(identifier)('singleton')
-                PsiElement(.)('.')
-                PsiElement(type)('type')
+              TypeArgument
+                SimpleType: singleton.type
+                  CodeReferenceElement: singleton
+                    PsiElement(identifier)('singleton')
+                  PsiElement(.)('.')
+                  PsiElement(type)('type')
               PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
@@ -246,16 +250,18 @@ ScalaFile
         PsiElement(identifier)('manifest')
       TypeArgumentsList
         PsiElement([)('[')
-        ParametrizedType: List[Nothing]
-          SimpleType: List
-            CodeReferenceElement: List
-              PsiElement(identifier)('List')
-          TypeArgumentsList
-            PsiElement([)('[')
-            SimpleType: Nothing
-              CodeReferenceElement: Nothing
-                PsiElement(identifier)('Nothing')
-            PsiElement(])(']')
+        TypeArgument
+          ParametrizedType: List[Nothing]
+            SimpleType: List
+              CodeReferenceElement: List
+                PsiElement(identifier)('List')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement(])(']')
         PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScPatternDefinition: `List[Array[Nothing]]`
@@ -276,23 +282,26 @@ ScalaFile
         PsiElement(identifier)('manifest')
       TypeArgumentsList
         PsiElement([)('[')
-        ParametrizedType: List[Array[Nothing]]
-          SimpleType: List
-            CodeReferenceElement: List
-              PsiElement(identifier)('List')
-          TypeArgumentsList
-            PsiElement([)('[')
-            ParametrizedType: Array[Nothing]
-              SimpleType: Array
-                CodeReferenceElement: Array
-                  PsiElement(identifier)('Array')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: Nothing
-                  CodeReferenceElement: Nothing
-                    PsiElement(identifier)('Nothing')
-                PsiElement(])(']')
-            PsiElement(])(']')
+        TypeArgument
+          ParametrizedType: List[Array[Nothing]]
+            SimpleType: List
+              CodeReferenceElement: List
+                PsiElement(identifier)('List')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                ParametrizedType: Array[Nothing]
+                  SimpleType: Array
+                    CodeReferenceElement: Array
+                      PsiElement(identifier)('Array')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Nothing
+                        CodeReferenceElement: Nothing
+                          PsiElement(identifier)('Nothing')
+                    PsiElement(])(']')
+              PsiElement(])(']')
         PsiElement(])(']')
   PsiWhiteSpace(' ')
   PsiComment(comment)('// ok when Nothing is not the argument of top-level array')
@@ -315,30 +324,34 @@ ScalaFile
         PsiElement(identifier)('manifest')
       TypeArgumentsList
         PsiElement([)('[')
-        ParametrizedType: Array[Array[List[Int]]]
-          SimpleType: Array
-            CodeReferenceElement: Array
-              PsiElement(identifier)('Array')
-          TypeArgumentsList
-            PsiElement([)('[')
-            ParametrizedType: Array[List[Int]]
-              SimpleType: Array
-                CodeReferenceElement: Array
-                  PsiElement(identifier)('Array')
-              TypeArgumentsList
-                PsiElement([)('[')
-                ParametrizedType: List[Int]
-                  SimpleType: List
-                    CodeReferenceElement: List
-                      PsiElement(identifier)('List')
+        TypeArgument
+          ParametrizedType: Array[Array[List[Int]]]
+            SimpleType: Array
+              CodeReferenceElement: Array
+                PsiElement(identifier)('Array')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                ParametrizedType: Array[List[Int]]
+                  SimpleType: Array
+                    CodeReferenceElement: Array
+                      PsiElement(identifier)('Array')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Int
-                      CodeReferenceElement: Int
-                        PsiElement(identifier)('Int')
+                    TypeArgument
+                      ParametrizedType: List[Int]
+                        SimpleType: List
+                          CodeReferenceElement: List
+                            PsiElement(identifier)('List')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: Int
+                              CodeReferenceElement: Int
+                                PsiElement(identifier)('Int')
+                          PsiElement(])(']')
                     PsiElement(])(']')
-                PsiElement(])(']')
-            PsiElement(])(']')
+              PsiElement(])(']')
         PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScTrait: Mixin
@@ -362,9 +375,10 @@ ScalaFile
               PsiElement(identifier)('Mixin')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: T
-              CodeReferenceElement: T
-                PsiElement(identifier)('T')
+            TypeArgument
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
             PsiElement(])(']')
       PsiElement(])(']')
     PrimaryConstructor
@@ -423,9 +437,10 @@ ScalaFile
                 PsiElement(identifier)('Mixin')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Baz
-                CodeReferenceElement: Baz
-                  PsiElement(identifier)('Baz')
+              TypeArgument
+                SimpleType: Baz
+                  CodeReferenceElement: Baz
+                    PsiElement(identifier)('Baz')
               PsiElement(])(']')
       PsiWhiteSpace(' ')
       ScTemplateBody
@@ -449,9 +464,10 @@ ScalaFile
               PsiElement(identifier)('manifest')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Self
-                CodeReferenceElement: Self
-                  PsiElement(identifier)('Self')
+              TypeArgument
+                SimpleType: Self
+                  CodeReferenceElement: Self
+                    PsiElement(identifier)('Self')
               PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiElement(})('}')

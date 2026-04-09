@@ -61,19 +61,21 @@ ScalaFile
                     PsiElement(identifier)('BoundedPair')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: A
-                    CodeReferenceElement: A
-                      PsiElement(identifier)('A')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  WildcardType: _ <: A
-                    PsiElement(_)('_')
-                    PsiWhiteSpace(' ')
-                    PsiElement(<:)('<:')
-                    PsiWhiteSpace(' ')
+                  TypeArgument
                     SimpleType: A
                       CodeReferenceElement: A
                         PsiElement(identifier)('A')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeArgument
+                    WildcardType: _ <: A
+                      PsiElement(_)('_')
+                      PsiWhiteSpace(' ')
+                      PsiElement(<:)('<:')
+                      PsiWhiteSpace(' ')
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
                   PsiElement(])(']')
             PsiElement(])(']')
           PsiWhiteSpace(' ')
@@ -104,13 +106,15 @@ ScalaFile
                       PsiElement(identifier)('BoundedPair')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: A
-                      CodeReferenceElement: A
-                        PsiElement(identifier)('A')
+                    TypeArgument
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    TypeVariable: b
-                      PsiElement(identifier)('b')
+                    TypeArgument
+                      TypeVariable: b
+                        PsiElement(identifier)('b')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')

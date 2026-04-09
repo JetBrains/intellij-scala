@@ -71,9 +71,10 @@ ScalaFile
                       PsiElement(identifier)('Iterator')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Node
-                      CodeReferenceElement: Node
-                        PsiElement(identifier)('Node')
+                    TypeArgument
+                      SimpleType: Node
+                        CodeReferenceElement: Node
+                          PsiElement(identifier)('Node')
                     PsiElement(])(']')
               PsiWhiteSpace('\n  ')
               PsiElement(})('}')

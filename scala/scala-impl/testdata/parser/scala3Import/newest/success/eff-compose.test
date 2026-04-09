@@ -218,14 +218,16 @@ ScalaFile
                   PsiElement(identifier)('Fun')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: X
-                  CodeReferenceElement: X
-                    PsiElement(identifier)('X')
+                TypeArgument
+                  SimpleType: X
+                    CodeReferenceElement: X
+                      PsiElement(identifier)('X')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: Y
-                  CodeReferenceElement: Y
-                    PsiElement(identifier)('Y')
+                TypeArgument
+                  SimpleType: Y
+                    CodeReferenceElement: Y
+                      PsiElement(identifier)('Y')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             Refinement
@@ -296,14 +298,16 @@ ScalaFile
                           PsiElement(identifier)('Fun')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: A
-                          CodeReferenceElement: A
-                            PsiElement(identifier)('A')
+                        TypeArgument
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
                         PsiElement(,)(',')
                         PsiWhiteSpace(' ')
-                        SimpleType: B
-                          CodeReferenceElement: B
-                            PsiElement(identifier)('B')
+                        TypeArgument
+                          SimpleType: B
+                            CodeReferenceElement: B
+                              PsiElement(identifier)('B')
                         PsiElement(])(']')
                     PsiWhiteSpace(' ')
                     Refinement
@@ -342,9 +346,10 @@ ScalaFile
                         PsiElement(identifier)('List')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiWhiteSpace('\n    ')
@@ -363,9 +368,10 @@ ScalaFile
                   PsiElement(identifier)('List')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: B
-                  CodeReferenceElement: B
-                    PsiElement(identifier)('B')
+                TypeArgument
+                  SimpleType: B
+                    CodeReferenceElement: B
+                      PsiElement(identifier)('B')
                 PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -428,93 +434,101 @@ ScalaFile
             TypeArgumentsList
               PsiElement([)('[')
               PsiWhiteSpace('\n      ')
-              CompoundType: Fun[A, B] { type Eff = E}
-                ParametrizedType: Fun[A, B]
-                  SimpleType: Fun
-                    CodeReferenceElement: Fun
-                      PsiElement(identifier)('Fun')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: A
-                      CodeReferenceElement: A
-                        PsiElement(identifier)('A')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    SimpleType: B
-                      CodeReferenceElement: B
-                        PsiElement(identifier)('B')
-                    PsiElement(])(']')
-                PsiWhiteSpace(' ')
-                Refinement
-                  PsiElement({)('{')
-                  PsiWhiteSpace(' ')
-                  ScTypeAliasDefinition: Eff
-                    AnnotationsList
-                      <empty list>
-                    Modifiers
-                      <empty list>
-                    PsiElement(type)('type')
-                    PsiWhiteSpace(' ')
-                    PsiElement(identifier)('Eff')
-                    PsiWhiteSpace(' ')
-                    PsiElement(=)('=')
-                    PsiWhiteSpace(' ')
-                    SimpleType: E
-                      CodeReferenceElement: E
-                        PsiElement(identifier)('E')
-                  PsiElement(})('}')
-              PsiElement(,)(',')
-              PsiWhiteSpace('\n      ')
-              CompoundType: Fun[List[A], List[B]] { type Eff = E }
-                ParametrizedType: Fun[List[A], List[B]]
-                  SimpleType: Fun
-                    CodeReferenceElement: Fun
-                      PsiElement(identifier)('Fun')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    ParametrizedType: List[A]
-                      SimpleType: List
-                        CodeReferenceElement: List
-                          PsiElement(identifier)('List')
-                      TypeArgumentsList
-                        PsiElement([)('[')
+              TypeArgument
+                CompoundType: Fun[A, B] { type Eff = E}
+                  ParametrizedType: Fun[A, B]
+                    SimpleType: Fun
+                      CodeReferenceElement: Fun
+                        PsiElement(identifier)('Fun')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
                         SimpleType: A
                           CodeReferenceElement: A
                             PsiElement(identifier)('A')
-                        PsiElement(])(']')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    ParametrizedType: List[B]
-                      SimpleType: List
-                        CodeReferenceElement: List
-                          PsiElement(identifier)('List')
-                      TypeArgumentsList
-                        PsiElement([)('[')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
                         SimpleType: B
                           CodeReferenceElement: B
                             PsiElement(identifier)('B')
-                        PsiElement(])(']')
-                    PsiElement(])(']')
-                PsiWhiteSpace(' ')
-                Refinement
-                  PsiElement({)('{')
+                      PsiElement(])(']')
                   PsiWhiteSpace(' ')
-                  ScTypeAliasDefinition: Eff
-                    AnnotationsList
-                      <empty list>
-                    Modifiers
-                      <empty list>
-                    PsiElement(type)('type')
+                  Refinement
+                    PsiElement({)('{')
                     PsiWhiteSpace(' ')
-                    PsiElement(identifier)('Eff')
-                    PsiWhiteSpace(' ')
-                    PsiElement(=)('=')
-                    PsiWhiteSpace(' ')
-                    SimpleType: E
-                      CodeReferenceElement: E
-                        PsiElement(identifier)('E')
+                    ScTypeAliasDefinition: Eff
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(type)('type')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('Eff')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      SimpleType: E
+                        CodeReferenceElement: E
+                          PsiElement(identifier)('E')
+                    PsiElement(})('}')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n      ')
+              TypeArgument
+                CompoundType: Fun[List[A], List[B]] { type Eff = E }
+                  ParametrizedType: Fun[List[A], List[B]]
+                    SimpleType: Fun
+                      CodeReferenceElement: Fun
+                        PsiElement(identifier)('Fun')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        ParametrizedType: List[A]
+                          SimpleType: List
+                            CodeReferenceElement: List
+                              PsiElement(identifier)('List')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: A
+                                CodeReferenceElement: A
+                                  PsiElement(identifier)('A')
+                            PsiElement(])(']')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        ParametrizedType: List[B]
+                          SimpleType: List
+                            CodeReferenceElement: List
+                              PsiElement(identifier)('List')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: B
+                                CodeReferenceElement: B
+                                  PsiElement(identifier)('B')
+                            PsiElement(])(']')
+                      PsiElement(])(']')
                   PsiWhiteSpace(' ')
-                  PsiElement(})('}')
+                  Refinement
+                    PsiElement({)('{')
+                    PsiWhiteSpace(' ')
+                    ScTypeAliasDefinition: Eff
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(type)('type')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('Eff')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      SimpleType: E
+                        CodeReferenceElement: E
+                          PsiElement(identifier)('E')
+                    PsiWhiteSpace(' ')
+                    PsiElement(})('}')
               PsiWhiteSpace('\n    ')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
@@ -541,93 +555,101 @@ ScalaFile
                       PsiWhiteSpace('\n             ')
                       PsiComment(comment)('// or, even better, drop everything')
                       PsiWhiteSpace('\n      ')
-                      CompoundType: Fun[A, B] { type Eff = E}
-                        ParametrizedType: Fun[A, B]
-                          SimpleType: Fun
-                            CodeReferenceElement: Fun
-                              PsiElement(identifier)('Fun')
-                          TypeArgumentsList
-                            PsiElement([)('[')
-                            SimpleType: A
-                              CodeReferenceElement: A
-                                PsiElement(identifier)('A')
-                            PsiElement(,)(',')
-                            PsiWhiteSpace(' ')
-                            SimpleType: B
-                              CodeReferenceElement: B
-                                PsiElement(identifier)('B')
-                            PsiElement(])(']')
-                        PsiWhiteSpace(' ')
-                        Refinement
-                          PsiElement({)('{')
-                          PsiWhiteSpace(' ')
-                          ScTypeAliasDefinition: Eff
-                            AnnotationsList
-                              <empty list>
-                            Modifiers
-                              <empty list>
-                            PsiElement(type)('type')
-                            PsiWhiteSpace(' ')
-                            PsiElement(identifier)('Eff')
-                            PsiWhiteSpace(' ')
-                            PsiElement(=)('=')
-                            PsiWhiteSpace(' ')
-                            SimpleType: E
-                              CodeReferenceElement: E
-                                PsiElement(identifier)('E')
-                          PsiElement(})('}')
-                      PsiElement(,)(',')
-                      PsiWhiteSpace('\n      ')
-                      CompoundType: Fun[List[A], List[B]] { type Eff = E }
-                        ParametrizedType: Fun[List[A], List[B]]
-                          SimpleType: Fun
-                            CodeReferenceElement: Fun
-                              PsiElement(identifier)('Fun')
-                          TypeArgumentsList
-                            PsiElement([)('[')
-                            ParametrizedType: List[A]
-                              SimpleType: List
-                                CodeReferenceElement: List
-                                  PsiElement(identifier)('List')
-                              TypeArgumentsList
-                                PsiElement([)('[')
+                      TypeArgument
+                        CompoundType: Fun[A, B] { type Eff = E}
+                          ParametrizedType: Fun[A, B]
+                            SimpleType: Fun
+                              CodeReferenceElement: Fun
+                                PsiElement(identifier)('Fun')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
                                 SimpleType: A
                                   CodeReferenceElement: A
                                     PsiElement(identifier)('A')
-                                PsiElement(])(']')
-                            PsiElement(,)(',')
-                            PsiWhiteSpace(' ')
-                            ParametrizedType: List[B]
-                              SimpleType: List
-                                CodeReferenceElement: List
-                                  PsiElement(identifier)('List')
-                              TypeArgumentsList
-                                PsiElement([)('[')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              TypeArgument
                                 SimpleType: B
                                   CodeReferenceElement: B
                                     PsiElement(identifier)('B')
-                                PsiElement(])(']')
-                            PsiElement(])(']')
-                        PsiWhiteSpace(' ')
-                        Refinement
-                          PsiElement({)('{')
+                              PsiElement(])(']')
                           PsiWhiteSpace(' ')
-                          ScTypeAliasDefinition: Eff
-                            AnnotationsList
-                              <empty list>
-                            Modifiers
-                              <empty list>
-                            PsiElement(type)('type')
+                          Refinement
+                            PsiElement({)('{')
                             PsiWhiteSpace(' ')
-                            PsiElement(identifier)('Eff')
-                            PsiWhiteSpace(' ')
-                            PsiElement(=)('=')
-                            PsiWhiteSpace(' ')
-                            SimpleType: E
-                              CodeReferenceElement: E
-                                PsiElement(identifier)('E')
+                            ScTypeAliasDefinition: Eff
+                              AnnotationsList
+                                <empty list>
+                              Modifiers
+                                <empty list>
+                              PsiElement(type)('type')
+                              PsiWhiteSpace(' ')
+                              PsiElement(identifier)('Eff')
+                              PsiWhiteSpace(' ')
+                              PsiElement(=)('=')
+                              PsiWhiteSpace(' ')
+                              SimpleType: E
+                                CodeReferenceElement: E
+                                  PsiElement(identifier)('E')
+                            PsiElement(})('}')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace('\n      ')
+                      TypeArgument
+                        CompoundType: Fun[List[A], List[B]] { type Eff = E }
+                          ParametrizedType: Fun[List[A], List[B]]
+                            SimpleType: Fun
+                              CodeReferenceElement: Fun
+                                PsiElement(identifier)('Fun')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                ParametrizedType: List[A]
+                                  SimpleType: List
+                                    CodeReferenceElement: List
+                                      PsiElement(identifier)('List')
+                                  TypeArgumentsList
+                                    PsiElement([)('[')
+                                    TypeArgument
+                                      SimpleType: A
+                                        CodeReferenceElement: A
+                                          PsiElement(identifier)('A')
+                                    PsiElement(])(']')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              TypeArgument
+                                ParametrizedType: List[B]
+                                  SimpleType: List
+                                    CodeReferenceElement: List
+                                      PsiElement(identifier)('List')
+                                  TypeArgumentsList
+                                    PsiElement([)('[')
+                                    TypeArgument
+                                      SimpleType: B
+                                        CodeReferenceElement: B
+                                          PsiElement(identifier)('B')
+                                    PsiElement(])(']')
+                              PsiElement(])(']')
                           PsiWhiteSpace(' ')
-                          PsiElement(})('}')
+                          Refinement
+                            PsiElement({)('{')
+                            PsiWhiteSpace(' ')
+                            ScTypeAliasDefinition: Eff
+                              AnnotationsList
+                                <empty list>
+                              Modifiers
+                                <empty list>
+                              PsiElement(type)('type')
+                              PsiWhiteSpace(' ')
+                              PsiElement(identifier)('Eff')
+                              PsiWhiteSpace(' ')
+                              PsiElement(=)('=')
+                              PsiWhiteSpace(' ')
+                              SimpleType: E
+                                CodeReferenceElement: E
+                                  PsiElement(identifier)('E')
+                            PsiWhiteSpace(' ')
+                            PsiElement(})('}')
                       PsiWhiteSpace('\n    ')
                       PsiElement(])(']')
               PsiWhiteSpace(' ')
@@ -676,14 +698,16 @@ ScalaFile
                                   PsiElement(identifier)('Fun')
                               TypeArgumentsList
                                 PsiElement([)('[')
-                                SimpleType: A
-                                  CodeReferenceElement: A
-                                    PsiElement(identifier)('A')
+                                TypeArgument
+                                  SimpleType: A
+                                    CodeReferenceElement: A
+                                      PsiElement(identifier)('A')
                                 PsiElement(,)(',')
                                 PsiWhiteSpace(' ')
-                                SimpleType: B
-                                  CodeReferenceElement: B
-                                    PsiElement(identifier)('B')
+                                TypeArgument
+                                  SimpleType: B
+                                    CodeReferenceElement: B
+                                      PsiElement(identifier)('B')
                                 PsiElement(])(']')
                             PsiWhiteSpace(' ')
                             Refinement
@@ -720,28 +744,32 @@ ScalaFile
                                 PsiElement(identifier)('Fun')
                             TypeArgumentsList
                               PsiElement([)('[')
-                              ParametrizedType: List[A]
-                                SimpleType: List
-                                  CodeReferenceElement: List
-                                    PsiElement(identifier)('List')
-                                TypeArgumentsList
-                                  PsiElement([)('[')
-                                  SimpleType: A
-                                    CodeReferenceElement: A
-                                      PsiElement(identifier)('A')
-                                  PsiElement(])(']')
+                              TypeArgument
+                                ParametrizedType: List[A]
+                                  SimpleType: List
+                                    CodeReferenceElement: List
+                                      PsiElement(identifier)('List')
+                                  TypeArgumentsList
+                                    PsiElement([)('[')
+                                    TypeArgument
+                                      SimpleType: A
+                                        CodeReferenceElement: A
+                                          PsiElement(identifier)('A')
+                                    PsiElement(])(']')
                               PsiElement(,)(',')
                               PsiWhiteSpace(' ')
-                              ParametrizedType: List[B]
-                                SimpleType: List
-                                  CodeReferenceElement: List
-                                    PsiElement(identifier)('List')
-                                TypeArgumentsList
-                                  PsiElement([)('[')
-                                  SimpleType: B
-                                    CodeReferenceElement: B
-                                      PsiElement(identifier)('B')
-                                  PsiElement(])(']')
+                              TypeArgument
+                                ParametrizedType: List[B]
+                                  SimpleType: List
+                                    CodeReferenceElement: List
+                                      PsiElement(identifier)('List')
+                                  TypeArgumentsList
+                                    PsiElement([)('[')
+                                    TypeArgument
+                                      SimpleType: B
+                                        CodeReferenceElement: B
+                                          PsiElement(identifier)('B')
+                                    PsiElement(])(']')
                               PsiElement(])(']')
                       PsiWhiteSpace(' ')
                       ScTemplateBody
@@ -788,9 +816,10 @@ ScalaFile
                                         PsiElement(identifier)('List')
                                     TypeArgumentsList
                                       PsiElement([)('[')
-                                      SimpleType: A
-                                        CodeReferenceElement: A
-                                          PsiElement(identifier)('A')
+                                      TypeArgument
+                                        SimpleType: A
+                                          CodeReferenceElement: A
+                                            PsiElement(identifier)('A')
                                       PsiElement(])(']')
                               PsiElement())(')')
                           PsiElement(:)(':')
@@ -808,9 +837,10 @@ ScalaFile
                                   PsiElement(identifier)('List')
                               TypeArgumentsList
                                 PsiElement([)('[')
-                                SimpleType: B
-                                  CodeReferenceElement: B
-                                    PsiElement(identifier)('B')
+                                TypeArgument
+                                  SimpleType: B
+                                    CodeReferenceElement: B
+                                      PsiElement(identifier)('B')
                                 PsiElement(])(']')
                           PsiWhiteSpace(' ')
                           PsiElement(=)('=')
@@ -978,14 +1008,16 @@ ScalaFile
                           PsiElement(identifier)('Fun')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: A
-                          CodeReferenceElement: A
-                            PsiElement(identifier)('A')
+                        TypeArgument
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
                         PsiElement(,)(',')
                         PsiWhiteSpace(' ')
-                        SimpleType: B
-                          CodeReferenceElement: B
-                            PsiElement(identifier)('B')
+                        TypeArgument
+                          SimpleType: B
+                            CodeReferenceElement: B
+                              PsiElement(identifier)('B')
                         PsiElement(])(']')
                     PsiWhiteSpace(' ')
                     Refinement
@@ -1026,14 +1058,16 @@ ScalaFile
                           PsiElement(identifier)('Fun')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: B
-                          CodeReferenceElement: B
-                            PsiElement(identifier)('B')
+                        TypeArgument
+                          SimpleType: B
+                            CodeReferenceElement: B
+                              PsiElement(identifier)('B')
                         PsiElement(,)(',')
                         PsiWhiteSpace(' ')
-                        SimpleType: C
-                          CodeReferenceElement: C
-                            PsiElement(identifier)('C')
+                        TypeArgument
+                          SimpleType: C
+                            CodeReferenceElement: C
+                              PsiElement(identifier)('C')
                         PsiElement(])(']')
                     PsiWhiteSpace(' ')
                     Refinement
@@ -1172,136 +1206,146 @@ ScalaFile
             TypeArgumentsList
               PsiElement([)('[')
               PsiWhiteSpace('\n      ')
-              CompoundType: Fun[A, B] { type Eff = E1}
-                ParametrizedType: Fun[A, B]
-                  SimpleType: Fun
-                    CodeReferenceElement: Fun
-                      PsiElement(identifier)('Fun')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: A
-                      CodeReferenceElement: A
-                        PsiElement(identifier)('A')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    SimpleType: B
-                      CodeReferenceElement: B
-                        PsiElement(identifier)('B')
-                    PsiElement(])(']')
-                PsiWhiteSpace(' ')
-                Refinement
-                  PsiElement({)('{')
-                  PsiWhiteSpace(' ')
-                  ScTypeAliasDefinition: Eff
-                    AnnotationsList
-                      <empty list>
-                    Modifiers
-                      <empty list>
-                    PsiElement(type)('type')
-                    PsiWhiteSpace(' ')
-                    PsiElement(identifier)('Eff')
-                    PsiWhiteSpace(' ')
-                    PsiElement(=)('=')
-                    PsiWhiteSpace(' ')
-                    SimpleType: E1
-                      CodeReferenceElement: E1
-                        PsiElement(identifier)('E1')
-                  PsiElement(})('}')
-              PsiElement(,)(',')
-              PsiWhiteSpace('\n      ')
-              ParametrizedType: PureFun[
-        Fun[B, C] { type Eff = E2},
-        Fun[A, C] { type Eff = E1 & E2 }
-      ]
-                SimpleType: PureFun
-                  CodeReferenceElement: PureFun
-                    PsiElement(identifier)('PureFun')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  PsiWhiteSpace('\n        ')
-                  CompoundType: Fun[B, C] { type Eff = E2}
-                    ParametrizedType: Fun[B, C]
-                      SimpleType: Fun
-                        CodeReferenceElement: Fun
-                          PsiElement(identifier)('Fun')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        SimpleType: B
-                          CodeReferenceElement: B
-                            PsiElement(identifier)('B')
-                        PsiElement(,)(',')
-                        PsiWhiteSpace(' ')
-                        SimpleType: C
-                          CodeReferenceElement: C
-                            PsiElement(identifier)('C')
-                        PsiElement(])(']')
-                    PsiWhiteSpace(' ')
-                    Refinement
-                      PsiElement({)('{')
-                      PsiWhiteSpace(' ')
-                      ScTypeAliasDefinition: Eff
-                        AnnotationsList
-                          <empty list>
-                        Modifiers
-                          <empty list>
-                        PsiElement(type)('type')
-                        PsiWhiteSpace(' ')
-                        PsiElement(identifier)('Eff')
-                        PsiWhiteSpace(' ')
-                        PsiElement(=)('=')
-                        PsiWhiteSpace(' ')
-                        SimpleType: E2
-                          CodeReferenceElement: E2
-                            PsiElement(identifier)('E2')
-                      PsiElement(})('}')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace('\n        ')
-                  CompoundType: Fun[A, C] { type Eff = E1 & E2 }
-                    ParametrizedType: Fun[A, C]
-                      SimpleType: Fun
-                        CodeReferenceElement: Fun
-                          PsiElement(identifier)('Fun')
-                      TypeArgumentsList
-                        PsiElement([)('[')
+              TypeArgument
+                CompoundType: Fun[A, B] { type Eff = E1}
+                  ParametrizedType: Fun[A, B]
+                    SimpleType: Fun
+                      CodeReferenceElement: Fun
+                        PsiElement(identifier)('Fun')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
                         SimpleType: A
                           CodeReferenceElement: A
                             PsiElement(identifier)('A')
-                        PsiElement(,)(',')
-                        PsiWhiteSpace(' ')
-                        SimpleType: C
-                          CodeReferenceElement: C
-                            PsiElement(identifier)('C')
-                        PsiElement(])(']')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        SimpleType: B
+                          CodeReferenceElement: B
+                            PsiElement(identifier)('B')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  Refinement
+                    PsiElement({)('{')
                     PsiWhiteSpace(' ')
-                    Refinement
-                      PsiElement({)('{')
+                    ScTypeAliasDefinition: Eff
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(type)('type')
                       PsiWhiteSpace(' ')
-                      ScTypeAliasDefinition: Eff
-                        AnnotationsList
-                          <empty list>
-                        Modifiers
-                          <empty list>
-                        PsiElement(type)('type')
-                        PsiWhiteSpace(' ')
-                        PsiElement(identifier)('Eff')
-                        PsiWhiteSpace(' ')
-                        PsiElement(=)('=')
-                        PsiWhiteSpace(' ')
-                        InfixType: E1 & E2
-                          SimpleType: E1
-                            CodeReferenceElement: E1
-                              PsiElement(identifier)('E1')
-                          PsiWhiteSpace(' ')
-                          CodeReferenceElement: &
-                            PsiElement(identifier)('&')
-                          PsiWhiteSpace(' ')
-                          SimpleType: E2
-                            CodeReferenceElement: E2
-                              PsiElement(identifier)('E2')
+                      PsiElement(identifier)('Eff')
                       PsiWhiteSpace(' ')
-                      PsiElement(})('}')
-                  PsiWhiteSpace('\n      ')
-                  PsiElement(])(']')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      SimpleType: E1
+                        CodeReferenceElement: E1
+                          PsiElement(identifier)('E1')
+                    PsiElement(})('}')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n      ')
+              TypeArgument
+                ParametrizedType: PureFun[
+        Fun[B, C] { type Eff = E2},
+        Fun[A, C] { type Eff = E1 & E2 }
+      ]
+                  SimpleType: PureFun
+                    CodeReferenceElement: PureFun
+                      PsiElement(identifier)('PureFun')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    PsiWhiteSpace('\n        ')
+                    TypeArgument
+                      CompoundType: Fun[B, C] { type Eff = E2}
+                        ParametrizedType: Fun[B, C]
+                          SimpleType: Fun
+                            CodeReferenceElement: Fun
+                              PsiElement(identifier)('Fun')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: B
+                                CodeReferenceElement: B
+                                  PsiElement(identifier)('B')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            TypeArgument
+                              SimpleType: C
+                                CodeReferenceElement: C
+                                  PsiElement(identifier)('C')
+                            PsiElement(])(']')
+                        PsiWhiteSpace(' ')
+                        Refinement
+                          PsiElement({)('{')
+                          PsiWhiteSpace(' ')
+                          ScTypeAliasDefinition: Eff
+                            AnnotationsList
+                              <empty list>
+                            Modifiers
+                              <empty list>
+                            PsiElement(type)('type')
+                            PsiWhiteSpace(' ')
+                            PsiElement(identifier)('Eff')
+                            PsiWhiteSpace(' ')
+                            PsiElement(=)('=')
+                            PsiWhiteSpace(' ')
+                            SimpleType: E2
+                              CodeReferenceElement: E2
+                                PsiElement(identifier)('E2')
+                          PsiElement(})('}')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace('\n        ')
+                    TypeArgument
+                      CompoundType: Fun[A, C] { type Eff = E1 & E2 }
+                        ParametrizedType: Fun[A, C]
+                          SimpleType: Fun
+                            CodeReferenceElement: Fun
+                              PsiElement(identifier)('Fun')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: A
+                                CodeReferenceElement: A
+                                  PsiElement(identifier)('A')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            TypeArgument
+                              SimpleType: C
+                                CodeReferenceElement: C
+                                  PsiElement(identifier)('C')
+                            PsiElement(])(']')
+                        PsiWhiteSpace(' ')
+                        Refinement
+                          PsiElement({)('{')
+                          PsiWhiteSpace(' ')
+                          ScTypeAliasDefinition: Eff
+                            AnnotationsList
+                              <empty list>
+                            Modifiers
+                              <empty list>
+                            PsiElement(type)('type')
+                            PsiWhiteSpace(' ')
+                            PsiElement(identifier)('Eff')
+                            PsiWhiteSpace(' ')
+                            PsiElement(=)('=')
+                            PsiWhiteSpace(' ')
+                            InfixType: E1 & E2
+                              SimpleType: E1
+                                CodeReferenceElement: E1
+                                  PsiElement(identifier)('E1')
+                              PsiWhiteSpace(' ')
+                              CodeReferenceElement: &
+                                PsiElement(identifier)('&')
+                              PsiWhiteSpace(' ')
+                              SimpleType: E2
+                                CodeReferenceElement: E2
+                                  PsiElement(identifier)('E2')
+                          PsiWhiteSpace(' ')
+                          PsiElement(})('}')
+                    PsiWhiteSpace('\n      ')
+                    PsiElement(])(']')
               PsiWhiteSpace('\n    ')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
@@ -1326,136 +1370,146 @@ ScalaFile
                     TypeArgumentsList
                       PsiElement([)('[')
                       PsiWhiteSpace('\n      ')
-                      CompoundType: Fun[A, B] { type Eff = E1}
-                        ParametrizedType: Fun[A, B]
-                          SimpleType: Fun
-                            CodeReferenceElement: Fun
-                              PsiElement(identifier)('Fun')
-                          TypeArgumentsList
-                            PsiElement([)('[')
-                            SimpleType: A
-                              CodeReferenceElement: A
-                                PsiElement(identifier)('A')
-                            PsiElement(,)(',')
-                            PsiWhiteSpace(' ')
-                            SimpleType: B
-                              CodeReferenceElement: B
-                                PsiElement(identifier)('B')
-                            PsiElement(])(']')
-                        PsiWhiteSpace(' ')
-                        Refinement
-                          PsiElement({)('{')
-                          PsiWhiteSpace(' ')
-                          ScTypeAliasDefinition: Eff
-                            AnnotationsList
-                              <empty list>
-                            Modifiers
-                              <empty list>
-                            PsiElement(type)('type')
-                            PsiWhiteSpace(' ')
-                            PsiElement(identifier)('Eff')
-                            PsiWhiteSpace(' ')
-                            PsiElement(=)('=')
-                            PsiWhiteSpace(' ')
-                            SimpleType: E1
-                              CodeReferenceElement: E1
-                                PsiElement(identifier)('E1')
-                          PsiElement(})('}')
-                      PsiElement(,)(',')
-                      PsiWhiteSpace('\n      ')
-                      ParametrizedType: PureFun[
-        Fun[B, C] { type Eff = E2},
-        Fun[A, C] { type Eff = E1 & E2 }
-      ]
-                        SimpleType: PureFun
-                          CodeReferenceElement: PureFun
-                            PsiElement(identifier)('PureFun')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          PsiWhiteSpace('\n        ')
-                          CompoundType: Fun[B, C] { type Eff = E2}
-                            ParametrizedType: Fun[B, C]
-                              SimpleType: Fun
-                                CodeReferenceElement: Fun
-                                  PsiElement(identifier)('Fun')
-                              TypeArgumentsList
-                                PsiElement([)('[')
-                                SimpleType: B
-                                  CodeReferenceElement: B
-                                    PsiElement(identifier)('B')
-                                PsiElement(,)(',')
-                                PsiWhiteSpace(' ')
-                                SimpleType: C
-                                  CodeReferenceElement: C
-                                    PsiElement(identifier)('C')
-                                PsiElement(])(']')
-                            PsiWhiteSpace(' ')
-                            Refinement
-                              PsiElement({)('{')
-                              PsiWhiteSpace(' ')
-                              ScTypeAliasDefinition: Eff
-                                AnnotationsList
-                                  <empty list>
-                                Modifiers
-                                  <empty list>
-                                PsiElement(type)('type')
-                                PsiWhiteSpace(' ')
-                                PsiElement(identifier)('Eff')
-                                PsiWhiteSpace(' ')
-                                PsiElement(=)('=')
-                                PsiWhiteSpace(' ')
-                                SimpleType: E2
-                                  CodeReferenceElement: E2
-                                    PsiElement(identifier)('E2')
-                              PsiElement(})('}')
-                          PsiElement(,)(',')
-                          PsiWhiteSpace('\n        ')
-                          CompoundType: Fun[A, C] { type Eff = E1 & E2 }
-                            ParametrizedType: Fun[A, C]
-                              SimpleType: Fun
-                                CodeReferenceElement: Fun
-                                  PsiElement(identifier)('Fun')
-                              TypeArgumentsList
-                                PsiElement([)('[')
+                      TypeArgument
+                        CompoundType: Fun[A, B] { type Eff = E1}
+                          ParametrizedType: Fun[A, B]
+                            SimpleType: Fun
+                              CodeReferenceElement: Fun
+                                PsiElement(identifier)('Fun')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
                                 SimpleType: A
                                   CodeReferenceElement: A
                                     PsiElement(identifier)('A')
-                                PsiElement(,)(',')
-                                PsiWhiteSpace(' ')
-                                SimpleType: C
-                                  CodeReferenceElement: C
-                                    PsiElement(identifier)('C')
-                                PsiElement(])(']')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              TypeArgument
+                                SimpleType: B
+                                  CodeReferenceElement: B
+                                    PsiElement(identifier)('B')
+                              PsiElement(])(']')
+                          PsiWhiteSpace(' ')
+                          Refinement
+                            PsiElement({)('{')
                             PsiWhiteSpace(' ')
-                            Refinement
-                              PsiElement({)('{')
+                            ScTypeAliasDefinition: Eff
+                              AnnotationsList
+                                <empty list>
+                              Modifiers
+                                <empty list>
+                              PsiElement(type)('type')
                               PsiWhiteSpace(' ')
-                              ScTypeAliasDefinition: Eff
-                                AnnotationsList
-                                  <empty list>
-                                Modifiers
-                                  <empty list>
-                                PsiElement(type)('type')
-                                PsiWhiteSpace(' ')
-                                PsiElement(identifier)('Eff')
-                                PsiWhiteSpace(' ')
-                                PsiElement(=)('=')
-                                PsiWhiteSpace(' ')
-                                InfixType: E1 & E2
-                                  SimpleType: E1
-                                    CodeReferenceElement: E1
-                                      PsiElement(identifier)('E1')
-                                  PsiWhiteSpace(' ')
-                                  CodeReferenceElement: &
-                                    PsiElement(identifier)('&')
-                                  PsiWhiteSpace(' ')
-                                  SimpleType: E2
-                                    CodeReferenceElement: E2
-                                      PsiElement(identifier)('E2')
+                              PsiElement(identifier)('Eff')
                               PsiWhiteSpace(' ')
-                              PsiElement(})('}')
-                          PsiWhiteSpace('\n      ')
-                          PsiElement(])(']')
+                              PsiElement(=)('=')
+                              PsiWhiteSpace(' ')
+                              SimpleType: E1
+                                CodeReferenceElement: E1
+                                  PsiElement(identifier)('E1')
+                            PsiElement(})('}')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace('\n      ')
+                      TypeArgument
+                        ParametrizedType: PureFun[
+        Fun[B, C] { type Eff = E2},
+        Fun[A, C] { type Eff = E1 & E2 }
+      ]
+                          SimpleType: PureFun
+                            CodeReferenceElement: PureFun
+                              PsiElement(identifier)('PureFun')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            PsiWhiteSpace('\n        ')
+                            TypeArgument
+                              CompoundType: Fun[B, C] { type Eff = E2}
+                                ParametrizedType: Fun[B, C]
+                                  SimpleType: Fun
+                                    CodeReferenceElement: Fun
+                                      PsiElement(identifier)('Fun')
+                                  TypeArgumentsList
+                                    PsiElement([)('[')
+                                    TypeArgument
+                                      SimpleType: B
+                                        CodeReferenceElement: B
+                                          PsiElement(identifier)('B')
+                                    PsiElement(,)(',')
+                                    PsiWhiteSpace(' ')
+                                    TypeArgument
+                                      SimpleType: C
+                                        CodeReferenceElement: C
+                                          PsiElement(identifier)('C')
+                                    PsiElement(])(']')
+                                PsiWhiteSpace(' ')
+                                Refinement
+                                  PsiElement({)('{')
+                                  PsiWhiteSpace(' ')
+                                  ScTypeAliasDefinition: Eff
+                                    AnnotationsList
+                                      <empty list>
+                                    Modifiers
+                                      <empty list>
+                                    PsiElement(type)('type')
+                                    PsiWhiteSpace(' ')
+                                    PsiElement(identifier)('Eff')
+                                    PsiWhiteSpace(' ')
+                                    PsiElement(=)('=')
+                                    PsiWhiteSpace(' ')
+                                    SimpleType: E2
+                                      CodeReferenceElement: E2
+                                        PsiElement(identifier)('E2')
+                                  PsiElement(})('}')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace('\n        ')
+                            TypeArgument
+                              CompoundType: Fun[A, C] { type Eff = E1 & E2 }
+                                ParametrizedType: Fun[A, C]
+                                  SimpleType: Fun
+                                    CodeReferenceElement: Fun
+                                      PsiElement(identifier)('Fun')
+                                  TypeArgumentsList
+                                    PsiElement([)('[')
+                                    TypeArgument
+                                      SimpleType: A
+                                        CodeReferenceElement: A
+                                          PsiElement(identifier)('A')
+                                    PsiElement(,)(',')
+                                    PsiWhiteSpace(' ')
+                                    TypeArgument
+                                      SimpleType: C
+                                        CodeReferenceElement: C
+                                          PsiElement(identifier)('C')
+                                    PsiElement(])(']')
+                                PsiWhiteSpace(' ')
+                                Refinement
+                                  PsiElement({)('{')
+                                  PsiWhiteSpace(' ')
+                                  ScTypeAliasDefinition: Eff
+                                    AnnotationsList
+                                      <empty list>
+                                    Modifiers
+                                      <empty list>
+                                    PsiElement(type)('type')
+                                    PsiWhiteSpace(' ')
+                                    PsiElement(identifier)('Eff')
+                                    PsiWhiteSpace(' ')
+                                    PsiElement(=)('=')
+                                    PsiWhiteSpace(' ')
+                                    InfixType: E1 & E2
+                                      SimpleType: E1
+                                        CodeReferenceElement: E1
+                                          PsiElement(identifier)('E1')
+                                      PsiWhiteSpace(' ')
+                                      CodeReferenceElement: &
+                                        PsiElement(identifier)('&')
+                                      PsiWhiteSpace(' ')
+                                      SimpleType: E2
+                                        CodeReferenceElement: E2
+                                          PsiElement(identifier)('E2')
+                                  PsiWhiteSpace(' ')
+                                  PsiElement(})('}')
+                            PsiWhiteSpace('\n      ')
+                            PsiElement(])(']')
                       PsiWhiteSpace('\n    ')
                       PsiElement(])(']')
               PsiWhiteSpace(' ')
@@ -1504,14 +1558,16 @@ ScalaFile
                                   PsiElement(identifier)('Fun')
                               TypeArgumentsList
                                 PsiElement([)('[')
-                                SimpleType: A
-                                  CodeReferenceElement: A
-                                    PsiElement(identifier)('A')
+                                TypeArgument
+                                  SimpleType: A
+                                    CodeReferenceElement: A
+                                      PsiElement(identifier)('A')
                                 PsiElement(,)(',')
                                 PsiWhiteSpace(' ')
-                                SimpleType: B
-                                  CodeReferenceElement: B
-                                    PsiElement(identifier)('B')
+                                TypeArgument
+                                  SimpleType: B
+                                    CodeReferenceElement: B
+                                      PsiElement(identifier)('B')
                                 PsiElement(])(']')
                             PsiWhiteSpace(' ')
                             Refinement
@@ -1552,87 +1608,93 @@ ScalaFile
                             TypeArgumentsList
                               PsiElement([)('[')
                               PsiWhiteSpace('\n          ')
-                              CompoundType: Fun[B, C] { type Eff = E2}
-                                ParametrizedType: Fun[B, C]
-                                  SimpleType: Fun
-                                    CodeReferenceElement: Fun
-                                      PsiElement(identifier)('Fun')
-                                  TypeArgumentsList
-                                    PsiElement([)('[')
-                                    SimpleType: B
-                                      CodeReferenceElement: B
-                                        PsiElement(identifier)('B')
-                                    PsiElement(,)(',')
-                                    PsiWhiteSpace(' ')
-                                    SimpleType: C
-                                      CodeReferenceElement: C
-                                        PsiElement(identifier)('C')
-                                    PsiElement(])(']')
-                                PsiWhiteSpace(' ')
-                                Refinement
-                                  PsiElement({)('{')
-                                  PsiWhiteSpace(' ')
-                                  ScTypeAliasDefinition: Eff
-                                    AnnotationsList
-                                      <empty list>
-                                    Modifiers
-                                      <empty list>
-                                    PsiElement(type)('type')
-                                    PsiWhiteSpace(' ')
-                                    PsiElement(identifier)('Eff')
-                                    PsiWhiteSpace(' ')
-                                    PsiElement(=)('=')
-                                    PsiWhiteSpace(' ')
-                                    SimpleType: E2
-                                      CodeReferenceElement: E2
-                                        PsiElement(identifier)('E2')
-                                  PsiElement(})('}')
-                              PsiElement(,)(',')
-                              PsiWhiteSpace('\n          ')
-                              CompoundType: Fun[A, C] { type Eff = E1 & E2 }
-                                ParametrizedType: Fun[A, C]
-                                  SimpleType: Fun
-                                    CodeReferenceElement: Fun
-                                      PsiElement(identifier)('Fun')
-                                  TypeArgumentsList
-                                    PsiElement([)('[')
-                                    SimpleType: A
-                                      CodeReferenceElement: A
-                                        PsiElement(identifier)('A')
-                                    PsiElement(,)(',')
-                                    PsiWhiteSpace(' ')
-                                    SimpleType: C
-                                      CodeReferenceElement: C
-                                        PsiElement(identifier)('C')
-                                    PsiElement(])(']')
-                                PsiWhiteSpace(' ')
-                                Refinement
-                                  PsiElement({)('{')
-                                  PsiWhiteSpace(' ')
-                                  ScTypeAliasDefinition: Eff
-                                    AnnotationsList
-                                      <empty list>
-                                    Modifiers
-                                      <empty list>
-                                    PsiElement(type)('type')
-                                    PsiWhiteSpace(' ')
-                                    PsiElement(identifier)('Eff')
-                                    PsiWhiteSpace(' ')
-                                    PsiElement(=)('=')
-                                    PsiWhiteSpace(' ')
-                                    InfixType: E1 & E2
-                                      SimpleType: E1
-                                        CodeReferenceElement: E1
-                                          PsiElement(identifier)('E1')
+                              TypeArgument
+                                CompoundType: Fun[B, C] { type Eff = E2}
+                                  ParametrizedType: Fun[B, C]
+                                    SimpleType: Fun
+                                      CodeReferenceElement: Fun
+                                        PsiElement(identifier)('Fun')
+                                    TypeArgumentsList
+                                      PsiElement([)('[')
+                                      TypeArgument
+                                        SimpleType: B
+                                          CodeReferenceElement: B
+                                            PsiElement(identifier)('B')
+                                      PsiElement(,)(',')
                                       PsiWhiteSpace(' ')
-                                      CodeReferenceElement: &
-                                        PsiElement(identifier)('&')
+                                      TypeArgument
+                                        SimpleType: C
+                                          CodeReferenceElement: C
+                                            PsiElement(identifier)('C')
+                                      PsiElement(])(']')
+                                  PsiWhiteSpace(' ')
+                                  Refinement
+                                    PsiElement({)('{')
+                                    PsiWhiteSpace(' ')
+                                    ScTypeAliasDefinition: Eff
+                                      AnnotationsList
+                                        <empty list>
+                                      Modifiers
+                                        <empty list>
+                                      PsiElement(type)('type')
+                                      PsiWhiteSpace(' ')
+                                      PsiElement(identifier)('Eff')
+                                      PsiWhiteSpace(' ')
+                                      PsiElement(=)('=')
                                       PsiWhiteSpace(' ')
                                       SimpleType: E2
                                         CodeReferenceElement: E2
                                           PsiElement(identifier)('E2')
+                                    PsiElement(})('}')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace('\n          ')
+                              TypeArgument
+                                CompoundType: Fun[A, C] { type Eff = E1 & E2 }
+                                  ParametrizedType: Fun[A, C]
+                                    SimpleType: Fun
+                                      CodeReferenceElement: Fun
+                                        PsiElement(identifier)('Fun')
+                                    TypeArgumentsList
+                                      PsiElement([)('[')
+                                      TypeArgument
+                                        SimpleType: A
+                                          CodeReferenceElement: A
+                                            PsiElement(identifier)('A')
+                                      PsiElement(,)(',')
+                                      PsiWhiteSpace(' ')
+                                      TypeArgument
+                                        SimpleType: C
+                                          CodeReferenceElement: C
+                                            PsiElement(identifier)('C')
+                                      PsiElement(])(']')
                                   PsiWhiteSpace(' ')
-                                  PsiElement(})('}')
+                                  Refinement
+                                    PsiElement({)('{')
+                                    PsiWhiteSpace(' ')
+                                    ScTypeAliasDefinition: Eff
+                                      AnnotationsList
+                                        <empty list>
+                                      Modifiers
+                                        <empty list>
+                                      PsiElement(type)('type')
+                                      PsiWhiteSpace(' ')
+                                      PsiElement(identifier)('Eff')
+                                      PsiWhiteSpace(' ')
+                                      PsiElement(=)('=')
+                                      PsiWhiteSpace(' ')
+                                      InfixType: E1 & E2
+                                        SimpleType: E1
+                                          CodeReferenceElement: E1
+                                            PsiElement(identifier)('E1')
+                                        PsiWhiteSpace(' ')
+                                        CodeReferenceElement: &
+                                          PsiElement(identifier)('&')
+                                        PsiWhiteSpace(' ')
+                                        SimpleType: E2
+                                          CodeReferenceElement: E2
+                                            PsiElement(identifier)('E2')
+                                    PsiWhiteSpace(' ')
+                                    PsiElement(})('}')
                               PsiWhiteSpace('\n        ')
                               PsiElement(])(']')
                       PsiWhiteSpace(' ')
@@ -1681,14 +1743,16 @@ ScalaFile
                                           PsiElement(identifier)('Fun')
                                       TypeArgumentsList
                                         PsiElement([)('[')
-                                        SimpleType: B
-                                          CodeReferenceElement: B
-                                            PsiElement(identifier)('B')
+                                        TypeArgument
+                                          SimpleType: B
+                                            CodeReferenceElement: B
+                                              PsiElement(identifier)('B')
                                         PsiElement(,)(',')
                                         PsiWhiteSpace(' ')
-                                        SimpleType: C
-                                          CodeReferenceElement: C
-                                            PsiElement(identifier)('C')
+                                        TypeArgument
+                                          SimpleType: C
+                                            CodeReferenceElement: C
+                                              PsiElement(identifier)('C')
                                         PsiElement(])(']')
                                     PsiWhiteSpace(' ')
                                     Refinement
@@ -1725,14 +1789,16 @@ ScalaFile
                                         PsiElement(identifier)('Fun')
                                     TypeArgumentsList
                                       PsiElement([)('[')
-                                      SimpleType: A
-                                        CodeReferenceElement: A
-                                          PsiElement(identifier)('A')
+                                      TypeArgument
+                                        SimpleType: A
+                                          CodeReferenceElement: A
+                                            PsiElement(identifier)('A')
                                       PsiElement(,)(',')
                                       PsiWhiteSpace(' ')
-                                      SimpleType: C
-                                        CodeReferenceElement: C
-                                          PsiElement(identifier)('C')
+                                      TypeArgument
+                                        SimpleType: C
+                                          CodeReferenceElement: C
+                                            PsiElement(identifier)('C')
                                       PsiElement(])(']')
                               PsiWhiteSpace(' ')
                               ScTemplateBody

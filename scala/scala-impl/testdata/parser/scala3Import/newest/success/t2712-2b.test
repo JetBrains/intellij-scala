@@ -155,14 +155,16 @@ ScalaFile
                   PsiElement(identifier)('Two')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: X1
-                  CodeReferenceElement: X1
-                    PsiElement(identifier)('X1')
+                TypeArgument
+                  SimpleType: X1
+                    CodeReferenceElement: X1
+                      PsiElement(identifier)('X1')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: X2
-                  CodeReferenceElement: X2
-                    PsiElement(identifier)('X2')
+                TypeArgument
+                  SimpleType: X2
+                    CodeReferenceElement: X2
+                      PsiElement(identifier)('X2')
                 PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(with)('with')
@@ -174,9 +176,10 @@ ScalaFile
                   PsiElement(identifier)('One')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: X3
-                  CodeReferenceElement: X3
-                    PsiElement(identifier)('X3')
+                TypeArgument
+                  SimpleType: X3
+                    CodeReferenceElement: X3
+                      PsiElement(identifier)('X3')
                 PsiElement(])(']')
     PsiWhiteSpace('\n')
     ScObject: Test
@@ -232,9 +235,10 @@ ScalaFile
                           PsiElement(identifier)('M')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: A
-                          CodeReferenceElement: A
-                            PsiElement(identifier)('A')
+                        TypeArgument
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
                         PsiElement(])(']')
                 PsiElement())(')')
             PsiElement(:)(':')
@@ -245,9 +249,10 @@ ScalaFile
                   PsiElement(identifier)('M')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: A
-                  CodeReferenceElement: A
-                    PsiElement(identifier)('A')
+                TypeArgument
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(=)('=')
@@ -295,9 +300,10 @@ ScalaFile
                   PsiElement(identifier)('One')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: X3
-                  CodeReferenceElement: X3
-                    PsiElement(identifier)('X3')
+                TypeArgument
+                  SimpleType: X3
+                    CodeReferenceElement: X3
+                      PsiElement(identifier)('X3')
                 PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiComment(comment)('// fails in Scala 2 with partial unification enabled, works in Dotty')
@@ -319,14 +325,16 @@ ScalaFile
                   PsiElement(identifier)('Two')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: X1
-                  CodeReferenceElement: X1
-                    PsiElement(identifier)('X1')
+                TypeArgument
+                  SimpleType: X1
+                    CodeReferenceElement: X1
+                      PsiElement(identifier)('X1')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: X2
-                  CodeReferenceElement: X2
-                    PsiElement(identifier)('X2')
+                TypeArgument
+                  SimpleType: X2
+                    CodeReferenceElement: X2
+                      PsiElement(identifier)('X2')
                 PsiElement(])(']')
           PsiWhiteSpace('\n')
           PsiElement(})('}')

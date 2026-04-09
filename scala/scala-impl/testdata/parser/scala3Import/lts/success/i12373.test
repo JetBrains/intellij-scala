@@ -163,9 +163,10 @@ ScalaFile
                 PsiElement(identifier)('Append')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: That
-                CodeReferenceElement: That
-                  PsiElement(identifier)('That')
+              TypeArgument
+                SimpleType: That
+                  CodeReferenceElement: That
+                    PsiElement(identifier)('That')
               PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
@@ -222,14 +223,16 @@ ScalaFile
                 PsiElement(identifier)('Cons')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Empty
-                CodeReferenceElement: Empty
-                  PsiElement(identifier)('Empty')
+              TypeArgument
+                SimpleType: Empty
+                  CodeReferenceElement: Empty
+                    PsiElement(identifier)('Empty')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScObject: Empty
@@ -324,9 +327,10 @@ ScalaFile
                       PsiElement(identifier)('Append')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: That
-                      CodeReferenceElement: That
-                        PsiElement(identifier)('That')
+                    TypeArgument
+                      SimpleType: That
+                        CodeReferenceElement: That
+                          PsiElement(identifier)('That')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')
@@ -385,9 +389,10 @@ ScalaFile
                           PsiElement(identifier)('Column')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: A
-                          CodeReferenceElement: A
-                            PsiElement(identifier)('A')
+                        TypeArgument
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
                         PsiElement(])(']')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
@@ -450,24 +455,27 @@ ScalaFile
                       PsiElement(identifier)('Cons')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: A
-                      CodeReferenceElement: A
-                        PsiElement(identifier)('A')
+                    TypeArgument
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    ParametrizedType: tail.Append[That]
-                      SimpleType: tail.Append
-                        CodeReferenceElement: tail.Append
-                          CodeReferenceElement: tail
-                            PsiElement(identifier)('tail')
-                          PsiElement(.)('.')
-                          PsiElement(identifier)('Append')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        SimpleType: That
-                          CodeReferenceElement: That
-                            PsiElement(identifier)('That')
-                        PsiElement(])(']')
+                    TypeArgument
+                      ParametrizedType: tail.Append[That]
+                        SimpleType: tail.Append
+                          CodeReferenceElement: tail.Append
+                            CodeReferenceElement: tail
+                              PsiElement(identifier)('tail')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('Append')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: That
+                              CodeReferenceElement: That
+                                PsiElement(identifier)('That')
+                          PsiElement(])(']')
                     PsiElement(])(']')
               PsiWhiteSpace('\n    ')
               ScFunctionDefinition: ++
@@ -514,9 +522,10 @@ ScalaFile
                       PsiElement(identifier)('Append')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: That
-                      CodeReferenceElement: That
-                        PsiElement(identifier)('That')
+                    TypeArgument
+                      SimpleType: That
+                        CodeReferenceElement: That
+                          PsiElement(identifier)('That')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')
@@ -575,9 +584,10 @@ ScalaFile
                 PsiElement(identifier)('Singleton')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Long
-                CodeReferenceElement: Long
-                  PsiElement(identifier)('Long')
+              TypeArgument
+                SimpleType: Long
+                  CodeReferenceElement: Long
+                    PsiElement(identifier)('Long')
               PsiElement(])(']')
           PsiWhiteSpace('     ')
           PsiElement(=)('=')
@@ -593,9 +603,10 @@ ScalaFile
                     PsiElement(identifier)('Column')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Long
-                      CodeReferenceElement: Long
-                        PsiElement(identifier)('Long')
+                    TypeArgument
+                      SimpleType: Long
+                        CodeReferenceElement: Long
+                          PsiElement(identifier)('Long')
                     PsiElement(])(']')
                 ArgumentList
                   PsiElement(()('(')
@@ -640,9 +651,10 @@ ScalaFile
                 PsiElement(identifier)('Singleton')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: String
-                CodeReferenceElement: String
-                  PsiElement(identifier)('String')
+              TypeArgument
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -658,9 +670,10 @@ ScalaFile
                     PsiElement(identifier)('Column')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: String
-                      CodeReferenceElement: String
-                        PsiElement(identifier)('String')
+                    TypeArgument
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
                     PsiElement(])(']')
                 ArgumentList
                   PsiElement(()('(')
@@ -917,53 +930,59 @@ ScalaFile
                               PsiElement(identifier)('Singleton')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: Long
-                              CodeReferenceElement: Long
-                                PsiElement(identifier)('Long')
+                            TypeArgument
+                              SimpleType: Long
+                                CodeReferenceElement: Long
+                                  PsiElement(identifier)('Long')
                             PsiElement(])(']')
                         PsiElement(#)('#')
                         PsiElement(identifier)('Append')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        ParametrizedType: ColumnSet.Cons[String, ColumnSet.Empty]
-                          SimpleType: ColumnSet.Cons
-                            CodeReferenceElement: ColumnSet.Cons
-                              CodeReferenceElement: ColumnSet
-                                PsiElement(identifier)('ColumnSet')
-                              PsiElement(.)('.')
-                              PsiElement(identifier)('Cons')
-                          TypeArgumentsList
-                            PsiElement([)('[')
-                            SimpleType: String
-                              CodeReferenceElement: String
-                                PsiElement(identifier)('String')
-                            PsiElement(,)(',')
-                            PsiWhiteSpace(' ')
-                            SimpleType: ColumnSet.Empty
-                              CodeReferenceElement: ColumnSet.Empty
+                        TypeArgument
+                          ParametrizedType: ColumnSet.Cons[String, ColumnSet.Empty]
+                            SimpleType: ColumnSet.Cons
+                              CodeReferenceElement: ColumnSet.Cons
                                 CodeReferenceElement: ColumnSet
                                   PsiElement(identifier)('ColumnSet')
                                 PsiElement(.)('.')
-                                PsiElement(identifier)('Empty')
-                            PsiElement(])(']')
+                                PsiElement(identifier)('Cons')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: String
+                                  CodeReferenceElement: String
+                                    PsiElement(identifier)('String')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              TypeArgument
+                                SimpleType: ColumnSet.Empty
+                                  CodeReferenceElement: ColumnSet.Empty
+                                    CodeReferenceElement: ColumnSet
+                                      PsiElement(identifier)('ColumnSet')
+                                    PsiElement(.)('.')
+                                    PsiElement(identifier)('Empty')
+                              PsiElement(])(']')
                         PsiElement(])(']')
                     PsiElement(#)('#')
                     PsiElement(identifier)('Append')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    ParametrizedType: ColumnSet.Singleton[String]
-                      SimpleType: ColumnSet.Singleton
-                        CodeReferenceElement: ColumnSet.Singleton
-                          CodeReferenceElement: ColumnSet
-                            PsiElement(identifier)('ColumnSet')
-                          PsiElement(.)('.')
-                          PsiElement(identifier)('Singleton')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        SimpleType: String
-                          CodeReferenceElement: String
-                            PsiElement(identifier)('String')
-                        PsiElement(])(']')
+                    TypeArgument
+                      ParametrizedType: ColumnSet.Singleton[String]
+                        SimpleType: ColumnSet.Singleton
+                          CodeReferenceElement: ColumnSet.Singleton
+                            CodeReferenceElement: ColumnSet
+                              PsiElement(identifier)('ColumnSet')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('Singleton')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: String
+                              CodeReferenceElement: String
+                                PsiElement(identifier)('String')
+                          PsiElement(])(']')
                     PsiElement(])(']')
               PsiElement())(')')
             PsiWhiteSpace(' ')

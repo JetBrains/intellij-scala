@@ -200,9 +200,10 @@ ScalaFile
           PsiElement(identifier)('Option')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: Byte
-          CodeReferenceElement: Byte
-            PsiElement(identifier)('Byte')
+        TypeArgument
+          SimpleType: Byte
+            CodeReferenceElement: Byte
+              PsiElement(identifier)('Byte')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -234,9 +235,10 @@ ScalaFile
           PsiElement(identifier)('Option')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: Byte
-          CodeReferenceElement: Byte
-            PsiElement(identifier)('Byte')
+        TypeArgument
+          SimpleType: Byte
+            CodeReferenceElement: Byte
+              PsiElement(identifier)('Byte')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -247,9 +249,10 @@ ScalaFile
           PsiElement(identifier)('Option')
         TypeArgumentsList
           PsiElement([)('[')
-          SimpleType: Byte
-            CodeReferenceElement: Byte
-              PsiElement(identifier)('Byte')
+          TypeArgument
+            SimpleType: Byte
+              CodeReferenceElement: Byte
+                PsiElement(identifier)('Byte')
           PsiElement(])(']')
       ArgumentList
         PsiElement(()('(')
@@ -275,9 +278,10 @@ ScalaFile
           PsiElement(identifier)('Option')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: Int
-          CodeReferenceElement: Int
-            PsiElement(identifier)('Int')
+        TypeArgument
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -309,9 +313,10 @@ ScalaFile
           PsiElement(identifier)('Option')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: Null
-          CodeReferenceElement: Null
-            PsiElement(identifier)('Null')
+        TypeArgument
+          SimpleType: Null
+            CodeReferenceElement: Null
+              PsiElement(identifier)('Null')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -343,17 +348,18 @@ ScalaFile
           PsiElement(identifier)('Option')
       TypeArgumentsList
         PsiElement([)('[')
-        InfixType: Byte | Null
-          SimpleType: Byte
-            CodeReferenceElement: Byte
-              PsiElement(identifier)('Byte')
-          PsiWhiteSpace(' ')
-          CodeReferenceElement: |
-            PsiElement(identifier)('|')
-          PsiWhiteSpace(' ')
-          SimpleType: Null
-            CodeReferenceElement: Null
-              PsiElement(identifier)('Null')
+        TypeArgument
+          InfixType: Byte | Null
+            SimpleType: Byte
+              CodeReferenceElement: Byte
+                PsiElement(identifier)('Byte')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: |
+              PsiElement(identifier)('|')
+            PsiWhiteSpace(' ')
+            SimpleType: Null
+              CodeReferenceElement: Null
+                PsiElement(identifier)('Null')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -448,9 +454,10 @@ ScalaFile
                 PsiElement(identifier)('MyOption')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -495,9 +502,10 @@ ScalaFile
                 PsiElement(identifier)('MyOption')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -523,9 +531,10 @@ ScalaFile
           PsiElement(identifier)('MyOption')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: Byte
-          CodeReferenceElement: Byte
-            PsiElement(identifier)('Byte')
+        TypeArgument
+          SimpleType: Byte
+            CodeReferenceElement: Byte
+              PsiElement(identifier)('Byte')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -557,9 +566,10 @@ ScalaFile
           PsiElement(identifier)('MyOption')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: Byte
-          CodeReferenceElement: Byte
-            PsiElement(identifier)('Byte')
+        TypeArgument
+          SimpleType: Byte
+            CodeReferenceElement: Byte
+              PsiElement(identifier)('Byte')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -594,9 +604,10 @@ ScalaFile
           PsiElement(identifier)('MyOption')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: Int
-          CodeReferenceElement: Int
-            PsiElement(identifier)('Int')
+        TypeArgument
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -628,9 +639,10 @@ ScalaFile
           PsiElement(identifier)('MyOption')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: Null
-          CodeReferenceElement: Null
-            PsiElement(identifier)('Null')
+        TypeArgument
+          SimpleType: Null
+            CodeReferenceElement: Null
+              PsiElement(identifier)('Null')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -662,17 +674,18 @@ ScalaFile
           PsiElement(identifier)('MyOption')
       TypeArgumentsList
         PsiElement([)('[')
-        InfixType: Byte | Null
-          SimpleType: Byte
-            CodeReferenceElement: Byte
-              PsiElement(identifier)('Byte')
-          PsiWhiteSpace(' ')
-          CodeReferenceElement: |
-            PsiElement(identifier)('|')
-          PsiWhiteSpace(' ')
-          SimpleType: Null
-            CodeReferenceElement: Null
-              PsiElement(identifier)('Null')
+        TypeArgument
+          InfixType: Byte | Null
+            SimpleType: Byte
+              CodeReferenceElement: Byte
+                PsiElement(identifier)('Byte')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: |
+              PsiElement(identifier)('|')
+            PsiWhiteSpace(' ')
+            SimpleType: Null
+              CodeReferenceElement: Null
+                PsiElement(identifier)('Null')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')

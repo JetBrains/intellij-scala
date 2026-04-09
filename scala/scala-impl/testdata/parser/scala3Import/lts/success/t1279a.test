@@ -184,31 +184,32 @@ ScalaFile
                 PsiElement(identifier)('Stream')
             TypeArgumentsList
               PsiElement([)('[')
-              CompoundType: M {type T <: self.T}
-                SimpleType: M
-                  CodeReferenceElement: M
-                    PsiElement(identifier)('M')
-                PsiWhiteSpace(' ')
-                Refinement
-                  PsiElement({)('{')
-                  ScTypeAliasDeclaration: T
-                    AnnotationsList
-                      <empty list>
-                    Modifiers
-                      <empty list>
-                    PsiElement(type)('type')
-                    PsiWhiteSpace(' ')
-                    PsiElement(identifier)('T')
-                    PsiWhiteSpace(' ')
-                    PsiElement(<:)('<:')
-                    PsiWhiteSpace(' ')
-                    SimpleType: self.T
-                      CodeReferenceElement: self.T
-                        CodeReferenceElement: self
-                          PsiElement(identifier)('self')
-                        PsiElement(.)('.')
-                        PsiElement(identifier)('T')
-                  PsiElement(})('}')
+              TypeArgument
+                CompoundType: M {type T <: self.T}
+                  SimpleType: M
+                    CodeReferenceElement: M
+                      PsiElement(identifier)('M')
+                  PsiWhiteSpace(' ')
+                  Refinement
+                    PsiElement({)('{')
+                    ScTypeAliasDeclaration: T
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(type)('type')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('T')
+                      PsiWhiteSpace(' ')
+                      PsiElement(<:)('<:')
+                      PsiWhiteSpace(' ')
+                      SimpleType: self.T
+                        CodeReferenceElement: self.T
+                          CodeReferenceElement: self
+                            PsiElement(identifier)('self')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('T')
+                    PsiElement(})('}')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -258,31 +259,32 @@ ScalaFile
                 PsiElement(identifier)('Stream')
             TypeArgumentsList
               PsiElement([)('[')
-              CompoundType: M {type T <: self.T}
-                SimpleType: M
-                  CodeReferenceElement: M
-                    PsiElement(identifier)('M')
-                PsiWhiteSpace(' ')
-                Refinement
-                  PsiElement({)('{')
-                  ScTypeAliasDeclaration: T
-                    AnnotationsList
-                      <empty list>
-                    Modifiers
-                      <empty list>
-                    PsiElement(type)('type')
-                    PsiWhiteSpace(' ')
-                    PsiElement(identifier)('T')
-                    PsiWhiteSpace(' ')
-                    PsiElement(<:)('<:')
-                    PsiWhiteSpace(' ')
-                    SimpleType: self.T
-                      CodeReferenceElement: self.T
-                        CodeReferenceElement: self
-                          PsiElement(identifier)('self')
-                        PsiElement(.)('.')
-                        PsiElement(identifier)('T')
-                  PsiElement(})('}')
+              TypeArgument
+                CompoundType: M {type T <: self.T}
+                  SimpleType: M
+                    CodeReferenceElement: M
+                      PsiElement(identifier)('M')
+                  PsiWhiteSpace(' ')
+                  Refinement
+                    PsiElement({)('{')
+                    ScTypeAliasDeclaration: T
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(type)('type')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('T')
+                      PsiWhiteSpace(' ')
+                      PsiElement(<:)('<:')
+                      PsiWhiteSpace(' ')
+                      SimpleType: self.T
+                        CodeReferenceElement: self.T
+                          CodeReferenceElement: self
+                            PsiElement(identifier)('self')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('T')
+                    PsiElement(})('}')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -358,31 +360,32 @@ ScalaFile
                 PsiElement(identifier)('Stream')
             TypeArgumentsList
               PsiElement([)('[')
-              CompoundType: M {type T <: self.T}
-                SimpleType: M
-                  CodeReferenceElement: M
-                    PsiElement(identifier)('M')
-                PsiWhiteSpace(' ')
-                Refinement
-                  PsiElement({)('{')
-                  ScTypeAliasDeclaration: T
-                    AnnotationsList
-                      <empty list>
-                    Modifiers
-                      <empty list>
-                    PsiElement(type)('type')
-                    PsiWhiteSpace(' ')
-                    PsiElement(identifier)('T')
-                    PsiWhiteSpace(' ')
-                    PsiElement(<:)('<:')
-                    PsiWhiteSpace(' ')
-                    SimpleType: self.T
-                      CodeReferenceElement: self.T
-                        CodeReferenceElement: self
-                          PsiElement(identifier)('self')
-                        PsiElement(.)('.')
-                        PsiElement(identifier)('T')
-                  PsiElement(})('}')
+              TypeArgument
+                CompoundType: M {type T <: self.T}
+                  SimpleType: M
+                    CodeReferenceElement: M
+                      PsiElement(identifier)('M')
+                  PsiWhiteSpace(' ')
+                  Refinement
+                    PsiElement({)('{')
+                    ScTypeAliasDeclaration: T
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(type)('type')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('T')
+                      PsiWhiteSpace(' ')
+                      PsiElement(<:)('<:')
+                      PsiWhiteSpace(' ')
+                      SimpleType: self.T
+                        CodeReferenceElement: self.T
+                          CodeReferenceElement: self
+                            PsiElement(identifier)('self')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('T')
+                    PsiElement(})('}')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -430,31 +433,32 @@ ScalaFile
                 PsiElement(identifier)('Stream')
             TypeArgumentsList
               PsiElement([)('[')
-              CompoundType: M {type T <: self.T}
-                SimpleType: M
-                  CodeReferenceElement: M
-                    PsiElement(identifier)('M')
-                PsiWhiteSpace(' ')
-                Refinement
-                  PsiElement({)('{')
-                  ScTypeAliasDeclaration: T
-                    AnnotationsList
-                      <empty list>
-                    Modifiers
-                      <empty list>
-                    PsiElement(type)('type')
-                    PsiWhiteSpace(' ')
-                    PsiElement(identifier)('T')
-                    PsiWhiteSpace(' ')
-                    PsiElement(<:)('<:')
-                    PsiWhiteSpace(' ')
-                    SimpleType: self.T
-                      CodeReferenceElement: self.T
-                        CodeReferenceElement: self
-                          PsiElement(identifier)('self')
-                        PsiElement(.)('.')
-                        PsiElement(identifier)('T')
-                  PsiElement(})('}')
+              TypeArgument
+                CompoundType: M {type T <: self.T}
+                  SimpleType: M
+                    CodeReferenceElement: M
+                      PsiElement(identifier)('M')
+                  PsiWhiteSpace(' ')
+                  Refinement
+                    PsiElement({)('{')
+                    ScTypeAliasDeclaration: T
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(type)('type')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('T')
+                      PsiWhiteSpace(' ')
+                      PsiElement(<:)('<:')
+                      PsiWhiteSpace(' ')
+                      SimpleType: self.T
+                        CodeReferenceElement: self.T
+                          CodeReferenceElement: self
+                            PsiElement(identifier)('self')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('T')
+                    PsiElement(})('}')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -468,9 +472,10 @@ ScalaFile
                 PsiElement(identifier)('all4Impl')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: T
-                  CodeReferenceElement: T
-                    PsiElement(identifier)('T')
+                TypeArgument
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
                 PsiElement(])(']')
             ArgumentList
               PsiElement(()('(')
@@ -559,28 +564,29 @@ ScalaFile
                 PsiElement(identifier)('Stream')
             TypeArgumentsList
               PsiElement([)('[')
-              CompoundType: M {type T <: U}
-                SimpleType: M
-                  CodeReferenceElement: M
-                    PsiElement(identifier)('M')
-                PsiWhiteSpace(' ')
-                Refinement
-                  PsiElement({)('{')
-                  ScTypeAliasDeclaration: T
-                    AnnotationsList
-                      <empty list>
-                    Modifiers
-                      <empty list>
-                    PsiElement(type)('type')
-                    PsiWhiteSpace(' ')
-                    PsiElement(identifier)('T')
-                    PsiWhiteSpace(' ')
-                    PsiElement(<:)('<:')
-                    PsiWhiteSpace(' ')
-                    SimpleType: U
-                      CodeReferenceElement: U
-                        PsiElement(identifier)('U')
-                  PsiElement(})('}')
+              TypeArgument
+                CompoundType: M {type T <: U}
+                  SimpleType: M
+                    CodeReferenceElement: M
+                      PsiElement(identifier)('M')
+                  PsiWhiteSpace(' ')
+                  Refinement
+                    PsiElement({)('{')
+                    ScTypeAliasDeclaration: T
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(type)('type')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('T')
+                      PsiWhiteSpace(' ')
+                      PsiElement(<:)('<:')
+                      PsiWhiteSpace(' ')
+                      SimpleType: U
+                        CodeReferenceElement: U
+                          PsiElement(identifier)('U')
+                    PsiElement(})('}')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -603,9 +609,10 @@ ScalaFile
                     PsiElement(identifier)('all4Impl')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: U
-                      CodeReferenceElement: U
-                        PsiElement(identifier)('U')
+                    TypeArgument
+                      SimpleType: U
+                        CodeReferenceElement: U
+                          PsiElement(identifier)('U')
                     PsiElement(])(']')
                 ArgumentList
                   PsiElement(()('(')

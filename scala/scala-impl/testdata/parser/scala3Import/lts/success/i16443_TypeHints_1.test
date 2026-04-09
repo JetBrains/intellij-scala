@@ -48,15 +48,17 @@ ScalaFile
                 PsiElement(identifier)('List')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Class[_]
-                SimpleType: Class
-                  CodeReferenceElement: Class
-                    PsiElement(identifier)('Class')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  WildcardType: _
-                    PsiElement(_)('_')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Class[_]
+                  SimpleType: Class
+                    CodeReferenceElement: Class
+                      PsiElement(identifier)('Class')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      WildcardType: _
+                        PsiElement(_)('_')
+                    PsiElement(])(']')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScFunctionDefinition: components
@@ -77,9 +79,10 @@ ScalaFile
                 PsiElement(identifier)('List')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: TypeHints
-                CodeReferenceElement: TypeHints
-                  PsiElement(identifier)('TypeHints')
+              TypeArgument
+                SimpleType: TypeHints
+                  CodeReferenceElement: TypeHints
+                    PsiElement(identifier)('TypeHints')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -183,9 +186,10 @@ ScalaFile
                           PsiElement(identifier)('List')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: TypeHints
-                          CodeReferenceElement: TypeHints
-                            PsiElement(identifier)('TypeHints')
+                        TypeArgument
+                          SimpleType: TypeHints
+                            CodeReferenceElement: TypeHints
+                              PsiElement(identifier)('TypeHints')
                         PsiElement(])(']')
                 PsiElement())(')')
           PsiWhiteSpace(' ')
@@ -220,15 +224,17 @@ ScalaFile
                       PsiElement(identifier)('List')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    ParametrizedType: Class[_]
-                      SimpleType: Class
-                        CodeReferenceElement: Class
-                          PsiElement(identifier)('Class')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        WildcardType: _
-                          PsiElement(_)('_')
-                        PsiElement(])(']')
+                    TypeArgument
+                      ParametrizedType: Class[_]
+                        SimpleType: Class
+                          CodeReferenceElement: Class
+                            PsiElement(identifier)('Class')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            WildcardType: _
+                              PsiElement(_)('_')
+                          PsiElement(])(']')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')

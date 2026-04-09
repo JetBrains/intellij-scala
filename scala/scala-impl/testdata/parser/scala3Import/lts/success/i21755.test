@@ -96,14 +96,16 @@ ScalaFile
                     PsiElement(identifier)('TraverserMethods')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: A
-                    CodeReferenceElement: A
-                      PsiElement(identifier)('A')
+                  TypeArgument
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
-                  SimpleType: CC
-                    CodeReferenceElement: CC
-                      PsiElement(identifier)('CC')
+                  TypeArgument
+                    SimpleType: CC
+                      CodeReferenceElement: CC
+                        PsiElement(identifier)('CC')
                   PsiElement(])(']')
             PsiElement(])(']')
           PrimaryConstructor

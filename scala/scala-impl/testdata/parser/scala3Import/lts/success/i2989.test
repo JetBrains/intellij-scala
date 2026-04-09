@@ -81,9 +81,10 @@ ScalaFile
                         PsiElement(identifier)('Foo')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Y
-                        CodeReferenceElement: Y
-                          PsiElement(identifier)('Y')
+                      TypeArgument
+                        SimpleType: Y
+                          CodeReferenceElement: Y
+                            PsiElement(identifier)('Y')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -94,9 +95,10 @@ ScalaFile
                 PsiElement(identifier)('Foo')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Y
-                CodeReferenceElement: Y
-                  PsiElement(identifier)('Y')
+              TypeArgument
+                SimpleType: Y
+                  CodeReferenceElement: Y
+                    PsiElement(identifier)('Y')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -142,25 +144,27 @@ ScalaFile
                         PsiElement(identifier)('Foo')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      TypeLambda: [T] =>> Y[T]
-                        TypeParameterClause
-                          PsiElement([)('[')
-                          TypeParameter: T
-                            PsiElement(identifier)('T')
-                          PsiElement(])(']')
-                        PsiWhiteSpace(' ')
-                        PsiElement(=>>)('=>>')
-                        PsiWhiteSpace(' ')
-                        ParametrizedType: Y[T]
-                          SimpleType: Y
-                            CodeReferenceElement: Y
-                              PsiElement(identifier)('Y')
-                          TypeArgumentsList
+                      TypeArgument
+                        TypeLambda: [T] =>> Y[T]
+                          TypeParameterClause
                             PsiElement([)('[')
-                            SimpleType: T
-                              CodeReferenceElement: T
-                                PsiElement(identifier)('T')
+                            TypeParameter: T
+                              PsiElement(identifier)('T')
                             PsiElement(])(']')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>>)('=>>')
+                          PsiWhiteSpace(' ')
+                          ParametrizedType: Y[T]
+                            SimpleType: Y
+                              CodeReferenceElement: Y
+                                PsiElement(identifier)('Y')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: T
+                                  CodeReferenceElement: T
+                                    PsiElement(identifier)('T')
+                              PsiElement(])(']')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -171,9 +175,10 @@ ScalaFile
                 PsiElement(identifier)('Foo')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Y
-                CodeReferenceElement: Y
-                  PsiElement(identifier)('Y')
+              TypeArgument
+                SimpleType: Y
+                  CodeReferenceElement: Y
+                    PsiElement(identifier)('Y')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -219,25 +224,27 @@ ScalaFile
                         PsiElement(identifier)('Foo')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      TypeLambda: [T] =>> Y[T]
-                        TypeParameterClause
-                          PsiElement([)('[')
-                          TypeParameter: T
-                            PsiElement(identifier)('T')
-                          PsiElement(])(']')
-                        PsiWhiteSpace(' ')
-                        PsiElement(=>>)('=>>')
-                        PsiWhiteSpace(' ')
-                        ParametrizedType: Y[T]
-                          SimpleType: Y
-                            CodeReferenceElement: Y
-                              PsiElement(identifier)('Y')
-                          TypeArgumentsList
+                      TypeArgument
+                        TypeLambda: [T] =>> Y[T]
+                          TypeParameterClause
                             PsiElement([)('[')
-                            SimpleType: T
-                              CodeReferenceElement: T
-                                PsiElement(identifier)('T')
+                            TypeParameter: T
+                              PsiElement(identifier)('T')
                             PsiElement(])(']')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>>)('=>>')
+                          PsiWhiteSpace(' ')
+                          ParametrizedType: Y[T]
+                            SimpleType: Y
+                              CodeReferenceElement: Y
+                                PsiElement(identifier)('Y')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: T
+                                  CodeReferenceElement: T
+                                    PsiElement(identifier)('T')
+                              PsiElement(])(']')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -248,25 +255,27 @@ ScalaFile
                 PsiElement(identifier)('Foo')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeLambda: [T] =>> Y[T]
-                TypeParameterClause
-                  PsiElement([)('[')
-                  TypeParameter: T
-                    PsiElement(identifier)('T')
-                  PsiElement(])(']')
-                PsiWhiteSpace(' ')
-                PsiElement(=>>)('=>>')
-                PsiWhiteSpace(' ')
-                ParametrizedType: Y[T]
-                  SimpleType: Y
-                    CodeReferenceElement: Y
-                      PsiElement(identifier)('Y')
-                  TypeArgumentsList
+              TypeArgument
+                TypeLambda: [T] =>> Y[T]
+                  TypeParameterClause
                     PsiElement([)('[')
-                    SimpleType: T
-                      CodeReferenceElement: T
-                        PsiElement(identifier)('T')
+                    TypeParameter: T
+                      PsiElement(identifier)('T')
                     PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>>)('=>>')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: Y[T]
+                    SimpleType: Y
+                      CodeReferenceElement: Y
+                        PsiElement(identifier)('Y')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
+                      PsiElement(])(']')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -316,9 +325,10 @@ ScalaFile
                         PsiElement(identifier)('Foo')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Y
-                        CodeReferenceElement: Y
-                          PsiElement(identifier)('Y')
+                      TypeArgument
+                        SimpleType: Y
+                          CodeReferenceElement: Y
+                            PsiElement(identifier)('Y')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -329,25 +339,27 @@ ScalaFile
                 PsiElement(identifier)('Foo')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeLambda: [T] =>> Y[T]
-                TypeParameterClause
-                  PsiElement([)('[')
-                  TypeParameter: T
-                    PsiElement(identifier)('T')
-                  PsiElement(])(']')
-                PsiWhiteSpace(' ')
-                PsiElement(=>>)('=>>')
-                PsiWhiteSpace(' ')
-                ParametrizedType: Y[T]
-                  SimpleType: Y
-                    CodeReferenceElement: Y
-                      PsiElement(identifier)('Y')
-                  TypeArgumentsList
+              TypeArgument
+                TypeLambda: [T] =>> Y[T]
+                  TypeParameterClause
                     PsiElement([)('[')
-                    SimpleType: T
-                      CodeReferenceElement: T
-                        PsiElement(identifier)('T')
+                    TypeParameter: T
+                      PsiElement(identifier)('T')
                     PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>>)('=>>')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: Y[T]
+                    SimpleType: Y
+                      CodeReferenceElement: Y
+                        PsiElement(identifier)('Y')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
+                      PsiElement(])(']')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

@@ -122,8 +122,9 @@ ScalaFile
                 PsiElement(identifier)('Exist')
             TypeArgumentsList
               PsiElement([)('[')
-              WildcardType: _
-                PsiElement(_)('_')
+              TypeArgument
+                WildcardType: _
+                  PsiElement(_)('_')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -156,9 +157,10 @@ ScalaFile
               PsiElement(identifier)('ExistF')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: T
-              CodeReferenceElement: T
-                PsiElement(identifier)('T')
+            TypeArgument
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
             PsiElement(])(']')
       PsiElement(])(']')
     PrimaryConstructor
@@ -191,8 +193,9 @@ ScalaFile
                 PsiElement(identifier)('ExistF')
             TypeArgumentsList
               PsiElement([)('[')
-              WildcardType: _
-                PsiElement(_)('_')
+              TypeArgument
+                WildcardType: _
+                  PsiElement(_)('_')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -263,12 +266,14 @@ ScalaFile
                 PsiElement(identifier)('ExistIndir')
             TypeArgumentsList
               PsiElement([)('[')
-              WildcardType: _
-                PsiElement(_)('_')
+              TypeArgument
+                WildcardType: _
+                  PsiElement(_)('_')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              WildcardType: _
-                PsiElement(_)('_')
+              TypeArgument
+                WildcardType: _
+                  PsiElement(_)('_')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -325,9 +330,10 @@ ScalaFile
                       PsiElement(identifier)('ExistF')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: MyExist
-                      CodeReferenceElement: MyExist
-                        PsiElement(identifier)('MyExist')
+                    TypeArgument
+                      SimpleType: MyExist
+                        CodeReferenceElement: MyExist
+                          PsiElement(identifier)('MyExist')
                     PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScFunctionDefinition: stringy
@@ -350,14 +356,15 @@ ScalaFile
                 PsiElement(identifier)('Exist')
             TypeArgumentsList
               PsiElement([)('[')
-              WildcardType: _ <: String
-                PsiElement(_)('_')
-                PsiWhiteSpace(' ')
-                PsiElement(<:)('<:')
-                PsiWhiteSpace(' ')
-                SimpleType: String
-                  CodeReferenceElement: String
-                    PsiElement(identifier)('String')
+              TypeArgument
+                WildcardType: _ <: String
+                  PsiElement(_)('_')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<:)('<:')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -377,9 +384,10 @@ ScalaFile
                             PsiElement(identifier)('Exist')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: String
-                            CodeReferenceElement: String
-                              PsiElement(identifier)('String')
+                          TypeArgument
+                            SimpleType: String
+                              CodeReferenceElement: String
+                                PsiElement(identifier)('String')
                           PsiElement(])(']')
               PsiElement())(')')
             PsiElement(.)('.')
@@ -405,24 +413,26 @@ ScalaFile
                 PsiElement(identifier)('ExistIndir')
             TypeArgumentsList
               PsiElement([)('[')
-              WildcardType: _ <: String
-                PsiElement(_)('_')
-                PsiWhiteSpace(' ')
-                PsiElement(<:)('<:')
-                PsiWhiteSpace(' ')
-                SimpleType: String
-                  CodeReferenceElement: String
-                    PsiElement(identifier)('String')
+              TypeArgument
+                WildcardType: _ <: String
+                  PsiElement(_)('_')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<:)('<:')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              WildcardType: _ <: String
-                PsiElement(_)('_')
-                PsiWhiteSpace(' ')
-                PsiElement(<:)('<:')
-                PsiWhiteSpace(' ')
-                SimpleType: String
-                  CodeReferenceElement: String
-                    PsiElement(identifier)('String')
+              TypeArgument
+                WildcardType: _ <: String
+                  PsiElement(_)('_')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<:)('<:')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -442,14 +452,16 @@ ScalaFile
                             PsiElement(identifier)('ExistIndir')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: String
-                            CodeReferenceElement: String
-                              PsiElement(identifier)('String')
+                          TypeArgument
+                            SimpleType: String
+                              CodeReferenceElement: String
+                                PsiElement(identifier)('String')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
-                          SimpleType: String
-                            CodeReferenceElement: String
-                              PsiElement(identifier)('String')
+                          TypeArgument
+                            SimpleType: String
+                              CodeReferenceElement: String
+                                PsiElement(identifier)('String')
                           PsiElement(])(']')
               PsiElement())(')')
             PsiElement(.)('.')
@@ -542,15 +554,17 @@ ScalaFile
                 PsiElement(identifier)('OP')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Skin[_]
-                SimpleType: Skin
-                  CodeReferenceElement: Skin
-                    PsiElement(identifier)('Skin')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  WildcardType: _
-                    PsiElement(_)('_')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Skin[_]
+                  SimpleType: Skin
+                    CodeReferenceElement: Skin
+                      PsiElement(identifier)('Skin')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      WildcardType: _
+                        PsiElement(_)('_')
+                    PsiElement(])(']')
               PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
@@ -600,9 +614,10 @@ ScalaFile
                         PsiElement(identifier)('OP')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: T
-                        CodeReferenceElement: T
-                          PsiElement(identifier)('T')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -613,9 +628,10 @@ ScalaFile
                 PsiElement(identifier)('ObjectProperty')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -632,9 +648,10 @@ ScalaFile
                         PsiElement(identifier)('ObjectProperty')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: T
-                        CodeReferenceElement: T
-                          PsiElement(identifier)('T')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
                       PsiElement(])(']')
                   ArgumentList
                     PsiElement(()('(')
@@ -682,9 +699,10 @@ ScalaFile
                     PsiElement(identifier)('OP')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: T
-                    CodeReferenceElement: T
-                      PsiElement(identifier)('T')
+                  TypeArgument
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
                   PsiElement(])(']')
           PsiElement())(')')
     ExtendsBlock
@@ -737,17 +755,19 @@ ScalaFile
                 PsiElement(identifier)('ObjectProperty')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Skin[_ /* inferred: <: Skinnable */]
-                SimpleType: Skin
-                  CodeReferenceElement: Skin
-                    PsiElement(identifier)('Skin')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  WildcardType: _
-                    PsiElement(_)('_')
-                  PsiWhiteSpace(' ')
-                  PsiComment(BlockComment)('/* inferred: <: Skinnable */')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Skin[_ /* inferred: <: Skinnable */]
+                  SimpleType: Skin
+                    CodeReferenceElement: Skin
+                      PsiElement(identifier)('Skin')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      WildcardType: _
+                        PsiElement(_)('_')
+                    PsiWhiteSpace(' ')
+                    PsiComment(BlockComment)('/* inferred: <: Skinnable */')
+                    PsiElement(])(']')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -778,21 +798,23 @@ ScalaFile
                 PsiElement(identifier)('ObjectProperty')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Skin[_  <: Skinnable]
-                SimpleType: Skin
-                  CodeReferenceElement: Skin
-                    PsiElement(identifier)('Skin')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  WildcardType: _  <: Skinnable
-                    PsiElement(_)('_')
-                    PsiWhiteSpace('  ')
-                    PsiElement(<:)('<:')
-                    PsiWhiteSpace(' ')
-                    SimpleType: Skinnable
-                      CodeReferenceElement: Skinnable
-                        PsiElement(identifier)('Skinnable')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Skin[_  <: Skinnable]
+                  SimpleType: Skin
+                    CodeReferenceElement: Skin
+                      PsiElement(identifier)('Skin')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      WildcardType: _  <: Skinnable
+                        PsiElement(_)('_')
+                        PsiWhiteSpace('  ')
+                        PsiElement(<:)('<:')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Skinnable
+                          CodeReferenceElement: Skinnable
+                            PsiElement(identifier)('Skinnable')
+                    PsiElement(])(']')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScFunctionDefinition: skinCheckInference
@@ -825,21 +847,23 @@ ScalaFile
                 PsiElement(identifier)('ObjectProperty')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Skin[_  <: Skinnable]
-                SimpleType: Skin
-                  CodeReferenceElement: Skin
-                    PsiElement(identifier)('Skin')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  WildcardType: _  <: Skinnable
-                    PsiElement(_)('_')
-                    PsiWhiteSpace('  ')
-                    PsiElement(<:)('<:')
-                    PsiWhiteSpace(' ')
-                    SimpleType: Skinnable
-                      CodeReferenceElement: Skinnable
-                        PsiElement(identifier)('Skinnable')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Skin[_  <: Skinnable]
+                  SimpleType: Skin
+                    CodeReferenceElement: Skin
+                      PsiElement(identifier)('Skin')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      WildcardType: _  <: Skinnable
+                        PsiElement(_)('_')
+                        PsiWhiteSpace('  ')
+                        PsiElement(<:)('<:')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Skinnable
+                          CodeReferenceElement: Skinnable
+                            PsiElement(identifier)('Skinnable')
+                    PsiElement(])(']')
               PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

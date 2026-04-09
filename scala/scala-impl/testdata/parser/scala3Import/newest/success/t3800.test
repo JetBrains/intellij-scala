@@ -84,16 +84,18 @@ ScalaFile
               PsiElement(identifier)('ALike')
           TypeArgumentsList
             PsiElement([)('[')
-            ParametrizedType: CC[x]
-              SimpleType: CC
-                CodeReferenceElement: CC
-                  PsiElement(identifier)('CC')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: x
-                  CodeReferenceElement: x
-                    PsiElement(identifier)('x')
-                PsiElement(])(']')
+            TypeArgument
+              ParametrizedType: CC[x]
+                SimpleType: CC
+                  CodeReferenceElement: CC
+                    PsiElement(identifier)('CC')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: x
+                      CodeReferenceElement: x
+                        PsiElement(identifier)('x')
+                  PsiElement(])(']')
             PsiElement(])(']')
       PsiElement(])(']')
     PrimaryConstructor
@@ -127,19 +129,20 @@ ScalaFile
                 PsiElement(identifier)('AFactory')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeWithAnnotation: CC @meh
-                SimpleType: CC
-                  CodeReferenceElement: CC
-                    PsiElement(identifier)('CC')
-                PsiWhiteSpace(' ')
-                AnnotationsList
-                  Annotation
-                    PsiElement(@)('@')
-                    AnnotationExpression
-                      ConstructorInvocation
-                        SimpleType: meh
-                          CodeReferenceElement: meh
-                            PsiElement(identifier)('meh')
+              TypeArgument
+                TypeWithAnnotation: CC @meh
+                  SimpleType: CC
+                    CodeReferenceElement: CC
+                      PsiElement(identifier)('CC')
+                  PsiWhiteSpace(' ')
+                  AnnotationsList
+                    Annotation
+                      PsiElement(@)('@')
+                      AnnotationExpression
+                        ConstructorInvocation
+                          SimpleType: meh
+                            CodeReferenceElement: meh
+                              PsiElement(identifier)('meh')
               PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

@@ -196,8 +196,9 @@ ScalaFile
                       PsiElement(identifier)('Helper')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    TypeVariable: x
-                      PsiElement(identifier)('x')
+                    TypeArgument
+                      TypeVariable: x
+                        PsiElement(identifier)('x')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
@@ -267,11 +268,12 @@ ScalaFile
                 PsiElement(identifier)('Extract')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: b.type
-                CodeReferenceElement: b
-                  PsiElement(identifier)('b')
-                PsiElement(.)('.')
-                PsiElement(type)('type')
+              TypeArgument
+                SimpleType: b.type
+                  CodeReferenceElement: b
+                    PsiElement(identifier)('b')
+                  PsiElement(.)('.')
+                  PsiElement(type)('type')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -326,11 +328,12 @@ ScalaFile
                         PsiElement(identifier)('Extract')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: b.type
-                        CodeReferenceElement: b
-                          PsiElement(identifier)('b')
-                        PsiElement(.)('.')
-                        PsiElement(type)('type')
+                      TypeArgument
+                        SimpleType: b.type
+                          CodeReferenceElement: b
+                            PsiElement(identifier)('b')
+                          PsiElement(.)('.')
+                          PsiElement(type)('type')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')

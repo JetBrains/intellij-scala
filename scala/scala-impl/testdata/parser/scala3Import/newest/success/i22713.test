@@ -123,14 +123,16 @@ ScalaFile
                     PsiElement(identifier)('Either')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: Exception
-                    CodeReferenceElement: Exception
-                      PsiElement(identifier)('Exception')
+                  TypeArgument
+                    SimpleType: Exception
+                      CodeReferenceElement: Exception
+                        PsiElement(identifier)('Exception')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
-                  SimpleType: Unit
-                    CodeReferenceElement: Unit
-                      PsiElement(identifier)('Unit')
+                  TypeArgument
+                    SimpleType: Unit
+                      CodeReferenceElement: Unit
+                        PsiElement(identifier)('Unit')
                   PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(=)('=')
@@ -184,14 +186,16 @@ ScalaFile
                     PsiElement(identifier)('Either')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: Exception
-                    CodeReferenceElement: Exception
-                      PsiElement(identifier)('Exception')
+                  TypeArgument
+                    SimpleType: Exception
+                      CodeReferenceElement: Exception
+                        PsiElement(identifier)('Exception')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
-                  SimpleType: Unit
-                    CodeReferenceElement: Unit
-                      PsiElement(identifier)('Unit')
+                  TypeArgument
+                    SimpleType: Unit
+                      CodeReferenceElement: Unit
+                        PsiElement(identifier)('Unit')
                   PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(=)('=')

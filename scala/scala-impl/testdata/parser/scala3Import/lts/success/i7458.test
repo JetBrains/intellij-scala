@@ -65,14 +65,16 @@ ScalaFile
                   PsiElement(identifier)('Tr')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: V2
-                  CodeReferenceElement: V2
-                    PsiElement(identifier)('V2')
+                TypeArgument
+                  SimpleType: V2
+                    CodeReferenceElement: V2
+                      PsiElement(identifier)('V2')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: O2
-                  CodeReferenceElement: O2
-                    PsiElement(identifier)('O2')
+                TypeArgument
+                  SimpleType: O2
+                    CodeReferenceElement: O2
+                      PsiElement(identifier)('O2')
                 PsiElement(])(']')
         PsiElement())(')')
     PsiWhiteSpace(' ')
@@ -95,14 +97,16 @@ ScalaFile
               PsiElement(identifier)('Tr')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: V2
-              CodeReferenceElement: V2
-                PsiElement(identifier)('V2')
+            TypeArgument
+              SimpleType: V2
+                CodeReferenceElement: V2
+                  PsiElement(identifier)('V2')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
-            SimpleType: O2
-              CodeReferenceElement: O2
-                PsiElement(identifier)('O2')
+            TypeArgument
+              SimpleType: O2
+                CodeReferenceElement: O2
+                  PsiElement(identifier)('O2')
             PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiElement(=)('=')
@@ -151,14 +155,16 @@ ScalaFile
                   PsiElement(identifier)('Tr')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: V3
-                  CodeReferenceElement: V3
-                    PsiElement(identifier)('V3')
+                TypeArgument
+                  SimpleType: V3
+                    CodeReferenceElement: V3
+                      PsiElement(identifier)('V3')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: O3
-                  CodeReferenceElement: O3
-                    PsiElement(identifier)('O3')
+                TypeArgument
+                  SimpleType: O3
+                    CodeReferenceElement: O3
+                      PsiElement(identifier)('O3')
                 PsiElement(])(']')
         PsiElement())(')')
     PsiWhiteSpace(' ')
@@ -170,14 +176,16 @@ ScalaFile
           PsiElement(identifier)('Tr')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: V3
-          CodeReferenceElement: V3
-            PsiElement(identifier)('V3')
+        TypeArgument
+          SimpleType: V3
+            CodeReferenceElement: V3
+              PsiElement(identifier)('V3')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
-        SimpleType: O3
-          CodeReferenceElement: O3
-            PsiElement(identifier)('O3')
+        TypeArgument
+          SimpleType: O3
+            CodeReferenceElement: O3
+              PsiElement(identifier)('O3')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')

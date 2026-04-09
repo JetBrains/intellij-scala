@@ -42,15 +42,16 @@ ScalaFile
                         PsiElement(identifier)('classOf')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: java.lang.Integer
-                          CodeReferenceElement: java.lang.Integer
-                            CodeReferenceElement: java.lang
-                              CodeReferenceElement: java
-                                PsiElement(identifier)('java')
+                        TypeArgument
+                          SimpleType: java.lang.Integer
+                            CodeReferenceElement: java.lang.Integer
+                              CodeReferenceElement: java.lang
+                                CodeReferenceElement: java
+                                  PsiElement(identifier)('java')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('lang')
                               PsiElement(.)('.')
-                              PsiElement(identifier)('lang')
-                            PsiElement(.)('.')
-                            PsiElement(identifier)('Integer')
+                              PsiElement(identifier)('Integer')
                         PsiElement(])(']')
                     PsiElement())(')')
                 PsiElement(,)(',')
@@ -65,9 +66,10 @@ ScalaFile
                         PsiElement(identifier)('classOf')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: Int
-                          CodeReferenceElement: Int
-                            PsiElement(identifier)('Int')
+                        TypeArgument
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
                         PsiElement(])(']')
                     PsiElement())(')')
                 PsiElement())(')')
@@ -99,8 +101,9 @@ ScalaFile
                                 PsiElement(identifier)('Class')
                             TypeArgumentsList
                               PsiElement([)('[')
-                              TypeVariable: _
-                                PsiElement(_)('_')
+                              TypeArgument
+                                TypeVariable: _
+                                  PsiElement(_)('_')
                               PsiElement(])(']')
                       PsiElement())(')')
                   PsiWhiteSpace(' ')

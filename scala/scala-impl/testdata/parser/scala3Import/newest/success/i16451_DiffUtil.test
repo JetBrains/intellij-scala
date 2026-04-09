@@ -273,9 +273,10 @@ ScalaFile
                         PsiElement(identifier)('Array')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Patch
-                        CodeReferenceElement: Patch
-                          PsiElement(identifier)('Patch')
+                      TypeArgument
+                        SimpleType: Patch
+                          CodeReferenceElement: Patch
+                            PsiElement(identifier)('Patch')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiWhiteSpace(' ')

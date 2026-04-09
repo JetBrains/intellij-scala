@@ -37,9 +37,10 @@ ScalaFile
                 PsiElement(identifier)('J')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: AnyRef
-                CodeReferenceElement: AnyRef
-                  PsiElement(identifier)('AnyRef')
+              TypeArgument
+                SimpleType: AnyRef
+                  CodeReferenceElement: AnyRef
+                    PsiElement(identifier)('AnyRef')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScObject: Test
@@ -80,9 +81,10 @@ ScalaFile
                         PsiElement(identifier)('Array')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: String
-                        CodeReferenceElement: String
-                          PsiElement(identifier)('String')
+                      TypeArgument
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -109,9 +111,10 @@ ScalaFile
                     PsiElement(identifier)('classOf')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: S
-                      CodeReferenceElement: S
-                        PsiElement(identifier)('S')
+                    TypeArgument
+                      SimpleType: S
+                        CodeReferenceElement: S
+                          PsiElement(identifier)('S')
                     PsiElement(])(']')
                 PsiElement())(')')
             PsiWhiteSpace('\n  ')

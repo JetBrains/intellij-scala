@@ -123,21 +123,24 @@ ScalaFile
                 PsiElement(identifier)('PartialFunction')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: List[Value]
-                SimpleType: List
-                  CodeReferenceElement: List
-                    PsiElement(identifier)('List')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: Value
-                    CodeReferenceElement: Value
-                      PsiElement(identifier)('Value')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: List[Value]
+                  SimpleType: List
+                    CodeReferenceElement: List
+                      PsiElement(identifier)('List')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Value
+                        CodeReferenceElement: Value
+                          PsiElement(identifier)('Value')
+                    PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Value
-                CodeReferenceElement: Value
-                  PsiElement(identifier)('Value')
+              TypeArgument
+                SimpleType: Value
+                  CodeReferenceElement: Value
+                    PsiElement(identifier)('Value')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

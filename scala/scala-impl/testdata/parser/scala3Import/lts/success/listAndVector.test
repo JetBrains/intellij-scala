@@ -59,22 +59,24 @@ ScalaFile
           PsiElement(identifier)('Set')
       TypeArgumentsList
         PsiElement([)('[')
-        ParametrizedType: collection.immutable.AbstractSeq[Int]
-          SimpleType: collection.immutable.AbstractSeq
-            CodeReferenceElement: collection.immutable.AbstractSeq
-              CodeReferenceElement: collection.immutable
-                CodeReferenceElement: collection
-                  PsiElement(identifier)('collection')
+        TypeArgument
+          ParametrizedType: collection.immutable.AbstractSeq[Int]
+            SimpleType: collection.immutable.AbstractSeq
+              CodeReferenceElement: collection.immutable.AbstractSeq
+                CodeReferenceElement: collection.immutable
+                  CodeReferenceElement: collection
+                    PsiElement(identifier)('collection')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('immutable')
                 PsiElement(.)('.')
-                PsiElement(identifier)('immutable')
-              PsiElement(.)('.')
-              PsiElement(identifier)('AbstractSeq')
-          TypeArgumentsList
-            PsiElement([)('[')
-            SimpleType: Int
-              CodeReferenceElement: Int
-                PsiElement(identifier)('Int')
-            PsiElement(])(']')
+                PsiElement(identifier)('AbstractSeq')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+              PsiElement(])(']')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')

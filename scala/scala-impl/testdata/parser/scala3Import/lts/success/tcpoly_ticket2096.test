@@ -58,13 +58,15 @@ ScalaFile
               PsiElement(identifier)('MBrace')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: C
-              CodeReferenceElement: C
-                PsiElement(identifier)('C')
+            TypeArgument
+              SimpleType: C
+                CodeReferenceElement: C
+                  PsiElement(identifier)('C')
             PsiElement(,)(',')
-            SimpleType: X
-              CodeReferenceElement: X
-                PsiElement(identifier)('X')
+            TypeArgument
+              SimpleType: X
+                CodeReferenceElement: X
+                  PsiElement(identifier)('X')
             PsiElement(])(']')
       PsiElement(,)(',')
       TypeParameter: A
@@ -118,9 +120,10 @@ ScalaFile
                 PsiElement(identifier)('C')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(])(']')
         PsiWhiteSpace('\n ')
         ScFunctionDeclaration: flatten
@@ -144,16 +147,18 @@ ScalaFile
                     PsiElement(identifier)('C')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  ParametrizedType: C[A]
-                    SimpleType: C
-                      CodeReferenceElement: C
-                        PsiElement(identifier)('C')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
-                      PsiElement(])(']')
+                  TypeArgument
+                    ParametrizedType: C[A]
+                      SimpleType: C
+                        CodeReferenceElement: C
+                          PsiElement(identifier)('C')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
+                        PsiElement(])(']')
                   PsiElement(])(']')
             PsiElement(])(']')
           Parameters
@@ -184,9 +189,10 @@ ScalaFile
                 PsiElement(identifier)('C')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
@@ -220,13 +226,15 @@ ScalaFile
                 PsiElement(identifier)('MBrace')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: C
-                CodeReferenceElement: C
-                  PsiElement(identifier)('C')
+              TypeArgument
+                SimpleType: C
+                  CodeReferenceElement: C
+                    PsiElement(identifier)('C')
               PsiElement(,)(',')
-              SimpleType: X
-                CodeReferenceElement: X
-                  PsiElement(identifier)('X')
+              TypeArgument
+                SimpleType: X
+                  CodeReferenceElement: X
+                    PsiElement(identifier)('X')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(with)('with')
@@ -237,9 +245,10 @@ ScalaFile
                 PsiElement(identifier)('Seq')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: X
-                CodeReferenceElement: X
-                  PsiElement(identifier)('X')
+              TypeArgument
+                SimpleType: X
+                  CodeReferenceElement: X
+                    PsiElement(identifier)('X')
               PsiElement(])(']')
       PsiElement(,)(',')
       TypeParameter: A
@@ -264,13 +273,15 @@ ScalaFile
                 PsiElement(identifier)('MBrace')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: C
-                CodeReferenceElement: C
-                  PsiElement(identifier)('C')
+              TypeArgument
+                SimpleType: C
+                  CodeReferenceElement: C
+                    PsiElement(identifier)('C')
               PsiElement(,)(',')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScClass: MSequitor
@@ -326,9 +337,10 @@ ScalaFile
                 PsiElement(identifier)('Seq')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiElement(with)('with')
@@ -340,13 +352,15 @@ ScalaFile
                 PsiElement(identifier)('MBrace')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: MSequitor
-                CodeReferenceElement: MSequitor
-                  PsiElement(identifier)('MSequitor')
+              TypeArgument
+                SimpleType: MSequitor
+                  CodeReferenceElement: MSequitor
+                    PsiElement(identifier)('MSequitor')
               PsiElement(,)(',')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(])(']')
       PsiWhiteSpace('\n')
       ScTemplateBody
@@ -395,9 +409,10 @@ ScalaFile
                         PsiElement(identifier)('MSequitor')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                       PsiElement(])(']')
                   ArgumentList
                     PsiElement(()('(')
@@ -429,16 +444,18 @@ ScalaFile
                     PsiElement(identifier)('MSequitor')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  ParametrizedType: MSequitor[A]
-                    SimpleType: MSequitor
-                      CodeReferenceElement: MSequitor
-                        PsiElement(identifier)('MSequitor')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
-                      PsiElement(])(']')
+                  TypeArgument
+                    ParametrizedType: MSequitor[A]
+                      SimpleType: MSequitor
+                        CodeReferenceElement: MSequitor
+                          PsiElement(identifier)('MSequitor')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
+                        PsiElement(])(']')
                   PsiElement(])(']')
             PsiElement(])(']')
           Parameters
@@ -469,9 +486,10 @@ ScalaFile
                 PsiElement(identifier)('MSequitor')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -500,9 +518,10 @@ ScalaFile
                                 PsiElement(identifier)('MSequitor')
                             TypeArgumentsList
                               PsiElement([)('[')
-                              SimpleType: A
-                                CodeReferenceElement: A
-                                  PsiElement(identifier)('A')
+                              TypeArgument
+                                SimpleType: A
+                                  CodeReferenceElement: A
+                                    PsiElement(identifier)('A')
                               PsiElement(])(']')
                           ArgumentList
                             PsiElement(()('(')
@@ -534,9 +553,10 @@ ScalaFile
                                   PsiElement(identifier)('MSequitor')
                               TypeArgumentsList
                                 PsiElement([)('[')
-                                SimpleType: A
-                                  CodeReferenceElement: A
-                                    PsiElement(identifier)('A')
+                                TypeArgument
+                                  SimpleType: A
+                                    CodeReferenceElement: A
+                                      PsiElement(identifier)('A')
                                 PsiElement(])(']')
                         PsiElement(,)(',')
                         PsiWhiteSpace(' ')
@@ -554,9 +574,10 @@ ScalaFile
                                   PsiElement(identifier)('MSequitor')
                               TypeArgumentsList
                                 PsiElement([)('[')
-                                SimpleType: A
-                                  CodeReferenceElement: A
-                                    PsiElement(identifier)('A')
+                                TypeArgument
+                                  SimpleType: A
+                                    CodeReferenceElement: A
+                                      PsiElement(identifier)('A')
                                 PsiElement(])(']')
                         PsiWhiteSpace(' ')
                         PsiElement())(')')
@@ -584,16 +605,18 @@ ScalaFile
                           PsiElement(identifier)('asInstanceOf')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          ParametrizedType: MSequitor[A]
-                            SimpleType: MSequitor
-                              CodeReferenceElement: MSequitor
-                                PsiElement(identifier)('MSequitor')
-                            TypeArgumentsList
-                              PsiElement([)('[')
-                              SimpleType: A
-                                CodeReferenceElement: A
-                                  PsiElement(identifier)('A')
-                              PsiElement(])(']')
+                          TypeArgument
+                            ParametrizedType: MSequitor[A]
+                              SimpleType: MSequitor
+                                CodeReferenceElement: MSequitor
+                                  PsiElement(identifier)('MSequitor')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                TypeArgument
+                                  SimpleType: A
+                                    CodeReferenceElement: A
+                                      PsiElement(identifier)('A')
+                                PsiElement(])(']')
                           PsiElement(])(']')
                   PsiWhiteSpace('\n   ')
                   PsiElement(})('}')
@@ -725,13 +748,15 @@ ScalaFile
                 PsiElement(identifier)('MBraceSeq')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: MSequitor
-                CodeReferenceElement: MSequitor
-                  PsiElement(identifier)('MSequitor')
+              TypeArgument
+                SimpleType: MSequitor
+                  CodeReferenceElement: MSequitor
+                    PsiElement(identifier)('MSequitor')
               PsiElement(,)(',')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(])(']')
       PsiWhiteSpace(' ')
       ScTemplateBody
@@ -756,9 +781,10 @@ ScalaFile
                 PsiElement(identifier)('MSequitor')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -775,9 +801,10 @@ ScalaFile
                         PsiElement(identifier)('MSequitor')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                       PsiElement(])(']')
                   ArgumentList
                     PsiElement(()('(')
@@ -851,16 +878,18 @@ ScalaFile
                     PsiElement(identifier)('MSequitor')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  ParametrizedType: MSequitor[A]
-                    SimpleType: MSequitor
-                      CodeReferenceElement: MSequitor
-                        PsiElement(identifier)('MSequitor')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
-                      PsiElement(])(']')
+                  TypeArgument
+                    ParametrizedType: MSequitor[A]
+                      SimpleType: MSequitor
+                        CodeReferenceElement: MSequitor
+                          PsiElement(identifier)('MSequitor')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
+                        PsiElement(])(']')
                   PsiElement(])(']')
             PsiElement(])(']')
           Parameters
@@ -890,9 +919,10 @@ ScalaFile
                 PsiElement(identifier)('MSequitor')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

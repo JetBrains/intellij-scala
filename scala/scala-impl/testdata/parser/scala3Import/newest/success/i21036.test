@@ -111,9 +111,10 @@ ScalaFile
                 PsiElement(identifier)('BSONWriter')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScTypeAliasDefinition: Id
@@ -159,14 +160,16 @@ ScalaFile
                 PsiElement(identifier)('SameRuntime')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Id
-                CodeReferenceElement: Id
-                  PsiElement(identifier)('Id')
+              TypeArgument
+                SimpleType: Id
+                  CodeReferenceElement: Id
+                    PsiElement(identifier)('Id')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: String
-                CodeReferenceElement: String
-                  PsiElement(identifier)('String')
+              TypeArgument
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -189,9 +192,10 @@ ScalaFile
           PsiElement(identifier)('BSONHandler')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: String
-          CodeReferenceElement: String
-            PsiElement(identifier)('String')
+        TypeArgument
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
         PsiElement(])(']')
     PsiWhiteSpace('                      ')
     PsiElement(=)('=')
@@ -228,16 +232,18 @@ ScalaFile
           PsiElement(identifier)('BSONHandler')
       TypeArgumentsList
         PsiElement([)('[')
-        ParametrizedType: List[T]
-          SimpleType: List
-            CodeReferenceElement: List
-              PsiElement(identifier)('List')
-          TypeArgumentsList
-            PsiElement([)('[')
-            SimpleType: T
-              CodeReferenceElement: T
-                PsiElement(identifier)('T')
-            PsiElement(])(']')
+        TypeArgument
+          ParametrizedType: List[T]
+            SimpleType: List
+              CodeReferenceElement: List
+                PsiElement(identifier)('List')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
+              PsiElement(])(']')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -285,14 +291,16 @@ ScalaFile
                   PsiElement(identifier)('SameRuntime')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: T
-                  CodeReferenceElement: T
-                    PsiElement(identifier)('T')
+                TypeArgument
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: A
-                  CodeReferenceElement: A
-                    PsiElement(identifier)('A')
+                TypeArgument
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
                 PsiElement(])(']')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
@@ -311,9 +319,10 @@ ScalaFile
                   PsiElement(identifier)('BSONWriter')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: A
-                  CodeReferenceElement: A
-                    PsiElement(identifier)('A')
+                TypeArgument
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
                 PsiElement(])(']')
         PsiElement())(')')
       PsiWhiteSpace(' ')
@@ -325,9 +334,10 @@ ScalaFile
           PsiElement(identifier)('BSONWriter')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: T
-          CodeReferenceElement: T
-            PsiElement(identifier)('T')
+        TypeArgument
+          SimpleType: T
+            CodeReferenceElement: T
+              PsiElement(identifier)('T')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -353,23 +363,26 @@ ScalaFile
         PsiElement(identifier)('summon')
       TypeArgumentsList
         PsiElement([)('[')
-        ParametrizedType: BSONHandler[List[Id]]
-          SimpleType: BSONHandler
-            CodeReferenceElement: BSONHandler
-              PsiElement(identifier)('BSONHandler')
-          TypeArgumentsList
-            PsiElement([)('[')
-            ParametrizedType: List[Id]
-              SimpleType: List
-                CodeReferenceElement: List
-                  PsiElement(identifier)('List')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: Id
-                  CodeReferenceElement: Id
-                    PsiElement(identifier)('Id')
-                PsiElement(])(']')
-            PsiElement(])(']')
+        TypeArgument
+          ParametrizedType: BSONHandler[List[Id]]
+            SimpleType: BSONHandler
+              CodeReferenceElement: BSONHandler
+                PsiElement(identifier)('BSONHandler')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                ParametrizedType: List[Id]
+                  SimpleType: List
+                    CodeReferenceElement: List
+                      PsiElement(identifier)('List')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Id
+                        CodeReferenceElement: Id
+                          PsiElement(identifier)('Id')
+                    PsiElement(])(']')
+              PsiElement(])(']')
         PsiElement(])(']')
   PsiWhiteSpace(' ')
   PsiComment(comment)('// this doesn't emit warning')
@@ -392,23 +405,26 @@ ScalaFile
         PsiElement(identifier)('summon')
       TypeArgumentsList
         PsiElement([)('[')
-        ParametrizedType: BSONWriter[List[Id]]
-          SimpleType: BSONWriter
-            CodeReferenceElement: BSONWriter
-              PsiElement(identifier)('BSONWriter')
-          TypeArgumentsList
-            PsiElement([)('[')
-            ParametrizedType: List[Id]
-              SimpleType: List
-                CodeReferenceElement: List
-                  PsiElement(identifier)('List')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: Id
-                  CodeReferenceElement: Id
-                    PsiElement(identifier)('Id')
-                PsiElement(])(']')
-            PsiElement(])(']')
+        TypeArgument
+          ParametrizedType: BSONWriter[List[Id]]
+            SimpleType: BSONWriter
+              CodeReferenceElement: BSONWriter
+                PsiElement(identifier)('BSONWriter')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                ParametrizedType: List[Id]
+                  SimpleType: List
+                    CodeReferenceElement: List
+                      PsiElement(identifier)('List')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Id
+                        CodeReferenceElement: Id
+                          PsiElement(identifier)('Id')
+                    PsiElement(])(']')
+              PsiElement(])(']')
         PsiElement(])(']')
   PsiWhiteSpace(' ')
   PsiComment(comment)('// this did emit warning')

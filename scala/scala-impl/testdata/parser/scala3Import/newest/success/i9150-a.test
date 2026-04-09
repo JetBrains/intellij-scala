@@ -44,9 +44,10 @@ ScalaFile
           PsiElement(identifier)('erasedValue')
         TypeArgumentsList
           PsiElement([)('[')
-          SimpleType: T
-            CodeReferenceElement: T
-              PsiElement(identifier)('T')
+          TypeArgument
+            SimpleType: T
+              CodeReferenceElement: T
+                PsiElement(identifier)('T')
           PsiElement(])(']')
       PsiWhiteSpace(' ')
       PsiElement(match)('match')
@@ -84,7 +85,8 @@ ScalaFile
         PsiElement(identifier)('fooErased')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: EmptyTuple
-          CodeReferenceElement: EmptyTuple
-            PsiElement(identifier)('EmptyTuple')
+        TypeArgument
+          SimpleType: EmptyTuple
+            CodeReferenceElement: EmptyTuple
+              PsiElement(identifier)('EmptyTuple')
         PsiElement(])(']')

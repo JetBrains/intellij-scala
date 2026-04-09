@@ -141,16 +141,18 @@ ScalaFile
                         PsiElement(identifier)('implicitly')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        ParametrizedType: Runner[T]
-                          SimpleType: Runner
-                            CodeReferenceElement: Runner
-                              PsiElement(identifier)('Runner')
-                          TypeArgumentsList
-                            PsiElement([)('[')
-                            SimpleType: T
-                              CodeReferenceElement: T
-                                PsiElement(identifier)('T')
-                            PsiElement(])(']')
+                        TypeArgument
+                          ParametrizedType: Runner[T]
+                            SimpleType: Runner
+                              CodeReferenceElement: Runner
+                                PsiElement(identifier)('Runner')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: T
+                                  CodeReferenceElement: T
+                                    PsiElement(identifier)('T')
+                              PsiElement(])(']')
                         PsiElement(])(']')
                     PsiElement(.)('.')
                     PsiElement(identifier)('run')
@@ -186,9 +188,10 @@ ScalaFile
                       PsiElement(identifier)('Runner')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: T
-                      CodeReferenceElement: T
-                        PsiElement(identifier)('T')
+                    TypeArgument
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')

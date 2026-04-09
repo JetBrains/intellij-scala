@@ -107,24 +107,25 @@ ScalaFile
           PsiElement(identifier)('F')
       TypeArgumentsList
         PsiElement([)('[')
-        CompoundType: {type A = Float}
-          Refinement
-            PsiElement({)('{')
-            ScTypeAliasDefinition: A
-              AnnotationsList
-                <empty list>
-              Modifiers
-                <empty list>
-              PsiElement(type)('type')
-              PsiWhiteSpace(' ')
-              PsiElement(identifier)('A')
-              PsiWhiteSpace(' ')
-              PsiElement(=)('=')
-              PsiWhiteSpace(' ')
-              SimpleType: Float
-                CodeReferenceElement: Float
-                  PsiElement(identifier)('Float')
-            PsiElement(})('}')
+        TypeArgument
+          CompoundType: {type A = Float}
+            Refinement
+              PsiElement({)('{')
+              ScTypeAliasDefinition: A
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('A')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                SimpleType: Float
+                  CodeReferenceElement: Float
+                    PsiElement(identifier)('Float')
+              PsiElement(})('}')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -150,24 +151,25 @@ ScalaFile
           PsiElement(identifier)('F')
       TypeArgumentsList
         PsiElement([)('[')
-        CompoundType: {type A = Int}
-          Refinement
-            PsiElement({)('{')
-            ScTypeAliasDefinition: A
-              AnnotationsList
-                <empty list>
-              Modifiers
-                <empty list>
-              PsiElement(type)('type')
-              PsiWhiteSpace(' ')
-              PsiElement(identifier)('A')
-              PsiWhiteSpace(' ')
-              PsiElement(=)('=')
-              PsiWhiteSpace(' ')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
-            PsiElement(})('}')
+        TypeArgument
+          CompoundType: {type A = Int}
+            Refinement
+              PsiElement({)('{')
+              ScTypeAliasDefinition: A
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('A')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+              PsiElement(})('}')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')

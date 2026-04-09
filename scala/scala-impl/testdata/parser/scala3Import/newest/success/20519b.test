@@ -84,16 +84,18 @@ ScalaFile
                   PsiElement(identifier)('F')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: Option[A]
-                  SimpleType: Option
-                    CodeReferenceElement: Option
-                      PsiElement(identifier)('Option')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: A
-                      CodeReferenceElement: A
-                        PsiElement(identifier)('A')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: Option[A]
+                    SimpleType: Option
+                      CodeReferenceElement: Option
+                        PsiElement(identifier)('Option')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                      PsiElement(])(']')
                 PsiElement(])(']')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
@@ -112,9 +114,10 @@ ScalaFile
                   PsiElement(identifier)('TCl')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: F
-                  CodeReferenceElement: F
-                    PsiElement(identifier)('F')
+                TypeArgument
+                  SimpleType: F
+                    CodeReferenceElement: F
+                      PsiElement(identifier)('F')
                 PsiElement(])(']')
         PsiElement())(')')
     PsiElement(:)(':')
@@ -160,16 +163,18 @@ ScalaFile
           PsiElement(identifier)('F')
       TypeArgumentsList
         PsiElement([)('[')
-        ParametrizedType: Option[A]
-          SimpleType: Option
-            CodeReferenceElement: Option
-              PsiElement(identifier)('Option')
-          TypeArgumentsList
-            PsiElement([)('[')
-            SimpleType: A
-              CodeReferenceElement: A
-                PsiElement(identifier)('A')
-            PsiElement(])(']')
+        TypeArgument
+          ParametrizedType: Option[A]
+            SimpleType: Option
+              CodeReferenceElement: Option
+                PsiElement(identifier)('Option')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
+              PsiElement(])(']')
         PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScFunctionDefinition: main
@@ -198,43 +203,48 @@ ScalaFile
           PsiElement(identifier)('summon')
         TypeArgumentsList
           PsiElement([)('[')
-          InfixType: Result[Option, Int] =:= Option[Option[Int]]
-            ParametrizedType: Result[Option, Int]
-              SimpleType: Result
-                CodeReferenceElement: Result
-                  PsiElement(identifier)('Result')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: Option
-                  CodeReferenceElement: Option
-                    PsiElement(identifier)('Option')
-                PsiElement(,)(',')
-                PsiWhiteSpace(' ')
-                SimpleType: Int
-                  CodeReferenceElement: Int
-                    PsiElement(identifier)('Int')
-                PsiElement(])(']')
-            PsiWhiteSpace(' ')
-            CodeReferenceElement: =:=
-              PsiElement(identifier)('=:=')
-            PsiWhiteSpace(' ')
-            ParametrizedType: Option[Option[Int]]
-              SimpleType: Option
-                CodeReferenceElement: Option
-                  PsiElement(identifier)('Option')
-              TypeArgumentsList
-                PsiElement([)('[')
-                ParametrizedType: Option[Int]
-                  SimpleType: Option
-                    CodeReferenceElement: Option
-                      PsiElement(identifier)('Option')
-                  TypeArgumentsList
-                    PsiElement([)('[')
+          TypeArgument
+            InfixType: Result[Option, Int] =:= Option[Option[Int]]
+              ParametrizedType: Result[Option, Int]
+                SimpleType: Result
+                  CodeReferenceElement: Result
+                    PsiElement(identifier)('Result')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: Option
+                      CodeReferenceElement: Option
+                        PsiElement(identifier)('Option')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeArgument
                     SimpleType: Int
                       CodeReferenceElement: Int
                         PsiElement(identifier)('Int')
-                    PsiElement(])(']')
-                PsiElement(])(']')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Option[Option[Int]]
+                SimpleType: Option
+                  CodeReferenceElement: Option
+                    PsiElement(identifier)('Option')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    ParametrizedType: Option[Int]
+                      SimpleType: Option
+                        CodeReferenceElement: Option
+                          PsiElement(identifier)('Option')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                        PsiElement(])(']')
+                  PsiElement(])(']')
           PsiElement(])(']')
       PsiWhiteSpace('\n\n  ')
       ScPatternDefinition: ev
@@ -262,9 +272,10 @@ ScalaFile
                       PsiElement(identifier)('TCl')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Option
-                      CodeReferenceElement: Option
-                        PsiElement(identifier)('Option')
+                    TypeArgument
+                      SimpleType: Option
+                        CodeReferenceElement: Option
+                          PsiElement(identifier)('Option')
                     PsiElement(])(']')
             PsiWhiteSpace(' ')
             ScTemplateBody
@@ -289,14 +300,16 @@ ScalaFile
               PsiElement(identifier)('Result')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: Option
-              CodeReferenceElement: Option
-                PsiElement(identifier)('Option')
+            TypeArgument
+              SimpleType: Option
+                CodeReferenceElement: Option
+                  PsiElement(identifier)('Option')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
-            SimpleType: Int
-              CodeReferenceElement: Int
-                PsiElement(identifier)('Int')
+            TypeArgument
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
             PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiElement(=)('=')
@@ -335,16 +348,18 @@ ScalaFile
               PsiElement(identifier)('Option')
           TypeArgumentsList
             PsiElement([)('[')
-            ParametrizedType: Option[Int]
-              SimpleType: Option
-                CodeReferenceElement: Option
-                  PsiElement(identifier)('Option')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: Int
-                  CodeReferenceElement: Int
-                    PsiElement(identifier)('Int')
-                PsiElement(])(']')
+            TypeArgument
+              ParametrizedType: Option[Int]
+                SimpleType: Option
+                  CodeReferenceElement: Option
+                    PsiElement(identifier)('Option')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                  PsiElement(])(']')
             PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiElement(=)('=')

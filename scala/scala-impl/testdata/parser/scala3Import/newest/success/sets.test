@@ -43,9 +43,10 @@ ScalaFile
                 PsiElement(identifier)('List')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Symbol
-                  CodeReferenceElement: Symbol
-                    PsiElement(identifier)('Symbol')
+                TypeArgument
+                  SimpleType: Symbol
+                    CodeReferenceElement: Symbol
+                      PsiElement(identifier)('Symbol')
                 PsiElement(])(']')
             ArgumentList
               PsiElement(()('(')
@@ -69,9 +70,10 @@ ScalaFile
                 PsiElement(identifier)('Set')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Symbol
-                CodeReferenceElement: Symbol
-                  PsiElement(identifier)('Symbol')
+              TypeArgument
+                SimpleType: Symbol
+                  CodeReferenceElement: Symbol
+                    PsiElement(identifier)('Symbol')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -97,9 +99,10 @@ ScalaFile
                 PsiElement(identifier)('Set')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Symbol
-                CodeReferenceElement: Symbol
-                  PsiElement(identifier)('Symbol')
+              TypeArgument
+                SimpleType: Symbol
+                  CodeReferenceElement: Symbol
+                    PsiElement(identifier)('Symbol')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

@@ -120,9 +120,10 @@ ScalaFile
                                 PsiElement(identifier)('TailRec')
                             TypeArgumentsList
                               PsiElement([)('[')
-                              SimpleType: B
-                                CodeReferenceElement: B
-                                  PsiElement(identifier)('B')
+                              TypeArgument
+                                SimpleType: B
+                                  CodeReferenceElement: B
+                                    PsiElement(identifier)('B')
                               PsiElement(])(']')
                     PsiElement())(')')
                 PsiElement(:)(':')
@@ -133,9 +134,10 @@ ScalaFile
                       PsiElement(identifier)('TailRec')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: B
-                      CodeReferenceElement: B
-                        PsiElement(identifier)('B')
+                    TypeArgument
+                      SimpleType: B
+                        CodeReferenceElement: B
+                          PsiElement(identifier)('B')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')
@@ -233,12 +235,14 @@ ScalaFile
                                 PsiElement(identifier)('Cont')
                             TypeArgumentsList
                               PsiElement([)('[')
-                              TypeVariable: a1
-                                PsiElement(identifier)('a1')
+                              TypeArgument
+                                TypeVariable: a1
+                                  PsiElement(identifier)('a1')
                               PsiElement(,)(',')
                               PsiWhiteSpace(' ')
-                              TypeVariable: b1
-                                PsiElement(identifier)('b1')
+                              TypeArgument
+                                TypeVariable: b1
+                                  PsiElement(identifier)('b1')
                               PsiElement(])(']')
                       PsiWhiteSpace(' ')
                       PsiElement(=>)('=>')
@@ -325,28 +329,31 @@ ScalaFile
                       PsiElement(identifier)('Either')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    FunctionalType: () => TailRec[A]
-                      TypeInParenthesis: ()
-                        PsiElement(()('(')
-                        PsiElement())(')')
-                      PsiWhiteSpace(' ')
-                      PsiElement(=>)('=>')
-                      PsiWhiteSpace(' ')
-                      ParametrizedType: TailRec[A]
-                        SimpleType: TailRec
-                          CodeReferenceElement: TailRec
-                            PsiElement(identifier)('TailRec')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: A
-                            CodeReferenceElement: A
-                              PsiElement(identifier)('A')
-                          PsiElement(])(']')
+                    TypeArgument
+                      FunctionalType: () => TailRec[A]
+                        TypeInParenthesis: ()
+                          PsiElement(()('(')
+                          PsiElement())(')')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace(' ')
+                        ParametrizedType: TailRec[A]
+                          SimpleType: TailRec
+                            CodeReferenceElement: TailRec
+                              PsiElement(identifier)('TailRec')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: A
+                                CodeReferenceElement: A
+                                  PsiElement(identifier)('A')
+                            PsiElement(])(']')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    SimpleType: A
-                      CodeReferenceElement: A
-                        PsiElement(identifier)('A')
+                    TypeArgument
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')
@@ -845,9 +852,10 @@ ScalaFile
                             PsiElement(identifier)('TailRec')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: A
-                            CodeReferenceElement: A
-                              PsiElement(identifier)('A')
+                          TypeArgument
+                            SimpleType: A
+                              CodeReferenceElement: A
+                                PsiElement(identifier)('A')
                           PsiElement(])(']')
                 PsiElement())(')')
           PsiWhiteSpace(' ')
@@ -862,9 +870,10 @@ ScalaFile
                       PsiElement(identifier)('TailRec')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: A
-                      CodeReferenceElement: A
-                        PsiElement(identifier)('A')
+                    TypeArgument
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
                     PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScClass: Done
@@ -917,9 +926,10 @@ ScalaFile
                       PsiElement(identifier)('TailRec')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: A
-                      CodeReferenceElement: A
-                        PsiElement(identifier)('A')
+                    TypeArgument
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
                     PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScClass: Cont
@@ -966,9 +976,10 @@ ScalaFile
                           PsiElement(identifier)('TailRec')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: A
-                          CodeReferenceElement: A
-                            PsiElement(identifier)('A')
+                        TypeArgument
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
                         PsiElement(])(']')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
@@ -994,9 +1005,10 @@ ScalaFile
                             PsiElement(identifier)('TailRec')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: B
-                            CodeReferenceElement: B
-                              PsiElement(identifier)('B')
+                          TypeArgument
+                            SimpleType: B
+                              CodeReferenceElement: B
+                                PsiElement(identifier)('B')
                           PsiElement(])(']')
                 PsiElement())(')')
           PsiWhiteSpace(' ')
@@ -1011,9 +1023,10 @@ ScalaFile
                       PsiElement(identifier)('TailRec')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: B
-                      CodeReferenceElement: B
-                        PsiElement(identifier)('B')
+                    TypeArgument
+                      SimpleType: B
+                        CodeReferenceElement: B
+                          PsiElement(identifier)('B')
                     PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

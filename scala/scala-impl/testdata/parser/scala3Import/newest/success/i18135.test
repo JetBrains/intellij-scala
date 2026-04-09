@@ -240,9 +240,10 @@ ScalaFile
                       PsiElement(identifier)('implicitly')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Conf
-                        CodeReferenceElement: Conf
-                          PsiElement(identifier)('Conf')
+                      TypeArgument
+                        SimpleType: Conf
+                          CodeReferenceElement: Conf
+                            PsiElement(identifier)('Conf')
                       PsiElement(])(']')
                   PsiWhiteSpace(' ')
                   ReferenceExpression: !=
@@ -325,9 +326,10 @@ ScalaFile
                       PsiElement(identifier)('implicitly')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Conf
-                        CodeReferenceElement: Conf
-                          PsiElement(identifier)('Conf')
+                      TypeArgument
+                        SimpleType: Conf
+                          CodeReferenceElement: Conf
+                            PsiElement(identifier)('Conf')
                       PsiElement(])(']')
                   PsiWhiteSpace(' ')
                   ReferenceExpression: !=

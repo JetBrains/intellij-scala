@@ -337,9 +337,10 @@ ScalaFile
             PsiElement(identifier)('summon')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: TC
-              CodeReferenceElement: TC
-                PsiElement(identifier)('TC')
+            TypeArgument
+              SimpleType: TC
+                CodeReferenceElement: TC
+                  PsiElement(identifier)('TC')
             PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScPatternDefinition: top

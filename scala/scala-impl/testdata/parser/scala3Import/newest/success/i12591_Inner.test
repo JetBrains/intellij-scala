@@ -105,9 +105,10 @@ ScalaFile
                     PsiElement(identifier)('TC')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: T
-                    CodeReferenceElement: T
-                      PsiElement(identifier)('T')
+                  TypeArgument
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
                   PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(=)('=')
@@ -163,16 +164,18 @@ ScalaFile
             PsiElement(identifier)('summon')
           TypeArgumentsList
             PsiElement([)('[')
-            ParametrizedType: TC[Bar]
-              SimpleType: TC
-                CodeReferenceElement: TC
-                  PsiElement(identifier)('TC')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: Bar
-                  CodeReferenceElement: Bar
-                    PsiElement(identifier)('Bar')
-                PsiElement(])(']')
+            TypeArgument
+              ParametrizedType: TC[Bar]
+                SimpleType: TC
+                  CodeReferenceElement: TC
+                    PsiElement(identifier)('TC')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: Bar
+                      CodeReferenceElement: Bar
+                        PsiElement(identifier)('Bar')
+                  PsiElement(])(']')
             PsiElement(])(']')
   PsiWhiteSpace('\n  ')
   PsiComment(comment)('// was an ambiguous error, now OK, since the two references are the same')

@@ -157,14 +157,16 @@ ScalaFile
                 PsiElement(identifier)('FakeEnum')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: FakeEnumType
-                CodeReferenceElement: FakeEnumType
-                  PsiElement(identifier)('FakeEnumType')
+              TypeArgument
+                SimpleType: FakeEnumType
+                  CodeReferenceElement: FakeEnumType
+                    PsiElement(identifier)('FakeEnumType')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Short
-                CodeReferenceElement: Short
-                  PsiElement(identifier)('Short')
+              TypeArgument
+                SimpleType: Short
+                  CodeReferenceElement: Short
+                    PsiElement(identifier)('Short')
               PsiElement(])(']')
       PsiWhiteSpace('\n')
       ScTemplateBody

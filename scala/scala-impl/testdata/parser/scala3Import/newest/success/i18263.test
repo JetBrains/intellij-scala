@@ -188,11 +188,12 @@ ScalaFile
                 PsiElement(identifier)('Inv')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: bar.type
-                CodeReferenceElement: bar
-                  PsiElement(identifier)('bar')
-                PsiElement(.)('.')
-                PsiElement(type)('type')
+              TypeArgument
+                SimpleType: bar.type
+                  CodeReferenceElement: bar
+                    PsiElement(identifier)('bar')
+                  PsiElement(.)('.')
+                  PsiElement(type)('type')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

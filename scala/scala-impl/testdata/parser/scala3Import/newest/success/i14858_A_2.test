@@ -29,6 +29,7 @@ ScalaFile
           PsiElement(identifier)('C')
       TypeArgumentsList
         PsiElement([)('[')
-        WildcardType: ?
-          PsiElement(?)('?')
+        TypeArgument
+          WildcardType: ?
+            PsiElement(?)('?')
         PsiElement(])(']')

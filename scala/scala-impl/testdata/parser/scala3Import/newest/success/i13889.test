@@ -48,14 +48,16 @@ ScalaFile
                     PsiElement(identifier)('Map')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: String
-                    CodeReferenceElement: String
-                      PsiElement(identifier)('String')
+                  TypeArgument
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
-                  SimpleType: Any
-                    CodeReferenceElement: Any
-                      PsiElement(identifier)('Any')
+                  TypeArgument
+                    SimpleType: Any
+                      CodeReferenceElement: Any
+                        PsiElement(identifier)('Any')
                   PsiElement(])(']')
           PsiElement())(')')
     PsiWhiteSpace(' ')
@@ -199,9 +201,10 @@ ScalaFile
             PsiElement(identifier)('Seq')
         TypeArgumentsList
           PsiElement([)('[')
-          SimpleType: Stated
-            CodeReferenceElement: Stated
-              PsiElement(identifier)('Stated')
+          TypeArgument
+            SimpleType: Stated
+              CodeReferenceElement: Stated
+                PsiElement(identifier)('Stated')
           PsiElement(])(']')
       PsiWhiteSpace(' ')
       PsiElement(match)('match')
@@ -218,9 +221,10 @@ ScalaFile
                 PsiElement(identifier)('Seq')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Requirement
-                CodeReferenceElement: Requirement
-                  PsiElement(identifier)('Requirement')
+              TypeArgument
+                SimpleType: Requirement
+                  CodeReferenceElement: Requirement
+                    PsiElement(identifier)('Requirement')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=>)('=>')
@@ -279,19 +283,22 @@ ScalaFile
             PsiElement(identifier)('IncludeIf')
         TypeArgumentsList
           PsiElement([)('[')
-          SimpleType: Scopes
-            CodeReferenceElement: Scopes
-              PsiElement(identifier)('Scopes')
+          TypeArgument
+            SimpleType: Scopes
+              CodeReferenceElement: Scopes
+                PsiElement(identifier)('Scopes')
           PsiElement(,)(',')
           PsiWhiteSpace(' ')
-          LiteralType: "identify"
-            StringLiteral
-              PsiElement(string content)('"identify"')
+          TypeArgument
+            LiteralType: "identify"
+              StringLiteral
+                PsiElement(string content)('"identify"')
           PsiElement(,)(',')
           PsiWhiteSpace(' ')
-          SimpleType: IdentifyScope
-            CodeReferenceElement: IdentifyScope
-              PsiElement(identifier)('IdentifyScope')
+          TypeArgument
+            SimpleType: IdentifyScope
+              CodeReferenceElement: IdentifyScope
+                PsiElement(identifier)('IdentifyScope')
           PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScPatternDefinition: obj
@@ -312,9 +319,10 @@ ScalaFile
           PsiElement(identifier)('RawUser')
       TypeArgumentsList
         PsiElement([)('[')
-        LiteralType: "identify"
-          StringLiteral
-            PsiElement(string content)('"identify"')
+        TypeArgument
+          LiteralType: "identify"
+            StringLiteral
+              PsiElement(string content)('"identify"')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')

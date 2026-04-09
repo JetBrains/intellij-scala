@@ -203,9 +203,10 @@ ScalaFile
                 PsiElement(identifier)('Builder')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Args
-                CodeReferenceElement: Args
-                  PsiElement(identifier)('Args')
+              TypeArgument
+                SimpleType: Args
+                  CodeReferenceElement: Args
+                    PsiElement(identifier)('Args')
               PsiElement(])(']')
       PsiWhiteSpace(' ')
       ScTemplateBody
@@ -276,25 +277,26 @@ ScalaFile
           PsiElement(identifier)('BuilderImpl')
         TypeArgumentsList
           PsiElement([)('[')
-          InfixType: Int *: String *: EmptyTuple
-            SimpleType: Int
-              CodeReferenceElement: Int
-                PsiElement(identifier)('Int')
-            PsiWhiteSpace(' ')
-            CodeReferenceElement: *:
-              PsiElement(identifier)('*:')
-            PsiWhiteSpace(' ')
-            InfixType: String *: EmptyTuple
-              SimpleType: String
-                CodeReferenceElement: String
-                  PsiElement(identifier)('String')
+          TypeArgument
+            InfixType: Int *: String *: EmptyTuple
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
               PsiWhiteSpace(' ')
               CodeReferenceElement: *:
                 PsiElement(identifier)('*:')
               PsiWhiteSpace(' ')
-              SimpleType: EmptyTuple
-                CodeReferenceElement: EmptyTuple
-                  PsiElement(identifier)('EmptyTuple')
+              InfixType: String *: EmptyTuple
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: *:
+                  PsiElement(identifier)('*:')
+                PsiWhiteSpace(' ')
+                SimpleType: EmptyTuple
+                  CodeReferenceElement: EmptyTuple
+                    PsiElement(identifier)('EmptyTuple')
           PsiElement(])(']')
       ArgumentList
         PsiElement(()('(')

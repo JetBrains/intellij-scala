@@ -264,12 +264,13 @@ ScalaFile
                         PsiElement(identifier)('RecordLike')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: t.Out
-                        CodeReferenceElement: t.Out
-                          CodeReferenceElement: t
-                            PsiElement(identifier)('t')
-                          PsiElement(.)('.')
-                          PsiElement(identifier)('Out')
+                      TypeArgument
+                        SimpleType: t.Out
+                          CodeReferenceElement: t.Out
+                            CodeReferenceElement: t
+                              PsiElement(identifier)('t')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('Out')
                       PsiElement(])(']')
               PsiWhiteSpace('\n  ')
               PsiElement())(')')
@@ -431,9 +432,10 @@ ScalaFile
               PsiElement(identifier)('RecordLike')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: R
-              CodeReferenceElement: R
-                PsiElement(identifier)('R')
+            TypeArgument
+              SimpleType: R
+                CodeReferenceElement: R
+                  PsiElement(identifier)('R')
             PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiElement(=)('=')
@@ -447,47 +449,49 @@ ScalaFile
           TypeArgumentsList
             PsiElement([)('[')
             PsiWhiteSpace('\n    ')
-            CompoundType: RecordLike[R] {
+            TypeArgument
+              CompoundType: RecordLike[R] {
       type ElemTypes = String *: EmptyTuple
     }
-              ParametrizedType: RecordLike[R]
-                SimpleType: RecordLike
-                  CodeReferenceElement: RecordLike
-                    PsiElement(identifier)('RecordLike')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: R
-                    CodeReferenceElement: R
-                      PsiElement(identifier)('R')
-                  PsiElement(])(']')
-              PsiWhiteSpace(' ')
-              Refinement
-                PsiElement({)('{')
-                PsiWhiteSpace('\n      ')
-                ScTypeAliasDefinition: ElemTypes
-                  AnnotationsList
-                    <empty list>
-                  Modifiers
-                    <empty list>
-                  PsiElement(type)('type')
-                  PsiWhiteSpace(' ')
-                  PsiElement(identifier)('ElemTypes')
-                  PsiWhiteSpace(' ')
-                  PsiElement(=)('=')
-                  PsiWhiteSpace(' ')
-                  InfixType: String *: EmptyTuple
-                    SimpleType: String
-                      CodeReferenceElement: String
-                        PsiElement(identifier)('String')
+                ParametrizedType: RecordLike[R]
+                  SimpleType: RecordLike
+                    CodeReferenceElement: RecordLike
+                      PsiElement(identifier)('RecordLike')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: R
+                        CodeReferenceElement: R
+                          PsiElement(identifier)('R')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                Refinement
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n      ')
+                  ScTypeAliasDefinition: ElemTypes
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(type)('type')
                     PsiWhiteSpace(' ')
-                    CodeReferenceElement: *:
-                      PsiElement(identifier)('*:')
+                    PsiElement(identifier)('ElemTypes')
                     PsiWhiteSpace(' ')
-                    SimpleType: EmptyTuple
-                      CodeReferenceElement: EmptyTuple
-                        PsiElement(identifier)('EmptyTuple')
-                PsiWhiteSpace('\n    ')
-                PsiElement(})('}')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    InfixType: String *: EmptyTuple
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: *:
+                        PsiElement(identifier)('*:')
+                      PsiWhiteSpace(' ')
+                      SimpleType: EmptyTuple
+                        CodeReferenceElement: EmptyTuple
+                          PsiElement(identifier)('EmptyTuple')
+                  PsiWhiteSpace('\n    ')
+                  PsiElement(})('}')
             PsiWhiteSpace('\n  ')
             PsiElement(])(']')
       PsiWhiteSpace('\n\n  ')

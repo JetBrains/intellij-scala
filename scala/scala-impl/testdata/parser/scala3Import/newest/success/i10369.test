@@ -109,9 +109,10 @@ ScalaFile
               PsiElement(identifier)('Upgrade')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: t
-              CodeReferenceElement: t
-                PsiElement(identifier)('t')
+            TypeArgument
+              SimpleType: t
+                CodeReferenceElement: t
+                  PsiElement(identifier)('t')
             PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')

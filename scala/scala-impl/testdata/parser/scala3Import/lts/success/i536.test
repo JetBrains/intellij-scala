@@ -85,9 +85,10 @@ ScalaFile
                 PsiElement(identifier)('Comp')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: C
-                CodeReferenceElement: C
-                  PsiElement(identifier)('C')
+              TypeArgument
+                SimpleType: C
+                  CodeReferenceElement: C
+                    PsiElement(identifier)('C')
               PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScObject: Max
@@ -124,14 +125,15 @@ ScalaFile
                     PsiElement(identifier)('Comp')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  WildcardType: _ >: M
-                    PsiElement(_)('_')
-                    PsiWhiteSpace(' ')
-                    PsiElement(>:)('>:')
-                    PsiWhiteSpace(' ')
-                    SimpleType: M
-                      CodeReferenceElement: M
-                        PsiElement(identifier)('M')
+                  TypeArgument
+                    WildcardType: _ >: M
+                      PsiElement(_)('_')
+                      PsiWhiteSpace(' ')
+                      PsiElement(>:)('>:')
+                      PsiWhiteSpace(' ')
+                      SimpleType: M
+                        CodeReferenceElement: M
+                          PsiElement(identifier)('M')
                   PsiElement(])(']')
             PsiElement(])(']')
           Parameters
@@ -152,14 +154,15 @@ ScalaFile
                         PsiElement(identifier)('Coll')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      WildcardType: _ <: M
-                        PsiElement(_)('_')
-                        PsiWhiteSpace(' ')
-                        PsiElement(<:)('<:')
-                        PsiWhiteSpace(' ')
-                        SimpleType: M
-                          CodeReferenceElement: M
-                            PsiElement(identifier)('M')
+                      TypeArgument
+                        WildcardType: _ <: M
+                          PsiElement(_)('_')
+                          PsiWhiteSpace(' ')
+                          PsiElement(<:)('<:')
+                          PsiWhiteSpace(' ')
+                          SimpleType: M
+                            CodeReferenceElement: M
+                              PsiElement(identifier)('M')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -204,14 +207,15 @@ ScalaFile
                         PsiElement(identifier)('Coll')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      WildcardType: _ <: M
-                        PsiElement(_)('_')
-                        PsiWhiteSpace(' ')
-                        PsiElement(<:)('<:')
-                        PsiWhiteSpace(' ')
-                        SimpleType: M
-                          CodeReferenceElement: M
-                            PsiElement(identifier)('M')
+                      TypeArgument
+                        WildcardType: _ <: M
+                          PsiElement(_)('_')
+                          PsiWhiteSpace(' ')
+                          PsiElement(<:)('<:')
+                          PsiWhiteSpace(' ')
+                          SimpleType: M
+                            CodeReferenceElement: M
+                              PsiElement(identifier)('M')
                       PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
@@ -257,9 +261,10 @@ ScalaFile
                 PsiElement(identifier)('Coll')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: C
-                CodeReferenceElement: C
-                  PsiElement(identifier)('C')
+              TypeArgument
+                SimpleType: C
+                  CodeReferenceElement: C
+                    PsiElement(identifier)('C')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

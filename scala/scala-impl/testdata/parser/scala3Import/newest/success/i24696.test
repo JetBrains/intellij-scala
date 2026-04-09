@@ -96,9 +96,10 @@ ScalaFile
                           PsiElement(identifier)('Schema')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: A
-                          CodeReferenceElement: A
-                            PsiElement(identifier)('A')
+                        TypeArgument
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
                         PsiElement(])(']')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
@@ -117,9 +118,10 @@ ScalaFile
                           PsiElement(identifier)('Schema')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: B
-                          CodeReferenceElement: B
-                            PsiElement(identifier)('B')
+                        TypeArgument
+                          SimpleType: B
+                            CodeReferenceElement: B
+                              PsiElement(identifier)('B')
                         PsiElement(])(']')
                 PsiElement())(')')
           PsiWhiteSpace(' ')
@@ -134,27 +136,30 @@ ScalaFile
                       PsiElement(identifier)('Schema')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    ParametrizedType: scala.util.Either[A, B]
-                      SimpleType: scala.util.Either
-                        CodeReferenceElement: scala.util.Either
-                          CodeReferenceElement: scala.util
-                            CodeReferenceElement: scala
-                              PsiElement(identifier)('scala')
+                    TypeArgument
+                      ParametrizedType: scala.util.Either[A, B]
+                        SimpleType: scala.util.Either
+                          CodeReferenceElement: scala.util.Either
+                            CodeReferenceElement: scala.util
+                              CodeReferenceElement: scala
+                                PsiElement(identifier)('scala')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('util')
                             PsiElement(.)('.')
-                            PsiElement(identifier)('util')
-                          PsiElement(.)('.')
-                          PsiElement(identifier)('Either')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        SimpleType: A
-                          CodeReferenceElement: A
-                            PsiElement(identifier)('A')
-                        PsiElement(,)(',')
-                        PsiWhiteSpace(' ')
-                        SimpleType: B
-                          CodeReferenceElement: B
-                            PsiElement(identifier)('B')
-                        PsiElement(])(']')
+                            PsiElement(identifier)('Either')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: A
+                              CodeReferenceElement: A
+                                PsiElement(identifier)('A')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            SimpleType: B
+                              CodeReferenceElement: B
+                                PsiElement(identifier)('B')
+                          PsiElement(])(']')
                     PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScTrait: DecodeError
@@ -315,9 +320,10 @@ ScalaFile
                         PsiElement(identifier)('Schema')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -328,14 +334,16 @@ ScalaFile
                 PsiElement(identifier)('Either')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: DecodeError
-                CodeReferenceElement: DecodeError
-                  PsiElement(identifier)('DecodeError')
+              TypeArgument
+                SimpleType: DecodeError
+                  CodeReferenceElement: DecodeError
+                    PsiElement(identifier)('DecodeError')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

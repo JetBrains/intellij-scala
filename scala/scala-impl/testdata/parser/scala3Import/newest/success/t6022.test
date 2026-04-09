@@ -83,8 +83,9 @@ ScalaFile
                         PsiElement(identifier)('Option')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      TypeVariable: _
-                        PsiElement(_)('_')
+                      TypeArgument
+                        TypeVariable: _
+                          PsiElement(_)('_')
                       PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(=>)('=>')

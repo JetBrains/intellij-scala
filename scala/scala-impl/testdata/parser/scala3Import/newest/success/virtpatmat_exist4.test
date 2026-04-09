@@ -149,9 +149,10 @@ ScalaFile
                 PsiElement(identifier)('List')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: MemberHandler
-                CodeReferenceElement: MemberHandler
-                  PsiElement(identifier)('MemberHandler')
+              TypeArgument
+                SimpleType: MemberHandler
+                  CodeReferenceElement: MemberHandler
+                    PsiElement(identifier)('MemberHandler')
               PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
@@ -254,9 +255,10 @@ ScalaFile
                       PsiElement(identifier)('List')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Symbol
-                      CodeReferenceElement: Symbol
-                        PsiElement(identifier)('Symbol')
+                    TypeArgument
+                      SimpleType: Symbol
+                        CodeReferenceElement: Symbol
+                          PsiElement(identifier)('Symbol')
                     PsiElement(])(']')
               PsiWhiteSpace('\n  ')
               PsiElement(})('}')
@@ -449,8 +451,9 @@ ScalaFile
                 PsiElement(identifier)('Class')
             TypeArgumentsList
               PsiElement([)('[')
-              WildcardType: _
-                PsiElement(_)('_')
+              TypeArgument
+                WildcardType: _
+                  PsiElement(_)('_')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScFunctionDefinition: tvarString
@@ -479,9 +482,10 @@ ScalaFile
                         PsiElement(identifier)('List')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: AnyRef
-                        CodeReferenceElement: AnyRef
-                          PsiElement(identifier)('AnyRef')
+                      TypeArgument
+                        SimpleType: AnyRef
+                          CodeReferenceElement: AnyRef
+                            PsiElement(identifier)('AnyRef')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiWhiteSpace(' ')

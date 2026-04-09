@@ -39,19 +39,21 @@ ScalaFile
           PsiElement(identifier)('summon')
         TypeArgumentsList
           PsiElement([)('[')
-          ParametrizedType: Mirror.Of[F]
-            SimpleType: Mirror.Of
-              CodeReferenceElement: Mirror.Of
-                CodeReferenceElement: Mirror
-                  PsiElement(identifier)('Mirror')
-                PsiElement(.)('.')
-                PsiElement(identifier)('Of')
-            TypeArgumentsList
-              PsiElement([)('[')
-              SimpleType: F
-                CodeReferenceElement: F
-                  PsiElement(identifier)('F')
-              PsiElement(])(']')
+          TypeArgument
+            ParametrizedType: Mirror.Of[F]
+              SimpleType: Mirror.Of
+                CodeReferenceElement: Mirror.Of
+                  CodeReferenceElement: Mirror
+                    PsiElement(identifier)('Mirror')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Of')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: F
+                    CodeReferenceElement: F
+                      PsiElement(identifier)('F')
+                PsiElement(])(']')
           PsiElement(])(']')
       PsiWhiteSpace(' ')
       PsiComment(comment)('// ok')
@@ -61,19 +63,21 @@ ScalaFile
           PsiElement(identifier)('summon')
         TypeArgumentsList
           PsiElement([)('[')
-          ParametrizedType: Mirror.Of[G]
-            SimpleType: Mirror.Of
-              CodeReferenceElement: Mirror.Of
-                CodeReferenceElement: Mirror
-                  PsiElement(identifier)('Mirror')
-                PsiElement(.)('.')
-                PsiElement(identifier)('Of')
-            TypeArgumentsList
-              PsiElement([)('[')
-              SimpleType: G
-                CodeReferenceElement: G
-                  PsiElement(identifier)('G')
-              PsiElement(])(']')
+          TypeArgument
+            ParametrizedType: Mirror.Of[G]
+              SimpleType: Mirror.Of
+                CodeReferenceElement: Mirror.Of
+                  CodeReferenceElement: Mirror
+                    PsiElement(identifier)('Mirror')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Of')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: G
+                    CodeReferenceElement: G
+                      PsiElement(identifier)('G')
+                PsiElement(])(']')
           PsiElement(])(']')
       PsiWhiteSpace(' ')
       PsiComment(comment)('// was crash')
@@ -83,19 +87,21 @@ ScalaFile
           PsiElement(identifier)('summon')
         TypeArgumentsList
           PsiElement([)('[')
-          ParametrizedType: Mirror.Of[H]
-            SimpleType: Mirror.Of
-              CodeReferenceElement: Mirror.Of
-                CodeReferenceElement: Mirror
-                  PsiElement(identifier)('Mirror')
-                PsiElement(.)('.')
-                PsiElement(identifier)('Of')
-            TypeArgumentsList
-              PsiElement([)('[')
-              SimpleType: H
-                CodeReferenceElement: H
-                  PsiElement(identifier)('H')
-              PsiElement(])(']')
+          TypeArgument
+            ParametrizedType: Mirror.Of[H]
+              SimpleType: Mirror.Of
+                CodeReferenceElement: Mirror.Of
+                  CodeReferenceElement: Mirror
+                    PsiElement(identifier)('Mirror')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Of')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: H
+                    CodeReferenceElement: H
+                      PsiElement(identifier)('H')
+                PsiElement(])(']')
           PsiElement(])(']')
       PsiWhiteSpace(' ')
       PsiComment(comment)('// was crash')
@@ -105,19 +111,21 @@ ScalaFile
           PsiElement(identifier)('summon')
         TypeArgumentsList
           PsiElement([)('[')
-          ParametrizedType: Mirror.Of[I]
-            SimpleType: Mirror.Of
-              CodeReferenceElement: Mirror.Of
-                CodeReferenceElement: Mirror
-                  PsiElement(identifier)('Mirror')
-                PsiElement(.)('.')
-                PsiElement(identifier)('Of')
-            TypeArgumentsList
-              PsiElement([)('[')
-              SimpleType: I
-                CodeReferenceElement: I
-                  PsiElement(identifier)('I')
-              PsiElement(])(']')
+          TypeArgument
+            ParametrizedType: Mirror.Of[I]
+              SimpleType: Mirror.Of
+                CodeReferenceElement: Mirror.Of
+                  CodeReferenceElement: Mirror
+                    PsiElement(identifier)('Mirror')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Of')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: I
+                    CodeReferenceElement: I
+                      PsiElement(identifier)('I')
+                PsiElement(])(']')
           PsiElement(])(']')
   PsiWhiteSpace(' ')
   PsiComment(comment)('// was crash')

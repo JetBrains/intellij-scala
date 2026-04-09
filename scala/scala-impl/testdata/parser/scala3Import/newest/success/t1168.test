@@ -136,9 +136,10 @@ ScalaFile
                               PsiElement(identifier)('isInstanceOf')
                             TypeArgumentsList
                               PsiElement([)('[')
-                              SimpleType: SpecialException
-                                CodeReferenceElement: SpecialException
-                                  PsiElement(identifier)('SpecialException')
+                              TypeArgument
+                                SimpleType: SpecialException
+                                  CodeReferenceElement: SpecialException
+                                    PsiElement(identifier)('SpecialException')
                               PsiElement(])(']')
                           PsiElement())(')')
                       PsiWhiteSpace('\n    ')
@@ -177,9 +178,10 @@ ScalaFile
                               PsiElement(identifier)('isInstanceOf')
                             TypeArgumentsList
                               PsiElement([)('[')
-                              SimpleType: Exception
-                                CodeReferenceElement: Exception
-                                  PsiElement(identifier)('Exception')
+                              TypeArgument
+                                SimpleType: Exception
+                                  CodeReferenceElement: Exception
+                                    PsiElement(identifier)('Exception')
                               PsiElement(])(']')
                           PsiElement())(')')
                       PsiWhiteSpace('\n    ')

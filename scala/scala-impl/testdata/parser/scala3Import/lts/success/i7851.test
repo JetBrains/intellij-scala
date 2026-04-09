@@ -82,9 +82,10 @@ ScalaFile
                 PsiElement(identifier)('Wrappable')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Float
-                CodeReferenceElement: Float
-                  PsiElement(identifier)('Float')
+              TypeArgument
+                SimpleType: Float
+                  CodeReferenceElement: Float
+                    PsiElement(identifier)('Float')
               PsiElement(])(']')
       PsiWhiteSpace(' ')
       PsiElement(with)('with')
@@ -226,9 +227,10 @@ ScalaFile
                   PsiElement(identifier)('Wrapper')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: T
-                  CodeReferenceElement: T
-                    PsiElement(identifier)('T')
+                TypeArgument
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             Refinement
@@ -271,9 +273,10 @@ ScalaFile
                 PsiElement(identifier)('Wrapper')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: EmptyTuple
-                CodeReferenceElement: EmptyTuple
-                  PsiElement(identifier)('EmptyTuple')
+              TypeArgument
+                SimpleType: EmptyTuple
+                  CodeReferenceElement: EmptyTuple
+                    PsiElement(identifier)('EmptyTuple')
               PsiElement(])(']')
       PsiWhiteSpace(' ')
       PsiElement(with)('with')
@@ -329,9 +332,10 @@ ScalaFile
                 PsiElement(identifier)('Wrapper')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
       PsiWhiteSpace(' ')
       PsiElement(with)('with')
@@ -356,9 +360,10 @@ ScalaFile
                 PsiElement(identifier)('Wrapped')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiElement(})('}')
@@ -417,14 +422,16 @@ ScalaFile
                   PsiElement(identifier)('Aux')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: T
-                  CodeReferenceElement: T
-                    PsiElement(identifier)('T')
+                TypeArgument
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: WrappedT0
-                  CodeReferenceElement: WrappedT0
-                    PsiElement(identifier)('WrappedT0')
+                TypeArgument
+                  SimpleType: WrappedT0
+                    CodeReferenceElement: WrappedT0
+                      PsiElement(identifier)('WrappedT0')
                 PsiElement(])(']')
         PsiElement())(')')
     PsiElement(:)(':')
@@ -438,17 +445,18 @@ ScalaFile
                 PsiElement(identifier)('Wrapper')
             TypeArgumentsList
               PsiElement([)('[')
-              InfixType: H *: T
-                SimpleType: H
-                  CodeReferenceElement: H
-                    PsiElement(identifier)('H')
-                PsiWhiteSpace(' ')
-                CodeReferenceElement: *:
-                  PsiElement(identifier)('*:')
-                PsiWhiteSpace(' ')
-                SimpleType: T
-                  CodeReferenceElement: T
-                    PsiElement(identifier)('T')
+              TypeArgument
+                InfixType: H *: T
+                  SimpleType: H
+                    CodeReferenceElement: H
+                      PsiElement(identifier)('H')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: *:
+                    PsiElement(identifier)('*:')
+                  PsiWhiteSpace(' ')
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
               PsiElement(])(']')
       PsiWhiteSpace(' ')
       PsiElement(with)('with')
@@ -474,9 +482,10 @@ ScalaFile
                   PsiElement(identifier)('Wrapped')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: H
-                  CodeReferenceElement: H
-                    PsiElement(identifier)('H')
+                TypeArgument
+                  SimpleType: H
+                    CodeReferenceElement: H
+                      PsiElement(identifier)('H')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             CodeReferenceElement: *:
@@ -586,28 +595,31 @@ ScalaFile
                   PsiElement(identifier)('TupledFunction')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: F
-                  CodeReferenceElement: F
-                    PsiElement(identifier)('F')
+                TypeArgument
+                  SimpleType: F
+                    CodeReferenceElement: F
+                      PsiElement(identifier)('F')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                FunctionalType: WrapperFArgs => Wrapped[R]
-                  SimpleType: WrapperFArgs
-                    CodeReferenceElement: WrapperFArgs
-                      PsiElement(identifier)('WrapperFArgs')
-                  PsiWhiteSpace(' ')
-                  PsiElement(=>)('=>')
-                  PsiWhiteSpace(' ')
-                  ParametrizedType: Wrapped[R]
-                    SimpleType: Wrapped
-                      CodeReferenceElement: Wrapped
-                        PsiElement(identifier)('Wrapped')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: R
-                        CodeReferenceElement: R
-                          PsiElement(identifier)('R')
-                      PsiElement(])(']')
+                TypeArgument
+                  FunctionalType: WrapperFArgs => Wrapped[R]
+                    SimpleType: WrapperFArgs
+                      CodeReferenceElement: WrapperFArgs
+                        PsiElement(identifier)('WrapperFArgs')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    ParametrizedType: Wrapped[R]
+                      SimpleType: Wrapped
+                        CodeReferenceElement: Wrapped
+                          PsiElement(identifier)('Wrapped')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: R
+                            CodeReferenceElement: R
+                              PsiElement(identifier)('R')
+                        PsiElement(])(']')
                 PsiElement(])(']')
         PsiElement(,)(',')
         PsiWhiteSpace('\n  ')
@@ -629,14 +641,16 @@ ScalaFile
                   PsiElement(identifier)('Aux')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: FArgs
-                  CodeReferenceElement: FArgs
-                    PsiElement(identifier)('FArgs')
+                TypeArgument
+                  SimpleType: FArgs
+                    CodeReferenceElement: FArgs
+                      PsiElement(identifier)('FArgs')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: WrapperFArgs
-                  CodeReferenceElement: WrapperFArgs
-                    PsiElement(identifier)('WrapperFArgs')
+                TypeArgument
+                  SimpleType: WrapperFArgs
+                    CodeReferenceElement: WrapperFArgs
+                      PsiElement(identifier)('WrapperFArgs')
                 PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement())(')')
@@ -663,9 +677,10 @@ ScalaFile
                 PsiElement(identifier)('Option')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: FArgs
-                CodeReferenceElement: FArgs
-                  PsiElement(identifier)('FArgs')
+              TypeArgument
+                SimpleType: FArgs
+                  CodeReferenceElement: FArgs
+                    PsiElement(identifier)('FArgs')
               PsiElement(])(']')
       PsiElement())(')')
     PsiWhiteSpace(' ')
@@ -695,9 +710,10 @@ ScalaFile
             PsiElement(identifier)('asInstanceOf')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: WrapperFArgs
-              CodeReferenceElement: WrapperFArgs
-                PsiElement(identifier)('WrapperFArgs')
+            TypeArgument
+              SimpleType: WrapperFArgs
+                CodeReferenceElement: WrapperFArgs
+                  PsiElement(identifier)('WrapperFArgs')
             PsiElement(])(']')
       PsiWhiteSpace(' ')
       PsiComment(comment)('// This is not correct but it's ok for the sake of this example.')
@@ -808,9 +824,10 @@ ScalaFile
                         PsiElement(identifier)('Wrapped')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Float
-                        CodeReferenceElement: Float
-                          PsiElement(identifier)('Float')
+                      TypeArgument
+                        SimpleType: Float
+                          CodeReferenceElement: Float
+                            PsiElement(identifier)('Float')
                       PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
@@ -829,9 +846,10 @@ ScalaFile
                         PsiElement(identifier)('Wrapped')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Float
-                        CodeReferenceElement: Float
-                          PsiElement(identifier)('Float')
+                      TypeArgument
+                        SimpleType: Float
+                          CodeReferenceElement: Float
+                            PsiElement(identifier)('Float')
                       PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
@@ -850,9 +868,10 @@ ScalaFile
                         PsiElement(identifier)('Wrapped')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Float
-                        CodeReferenceElement: Float
-                          PsiElement(identifier)('Float')
+                      TypeArgument
+                        SimpleType: Float
+                          CodeReferenceElement: Float
+                            PsiElement(identifier)('Float')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -863,9 +882,10 @@ ScalaFile
                 PsiElement(identifier)('Wrapped')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Float
-                CodeReferenceElement: Float
-                  PsiElement(identifier)('Float')
+              TypeArgument
+                SimpleType: Float
+                  CodeReferenceElement: Float
+                    PsiElement(identifier)('Float')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -900,9 +920,10 @@ ScalaFile
                       PsiElement(identifier)('Wrapped')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Float
-                      CodeReferenceElement: Float
-                        PsiElement(identifier)('Float')
+                    TypeArgument
+                      SimpleType: Float
+                        CodeReferenceElement: Float
+                          PsiElement(identifier)('Float')
                     PsiElement(])(']')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
@@ -912,9 +933,10 @@ ScalaFile
                       PsiElement(identifier)('Wrapped')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Float
-                      CodeReferenceElement: Float
-                        PsiElement(identifier)('Float')
+                    TypeArgument
+                      SimpleType: Float
+                        CodeReferenceElement: Float
+                          PsiElement(identifier)('Float')
                     PsiElement(])(']')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
@@ -924,9 +946,10 @@ ScalaFile
                       PsiElement(identifier)('Wrapped')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Float
-                      CodeReferenceElement: Float
-                        PsiElement(identifier)('Float')
+                    TypeArgument
+                      SimpleType: Float
+                        CodeReferenceElement: Float
+                          PsiElement(identifier)('Float')
                     PsiElement(])(']')
               PsiElement())(')')
             PsiWhiteSpace(' ')
@@ -938,9 +961,10 @@ ScalaFile
                   PsiElement(identifier)('Wrapped')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Float
-                  CodeReferenceElement: Float
-                    PsiElement(identifier)('Float')
+                TypeArgument
+                  SimpleType: Float
+                    CodeReferenceElement: Float
+                      PsiElement(identifier)('Float')
                 PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -1004,9 +1028,10 @@ ScalaFile
                         PsiElement(identifier)('Array')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: String
-                        CodeReferenceElement: String
-                          PsiElement(identifier)('String')
+                      TypeArgument
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -1041,9 +1066,10 @@ ScalaFile
                                 PsiElement(identifier)('Wrapped')
                             TypeArgumentsList
                               PsiElement([)('[')
-                              SimpleType: Float
-                                CodeReferenceElement: Float
-                                  PsiElement(identifier)('Float')
+                              TypeArgument
+                                SimpleType: Float
+                                  CodeReferenceElement: Float
+                                    PsiElement(identifier)('Float')
                               PsiElement(])(']')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
@@ -1053,9 +1079,10 @@ ScalaFile
                                 PsiElement(identifier)('Wrapped')
                             TypeArgumentsList
                               PsiElement([)('[')
-                              SimpleType: Float
-                                CodeReferenceElement: Float
-                                  PsiElement(identifier)('Float')
+                              TypeArgument
+                                SimpleType: Float
+                                  CodeReferenceElement: Float
+                                    PsiElement(identifier)('Float')
                               PsiElement(])(']')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
@@ -1065,9 +1092,10 @@ ScalaFile
                                 PsiElement(identifier)('Wrapped')
                             TypeArgumentsList
                               PsiElement([)('[')
-                              SimpleType: Float
-                                CodeReferenceElement: Float
-                                  PsiElement(identifier)('Float')
+                              TypeArgument
+                                SimpleType: Float
+                                  CodeReferenceElement: Float
+                                    PsiElement(identifier)('Float')
                               PsiElement(])(']')
                         PsiElement())(')')
                       PsiWhiteSpace(' ')
@@ -1079,9 +1107,10 @@ ScalaFile
                             PsiElement(identifier)('Wrapped')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: Float
-                            CodeReferenceElement: Float
-                              PsiElement(identifier)('Float')
+                          TypeArgument
+                            SimpleType: Float
+                              CodeReferenceElement: Float
+                                PsiElement(identifier)('Float')
                           PsiElement(])(']')
                   PsiElement())(')')
               ArgumentList

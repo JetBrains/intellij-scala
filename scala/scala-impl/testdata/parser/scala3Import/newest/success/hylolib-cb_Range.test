@@ -438,9 +438,10 @@ ScalaFile
                           PsiElement(identifier)('Comparable')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: Bound
-                          CodeReferenceElement: Bound
-                            PsiElement(identifier)('Bound')
+                        TypeArgument
+                          SimpleType: Bound
+                            CodeReferenceElement: Bound
+                              PsiElement(identifier)('Bound')
                         PsiElement(])(']')
                 PsiElement())(')')
             PsiWhiteSpace(' ')

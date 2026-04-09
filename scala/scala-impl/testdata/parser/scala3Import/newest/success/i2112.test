@@ -80,21 +80,23 @@ ScalaFile
                     PsiElement(identifier)('asInstanceOf')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    ParametrizedType: java.util.List[_]
-                      SimpleType: java.util.List
-                        CodeReferenceElement: java.util.List
-                          CodeReferenceElement: java.util
-                            CodeReferenceElement: java
-                              PsiElement(identifier)('java')
+                    TypeArgument
+                      ParametrizedType: java.util.List[_]
+                        SimpleType: java.util.List
+                          CodeReferenceElement: java.util.List
+                            CodeReferenceElement: java.util
+                              CodeReferenceElement: java
+                                PsiElement(identifier)('java')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('util')
                             PsiElement(.)('.')
-                            PsiElement(identifier)('util')
-                          PsiElement(.)('.')
-                          PsiElement(identifier)('List')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        WildcardType: _
-                          PsiElement(_)('_')
-                        PsiElement(])(']')
+                            PsiElement(identifier)('List')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            WildcardType: _
+                              PsiElement(_)('_')
+                          PsiElement(])(']')
                     PsiElement(])(']')
                 PsiElement(.)('.')
                 PsiElement(identifier)('asScala')

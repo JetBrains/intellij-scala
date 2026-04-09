@@ -169,9 +169,10 @@ ScalaFile
                     PsiElement(identifier)('Present')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: A
-                    CodeReferenceElement: A
-                      PsiElement(identifier)('A')
+                  TypeArgument
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
                   PsiElement(])(']')
             PsiElement())(')')
           PsiWhiteSpace(' ')
@@ -191,9 +192,10 @@ ScalaFile
                   PsiElement(identifier)('Present')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: A
-                  CodeReferenceElement: A
-                    PsiElement(identifier)('A')
+                TypeArgument
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
                 PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         Extension on Maybe[A]
@@ -222,9 +224,10 @@ ScalaFile
                         PsiElement(identifier)('Maybe')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiWhiteSpace(' ')
@@ -255,9 +258,10 @@ ScalaFile
                     PsiElement(identifier)('Maybe')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: B
-                    CodeReferenceElement: B
-                      PsiElement(identifier)('B')
+                  TypeArgument
+                    SimpleType: B
+                      CodeReferenceElement: B
+                        PsiElement(identifier)('B')
                   PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(=)('=')
@@ -307,9 +311,10 @@ ScalaFile
                   PsiElement(identifier)('isInstanceOf')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: Absent
-                    CodeReferenceElement: Absent
-                      PsiElement(identifier)('Absent')
+                  TypeArgument
+                    SimpleType: Absent
+                      CodeReferenceElement: Absent
+                        PsiElement(identifier)('Absent')
                   PsiElement(])(']')
             PsiWhiteSpace('\n  ')
             PsiElement(})('}')
@@ -383,16 +388,18 @@ ScalaFile
                     PsiElement(identifier)('Maybe')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  ParametrizedType: Maybe[Int]
-                    SimpleType: Maybe
-                      CodeReferenceElement: Maybe
-                        PsiElement(identifier)('Maybe')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: Int
-                        CodeReferenceElement: Int
-                          PsiElement(identifier)('Int')
-                      PsiElement(])(']')
+                  TypeArgument
+                    ParametrizedType: Maybe[Int]
+                      SimpleType: Maybe
+                        CodeReferenceElement: Maybe
+                          PsiElement(identifier)('Maybe')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                        PsiElement(])(']')
                   PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(=)('=')

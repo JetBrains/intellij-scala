@@ -110,14 +110,16 @@ ScalaFile
                 PsiElement(identifier)('FlatMap')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: EmptyTuple
-                CodeReferenceElement: EmptyTuple
-                  PsiElement(identifier)('EmptyTuple')
+              TypeArgument
+                SimpleType: EmptyTuple
+                  CodeReferenceElement: EmptyTuple
+                    PsiElement(identifier)('EmptyTuple')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Empty
-                CodeReferenceElement: Empty
-                  PsiElement(identifier)('Empty')
+              TypeArgument
+                SimpleType: Empty
+                  CodeReferenceElement: Empty
+                    PsiElement(identifier)('Empty')
               PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       ScPatternDefinition: a2
@@ -153,23 +155,25 @@ ScalaFile
                 PsiElement(identifier)('FlatMap')
             TypeArgumentsList
               PsiElement([)('[')
-              TupleType: (Int, String)
-                PsiElement(()('(')
-                TypesList
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: String
-                    CodeReferenceElement: String
-                      PsiElement(identifier)('String')
-                PsiElement())(')')
+              TypeArgument
+                TupleType: (Int, String)
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                  PsiElement())(')')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Empty
-                CodeReferenceElement: Empty
-                  PsiElement(identifier)('Empty')
+              TypeArgument
+                SimpleType: Empty
+                  CodeReferenceElement: Empty
+                    PsiElement(identifier)('Empty')
               PsiElement(])(']')
       PsiWhiteSpace('\n\n  ')
       ScPatternDefinition: b1
@@ -205,14 +209,16 @@ ScalaFile
                 PsiElement(identifier)('FlatMap')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: EmptyTuple
-                CodeReferenceElement: EmptyTuple
-                  PsiElement(identifier)('EmptyTuple')
+              TypeArgument
+                SimpleType: EmptyTuple
+                  CodeReferenceElement: EmptyTuple
+                    PsiElement(identifier)('EmptyTuple')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Tuple1
-                CodeReferenceElement: Tuple1
-                  PsiElement(identifier)('Tuple1')
+              TypeArgument
+                SimpleType: Tuple1
+                  CodeReferenceElement: Tuple1
+                    PsiElement(identifier)('Tuple1')
               PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       ScPatternDefinition: b2
@@ -257,23 +263,25 @@ ScalaFile
                 PsiElement(identifier)('FlatMap')
             TypeArgumentsList
               PsiElement([)('[')
-              TupleType: (Int, String)
-                PsiElement(()('(')
-                TypesList
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: String
-                    CodeReferenceElement: String
-                      PsiElement(identifier)('String')
-                PsiElement())(')')
+              TypeArgument
+                TupleType: (Int, String)
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                  PsiElement())(')')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Tuple1
-                CodeReferenceElement: Tuple1
-                  PsiElement(identifier)('Tuple1')
+              TypeArgument
+                SimpleType: Tuple1
+                  CodeReferenceElement: Tuple1
+                    PsiElement(identifier)('Tuple1')
               PsiElement(])(']')
       PsiWhiteSpace('\n\n  ')
       ScPatternDefinition: c1
@@ -309,14 +317,16 @@ ScalaFile
                 PsiElement(identifier)('FlatMap')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: EmptyTuple
-                CodeReferenceElement: EmptyTuple
-                  PsiElement(identifier)('EmptyTuple')
+              TypeArgument
+                SimpleType: EmptyTuple
+                  CodeReferenceElement: EmptyTuple
+                    PsiElement(identifier)('EmptyTuple')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Twice
-                CodeReferenceElement: Twice
-                  PsiElement(identifier)('Twice')
+              TypeArgument
+                SimpleType: Twice
+                  CodeReferenceElement: Twice
+                    PsiElement(identifier)('Twice')
               PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       ScPatternDefinition: c2
@@ -371,23 +381,25 @@ ScalaFile
                 PsiElement(identifier)('FlatMap')
             TypeArgumentsList
               PsiElement([)('[')
-              TupleType: (Int, String)
-                PsiElement(()('(')
-                TypesList
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: String
-                    CodeReferenceElement: String
-                      PsiElement(identifier)('String')
-                PsiElement())(')')
+              TypeArgument
+                TupleType: (Int, String)
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                  PsiElement())(')')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Twice
-                CodeReferenceElement: Twice
-                  PsiElement(identifier)('Twice')
+              TypeArgument
+                SimpleType: Twice
+                  CodeReferenceElement: Twice
+                    PsiElement(identifier)('Twice')
               PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       ScPatternDefinition: c3
@@ -416,9 +428,10 @@ ScalaFile
                   PsiElement(identifier)('List')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Int
-                  CodeReferenceElement: Int
-                    PsiElement(identifier)('Int')
+                TypeArgument
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
                 PsiElement(])(']')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
@@ -433,9 +446,10 @@ ScalaFile
                   PsiElement(identifier)('List')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: String
-                  CodeReferenceElement: String
-                    PsiElement(identifier)('String')
+                TypeArgument
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
                 PsiElement(])(']')
           PsiElement())(')')
         PsiWhiteSpace(' ')
@@ -456,46 +470,49 @@ ScalaFile
                 PsiElement(identifier)('FlatMap')
             TypeArgumentsList
               PsiElement([)('[')
-              TupleType: (Int, String)
-                PsiElement(()('(')
-                TypesList
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: String
-                    CodeReferenceElement: String
-                      PsiElement(identifier)('String')
-                PsiElement())(')')
-              PsiElement(,)(',')
-              PsiWhiteSpace(' ')
-              TypeLambda: [X] =>> (X, List[X])
-                TypeParameterClause
-                  PsiElement([)('[')
-                  TypeParameter: X
-                    PsiElement(identifier)('X')
-                  PsiElement(])(']')
-                PsiWhiteSpace(' ')
-                PsiElement(=>>)('=>>')
-                PsiWhiteSpace(' ')
-                TupleType: (X, List[X])
+              TypeArgument
+                TupleType: (Int, String)
                   PsiElement(()('(')
                   TypesList
-                    SimpleType: X
-                      CodeReferenceElement: X
-                        PsiElement(identifier)('X')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    ParametrizedType: List[X]
-                      SimpleType: List
-                        CodeReferenceElement: List
-                          PsiElement(identifier)('List')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        SimpleType: X
-                          CodeReferenceElement: X
-                            PsiElement(identifier)('X')
-                        PsiElement(])(']')
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
                   PsiElement())(')')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                TypeLambda: [X] =>> (X, List[X])
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: X
+                      PsiElement(identifier)('X')
+                    PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>>)('=>>')
+                  PsiWhiteSpace(' ')
+                  TupleType: (X, List[X])
+                    PsiElement(()('(')
+                    TypesList
+                      SimpleType: X
+                        CodeReferenceElement: X
+                          PsiElement(identifier)('X')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      ParametrizedType: List[X]
+                        SimpleType: List
+                          CodeReferenceElement: List
+                            PsiElement(identifier)('List')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: X
+                              CodeReferenceElement: X
+                                PsiElement(identifier)('X')
+                          PsiElement(])(']')
+                    PsiElement())(')')
               PsiElement(])(']')

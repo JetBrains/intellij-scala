@@ -183,11 +183,12 @@ ScalaFile
                             PsiElement(identifier)('YouAreYourself')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: s.type
-                            CodeReferenceElement: s
-                              PsiElement(identifier)('s')
-                            PsiElement(.)('.')
-                            PsiElement(type)('type')
+                          TypeArgument
+                            SimpleType: s.type
+                              CodeReferenceElement: s
+                                PsiElement(identifier)('s')
+                              PsiElement(.)('.')
+                              PsiElement(type)('type')
                           PsiElement(])(']')
                       ArgumentList
                         PsiElement(()('(')

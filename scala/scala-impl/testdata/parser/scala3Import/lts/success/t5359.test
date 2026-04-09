@@ -133,9 +133,10 @@ ScalaFile
                       PsiElement(identifier)('Step')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: F
-                      CodeReferenceElement: F
-                        PsiElement(identifier)('F')
+                    TypeArgument
+                      SimpleType: F
+                        CodeReferenceElement: F
+                          PsiElement(identifier)('F')
                     PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         PsiComment(comment)('// okay')
@@ -154,9 +155,10 @@ ScalaFile
                     PsiElement(identifier)('Step')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: Option
-                    CodeReferenceElement: Option
-                      PsiElement(identifier)('Option')
+                  TypeArgument
+                    SimpleType: Option
+                      CodeReferenceElement: Option
+                        PsiElement(identifier)('Option')
                   PsiElement(])(']')
             PsiElement())(')')
           PsiWhiteSpace(' ')

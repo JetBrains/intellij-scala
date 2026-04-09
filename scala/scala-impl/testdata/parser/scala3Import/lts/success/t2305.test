@@ -135,9 +135,10 @@ ScalaFile
                 PsiElement(identifier)('Bind')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: ArrayList
-                CodeReferenceElement: ArrayList
-                  PsiElement(identifier)('ArrayList')
+              TypeArgument
+                SimpleType: ArrayList
+                  CodeReferenceElement: ArrayList
+                    PsiElement(identifier)('ArrayList')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -154,9 +155,10 @@ ScalaFile
                         PsiElement(identifier)('Bind')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: ArrayList
-                        CodeReferenceElement: ArrayList
-                          PsiElement(identifier)('ArrayList')
+                      TypeArgument
+                        SimpleType: ArrayList
+                          CodeReferenceElement: ArrayList
+                            PsiElement(identifier)('ArrayList')
                       PsiElement(])(']')
               PsiWhiteSpace(' ')
               ScTemplateBody
@@ -182,9 +184,10 @@ ScalaFile
                 PsiElement(identifier)('Bind')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: MySerializable
-                CodeReferenceElement: MySerializable
-                  PsiElement(identifier)('MySerializable')
+              TypeArgument
+                SimpleType: MySerializable
+                  CodeReferenceElement: MySerializable
+                    PsiElement(identifier)('MySerializable')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -201,9 +204,10 @@ ScalaFile
                         PsiElement(identifier)('Bind')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: MySerializable
-                        CodeReferenceElement: MySerializable
-                          PsiElement(identifier)('MySerializable')
+                      TypeArgument
+                        SimpleType: MySerializable
+                          CodeReferenceElement: MySerializable
+                            PsiElement(identifier)('MySerializable')
                       PsiElement(])(']')
               PsiWhiteSpace(' ')
               ScTemplateBody
@@ -255,9 +259,10 @@ ScalaFile
                         PsiElement(identifier)('Bind')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: MySerializable
-                        CodeReferenceElement: MySerializable
-                          PsiElement(identifier)('MySerializable')
+                      TypeArgument
+                        SimpleType: MySerializable
+                          CodeReferenceElement: MySerializable
+                            PsiElement(identifier)('MySerializable')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -318,9 +323,10 @@ ScalaFile
                         PsiElement(identifier)('Bind')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: ArrayList
-                        CodeReferenceElement: ArrayList
-                          PsiElement(identifier)('ArrayList')
+                      TypeArgument
+                        SimpleType: ArrayList
+                          CodeReferenceElement: ArrayList
+                            PsiElement(identifier)('ArrayList')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')

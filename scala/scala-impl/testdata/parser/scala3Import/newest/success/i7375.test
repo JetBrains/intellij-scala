@@ -127,19 +127,22 @@ ScalaFile
                             PsiElement(identifier)('Entity')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: T
-                            CodeReferenceElement: T
-                              PsiElement(identifier)('T')
+                          TypeArgument
+                            SimpleType: T
+                              CodeReferenceElement: T
+                                PsiElement(identifier)('T')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
-                          SimpleType: M
-                            CodeReferenceElement: M
-                              PsiElement(identifier)('M')
+                          TypeArgument
+                            SimpleType: M
+                              CodeReferenceElement: M
+                                PsiElement(identifier)('M')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
-                          SimpleType: P
-                            CodeReferenceElement: P
-                              PsiElement(identifier)('P')
+                          TypeArgument
+                            SimpleType: P
+                              CodeReferenceElement: P
+                                PsiElement(identifier)('P')
                           PsiElement(])(']')
                   PsiElement())(')')
               PsiElement(:)(':')
@@ -256,19 +259,22 @@ ScalaFile
                       PsiElement(identifier)('Entity')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: GreetingPerson
-                      CodeReferenceElement: GreetingPerson
-                        PsiElement(identifier)('GreetingPerson')
+                    TypeArgument
+                      SimpleType: GreetingPerson
+                        CodeReferenceElement: GreetingPerson
+                          PsiElement(identifier)('GreetingPerson')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    SimpleType: GreetedPerson
-                      CodeReferenceElement: GreetedPerson
-                        PsiElement(identifier)('GreetedPerson')
+                    TypeArgument
+                      SimpleType: GreetedPerson
+                        CodeReferenceElement: GreetedPerson
+                          PsiElement(identifier)('GreetedPerson')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    SimpleType: String
-                      CodeReferenceElement: String
-                        PsiElement(identifier)('String')
+                    TypeArgument
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
                     PsiElement(])(']')
             ScTemplateBody
               PsiElement(:)(':')
@@ -345,19 +351,22 @@ ScalaFile
                                   PsiElement(identifier)('Entity')
                               TypeArgumentsList
                                 PsiElement([)('[')
-                                SimpleType: GreetedPerson
-                                  CodeReferenceElement: GreetedPerson
-                                    PsiElement(identifier)('GreetedPerson')
+                                TypeArgument
+                                  SimpleType: GreetedPerson
+                                    CodeReferenceElement: GreetedPerson
+                                      PsiElement(identifier)('GreetedPerson')
                                 PsiElement(,)(',')
                                 PsiWhiteSpace(' ')
-                                SimpleType: GreetingPerson
-                                  CodeReferenceElement: GreetingPerson
-                                    PsiElement(identifier)('GreetingPerson')
+                                TypeArgument
+                                  SimpleType: GreetingPerson
+                                    CodeReferenceElement: GreetingPerson
+                                      PsiElement(identifier)('GreetingPerson')
                                 PsiElement(,)(',')
                                 PsiWhiteSpace(' ')
-                                SimpleType: String
-                                  CodeReferenceElement: String
-                                    PsiElement(identifier)('String')
+                                TypeArgument
+                                  SimpleType: String
+                                    CodeReferenceElement: String
+                                      PsiElement(identifier)('String')
                                 PsiElement(])(']')
                         PsiElement())(')')
                     PsiElement(:)(':')
@@ -508,19 +517,22 @@ ScalaFile
                       PsiElement(identifier)('Entity')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: GreetedPerson
-                      CodeReferenceElement: GreetedPerson
-                        PsiElement(identifier)('GreetedPerson')
+                    TypeArgument
+                      SimpleType: GreetedPerson
+                        CodeReferenceElement: GreetedPerson
+                          PsiElement(identifier)('GreetedPerson')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    SimpleType: GreetingPerson
-                      CodeReferenceElement: GreetingPerson
-                        PsiElement(identifier)('GreetingPerson')
+                    TypeArgument
+                      SimpleType: GreetingPerson
+                        CodeReferenceElement: GreetingPerson
+                          PsiElement(identifier)('GreetingPerson')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    SimpleType: String
-                      CodeReferenceElement: String
-                        PsiElement(identifier)('String')
+                    TypeArgument
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
                     PsiElement(])(']')
             ScTemplateBody
               PsiElement(:)(':')
@@ -597,19 +609,22 @@ ScalaFile
                                   PsiElement(identifier)('Entity')
                               TypeArgumentsList
                                 PsiElement([)('[')
-                                SimpleType: GreetingPerson
-                                  CodeReferenceElement: GreetingPerson
-                                    PsiElement(identifier)('GreetingPerson')
+                                TypeArgument
+                                  SimpleType: GreetingPerson
+                                    CodeReferenceElement: GreetingPerson
+                                      PsiElement(identifier)('GreetingPerson')
                                 PsiElement(,)(',')
                                 PsiWhiteSpace(' ')
-                                SimpleType: GreetedPerson
-                                  CodeReferenceElement: GreetedPerson
-                                    PsiElement(identifier)('GreetedPerson')
+                                TypeArgument
+                                  SimpleType: GreetedPerson
+                                    CodeReferenceElement: GreetedPerson
+                                      PsiElement(identifier)('GreetedPerson')
                                 PsiElement(,)(',')
                                 PsiWhiteSpace(' ')
-                                SimpleType: String
-                                  CodeReferenceElement: String
-                                    PsiElement(identifier)('String')
+                                TypeArgument
+                                  SimpleType: String
+                                    CodeReferenceElement: String
+                                      PsiElement(identifier)('String')
                                 PsiElement(])(']')
                         PsiElement())(')')
                     PsiElement(:)(':')

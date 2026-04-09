@@ -32,9 +32,10 @@ ScalaFile
                   PsiElement(identifier)('classOf')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: AnyRef
-                    CodeReferenceElement: AnyRef
-                      PsiElement(identifier)('AnyRef')
+                  TypeArgument
+                    SimpleType: AnyRef
+                      CodeReferenceElement: AnyRef
+                        PsiElement(identifier)('AnyRef')
                   PsiElement(])(']')
               PsiElement())(')')
     Modifiers

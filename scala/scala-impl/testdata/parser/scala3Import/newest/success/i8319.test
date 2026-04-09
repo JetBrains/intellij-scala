@@ -84,9 +84,10 @@ ScalaFile
                   PsiElement(identifier)('Tree')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Any
-                  CodeReferenceElement: Any
-                    PsiElement(identifier)('Any')
+                TypeArgument
+                  SimpleType: Any
+                    CodeReferenceElement: Any
+                      PsiElement(identifier)('Any')
                 PsiElement(])(']')
     PsiWhiteSpace('\n')
     ScClass: App
@@ -127,9 +128,10 @@ ScalaFile
                   PsiElement(identifier)('Tree')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Any
-                  CodeReferenceElement: Any
-                    PsiElement(identifier)('Any')
+                TypeArgument
+                  SimpleType: Any
+                    CodeReferenceElement: Any
+                      PsiElement(identifier)('Any')
                 PsiElement(])(']')
     PsiWhiteSpace('\n')
     ScClass: Var
@@ -162,9 +164,10 @@ ScalaFile
                   PsiElement(identifier)('Tree')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Any
-                  CodeReferenceElement: Any
-                    PsiElement(identifier)('Any')
+                TypeArgument
+                  SimpleType: Any
+                    CodeReferenceElement: Any
+                      PsiElement(identifier)('Any')
                 PsiElement(])(']')
     PsiWhiteSpace('\n\n')
     ScObject: Branch
@@ -206,11 +209,13 @@ ScalaFile
                             PsiElement(identifier)('Lam')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          WildcardType: ?
-                            PsiElement(?)('?')
+                          TypeArgument
+                            WildcardType: ?
+                              PsiElement(?)('?')
                           PsiElement(,)(',')
-                          WildcardType: ?
-                            PsiElement(?)('?')
+                          TypeArgument
+                            WildcardType: ?
+                              PsiElement(?)('?')
                           PsiElement(])(']')
                       PsiWhiteSpace(' ')
                       CodeReferenceElement: |
@@ -222,11 +227,13 @@ ScalaFile
                             PsiElement(identifier)('App')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          WildcardType: ?
-                            PsiElement(?)('?')
+                          TypeArgument
+                            WildcardType: ?
+                              PsiElement(?)('?')
                           PsiElement(,)(',')
-                          WildcardType: ?
-                            PsiElement(?)('?')
+                          TypeArgument
+                            WildcardType: ?
+                              PsiElement(?)('?')
                           PsiElement(])(']')
                 PsiElement())(')')
             PsiElement(:)(':')
@@ -268,15 +275,17 @@ ScalaFile
                     PsiElement(identifier)('Option')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  ParametrizedType: Tree[?]
-                    SimpleType: Tree
-                      CodeReferenceElement: Tree
-                        PsiElement(identifier)('Tree')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      WildcardType: ?
-                        PsiElement(?)('?')
-                      PsiElement(])(']')
+                  TypeArgument
+                    ParametrizedType: Tree[?]
+                      SimpleType: Tree
+                        CodeReferenceElement: Tree
+                          PsiElement(identifier)('Tree')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          WildcardType: ?
+                            PsiElement(?)('?')
+                        PsiElement(])(']')
                   PsiElement(])(']')
           PsiElement())(')')
       PsiWhiteSpace(' ')

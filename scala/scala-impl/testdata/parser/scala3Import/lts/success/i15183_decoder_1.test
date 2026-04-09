@@ -78,9 +78,10 @@ ScalaFile
                 PsiElement(identifier)('Decoder')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Double
-                CodeReferenceElement: Double
-                  PsiElement(identifier)('Double')
+              TypeArgument
+                SimpleType: Double
+                  CodeReferenceElement: Double
+                    PsiElement(identifier)('Double')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -115,16 +116,18 @@ ScalaFile
                 PsiElement(identifier)('Map')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: EmptyTuple.type
-                CodeReferenceElement: EmptyTuple
-                  PsiElement(identifier)('EmptyTuple')
-                PsiElement(.)('.')
-                PsiElement(type)('type')
+              TypeArgument
+                SimpleType: EmptyTuple.type
+                  CodeReferenceElement: EmptyTuple
+                    PsiElement(identifier)('EmptyTuple')
+                  PsiElement(.)('.')
+                  PsiElement(type)('type')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Decoder
-                CodeReferenceElement: Decoder
-                  PsiElement(identifier)('Decoder')
+              TypeArgument
+                SimpleType: Decoder
+                  CodeReferenceElement: Decoder
+                    PsiElement(identifier)('Decoder')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -176,9 +179,10 @@ ScalaFile
                         PsiElement(identifier)('Decoder')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: H
-                        CodeReferenceElement: H
-                          PsiElement(identifier)('H')
+                      TypeArgument
+                        SimpleType: H
+                          CodeReferenceElement: H
+                            PsiElement(identifier)('H')
                       PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
@@ -200,14 +204,16 @@ ScalaFile
                         PsiElement(identifier)('Map')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: T
-                        CodeReferenceElement: T
-                          PsiElement(identifier)('T')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: Decoder
-                        CodeReferenceElement: Decoder
-                          PsiElement(identifier)('Decoder')
+                      TypeArgument
+                        SimpleType: Decoder
+                          CodeReferenceElement: Decoder
+                            PsiElement(identifier)('Decoder')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -221,22 +227,24 @@ ScalaFile
                 PsiElement(identifier)('Map')
             TypeArgumentsList
               PsiElement([)('[')
-              InfixType: H *: T
-                SimpleType: H
-                  CodeReferenceElement: H
-                    PsiElement(identifier)('H')
-                PsiWhiteSpace(' ')
-                CodeReferenceElement: *:
-                  PsiElement(identifier)('*:')
-                PsiWhiteSpace(' ')
-                SimpleType: T
-                  CodeReferenceElement: T
-                    PsiElement(identifier)('T')
+              TypeArgument
+                InfixType: H *: T
+                  SimpleType: H
+                    CodeReferenceElement: H
+                      PsiElement(identifier)('H')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: *:
+                    PsiElement(identifier)('*:')
+                  PsiWhiteSpace(' ')
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Decoder
-                CodeReferenceElement: Decoder
-                  PsiElement(identifier)('Decoder')
+              TypeArgument
+                SimpleType: Decoder
+                  CodeReferenceElement: Decoder
+                    PsiElement(identifier)('Decoder')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -288,9 +296,10 @@ ScalaFile
                         PsiElement(identifier)('Of')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: T
-                        CodeReferenceElement: T
-                          PsiElement(identifier)('T')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
                       PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
@@ -312,17 +321,19 @@ ScalaFile
                         PsiElement(identifier)('Map')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: m.MirroredElemTypes
-                        CodeReferenceElement: m.MirroredElemTypes
-                          CodeReferenceElement: m
-                            PsiElement(identifier)('m')
-                          PsiElement(.)('.')
-                          PsiElement(identifier)('MirroredElemTypes')
+                      TypeArgument
+                        SimpleType: m.MirroredElemTypes
+                          CodeReferenceElement: m.MirroredElemTypes
+                            CodeReferenceElement: m
+                              PsiElement(identifier)('m')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('MirroredElemTypes')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: Decoder
-                        CodeReferenceElement: Decoder
-                          PsiElement(identifier)('Decoder')
+                      TypeArgument
+                        SimpleType: Decoder
+                          CodeReferenceElement: Decoder
+                            PsiElement(identifier)('Decoder')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -333,9 +344,10 @@ ScalaFile
                 PsiElement(identifier)('Decoder')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

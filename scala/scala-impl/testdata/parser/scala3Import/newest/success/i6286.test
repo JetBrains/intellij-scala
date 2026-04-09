@@ -73,9 +73,10 @@ ScalaFile
                               PsiElement(identifier)('Array')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: T33
-                              CodeReferenceElement: T33
-                                PsiElement(identifier)('T33')
+                            TypeArgument
+                              SimpleType: T33
+                                CodeReferenceElement: T33
+                                  PsiElement(identifier)('T33')
                             PsiElement(])(']')
                         ArgumentList
                           PsiElement(()('(')

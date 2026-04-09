@@ -98,16 +98,18 @@ ScalaFile
                         PsiElement(identifier)('TC')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      ParametrizedType: ExtractPart[T]
-                        SimpleType: ExtractPart
-                          CodeReferenceElement: ExtractPart
-                            PsiElement(identifier)('ExtractPart')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: T
-                            CodeReferenceElement: T
-                              PsiElement(identifier)('T')
-                          PsiElement(])(']')
+                      TypeArgument
+                        ParametrizedType: ExtractPart[T]
+                          SimpleType: ExtractPart
+                            CodeReferenceElement: ExtractPart
+                              PsiElement(identifier)('ExtractPart')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: T
+                                CodeReferenceElement: T
+                                  PsiElement(identifier)('T')
+                            PsiElement(])(']')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -118,23 +120,26 @@ ScalaFile
                 PsiElement(identifier)('TC')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Option[ExtractPart[T]]
-                SimpleType: Option
-                  CodeReferenceElement: Option
-                    PsiElement(identifier)('Option')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  ParametrizedType: ExtractPart[T]
-                    SimpleType: ExtractPart
-                      CodeReferenceElement: ExtractPart
-                        PsiElement(identifier)('ExtractPart')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: T
-                        CodeReferenceElement: T
-                          PsiElement(identifier)('T')
-                      PsiElement(])(']')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Option[ExtractPart[T]]
+                  SimpleType: Option
+                    CodeReferenceElement: Option
+                      PsiElement(identifier)('Option')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      ParametrizedType: ExtractPart[T]
+                        SimpleType: ExtractPart
+                          CodeReferenceElement: ExtractPart
+                            PsiElement(identifier)('ExtractPart')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: T
+                              CodeReferenceElement: T
+                                PsiElement(identifier)('T')
+                          PsiElement(])(']')
+                    PsiElement(])(']')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -151,23 +156,26 @@ ScalaFile
                         PsiElement(identifier)('TC')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      ParametrizedType: Option[ExtractPart[T]]
-                        SimpleType: Option
-                          CodeReferenceElement: Option
-                            PsiElement(identifier)('Option')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          ParametrizedType: ExtractPart[T]
-                            SimpleType: ExtractPart
-                              CodeReferenceElement: ExtractPart
-                                PsiElement(identifier)('ExtractPart')
-                            TypeArgumentsList
-                              PsiElement([)('[')
-                              SimpleType: T
-                                CodeReferenceElement: T
-                                  PsiElement(identifier)('T')
-                              PsiElement(])(']')
-                          PsiElement(])(']')
+                      TypeArgument
+                        ParametrizedType: Option[ExtractPart[T]]
+                          SimpleType: Option
+                            CodeReferenceElement: Option
+                              PsiElement(identifier)('Option')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              ParametrizedType: ExtractPart[T]
+                                SimpleType: ExtractPart
+                                  CodeReferenceElement: ExtractPart
+                                    PsiElement(identifier)('ExtractPart')
+                                TypeArgumentsList
+                                  PsiElement([)('[')
+                                  TypeArgument
+                                    SimpleType: T
+                                      CodeReferenceElement: T
+                                        PsiElement(identifier)('T')
+                                  PsiElement(])(']')
+                            PsiElement(])(']')
                       PsiElement(])(']')
               PsiWhiteSpace(' ')
               ScTemplateBody
@@ -237,8 +245,9 @@ ScalaFile
                 PsiElement(identifier)('PartField')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeVariable: t
-                PsiElement(identifier)('t')
+              TypeArgument
+                TypeVariable: t
+                  PsiElement(identifier)('t')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=>)('=>')
@@ -385,9 +394,10 @@ ScalaFile
                 PsiElement(identifier)('TC')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Value
-                CodeReferenceElement: Value
-                  PsiElement(identifier)('Value')
+              TypeArgument
+                SimpleType: Value
+                  CodeReferenceElement: Value
+                    PsiElement(identifier)('Value')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -455,9 +465,10 @@ ScalaFile
             PsiElement(identifier)('optionTCForPart')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: ValuePartHolder
-              CodeReferenceElement: ValuePartHolder
-                PsiElement(identifier)('ValuePartHolder')
+            TypeArgument
+              SimpleType: ValuePartHolder
+                CodeReferenceElement: ValuePartHolder
+                  PsiElement(identifier)('ValuePartHolder')
             PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       MethodCall

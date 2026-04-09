@@ -53,9 +53,10 @@ ScalaFile
                     PsiElement(identifier)('Foo')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: A
-                    CodeReferenceElement: A
-                      PsiElement(identifier)('A')
+                  TypeArgument
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
                   PsiElement(])(']')
             PsiElement(])(']')
           PrimaryConstructor
@@ -102,9 +103,10 @@ ScalaFile
                       PsiElement(identifier)('Foo')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: A
-                      CodeReferenceElement: A
-                        PsiElement(identifier)('A')
+                    TypeArgument
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
                     PsiElement(])(']')
               PsiWhiteSpace('\n    ')
               ScFunctionDefinition: doThing
@@ -192,9 +194,10 @@ ScalaFile
                 PsiElement(identifier)('Seq')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: FooWrapper
-                CodeReferenceElement: FooWrapper
-                  PsiElement(identifier)('FooWrapper')
+              TypeArgument
+                SimpleType: FooWrapper
+                  CodeReferenceElement: FooWrapper
+                    PsiElement(identifier)('FooWrapper')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

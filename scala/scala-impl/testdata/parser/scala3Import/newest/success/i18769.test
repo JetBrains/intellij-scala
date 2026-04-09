@@ -76,9 +76,10 @@ ScalaFile
                 PsiElement(identifier)('Fx')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
@@ -165,9 +166,10 @@ ScalaFile
                         PsiElement(identifier)('Arb')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Fy
-                        CodeReferenceElement: Fy
-                          PsiElement(identifier)('Fy')
+                      TypeArgument
+                        SimpleType: Fy
+                          CodeReferenceElement: Fy
+                            PsiElement(identifier)('Fy')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -178,21 +180,24 @@ ScalaFile
                 PsiElement(identifier)('PartialFunction')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
+              TypeArgument
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              ParametrizedType: Fy[Int]
-                SimpleType: Fy
-                  CodeReferenceElement: Fy
-                    PsiElement(identifier)('Fy')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Fy[Int]
+                  SimpleType: Fy
+                    CodeReferenceElement: Fy
+                      PsiElement(identifier)('Fy')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                    PsiElement(])(']')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

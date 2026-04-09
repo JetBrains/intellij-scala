@@ -57,13 +57,15 @@ ScalaFile
               PsiElement(identifier)('TypedArray')
           TypeArgumentsList
             PsiElement([)('[')
-            WildcardType: _
-              PsiElement(_)('_')
+            TypeArgument
+              WildcardType: _
+                PsiElement(_)('_')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
-            SimpleType: T
-              CodeReferenceElement: T
-                PsiElement(identifier)('T')
+            TypeArgument
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
             PsiElement(])(']')
       PsiElement(])(']')
     PrimaryConstructor
@@ -137,24 +139,27 @@ ScalaFile
                         PsiElement(identifier)('Ops')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      WildcardType: _ <: TypedArray[_, _]
-                        PsiElement(_)('_')
-                        PsiWhiteSpace(' ')
-                        PsiElement(<:)('<:')
-                        PsiWhiteSpace(' ')
-                        ParametrizedType: TypedArray[_, _]
-                          SimpleType: TypedArray
-                            CodeReferenceElement: TypedArray
-                              PsiElement(identifier)('TypedArray')
-                          TypeArgumentsList
-                            PsiElement([)('[')
-                            WildcardType: _
-                              PsiElement(_)('_')
-                            PsiElement(,)(',')
-                            PsiWhiteSpace(' ')
-                            WildcardType: _
-                              PsiElement(_)('_')
-                            PsiElement(])(']')
+                      TypeArgument
+                        WildcardType: _ <: TypedArray[_, _]
+                          PsiElement(_)('_')
+                          PsiWhiteSpace(' ')
+                          PsiElement(<:)('<:')
+                          PsiWhiteSpace(' ')
+                          ParametrizedType: TypedArray[_, _]
+                            SimpleType: TypedArray
+                              CodeReferenceElement: TypedArray
+                                PsiElement(identifier)('TypedArray')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                WildcardType: _
+                                  PsiElement(_)('_')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              TypeArgument
+                                WildcardType: _
+                                  PsiElement(_)('_')
+                              PsiElement(])(']')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiWhiteSpace(' ')

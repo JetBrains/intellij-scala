@@ -178,9 +178,10 @@ ScalaFile
                 PsiElement(identifier)('List')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: AnyRef
-                CodeReferenceElement: AnyRef
-                  PsiElement(identifier)('AnyRef')
+              TypeArgument
+                SimpleType: AnyRef
+                  CodeReferenceElement: AnyRef
+                    PsiElement(identifier)('AnyRef')
               PsiElement(])(']')
         PsiWhiteSpace('\n    ')
         ScFunctionDeclaration: ms
@@ -201,9 +202,10 @@ ScalaFile
                 PsiElement(identifier)('List')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: AbstractModule
-                CodeReferenceElement: AbstractModule
-                  PsiElement(identifier)('AbstractModule')
+              TypeArgument
+                SimpleType: AbstractModule
+                  CodeReferenceElement: AbstractModule
+                    PsiElement(identifier)('AbstractModule')
               PsiElement(])(']')
         PsiWhiteSpace('\n    ')
         ScFunctionDefinition: fs
@@ -224,9 +226,10 @@ ScalaFile
                 PsiElement(identifier)('List')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: F
-                CodeReferenceElement: F
-                  PsiElement(identifier)('F')
+              TypeArgument
+                SimpleType: F
+                  CodeReferenceElement: F
+                    PsiElement(identifier)('F')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -266,9 +269,10 @@ ScalaFile
                 PsiElement(identifier)('List')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: AnyRef
-                CodeReferenceElement: AnyRef
-                  PsiElement(identifier)('AnyRef')
+              TypeArgument
+                SimpleType: AnyRef
+                  CodeReferenceElement: AnyRef
+                    PsiElement(identifier)('AnyRef')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

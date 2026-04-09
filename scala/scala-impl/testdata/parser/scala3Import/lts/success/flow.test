@@ -75,9 +75,10 @@ ScalaFile
                 PsiElement(identifier)('FlowOps')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: O
-                CodeReferenceElement: O
-                  PsiElement(identifier)('O')
+              TypeArgument
+                SimpleType: O
+                  CodeReferenceElement: O
+                    PsiElement(identifier)('O')
               PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
@@ -120,9 +121,10 @@ ScalaFile
                 PsiElement(identifier)('FlowOps')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Out
-                CodeReferenceElement: Out
-                  PsiElement(identifier)('Out')
+              TypeArgument
+                SimpleType: Out
+                  CodeReferenceElement: Out
+                    PsiElement(identifier)('Out')
               PsiElement(])(']')
       PsiWhiteSpace(' ')
       ScTemplateBody
@@ -152,14 +154,16 @@ ScalaFile
                 PsiElement(identifier)('Flow')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: In
-                CodeReferenceElement: In
-                  PsiElement(identifier)('In')
+              TypeArgument
+                SimpleType: In
+                  CodeReferenceElement: In
+                    PsiElement(identifier)('In')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: O
-                CodeReferenceElement: O
-                  PsiElement(identifier)('O')
+              TypeArgument
+                SimpleType: O
+                  CodeReferenceElement: O
+                    PsiElement(identifier)('O')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScFunctionDeclaration: map
@@ -206,9 +210,10 @@ ScalaFile
                 PsiElement(identifier)('Repr')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiComment(BlockComment)('/* workaround: expand alias Flow[In, T] */')
@@ -371,14 +376,16 @@ ScalaFile
                                                                       PsiElement(identifier)('Flow')
                                                                   TypeArgumentsList
                                                                     PsiElement([)('[')
-                                                                    SimpleType: String
-                                                                      CodeReferenceElement: String
-                                                                        PsiElement(identifier)('String')
+                                                                    TypeArgument
+                                                                      SimpleType: String
+                                                                        CodeReferenceElement: String
+                                                                          PsiElement(identifier)('String')
                                                                     PsiElement(,)(',')
                                                                     PsiWhiteSpace(' ')
-                                                                    SimpleType: String
-                                                                      CodeReferenceElement: String
-                                                                        PsiElement(identifier)('String')
+                                                                    TypeArgument
+                                                                      SimpleType: String
+                                                                        CodeReferenceElement: String
+                                                                          PsiElement(identifier)('String')
                                                                     PsiElement(])(']')
                                                               PsiElement())(')')
                                                             PsiWhiteSpace('\n      ')

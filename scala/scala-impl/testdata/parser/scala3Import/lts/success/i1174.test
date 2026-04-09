@@ -114,9 +114,10 @@ ScalaFile
                         PsiElement(identifier)('ClassTag')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: TTT
-                        CodeReferenceElement: TTT
-                          PsiElement(identifier)('TTT')
+                      TypeArgument
+                        SimpleType: TTT
+                          CodeReferenceElement: TTT
+                            PsiElement(identifier)('TTT')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -127,9 +128,10 @@ ScalaFile
                 PsiElement(identifier)('Try')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: TTT
-                CodeReferenceElement: TTT
-                  PsiElement(identifier)('TTT')
+              TypeArgument
+                SimpleType: TTT
+                  CodeReferenceElement: TTT
+                    PsiElement(identifier)('TTT')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -265,16 +267,18 @@ ScalaFile
                             PsiElement(identifier)('implicitly')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            ParametrizedType: ClassTag[TTT]
-                              SimpleType: ClassTag
-                                CodeReferenceElement: ClassTag
-                                  PsiElement(identifier)('ClassTag')
-                              TypeArgumentsList
-                                PsiElement([)('[')
-                                SimpleType: TTT
-                                  CodeReferenceElement: TTT
-                                    PsiElement(identifier)('TTT')
-                                PsiElement(])(']')
+                            TypeArgument
+                              ParametrizedType: ClassTag[TTT]
+                                SimpleType: ClassTag
+                                  CodeReferenceElement: ClassTag
+                                    PsiElement(identifier)('ClassTag')
+                                TypeArgumentsList
+                                  PsiElement([)('[')
+                                  TypeArgument
+                                    SimpleType: TTT
+                                      CodeReferenceElement: TTT
+                                        PsiElement(identifier)('TTT')
+                                  PsiElement(])(']')
                             PsiElement(])(']')
                       PsiWhiteSpace('\n      ')
                       MethodCall

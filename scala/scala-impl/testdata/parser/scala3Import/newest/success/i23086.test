@@ -47,18 +47,20 @@ ScalaFile
                 PsiElement(identifier)('summon')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: ValueOf[this.type]
-                  SimpleType: ValueOf
-                    CodeReferenceElement: ValueOf
-                      PsiElement(identifier)('ValueOf')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: this.type
-                      ThisReference
-                        PsiElement(this)('this')
-                      PsiElement(.)('.')
-                      PsiElement(type)('type')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: ValueOf[this.type]
+                    SimpleType: ValueOf
+                      CodeReferenceElement: ValueOf
+                        PsiElement(identifier)('ValueOf')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: this.type
+                          ThisReference
+                            PsiElement(this)('this')
+                          PsiElement(.)('.')
+                          PsiElement(type)('type')
+                      PsiElement(])(']')
                 PsiElement(])(']')
             PsiElement(.)('.')
             PsiElement(identifier)('value')

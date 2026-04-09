@@ -153,9 +153,10 @@ ScalaFile
                 PsiElement(identifier)('Succ')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: N
-                CodeReferenceElement: N
-                  PsiElement(identifier)('N')
+              TypeArgument
+                SimpleType: N
+                  CodeReferenceElement: N
+                    PsiElement(identifier)('N')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -172,9 +173,10 @@ ScalaFile
                         PsiElement(identifier)('Succ')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: N
-                        CodeReferenceElement: N
-                          PsiElement(identifier)('N')
+                      TypeArgument
+                        SimpleType: N
+                          CodeReferenceElement: N
+                            PsiElement(identifier)('N')
                       PsiElement(])(']')
                   ArgumentList
                     PsiElement(()('(')
@@ -223,9 +225,10 @@ ScalaFile
             PsiElement(identifier)('implicitly')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: Zero
-              CodeReferenceElement: Zero
-                PsiElement(identifier)('Zero')
+            TypeArgument
+              SimpleType: Zero
+                CodeReferenceElement: Zero
+                  PsiElement(identifier)('Zero')
             PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         GenericCall
@@ -233,40 +236,18 @@ ScalaFile
             PsiElement(identifier)('implicitly')
           TypeArgumentsList
             PsiElement([)('[')
-            ParametrizedType: Succ[Zero]
-              SimpleType: Succ
-                CodeReferenceElement: Succ
-                  PsiElement(identifier)('Succ')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: Zero
-                  CodeReferenceElement: Zero
-                    PsiElement(identifier)('Zero')
-                PsiElement(])(']')
-            PsiElement(])(']')
-        PsiWhiteSpace('\n  ')
-        GenericCall
-          ReferenceExpression: implicitly
-            PsiElement(identifier)('implicitly')
-          TypeArgumentsList
-            PsiElement([)('[')
-            ParametrizedType: Succ[Succ[Zero]]
-              SimpleType: Succ
-                CodeReferenceElement: Succ
-                  PsiElement(identifier)('Succ')
-              TypeArgumentsList
-                PsiElement([)('[')
-                ParametrizedType: Succ[Zero]
-                  SimpleType: Succ
-                    CodeReferenceElement: Succ
-                      PsiElement(identifier)('Succ')
-                  TypeArgumentsList
-                    PsiElement([)('[')
+            TypeArgument
+              ParametrizedType: Succ[Zero]
+                SimpleType: Succ
+                  CodeReferenceElement: Succ
+                    PsiElement(identifier)('Succ')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
                     SimpleType: Zero
                       CodeReferenceElement: Zero
                         PsiElement(identifier)('Zero')
-                    PsiElement(])(']')
-                PsiElement(])(']')
+                  PsiElement(])(']')
             PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         GenericCall
@@ -274,30 +255,61 @@ ScalaFile
             PsiElement(identifier)('implicitly')
           TypeArgumentsList
             PsiElement([)('[')
-            ParametrizedType: Succ[Succ[Succ[Zero]]]
-              SimpleType: Succ
-                CodeReferenceElement: Succ
-                  PsiElement(identifier)('Succ')
-              TypeArgumentsList
-                PsiElement([)('[')
-                ParametrizedType: Succ[Succ[Zero]]
-                  SimpleType: Succ
-                    CodeReferenceElement: Succ
-                      PsiElement(identifier)('Succ')
-                  TypeArgumentsList
-                    PsiElement([)('[')
+            TypeArgument
+              ParametrizedType: Succ[Succ[Zero]]
+                SimpleType: Succ
+                  CodeReferenceElement: Succ
+                    PsiElement(identifier)('Succ')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
                     ParametrizedType: Succ[Zero]
                       SimpleType: Succ
                         CodeReferenceElement: Succ
                           PsiElement(identifier)('Succ')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: Zero
-                          CodeReferenceElement: Zero
-                            PsiElement(identifier)('Zero')
+                        TypeArgument
+                          SimpleType: Zero
+                            CodeReferenceElement: Zero
+                              PsiElement(identifier)('Zero')
                         PsiElement(])(']')
-                    PsiElement(])(']')
-                PsiElement(])(']')
+                  PsiElement(])(']')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        GenericCall
+          ReferenceExpression: implicitly
+            PsiElement(identifier)('implicitly')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              ParametrizedType: Succ[Succ[Succ[Zero]]]
+                SimpleType: Succ
+                  CodeReferenceElement: Succ
+                    PsiElement(identifier)('Succ')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    ParametrizedType: Succ[Succ[Zero]]
+                      SimpleType: Succ
+                        CodeReferenceElement: Succ
+                          PsiElement(identifier)('Succ')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          ParametrizedType: Succ[Zero]
+                            SimpleType: Succ
+                              CodeReferenceElement: Succ
+                                PsiElement(identifier)('Succ')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: Zero
+                                  CodeReferenceElement: Zero
+                                    PsiElement(identifier)('Zero')
+                              PsiElement(])(']')
+                        PsiElement(])(']')
+                  PsiElement(])(']')
             PsiElement(])(']')
         PsiWhiteSpace('\n\n')
         PsiElement(})('}')

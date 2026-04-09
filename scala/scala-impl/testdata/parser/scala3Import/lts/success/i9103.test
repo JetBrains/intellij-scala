@@ -78,9 +78,10 @@ ScalaFile
                 PsiElement(identifier)('Foo')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Unit
-                CodeReferenceElement: Unit
-                  PsiElement(identifier)('Unit')
+              TypeArgument
+                SimpleType: Unit
+                  CodeReferenceElement: Unit
+                    PsiElement(identifier)('Unit')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -122,19 +123,21 @@ ScalaFile
         PsiElement(identifier)('summon')
       TypeArgumentsList
         PsiElement([)('[')
-        ParametrizedType: b.Foo[Unit]
-          SimpleType: b.Foo
-            CodeReferenceElement: b.Foo
-              CodeReferenceElement: b
-                PsiElement(identifier)('b')
-              PsiElement(.)('.')
-              PsiElement(identifier)('Foo')
-          TypeArgumentsList
-            PsiElement([)('[')
-            SimpleType: Unit
-              CodeReferenceElement: Unit
-                PsiElement(identifier)('Unit')
-            PsiElement(])(']')
+        TypeArgument
+          ParametrizedType: b.Foo[Unit]
+            SimpleType: b.Foo
+              CodeReferenceElement: b.Foo
+                CodeReferenceElement: b
+                  PsiElement(identifier)('b')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Foo')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Unit
+                  CodeReferenceElement: Unit
+                    PsiElement(identifier)('Unit')
+              PsiElement(])(']')
         PsiElement(])(']')
   PsiWhiteSpace('  ')
   PsiComment(comment)('// no ambiguity between b.given_Foo and a.given_Foo')
@@ -369,12 +372,13 @@ ScalaFile
                 PsiElement(identifier)('Show')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: S.Permissions
-                CodeReferenceElement: S.Permissions
-                  CodeReferenceElement: S
-                    PsiElement(identifier)('S')
-                  PsiElement(.)('.')
-                  PsiElement(identifier)('Permissions')
+              TypeArgument
+                SimpleType: S.Permissions
+                  CodeReferenceElement: S.Permissions
+                    CodeReferenceElement: S
+                      PsiElement(identifier)('S')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Permissions')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -416,12 +420,13 @@ ScalaFile
               PsiElement(identifier)('implicitly')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: S.Permissions
-                CodeReferenceElement: S.Permissions
-                  CodeReferenceElement: S
-                    PsiElement(identifier)('S')
-                  PsiElement(.)('.')
-                  PsiElement(identifier)('Permissions')
+              TypeArgument
+                SimpleType: S.Permissions
+                  CodeReferenceElement: S.Permissions
+                    CodeReferenceElement: S
+                      PsiElement(identifier)('S')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Permissions')
               PsiElement(])(']')
           PsiElement())(')')
       PsiWhiteSpace('      ')
@@ -437,18 +442,20 @@ ScalaFile
               PsiElement(identifier)('implicitly')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Show[S.Permissions]
-                SimpleType: Show
-                  CodeReferenceElement: Show
-                    PsiElement(identifier)('Show')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: S.Permissions
-                    CodeReferenceElement: S.Permissions
-                      CodeReferenceElement: S
-                        PsiElement(identifier)('S')
-                      PsiElement(.)('.')
-                      PsiElement(identifier)('Permissions')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Show[S.Permissions]
+                  SimpleType: Show
+                    CodeReferenceElement: Show
+                      PsiElement(identifier)('Show')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: S.Permissions
+                        CodeReferenceElement: S.Permissions
+                          CodeReferenceElement: S
+                            PsiElement(identifier)('S')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('Permissions')
+                    PsiElement(])(']')
               PsiElement(])(']')
           PsiElement())(')')

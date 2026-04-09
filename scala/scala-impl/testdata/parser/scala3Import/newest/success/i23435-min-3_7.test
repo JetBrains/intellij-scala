@@ -69,14 +69,16 @@ ScalaFile
             PsiElement(identifier)('Or')
         TypeArgumentsList
           PsiElement([)('[')
-          SimpleType: Int
-            CodeReferenceElement: Int
-              PsiElement(identifier)('Int')
+          TypeArgument
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
           PsiElement(,)(',')
           PsiWhiteSpace(' ')
-          SimpleType: String
-            CodeReferenceElement: String
-              PsiElement(identifier)('String')
+          TypeArgument
+            SimpleType: String
+              CodeReferenceElement: String
+                PsiElement(identifier)('String')
           PsiElement(])(']')
       PsiWhiteSpace(' ')
       CodeReferenceElement: &
@@ -88,14 +90,16 @@ ScalaFile
             PsiElement(identifier)('Or')
         TypeArgumentsList
           PsiElement([)('[')
-          SimpleType: String
-            CodeReferenceElement: String
-              PsiElement(identifier)('String')
+          TypeArgument
+            SimpleType: String
+              CodeReferenceElement: String
+                PsiElement(identifier)('String')
           PsiElement(,)(',')
           PsiWhiteSpace(' ')
-          SimpleType: Int
-            CodeReferenceElement: Int
-              PsiElement(identifier)('Int')
+          TypeArgument
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
           PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -121,30 +125,32 @@ ScalaFile
           PsiElement(identifier)('Or')
       TypeArgumentsList
         PsiElement([)('[')
-        InfixType: Int & String
-          SimpleType: Int
-            CodeReferenceElement: Int
-              PsiElement(identifier)('Int')
-          PsiWhiteSpace(' ')
-          CodeReferenceElement: &
-            PsiElement(identifier)('&')
-          PsiWhiteSpace(' ')
-          SimpleType: String
-            CodeReferenceElement: String
-              PsiElement(identifier)('String')
+        TypeArgument
+          InfixType: Int & String
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: &
+              PsiElement(identifier)('&')
+            PsiWhiteSpace(' ')
+            SimpleType: String
+              CodeReferenceElement: String
+                PsiElement(identifier)('String')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
-        InfixType: String & Int
-          SimpleType: String
-            CodeReferenceElement: String
-              PsiElement(identifier)('String')
-          PsiWhiteSpace(' ')
-          CodeReferenceElement: &
-            PsiElement(identifier)('&')
-          PsiWhiteSpace(' ')
-          SimpleType: Int
-            CodeReferenceElement: Int
-              PsiElement(identifier)('Int')
+        TypeArgument
+          InfixType: String & Int
+            SimpleType: String
+              CodeReferenceElement: String
+                PsiElement(identifier)('String')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: &
+              PsiElement(identifier)('&')
+            PsiWhiteSpace(' ')
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')

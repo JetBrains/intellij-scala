@@ -148,9 +148,10 @@ ScalaFile
                       PsiElement(identifier)('Semigroup')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: String
-                      CodeReferenceElement: String
-                        PsiElement(identifier)('String')
+                    TypeArgument
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
                     PsiElement(])(']')
             PsiWhiteSpace(' ')
             ScTemplateBody
@@ -256,9 +257,10 @@ ScalaFile
                         PsiElement(identifier)('Numeric')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: N
-                        CodeReferenceElement: N
-                          PsiElement(identifier)('N')
+                      TypeArgument
+                        SimpleType: N
+                          CodeReferenceElement: N
+                            PsiElement(identifier)('N')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -269,9 +271,10 @@ ScalaFile
                 PsiElement(identifier)('Semigroup')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: N
-                CodeReferenceElement: N
-                  PsiElement(identifier)('N')
+              TypeArgument
+                SimpleType: N
+                  CodeReferenceElement: N
+                    PsiElement(identifier)('N')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -383,9 +386,10 @@ ScalaFile
                           PsiElement(identifier)('Numeric')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: N
-                          CodeReferenceElement: N
-                            PsiElement(identifier)('N')
+                        TypeArgument
+                          SimpleType: N
+                            CodeReferenceElement: N
+                              PsiElement(identifier)('N')
                         PsiElement(])(']')
                 PsiElement())(')')
           PsiWhiteSpace(' ')
@@ -400,9 +404,10 @@ ScalaFile
                       PsiElement(identifier)('Semigroup')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: N
-                      CodeReferenceElement: N
-                        PsiElement(identifier)('N')
+                    TypeArgument
+                      SimpleType: N
+                        CodeReferenceElement: N
+                          PsiElement(identifier)('N')
                     PsiElement(])(']')
             PsiWhiteSpace(' ')
             ScTemplateBody
@@ -593,9 +598,10 @@ ScalaFile
                     PsiElement(identifier)('Semigroup')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
+                  TypeArgument
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
                   PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(=)('=')
@@ -605,9 +611,10 @@ ScalaFile
                   PsiElement(identifier)('sumSemigroup')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
+                  TypeArgument
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
                   PsiElement(])(']')
             PsiWhiteSpace('\n    ')
             MethodCall

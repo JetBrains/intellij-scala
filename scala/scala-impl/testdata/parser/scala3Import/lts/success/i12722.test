@@ -131,9 +131,10 @@ ScalaFile
                 PsiElement(identifier)('HTMLAttributes')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: PersonaCoinBase
-                CodeReferenceElement: PersonaCoinBase
-                  PsiElement(identifier)('PersonaCoinBase')
+              TypeArgument
+                SimpleType: PersonaCoinBase
+                  CodeReferenceElement: PersonaCoinBase
+                    PsiElement(identifier)('PersonaCoinBase')
               PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScTrait: PersonaCoinBase
@@ -156,9 +157,10 @@ ScalaFile
                 PsiElement(identifier)('Component')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: IPersonaCoinProps
-                CodeReferenceElement: IPersonaCoinProps
-                  PsiElement(identifier)('IPersonaCoinProps')
+              TypeArgument
+                SimpleType: IPersonaCoinProps
+                  CodeReferenceElement: IPersonaCoinProps
+                    PsiElement(identifier)('IPersonaCoinProps')
               PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScTrait: IPersonaCoinProps

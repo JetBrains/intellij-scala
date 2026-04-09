@@ -139,92 +139,93 @@ ScalaFile
           PsiElement(identifier)('summon')
         TypeArgumentsList
           PsiElement([)('[')
-          InfixType: Any { def x: Int; def x_=(x: Int): Unit } <:< Any { var x: Int }
-            CompoundType: Any { def x: Int; def x_=(x: Int): Unit }
-              SimpleType: Any
-                CodeReferenceElement: Any
-                  PsiElement(identifier)('Any')
+          TypeArgument
+            InfixType: Any { def x: Int; def x_=(x: Int): Unit } <:< Any { var x: Int }
+              CompoundType: Any { def x: Int; def x_=(x: Int): Unit }
+                SimpleType: Any
+                  CodeReferenceElement: Any
+                    PsiElement(identifier)('Any')
+                PsiWhiteSpace(' ')
+                Refinement
+                  PsiElement({)('{')
+                  PsiWhiteSpace(' ')
+                  ScFunctionDeclaration: x
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(def)('def')
+                    PsiWhiteSpace(' ')
+                    PsiElement(identifier)('x')
+                    Parameters
+                      <empty list>
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                  PsiElement(;)(';')
+                  PsiWhiteSpace(' ')
+                  ScFunctionDeclaration: x_=
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(def)('def')
+                    PsiWhiteSpace(' ')
+                    PsiElement(identifier)('x_=')
+                    Parameters
+                      ParametersClause
+                        PsiElement(()('(')
+                        Parameter: x
+                          AnnotationsList
+                            <empty list>
+                          Modifiers
+                            <empty list>
+                          PsiElement(identifier)('x')
+                          PsiElement(:)(':')
+                          PsiWhiteSpace(' ')
+                          ParameterType
+                            SimpleType: Int
+                              CodeReferenceElement: Int
+                                PsiElement(identifier)('Int')
+                        PsiElement())(')')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Unit
+                      CodeReferenceElement: Unit
+                        PsiElement(identifier)('Unit')
+                  PsiWhiteSpace(' ')
+                  PsiElement(})('}')
               PsiWhiteSpace(' ')
-              Refinement
-                PsiElement({)('{')
+              CodeReferenceElement: <:<
+                PsiElement(identifier)('<:<')
+              PsiWhiteSpace(' ')
+              CompoundType: Any { var x: Int }
+                SimpleType: Any
+                  CodeReferenceElement: Any
+                    PsiElement(identifier)('Any')
                 PsiWhiteSpace(' ')
-                ScFunctionDeclaration: x
-                  AnnotationsList
-                    <empty list>
-                  Modifiers
-                    <empty list>
-                  PsiElement(def)('def')
+                Refinement
+                  PsiElement({)('{')
                   PsiWhiteSpace(' ')
-                  PsiElement(identifier)('x')
-                  Parameters
-                    <empty list>
-                  PsiElement(:)(':')
-                  PsiWhiteSpace(' ')
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
-                PsiElement(;)(';')
-                PsiWhiteSpace(' ')
-                ScFunctionDeclaration: x_=
-                  AnnotationsList
-                    <empty list>
-                  Modifiers
-                    <empty list>
-                  PsiElement(def)('def')
-                  PsiWhiteSpace(' ')
-                  PsiElement(identifier)('x_=')
-                  Parameters
-                    ParametersClause
-                      PsiElement(()('(')
-                      Parameter: x
-                        AnnotationsList
-                          <empty list>
-                        Modifiers
-                          <empty list>
+                  ScVariableDeclaration: x
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(var)('var')
+                    PsiWhiteSpace(' ')
+                    ListOfIdentifiers
+                      Field identifier: x
                         PsiElement(identifier)('x')
-                        PsiElement(:)(':')
-                        PsiWhiteSpace(' ')
-                        ParameterType
-                          SimpleType: Int
-                            CodeReferenceElement: Int
-                              PsiElement(identifier)('Int')
-                      PsiElement())(')')
-                  PsiElement(:)(':')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
                   PsiWhiteSpace(' ')
-                  SimpleType: Unit
-                    CodeReferenceElement: Unit
-                      PsiElement(identifier)('Unit')
-                PsiWhiteSpace(' ')
-                PsiElement(})('}')
-            PsiWhiteSpace(' ')
-            CodeReferenceElement: <:<
-              PsiElement(identifier)('<:<')
-            PsiWhiteSpace(' ')
-            CompoundType: Any { var x: Int }
-              SimpleType: Any
-                CodeReferenceElement: Any
-                  PsiElement(identifier)('Any')
-              PsiWhiteSpace(' ')
-              Refinement
-                PsiElement({)('{')
-                PsiWhiteSpace(' ')
-                ScVariableDeclaration: x
-                  AnnotationsList
-                    <empty list>
-                  Modifiers
-                    <empty list>
-                  PsiElement(var)('var')
-                  PsiWhiteSpace(' ')
-                  ListOfIdentifiers
-                    Field identifier: x
-                      PsiElement(identifier)('x')
-                  PsiElement(:)(':')
-                  PsiWhiteSpace(' ')
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
-                PsiWhiteSpace(' ')
-                PsiElement(})('}')
+                  PsiElement(})('}')
           PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       GenericCall
@@ -232,90 +233,91 @@ ScalaFile
           PsiElement(identifier)('summon')
         TypeArgumentsList
           PsiElement([)('[')
-          InfixType: Any { var x: Int } <:< Any { def x: Int; def x_=(x: Int): Unit }
-            CompoundType: Any { var x: Int }
-              SimpleType: Any
-                CodeReferenceElement: Any
-                  PsiElement(identifier)('Any')
-              PsiWhiteSpace(' ')
-              Refinement
-                PsiElement({)('{')
+          TypeArgument
+            InfixType: Any { var x: Int } <:< Any { def x: Int; def x_=(x: Int): Unit }
+              CompoundType: Any { var x: Int }
+                SimpleType: Any
+                  CodeReferenceElement: Any
+                    PsiElement(identifier)('Any')
                 PsiWhiteSpace(' ')
-                ScVariableDeclaration: x
-                  AnnotationsList
-                    <empty list>
-                  Modifiers
-                    <empty list>
-                  PsiElement(var)('var')
+                Refinement
+                  PsiElement({)('{')
                   PsiWhiteSpace(' ')
-                  ListOfIdentifiers
-                    Field identifier: x
-                      PsiElement(identifier)('x')
-                  PsiElement(:)(':')
-                  PsiWhiteSpace(' ')
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
-                PsiWhiteSpace(' ')
-                PsiElement(})('}')
-            PsiWhiteSpace(' ')
-            CodeReferenceElement: <:<
-              PsiElement(identifier)('<:<')
-            PsiWhiteSpace(' ')
-            CompoundType: Any { def x: Int; def x_=(x: Int): Unit }
-              SimpleType: Any
-                CodeReferenceElement: Any
-                  PsiElement(identifier)('Any')
-              PsiWhiteSpace(' ')
-              Refinement
-                PsiElement({)('{')
-                PsiWhiteSpace(' ')
-                ScFunctionDeclaration: x
-                  AnnotationsList
-                    <empty list>
-                  Modifiers
-                    <empty list>
-                  PsiElement(def)('def')
-                  PsiWhiteSpace(' ')
-                  PsiElement(identifier)('x')
-                  Parameters
-                    <empty list>
-                  PsiElement(:)(':')
-                  PsiWhiteSpace(' ')
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
-                PsiElement(;)(';')
-                PsiWhiteSpace(' ')
-                ScFunctionDeclaration: x_=
-                  AnnotationsList
-                    <empty list>
-                  Modifiers
-                    <empty list>
-                  PsiElement(def)('def')
-                  PsiWhiteSpace(' ')
-                  PsiElement(identifier)('x_=')
-                  Parameters
-                    ParametersClause
-                      PsiElement(()('(')
-                      Parameter: x
-                        AnnotationsList
-                          <empty list>
-                        Modifiers
-                          <empty list>
+                  ScVariableDeclaration: x
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(var)('var')
+                    PsiWhiteSpace(' ')
+                    ListOfIdentifiers
+                      Field identifier: x
                         PsiElement(identifier)('x')
-                        PsiElement(:)(':')
-                        PsiWhiteSpace(' ')
-                        ParameterType
-                          SimpleType: Int
-                            CodeReferenceElement: Int
-                              PsiElement(identifier)('Int')
-                      PsiElement())(')')
-                  PsiElement(:)(':')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
                   PsiWhiteSpace(' ')
-                  SimpleType: Unit
-                    CodeReferenceElement: Unit
-                      PsiElement(identifier)('Unit')
+                  PsiElement(})('}')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: <:<
+                PsiElement(identifier)('<:<')
+              PsiWhiteSpace(' ')
+              CompoundType: Any { def x: Int; def x_=(x: Int): Unit }
+                SimpleType: Any
+                  CodeReferenceElement: Any
+                    PsiElement(identifier)('Any')
                 PsiWhiteSpace(' ')
-                PsiElement(})('}')
+                Refinement
+                  PsiElement({)('{')
+                  PsiWhiteSpace(' ')
+                  ScFunctionDeclaration: x
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(def)('def')
+                    PsiWhiteSpace(' ')
+                    PsiElement(identifier)('x')
+                    Parameters
+                      <empty list>
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                  PsiElement(;)(';')
+                  PsiWhiteSpace(' ')
+                  ScFunctionDeclaration: x_=
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(def)('def')
+                    PsiWhiteSpace(' ')
+                    PsiElement(identifier)('x_=')
+                    Parameters
+                      ParametersClause
+                        PsiElement(()('(')
+                        Parameter: x
+                          AnnotationsList
+                            <empty list>
+                          Modifiers
+                            <empty list>
+                          PsiElement(identifier)('x')
+                          PsiElement(:)(':')
+                          PsiWhiteSpace(' ')
+                          ParameterType
+                            SimpleType: Int
+                              CodeReferenceElement: Int
+                                PsiElement(identifier)('Int')
+                        PsiElement())(')')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Unit
+                      CodeReferenceElement: Unit
+                        PsiElement(identifier)('Unit')
+                  PsiWhiteSpace(' ')
+                  PsiElement(})('}')
           PsiElement(])(']')

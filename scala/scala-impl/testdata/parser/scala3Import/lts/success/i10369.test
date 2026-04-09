@@ -115,9 +115,10 @@ ScalaFile
               PsiElement(identifier)('Upgrade')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: t
-              CodeReferenceElement: t
-                PsiElement(identifier)('t')
+            TypeArgument
+              SimpleType: t
+                CodeReferenceElement: t
+                  PsiElement(identifier)('t')
             PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -171,9 +172,10 @@ ScalaFile
                   PsiElement(identifier)('Upgrade')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: T
-                  CodeReferenceElement: T
-                    PsiElement(identifier)('T')
+                TypeArgument
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(=)('=')
@@ -285,9 +287,10 @@ ScalaFile
               PsiElement(identifier)('Upgrade')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: t
-              CodeReferenceElement: t
-                PsiElement(identifier)('t')
+            TypeArgument
+              SimpleType: t
+                CodeReferenceElement: t
+                  PsiElement(identifier)('t')
             PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')

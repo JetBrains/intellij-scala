@@ -98,14 +98,16 @@ ScalaFile
                             PsiElement(identifier)('Map')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: T
-                            CodeReferenceElement: T
-                              PsiElement(identifier)('T')
+                          TypeArgument
+                            SimpleType: T
+                              CodeReferenceElement: T
+                                PsiElement(identifier)('T')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
-                          SimpleType: Datatype
-                            CodeReferenceElement: Datatype
-                              PsiElement(identifier)('Datatype')
+                          TypeArgument
+                            SimpleType: Datatype
+                              CodeReferenceElement: Datatype
+                                PsiElement(identifier)('Datatype')
                           PsiElement(])(']')
                   PsiElement())(')')
             PsiWhiteSpace(' ')
@@ -120,9 +122,10 @@ ScalaFile
                         PsiElement(identifier)('Datatype')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: T
-                        CodeReferenceElement: T
-                          PsiElement(identifier)('T')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
                       PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
@@ -183,9 +186,10 @@ ScalaFile
                         PsiElement(identifier)('Datatype')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: H
-                        CodeReferenceElement: H
-                          PsiElement(identifier)('H')
+                      TypeArgument
+                        SimpleType: H
+                          CodeReferenceElement: H
+                            PsiElement(identifier)('H')
                       PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
@@ -204,9 +208,10 @@ ScalaFile
                         PsiElement(identifier)('Datatype')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: T
-                        CodeReferenceElement: T
-                          PsiElement(identifier)('T')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
                       PsiElement(])(']')
               PsiElement())(')')
             PsiWhiteSpace(' ')
@@ -218,17 +223,18 @@ ScalaFile
                 PsiElement(identifier)('Datatype')
             TypeArgumentsList
               PsiElement([)('[')
-              InfixType: H *: T
-                SimpleType: H
-                  CodeReferenceElement: H
-                    PsiElement(identifier)('H')
-                PsiWhiteSpace(' ')
-                CodeReferenceElement: *:
-                  PsiElement(identifier)('*:')
-                PsiWhiteSpace(' ')
-                SimpleType: T
-                  CodeReferenceElement: T
-                    PsiElement(identifier)('T')
+              TypeArgument
+                InfixType: H *: T
+                  SimpleType: H
+                    CodeReferenceElement: H
+                      PsiElement(identifier)('H')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: *:
+                    PsiElement(identifier)('*:')
+                  PsiWhiteSpace(' ')
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

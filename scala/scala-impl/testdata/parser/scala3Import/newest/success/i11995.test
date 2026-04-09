@@ -99,17 +99,18 @@ ScalaFile
                 PsiElement(identifier)('MyBase')
             TypeArgumentsList
               PsiElement([)('[')
-              InfixType: L & R
-                SimpleType: L
-                  CodeReferenceElement: L
-                    PsiElement(identifier)('L')
-                PsiWhiteSpace(' ')
-                CodeReferenceElement: &
-                  PsiElement(identifier)('&')
-                PsiWhiteSpace(' ')
-                SimpleType: R
-                  CodeReferenceElement: R
-                    PsiElement(identifier)('R')
+              TypeArgument
+                InfixType: L & R
+                  SimpleType: L
+                    CodeReferenceElement: L
+                      PsiElement(identifier)('L')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: &
+                    PsiElement(identifier)('&')
+                  PsiWhiteSpace(' ')
+                  SimpleType: R
+                    CodeReferenceElement: R
+                      PsiElement(identifier)('R')
               PsiElement(])(']')
       ScTemplateBody
         PsiElement(:)(':')
@@ -198,9 +199,10 @@ ScalaFile
             PsiElement(identifier)('Has')
         TypeArgumentsList
           PsiElement([)('[')
-          SimpleType: Console
-            CodeReferenceElement: Console
-              PsiElement(identifier)('Console')
+          TypeArgument
+            SimpleType: Console
+              CodeReferenceElement: Console
+                PsiElement(identifier)('Console')
           PsiElement(])(']')
       PsiWhiteSpace(' ')
       PsiElement(with)('with')
@@ -211,9 +213,10 @@ ScalaFile
             PsiElement(identifier)('Has')
         TypeArgumentsList
           PsiElement([)('[')
-          SimpleType: Clock
-            CodeReferenceElement: Clock
-              PsiElement(identifier)('Clock')
+          TypeArgument
+            SimpleType: Clock
+              CodeReferenceElement: Clock
+                PsiElement(identifier)('Clock')
           PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScClass: Spec
@@ -237,8 +240,9 @@ ScalaFile
               PsiElement(identifier)('Has')
           TypeArgumentsList
             PsiElement([)('[')
-            WildcardType: _
-              PsiElement(_)('_')
+            TypeArgument
+              WildcardType: _
+                PsiElement(_)('_')
             PsiElement(])(']')
       PsiElement(])(']')
     PrimaryConstructor
@@ -271,30 +275,33 @@ ScalaFile
                 PsiElement(identifier)('Spec')
             TypeArgumentsList
               PsiElement([)('[')
-              CompoundType: Has[Console] with Has[Clock]
-                ParametrizedType: Has[Console]
-                  SimpleType: Has
-                    CodeReferenceElement: Has
-                      PsiElement(identifier)('Has')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: Console
-                      CodeReferenceElement: Console
-                        PsiElement(identifier)('Console')
-                    PsiElement(])(']')
-                PsiWhiteSpace(' ')
-                PsiElement(with)('with')
-                PsiWhiteSpace(' ')
-                ParametrizedType: Has[Clock]
-                  SimpleType: Has
-                    CodeReferenceElement: Has
-                      PsiElement(identifier)('Has')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: Clock
-                      CodeReferenceElement: Clock
-                        PsiElement(identifier)('Clock')
-                    PsiElement(])(']')
+              TypeArgument
+                CompoundType: Has[Console] with Has[Clock]
+                  ParametrizedType: Has[Console]
+                    SimpleType: Has
+                      CodeReferenceElement: Has
+                        PsiElement(identifier)('Has')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: Console
+                          CodeReferenceElement: Console
+                            PsiElement(identifier)('Console')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(with)('with')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: Has[Clock]
+                    SimpleType: Has
+                      CodeReferenceElement: Has
+                        PsiElement(identifier)('Has')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: Clock
+                          CodeReferenceElement: Clock
+                            PsiElement(identifier)('Clock')
+                      PsiElement(])(']')
               PsiElement(])(']')
   PsiWhiteSpace(' ')
   PsiComment(comment)('// does not compile')
@@ -319,9 +326,10 @@ ScalaFile
                 PsiElement(identifier)('Spec')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: ConsoleWithClock
-                CodeReferenceElement: ConsoleWithClock
-                  PsiElement(identifier)('ConsoleWithClock')
+              TypeArgument
+                SimpleType: ConsoleWithClock
+                  CodeReferenceElement: ConsoleWithClock
+                    PsiElement(identifier)('ConsoleWithClock')
               PsiElement(])(']')
   PsiWhiteSpace(' ')
   PsiComment(comment)('// okay')

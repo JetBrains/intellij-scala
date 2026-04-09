@@ -81,9 +81,10 @@ ScalaFile
                     PsiElement(identifier)('DomainLike')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: A1
-                    CodeReferenceElement: A1
-                      PsiElement(identifier)('A1')
+                  TypeArgument
+                    SimpleType: A1
+                      CodeReferenceElement: A1
+                        PsiElement(identifier)('A1')
                   PsiElement(])(']')
             PsiElement(,)(',')
             PsiWhiteSpace('\n    ')
@@ -99,9 +100,10 @@ ScalaFile
                     PsiElement(identifier)('Product2DomainLike')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: D1
-                    CodeReferenceElement: D1
-                      PsiElement(identifier)('D1')
+                  TypeArgument
+                    SimpleType: D1
+                      CodeReferenceElement: D1
+                        PsiElement(identifier)('D1')
                   PsiElement(])(']')
             PsiWhiteSpace('\n  ')
             PsiElement(])(']')

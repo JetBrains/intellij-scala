@@ -125,9 +125,10 @@ ScalaFile
                   PsiElement(identifier)('Wrap')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: t
-                  CodeReferenceElement: t
-                    PsiElement(identifier)('t')
+                TypeArgument
+                  SimpleType: t
+                    CodeReferenceElement: t
+                      PsiElement(identifier)('t')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(match)('match')
@@ -144,9 +145,10 @@ ScalaFile
                       PsiElement(identifier)('Wrap')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Nothing
-                      CodeReferenceElement: Nothing
-                        PsiElement(identifier)('Nothing')
+                    TypeArgument
+                      SimpleType: Nothing
+                        CodeReferenceElement: Nothing
+                          PsiElement(identifier)('Nothing')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
@@ -164,8 +166,9 @@ ScalaFile
                       PsiElement(identifier)('Wrap')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    TypeVariable: other
-                      PsiElement(identifier)('other')
+                    TypeArgument
+                      TypeVariable: other
+                        PsiElement(identifier)('other')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
@@ -188,12 +191,14 @@ ScalaFile
                             PsiElement(identifier)('Either')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          TypeVariable: hd
-                            PsiElement(identifier)('hd')
+                          TypeArgument
+                            TypeVariable: hd
+                              PsiElement(identifier)('hd')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
-                          TypeVariable: tl
-                            PsiElement(identifier)('tl')
+                          TypeArgument
+                            TypeVariable: tl
+                              PsiElement(identifier)('tl')
                           PsiElement(])(']')
                       PsiWhiteSpace(' ')
                       PsiElement(=>)('=>')
@@ -212,9 +217,10 @@ ScalaFile
                               PsiElement(identifier)('to')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: tl
-                              CodeReferenceElement: tl
-                                PsiElement(identifier)('tl')
+                            TypeArgument
+                              SimpleType: tl
+                                CodeReferenceElement: tl
+                                  PsiElement(identifier)('tl')
                             PsiElement(])(']')
             PsiWhiteSpace('\n  ')
             PsiElement(})('}')

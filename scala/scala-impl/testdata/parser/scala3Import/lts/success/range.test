@@ -77,12 +77,14 @@ ScalaFile
                 PsiElement(identifier)('Partial')
             TypeArgumentsList
               PsiElement([)('[')
-              WildcardType: _
-                PsiElement(_)('_')
+              TypeArgument
+                WildcardType: _
+                  PsiElement(_)('_')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              WildcardType: _
-                PsiElement(_)('_')
+              TypeArgument
+                WildcardType: _
+                  PsiElement(_)('_')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -114,12 +116,14 @@ ScalaFile
                 PsiElement(identifier)('Partial')
             TypeArgumentsList
               PsiElement([)('[')
-              WildcardType: _
-                PsiElement(_)('_')
+              TypeArgument
+                WildcardType: _
+                  PsiElement(_)('_')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              WildcardType: _
-                PsiElement(_)('_')
+              TypeArgument
+                WildcardType: _
+                  PsiElement(_)('_')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -176,24 +180,27 @@ ScalaFile
                 PsiElement(identifier)('Partial')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: BigDecimal
-                CodeReferenceElement: BigDecimal
-                  PsiElement(identifier)('BigDecimal')
+              TypeArgument
+                SimpleType: BigDecimal
+                  CodeReferenceElement: BigDecimal
+                    PsiElement(identifier)('BigDecimal')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              ParametrizedType: NumericRange.Exclusive[BigDecimal]
-                SimpleType: NumericRange.Exclusive
-                  CodeReferenceElement: NumericRange.Exclusive
-                    CodeReferenceElement: NumericRange
-                      PsiElement(identifier)('NumericRange')
-                    PsiElement(.)('.')
-                    PsiElement(identifier)('Exclusive')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: BigDecimal
-                    CodeReferenceElement: BigDecimal
-                      PsiElement(identifier)('BigDecimal')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: NumericRange.Exclusive[BigDecimal]
+                  SimpleType: NumericRange.Exclusive
+                    CodeReferenceElement: NumericRange.Exclusive
+                      CodeReferenceElement: NumericRange
+                        PsiElement(identifier)('NumericRange')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Exclusive')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: BigDecimal
+                        CodeReferenceElement: BigDecimal
+                          PsiElement(identifier)('BigDecimal')
+                    PsiElement(])(']')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

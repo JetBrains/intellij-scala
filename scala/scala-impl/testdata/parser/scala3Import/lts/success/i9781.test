@@ -40,9 +40,10 @@ ScalaFile
               PsiElement(identifier)('Txn')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: T
-              CodeReferenceElement: T
-                PsiElement(identifier)('T')
+            TypeArgument
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
             PsiElement(])(']')
       PsiElement(])(']')
     PrimaryConstructor
@@ -76,9 +77,10 @@ ScalaFile
               PsiElement(identifier)('Txn')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: T
-              CodeReferenceElement: T
-                PsiElement(identifier)('T')
+            TypeArgument
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
             PsiElement(])(']')
       PsiElement(])(']')
     PrimaryConstructor
@@ -140,9 +142,10 @@ ScalaFile
               PsiElement(identifier)('Txn')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: T
-              CodeReferenceElement: T
-                PsiElement(identifier)('T')
+            TypeArgument
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
             PsiElement(])(']')
       PsiElement(])(']')
     PrimaryConstructor
@@ -168,9 +171,10 @@ ScalaFile
                     PsiElement(identifier)('Elem')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: T
-                    CodeReferenceElement: T
-                      PsiElement(identifier)('T')
+                  TypeArgument
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
                   PsiElement(])(']')
           PsiElement())(')')
     PsiWhiteSpace(' ')
@@ -185,9 +189,10 @@ ScalaFile
                 PsiElement(identifier)('State')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScObject: Busy
@@ -211,9 +216,10 @@ ScalaFile
                 PsiElement(identifier)('State')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Nothing
-                CodeReferenceElement: Nothing
-                  PsiElement(identifier)('Nothing')
+              TypeArgument
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScTrait: Test
@@ -237,9 +243,10 @@ ScalaFile
               PsiElement(identifier)('Txn')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: Out
-              CodeReferenceElement: Out
-                PsiElement(identifier)('Out')
+            TypeArgument
+              SimpleType: Out
+                CodeReferenceElement: Out
+                  PsiElement(identifier)('Out')
             PsiElement(])(']')
       PsiElement(])(']')
     PrimaryConstructor
@@ -280,16 +287,18 @@ ScalaFile
                         PsiElement(identifier)('Option')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      ParametrizedType: State[Out]
-                        SimpleType: State
-                          CodeReferenceElement: State
-                            PsiElement(identifier)('State')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: Out
-                            CodeReferenceElement: Out
-                              PsiElement(identifier)('Out')
-                          PsiElement(])(']')
+                      TypeArgument
+                        ParametrizedType: State[Out]
+                          SimpleType: State
+                            CodeReferenceElement: State
+                              PsiElement(identifier)('State')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: Out
+                                CodeReferenceElement: Out
+                                  PsiElement(identifier)('Out')
+                            PsiElement(])(']')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')

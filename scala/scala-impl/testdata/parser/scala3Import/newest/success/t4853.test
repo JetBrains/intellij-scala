@@ -51,9 +51,10 @@ ScalaFile
                         PsiElement(identifier)('Array')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: String
-                        CodeReferenceElement: String
-                          PsiElement(identifier)('String')
+                      TypeArgument
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -80,9 +81,10 @@ ScalaFile
                             PsiElement(identifier)('Animal')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: Awake
-                            CodeReferenceElement: Awake
-                              PsiElement(identifier)('Awake')
+                          TypeArgument
+                            SimpleType: Awake
+                              CodeReferenceElement: Awake
+                                PsiElement(identifier)('Awake')
                           PsiElement(])(']')
               PsiElement(.)('.')
               PsiElement(identifier)('goToSleep')
@@ -157,9 +159,10 @@ ScalaFile
                 PsiElement(identifier)('Animal')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Asleep
-                CodeReferenceElement: Asleep
-                  PsiElement(identifier)('Asleep')
+              TypeArgument
+                SimpleType: Asleep
+                  CodeReferenceElement: Asleep
+                    PsiElement(identifier)('Asleep')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -176,9 +179,10 @@ ScalaFile
                         PsiElement(identifier)('Animal')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Asleep
-                        CodeReferenceElement: Asleep
-                          PsiElement(identifier)('Asleep')
+                      TypeArgument
+                        SimpleType: Asleep
+                          CodeReferenceElement: Asleep
+                            PsiElement(identifier)('Asleep')
                       PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScFunctionDefinition: wakeUp
@@ -216,9 +220,10 @@ ScalaFile
                 PsiElement(identifier)('Animal')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Awake
-                CodeReferenceElement: Awake
-                  PsiElement(identifier)('Awake')
+              TypeArgument
+                SimpleType: Awake
+                  CodeReferenceElement: Awake
+                    PsiElement(identifier)('Awake')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -235,9 +240,10 @@ ScalaFile
                         PsiElement(identifier)('Animal')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Awake
-                        CodeReferenceElement: Awake
-                          PsiElement(identifier)('Awake')
+                      TypeArgument
+                        SimpleType: Awake
+                          CodeReferenceElement: Awake
+                            PsiElement(identifier)('Awake')
                       PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

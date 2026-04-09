@@ -93,16 +93,18 @@ ScalaFile
                   PsiElement(identifier)('F')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: Head[T]
-                  SimpleType: Head
-                    CodeReferenceElement: Head
-                      PsiElement(identifier)('Head')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: T
-                      CodeReferenceElement: T
-                        PsiElement(identifier)('T')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: Head[T]
+                    SimpleType: Head
+                      CodeReferenceElement: Head
+                        PsiElement(identifier)('Head')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
+                      PsiElement(])(']')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             CodeReferenceElement: *:
@@ -114,21 +116,24 @@ ScalaFile
                   PsiElement(identifier)('LiftP')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: F
-                  CodeReferenceElement: F
-                    PsiElement(identifier)('F')
+                TypeArgument
+                  SimpleType: F
+                    CodeReferenceElement: F
+                      PsiElement(identifier)('F')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                ParametrizedType: Tail[T]
-                  SimpleType: Tail
-                    CodeReferenceElement: Tail
-                      PsiElement(identifier)('Tail')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: T
-                      CodeReferenceElement: T
-                        PsiElement(identifier)('T')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: Tail[T]
+                    SimpleType: Tail
+                      CodeReferenceElement: Tail
+                        PsiElement(identifier)('Tail')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
+                      PsiElement(])(']')
                 PsiElement(])(']')
         PsiWhiteSpace('\n    ')
         ScMatchTypeCaseImpl(match type case)

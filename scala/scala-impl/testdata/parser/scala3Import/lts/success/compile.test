@@ -276,9 +276,10 @@ ScalaFile
                 PsiElement(identifier)('Test3A')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Test3Foo
-                CodeReferenceElement: Test3Foo
-                  PsiElement(identifier)('Test3Foo')
+              TypeArgument
+                SimpleType: Test3Foo
+                  CodeReferenceElement: Test3Foo
+                    PsiElement(identifier)('Test3Foo')
               PsiElement(])(']')
   PsiElement(;)(';')
   PsiWhiteSpace('\n\n')
@@ -302,9 +303,10 @@ ScalaFile
                 PsiElement(identifier)('Test3A')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Test3Foo
-                CodeReferenceElement: Test3Foo
-                  PsiElement(identifier)('Test3Foo')
+              TypeArgument
+                SimpleType: Test3Foo
+                  CodeReferenceElement: Test3Foo
+                    PsiElement(identifier)('Test3Foo')
               PsiElement(])(']')
       PsiWhiteSpace(' ')
       ScTemplateBody

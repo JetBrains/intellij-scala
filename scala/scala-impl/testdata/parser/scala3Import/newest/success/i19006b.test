@@ -205,24 +205,26 @@ ScalaFile
                         PsiElement(identifier)('Function')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      WildcardType: ? <: HttpClient
-                        PsiElement(?)('?')
-                        PsiWhiteSpace(' ')
-                        PsiElement(<:)('<:')
-                        PsiWhiteSpace(' ')
-                        SimpleType: HttpClient
-                          CodeReferenceElement: HttpClient
-                            PsiElement(identifier)('HttpClient')
+                      TypeArgument
+                        WildcardType: ? <: HttpClient
+                          PsiElement(?)('?')
+                          PsiWhiteSpace(' ')
+                          PsiElement(<:)('<:')
+                          PsiWhiteSpace(' ')
+                          SimpleType: HttpClient
+                            CodeReferenceElement: HttpClient
+                              PsiElement(identifier)('HttpClient')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      WildcardType: ? <: HttpClient
-                        PsiElement(?)('?')
-                        PsiWhiteSpace(' ')
-                        PsiElement(<:)('<:')
-                        PsiWhiteSpace(' ')
-                        SimpleType: HttpClient
-                          CodeReferenceElement: HttpClient
-                            PsiElement(identifier)('HttpClient')
+                      TypeArgument
+                        WildcardType: ? <: HttpClient
+                          PsiElement(?)('?')
+                          PsiWhiteSpace(' ')
+                          PsiElement(<:)('<:')
+                          PsiWhiteSpace(' ')
+                          SimpleType: HttpClient
+                            CodeReferenceElement: HttpClient
+                              PsiElement(identifier)('HttpClient')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -325,24 +327,26 @@ ScalaFile
                         PsiElement(identifier)('Function')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      WildcardType: ? <: HttpClient
-                        PsiElement(?)('?')
-                        PsiWhiteSpace(' ')
-                        PsiElement(<:)('<:')
-                        PsiWhiteSpace(' ')
-                        SimpleType: HttpClient
-                          CodeReferenceElement: HttpClient
-                            PsiElement(identifier)('HttpClient')
+                      TypeArgument
+                        WildcardType: ? <: HttpClient
+                          PsiElement(?)('?')
+                          PsiWhiteSpace(' ')
+                          PsiElement(<:)('<:')
+                          PsiWhiteSpace(' ')
+                          SimpleType: HttpClient
+                            CodeReferenceElement: HttpClient
+                              PsiElement(identifier)('HttpClient')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      WildcardType: ? <: HttpClient
-                        PsiElement(?)('?')
-                        PsiWhiteSpace(' ')
-                        PsiElement(<:)('<:')
-                        PsiWhiteSpace(' ')
-                        SimpleType: HttpClient
-                          CodeReferenceElement: HttpClient
-                            PsiElement(identifier)('HttpClient')
+                      TypeArgument
+                        WildcardType: ? <: HttpClient
+                          PsiElement(?)('?')
+                          PsiWhiteSpace(' ')
+                          PsiElement(<:)('<:')
+                          PsiWhiteSpace(' ')
+                          SimpleType: HttpClient
+                            CodeReferenceElement: HttpClient
+                              PsiElement(identifier)('HttpClient')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -510,9 +514,10 @@ ScalaFile
                 PsiElement(identifier)('ArmeriaClientBuilder')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: F
-                CodeReferenceElement: F
-                  PsiElement(identifier)('F')
+              TypeArgument
+                SimpleType: F
+                  CodeReferenceElement: F
+                    PsiElement(identifier)('F')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

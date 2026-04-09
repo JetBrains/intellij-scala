@@ -274,26 +274,30 @@ ScalaFile
                           PsiElement(identifier)('Option')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        ParametrizedType: IndexedStore[B1x, B2x, A2x]
-                          SimpleType: IndexedStore
-                            CodeReferenceElement: IndexedStore
-                              PsiElement(identifier)('IndexedStore')
-                          TypeArgumentsList
-                            PsiElement([)('[')
-                            SimpleType: B1x
-                              CodeReferenceElement: B1x
-                                PsiElement(identifier)('B1x')
-                            PsiElement(,)(',')
-                            PsiWhiteSpace(' ')
-                            SimpleType: B2x
-                              CodeReferenceElement: B2x
-                                PsiElement(identifier)('B2x')
-                            PsiElement(,)(',')
-                            PsiWhiteSpace(' ')
-                            SimpleType: A2x
-                              CodeReferenceElement: A2x
-                                PsiElement(identifier)('A2x')
-                            PsiElement(])(']')
+                        TypeArgument
+                          ParametrizedType: IndexedStore[B1x, B2x, A2x]
+                            SimpleType: IndexedStore
+                              CodeReferenceElement: IndexedStore
+                                PsiElement(identifier)('IndexedStore')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: B1x
+                                  CodeReferenceElement: B1x
+                                    PsiElement(identifier)('B1x')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              TypeArgument
+                                SimpleType: B2x
+                                  CodeReferenceElement: B2x
+                                    PsiElement(identifier)('B2x')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              TypeArgument
+                                SimpleType: A2x
+                                  CodeReferenceElement: A2x
+                                    PsiElement(identifier)('A2x')
+                              PsiElement(])(']')
                         PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -304,24 +308,28 @@ ScalaFile
                 PsiElement(identifier)('PLensFamily')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A1x
-                CodeReferenceElement: A1x
-                  PsiElement(identifier)('A1x')
+              TypeArgument
+                SimpleType: A1x
+                  CodeReferenceElement: A1x
+                    PsiElement(identifier)('A1x')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: A2x
-                CodeReferenceElement: A2x
-                  PsiElement(identifier)('A2x')
+              TypeArgument
+                SimpleType: A2x
+                  CodeReferenceElement: A2x
+                    PsiElement(identifier)('A2x')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: B1x
-                CodeReferenceElement: B1x
-                  PsiElement(identifier)('B1x')
+              TypeArgument
+                SimpleType: B1x
+                  CodeReferenceElement: B1x
+                    PsiElement(identifier)('B1x')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: B2x
-                CodeReferenceElement: B2x
-                  PsiElement(identifier)('B2x')
+              TypeArgument
+                SimpleType: B2x
+                  CodeReferenceElement: B2x
+                    PsiElement(identifier)('B2x')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -368,9 +376,10 @@ ScalaFile
                 PsiElement(identifier)('LazyOption')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -405,38 +414,44 @@ ScalaFile
                 PsiElement(identifier)('PLensFamily')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: LazyOption[A1y]
-                SimpleType: LazyOption
-                  CodeReferenceElement: LazyOption
-                    PsiElement(identifier)('LazyOption')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: A1y
-                    CodeReferenceElement: A1y
-                      PsiElement(identifier)('A1y')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: LazyOption[A1y]
+                  SimpleType: LazyOption
+                    CodeReferenceElement: LazyOption
+                      PsiElement(identifier)('LazyOption')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: A1y
+                        CodeReferenceElement: A1y
+                          PsiElement(identifier)('A1y')
+                    PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              ParametrizedType: LazyOption[A2y]
-                SimpleType: LazyOption
-                  CodeReferenceElement: LazyOption
-                    PsiElement(identifier)('LazyOption')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: A2y
-                    CodeReferenceElement: A2y
-                      PsiElement(identifier)('A2y')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: LazyOption[A2y]
+                  SimpleType: LazyOption
+                    CodeReferenceElement: LazyOption
+                      PsiElement(identifier)('LazyOption')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: A2y
+                        CodeReferenceElement: A2y
+                          PsiElement(identifier)('A2y')
+                    PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: A1y
-                CodeReferenceElement: A1y
-                  PsiElement(identifier)('A1y')
+              TypeArgument
+                SimpleType: A1y
+                  CodeReferenceElement: A1y
+                    PsiElement(identifier)('A1y')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: A2y
-                CodeReferenceElement: A2y
-                  PsiElement(identifier)('A2y')
+              TypeArgument
+                SimpleType: A2y
+                  CodeReferenceElement: A2y
+                    PsiElement(identifier)('A2y')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

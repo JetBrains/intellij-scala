@@ -170,65 +170,68 @@ ScalaFile
           PsiElement(identifier)('summon')
         TypeArgumentsList
           PsiElement([)('[')
-          InfixType: Tuple.Filter[(1, 2, 3, 4), P] =:= (1, 2, 4)
-            ParametrizedType: Tuple.Filter[(1, 2, 3, 4), P]
-              SimpleType: Tuple.Filter
-                CodeReferenceElement: Tuple.Filter
-                  CodeReferenceElement: Tuple
-                    PsiElement(identifier)('Tuple')
-                  PsiElement(.)('.')
-                  PsiElement(identifier)('Filter')
-              TypeArgumentsList
-                PsiElement([)('[')
-                TupleType: (1, 2, 3, 4)
-                  PsiElement(()('(')
-                  TypesList
-                    LiteralType: 1
-                      IntegerLiteral
-                        PsiElement(integer)('1')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    LiteralType: 2
-                      IntegerLiteral
-                        PsiElement(integer)('2')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    LiteralType: 3
-                      IntegerLiteral
-                        PsiElement(integer)('3')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    LiteralType: 4
-                      IntegerLiteral
-                        PsiElement(integer)('4')
-                  PsiElement())(')')
-                PsiElement(,)(',')
-                PsiWhiteSpace(' ')
-                SimpleType: P
-                  CodeReferenceElement: P
-                    PsiElement(identifier)('P')
-                PsiElement(])(']')
-            PsiWhiteSpace(' ')
-            CodeReferenceElement: =:=
-              PsiElement(identifier)('=:=')
-            PsiWhiteSpace(' ')
-            TupleType: (1, 2, 4)
-              PsiElement(()('(')
-              TypesList
-                LiteralType: 1
-                  IntegerLiteral
-                    PsiElement(integer)('1')
-                PsiElement(,)(',')
-                PsiWhiteSpace(' ')
-                LiteralType: 2
-                  IntegerLiteral
-                    PsiElement(integer)('2')
-                PsiElement(,)(',')
-                PsiWhiteSpace(' ')
-                LiteralType: 4
-                  IntegerLiteral
-                    PsiElement(integer)('4')
-              PsiElement())(')')
+          TypeArgument
+            InfixType: Tuple.Filter[(1, 2, 3, 4), P] =:= (1, 2, 4)
+              ParametrizedType: Tuple.Filter[(1, 2, 3, 4), P]
+                SimpleType: Tuple.Filter
+                  CodeReferenceElement: Tuple.Filter
+                    CodeReferenceElement: Tuple
+                      PsiElement(identifier)('Tuple')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Filter')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    TupleType: (1, 2, 3, 4)
+                      PsiElement(()('(')
+                      TypesList
+                        LiteralType: 1
+                          IntegerLiteral
+                            PsiElement(integer)('1')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 2
+                          IntegerLiteral
+                            PsiElement(integer)('2')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 3
+                          IntegerLiteral
+                            PsiElement(integer)('3')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 4
+                          IntegerLiteral
+                            PsiElement(integer)('4')
+                      PsiElement())(')')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeArgument
+                    SimpleType: P
+                      CodeReferenceElement: P
+                        PsiElement(identifier)('P')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              TupleType: (1, 2, 4)
+                PsiElement(()('(')
+                TypesList
+                  LiteralType: 1
+                    IntegerLiteral
+                      PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  LiteralType: 2
+                    IntegerLiteral
+                      PsiElement(integer)('2')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  LiteralType: 4
+                    IntegerLiteral
+                      PsiElement(integer)('4')
+                PsiElement())(')')
           PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       GenericCall
@@ -236,51 +239,54 @@ ScalaFile
           PsiElement(identifier)('summon')
         TypeArgumentsList
           PsiElement([)('[')
-          InfixType: Tuple.Filter[(1, 2, 3, 4), RejectAll] =:= EmptyTuple
-            ParametrizedType: Tuple.Filter[(1, 2, 3, 4), RejectAll]
-              SimpleType: Tuple.Filter
-                CodeReferenceElement: Tuple.Filter
-                  CodeReferenceElement: Tuple
-                    PsiElement(identifier)('Tuple')
-                  PsiElement(.)('.')
-                  PsiElement(identifier)('Filter')
-              TypeArgumentsList
-                PsiElement([)('[')
-                TupleType: (1, 2, 3, 4)
-                  PsiElement(()('(')
-                  TypesList
-                    LiteralType: 1
-                      IntegerLiteral
-                        PsiElement(integer)('1')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    LiteralType: 2
-                      IntegerLiteral
-                        PsiElement(integer)('2')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    LiteralType: 3
-                      IntegerLiteral
-                        PsiElement(integer)('3')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    LiteralType: 4
-                      IntegerLiteral
-                        PsiElement(integer)('4')
-                  PsiElement())(')')
-                PsiElement(,)(',')
-                PsiWhiteSpace(' ')
-                SimpleType: RejectAll
-                  CodeReferenceElement: RejectAll
-                    PsiElement(identifier)('RejectAll')
-                PsiElement(])(']')
-            PsiWhiteSpace(' ')
-            CodeReferenceElement: =:=
-              PsiElement(identifier)('=:=')
-            PsiWhiteSpace(' ')
-            SimpleType: EmptyTuple
-              CodeReferenceElement: EmptyTuple
-                PsiElement(identifier)('EmptyTuple')
+          TypeArgument
+            InfixType: Tuple.Filter[(1, 2, 3, 4), RejectAll] =:= EmptyTuple
+              ParametrizedType: Tuple.Filter[(1, 2, 3, 4), RejectAll]
+                SimpleType: Tuple.Filter
+                  CodeReferenceElement: Tuple.Filter
+                    CodeReferenceElement: Tuple
+                      PsiElement(identifier)('Tuple')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Filter')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    TupleType: (1, 2, 3, 4)
+                      PsiElement(()('(')
+                      TypesList
+                        LiteralType: 1
+                          IntegerLiteral
+                            PsiElement(integer)('1')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 2
+                          IntegerLiteral
+                            PsiElement(integer)('2')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 3
+                          IntegerLiteral
+                            PsiElement(integer)('3')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 4
+                          IntegerLiteral
+                            PsiElement(integer)('4')
+                      PsiElement())(')')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeArgument
+                    SimpleType: RejectAll
+                      CodeReferenceElement: RejectAll
+                        PsiElement(identifier)('RejectAll')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              SimpleType: EmptyTuple
+                CodeReferenceElement: EmptyTuple
+                  PsiElement(identifier)('EmptyTuple')
           PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       GenericCall
@@ -288,32 +294,35 @@ ScalaFile
           PsiElement(identifier)('summon')
         TypeArgumentsList
           PsiElement([)('[')
-          InfixType: Tuple.Filter[EmptyTuple, P] =:= EmptyTuple
-            ParametrizedType: Tuple.Filter[EmptyTuple, P]
-              SimpleType: Tuple.Filter
-                CodeReferenceElement: Tuple.Filter
-                  CodeReferenceElement: Tuple
-                    PsiElement(identifier)('Tuple')
-                  PsiElement(.)('.')
-                  PsiElement(identifier)('Filter')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: EmptyTuple
-                  CodeReferenceElement: EmptyTuple
-                    PsiElement(identifier)('EmptyTuple')
-                PsiElement(,)(',')
-                PsiWhiteSpace(' ')
-                SimpleType: P
-                  CodeReferenceElement: P
-                    PsiElement(identifier)('P')
-                PsiElement(])(']')
-            PsiWhiteSpace(' ')
-            CodeReferenceElement: =:=
-              PsiElement(identifier)('=:=')
-            PsiWhiteSpace(' ')
-            SimpleType: EmptyTuple
-              CodeReferenceElement: EmptyTuple
-                PsiElement(identifier)('EmptyTuple')
+          TypeArgument
+            InfixType: Tuple.Filter[EmptyTuple, P] =:= EmptyTuple
+              ParametrizedType: Tuple.Filter[EmptyTuple, P]
+                SimpleType: Tuple.Filter
+                  CodeReferenceElement: Tuple.Filter
+                    CodeReferenceElement: Tuple
+                      PsiElement(identifier)('Tuple')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Filter')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: EmptyTuple
+                      CodeReferenceElement: EmptyTuple
+                        PsiElement(identifier)('EmptyTuple')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeArgument
+                    SimpleType: P
+                      CodeReferenceElement: P
+                        PsiElement(identifier)('P')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              SimpleType: EmptyTuple
+                CodeReferenceElement: EmptyTuple
+                  PsiElement(identifier)('EmptyTuple')
           PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       GenericCall
@@ -321,60 +330,63 @@ ScalaFile
           PsiElement(identifier)('summon')
         TypeArgumentsList
           PsiElement([)('[')
-          InfixType: Tuple.Filter[(1, -2, 3, -4), Pos] =:= (1, 3)
-            ParametrizedType: Tuple.Filter[(1, -2, 3, -4), Pos]
-              SimpleType: Tuple.Filter
-                CodeReferenceElement: Tuple.Filter
-                  CodeReferenceElement: Tuple
-                    PsiElement(identifier)('Tuple')
-                  PsiElement(.)('.')
-                  PsiElement(identifier)('Filter')
-              TypeArgumentsList
-                PsiElement([)('[')
-                TupleType: (1, -2, 3, -4)
-                  PsiElement(()('(')
-                  TypesList
-                    LiteralType: 1
-                      IntegerLiteral
-                        PsiElement(integer)('1')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    LiteralType: -2
-                      IntegerLiteral
-                        PsiElement(identifier)('-')
-                        PsiElement(integer)('2')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    LiteralType: 3
-                      IntegerLiteral
-                        PsiElement(integer)('3')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    LiteralType: -4
-                      IntegerLiteral
-                        PsiElement(identifier)('-')
-                        PsiElement(integer)('4')
-                  PsiElement())(')')
-                PsiElement(,)(',')
-                PsiWhiteSpace(' ')
-                SimpleType: Pos
-                  CodeReferenceElement: Pos
-                    PsiElement(identifier)('Pos')
-                PsiElement(])(']')
-            PsiWhiteSpace(' ')
-            CodeReferenceElement: =:=
-              PsiElement(identifier)('=:=')
-            PsiWhiteSpace(' ')
-            TupleType: (1, 3)
-              PsiElement(()('(')
-              TypesList
-                LiteralType: 1
-                  IntegerLiteral
-                    PsiElement(integer)('1')
-                PsiElement(,)(',')
-                PsiWhiteSpace(' ')
-                LiteralType: 3
-                  IntegerLiteral
-                    PsiElement(integer)('3')
-              PsiElement())(')')
+          TypeArgument
+            InfixType: Tuple.Filter[(1, -2, 3, -4), Pos] =:= (1, 3)
+              ParametrizedType: Tuple.Filter[(1, -2, 3, -4), Pos]
+                SimpleType: Tuple.Filter
+                  CodeReferenceElement: Tuple.Filter
+                    CodeReferenceElement: Tuple
+                      PsiElement(identifier)('Tuple')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Filter')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    TupleType: (1, -2, 3, -4)
+                      PsiElement(()('(')
+                      TypesList
+                        LiteralType: 1
+                          IntegerLiteral
+                            PsiElement(integer)('1')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        LiteralType: -2
+                          IntegerLiteral
+                            PsiElement(identifier)('-')
+                            PsiElement(integer)('2')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 3
+                          IntegerLiteral
+                            PsiElement(integer)('3')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        LiteralType: -4
+                          IntegerLiteral
+                            PsiElement(identifier)('-')
+                            PsiElement(integer)('4')
+                      PsiElement())(')')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeArgument
+                    SimpleType: Pos
+                      CodeReferenceElement: Pos
+                        PsiElement(identifier)('Pos')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              TupleType: (1, 3)
+                PsiElement(()('(')
+                TypesList
+                  LiteralType: 1
+                    IntegerLiteral
+                      PsiElement(integer)('1')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  LiteralType: 3
+                    IntegerLiteral
+                      PsiElement(integer)('3')
+                PsiElement())(')')
           PsiElement(])(']')

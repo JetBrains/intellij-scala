@@ -133,9 +133,10 @@ ScalaFile
                 PsiElement(identifier)('Ordering')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Entry
-                CodeReferenceElement: Entry
-                  PsiElement(identifier)('Entry')
+              TypeArgument
+                SimpleType: Entry
+                  CodeReferenceElement: Entry
+                    PsiElement(identifier)('Entry')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -152,9 +153,10 @@ ScalaFile
                         PsiElement(identifier)('Ordering')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Entry
-                        CodeReferenceElement: Entry
-                          PsiElement(identifier)('Entry')
+                      TypeArgument
+                        SimpleType: Entry
+                          CodeReferenceElement: Entry
+                            PsiElement(identifier)('Entry')
                       PsiElement(])(']')
               PsiWhiteSpace(' ')
               ScTemplateBody

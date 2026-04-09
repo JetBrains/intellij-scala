@@ -169,23 +169,24 @@ ScalaFile
               PsiElement(identifier)('f')
             TypeArgumentsList
               PsiElement([)('[')
-              InfixType: scala.collection.StringOps | String
-                SimpleType: scala.collection.StringOps
-                  CodeReferenceElement: scala.collection.StringOps
-                    CodeReferenceElement: scala.collection
-                      CodeReferenceElement: scala
-                        PsiElement(identifier)('scala')
+              TypeArgument
+                InfixType: scala.collection.StringOps | String
+                  SimpleType: scala.collection.StringOps
+                    CodeReferenceElement: scala.collection.StringOps
+                      CodeReferenceElement: scala.collection
+                        CodeReferenceElement: scala
+                          PsiElement(identifier)('scala')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('collection')
                       PsiElement(.)('.')
-                      PsiElement(identifier)('collection')
-                    PsiElement(.)('.')
-                    PsiElement(identifier)('StringOps')
-                PsiWhiteSpace(' ')
-                CodeReferenceElement: |
-                  PsiElement(identifier)('|')
-                PsiWhiteSpace(' ')
-                SimpleType: String
-                  CodeReferenceElement: String
-                    PsiElement(identifier)('String')
+                      PsiElement(identifier)('StringOps')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: |
+                    PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
               PsiElement(])(']')
           ArgumentList
             PsiElement(()('(')

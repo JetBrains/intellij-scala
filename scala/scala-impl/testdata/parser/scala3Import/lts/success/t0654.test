@@ -63,14 +63,15 @@ ScalaFile
                 PsiElement(identifier)('Foo')
             TypeArgumentsList
               PsiElement([)('[')
-              WildcardType: _ <: T
-                PsiElement(_)('_')
-                PsiWhiteSpace(' ')
-                PsiElement(<:)('<:')
-                PsiWhiteSpace(' ')
-                SimpleType: T
-                  CodeReferenceElement: T
-                    PsiElement(identifier)('T')
+              TypeArgument
+                WildcardType: _ <: T
+                  PsiElement(_)('_')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<:)('<:')
+                  PsiWhiteSpace(' ')
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
               PsiElement(])(']')
         PsiWhiteSpace('   ')
         PsiComment(comment)('// error: parameter type T of type alias does not appear as type argument of the aliased class Foo')
@@ -93,9 +94,10 @@ ScalaFile
                 PsiElement(identifier)('C')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: AnyRef
-                CodeReferenceElement: AnyRef
-                  PsiElement(identifier)('AnyRef')
+              TypeArgument
+                SimpleType: AnyRef
+                  CodeReferenceElement: AnyRef
+                    PsiElement(identifier)('AnyRef')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -112,9 +114,10 @@ ScalaFile
                         PsiElement(identifier)('Foo')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: AnyRef
-                        CodeReferenceElement: AnyRef
-                          PsiElement(identifier)('AnyRef')
+                      TypeArgument
+                        SimpleType: AnyRef
+                          CodeReferenceElement: AnyRef
+                            PsiElement(identifier)('AnyRef')
                       PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

@@ -200,9 +200,10 @@ ScalaFile
                 PsiElement(identifier)('Lazy')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -315,9 +316,10 @@ ScalaFile
                       PsiElement(identifier)('MyTypeClass')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Int
-                      CodeReferenceElement: Int
-                        PsiElement(identifier)('Int')
+                    TypeArgument
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
                     PsiElement(])(']')
             ScTemplateBody
               PsiElement(:)(':')
@@ -400,9 +402,10 @@ ScalaFile
                         PsiElement(identifier)('Of')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                       PsiElement(])(']')
               PsiElement())(')')
             PsiWhiteSpace(' ')
@@ -414,9 +417,10 @@ ScalaFile
                 PsiElement(identifier)('MyTypeClass')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -448,9 +452,10 @@ ScalaFile
                           PsiElement(identifier)('ProductOf')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: A
-                          CodeReferenceElement: A
-                            PsiElement(identifier)('A')
+                        TypeArgument
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
                         PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
@@ -503,9 +508,10 @@ ScalaFile
                         PsiElement(identifier)('Of')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -516,9 +522,10 @@ ScalaFile
                 PsiElement(identifier)('IArray')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Object
-                CodeReferenceElement: Object
-                  PsiElement(identifier)('Object')
+              TypeArgument
+                SimpleType: Object
+                  CodeReferenceElement: Object
+                    PsiElement(identifier)('Object')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -531,50 +538,55 @@ ScalaFile
                 PsiElement(identifier)('summonAll')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: Tuple.Map[m.MirroredElemTypes, [A] =>> Lazy[MyTypeClass[A]]]
-                  SimpleType: Tuple.Map
-                    CodeReferenceElement: Tuple.Map
-                      CodeReferenceElement: Tuple
-                        PsiElement(identifier)('Tuple')
-                      PsiElement(.)('.')
-                      PsiElement(identifier)('Map')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: m.MirroredElemTypes
-                      CodeReferenceElement: m.MirroredElemTypes
-                        CodeReferenceElement: m
-                          PsiElement(identifier)('m')
+                TypeArgument
+                  ParametrizedType: Tuple.Map[m.MirroredElemTypes, [A] =>> Lazy[MyTypeClass[A]]]
+                    SimpleType: Tuple.Map
+                      CodeReferenceElement: Tuple.Map
+                        CodeReferenceElement: Tuple
+                          PsiElement(identifier)('Tuple')
                         PsiElement(.)('.')
-                        PsiElement(identifier)('MirroredElemTypes')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    TypeLambda: [A] =>> Lazy[MyTypeClass[A]]
-                      TypeParameterClause
-                        PsiElement([)('[')
-                        TypeParameter: A
-                          PsiElement(identifier)('A')
-                        PsiElement(])(']')
+                        PsiElement(identifier)('Map')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: m.MirroredElemTypes
+                          CodeReferenceElement: m.MirroredElemTypes
+                            CodeReferenceElement: m
+                              PsiElement(identifier)('m')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('MirroredElemTypes')
+                      PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      PsiElement(=>>)('=>>')
-                      PsiWhiteSpace(' ')
-                      ParametrizedType: Lazy[MyTypeClass[A]]
-                        SimpleType: Lazy
-                          CodeReferenceElement: Lazy
-                            PsiElement(identifier)('Lazy')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          ParametrizedType: MyTypeClass[A]
-                            SimpleType: MyTypeClass
-                              CodeReferenceElement: MyTypeClass
-                                PsiElement(identifier)('MyTypeClass')
+                      TypeArgument
+                        TypeLambda: [A] =>> Lazy[MyTypeClass[A]]
+                          TypeParameterClause
+                            PsiElement([)('[')
+                            TypeParameter: A
+                              PsiElement(identifier)('A')
+                            PsiElement(])(']')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>>)('=>>')
+                          PsiWhiteSpace(' ')
+                          ParametrizedType: Lazy[MyTypeClass[A]]
+                            SimpleType: Lazy
+                              CodeReferenceElement: Lazy
+                                PsiElement(identifier)('Lazy')
                             TypeArgumentsList
                               PsiElement([)('[')
-                              SimpleType: A
-                                CodeReferenceElement: A
-                                  PsiElement(identifier)('A')
+                              TypeArgument
+                                ParametrizedType: MyTypeClass[A]
+                                  SimpleType: MyTypeClass
+                                    CodeReferenceElement: MyTypeClass
+                                      PsiElement(identifier)('MyTypeClass')
+                                  TypeArgumentsList
+                                    PsiElement([)('[')
+                                    TypeArgument
+                                      SimpleType: A
+                                        CodeReferenceElement: A
+                                          PsiElement(identifier)('A')
+                                    PsiElement(])(']')
                               PsiElement(])(']')
-                          PsiElement(])(']')
-                    PsiElement(])(']')
+                      PsiElement(])(']')
                 PsiElement(])(']')
             PsiElement(.)('.')
             PsiElement(identifier)('toIArray')
@@ -621,9 +633,10 @@ ScalaFile
                         PsiElement(identifier)('ProductOf')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -634,9 +647,10 @@ ScalaFile
                 PsiElement(identifier)('MyTypeClass')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -678,9 +692,10 @@ ScalaFile
                           PsiElement(identifier)('MyTypeClass')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: A
-                          CodeReferenceElement: A
-                            PsiElement(identifier)('A')
+                        TypeArgument
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
                         PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 ScTemplateBody
@@ -742,9 +757,10 @@ ScalaFile
                             PsiElement(identifier)('asInstanceOf')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: Product
-                              CodeReferenceElement: Product
-                                PsiElement(identifier)('Product')
+                            TypeArgument
+                              SimpleType: Product
+                                CodeReferenceElement: Product
+                                  PsiElement(identifier)('Product')
                             PsiElement(])(']')
                       PsiWhiteSpace('\n        ')
                       MethodCall
@@ -822,23 +838,26 @@ ScalaFile
                                           PsiElement(identifier)('asInstanceOf')
                                         TypeArgumentsList
                                           PsiElement([)('[')
-                                          ParametrizedType: Lazy[MyTypeClass[Any]]
-                                            SimpleType: Lazy
-                                              CodeReferenceElement: Lazy
-                                                PsiElement(identifier)('Lazy')
-                                            TypeArgumentsList
-                                              PsiElement([)('[')
-                                              ParametrizedType: MyTypeClass[Any]
-                                                SimpleType: MyTypeClass
-                                                  CodeReferenceElement: MyTypeClass
-                                                    PsiElement(identifier)('MyTypeClass')
-                                                TypeArgumentsList
-                                                  PsiElement([)('[')
-                                                  SimpleType: Any
-                                                    CodeReferenceElement: Any
-                                                      PsiElement(identifier)('Any')
-                                                  PsiElement(])(']')
-                                              PsiElement(])(']')
+                                          TypeArgument
+                                            ParametrizedType: Lazy[MyTypeClass[Any]]
+                                              SimpleType: Lazy
+                                                CodeReferenceElement: Lazy
+                                                  PsiElement(identifier)('Lazy')
+                                              TypeArgumentsList
+                                                PsiElement([)('[')
+                                                TypeArgument
+                                                  ParametrizedType: MyTypeClass[Any]
+                                                    SimpleType: MyTypeClass
+                                                      CodeReferenceElement: MyTypeClass
+                                                        PsiElement(identifier)('MyTypeClass')
+                                                    TypeArgumentsList
+                                                      PsiElement([)('[')
+                                                      TypeArgument
+                                                        SimpleType: Any
+                                                          CodeReferenceElement: Any
+                                                            PsiElement(identifier)('Any')
+                                                      PsiElement(])(']')
+                                                PsiElement(])(']')
                                           PsiElement(])(']')
                                       PsiElement(.)('.')
                                       PsiElement(identifier)('value')
@@ -982,9 +1001,10 @@ ScalaFile
                         PsiElement(identifier)('Array')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: String
-                        CodeReferenceElement: String
-                          PsiElement(identifier)('String')
+                      TypeArgument
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -1019,16 +1039,18 @@ ScalaFile
                         PsiElement(identifier)('summon')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        ParametrizedType: MyTypeClass[Example]
-                          SimpleType: MyTypeClass
-                            CodeReferenceElement: MyTypeClass
-                              PsiElement(identifier)('MyTypeClass')
-                          TypeArgumentsList
-                            PsiElement([)('[')
-                            SimpleType: Example
-                              CodeReferenceElement: Example
-                                PsiElement(identifier)('Example')
-                            PsiElement(])(']')
+                        TypeArgument
+                          ParametrizedType: MyTypeClass[Example]
+                            SimpleType: MyTypeClass
+                              CodeReferenceElement: MyTypeClass
+                                PsiElement(identifier)('MyTypeClass')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: Example
+                                  CodeReferenceElement: Example
+                                    PsiElement(identifier)('Example')
+                              PsiElement(])(']')
                         PsiElement(])(']')
                     PsiElement(.)('.')
                     PsiElement(identifier)('makeString')

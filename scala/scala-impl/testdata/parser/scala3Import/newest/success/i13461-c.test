@@ -152,9 +152,10 @@ ScalaFile
                 PsiElement(identifier)('List')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Time
-                CodeReferenceElement: Time
-                  PsiElement(identifier)('Time')
+              TypeArgument
+                SimpleType: Time
+                  CodeReferenceElement: Time
+                    PsiElement(identifier)('Time')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -199,9 +200,10 @@ ScalaFile
                 PsiElement(identifier)('List')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Time
-                CodeReferenceElement: Time
-                  PsiElement(identifier)('Time')
+              TypeArgument
+                SimpleType: Time
+                  CodeReferenceElement: Time
+                    PsiElement(identifier)('Time')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -229,9 +231,10 @@ ScalaFile
                   PsiElement(identifier)('List')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Seconds
-                  CodeReferenceElement: Seconds
-                    PsiElement(identifier)('Seconds')
+                TypeArgument
+                  SimpleType: Seconds
+                    CodeReferenceElement: Seconds
+                      PsiElement(identifier)('Seconds')
                 PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiComment(comment)('// returns List[Seconds]')
@@ -259,9 +262,10 @@ ScalaFile
                 PsiElement(identifier)('List')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Time
-                CodeReferenceElement: Time
-                  PsiElement(identifier)('Time')
+              TypeArgument
+                SimpleType: Time
+                  CodeReferenceElement: Time
+                    PsiElement(identifier)('Time')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -272,9 +276,10 @@ ScalaFile
                 PsiElement(identifier)('List')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Seconds
-                  CodeReferenceElement: Seconds
-                    PsiElement(identifier)('Seconds')
+                TypeArgument
+                  SimpleType: Seconds
+                    CodeReferenceElement: Seconds
+                      PsiElement(identifier)('Seconds')
                 PsiElement(])(']')
             ArgumentList
               PsiElement(()('(')
@@ -313,9 +318,10 @@ ScalaFile
                 PsiElement(identifier)('List')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Time
-                CodeReferenceElement: Time
-                  PsiElement(identifier)('Time')
+              TypeArgument
+                SimpleType: Time
+                  CodeReferenceElement: Time
+                    PsiElement(identifier)('Time')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -326,9 +332,10 @@ ScalaFile
                 PsiElement(identifier)('List')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: String
-                  CodeReferenceElement: String
-                    PsiElement(identifier)('String')
+                TypeArgument
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
                 PsiElement(])(']')
             ArgumentList
               PsiElement(()('(')
@@ -390,9 +397,10 @@ ScalaFile
               PsiElement(identifier)('List')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: String
-              CodeReferenceElement: String
-                PsiElement(identifier)('String')
+            TypeArgument
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
             PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiElement(=)('=')
@@ -427,12 +435,13 @@ ScalaFile
               PsiElement(identifier)('List')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: Time.Seconds
-              CodeReferenceElement: Time.Seconds
-                CodeReferenceElement: Time
-                  PsiElement(identifier)('Time')
-                PsiElement(.)('.')
-                PsiElement(identifier)('Seconds')
+            TypeArgument
+              SimpleType: Time.Seconds
+                CodeReferenceElement: Time.Seconds
+                  CodeReferenceElement: Time
+                    PsiElement(identifier)('Time')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Seconds')
             PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiElement(=)('=')
@@ -467,12 +476,13 @@ ScalaFile
               PsiElement(identifier)('List')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: Time.Seconds
-              CodeReferenceElement: Time.Seconds
-                CodeReferenceElement: Time
-                  PsiElement(identifier)('Time')
-                PsiElement(.)('.')
-                PsiElement(identifier)('Seconds')
+            TypeArgument
+              SimpleType: Time.Seconds
+                CodeReferenceElement: Time.Seconds
+                  CodeReferenceElement: Time
+                    PsiElement(identifier)('Time')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Seconds')
             PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiElement(=)('=')
@@ -507,9 +517,10 @@ ScalaFile
               PsiElement(identifier)('List')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: String
-              CodeReferenceElement: String
-                PsiElement(identifier)('String')
+            TypeArgument
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
             PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiElement(=)('=')

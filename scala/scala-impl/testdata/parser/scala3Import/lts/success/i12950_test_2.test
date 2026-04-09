@@ -47,9 +47,10 @@ ScalaFile
         PsiElement(identifier)('lift')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: Two
-          CodeReferenceElement: Two
-            PsiElement(identifier)('Two')
+        TypeArgument
+          SimpleType: Two
+            CodeReferenceElement: Two
+              PsiElement(identifier)('Two')
         PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScPatternDefinition
@@ -73,9 +74,10 @@ ScalaFile
         PsiElement(identifier)('repro')
       TypeArgumentsList
         PsiElement([)('[')
-        LiteralType: 2
-          IntegerLiteral
-            PsiElement(integer)('2')
+        TypeArgument
+          LiteralType: 2
+            IntegerLiteral
+              PsiElement(integer)('2')
         PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScPatternDefinition: y
@@ -99,9 +101,10 @@ ScalaFile
         PsiElement(identifier)('lift')
       TypeArgumentsList
         PsiElement([)('[')
-        LiteralType: 2
-          IntegerLiteral
-            PsiElement(integer)('2')
+        TypeArgument
+          LiteralType: 2
+            IntegerLiteral
+              PsiElement(integer)('2')
         PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScPatternDefinition
@@ -125,7 +128,8 @@ ScalaFile
         PsiElement(identifier)('repro')
       TypeArgumentsList
         PsiElement([)('[')
-        LiteralType: 2
-          IntegerLiteral
-            PsiElement(integer)('2')
+        TypeArgument
+          LiteralType: 2
+            IntegerLiteral
+              PsiElement(integer)('2')
         PsiElement(])(']')

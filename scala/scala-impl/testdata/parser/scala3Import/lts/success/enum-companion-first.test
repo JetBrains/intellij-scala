@@ -93,9 +93,10 @@ ScalaFile
                 PsiElement(identifier)('Enum')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Planet
-                CodeReferenceElement: Planet
-                  PsiElement(identifier)('Planet')
+              TypeArgument
+                SimpleType: Planet
+                  CodeReferenceElement: Planet
+                    PsiElement(identifier)('Planet')
               PsiElement(])(']')
       ScTemplateBody
         PsiElement(:)(':')

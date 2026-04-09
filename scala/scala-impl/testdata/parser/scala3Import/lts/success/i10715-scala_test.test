@@ -380,9 +380,10 @@ ScalaFile
           PsiElement(identifier)('g')
         TypeArgumentsList
           PsiElement([)('[')
-          SimpleType: Int
-            CodeReferenceElement: Int
-              PsiElement(identifier)('Int')
+          TypeArgument
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
           PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       MethodCall
@@ -419,9 +420,10 @@ ScalaFile
               PsiElement(identifier)('g')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
+              TypeArgument
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
               PsiElement(])(']')
           PsiElement(.)('.')
           PsiElement(identifier)('+')

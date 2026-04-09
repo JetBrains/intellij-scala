@@ -29,9 +29,10 @@ ScalaFile
               PsiElement(identifier)('List')
           TypeArgumentsList
             PsiElement([)('[')
-            LiteralType: 1
-              IntegerLiteral
-                PsiElement(integer)('1')
+            TypeArgument
+              LiteralType: 1
+                IntegerLiteral
+                  PsiElement(integer)('1')
             PsiElement(])(']')
       PsiElement(])(']')
     PrimaryConstructor
@@ -57,9 +58,10 @@ ScalaFile
                     PsiElement(identifier)('List')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  LiteralType: 1
-                    IntegerLiteral
-                      PsiElement(integer)('1')
+                  TypeArgument
+                    LiteralType: 1
+                      IntegerLiteral
+                        PsiElement(integer)('1')
                   PsiElement(])(']')
           PsiElement())(')')
     PsiWhiteSpace(' ')
@@ -93,9 +95,10 @@ ScalaFile
                         PsiElement(identifier)('List')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      LiteralType: 1
-                        IntegerLiteral
-                          PsiElement(integer)('1')
+                      TypeArgument
+                        LiteralType: 1
+                          IntegerLiteral
+                            PsiElement(integer)('1')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -106,9 +109,10 @@ ScalaFile
                 PsiElement(identifier)('List')
             TypeArgumentsList
               PsiElement([)('[')
-              LiteralType: true
-                BooleanLiteral
-                  PsiElement(true)('true')
+              TypeArgument
+                LiteralType: true
+                  BooleanLiteral
+                    PsiElement(true)('true')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -137,9 +141,10 @@ ScalaFile
                     PsiElement(identifier)('List')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  LiteralType: 1
-                    IntegerLiteral
-                      PsiElement(integer)('1')
+                  TypeArgument
+                    LiteralType: 1
+                      IntegerLiteral
+                        PsiElement(integer)('1')
                   PsiElement(])(']')
             PsiElement(])(']')
           Parameters
@@ -160,9 +165,10 @@ ScalaFile
                         PsiElement(identifier)('List')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      LiteralType: 'z'
-                        CharLiteral
-                          PsiElement(Character)(''z'')
+                      TypeArgument
+                        LiteralType: 'z'
+                          CharLiteral
+                            PsiElement(Character)(''z'')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -173,9 +179,10 @@ ScalaFile
                 PsiElement(identifier)('List')
             TypeArgumentsList
               PsiElement([)('[')
-              LiteralType: 1.0e9
-                DoubleLiteral
-                  PsiElement(double)('1.0e9')
+              TypeArgument
+                LiteralType: 1.0e9
+                  DoubleLiteral
+                    PsiElement(double)('1.0e9')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

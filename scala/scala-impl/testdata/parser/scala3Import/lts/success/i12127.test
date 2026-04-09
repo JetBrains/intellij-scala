@@ -92,9 +92,10 @@ ScalaFile
                 PsiElement(identifier)('IsMappedBy')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Option
-                CodeReferenceElement: Option
-                  PsiElement(identifier)('Option')
+              TypeArgument
+                SimpleType: Option
+                  CodeReferenceElement: Option
+                    PsiElement(identifier)('Option')
               PsiElement(])(']')
       PsiElement(])(']')
     Parameters
@@ -134,14 +135,16 @@ ScalaFile
                     PsiElement(identifier)('InverseMap')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: T
-                    CodeReferenceElement: T
-                      PsiElement(identifier)('T')
+                  TypeArgument
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
-                  SimpleType: Option
-                    CodeReferenceElement: Option
-                      PsiElement(identifier)('Option')
+                  TypeArgument
+                    SimpleType: Option
+                      CodeReferenceElement: Option
+                        PsiElement(identifier)('Option')
                   PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(=>)('=>')

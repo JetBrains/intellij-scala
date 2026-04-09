@@ -1110,16 +1110,18 @@ ScalaFile
                                                                                                                                                                                                 PsiElement(identifier)('asInstanceOf')
                                                                                                                                                                                               TypeArgumentsList
                                                                                                                                                                                                 PsiElement([)('[')
-                                                                                                                                                                                                ParametrizedType: List[AnyRef]
-                                                                                                                                                                                                  SimpleType: List
-                                                                                                                                                                                                    CodeReferenceElement: List
-                                                                                                                                                                                                      PsiElement(identifier)('List')
-                                                                                                                                                                                                  TypeArgumentsList
-                                                                                                                                                                                                    PsiElement([)('[')
-                                                                                                                                                                                                    SimpleType: AnyRef
-                                                                                                                                                                                                      CodeReferenceElement: AnyRef
-                                                                                                                                                                                                        PsiElement(identifier)('AnyRef')
-                                                                                                                                                                                                    PsiElement(])(']')
+                                                                                                                                                                                                TypeArgument
+                                                                                                                                                                                                  ParametrizedType: List[AnyRef]
+                                                                                                                                                                                                    SimpleType: List
+                                                                                                                                                                                                      CodeReferenceElement: List
+                                                                                                                                                                                                        PsiElement(identifier)('List')
+                                                                                                                                                                                                    TypeArgumentsList
+                                                                                                                                                                                                      PsiElement([)('[')
+                                                                                                                                                                                                      TypeArgument
+                                                                                                                                                                                                        SimpleType: AnyRef
+                                                                                                                                                                                                          CodeReferenceElement: AnyRef
+                                                                                                                                                                                                            PsiElement(identifier)('AnyRef')
+                                                                                                                                                                                                      PsiElement(])(']')
                                                                                                                                                                                                 PsiElement(])(']')
                                                                                                                                                                                             PsiElement(.)('.')
                                                                                                                                                                                             PsiElement(identifier)('head')
@@ -1128,16 +1130,18 @@ ScalaFile
                                                                                                                                                                                           PsiElement(identifier)('asInstanceOf')
                                                                                                                                                                                         TypeArgumentsList
                                                                                                                                                                                           PsiElement([)('[')
-                                                                                                                                                                                          ParametrizedType: List[AnyRef]
-                                                                                                                                                                                            SimpleType: List
-                                                                                                                                                                                              CodeReferenceElement: List
-                                                                                                                                                                                                PsiElement(identifier)('List')
-                                                                                                                                                                                            TypeArgumentsList
-                                                                                                                                                                                              PsiElement([)('[')
-                                                                                                                                                                                              SimpleType: AnyRef
-                                                                                                                                                                                                CodeReferenceElement: AnyRef
-                                                                                                                                                                                                  PsiElement(identifier)('AnyRef')
-                                                                                                                                                                                              PsiElement(])(']')
+                                                                                                                                                                                          TypeArgument
+                                                                                                                                                                                            ParametrizedType: List[AnyRef]
+                                                                                                                                                                                              SimpleType: List
+                                                                                                                                                                                                CodeReferenceElement: List
+                                                                                                                                                                                                  PsiElement(identifier)('List')
+                                                                                                                                                                                              TypeArgumentsList
+                                                                                                                                                                                                PsiElement([)('[')
+                                                                                                                                                                                                TypeArgument
+                                                                                                                                                                                                  SimpleType: AnyRef
+                                                                                                                                                                                                    CodeReferenceElement: AnyRef
+                                                                                                                                                                                                      PsiElement(identifier)('AnyRef')
+                                                                                                                                                                                                PsiElement(])(']')
                                                                                                                                                                                           PsiElement(])(']')
                                                                                                                                                                                       PsiElement(.)('.')
                                                                                                                                                                                       PsiElement(identifier)('head')
@@ -1146,16 +1150,18 @@ ScalaFile
                                                                                                                                                                                     PsiElement(identifier)('asInstanceOf')
                                                                                                                                                                                   TypeArgumentsList
                                                                                                                                                                                     PsiElement([)('[')
-                                                                                                                                                                                    ParametrizedType: List[AnyRef]
-                                                                                                                                                                                      SimpleType: List
-                                                                                                                                                                                        CodeReferenceElement: List
-                                                                                                                                                                                          PsiElement(identifier)('List')
-                                                                                                                                                                                      TypeArgumentsList
-                                                                                                                                                                                        PsiElement([)('[')
-                                                                                                                                                                                        SimpleType: AnyRef
-                                                                                                                                                                                          CodeReferenceElement: AnyRef
-                                                                                                                                                                                            PsiElement(identifier)('AnyRef')
-                                                                                                                                                                                        PsiElement(])(']')
+                                                                                                                                                                                    TypeArgument
+                                                                                                                                                                                      ParametrizedType: List[AnyRef]
+                                                                                                                                                                                        SimpleType: List
+                                                                                                                                                                                          CodeReferenceElement: List
+                                                                                                                                                                                            PsiElement(identifier)('List')
+                                                                                                                                                                                        TypeArgumentsList
+                                                                                                                                                                                          PsiElement([)('[')
+                                                                                                                                                                                          TypeArgument
+                                                                                                                                                                                            SimpleType: AnyRef
+                                                                                                                                                                                              CodeReferenceElement: AnyRef
+                                                                                                                                                                                                PsiElement(identifier)('AnyRef')
+                                                                                                                                                                                          PsiElement(])(']')
                                                                                                                                                                                     PsiElement(])(']')
                                                                                                                                                                                 PsiElement(.)('.')
                                                                                                                                                                                 PsiElement(identifier)('head')
@@ -1164,16 +1170,18 @@ ScalaFile
                                                                                                                                                                               PsiElement(identifier)('asInstanceOf')
                                                                                                                                                                             TypeArgumentsList
                                                                                                                                                                               PsiElement([)('[')
-                                                                                                                                                                              ParametrizedType: List[AnyRef]
-                                                                                                                                                                                SimpleType: List
-                                                                                                                                                                                  CodeReferenceElement: List
-                                                                                                                                                                                    PsiElement(identifier)('List')
-                                                                                                                                                                                TypeArgumentsList
-                                                                                                                                                                                  PsiElement([)('[')
-                                                                                                                                                                                  SimpleType: AnyRef
-                                                                                                                                                                                    CodeReferenceElement: AnyRef
-                                                                                                                                                                                      PsiElement(identifier)('AnyRef')
-                                                                                                                                                                                  PsiElement(])(']')
+                                                                                                                                                                              TypeArgument
+                                                                                                                                                                                ParametrizedType: List[AnyRef]
+                                                                                                                                                                                  SimpleType: List
+                                                                                                                                                                                    CodeReferenceElement: List
+                                                                                                                                                                                      PsiElement(identifier)('List')
+                                                                                                                                                                                  TypeArgumentsList
+                                                                                                                                                                                    PsiElement([)('[')
+                                                                                                                                                                                    TypeArgument
+                                                                                                                                                                                      SimpleType: AnyRef
+                                                                                                                                                                                        CodeReferenceElement: AnyRef
+                                                                                                                                                                                          PsiElement(identifier)('AnyRef')
+                                                                                                                                                                                    PsiElement(])(']')
                                                                                                                                                                               PsiElement(])(']')
                                                                                                                                                                           PsiElement(.)('.')
                                                                                                                                                                           PsiElement(identifier)('head')
@@ -1182,16 +1190,18 @@ ScalaFile
                                                                                                                                                                         PsiElement(identifier)('asInstanceOf')
                                                                                                                                                                       TypeArgumentsList
                                                                                                                                                                         PsiElement([)('[')
-                                                                                                                                                                        ParametrizedType: List[AnyRef]
-                                                                                                                                                                          SimpleType: List
-                                                                                                                                                                            CodeReferenceElement: List
-                                                                                                                                                                              PsiElement(identifier)('List')
-                                                                                                                                                                          TypeArgumentsList
-                                                                                                                                                                            PsiElement([)('[')
-                                                                                                                                                                            SimpleType: AnyRef
-                                                                                                                                                                              CodeReferenceElement: AnyRef
-                                                                                                                                                                                PsiElement(identifier)('AnyRef')
-                                                                                                                                                                            PsiElement(])(']')
+                                                                                                                                                                        TypeArgument
+                                                                                                                                                                          ParametrizedType: List[AnyRef]
+                                                                                                                                                                            SimpleType: List
+                                                                                                                                                                              CodeReferenceElement: List
+                                                                                                                                                                                PsiElement(identifier)('List')
+                                                                                                                                                                            TypeArgumentsList
+                                                                                                                                                                              PsiElement([)('[')
+                                                                                                                                                                              TypeArgument
+                                                                                                                                                                                SimpleType: AnyRef
+                                                                                                                                                                                  CodeReferenceElement: AnyRef
+                                                                                                                                                                                    PsiElement(identifier)('AnyRef')
+                                                                                                                                                                              PsiElement(])(']')
                                                                                                                                                                         PsiElement(])(']')
                                                                                                                                                                     PsiElement(.)('.')
                                                                                                                                                                     PsiElement(identifier)('head')
@@ -1200,16 +1210,18 @@ ScalaFile
                                                                                                                                                                   PsiElement(identifier)('asInstanceOf')
                                                                                                                                                                 TypeArgumentsList
                                                                                                                                                                   PsiElement([)('[')
-                                                                                                                                                                  ParametrizedType: List[AnyRef]
-                                                                                                                                                                    SimpleType: List
-                                                                                                                                                                      CodeReferenceElement: List
-                                                                                                                                                                        PsiElement(identifier)('List')
-                                                                                                                                                                    TypeArgumentsList
-                                                                                                                                                                      PsiElement([)('[')
-                                                                                                                                                                      SimpleType: AnyRef
-                                                                                                                                                                        CodeReferenceElement: AnyRef
-                                                                                                                                                                          PsiElement(identifier)('AnyRef')
-                                                                                                                                                                      PsiElement(])(']')
+                                                                                                                                                                  TypeArgument
+                                                                                                                                                                    ParametrizedType: List[AnyRef]
+                                                                                                                                                                      SimpleType: List
+                                                                                                                                                                        CodeReferenceElement: List
+                                                                                                                                                                          PsiElement(identifier)('List')
+                                                                                                                                                                      TypeArgumentsList
+                                                                                                                                                                        PsiElement([)('[')
+                                                                                                                                                                        TypeArgument
+                                                                                                                                                                          SimpleType: AnyRef
+                                                                                                                                                                            CodeReferenceElement: AnyRef
+                                                                                                                                                                              PsiElement(identifier)('AnyRef')
+                                                                                                                                                                        PsiElement(])(']')
                                                                                                                                                                   PsiElement(])(']')
                                                                                                                                                               PsiElement(.)('.')
                                                                                                                                                               PsiElement(identifier)('head')
@@ -1218,16 +1230,18 @@ ScalaFile
                                                                                                                                                             PsiElement(identifier)('asInstanceOf')
                                                                                                                                                           TypeArgumentsList
                                                                                                                                                             PsiElement([)('[')
-                                                                                                                                                            ParametrizedType: List[AnyRef]
-                                                                                                                                                              SimpleType: List
-                                                                                                                                                                CodeReferenceElement: List
-                                                                                                                                                                  PsiElement(identifier)('List')
-                                                                                                                                                              TypeArgumentsList
-                                                                                                                                                                PsiElement([)('[')
-                                                                                                                                                                SimpleType: AnyRef
-                                                                                                                                                                  CodeReferenceElement: AnyRef
-                                                                                                                                                                    PsiElement(identifier)('AnyRef')
-                                                                                                                                                                PsiElement(])(']')
+                                                                                                                                                            TypeArgument
+                                                                                                                                                              ParametrizedType: List[AnyRef]
+                                                                                                                                                                SimpleType: List
+                                                                                                                                                                  CodeReferenceElement: List
+                                                                                                                                                                    PsiElement(identifier)('List')
+                                                                                                                                                                TypeArgumentsList
+                                                                                                                                                                  PsiElement([)('[')
+                                                                                                                                                                  TypeArgument
+                                                                                                                                                                    SimpleType: AnyRef
+                                                                                                                                                                      CodeReferenceElement: AnyRef
+                                                                                                                                                                        PsiElement(identifier)('AnyRef')
+                                                                                                                                                                  PsiElement(])(']')
                                                                                                                                                             PsiElement(])(']')
                                                                                                                                                         PsiElement(.)('.')
                                                                                                                                                         PsiElement(identifier)('head')
@@ -1236,16 +1250,18 @@ ScalaFile
                                                                                                                                                       PsiElement(identifier)('asInstanceOf')
                                                                                                                                                     TypeArgumentsList
                                                                                                                                                       PsiElement([)('[')
-                                                                                                                                                      ParametrizedType: List[AnyRef]
-                                                                                                                                                        SimpleType: List
-                                                                                                                                                          CodeReferenceElement: List
-                                                                                                                                                            PsiElement(identifier)('List')
-                                                                                                                                                        TypeArgumentsList
-                                                                                                                                                          PsiElement([)('[')
-                                                                                                                                                          SimpleType: AnyRef
-                                                                                                                                                            CodeReferenceElement: AnyRef
-                                                                                                                                                              PsiElement(identifier)('AnyRef')
-                                                                                                                                                          PsiElement(])(']')
+                                                                                                                                                      TypeArgument
+                                                                                                                                                        ParametrizedType: List[AnyRef]
+                                                                                                                                                          SimpleType: List
+                                                                                                                                                            CodeReferenceElement: List
+                                                                                                                                                              PsiElement(identifier)('List')
+                                                                                                                                                          TypeArgumentsList
+                                                                                                                                                            PsiElement([)('[')
+                                                                                                                                                            TypeArgument
+                                                                                                                                                              SimpleType: AnyRef
+                                                                                                                                                                CodeReferenceElement: AnyRef
+                                                                                                                                                                  PsiElement(identifier)('AnyRef')
+                                                                                                                                                            PsiElement(])(']')
                                                                                                                                                       PsiElement(])(']')
                                                                                                                                                   PsiElement(.)('.')
                                                                                                                                                   PsiElement(identifier)('head')
@@ -1254,16 +1270,18 @@ ScalaFile
                                                                                                                                                 PsiElement(identifier)('asInstanceOf')
                                                                                                                                               TypeArgumentsList
                                                                                                                                                 PsiElement([)('[')
-                                                                                                                                                ParametrizedType: List[AnyRef]
-                                                                                                                                                  SimpleType: List
-                                                                                                                                                    CodeReferenceElement: List
-                                                                                                                                                      PsiElement(identifier)('List')
-                                                                                                                                                  TypeArgumentsList
-                                                                                                                                                    PsiElement([)('[')
-                                                                                                                                                    SimpleType: AnyRef
-                                                                                                                                                      CodeReferenceElement: AnyRef
-                                                                                                                                                        PsiElement(identifier)('AnyRef')
-                                                                                                                                                    PsiElement(])(']')
+                                                                                                                                                TypeArgument
+                                                                                                                                                  ParametrizedType: List[AnyRef]
+                                                                                                                                                    SimpleType: List
+                                                                                                                                                      CodeReferenceElement: List
+                                                                                                                                                        PsiElement(identifier)('List')
+                                                                                                                                                    TypeArgumentsList
+                                                                                                                                                      PsiElement([)('[')
+                                                                                                                                                      TypeArgument
+                                                                                                                                                        SimpleType: AnyRef
+                                                                                                                                                          CodeReferenceElement: AnyRef
+                                                                                                                                                            PsiElement(identifier)('AnyRef')
+                                                                                                                                                      PsiElement(])(']')
                                                                                                                                                 PsiElement(])(']')
                                                                                                                                             PsiElement(.)('.')
                                                                                                                                             PsiElement(identifier)('head')
@@ -1272,16 +1290,18 @@ ScalaFile
                                                                                                                                           PsiElement(identifier)('asInstanceOf')
                                                                                                                                         TypeArgumentsList
                                                                                                                                           PsiElement([)('[')
-                                                                                                                                          ParametrizedType: List[AnyRef]
-                                                                                                                                            SimpleType: List
-                                                                                                                                              CodeReferenceElement: List
-                                                                                                                                                PsiElement(identifier)('List')
-                                                                                                                                            TypeArgumentsList
-                                                                                                                                              PsiElement([)('[')
-                                                                                                                                              SimpleType: AnyRef
-                                                                                                                                                CodeReferenceElement: AnyRef
-                                                                                                                                                  PsiElement(identifier)('AnyRef')
-                                                                                                                                              PsiElement(])(']')
+                                                                                                                                          TypeArgument
+                                                                                                                                            ParametrizedType: List[AnyRef]
+                                                                                                                                              SimpleType: List
+                                                                                                                                                CodeReferenceElement: List
+                                                                                                                                                  PsiElement(identifier)('List')
+                                                                                                                                              TypeArgumentsList
+                                                                                                                                                PsiElement([)('[')
+                                                                                                                                                TypeArgument
+                                                                                                                                                  SimpleType: AnyRef
+                                                                                                                                                    CodeReferenceElement: AnyRef
+                                                                                                                                                      PsiElement(identifier)('AnyRef')
+                                                                                                                                                PsiElement(])(']')
                                                                                                                                           PsiElement(])(']')
                                                                                                                                       PsiElement(.)('.')
                                                                                                                                       PsiElement(identifier)('head')
@@ -1290,16 +1310,18 @@ ScalaFile
                                                                                                                                     PsiElement(identifier)('asInstanceOf')
                                                                                                                                   TypeArgumentsList
                                                                                                                                     PsiElement([)('[')
-                                                                                                                                    ParametrizedType: List[AnyRef]
-                                                                                                                                      SimpleType: List
-                                                                                                                                        CodeReferenceElement: List
-                                                                                                                                          PsiElement(identifier)('List')
-                                                                                                                                      TypeArgumentsList
-                                                                                                                                        PsiElement([)('[')
-                                                                                                                                        SimpleType: AnyRef
-                                                                                                                                          CodeReferenceElement: AnyRef
-                                                                                                                                            PsiElement(identifier)('AnyRef')
-                                                                                                                                        PsiElement(])(']')
+                                                                                                                                    TypeArgument
+                                                                                                                                      ParametrizedType: List[AnyRef]
+                                                                                                                                        SimpleType: List
+                                                                                                                                          CodeReferenceElement: List
+                                                                                                                                            PsiElement(identifier)('List')
+                                                                                                                                        TypeArgumentsList
+                                                                                                                                          PsiElement([)('[')
+                                                                                                                                          TypeArgument
+                                                                                                                                            SimpleType: AnyRef
+                                                                                                                                              CodeReferenceElement: AnyRef
+                                                                                                                                                PsiElement(identifier)('AnyRef')
+                                                                                                                                          PsiElement(])(']')
                                                                                                                                     PsiElement(])(']')
                                                                                                                                 PsiElement(.)('.')
                                                                                                                                 PsiElement(identifier)('head')
@@ -1308,16 +1330,18 @@ ScalaFile
                                                                                                                               PsiElement(identifier)('asInstanceOf')
                                                                                                                             TypeArgumentsList
                                                                                                                               PsiElement([)('[')
-                                                                                                                              ParametrizedType: List[AnyRef]
-                                                                                                                                SimpleType: List
-                                                                                                                                  CodeReferenceElement: List
-                                                                                                                                    PsiElement(identifier)('List')
-                                                                                                                                TypeArgumentsList
-                                                                                                                                  PsiElement([)('[')
-                                                                                                                                  SimpleType: AnyRef
-                                                                                                                                    CodeReferenceElement: AnyRef
-                                                                                                                                      PsiElement(identifier)('AnyRef')
-                                                                                                                                  PsiElement(])(']')
+                                                                                                                              TypeArgument
+                                                                                                                                ParametrizedType: List[AnyRef]
+                                                                                                                                  SimpleType: List
+                                                                                                                                    CodeReferenceElement: List
+                                                                                                                                      PsiElement(identifier)('List')
+                                                                                                                                  TypeArgumentsList
+                                                                                                                                    PsiElement([)('[')
+                                                                                                                                    TypeArgument
+                                                                                                                                      SimpleType: AnyRef
+                                                                                                                                        CodeReferenceElement: AnyRef
+                                                                                                                                          PsiElement(identifier)('AnyRef')
+                                                                                                                                    PsiElement(])(']')
                                                                                                                               PsiElement(])(']')
                                                                                                                           PsiElement(.)('.')
                                                                                                                           PsiElement(identifier)('head')
@@ -1326,16 +1350,18 @@ ScalaFile
                                                                                                                         PsiElement(identifier)('asInstanceOf')
                                                                                                                       TypeArgumentsList
                                                                                                                         PsiElement([)('[')
-                                                                                                                        ParametrizedType: List[AnyRef]
-                                                                                                                          SimpleType: List
-                                                                                                                            CodeReferenceElement: List
-                                                                                                                              PsiElement(identifier)('List')
-                                                                                                                          TypeArgumentsList
-                                                                                                                            PsiElement([)('[')
-                                                                                                                            SimpleType: AnyRef
-                                                                                                                              CodeReferenceElement: AnyRef
-                                                                                                                                PsiElement(identifier)('AnyRef')
-                                                                                                                            PsiElement(])(']')
+                                                                                                                        TypeArgument
+                                                                                                                          ParametrizedType: List[AnyRef]
+                                                                                                                            SimpleType: List
+                                                                                                                              CodeReferenceElement: List
+                                                                                                                                PsiElement(identifier)('List')
+                                                                                                                            TypeArgumentsList
+                                                                                                                              PsiElement([)('[')
+                                                                                                                              TypeArgument
+                                                                                                                                SimpleType: AnyRef
+                                                                                                                                  CodeReferenceElement: AnyRef
+                                                                                                                                    PsiElement(identifier)('AnyRef')
+                                                                                                                              PsiElement(])(']')
                                                                                                                         PsiElement(])(']')
                                                                                                                     PsiElement(.)('.')
                                                                                                                     PsiElement(identifier)('head')
@@ -1344,16 +1370,18 @@ ScalaFile
                                                                                                                   PsiElement(identifier)('asInstanceOf')
                                                                                                                 TypeArgumentsList
                                                                                                                   PsiElement([)('[')
-                                                                                                                  ParametrizedType: List[AnyRef]
-                                                                                                                    SimpleType: List
-                                                                                                                      CodeReferenceElement: List
-                                                                                                                        PsiElement(identifier)('List')
-                                                                                                                    TypeArgumentsList
-                                                                                                                      PsiElement([)('[')
-                                                                                                                      SimpleType: AnyRef
-                                                                                                                        CodeReferenceElement: AnyRef
-                                                                                                                          PsiElement(identifier)('AnyRef')
-                                                                                                                      PsiElement(])(']')
+                                                                                                                  TypeArgument
+                                                                                                                    ParametrizedType: List[AnyRef]
+                                                                                                                      SimpleType: List
+                                                                                                                        CodeReferenceElement: List
+                                                                                                                          PsiElement(identifier)('List')
+                                                                                                                      TypeArgumentsList
+                                                                                                                        PsiElement([)('[')
+                                                                                                                        TypeArgument
+                                                                                                                          SimpleType: AnyRef
+                                                                                                                            CodeReferenceElement: AnyRef
+                                                                                                                              PsiElement(identifier)('AnyRef')
+                                                                                                                        PsiElement(])(']')
                                                                                                                   PsiElement(])(']')
                                                                                                               PsiElement(.)('.')
                                                                                                               PsiElement(identifier)('head')
@@ -1362,16 +1390,18 @@ ScalaFile
                                                                                                             PsiElement(identifier)('asInstanceOf')
                                                                                                           TypeArgumentsList
                                                                                                             PsiElement([)('[')
-                                                                                                            ParametrizedType: List[AnyRef]
-                                                                                                              SimpleType: List
-                                                                                                                CodeReferenceElement: List
-                                                                                                                  PsiElement(identifier)('List')
-                                                                                                              TypeArgumentsList
-                                                                                                                PsiElement([)('[')
-                                                                                                                SimpleType: AnyRef
-                                                                                                                  CodeReferenceElement: AnyRef
-                                                                                                                    PsiElement(identifier)('AnyRef')
-                                                                                                                PsiElement(])(']')
+                                                                                                            TypeArgument
+                                                                                                              ParametrizedType: List[AnyRef]
+                                                                                                                SimpleType: List
+                                                                                                                  CodeReferenceElement: List
+                                                                                                                    PsiElement(identifier)('List')
+                                                                                                                TypeArgumentsList
+                                                                                                                  PsiElement([)('[')
+                                                                                                                  TypeArgument
+                                                                                                                    SimpleType: AnyRef
+                                                                                                                      CodeReferenceElement: AnyRef
+                                                                                                                        PsiElement(identifier)('AnyRef')
+                                                                                                                  PsiElement(])(']')
                                                                                                             PsiElement(])(']')
                                                                                                         PsiElement(.)('.')
                                                                                                         PsiElement(identifier)('head')
@@ -1380,16 +1410,18 @@ ScalaFile
                                                                                                       PsiElement(identifier)('asInstanceOf')
                                                                                                     TypeArgumentsList
                                                                                                       PsiElement([)('[')
-                                                                                                      ParametrizedType: List[AnyRef]
-                                                                                                        SimpleType: List
-                                                                                                          CodeReferenceElement: List
-                                                                                                            PsiElement(identifier)('List')
-                                                                                                        TypeArgumentsList
-                                                                                                          PsiElement([)('[')
-                                                                                                          SimpleType: AnyRef
-                                                                                                            CodeReferenceElement: AnyRef
-                                                                                                              PsiElement(identifier)('AnyRef')
-                                                                                                          PsiElement(])(']')
+                                                                                                      TypeArgument
+                                                                                                        ParametrizedType: List[AnyRef]
+                                                                                                          SimpleType: List
+                                                                                                            CodeReferenceElement: List
+                                                                                                              PsiElement(identifier)('List')
+                                                                                                          TypeArgumentsList
+                                                                                                            PsiElement([)('[')
+                                                                                                            TypeArgument
+                                                                                                              SimpleType: AnyRef
+                                                                                                                CodeReferenceElement: AnyRef
+                                                                                                                  PsiElement(identifier)('AnyRef')
+                                                                                                            PsiElement(])(']')
                                                                                                       PsiElement(])(']')
                                                                                                   PsiElement(.)('.')
                                                                                                   PsiElement(identifier)('head')
@@ -1398,16 +1430,18 @@ ScalaFile
                                                                                                 PsiElement(identifier)('asInstanceOf')
                                                                                               TypeArgumentsList
                                                                                                 PsiElement([)('[')
-                                                                                                ParametrizedType: List[AnyRef]
-                                                                                                  SimpleType: List
-                                                                                                    CodeReferenceElement: List
-                                                                                                      PsiElement(identifier)('List')
-                                                                                                  TypeArgumentsList
-                                                                                                    PsiElement([)('[')
-                                                                                                    SimpleType: AnyRef
-                                                                                                      CodeReferenceElement: AnyRef
-                                                                                                        PsiElement(identifier)('AnyRef')
-                                                                                                    PsiElement(])(']')
+                                                                                                TypeArgument
+                                                                                                  ParametrizedType: List[AnyRef]
+                                                                                                    SimpleType: List
+                                                                                                      CodeReferenceElement: List
+                                                                                                        PsiElement(identifier)('List')
+                                                                                                    TypeArgumentsList
+                                                                                                      PsiElement([)('[')
+                                                                                                      TypeArgument
+                                                                                                        SimpleType: AnyRef
+                                                                                                          CodeReferenceElement: AnyRef
+                                                                                                            PsiElement(identifier)('AnyRef')
+                                                                                                      PsiElement(])(']')
                                                                                                 PsiElement(])(']')
                                                                                             PsiElement(.)('.')
                                                                                             PsiElement(identifier)('head')
@@ -1416,16 +1450,18 @@ ScalaFile
                                                                                           PsiElement(identifier)('asInstanceOf')
                                                                                         TypeArgumentsList
                                                                                           PsiElement([)('[')
-                                                                                          ParametrizedType: List[AnyRef]
-                                                                                            SimpleType: List
-                                                                                              CodeReferenceElement: List
-                                                                                                PsiElement(identifier)('List')
-                                                                                            TypeArgumentsList
-                                                                                              PsiElement([)('[')
-                                                                                              SimpleType: AnyRef
-                                                                                                CodeReferenceElement: AnyRef
-                                                                                                  PsiElement(identifier)('AnyRef')
-                                                                                              PsiElement(])(']')
+                                                                                          TypeArgument
+                                                                                            ParametrizedType: List[AnyRef]
+                                                                                              SimpleType: List
+                                                                                                CodeReferenceElement: List
+                                                                                                  PsiElement(identifier)('List')
+                                                                                              TypeArgumentsList
+                                                                                                PsiElement([)('[')
+                                                                                                TypeArgument
+                                                                                                  SimpleType: AnyRef
+                                                                                                    CodeReferenceElement: AnyRef
+                                                                                                      PsiElement(identifier)('AnyRef')
+                                                                                                PsiElement(])(']')
                                                                                           PsiElement(])(']')
                                                                                       PsiElement(.)('.')
                                                                                       PsiElement(identifier)('head')
@@ -1434,16 +1470,18 @@ ScalaFile
                                                                                     PsiElement(identifier)('asInstanceOf')
                                                                                   TypeArgumentsList
                                                                                     PsiElement([)('[')
-                                                                                    ParametrizedType: List[AnyRef]
-                                                                                      SimpleType: List
-                                                                                        CodeReferenceElement: List
-                                                                                          PsiElement(identifier)('List')
-                                                                                      TypeArgumentsList
-                                                                                        PsiElement([)('[')
-                                                                                        SimpleType: AnyRef
-                                                                                          CodeReferenceElement: AnyRef
-                                                                                            PsiElement(identifier)('AnyRef')
-                                                                                        PsiElement(])(']')
+                                                                                    TypeArgument
+                                                                                      ParametrizedType: List[AnyRef]
+                                                                                        SimpleType: List
+                                                                                          CodeReferenceElement: List
+                                                                                            PsiElement(identifier)('List')
+                                                                                        TypeArgumentsList
+                                                                                          PsiElement([)('[')
+                                                                                          TypeArgument
+                                                                                            SimpleType: AnyRef
+                                                                                              CodeReferenceElement: AnyRef
+                                                                                                PsiElement(identifier)('AnyRef')
+                                                                                          PsiElement(])(']')
                                                                                     PsiElement(])(']')
                                                                                 PsiElement(.)('.')
                                                                                 PsiElement(identifier)('head')
@@ -1452,16 +1490,18 @@ ScalaFile
                                                                               PsiElement(identifier)('asInstanceOf')
                                                                             TypeArgumentsList
                                                                               PsiElement([)('[')
-                                                                              ParametrizedType: List[AnyRef]
-                                                                                SimpleType: List
-                                                                                  CodeReferenceElement: List
-                                                                                    PsiElement(identifier)('List')
-                                                                                TypeArgumentsList
-                                                                                  PsiElement([)('[')
-                                                                                  SimpleType: AnyRef
-                                                                                    CodeReferenceElement: AnyRef
-                                                                                      PsiElement(identifier)('AnyRef')
-                                                                                  PsiElement(])(']')
+                                                                              TypeArgument
+                                                                                ParametrizedType: List[AnyRef]
+                                                                                  SimpleType: List
+                                                                                    CodeReferenceElement: List
+                                                                                      PsiElement(identifier)('List')
+                                                                                  TypeArgumentsList
+                                                                                    PsiElement([)('[')
+                                                                                    TypeArgument
+                                                                                      SimpleType: AnyRef
+                                                                                        CodeReferenceElement: AnyRef
+                                                                                          PsiElement(identifier)('AnyRef')
+                                                                                    PsiElement(])(']')
                                                                               PsiElement(])(']')
                                                                           PsiElement(.)('.')
                                                                           PsiElement(identifier)('head')
@@ -1470,16 +1510,18 @@ ScalaFile
                                                                         PsiElement(identifier)('asInstanceOf')
                                                                       TypeArgumentsList
                                                                         PsiElement([)('[')
-                                                                        ParametrizedType: List[AnyRef]
-                                                                          SimpleType: List
-                                                                            CodeReferenceElement: List
-                                                                              PsiElement(identifier)('List')
-                                                                          TypeArgumentsList
-                                                                            PsiElement([)('[')
-                                                                            SimpleType: AnyRef
-                                                                              CodeReferenceElement: AnyRef
-                                                                                PsiElement(identifier)('AnyRef')
-                                                                            PsiElement(])(']')
+                                                                        TypeArgument
+                                                                          ParametrizedType: List[AnyRef]
+                                                                            SimpleType: List
+                                                                              CodeReferenceElement: List
+                                                                                PsiElement(identifier)('List')
+                                                                            TypeArgumentsList
+                                                                              PsiElement([)('[')
+                                                                              TypeArgument
+                                                                                SimpleType: AnyRef
+                                                                                  CodeReferenceElement: AnyRef
+                                                                                    PsiElement(identifier)('AnyRef')
+                                                                              PsiElement(])(']')
                                                                         PsiElement(])(']')
                                                                     PsiElement(.)('.')
                                                                     PsiElement(identifier)('head')
@@ -1488,16 +1530,18 @@ ScalaFile
                                                                   PsiElement(identifier)('asInstanceOf')
                                                                 TypeArgumentsList
                                                                   PsiElement([)('[')
-                                                                  ParametrizedType: List[AnyRef]
-                                                                    SimpleType: List
-                                                                      CodeReferenceElement: List
-                                                                        PsiElement(identifier)('List')
-                                                                    TypeArgumentsList
-                                                                      PsiElement([)('[')
-                                                                      SimpleType: AnyRef
-                                                                        CodeReferenceElement: AnyRef
-                                                                          PsiElement(identifier)('AnyRef')
-                                                                      PsiElement(])(']')
+                                                                  TypeArgument
+                                                                    ParametrizedType: List[AnyRef]
+                                                                      SimpleType: List
+                                                                        CodeReferenceElement: List
+                                                                          PsiElement(identifier)('List')
+                                                                      TypeArgumentsList
+                                                                        PsiElement([)('[')
+                                                                        TypeArgument
+                                                                          SimpleType: AnyRef
+                                                                            CodeReferenceElement: AnyRef
+                                                                              PsiElement(identifier)('AnyRef')
+                                                                        PsiElement(])(']')
                                                                   PsiElement(])(']')
                                                               PsiElement(.)('.')
                                                               PsiElement(identifier)('head')
@@ -1506,16 +1550,18 @@ ScalaFile
                                                             PsiElement(identifier)('asInstanceOf')
                                                           TypeArgumentsList
                                                             PsiElement([)('[')
-                                                            ParametrizedType: List[AnyRef]
-                                                              SimpleType: List
-                                                                CodeReferenceElement: List
-                                                                  PsiElement(identifier)('List')
-                                                              TypeArgumentsList
-                                                                PsiElement([)('[')
-                                                                SimpleType: AnyRef
-                                                                  CodeReferenceElement: AnyRef
-                                                                    PsiElement(identifier)('AnyRef')
-                                                                PsiElement(])(']')
+                                                            TypeArgument
+                                                              ParametrizedType: List[AnyRef]
+                                                                SimpleType: List
+                                                                  CodeReferenceElement: List
+                                                                    PsiElement(identifier)('List')
+                                                                TypeArgumentsList
+                                                                  PsiElement([)('[')
+                                                                  TypeArgument
+                                                                    SimpleType: AnyRef
+                                                                      CodeReferenceElement: AnyRef
+                                                                        PsiElement(identifier)('AnyRef')
+                                                                  PsiElement(])(']')
                                                             PsiElement(])(']')
                                                         PsiElement(.)('.')
                                                         PsiElement(identifier)('head')
@@ -1524,16 +1570,18 @@ ScalaFile
                                                       PsiElement(identifier)('asInstanceOf')
                                                     TypeArgumentsList
                                                       PsiElement([)('[')
-                                                      ParametrizedType: List[AnyRef]
-                                                        SimpleType: List
-                                                          CodeReferenceElement: List
-                                                            PsiElement(identifier)('List')
-                                                        TypeArgumentsList
-                                                          PsiElement([)('[')
-                                                          SimpleType: AnyRef
-                                                            CodeReferenceElement: AnyRef
-                                                              PsiElement(identifier)('AnyRef')
-                                                          PsiElement(])(']')
+                                                      TypeArgument
+                                                        ParametrizedType: List[AnyRef]
+                                                          SimpleType: List
+                                                            CodeReferenceElement: List
+                                                              PsiElement(identifier)('List')
+                                                          TypeArgumentsList
+                                                            PsiElement([)('[')
+                                                            TypeArgument
+                                                              SimpleType: AnyRef
+                                                                CodeReferenceElement: AnyRef
+                                                                  PsiElement(identifier)('AnyRef')
+                                                            PsiElement(])(']')
                                                       PsiElement(])(']')
                                                   PsiElement(.)('.')
                                                   PsiElement(identifier)('head')
@@ -1542,16 +1590,18 @@ ScalaFile
                                                 PsiElement(identifier)('asInstanceOf')
                                               TypeArgumentsList
                                                 PsiElement([)('[')
-                                                ParametrizedType: List[AnyRef]
-                                                  SimpleType: List
-                                                    CodeReferenceElement: List
-                                                      PsiElement(identifier)('List')
-                                                  TypeArgumentsList
-                                                    PsiElement([)('[')
-                                                    SimpleType: AnyRef
-                                                      CodeReferenceElement: AnyRef
-                                                        PsiElement(identifier)('AnyRef')
-                                                    PsiElement(])(']')
+                                                TypeArgument
+                                                  ParametrizedType: List[AnyRef]
+                                                    SimpleType: List
+                                                      CodeReferenceElement: List
+                                                        PsiElement(identifier)('List')
+                                                    TypeArgumentsList
+                                                      PsiElement([)('[')
+                                                      TypeArgument
+                                                        SimpleType: AnyRef
+                                                          CodeReferenceElement: AnyRef
+                                                            PsiElement(identifier)('AnyRef')
+                                                      PsiElement(])(']')
                                                 PsiElement(])(']')
                                             PsiElement(.)('.')
                                             PsiElement(identifier)('head')
@@ -1560,16 +1610,18 @@ ScalaFile
                                           PsiElement(identifier)('asInstanceOf')
                                         TypeArgumentsList
                                           PsiElement([)('[')
-                                          ParametrizedType: List[AnyRef]
-                                            SimpleType: List
-                                              CodeReferenceElement: List
-                                                PsiElement(identifier)('List')
-                                            TypeArgumentsList
-                                              PsiElement([)('[')
-                                              SimpleType: AnyRef
-                                                CodeReferenceElement: AnyRef
-                                                  PsiElement(identifier)('AnyRef')
-                                              PsiElement(])(']')
+                                          TypeArgument
+                                            ParametrizedType: List[AnyRef]
+                                              SimpleType: List
+                                                CodeReferenceElement: List
+                                                  PsiElement(identifier)('List')
+                                              TypeArgumentsList
+                                                PsiElement([)('[')
+                                                TypeArgument
+                                                  SimpleType: AnyRef
+                                                    CodeReferenceElement: AnyRef
+                                                      PsiElement(identifier)('AnyRef')
+                                                PsiElement(])(']')
                                           PsiElement(])(']')
                                       PsiElement(.)('.')
                                       PsiElement(identifier)('head')
@@ -1578,16 +1630,18 @@ ScalaFile
                                     PsiElement(identifier)('asInstanceOf')
                                   TypeArgumentsList
                                     PsiElement([)('[')
-                                    ParametrizedType: List[AnyRef]
-                                      SimpleType: List
-                                        CodeReferenceElement: List
-                                          PsiElement(identifier)('List')
-                                      TypeArgumentsList
-                                        PsiElement([)('[')
-                                        SimpleType: AnyRef
-                                          CodeReferenceElement: AnyRef
-                                            PsiElement(identifier)('AnyRef')
-                                        PsiElement(])(']')
+                                    TypeArgument
+                                      ParametrizedType: List[AnyRef]
+                                        SimpleType: List
+                                          CodeReferenceElement: List
+                                            PsiElement(identifier)('List')
+                                        TypeArgumentsList
+                                          PsiElement([)('[')
+                                          TypeArgument
+                                            SimpleType: AnyRef
+                                              CodeReferenceElement: AnyRef
+                                                PsiElement(identifier)('AnyRef')
+                                          PsiElement(])(']')
                                     PsiElement(])(']')
                                 PsiElement(.)('.')
                                 PsiElement(identifier)('head')
@@ -1596,16 +1650,18 @@ ScalaFile
                               PsiElement(identifier)('asInstanceOf')
                             TypeArgumentsList
                               PsiElement([)('[')
-                              ParametrizedType: List[AnyRef]
-                                SimpleType: List
-                                  CodeReferenceElement: List
-                                    PsiElement(identifier)('List')
-                                TypeArgumentsList
-                                  PsiElement([)('[')
-                                  SimpleType: AnyRef
-                                    CodeReferenceElement: AnyRef
-                                      PsiElement(identifier)('AnyRef')
-                                  PsiElement(])(']')
+                              TypeArgument
+                                ParametrizedType: List[AnyRef]
+                                  SimpleType: List
+                                    CodeReferenceElement: List
+                                      PsiElement(identifier)('List')
+                                  TypeArgumentsList
+                                    PsiElement([)('[')
+                                    TypeArgument
+                                      SimpleType: AnyRef
+                                        CodeReferenceElement: AnyRef
+                                          PsiElement(identifier)('AnyRef')
+                                    PsiElement(])(']')
                               PsiElement(])(']')
                           PsiElement(.)('.')
                           PsiElement(identifier)('head')
@@ -1614,16 +1670,18 @@ ScalaFile
                         PsiElement(identifier)('asInstanceOf')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        ParametrizedType: List[AnyRef]
-                          SimpleType: List
-                            CodeReferenceElement: List
-                              PsiElement(identifier)('List')
-                          TypeArgumentsList
-                            PsiElement([)('[')
-                            SimpleType: AnyRef
-                              CodeReferenceElement: AnyRef
-                                PsiElement(identifier)('AnyRef')
-                            PsiElement(])(']')
+                        TypeArgument
+                          ParametrizedType: List[AnyRef]
+                            SimpleType: List
+                              CodeReferenceElement: List
+                                PsiElement(identifier)('List')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: AnyRef
+                                  CodeReferenceElement: AnyRef
+                                    PsiElement(identifier)('AnyRef')
+                              PsiElement(])(']')
                         PsiElement(])(']')
                     PsiElement(.)('.')
                     PsiElement(identifier)('head')
@@ -1632,16 +1690,18 @@ ScalaFile
                   PsiElement(identifier)('asInstanceOf')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  ParametrizedType: List[AnyRef]
-                    SimpleType: List
-                      CodeReferenceElement: List
-                        PsiElement(identifier)('List')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: AnyRef
-                        CodeReferenceElement: AnyRef
-                          PsiElement(identifier)('AnyRef')
-                      PsiElement(])(']')
+                  TypeArgument
+                    ParametrizedType: List[AnyRef]
+                      SimpleType: List
+                        CodeReferenceElement: List
+                          PsiElement(identifier)('List')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: AnyRef
+                            CodeReferenceElement: AnyRef
+                              PsiElement(identifier)('AnyRef')
+                        PsiElement(])(']')
                   PsiElement(])(']')
               PsiElement(.)('.')
               PsiElement(identifier)('head')

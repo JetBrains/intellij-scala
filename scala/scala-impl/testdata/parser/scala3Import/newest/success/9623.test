@@ -341,9 +341,10 @@ ScalaFile
                         PsiElement(identifier)('T')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: X
-                        CodeReferenceElement: X
-                          PsiElement(identifier)('X')
+                      TypeArgument
+                        SimpleType: X
+                          CodeReferenceElement: X
+                            PsiElement(identifier)('X')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiWhiteSpace(' ')
@@ -370,25 +371,26 @@ ScalaFile
                           PsiElement(identifier)('T')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        InfixType: Int ++: Double ++: TNil
-                          SimpleType: Int
-                            CodeReferenceElement: Int
-                              PsiElement(identifier)('Int')
-                          PsiWhiteSpace(' ')
-                          CodeReferenceElement: ++:
-                            PsiElement(identifier)('++:')
-                          PsiWhiteSpace(' ')
-                          InfixType: Double ++: TNil
-                            SimpleType: Double
-                              CodeReferenceElement: Double
-                                PsiElement(identifier)('Double')
+                        TypeArgument
+                          InfixType: Int ++: Double ++: TNil
+                            SimpleType: Int
+                              CodeReferenceElement: Int
+                                PsiElement(identifier)('Int')
                             PsiWhiteSpace(' ')
                             CodeReferenceElement: ++:
                               PsiElement(identifier)('++:')
                             PsiWhiteSpace(' ')
-                            SimpleType: TNil
-                              CodeReferenceElement: TNil
-                                PsiElement(identifier)('TNil')
+                            InfixType: Double ++: TNil
+                              SimpleType: Double
+                                CodeReferenceElement: Double
+                                  PsiElement(identifier)('Double')
+                              PsiWhiteSpace(' ')
+                              CodeReferenceElement: ++:
+                                PsiElement(identifier)('++:')
+                              PsiWhiteSpace(' ')
+                              SimpleType: TNil
+                                CodeReferenceElement: TNil
+                                  PsiElement(identifier)('TNil')
                         PsiElement(])(']')
             PsiElement())(')')
         PsiWhiteSpace('\n')

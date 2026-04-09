@@ -83,9 +83,10 @@ ScalaFile
                         PsiElement(identifier)('Foo')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: T
-                        CodeReferenceElement: T
-                          PsiElement(identifier)('T')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiWhiteSpace(' ')
@@ -114,9 +115,10 @@ ScalaFile
                               PsiElement(identifier)('Foo')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: Int
-                              CodeReferenceElement: Int
-                                PsiElement(identifier)('Int')
+                            TypeArgument
+                              SimpleType: Int
+                                CodeReferenceElement: Int
+                                  PsiElement(identifier)('Int')
                             PsiElement(])(']')
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
@@ -126,8 +128,9 @@ ScalaFile
                       PsiElement(identifier)('Foo')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    WildcardType: _
-                      PsiElement(_)('_')
+                    TypeArgument
+                      WildcardType: _
+                        PsiElement(_)('_')
                     PsiElement(])(']')
               PsiElement())(')')
             PsiElement())(')')
@@ -212,9 +215,10 @@ ScalaFile
                 PsiElement(identifier)('toList')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Path
-                  CodeReferenceElement: Path
-                    PsiElement(identifier)('Path')
+                TypeArgument
+                  SimpleType: Path
+                    CodeReferenceElement: Path
+                      PsiElement(identifier)('Path')
                 PsiElement(])(']')
             PsiElement())(')')
         PsiWhiteSpace('\n')

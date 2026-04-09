@@ -57,14 +57,16 @@ ScalaFile
                   PsiElement(identifier)('empty')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: String
-                    CodeReferenceElement: String
-                      PsiElement(identifier)('String')
+                  TypeArgument
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
-                  SimpleType: String
-                    CodeReferenceElement: String
-                      PsiElement(identifier)('String')
+                  TypeArgument
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
                   PsiElement(])(']')
             PsiWhiteSpace('\n    ')
             ScPatternDefinition: list
@@ -88,21 +90,24 @@ ScalaFile
                   PsiElement(identifier)('empty')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  ParametrizedType: Map[String, String]
-                    SimpleType: Map
-                      CodeReferenceElement: Map
-                        PsiElement(identifier)('Map')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: String
-                        CodeReferenceElement: String
-                          PsiElement(identifier)('String')
-                      PsiElement(,)(',')
-                      PsiWhiteSpace(' ')
-                      SimpleType: String
-                        CodeReferenceElement: String
-                          PsiElement(identifier)('String')
-                      PsiElement(])(']')
+                  TypeArgument
+                    ParametrizedType: Map[String, String]
+                      SimpleType: Map
+                        CodeReferenceElement: Map
+                          PsiElement(identifier)('Map')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: String
+                            CodeReferenceElement: String
+                              PsiElement(identifier)('String')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        TypeArgument
+                          SimpleType: String
+                            CodeReferenceElement: String
+                              PsiElement(identifier)('String')
+                        PsiElement(])(']')
                   PsiElement(])(']')
             PsiWhiteSpace('\n    ')
             MethodCall

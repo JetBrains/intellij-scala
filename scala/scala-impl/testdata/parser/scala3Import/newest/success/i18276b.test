@@ -117,28 +117,30 @@ ScalaFile
           PsiElement(identifier)('Conversion')
       TypeArgumentsList
         PsiElement([)('[')
-        FunctionalType: Int => Int
-          SimpleType: Int
-            CodeReferenceElement: Int
-              PsiElement(identifier)('Int')
-          PsiWhiteSpace(' ')
-          PsiElement(=>)('=>')
-          PsiWhiteSpace(' ')
-          SimpleType: Int
-            CodeReferenceElement: Int
-              PsiElement(identifier)('Int')
+        TypeArgument
+          FunctionalType: Int => Int
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
-        FunctionalType: () => Int
-          TypeInParenthesis: ()
-            PsiElement(()('(')
-            PsiElement())(')')
-          PsiWhiteSpace(' ')
-          PsiElement(=>)('=>')
-          PsiWhiteSpace(' ')
-          SimpleType: Int
-            CodeReferenceElement: Int
-              PsiElement(identifier)('Int')
+        TypeArgument
+          FunctionalType: () => Int
+            TypeInParenthesis: ()
+              PsiElement(()('(')
+              PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')

@@ -59,12 +59,13 @@ ScalaFile
             PsiElement(identifier)('LazyList')
         TypeArgumentsList
           PsiElement([)('[')
-          TypeInParenthesis: (O)
-            PsiElement(()('(')
-            SimpleType: O
-              CodeReferenceElement: O
-                PsiElement(identifier)('O')
-            PsiElement())(')')
+          TypeArgument
+            TypeInParenthesis: (O)
+              PsiElement(()('(')
+              SimpleType: O
+                CodeReferenceElement: O
+                  PsiElement(identifier)('O')
+              PsiElement())(')')
           PsiElement(])(']')
   PsiWhiteSpace('\n')
   Extension on Traverser[I, O]
@@ -96,14 +97,16 @@ ScalaFile
                   PsiElement(identifier)('Traverser')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: I
-                  CodeReferenceElement: I
-                    PsiElement(identifier)('I')
+                TypeArgument
+                  SimpleType: I
+                    CodeReferenceElement: I
+                      PsiElement(identifier)('I')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: O
-                  CodeReferenceElement: O
-                    PsiElement(identifier)('O')
+                TypeArgument
+                  SimpleType: O
+                    CodeReferenceElement: O
+                      PsiElement(identifier)('O')
                 PsiElement(])(']')
         PsiElement())(')')
     PsiWhiteSpace('\n    ')
@@ -139,14 +142,16 @@ ScalaFile
                       PsiElement(identifier)('Traverser')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: O
-                      CodeReferenceElement: O
-                        PsiElement(identifier)('O')
+                    TypeArgument
+                      SimpleType: O
+                        CodeReferenceElement: O
+                          PsiElement(identifier)('O')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    SimpleType: P
-                      CodeReferenceElement: P
-                        PsiElement(identifier)('P')
+                    TypeArgument
+                      SimpleType: P
+                        CodeReferenceElement: P
+                          PsiElement(identifier)('P')
                     PsiElement(])(']')
             PsiElement())(')')
         PsiElement(:)(':')
@@ -157,14 +162,16 @@ ScalaFile
               PsiElement(identifier)('Traverser')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: I
-              CodeReferenceElement: I
-                PsiElement(identifier)('I')
+            TypeArgument
+              SimpleType: I
+                CodeReferenceElement: I
+                  PsiElement(identifier)('I')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
-            SimpleType: P
-              CodeReferenceElement: P
-                PsiElement(identifier)('P')
+            TypeArgument
+              SimpleType: P
+                CodeReferenceElement: P
+                  PsiElement(identifier)('P')
             PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiElement(=)('=')
@@ -279,28 +286,32 @@ ScalaFile
           PsiElement(identifier)('Traverser')
       TypeArgumentsList
         PsiElement([)('[')
-        ParametrizedType: Path[I]
-          SimpleType: Path
-            CodeReferenceElement: Path
-              PsiElement(identifier)('Path')
-          TypeArgumentsList
-            PsiElement([)('[')
-            SimpleType: I
-              CodeReferenceElement: I
-                PsiElement(identifier)('I')
-            PsiElement(])(']')
+        TypeArgument
+          ParametrizedType: Path[I]
+            SimpleType: Path
+              CodeReferenceElement: Path
+                PsiElement(identifier)('Path')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: I
+                  CodeReferenceElement: I
+                    PsiElement(identifier)('I')
+              PsiElement(])(']')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
-        ParametrizedType: Path[O]
-          SimpleType: Path
-            CodeReferenceElement: Path
-              PsiElement(identifier)('Path')
-          TypeArgumentsList
-            PsiElement([)('[')
-            SimpleType: O
-              CodeReferenceElement: O
-                PsiElement(identifier)('O')
-            PsiElement(])(']')
+        TypeArgument
+          ParametrizedType: Path[O]
+            SimpleType: Path
+              CodeReferenceElement: Path
+                PsiElement(identifier)('Path')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: O
+                  CodeReferenceElement: O
+                    PsiElement(identifier)('O')
+              PsiElement(])(']')
         PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScFunctionDefinition: nodesQ
@@ -337,17 +348,19 @@ ScalaFile
           PsiElement(identifier)('Query')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: Nothing
-          CodeReferenceElement: Nothing
-            PsiElement(identifier)('Nothing')
+        TypeArgument
+          SimpleType: Nothing
+            CodeReferenceElement: Nothing
+              PsiElement(identifier)('Nothing')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
-        SimpleType: g.Node
-          CodeReferenceElement: g.Node
-            CodeReferenceElement: g
-              PsiElement(identifier)('g')
-            PsiElement(.)('.')
-            PsiElement(identifier)('Node')
+        TypeArgument
+          SimpleType: g.Node
+            CodeReferenceElement: g.Node
+              CodeReferenceElement: g
+                PsiElement(identifier)('g')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Node')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -389,20 +402,22 @@ ScalaFile
           PsiElement(identifier)('Query')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: g.Node
-          CodeReferenceElement: g.Node
-            CodeReferenceElement: g
-              PsiElement(identifier)('g')
-            PsiElement(.)('.')
-            PsiElement(identifier)('Node')
+        TypeArgument
+          SimpleType: g.Node
+            CodeReferenceElement: g.Node
+              CodeReferenceElement: g
+                PsiElement(identifier)('g')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Node')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
-        SimpleType: g.Node
-          CodeReferenceElement: g.Node
-            CodeReferenceElement: g
-              PsiElement(identifier)('g')
-            PsiElement(.)('.')
-            PsiElement(identifier)('Node')
+        TypeArgument
+          SimpleType: g.Node
+            CodeReferenceElement: g.Node
+              CodeReferenceElement: g
+                PsiElement(identifier)('g')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Node')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -487,14 +502,16 @@ ScalaFile
                 PsiElement(identifier)('Query')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Nothing
-                CodeReferenceElement: Nothing
-                  PsiElement(identifier)('Nothing')
+              TypeArgument
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Node
-                CodeReferenceElement: Node
-                  PsiElement(identifier)('Node')
+              TypeArgument
+                SimpleType: Node
+                  CodeReferenceElement: Node
+                    PsiElement(identifier)('Node')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -514,31 +531,34 @@ ScalaFile
             PsiElement(identifier)('implicitly')
           TypeArgumentsList
             PsiElement([)('[')
-            InfixType: q1.type <:< Query[Nothing, Node]
-              SimpleType: q1.type
-                CodeReferenceElement: q1
-                  PsiElement(identifier)('q1')
-                PsiElement(.)('.')
-                PsiElement(type)('type')
-              PsiWhiteSpace(' ')
-              CodeReferenceElement: <:<
-                PsiElement(identifier)('<:<')
-              PsiWhiteSpace(' ')
-              ParametrizedType: Query[Nothing, Node]
-                SimpleType: Query
-                  CodeReferenceElement: Query
-                    PsiElement(identifier)('Query')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: Nothing
-                    CodeReferenceElement: Nothing
-                      PsiElement(identifier)('Nothing')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: Node
-                    CodeReferenceElement: Node
-                      PsiElement(identifier)('Node')
-                  PsiElement(])(']')
+            TypeArgument
+              InfixType: q1.type <:< Query[Nothing, Node]
+                SimpleType: q1.type
+                  CodeReferenceElement: q1
+                    PsiElement(identifier)('q1')
+                  PsiElement(.)('.')
+                  PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: <:<
+                  PsiElement(identifier)('<:<')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Query[Nothing, Node]
+                  SimpleType: Query
+                    CodeReferenceElement: Query
+                      PsiElement(identifier)('Query')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Nothing
+                        CodeReferenceElement: Nothing
+                          PsiElement(identifier)('Nothing')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: Node
+                        CodeReferenceElement: Node
+                          PsiElement(identifier)('Node')
+                    PsiElement(])(']')
             PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScPatternDefinition: q2
@@ -582,14 +602,16 @@ ScalaFile
                 PsiElement(identifier)('Query')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Nothing
-                CodeReferenceElement: Nothing
-                  PsiElement(identifier)('Nothing')
+              TypeArgument
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Node
-                CodeReferenceElement: Node
-                  PsiElement(identifier)('Node')
+              TypeArgument
+                SimpleType: Node
+                  CodeReferenceElement: Node
+                    PsiElement(identifier)('Node')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -602,31 +624,34 @@ ScalaFile
             PsiElement(identifier)('implicitly')
           TypeArgumentsList
             PsiElement([)('[')
-            InfixType: q2.type <:< Query[Nothing, Node]
-              SimpleType: q2.type
-                CodeReferenceElement: q2
-                  PsiElement(identifier)('q2')
-                PsiElement(.)('.')
-                PsiElement(type)('type')
-              PsiWhiteSpace(' ')
-              CodeReferenceElement: <:<
-                PsiElement(identifier)('<:<')
-              PsiWhiteSpace(' ')
-              ParametrizedType: Query[Nothing, Node]
-                SimpleType: Query
-                  CodeReferenceElement: Query
-                    PsiElement(identifier)('Query')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: Nothing
-                    CodeReferenceElement: Nothing
-                      PsiElement(identifier)('Nothing')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: Node
-                    CodeReferenceElement: Node
-                      PsiElement(identifier)('Node')
-                  PsiElement(])(']')
+            TypeArgument
+              InfixType: q2.type <:< Query[Nothing, Node]
+                SimpleType: q2.type
+                  CodeReferenceElement: q2
+                    PsiElement(identifier)('q2')
+                  PsiElement(.)('.')
+                  PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: <:<
+                  PsiElement(identifier)('<:<')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Query[Nothing, Node]
+                  SimpleType: Query
+                    CodeReferenceElement: Query
+                      PsiElement(identifier)('Query')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Nothing
+                        CodeReferenceElement: Nothing
+                          PsiElement(identifier)('Nothing')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: Node
+                        CodeReferenceElement: Node
+                          PsiElement(identifier)('Node')
+                    PsiElement(])(']')
             PsiElement(])(']')
         PsiWhiteSpace('\n')
         End: Issue11556

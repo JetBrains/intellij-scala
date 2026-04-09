@@ -240,23 +240,24 @@ ScalaFile
           PsiElement(identifier)('summon')
         TypeArgumentsList
           PsiElement([)('[')
-          InfixType: Foo#P <:< TP#P
-            TypeProjection: Foo#P
-              SimpleType: Foo
-                CodeReferenceElement: Foo
-                  PsiElement(identifier)('Foo')
-              PsiElement(#)('#')
-              PsiElement(identifier)('P')
-            PsiWhiteSpace(' ')
-            CodeReferenceElement: <:<
-              PsiElement(identifier)('<:<')
-            PsiWhiteSpace(' ')
-            TypeProjection: TP#P
-              SimpleType: TP
-                CodeReferenceElement: TP
-                  PsiElement(identifier)('TP')
-              PsiElement(#)('#')
-              PsiElement(identifier)('P')
+          TypeArgument
+            InfixType: Foo#P <:< TP#P
+              TypeProjection: Foo#P
+                SimpleType: Foo
+                  CodeReferenceElement: Foo
+                    PsiElement(identifier)('Foo')
+                PsiElement(#)('#')
+                PsiElement(identifier)('P')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: <:<
+                PsiElement(identifier)('<:<')
+              PsiWhiteSpace(' ')
+              TypeProjection: TP#P
+                SimpleType: TP
+                  CodeReferenceElement: TP
+                    PsiElement(identifier)('TP')
+                PsiElement(#)('#')
+                PsiElement(identifier)('P')
           PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       ScPatternDefinition: a
@@ -339,25 +340,26 @@ ScalaFile
           PsiElement(identifier)('summon')
         TypeArgumentsList
           PsiElement([)('[')
-          InfixType: Bar.type#P <:< TP#P
-            TypeProjection: Bar.type#P
-              SimpleType: Bar.type
-                CodeReferenceElement: Bar
-                  PsiElement(identifier)('Bar')
-                PsiElement(.)('.')
-                PsiElement(type)('type')
-              PsiElement(#)('#')
-              PsiElement(identifier)('P')
-            PsiWhiteSpace(' ')
-            CodeReferenceElement: <:<
-              PsiElement(identifier)('<:<')
-            PsiWhiteSpace(' ')
-            TypeProjection: TP#P
-              SimpleType: TP
-                CodeReferenceElement: TP
-                  PsiElement(identifier)('TP')
-              PsiElement(#)('#')
-              PsiElement(identifier)('P')
+          TypeArgument
+            InfixType: Bar.type#P <:< TP#P
+              TypeProjection: Bar.type#P
+                SimpleType: Bar.type
+                  CodeReferenceElement: Bar
+                    PsiElement(identifier)('Bar')
+                  PsiElement(.)('.')
+                  PsiElement(type)('type')
+                PsiElement(#)('#')
+                PsiElement(identifier)('P')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: <:<
+                PsiElement(identifier)('<:<')
+              PsiWhiteSpace(' ')
+              TypeProjection: TP#P
+                SimpleType: TP
+                  CodeReferenceElement: TP
+                    PsiElement(identifier)('TP')
+                PsiElement(#)('#')
+                PsiElement(identifier)('P')
           PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       GenericCall
@@ -365,23 +367,24 @@ ScalaFile
           PsiElement(identifier)('summon')
         TypeArgumentsList
           PsiElement([)('[')
-          InfixType: Bar.P <:< TP#P
-            SimpleType: Bar.P
-              CodeReferenceElement: Bar.P
-                CodeReferenceElement: Bar
-                  PsiElement(identifier)('Bar')
-                PsiElement(.)('.')
+          TypeArgument
+            InfixType: Bar.P <:< TP#P
+              SimpleType: Bar.P
+                CodeReferenceElement: Bar.P
+                  CodeReferenceElement: Bar
+                    PsiElement(identifier)('Bar')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('P')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: <:<
+                PsiElement(identifier)('<:<')
+              PsiWhiteSpace(' ')
+              TypeProjection: TP#P
+                SimpleType: TP
+                  CodeReferenceElement: TP
+                    PsiElement(identifier)('TP')
+                PsiElement(#)('#')
                 PsiElement(identifier)('P')
-            PsiWhiteSpace(' ')
-            CodeReferenceElement: <:<
-              PsiElement(identifier)('<:<')
-            PsiWhiteSpace(' ')
-            TypeProjection: TP#P
-              SimpleType: TP
-                CodeReferenceElement: TP
-                  PsiElement(identifier)('TP')
-              PsiElement(#)('#')
-              PsiElement(identifier)('P')
           PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       ScPatternDefinition: c

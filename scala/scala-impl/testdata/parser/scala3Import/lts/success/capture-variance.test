@@ -207,16 +207,18 @@ ScalaFile
                 PsiElement(identifier)('List')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Cov1[Any]
-                SimpleType: Cov1
-                  CodeReferenceElement: Cov1
-                    PsiElement(identifier)('Cov1')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: Any
-                    CodeReferenceElement: Any
-                      PsiElement(identifier)('Any')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Cov1[Any]
+                  SimpleType: Cov1
+                    CodeReferenceElement: Cov1
+                      PsiElement(identifier)('Cov1')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Any
+                        CodeReferenceElement: Any
+                          PsiElement(identifier)('Any')
+                    PsiElement(])(']')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -233,15 +235,17 @@ ScalaFile
                   PsiElement(identifier)('List')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: Cov1[_]
-                  SimpleType: Cov1
-                    CodeReferenceElement: Cov1
-                      PsiElement(identifier)('Cov1')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    WildcardType: _
-                      PsiElement(_)('_')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: Cov1[_]
+                    SimpleType: Cov1
+                      CodeReferenceElement: Cov1
+                        PsiElement(identifier)('Cov1')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        WildcardType: _
+                          PsiElement(_)('_')
+                      PsiElement(])(']')
                 PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScPatternDefinition: b
@@ -262,16 +266,18 @@ ScalaFile
                 PsiElement(identifier)('List')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Cov2[Hi]
-                SimpleType: Cov2
-                  CodeReferenceElement: Cov2
-                    PsiElement(identifier)('Cov2')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: Hi
-                    CodeReferenceElement: Hi
-                      PsiElement(identifier)('Hi')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Cov2[Hi]
+                  SimpleType: Cov2
+                    CodeReferenceElement: Cov2
+                      PsiElement(identifier)('Cov2')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Hi
+                        CodeReferenceElement: Hi
+                          PsiElement(identifier)('Hi')
+                    PsiElement(])(']')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -288,15 +294,17 @@ ScalaFile
                   PsiElement(identifier)('List')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: Cov2[_]
-                  SimpleType: Cov2
-                    CodeReferenceElement: Cov2
-                      PsiElement(identifier)('Cov2')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    WildcardType: _
-                      PsiElement(_)('_')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: Cov2[_]
+                    SimpleType: Cov2
+                      CodeReferenceElement: Cov2
+                        PsiElement(identifier)('Cov2')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        WildcardType: _
+                          PsiElement(_)('_')
+                      PsiElement(])(']')
                 PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScPatternDefinition: c
@@ -317,16 +325,18 @@ ScalaFile
                 PsiElement(identifier)('List')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Contra1[Nothing]
-                SimpleType: Contra1
-                  CodeReferenceElement: Contra1
-                    PsiElement(identifier)('Contra1')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: Nothing
-                    CodeReferenceElement: Nothing
-                      PsiElement(identifier)('Nothing')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Contra1[Nothing]
+                  SimpleType: Contra1
+                    CodeReferenceElement: Contra1
+                      PsiElement(identifier)('Contra1')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Nothing
+                        CodeReferenceElement: Nothing
+                          PsiElement(identifier)('Nothing')
+                    PsiElement(])(']')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -343,15 +353,17 @@ ScalaFile
                   PsiElement(identifier)('List')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: Contra1[_]
-                  SimpleType: Contra1
-                    CodeReferenceElement: Contra1
-                      PsiElement(identifier)('Contra1')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    WildcardType: _
-                      PsiElement(_)('_')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: Contra1[_]
+                    SimpleType: Contra1
+                      CodeReferenceElement: Contra1
+                        PsiElement(identifier)('Contra1')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        WildcardType: _
+                          PsiElement(_)('_')
+                      PsiElement(])(']')
                 PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScPatternDefinition: d
@@ -372,16 +384,18 @@ ScalaFile
                 PsiElement(identifier)('List')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Contra2[Lo]
-                SimpleType: Contra2
-                  CodeReferenceElement: Contra2
-                    PsiElement(identifier)('Contra2')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: Lo
-                    CodeReferenceElement: Lo
-                      PsiElement(identifier)('Lo')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Contra2[Lo]
+                  SimpleType: Contra2
+                    CodeReferenceElement: Contra2
+                      PsiElement(identifier)('Contra2')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Lo
+                        CodeReferenceElement: Lo
+                          PsiElement(identifier)('Lo')
+                    PsiElement(])(']')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -398,15 +412,17 @@ ScalaFile
                   PsiElement(identifier)('List')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: Contra2[_]
-                  SimpleType: Contra2
-                    CodeReferenceElement: Contra2
-                      PsiElement(identifier)('Contra2')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    WildcardType: _
-                      PsiElement(_)('_')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: Contra2[_]
+                    SimpleType: Contra2
+                      CodeReferenceElement: Contra2
+                        PsiElement(identifier)('Contra2')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        WildcardType: _
+                          PsiElement(_)('_')
+                      PsiElement(])(']')
                 PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

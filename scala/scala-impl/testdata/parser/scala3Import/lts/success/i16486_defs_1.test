@@ -104,22 +104,24 @@ ScalaFile
           PsiElement(identifier)('Conversion')
       TypeArgumentsList
         PsiElement([)('[')
-        InfixType: String | Temporal
-          SimpleType: String
-            CodeReferenceElement: String
-              PsiElement(identifier)('String')
-          PsiWhiteSpace(' ')
-          CodeReferenceElement: |
-            PsiElement(identifier)('|')
-          PsiWhiteSpace(' ')
-          SimpleType: Temporal
-            CodeReferenceElement: Temporal
-              PsiElement(identifier)('Temporal')
+        TypeArgument
+          InfixType: String | Temporal
+            SimpleType: String
+              CodeReferenceElement: String
+                PsiElement(identifier)('String')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: |
+              PsiElement(identifier)('|')
+            PsiWhiteSpace(' ')
+            SimpleType: Temporal
+              CodeReferenceElement: Temporal
+                PsiElement(identifier)('Temporal')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
-        SimpleType: JsValue
-          CodeReferenceElement: JsValue
-            PsiElement(identifier)('JsValue')
+        TypeArgument
+          SimpleType: JsValue
+            CodeReferenceElement: JsValue
+              PsiElement(identifier)('JsValue')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -171,14 +173,16 @@ ScalaFile
                     PsiElement(identifier)('Map')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: String
-                    CodeReferenceElement: String
-                      PsiElement(identifier)('String')
+                  TypeArgument
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
-                  SimpleType: JsValue
-                    CodeReferenceElement: JsValue
-                      PsiElement(identifier)('JsValue')
+                  TypeArgument
+                    SimpleType: JsValue
+                      CodeReferenceElement: JsValue
+                        PsiElement(identifier)('JsValue')
                   PsiElement(])(']')
           PsiElement())(')')
     ExtendsBlock
@@ -222,29 +226,32 @@ ScalaFile
                         PsiElement(identifier)('Tuple2')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: String
-                        CodeReferenceElement: String
-                          PsiElement(identifier)('String')
+                      TypeArgument
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
                       PsiElement(,)(',')
                       PsiWhiteSpace('  ')
-                      InfixType: JsValue | Option[JsValue]
-                        SimpleType: JsValue
-                          CodeReferenceElement: JsValue
-                            PsiElement(identifier)('JsValue')
-                        PsiWhiteSpace(' ')
-                        CodeReferenceElement: |
-                          PsiElement(identifier)('|')
-                        PsiWhiteSpace(' ')
-                        ParametrizedType: Option[JsValue]
-                          SimpleType: Option
-                            CodeReferenceElement: Option
-                              PsiElement(identifier)('Option')
-                          TypeArgumentsList
-                            PsiElement([)('[')
-                            SimpleType: JsValue
-                              CodeReferenceElement: JsValue
-                                PsiElement(identifier)('JsValue')
-                            PsiElement(])(']')
+                      TypeArgument
+                        InfixType: JsValue | Option[JsValue]
+                          SimpleType: JsValue
+                            CodeReferenceElement: JsValue
+                              PsiElement(identifier)('JsValue')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: |
+                            PsiElement(identifier)('|')
+                          PsiWhiteSpace(' ')
+                          ParametrizedType: Option[JsValue]
+                            SimpleType: Option
+                              CodeReferenceElement: Option
+                                PsiElement(identifier)('Option')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: JsValue
+                                  CodeReferenceElement: JsValue
+                                    PsiElement(identifier)('JsValue')
+                              PsiElement(])(']')
                       PsiElement(])(']')
                   PsiElement(identifier)('*')
               PsiWhiteSpace(' ')

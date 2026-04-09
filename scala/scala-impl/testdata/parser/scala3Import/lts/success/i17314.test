@@ -216,9 +216,10 @@ ScalaFile
                               PsiElement(identifier)('Of')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: A
-                              CodeReferenceElement: A
-                                PsiElement(identifier)('A')
+                            TypeArgument
+                              SimpleType: A
+                                CodeReferenceElement: A
+                                  PsiElement(identifier)('A')
                             PsiElement(])(']')
                     PsiWhiteSpace('\n    ')
                     PsiElement())(')')
@@ -230,9 +231,10 @@ ScalaFile
                       PsiElement(identifier)('ConfiguredCodec')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: A
-                      CodeReferenceElement: A
-                        PsiElement(identifier)('A')
+                    TypeArgument
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')
@@ -265,9 +267,10 @@ ScalaFile
                                 PsiElement(identifier)('ConfiguredCodec')
                             TypeArgumentsList
                               PsiElement([)('[')
-                              SimpleType: A
-                                CodeReferenceElement: A
-                                  PsiElement(identifier)('A')
+                              TypeArgument
+                                SimpleType: A
+                                  CodeReferenceElement: A
+                                    PsiElement(identifier)('A')
                               PsiElement(])(']')
                       ScTemplateBody
                         PsiElement(:)(':')
@@ -290,16 +293,18 @@ ScalaFile
                               PsiElement(identifier)('summonInline')
                             TypeArgumentsList
                               PsiElement([)('[')
-                              ParametrizedType: Codec[URI]
-                                SimpleType: Codec
-                                  CodeReferenceElement: Codec
-                                    PsiElement(identifier)('Codec')
-                                TypeArgumentsList
-                                  PsiElement([)('[')
-                                  SimpleType: URI
-                                    CodeReferenceElement: URI
-                                      PsiElement(identifier)('URI')
-                                  PsiElement(])(']')
+                              TypeArgument
+                                ParametrizedType: Codec[URI]
+                                  SimpleType: Codec
+                                    CodeReferenceElement: Codec
+                                      PsiElement(identifier)('Codec')
+                                  TypeArgumentsList
+                                    PsiElement([)('[')
+                                    TypeArgument
+                                      SimpleType: URI
+                                        CodeReferenceElement: URI
+                                          PsiElement(identifier)('URI')
+                                    PsiElement(])(']')
                               PsiElement(])(']')
                   PsiWhiteSpace(' ')
                   PsiComment(comment)('// simplification')
@@ -381,9 +386,10 @@ ScalaFile
                 PsiElement(identifier)('Codec')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: URI
-                CodeReferenceElement: URI
-                  PsiElement(identifier)('URI')
+              TypeArgument
+                SimpleType: URI
+                  CodeReferenceElement: URI
+                    PsiElement(identifier)('URI')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -461,9 +467,10 @@ ScalaFile
                       PsiElement(identifier)('Codec')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: URI
-                      CodeReferenceElement: URI
-                        PsiElement(identifier)('URI')
+                    TypeArgument
+                      SimpleType: URI
+                        CodeReferenceElement: URI
+                          PsiElement(identifier)('URI')
                     PsiElement(])(']')
               PsiElement(})('}')
         PsiWhiteSpace('\n\n  ')

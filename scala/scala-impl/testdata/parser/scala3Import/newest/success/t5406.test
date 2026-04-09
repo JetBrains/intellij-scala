@@ -65,11 +65,12 @@ ScalaFile
                       PsiElement(identifier)('Option')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Wuffles.type
-                      CodeReferenceElement: Wuffles
-                        PsiElement(identifier)('Wuffles')
-                      PsiElement(.)('.')
-                      PsiElement(type)('type')
+                    TypeArgument
+                      SimpleType: Wuffles.type
+                        CodeReferenceElement: Wuffles
+                          PsiElement(identifier)('Wuffles')
+                        PsiElement(.)('.')
+                        PsiElement(type)('type')
                     PsiElement(])(']')
               PsiElement())(')')
             PsiWhiteSpace(' ')

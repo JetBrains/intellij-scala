@@ -79,11 +79,12 @@ ScalaFile
               PsiElement(identifier)('f')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: x.type
-                CodeReferenceElement: x
-                  PsiElement(identifier)('x')
-                PsiElement(.)('.')
-                PsiElement(type)('type')
+              TypeArgument
+                SimpleType: x.type
+                  CodeReferenceElement: x
+                    PsiElement(identifier)('x')
+                  PsiElement(.)('.')
+                  PsiElement(type)('type')
               PsiElement(])(']')
           ArgumentList
             PsiElement(()('(')

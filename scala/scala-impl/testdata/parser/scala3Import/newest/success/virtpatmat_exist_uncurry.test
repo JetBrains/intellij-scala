@@ -75,20 +75,23 @@ ScalaFile
                               PsiElement(identifier)('PartialFunction')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            ParametrizedType: Leaf[_]
-                              SimpleType: Leaf
-                                CodeReferenceElement: Leaf
-                                  PsiElement(identifier)('Leaf')
-                              TypeArgumentsList
-                                PsiElement([)('[')
-                                WildcardType: _
-                                  PsiElement(_)('_')
-                                PsiElement(])(']')
+                            TypeArgument
+                              ParametrizedType: Leaf[_]
+                                SimpleType: Leaf
+                                  CodeReferenceElement: Leaf
+                                    PsiElement(identifier)('Leaf')
+                                TypeArgumentsList
+                                  PsiElement([)('[')
+                                  TypeArgument
+                                    WildcardType: _
+                                      PsiElement(_)('_')
+                                  PsiElement(])(']')
                             PsiElement(,)(',')
                             PsiWhiteSpace(' ')
-                            SimpleType: U
-                              CodeReferenceElement: U
-                                PsiElement(identifier)('U')
+                            TypeArgument
+                              SimpleType: U
+                                CodeReferenceElement: U
+                                  PsiElement(identifier)('U')
                             PsiElement(])(']')
                     PsiElement())(')')
                 PsiElement(:)(':')
@@ -99,9 +102,10 @@ ScalaFile
                       PsiElement(identifier)('List')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: U
-                      CodeReferenceElement: U
-                        PsiElement(identifier)('U')
+                    TypeArgument
+                      SimpleType: U
+                        CodeReferenceElement: U
+                          PsiElement(identifier)('U')
                     PsiElement(])(']')
               PsiWhiteSpace('\n    ')
               ScFunctionDefinition: leaves
@@ -122,16 +126,18 @@ ScalaFile
                       PsiElement(identifier)('List')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    ParametrizedType: Leaf[T]
-                      SimpleType: Leaf
-                        CodeReferenceElement: Leaf
-                          PsiElement(identifier)('Leaf')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        SimpleType: T
-                          CodeReferenceElement: T
-                            PsiElement(identifier)('T')
-                        PsiElement(])(']')
+                    TypeArgument
+                      ParametrizedType: Leaf[T]
+                        SimpleType: Leaf
+                          CodeReferenceElement: Leaf
+                            PsiElement(identifier)('Leaf')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: T
+                              CodeReferenceElement: T
+                                PsiElement(identifier)('T')
+                          PsiElement(])(']')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')
@@ -160,9 +166,10 @@ ScalaFile
                                     PsiElement(identifier)('Leaf')
                                 TypeArgumentsList
                                   PsiElement([)('[')
-                                  SimpleType: T
-                                    CodeReferenceElement: T
-                                      PsiElement(identifier)('T')
+                                  TypeArgument
+                                    SimpleType: T
+                                      CodeReferenceElement: T
+                                        PsiElement(identifier)('T')
                                   PsiElement(])(']')
                           PsiWhiteSpace(' ')
                           PsiElement(=>)('=>')

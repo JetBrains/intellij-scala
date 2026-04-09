@@ -123,9 +123,10 @@ ScalaFile
                   PsiElement(identifier)('Wrap')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: t
-                  CodeReferenceElement: t
-                    PsiElement(identifier)('t')
+                TypeArgument
+                  SimpleType: t
+                    CodeReferenceElement: t
+                      PsiElement(identifier)('t')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(match)('match')
@@ -142,19 +143,22 @@ ScalaFile
                       PsiElement(identifier)('Wrap')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    ParametrizedType: Either[hd, tl]
-                      SimpleType: Either
-                        CodeReferenceElement: Either
-                          PsiElement(identifier)('Either')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        TypeVariable: hd
-                          PsiElement(identifier)('hd')
-                        PsiElement(,)(',')
-                        PsiWhiteSpace(' ')
-                        TypeVariable: tl
-                          PsiElement(identifier)('tl')
-                        PsiElement(])(']')
+                    TypeArgument
+                      ParametrizedType: Either[hd, tl]
+                        SimpleType: Either
+                          CodeReferenceElement: Either
+                            PsiElement(identifier)('Either')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            TypeVariable: hd
+                              PsiElement(identifier)('hd')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            TypeVariable: tl
+                              PsiElement(identifier)('tl')
+                          PsiElement(])(']')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
@@ -173,9 +177,10 @@ ScalaFile
                         PsiElement(identifier)('to')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: tl
-                        CodeReferenceElement: tl
-                          PsiElement(identifier)('tl')
+                      TypeArgument
+                        SimpleType: tl
+                          CodeReferenceElement: tl
+                            PsiElement(identifier)('tl')
                       PsiElement(])(']')
               PsiWhiteSpace('\n    ')
               ScMatchTypeCaseImpl(match type case)
@@ -187,9 +192,10 @@ ScalaFile
                       PsiElement(identifier)('Wrap')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Nothing
-                      CodeReferenceElement: Nothing
-                        PsiElement(identifier)('Nothing')
+                    TypeArgument
+                      SimpleType: Nothing
+                        CodeReferenceElement: Nothing
+                          PsiElement(identifier)('Nothing')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')

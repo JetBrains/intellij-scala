@@ -114,14 +114,16 @@ ScalaFile
                 PsiElement(identifier)('Either')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Error
-                CodeReferenceElement: Error
-                  PsiElement(identifier)('Error')
+              TypeArgument
+                SimpleType: Error
+                  CodeReferenceElement: Error
+                    PsiElement(identifier)('Error')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: AvroType
-                CodeReferenceElement: AvroType
-                  PsiElement(identifier)('AvroType')
+              TypeArgument
+                SimpleType: AvroType
+                  CodeReferenceElement: AvroType
+                    PsiElement(identifier)('AvroType')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         PsiComment(comment)('// def decode(value: Any): Either[Error, A]')
@@ -170,9 +172,10 @@ ScalaFile
                   PsiElement(identifier)('Codec')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: A
-                  CodeReferenceElement: A
-                    PsiElement(identifier)('A')
+                TypeArgument
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             Refinement
@@ -239,14 +242,16 @@ ScalaFile
                           PsiElement(identifier)('Either')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: Error
-                          CodeReferenceElement: Error
-                            PsiElement(identifier)('Error')
+                        TypeArgument
+                          SimpleType: Error
+                            CodeReferenceElement: Error
+                              PsiElement(identifier)('Error')
                         PsiElement(,)(',')
                         PsiWhiteSpace(' ')
-                        SimpleType: AvroType0
-                          CodeReferenceElement: AvroType0
-                            PsiElement(identifier)('AvroType0')
+                        TypeArgument
+                          SimpleType: AvroType0
+                            CodeReferenceElement: AvroType0
+                              PsiElement(identifier)('AvroType0')
                         PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace('\n      ')
@@ -264,14 +269,16 @@ ScalaFile
                 PsiElement(identifier)('Aux')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: AvroType0
-                CodeReferenceElement: AvroType0
-                  PsiElement(identifier)('AvroType0')
+              TypeArgument
+                SimpleType: AvroType0
+                  CodeReferenceElement: AvroType0
+                    PsiElement(identifier)('AvroType0')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(])(']')
           PsiWhiteSpace('  ')
           PsiElement(=)('=')
@@ -315,9 +322,10 @@ ScalaFile
                         PsiElement(identifier)('Codec')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -328,16 +336,18 @@ ScalaFile
                 PsiElement(identifier)('Codec')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Option[A]
-                SimpleType: Option
-                  CodeReferenceElement: Option
-                    PsiElement(identifier)('Option')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: A
-                    CodeReferenceElement: A
-                      PsiElement(identifier)('A')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Option[A]
+                  SimpleType: Option
+                    CodeReferenceElement: Option
+                      PsiElement(identifier)('Option')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
+                    PsiElement(])(']')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -363,14 +373,16 @@ ScalaFile
                 PsiElement(identifier)('Aux')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
+              TypeArgument
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
+              TypeArgument
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -424,16 +436,18 @@ ScalaFile
               PsiElement(identifier)('Codec')
           TypeArgumentsList
             PsiElement([)('[')
-            ParametrizedType: Option[Int]
-              SimpleType: Option
-                CodeReferenceElement: Option
-                  PsiElement(identifier)('Option')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: Int
-                  CodeReferenceElement: Int
-                    PsiElement(identifier)('Int')
-                PsiElement(])(']')
+            TypeArgument
+              ParametrizedType: Option[Int]
+                SimpleType: Option
+                  CodeReferenceElement: Option
+                    PsiElement(identifier)('Option')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                  PsiElement(])(']')
             PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiElement(=)('=')
@@ -456,9 +470,10 @@ ScalaFile
                   PsiElement(identifier)('option')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
+                  TypeArgument
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
                   PsiElement(])(']')
               PsiElement(.)('.')
               PsiElement(identifier)('encode')

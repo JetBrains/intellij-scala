@@ -229,9 +229,10 @@ ScalaFile
                 PsiElement(identifier)('Baz')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(])(']')
           ArgumentList
             PsiElement(()('(')

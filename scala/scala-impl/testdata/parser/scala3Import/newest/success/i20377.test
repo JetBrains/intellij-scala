@@ -120,14 +120,16 @@ ScalaFile
                 PsiElement(identifier)('Map')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Rows
-                CodeReferenceElement: Rows
-                  PsiElement(identifier)('Rows')
+              TypeArgument
+                SimpleType: Rows
+                  CodeReferenceElement: Rows
+                    PsiElement(identifier)('Rows')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: ClassToMap
-                CodeReferenceElement: ClassToMap
-                  PsiElement(identifier)('ClassToMap')
+              TypeArgument
+                SimpleType: ClassToMap
+                  CodeReferenceElement: ClassToMap
+                    PsiElement(identifier)('ClassToMap')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScGivenDefinition: TDB
@@ -151,25 +153,26 @@ ScalaFile
                 PsiElement(identifier)('ClassToFind')
             TypeArgumentsList
               PsiElement([)('[')
-              NamedTupleType: (t1: Int, t2: String)
-                PsiElement(()('(')
-                NamedTupleTypeComponent: t1: Int
-                  PsiElement(identifier)('t1')
-                  PsiElement(:)(':')
+              TypeArgument
+                NamedTupleType: (t1: Int, t2: String)
+                  PsiElement(()('(')
+                  NamedTupleTypeComponent: t1: Int
+                    PsiElement(identifier)('t1')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                  PsiElement(,)(',')
                   PsiWhiteSpace(' ')
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
-                PsiElement(,)(',')
-                PsiWhiteSpace(' ')
-                NamedTupleTypeComponent: t2: String
-                  PsiElement(identifier)('t2')
-                  PsiElement(:)(':')
-                  PsiWhiteSpace(' ')
-                  SimpleType: String
-                    CodeReferenceElement: String
-                      PsiElement(identifier)('String')
-                PsiElement())(')')
+                  NamedTupleTypeComponent: t2: String
+                    PsiElement(identifier)('t2')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                  PsiElement())(')')
               PsiElement(])(']')
       ScTemplateBody
         PsiElement(:)(':')
@@ -202,9 +205,10 @@ ScalaFile
                     PsiElement(identifier)('ClassToMap')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Int
-                      CodeReferenceElement: Int
-                        PsiElement(identifier)('Int')
+                    TypeArgument
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
                     PsiElement(])(']')
                 ArgumentList
                   PsiElement(()('(')
@@ -222,9 +226,10 @@ ScalaFile
                     PsiElement(identifier)('ClassToMap')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: String
-                      CodeReferenceElement: String
-                        PsiElement(identifier)('String')
+                    TypeArgument
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
                     PsiElement(])(']')
                 ArgumentList
                   PsiElement(()('(')
@@ -298,9 +303,10 @@ ScalaFile
                     PsiElement(identifier)('ClassToFind')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: TypeAlias
-                    CodeReferenceElement: TypeAlias
-                      PsiElement(identifier)('TypeAlias')
+                  TypeArgument
+                    SimpleType: TypeAlias
+                      CodeReferenceElement: TypeAlias
+                        PsiElement(identifier)('TypeAlias')
                   PsiElement(])(']')
           PsiElement())(')')
     PsiWhiteSpace(' ')
@@ -369,25 +375,26 @@ ScalaFile
                     PsiElement(identifier)('ClassToFind')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  NamedTupleType: (t1: Int, t2: String)
-                    PsiElement(()('(')
-                    NamedTupleTypeComponent: t1: Int
-                      PsiElement(identifier)('t1')
-                      PsiElement(:)(':')
+                  TypeArgument
+                    NamedTupleType: (t1: Int, t2: String)
+                      PsiElement(()('(')
+                      NamedTupleTypeComponent: t1: Int
+                        PsiElement(identifier)('t1')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: Int
-                        CodeReferenceElement: Int
-                          PsiElement(identifier)('Int')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    NamedTupleTypeComponent: t2: String
-                      PsiElement(identifier)('t2')
-                      PsiElement(:)(':')
-                      PsiWhiteSpace(' ')
-                      SimpleType: String
-                        CodeReferenceElement: String
-                          PsiElement(identifier)('String')
-                    PsiElement())(')')
+                      NamedTupleTypeComponent: t2: String
+                        PsiElement(identifier)('t2')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                      PsiElement())(')')
                   PsiElement(])(']')
           PsiElement())(')')
     PsiWhiteSpace(' ')

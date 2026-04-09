@@ -105,9 +105,10 @@ ScalaFile
                               PsiElement(identifier)('Option')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: T
-                              CodeReferenceElement: T
-                                PsiElement(identifier)('T')
+                            TypeArgument
+                              SimpleType: T
+                                CodeReferenceElement: T
+                                  PsiElement(identifier)('T')
                             PsiElement(])(']')
               PsiWhiteSpace('\n    ')
               ScEnumCases: None
@@ -171,9 +172,10 @@ ScalaFile
                 PsiElement(identifier)('Some')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
+              TypeArgument
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -230,9 +232,10 @@ ScalaFile
                 PsiElement(identifier)('Some')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
+              TypeArgument
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -330,8 +333,9 @@ ScalaFile
                               PsiElement(identifier)('S')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            WildcardType: _
-                              PsiElement(_)('_')
+                            TypeArgument
+                              WildcardType: _
+                                PsiElement(_)('_')
                             PsiElement(])(']')
                     PsiElement(])(']')
                   PrimaryConstructor

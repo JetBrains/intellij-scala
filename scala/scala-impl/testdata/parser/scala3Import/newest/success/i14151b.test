@@ -67,14 +67,15 @@ ScalaFile
                     PsiElement(identifier)('Single')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  WildcardType: _ <: A
-                    PsiElement(_)('_')
-                    PsiWhiteSpace(' ')
-                    PsiElement(<:)('<:')
-                    PsiWhiteSpace(' ')
-                    SimpleType: A
-                      CodeReferenceElement: A
-                        PsiElement(identifier)('A')
+                  TypeArgument
+                    WildcardType: _ <: A
+                      PsiElement(_)('_')
+                      PsiWhiteSpace(' ')
+                      PsiElement(<:)('<:')
+                      PsiWhiteSpace(' ')
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
                   PsiElement(])(']')
             PsiElement(])(']')
           PsiWhiteSpace(' ')
@@ -105,8 +106,9 @@ ScalaFile
                       PsiElement(identifier)('Single')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    TypeVariable: b
-                      PsiElement(identifier)('b')
+                    TypeArgument
+                      TypeVariable: b
+                        PsiElement(identifier)('b')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')

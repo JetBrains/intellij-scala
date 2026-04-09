@@ -69,9 +69,10 @@ ScalaFile
                         PsiElement(identifier)('List')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: O
-                        CodeReferenceElement: O
-                          PsiElement(identifier)('O')
+                      TypeArgument
+                        SimpleType: O
+                          CodeReferenceElement: O
+                            PsiElement(identifier)('O')
                       PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
@@ -90,9 +91,10 @@ ScalaFile
                         PsiElement(identifier)('List')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: P
-                        CodeReferenceElement: P
-                          PsiElement(identifier)('P')
+                      TypeArgument
+                        SimpleType: P
+                          CodeReferenceElement: P
+                            PsiElement(identifier)('P')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -103,9 +105,10 @@ ScalaFile
                 PsiElement(identifier)('List')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: P
-                CodeReferenceElement: P
-                  PsiElement(identifier)('P')
+              TypeArgument
+                SimpleType: P
+                  CodeReferenceElement: P
+                    PsiElement(identifier)('P')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -187,19 +190,21 @@ ScalaFile
                 PsiElement(identifier)('List')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: List[g.Node]
-                SimpleType: List
-                  CodeReferenceElement: List
-                    PsiElement(identifier)('List')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: g.Node
-                    CodeReferenceElement: g.Node
-                      CodeReferenceElement: g
-                        PsiElement(identifier)('g')
-                      PsiElement(.)('.')
-                      PsiElement(identifier)('Node')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: List[g.Node]
+                  SimpleType: List
+                    CodeReferenceElement: List
+                      PsiElement(identifier)('List')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: g.Node
+                        CodeReferenceElement: g.Node
+                          CodeReferenceElement: g
+                            PsiElement(identifier)('g')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('Node')
+                    PsiElement(])(']')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -266,19 +271,21 @@ ScalaFile
                 PsiElement(identifier)('List')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: List[aGraph.Node]
-                SimpleType: List
-                  CodeReferenceElement: List
-                    PsiElement(identifier)('List')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: aGraph.Node
-                    CodeReferenceElement: aGraph.Node
-                      CodeReferenceElement: aGraph
-                        PsiElement(identifier)('aGraph')
-                      PsiElement(.)('.')
-                      PsiElement(identifier)('Node')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: List[aGraph.Node]
+                  SimpleType: List
+                    CodeReferenceElement: List
+                      PsiElement(identifier)('List')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: aGraph.Node
+                        CodeReferenceElement: aGraph.Node
+                          CodeReferenceElement: aGraph
+                            PsiElement(identifier)('aGraph')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('Node')
+                    PsiElement(])(']')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -311,36 +318,39 @@ ScalaFile
             PsiElement(identifier)('implicitly')
           TypeArgumentsList
             PsiElement([)('[')
-            InfixType: q1.type <:< List[List[aGraph.Node]]
-              SimpleType: q1.type
-                CodeReferenceElement: q1
-                  PsiElement(identifier)('q1')
-                PsiElement(.)('.')
-                PsiElement(type)('type')
-              PsiWhiteSpace(' ')
-              CodeReferenceElement: <:<
-                PsiElement(identifier)('<:<')
-              PsiWhiteSpace(' ')
-              ParametrizedType: List[List[aGraph.Node]]
-                SimpleType: List
-                  CodeReferenceElement: List
-                    PsiElement(identifier)('List')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  ParametrizedType: List[aGraph.Node]
-                    SimpleType: List
-                      CodeReferenceElement: List
-                        PsiElement(identifier)('List')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: aGraph.Node
-                        CodeReferenceElement: aGraph.Node
-                          CodeReferenceElement: aGraph
-                            PsiElement(identifier)('aGraph')
-                          PsiElement(.)('.')
-                          PsiElement(identifier)('Node')
-                      PsiElement(])(']')
-                  PsiElement(])(']')
+            TypeArgument
+              InfixType: q1.type <:< List[List[aGraph.Node]]
+                SimpleType: q1.type
+                  CodeReferenceElement: q1
+                    PsiElement(identifier)('q1')
+                  PsiElement(.)('.')
+                  PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: <:<
+                  PsiElement(identifier)('<:<')
+                PsiWhiteSpace(' ')
+                ParametrizedType: List[List[aGraph.Node]]
+                  SimpleType: List
+                    CodeReferenceElement: List
+                      PsiElement(identifier)('List')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      ParametrizedType: List[aGraph.Node]
+                        SimpleType: List
+                          CodeReferenceElement: List
+                            PsiElement(identifier)('List')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: aGraph.Node
+                              CodeReferenceElement: aGraph.Node
+                                CodeReferenceElement: aGraph
+                                  PsiElement(identifier)('aGraph')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('Node')
+                          PsiElement(])(']')
+                    PsiElement(])(']')
             PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScPatternDefinition: a1
@@ -465,19 +475,21 @@ ScalaFile
                 PsiElement(identifier)('List')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: List[aGraph.Node]
-                SimpleType: List
-                  CodeReferenceElement: List
-                    PsiElement(identifier)('List')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: aGraph.Node
-                    CodeReferenceElement: aGraph.Node
-                      CodeReferenceElement: aGraph
-                        PsiElement(identifier)('aGraph')
-                      PsiElement(.)('.')
-                      PsiElement(identifier)('Node')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: List[aGraph.Node]
+                  SimpleType: List
+                    CodeReferenceElement: List
+                      PsiElement(identifier)('List')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: aGraph.Node
+                        CodeReferenceElement: aGraph.Node
+                          CodeReferenceElement: aGraph
+                            PsiElement(identifier)('aGraph')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('Node')
+                    PsiElement(])(']')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -490,34 +502,37 @@ ScalaFile
             PsiElement(identifier)('implicitly')
           TypeArgumentsList
             PsiElement([)('[')
-            InfixType: q2.type <:< List[List[aGraph.Node]]
-              SimpleType: q2.type
-                CodeReferenceElement: q2
-                  PsiElement(identifier)('q2')
-                PsiElement(.)('.')
-                PsiElement(type)('type')
-              PsiWhiteSpace(' ')
-              CodeReferenceElement: <:<
-                PsiElement(identifier)('<:<')
-              PsiWhiteSpace(' ')
-              ParametrizedType: List[List[aGraph.Node]]
-                SimpleType: List
-                  CodeReferenceElement: List
-                    PsiElement(identifier)('List')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  ParametrizedType: List[aGraph.Node]
-                    SimpleType: List
-                      CodeReferenceElement: List
-                        PsiElement(identifier)('List')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: aGraph.Node
-                        CodeReferenceElement: aGraph.Node
-                          CodeReferenceElement: aGraph
-                            PsiElement(identifier)('aGraph')
-                          PsiElement(.)('.')
-                          PsiElement(identifier)('Node')
-                      PsiElement(])(']')
-                  PsiElement(])(']')
+            TypeArgument
+              InfixType: q2.type <:< List[List[aGraph.Node]]
+                SimpleType: q2.type
+                  CodeReferenceElement: q2
+                    PsiElement(identifier)('q2')
+                  PsiElement(.)('.')
+                  PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: <:<
+                  PsiElement(identifier)('<:<')
+                PsiWhiteSpace(' ')
+                ParametrizedType: List[List[aGraph.Node]]
+                  SimpleType: List
+                    CodeReferenceElement: List
+                      PsiElement(identifier)('List')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      ParametrizedType: List[aGraph.Node]
+                        SimpleType: List
+                          CodeReferenceElement: List
+                            PsiElement(identifier)('List')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: aGraph.Node
+                              CodeReferenceElement: aGraph.Node
+                                CodeReferenceElement: aGraph
+                                  PsiElement(identifier)('aGraph')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('Node')
+                          PsiElement(])(']')
+                    PsiElement(])(']')
             PsiElement(])(']')

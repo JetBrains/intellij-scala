@@ -92,15 +92,17 @@ ScalaFile
                           PsiElement(identifier)('IsMappedBy')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: F
-                          CodeReferenceElement: F
-                            PsiElement(identifier)('F')
+                        TypeArgument
+                          SimpleType: F
+                            CodeReferenceElement: F
+                              PsiElement(identifier)('F')
                         PsiElement(])(']')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: T
-                        CodeReferenceElement: T
-                          PsiElement(identifier)('T')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiWhiteSpace('\n    ')
@@ -140,14 +142,16 @@ ScalaFile
                               PsiElement(identifier)('InverseMap')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: T
-                              CodeReferenceElement: T
-                                PsiElement(identifier)('T')
+                            TypeArgument
+                              SimpleType: T
+                                CodeReferenceElement: T
+                                  PsiElement(identifier)('T')
                             PsiElement(,)(',')
                             PsiWhiteSpace(' ')
-                            SimpleType: F
-                              CodeReferenceElement: F
-                                PsiElement(identifier)('F')
+                            TypeArgument
+                              SimpleType: F
+                                CodeReferenceElement: F
+                                  PsiElement(identifier)('F')
                             PsiElement(])(']')
                         PsiWhiteSpace(' ')
                         PsiElement(=>)('=>')
@@ -164,9 +168,10 @@ ScalaFile
                     PsiElement(identifier)('F')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: B
-                    CodeReferenceElement: B
-                      PsiElement(identifier)('B')
+                  TypeArgument
+                    SimpleType: B
+                      CodeReferenceElement: B
+                        PsiElement(identifier)('B')
                   PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(=)('=')
@@ -189,9 +194,10 @@ ScalaFile
           PsiElement(identifier)('Apply')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: Option
-          CodeReferenceElement: Option
-            PsiElement(identifier)('Option')
+        TypeArgument
+          SimpleType: Option
+            CodeReferenceElement: Option
+              PsiElement(identifier)('Option')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -214,9 +220,10 @@ ScalaFile
           PsiElement(identifier)('Apply')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: List
-          CodeReferenceElement: List
-            PsiElement(identifier)('List')
+        TypeArgument
+          SimpleType: List
+            CodeReferenceElement: List
+              PsiElement(identifier)('List')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -239,12 +246,13 @@ ScalaFile
           PsiElement(identifier)('Apply')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: util.Try
-          CodeReferenceElement: util.Try
-            CodeReferenceElement: util
-              PsiElement(identifier)('util')
-            PsiElement(.)('.')
-            PsiElement(identifier)('Try')
+        TypeArgument
+          SimpleType: util.Try
+            CodeReferenceElement: util.Try
+              CodeReferenceElement: util
+                PsiElement(identifier)('util')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Try')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')

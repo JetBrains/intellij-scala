@@ -202,21 +202,24 @@ ScalaFile
                           PsiElement(identifier)('TokenParser')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: Char
-                          CodeReferenceElement: Char
-                            PsiElement(identifier)('Char')
+                        TypeArgument
+                          SimpleType: Char
+                            CodeReferenceElement: Char
+                              PsiElement(identifier)('Char')
                         PsiElement(,)(',')
                         PsiWhiteSpace(' ')
-                        ParametrizedType: Position[CharSequence]
-                          SimpleType: Position
-                            CodeReferenceElement: Position
-                              PsiElement(identifier)('Position')
-                          TypeArgumentsList
-                            PsiElement([)('[')
-                            SimpleType: CharSequence
-                              CodeReferenceElement: CharSequence
-                                PsiElement(identifier)('CharSequence')
-                            PsiElement(])(']')
+                        TypeArgument
+                          ParametrizedType: Position[CharSequence]
+                            SimpleType: Position
+                              CodeReferenceElement: Position
+                                PsiElement(identifier)('Position')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: CharSequence
+                                  CodeReferenceElement: CharSequence
+                                    PsiElement(identifier)('CharSequence')
+                              PsiElement(])(']')
                         PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(with)('with')
@@ -247,21 +250,24 @@ ScalaFile
                             PsiElement(identifier)('TokenParser')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: Char
-                            CodeReferenceElement: Char
-                              PsiElement(identifier)('Char')
+                          TypeArgument
+                            SimpleType: Char
+                              CodeReferenceElement: Char
+                                PsiElement(identifier)('Char')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
-                          ParametrizedType: Position[CharSequence]
-                            SimpleType: Position
-                              CodeReferenceElement: Position
-                                PsiElement(identifier)('Position')
-                            TypeArgumentsList
-                              PsiElement([)('[')
-                              SimpleType: CharSequence
-                                CodeReferenceElement: CharSequence
-                                  PsiElement(identifier)('CharSequence')
-                              PsiElement(])(']')
+                          TypeArgument
+                            ParametrizedType: Position[CharSequence]
+                              SimpleType: Position
+                                CodeReferenceElement: Position
+                                  PsiElement(identifier)('Position')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                TypeArgument
+                                  SimpleType: CharSequence
+                                    CodeReferenceElement: CharSequence
+                                      PsiElement(identifier)('CharSequence')
+                                PsiElement(])(']')
                           PsiElement(])(']')
                   PsiElement())(')')
               PsiWhiteSpace(' ')
@@ -298,21 +304,24 @@ ScalaFile
                             PsiElement(identifier)('TokenParser')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: Char
-                            CodeReferenceElement: Char
-                              PsiElement(identifier)('Char')
+                          TypeArgument
+                            SimpleType: Char
+                              CodeReferenceElement: Char
+                                PsiElement(identifier)('Char')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
-                          ParametrizedType: Position[CharSequence]
-                            SimpleType: Position
-                              CodeReferenceElement: Position
-                                PsiElement(identifier)('Position')
-                            TypeArgumentsList
-                              PsiElement([)('[')
-                              SimpleType: CharSequence
-                                CodeReferenceElement: CharSequence
-                                  PsiElement(identifier)('CharSequence')
-                              PsiElement(])(']')
+                          TypeArgument
+                            ParametrizedType: Position[CharSequence]
+                              SimpleType: Position
+                                CodeReferenceElement: Position
+                                  PsiElement(identifier)('Position')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                TypeArgument
+                                  SimpleType: CharSequence
+                                    CodeReferenceElement: CharSequence
+                                      PsiElement(identifier)('CharSequence')
+                                PsiElement(])(']')
                           PsiElement(])(']')
                   PsiElement())(')')
               PsiWhiteSpace('\n\n      ')
@@ -326,21 +335,24 @@ ScalaFile
                     PsiElement(identifier)('Conversion')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: Char
-                    CodeReferenceElement: Char
-                      PsiElement(identifier)('Char')
+                  TypeArgument
+                    SimpleType: Char
+                      CodeReferenceElement: Char
+                        PsiElement(identifier)('Char')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
-                  ParametrizedType: Position[CharSequence]
-                    SimpleType: Position
-                      CodeReferenceElement: Position
-                        PsiElement(identifier)('Position')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: CharSequence
-                        CodeReferenceElement: CharSequence
-                          PsiElement(identifier)('CharSequence')
-                      PsiElement(])(']')
+                  TypeArgument
+                    ParametrizedType: Position[CharSequence]
+                      SimpleType: Position
+                        CodeReferenceElement: Position
+                          PsiElement(identifier)('Position')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: CharSequence
+                            CodeReferenceElement: CharSequence
+                              PsiElement(identifier)('CharSequence')
+                        PsiElement(])(']')
                   PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(=)('=')
@@ -389,9 +401,10 @@ ScalaFile
                             PsiElement(identifier)('Array')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: String
-                            CodeReferenceElement: String
-                              PsiElement(identifier)('String')
+                          TypeArgument
+                            SimpleType: String
+                              CodeReferenceElement: String
+                                PsiElement(identifier)('String')
                           PsiElement(])(']')
                   PsiElement())(')')
               PsiElement(:)(':')
@@ -440,21 +453,24 @@ ScalaFile
                         PsiElement(identifier)('TokenParser')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Char
-                        CodeReferenceElement: Char
-                          PsiElement(identifier)('Char')
+                      TypeArgument
+                        SimpleType: Char
+                          CodeReferenceElement: Char
+                            PsiElement(identifier)('Char')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      ParametrizedType: Position[CharSequence]
-                        SimpleType: Position
-                          CodeReferenceElement: Position
-                            PsiElement(identifier)('Position')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: CharSequence
-                            CodeReferenceElement: CharSequence
-                              PsiElement(identifier)('CharSequence')
-                          PsiElement(])(']')
+                      TypeArgument
+                        ParametrizedType: Position[CharSequence]
+                          SimpleType: Position
+                            CodeReferenceElement: Position
+                              PsiElement(identifier)('Position')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: CharSequence
+                                CodeReferenceElement: CharSequence
+                                  PsiElement(identifier)('CharSequence')
+                            PsiElement(])(']')
                       PsiElement(])(']')
                   PsiWhiteSpace(' ')
                   PsiElement(=)('=')
@@ -483,28 +499,32 @@ ScalaFile
                       PsiElement(identifier)('summon')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      ParametrizedType: TokenParser[Char, Position[CharSequence]]
-                        SimpleType: TokenParser
-                          CodeReferenceElement: TokenParser
-                            PsiElement(identifier)('TokenParser')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: Char
-                            CodeReferenceElement: Char
-                              PsiElement(identifier)('Char')
-                          PsiElement(,)(',')
-                          PsiWhiteSpace(' ')
-                          ParametrizedType: Position[CharSequence]
-                            SimpleType: Position
-                              CodeReferenceElement: Position
-                                PsiElement(identifier)('Position')
-                            TypeArgumentsList
-                              PsiElement([)('[')
-                              SimpleType: CharSequence
-                                CodeReferenceElement: CharSequence
-                                  PsiElement(identifier)('CharSequence')
-                              PsiElement(])(']')
-                          PsiElement(])(']')
+                      TypeArgument
+                        ParametrizedType: TokenParser[Char, Position[CharSequence]]
+                          SimpleType: TokenParser
+                            CodeReferenceElement: TokenParser
+                              PsiElement(identifier)('TokenParser')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: Char
+                                CodeReferenceElement: Char
+                                  PsiElement(identifier)('Char')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            TypeArgument
+                              ParametrizedType: Position[CharSequence]
+                                SimpleType: Position
+                                  CodeReferenceElement: Position
+                                    PsiElement(identifier)('Position')
+                                TypeArgumentsList
+                                  PsiElement([)('[')
+                                  TypeArgument
+                                    SimpleType: CharSequence
+                                      CodeReferenceElement: CharSequence
+                                        PsiElement(identifier)('CharSequence')
+                                  PsiElement(])(']')
+                            PsiElement(])(']')
                       PsiElement(])(']')
                 PsiWhiteSpace('\n      ')
                 ScPatternDefinition: co_i
@@ -525,28 +545,32 @@ ScalaFile
                       PsiElement(identifier)('summon')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      ParametrizedType: Conversion[Char, Position[CharSequence]]
-                        SimpleType: Conversion
-                          CodeReferenceElement: Conversion
-                            PsiElement(identifier)('Conversion')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: Char
-                            CodeReferenceElement: Char
-                              PsiElement(identifier)('Char')
-                          PsiElement(,)(',')
-                          PsiWhiteSpace(' ')
-                          ParametrizedType: Position[CharSequence]
-                            SimpleType: Position
-                              CodeReferenceElement: Position
-                                PsiElement(identifier)('Position')
-                            TypeArgumentsList
-                              PsiElement([)('[')
-                              SimpleType: CharSequence
-                                CodeReferenceElement: CharSequence
-                                  PsiElement(identifier)('CharSequence')
-                              PsiElement(])(']')
-                          PsiElement(])(']')
+                      TypeArgument
+                        ParametrizedType: Conversion[Char, Position[CharSequence]]
+                          SimpleType: Conversion
+                            CodeReferenceElement: Conversion
+                              PsiElement(identifier)('Conversion')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: Char
+                                CodeReferenceElement: Char
+                                  PsiElement(identifier)('Char')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            TypeArgument
+                              ParametrizedType: Position[CharSequence]
+                                SimpleType: Position
+                                  CodeReferenceElement: Position
+                                    PsiElement(identifier)('Position')
+                                TypeArgumentsList
+                                  PsiElement([)('[')
+                                  TypeArgument
+                                    SimpleType: CharSequence
+                                      CodeReferenceElement: CharSequence
+                                        PsiElement(identifier)('CharSequence')
+                                  PsiElement(])(']')
+                            PsiElement(])(']')
                       PsiElement(])(']')
                 PsiWhiteSpace('\n      ')
                 ScPatternDefinition: co_x
@@ -568,9 +592,10 @@ ScalaFile
                         PsiElement(identifier)('Position')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: CharSequence
-                        CodeReferenceElement: CharSequence
-                          PsiElement(identifier)('CharSequence')
+                      TypeArgument
+                        SimpleType: CharSequence
+                          CodeReferenceElement: CharSequence
+                            PsiElement(identifier)('CharSequence')
                       PsiElement(])(']')
                   PsiWhiteSpace(' ')
                   PsiElement(=)('=')
@@ -599,21 +624,24 @@ ScalaFile
                           PsiElement(identifier)('Conversion')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: Char
-                          CodeReferenceElement: Char
-                            PsiElement(identifier)('Char')
+                        TypeArgument
+                          SimpleType: Char
+                            CodeReferenceElement: Char
+                              PsiElement(identifier)('Char')
                         PsiElement(,)(',')
                         PsiWhiteSpace(' ')
-                        ParametrizedType: Position[CharSequence]
-                          SimpleType: Position
-                            CodeReferenceElement: Position
-                              PsiElement(identifier)('Position')
-                          TypeArgumentsList
-                            PsiElement([)('[')
-                            SimpleType: CharSequence
-                              CodeReferenceElement: CharSequence
-                                PsiElement(identifier)('CharSequence')
-                            PsiElement(])(']')
+                        TypeArgument
+                          ParametrizedType: Position[CharSequence]
+                            SimpleType: Position
+                              CodeReferenceElement: Position
+                                PsiElement(identifier)('Position')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: CharSequence
+                                  CodeReferenceElement: CharSequence
+                                    PsiElement(identifier)('CharSequence')
+                              PsiElement(])(']')
                         PsiElement(])(']')
                     PsiWhiteSpace(' ')
                     PsiElement(=)('=')
@@ -640,9 +668,10 @@ ScalaFile
                           PsiElement(identifier)('Position')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: CharSequence
-                          CodeReferenceElement: CharSequence
-                            PsiElement(identifier)('CharSequence')
+                        TypeArgument
+                          SimpleType: CharSequence
+                            CodeReferenceElement: CharSequence
+                              PsiElement(identifier)('CharSequence')
                         PsiElement(])(']')
                     PsiWhiteSpace(' ')
                     PsiElement(=)('=')
@@ -700,21 +729,24 @@ ScalaFile
                           PsiElement(identifier)('TokenParser')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: Char
-                          CodeReferenceElement: Char
-                            PsiElement(identifier)('Char')
+                        TypeArgument
+                          SimpleType: Char
+                            CodeReferenceElement: Char
+                              PsiElement(identifier)('Char')
                         PsiElement(,)(',')
                         PsiWhiteSpace(' ')
-                        ParametrizedType: Position[CharSequence]
-                          SimpleType: Position
-                            CodeReferenceElement: Position
-                              PsiElement(identifier)('Position')
-                          TypeArgumentsList
-                            PsiElement([)('[')
-                            SimpleType: CharSequence
-                              CodeReferenceElement: CharSequence
-                                PsiElement(identifier)('CharSequence')
-                            PsiElement(])(']')
+                        TypeArgument
+                          ParametrizedType: Position[CharSequence]
+                            SimpleType: Position
+                              CodeReferenceElement: Position
+                                PsiElement(identifier)('Position')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: CharSequence
+                                  CodeReferenceElement: CharSequence
+                                    PsiElement(identifier)('CharSequence')
+                              PsiElement(])(']')
                         PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 ScTemplateBody
@@ -765,21 +797,24 @@ ScalaFile
                             PsiElement(identifier)('TokenParser')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: Char
-                            CodeReferenceElement: Char
-                              PsiElement(identifier)('Char')
+                          TypeArgument
+                            SimpleType: Char
+                              CodeReferenceElement: Char
+                                PsiElement(identifier)('Char')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
-                          ParametrizedType: Position[CharSequence]
-                            SimpleType: Position
-                              CodeReferenceElement: Position
-                                PsiElement(identifier)('Position')
-                            TypeArgumentsList
-                              PsiElement([)('[')
-                              SimpleType: CharSequence
-                                CodeReferenceElement: CharSequence
-                                  PsiElement(identifier)('CharSequence')
-                              PsiElement(])(']')
+                          TypeArgument
+                            ParametrizedType: Position[CharSequence]
+                              SimpleType: Position
+                                CodeReferenceElement: Position
+                                  PsiElement(identifier)('Position')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                TypeArgument
+                                  SimpleType: CharSequence
+                                    CodeReferenceElement: CharSequence
+                                      PsiElement(identifier)('CharSequence')
+                                PsiElement(])(']')
                           PsiElement(])(']')
                   PsiElement())(')')
               PsiElement(:)(':')
@@ -790,9 +825,10 @@ ScalaFile
                     PsiElement(identifier)('Position')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: CharSequence
-                    CodeReferenceElement: CharSequence
-                      PsiElement(identifier)('CharSequence')
+                  TypeArgument
+                    SimpleType: CharSequence
+                      CodeReferenceElement: CharSequence
+                        PsiElement(identifier)('CharSequence')
                   PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(=)('=')
@@ -841,9 +877,10 @@ ScalaFile
                             PsiElement(identifier)('Array')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: String
-                            CodeReferenceElement: String
-                              PsiElement(identifier)('String')
+                          TypeArgument
+                            SimpleType: String
+                              CodeReferenceElement: String
+                                PsiElement(identifier)('String')
                           PsiElement(])(']')
                   PsiElement())(')')
               PsiElement(:)(':')
@@ -892,21 +929,24 @@ ScalaFile
                         PsiElement(identifier)('TokenParser')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Char
-                        CodeReferenceElement: Char
-                          PsiElement(identifier)('Char')
+                      TypeArgument
+                        SimpleType: Char
+                          CodeReferenceElement: Char
+                            PsiElement(identifier)('Char')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      ParametrizedType: Position[CharSequence]
-                        SimpleType: Position
-                          CodeReferenceElement: Position
-                            PsiElement(identifier)('Position')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: CharSequence
-                            CodeReferenceElement: CharSequence
-                              PsiElement(identifier)('CharSequence')
-                          PsiElement(])(']')
+                      TypeArgument
+                        ParametrizedType: Position[CharSequence]
+                          SimpleType: Position
+                            CodeReferenceElement: Position
+                              PsiElement(identifier)('Position')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: CharSequence
+                                CodeReferenceElement: CharSequence
+                                  PsiElement(identifier)('CharSequence')
+                            PsiElement(])(']')
                       PsiElement(])(']')
                   PsiWhiteSpace(' ')
                   PsiElement(=)('=')
@@ -935,28 +975,32 @@ ScalaFile
                       PsiElement(identifier)('summon')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      ParametrizedType: TokenParser[Char, Position[CharSequence]]
-                        SimpleType: TokenParser
-                          CodeReferenceElement: TokenParser
-                            PsiElement(identifier)('TokenParser')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: Char
-                            CodeReferenceElement: Char
-                              PsiElement(identifier)('Char')
-                          PsiElement(,)(',')
-                          PsiWhiteSpace(' ')
-                          ParametrizedType: Position[CharSequence]
-                            SimpleType: Position
-                              CodeReferenceElement: Position
-                                PsiElement(identifier)('Position')
-                            TypeArgumentsList
-                              PsiElement([)('[')
-                              SimpleType: CharSequence
-                                CodeReferenceElement: CharSequence
-                                  PsiElement(identifier)('CharSequence')
-                              PsiElement(])(']')
-                          PsiElement(])(']')
+                      TypeArgument
+                        ParametrizedType: TokenParser[Char, Position[CharSequence]]
+                          SimpleType: TokenParser
+                            CodeReferenceElement: TokenParser
+                              PsiElement(identifier)('TokenParser')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: Char
+                                CodeReferenceElement: Char
+                                  PsiElement(identifier)('Char')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            TypeArgument
+                              ParametrizedType: Position[CharSequence]
+                                SimpleType: Position
+                                  CodeReferenceElement: Position
+                                    PsiElement(identifier)('Position')
+                                TypeArgumentsList
+                                  PsiElement([)('[')
+                                  TypeArgument
+                                    SimpleType: CharSequence
+                                      CodeReferenceElement: CharSequence
+                                        PsiElement(identifier)('CharSequence')
+                                  PsiElement(])(']')
+                            PsiElement(])(']')
                       PsiElement(])(']')
                 PsiWhiteSpace('\n      ')
                 ScPatternDefinition: co_x
@@ -978,9 +1022,10 @@ ScalaFile
                         PsiElement(identifier)('Position')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: CharSequence
-                        CodeReferenceElement: CharSequence
-                          PsiElement(identifier)('CharSequence')
+                      TypeArgument
+                        SimpleType: CharSequence
+                          CodeReferenceElement: CharSequence
+                            PsiElement(identifier)('CharSequence')
                       PsiElement(])(']')
                   PsiWhiteSpace(' ')
                   PsiElement(=)('=')
@@ -1036,21 +1081,24 @@ ScalaFile
                           PsiElement(identifier)('TokenParser')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: Char
-                          CodeReferenceElement: Char
-                            PsiElement(identifier)('Char')
+                        TypeArgument
+                          SimpleType: Char
+                            CodeReferenceElement: Char
+                              PsiElement(identifier)('Char')
                         PsiElement(,)(',')
                         PsiWhiteSpace(' ')
-                        ParametrizedType: Position[CharSequence]
-                          SimpleType: Position
-                            CodeReferenceElement: Position
-                              PsiElement(identifier)('Position')
-                          TypeArgumentsList
-                            PsiElement([)('[')
-                            SimpleType: CharSequence
-                              CodeReferenceElement: CharSequence
-                                PsiElement(identifier)('CharSequence')
-                            PsiElement(])(']')
+                        TypeArgument
+                          ParametrizedType: Position[CharSequence]
+                            SimpleType: Position
+                              CodeReferenceElement: Position
+                                PsiElement(identifier)('Position')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: CharSequence
+                                  CodeReferenceElement: CharSequence
+                                    PsiElement(identifier)('CharSequence')
+                              PsiElement(])(']')
                         PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 ScTemplateBody
@@ -1086,21 +1134,24 @@ ScalaFile
                             PsiElement(identifier)('TokenParser')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: Char
-                            CodeReferenceElement: Char
-                              PsiElement(identifier)('Char')
+                          TypeArgument
+                            SimpleType: Char
+                              CodeReferenceElement: Char
+                                PsiElement(identifier)('Char')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
-                          ParametrizedType: Position[CharSequence]
-                            SimpleType: Position
-                              CodeReferenceElement: Position
-                                PsiElement(identifier)('Position')
-                            TypeArgumentsList
-                              PsiElement([)('[')
-                              SimpleType: CharSequence
-                                CodeReferenceElement: CharSequence
-                                  PsiElement(identifier)('CharSequence')
-                              PsiElement(])(']')
+                          TypeArgument
+                            ParametrizedType: Position[CharSequence]
+                              SimpleType: Position
+                                CodeReferenceElement: Position
+                                  PsiElement(identifier)('Position')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                TypeArgument
+                                  SimpleType: CharSequence
+                                    CodeReferenceElement: CharSequence
+                                      PsiElement(identifier)('CharSequence')
+                                PsiElement(])(']')
                           PsiElement(])(']')
                   PsiElement())(')')
               PsiElement(:)(':')
@@ -1111,21 +1162,24 @@ ScalaFile
                     PsiElement(identifier)('Conversion')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: Char
-                    CodeReferenceElement: Char
-                      PsiElement(identifier)('Char')
+                  TypeArgument
+                    SimpleType: Char
+                      CodeReferenceElement: Char
+                        PsiElement(identifier)('Char')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
-                  ParametrizedType: Position[CharSequence]
-                    SimpleType: Position
-                      CodeReferenceElement: Position
-                        PsiElement(identifier)('Position')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: CharSequence
-                        CodeReferenceElement: CharSequence
-                          PsiElement(identifier)('CharSequence')
-                      PsiElement(])(']')
+                  TypeArgument
+                    ParametrizedType: Position[CharSequence]
+                      SimpleType: Position
+                        CodeReferenceElement: Position
+                          PsiElement(identifier)('Position')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: CharSequence
+                            CodeReferenceElement: CharSequence
+                              PsiElement(identifier)('CharSequence')
+                        PsiElement(])(']')
                   PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(=)('=')
@@ -1174,9 +1228,10 @@ ScalaFile
                             PsiElement(identifier)('Array')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: String
-                            CodeReferenceElement: String
-                              PsiElement(identifier)('String')
+                          TypeArgument
+                            SimpleType: String
+                              CodeReferenceElement: String
+                                PsiElement(identifier)('String')
                           PsiElement(])(']')
                   PsiElement())(')')
               PsiElement(:)(':')
@@ -1225,21 +1280,24 @@ ScalaFile
                         PsiElement(identifier)('Conversion')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Char
-                        CodeReferenceElement: Char
-                          PsiElement(identifier)('Char')
+                      TypeArgument
+                        SimpleType: Char
+                          CodeReferenceElement: Char
+                            PsiElement(identifier)('Char')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      ParametrizedType: Position[CharSequence]
-                        SimpleType: Position
-                          CodeReferenceElement: Position
-                            PsiElement(identifier)('Position')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: CharSequence
-                            CodeReferenceElement: CharSequence
-                              PsiElement(identifier)('CharSequence')
-                          PsiElement(])(']')
+                      TypeArgument
+                        ParametrizedType: Position[CharSequence]
+                          SimpleType: Position
+                            CodeReferenceElement: Position
+                              PsiElement(identifier)('Position')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: CharSequence
+                                CodeReferenceElement: CharSequence
+                                  PsiElement(identifier)('CharSequence')
+                            PsiElement(])(']')
                       PsiElement(])(']')
                   PsiWhiteSpace(' ')
                   PsiElement(=)('=')
@@ -1249,28 +1307,32 @@ ScalaFile
                       PsiElement(identifier)('summon')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      ParametrizedType: Conversion[Char, Position[CharSequence]]
-                        SimpleType: Conversion
-                          CodeReferenceElement: Conversion
-                            PsiElement(identifier)('Conversion')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: Char
-                            CodeReferenceElement: Char
-                              PsiElement(identifier)('Char')
-                          PsiElement(,)(',')
-                          PsiWhiteSpace(' ')
-                          ParametrizedType: Position[CharSequence]
-                            SimpleType: Position
-                              CodeReferenceElement: Position
-                                PsiElement(identifier)('Position')
-                            TypeArgumentsList
-                              PsiElement([)('[')
-                              SimpleType: CharSequence
-                                CodeReferenceElement: CharSequence
-                                  PsiElement(identifier)('CharSequence')
-                              PsiElement(])(']')
-                          PsiElement(])(']')
+                      TypeArgument
+                        ParametrizedType: Conversion[Char, Position[CharSequence]]
+                          SimpleType: Conversion
+                            CodeReferenceElement: Conversion
+                              PsiElement(identifier)('Conversion')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: Char
+                                CodeReferenceElement: Char
+                                  PsiElement(identifier)('Char')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            TypeArgument
+                              ParametrizedType: Position[CharSequence]
+                                SimpleType: Position
+                                  CodeReferenceElement: Position
+                                    PsiElement(identifier)('Position')
+                                TypeArgumentsList
+                                  PsiElement([)('[')
+                                  TypeArgument
+                                    SimpleType: CharSequence
+                                      CodeReferenceElement: CharSequence
+                                        PsiElement(identifier)('CharSequence')
+                                  PsiElement(])(']')
+                            PsiElement(])(']')
                       PsiElement(])(']')
                 PsiWhiteSpace('\n\n      ')
                 BlockExpression
@@ -1294,21 +1356,24 @@ ScalaFile
                           PsiElement(identifier)('TokenParser')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: Char
-                          CodeReferenceElement: Char
-                            PsiElement(identifier)('Char')
+                        TypeArgument
+                          SimpleType: Char
+                            CodeReferenceElement: Char
+                              PsiElement(identifier)('Char')
                         PsiElement(,)(',')
                         PsiWhiteSpace(' ')
-                        ParametrizedType: Position[CharSequence]
-                          SimpleType: Position
-                            CodeReferenceElement: Position
-                              PsiElement(identifier)('Position')
-                          TypeArgumentsList
-                            PsiElement([)('[')
-                            SimpleType: CharSequence
-                              CodeReferenceElement: CharSequence
-                                PsiElement(identifier)('CharSequence')
-                            PsiElement(])(']')
+                        TypeArgument
+                          ParametrizedType: Position[CharSequence]
+                            SimpleType: Position
+                              CodeReferenceElement: Position
+                                PsiElement(identifier)('Position')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: CharSequence
+                                  CodeReferenceElement: CharSequence
+                                    PsiElement(identifier)('CharSequence')
+                              PsiElement(])(']')
                         PsiElement(])(']')
                     PsiWhiteSpace(' ')
                     PsiElement(=)('=')
@@ -1337,28 +1402,32 @@ ScalaFile
                         PsiElement(identifier)('summon')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        ParametrizedType: TokenParser[Char, Position[CharSequence]]
-                          SimpleType: TokenParser
-                            CodeReferenceElement: TokenParser
-                              PsiElement(identifier)('TokenParser')
-                          TypeArgumentsList
-                            PsiElement([)('[')
-                            SimpleType: Char
-                              CodeReferenceElement: Char
-                                PsiElement(identifier)('Char')
-                            PsiElement(,)(',')
-                            PsiWhiteSpace(' ')
-                            ParametrizedType: Position[CharSequence]
-                              SimpleType: Position
-                                CodeReferenceElement: Position
-                                  PsiElement(identifier)('Position')
-                              TypeArgumentsList
-                                PsiElement([)('[')
-                                SimpleType: CharSequence
-                                  CodeReferenceElement: CharSequence
-                                    PsiElement(identifier)('CharSequence')
-                                PsiElement(])(']')
-                            PsiElement(])(']')
+                        TypeArgument
+                          ParametrizedType: TokenParser[Char, Position[CharSequence]]
+                            SimpleType: TokenParser
+                              CodeReferenceElement: TokenParser
+                                PsiElement(identifier)('TokenParser')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: Char
+                                  CodeReferenceElement: Char
+                                    PsiElement(identifier)('Char')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              TypeArgument
+                                ParametrizedType: Position[CharSequence]
+                                  SimpleType: Position
+                                    CodeReferenceElement: Position
+                                      PsiElement(identifier)('Position')
+                                  TypeArgumentsList
+                                    PsiElement([)('[')
+                                    TypeArgument
+                                      SimpleType: CharSequence
+                                        CodeReferenceElement: CharSequence
+                                          PsiElement(identifier)('CharSequence')
+                                    PsiElement(])(']')
+                              PsiElement(])(']')
                         PsiElement(])(']')
                   PsiWhiteSpace('\n        ')
                   ScGivenAliasDefinition: given_Conversion_Char_Position
@@ -1376,21 +1445,24 @@ ScalaFile
                           PsiElement(identifier)('Conversion')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: Char
-                          CodeReferenceElement: Char
-                            PsiElement(identifier)('Char')
+                        TypeArgument
+                          SimpleType: Char
+                            CodeReferenceElement: Char
+                              PsiElement(identifier)('Char')
                         PsiElement(,)(',')
                         PsiWhiteSpace(' ')
-                        ParametrizedType: Position[CharSequence]
-                          SimpleType: Position
-                            CodeReferenceElement: Position
-                              PsiElement(identifier)('Position')
-                          TypeArgumentsList
-                            PsiElement([)('[')
-                            SimpleType: CharSequence
-                              CodeReferenceElement: CharSequence
-                                PsiElement(identifier)('CharSequence')
-                            PsiElement(])(']')
+                        TypeArgument
+                          ParametrizedType: Position[CharSequence]
+                            SimpleType: Position
+                              CodeReferenceElement: Position
+                                PsiElement(identifier)('Position')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: CharSequence
+                                  CodeReferenceElement: CharSequence
+                                    PsiElement(identifier)('CharSequence')
+                              PsiElement(])(']')
                         PsiElement(])(']')
                     PsiWhiteSpace(' ')
                     PsiElement(=)('=')
@@ -1417,9 +1489,10 @@ ScalaFile
                           PsiElement(identifier)('Position')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: CharSequence
-                          CodeReferenceElement: CharSequence
-                            PsiElement(identifier)('CharSequence')
+                        TypeArgument
+                          SimpleType: CharSequence
+                            CodeReferenceElement: CharSequence
+                              PsiElement(identifier)('CharSequence')
                         PsiElement(])(']')
                     PsiWhiteSpace(' ')
                     PsiElement(=)('=')
@@ -1448,21 +1521,24 @@ ScalaFile
                             PsiElement(identifier)('Conversion')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: Char
-                            CodeReferenceElement: Char
-                              PsiElement(identifier)('Char')
+                          TypeArgument
+                            SimpleType: Char
+                              CodeReferenceElement: Char
+                                PsiElement(identifier)('Char')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
-                          ParametrizedType: Position[CharSequence]
-                            SimpleType: Position
-                              CodeReferenceElement: Position
-                                PsiElement(identifier)('Position')
-                            TypeArgumentsList
-                              PsiElement([)('[')
-                              SimpleType: CharSequence
-                                CodeReferenceElement: CharSequence
-                                  PsiElement(identifier)('CharSequence')
-                              PsiElement(])(']')
+                          TypeArgument
+                            ParametrizedType: Position[CharSequence]
+                              SimpleType: Position
+                                CodeReferenceElement: Position
+                                  PsiElement(identifier)('Position')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                TypeArgument
+                                  SimpleType: CharSequence
+                                    CodeReferenceElement: CharSequence
+                                      PsiElement(identifier)('CharSequence')
+                                PsiElement(])(']')
                           PsiElement(])(']')
                       PsiWhiteSpace(' ')
                       PsiElement(=)('=')
@@ -1489,9 +1565,10 @@ ScalaFile
                             PsiElement(identifier)('Position')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: CharSequence
-                            CodeReferenceElement: CharSequence
-                              PsiElement(identifier)('CharSequence')
+                          TypeArgument
+                            SimpleType: CharSequence
+                              CodeReferenceElement: CharSequence
+                                PsiElement(identifier)('CharSequence')
                           PsiElement(])(']')
                       PsiWhiteSpace(' ')
                       PsiElement(=)('=')

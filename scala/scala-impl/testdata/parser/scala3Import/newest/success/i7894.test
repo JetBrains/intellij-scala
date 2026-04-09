@@ -130,9 +130,10 @@ ScalaFile
                   PsiElement(identifier)('Box')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: h
-                  CodeReferenceElement: h
-                    PsiElement(identifier)('h')
+                TypeArgument
+                  SimpleType: h
+                    CodeReferenceElement: h
+                      PsiElement(identifier)('h')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             CodeReferenceElement: *:
@@ -144,9 +145,10 @@ ScalaFile
                   PsiElement(identifier)('Boxed')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: t
-                  CodeReferenceElement: t
-                    PsiElement(identifier)('t')
+                TypeArgument
+                  SimpleType: t
+                    CodeReferenceElement: t
+                      PsiElement(identifier)('t')
                 PsiElement(])(']')
       PsiWhiteSpace('\n')
       PsiElement(})('}')
@@ -222,9 +224,10 @@ ScalaFile
                         PsiElement(identifier)('Boxed')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: T
-                        CodeReferenceElement: T
-                          PsiElement(identifier)('T')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -255,9 +258,10 @@ ScalaFile
                 PsiElement(identifier)('Cmp')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: EmptyTuple
-                CodeReferenceElement: EmptyTuple
-                  PsiElement(identifier)('EmptyTuple')
+              TypeArgument
+                SimpleType: EmptyTuple
+                  CodeReferenceElement: EmptyTuple
+                    PsiElement(identifier)('EmptyTuple')
               PsiElement(])(']')
       PsiWhiteSpace(' ')
       ScTemplateBody
@@ -334,9 +338,10 @@ ScalaFile
                 PsiElement(identifier)('Cmp')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: EmptyTuple
-                CodeReferenceElement: EmptyTuple
-                  PsiElement(identifier)('EmptyTuple')
+              TypeArgument
+                SimpleType: EmptyTuple
+                  CodeReferenceElement: EmptyTuple
+                    PsiElement(identifier)('EmptyTuple')
               PsiElement(])(']')
       PsiWhiteSpace(' ')
       ScTemplateBody
@@ -382,9 +387,10 @@ ScalaFile
                         PsiElement(identifier)('Boxed')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: EmptyTuple
-                        CodeReferenceElement: EmptyTuple
-                          PsiElement(identifier)('EmptyTuple')
+                      TypeArgument
+                        SimpleType: EmptyTuple
+                          CodeReferenceElement: EmptyTuple
+                            PsiElement(identifier)('EmptyTuple')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')

@@ -187,24 +187,25 @@ ScalaFile
                   PsiElement(identifier)('Array')
               TypeArgumentsList
                 PsiElement([)('[')
-                TypeWithAnnotation: String @ann(x)
-                  SimpleType: String
-                    CodeReferenceElement: String
-                      PsiElement(identifier)('String')
-                  PsiWhiteSpace(' ')
-                  AnnotationsList
-                    Annotation
-                      PsiElement(@)('@')
-                      AnnotationExpression
-                        ConstructorInvocation
-                          SimpleType: ann
-                            CodeReferenceElement: ann
-                              PsiElement(identifier)('ann')
-                          ArgumentList
-                            PsiElement(()('(')
-                            ReferenceExpression: x
-                              PsiElement(identifier)('x')
-                            PsiElement())(')')
+                TypeArgument
+                  TypeWithAnnotation: String @ann(x)
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                    PsiWhiteSpace(' ')
+                    AnnotationsList
+                      Annotation
+                        PsiElement(@)('@')
+                        AnnotationExpression
+                          ConstructorInvocation
+                            SimpleType: ann
+                              CodeReferenceElement: ann
+                                PsiElement(identifier)('ann')
+                            ArgumentList
+                              PsiElement(()('(')
+                              ReferenceExpression: x
+                                PsiElement(identifier)('x')
+                              PsiElement())(')')
                 PsiElement(])(']')
           PsiElement())(')')
         PsiWhiteSpace(' ')

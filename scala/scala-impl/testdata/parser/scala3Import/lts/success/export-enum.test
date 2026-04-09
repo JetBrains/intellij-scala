@@ -133,9 +133,10 @@ ScalaFile
                 PsiElement(identifier)('Array')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: MatchDegree
-                CodeReferenceElement: MatchDegree
-                  PsiElement(identifier)('MatchDegree')
+              TypeArgument
+                SimpleType: MatchDegree
+                  CodeReferenceElement: MatchDegree
+                    PsiElement(identifier)('MatchDegree')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

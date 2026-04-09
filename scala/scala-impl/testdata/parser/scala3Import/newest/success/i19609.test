@@ -76,17 +76,18 @@ ScalaFile
               PsiElement(identifier)('summon')
             TypeArgumentsList
               PsiElement([)('[')
-              InfixType: String =:= T
-                SimpleType: String
-                  CodeReferenceElement: String
-                    PsiElement(identifier)('String')
-                PsiWhiteSpace(' ')
-                CodeReferenceElement: =:=
-                  PsiElement(identifier)('=:=')
-                PsiWhiteSpace(' ')
-                SimpleType: T
-                  CodeReferenceElement: T
-                    PsiElement(identifier)('T')
+              TypeArgument
+                InfixType: String =:= T
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: =:=
+                    PsiElement(identifier)('=:=')
+                  PsiWhiteSpace(' ')
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScFunctionDefinition: su
@@ -107,20 +108,21 @@ ScalaFile
               PsiElement(identifier)('summon')
             TypeArgumentsList
               PsiElement([)('[')
-              InfixType: String =:= u.T
-                SimpleType: String
-                  CodeReferenceElement: String
-                    PsiElement(identifier)('String')
-                PsiWhiteSpace(' ')
-                CodeReferenceElement: =:=
-                  PsiElement(identifier)('=:=')
-                PsiWhiteSpace(' ')
-                SimpleType: u.T
-                  CodeReferenceElement: u.T
-                    CodeReferenceElement: u
-                      PsiElement(identifier)('u')
-                    PsiElement(.)('.')
-                    PsiElement(identifier)('T')
+              TypeArgument
+                InfixType: String =:= u.T
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: =:=
+                    PsiElement(identifier)('=:=')
+                  PsiWhiteSpace(' ')
+                  SimpleType: u.T
+                    CodeReferenceElement: u.T
+                      CodeReferenceElement: u
+                        PsiElement(identifier)('u')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('T')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScFunctionDefinition: so
@@ -141,20 +143,21 @@ ScalaFile
               PsiElement(identifier)('summon')
             TypeArgumentsList
               PsiElement([)('[')
-              InfixType: String =:= o.T
-                SimpleType: String
-                  CodeReferenceElement: String
-                    PsiElement(identifier)('String')
-                PsiWhiteSpace(' ')
-                CodeReferenceElement: =:=
-                  PsiElement(identifier)('=:=')
-                PsiWhiteSpace(' ')
-                SimpleType: o.T
-                  CodeReferenceElement: o.T
-                    CodeReferenceElement: o
-                      PsiElement(identifier)('o')
-                    PsiElement(.)('.')
-                    PsiElement(identifier)('T')
+              TypeArgument
+                InfixType: String =:= o.T
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: =:=
+                    PsiElement(identifier)('=:=')
+                  PsiWhiteSpace(' ')
+                  SimpleType: o.T
+                    CodeReferenceElement: o.T
+                      CodeReferenceElement: o
+                        PsiElement(identifier)('o')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('T')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScFunctionDefinition: ts
@@ -175,17 +178,18 @@ ScalaFile
               PsiElement(identifier)('summon')
             TypeArgumentsList
               PsiElement([)('[')
-              InfixType: T =:= String
-                SimpleType: T
-                  CodeReferenceElement: T
-                    PsiElement(identifier)('T')
-                PsiWhiteSpace(' ')
-                CodeReferenceElement: =:=
-                  PsiElement(identifier)('=:=')
-                PsiWhiteSpace(' ')
-                SimpleType: String
-                  CodeReferenceElement: String
-                    PsiElement(identifier)('String')
+              TypeArgument
+                InfixType: T =:= String
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: =:=
+                    PsiElement(identifier)('=:=')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScFunctionDefinition: tu
@@ -206,20 +210,21 @@ ScalaFile
               PsiElement(identifier)('summon')
             TypeArgumentsList
               PsiElement([)('[')
-              InfixType: T =:= u.T
-                SimpleType: T
-                  CodeReferenceElement: T
-                    PsiElement(identifier)('T')
-                PsiWhiteSpace(' ')
-                CodeReferenceElement: =:=
-                  PsiElement(identifier)('=:=')
-                PsiWhiteSpace(' ')
-                SimpleType: u.T
-                  CodeReferenceElement: u.T
-                    CodeReferenceElement: u
-                      PsiElement(identifier)('u')
-                    PsiElement(.)('.')
-                    PsiElement(identifier)('T')
+              TypeArgument
+                InfixType: T =:= u.T
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: =:=
+                    PsiElement(identifier)('=:=')
+                  PsiWhiteSpace(' ')
+                  SimpleType: u.T
+                    CodeReferenceElement: u.T
+                      CodeReferenceElement: u
+                        PsiElement(identifier)('u')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('T')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScFunctionDefinition: to
@@ -240,20 +245,21 @@ ScalaFile
               PsiElement(identifier)('summon')
             TypeArgumentsList
               PsiElement([)('[')
-              InfixType: T =:= o.T
-                SimpleType: T
-                  CodeReferenceElement: T
-                    PsiElement(identifier)('T')
-                PsiWhiteSpace(' ')
-                CodeReferenceElement: =:=
-                  PsiElement(identifier)('=:=')
-                PsiWhiteSpace(' ')
-                SimpleType: o.T
-                  CodeReferenceElement: o.T
-                    CodeReferenceElement: o
-                      PsiElement(identifier)('o')
-                    PsiElement(.)('.')
-                    PsiElement(identifier)('T')
+              TypeArgument
+                InfixType: T =:= o.T
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: =:=
+                    PsiElement(identifier)('=:=')
+                  PsiWhiteSpace(' ')
+                  SimpleType: o.T
+                    CodeReferenceElement: o.T
+                      CodeReferenceElement: o
+                        PsiElement(identifier)('o')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('T')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScFunctionDefinition: us
@@ -274,20 +280,21 @@ ScalaFile
               PsiElement(identifier)('summon')
             TypeArgumentsList
               PsiElement([)('[')
-              InfixType: u.T =:= String
-                SimpleType: u.T
-                  CodeReferenceElement: u.T
-                    CodeReferenceElement: u
-                      PsiElement(identifier)('u')
-                    PsiElement(.)('.')
-                    PsiElement(identifier)('T')
-                PsiWhiteSpace(' ')
-                CodeReferenceElement: =:=
-                  PsiElement(identifier)('=:=')
-                PsiWhiteSpace(' ')
-                SimpleType: String
-                  CodeReferenceElement: String
-                    PsiElement(identifier)('String')
+              TypeArgument
+                InfixType: u.T =:= String
+                  SimpleType: u.T
+                    CodeReferenceElement: u.T
+                      CodeReferenceElement: u
+                        PsiElement(identifier)('u')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('T')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: =:=
+                    PsiElement(identifier)('=:=')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScFunctionDefinition: ut
@@ -308,20 +315,21 @@ ScalaFile
               PsiElement(identifier)('summon')
             TypeArgumentsList
               PsiElement([)('[')
-              InfixType: u.T =:= T
-                SimpleType: u.T
-                  CodeReferenceElement: u.T
-                    CodeReferenceElement: u
-                      PsiElement(identifier)('u')
-                    PsiElement(.)('.')
-                    PsiElement(identifier)('T')
-                PsiWhiteSpace(' ')
-                CodeReferenceElement: =:=
-                  PsiElement(identifier)('=:=')
-                PsiWhiteSpace(' ')
-                SimpleType: T
-                  CodeReferenceElement: T
-                    PsiElement(identifier)('T')
+              TypeArgument
+                InfixType: u.T =:= T
+                  SimpleType: u.T
+                    CodeReferenceElement: u.T
+                      CodeReferenceElement: u
+                        PsiElement(identifier)('u')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('T')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: =:=
+                    PsiElement(identifier)('=:=')
+                  PsiWhiteSpace(' ')
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScFunctionDefinition: uo
@@ -342,23 +350,24 @@ ScalaFile
               PsiElement(identifier)('summon')
             TypeArgumentsList
               PsiElement([)('[')
-              InfixType: u.T =:= o.T
-                SimpleType: u.T
-                  CodeReferenceElement: u.T
-                    CodeReferenceElement: u
-                      PsiElement(identifier)('u')
-                    PsiElement(.)('.')
-                    PsiElement(identifier)('T')
-                PsiWhiteSpace(' ')
-                CodeReferenceElement: =:=
-                  PsiElement(identifier)('=:=')
-                PsiWhiteSpace(' ')
-                SimpleType: o.T
-                  CodeReferenceElement: o.T
-                    CodeReferenceElement: o
-                      PsiElement(identifier)('o')
-                    PsiElement(.)('.')
-                    PsiElement(identifier)('T')
+              TypeArgument
+                InfixType: u.T =:= o.T
+                  SimpleType: u.T
+                    CodeReferenceElement: u.T
+                      CodeReferenceElement: u
+                        PsiElement(identifier)('u')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('T')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: =:=
+                    PsiElement(identifier)('=:=')
+                  PsiWhiteSpace(' ')
+                  SimpleType: o.T
+                    CodeReferenceElement: o.T
+                      CodeReferenceElement: o
+                        PsiElement(identifier)('o')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('T')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScFunctionDefinition: os
@@ -379,20 +388,21 @@ ScalaFile
               PsiElement(identifier)('summon')
             TypeArgumentsList
               PsiElement([)('[')
-              InfixType: o.T =:= String
-                SimpleType: o.T
-                  CodeReferenceElement: o.T
-                    CodeReferenceElement: o
-                      PsiElement(identifier)('o')
-                    PsiElement(.)('.')
-                    PsiElement(identifier)('T')
-                PsiWhiteSpace(' ')
-                CodeReferenceElement: =:=
-                  PsiElement(identifier)('=:=')
-                PsiWhiteSpace(' ')
-                SimpleType: String
-                  CodeReferenceElement: String
-                    PsiElement(identifier)('String')
+              TypeArgument
+                InfixType: o.T =:= String
+                  SimpleType: o.T
+                    CodeReferenceElement: o.T
+                      CodeReferenceElement: o
+                        PsiElement(identifier)('o')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('T')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: =:=
+                    PsiElement(identifier)('=:=')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScFunctionDefinition: ot
@@ -413,20 +423,21 @@ ScalaFile
               PsiElement(identifier)('summon')
             TypeArgumentsList
               PsiElement([)('[')
-              InfixType: o.T =:= T
-                SimpleType: o.T
-                  CodeReferenceElement: o.T
-                    CodeReferenceElement: o
-                      PsiElement(identifier)('o')
-                    PsiElement(.)('.')
-                    PsiElement(identifier)('T')
-                PsiWhiteSpace(' ')
-                CodeReferenceElement: =:=
-                  PsiElement(identifier)('=:=')
-                PsiWhiteSpace(' ')
-                SimpleType: T
-                  CodeReferenceElement: T
-                    PsiElement(identifier)('T')
+              TypeArgument
+                InfixType: o.T =:= T
+                  SimpleType: o.T
+                    CodeReferenceElement: o.T
+                      CodeReferenceElement: o
+                        PsiElement(identifier)('o')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('T')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: =:=
+                    PsiElement(identifier)('=:=')
+                  PsiWhiteSpace(' ')
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScFunctionDefinition: ou
@@ -447,23 +458,24 @@ ScalaFile
               PsiElement(identifier)('summon')
             TypeArgumentsList
               PsiElement([)('[')
-              InfixType: o.T =:= u.T
-                SimpleType: o.T
-                  CodeReferenceElement: o.T
-                    CodeReferenceElement: o
-                      PsiElement(identifier)('o')
-                    PsiElement(.)('.')
-                    PsiElement(identifier)('T')
-                PsiWhiteSpace(' ')
-                CodeReferenceElement: =:=
-                  PsiElement(identifier)('=:=')
-                PsiWhiteSpace(' ')
-                SimpleType: u.T
-                  CodeReferenceElement: u.T
-                    CodeReferenceElement: u
-                      PsiElement(identifier)('u')
-                    PsiElement(.)('.')
-                    PsiElement(identifier)('T')
+              TypeArgument
+                InfixType: o.T =:= u.T
+                  SimpleType: o.T
+                    CodeReferenceElement: o.T
+                      CodeReferenceElement: o
+                        PsiElement(identifier)('o')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('T')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: =:=
+                    PsiElement(identifier)('=:=')
+                  PsiWhiteSpace(' ')
+                  SimpleType: u.T
+                    CodeReferenceElement: u.T
+                      CodeReferenceElement: u
+                        PsiElement(identifier)('u')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('T')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScFunctionDefinition: ms

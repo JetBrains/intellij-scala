@@ -126,9 +126,10 @@ ScalaFile
                         PsiElement(identifier)('Fill')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      LiteralType: 0
-                        IntegerLiteral
-                          PsiElement(integer)('0')
+                      TypeArgument
+                        LiteralType: 0
+                          IntegerLiteral
+                            PsiElement(integer)('0')
                       PsiElement(])(']')
             PsiWhiteSpace('\n  ')
             PsiElement(})('}')
@@ -165,9 +166,10 @@ ScalaFile
                         PsiElement(identifier)('Fun')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: N
-                        CodeReferenceElement: N
-                          PsiElement(identifier)('N')
+                      TypeArgument
+                        SimpleType: N
+                          CodeReferenceElement: N
+                            PsiElement(identifier)('N')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiWhiteSpace('\n    ')
@@ -191,9 +193,10 @@ ScalaFile
                       PsiElement(identifier)('Fill')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: N
-                      CodeReferenceElement: N
-                        PsiElement(identifier)('N')
+                    TypeArgument
+                      SimpleType: N
+                        CodeReferenceElement: N
+                          PsiElement(identifier)('N')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
@@ -214,9 +217,10 @@ ScalaFile
                 PsiElement(identifier)('Fun')
               TypeArgumentsList
                 PsiElement([)('[')
-                LiteralType: 1
-                  IntegerLiteral
-                    PsiElement(integer)('1')
+                TypeArgument
+                  LiteralType: 1
+                    IntegerLiteral
+                      PsiElement(integer)('1')
                 PsiElement(])(']')
             ArgumentList
               PsiElement(()('(')

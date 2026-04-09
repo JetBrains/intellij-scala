@@ -122,14 +122,16 @@ ScalaFile
                       PsiElement(identifier)('Accumulator')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: m
-                      CodeReferenceElement: m
-                        PsiElement(identifier)('m')
+                    TypeArgument
+                      SimpleType: m
+                        CodeReferenceElement: m
+                          PsiElement(identifier)('m')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    SimpleType: t
-                      CodeReferenceElement: t
-                        PsiElement(identifier)('t')
+                    TypeArgument
+                      SimpleType: t
+                        CodeReferenceElement: t
+                          PsiElement(identifier)('t')
                     PsiElement(])(']')
               PsiWhiteSpace('\n  ')
               PsiElement(})('}')
@@ -158,14 +160,16 @@ ScalaFile
                 PsiElement(identifier)('Accumulator')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: List
-                CodeReferenceElement: List
-                  PsiElement(identifier)('List')
+              TypeArgument
+                SimpleType: List
+                  CodeReferenceElement: List
+                    PsiElement(identifier)('List')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: elT
-                CodeReferenceElement: elT
-                  PsiElement(identifier)('elT')
+              TypeArgument
+                SimpleType: elT
+                  CodeReferenceElement: elT
+                    PsiElement(identifier)('elT')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -182,14 +186,16 @@ ScalaFile
                         PsiElement(identifier)('Accumulator')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: List
-                        CodeReferenceElement: List
-                          PsiElement(identifier)('List')
+                      TypeArgument
+                        SimpleType: List
+                          CodeReferenceElement: List
+                            PsiElement(identifier)('List')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: elT
-                        CodeReferenceElement: elT
-                          PsiElement(identifier)('elT')
+                      TypeArgument
+                        SimpleType: elT
+                          CodeReferenceElement: elT
+                            PsiElement(identifier)('elT')
                       PsiElement(])(']')
               PsiWhiteSpace(' ')
               ScTemplateBody
@@ -229,9 +235,10 @@ ScalaFile
                       PsiElement(identifier)('Iterable')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: t
-                      CodeReferenceElement: t
-                        PsiElement(identifier)('t')
+                    TypeArgument
+                      SimpleType: t
+                        CodeReferenceElement: t
+                          PsiElement(identifier)('t')
                     PsiElement(])(']')
             PsiWhiteSpace(' ')
             ScTemplateBody
@@ -260,9 +267,10 @@ ScalaFile
                       PsiElement(identifier)('List')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: x
-                      CodeReferenceElement: x
-                        PsiElement(identifier)('x')
+                    TypeArgument
+                      SimpleType: x
+                        CodeReferenceElement: x
+                          PsiElement(identifier)('x')
                     PsiElement(])(']')
               PsiWhiteSpace('\n    ')
               ScFunctionDefinition: accumulator
@@ -288,14 +296,16 @@ ScalaFile
                       PsiElement(identifier)('Accumulator')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: List
-                      CodeReferenceElement: List
-                        PsiElement(identifier)('List')
+                    TypeArgument
+                      SimpleType: List
+                        CodeReferenceElement: List
+                          PsiElement(identifier)('List')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    SimpleType: t
-                      CodeReferenceElement: t
-                        PsiElement(identifier)('t')
+                    TypeArgument
+                      SimpleType: t
+                        CodeReferenceElement: t
+                          PsiElement(identifier)('t')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')
@@ -305,9 +315,10 @@ ScalaFile
                     PsiElement(identifier)('listAccumulator')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: t
-                      CodeReferenceElement: t
-                        PsiElement(identifier)('t')
+                    TypeArgument
+                      SimpleType: t
+                        CodeReferenceElement: t
+                          PsiElement(identifier)('t')
                     PsiElement(])(']')
               PsiWhiteSpace('\n  ')
               PsiElement(})('}')

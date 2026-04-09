@@ -72,14 +72,16 @@ ScalaFile
           PsiElement(identifier)('Transition')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: From
-          CodeReferenceElement: From
-            PsiElement(identifier)('From')
+        TypeArgument
+          SimpleType: From
+            CodeReferenceElement: From
+              PsiElement(identifier)('From')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
-        SimpleType: To
-          CodeReferenceElement: To
-            PsiElement(identifier)('To')
+        TypeArgument
+          SimpleType: To
+            CodeReferenceElement: To
+              PsiElement(identifier)('To')
         PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScTypeAliasDefinition: A

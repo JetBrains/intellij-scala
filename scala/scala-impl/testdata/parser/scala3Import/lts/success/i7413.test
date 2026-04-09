@@ -67,14 +67,16 @@ ScalaFile
                 PsiElement(identifier)('Conversion')
             TypeArgumentsList
               PsiElement([)('[')
-              LiteralType: 0
-                IntegerLiteral
-                  PsiElement(integer)('0')
+              TypeArgument
+                LiteralType: 0
+                  IntegerLiteral
+                    PsiElement(integer)('0')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScTrait: TestFramework
@@ -149,9 +151,10 @@ ScalaFile
                               PsiElement(identifier)('Fixture')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: A
-                              CodeReferenceElement: A
-                                PsiElement(identifier)('A')
+                            TypeArgument
+                              SimpleType: A
+                                CodeReferenceElement: A
+                                  PsiElement(identifier)('A')
                             PsiElement(])(']')
                         PsiWhiteSpace(' ')
                         PsiElement(?=>)('?=>')
@@ -304,14 +307,16 @@ ScalaFile
                       PsiElement(identifier)('Conversion')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    LiteralType: 0
-                      IntegerLiteral
-                        PsiElement(integer)('0')
+                    TypeArgument
+                      LiteralType: 0
+                        IntegerLiteral
+                          PsiElement(integer)('0')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    SimpleType: Greeter
-                      CodeReferenceElement: Greeter
-                        PsiElement(identifier)('Greeter')
+                    TypeArgument
+                      SimpleType: Greeter
+                        CodeReferenceElement: Greeter
+                          PsiElement(identifier)('Greeter')
                     PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(with)('with')
@@ -400,9 +405,10 @@ ScalaFile
                 PsiElement(identifier)('TestFramework')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: MyFixture
-                CodeReferenceElement: MyFixture
-                  PsiElement(identifier)('MyFixture')
+              TypeArgument
+                SimpleType: MyFixture
+                  CodeReferenceElement: MyFixture
+                    PsiElement(identifier)('MyFixture')
               PsiElement(])(']')
       ScTemplateBody
         PsiElement(:)(':')

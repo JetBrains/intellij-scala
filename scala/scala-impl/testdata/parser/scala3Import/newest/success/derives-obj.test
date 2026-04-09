@@ -63,9 +63,10 @@ ScalaFile
                 PsiElement(identifier)('C')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -95,11 +96,12 @@ ScalaFile
                 PsiElement(identifier)('C')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: X.type
-                CodeReferenceElement: X
-                  PsiElement(identifier)('X')
-                PsiElement(.)('.')
-                PsiElement(type)('type')
+              TypeArgument
+                SimpleType: X.type
+                  CodeReferenceElement: X
+                    PsiElement(identifier)('X')
+                  PsiElement(.)('.')
+                  PsiElement(type)('type')
               PsiElement(])(']')
       PsiWhiteSpace(' ')
       DerivesClause

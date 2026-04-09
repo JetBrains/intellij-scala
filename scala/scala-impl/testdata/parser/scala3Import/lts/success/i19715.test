@@ -203,14 +203,16 @@ ScalaFile
                 PsiElement(identifier)('Conversion')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: NT
-                CodeReferenceElement: NT
-                  PsiElement(identifier)('NT')
+              TypeArgument
+                SimpleType: NT
+                  CodeReferenceElement: NT
+                    PsiElement(identifier)('NT')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Tup
-                CodeReferenceElement: Tup
-                  PsiElement(identifier)('Tup')
+              TypeArgument
+                SimpleType: Tup
+                  CodeReferenceElement: Tup
+                    PsiElement(identifier)('Tup')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

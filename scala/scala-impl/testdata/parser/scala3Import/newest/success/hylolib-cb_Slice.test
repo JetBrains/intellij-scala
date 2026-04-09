@@ -124,12 +124,13 @@ ScalaFile
                       PsiElement(identifier)('Range')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: b.Position
-                      CodeReferenceElement: b.Position
-                        CodeReferenceElement: b
-                          PsiElement(identifier)('b')
-                        PsiElement(.)('.')
-                        PsiElement(identifier)('Position')
+                    TypeArgument
+                      SimpleType: b.Position
+                        CodeReferenceElement: b.Position
+                          CodeReferenceElement: b
+                            PsiElement(identifier)('b')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('Position')
                     PsiElement(])(']')
             PsiWhiteSpace('\n')
             PsiElement())(')')
@@ -387,16 +388,18 @@ ScalaFile
                   PsiElement(identifier)('Collection')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: Slice[T]
-                  SimpleType: Slice
-                    CodeReferenceElement: Slice
-                      PsiElement(identifier)('Slice')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: T
-                      CodeReferenceElement: T
-                        PsiElement(identifier)('T')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: Slice[T]
+                    SimpleType: Slice
+                      CodeReferenceElement: Slice
+                        PsiElement(identifier)('Slice')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
+                      PsiElement(])(']')
                 PsiElement(])(']')
         PsiWhiteSpace(' ')
         ScTemplateBody
@@ -459,9 +462,10 @@ ScalaFile
                           PsiElement(identifier)('Slice')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: T
-                          CodeReferenceElement: T
-                            PsiElement(identifier)('T')
+                        TypeArgument
+                          SimpleType: T
+                            CodeReferenceElement: T
+                              PsiElement(identifier)('T')
                         PsiElement(])(']')
                 PsiElement())(')')
             PsiWhiteSpace(' ')
@@ -495,9 +499,10 @@ ScalaFile
                     PsiElement(identifier)('asInstanceOf')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Position
-                      CodeReferenceElement: Position
-                        PsiElement(identifier)('Position')
+                    TypeArgument
+                      SimpleType: Position
+                        CodeReferenceElement: Position
+                          PsiElement(identifier)('Position')
                     PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiComment(comment)('// NOTE: Ugly hack')
@@ -529,9 +534,10 @@ ScalaFile
                     PsiElement(identifier)('asInstanceOf')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Position
-                      CodeReferenceElement: Position
-                        PsiElement(identifier)('Position')
+                    TypeArgument
+                      SimpleType: Position
+                        CodeReferenceElement: Position
+                          PsiElement(identifier)('Position')
                     PsiElement(])(']')
               PsiWhiteSpace('\n\n    ')
               ScFunctionDefinition: positionAfter

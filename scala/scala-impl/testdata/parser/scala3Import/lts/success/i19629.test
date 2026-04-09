@@ -183,14 +183,16 @@ ScalaFile
                                   PsiElement(identifier)('Knit')
                               TypeArgumentsList
                                 PsiElement([)('[')
-                                SimpleType: CP
-                                  CodeReferenceElement: CP
-                                    PsiElement(identifier)('CP')
+                                TypeArgument
+                                  SimpleType: CP
+                                    CodeReferenceElement: CP
+                                      PsiElement(identifier)('CP')
                                 PsiElement(,)(',')
                                 PsiWhiteSpace(' ')
-                                SimpleType: F1
-                                  CodeReferenceElement: F1
-                                    PsiElement(identifier)('F1')
+                                TypeArgument
+                                  SimpleType: F1
+                                    CodeReferenceElement: F1
+                                      PsiElement(identifier)('F1')
                                 PsiElement(])(']')
                         PsiElement())(')')
                       PsiWhiteSpace(' ')
@@ -210,42 +212,47 @@ ScalaFile
                                     PsiElement(identifier)('TypeEqK')
                                 TypeArgumentsList
                                   PsiElement([)('[')
-                                  SimpleType: F
-                                    CodeReferenceElement: F
-                                      PsiElement(identifier)('F')
+                                  TypeArgument
+                                    SimpleType: F
+                                      CodeReferenceElement: F
+                                        PsiElement(identifier)('F')
                                   PsiElement(,)(',')
                                   PsiWhiteSpace(' ')
-                                  TypeLambda: [x] =>> CP[F1[x], Y]
-                                    TypeParameterClause
-                                      PsiElement([)('[')
-                                      TypeParameter: x
-                                        PsiElement(identifier)('x')
-                                      PsiElement(])(']')
-                                    PsiWhiteSpace(' ')
-                                    PsiElement(=>>)('=>>')
-                                    PsiWhiteSpace(' ')
-                                    ParametrizedType: CP[F1[x], Y]
-                                      SimpleType: CP
-                                        CodeReferenceElement: CP
-                                          PsiElement(identifier)('CP')
-                                      TypeArgumentsList
+                                  TypeArgument
+                                    TypeLambda: [x] =>> CP[F1[x], Y]
+                                      TypeParameterClause
                                         PsiElement([)('[')
-                                        ParametrizedType: F1[x]
-                                          SimpleType: F1
-                                            CodeReferenceElement: F1
-                                              PsiElement(identifier)('F1')
-                                          TypeArgumentsList
-                                            PsiElement([)('[')
-                                            SimpleType: x
-                                              CodeReferenceElement: x
-                                                PsiElement(identifier)('x')
-                                            PsiElement(])(']')
-                                        PsiElement(,)(',')
-                                        PsiWhiteSpace(' ')
-                                        SimpleType: Y
-                                          CodeReferenceElement: Y
-                                            PsiElement(identifier)('Y')
+                                        TypeParameter: x
+                                          PsiElement(identifier)('x')
                                         PsiElement(])(']')
+                                      PsiWhiteSpace(' ')
+                                      PsiElement(=>>)('=>>')
+                                      PsiWhiteSpace(' ')
+                                      ParametrizedType: CP[F1[x], Y]
+                                        SimpleType: CP
+                                          CodeReferenceElement: CP
+                                            PsiElement(identifier)('CP')
+                                        TypeArgumentsList
+                                          PsiElement([)('[')
+                                          TypeArgument
+                                            ParametrizedType: F1[x]
+                                              SimpleType: F1
+                                                CodeReferenceElement: F1
+                                                  PsiElement(identifier)('F1')
+                                              TypeArgumentsList
+                                                PsiElement([)('[')
+                                                TypeArgument
+                                                  SimpleType: x
+                                                    CodeReferenceElement: x
+                                                      PsiElement(identifier)('x')
+                                                PsiElement(])(']')
+                                          PsiElement(,)(',')
+                                          PsiWhiteSpace(' ')
+                                          TypeArgument
+                                            SimpleType: Y
+                                              CodeReferenceElement: Y
+                                                PsiElement(identifier)('Y')
+                                          PsiElement(])(']')
                                   PsiElement(])(']')
                           PsiElement())(')')
                         PsiWhiteSpace(' ')

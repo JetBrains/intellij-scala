@@ -49,11 +49,12 @@ ScalaFile
                 PsiElement(identifier)('Option')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Foo.type
-                CodeReferenceElement: Foo
-                  PsiElement(identifier)('Foo')
-                PsiElement(.)('.')
-                PsiElement(type)('type')
+              TypeArgument
+                SimpleType: Foo.type
+                  CodeReferenceElement: Foo
+                    PsiElement(identifier)('Foo')
+                  PsiElement(.)('.')
+                  PsiElement(type)('type')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

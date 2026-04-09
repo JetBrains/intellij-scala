@@ -103,9 +103,10 @@ ScalaFile
               PsiElement(identifier)('summon')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Encoder
-                CodeReferenceElement: Encoder
-                  PsiElement(identifier)('Encoder')
+              TypeArgument
+                SimpleType: Encoder
+                  CodeReferenceElement: Encoder
+                    PsiElement(identifier)('Encoder')
               PsiElement(])(']')
           ArgumentList
             PsiElement(()('(')

@@ -200,9 +200,10 @@ ScalaFile
                     PsiElement(identifier)('Seq')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: TableRelation
-                    CodeReferenceElement: TableRelation
-                      PsiElement(identifier)('TableRelation')
+                  TypeArgument
+                    SimpleType: TableRelation
+                      CodeReferenceElement: TableRelation
+                        PsiElement(identifier)('TableRelation')
                   PsiElement(])(']')
           PsiElement())(')')
     ExtendsBlock
@@ -240,9 +241,10 @@ ScalaFile
                     PsiElement(identifier)('Option')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: Association
-                    CodeReferenceElement: Association
-                      PsiElement(identifier)('Association')
+                  TypeArgument
+                    SimpleType: Association
+                      CodeReferenceElement: Association
+                        PsiElement(identifier)('Association')
                   PsiElement(])(']')
           PsiElement())(')')
     ExtendsBlock

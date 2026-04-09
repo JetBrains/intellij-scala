@@ -103,30 +103,32 @@ ScalaFile
                         PsiElement(identifier)('Disj')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      InfixType: 1 | Nothing
-                        LiteralType: 1
-                          IntegerLiteral
-                            PsiElement(integer)('1')
-                        PsiWhiteSpace(' ')
-                        CodeReferenceElement: |
-                          PsiElement(identifier)('|')
-                        PsiWhiteSpace(' ')
-                        SimpleType: Nothing
-                          CodeReferenceElement: Nothing
-                            PsiElement(identifier)('Nothing')
+                      TypeArgument
+                        InfixType: 1 | Nothing
+                          LiteralType: 1
+                            IntegerLiteral
+                              PsiElement(integer)('1')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: |
+                            PsiElement(identifier)('|')
+                          PsiWhiteSpace(' ')
+                          SimpleType: Nothing
+                            CodeReferenceElement: Nothing
+                              PsiElement(identifier)('Nothing')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      InfixType: 2 | Nothing
-                        LiteralType: 2
-                          IntegerLiteral
-                            PsiElement(integer)('2')
-                        PsiWhiteSpace(' ')
-                        CodeReferenceElement: |
-                          PsiElement(identifier)('|')
-                        PsiWhiteSpace(' ')
-                        SimpleType: Nothing
-                          CodeReferenceElement: Nothing
-                            PsiElement(identifier)('Nothing')
+                      TypeArgument
+                        InfixType: 2 | Nothing
+                          LiteralType: 2
+                            IntegerLiteral
+                              PsiElement(integer)('2')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: |
+                            PsiElement(identifier)('|')
+                          PsiWhiteSpace(' ')
+                          SimpleType: Nothing
+                            CodeReferenceElement: Nothing
+                              PsiElement(identifier)('Nothing')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')

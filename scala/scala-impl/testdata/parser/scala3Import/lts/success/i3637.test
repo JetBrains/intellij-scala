@@ -120,16 +120,18 @@ ScalaFile
               PsiElement(identifier)('summon')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: ClassTag[B]
-                SimpleType: ClassTag
-                  CodeReferenceElement: ClassTag
-                    PsiElement(identifier)('ClassTag')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: B
-                    CodeReferenceElement: B
-                      PsiElement(identifier)('B')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: ClassTag[B]
+                  SimpleType: ClassTag
+                    CodeReferenceElement: ClassTag
+                      PsiElement(identifier)('ClassTag')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: B
+                        CodeReferenceElement: B
+                          PsiElement(identifier)('B')
+                    PsiElement(])(']')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiComment(comment)('// Has to be the last statement of the block')

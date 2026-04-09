@@ -44,9 +44,10 @@ ScalaFile
                 PsiElement(identifier)('List')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: XYZ
-                CodeReferenceElement: XYZ
-                  PsiElement(identifier)('XYZ')
+              TypeArgument
+                SimpleType: XYZ
+                  CodeReferenceElement: XYZ
+                    PsiElement(identifier)('XYZ')
               PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
@@ -110,12 +111,13 @@ ScalaFile
                 PsiElement(identifier)('MA')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeProjection: Partial#Apply
-                SimpleType: Partial
-                  CodeReferenceElement: Partial
-                    PsiElement(identifier)('Partial')
-                PsiElement(#)('#')
-                PsiElement(identifier)('Apply')
+              TypeArgument
+                TypeProjection: Partial#Apply
+                  SimpleType: Partial
+                    CodeReferenceElement: Partial
+                      PsiElement(identifier)('Partial')
+                  PsiElement(#)('#')
+                  PsiElement(identifier)('Apply')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

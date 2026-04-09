@@ -58,9 +58,10 @@ ScalaFile
                 PsiElement(identifier)('Last')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: CP
-                CodeReferenceElement: CP
-                  PsiElement(identifier)('CP')
+              TypeArgument
+                SimpleType: CP
+                  CodeReferenceElement: CP
+                    PsiElement(identifier)('CP')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScFunctionDefinition: f
@@ -89,8 +90,9 @@ ScalaFile
                   PsiElement(identifier)('Foo')
               TypeArgumentsList
                 PsiElement([)('[')
-                WildcardType: ?
-                  PsiElement(?)('?')
+                TypeArgument
+                  WildcardType: ?
+                    PsiElement(?)('?')
                 PsiElement(])(']')
         PsiElement())(')')
     PsiElement(:)(':')
@@ -145,9 +147,10 @@ ScalaFile
                 PsiElement(identifier)('Foo')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: CP
-                CodeReferenceElement: CP
-                  PsiElement(identifier)('CP')
+              TypeArgument
+                SimpleType: CP
+                  CodeReferenceElement: CP
+                    PsiElement(identifier)('CP')
               PsiElement(])(']')
       ScTemplateBody
         PsiElement(:)(':')

@@ -97,14 +97,16 @@ ScalaFile
                 PsiElement(identifier)('VarImpl')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Lbl1
-                CodeReferenceElement: Lbl1
-                  PsiElement(identifier)('Lbl1')
+              TypeArgument
+                SimpleType: Lbl1
+                  CodeReferenceElement: Lbl1
+                    PsiElement(identifier)('Lbl1')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: A1
-                CodeReferenceElement: A1
-                  PsiElement(identifier)('A1')
+              TypeArgument
+                SimpleType: A1
+                  CodeReferenceElement: A1
+                    PsiElement(identifier)('A1')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScTrait: Foo
@@ -170,31 +172,34 @@ ScalaFile
                       PsiElement(identifier)('Foo')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    InfixType: Var[T] |*| Var[U]
-                      ParametrizedType: Var[T]
-                        SimpleType: Var
-                          CodeReferenceElement: Var
-                            PsiElement(identifier)('Var')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: T
-                            CodeReferenceElement: T
-                              PsiElement(identifier)('T')
-                          PsiElement(])(']')
-                      PsiWhiteSpace(' ')
-                      CodeReferenceElement: |*|
-                        PsiElement(identifier)('|*|')
-                      PsiWhiteSpace(' ')
-                      ParametrizedType: Var[U]
-                        SimpleType: Var
-                          CodeReferenceElement: Var
-                            PsiElement(identifier)('Var')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: U
-                            CodeReferenceElement: U
-                              PsiElement(identifier)('U')
-                          PsiElement(])(']')
+                    TypeArgument
+                      InfixType: Var[T] |*| Var[U]
+                        ParametrizedType: Var[T]
+                          SimpleType: Var
+                            CodeReferenceElement: Var
+                              PsiElement(identifier)('Var')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: T
+                                CodeReferenceElement: T
+                                  PsiElement(identifier)('T')
+                            PsiElement(])(']')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: |*|
+                          PsiElement(identifier)('|*|')
+                        PsiWhiteSpace(' ')
+                        ParametrizedType: Var[U]
+                          SimpleType: Var
+                            CodeReferenceElement: Var
+                              PsiElement(identifier)('Var')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: U
+                                CodeReferenceElement: U
+                                  PsiElement(identifier)('U')
+                            PsiElement(])(']')
                     PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScFunctionDefinition: go
@@ -228,16 +233,18 @@ ScalaFile
                         PsiElement(identifier)('Foo')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      ParametrizedType: Var[X]
-                        SimpleType: Var
-                          CodeReferenceElement: Var
-                            PsiElement(identifier)('Var')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: X
-                            CodeReferenceElement: X
-                              PsiElement(identifier)('X')
-                          PsiElement(])(']')
+                      TypeArgument
+                        ParametrizedType: Var[X]
+                          SimpleType: Var
+                            CodeReferenceElement: Var
+                              PsiElement(identifier)('Var')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: X
+                                CodeReferenceElement: X
+                                  PsiElement(identifier)('X')
+                            PsiElement(])(']')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')

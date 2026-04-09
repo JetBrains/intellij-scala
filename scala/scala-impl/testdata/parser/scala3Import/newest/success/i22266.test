@@ -253,17 +253,18 @@ ScalaFile
                         PsiElement(identifier)('Vector')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      InfixType: Shape & RotationalSymmetry
-                        SimpleType: Shape
-                          CodeReferenceElement: Shape
-                            PsiElement(identifier)('Shape')
-                        PsiWhiteSpace(' ')
-                        CodeReferenceElement: &
-                          PsiElement(identifier)('&')
-                        PsiWhiteSpace(' ')
-                        SimpleType: RotationalSymmetry
-                          CodeReferenceElement: RotationalSymmetry
-                            PsiElement(identifier)('RotationalSymmetry')
+                      TypeArgument
+                        InfixType: Shape & RotationalSymmetry
+                          SimpleType: Shape
+                            CodeReferenceElement: Shape
+                              PsiElement(identifier)('Shape')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: &
+                            PsiElement(identifier)('&')
+                          PsiWhiteSpace(' ')
+                          SimpleType: RotationalSymmetry
+                            CodeReferenceElement: RotationalSymmetry
+                              PsiElement(identifier)('RotationalSymmetry')
                       PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace('\n    ')
@@ -282,17 +283,18 @@ ScalaFile
                         PsiElement(identifier)('Vector')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      InfixType: Shape & MaybeRotationalSymmetry
-                        SimpleType: Shape
-                          CodeReferenceElement: Shape
-                            PsiElement(identifier)('Shape')
-                        PsiWhiteSpace(' ')
-                        CodeReferenceElement: &
-                          PsiElement(identifier)('&')
-                        PsiWhiteSpace(' ')
-                        SimpleType: MaybeRotationalSymmetry
-                          CodeReferenceElement: MaybeRotationalSymmetry
-                            PsiElement(identifier)('MaybeRotationalSymmetry')
+                      TypeArgument
+                        InfixType: Shape & MaybeRotationalSymmetry
+                          SimpleType: Shape
+                            CodeReferenceElement: Shape
+                              PsiElement(identifier)('Shape')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: &
+                            PsiElement(identifier)('&')
+                          PsiWhiteSpace(' ')
+                          SimpleType: MaybeRotationalSymmetry
+                            CodeReferenceElement: MaybeRotationalSymmetry
+                              PsiElement(identifier)('MaybeRotationalSymmetry')
                       PsiElement(])(']')
               PsiWhiteSpace('\n  ')
               PsiElement())(')')

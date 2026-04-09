@@ -131,9 +131,10 @@ ScalaFile
                       PsiElement(identifier)('Merge')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: L
-                      CodeReferenceElement: L
-                        PsiElement(identifier)('L')
+                    TypeArgument
+                      SimpleType: L
+                        CodeReferenceElement: L
+                          PsiElement(identifier)('L')
                     PsiElement(])(']')
               PsiWhiteSpace('\n  ')
               PsiElement(})('}')
@@ -242,24 +243,27 @@ ScalaFile
                       PsiElement(identifier)('HCons')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: H
-                      CodeReferenceElement: H
-                        PsiElement(identifier)('H')
+                    TypeArgument
+                      SimpleType: H
+                        CodeReferenceElement: H
+                          PsiElement(identifier)('H')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    ParametrizedType: tail.Merge[L]
-                      SimpleType: tail.Merge
-                        CodeReferenceElement: tail.Merge
-                          CodeReferenceElement: tail
-                            PsiElement(identifier)('tail')
-                          PsiElement(.)('.')
-                          PsiElement(identifier)('Merge')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        SimpleType: L
-                          CodeReferenceElement: L
-                            PsiElement(identifier)('L')
-                        PsiElement(])(']')
+                    TypeArgument
+                      ParametrizedType: tail.Merge[L]
+                        SimpleType: tail.Merge
+                          CodeReferenceElement: tail.Merge
+                            CodeReferenceElement: tail
+                              PsiElement(identifier)('tail')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('Merge')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: L
+                              CodeReferenceElement: L
+                                PsiElement(identifier)('L')
+                          PsiElement(])(']')
                     PsiElement(])(']')
               PsiWhiteSpace('\n\n    ')
               ScFunctionDefinition: merge
@@ -305,9 +309,10 @@ ScalaFile
                       PsiElement(identifier)('Merge')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: L
-                      CodeReferenceElement: L
-                        PsiElement(identifier)('L')
+                    TypeArgument
+                      SimpleType: L
+                        CodeReferenceElement: L
+                          PsiElement(identifier)('L')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')
@@ -427,9 +432,10 @@ ScalaFile
                       PsiElement(identifier)('Merge')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: L
-                      CodeReferenceElement: L
-                        PsiElement(identifier)('L')
+                    TypeArgument
+                      SimpleType: L
+                        CodeReferenceElement: L
+                          PsiElement(identifier)('L')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')
@@ -528,24 +534,28 @@ ScalaFile
                 PsiElement(identifier)('HCons')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
+              TypeArgument
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
               PsiElement(,)(',')
-              ParametrizedType: HCons[String,HNil]
-                SimpleType: HCons
-                  CodeReferenceElement: HCons
-                    PsiElement(identifier)('HCons')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: String
-                    CodeReferenceElement: String
-                      PsiElement(identifier)('String')
-                  PsiElement(,)(',')
-                  SimpleType: HNil
-                    CodeReferenceElement: HNil
-                      PsiElement(identifier)('HNil')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: HCons[String,HNil]
+                  SimpleType: HCons
+                    CodeReferenceElement: HCons
+                      PsiElement(identifier)('HCons')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                    PsiElement(,)(',')
+                    TypeArgument
+                      SimpleType: HNil
+                        CodeReferenceElement: HNil
+                          PsiElement(identifier)('HNil')
+                    PsiElement(])(']')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

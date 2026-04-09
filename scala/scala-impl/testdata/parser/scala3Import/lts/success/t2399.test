@@ -62,14 +62,16 @@ ScalaFile
               PsiElement(identifier)('That2')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: A
-              CodeReferenceElement: A
-                PsiElement(identifier)('A')
+            TypeArgument
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
-            SimpleType: R
-              CodeReferenceElement: R
-                PsiElement(identifier)('R')
+            TypeArgument
+              SimpleType: R
+                CodeReferenceElement: R
+                  PsiElement(identifier)('R')
             PsiElement(])(']')
       PsiElement(])(']')
     PrimaryConstructor
@@ -114,9 +116,10 @@ ScalaFile
                 PsiElement(identifier)('That1')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(with)('with')
@@ -127,14 +130,16 @@ ScalaFile
                 PsiElement(identifier)('T')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: This
-                CodeReferenceElement: This
-                  PsiElement(identifier)('This')
+              TypeArgument
+                SimpleType: This
+                  CodeReferenceElement: This
+                    PsiElement(identifier)('This')
               PsiElement(])(']')
       PsiElement(])(']')
     PrimaryConstructor
@@ -156,14 +161,16 @@ ScalaFile
                 PsiElement(identifier)('That2')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: This
-                CodeReferenceElement: This
-                  PsiElement(identifier)('This')
+              TypeArgument
+                SimpleType: This
+                  CodeReferenceElement: This
+                    PsiElement(identifier)('This')
               PsiElement(])(']')
       PsiWhiteSpace(' ')
       ScTemplateBody

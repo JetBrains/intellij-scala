@@ -71,9 +71,10 @@ ScalaFile
                 PsiElement(identifier)('C')
             TypeArgumentsList
               PsiElement([)('[')
-              LiteralType: true
-                BooleanLiteral
-                  PsiElement(true)('true')
+              TypeArgument
+                LiteralType: true
+                  BooleanLiteral
+                    PsiElement(true)('true')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=>)('=>')
@@ -91,9 +92,10 @@ ScalaFile
                 PsiElement(identifier)('C')
             TypeArgumentsList
               PsiElement([)('[')
-              LiteralType: false
-                BooleanLiteral
-                  PsiElement(false)('false')
+              TypeArgument
+                LiteralType: false
+                  BooleanLiteral
+                    PsiElement(false)('false')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=>)('=>')
@@ -134,16 +136,18 @@ ScalaFile
                 PsiElement(identifier)('C')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Foo[T]
-                SimpleType: Foo
-                  CodeReferenceElement: Foo
-                    PsiElement(identifier)('Foo')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: T
-                    CodeReferenceElement: T
-                      PsiElement(identifier)('T')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Foo[T]
+                  SimpleType: Foo
+                    CodeReferenceElement: Foo
+                      PsiElement(identifier)('Foo')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                    PsiElement(])(']')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScFunctionDefinition: f
@@ -167,8 +171,9 @@ ScalaFile
               PsiElement(identifier)('C')
           TypeArgumentsList
             PsiElement([)('[')
-            WildcardType: ?
-              PsiElement(?)('?')
+            TypeArgument
+              WildcardType: ?
+                PsiElement(?)('?')
             PsiElement(])(']')
       PsiElement(])(']')
     Parameters
@@ -196,9 +201,10 @@ ScalaFile
           PsiElement(identifier)('W')
         TypeArgumentsList
           PsiElement([)('[')
-          SimpleType: T
-            CodeReferenceElement: T
-              PsiElement(identifier)('T')
+          TypeArgument
+            SimpleType: T
+              CodeReferenceElement: T
+                PsiElement(identifier)('T')
           PsiElement(])(']')
       ArgumentList
         PsiElement(()('(')
@@ -237,9 +243,10 @@ ScalaFile
               PsiElement(identifier)('C')
             TypeArgumentsList
               PsiElement([)('[')
-              LiteralType: true
-                BooleanLiteral
-                  PsiElement(true)('true')
+              TypeArgument
+                LiteralType: true
+                  BooleanLiteral
+                    PsiElement(true)('true')
               PsiElement(])(']')
           ArgumentList
             PsiElement(()('(')
@@ -262,7 +269,8 @@ ScalaFile
               PsiElement(identifier)('C')
           TypeArgumentsList
             PsiElement([)('[')
-            LiteralType: true
-              BooleanLiteral
-                PsiElement(true)('true')
+            TypeArgument
+              LiteralType: true
+                BooleanLiteral
+                  PsiElement(true)('true')
             PsiElement(])(']')

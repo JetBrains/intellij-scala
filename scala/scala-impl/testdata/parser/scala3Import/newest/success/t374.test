@@ -201,14 +201,16 @@ ScalaFile
                         PsiElement(identifier)('HashMap')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: String
-                        CodeReferenceElement: String
-                          PsiElement(identifier)('String')
+                      TypeArgument
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: Token
-                        CodeReferenceElement: Token
-                          PsiElement(identifier)('Token')
+                      TypeArgument
+                        SimpleType: Token
+                          CodeReferenceElement: Token
+                            PsiElement(identifier)('Token')
                       PsiElement(])(']')
                   ArgumentList
                     PsiElement(()('(')

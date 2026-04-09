@@ -54,9 +54,10 @@ ScalaFile
                           PsiElement(identifier)('List')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: BigInt
-                            CodeReferenceElement: BigInt
-                              PsiElement(identifier)('BigInt')
+                          TypeArgument
+                            SimpleType: BigInt
+                              CodeReferenceElement: BigInt
+                                PsiElement(identifier)('BigInt')
                           PsiElement(])(']')
                       ArgumentList
                         PsiElement(()('(')
@@ -141,9 +142,10 @@ ScalaFile
                           PsiElement(identifier)('List')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: BigInt
-                            CodeReferenceElement: BigInt
-                              PsiElement(identifier)('BigInt')
+                          TypeArgument
+                            SimpleType: BigInt
+                              CodeReferenceElement: BigInt
+                                PsiElement(identifier)('BigInt')
                           PsiElement(])(']')
                       ArgumentList
                         PsiElement(()('(')
@@ -199,9 +201,10 @@ ScalaFile
                           PsiElement(identifier)('List')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: BigInt
-                            CodeReferenceElement: BigInt
-                              PsiElement(identifier)('BigInt')
+                          TypeArgument
+                            SimpleType: BigInt
+                              CodeReferenceElement: BigInt
+                                PsiElement(identifier)('BigInt')
                           PsiElement(])(']')
                       ArgumentList
                         PsiElement(()('(')

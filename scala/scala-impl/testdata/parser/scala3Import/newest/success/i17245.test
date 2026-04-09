@@ -219,9 +219,10 @@ ScalaFile
             PsiElement(identifier)('mock')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: OnChannel
-              CodeReferenceElement: OnChannel
-                PsiElement(identifier)('OnChannel')
+            TypeArgument
+              SimpleType: OnChannel
+                CodeReferenceElement: OnChannel
+                  PsiElement(identifier)('OnChannel')
             PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       ScPatternDefinition: case2
@@ -269,9 +270,10 @@ ScalaFile
             PsiElement(identifier)('mock')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: OnChannel
-              CodeReferenceElement: OnChannel
-                PsiElement(identifier)('OnChannel')
+            TypeArgument
+              SimpleType: OnChannel
+                CodeReferenceElement: OnChannel
+                  PsiElement(identifier)('OnChannel')
             PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       ScPatternDefinition: case4
@@ -301,9 +303,10 @@ ScalaFile
               PsiElement(identifier)('mock')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: OnChannel
-                CodeReferenceElement: OnChannel
-                  PsiElement(identifier)('OnChannel')
+              TypeArgument
+                SimpleType: OnChannel
+                  CodeReferenceElement: OnChannel
+                    PsiElement(identifier)('OnChannel')
               PsiElement(])(']')
           ArgumentList
             PsiElement(()('(')
@@ -314,16 +317,18 @@ ScalaFile
                 PsiElement(identifier)('summon')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: ClassTag[OnChannel]
-                  SimpleType: ClassTag
-                    CodeReferenceElement: ClassTag
-                      PsiElement(identifier)('ClassTag')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: OnChannel
-                      CodeReferenceElement: OnChannel
-                        PsiElement(identifier)('OnChannel')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: ClassTag[OnChannel]
+                    SimpleType: ClassTag
+                      CodeReferenceElement: ClassTag
+                        PsiElement(identifier)('ClassTag')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: OnChannel
+                          CodeReferenceElement: OnChannel
+                            PsiElement(identifier)('OnChannel')
+                      PsiElement(])(']')
                 PsiElement(])(']')
             PsiElement())(')')
       PsiWhiteSpace('\n\n  ')
@@ -362,14 +367,15 @@ ScalaFile
             PsiElement(identifier)('mock')
           TypeArgumentsList
             PsiElement([)('[')
-            FunctionalType: Channel => Any
-              SimpleType: Channel
-                CodeReferenceElement: Channel
-                  PsiElement(identifier)('Channel')
-              PsiWhiteSpace(' ')
-              PsiElement(=>)('=>')
-              PsiWhiteSpace(' ')
-              SimpleType: Any
-                CodeReferenceElement: Any
-                  PsiElement(identifier)('Any')
+            TypeArgument
+              FunctionalType: Channel => Any
+                SimpleType: Channel
+                  CodeReferenceElement: Channel
+                    PsiElement(identifier)('Channel')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: Any
+                  CodeReferenceElement: Any
+                    PsiElement(identifier)('Any')
             PsiElement(])(']')

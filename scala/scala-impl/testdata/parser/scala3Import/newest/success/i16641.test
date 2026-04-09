@@ -62,9 +62,10 @@ ScalaFile
               PsiElement(identifier)('valueOf')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: debug
-                CodeReferenceElement: debug
-                  PsiElement(identifier)('debug')
+              TypeArgument
+                SimpleType: debug
+                  CodeReferenceElement: debug
+                    PsiElement(identifier)('debug')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScTypeAliasDefinition: debug
@@ -248,12 +249,13 @@ ScalaFile
                 PsiElement(identifier)('valueOf')
               TypeArgumentsList
                 PsiElement([)('[')
-                TypeProjection: Logger#debug
-                  SimpleType: Logger
-                    CodeReferenceElement: Logger
-                      PsiElement(identifier)('Logger')
-                  PsiElement(#)('#')
-                  PsiElement(identifier)('debug')
+                TypeArgument
+                  TypeProjection: Logger#debug
+                    SimpleType: Logger
+                      CodeReferenceElement: Logger
+                        PsiElement(identifier)('Logger')
+                    PsiElement(#)('#')
+                    PsiElement(identifier)('debug')
                 PsiElement(])(']')
             PsiElement())(')')
             PsiWhiteSpace(' ')

@@ -27,8 +27,9 @@ ScalaFile
               PsiElement(identifier)('Seq')
           TypeArgumentsList
             PsiElement([)('[')
-            WildcardType: _
-              PsiElement(_)('_')
+            TypeArgument
+              WildcardType: _
+                PsiElement(_)('_')
             PsiElement(])(']')
       PsiElement(])(']')
     PsiWhiteSpace(' ')
@@ -55,8 +56,9 @@ ScalaFile
                 PsiElement(identifier)('Seq')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeVariable: t
-                PsiElement(identifier)('t')
+              TypeArgument
+                TypeVariable: t
+                  PsiElement(identifier)('t')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=>)('=>')
@@ -85,31 +87,34 @@ ScalaFile
         PsiElement(identifier)('implicitly')
       TypeArgumentsList
         PsiElement([)('[')
-        InfixType: Ext[Seq[Int]] =:= Int
-          ParametrizedType: Ext[Seq[Int]]
-            SimpleType: Ext
-              CodeReferenceElement: Ext
-                PsiElement(identifier)('Ext')
-            TypeArgumentsList
-              PsiElement([)('[')
-              ParametrizedType: Seq[Int]
-                SimpleType: Seq
-                  CodeReferenceElement: Seq
-                    PsiElement(identifier)('Seq')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
-                  PsiElement(])(']')
-              PsiElement(])(']')
-          PsiWhiteSpace(' ')
-          CodeReferenceElement: =:=
-            PsiElement(identifier)('=:=')
-          PsiWhiteSpace(' ')
-          SimpleType: Int
-            CodeReferenceElement: Int
-              PsiElement(identifier)('Int')
+        TypeArgument
+          InfixType: Ext[Seq[Int]] =:= Int
+            ParametrizedType: Ext[Seq[Int]]
+              SimpleType: Ext
+                CodeReferenceElement: Ext
+                  PsiElement(identifier)('Ext')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  ParametrizedType: Seq[Int]
+                    SimpleType: Seq
+                      CodeReferenceElement: Seq
+                        PsiElement(identifier)('Seq')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement(])(']')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: =:=
+              PsiElement(identifier)('=:=')
+            PsiWhiteSpace(' ')
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
         PsiElement(])(']')
   PsiWhiteSpace(' ')
   PsiComment(comment)('// e.scala: Cannot prove that e.Ext[Seq[Int]] =:= Int')
@@ -132,29 +137,32 @@ ScalaFile
         PsiElement(identifier)('summon')
       TypeArgumentsList
         PsiElement([)('[')
-        InfixType: Ext[Seq[Int]] =:= Int
-          ParametrizedType: Ext[Seq[Int]]
-            SimpleType: Ext
-              CodeReferenceElement: Ext
-                PsiElement(identifier)('Ext')
-            TypeArgumentsList
-              PsiElement([)('[')
-              ParametrizedType: Seq[Int]
-                SimpleType: Seq
-                  CodeReferenceElement: Seq
-                    PsiElement(identifier)('Seq')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
-                  PsiElement(])(']')
-              PsiElement(])(']')
-          PsiWhiteSpace(' ')
-          CodeReferenceElement: =:=
-            PsiElement(identifier)('=:=')
-          PsiWhiteSpace(' ')
-          SimpleType: Int
-            CodeReferenceElement: Int
-              PsiElement(identifier)('Int')
+        TypeArgument
+          InfixType: Ext[Seq[Int]] =:= Int
+            ParametrizedType: Ext[Seq[Int]]
+              SimpleType: Ext
+                CodeReferenceElement: Ext
+                  PsiElement(identifier)('Ext')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  ParametrizedType: Seq[Int]
+                    SimpleType: Seq
+                      CodeReferenceElement: Seq
+                        PsiElement(identifier)('Seq')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement(])(']')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: =:=
+              PsiElement(identifier)('=:=')
+            PsiWhiteSpace(' ')
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
         PsiElement(])(']')

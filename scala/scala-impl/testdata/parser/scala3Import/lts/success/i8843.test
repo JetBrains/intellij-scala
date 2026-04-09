@@ -103,22 +103,24 @@ ScalaFile
             PsiElement(identifier)('constValue')
           TypeArgumentsList
             PsiElement([)('[')
-            ParametrizedType: Tuple.Size[c.X]
-              SimpleType: Tuple.Size
-                CodeReferenceElement: Tuple.Size
-                  CodeReferenceElement: Tuple
-                    PsiElement(identifier)('Tuple')
-                  PsiElement(.)('.')
-                  PsiElement(identifier)('Size')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: c.X
-                  CodeReferenceElement: c.X
-                    CodeReferenceElement: c
-                      PsiElement(identifier)('c')
+            TypeArgument
+              ParametrizedType: Tuple.Size[c.X]
+                SimpleType: Tuple.Size
+                  CodeReferenceElement: Tuple.Size
+                    CodeReferenceElement: Tuple
+                      PsiElement(identifier)('Tuple')
                     PsiElement(.)('.')
-                    PsiElement(identifier)('X')
-                PsiElement(])(']')
+                    PsiElement(identifier)('Size')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: c.X
+                      CodeReferenceElement: c.X
+                        CodeReferenceElement: c
+                          PsiElement(identifier)('c')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('X')
+                  PsiElement(])(']')
             PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       ScPatternDefinition: n
@@ -217,9 +219,10 @@ ScalaFile
                       PsiElement(identifier)('Tuple1')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Any
-                      CodeReferenceElement: Any
-                        PsiElement(identifier)('Any')
+                    TypeArgument
+                      SimpleType: Any
+                        CodeReferenceElement: Any
+                          PsiElement(identifier)('Any')
                     PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(})('}')

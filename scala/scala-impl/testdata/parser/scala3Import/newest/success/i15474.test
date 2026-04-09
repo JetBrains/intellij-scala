@@ -82,14 +82,16 @@ ScalaFile
             TypeArgumentsList
               PsiElement([)('[')
               PsiWhiteSpace(' ')
-              SimpleType: String
-                CodeReferenceElement: String
-                  PsiElement(identifier)('String')
+              TypeArgument
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
+              TypeArgument
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
               PsiWhiteSpace(' ')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
@@ -159,9 +161,10 @@ ScalaFile
                       PsiElement(identifier)('Ordering')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Price
-                      CodeReferenceElement: Price
-                        PsiElement(identifier)('Price')
+                    TypeArgument
+                      SimpleType: Price
+                        CodeReferenceElement: Price
+                          PsiElement(identifier)('Price')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')
@@ -171,16 +174,18 @@ ScalaFile
                     PsiElement(identifier)('summon')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    ParametrizedType: Ordering[BigDecimal]
-                      SimpleType: Ordering
-                        CodeReferenceElement: Ordering
-                          PsiElement(identifier)('Ordering')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        SimpleType: BigDecimal
-                          CodeReferenceElement: BigDecimal
-                            PsiElement(identifier)('BigDecimal')
-                        PsiElement(])(']')
+                    TypeArgument
+                      ParametrizedType: Ordering[BigDecimal]
+                        SimpleType: Ordering
+                          CodeReferenceElement: Ordering
+                            PsiElement(identifier)('Ordering')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: BigDecimal
+                              CodeReferenceElement: BigDecimal
+                                PsiElement(identifier)('BigDecimal')
+                          PsiElement(])(']')
                     PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiComment(comment)('// was error, now avoided')

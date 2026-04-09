@@ -147,9 +147,10 @@ ScalaFile
                 PsiElement(identifier)('Typed')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Owner
-                CodeReferenceElement: Owner
-                  PsiElement(identifier)('Owner')
+              TypeArgument
+                SimpleType: Owner
+                  CodeReferenceElement: Owner
+                    PsiElement(identifier)('Owner')
               PsiElement(])(']')
       PsiWhiteSpace(' ')
       ScTemplateBody

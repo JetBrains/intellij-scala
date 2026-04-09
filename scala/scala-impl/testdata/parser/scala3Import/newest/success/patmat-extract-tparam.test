@@ -76,9 +76,10 @@ ScalaFile
                 PsiElement(identifier)('Bip')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Boolean
-                CodeReferenceElement: Boolean
-                  PsiElement(identifier)('Boolean')
+              TypeArgument
+                SimpleType: Boolean
+                  CodeReferenceElement: Boolean
+                    PsiElement(identifier)('Boolean')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScClass: A
@@ -163,15 +164,17 @@ ScalaFile
                         PsiElement(identifier)('List')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      ParametrizedType: Bip[_]
-                        SimpleType: Bip
-                          CodeReferenceElement: Bip
-                            PsiElement(identifier)('Bip')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          WildcardType: _
-                            PsiElement(_)('_')
-                          PsiElement(])(']')
+                      TypeArgument
+                        ParametrizedType: Bip[_]
+                          SimpleType: Bip
+                            CodeReferenceElement: Bip
+                              PsiElement(identifier)('Bip')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              WildcardType: _
+                                PsiElement(_)('_')
+                            PsiElement(])(']')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiWhiteSpace(' ')
@@ -338,15 +341,17 @@ ScalaFile
                         PsiElement(identifier)('List')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      ParametrizedType: Bip[_]
-                        SimpleType: Bip
-                          CodeReferenceElement: Bip
-                            PsiElement(identifier)('Bip')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          WildcardType: _
-                            PsiElement(_)('_')
-                          PsiElement(])(']')
+                      TypeArgument
+                        ParametrizedType: Bip[_]
+                          SimpleType: Bip
+                            CodeReferenceElement: Bip
+                              PsiElement(identifier)('Bip')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              WildcardType: _
+                                PsiElement(_)('_')
+                            PsiElement(])(']')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiWhiteSpace(' ')

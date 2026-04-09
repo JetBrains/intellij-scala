@@ -206,14 +206,16 @@ ScalaFile
           PsiElement(identifier)('Bar')
       TypeArgumentsList
         PsiElement([)('[')
-        LiteralType: 1
-          IntegerLiteral
-            PsiElement(integer)('1')
+        TypeArgument
+          LiteralType: 1
+            IntegerLiteral
+              PsiElement(integer)('1')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
-        LiteralType: "2"
-          StringLiteral
-            PsiElement(string content)('"2"')
+        TypeArgument
+          LiteralType: "2"
+            StringLiteral
+              PsiElement(string content)('"2"')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')

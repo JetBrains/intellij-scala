@@ -48,9 +48,10 @@ ScalaFile
                 PsiElement(identifier)('Rec')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: X
-                CodeReferenceElement: X
-                  PsiElement(identifier)('X')
+              TypeArgument
+                SimpleType: X
+                  CodeReferenceElement: X
+                    PsiElement(identifier)('X')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScTypeAliasDefinition: M
@@ -126,21 +127,24 @@ ScalaFile
                   PsiElement(identifier)('M')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: Rec[X]
-                  SimpleType: Rec
-                    CodeReferenceElement: Rec
-                      PsiElement(identifier)('Rec')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: X
-                      CodeReferenceElement: X
-                        PsiElement(identifier)('X')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: Rec[X]
+                    SimpleType: Rec
+                      CodeReferenceElement: Rec
+                        PsiElement(identifier)('Rec')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: X
+                          CodeReferenceElement: X
+                            PsiElement(identifier)('X')
+                      PsiElement(])(']')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                LiteralType: "hi"
-                  StringLiteral
-                    PsiElement(string content)('"hi"')
+                TypeArgument
+                  LiteralType: "hi"
+                    StringLiteral
+                      PsiElement(string content)('"hi"')
                 PsiElement(])(']')
         PsiElement())(')')
     PsiWhiteSpace(' ')

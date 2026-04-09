@@ -76,21 +76,24 @@ ScalaFile
                           PsiElement(identifier)('Seq')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        ParametrizedType: Either[E, T]
-                          SimpleType: Either
-                            CodeReferenceElement: Either
-                              PsiElement(identifier)('Either')
-                          TypeArgumentsList
-                            PsiElement([)('[')
-                            SimpleType: E
-                              CodeReferenceElement: E
-                                PsiElement(identifier)('E')
-                            PsiElement(,)(',')
-                            PsiWhiteSpace(' ')
-                            SimpleType: T
-                              CodeReferenceElement: T
-                                PsiElement(identifier)('T')
-                            PsiElement(])(']')
+                        TypeArgument
+                          ParametrizedType: Either[E, T]
+                            SimpleType: Either
+                              CodeReferenceElement: Either
+                                PsiElement(identifier)('Either')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: E
+                                  CodeReferenceElement: E
+                                    PsiElement(identifier)('E')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              TypeArgument
+                                SimpleType: T
+                                  CodeReferenceElement: T
+                                    PsiElement(identifier)('T')
+                              PsiElement(])(']')
                         PsiElement(])(']')
                 PsiElement())(')')
           PsiWhiteSpace(' ')
@@ -123,28 +126,32 @@ ScalaFile
                       PsiElement(identifier)('Either')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    ParametrizedType: ::[E]
-                      SimpleType: ::
-                        CodeReferenceElement: ::
-                          PsiElement(identifier)('::')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        SimpleType: E
-                          CodeReferenceElement: E
-                            PsiElement(identifier)('E')
-                        PsiElement(])(']')
+                    TypeArgument
+                      ParametrizedType: ::[E]
+                        SimpleType: ::
+                          CodeReferenceElement: ::
+                            PsiElement(identifier)('::')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: E
+                              CodeReferenceElement: E
+                                PsiElement(identifier)('E')
+                          PsiElement(])(']')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    ParametrizedType: Seq[T]
-                      SimpleType: Seq
-                        CodeReferenceElement: Seq
-                          PsiElement(identifier)('Seq')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        SimpleType: T
-                          CodeReferenceElement: T
-                            PsiElement(identifier)('T')
-                        PsiElement(])(']')
+                    TypeArgument
+                      ParametrizedType: Seq[T]
+                        SimpleType: Seq
+                          CodeReferenceElement: Seq
+                            PsiElement(identifier)('Seq')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: T
+                              CodeReferenceElement: T
+                                PsiElement(identifier)('T')
+                          PsiElement(])(']')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')
@@ -195,9 +202,10 @@ ScalaFile
                     PsiElement(identifier)('::')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: BuildException
-                    CodeReferenceElement: BuildException
-                      PsiElement(identifier)('BuildException')
+                  TypeArgument
+                    SimpleType: BuildException
+                      CodeReferenceElement: BuildException
+                        PsiElement(identifier)('BuildException')
                   PsiElement(])(']')
           PsiElement())(')')
     PsiWhiteSpace(' ')
@@ -269,21 +277,24 @@ ScalaFile
                 PsiElement(identifier)('Either')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: BuildException
-                CodeReferenceElement: BuildException
-                  PsiElement(identifier)('BuildException')
+              TypeArgument
+                SimpleType: BuildException
+                  CodeReferenceElement: BuildException
+                    PsiElement(identifier)('BuildException')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              ParametrizedType: Seq[A]
-                SimpleType: Seq
-                  CodeReferenceElement: Seq
-                    PsiElement(identifier)('Seq')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: A
-                    CodeReferenceElement: A
-                      PsiElement(identifier)('A')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Seq[A]
+                  SimpleType: Seq
+                    CodeReferenceElement: Seq
+                      PsiElement(identifier)('Seq')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
+                    PsiElement(])(']')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScImportStatement
@@ -313,21 +324,24 @@ ScalaFile
           PsiElement(identifier)('Either')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: BuildException
-          CodeReferenceElement: BuildException
-            PsiElement(identifier)('BuildException')
+        TypeArgument
+          SimpleType: BuildException
+            CodeReferenceElement: BuildException
+              PsiElement(identifier)('BuildException')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
-        ParametrizedType: Seq[ActionableDiagnostic]
-          SimpleType: Seq
-            CodeReferenceElement: Seq
-              PsiElement(identifier)('Seq')
-          TypeArgumentsList
-            PsiElement([)('[')
-            SimpleType: ActionableDiagnostic
-              CodeReferenceElement: ActionableDiagnostic
-                PsiElement(identifier)('ActionableDiagnostic')
-            PsiElement(])(']')
+        TypeArgument
+          ParametrizedType: Seq[ActionableDiagnostic]
+            SimpleType: Seq
+              CodeReferenceElement: Seq
+                PsiElement(identifier)('Seq')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: ActionableDiagnostic
+                  CodeReferenceElement: ActionableDiagnostic
+                    PsiElement(identifier)('ActionableDiagnostic')
+              PsiElement(])(']')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -358,15 +372,17 @@ ScalaFile
                         PsiElement(identifier)('empty')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        ParametrizedType: ActionableHandler[_]
-                          SimpleType: ActionableHandler
-                            CodeReferenceElement: ActionableHandler
-                              PsiElement(identifier)('ActionableHandler')
-                          TypeArgumentsList
-                            PsiElement([)('[')
-                            WildcardType: _
-                              PsiElement(_)('_')
-                            PsiElement(])(']')
+                        TypeArgument
+                          ParametrizedType: ActionableHandler[_]
+                            SimpleType: ActionableHandler
+                              CodeReferenceElement: ActionableHandler
+                                PsiElement(identifier)('ActionableHandler')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                WildcardType: _
+                                  PsiElement(_)('_')
+                              PsiElement(])(']')
                         PsiElement(])(']')
                     PsiElement(.)('.')
                     PsiElement(identifier)('map')

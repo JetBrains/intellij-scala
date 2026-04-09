@@ -113,9 +113,10 @@ ScalaFile
                         PsiElement(identifier)('F')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                       PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
@@ -194,9 +195,10 @@ ScalaFile
                   PsiElement(identifier)('TC')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: A
-                  CodeReferenceElement: A
-                    PsiElement(identifier)('A')
+                TypeArgument
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             Refinement
@@ -295,9 +297,10 @@ ScalaFile
                               PsiElement(identifier)('TC')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: A
-                              CodeReferenceElement: A
-                                PsiElement(identifier)('A')
+                            TypeArgument
+                              SimpleType: A
+                                CodeReferenceElement: A
+                                  PsiElement(identifier)('A')
                             PsiElement(])(']')
                     PsiElement())(')')
                 PsiElement(:)(':')
@@ -308,12 +311,13 @@ ScalaFile
                       PsiElement(identifier)('CustomHook')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: tc.Out
-                      CodeReferenceElement: tc.Out
-                        CodeReferenceElement: tc
-                          PsiElement(identifier)('tc')
-                        PsiElement(.)('.')
-                        PsiElement(identifier)('Out')
+                    TypeArgument
+                      SimpleType: tc.Out
+                        CodeReferenceElement: tc.Out
+                          CodeReferenceElement: tc
+                            PsiElement(identifier)('tc')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('Out')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')
@@ -341,9 +345,10 @@ ScalaFile
                 PsiElement(identifier)('CustomHook')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
+              TypeArgument
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -387,16 +392,18 @@ ScalaFile
                 PsiElement(identifier)('F')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: CustomHook[String]
-                SimpleType: CustomHook
-                  CodeReferenceElement: CustomHook
-                    PsiElement(identifier)('CustomHook')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: String
-                    CodeReferenceElement: String
-                      PsiElement(identifier)('String')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: CustomHook[String]
+                  SimpleType: CustomHook
+                    CodeReferenceElement: CustomHook
+                      PsiElement(identifier)('CustomHook')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                    PsiElement(])(']')
               PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiComment(comment)('// error')
@@ -478,9 +485,10 @@ ScalaFile
                                 PsiElement(identifier)('TC')
                             TypeArgumentsList
                               PsiElement([)('[')
-                              SimpleType: A
-                                CodeReferenceElement: A
-                                  PsiElement(identifier)('A')
+                              TypeArgument
+                                SimpleType: A
+                                  CodeReferenceElement: A
+                                    PsiElement(identifier)('A')
                               PsiElement(])(']')
                           PsiWhiteSpace(' ')
                           Refinement
@@ -511,9 +519,10 @@ ScalaFile
                       PsiElement(identifier)('CustomHook')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: B
-                      CodeReferenceElement: B
-                        PsiElement(identifier)('B')
+                    TypeArgument
+                      SimpleType: B
+                        CodeReferenceElement: B
+                          PsiElement(identifier)('B')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')
@@ -543,9 +552,10 @@ ScalaFile
                 PsiElement(identifier)('CustomHook')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
+              TypeArgument
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -589,16 +599,18 @@ ScalaFile
                 PsiElement(identifier)('F')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: CustomHook[String]
-                SimpleType: CustomHook
-                  CodeReferenceElement: CustomHook
-                    PsiElement(identifier)('CustomHook')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: String
-                    CodeReferenceElement: String
-                      PsiElement(identifier)('String')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: CustomHook[String]
+                  SimpleType: CustomHook
+                    CodeReferenceElement: CustomHook
+                      PsiElement(identifier)('CustomHook')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                    PsiElement(])(']')
               PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiComment(comment)('// works')

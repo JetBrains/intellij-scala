@@ -30,16 +30,18 @@ ScalaFile
                       PsiElement(identifier)('List')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    ParametrizedType: List[Double]
-                      SimpleType: List
-                        CodeReferenceElement: List
-                          PsiElement(identifier)('List')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        SimpleType: Double
-                          CodeReferenceElement: Double
-                            PsiElement(identifier)('Double')
-                        PsiElement(])(']')
+                    TypeArgument
+                      ParametrizedType: List[Double]
+                        SimpleType: List
+                          CodeReferenceElement: List
+                            PsiElement(identifier)('List')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: Double
+                              CodeReferenceElement: Double
+                                PsiElement(identifier)('Double')
+                          PsiElement(])(']')
                     PsiElement(])(']')
               PsiElement())(')')
             PsiElement(.)('.')

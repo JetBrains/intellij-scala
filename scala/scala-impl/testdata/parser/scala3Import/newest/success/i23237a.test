@@ -146,9 +146,10 @@ ScalaFile
                         PsiElement(identifier)('Array')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Int
-                        CodeReferenceElement: Int
-                          PsiElement(identifier)('Int')
+                      TypeArgument
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -159,9 +160,10 @@ ScalaFile
                 PsiElement(identifier)('IntVector')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: D
-                CodeReferenceElement: D
-                  PsiElement(identifier)('D')
+              TypeArgument
+                SimpleType: D
+                  CodeReferenceElement: D
+                    PsiElement(identifier)('D')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -363,9 +365,10 @@ ScalaFile
                 PsiElement(identifier)('IntVector')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: _2D
-                CodeReferenceElement: _2D
-                  PsiElement(identifier)('_2D')
+              TypeArgument
+                SimpleType: _2D
+                  CodeReferenceElement: _2D
+                    PsiElement(identifier)('_2D')
               PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScClass: IntVector3D
@@ -438,9 +441,10 @@ ScalaFile
                 PsiElement(identifier)('IntVector')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: _3D
-                CodeReferenceElement: _3D
-                  PsiElement(identifier)('_3D')
+              TypeArgument
+                SimpleType: _3D
+                  CodeReferenceElement: _3D
+                    PsiElement(identifier)('_3D')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScTypeAliasDefinition: DiscreteImage
@@ -469,19 +473,22 @@ ScalaFile
           PsiElement(identifier)('DiscreteField')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: D
-          CodeReferenceElement: D
-            PsiElement(identifier)('D')
+        TypeArgument
+          SimpleType: D
+            CodeReferenceElement: D
+              PsiElement(identifier)('D')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
-        SimpleType: DiscreteImageDomain
-          CodeReferenceElement: DiscreteImageDomain
-            PsiElement(identifier)('DiscreteImageDomain')
+        TypeArgument
+          SimpleType: DiscreteImageDomain
+            CodeReferenceElement: DiscreteImageDomain
+              PsiElement(identifier)('DiscreteImageDomain')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
-        SimpleType: A
-          CodeReferenceElement: A
-            PsiElement(identifier)('A')
+        TypeArgument
+          SimpleType: A
+            CodeReferenceElement: A
+              PsiElement(identifier)('A')
         PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScClass: DiscreteField
@@ -514,9 +521,10 @@ ScalaFile
               PsiElement(identifier)('DiscreteDomain')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: D
-              CodeReferenceElement: D
-                PsiElement(identifier)('D')
+            TypeArgument
+              SimpleType: D
+                CodeReferenceElement: D
+                  PsiElement(identifier)('D')
             PsiElement(])(']')
       PsiElement(,)(',')
       PsiWhiteSpace(' ')
@@ -548,9 +556,10 @@ ScalaFile
                     PsiElement(identifier)('DDomain')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: D
-                    CodeReferenceElement: D
-                      PsiElement(identifier)('D')
+                  TypeArgument
+                    SimpleType: D
+                      CodeReferenceElement: D
+                        PsiElement(identifier)('D')
                   PsiElement(])(']')
           PsiElement(,)(',')
           PsiWhiteSpace(' ')
@@ -571,9 +580,10 @@ ScalaFile
                     PsiElement(identifier)('IndexedSeq')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: A
-                    CodeReferenceElement: A
-                      PsiElement(identifier)('A')
+                  TypeArgument
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
                   PsiElement(])(']')
           PsiElement())(')')
     PsiWhiteSpace('  ')
@@ -588,14 +598,16 @@ ScalaFile
                 PsiElement(identifier)('PartialFunction')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: PointId
-                CodeReferenceElement: PointId
-                  PsiElement(identifier)('PointId')
+              TypeArgument
+                SimpleType: PointId
+                  CodeReferenceElement: PointId
+                    PsiElement(identifier)('PointId')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(])(']')
       PsiWhiteSpace(' ')
       ScTemplateBody
@@ -718,19 +730,22 @@ ScalaFile
                           PsiElement(identifier)('DiscreteField')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: D
-                          CodeReferenceElement: D
-                            PsiElement(identifier)('D')
+                        TypeArgument
+                          SimpleType: D
+                            CodeReferenceElement: D
+                              PsiElement(identifier)('D')
                         PsiElement(,)(',')
                         PsiWhiteSpace(' ')
-                        SimpleType: DiscreteImageDomain
-                          CodeReferenceElement: DiscreteImageDomain
-                            PsiElement(identifier)('DiscreteImageDomain')
+                        TypeArgument
+                          SimpleType: DiscreteImageDomain
+                            CodeReferenceElement: DiscreteImageDomain
+                              PsiElement(identifier)('DiscreteImageDomain')
                         PsiElement(,)(',')
                         PsiWhiteSpace(' ')
-                        SimpleType: A
-                          CodeReferenceElement: A
-                            PsiElement(identifier)('A')
+                        TypeArgument
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
                         PsiElement(])(']')
                 PsiElement())(')')
           PsiWhiteSpace(' ')
@@ -764,9 +779,10 @@ ScalaFile
                               PsiElement(identifier)('IntVector')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: D
-                              CodeReferenceElement: D
-                                PsiElement(identifier)('D')
+                            TypeArgument
+                              SimpleType: D
+                                CodeReferenceElement: D
+                                  PsiElement(identifier)('D')
                             PsiElement(])(']')
                     PsiElement())(')')
                 PsiElement(:)(':')
@@ -806,9 +822,10 @@ ScalaFile
                               PsiElement(identifier)('IntVector')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: D
-                              CodeReferenceElement: D
-                                PsiElement(identifier)('D')
+                            TypeArgument
+                              SimpleType: D
+                                CodeReferenceElement: D
+                                  PsiElement(identifier)('D')
                             PsiElement(])(']')
                     PsiElement())(')')
                 PsiElement(:)(':')
@@ -881,9 +898,10 @@ ScalaFile
                 PsiElement(identifier)('DiscreteDomain')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: D
-                CodeReferenceElement: D
-                  PsiElement(identifier)('D')
+              TypeArgument
+                SimpleType: D
+                  CodeReferenceElement: D
+                    PsiElement(identifier)('D')
               PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScClass: PointId
@@ -959,14 +977,16 @@ ScalaFile
                   PsiElement(identifier)('DiscreteImage')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: _3D
-                  CodeReferenceElement: _3D
-                    PsiElement(identifier)('_3D')
+                TypeArgument
+                  SimpleType: _3D
+                    CodeReferenceElement: _3D
+                      PsiElement(identifier)('_3D')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: S
-                  CodeReferenceElement: S
-                    PsiElement(identifier)('S')
+                TypeArgument
+                  SimpleType: S
+                    CodeReferenceElement: S
+                      PsiElement(identifier)('S')
                 PsiElement(])(']')
         PsiElement())(')')
     PsiWhiteSpace(' ')

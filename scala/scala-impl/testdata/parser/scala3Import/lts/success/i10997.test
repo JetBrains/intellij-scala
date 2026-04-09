@@ -193,22 +193,24 @@ ScalaFile
                 PsiElement(identifier)('summon')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: deriving.Mirror.Of[Parent]
-                  SimpleType: deriving.Mirror.Of
-                    CodeReferenceElement: deriving.Mirror.Of
-                      CodeReferenceElement: deriving.Mirror
-                        CodeReferenceElement: deriving
-                          PsiElement(identifier)('deriving')
+                TypeArgument
+                  ParametrizedType: deriving.Mirror.Of[Parent]
+                    SimpleType: deriving.Mirror.Of
+                      CodeReferenceElement: deriving.Mirror.Of
+                        CodeReferenceElement: deriving.Mirror
+                          CodeReferenceElement: deriving
+                            PsiElement(identifier)('deriving')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('Mirror')
                         PsiElement(.)('.')
-                        PsiElement(identifier)('Mirror')
-                      PsiElement(.)('.')
-                      PsiElement(identifier)('Of')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: Parent
-                      CodeReferenceElement: Parent
-                        PsiElement(identifier)('Parent')
-                    PsiElement(])(']')
+                        PsiElement(identifier)('Of')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: Parent
+                          CodeReferenceElement: Parent
+                            PsiElement(identifier)('Parent')
+                      PsiElement(])(']')
                 PsiElement(])(']')
             PsiElement())(')')
         PsiWhiteSpace('\n')
@@ -417,22 +419,24 @@ ScalaFile
                       PsiElement(identifier)('summon')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      ParametrizedType: deriving.Mirror.Of[Parent]
-                        SimpleType: deriving.Mirror.Of
-                          CodeReferenceElement: deriving.Mirror.Of
-                            CodeReferenceElement: deriving.Mirror
-                              CodeReferenceElement: deriving
-                                PsiElement(identifier)('deriving')
+                      TypeArgument
+                        ParametrizedType: deriving.Mirror.Of[Parent]
+                          SimpleType: deriving.Mirror.Of
+                            CodeReferenceElement: deriving.Mirror.Of
+                              CodeReferenceElement: deriving.Mirror
+                                CodeReferenceElement: deriving
+                                  PsiElement(identifier)('deriving')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('Mirror')
                               PsiElement(.)('.')
-                              PsiElement(identifier)('Mirror')
-                            PsiElement(.)('.')
-                            PsiElement(identifier)('Of')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: Parent
-                            CodeReferenceElement: Parent
-                              PsiElement(identifier)('Parent')
-                          PsiElement(])(']')
+                              PsiElement(identifier)('Of')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: Parent
+                                CodeReferenceElement: Parent
+                                  PsiElement(identifier)('Parent')
+                            PsiElement(])(']')
                       PsiElement(])(']')
                   PsiElement())(')')
               PsiWhiteSpace('\n  ')
@@ -497,25 +501,27 @@ ScalaFile
               PsiElement(identifier)('summon')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: deriving.Mirror.Of[cw.Parent]
-                SimpleType: deriving.Mirror.Of
-                  CodeReferenceElement: deriving.Mirror.Of
-                    CodeReferenceElement: deriving.Mirror
-                      CodeReferenceElement: deriving
-                        PsiElement(identifier)('deriving')
+              TypeArgument
+                ParametrizedType: deriving.Mirror.Of[cw.Parent]
+                  SimpleType: deriving.Mirror.Of
+                    CodeReferenceElement: deriving.Mirror.Of
+                      CodeReferenceElement: deriving.Mirror
+                        CodeReferenceElement: deriving
+                          PsiElement(identifier)('deriving')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('Mirror')
                       PsiElement(.)('.')
-                      PsiElement(identifier)('Mirror')
-                    PsiElement(.)('.')
-                    PsiElement(identifier)('Of')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: cw.Parent
-                    CodeReferenceElement: cw.Parent
-                      CodeReferenceElement: cw
-                        PsiElement(identifier)('cw')
-                      PsiElement(.)('.')
-                      PsiElement(identifier)('Parent')
-                  PsiElement(])(']')
+                      PsiElement(identifier)('Of')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: cw.Parent
+                        CodeReferenceElement: cw.Parent
+                          CodeReferenceElement: cw
+                            PsiElement(identifier)('cw')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('Parent')
+                    PsiElement(])(']')
               PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

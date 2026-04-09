@@ -98,14 +98,16 @@ ScalaFile
                       PsiElement(identifier)('PartialFunction')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: E
-                      CodeReferenceElement: E
-                        PsiElement(identifier)('E')
+                    TypeArgument
+                      SimpleType: E
+                        CodeReferenceElement: E
+                          PsiElement(identifier)('E')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    SimpleType: T
-                      CodeReferenceElement: T
-                        PsiElement(identifier)('T')
+                    TypeArgument
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
                     PsiElement(])(']')
             PsiElement())(')')
         PsiWhiteSpace(' ')
@@ -139,8 +141,9 @@ ScalaFile
                             PsiElement(identifier)('ReturnThrowable')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          TypeVariable: _
-                            PsiElement(_)('_')
+                          TypeArgument
+                            TypeVariable: _
+                              PsiElement(_)('_')
                           PsiElement(])(']')
                   PsiWhiteSpace(' ')
                   PsiElement(=>)('=>')

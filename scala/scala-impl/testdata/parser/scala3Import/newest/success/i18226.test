@@ -89,24 +89,26 @@ ScalaFile
                   PsiElement(identifier)('F')
               TypeArgumentsList
                 PsiElement([)('[')
-                InfixType: R & Row[Int]
-                  SimpleType: R
-                    CodeReferenceElement: R
-                      PsiElement(identifier)('R')
-                  PsiWhiteSpace(' ')
-                  CodeReferenceElement: &
-                    PsiElement(identifier)('&')
-                  PsiWhiteSpace(' ')
-                  ParametrizedType: Row[Int]
-                    SimpleType: Row
-                      CodeReferenceElement: Row
-                        PsiElement(identifier)('Row')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: Int
-                        CodeReferenceElement: Int
-                          PsiElement(identifier)('Int')
-                      PsiElement(])(']')
+                TypeArgument
+                  InfixType: R & Row[Int]
+                    SimpleType: R
+                      CodeReferenceElement: R
+                        PsiElement(identifier)('R')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: &
+                      PsiElement(identifier)('&')
+                    PsiWhiteSpace(' ')
+                    ParametrizedType: Row[Int]
+                      SimpleType: Row
+                        CodeReferenceElement: Row
+                          PsiElement(identifier)('Row')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                        PsiElement(])(']')
                 PsiElement(])(']')
         PsiElement())(')')
     PsiElement(:)(':')
@@ -117,9 +119,10 @@ ScalaFile
           PsiElement(identifier)('F')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: R
-          CodeReferenceElement: R
-            PsiElement(identifier)('R')
+        TypeArgument
+          SimpleType: R
+            CodeReferenceElement: R
+              PsiElement(identifier)('R')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -136,9 +139,10 @@ ScalaFile
                   PsiElement(identifier)('F')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: R
-                  CodeReferenceElement: R
-                    PsiElement(identifier)('R')
+                TypeArgument
+                  SimpleType: R
+                    CodeReferenceElement: R
+                      PsiElement(identifier)('R')
                 PsiElement(])(']')
         PsiWhiteSpace(' ')
         ScTemplateBody
@@ -170,31 +174,34 @@ ScalaFile
                   PsiElement(identifier)('F')
               TypeArgumentsList
                 PsiElement([)('[')
-                InfixType: Row[Int] & Row[String]
-                  ParametrizedType: Row[Int]
-                    SimpleType: Row
-                      CodeReferenceElement: Row
-                        PsiElement(identifier)('Row')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: Int
-                        CodeReferenceElement: Int
-                          PsiElement(identifier)('Int')
-                      PsiElement(])(']')
-                  PsiWhiteSpace(' ')
-                  CodeReferenceElement: &
-                    PsiElement(identifier)('&')
-                  PsiWhiteSpace(' ')
-                  ParametrizedType: Row[String]
-                    SimpleType: Row
-                      CodeReferenceElement: Row
-                        PsiElement(identifier)('Row')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: String
-                        CodeReferenceElement: String
-                          PsiElement(identifier)('String')
-                      PsiElement(])(']')
+                TypeArgument
+                  InfixType: Row[Int] & Row[String]
+                    ParametrizedType: Row[Int]
+                      SimpleType: Row
+                        CodeReferenceElement: Row
+                          PsiElement(identifier)('Row')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                        PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: &
+                      PsiElement(identifier)('&')
+                    PsiWhiteSpace(' ')
+                    ParametrizedType: Row[String]
+                      SimpleType: Row
+                        CodeReferenceElement: Row
+                          PsiElement(identifier)('Row')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: String
+                            CodeReferenceElement: String
+                              PsiElement(identifier)('String')
+                        PsiElement(])(']')
                 PsiElement(])(']')
         PsiWhiteSpace(' ')
         ScTemplateBody
@@ -220,16 +227,18 @@ ScalaFile
           PsiElement(identifier)('eliminateInt')
         TypeArgumentsList
           PsiElement([)('[')
-          ParametrizedType: Row[String]
-            SimpleType: Row
-              CodeReferenceElement: Row
-                PsiElement(identifier)('Row')
-            TypeArgumentsList
-              PsiElement([)('[')
-              SimpleType: String
-                CodeReferenceElement: String
-                  PsiElement(identifier)('String')
-              PsiElement(])(']')
+          TypeArgument
+            ParametrizedType: Row[String]
+              SimpleType: Row
+                CodeReferenceElement: Row
+                  PsiElement(identifier)('Row')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                PsiElement(])(']')
           PsiElement(])(']')
       ArgumentList
         PsiElement(()('(')
@@ -281,16 +290,18 @@ ScalaFile
           PsiElement(identifier)('F')
       TypeArgumentsList
         PsiElement([)('[')
-        ParametrizedType: Row[String]
-          SimpleType: Row
-            CodeReferenceElement: Row
-              PsiElement(identifier)('Row')
-          TypeArgumentsList
-            PsiElement([)('[')
-            SimpleType: String
-              CodeReferenceElement: String
-                PsiElement(identifier)('String')
-            PsiElement(])(']')
+        TypeArgument
+          ParametrizedType: Row[String]
+            SimpleType: Row
+              CodeReferenceElement: Row
+                PsiElement(identifier)('Row')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+              PsiElement(])(']')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')

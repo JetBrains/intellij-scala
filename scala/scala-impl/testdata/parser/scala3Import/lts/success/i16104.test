@@ -257,9 +257,10 @@ ScalaFile
                     PsiElement(identifier)('Write')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: T
-                    CodeReferenceElement: T
-                      PsiElement(identifier)('T')
+                  TypeArgument
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
                   PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(=)('=')
@@ -293,21 +294,24 @@ ScalaFile
               PsiElement(identifier)('Conversion')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: T
-              CodeReferenceElement: T
-                PsiElement(identifier)('T')
+            TypeArgument
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
-            ParametrizedType: JsonStructureEntry[T]
-              SimpleType: JsonStructureEntry
-                CodeReferenceElement: JsonStructureEntry
-                  PsiElement(identifier)('JsonStructureEntry')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: T
-                  CodeReferenceElement: T
-                    PsiElement(identifier)('T')
-                PsiElement(])(']')
+            TypeArgument
+              ParametrizedType: JsonStructureEntry[T]
+                SimpleType: JsonStructureEntry
+                  CodeReferenceElement: JsonStructureEntry
+                    PsiElement(identifier)('JsonStructureEntry')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                  PsiElement(])(']')
             PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiElement(=)('=')
@@ -385,9 +389,10 @@ ScalaFile
                             PsiElement(identifier)('Write')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: X
-                            CodeReferenceElement: X
-                              PsiElement(identifier)('X')
+                          TypeArgument
+                            SimpleType: X
+                              CodeReferenceElement: X
+                                PsiElement(identifier)('X')
                           PsiElement(])(']')
                   PsiElement())(')')
               PsiElement(:)(':')
@@ -401,9 +406,10 @@ ScalaFile
                     PsiElement(identifier)('Try')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: JsonVal
-                    CodeReferenceElement: JsonVal
-                      PsiElement(identifier)('JsonVal')
+                  TypeArgument
+                    SimpleType: JsonVal
+                      CodeReferenceElement: JsonVal
+                        PsiElement(identifier)('JsonVal')
                   PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(=)('=')
@@ -435,15 +441,8 @@ ScalaFile
                   PsiElement(identifier)('tuple')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  InfixType: String *: String *: String *: String *: String *: String *: String *: String *: String *: String *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
-                    SimpleType: String
-                      CodeReferenceElement: String
-                        PsiElement(identifier)('String')
-                    PsiWhiteSpace(' ')
-                    CodeReferenceElement: *:
-                      PsiElement(identifier)('*:')
-                    PsiWhiteSpace(' ')
-                    InfixType: String *: String *: String *: String *: String *: String *: String *: String *: String *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
+                  TypeArgument
+                    InfixType: String *: String *: String *: String *: String *: String *: String *: String *: String *: String *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
                       SimpleType: String
                         CodeReferenceElement: String
                           PsiElement(identifier)('String')
@@ -451,7 +450,7 @@ ScalaFile
                       CodeReferenceElement: *:
                         PsiElement(identifier)('*:')
                       PsiWhiteSpace(' ')
-                      InfixType: String *: String *: String *: String *: String *: String *: String *: String *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
+                      InfixType: String *: String *: String *: String *: String *: String *: String *: String *: String *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
                         SimpleType: String
                           CodeReferenceElement: String
                             PsiElement(identifier)('String')
@@ -459,7 +458,7 @@ ScalaFile
                         CodeReferenceElement: *:
                           PsiElement(identifier)('*:')
                         PsiWhiteSpace(' ')
-                        InfixType: String *: String *: String *: String *: String *: String *: String *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
+                        InfixType: String *: String *: String *: String *: String *: String *: String *: String *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
                           SimpleType: String
                             CodeReferenceElement: String
                               PsiElement(identifier)('String')
@@ -467,7 +466,7 @@ ScalaFile
                           CodeReferenceElement: *:
                             PsiElement(identifier)('*:')
                           PsiWhiteSpace(' ')
-                          InfixType: String *: String *: String *: String *: String *: String *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
+                          InfixType: String *: String *: String *: String *: String *: String *: String *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
                             SimpleType: String
                               CodeReferenceElement: String
                                 PsiElement(identifier)('String')
@@ -475,7 +474,7 @@ ScalaFile
                             CodeReferenceElement: *:
                               PsiElement(identifier)('*:')
                             PsiWhiteSpace(' ')
-                            InfixType: String *: String *: String *: String *: String *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
+                            InfixType: String *: String *: String *: String *: String *: String *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
                               SimpleType: String
                                 CodeReferenceElement: String
                                   PsiElement(identifier)('String')
@@ -483,7 +482,7 @@ ScalaFile
                               CodeReferenceElement: *:
                                 PsiElement(identifier)('*:')
                               PsiWhiteSpace(' ')
-                              InfixType: String *: String *: String *: String *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
+                              InfixType: String *: String *: String *: String *: String *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
                                 SimpleType: String
                                   CodeReferenceElement: String
                                     PsiElement(identifier)('String')
@@ -491,7 +490,7 @@ ScalaFile
                                 CodeReferenceElement: *:
                                   PsiElement(identifier)('*:')
                                 PsiWhiteSpace(' ')
-                                InfixType: String *: String *: String *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
+                                InfixType: String *: String *: String *: String *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
                                   SimpleType: String
                                     CodeReferenceElement: String
                                       PsiElement(identifier)('String')
@@ -499,7 +498,7 @@ ScalaFile
                                   CodeReferenceElement: *:
                                     PsiElement(identifier)('*:')
                                   PsiWhiteSpace(' ')
-                                  InfixType: String *: String *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
+                                  InfixType: String *: String *: String *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
                                     SimpleType: String
                                       CodeReferenceElement: String
                                         PsiElement(identifier)('String')
@@ -507,7 +506,7 @@ ScalaFile
                                     CodeReferenceElement: *:
                                       PsiElement(identifier)('*:')
                                     PsiWhiteSpace(' ')
-                                    InfixType: String *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
+                                    InfixType: String *: String *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
                                       SimpleType: String
                                         CodeReferenceElement: String
                                           PsiElement(identifier)('String')
@@ -515,15 +514,15 @@ ScalaFile
                                       CodeReferenceElement: *:
                                         PsiElement(identifier)('*:')
                                       PsiWhiteSpace(' ')
-                                      InfixType: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
-                                        SimpleType: Int
-                                          CodeReferenceElement: Int
-                                            PsiElement(identifier)('Int')
+                                      InfixType: String *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
+                                        SimpleType: String
+                                          CodeReferenceElement: String
+                                            PsiElement(identifier)('String')
                                         PsiWhiteSpace(' ')
                                         CodeReferenceElement: *:
                                           PsiElement(identifier)('*:')
                                         PsiWhiteSpace(' ')
-                                        InfixType: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
+                                        InfixType: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
                                           SimpleType: Int
                                             CodeReferenceElement: Int
                                               PsiElement(identifier)('Int')
@@ -531,7 +530,7 @@ ScalaFile
                                           CodeReferenceElement: *:
                                             PsiElement(identifier)('*:')
                                           PsiWhiteSpace(' ')
-                                          InfixType: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
+                                          InfixType: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
                                             SimpleType: Int
                                               CodeReferenceElement: Int
                                                 PsiElement(identifier)('Int')
@@ -539,7 +538,7 @@ ScalaFile
                                             CodeReferenceElement: *:
                                               PsiElement(identifier)('*:')
                                             PsiWhiteSpace(' ')
-                                            InfixType: Int *: Int *: Int *: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
+                                            InfixType: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
                                               SimpleType: Int
                                                 CodeReferenceElement: Int
                                                   PsiElement(identifier)('Int')
@@ -547,7 +546,7 @@ ScalaFile
                                               CodeReferenceElement: *:
                                                 PsiElement(identifier)('*:')
                                               PsiWhiteSpace(' ')
-                                              InfixType: Int *: Int *: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
+                                              InfixType: Int *: Int *: Int *: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
                                                 SimpleType: Int
                                                   CodeReferenceElement: Int
                                                     PsiElement(identifier)('Int')
@@ -555,7 +554,7 @@ ScalaFile
                                                 CodeReferenceElement: *:
                                                   PsiElement(identifier)('*:')
                                                 PsiWhiteSpace(' ')
-                                                InfixType: Int *: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
+                                                InfixType: Int *: Int *: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
                                                   SimpleType: Int
                                                     CodeReferenceElement: Int
                                                       PsiElement(identifier)('Int')
@@ -563,7 +562,7 @@ ScalaFile
                                                   CodeReferenceElement: *:
                                                     PsiElement(identifier)('*:')
                                                   PsiWhiteSpace(' ')
-                                                  InfixType: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
+                                                  InfixType: Int *: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
                                                     SimpleType: Int
                                                       CodeReferenceElement: Int
                                                         PsiElement(identifier)('Int')
@@ -571,7 +570,7 @@ ScalaFile
                                                     CodeReferenceElement: *:
                                                       PsiElement(identifier)('*:')
                                                     PsiWhiteSpace(' ')
-                                                    InfixType: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
+                                                    InfixType: Int *: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
                                                       SimpleType: Int
                                                         CodeReferenceElement: Int
                                                           PsiElement(identifier)('Int')
@@ -579,7 +578,7 @@ ScalaFile
                                                       CodeReferenceElement: *:
                                                         PsiElement(identifier)('*:')
                                                       PsiWhiteSpace(' ')
-                                                      InfixType: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
+                                                      InfixType: Int *: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
                                                         SimpleType: Int
                                                           CodeReferenceElement: Int
                                                             PsiElement(identifier)('Int')
@@ -587,7 +586,7 @@ ScalaFile
                                                         CodeReferenceElement: *:
                                                           PsiElement(identifier)('*:')
                                                         PsiWhiteSpace(' ')
-                                                        InfixType: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
+                                                        InfixType: Int *: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
                                                           SimpleType: Int
                                                             CodeReferenceElement: Int
                                                               PsiElement(identifier)('Int')
@@ -595,15 +594,15 @@ ScalaFile
                                                           CodeReferenceElement: *:
                                                             PsiElement(identifier)('*:')
                                                           PsiWhiteSpace(' ')
-                                                          InfixType: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
-                                                            SimpleType: String
-                                                              CodeReferenceElement: String
-                                                                PsiElement(identifier)('String')
+                                                          InfixType: Int *: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
+                                                            SimpleType: Int
+                                                              CodeReferenceElement: Int
+                                                                PsiElement(identifier)('Int')
                                                             PsiWhiteSpace(' ')
                                                             CodeReferenceElement: *:
                                                               PsiElement(identifier)('*:')
                                                             PsiWhiteSpace(' ')
-                                                            InfixType: String *: String *: String *: String *: String *: String *: EmptyTuple
+                                                            InfixType: String *: String *: String *: String *: String *: String *: String *: EmptyTuple
                                                               SimpleType: String
                                                                 CodeReferenceElement: String
                                                                   PsiElement(identifier)('String')
@@ -611,7 +610,7 @@ ScalaFile
                                                               CodeReferenceElement: *:
                                                                 PsiElement(identifier)('*:')
                                                               PsiWhiteSpace(' ')
-                                                              InfixType: String *: String *: String *: String *: String *: EmptyTuple
+                                                              InfixType: String *: String *: String *: String *: String *: String *: EmptyTuple
                                                                 SimpleType: String
                                                                   CodeReferenceElement: String
                                                                     PsiElement(identifier)('String')
@@ -619,7 +618,7 @@ ScalaFile
                                                                 CodeReferenceElement: *:
                                                                   PsiElement(identifier)('*:')
                                                                 PsiWhiteSpace(' ')
-                                                                InfixType: String *: String *: String *: String *: EmptyTuple
+                                                                InfixType: String *: String *: String *: String *: String *: EmptyTuple
                                                                   SimpleType: String
                                                                     CodeReferenceElement: String
                                                                       PsiElement(identifier)('String')
@@ -627,7 +626,7 @@ ScalaFile
                                                                   CodeReferenceElement: *:
                                                                     PsiElement(identifier)('*:')
                                                                   PsiWhiteSpace(' ')
-                                                                  InfixType: String *: String *: String *: EmptyTuple
+                                                                  InfixType: String *: String *: String *: String *: EmptyTuple
                                                                     SimpleType: String
                                                                       CodeReferenceElement: String
                                                                         PsiElement(identifier)('String')
@@ -635,7 +634,7 @@ ScalaFile
                                                                     CodeReferenceElement: *:
                                                                       PsiElement(identifier)('*:')
                                                                     PsiWhiteSpace(' ')
-                                                                    InfixType: String *: String *: EmptyTuple
+                                                                    InfixType: String *: String *: String *: EmptyTuple
                                                                       SimpleType: String
                                                                         CodeReferenceElement: String
                                                                           PsiElement(identifier)('String')
@@ -643,7 +642,7 @@ ScalaFile
                                                                       CodeReferenceElement: *:
                                                                         PsiElement(identifier)('*:')
                                                                       PsiWhiteSpace(' ')
-                                                                      InfixType: String *: EmptyTuple
+                                                                      InfixType: String *: String *: EmptyTuple
                                                                         SimpleType: String
                                                                           CodeReferenceElement: String
                                                                             PsiElement(identifier)('String')
@@ -651,9 +650,17 @@ ScalaFile
                                                                         CodeReferenceElement: *:
                                                                           PsiElement(identifier)('*:')
                                                                         PsiWhiteSpace(' ')
-                                                                        SimpleType: EmptyTuple
-                                                                          CodeReferenceElement: EmptyTuple
-                                                                            PsiElement(identifier)('EmptyTuple')
+                                                                        InfixType: String *: EmptyTuple
+                                                                          SimpleType: String
+                                                                            CodeReferenceElement: String
+                                                                              PsiElement(identifier)('String')
+                                                                          PsiWhiteSpace(' ')
+                                                                          CodeReferenceElement: *:
+                                                                            PsiElement(identifier)('*:')
+                                                                          PsiWhiteSpace(' ')
+                                                                          SimpleType: EmptyTuple
+                                                                            CodeReferenceElement: EmptyTuple
+                                                                              PsiElement(identifier)('EmptyTuple')
                   PsiElement(])(']')
               PsiElement())(')')
           PsiWhiteSpace('\n  ')

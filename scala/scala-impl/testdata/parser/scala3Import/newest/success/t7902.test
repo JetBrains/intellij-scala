@@ -112,9 +112,10 @@ ScalaFile
                 PsiElement(identifier)('Tag')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: W
-                CodeReferenceElement: W
-                  PsiElement(identifier)('W')
+              TypeArgument
+                SimpleType: W
+                  CodeReferenceElement: W
+                    PsiElement(identifier)('W')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -150,16 +151,18 @@ ScalaFile
                 PsiElement(identifier)('Some')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: M3[Any]
-                SimpleType: M3
-                  CodeReferenceElement: M3
-                    PsiElement(identifier)('M3')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: Any
-                    CodeReferenceElement: Any
-                      PsiElement(identifier)('Any')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: M3[Any]
+                  SimpleType: M3
+                    CodeReferenceElement: M3
+                      PsiElement(identifier)('M3')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Any
+                        CodeReferenceElement: Any
+                          PsiElement(identifier)('Any')
+                    PsiElement(])(']')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScPatternDefinition: x
@@ -182,9 +185,10 @@ ScalaFile
               PsiElement(identifier)('ofType')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: InSeq
-                CodeReferenceElement: InSeq
-                  PsiElement(identifier)('InSeq')
+              TypeArgument
+                SimpleType: InSeq
+                  CodeReferenceElement: InSeq
+                    PsiElement(identifier)('InSeq')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScPatternDefinition: y
@@ -212,9 +216,10 @@ ScalaFile
               PsiElement(identifier)('ofType')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: InSeq
-                CodeReferenceElement: InSeq
-                  PsiElement(identifier)('InSeq')
+              TypeArgument
+                SimpleType: InSeq
+                  CodeReferenceElement: InSeq
+                    PsiElement(identifier)('InSeq')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScObject: T
@@ -248,9 +253,10 @@ ScalaFile
                     PsiElement(identifier)('ofType')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: InSeq
-                      CodeReferenceElement: InSeq
-                        PsiElement(identifier)('InSeq')
+                    TypeArgument
+                      SimpleType: InSeq
+                        CodeReferenceElement: InSeq
+                          PsiElement(identifier)('InSeq')
                     PsiElement(])(']')
               PsiWhiteSpace('\n  ')
               PsiElement(})('}')

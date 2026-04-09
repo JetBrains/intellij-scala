@@ -84,8 +84,9 @@ ScalaFile
                         PsiElement(identifier)('TestPath')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      WildcardType: ?
-                        PsiElement(?)('?')
+                      TypeArgument
+                        WildcardType: ?
+                          PsiElement(?)('?')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiWhiteSpace('\n    ')
@@ -234,8 +235,9 @@ ScalaFile
                         PsiElement(identifier)('TestPath')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      WildcardType: ?
-                        PsiElement(?)('?')
+                      TypeArgument
+                        WildcardType: ?
+                          PsiElement(?)('?')
                       PsiElement(])(']')
               PsiElement())(')')
             ParametersClause
@@ -256,8 +258,9 @@ ScalaFile
                 PsiElement(identifier)('TestPath')
             TypeArgumentsList
               PsiElement([)('[')
-              WildcardType: ?
-                PsiElement(?)('?')
+              TypeArgument
+                WildcardType: ?
+                  PsiElement(?)('?')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -302,8 +305,9 @@ ScalaFile
                     PsiElement(identifier)('TestPath')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  WildcardType: ?
-                    PsiElement(?)('?')
+                  TypeArgument
+                    WildcardType: ?
+                      PsiElement(?)('?')
                   PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(=)('=')

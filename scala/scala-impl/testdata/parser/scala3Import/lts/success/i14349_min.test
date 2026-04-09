@@ -164,9 +164,10 @@ ScalaFile
                         PsiElement(identifier)('Inv')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: M
-                        CodeReferenceElement: M
-                          PsiElement(identifier)('M')
+                      TypeArgument
+                        SimpleType: M
+                          CodeReferenceElement: M
+                            PsiElement(identifier)('M')
                       PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScFunctionDefinition: test
@@ -228,14 +229,15 @@ ScalaFile
                 PsiElement(identifier)('Inv')
             TypeArgumentsList
               PsiElement([)('[')
-              WildcardType: _ <: Module
-                PsiElement(_)('_')
-                PsiWhiteSpace(' ')
-                PsiElement(<:)('<:')
-                PsiWhiteSpace(' ')
-                SimpleType: Module
-                  CodeReferenceElement: Module
-                    PsiElement(identifier)('Module')
+              TypeArgument
+                WildcardType: _ <: Module
+                  PsiElement(_)('_')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<:)('<:')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Module
+                    CodeReferenceElement: Module
+                      PsiElement(identifier)('Module')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

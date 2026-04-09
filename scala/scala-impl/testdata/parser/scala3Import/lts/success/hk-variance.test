@@ -130,9 +130,10 @@ ScalaFile
               PsiElement(identifier)('C')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Id
-                CodeReferenceElement: Id
-                  PsiElement(identifier)('Id')
+              TypeArgument
+                SimpleType: Id
+                  CodeReferenceElement: Id
+                    PsiElement(identifier)('Id')
               PsiElement(])(']')
           ArgumentList
             PsiElement(()('(')
@@ -157,9 +158,10 @@ ScalaFile
               PsiElement(identifier)('D')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Id
-                CodeReferenceElement: Id
-                  PsiElement(identifier)('Id')
+              TypeArgument
+                SimpleType: Id
+                  CodeReferenceElement: Id
+                    PsiElement(identifier)('Id')
               PsiElement(])(']')
           ArgumentList
             PsiElement(()('(')

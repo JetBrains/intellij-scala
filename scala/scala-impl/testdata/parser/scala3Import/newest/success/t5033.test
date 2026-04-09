@@ -131,12 +131,13 @@ ScalaFile
                 PsiElement(identifier)('Food')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: a.Seed
-                CodeReferenceElement: a.Seed
-                  CodeReferenceElement: a
-                    PsiElement(identifier)('a')
-                  PsiElement(.)('.')
-                  PsiElement(identifier)('Seed')
+              TypeArgument
+                SimpleType: a.Seed
+                  CodeReferenceElement: a.Seed
+                    CodeReferenceElement: a
+                      PsiElement(identifier)('a')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Seed')
               PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
@@ -212,12 +213,13 @@ ScalaFile
                 PsiElement(identifier)('Food')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: f.Seed
-                CodeReferenceElement: f.Seed
-                  CodeReferenceElement: f
-                    PsiElement(identifier)('f')
-                  PsiElement(.)('.')
-                  PsiElement(identifier)('Seed')
+              TypeArgument
+                SimpleType: f.Seed
+                  CodeReferenceElement: f.Seed
+                    CodeReferenceElement: f
+                      PsiElement(identifier)('f')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Seed')
               PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

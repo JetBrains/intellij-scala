@@ -68,9 +68,10 @@ ScalaFile
           PsiElement(identifier)('apply')
         TypeArgumentsList
           PsiElement([)('[')
-          SimpleType: Int
-            CodeReferenceElement: Int
-              PsiElement(identifier)('Int')
+          TypeArgument
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
           PsiElement(])(']')
       ArgumentList
         PsiElement(()('(')
@@ -100,9 +101,10 @@ ScalaFile
           PsiElement(identifier)('apply')
         TypeArgumentsList
           PsiElement([)('[')
-          LiteralType: 4
-            IntegerLiteral
-              PsiElement(integer)('4')
+          TypeArgument
+            LiteralType: 4
+              IntegerLiteral
+                PsiElement(integer)('4')
           PsiElement(])(']')
       ArgumentList
         PsiElement(()('(')

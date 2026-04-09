@@ -161,9 +161,10 @@ ScalaFile
               PsiElement(identifier)('Foo')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: Float
-              CodeReferenceElement: Float
-                PsiElement(identifier)('Float')
+            TypeArgument
+              SimpleType: Float
+                CodeReferenceElement: Float
+                  PsiElement(identifier)('Float')
             PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiElement(=)('=')
@@ -180,9 +181,10 @@ ScalaFile
                       PsiElement(identifier)('Foo')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Float
-                      CodeReferenceElement: Float
-                        PsiElement(identifier)('Float')
+                    TypeArgument
+                      SimpleType: Float
+                        CodeReferenceElement: Float
+                          PsiElement(identifier)('Float')
                     PsiElement(])(']')
                 ArgumentList
                   PsiElement(()('(')
@@ -206,19 +208,21 @@ ScalaFile
               PsiElement(identifier)('Function1')
           TypeArgumentsList
             PsiElement([)('[')
-            WildcardType: ? >: Float
-              PsiElement(?)('?')
-              PsiWhiteSpace(' ')
-              PsiElement(>:)('>:')
-              PsiWhiteSpace(' ')
-              SimpleType: Float
-                CodeReferenceElement: Float
-                  PsiElement(identifier)('Float')
+            TypeArgument
+              WildcardType: ? >: Float
+                PsiElement(?)('?')
+                PsiWhiteSpace(' ')
+                PsiElement(>:)('>:')
+                PsiWhiteSpace(' ')
+                SimpleType: Float
+                  CodeReferenceElement: Float
+                    PsiElement(identifier)('Float')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
-            SimpleType: Boolean
-              CodeReferenceElement: Boolean
-                PsiElement(identifier)('Boolean')
+            TypeArgument
+              SimpleType: Boolean
+                CodeReferenceElement: Boolean
+                  PsiElement(identifier)('Boolean')
             PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiElement(=)('=')

@@ -92,14 +92,15 @@ ScalaFile
                         PsiElement(identifier)('JList')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      WildcardType: _ <: Object
-                        PsiElement(_)('_')
-                        PsiWhiteSpace(' ')
-                        PsiElement(<:)('<:')
-                        PsiWhiteSpace(' ')
-                        SimpleType: Object
-                          CodeReferenceElement: Object
-                            PsiElement(identifier)('Object')
+                      TypeArgument
+                        WildcardType: _ <: Object
+                          PsiElement(_)('_')
+                          PsiWhiteSpace(' ')
+                          PsiElement(<:)('<:')
+                          PsiWhiteSpace(' ')
+                          SimpleType: Object
+                            CodeReferenceElement: Object
+                              PsiElement(identifier)('Object')
                       PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
@@ -229,8 +230,9 @@ ScalaFile
                         PsiElement(identifier)('JList')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      WildcardType: _
-                        PsiElement(_)('_')
+                      TypeArgument
+                        WildcardType: _
+                          PsiElement(_)('_')
                       PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')

@@ -111,9 +111,10 @@ ScalaFile
                 PsiElement(identifier)('FromTraversable')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: HNil
-                CodeReferenceElement: HNil
-                  PsiElement(identifier)('HNil')
+              TypeArgument
+                SimpleType: HNil
+                  CodeReferenceElement: HNil
+                    PsiElement(identifier)('HNil')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -130,9 +131,10 @@ ScalaFile
                         PsiElement(identifier)('FromTraversable')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: HNil
-                        CodeReferenceElement: HNil
-                          PsiElement(identifier)('HNil')
+                      TypeArgument
+                        SimpleType: HNil
+                          CodeReferenceElement: HNil
+                            PsiElement(identifier)('HNil')
                       PsiElement(])(']')
               ScTemplateBody
                 PsiElement({)('{')
@@ -205,9 +207,10 @@ ScalaFile
                         PsiElement(identifier)('FromTraversable')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                       PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace('\n                                      ')
@@ -226,9 +229,10 @@ ScalaFile
                         PsiElement(identifier)('FromTraversable')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: O
-                        CodeReferenceElement: O
-                          PsiElement(identifier)('O')
+                      TypeArgument
+                        SimpleType: O
+                          CodeReferenceElement: O
+                            PsiElement(identifier)('O')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -277,14 +281,16 @@ ScalaFile
                 PsiElement(identifier)('Filter')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: HNil
-                  CodeReferenceElement: HNil
-                    PsiElement(identifier)('HNil')
+                TypeArgument
+                  SimpleType: HNil
+                    CodeReferenceElement: HNil
+                      PsiElement(identifier)('HNil')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: HNil
-                  CodeReferenceElement: HNil
-                    PsiElement(identifier)('HNil')
+                TypeArgument
+                  SimpleType: HNil
+                    CodeReferenceElement: HNil
+                      PsiElement(identifier)('HNil')
                 PsiElement(])(']')
             ArgumentList
               PsiElement(()('(')

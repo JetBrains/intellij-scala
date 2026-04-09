@@ -215,18 +215,20 @@ ScalaFile
               PsiElement(identifier)('Succ')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Succ[Zero.type]
-                SimpleType: Succ
-                  CodeReferenceElement: Succ
-                    PsiElement(identifier)('Succ')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: Zero.type
-                    CodeReferenceElement: Zero
-                      PsiElement(identifier)('Zero')
-                    PsiElement(.)('.')
-                    PsiElement(type)('type')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Succ[Zero.type]
+                  SimpleType: Succ
+                    CodeReferenceElement: Succ
+                      PsiElement(identifier)('Succ')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Zero.type
+                        CodeReferenceElement: Zero
+                          PsiElement(identifier)('Zero')
+                        PsiElement(.)('.')
+                        PsiElement(type)('type')
+                    PsiElement(])(']')
               PsiElement(])(']')
           ArgumentList
             PsiElement(()('(')
@@ -282,17 +284,19 @@ ScalaFile
                 PsiElement(identifier)('Succ')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Succ[Zero.type]
-                SimpleType: Succ
-                  CodeReferenceElement: Succ
-                    PsiElement(identifier)('Succ')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: Zero.type
-                    CodeReferenceElement: Zero
-                      PsiElement(identifier)('Zero')
-                    PsiElement(.)('.')
-                    PsiElement(type)('type')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Succ[Zero.type]
+                  SimpleType: Succ
+                    CodeReferenceElement: Succ
+                      PsiElement(identifier)('Succ')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Zero.type
+                        CodeReferenceElement: Zero
+                          PsiElement(identifier)('Zero')
+                        PsiElement(.)('.')
+                        PsiElement(type)('type')
+                    PsiElement(])(']')
               PsiElement(])(']')
         PsiElement())(')')

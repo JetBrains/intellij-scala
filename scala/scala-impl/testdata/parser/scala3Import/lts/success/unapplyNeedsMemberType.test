@@ -144,21 +144,24 @@ ScalaFile
                 PsiElement(identifier)('Option')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Tuple2[a, Seq]
-                SimpleType: Tuple2
-                  CodeReferenceElement: Tuple2
-                    PsiElement(identifier)('Tuple2')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: a
-                    CodeReferenceElement: a
-                      PsiElement(identifier)('a')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: Seq
-                    CodeReferenceElement: Seq
-                      PsiElement(identifier)('Seq')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Tuple2[a, Seq]
+                  SimpleType: Tuple2
+                    CodeReferenceElement: Tuple2
+                      PsiElement(identifier)('Tuple2')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: a
+                        CodeReferenceElement: a
+                          PsiElement(identifier)('a')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: Seq
+                        CodeReferenceElement: Seq
+                          PsiElement(identifier)('Seq')
+                    PsiElement(])(']')
               PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
@@ -195,9 +198,10 @@ ScalaFile
                 PsiElement(identifier)('Gunk')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: a
-                CodeReferenceElement: a
-                  PsiElement(identifier)('a')
+              TypeArgument
+                SimpleType: a
+                  CodeReferenceElement: a
+                    PsiElement(identifier)('a')
               PsiElement(])(']')
       PsiWhiteSpace(' ')
       ScTemplateBody
