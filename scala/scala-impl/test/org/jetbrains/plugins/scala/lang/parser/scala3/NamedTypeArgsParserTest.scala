@@ -1,5 +1,10 @@
 package org.jetbrains.plugins.scala.lang.parser.scala3
 
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeArgument
+import org.junit.Assert.{assertEquals, assertTrue}
+
 class NamedTypeArgsParserTest extends SimpleScala3ParserTestBase {
   def test_named_type_args_in_method_call(): Unit =
     checkParseErrors(
@@ -59,4 +64,17 @@ class NamedTypeArgsParserTest extends SimpleScala3ParserTestBase {
         |](1)
         |""".stripMargin
     )
+
+  def test_named_type_arg_name_is_reference_element(): Unit = {
+    val file = checkParseErrors(
+      """
+        |def construct[Elem, Coll[_]](xs: Elem*): Coll[Elem] = ???
+        |val xs = construct[Coll = List, Elem = Int](1, 2, 3)
+        |""".stripMargin
+    )
+
+    val typeArgs = file.depthFirst().filterByType[ScTypeArgument].toSeq
+    assertEquals(Seq("Coll", "Elem"), typeArgs.flatMap(_.name))
+    assertTrue(typeArgs.flatMap(_.nameElement).forall(_.getNode.getElementType == ScalaElementType.REFERENCE))
+  }
 }

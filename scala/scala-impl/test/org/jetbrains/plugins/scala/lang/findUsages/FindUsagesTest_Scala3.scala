@@ -184,4 +184,15 @@ class FindUsagesTest_Scala3 extends FindUsagesTest_Scala2 {
          |}
          |""".stripMargin
     )
+
+  def testFindTypeParameterUsedAsNamedTypeArgumentName(): Unit = doTest(
+    s"""
+       |import scala.language.experimental.namedTypeArguments
+       |
+       |def construct[${CARET}A, B]: Unit = ()
+       |
+       |construct[${start}A$end = Int, B = String]
+       |construct[B = String, ${start}A$end = Int]
+       |""".stripMargin
+  )
 }
