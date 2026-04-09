@@ -84,8 +84,12 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
     holder: ScalaAnnotationHolder,
     context: Context
   ): Unit = {
+    val hasNamedTypeArgs = args.exists {
+      case targ: ScTypeArgument => targ.isNamed
+      case _                    => false
+    }
 
-    if (args.length < params.length) {
+    if (args.length < params.length && !hasNamedTypeArgs){
       // Annotate missing arguments
       val missing = params.drop(args.length)
       val missingText = missing.map(_.name).mkString(", ")

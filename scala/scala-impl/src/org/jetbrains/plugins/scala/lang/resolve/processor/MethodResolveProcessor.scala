@@ -275,8 +275,8 @@ object MethodResolveProcessor {
         case _: ScFunction if c.functionParamClauses.count(!_.isImplicit) > 1 =>
           problems += ExpectedTypeMismatch //do not check expected types for more than one param clauses
           Nothing
-        case f: ScFunction => substitutor(f.returnType.getOrNothing)
-        case f: ScSyntheticFunction      => substitutor(f.retType)
+        case f: ScFunction          => substitutor(f.returnType.getOrNothing)
+        case f: ScSyntheticFunction => substitutor(f.retType)
         case m: PsiMethod  =>
           Option(m.getReturnType)
             .map(rt => substitutor(rt.toScType()))
@@ -486,7 +486,8 @@ object MethodResolveProcessor {
 
     def correctTypeArgsSupplied(tparamsLength: Int): Boolean =
       typeArgElements.isEmpty ||
-        typeArgElements.length == tparamsLength
+        typeArgElements.length == tparamsLength ||
+        typeArgElements.forall(_.isNamed)
 
     val result = element match {
       //objects
@@ -577,7 +578,7 @@ object MethodResolveProcessor {
     element:                PsiElement,
     subst:                  ScSubstitutor,
     selfConstructorResolve: Boolean,
-    typeArgElements:        Seq[ScTypeArgument],
+    typeArgs:        Seq[ScTypeArgument],
     isExtension:            Boolean,
     exportedInExtension:    Option[ScExtension]
   ): ScSubstitutor = {
@@ -593,12 +594,20 @@ object MethodResolveProcessor {
     }
 
     maybeTypeParameters match {
-      case Some(typeParameters: Seq[PsiTypeParameter]) =>
+      case Some(typeParameters) =>
+        val hasNamedTargs = typeArgs.exists(_.isNamed)
+
         val follower =
-          if (typeArgElements.nonEmpty && typeParameters.length == typeArgElements.length)
-            ScSubstitutor.bind(typeParameters, typeArgElements)
-          else
-            ScSubstitutor.bind(typeParameters)(UndefinedType(_))
+          if (typeArgs.nonEmpty && typeParameters.length == typeArgs.length)
+            ScSubstitutor.bind(typeParameters, typeArgs)
+          else if (hasNamedTargs) {
+            //case where only some of the type arguments are provided
+            val names             = typeArgs.flatMap(_.name)
+            val targsSubst        = ScSubstitutor.bind(typeParameters, typeArgs)
+            val missingTypeParams = typeParameters.filterNot(tp => names.contains(tp.name))
+            val undefinedSubst    = ScSubstitutor.bind(missingTypeParams)(UndefinedType(_))
+            targsSubst.followed(undefinedSubst)
+          } else ScSubstitutor.bind(typeParameters)(UndefinedType(_))
 
         subst.followed(follower)
       case _ => subst
@@ -1088,7 +1097,6 @@ object MethodResolveProcessor {
             cand.isExtensionCall,
             cand.exportedInExtension
           )
-
 
       val result = cand.copy(
         problems                 = conformanceResult.problems,
