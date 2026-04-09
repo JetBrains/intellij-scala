@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.types.TypeIsNotStable
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeArgument
 
 object ScSimpleTypeElementAnnotator extends ElementAnnotator[ScSimpleTypeElement] {
 
@@ -66,7 +67,7 @@ object ScSimpleTypeElementAnnotator extends ElementAnnotator[ScSimpleTypeElement
       if (!canHaveTypeArgs)
         return false
 
-      typeElement.parents.find(!_.is[ScParenthesisedTypeElement]).orNull match {
+      typeElement.parents.find(!_.is[ScParenthesisedTypeElement, ScTypeArgument]).orNull match {
         case ScParameterizedTypeElement(_, _)  => false
         case _: ScContextBound                 => false
         case _: ScTypeArgs                     => false
