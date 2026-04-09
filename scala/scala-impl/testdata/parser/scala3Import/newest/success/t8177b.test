@@ -186,9 +186,10 @@ ScalaFile
                     PsiElement(identifier)('Alias')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: AIn
-                    CodeReferenceElement: AIn
-                      PsiElement(identifier)('AIn')
+                  TypeArgument
+                    SimpleType: AIn
+                      CodeReferenceElement: AIn
+                        PsiElement(identifier)('AIn')
                   PsiElement(])(']')
           PsiElement())(')')
     PsiWhiteSpace(' ')
@@ -266,9 +267,10 @@ ScalaFile
                 PsiElement(identifier)('View')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
+              TypeArgument
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
               PsiElement(])(']')
           ArgumentList
             PsiElement(()('(')

@@ -127,13 +127,15 @@ ScalaFile
                           PsiElement(identifier)('Node')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: A
-                          CodeReferenceElement: A
-                            PsiElement(identifier)('A')
+                        TypeArgument
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
                         PsiElement(,)(',')
-                        SimpleType: B
-                          CodeReferenceElement: B
-                            PsiElement(identifier)('B')
+                        TypeArgument
+                          SimpleType: B
+                            CodeReferenceElement: B
+                              PsiElement(identifier)('B')
                         PsiElement(])(']')
                 PsiElement(,)(',')
                 ClassParameter: bigger
@@ -150,13 +152,15 @@ ScalaFile
                           PsiElement(identifier)('Node')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: A
-                          CodeReferenceElement: A
-                            PsiElement(identifier)('A')
+                        TypeArgument
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
                         PsiElement(,)(',')
-                        SimpleType: B
-                          CodeReferenceElement: B
-                            PsiElement(identifier)('B')
+                        TypeArgument
+                          SimpleType: B
+                            CodeReferenceElement: B
+                              PsiElement(identifier)('B')
                         PsiElement(])(']')
                 PsiElement())(')')
           PsiWhiteSpace('\n    ')
@@ -171,13 +175,15 @@ ScalaFile
                       PsiElement(identifier)('Tree')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: A
-                      CodeReferenceElement: A
-                        PsiElement(identifier)('A')
+                    TypeArgument
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
                     PsiElement(,)(',')
-                    SimpleType: B
-                      CodeReferenceElement: B
-                        PsiElement(identifier)('B')
+                    TypeArgument
+                      SimpleType: B
+                        CodeReferenceElement: B
+                          PsiElement(identifier)('B')
                     PsiElement(])(']')
         PsiElement(;)(';')
         PsiWhiteSpace('\n    ')
@@ -219,13 +225,15 @@ ScalaFile
                       PsiElement(identifier)('Tree')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: A
-                      CodeReferenceElement: A
-                        PsiElement(identifier)('A')
+                    TypeArgument
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
                     PsiElement(,)(',')
-                    SimpleType: B
-                      CodeReferenceElement: B
-                        PsiElement(identifier)('B')
+                    TypeArgument
+                      SimpleType: B
+                        CodeReferenceElement: B
+                          PsiElement(identifier)('B')
                     PsiElement(])(']')
         PsiElement(;)(';')
         PsiWhiteSpace('\n\n')

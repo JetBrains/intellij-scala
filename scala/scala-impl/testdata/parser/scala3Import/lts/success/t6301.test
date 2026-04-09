@@ -148,9 +148,10 @@ ScalaFile
                   PsiElement(identifier)('LoadedOver')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Int
-                  CodeReferenceElement: Int
-                    PsiElement(identifier)('Int')
+                TypeArgument
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
                 PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

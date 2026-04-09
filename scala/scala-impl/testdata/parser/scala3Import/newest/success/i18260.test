@@ -93,9 +93,10 @@ ScalaFile
                 PsiElement(identifier)('Id')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -145,9 +146,10 @@ ScalaFile
                   PsiElement(identifier)('ProductOf')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: P
-                  CodeReferenceElement: P
-                    PsiElement(identifier)('P')
+                TypeArgument
+                  SimpleType: P
+                    CodeReferenceElement: P
+                      PsiElement(identifier)('P')
                 PsiElement(])(']')
         PsiElement())(')')
       ParametersClause
@@ -170,17 +172,19 @@ ScalaFile
                   PsiElement(identifier)('Map')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: mirror.MirroredElemTypes
-                  CodeReferenceElement: mirror.MirroredElemTypes
-                    CodeReferenceElement: mirror
-                      PsiElement(identifier)('mirror')
-                    PsiElement(.)('.')
-                    PsiElement(identifier)('MirroredElemTypes')
+                TypeArgument
+                  SimpleType: mirror.MirroredElemTypes
+                    CodeReferenceElement: mirror.MirroredElemTypes
+                      CodeReferenceElement: mirror
+                        PsiElement(identifier)('mirror')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('MirroredElemTypes')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: Id
-                  CodeReferenceElement: Id
-                    PsiElement(identifier)('Id')
+                TypeArgument
+                  SimpleType: Id
+                    CodeReferenceElement: Id
+                      PsiElement(identifier)('Id')
                 PsiElement(])(']')
         PsiElement())(')')
     PsiElement(:)(':')
@@ -194,17 +198,19 @@ ScalaFile
           PsiElement(identifier)('Map')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: mirror.MirroredElemTypes
-          CodeReferenceElement: mirror.MirroredElemTypes
-            CodeReferenceElement: mirror
-              PsiElement(identifier)('mirror')
-            PsiElement(.)('.')
-            PsiElement(identifier)('MirroredElemTypes')
+        TypeArgument
+          SimpleType: mirror.MirroredElemTypes
+            CodeReferenceElement: mirror.MirroredElemTypes
+              CodeReferenceElement: mirror
+                PsiElement(identifier)('mirror')
+              PsiElement(.)('.')
+              PsiElement(identifier)('MirroredElemTypes')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
-        SimpleType: Id
-          CodeReferenceElement: Id
-            PsiElement(identifier)('Id')
+        TypeArgument
+          SimpleType: Id
+            CodeReferenceElement: Id
+              PsiElement(identifier)('Id')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -575,9 +581,10 @@ ScalaFile
             PsiElement(identifier)('test')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: Test
-              CodeReferenceElement: Test
-                PsiElement(identifier)('Test')
+            TypeArgument
+              SimpleType: Test
+                CodeReferenceElement: Test
+                  PsiElement(identifier)('Test')
             PsiElement(])(']')
         ArgumentList
           PsiElement(()('(')
@@ -587,9 +594,10 @@ ScalaFile
                 PsiElement(identifier)('Id')
               TypeArgumentsList
                 PsiElement([)('[')
-                LiteralType: 1
-                  IntegerLiteral
-                    PsiElement(integer)('1')
+                TypeArgument
+                  LiteralType: 1
+                    IntegerLiteral
+                      PsiElement(integer)('1')
                 PsiElement(])(']')
             ArgumentList
               PsiElement(()('(')
@@ -604,9 +612,10 @@ ScalaFile
                 PsiElement(identifier)('Id')
               TypeArgumentsList
                 PsiElement([)('[')
-                LiteralType: 2
-                  IntegerLiteral
-                    PsiElement(integer)('2')
+                TypeArgument
+                  LiteralType: 2
+                    IntegerLiteral
+                      PsiElement(integer)('2')
                 PsiElement(])(']')
             ArgumentList
               PsiElement(()('(')
@@ -621,9 +630,10 @@ ScalaFile
                 PsiElement(identifier)('Id')
               TypeArgumentsList
                 PsiElement([)('[')
-                LiteralType: 3
-                  IntegerLiteral
-                    PsiElement(integer)('3')
+                TypeArgument
+                  LiteralType: 3
+                    IntegerLiteral
+                      PsiElement(integer)('3')
                 PsiElement(])(']')
             ArgumentList
               PsiElement(()('(')
@@ -638,9 +648,10 @@ ScalaFile
                 PsiElement(identifier)('Id')
               TypeArgumentsList
                 PsiElement([)('[')
-                LiteralType: 4
-                  IntegerLiteral
-                    PsiElement(integer)('4')
+                TypeArgument
+                  LiteralType: 4
+                    IntegerLiteral
+                      PsiElement(integer)('4')
                 PsiElement(])(']')
             ArgumentList
               PsiElement(()('(')
@@ -655,9 +666,10 @@ ScalaFile
                 PsiElement(identifier)('Id')
               TypeArgumentsList
                 PsiElement([)('[')
-                LiteralType: 5
-                  IntegerLiteral
-                    PsiElement(integer)('5')
+                TypeArgument
+                  LiteralType: 5
+                    IntegerLiteral
+                      PsiElement(integer)('5')
                 PsiElement(])(']')
             ArgumentList
               PsiElement(()('(')
@@ -672,9 +684,10 @@ ScalaFile
                 PsiElement(identifier)('Id')
               TypeArgumentsList
                 PsiElement([)('[')
-                LiteralType: 6
-                  IntegerLiteral
-                    PsiElement(integer)('6')
+                TypeArgument
+                  LiteralType: 6
+                    IntegerLiteral
+                      PsiElement(integer)('6')
                 PsiElement(])(']')
             ArgumentList
               PsiElement(()('(')
@@ -689,9 +702,10 @@ ScalaFile
                 PsiElement(identifier)('Id')
               TypeArgumentsList
                 PsiElement([)('[')
-                LiteralType: 7
-                  IntegerLiteral
-                    PsiElement(integer)('7')
+                TypeArgument
+                  LiteralType: 7
+                    IntegerLiteral
+                      PsiElement(integer)('7')
                 PsiElement(])(']')
             ArgumentList
               PsiElement(()('(')
@@ -706,9 +720,10 @@ ScalaFile
                 PsiElement(identifier)('Id')
               TypeArgumentsList
                 PsiElement([)('[')
-                LiteralType: 8
-                  IntegerLiteral
-                    PsiElement(integer)('8')
+                TypeArgument
+                  LiteralType: 8
+                    IntegerLiteral
+                      PsiElement(integer)('8')
                 PsiElement(])(']')
             ArgumentList
               PsiElement(()('(')
@@ -723,9 +738,10 @@ ScalaFile
                 PsiElement(identifier)('Id')
               TypeArgumentsList
                 PsiElement([)('[')
-                LiteralType: 9
-                  IntegerLiteral
-                    PsiElement(integer)('9')
+                TypeArgument
+                  LiteralType: 9
+                    IntegerLiteral
+                      PsiElement(integer)('9')
                 PsiElement(])(']')
             ArgumentList
               PsiElement(()('(')
@@ -740,9 +756,10 @@ ScalaFile
                 PsiElement(identifier)('Id')
               TypeArgumentsList
                 PsiElement([)('[')
-                LiteralType: 10
-                  IntegerLiteral
-                    PsiElement(integer)('10')
+                TypeArgument
+                  LiteralType: 10
+                    IntegerLiteral
+                      PsiElement(integer)('10')
                 PsiElement(])(']')
             ArgumentList
               PsiElement(()('(')
@@ -757,9 +774,10 @@ ScalaFile
                 PsiElement(identifier)('Id')
               TypeArgumentsList
                 PsiElement([)('[')
-                LiteralType: 11
-                  IntegerLiteral
-                    PsiElement(integer)('11')
+                TypeArgument
+                  LiteralType: 11
+                    IntegerLiteral
+                      PsiElement(integer)('11')
                 PsiElement(])(']')
             ArgumentList
               PsiElement(()('(')
@@ -774,9 +792,10 @@ ScalaFile
                 PsiElement(identifier)('Id')
               TypeArgumentsList
                 PsiElement([)('[')
-                LiteralType: 12
-                  IntegerLiteral
-                    PsiElement(integer)('12')
+                TypeArgument
+                  LiteralType: 12
+                    IntegerLiteral
+                      PsiElement(integer)('12')
                 PsiElement(])(']')
             ArgumentList
               PsiElement(()('(')
@@ -791,9 +810,10 @@ ScalaFile
                 PsiElement(identifier)('Id')
               TypeArgumentsList
                 PsiElement([)('[')
-                LiteralType: 13
-                  IntegerLiteral
-                    PsiElement(integer)('13')
+                TypeArgument
+                  LiteralType: 13
+                    IntegerLiteral
+                      PsiElement(integer)('13')
                 PsiElement(])(']')
             ArgumentList
               PsiElement(()('(')
@@ -808,9 +828,10 @@ ScalaFile
                 PsiElement(identifier)('Id')
               TypeArgumentsList
                 PsiElement([)('[')
-                LiteralType: 14
-                  IntegerLiteral
-                    PsiElement(integer)('14')
+                TypeArgument
+                  LiteralType: 14
+                    IntegerLiteral
+                      PsiElement(integer)('14')
                 PsiElement(])(']')
             ArgumentList
               PsiElement(()('(')
@@ -825,9 +846,10 @@ ScalaFile
                 PsiElement(identifier)('Id')
               TypeArgumentsList
                 PsiElement([)('[')
-                LiteralType: 15
-                  IntegerLiteral
-                    PsiElement(integer)('15')
+                TypeArgument
+                  LiteralType: 15
+                    IntegerLiteral
+                      PsiElement(integer)('15')
                 PsiElement(])(']')
             ArgumentList
               PsiElement(()('(')
@@ -842,9 +864,10 @@ ScalaFile
                 PsiElement(identifier)('Id')
               TypeArgumentsList
                 PsiElement([)('[')
-                LiteralType: 16
-                  IntegerLiteral
-                    PsiElement(integer)('16')
+                TypeArgument
+                  LiteralType: 16
+                    IntegerLiteral
+                      PsiElement(integer)('16')
                 PsiElement(])(']')
             ArgumentList
               PsiElement(()('(')
@@ -859,9 +882,10 @@ ScalaFile
                 PsiElement(identifier)('Id')
               TypeArgumentsList
                 PsiElement([)('[')
-                LiteralType: 17
-                  IntegerLiteral
-                    PsiElement(integer)('17')
+                TypeArgument
+                  LiteralType: 17
+                    IntegerLiteral
+                      PsiElement(integer)('17')
                 PsiElement(])(']')
             ArgumentList
               PsiElement(()('(')
@@ -876,9 +900,10 @@ ScalaFile
                 PsiElement(identifier)('Id')
               TypeArgumentsList
                 PsiElement([)('[')
-                LiteralType: 18
-                  IntegerLiteral
-                    PsiElement(integer)('18')
+                TypeArgument
+                  LiteralType: 18
+                    IntegerLiteral
+                      PsiElement(integer)('18')
                 PsiElement(])(']')
             ArgumentList
               PsiElement(()('(')
@@ -893,9 +918,10 @@ ScalaFile
                 PsiElement(identifier)('Id')
               TypeArgumentsList
                 PsiElement([)('[')
-                LiteralType: 19
-                  IntegerLiteral
-                    PsiElement(integer)('19')
+                TypeArgument
+                  LiteralType: 19
+                    IntegerLiteral
+                      PsiElement(integer)('19')
                 PsiElement(])(']')
             ArgumentList
               PsiElement(()('(')
@@ -910,9 +936,10 @@ ScalaFile
                 PsiElement(identifier)('Id')
               TypeArgumentsList
                 PsiElement([)('[')
-                LiteralType: 20
-                  IntegerLiteral
-                    PsiElement(integer)('20')
+                TypeArgument
+                  LiteralType: 20
+                    IntegerLiteral
+                      PsiElement(integer)('20')
                 PsiElement(])(']')
             ArgumentList
               PsiElement(()('(')
@@ -927,9 +954,10 @@ ScalaFile
                 PsiElement(identifier)('Id')
               TypeArgumentsList
                 PsiElement([)('[')
-                LiteralType: 21
-                  IntegerLiteral
-                    PsiElement(integer)('21')
+                TypeArgument
+                  LiteralType: 21
+                    IntegerLiteral
+                      PsiElement(integer)('21')
                 PsiElement(])(']')
             ArgumentList
               PsiElement(()('(')
@@ -944,9 +972,10 @@ ScalaFile
                 PsiElement(identifier)('Id')
               TypeArgumentsList
                 PsiElement([)('[')
-                LiteralType: 22
-                  IntegerLiteral
-                    PsiElement(integer)('22')
+                TypeArgument
+                  LiteralType: 22
+                    IntegerLiteral
+                      PsiElement(integer)('22')
                 PsiElement(])(']')
             ArgumentList
               PsiElement(()('(')
@@ -961,9 +990,10 @@ ScalaFile
                 PsiElement(identifier)('Id')
               TypeArgumentsList
                 PsiElement([)('[')
-                LiteralType: 23
-                  IntegerLiteral
-                    PsiElement(integer)('23')
+                TypeArgument
+                  LiteralType: 23
+                    IntegerLiteral
+                      PsiElement(integer)('23')
                 PsiElement(])(']')
             ArgumentList
               PsiElement(()('(')

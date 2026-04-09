@@ -153,9 +153,10 @@ ScalaFile
           PsiElement(identifier)('Seq')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: T
-          CodeReferenceElement: T
-            PsiElement(identifier)('T')
+        TypeArgument
+          SimpleType: T
+            CodeReferenceElement: T
+              PsiElement(identifier)('T')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -166,16 +167,18 @@ ScalaFile
           PsiElement(identifier)('boundary')
         TypeArgumentsList
           PsiElement([)('[')
-          ParametrizedType: Seq[T]
-            SimpleType: Seq
-              CodeReferenceElement: Seq
-                PsiElement(identifier)('Seq')
-            TypeArgumentsList
-              PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
-              PsiElement(])(']')
+          TypeArgument
+            ParametrizedType: Seq[T]
+              SimpleType: Seq
+                CodeReferenceElement: Seq
+                  PsiElement(identifier)('Seq')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+                PsiElement(])(']')
           PsiElement(])(']')
       ArgumentList
         BlockExpression
@@ -243,21 +246,24 @@ ScalaFile
                         PsiElement(identifier)('suspend')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: A
-                          CodeReferenceElement: A
-                            PsiElement(identifier)('A')
+                        TypeArgument
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
                         PsiElement(,)(',')
                         PsiWhiteSpace(' ')
-                        ParametrizedType: Seq[T]
-                          SimpleType: Seq
-                            CodeReferenceElement: Seq
-                              PsiElement(identifier)('Seq')
-                          TypeArgumentsList
-                            PsiElement([)('[')
-                            SimpleType: T
-                              CodeReferenceElement: T
-                                PsiElement(identifier)('T')
-                            PsiElement(])(']')
+                        TypeArgument
+                          ParametrizedType: Seq[T]
+                            SimpleType: Seq
+                              CodeReferenceElement: Seq
+                                PsiElement(identifier)('Seq')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: T
+                                  CodeReferenceElement: T
+                                    PsiElement(identifier)('T')
+                              PsiElement(])(']')
                         PsiElement(])(']')
                     ArgumentList
                       PsiElement(()('(')
@@ -382,9 +388,10 @@ ScalaFile
           PsiElement(identifier)('Seq')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: Int
-          CodeReferenceElement: Int
-            PsiElement(identifier)('Int')
+        TypeArgument
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')

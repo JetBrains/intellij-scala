@@ -70,9 +70,10 @@ ScalaFile
                         PsiElement(identifier)('WeakReference')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: T
-                        CodeReferenceElement: T
-                          PsiElement(identifier)('T')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -83,9 +84,10 @@ ScalaFile
                 PsiElement(identifier)('Option')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

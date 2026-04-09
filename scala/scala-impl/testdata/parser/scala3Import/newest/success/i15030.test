@@ -148,9 +148,10 @@ ScalaFile
                           PsiElement(identifier)('Field')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: A
-                          CodeReferenceElement: A
-                            PsiElement(identifier)('A')
+                        TypeArgument
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
                         PsiElement(])(']')
                 PsiElement())(')')
           PsiWhiteSpace(' ')
@@ -165,9 +166,10 @@ ScalaFile
                       PsiElement(identifier)('Schema')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: A
-                      CodeReferenceElement: A
-                        PsiElement(identifier)('A')
+                    TypeArgument
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
                     PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScImportStatement
@@ -197,9 +199,10 @@ ScalaFile
           PsiElement(identifier)('Field')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: Int
-          CodeReferenceElement: Int
-            PsiElement(identifier)('Int')
+        TypeArgument
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -232,9 +235,10 @@ ScalaFile
           PsiElement(identifier)('Record')
         TypeArgumentsList
           PsiElement([)('[')
-          SimpleType: Int
-            CodeReferenceElement: Int
-              PsiElement(identifier)('Int')
+          TypeArgument
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
           PsiElement(])(']')
       ArgumentList
         PsiElement(()('(')

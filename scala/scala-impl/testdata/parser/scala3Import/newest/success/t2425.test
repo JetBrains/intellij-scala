@@ -123,15 +123,17 @@ ScalaFile
                             PsiElement(identifier)('Array')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          ParametrizedType: Array[_]
-                            SimpleType: Array
-                              CodeReferenceElement: Array
-                                PsiElement(identifier)('Array')
-                            TypeArgumentsList
-                              PsiElement([)('[')
-                              TypeVariable: _
-                                PsiElement(_)('_')
-                              PsiElement(])(']')
+                          TypeArgument
+                            ParametrizedType: Array[_]
+                              SimpleType: Array
+                                CodeReferenceElement: Array
+                                  PsiElement(identifier)('Array')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                TypeArgument
+                                  TypeVariable: _
+                                    PsiElement(_)('_')
+                                PsiElement(])(']')
                           PsiElement(])(']')
                   PsiWhiteSpace(' ')
                   PsiElement(=>)('=>')
@@ -161,8 +163,9 @@ ScalaFile
                             PsiElement(identifier)('Array')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          TypeVariable: _
-                            PsiElement(_)('_')
+                          TypeArgument
+                            TypeVariable: _
+                              PsiElement(_)('_')
                           PsiElement(])(']')
                   PsiWhiteSpace(' ')
                   PsiElement(=>)('=>')

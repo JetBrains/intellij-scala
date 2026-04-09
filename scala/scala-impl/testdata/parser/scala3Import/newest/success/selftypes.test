@@ -73,12 +73,13 @@ ScalaFile
                       PsiElement(identifier)('List')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: this.BX
-                      CodeReferenceElement: this.BX
-                        ThisReference
-                          PsiElement(this)('this')
-                        PsiElement(.)('.')
-                        PsiElement(identifier)('BX')
+                    TypeArgument
+                      SimpleType: this.BX
+                        CodeReferenceElement: this.BX
+                          ThisReference
+                            PsiElement(this)('this')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('BX')
                     PsiElement(])(']')
               PsiWhiteSpace('\n\n    ')
               ScClass: AX

@@ -103,14 +103,16 @@ ScalaFile
                         PsiElement(identifier)('Either')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Inner
-                        CodeReferenceElement: Inner
-                          PsiElement(identifier)('Inner')
+                      TypeArgument
+                        SimpleType: Inner
+                          CodeReferenceElement: Inner
+                            PsiElement(identifier)('Inner')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: Int
-                        CodeReferenceElement: Int
-                          PsiElement(identifier)('Int')
+                      TypeArgument
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiWhiteSpace(' ')

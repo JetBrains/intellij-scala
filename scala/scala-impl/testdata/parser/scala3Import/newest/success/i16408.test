@@ -163,9 +163,10 @@ ScalaFile
                 PsiElement(identifier)('ROps')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: R
-                CodeReferenceElement: R
-                  PsiElement(identifier)('R')
+              TypeArgument
+                SimpleType: R
+                  CodeReferenceElement: R
+                    PsiElement(identifier)('R')
               PsiElement(])(']')
         PsiWhiteSpace('\n')
         End: RDF
@@ -225,8 +226,9 @@ ScalaFile
                       PsiElement(identifier)('GetNode')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    TypeVariable: n
-                      PsiElement(identifier)('n')
+                    TypeArgument
+                      TypeVariable: n
+                        PsiElement(identifier)('n')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
@@ -265,9 +267,10 @@ ScalaFile
                 PsiElement(identifier)('Node')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: R
-                CodeReferenceElement: R
-                  PsiElement(identifier)('R')
+              TypeArgument
+                SimpleType: R
+                  CodeReferenceElement: R
+                    PsiElement(identifier)('R')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -290,8 +293,9 @@ ScalaFile
                       PsiElement(identifier)('GetURI')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    TypeVariable: u
-                      PsiElement(identifier)('u')
+                    TypeArgument
+                      TypeVariable: u
+                        PsiElement(identifier)('u')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
@@ -310,9 +314,10 @@ ScalaFile
                         PsiElement(identifier)('Node')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: R
-                        CodeReferenceElement: R
-                          PsiElement(identifier)('R')
+                      TypeArgument
+                        SimpleType: R
+                          CodeReferenceElement: R
+                            PsiElement(identifier)('R')
                       PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScTypeAliasDefinition: GetNode
@@ -468,19 +473,21 @@ ScalaFile
                 PsiElement(identifier)('Try')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: RDF.URI[R]
-                SimpleType: RDF.URI
-                  CodeReferenceElement: RDF.URI
-                    CodeReferenceElement: RDF
-                      PsiElement(identifier)('RDF')
-                    PsiElement(.)('.')
-                    PsiElement(identifier)('URI')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: R
-                    CodeReferenceElement: R
-                      PsiElement(identifier)('R')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: RDF.URI[R]
+                  SimpleType: RDF.URI
+                    CodeReferenceElement: RDF.URI
+                      CodeReferenceElement: RDF
+                        PsiElement(identifier)('RDF')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('URI')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: R
+                        CodeReferenceElement: R
+                          PsiElement(identifier)('R')
+                    PsiElement(])(']')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScFunctionDeclaration: auth
@@ -512,9 +519,10 @@ ScalaFile
                         PsiElement(identifier)('URI')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: R
-                        CodeReferenceElement: R
-                          PsiElement(identifier)('R')
+                      TypeArgument
+                        SimpleType: R
+                          CodeReferenceElement: R
+                            PsiElement(identifier)('R')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -525,9 +533,10 @@ ScalaFile
                 PsiElement(identifier)('Try')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: String
-                CodeReferenceElement: String
-                  PsiElement(identifier)('String')
+              TypeArgument
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScObject: TraitTypes
@@ -759,9 +768,10 @@ ScalaFile
                       PsiElement(identifier)('ROps')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: R
-                      CodeReferenceElement: R
-                        PsiElement(identifier)('R')
+                    TypeArgument
+                      SimpleType: R
+                        CodeReferenceElement: R
+                          PsiElement(identifier)('R')
                     PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(with)('with')
@@ -800,19 +810,21 @@ ScalaFile
                       PsiElement(identifier)('Try')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    ParametrizedType: RDF.URI[R]
-                      SimpleType: RDF.URI
-                        CodeReferenceElement: RDF.URI
-                          CodeReferenceElement: RDF
-                            PsiElement(identifier)('RDF')
-                          PsiElement(.)('.')
-                          PsiElement(identifier)('URI')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        SimpleType: R
-                          CodeReferenceElement: R
-                            PsiElement(identifier)('R')
-                        PsiElement(])(']')
+                    TypeArgument
+                      ParametrizedType: RDF.URI[R]
+                        SimpleType: RDF.URI
+                          CodeReferenceElement: RDF.URI
+                            CodeReferenceElement: RDF
+                              PsiElement(identifier)('RDF')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('URI')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: R
+                              CodeReferenceElement: R
+                                PsiElement(identifier)('R')
+                          PsiElement(])(']')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')
@@ -865,9 +877,10 @@ ScalaFile
                               PsiElement(identifier)('URI')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: R
-                              CodeReferenceElement: R
-                                PsiElement(identifier)('R')
+                            TypeArgument
+                              SimpleType: R
+                                CodeReferenceElement: R
+                                  PsiElement(identifier)('R')
                             PsiElement(])(']')
                     PsiElement())(')')
                 PsiElement(:)(':')
@@ -878,9 +891,10 @@ ScalaFile
                       PsiElement(identifier)('Try')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: String
-                      CodeReferenceElement: String
-                        PsiElement(identifier)('String')
+                    TypeArgument
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')
@@ -968,9 +982,10 @@ ScalaFile
                     PsiElement(identifier)('ROps')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: R
-                    CodeReferenceElement: R
-                      PsiElement(identifier)('R')
+                  TypeArgument
+                    SimpleType: R
+                      CodeReferenceElement: R
+                        PsiElement(identifier)('R')
                   PsiElement(])(']')
           PsiElement())(')')
     ExtendsBlock
@@ -1007,19 +1022,21 @@ ScalaFile
                 PsiElement(identifier)('Try')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: RDF.URI[R]
-                SimpleType: RDF.URI
-                  CodeReferenceElement: RDF.URI
-                    CodeReferenceElement: RDF
-                      PsiElement(identifier)('RDF')
-                    PsiElement(.)('.')
-                    PsiElement(identifier)('URI')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: R
-                    CodeReferenceElement: R
-                      PsiElement(identifier)('R')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: RDF.URI[R]
+                  SimpleType: RDF.URI
+                    CodeReferenceElement: RDF.URI
+                      CodeReferenceElement: RDF
+                        PsiElement(identifier)('RDF')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('URI')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: R
+                        CodeReferenceElement: R
+                          PsiElement(identifier)('R')
+                    PsiElement(])(']')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -1130,11 +1147,12 @@ ScalaFile
             PsiElement(identifier)('Test')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: TraitRDF.type
-              CodeReferenceElement: TraitRDF
-                PsiElement(identifier)('TraitRDF')
-              PsiElement(.)('.')
-              PsiElement(type)('type')
+            TypeArgument
+              SimpleType: TraitRDF.type
+                CodeReferenceElement: TraitRDF
+                  PsiElement(identifier)('TraitRDF')
+                PsiElement(.)('.')
+                PsiElement(type)('type')
             PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       MethodCall

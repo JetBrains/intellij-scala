@@ -155,9 +155,10 @@ ScalaFile
                         PsiElement(identifier)('Tag')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                       PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScTrait: Handle
@@ -223,9 +224,10 @@ ScalaFile
                           PsiElement(identifier)('Tag')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: A
-                          CodeReferenceElement: A
-                            PsiElement(identifier)('A')
+                        TypeArgument
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
                         PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -259,9 +261,10 @@ ScalaFile
                   PsiElement(identifier)('Handle')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Hidden
-                  CodeReferenceElement: Hidden
-                    PsiElement(identifier)('Hidden')
+                TypeArgument
+                  SimpleType: Hidden
+                    CodeReferenceElement: Hidden
+                      PsiElement(identifier)('Hidden')
                 PsiElement(])(']')
         PsiWhiteSpace(' ')
         ScTemplateBody
@@ -306,9 +309,10 @@ ScalaFile
                             PsiElement(identifier)('Tag')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: A
-                            CodeReferenceElement: A
-                              PsiElement(identifier)('A')
+                          TypeArgument
+                            SimpleType: A
+                              CodeReferenceElement: A
+                                PsiElement(identifier)('A')
                           PsiElement(])(']')
                 PsiElement())(')')
             PsiElement(:)(':')

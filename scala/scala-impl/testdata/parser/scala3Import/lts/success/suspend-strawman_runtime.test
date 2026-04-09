@@ -159,14 +159,16 @@ ScalaFile
                       PsiElement(identifier)('Suspension')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: T
-                      CodeReferenceElement: T
-                        PsiElement(identifier)('T')
+                    TypeArgument
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    SimpleType: R
-                      CodeReferenceElement: R
-                        PsiElement(identifier)('R')
+                    TypeArgument
+                      SimpleType: R
+                        CodeReferenceElement: R
+                          PsiElement(identifier)('R')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
@@ -187,9 +189,10 @@ ScalaFile
                     PsiElement(identifier)('Label')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: R
-                    CodeReferenceElement: R
-                      PsiElement(identifier)('R')
+                  TypeArgument
+                    SimpleType: R
+                      CodeReferenceElement: R
+                        PsiElement(identifier)('R')
                   PsiElement(])(']')
           PsiElement())(')')
       PsiElement(:)(':')

@@ -105,18 +105,20 @@ ScalaFile
                     PsiElement(identifier)('annot')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  ParametrizedType: Box[x.type]
-                    SimpleType: Box
-                      CodeReferenceElement: Box
-                        PsiElement(identifier)('Box')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: x.type
-                        CodeReferenceElement: x
-                          PsiElement(identifier)('x')
-                        PsiElement(.)('.')
-                        PsiElement(type)('type')
-                      PsiElement(])(']')
+                  TypeArgument
+                    ParametrizedType: Box[x.type]
+                      SimpleType: Box
+                        CodeReferenceElement: Box
+                          PsiElement(identifier)('Box')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: x.type
+                            CodeReferenceElement: x
+                              PsiElement(identifier)('x')
+                            PsiElement(.)('.')
+                            PsiElement(type)('type')
+                        PsiElement(])(']')
                   PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')

@@ -86,16 +86,17 @@ ScalaFile
                         PsiElement(identifier)('Box')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      FunctionalType: Int ?=> Int
-                        SimpleType: Int
-                          CodeReferenceElement: Int
-                            PsiElement(identifier)('Int')
-                        PsiWhiteSpace(' ')
-                        PsiElement(?=>)('?=>')
-                        PsiWhiteSpace(' ')
-                        SimpleType: Int
-                          CodeReferenceElement: Int
-                            PsiElement(identifier)('Int')
+                      TypeArgument
+                        FunctionalType: Int ?=> Int
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                          PsiWhiteSpace(' ')
+                          PsiElement(?=>)('?=>')
+                          PsiWhiteSpace(' ')
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')

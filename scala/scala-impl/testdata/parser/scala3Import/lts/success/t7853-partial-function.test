@@ -72,14 +72,16 @@ ScalaFile
                             PsiElement(identifier)('PartialFunction')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: Any
-                            CodeReferenceElement: Any
-                              PsiElement(identifier)('Any')
+                          TypeArgument
+                            SimpleType: Any
+                              CodeReferenceElement: Any
+                                PsiElement(identifier)('Any')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
-                          SimpleType: A
-                            CodeReferenceElement: A
-                              PsiElement(identifier)('A')
+                          TypeArgument
+                            SimpleType: A
+                              CodeReferenceElement: A
+                                PsiElement(identifier)('A')
                           PsiElement(])(']')
                   PsiElement())(')')
               PsiElement(:)(':')
@@ -136,19 +138,20 @@ ScalaFile
                                   PsiElement(identifier)('List')
                               TypeArgumentsList
                                 PsiElement([)('[')
-                                TypeWithAnnotation: Int @unchecked
-                                  SimpleType: Int
-                                    CodeReferenceElement: Int
-                                      PsiElement(identifier)('Int')
-                                  PsiWhiteSpace(' ')
-                                  AnnotationsList
-                                    Annotation
-                                      PsiElement(@)('@')
-                                      AnnotationExpression
-                                        ConstructorInvocation
-                                          SimpleType: unchecked
-                                            CodeReferenceElement: unchecked
-                                              PsiElement(identifier)('unchecked')
+                                TypeArgument
+                                  TypeWithAnnotation: Int @unchecked
+                                    SimpleType: Int
+                                      CodeReferenceElement: Int
+                                        PsiElement(identifier)('Int')
+                                    PsiWhiteSpace(' ')
+                                    AnnotationsList
+                                      Annotation
+                                        PsiElement(@)('@')
+                                        AnnotationExpression
+                                          ConstructorInvocation
+                                            SimpleType: unchecked
+                                              CodeReferenceElement: unchecked
+                                                PsiElement(identifier)('unchecked')
                                 PsiElement(])(']')
                         PsiWhiteSpace(' ')
                         PsiElement(=>)('=>')

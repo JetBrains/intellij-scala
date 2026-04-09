@@ -138,23 +138,25 @@ ScalaFile
                 PsiElement(identifier)('Op')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              TupleType: (T, T)
-                PsiElement(()('(')
-                TypesList
-                  SimpleType: T
-                    CodeReferenceElement: T
-                      PsiElement(identifier)('T')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: T
-                    CodeReferenceElement: T
-                      PsiElement(identifier)('T')
-                PsiElement())(')')
+              TypeArgument
+                TupleType: (T, T)
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                  PsiElement())(')')
               PsiElement(])(']')
       PsiWhiteSpace(' ')
       ScTemplateBody
@@ -292,14 +294,16 @@ ScalaFile
                                   PsiElement(identifier)('Op')
                               TypeArgumentsList
                                 PsiElement([)('[')
-                                SimpleType: A
-                                  CodeReferenceElement: A
-                                    PsiElement(identifier)('A')
+                                TypeArgument
+                                  SimpleType: A
+                                    CodeReferenceElement: A
+                                      PsiElement(identifier)('A')
                                 PsiElement(,)(',')
                                 PsiWhiteSpace(' ')
-                                SimpleType: B
-                                  CodeReferenceElement: B
-                                    PsiElement(identifier)('B')
+                                TypeArgument
+                                  SimpleType: B
+                                    CodeReferenceElement: B
+                                      PsiElement(identifier)('B')
                                 PsiElement(])(']')
                         PsiElement())(')')
                       PsiWhiteSpace(' ')
@@ -373,14 +377,16 @@ ScalaFile
                                 PsiElement(identifier)('Op')
                             TypeArgumentsList
                               PsiElement([)('[')
-                              SimpleType: A
-                                CodeReferenceElement: A
-                                  PsiElement(identifier)('A')
+                              TypeArgument
+                                SimpleType: A
+                                  CodeReferenceElement: A
+                                    PsiElement(identifier)('A')
                               PsiElement(,)(',')
                               PsiWhiteSpace(' ')
-                              SimpleType: B
-                                CodeReferenceElement: B
-                                  PsiElement(identifier)('B')
+                              TypeArgument
+                                SimpleType: B
+                                  CodeReferenceElement: B
+                                    PsiElement(identifier)('B')
                               PsiElement(])(']')
                       PsiElement())(')')
                   PsiWhiteSpace(' ')
@@ -408,8 +414,9 @@ ScalaFile
                                   PsiElement(identifier)('Dup')
                               TypeArgumentsList
                                 PsiElement([)('[')
-                                TypeVariable: t
-                                  PsiElement(identifier)('t')
+                                TypeArgument
+                                  TypeVariable: t
+                                    PsiElement(identifier)('t')
                                 PsiElement(])(']')
                         PsiWhiteSpace(' ')
                         PsiElement(=>)('=>')
@@ -561,17 +568,18 @@ ScalaFile
                               PsiElement(identifier)('summon')
                             TypeArgumentsList
                               PsiElement([)('[')
-                              InfixType: A =:= t
-                                SimpleType: A
-                                  CodeReferenceElement: A
-                                    PsiElement(identifier)('A')
-                                PsiWhiteSpace(' ')
-                                CodeReferenceElement: =:=
-                                  PsiElement(identifier)('=:=')
-                                PsiWhiteSpace(' ')
-                                SimpleType: t
-                                  CodeReferenceElement: t
-                                    PsiElement(identifier)('t')
+                              TypeArgument
+                                InfixType: A =:= t
+                                  SimpleType: A
+                                    CodeReferenceElement: A
+                                      PsiElement(identifier)('A')
+                                  PsiWhiteSpace(' ')
+                                  CodeReferenceElement: =:=
+                                    PsiElement(identifier)('=:=')
+                                  PsiWhiteSpace(' ')
+                                  SimpleType: t
+                                    CodeReferenceElement: t
+                                      PsiElement(identifier)('t')
                               PsiElement(])(']')
                           PsiWhiteSpace('      ')
                           PsiComment(comment)('// ERROR: Cannot prove that A =:= t.')
@@ -581,26 +589,27 @@ ScalaFile
                               PsiElement(identifier)('summon')
                             TypeArgumentsList
                               PsiElement([)('[')
-                              InfixType: B =:= (t, t)
-                                SimpleType: B
-                                  CodeReferenceElement: B
-                                    PsiElement(identifier)('B')
-                                PsiWhiteSpace(' ')
-                                CodeReferenceElement: =:=
-                                  PsiElement(identifier)('=:=')
-                                PsiWhiteSpace(' ')
-                                TupleType: (t, t)
-                                  PsiElement(()('(')
-                                  TypesList
-                                    SimpleType: t
-                                      CodeReferenceElement: t
-                                        PsiElement(identifier)('t')
-                                    PsiElement(,)(',')
-                                    PsiWhiteSpace(' ')
-                                    SimpleType: t
-                                      CodeReferenceElement: t
-                                        PsiElement(identifier)('t')
-                                  PsiElement())(')')
+                              TypeArgument
+                                InfixType: B =:= (t, t)
+                                  SimpleType: B
+                                    CodeReferenceElement: B
+                                      PsiElement(identifier)('B')
+                                  PsiWhiteSpace(' ')
+                                  CodeReferenceElement: =:=
+                                    PsiElement(identifier)('=:=')
+                                  PsiWhiteSpace(' ')
+                                  TupleType: (t, t)
+                                    PsiElement(()('(')
+                                    TypesList
+                                      SimpleType: t
+                                        CodeReferenceElement: t
+                                          PsiElement(identifier)('t')
+                                      PsiElement(,)(',')
+                                      PsiWhiteSpace(' ')
+                                      SimpleType: t
+                                        CodeReferenceElement: t
+                                          PsiElement(identifier)('t')
+                                    PsiElement())(')')
                               PsiElement(])(']')
                           PsiWhiteSpace(' ')
                           PsiComment(comment)('// ERROR: Cannot prove that B =:= (t, t).')

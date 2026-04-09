@@ -30,9 +30,10 @@ ScalaFile
                 PsiElement(identifier)('Base')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Object
-                CodeReferenceElement: Object
-                  PsiElement(identifier)('Object')
+              TypeArgument
+                SimpleType: Object
+                  CodeReferenceElement: Object
+                    PsiElement(identifier)('Object')
               PsiElement(])(']')
       PsiWhiteSpace(' ')
       ScTemplateBody
@@ -64,9 +65,10 @@ ScalaFile
                         PsiElement(identifier)('Array')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Object
-                        CodeReferenceElement: Object
-                          PsiElement(identifier)('Object')
+                      TypeArgument
+                        SimpleType: Object
+                          CodeReferenceElement: Object
+                            PsiElement(identifier)('Object')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')

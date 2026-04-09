@@ -46,14 +46,16 @@ ScalaFile
                       PsiElement(identifier)('Conversion')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: String
-                      CodeReferenceElement: String
-                        PsiElement(identifier)('String')
+                    TypeArgument
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    SimpleType: Data
-                      CodeReferenceElement: Data
-                        PsiElement(identifier)('Data')
+                    TypeArgument
+                      SimpleType: Data
+                        CodeReferenceElement: Data
+                          PsiElement(identifier)('Data')
                     PsiElement(])(']')
             ScTemplateBody
               PsiElement(:)(':')

@@ -182,9 +182,10 @@ ScalaFile
                   PsiElement(identifier)('PartialId')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: T
-                  CodeReferenceElement: T
-                    PsiElement(identifier)('T')
+                TypeArgument
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
                 PsiElement(])(']')
         PsiElement())(')')
     PsiElement(:)(':')
@@ -195,9 +196,10 @@ ScalaFile
           PsiElement(identifier)('T1')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: T
-          CodeReferenceElement: T
-            PsiElement(identifier)('T')
+        TypeArgument
+          SimpleType: T
+            CodeReferenceElement: T
+              PsiElement(identifier)('T')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -214,9 +216,10 @@ ScalaFile
                   PsiElement(identifier)('T1')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: T
-                  CodeReferenceElement: T
-                    PsiElement(identifier)('T')
+                TypeArgument
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
                 PsiElement(])(']')
         PsiWhiteSpace(' ')
         ScTemplateBody
@@ -281,9 +284,10 @@ ScalaFile
           PsiElement(identifier)('PartialId')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: B
-          CodeReferenceElement: B
-            PsiElement(identifier)('B')
+        TypeArgument
+          SimpleType: B
+            CodeReferenceElement: B
+              PsiElement(identifier)('B')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')

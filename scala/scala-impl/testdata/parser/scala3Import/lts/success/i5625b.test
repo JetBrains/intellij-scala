@@ -108,8 +108,9 @@ ScalaFile
                       PsiElement(identifier)('Array')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    TypeVariable: t
-                      PsiElement(identifier)('t')
+                    TypeArgument
+                      TypeVariable: t
+                        PsiElement(identifier)('t')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
@@ -120,9 +121,10 @@ ScalaFile
                       PsiElement(identifier)('LeafElem')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: t
-                      CodeReferenceElement: t
-                        PsiElement(identifier)('t')
+                    TypeArgument
+                      SimpleType: t
+                        CodeReferenceElement: t
+                          PsiElement(identifier)('t')
                     PsiElement(])(']')
               PsiWhiteSpace('\n    ')
               ScMatchTypeCaseImpl(match type case)
@@ -134,8 +136,9 @@ ScalaFile
                       PsiElement(identifier)('Iterable')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    TypeVariable: t
-                      PsiElement(identifier)('t')
+                    TypeArgument
+                      TypeVariable: t
+                        PsiElement(identifier)('t')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
@@ -146,9 +149,10 @@ ScalaFile
                       PsiElement(identifier)('LeafElem')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: t
-                      CodeReferenceElement: t
-                        PsiElement(identifier)('t')
+                    TypeArgument
+                      SimpleType: t
+                        CodeReferenceElement: t
+                          PsiElement(identifier)('t')
                     PsiElement(])(']')
               PsiWhiteSpace('\n    ')
               ScMatchTypeCaseImpl(match type case)
@@ -160,8 +164,9 @@ ScalaFile
                       PsiElement(identifier)('AV')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    TypeVariable: t
-                      PsiElement(identifier)('t')
+                    TypeArgument
+                      TypeVariable: t
+                        PsiElement(identifier)('t')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
@@ -177,24 +182,26 @@ ScalaFile
             PsiElement(identifier)('summon')
           TypeArgumentsList
             PsiElement([)('[')
-            InfixType: LeafElem[String] =:= Char
-              ParametrizedType: LeafElem[String]
-                SimpleType: LeafElem
-                  CodeReferenceElement: LeafElem
-                    PsiElement(identifier)('LeafElem')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: String
-                    CodeReferenceElement: String
-                      PsiElement(identifier)('String')
-                  PsiElement(])(']')
-              PsiWhiteSpace(' ')
-              CodeReferenceElement: =:=
-                PsiElement(identifier)('=:=')
-              PsiWhiteSpace(' ')
-              SimpleType: Char
-                CodeReferenceElement: Char
-                  PsiElement(identifier)('Char')
+            TypeArgument
+              InfixType: LeafElem[String] =:= Char
+                ParametrizedType: LeafElem[String]
+                  SimpleType: LeafElem
+                    CodeReferenceElement: LeafElem
+                      PsiElement(identifier)('LeafElem')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: =:=
+                  PsiElement(identifier)('=:=')
+                PsiWhiteSpace(' ')
+                SimpleType: Char
+                  CodeReferenceElement: Char
+                    PsiElement(identifier)('Char')
             PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         GenericCall
@@ -202,88 +209,96 @@ ScalaFile
             PsiElement(identifier)('summon')
           TypeArgumentsList
             PsiElement([)('[')
-            InfixType: LeafElem[Array[Int]] =:= Int
-              ParametrizedType: LeafElem[Array[Int]]
-                SimpleType: LeafElem
-                  CodeReferenceElement: LeafElem
-                    PsiElement(identifier)('LeafElem')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  ParametrizedType: Array[Int]
-                    SimpleType: Array
-                      CodeReferenceElement: Array
-                        PsiElement(identifier)('Array')
-                    TypeArgumentsList
-                      PsiElement([)('[')
+            TypeArgument
+              InfixType: LeafElem[Array[Int]] =:= Int
+                ParametrizedType: LeafElem[Array[Int]]
+                  SimpleType: LeafElem
+                    CodeReferenceElement: LeafElem
+                      PsiElement(identifier)('LeafElem')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      ParametrizedType: Array[Int]
+                        SimpleType: Array
+                          CodeReferenceElement: Array
+                            PsiElement(identifier)('Array')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: Int
+                              CodeReferenceElement: Int
+                                PsiElement(identifier)('Int')
+                          PsiElement(])(']')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: =:=
+                  PsiElement(identifier)('=:=')
+                PsiWhiteSpace(' ')
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        GenericCall
+          ReferenceExpression: summon
+            PsiElement(identifier)('summon')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              InfixType: LeafElem[Iterable[Int]] =:= Int
+                ParametrizedType: LeafElem[Iterable[Int]]
+                  SimpleType: LeafElem
+                    CodeReferenceElement: LeafElem
+                      PsiElement(identifier)('LeafElem')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      ParametrizedType: Iterable[Int]
+                        SimpleType: Iterable
+                          CodeReferenceElement: Iterable
+                            PsiElement(identifier)('Iterable')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: Int
+                              CodeReferenceElement: Int
+                                PsiElement(identifier)('Int')
+                          PsiElement(])(']')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: =:=
+                  PsiElement(identifier)('=:=')
+                PsiWhiteSpace(' ')
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        GenericCall
+          ReferenceExpression: summon
+            PsiElement(identifier)('summon')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              InfixType: LeafElem[Int] =:= Int
+                ParametrizedType: LeafElem[Int]
+                  SimpleType: LeafElem
+                    CodeReferenceElement: LeafElem
+                      PsiElement(identifier)('LeafElem')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
                       SimpleType: Int
                         CodeReferenceElement: Int
                           PsiElement(identifier)('Int')
-                      PsiElement(])(']')
-                  PsiElement(])(']')
-              PsiWhiteSpace(' ')
-              CodeReferenceElement: =:=
-                PsiElement(identifier)('=:=')
-              PsiWhiteSpace(' ')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
-            PsiElement(])(']')
-        PsiWhiteSpace('\n  ')
-        GenericCall
-          ReferenceExpression: summon
-            PsiElement(identifier)('summon')
-          TypeArgumentsList
-            PsiElement([)('[')
-            InfixType: LeafElem[Iterable[Int]] =:= Int
-              ParametrizedType: LeafElem[Iterable[Int]]
-                SimpleType: LeafElem
-                  CodeReferenceElement: LeafElem
-                    PsiElement(identifier)('LeafElem')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  ParametrizedType: Iterable[Int]
-                    SimpleType: Iterable
-                      CodeReferenceElement: Iterable
-                        PsiElement(identifier)('Iterable')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: Int
-                        CodeReferenceElement: Int
-                          PsiElement(identifier)('Int')
-                      PsiElement(])(']')
-                  PsiElement(])(']')
-              PsiWhiteSpace(' ')
-              CodeReferenceElement: =:=
-                PsiElement(identifier)('=:=')
-              PsiWhiteSpace(' ')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
-            PsiElement(])(']')
-        PsiWhiteSpace('\n  ')
-        GenericCall
-          ReferenceExpression: summon
-            PsiElement(identifier)('summon')
-          TypeArgumentsList
-            PsiElement([)('[')
-            InfixType: LeafElem[Int] =:= Int
-              ParametrizedType: LeafElem[Int]
-                SimpleType: LeafElem
-                  CodeReferenceElement: LeafElem
-                    PsiElement(identifier)('LeafElem')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
-                  PsiElement(])(']')
-              PsiWhiteSpace(' ')
-              CodeReferenceElement: =:=
-                PsiElement(identifier)('=:=')
-              PsiWhiteSpace(' ')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: =:=
+                  PsiElement(identifier)('=:=')
+                PsiWhiteSpace(' ')
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
             PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

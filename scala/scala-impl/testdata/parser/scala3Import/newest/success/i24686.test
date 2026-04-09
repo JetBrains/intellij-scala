@@ -43,16 +43,18 @@ ScalaFile
             PsiElement(identifier)('empty')
           TypeArgumentsList
             PsiElement([)('[')
-            ParametrizedType: DenseMatrix[Double]
-              SimpleType: DenseMatrix
-                CodeReferenceElement: DenseMatrix
-                  PsiElement(identifier)('DenseMatrix')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: Double
-                  CodeReferenceElement: Double
-                    PsiElement(identifier)('Double')
-                PsiElement(])(']')
+            TypeArgument
+              ParametrizedType: DenseMatrix[Double]
+                SimpleType: DenseMatrix
+                  CodeReferenceElement: DenseMatrix
+                    PsiElement(identifier)('DenseMatrix')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: Double
+                      CodeReferenceElement: Double
+                        PsiElement(identifier)('Double')
+                  PsiElement(])(']')
             PsiElement(])(']')
         PsiElement(.)('.')
         PsiElement(identifier)('reduce')
@@ -130,9 +132,10 @@ ScalaFile
                 PsiElement(identifier)('Matrix')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScObject: DenseMatrix
@@ -196,21 +199,24 @@ ScalaFile
                         PsiElement(identifier)('InPlaceImpl2')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      ParametrizedType: DenseMatrix[V]
-                        SimpleType: DenseMatrix
-                          CodeReferenceElement: DenseMatrix
-                            PsiElement(identifier)('DenseMatrix')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: V
-                            CodeReferenceElement: V
-                              PsiElement(identifier)('V')
-                          PsiElement(])(']')
+                      TypeArgument
+                        ParametrizedType: DenseMatrix[V]
+                          SimpleType: DenseMatrix
+                            CodeReferenceElement: DenseMatrix
+                              PsiElement(identifier)('DenseMatrix')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: V
+                                CodeReferenceElement: V
+                                  PsiElement(identifier)('V')
+                            PsiElement(])(']')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: M
-                        CodeReferenceElement: M
-                          PsiElement(identifier)('M')
+                      TypeArgument
+                        SimpleType: M
+                          CodeReferenceElement: M
+                            PsiElement(identifier)('M')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -221,9 +227,10 @@ ScalaFile
                 PsiElement(identifier)('DenseMatrix')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: V
-                CodeReferenceElement: V
-                  PsiElement(identifier)('V')
+              TypeArgument
+                SimpleType: V
+                  CodeReferenceElement: V
+                    PsiElement(identifier)('V')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -344,28 +351,32 @@ ScalaFile
                 PsiElement(identifier)('InPlaceImpl2')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: DenseMatrix[Double]
-                SimpleType: DenseMatrix
-                  CodeReferenceElement: DenseMatrix
-                    PsiElement(identifier)('DenseMatrix')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: Double
-                    CodeReferenceElement: Double
-                      PsiElement(identifier)('Double')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: DenseMatrix[Double]
+                  SimpleType: DenseMatrix
+                    CodeReferenceElement: DenseMatrix
+                      PsiElement(identifier)('DenseMatrix')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Double
+                        CodeReferenceElement: Double
+                          PsiElement(identifier)('Double')
+                    PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              ParametrizedType: DenseMatrix[Double]
-                SimpleType: DenseMatrix
-                  CodeReferenceElement: DenseMatrix
-                    PsiElement(identifier)('DenseMatrix')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: Double
-                    CodeReferenceElement: Double
-                      PsiElement(identifier)('Double')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: DenseMatrix[Double]
+                  SimpleType: DenseMatrix
+                    CodeReferenceElement: DenseMatrix
+                      PsiElement(identifier)('DenseMatrix')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Double
+                        CodeReferenceElement: Double
+                          PsiElement(identifier)('Double')
+                    PsiElement(])(']')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -428,28 +439,32 @@ ScalaFile
                 PsiElement(identifier)('InPlaceImpl2')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: DenseMatrix[V]
-                SimpleType: DenseMatrix
-                  CodeReferenceElement: DenseMatrix
-                    PsiElement(identifier)('DenseMatrix')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: V
-                    CodeReferenceElement: V
-                      PsiElement(identifier)('V')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: DenseMatrix[V]
+                  SimpleType: DenseMatrix
+                    CodeReferenceElement: DenseMatrix
+                      PsiElement(identifier)('DenseMatrix')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: V
+                        CodeReferenceElement: V
+                          PsiElement(identifier)('V')
+                    PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              ParametrizedType: Matrix[V]
-                SimpleType: Matrix
-                  CodeReferenceElement: Matrix
-                    PsiElement(identifier)('Matrix')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: V
-                    CodeReferenceElement: V
-                      PsiElement(identifier)('V')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Matrix[V]
+                  SimpleType: Matrix
+                    CodeReferenceElement: Matrix
+                      PsiElement(identifier)('Matrix')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: V
+                        CodeReferenceElement: V
+                          PsiElement(identifier)('V')
+                    PsiElement(])(']')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

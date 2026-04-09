@@ -159,9 +159,10 @@ ScalaFile
                               PsiElement(identifier)('F')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: Int
-                              CodeReferenceElement: Int
-                                PsiElement(identifier)('Int')
+                            TypeArgument
+                              SimpleType: Int
+                                CodeReferenceElement: Int
+                                  PsiElement(identifier)('Int')
                             PsiElement(])(']')
                     PsiElement())(')')
                 PsiElement(:)(':')
@@ -172,9 +173,10 @@ ScalaFile
                       PsiElement(identifier)('F')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Pos
-                      CodeReferenceElement: Pos
-                        PsiElement(identifier)('Pos')
+                    TypeArgument
+                      SimpleType: Pos
+                        CodeReferenceElement: Pos
+                          PsiElement(identifier)('Pos')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')
@@ -252,9 +254,10 @@ ScalaFile
                       PsiElement(identifier)('Expr')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Pos
-                      CodeReferenceElement: Pos
-                        PsiElement(identifier)('Pos')
+                    TypeArgument
+                      SimpleType: Pos
+                        CodeReferenceElement: Pos
+                          PsiElement(identifier)('Pos')
                     PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScClass: IntExpr
@@ -301,9 +304,10 @@ ScalaFile
                       PsiElement(identifier)('Expr')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Int
-                      CodeReferenceElement: Int
-                        PsiElement(identifier)('Int')
+                    TypeArgument
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
                     PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScClass: StrExpr
@@ -350,9 +354,10 @@ ScalaFile
                       PsiElement(identifier)('Expr')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: String
-                      CodeReferenceElement: String
-                        PsiElement(identifier)('String')
+                    TypeArgument
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
                     PsiElement(])(']')
         PsiWhiteSpace('\n  \n  ')
         ScFunctionDefinition: eval
@@ -381,9 +386,10 @@ ScalaFile
                         PsiElement(identifier)('Expr')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Pos
-                        CodeReferenceElement: Pos
-                          PsiElement(identifier)('Pos')
+                      TypeArgument
+                        SimpleType: Pos
+                          CodeReferenceElement: Pos
+                            PsiElement(identifier)('Pos')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -486,9 +492,10 @@ ScalaFile
                   PsiElement(identifier)('coerce')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: Expr
-                    CodeReferenceElement: Expr
-                      PsiElement(identifier)('Expr')
+                  TypeArgument
+                    SimpleType: Expr
+                      CodeReferenceElement: Expr
+                        PsiElement(identifier)('Expr')
                   PsiElement(])(']')
               ArgumentList
                 PsiElement(()('(')

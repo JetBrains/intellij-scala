@@ -111,18 +111,19 @@ ScalaFile
                 PsiElement(identifier)('Some')
             TypeArgumentsList
               PsiElement([)('[')
-              TupleType: (Int, Int)
-                PsiElement(()('(')
-                TypesList
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
-                PsiElement())(')')
+              TypeArgument
+                TupleType: (Int, Int)
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                  PsiElement())(')')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -243,18 +244,19 @@ ScalaFile
                 PsiElement(identifier)('Option')
             TypeArgumentsList
               PsiElement([)('[')
-              TupleType: (Int, Int)
-                PsiElement(()('(')
-                TypesList
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
-                PsiElement())(')')
+              TypeArgument
+                TupleType: (Int, Int)
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                  PsiElement())(')')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

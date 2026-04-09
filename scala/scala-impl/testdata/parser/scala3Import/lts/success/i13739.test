@@ -116,1094 +116,24 @@ ScalaFile
         PsiElement(identifier)('summon')
       TypeArgumentsList
         PsiElement([)('[')
-        ParametrizedType: CanEqual[Nothing, Nothing]
-          SimpleType: CanEqual
-            CodeReferenceElement: CanEqual
-              PsiElement(identifier)('CanEqual')
-          TypeArgumentsList
-            PsiElement([)('[')
-            SimpleType: Nothing
-              CodeReferenceElement: Nothing
-                PsiElement(identifier)('Nothing')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            SimpleType: Nothing
-              CodeReferenceElement: Nothing
-                PsiElement(identifier)('Nothing')
-            PsiElement(])(']')
-        PsiElement(])(']')
-  PsiWhiteSpace('\n\n')
-  ScPatternDefinition
-    AnnotationsList
-      <empty list>
-    Modifiers
-      <empty list>
-    PsiElement(val)('val')
-    PsiWhiteSpace(' ')
-    ListOfPatterns
-      WildcardPattern
-        PsiElement(_)('_')
-    PsiWhiteSpace(' ')
-    PsiElement(=)('=')
-    PsiWhiteSpace(' ')
-    GenericCall
-      ReferenceExpression: summon
-        PsiElement(identifier)('summon')
-      TypeArgumentsList
-        PsiElement([)('[')
-        ParametrizedType: CanEqual[Int, Nothing]
-          SimpleType: CanEqual
-            CodeReferenceElement: CanEqual
-              PsiElement(identifier)('CanEqual')
-          TypeArgumentsList
-            PsiElement([)('[')
-            SimpleType: Int
-              CodeReferenceElement: Int
-                PsiElement(identifier)('Int')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            SimpleType: Nothing
-              CodeReferenceElement: Nothing
-                PsiElement(identifier)('Nothing')
-            PsiElement(])(']')
-        PsiElement(])(']')
-  PsiWhiteSpace('\n')
-  ScPatternDefinition
-    AnnotationsList
-      <empty list>
-    Modifiers
-      <empty list>
-    PsiElement(val)('val')
-    PsiWhiteSpace(' ')
-    ListOfPatterns
-      WildcardPattern
-        PsiElement(_)('_')
-    PsiWhiteSpace(' ')
-    PsiElement(=)('=')
-    PsiWhiteSpace(' ')
-    GenericCall
-      ReferenceExpression: summon
-        PsiElement(identifier)('summon')
-      TypeArgumentsList
-        PsiElement([)('[')
-        ParametrizedType: CanEqual[Nothing, Int]
-          SimpleType: CanEqual
-            CodeReferenceElement: CanEqual
-              PsiElement(identifier)('CanEqual')
-          TypeArgumentsList
-            PsiElement([)('[')
-            SimpleType: Nothing
-              CodeReferenceElement: Nothing
-                PsiElement(identifier)('Nothing')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            SimpleType: Int
-              CodeReferenceElement: Int
-                PsiElement(identifier)('Int')
-            PsiElement(])(']')
-        PsiElement(])(']')
-  PsiWhiteSpace('\n')
-  ScPatternDefinition
-    AnnotationsList
-      <empty list>
-    Modifiers
-      <empty list>
-    PsiElement(val)('val')
-    PsiWhiteSpace(' ')
-    ListOfPatterns
-      WildcardPattern
-        PsiElement(_)('_')
-    PsiWhiteSpace(' ')
-    PsiElement(=)('=')
-    PsiWhiteSpace(' ')
-    GenericCall
-      ReferenceExpression: summon
-        PsiElement(identifier)('summon')
-      TypeArgumentsList
-        PsiElement([)('[')
-        ParametrizedType: CanEqual[3, Nothing]
-          SimpleType: CanEqual
-            CodeReferenceElement: CanEqual
-              PsiElement(identifier)('CanEqual')
-          TypeArgumentsList
-            PsiElement([)('[')
-            LiteralType: 3
-              IntegerLiteral
-                PsiElement(integer)('3')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            SimpleType: Nothing
-              CodeReferenceElement: Nothing
-                PsiElement(identifier)('Nothing')
-            PsiElement(])(']')
-        PsiElement(])(']')
-  PsiWhiteSpace('\n')
-  ScPatternDefinition
-    AnnotationsList
-      <empty list>
-    Modifiers
-      <empty list>
-    PsiElement(val)('val')
-    PsiWhiteSpace(' ')
-    ListOfPatterns
-      WildcardPattern
-        PsiElement(_)('_')
-    PsiWhiteSpace(' ')
-    PsiElement(=)('=')
-    PsiWhiteSpace(' ')
-    GenericCall
-      ReferenceExpression: summon
-        PsiElement(identifier)('summon')
-      TypeArgumentsList
-        PsiElement([)('[')
-        ParametrizedType: CanEqual[Nothing, 3]
-          SimpleType: CanEqual
-            CodeReferenceElement: CanEqual
-              PsiElement(identifier)('CanEqual')
-          TypeArgumentsList
-            PsiElement([)('[')
-            SimpleType: Nothing
-              CodeReferenceElement: Nothing
-                PsiElement(identifier)('Nothing')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            LiteralType: 3
-              IntegerLiteral
-                PsiElement(integer)('3')
-            PsiElement(])(']')
-        PsiElement(])(']')
-  PsiWhiteSpace('\n\n')
-  ScPatternDefinition
-    AnnotationsList
-      <empty list>
-    Modifiers
-      <empty list>
-    PsiElement(val)('val')
-    PsiWhiteSpace(' ')
-    ListOfPatterns
-      WildcardPattern
-        PsiElement(_)('_')
-    PsiWhiteSpace(' ')
-    PsiElement(=)('=')
-    PsiWhiteSpace(' ')
-    GenericCall
-      ReferenceExpression: summon
-        PsiElement(identifier)('summon')
-      TypeArgumentsList
-        PsiElement([)('[')
-        ParametrizedType: CanEqual[Byte, Nothing]
-          SimpleType: CanEqual
-            CodeReferenceElement: CanEqual
-              PsiElement(identifier)('CanEqual')
-          TypeArgumentsList
-            PsiElement([)('[')
-            SimpleType: Byte
-              CodeReferenceElement: Byte
-                PsiElement(identifier)('Byte')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            SimpleType: Nothing
-              CodeReferenceElement: Nothing
-                PsiElement(identifier)('Nothing')
-            PsiElement(])(']')
-        PsiElement(])(']')
-  PsiWhiteSpace('\n')
-  ScPatternDefinition
-    AnnotationsList
-      <empty list>
-    Modifiers
-      <empty list>
-    PsiElement(val)('val')
-    PsiWhiteSpace(' ')
-    ListOfPatterns
-      WildcardPattern
-        PsiElement(_)('_')
-    PsiWhiteSpace(' ')
-    PsiElement(=)('=')
-    PsiWhiteSpace(' ')
-    GenericCall
-      ReferenceExpression: summon
-        PsiElement(identifier)('summon')
-      TypeArgumentsList
-        PsiElement([)('[')
-        ParametrizedType: CanEqual[Nothing, Byte]
-          SimpleType: CanEqual
-            CodeReferenceElement: CanEqual
-              PsiElement(identifier)('CanEqual')
-          TypeArgumentsList
-            PsiElement([)('[')
-            SimpleType: Nothing
-              CodeReferenceElement: Nothing
-                PsiElement(identifier)('Nothing')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            SimpleType: Byte
-              CodeReferenceElement: Byte
-                PsiElement(identifier)('Byte')
-            PsiElement(])(']')
-        PsiElement(])(']')
-  PsiWhiteSpace('\n')
-  ScPatternDefinition
-    AnnotationsList
-      <empty list>
-    Modifiers
-      <empty list>
-    PsiElement(val)('val')
-    PsiWhiteSpace(' ')
-    ListOfPatterns
-      WildcardPattern
-        PsiElement(_)('_')
-    PsiWhiteSpace(' ')
-    PsiElement(=)('=')
-    PsiWhiteSpace(' ')
-    GenericCall
-      ReferenceExpression: summon
-        PsiElement(identifier)('summon')
-      TypeArgumentsList
-        PsiElement([)('[')
-        ParametrizedType: CanEqual[Short, Nothing]
-          SimpleType: CanEqual
-            CodeReferenceElement: CanEqual
-              PsiElement(identifier)('CanEqual')
-          TypeArgumentsList
-            PsiElement([)('[')
-            SimpleType: Short
-              CodeReferenceElement: Short
-                PsiElement(identifier)('Short')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            SimpleType: Nothing
-              CodeReferenceElement: Nothing
-                PsiElement(identifier)('Nothing')
-            PsiElement(])(']')
-        PsiElement(])(']')
-  PsiWhiteSpace('\n')
-  ScPatternDefinition
-    AnnotationsList
-      <empty list>
-    Modifiers
-      <empty list>
-    PsiElement(val)('val')
-    PsiWhiteSpace(' ')
-    ListOfPatterns
-      WildcardPattern
-        PsiElement(_)('_')
-    PsiWhiteSpace(' ')
-    PsiElement(=)('=')
-    PsiWhiteSpace(' ')
-    GenericCall
-      ReferenceExpression: summon
-        PsiElement(identifier)('summon')
-      TypeArgumentsList
-        PsiElement([)('[')
-        ParametrizedType: CanEqual[Nothing, Short]
-          SimpleType: CanEqual
-            CodeReferenceElement: CanEqual
-              PsiElement(identifier)('CanEqual')
-          TypeArgumentsList
-            PsiElement([)('[')
-            SimpleType: Nothing
-              CodeReferenceElement: Nothing
-                PsiElement(identifier)('Nothing')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            SimpleType: Short
-              CodeReferenceElement: Short
-                PsiElement(identifier)('Short')
-            PsiElement(])(']')
-        PsiElement(])(']')
-  PsiWhiteSpace('\n')
-  ScPatternDefinition
-    AnnotationsList
-      <empty list>
-    Modifiers
-      <empty list>
-    PsiElement(val)('val')
-    PsiWhiteSpace(' ')
-    ListOfPatterns
-      WildcardPattern
-        PsiElement(_)('_')
-    PsiWhiteSpace(' ')
-    PsiElement(=)('=')
-    PsiWhiteSpace(' ')
-    GenericCall
-      ReferenceExpression: summon
-        PsiElement(identifier)('summon')
-      TypeArgumentsList
-        PsiElement([)('[')
-        ParametrizedType: CanEqual[Float, Nothing]
-          SimpleType: CanEqual
-            CodeReferenceElement: CanEqual
-              PsiElement(identifier)('CanEqual')
-          TypeArgumentsList
-            PsiElement([)('[')
-            SimpleType: Float
-              CodeReferenceElement: Float
-                PsiElement(identifier)('Float')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            SimpleType: Nothing
-              CodeReferenceElement: Nothing
-                PsiElement(identifier)('Nothing')
-            PsiElement(])(']')
-        PsiElement(])(']')
-  PsiWhiteSpace('\n')
-  ScPatternDefinition
-    AnnotationsList
-      <empty list>
-    Modifiers
-      <empty list>
-    PsiElement(val)('val')
-    PsiWhiteSpace(' ')
-    ListOfPatterns
-      WildcardPattern
-        PsiElement(_)('_')
-    PsiWhiteSpace(' ')
-    PsiElement(=)('=')
-    PsiWhiteSpace(' ')
-    GenericCall
-      ReferenceExpression: summon
-        PsiElement(identifier)('summon')
-      TypeArgumentsList
-        PsiElement([)('[')
-        ParametrizedType: CanEqual[Nothing, Float]
-          SimpleType: CanEqual
-            CodeReferenceElement: CanEqual
-              PsiElement(identifier)('CanEqual')
-          TypeArgumentsList
-            PsiElement([)('[')
-            SimpleType: Nothing
-              CodeReferenceElement: Nothing
-                PsiElement(identifier)('Nothing')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            SimpleType: Float
-              CodeReferenceElement: Float
-                PsiElement(identifier)('Float')
-            PsiElement(])(']')
-        PsiElement(])(']')
-  PsiWhiteSpace('\n\n')
-  ScPatternDefinition
-    AnnotationsList
-      <empty list>
-    Modifiers
-      <empty list>
-    PsiElement(val)('val')
-    PsiWhiteSpace(' ')
-    ListOfPatterns
-      WildcardPattern
-        PsiElement(_)('_')
-    PsiWhiteSpace(' ')
-    PsiElement(=)('=')
-    PsiWhiteSpace(' ')
-    GenericCall
-      ReferenceExpression: summon
-        PsiElement(identifier)('summon')
-      TypeArgumentsList
-        PsiElement([)('[')
-        ParametrizedType: CanEqual[Double, Nothing]
-          SimpleType: CanEqual
-            CodeReferenceElement: CanEqual
-              PsiElement(identifier)('CanEqual')
-          TypeArgumentsList
-            PsiElement([)('[')
-            SimpleType: Double
-              CodeReferenceElement: Double
-                PsiElement(identifier)('Double')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            SimpleType: Nothing
-              CodeReferenceElement: Nothing
-                PsiElement(identifier)('Nothing')
-            PsiElement(])(']')
-        PsiElement(])(']')
-  PsiWhiteSpace('\n')
-  ScPatternDefinition
-    AnnotationsList
-      <empty list>
-    Modifiers
-      <empty list>
-    PsiElement(val)('val')
-    PsiWhiteSpace(' ')
-    ListOfPatterns
-      WildcardPattern
-        PsiElement(_)('_')
-    PsiWhiteSpace(' ')
-    PsiElement(=)('=')
-    PsiWhiteSpace(' ')
-    GenericCall
-      ReferenceExpression: summon
-        PsiElement(identifier)('summon')
-      TypeArgumentsList
-        PsiElement([)('[')
-        ParametrizedType: CanEqual[Nothing, Double]
-          SimpleType: CanEqual
-            CodeReferenceElement: CanEqual
-              PsiElement(identifier)('CanEqual')
-          TypeArgumentsList
-            PsiElement([)('[')
-            SimpleType: Nothing
-              CodeReferenceElement: Nothing
-                PsiElement(identifier)('Nothing')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            SimpleType: Double
-              CodeReferenceElement: Double
-                PsiElement(identifier)('Double')
-            PsiElement(])(']')
-        PsiElement(])(']')
-  PsiWhiteSpace('\n')
-  ScPatternDefinition
-    AnnotationsList
-      <empty list>
-    Modifiers
-      <empty list>
-    PsiElement(val)('val')
-    PsiWhiteSpace(' ')
-    ListOfPatterns
-      WildcardPattern
-        PsiElement(_)('_')
-    PsiWhiteSpace(' ')
-    PsiElement(=)('=')
-    PsiWhiteSpace(' ')
-    GenericCall
-      ReferenceExpression: summon
-        PsiElement(identifier)('summon')
-      TypeArgumentsList
-        PsiElement([)('[')
-        ParametrizedType: CanEqual[3.0, Nothing]
-          SimpleType: CanEqual
-            CodeReferenceElement: CanEqual
-              PsiElement(identifier)('CanEqual')
-          TypeArgumentsList
-            PsiElement([)('[')
-            LiteralType: 3.0
-              DoubleLiteral
-                PsiElement(double)('3.0')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            SimpleType: Nothing
-              CodeReferenceElement: Nothing
-                PsiElement(identifier)('Nothing')
-            PsiElement(])(']')
-        PsiElement(])(']')
-  PsiWhiteSpace('\n')
-  ScPatternDefinition
-    AnnotationsList
-      <empty list>
-    Modifiers
-      <empty list>
-    PsiElement(val)('val')
-    PsiWhiteSpace(' ')
-    ListOfPatterns
-      WildcardPattern
-        PsiElement(_)('_')
-    PsiWhiteSpace(' ')
-    PsiElement(=)('=')
-    PsiWhiteSpace(' ')
-    GenericCall
-      ReferenceExpression: summon
-        PsiElement(identifier)('summon')
-      TypeArgumentsList
-        PsiElement([)('[')
-        ParametrizedType: CanEqual[Nothing, 3.0]
-          SimpleType: CanEqual
-            CodeReferenceElement: CanEqual
-              PsiElement(identifier)('CanEqual')
-          TypeArgumentsList
-            PsiElement([)('[')
-            SimpleType: Nothing
-              CodeReferenceElement: Nothing
-                PsiElement(identifier)('Nothing')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            LiteralType: 3.0
-              DoubleLiteral
-                PsiElement(double)('3.0')
-            PsiElement(])(']')
-        PsiElement(])(']')
-  PsiWhiteSpace('\n\n')
-  ScPatternDefinition
-    AnnotationsList
-      <empty list>
-    Modifiers
-      <empty list>
-    PsiElement(val)('val')
-    PsiWhiteSpace(' ')
-    ListOfPatterns
-      WildcardPattern
-        PsiElement(_)('_')
-    PsiWhiteSpace(' ')
-    PsiElement(=)('=')
-    PsiWhiteSpace(' ')
-    GenericCall
-      ReferenceExpression: summon
-        PsiElement(identifier)('summon')
-      TypeArgumentsList
-        PsiElement([)('[')
-        ParametrizedType: CanEqual[String, Nothing]
-          SimpleType: CanEqual
-            CodeReferenceElement: CanEqual
-              PsiElement(identifier)('CanEqual')
-          TypeArgumentsList
-            PsiElement([)('[')
-            SimpleType: String
-              CodeReferenceElement: String
-                PsiElement(identifier)('String')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            SimpleType: Nothing
-              CodeReferenceElement: Nothing
-                PsiElement(identifier)('Nothing')
-            PsiElement(])(']')
-        PsiElement(])(']')
-  PsiWhiteSpace('\n')
-  ScPatternDefinition
-    AnnotationsList
-      <empty list>
-    Modifiers
-      <empty list>
-    PsiElement(val)('val')
-    PsiWhiteSpace(' ')
-    ListOfPatterns
-      WildcardPattern
-        PsiElement(_)('_')
-    PsiWhiteSpace(' ')
-    PsiElement(=)('=')
-    PsiWhiteSpace(' ')
-    GenericCall
-      ReferenceExpression: summon
-        PsiElement(identifier)('summon')
-      TypeArgumentsList
-        PsiElement([)('[')
-        ParametrizedType: CanEqual[Nothing, String]
-          SimpleType: CanEqual
-            CodeReferenceElement: CanEqual
-              PsiElement(identifier)('CanEqual')
-          TypeArgumentsList
-            PsiElement([)('[')
-            SimpleType: Nothing
-              CodeReferenceElement: Nothing
-                PsiElement(identifier)('Nothing')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            SimpleType: String
-              CodeReferenceElement: String
-                PsiElement(identifier)('String')
-            PsiElement(])(']')
-        PsiElement(])(']')
-  PsiWhiteSpace('\n')
-  ScPatternDefinition
-    AnnotationsList
-      <empty list>
-    Modifiers
-      <empty list>
-    PsiElement(val)('val')
-    PsiWhiteSpace(' ')
-    ListOfPatterns
-      WildcardPattern
-        PsiElement(_)('_')
-    PsiWhiteSpace(' ')
-    PsiElement(=)('=')
-    PsiWhiteSpace(' ')
-    GenericCall
-      ReferenceExpression: summon
-        PsiElement(identifier)('summon')
-      TypeArgumentsList
-        PsiElement([)('[')
-        ParametrizedType: CanEqual["foo", Nothing]
-          SimpleType: CanEqual
-            CodeReferenceElement: CanEqual
-              PsiElement(identifier)('CanEqual')
-          TypeArgumentsList
-            PsiElement([)('[')
-            LiteralType: "foo"
-              StringLiteral
-                PsiElement(string content)('"foo"')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            SimpleType: Nothing
-              CodeReferenceElement: Nothing
-                PsiElement(identifier)('Nothing')
-            PsiElement(])(']')
-        PsiElement(])(']')
-  PsiWhiteSpace('\n')
-  ScPatternDefinition
-    AnnotationsList
-      <empty list>
-    Modifiers
-      <empty list>
-    PsiElement(val)('val')
-    PsiWhiteSpace(' ')
-    ListOfPatterns
-      WildcardPattern
-        PsiElement(_)('_')
-    PsiWhiteSpace(' ')
-    PsiElement(=)('=')
-    PsiWhiteSpace(' ')
-    GenericCall
-      ReferenceExpression: summon
-        PsiElement(identifier)('summon')
-      TypeArgumentsList
-        PsiElement([)('[')
-        ParametrizedType: CanEqual[Nothing, "foo"]
-          SimpleType: CanEqual
-            CodeReferenceElement: CanEqual
-              PsiElement(identifier)('CanEqual')
-          TypeArgumentsList
-            PsiElement([)('[')
-            SimpleType: Nothing
-              CodeReferenceElement: Nothing
-                PsiElement(identifier)('Nothing')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            LiteralType: "foo"
-              StringLiteral
-                PsiElement(string content)('"foo"')
-            PsiElement(])(']')
-        PsiElement(])(']')
-  PsiWhiteSpace('\n\n')
-  ScPatternDefinition
-    AnnotationsList
-      <empty list>
-    Modifiers
-      <empty list>
-    PsiElement(val)('val')
-    PsiWhiteSpace(' ')
-    ListOfPatterns
-      WildcardPattern
-        PsiElement(_)('_')
-    PsiWhiteSpace(' ')
-    PsiElement(=)('=')
-    PsiWhiteSpace(' ')
-    GenericCall
-      ReferenceExpression: summon
-        PsiElement(identifier)('summon')
-      TypeArgumentsList
-        PsiElement([)('[')
-        ParametrizedType: CanEqual[Char, Nothing]
-          SimpleType: CanEqual
-            CodeReferenceElement: CanEqual
-              PsiElement(identifier)('CanEqual')
-          TypeArgumentsList
-            PsiElement([)('[')
-            SimpleType: Char
-              CodeReferenceElement: Char
-                PsiElement(identifier)('Char')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            SimpleType: Nothing
-              CodeReferenceElement: Nothing
-                PsiElement(identifier)('Nothing')
-            PsiElement(])(']')
-        PsiElement(])(']')
-  PsiWhiteSpace('\n')
-  ScPatternDefinition
-    AnnotationsList
-      <empty list>
-    Modifiers
-      <empty list>
-    PsiElement(val)('val')
-    PsiWhiteSpace(' ')
-    ListOfPatterns
-      WildcardPattern
-        PsiElement(_)('_')
-    PsiWhiteSpace(' ')
-    PsiElement(=)('=')
-    PsiWhiteSpace(' ')
-    GenericCall
-      ReferenceExpression: summon
-        PsiElement(identifier)('summon')
-      TypeArgumentsList
-        PsiElement([)('[')
-        ParametrizedType: CanEqual[Nothing, Char]
-          SimpleType: CanEqual
-            CodeReferenceElement: CanEqual
-              PsiElement(identifier)('CanEqual')
-          TypeArgumentsList
-            PsiElement([)('[')
-            SimpleType: Nothing
-              CodeReferenceElement: Nothing
-                PsiElement(identifier)('Nothing')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            SimpleType: Char
-              CodeReferenceElement: Char
-                PsiElement(identifier)('Char')
-            PsiElement(])(']')
-        PsiElement(])(']')
-  PsiWhiteSpace('\n')
-  ScPatternDefinition
-    AnnotationsList
-      <empty list>
-    Modifiers
-      <empty list>
-    PsiElement(val)('val')
-    PsiWhiteSpace(' ')
-    ListOfPatterns
-      WildcardPattern
-        PsiElement(_)('_')
-    PsiWhiteSpace(' ')
-    PsiElement(=)('=')
-    PsiWhiteSpace(' ')
-    GenericCall
-      ReferenceExpression: summon
-        PsiElement(identifier)('summon')
-      TypeArgumentsList
-        PsiElement([)('[')
-        ParametrizedType: CanEqual['f', Nothing]
-          SimpleType: CanEqual
-            CodeReferenceElement: CanEqual
-              PsiElement(identifier)('CanEqual')
-          TypeArgumentsList
-            PsiElement([)('[')
-            LiteralType: 'f'
-              CharLiteral
-                PsiElement(Character)(''f'')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            SimpleType: Nothing
-              CodeReferenceElement: Nothing
-                PsiElement(identifier)('Nothing')
-            PsiElement(])(']')
-        PsiElement(])(']')
-  PsiWhiteSpace('\n')
-  ScPatternDefinition
-    AnnotationsList
-      <empty list>
-    Modifiers
-      <empty list>
-    PsiElement(val)('val')
-    PsiWhiteSpace(' ')
-    ListOfPatterns
-      WildcardPattern
-        PsiElement(_)('_')
-    PsiWhiteSpace(' ')
-    PsiElement(=)('=')
-    PsiWhiteSpace(' ')
-    GenericCall
-      ReferenceExpression: summon
-        PsiElement(identifier)('summon')
-      TypeArgumentsList
-        PsiElement([)('[')
-        ParametrizedType: CanEqual[Nothing, 'f']
-          SimpleType: CanEqual
-            CodeReferenceElement: CanEqual
-              PsiElement(identifier)('CanEqual')
-          TypeArgumentsList
-            PsiElement([)('[')
-            SimpleType: Nothing
-              CodeReferenceElement: Nothing
-                PsiElement(identifier)('Nothing')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            LiteralType: 'f'
-              CharLiteral
-                PsiElement(Character)(''f'')
-            PsiElement(])(']')
-        PsiElement(])(']')
-  PsiWhiteSpace('\n\n')
-  ScPatternDefinition
-    AnnotationsList
-      <empty list>
-    Modifiers
-      <empty list>
-    PsiElement(val)('val')
-    PsiWhiteSpace(' ')
-    ListOfPatterns
-      WildcardPattern
-        PsiElement(_)('_')
-    PsiWhiteSpace(' ')
-    PsiElement(=)('=')
-    PsiWhiteSpace(' ')
-    GenericCall
-      ReferenceExpression: summon
-        PsiElement(identifier)('summon')
-      TypeArgumentsList
-        PsiElement([)('[')
-        ParametrizedType: CanEqual[Boolean, Nothing]
-          SimpleType: CanEqual
-            CodeReferenceElement: CanEqual
-              PsiElement(identifier)('CanEqual')
-          TypeArgumentsList
-            PsiElement([)('[')
-            SimpleType: Boolean
-              CodeReferenceElement: Boolean
-                PsiElement(identifier)('Boolean')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            SimpleType: Nothing
-              CodeReferenceElement: Nothing
-                PsiElement(identifier)('Nothing')
-            PsiElement(])(']')
-        PsiElement(])(']')
-  PsiWhiteSpace('\n')
-  ScPatternDefinition
-    AnnotationsList
-      <empty list>
-    Modifiers
-      <empty list>
-    PsiElement(val)('val')
-    PsiWhiteSpace(' ')
-    ListOfPatterns
-      WildcardPattern
-        PsiElement(_)('_')
-    PsiWhiteSpace(' ')
-    PsiElement(=)('=')
-    PsiWhiteSpace(' ')
-    GenericCall
-      ReferenceExpression: summon
-        PsiElement(identifier)('summon')
-      TypeArgumentsList
-        PsiElement([)('[')
-        ParametrizedType: CanEqual[Nothing, Boolean]
-          SimpleType: CanEqual
-            CodeReferenceElement: CanEqual
-              PsiElement(identifier)('CanEqual')
-          TypeArgumentsList
-            PsiElement([)('[')
-            SimpleType: Nothing
-              CodeReferenceElement: Nothing
-                PsiElement(identifier)('Nothing')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            SimpleType: Boolean
-              CodeReferenceElement: Boolean
-                PsiElement(identifier)('Boolean')
-            PsiElement(])(']')
-        PsiElement(])(']')
-  PsiWhiteSpace('\n')
-  ScPatternDefinition
-    AnnotationsList
-      <empty list>
-    Modifiers
-      <empty list>
-    PsiElement(val)('val')
-    PsiWhiteSpace(' ')
-    ListOfPatterns
-      WildcardPattern
-        PsiElement(_)('_')
-    PsiWhiteSpace(' ')
-    PsiElement(=)('=')
-    PsiWhiteSpace(' ')
-    GenericCall
-      ReferenceExpression: summon
-        PsiElement(identifier)('summon')
-      TypeArgumentsList
-        PsiElement([)('[')
-        ParametrizedType: CanEqual[true, Nothing]
-          SimpleType: CanEqual
-            CodeReferenceElement: CanEqual
-              PsiElement(identifier)('CanEqual')
-          TypeArgumentsList
-            PsiElement([)('[')
-            LiteralType: true
-              BooleanLiteral
-                PsiElement(true)('true')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            SimpleType: Nothing
-              CodeReferenceElement: Nothing
-                PsiElement(identifier)('Nothing')
-            PsiElement(])(']')
-        PsiElement(])(']')
-  PsiWhiteSpace('\n')
-  ScPatternDefinition
-    AnnotationsList
-      <empty list>
-    Modifiers
-      <empty list>
-    PsiElement(val)('val')
-    PsiWhiteSpace(' ')
-    ListOfPatterns
-      WildcardPattern
-        PsiElement(_)('_')
-    PsiWhiteSpace(' ')
-    PsiElement(=)('=')
-    PsiWhiteSpace(' ')
-    GenericCall
-      ReferenceExpression: summon
-        PsiElement(identifier)('summon')
-      TypeArgumentsList
-        PsiElement([)('[')
-        ParametrizedType: CanEqual[Nothing, true]
-          SimpleType: CanEqual
-            CodeReferenceElement: CanEqual
-              PsiElement(identifier)('CanEqual')
-          TypeArgumentsList
-            PsiElement([)('[')
-            SimpleType: Nothing
-              CodeReferenceElement: Nothing
-                PsiElement(identifier)('Nothing')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            LiteralType: true
-              BooleanLiteral
-                PsiElement(true)('true')
-            PsiElement(])(']')
-        PsiElement(])(']')
-  PsiWhiteSpace('\n\n')
-  ScPatternDefinition
-    AnnotationsList
-      <empty list>
-    Modifiers
-      <empty list>
-    PsiElement(val)('val')
-    PsiWhiteSpace(' ')
-    ListOfPatterns
-      WildcardPattern
-        PsiElement(_)('_')
-    PsiWhiteSpace(' ')
-    PsiElement(=)('=')
-    PsiWhiteSpace(' ')
-    GenericCall
-      ReferenceExpression: summon
-        PsiElement(identifier)('summon')
-      TypeArgumentsList
-        PsiElement([)('[')
-        ParametrizedType: CanEqual[Foo, Nothing]
-          SimpleType: CanEqual
-            CodeReferenceElement: CanEqual
-              PsiElement(identifier)('CanEqual')
-          TypeArgumentsList
-            PsiElement([)('[')
-            SimpleType: Foo
-              CodeReferenceElement: Foo
-                PsiElement(identifier)('Foo')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            SimpleType: Nothing
-              CodeReferenceElement: Nothing
-                PsiElement(identifier)('Nothing')
-            PsiElement(])(']')
-        PsiElement(])(']')
-  PsiWhiteSpace('\n')
-  ScPatternDefinition
-    AnnotationsList
-      <empty list>
-    Modifiers
-      <empty list>
-    PsiElement(val)('val')
-    PsiWhiteSpace(' ')
-    ListOfPatterns
-      WildcardPattern
-        PsiElement(_)('_')
-    PsiWhiteSpace(' ')
-    PsiElement(=)('=')
-    PsiWhiteSpace(' ')
-    GenericCall
-      ReferenceExpression: summon
-        PsiElement(identifier)('summon')
-      TypeArgumentsList
-        PsiElement([)('[')
-        ParametrizedType: CanEqual[Nothing, Foo]
-          SimpleType: CanEqual
-            CodeReferenceElement: CanEqual
-              PsiElement(identifier)('CanEqual')
-          TypeArgumentsList
-            PsiElement([)('[')
-            SimpleType: Nothing
-              CodeReferenceElement: Nothing
-                PsiElement(identifier)('Nothing')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            SimpleType: Foo
-              CodeReferenceElement: Foo
-                PsiElement(identifier)('Foo')
-            PsiElement(])(']')
-        PsiElement(])(']')
-  PsiWhiteSpace('\n\n')
-  ScPatternDefinition
-    AnnotationsList
-      <empty list>
-    Modifiers
-      <empty list>
-    PsiElement(val)('val')
-    PsiWhiteSpace(' ')
-    ListOfPatterns
-      WildcardPattern
-        PsiElement(_)('_')
-    PsiWhiteSpace(' ')
-    PsiElement(=)('=')
-    PsiWhiteSpace(' ')
-    GenericCall
-      ReferenceExpression: summon
-        PsiElement(identifier)('summon')
-      TypeArgumentsList
-        PsiElement([)('[')
-        ParametrizedType: CanEqual[Option[Int], None.type]
-          SimpleType: CanEqual
-            CodeReferenceElement: CanEqual
-              PsiElement(identifier)('CanEqual')
-          TypeArgumentsList
-            PsiElement([)('[')
-            ParametrizedType: Option[Int]
-              SimpleType: Option
-                CodeReferenceElement: Option
-                  PsiElement(identifier)('Option')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: Int
-                  CodeReferenceElement: Int
-                    PsiElement(identifier)('Int')
-                PsiElement(])(']')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            SimpleType: None.type
-              CodeReferenceElement: None
-                PsiElement(identifier)('None')
-              PsiElement(.)('.')
-              PsiElement(type)('type')
-            PsiElement(])(']')
-        PsiElement(])(']')
-  PsiWhiteSpace('\n')
-  ScPatternDefinition
-    AnnotationsList
-      <empty list>
-    Modifiers
-      <empty list>
-    PsiElement(val)('val')
-    PsiWhiteSpace(' ')
-    ListOfPatterns
-      WildcardPattern
-        PsiElement(_)('_')
-    PsiWhiteSpace(' ')
-    PsiElement(=)('=')
-    PsiWhiteSpace(' ')
-    GenericCall
-      ReferenceExpression: summon
-        PsiElement(identifier)('summon')
-      TypeArgumentsList
-        PsiElement([)('[')
-        ParametrizedType: CanEqual[Option[Int], Option[Nothing]]
-          SimpleType: CanEqual
-            CodeReferenceElement: CanEqual
-              PsiElement(identifier)('CanEqual')
-          TypeArgumentsList
-            PsiElement([)('[')
-            ParametrizedType: Option[Int]
-              SimpleType: Option
-                CodeReferenceElement: Option
-                  PsiElement(identifier)('Option')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: Int
-                  CodeReferenceElement: Int
-                    PsiElement(identifier)('Int')
-                PsiElement(])(']')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            ParametrizedType: Option[Nothing]
-              SimpleType: Option
-                CodeReferenceElement: Option
-                  PsiElement(identifier)('Option')
-              TypeArgumentsList
-                PsiElement([)('[')
+        TypeArgument
+          ParametrizedType: CanEqual[Nothing, Nothing]
+            SimpleType: CanEqual
+              CodeReferenceElement: CanEqual
+                PsiElement(identifier)('CanEqual')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
                 SimpleType: Nothing
                   CodeReferenceElement: Nothing
                     PsiElement(identifier)('Nothing')
-                PsiElement(])(']')
-            PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement(])(']')
         PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScPatternDefinition
@@ -1224,29 +154,24 @@ ScalaFile
         PsiElement(identifier)('summon')
       TypeArgumentsList
         PsiElement([)('[')
-        ParametrizedType: CanEqual[Any & Nothing, Foo]
-          SimpleType: CanEqual
-            CodeReferenceElement: CanEqual
-              PsiElement(identifier)('CanEqual')
-          TypeArgumentsList
-            PsiElement([)('[')
-            InfixType: Any & Nothing
-              SimpleType: Any
-                CodeReferenceElement: Any
-                  PsiElement(identifier)('Any')
+        TypeArgument
+          ParametrizedType: CanEqual[Int, Nothing]
+            SimpleType: CanEqual
+              CodeReferenceElement: CanEqual
+                PsiElement(identifier)('CanEqual')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+              PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              CodeReferenceElement: &
-                PsiElement(identifier)('&')
-              PsiWhiteSpace(' ')
-              SimpleType: Nothing
-                CodeReferenceElement: Nothing
-                  PsiElement(identifier)('Nothing')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            SimpleType: Foo
-              CodeReferenceElement: Foo
-                PsiElement(identifier)('Foo')
-            PsiElement(])(']')
+              TypeArgument
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement(])(']')
         PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScPatternDefinition
@@ -1267,27 +192,1204 @@ ScalaFile
         PsiElement(identifier)('summon')
       TypeArgumentsList
         PsiElement([)('[')
-        ParametrizedType: CanEqual[Nothing & Any, Foo]
-          SimpleType: CanEqual
-            CodeReferenceElement: CanEqual
-              PsiElement(identifier)('CanEqual')
-          TypeArgumentsList
-            PsiElement([)('[')
-            InfixType: Nothing & Any
-              SimpleType: Nothing
-                CodeReferenceElement: Nothing
-                  PsiElement(identifier)('Nothing')
+        TypeArgument
+          ParametrizedType: CanEqual[Nothing, Int]
+            SimpleType: CanEqual
+              CodeReferenceElement: CanEqual
+                PsiElement(identifier)('CanEqual')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              CodeReferenceElement: &
-                PsiElement(identifier)('&')
+              TypeArgument
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+              PsiElement(])(']')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      WildcardPattern
+        PsiElement(_)('_')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: summon
+        PsiElement(identifier)('summon')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          ParametrizedType: CanEqual[3, Nothing]
+            SimpleType: CanEqual
+              CodeReferenceElement: CanEqual
+                PsiElement(identifier)('CanEqual')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                LiteralType: 3
+                  IntegerLiteral
+                    PsiElement(integer)('3')
+              PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Any
-                CodeReferenceElement: Any
-                  PsiElement(identifier)('Any')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            SimpleType: Foo
-              CodeReferenceElement: Foo
-                PsiElement(identifier)('Foo')
-            PsiElement(])(']')
+              TypeArgument
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement(])(']')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      WildcardPattern
+        PsiElement(_)('_')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: summon
+        PsiElement(identifier)('summon')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          ParametrizedType: CanEqual[Nothing, 3]
+            SimpleType: CanEqual
+              CodeReferenceElement: CanEqual
+                PsiElement(identifier)('CanEqual')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                LiteralType: 3
+                  IntegerLiteral
+                    PsiElement(integer)('3')
+              PsiElement(])(']')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      WildcardPattern
+        PsiElement(_)('_')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: summon
+        PsiElement(identifier)('summon')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          ParametrizedType: CanEqual[Byte, Nothing]
+            SimpleType: CanEqual
+              CodeReferenceElement: CanEqual
+                PsiElement(identifier)('CanEqual')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Byte
+                  CodeReferenceElement: Byte
+                    PsiElement(identifier)('Byte')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement(])(']')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      WildcardPattern
+        PsiElement(_)('_')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: summon
+        PsiElement(identifier)('summon')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          ParametrizedType: CanEqual[Nothing, Byte]
+            SimpleType: CanEqual
+              CodeReferenceElement: CanEqual
+                PsiElement(identifier)('CanEqual')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: Byte
+                  CodeReferenceElement: Byte
+                    PsiElement(identifier)('Byte')
+              PsiElement(])(']')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      WildcardPattern
+        PsiElement(_)('_')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: summon
+        PsiElement(identifier)('summon')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          ParametrizedType: CanEqual[Short, Nothing]
+            SimpleType: CanEqual
+              CodeReferenceElement: CanEqual
+                PsiElement(identifier)('CanEqual')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Short
+                  CodeReferenceElement: Short
+                    PsiElement(identifier)('Short')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement(])(']')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      WildcardPattern
+        PsiElement(_)('_')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: summon
+        PsiElement(identifier)('summon')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          ParametrizedType: CanEqual[Nothing, Short]
+            SimpleType: CanEqual
+              CodeReferenceElement: CanEqual
+                PsiElement(identifier)('CanEqual')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: Short
+                  CodeReferenceElement: Short
+                    PsiElement(identifier)('Short')
+              PsiElement(])(']')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      WildcardPattern
+        PsiElement(_)('_')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: summon
+        PsiElement(identifier)('summon')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          ParametrizedType: CanEqual[Float, Nothing]
+            SimpleType: CanEqual
+              CodeReferenceElement: CanEqual
+                PsiElement(identifier)('CanEqual')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Float
+                  CodeReferenceElement: Float
+                    PsiElement(identifier)('Float')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement(])(']')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      WildcardPattern
+        PsiElement(_)('_')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: summon
+        PsiElement(identifier)('summon')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          ParametrizedType: CanEqual[Nothing, Float]
+            SimpleType: CanEqual
+              CodeReferenceElement: CanEqual
+                PsiElement(identifier)('CanEqual')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: Float
+                  CodeReferenceElement: Float
+                    PsiElement(identifier)('Float')
+              PsiElement(])(']')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      WildcardPattern
+        PsiElement(_)('_')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: summon
+        PsiElement(identifier)('summon')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          ParametrizedType: CanEqual[Double, Nothing]
+            SimpleType: CanEqual
+              CodeReferenceElement: CanEqual
+                PsiElement(identifier)('CanEqual')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Double
+                  CodeReferenceElement: Double
+                    PsiElement(identifier)('Double')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement(])(']')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      WildcardPattern
+        PsiElement(_)('_')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: summon
+        PsiElement(identifier)('summon')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          ParametrizedType: CanEqual[Nothing, Double]
+            SimpleType: CanEqual
+              CodeReferenceElement: CanEqual
+                PsiElement(identifier)('CanEqual')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: Double
+                  CodeReferenceElement: Double
+                    PsiElement(identifier)('Double')
+              PsiElement(])(']')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      WildcardPattern
+        PsiElement(_)('_')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: summon
+        PsiElement(identifier)('summon')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          ParametrizedType: CanEqual[3.0, Nothing]
+            SimpleType: CanEqual
+              CodeReferenceElement: CanEqual
+                PsiElement(identifier)('CanEqual')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                LiteralType: 3.0
+                  DoubleLiteral
+                    PsiElement(double)('3.0')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement(])(']')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      WildcardPattern
+        PsiElement(_)('_')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: summon
+        PsiElement(identifier)('summon')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          ParametrizedType: CanEqual[Nothing, 3.0]
+            SimpleType: CanEqual
+              CodeReferenceElement: CanEqual
+                PsiElement(identifier)('CanEqual')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                LiteralType: 3.0
+                  DoubleLiteral
+                    PsiElement(double)('3.0')
+              PsiElement(])(']')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      WildcardPattern
+        PsiElement(_)('_')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: summon
+        PsiElement(identifier)('summon')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          ParametrizedType: CanEqual[String, Nothing]
+            SimpleType: CanEqual
+              CodeReferenceElement: CanEqual
+                PsiElement(identifier)('CanEqual')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement(])(']')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      WildcardPattern
+        PsiElement(_)('_')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: summon
+        PsiElement(identifier)('summon')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          ParametrizedType: CanEqual[Nothing, String]
+            SimpleType: CanEqual
+              CodeReferenceElement: CanEqual
+                PsiElement(identifier)('CanEqual')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+              PsiElement(])(']')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      WildcardPattern
+        PsiElement(_)('_')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: summon
+        PsiElement(identifier)('summon')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          ParametrizedType: CanEqual["foo", Nothing]
+            SimpleType: CanEqual
+              CodeReferenceElement: CanEqual
+                PsiElement(identifier)('CanEqual')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                LiteralType: "foo"
+                  StringLiteral
+                    PsiElement(string content)('"foo"')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement(])(']')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      WildcardPattern
+        PsiElement(_)('_')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: summon
+        PsiElement(identifier)('summon')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          ParametrizedType: CanEqual[Nothing, "foo"]
+            SimpleType: CanEqual
+              CodeReferenceElement: CanEqual
+                PsiElement(identifier)('CanEqual')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                LiteralType: "foo"
+                  StringLiteral
+                    PsiElement(string content)('"foo"')
+              PsiElement(])(']')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      WildcardPattern
+        PsiElement(_)('_')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: summon
+        PsiElement(identifier)('summon')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          ParametrizedType: CanEqual[Char, Nothing]
+            SimpleType: CanEqual
+              CodeReferenceElement: CanEqual
+                PsiElement(identifier)('CanEqual')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Char
+                  CodeReferenceElement: Char
+                    PsiElement(identifier)('Char')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement(])(']')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      WildcardPattern
+        PsiElement(_)('_')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: summon
+        PsiElement(identifier)('summon')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          ParametrizedType: CanEqual[Nothing, Char]
+            SimpleType: CanEqual
+              CodeReferenceElement: CanEqual
+                PsiElement(identifier)('CanEqual')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: Char
+                  CodeReferenceElement: Char
+                    PsiElement(identifier)('Char')
+              PsiElement(])(']')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      WildcardPattern
+        PsiElement(_)('_')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: summon
+        PsiElement(identifier)('summon')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          ParametrizedType: CanEqual['f', Nothing]
+            SimpleType: CanEqual
+              CodeReferenceElement: CanEqual
+                PsiElement(identifier)('CanEqual')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                LiteralType: 'f'
+                  CharLiteral
+                    PsiElement(Character)(''f'')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement(])(']')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      WildcardPattern
+        PsiElement(_)('_')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: summon
+        PsiElement(identifier)('summon')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          ParametrizedType: CanEqual[Nothing, 'f']
+            SimpleType: CanEqual
+              CodeReferenceElement: CanEqual
+                PsiElement(identifier)('CanEqual')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                LiteralType: 'f'
+                  CharLiteral
+                    PsiElement(Character)(''f'')
+              PsiElement(])(']')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      WildcardPattern
+        PsiElement(_)('_')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: summon
+        PsiElement(identifier)('summon')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          ParametrizedType: CanEqual[Boolean, Nothing]
+            SimpleType: CanEqual
+              CodeReferenceElement: CanEqual
+                PsiElement(identifier)('CanEqual')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Boolean
+                  CodeReferenceElement: Boolean
+                    PsiElement(identifier)('Boolean')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement(])(']')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      WildcardPattern
+        PsiElement(_)('_')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: summon
+        PsiElement(identifier)('summon')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          ParametrizedType: CanEqual[Nothing, Boolean]
+            SimpleType: CanEqual
+              CodeReferenceElement: CanEqual
+                PsiElement(identifier)('CanEqual')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: Boolean
+                  CodeReferenceElement: Boolean
+                    PsiElement(identifier)('Boolean')
+              PsiElement(])(']')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      WildcardPattern
+        PsiElement(_)('_')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: summon
+        PsiElement(identifier)('summon')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          ParametrizedType: CanEqual[true, Nothing]
+            SimpleType: CanEqual
+              CodeReferenceElement: CanEqual
+                PsiElement(identifier)('CanEqual')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                LiteralType: true
+                  BooleanLiteral
+                    PsiElement(true)('true')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement(])(']')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      WildcardPattern
+        PsiElement(_)('_')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: summon
+        PsiElement(identifier)('summon')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          ParametrizedType: CanEqual[Nothing, true]
+            SimpleType: CanEqual
+              CodeReferenceElement: CanEqual
+                PsiElement(identifier)('CanEqual')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                LiteralType: true
+                  BooleanLiteral
+                    PsiElement(true)('true')
+              PsiElement(])(']')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      WildcardPattern
+        PsiElement(_)('_')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: summon
+        PsiElement(identifier)('summon')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          ParametrizedType: CanEqual[Foo, Nothing]
+            SimpleType: CanEqual
+              CodeReferenceElement: CanEqual
+                PsiElement(identifier)('CanEqual')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Foo
+                  CodeReferenceElement: Foo
+                    PsiElement(identifier)('Foo')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement(])(']')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      WildcardPattern
+        PsiElement(_)('_')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: summon
+        PsiElement(identifier)('summon')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          ParametrizedType: CanEqual[Nothing, Foo]
+            SimpleType: CanEqual
+              CodeReferenceElement: CanEqual
+                PsiElement(identifier)('CanEqual')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: Foo
+                  CodeReferenceElement: Foo
+                    PsiElement(identifier)('Foo')
+              PsiElement(])(']')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      WildcardPattern
+        PsiElement(_)('_')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: summon
+        PsiElement(identifier)('summon')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          ParametrizedType: CanEqual[Option[Int], None.type]
+            SimpleType: CanEqual
+              CodeReferenceElement: CanEqual
+                PsiElement(identifier)('CanEqual')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                ParametrizedType: Option[Int]
+                  SimpleType: Option
+                    CodeReferenceElement: Option
+                      PsiElement(identifier)('Option')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                    PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: None.type
+                  CodeReferenceElement: None
+                    PsiElement(identifier)('None')
+                  PsiElement(.)('.')
+                  PsiElement(type)('type')
+              PsiElement(])(']')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      WildcardPattern
+        PsiElement(_)('_')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: summon
+        PsiElement(identifier)('summon')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          ParametrizedType: CanEqual[Option[Int], Option[Nothing]]
+            SimpleType: CanEqual
+              CodeReferenceElement: CanEqual
+                PsiElement(identifier)('CanEqual')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                ParametrizedType: Option[Int]
+                  SimpleType: Option
+                    CodeReferenceElement: Option
+                      PsiElement(identifier)('Option')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                    PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                ParametrizedType: Option[Nothing]
+                  SimpleType: Option
+                    CodeReferenceElement: Option
+                      PsiElement(identifier)('Option')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Nothing
+                        CodeReferenceElement: Nothing
+                          PsiElement(identifier)('Nothing')
+                    PsiElement(])(']')
+              PsiElement(])(']')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      WildcardPattern
+        PsiElement(_)('_')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: summon
+        PsiElement(identifier)('summon')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          ParametrizedType: CanEqual[Any & Nothing, Foo]
+            SimpleType: CanEqual
+              CodeReferenceElement: CanEqual
+                PsiElement(identifier)('CanEqual')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                InfixType: Any & Nothing
+                  SimpleType: Any
+                    CodeReferenceElement: Any
+                      PsiElement(identifier)('Any')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: &
+                    PsiElement(identifier)('&')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Nothing
+                    CodeReferenceElement: Nothing
+                      PsiElement(identifier)('Nothing')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: Foo
+                  CodeReferenceElement: Foo
+                    PsiElement(identifier)('Foo')
+              PsiElement(])(']')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      WildcardPattern
+        PsiElement(_)('_')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: summon
+        PsiElement(identifier)('summon')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          ParametrizedType: CanEqual[Nothing & Any, Foo]
+            SimpleType: CanEqual
+              CodeReferenceElement: CanEqual
+                PsiElement(identifier)('CanEqual')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                InfixType: Nothing & Any
+                  SimpleType: Nothing
+                    CodeReferenceElement: Nothing
+                      PsiElement(identifier)('Nothing')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: &
+                    PsiElement(identifier)('&')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Any
+                    CodeReferenceElement: Any
+                      PsiElement(identifier)('Any')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: Foo
+                  CodeReferenceElement: Foo
+                    PsiElement(identifier)('Foo')
+              PsiElement(])(']')
         PsiElement(])(']')

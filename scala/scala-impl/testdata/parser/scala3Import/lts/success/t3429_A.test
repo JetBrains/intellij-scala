@@ -54,9 +54,10 @@ ScalaFile
                           PsiElement(identifier)('classOf')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: Exception
-                            CodeReferenceElement: Exception
-                              PsiElement(identifier)('Exception')
+                          TypeArgument
+                            SimpleType: Exception
+                              CodeReferenceElement: Exception
+                                PsiElement(identifier)('Exception')
                           PsiElement(])(']')
                     PsiElement())(')')
           Modifiers

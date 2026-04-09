@@ -201,9 +201,10 @@ ScalaFile
                         PsiElement(identifier)('Array')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: String
-                        CodeReferenceElement: String
-                          PsiElement(identifier)('String')
+                      TypeArgument
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiWhiteSpace(' ')
@@ -237,9 +238,10 @@ ScalaFile
                             PsiElement(identifier)('C')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: String
-                            CodeReferenceElement: String
-                              PsiElement(identifier)('String')
+                          TypeArgument
+                            SimpleType: String
+                              CodeReferenceElement: String
+                                PsiElement(identifier)('String')
                           PsiElement(])(']')
             PsiWhiteSpace('\n    ')
             ScPatternDefinition: y
@@ -260,9 +262,10 @@ ScalaFile
                     PsiElement(identifier)('C')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: Any
-                    CodeReferenceElement: Any
-                      PsiElement(identifier)('Any')
+                  TypeArgument
+                    SimpleType: Any
+                      CodeReferenceElement: Any
+                        PsiElement(identifier)('Any')
                   PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(=)('=')

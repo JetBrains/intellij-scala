@@ -186,16 +186,17 @@ ScalaFile
                       PsiElement(identifier)('int')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      FunctionalType: Int => String
-                        SimpleType: Int
-                          CodeReferenceElement: Int
-                            PsiElement(identifier)('Int')
-                        PsiWhiteSpace(' ')
-                        PsiElement(=>)('=>')
-                        PsiWhiteSpace(' ')
-                        SimpleType: String
-                          CodeReferenceElement: String
-                            PsiElement(identifier)('String')
+                      TypeArgument
+                        FunctionalType: Int => String
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>)('=>')
+                          PsiWhiteSpace(' ')
+                          SimpleType: String
+                            CodeReferenceElement: String
+                              PsiElement(identifier)('String')
                       PsiElement(])(']')
                   ArgumentList
                     PsiElement(()('(')
@@ -213,9 +214,10 @@ ScalaFile
                     PsiElement(identifier)('int')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: String
-                      CodeReferenceElement: String
-                        PsiElement(identifier)('String')
+                    TypeArgument
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
                     PsiElement(])(']')
                 ArgumentList
                   PsiElement(()('(')
@@ -303,16 +305,17 @@ ScalaFile
               PsiElement(identifier)('int')
             TypeArgumentsList
               PsiElement([)('[')
-              FunctionalType: Int => String
-                SimpleType: Int
-                  CodeReferenceElement: Int
-                    PsiElement(identifier)('Int')
-                PsiWhiteSpace(' ')
-                PsiElement(=>)('=>')
-                PsiWhiteSpace(' ')
-                SimpleType: String
-                  CodeReferenceElement: String
-                    PsiElement(identifier)('String')
+              TypeArgument
+                FunctionalType: Int => String
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScPatternDefinition: p

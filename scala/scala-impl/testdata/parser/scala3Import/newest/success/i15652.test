@@ -82,9 +82,10 @@ ScalaFile
           PsiElement(identifier)('Option')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: Node
-          CodeReferenceElement: Node
-            PsiElement(identifier)('Node')
+        TypeArgument
+          SimpleType: Node
+            CodeReferenceElement: Node
+              PsiElement(identifier)('Node')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -123,26 +124,29 @@ ScalaFile
                   PsiElement(identifier)('Map')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: String
-                  CodeReferenceElement: String
-                    PsiElement(identifier)('String')
+                TypeArgument
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                ParametrizedType: NodeParser[? <: T]
-                  SimpleType: NodeParser
-                    CodeReferenceElement: NodeParser
-                      PsiElement(identifier)('NodeParser')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    WildcardType: ? <: T
-                      PsiElement(?)('?')
-                      PsiWhiteSpace(' ')
-                      PsiElement(<:)('<:')
-                      PsiWhiteSpace(' ')
-                      SimpleType: T
-                        CodeReferenceElement: T
-                          PsiElement(identifier)('T')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: NodeParser[? <: T]
+                    SimpleType: NodeParser
+                      CodeReferenceElement: NodeParser
+                        PsiElement(identifier)('NodeParser')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        WildcardType: ? <: T
+                          PsiElement(?)('?')
+                          PsiWhiteSpace(' ')
+                          PsiElement(<:)('<:')
+                          PsiWhiteSpace(' ')
+                          SimpleType: T
+                            CodeReferenceElement: T
+                              PsiElement(identifier)('T')
+                      PsiElement(])(']')
                 PsiElement(])(']')
         PsiElement())(')')
     PsiElement(:)(':')
@@ -153,9 +157,10 @@ ScalaFile
           PsiElement(identifier)('Option')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: T
-          CodeReferenceElement: T
-            PsiElement(identifier)('T')
+        TypeArgument
+          SimpleType: T
+            CodeReferenceElement: T
+              PsiElement(identifier)('T')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')

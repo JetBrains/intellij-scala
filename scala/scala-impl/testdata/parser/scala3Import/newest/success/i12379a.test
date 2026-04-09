@@ -80,23 +80,26 @@ ScalaFile
             PsiElement(identifier)('summonInline')
           TypeArgumentsList
             PsiElement([)('[')
-            ParametrizedType: Conversion[from.type, Of]
-              SimpleType: Conversion
-                CodeReferenceElement: Conversion
-                  PsiElement(identifier)('Conversion')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: from.type
-                  CodeReferenceElement: from
-                    PsiElement(identifier)('from')
-                  PsiElement(.)('.')
-                  PsiElement(type)('type')
-                PsiElement(,)(',')
-                PsiWhiteSpace(' ')
-                SimpleType: Of
-                  CodeReferenceElement: Of
-                    PsiElement(identifier)('Of')
-                PsiElement(])(']')
+            TypeArgument
+              ParametrizedType: Conversion[from.type, Of]
+                SimpleType: Conversion
+                  CodeReferenceElement: Conversion
+                    PsiElement(identifier)('Conversion')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: from.type
+                      CodeReferenceElement: from
+                        PsiElement(identifier)('from')
+                      PsiElement(.)('.')
+                      PsiElement(type)('type')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeArgument
+                    SimpleType: Of
+                      CodeReferenceElement: Of
+                        PsiElement(identifier)('Of')
+                  PsiElement(])(']')
             PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScFunctionDefinition: convOK
@@ -154,16 +157,18 @@ ScalaFile
                   PsiElement(identifier)('Conversion')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: from.type
-                  CodeReferenceElement: from
-                    PsiElement(identifier)('from')
-                  PsiElement(.)('.')
-                  PsiElement(type)('type')
+                TypeArgument
+                  SimpleType: from.type
+                    CodeReferenceElement: from
+                      PsiElement(identifier)('from')
+                    PsiElement(.)('.')
+                    PsiElement(type)('type')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: Of
-                  CodeReferenceElement: Of
-                    PsiElement(identifier)('Of')
+                TypeArgument
+                  SimpleType: Of
+                    CodeReferenceElement: Of
+                      PsiElement(identifier)('Of')
                 PsiElement(])(']')
         PsiElement())(')')
     PsiWhiteSpace(' ')
@@ -248,21 +253,24 @@ ScalaFile
           PsiElement(identifier)('Conversion')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: T
-          CodeReferenceElement: T
-            PsiElement(identifier)('T')
+        TypeArgument
+          SimpleType: T
+            CodeReferenceElement: T
+              PsiElement(identifier)('T')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
-        ParametrizedType: Bar[T]
-          SimpleType: Bar
-            CodeReferenceElement: Bar
-              PsiElement(identifier)('Bar')
-          TypeArgumentsList
-            PsiElement([)('[')
-            SimpleType: T
-              CodeReferenceElement: T
-                PsiElement(identifier)('T')
-            PsiElement(])(']')
+        TypeArgument
+          ParametrizedType: Bar[T]
+            SimpleType: Bar
+              CodeReferenceElement: Bar
+                PsiElement(identifier)('Bar')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
+              PsiElement(])(']')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -311,20 +319,23 @@ ScalaFile
             PsiElement(identifier)('convOK')
           TypeArgumentsList
             PsiElement([)('[')
-            ParametrizedType: Bar[1]
-              SimpleType: Bar
-                CodeReferenceElement: Bar
-                  PsiElement(identifier)('Bar')
-              TypeArgumentsList
-                PsiElement([)('[')
-                LiteralType: 1
-                  IntegerLiteral
-                    PsiElement(integer)('1')
-                PsiElement(])(']')
+            TypeArgument
+              ParametrizedType: Bar[1]
+                SimpleType: Bar
+                  CodeReferenceElement: Bar
+                    PsiElement(identifier)('Bar')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    LiteralType: 1
+                      IntegerLiteral
+                        PsiElement(integer)('1')
+                  PsiElement(])(']')
             PsiElement(,)(',')
-            LiteralType: 1
-              IntegerLiteral
-                PsiElement(integer)('1')
+            TypeArgument
+              LiteralType: 1
+                IntegerLiteral
+                  PsiElement(integer)('1')
             PsiElement(])(']')
         ArgumentList
           PsiElement(()('(')
@@ -338,20 +349,23 @@ ScalaFile
             PsiElement(identifier)('convFail')
           TypeArgumentsList
             PsiElement([)('[')
-            ParametrizedType: Bar[1]
-              SimpleType: Bar
-                CodeReferenceElement: Bar
-                  PsiElement(identifier)('Bar')
-              TypeArgumentsList
-                PsiElement([)('[')
-                LiteralType: 1
-                  IntegerLiteral
-                    PsiElement(integer)('1')
-                PsiElement(])(']')
+            TypeArgument
+              ParametrizedType: Bar[1]
+                SimpleType: Bar
+                  CodeReferenceElement: Bar
+                    PsiElement(identifier)('Bar')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    LiteralType: 1
+                      IntegerLiteral
+                        PsiElement(integer)('1')
+                  PsiElement(])(']')
             PsiElement(,)(',')
-            LiteralType: 1
-              IntegerLiteral
-                PsiElement(integer)('1')
+            TypeArgument
+              LiteralType: 1
+                IntegerLiteral
+                  PsiElement(integer)('1')
             PsiElement(])(']')
         ArgumentList
           PsiElement(()('(')

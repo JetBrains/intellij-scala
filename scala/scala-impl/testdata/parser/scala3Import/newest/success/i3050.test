@@ -97,9 +97,10 @@ ScalaFile
                       PsiElement(identifier)('Option')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Nothing
-                      CodeReferenceElement: Nothing
-                        PsiElement(identifier)('Nothing')
+                    TypeArgument
+                      SimpleType: Nothing
+                        CodeReferenceElement: Nothing
+                          PsiElement(identifier)('Nothing')
                     PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScClass: Some
@@ -150,9 +151,10 @@ ScalaFile
                       PsiElement(identifier)('Option')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: T
-                      CodeReferenceElement: T
-                        PsiElement(identifier)('T')
+                    TypeArgument
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
                     PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScFunctionDefinition: openImpl

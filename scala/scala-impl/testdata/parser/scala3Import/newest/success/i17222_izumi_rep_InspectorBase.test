@@ -177,9 +177,10 @@ ScalaFile
                 PsiElement(identifier)('valueOf')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: debug
-                  CodeReferenceElement: debug
-                    PsiElement(identifier)('debug')
+                TypeArgument
+                  SimpleType: debug
+                    CodeReferenceElement: debug
+                      PsiElement(identifier)('debug')
                 PsiElement(])(']')
           PsiWhiteSpace('\n  ')
           ScTypeAliasDefinition: debug
@@ -768,12 +769,13 @@ ScalaFile
                     PsiElement(identifier)('valueOf')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    TypeProjection: InspectorBase#debug
-                      SimpleType: InspectorBase
-                        CodeReferenceElement: InspectorBase
-                          PsiElement(identifier)('InspectorBase')
-                      PsiElement(#)('#')
-                      PsiElement(identifier)('debug')
+                    TypeArgument
+                      TypeProjection: InspectorBase#debug
+                        SimpleType: InspectorBase
+                          CodeReferenceElement: InspectorBase
+                            PsiElement(identifier)('InspectorBase')
+                        PsiElement(#)('#')
+                        PsiElement(identifier)('debug')
                     PsiElement(])(']')
                 PsiElement())(')')
                 PsiWhiteSpace(' ')
@@ -861,12 +863,13 @@ ScalaFile
                     PsiElement(identifier)('valueOf')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    TypeProjection: InspectorBase#debug
-                      SimpleType: InspectorBase
-                        CodeReferenceElement: InspectorBase
-                          PsiElement(identifier)('InspectorBase')
-                      PsiElement(#)('#')
-                      PsiElement(identifier)('debug')
+                    TypeArgument
+                      TypeProjection: InspectorBase#debug
+                        SimpleType: InspectorBase
+                          CodeReferenceElement: InspectorBase
+                            PsiElement(identifier)('InspectorBase')
+                        PsiElement(#)('#')
+                        PsiElement(identifier)('debug')
                     PsiElement(])(']')
                 PsiElement())(')')
                 PsiWhiteSpace(' ')

@@ -133,9 +133,10 @@ ScalaFile
                               PsiElement(identifier)('Seq')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: Int
-                              CodeReferenceElement: Int
-                                PsiElement(identifier)('Int')
+                            TypeArgument
+                              SimpleType: Int
+                                CodeReferenceElement: Int
+                                  PsiElement(identifier)('Int')
                             PsiElement(])(']')
                     PsiElement())(')')
                 PsiWhiteSpace(' ')
@@ -188,9 +189,10 @@ ScalaFile
                               PsiElement(identifier)('Seq')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: Long
-                              CodeReferenceElement: Long
-                                PsiElement(identifier)('Long')
+                            TypeArgument
+                              SimpleType: Long
+                                CodeReferenceElement: Long
+                                  PsiElement(identifier)('Long')
                             PsiElement(])(']')
                     PsiElement())(')')
                 PsiWhiteSpace(' ')
@@ -240,9 +242,10 @@ ScalaFile
                 PsiElement(identifier)('empty')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Int
-                  CodeReferenceElement: Int
-                    PsiElement(identifier)('Int')
+                TypeArgument
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
                 PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScObject: test2
@@ -339,9 +342,10 @@ ScalaFile
                               PsiElement(identifier)('Seq')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: Int
-                              CodeReferenceElement: Int
-                                PsiElement(identifier)('Int')
+                            TypeArgument
+                              SimpleType: Int
+                                CodeReferenceElement: Int
+                                  PsiElement(identifier)('Int')
                             PsiElement(])(']')
                     PsiElement())(')')
                 PsiWhiteSpace(' ')
@@ -382,9 +386,10 @@ ScalaFile
                               PsiElement(identifier)('Seq')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: Long
-                              CodeReferenceElement: Long
-                                PsiElement(identifier)('Long')
+                            TypeArgument
+                              SimpleType: Long
+                                CodeReferenceElement: Long
+                                  PsiElement(identifier)('Long')
                             PsiElement(])(']')
                     PsiElement())(')')
                 PsiWhiteSpace(' ')
@@ -434,9 +439,10 @@ ScalaFile
                 PsiElement(identifier)('empty')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Int
-                  CodeReferenceElement: Int
-                    PsiElement(identifier)('Int')
+                TypeArgument
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
                 PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScObject: test3
@@ -521,9 +527,10 @@ ScalaFile
                               PsiElement(identifier)('Seq')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: Int
-                              CodeReferenceElement: Int
-                                PsiElement(identifier)('Int')
+                            TypeArgument
+                              SimpleType: Int
+                                CodeReferenceElement: Int
+                                  PsiElement(identifier)('Int')
                             PsiElement(])(']')
                     PsiElement())(')')
                 PsiWhiteSpace(' ')
@@ -576,9 +583,10 @@ ScalaFile
                               PsiElement(identifier)('Seq')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: Long
-                              CodeReferenceElement: Long
-                                PsiElement(identifier)('Long')
+                            TypeArgument
+                              SimpleType: Long
+                                CodeReferenceElement: Long
+                                  PsiElement(identifier)('Long')
                             PsiElement(])(']')
                     PsiElement())(')')
                 PsiWhiteSpace(' ')
@@ -628,7 +636,8 @@ ScalaFile
                 PsiElement(identifier)('empty')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Int
-                  CodeReferenceElement: Int
-                    PsiElement(identifier)('Int')
+                TypeArgument
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
                 PsiElement(])(']')

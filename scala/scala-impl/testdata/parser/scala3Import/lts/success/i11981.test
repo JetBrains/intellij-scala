@@ -97,9 +97,10 @@ ScalaFile
                 PsiElement(identifier)('Optional')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
+              TypeArgument
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -157,9 +158,10 @@ ScalaFile
                 PsiElement(identifier)('TC')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Optional
-                CodeReferenceElement: Optional
-                  PsiElement(identifier)('Optional')
+              TypeArgument
+                SimpleType: Optional
+                  CodeReferenceElement: Optional
+                    PsiElement(identifier)('Optional')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -185,9 +187,10 @@ ScalaFile
                 PsiElement(identifier)('TC')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Option
-                CodeReferenceElement: Option
-                  PsiElement(identifier)('Option')
+              TypeArgument
+                SimpleType: Option
+                  CodeReferenceElement: Option
+                    PsiElement(identifier)('Option')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -235,9 +238,10 @@ ScalaFile
                         PsiElement(identifier)('F')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                       PsiElement(])(']')
               PsiElement())(')')
             ParametersClause
@@ -252,9 +256,10 @@ ScalaFile
                         PsiElement(identifier)('TC')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: F
-                        CodeReferenceElement: F
-                          PsiElement(identifier)('F')
+                      TypeArgument
+                        SimpleType: F
+                          CodeReferenceElement: F
+                            PsiElement(identifier)('F')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -291,14 +296,16 @@ ScalaFile
               PsiElement(identifier)('summonTC')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Optional
-                CodeReferenceElement: Optional
-                  PsiElement(identifier)('Optional')
+              TypeArgument
+                SimpleType: Optional
+                  CodeReferenceElement: Optional
+                    PsiElement(identifier)('Optional')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
+              TypeArgument
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
               PsiElement(])(']')
           ArgumentList
             PsiElement(()('(')

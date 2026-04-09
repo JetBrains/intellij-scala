@@ -60,9 +60,10 @@ ScalaFile
               PsiElement(identifier)('Bound')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: T
-              CodeReferenceElement: T
-                PsiElement(identifier)('T')
+            TypeArgument
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
             PsiElement(])(']')
       PsiElement(])(']')
     PrimaryConstructor
@@ -168,15 +169,17 @@ ScalaFile
                       PsiElement(identifier)('Container')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    ParametrizedType: MyClass[_]
-                      SimpleType: MyClass
-                        CodeReferenceElement: MyClass
-                          PsiElement(identifier)('MyClass')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        WildcardType: _
-                          PsiElement(_)('_')
-                        PsiElement(])(']')
+                    TypeArgument
+                      ParametrizedType: MyClass[_]
+                        SimpleType: MyClass
+                          CodeReferenceElement: MyClass
+                            PsiElement(identifier)('MyClass')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            WildcardType: _
+                              PsiElement(_)('_')
+                          PsiElement(])(']')
                     PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       IfStatement

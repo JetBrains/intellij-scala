@@ -33,9 +33,10 @@ ScalaFile
               PsiElement(identifier)('Iterable')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: X
-              CodeReferenceElement: X
-                PsiElement(identifier)('X')
+            TypeArgument
+              SimpleType: X
+                CodeReferenceElement: X
+                  PsiElement(identifier)('X')
             PsiElement(])(']')
       PsiElement(])(']')
     PrimaryConstructor
@@ -80,18 +81,19 @@ ScalaFile
                 PsiElement(identifier)('GenericCompanion')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: scala.collection.immutable.Seq
-                CodeReferenceElement: scala.collection.immutable.Seq
-                  CodeReferenceElement: scala.collection.immutable
-                    CodeReferenceElement: scala.collection
-                      CodeReferenceElement: scala
-                        PsiElement(identifier)('scala')
+              TypeArgument
+                SimpleType: scala.collection.immutable.Seq
+                  CodeReferenceElement: scala.collection.immutable.Seq
+                    CodeReferenceElement: scala.collection.immutable
+                      CodeReferenceElement: scala.collection
+                        CodeReferenceElement: scala
+                          PsiElement(identifier)('scala')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('collection')
                       PsiElement(.)('.')
-                      PsiElement(identifier)('collection')
+                      PsiElement(identifier)('immutable')
                     PsiElement(.)('.')
-                    PsiElement(identifier)('immutable')
-                  PsiElement(.)('.')
-                  PsiElement(identifier)('Seq')
+                    PsiElement(identifier)('Seq')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -118,18 +120,19 @@ ScalaFile
                 PsiElement(identifier)('GenericCompanion')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: scala.collection.mutable.Seq
-                CodeReferenceElement: scala.collection.mutable.Seq
-                  CodeReferenceElement: scala.collection.mutable
-                    CodeReferenceElement: scala.collection
-                      CodeReferenceElement: scala
-                        PsiElement(identifier)('scala')
+              TypeArgument
+                SimpleType: scala.collection.mutable.Seq
+                  CodeReferenceElement: scala.collection.mutable.Seq
+                    CodeReferenceElement: scala.collection.mutable
+                      CodeReferenceElement: scala.collection
+                        CodeReferenceElement: scala
+                          PsiElement(identifier)('scala')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('collection')
                       PsiElement(.)('.')
-                      PsiElement(identifier)('collection')
+                      PsiElement(identifier)('mutable')
                     PsiElement(.)('.')
-                    PsiElement(identifier)('mutable')
-                  PsiElement(.)('.')
-                  PsiElement(identifier)('Seq')
+                    PsiElement(identifier)('Seq')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

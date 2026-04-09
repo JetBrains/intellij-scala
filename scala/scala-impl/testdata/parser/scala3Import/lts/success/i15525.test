@@ -182,9 +182,10 @@ ScalaFile
                 PsiElement(identifier)('Delegating')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Delegates
-                CodeReferenceElement: Delegates
-                  PsiElement(identifier)('Delegates')
+              TypeArgument
+                SimpleType: Delegates
+                  CodeReferenceElement: Delegates
+                    PsiElement(identifier)('Delegates')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScTypeAliasDeclaration: Delegates
@@ -232,9 +233,10 @@ ScalaFile
                     PsiElement(identifier)('Aux')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: E
-                    CodeReferenceElement: E
-                      PsiElement(identifier)('E')
+                  TypeArgument
+                    SimpleType: E
+                      CodeReferenceElement: E
+                        PsiElement(identifier)('E')
                   PsiElement(])(']')
           PsiElement())(')')
     ExtendsBlock
@@ -258,9 +260,10 @@ ScalaFile
                 PsiElement(identifier)('Aux')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: E
-                CodeReferenceElement: E
-                  PsiElement(identifier)('E')
+              TypeArgument
+                SimpleType: E
+                  CodeReferenceElement: E
+                    PsiElement(identifier)('E')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScFunctionDefinition: element0
@@ -332,8 +335,9 @@ ScalaFile
                   PsiElement(identifier)('Resolution')
               TypeArgumentsList
                 PsiElement([)('[')
-                WildcardType: ?
-                  PsiElement(?)('?')
+                TypeArgument
+                  WildcardType: ?
+                    PsiElement(?)('?')
                 PsiElement(])(']')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
@@ -352,8 +356,9 @@ ScalaFile
                   PsiElement(identifier)('Resolution')
               TypeArgumentsList
                 PsiElement([)('[')
-                WildcardType: ?
-                  PsiElement(?)('?')
+                TypeArgument
+                  WildcardType: ?
+                    PsiElement(?)('?')
                 PsiElement(])(']')
         PsiElement(,)(',')
         PsiWhiteSpace('\n    ')
@@ -372,8 +377,9 @@ ScalaFile
                   PsiElement(identifier)('Resolution')
               TypeArgumentsList
                 PsiElement([)('[')
-                WildcardType: ?
-                  PsiElement(?)('?')
+                TypeArgument
+                  WildcardType: ?
+                    PsiElement(?)('?')
                 PsiElement(])(']')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
@@ -392,8 +398,9 @@ ScalaFile
                   PsiElement(identifier)('Resolution')
               TypeArgumentsList
                 PsiElement([)('[')
-                WildcardType: ?
-                  PsiElement(?)('?')
+                TypeArgument
+                  WildcardType: ?
+                    PsiElement(?)('?')
                 PsiElement(])(']')
         PsiElement(,)(',')
         PsiWhiteSpace('\n    ')
@@ -412,8 +419,9 @@ ScalaFile
                   PsiElement(identifier)('Resolution')
               TypeArgumentsList
                 PsiElement([)('[')
-                WildcardType: ?
-                  PsiElement(?)('?')
+                TypeArgument
+                  WildcardType: ?
+                    PsiElement(?)('?')
                 PsiElement(])(']')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
@@ -432,8 +440,9 @@ ScalaFile
                   PsiElement(identifier)('Resolution')
               TypeArgumentsList
                 PsiElement([)('[')
-                WildcardType: ?
-                  PsiElement(?)('?')
+                TypeArgument
+                  WildcardType: ?
+                    PsiElement(?)('?')
                 PsiElement(])(']')
         PsiElement(,)(',')
         PsiWhiteSpace('\n    ')
@@ -452,8 +461,9 @@ ScalaFile
                   PsiElement(identifier)('Resolution')
               TypeArgumentsList
                 PsiElement([)('[')
-                WildcardType: ?
-                  PsiElement(?)('?')
+                TypeArgument
+                  WildcardType: ?
+                    PsiElement(?)('?')
                 PsiElement(])(']')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
@@ -472,8 +482,9 @@ ScalaFile
                   PsiElement(identifier)('Resolution')
               TypeArgumentsList
                 PsiElement([)('[')
-                WildcardType: ?
-                  PsiElement(?)('?')
+                TypeArgument
+                  WildcardType: ?
+                    PsiElement(?)('?')
                 PsiElement(])(']')
         PsiElement(,)(',')
         PsiWhiteSpace('\n    ')
@@ -492,8 +503,9 @@ ScalaFile
                   PsiElement(identifier)('Resolution')
               TypeArgumentsList
                 PsiElement([)('[')
-                WildcardType: ?
-                  PsiElement(?)('?')
+                TypeArgument
+                  WildcardType: ?
+                    PsiElement(?)('?')
                 PsiElement(])(']')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
@@ -512,8 +524,9 @@ ScalaFile
                   PsiElement(identifier)('Resolution')
               TypeArgumentsList
                 PsiElement([)('[')
-                WildcardType: ?
-                  PsiElement(?)('?')
+                TypeArgument
+                  WildcardType: ?
+                    PsiElement(?)('?')
                 PsiElement(])(']')
         PsiElement(,)(',')
         PsiWhiteSpace('\n    ')
@@ -532,8 +545,9 @@ ScalaFile
                   PsiElement(identifier)('Resolution')
               TypeArgumentsList
                 PsiElement([)('[')
-                WildcardType: ?
-                  PsiElement(?)('?')
+                TypeArgument
+                  WildcardType: ?
+                    PsiElement(?)('?')
                 PsiElement(])(']')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
@@ -552,8 +566,9 @@ ScalaFile
                   PsiElement(identifier)('Resolution')
               TypeArgumentsList
                 PsiElement([)('[')
-                WildcardType: ?
-                  PsiElement(?)('?')
+                TypeArgument
+                  WildcardType: ?
+                    PsiElement(?)('?')
                 PsiElement(])(']')
         PsiElement(,)(',')
         PsiWhiteSpace('\n    ')
@@ -572,8 +587,9 @@ ScalaFile
                   PsiElement(identifier)('Resolution')
               TypeArgumentsList
                 PsiElement([)('[')
-                WildcardType: ?
-                  PsiElement(?)('?')
+                TypeArgument
+                  WildcardType: ?
+                    PsiElement(?)('?')
                 PsiElement(])(']')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
@@ -592,8 +608,9 @@ ScalaFile
                   PsiElement(identifier)('Resolution')
               TypeArgumentsList
                 PsiElement([)('[')
-                WildcardType: ?
-                  PsiElement(?)('?')
+                TypeArgument
+                  WildcardType: ?
+                    PsiElement(?)('?')
                 PsiElement(])(']')
         PsiElement(,)(',')
         PsiWhiteSpace('\n    ')
@@ -612,8 +629,9 @@ ScalaFile
                   PsiElement(identifier)('Resolution')
               TypeArgumentsList
                 PsiElement([)('[')
-                WildcardType: ?
-                  PsiElement(?)('?')
+                TypeArgument
+                  WildcardType: ?
+                    PsiElement(?)('?')
                 PsiElement(])(']')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
@@ -632,8 +650,9 @@ ScalaFile
                   PsiElement(identifier)('Resolution')
               TypeArgumentsList
                 PsiElement([)('[')
-                WildcardType: ?
-                  PsiElement(?)('?')
+                TypeArgument
+                  WildcardType: ?
+                    PsiElement(?)('?')
                 PsiElement(])(']')
         PsiElement(,)(',')
         PsiWhiteSpace('\n    ')
@@ -652,8 +671,9 @@ ScalaFile
                   PsiElement(identifier)('Resolution')
               TypeArgumentsList
                 PsiElement([)('[')
-                WildcardType: ?
-                  PsiElement(?)('?')
+                TypeArgument
+                  WildcardType: ?
+                    PsiElement(?)('?')
                 PsiElement(])(']')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
@@ -672,8 +692,9 @@ ScalaFile
                   PsiElement(identifier)('Resolution')
               TypeArgumentsList
                 PsiElement([)('[')
-                WildcardType: ?
-                  PsiElement(?)('?')
+                TypeArgument
+                  WildcardType: ?
+                    PsiElement(?)('?')
                 PsiElement(])(']')
         PsiElement(,)(',')
         PsiWhiteSpace('\n    ')
@@ -692,8 +713,9 @@ ScalaFile
                   PsiElement(identifier)('Resolution')
               TypeArgumentsList
                 PsiElement([)('[')
-                WildcardType: ?
-                  PsiElement(?)('?')
+                TypeArgument
+                  WildcardType: ?
+                    PsiElement(?)('?')
                 PsiElement(])(']')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
@@ -712,8 +734,9 @@ ScalaFile
                   PsiElement(identifier)('Resolution')
               TypeArgumentsList
                 PsiElement([)('[')
-                WildcardType: ?
-                  PsiElement(?)('?')
+                TypeArgument
+                  WildcardType: ?
+                    PsiElement(?)('?')
                 PsiElement(])(']')
         PsiElement(,)(',')
         PsiWhiteSpace('\n    ')
@@ -732,8 +755,9 @@ ScalaFile
                   PsiElement(identifier)('Resolution')
               TypeArgumentsList
                 PsiElement([)('[')
-                WildcardType: ?
-                  PsiElement(?)('?')
+                TypeArgument
+                  WildcardType: ?
+                    PsiElement(?)('?')
                 PsiElement(])(']')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
@@ -752,8 +776,9 @@ ScalaFile
                   PsiElement(identifier)('Resolution')
               TypeArgumentsList
                 PsiElement([)('[')
-                WildcardType: ?
-                  PsiElement(?)('?')
+                TypeArgument
+                  WildcardType: ?
+                    PsiElement(?)('?')
                 PsiElement(])(']')
         PsiElement())(')')
     PsiWhiteSpace('\n')

@@ -87,32 +87,34 @@ ScalaFile
         PsiElement(identifier)('summon')
       TypeArgumentsList
         PsiElement([)('[')
-        InfixType: Decoded["Tuple(0, EmptyTuple)"] =:= 0 *: EmptyTuple
-          ParametrizedType: Decoded["Tuple(0, EmptyTuple)"]
-            SimpleType: Decoded
-              CodeReferenceElement: Decoded
-                PsiElement(identifier)('Decoded')
-            TypeArgumentsList
-              PsiElement([)('[')
-              LiteralType: "Tuple(0, EmptyTuple)"
-                StringLiteral
-                  PsiElement(string content)('"Tuple(0, EmptyTuple)"')
-              PsiElement(])(']')
-          PsiWhiteSpace(' ')
-          CodeReferenceElement: =:=
-            PsiElement(identifier)('=:=')
-          PsiWhiteSpace(' ')
-          InfixType: 0 *: EmptyTuple
-            LiteralType: 0
-              IntegerLiteral
-                PsiElement(integer)('0')
+        TypeArgument
+          InfixType: Decoded["Tuple(0, EmptyTuple)"] =:= 0 *: EmptyTuple
+            ParametrizedType: Decoded["Tuple(0, EmptyTuple)"]
+              SimpleType: Decoded
+                CodeReferenceElement: Decoded
+                  PsiElement(identifier)('Decoded')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  LiteralType: "Tuple(0, EmptyTuple)"
+                    StringLiteral
+                      PsiElement(string content)('"Tuple(0, EmptyTuple)"')
+                PsiElement(])(']')
             PsiWhiteSpace(' ')
-            CodeReferenceElement: *:
-              PsiElement(identifier)('*:')
+            CodeReferenceElement: =:=
+              PsiElement(identifier)('=:=')
             PsiWhiteSpace(' ')
-            SimpleType: EmptyTuple
-              CodeReferenceElement: EmptyTuple
-                PsiElement(identifier)('EmptyTuple')
+            InfixType: 0 *: EmptyTuple
+              LiteralType: 0
+                IntegerLiteral
+                  PsiElement(integer)('0')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: *:
+                PsiElement(identifier)('*:')
+              PsiWhiteSpace(' ')
+              SimpleType: EmptyTuple
+                CodeReferenceElement: EmptyTuple
+                  PsiElement(identifier)('EmptyTuple')
         PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScTypeAliasDefinition: Decoded
@@ -147,14 +149,16 @@ ScalaFile
             PsiElement(identifier)('Matches')
         TypeArgumentsList
           PsiElement([)('[')
-          SimpleType: S
-            CodeReferenceElement: S
-              PsiElement(identifier)('S')
+          TypeArgument
+            SimpleType: S
+              CodeReferenceElement: S
+                PsiElement(identifier)('S')
           PsiElement(,)(',')
           PsiWhiteSpace(' ')
-          LiteralType: "Tuple(.+, .+)"
-            StringLiteral
-              PsiElement(string content)('"Tuple(.+, .+)"')
+          TypeArgument
+            LiteralType: "Tuple(.+, .+)"
+              StringLiteral
+                PsiElement(string content)('"Tuple(.+, .+)"')
           PsiElement(])(']')
       PsiWhiteSpace(' ')
       PsiElement(match)('match')
@@ -177,36 +181,42 @@ ScalaFile
                   PsiElement(identifier)('Parsed')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: Substring[S, 6, 19]
-                  SimpleType: Substring
-                    CodeReferenceElement: Substring
-                      PsiElement(identifier)('Substring')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: S
-                      CodeReferenceElement: S
-                        PsiElement(identifier)('S')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    LiteralType: 6
-                      IntegerLiteral
-                        PsiElement(integer)('6')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    LiteralType: 19
-                      IntegerLiteral
-                        PsiElement(integer)('19')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: Substring[S, 6, 19]
+                    SimpleType: Substring
+                      CodeReferenceElement: Substring
+                        PsiElement(identifier)('Substring')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: S
+                          CodeReferenceElement: S
+                            PsiElement(identifier)('S')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        LiteralType: 6
+                          IntegerLiteral
+                            PsiElement(integer)('6')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        LiteralType: 19
+                          IntegerLiteral
+                            PsiElement(integer)('19')
+                      PsiElement(])(']')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                LiteralType: 0
-                  IntegerLiteral
-                    PsiElement(integer)('0')
+                TypeArgument
+                  LiteralType: 0
+                    IntegerLiteral
+                      PsiElement(integer)('0')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                LiteralType: ""
-                  StringLiteral
-                    PsiElement(string content)('""')
+                TypeArgument
+                  LiteralType: ""
+                    StringLiteral
+                      PsiElement(string content)('""')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(match)('match')
@@ -235,9 +245,10 @@ ScalaFile
                         PsiElement(identifier)('Decoded')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      LiteralType: "0"
-                        StringLiteral
-                          PsiElement(string content)('"0"')
+                      TypeArgument
+                        LiteralType: "0"
+                          StringLiteral
+                            PsiElement(string content)('"0"')
                       PsiElement(])(']')
                   PsiWhiteSpace(' ')
                   CodeReferenceElement: *:
@@ -328,14 +339,16 @@ ScalaFile
             PsiElement(identifier)('Matches')
         TypeArgumentsList
           PsiElement([)('[')
-          SimpleType: S
-            CodeReferenceElement: S
-              PsiElement(identifier)('S')
+          TypeArgument
+            SimpleType: S
+              CodeReferenceElement: S
+                PsiElement(identifier)('S')
           PsiElement(,)(',')
           PsiWhiteSpace(' ')
-          LiteralType: "other"
-            StringLiteral
-              PsiElement(string content)('"other"')
+          TypeArgument
+            LiteralType: "other"
+              StringLiteral
+                PsiElement(string content)('"other"')
           PsiElement(])(']')
       PsiWhiteSpace(' ')
       PsiElement(match)('match')
@@ -396,43 +409,50 @@ ScalaFile
                       PsiElement(identifier)('Parsed')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    ParametrizedType: Substring[S, 1, Length[S]]
-                      SimpleType: Substring
-                        CodeReferenceElement: Substring
-                          PsiElement(identifier)('Substring')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        SimpleType: S
-                          CodeReferenceElement: S
-                            PsiElement(identifier)('S')
-                        PsiElement(,)(',')
-                        PsiWhiteSpace(' ')
-                        LiteralType: 1
-                          IntegerLiteral
-                            PsiElement(integer)('1')
-                        PsiElement(,)(',')
-                        PsiWhiteSpace(' ')
-                        ParametrizedType: Length[S]
-                          SimpleType: Length
-                            CodeReferenceElement: Length
-                              PsiElement(identifier)('Length')
-                          TypeArgumentsList
-                            PsiElement([)('[')
+                    TypeArgument
+                      ParametrizedType: Substring[S, 1, Length[S]]
+                        SimpleType: Substring
+                          CodeReferenceElement: Substring
+                            PsiElement(identifier)('Substring')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
                             SimpleType: S
                               CodeReferenceElement: S
                                 PsiElement(identifier)('S')
-                            PsiElement(])(']')
-                        PsiElement(])(']')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            LiteralType: 1
+                              IntegerLiteral
+                                PsiElement(integer)('1')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            ParametrizedType: Length[S]
+                              SimpleType: Length
+                                CodeReferenceElement: Length
+                                  PsiElement(identifier)('Length')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                TypeArgument
+                                  SimpleType: S
+                                    CodeReferenceElement: S
+                                      PsiElement(identifier)('S')
+                                PsiElement(])(']')
+                          PsiElement(])(']')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    SimpleType: I
-                      CodeReferenceElement: I
-                        PsiElement(identifier)('I')
+                    TypeArgument
+                      SimpleType: I
+                        CodeReferenceElement: I
+                          PsiElement(identifier)('I')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    LiteralType: ""
-                      StringLiteral
-                        PsiElement(string content)('""')
+                    TypeArgument
+                      LiteralType: ""
+                        StringLiteral
+                          PsiElement(string content)('""')
                     PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScMatchTypeCaseImpl(match type case)
@@ -497,14 +517,16 @@ ScalaFile
                 PsiElement(identifier)('Tuple2')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: String
-                CodeReferenceElement: String
-                  PsiElement(identifier)('String')
+              TypeArgument
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: String
-                CodeReferenceElement: String
-                  PsiElement(identifier)('String')
+              TypeArgument
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -593,9 +615,10 @@ ScalaFile
                   PsiElement(identifier)('Cond')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: B
-                  CodeReferenceElement: B
-                    PsiElement(identifier)('B')
+                TypeArgument
+                  SimpleType: B
+                    CodeReferenceElement: B
+                      PsiElement(identifier)('B')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(match)('match')
@@ -639,9 +662,10 @@ ScalaFile
                 PsiElement(identifier)('Decoded')
             TypeArgumentsList
               PsiElement([)('[')
-              LiteralType: false
-                BooleanLiteral
-                  PsiElement(false)('false')
+              TypeArgument
+                LiteralType: false
+                  BooleanLiteral
+                    PsiElement(false)('false')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

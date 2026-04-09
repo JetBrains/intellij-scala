@@ -88,9 +88,10 @@ ScalaFile
                         PsiElement(identifier)('Iterator')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -101,9 +102,10 @@ ScalaFile
                 PsiElement(identifier)('Tree')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -142,9 +144,10 @@ ScalaFile
                         PsiElement(identifier)('Iterable')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: E
-                        CodeReferenceElement: E
-                          PsiElement(identifier)('E')
+                      TypeArgument
+                        SimpleType: E
+                          CodeReferenceElement: E
+                            PsiElement(identifier)('E')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -155,9 +158,10 @@ ScalaFile
                 PsiElement(identifier)('Tree')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: E
-                CodeReferenceElement: E
-                  PsiElement(identifier)('E')
+              TypeArgument
+                SimpleType: E
+                  CodeReferenceElement: E
+                    PsiElement(identifier)('E')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

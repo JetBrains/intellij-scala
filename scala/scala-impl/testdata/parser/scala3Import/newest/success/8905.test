@@ -54,24 +54,27 @@ ScalaFile
                         PsiElement(identifier)('Option')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      ParametrizedType: Tuple.Concat[T1, T1]
-                        SimpleType: Tuple.Concat
-                          CodeReferenceElement: Tuple.Concat
-                            CodeReferenceElement: Tuple
-                              PsiElement(identifier)('Tuple')
-                            PsiElement(.)('.')
-                            PsiElement(identifier)('Concat')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: T1
-                            CodeReferenceElement: T1
-                              PsiElement(identifier)('T1')
-                          PsiElement(,)(',')
-                          PsiWhiteSpace(' ')
-                          SimpleType: T1
-                            CodeReferenceElement: T1
-                              PsiElement(identifier)('T1')
-                          PsiElement(])(']')
+                      TypeArgument
+                        ParametrizedType: Tuple.Concat[T1, T1]
+                          SimpleType: Tuple.Concat
+                            CodeReferenceElement: Tuple.Concat
+                              CodeReferenceElement: Tuple
+                                PsiElement(identifier)('Tuple')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('Concat')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: T1
+                                CodeReferenceElement: T1
+                                  PsiElement(identifier)('T1')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            TypeArgument
+                              SimpleType: T1
+                                CodeReferenceElement: T1
+                                  PsiElement(identifier)('T1')
+                            PsiElement(])(']')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')

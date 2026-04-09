@@ -98,14 +98,15 @@ ScalaFile
                         PsiElement(identifier)('Stream')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      WildcardType: ? <: Foo
-                        PsiElement(?)('?')
-                        PsiWhiteSpace(' ')
-                        PsiElement(<:)('<:')
-                        PsiWhiteSpace(' ')
-                        SimpleType: Foo
-                          CodeReferenceElement: Foo
-                            PsiElement(identifier)('Foo')
+                      TypeArgument
+                        WildcardType: ? <: Foo
+                          PsiElement(?)('?')
+                          PsiWhiteSpace(' ')
+                          PsiElement(<:)('<:')
+                          PsiWhiteSpace(' ')
+                          SimpleType: Foo
+                            CodeReferenceElement: Foo
+                              PsiElement(identifier)('Foo')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiWhiteSpace(' ')

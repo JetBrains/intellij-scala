@@ -134,8 +134,9 @@ ScalaFile
                           PsiElement(identifier)('Bar')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        TypeVariable: t
-                          PsiElement(identifier)('t')
+                        TypeArgument
+                          TypeVariable: t
+                            PsiElement(identifier)('t')
                         PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
@@ -152,17 +153,18 @@ ScalaFile
                       PsiElement(identifier)('head')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      InfixType: Int *: t
-                        SimpleType: Int
-                          CodeReferenceElement: Int
-                            PsiElement(identifier)('Int')
-                        PsiWhiteSpace(' ')
-                        CodeReferenceElement: *:
-                          PsiElement(identifier)('*:')
-                        PsiWhiteSpace(' ')
-                        SimpleType: t
-                          CodeReferenceElement: t
-                            PsiElement(identifier)('t')
+                      TypeArgument
+                        InfixType: Int *: t
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: *:
+                            PsiElement(identifier)('*:')
+                          PsiWhiteSpace(' ')
+                          SimpleType: t
+                            CodeReferenceElement: t
+                              PsiElement(identifier)('t')
                       PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(})('}')

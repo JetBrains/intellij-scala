@@ -63,9 +63,10 @@ ScalaFile
           PsiElement(identifier)('Option')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: E
-          CodeReferenceElement: E
-            PsiElement(identifier)('E')
+        TypeArgument
+          SimpleType: E
+            CodeReferenceElement: E
+              PsiElement(identifier)('E')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -142,9 +143,10 @@ ScalaFile
             PsiElement(identifier)('handle')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: RuntimeException
-              CodeReferenceElement: RuntimeException
-                PsiElement(identifier)('RuntimeException')
+            TypeArgument
+              SimpleType: RuntimeException
+                CodeReferenceElement: RuntimeException
+                  PsiElement(identifier)('RuntimeException')
             PsiElement(])(']')
         ArgumentList
           PsiElement(()('(')

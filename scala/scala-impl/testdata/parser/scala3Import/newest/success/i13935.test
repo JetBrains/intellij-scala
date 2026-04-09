@@ -73,19 +73,21 @@ ScalaFile
             PsiElement(identifier)('summon')
           TypeArgumentsList
             PsiElement([)('[')
-            ParametrizedType: Mirror.SumOf[Foo]
-              SimpleType: Mirror.SumOf
-                CodeReferenceElement: Mirror.SumOf
-                  CodeReferenceElement: Mirror
-                    PsiElement(identifier)('Mirror')
-                  PsiElement(.)('.')
-                  PsiElement(identifier)('SumOf')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: Foo
-                  CodeReferenceElement: Foo
-                    PsiElement(identifier)('Foo')
-                PsiElement(])(']')
+            TypeArgument
+              ParametrizedType: Mirror.SumOf[Foo]
+                SimpleType: Mirror.SumOf
+                  CodeReferenceElement: Mirror.SumOf
+                    CodeReferenceElement: Mirror
+                      PsiElement(identifier)('Mirror')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('SumOf')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: Foo
+                      CodeReferenceElement: Foo
+                        PsiElement(identifier)('Foo')
+                  PsiElement(])(']')
             PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiElement(})('}')
@@ -126,19 +128,21 @@ ScalaFile
             PsiElement(identifier)('summon')
           TypeArgumentsList
             PsiElement([)('[')
-            ParametrizedType: Mirror.SumOf[Foo]
-              SimpleType: Mirror.SumOf
-                CodeReferenceElement: Mirror.SumOf
-                  CodeReferenceElement: Mirror
-                    PsiElement(identifier)('Mirror')
-                  PsiElement(.)('.')
-                  PsiElement(identifier)('SumOf')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: Foo
-                  CodeReferenceElement: Foo
-                    PsiElement(identifier)('Foo')
-                PsiElement(])(']')
+            TypeArgument
+              ParametrizedType: Mirror.SumOf[Foo]
+                SimpleType: Mirror.SumOf
+                  CodeReferenceElement: Mirror.SumOf
+                    CodeReferenceElement: Mirror
+                      PsiElement(identifier)('Mirror')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('SumOf')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: Foo
+                      CodeReferenceElement: Foo
+                        PsiElement(identifier)('Foo')
+                  PsiElement(])(']')
             PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiElement(})('}')

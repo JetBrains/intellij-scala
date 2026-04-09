@@ -163,29 +163,30 @@ ScalaFile
                 PsiElement(identifier)('Option')
             TypeArgumentsList
               PsiElement([)('[')
-              TupleType: (that.a.type, that.a.B)
-                PsiElement(()('(')
-                TypesList
-                  SimpleType: that.a.type
-                    CodeReferenceElement: that.a
-                      CodeReferenceElement: that
-                        PsiElement(identifier)('that')
-                      PsiElement(.)('.')
-                      PsiElement(identifier)('a')
-                    PsiElement(.)('.')
-                    PsiElement(type)('type')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: that.a.B
-                    CodeReferenceElement: that.a.B
+              TypeArgument
+                TupleType: (that.a.type, that.a.B)
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: that.a.type
                       CodeReferenceElement: that.a
                         CodeReferenceElement: that
                           PsiElement(identifier)('that')
                         PsiElement(.)('.')
                         PsiElement(identifier)('a')
                       PsiElement(.)('.')
-                      PsiElement(identifier)('B')
-                PsiElement())(')')
+                      PsiElement(type)('type')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: that.a.B
+                      CodeReferenceElement: that.a.B
+                        CodeReferenceElement: that.a
+                          CodeReferenceElement: that
+                            PsiElement(identifier)('that')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('a')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('B')
+                  PsiElement())(')')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

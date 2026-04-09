@@ -119,22 +119,24 @@ ScalaFile
             PsiElement(identifier)('summon')
           TypeArgumentsList
             PsiElement([)('[')
-            ParametrizedType: deriving.Mirror.Of[Foo]
-              SimpleType: deriving.Mirror.Of
-                CodeReferenceElement: deriving.Mirror.Of
-                  CodeReferenceElement: deriving.Mirror
-                    CodeReferenceElement: deriving
-                      PsiElement(identifier)('deriving')
+            TypeArgument
+              ParametrizedType: deriving.Mirror.Of[Foo]
+                SimpleType: deriving.Mirror.Of
+                  CodeReferenceElement: deriving.Mirror.Of
+                    CodeReferenceElement: deriving.Mirror
+                      CodeReferenceElement: deriving
+                        PsiElement(identifier)('deriving')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Mirror')
                     PsiElement(.)('.')
-                    PsiElement(identifier)('Mirror')
-                  PsiElement(.)('.')
-                  PsiElement(identifier)('Of')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: Foo
-                  CodeReferenceElement: Foo
-                    PsiElement(identifier)('Foo')
-                PsiElement(])(']')
+                    PsiElement(identifier)('Of')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: Foo
+                      CodeReferenceElement: Foo
+                        PsiElement(identifier)('Foo')
+                  PsiElement(])(']')
             PsiElement(])(']')
         PsiWhiteSpace('\n\t')
         GenericCall
@@ -142,22 +144,24 @@ ScalaFile
             PsiElement(identifier)('summon')
           TypeArgumentsList
             PsiElement([)('[')
-            ParametrizedType: deriving.Mirror.Of[InnerTrait]
-              SimpleType: deriving.Mirror.Of
-                CodeReferenceElement: deriving.Mirror.Of
-                  CodeReferenceElement: deriving.Mirror
-                    CodeReferenceElement: deriving
-                      PsiElement(identifier)('deriving')
+            TypeArgument
+              ParametrizedType: deriving.Mirror.Of[InnerTrait]
+                SimpleType: deriving.Mirror.Of
+                  CodeReferenceElement: deriving.Mirror.Of
+                    CodeReferenceElement: deriving.Mirror
+                      CodeReferenceElement: deriving
+                        PsiElement(identifier)('deriving')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Mirror')
                     PsiElement(.)('.')
-                    PsiElement(identifier)('Mirror')
-                  PsiElement(.)('.')
-                  PsiElement(identifier)('Of')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: InnerTrait
-                  CodeReferenceElement: InnerTrait
-                    PsiElement(identifier)('InnerTrait')
-                PsiElement(])(']')
+                    PsiElement(identifier)('Of')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: InnerTrait
+                      CodeReferenceElement: InnerTrait
+                        PsiElement(identifier)('InnerTrait')
+                  PsiElement(])(']')
             PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
@@ -194,22 +198,24 @@ ScalaFile
             PsiElement(identifier)('summon')
           TypeArgumentsList
             PsiElement([)('[')
-            ParametrizedType: deriving.Mirror.Of[Foo]
-              SimpleType: deriving.Mirror.Of
-                CodeReferenceElement: deriving.Mirror.Of
-                  CodeReferenceElement: deriving.Mirror
-                    CodeReferenceElement: deriving
-                      PsiElement(identifier)('deriving')
+            TypeArgument
+              ParametrizedType: deriving.Mirror.Of[Foo]
+                SimpleType: deriving.Mirror.Of
+                  CodeReferenceElement: deriving.Mirror.Of
+                    CodeReferenceElement: deriving.Mirror
+                      CodeReferenceElement: deriving
+                        PsiElement(identifier)('deriving')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Mirror')
                     PsiElement(.)('.')
-                    PsiElement(identifier)('Mirror')
-                  PsiElement(.)('.')
-                  PsiElement(identifier)('Of')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: Foo
-                  CodeReferenceElement: Foo
-                    PsiElement(identifier)('Foo')
-                PsiElement(])(']')
+                    PsiElement(identifier)('Of')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: Foo
+                      CodeReferenceElement: Foo
+                        PsiElement(identifier)('Foo')
+                  PsiElement(])(']')
             PsiElement(])(']')
         PsiWhiteSpace('\n\t')
         GenericCall
@@ -217,22 +223,24 @@ ScalaFile
             PsiElement(identifier)('summon')
           TypeArgumentsList
             PsiElement([)('[')
-            ParametrizedType: deriving.Mirror.Of[InnerTrait]
-              SimpleType: deriving.Mirror.Of
-                CodeReferenceElement: deriving.Mirror.Of
-                  CodeReferenceElement: deriving.Mirror
-                    CodeReferenceElement: deriving
-                      PsiElement(identifier)('deriving')
+            TypeArgument
+              ParametrizedType: deriving.Mirror.Of[InnerTrait]
+                SimpleType: deriving.Mirror.Of
+                  CodeReferenceElement: deriving.Mirror.Of
+                    CodeReferenceElement: deriving.Mirror
+                      CodeReferenceElement: deriving
+                        PsiElement(identifier)('deriving')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Mirror')
                     PsiElement(.)('.')
-                    PsiElement(identifier)('Mirror')
-                  PsiElement(.)('.')
-                  PsiElement(identifier)('Of')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: InnerTrait
-                  CodeReferenceElement: InnerTrait
-                    PsiElement(identifier)('InnerTrait')
-                PsiElement(])(']')
+                    PsiElement(identifier)('Of')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: InnerTrait
+                      CodeReferenceElement: InnerTrait
+                        PsiElement(identifier)('InnerTrait')
+                  PsiElement(])(']')
             PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

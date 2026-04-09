@@ -39,9 +39,10 @@ ScalaFile
                 PsiElement(identifier)('Ordering')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
+              TypeArgument
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -51,14 +52,16 @@ ScalaFile
               PsiElement(identifier)('summon')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Ordering[Int]
-                SimpleType: Ordering
-                  CodeReferenceElement: Ordering
-                    PsiElement(identifier)('Ordering')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Ordering[Int]
+                  SimpleType: Ordering
+                    CodeReferenceElement: Ordering
+                      PsiElement(identifier)('Ordering')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                    PsiElement(])(']')
               PsiElement(])(']')

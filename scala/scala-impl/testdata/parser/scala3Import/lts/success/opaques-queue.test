@@ -156,18 +156,19 @@ ScalaFile
                 PsiElement(identifier)('Option')
             TypeArgumentsList
               PsiElement([)('[')
-              TupleType: (Elem, Queue)
-                PsiElement(()('(')
-                TypesList
-                  SimpleType: Elem
-                    CodeReferenceElement: Elem
-                      PsiElement(identifier)('Elem')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: Queue
-                    CodeReferenceElement: Queue
-                      PsiElement(identifier)('Queue')
-                PsiElement())(')')
+              TypeArgument
+                TupleType: (Elem, Queue)
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: Elem
+                      CodeReferenceElement: Elem
+                        PsiElement(identifier)('Elem')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Queue
+                      CodeReferenceElement: Queue
+                        PsiElement(identifier)('Queue')
+                  PsiElement())(')')
               PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScPatternDefinition: QueueModule
@@ -229,9 +230,10 @@ ScalaFile
                         PsiElement(identifier)('List')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Elem
-                        CodeReferenceElement: Elem
-                          PsiElement(identifier)('Elem')
+                      TypeArgument
+                        SimpleType: Elem
+                          CodeReferenceElement: Elem
+                            PsiElement(identifier)('Elem')
                       PsiElement(])(']')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
@@ -241,9 +243,10 @@ ScalaFile
                         PsiElement(identifier)('List')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Elem
-                        CodeReferenceElement: Elem
-                          PsiElement(identifier)('Elem')
+                      TypeArgument
+                        SimpleType: Elem
+                          CodeReferenceElement: Elem
+                            PsiElement(identifier)('Elem')
                       PsiElement(])(']')
                 PsiElement())(')')
             PsiWhiteSpace('\n    ')
@@ -371,18 +374,19 @@ ScalaFile
                     PsiElement(identifier)('Option')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  TupleType: (Elem, Queue)
-                    PsiElement(()('(')
-                    TypesList
-                      SimpleType: Elem
-                        CodeReferenceElement: Elem
-                          PsiElement(identifier)('Elem')
-                      PsiElement(,)(',')
-                      PsiWhiteSpace(' ')
-                      SimpleType: Queue
-                        CodeReferenceElement: Queue
-                          PsiElement(identifier)('Queue')
-                    PsiElement())(')')
+                  TypeArgument
+                    TupleType: (Elem, Queue)
+                      PsiElement(()('(')
+                      TypesList
+                        SimpleType: Elem
+                          CodeReferenceElement: Elem
+                            PsiElement(identifier)('Elem')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Queue
+                          CodeReferenceElement: Queue
+                            PsiElement(identifier)('Queue')
+                      PsiElement())(')')
                   PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(=)('=')
@@ -536,9 +540,10 @@ ScalaFile
                     PsiElement(identifier)('List')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: Elem
-                    CodeReferenceElement: Elem
-                      PsiElement(identifier)('Elem')
+                  TypeArgument
+                    SimpleType: Elem
+                      CodeReferenceElement: Elem
+                        PsiElement(identifier)('Elem')
                   PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
@@ -548,9 +553,10 @@ ScalaFile
                     PsiElement(identifier)('List')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: Elem
-                    CodeReferenceElement: Elem
-                      PsiElement(identifier)('Elem')
+                  TypeArgument
+                    SimpleType: Elem
+                      CodeReferenceElement: Elem
+                        PsiElement(identifier)('Elem')
                   PsiElement(])(']')
             PsiElement())(')')
         PsiWhiteSpace('\n  ')
@@ -678,18 +684,19 @@ ScalaFile
                 PsiElement(identifier)('Option')
             TypeArgumentsList
               PsiElement([)('[')
-              TupleType: (Elem, Queue)
-                PsiElement(()('(')
-                TypesList
-                  SimpleType: Elem
-                    CodeReferenceElement: Elem
-                      PsiElement(identifier)('Elem')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: Queue
-                    CodeReferenceElement: Queue
-                      PsiElement(identifier)('Queue')
-                PsiElement())(')')
+              TypeArgument
+                TupleType: (Elem, Queue)
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: Elem
+                      CodeReferenceElement: Elem
+                        PsiElement(identifier)('Elem')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Queue
+                      CodeReferenceElement: Queue
+                        PsiElement(identifier)('Queue')
+                  PsiElement())(')')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

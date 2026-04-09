@@ -94,9 +94,10 @@ ScalaFile
           PsiElement(identifier)('Box')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: T1
-          CodeReferenceElement: T1
-            PsiElement(identifier)('T1')
+        TypeArgument
+          SimpleType: T1
+            CodeReferenceElement: T1
+              PsiElement(identifier)('T1')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')

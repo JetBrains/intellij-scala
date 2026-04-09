@@ -59,9 +59,10 @@ ScalaFile
               PsiElement(identifier)('BatchDiffFunction')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: T
-              CodeReferenceElement: T
-                PsiElement(identifier)('T')
+            TypeArgument
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
             PsiElement(])(']')
       PsiElement(])(']')
     PrimaryConstructor
@@ -95,9 +96,10 @@ ScalaFile
                 PsiElement(identifier)('State')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScObject: FirstOrderMinimizer
@@ -207,31 +209,35 @@ ScalaFile
                       PsiElement(identifier)('Iterator')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    TypeProjection: FirstOrderMinimizer[T, BatchDiffFunction[T]]#State
-                      ParametrizedType: FirstOrderMinimizer[T, BatchDiffFunction[T]]
-                        SimpleType: FirstOrderMinimizer
-                          CodeReferenceElement: FirstOrderMinimizer
-                            PsiElement(identifier)('FirstOrderMinimizer')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: T
-                            CodeReferenceElement: T
-                              PsiElement(identifier)('T')
-                          PsiElement(,)(',')
-                          PsiWhiteSpace(' ')
-                          ParametrizedType: BatchDiffFunction[T]
-                            SimpleType: BatchDiffFunction
-                              CodeReferenceElement: BatchDiffFunction
-                                PsiElement(identifier)('BatchDiffFunction')
-                            TypeArgumentsList
-                              PsiElement([)('[')
+                    TypeArgument
+                      TypeProjection: FirstOrderMinimizer[T, BatchDiffFunction[T]]#State
+                        ParametrizedType: FirstOrderMinimizer[T, BatchDiffFunction[T]]
+                          SimpleType: FirstOrderMinimizer
+                            CodeReferenceElement: FirstOrderMinimizer
+                              PsiElement(identifier)('FirstOrderMinimizer')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
                               SimpleType: T
                                 CodeReferenceElement: T
                                   PsiElement(identifier)('T')
-                              PsiElement(])(']')
-                          PsiElement(])(']')
-                      PsiElement(#)('#')
-                      PsiElement(identifier)('State')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            TypeArgument
+                              ParametrizedType: BatchDiffFunction[T]
+                                SimpleType: BatchDiffFunction
+                                  CodeReferenceElement: BatchDiffFunction
+                                    PsiElement(identifier)('BatchDiffFunction')
+                                TypeArgumentsList
+                                  PsiElement([)('[')
+                                  TypeArgument
+                                    SimpleType: T
+                                      CodeReferenceElement: T
+                                        PsiElement(identifier)('T')
+                                  PsiElement(])(']')
+                            PsiElement(])(']')
+                        PsiElement(#)('#')
+                        PsiElement(identifier)('State')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')

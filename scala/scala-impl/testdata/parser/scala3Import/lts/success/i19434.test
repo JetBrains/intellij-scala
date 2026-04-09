@@ -125,12 +125,14 @@ ScalaFile
                         PsiElement(identifier)('Named')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      TypeVariable: _
-                        PsiElement(_)('_')
+                      TypeArgument
+                        TypeVariable: _
+                          PsiElement(_)('_')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      TypeVariable: x
-                        PsiElement(identifier)('x')
+                      TypeArgument
+                        TypeVariable: x
+                          PsiElement(identifier)('x')
                       PsiElement(])(']')
                   PsiWhiteSpace(' ')
                   CodeReferenceElement: *:
@@ -155,9 +157,10 @@ ScalaFile
                         PsiElement(identifier)('DropNames')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: xs
-                        CodeReferenceElement: xs
-                          PsiElement(identifier)('xs')
+                      TypeArgument
+                        SimpleType: xs
+                          CodeReferenceElement: xs
+                            PsiElement(identifier)('xs')
                       PsiElement(])(']')
               PsiWhiteSpace('\n    ')
               ScMatchTypeCaseImpl(match type case)
@@ -201,9 +204,10 @@ ScalaFile
                 PsiElement(identifier)('DropNames')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

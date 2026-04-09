@@ -78,16 +78,18 @@ ScalaFile
                           PsiElement(identifier)('Expr')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        ParametrizedType: Assertion[A]
-                          SimpleType: Assertion
-                            CodeReferenceElement: Assertion
-                              PsiElement(identifier)('Assertion')
-                          TypeArgumentsList
-                            PsiElement([)('[')
-                            SimpleType: A
-                              CodeReferenceElement: A
-                                PsiElement(identifier)('A')
-                            PsiElement(])(']')
+                        TypeArgument
+                          ParametrizedType: Assertion[A]
+                            SimpleType: Assertion
+                              CodeReferenceElement: Assertion
+                                PsiElement(identifier)('Assertion')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: A
+                                  CodeReferenceElement: A
+                                    PsiElement(identifier)('A')
+                              PsiElement(])(']')
                         PsiElement(])(']')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
@@ -106,9 +108,10 @@ ScalaFile
                           PsiElement(identifier)('Expr')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: A
-                          CodeReferenceElement: A
-                            PsiElement(identifier)('A')
+                        TypeArgument
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
                         PsiElement(])(']')
                 PsiElement())(')')
               ParametersClause
@@ -129,9 +132,10 @@ ScalaFile
                   PsiElement(identifier)('Expr')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Unit
-                  CodeReferenceElement: Unit
-                    PsiElement(identifier)('Unit')
+                TypeArgument
+                  SimpleType: Unit
+                    CodeReferenceElement: Unit
+                      PsiElement(identifier)('Unit')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(=)('=')

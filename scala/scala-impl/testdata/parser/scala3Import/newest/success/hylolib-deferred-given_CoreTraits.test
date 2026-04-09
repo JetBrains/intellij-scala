@@ -383,9 +383,10 @@ ScalaFile
                   PsiElement(identifier)('Value')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Self
-                  CodeReferenceElement: Self
-                    PsiElement(identifier)('Self')
+                TypeArgument
+                  SimpleType: Self
+                    CodeReferenceElement: Self
+                      PsiElement(identifier)('Self')
                 PsiElement(])(']')
         PsiWhiteSpace(' ')
         ScTemplateBody

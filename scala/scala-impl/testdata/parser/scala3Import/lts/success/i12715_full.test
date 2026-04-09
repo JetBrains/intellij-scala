@@ -223,9 +223,10 @@ ScalaFile
                       PsiElement(identifier)('validateV')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: E
-                        CodeReferenceElement: E
-                          PsiElement(identifier)('E')
+                      TypeArgument
+                        SimpleType: E
+                          CodeReferenceElement: E
+                            PsiElement(identifier)('E')
                       PsiElement(])(']')
                   ArgumentList
                     PsiElement(()('(')
@@ -310,9 +311,10 @@ ScalaFile
                   PsiElement(identifier)('erasedValue')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: E
-                    CodeReferenceElement: E
-                      PsiElement(identifier)('E')
+                  TypeArgument
+                    SimpleType: E
+                      CodeReferenceElement: E
+                        PsiElement(identifier)('E')
                   PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(match)('match')
@@ -333,8 +335,9 @@ ScalaFile
                             PsiElement(identifier)('GreaterThan')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          TypeVariable: t
-                            PsiElement(identifier)('t')
+                          TypeArgument
+                            TypeVariable: t
+                              PsiElement(identifier)('t')
                           PsiElement(])(']')
                   PsiWhiteSpace(' ')
                   PsiElement(=>)('=>')
@@ -358,12 +361,14 @@ ScalaFile
                             PsiElement(identifier)('And')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          TypeVariable: a
-                            PsiElement(identifier)('a')
+                          TypeArgument
+                            TypeVariable: a
+                              PsiElement(identifier)('a')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
-                          TypeVariable: b
-                            PsiElement(identifier)('b')
+                          TypeArgument
+                            TypeVariable: b
+                              PsiElement(identifier)('b')
                           PsiElement(])(']')
                   PsiWhiteSpace(' ')
                   PsiElement(=>)('=>')
@@ -378,9 +383,10 @@ ScalaFile
                             PsiElement(identifier)('validateV')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: a
-                              CodeReferenceElement: a
-                                PsiElement(identifier)('a')
+                            TypeArgument
+                              SimpleType: a
+                                CodeReferenceElement: a
+                                  PsiElement(identifier)('a')
                             PsiElement(])(']')
                         ArgumentList
                           PsiElement(()('(')
@@ -407,9 +413,10 @@ ScalaFile
                                   PsiElement(identifier)('validateV')
                                 TypeArgumentsList
                                   PsiElement([)('[')
-                                  SimpleType: b
-                                    CodeReferenceElement: b
-                                      PsiElement(identifier)('b')
+                                  TypeArgument
+                                    SimpleType: b
+                                      CodeReferenceElement: b
+                                        PsiElement(identifier)('b')
                                   PsiElement(])(']')
                               ArgumentList
                                 PsiElement(()('(')
@@ -467,35 +474,40 @@ ScalaFile
                       PsiElement(identifier)('validate')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      ParametrizedType: And[GreaterThan[10], GreaterThan[12]]
-                        SimpleType: And
-                          CodeReferenceElement: And
-                            PsiElement(identifier)('And')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          ParametrizedType: GreaterThan[10]
-                            SimpleType: GreaterThan
-                              CodeReferenceElement: GreaterThan
-                                PsiElement(identifier)('GreaterThan')
-                            TypeArgumentsList
-                              PsiElement([)('[')
-                              LiteralType: 10
-                                IntegerLiteral
-                                  PsiElement(integer)('10')
-                              PsiElement(])(']')
-                          PsiElement(,)(',')
-                          PsiWhiteSpace(' ')
-                          ParametrizedType: GreaterThan[12]
-                            SimpleType: GreaterThan
-                              CodeReferenceElement: GreaterThan
-                                PsiElement(identifier)('GreaterThan')
-                            TypeArgumentsList
-                              PsiElement([)('[')
-                              LiteralType: 12
-                                IntegerLiteral
-                                  PsiElement(integer)('12')
-                              PsiElement(])(']')
-                          PsiElement(])(']')
+                      TypeArgument
+                        ParametrizedType: And[GreaterThan[10], GreaterThan[12]]
+                          SimpleType: And
+                            CodeReferenceElement: And
+                              PsiElement(identifier)('And')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              ParametrizedType: GreaterThan[10]
+                                SimpleType: GreaterThan
+                                  CodeReferenceElement: GreaterThan
+                                    PsiElement(identifier)('GreaterThan')
+                                TypeArgumentsList
+                                  PsiElement([)('[')
+                                  TypeArgument
+                                    LiteralType: 10
+                                      IntegerLiteral
+                                        PsiElement(integer)('10')
+                                  PsiElement(])(']')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            TypeArgument
+                              ParametrizedType: GreaterThan[12]
+                                SimpleType: GreaterThan
+                                  CodeReferenceElement: GreaterThan
+                                    PsiElement(identifier)('GreaterThan')
+                                TypeArgumentsList
+                                  PsiElement([)('[')
+                                  TypeArgument
+                                    LiteralType: 12
+                                      IntegerLiteral
+                                        PsiElement(integer)('12')
+                                  PsiElement(])(']')
+                            PsiElement(])(']')
                       PsiElement(])(']')
                   ArgumentList
                     PsiElement(()('(')

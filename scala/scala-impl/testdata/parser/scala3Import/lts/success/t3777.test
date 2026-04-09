@@ -37,14 +37,16 @@ ScalaFile
                 PsiElement(identifier)('Map')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Symbol
-                CodeReferenceElement: Symbol
-                  PsiElement(identifier)('Symbol')
+              TypeArgument
+                SimpleType: Symbol
+                  CodeReferenceElement: Symbol
+                    PsiElement(identifier)('Symbol')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: String
-                CodeReferenceElement: String
-                  PsiElement(identifier)('String')
+              TypeArgument
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScTypeAliasDefinition: Points
@@ -64,9 +66,10 @@ ScalaFile
                 PsiElement(identifier)('IndexedSeq')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Point
-                CodeReferenceElement: Point
-                  PsiElement(identifier)('Point')
+              TypeArgument
+                SimpleType: Point
+                  CodeReferenceElement: Point
+                    PsiElement(identifier)('Point')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScFunctionDefinition: makePoints2
@@ -93,9 +96,10 @@ ScalaFile
                 PsiElement(identifier)('IndexedSeq')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Point
-                  CodeReferenceElement: Point
-                    PsiElement(identifier)('Point')
+                TypeArgument
+                  SimpleType: Point
+                    CodeReferenceElement: Point
+                      PsiElement(identifier)('Point')
                 PsiElement(])(']')
             ArgumentList
               PsiElement(()('(')

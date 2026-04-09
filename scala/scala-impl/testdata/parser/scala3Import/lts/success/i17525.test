@@ -53,9 +53,10 @@ ScalaFile
                 PsiElement(identifier)('Option')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Tuple
-                CodeReferenceElement: Tuple
-                  PsiElement(identifier)('Tuple')
+              TypeArgument
+                SimpleType: Tuple
+                  CodeReferenceElement: Tuple
+                    PsiElement(identifier)('Tuple')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

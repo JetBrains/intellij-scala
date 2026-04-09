@@ -66,9 +66,10 @@ ScalaFile
                       PsiElement(identifier)('Option')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Throwable
-                      CodeReferenceElement: Throwable
-                        PsiElement(identifier)('Throwable')
+                    TypeArgument
+                      SimpleType: Throwable
+                        CodeReferenceElement: Throwable
+                          PsiElement(identifier)('Throwable')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')

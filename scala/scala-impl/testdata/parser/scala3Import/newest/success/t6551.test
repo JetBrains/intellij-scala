@@ -65,9 +65,10 @@ ScalaFile
                         PsiElement(identifier)('Array')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: String
-                        CodeReferenceElement: String
-                          PsiElement(identifier)('String')
+                      TypeArgument
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -176,9 +177,10 @@ ScalaFile
                             PsiElement(identifier)('Lenser')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: T
-                            CodeReferenceElement: T
-                              PsiElement(identifier)('T')
+                          TypeArgument
+                            SimpleType: T
+                              CodeReferenceElement: T
+                                PsiElement(identifier)('T')
                           PsiElement(])(']')
             PsiWhiteSpace('\n\n    ')
             ScPatternDefinition: qq
@@ -199,9 +201,10 @@ ScalaFile
                   PsiElement(identifier)('lens')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: String
-                    CodeReferenceElement: String
-                      PsiElement(identifier)('String')
+                  TypeArgument
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
                   PsiElement(])(']')
             PsiWhiteSpace('\n  ')
             PsiElement(})('}')

@@ -66,16 +66,18 @@ ScalaFile
                       PsiElement(identifier)('Foo')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    ParametrizedType: Tuple1[T]
-                      SimpleType: Tuple1
-                        CodeReferenceElement: Tuple1
-                          PsiElement(identifier)('Tuple1')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        SimpleType: T
-                          CodeReferenceElement: T
-                            PsiElement(identifier)('T')
-                        PsiElement(])(']')
+                    TypeArgument
+                      ParametrizedType: Tuple1[T]
+                        SimpleType: Tuple1
+                          CodeReferenceElement: Tuple1
+                            PsiElement(identifier)('Tuple1')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: T
+                              CodeReferenceElement: T
+                                PsiElement(identifier)('T')
+                          PsiElement(])(']')
                     PsiElement(])(']')
                 ArgumentList
                   PsiElement(()('(')
@@ -111,18 +113,19 @@ ScalaFile
                       PsiElement(identifier)('Foo')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    TupleType: (T, U)
-                      PsiElement(()('(')
-                      TypesList
-                        SimpleType: T
-                          CodeReferenceElement: T
-                            PsiElement(identifier)('T')
-                        PsiElement(,)(',')
-                        PsiWhiteSpace(' ')
-                        SimpleType: U
-                          CodeReferenceElement: U
-                            PsiElement(identifier)('U')
-                      PsiElement())(')')
+                    TypeArgument
+                      TupleType: (T, U)
+                        PsiElement(()('(')
+                        TypesList
+                          SimpleType: T
+                            CodeReferenceElement: T
+                              PsiElement(identifier)('T')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: U
+                            CodeReferenceElement: U
+                              PsiElement(identifier)('U')
+                        PsiElement())(')')
                     PsiElement(])(']')
                 ArgumentList
                   PsiElement(()('(')
@@ -162,23 +165,24 @@ ScalaFile
                       PsiElement(identifier)('Foo')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    TupleType: (T, U, V)
-                      PsiElement(()('(')
-                      TypesList
-                        SimpleType: T
-                          CodeReferenceElement: T
-                            PsiElement(identifier)('T')
-                        PsiElement(,)(',')
-                        PsiWhiteSpace(' ')
-                        SimpleType: U
-                          CodeReferenceElement: U
-                            PsiElement(identifier)('U')
-                        PsiElement(,)(',')
-                        PsiWhiteSpace(' ')
-                        SimpleType: V
-                          CodeReferenceElement: V
-                            PsiElement(identifier)('V')
-                      PsiElement())(')')
+                    TypeArgument
+                      TupleType: (T, U, V)
+                        PsiElement(()('(')
+                        TypesList
+                          SimpleType: T
+                            CodeReferenceElement: T
+                              PsiElement(identifier)('T')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: U
+                            CodeReferenceElement: U
+                              PsiElement(identifier)('U')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: V
+                            CodeReferenceElement: V
+                              PsiElement(identifier)('V')
+                        PsiElement())(')')
                     PsiElement(])(']')
                 ArgumentList
                   PsiElement(()('(')

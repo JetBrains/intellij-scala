@@ -56,9 +56,10 @@ ScalaFile
                 PsiElement(identifier)('Two')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Foo
-                CodeReferenceElement: Foo
-                  PsiElement(identifier)('Foo')
+              TypeArgument
+                SimpleType: Foo
+                  CodeReferenceElement: Foo
+                    PsiElement(identifier)('Foo')
               PsiElement(])(']')
   PsiWhiteSpace(' ')
   PsiComment(comment)('// error')

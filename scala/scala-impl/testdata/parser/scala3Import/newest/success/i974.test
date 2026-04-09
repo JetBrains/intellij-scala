@@ -51,16 +51,18 @@ ScalaFile
               PsiElement(identifier)('Foo')
           TypeArgumentsList
             PsiElement([)('[')
-            ParametrizedType: CC[X]
-              SimpleType: CC
-                CodeReferenceElement: CC
-                  PsiElement(identifier)('CC')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: X
-                  CodeReferenceElement: X
-                    PsiElement(identifier)('X')
-                PsiElement(])(']')
+            TypeArgument
+              ParametrizedType: CC[X]
+                SimpleType: CC
+                  CodeReferenceElement: CC
+                    PsiElement(identifier)('CC')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: X
+                      CodeReferenceElement: X
+                        PsiElement(identifier)('X')
+                  PsiElement(])(']')
             PsiElement(])(']')
       PsiElement(])(']')
     PrimaryConstructor

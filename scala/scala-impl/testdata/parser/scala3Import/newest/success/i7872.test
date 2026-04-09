@@ -420,11 +420,12 @@ ScalaFile
                   PsiElement(identifier)('Flip')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: x.type
-                  CodeReferenceElement: x
-                    PsiElement(identifier)('x')
-                  PsiElement(.)('.')
-                  PsiElement(type)('type')
+                TypeArgument
+                  SimpleType: x.type
+                    CodeReferenceElement: x
+                      PsiElement(identifier)('x')
+                    PsiElement(.)('.')
+                    PsiElement(type)('type')
                 PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -599,11 +600,12 @@ ScalaFile
                 PsiElement(identifier)('Flip')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: x.type
-                CodeReferenceElement: x
-                  PsiElement(identifier)('x')
-                PsiElement(.)('.')
-                PsiElement(type)('type')
+              TypeArgument
+                SimpleType: x.type
+                  CodeReferenceElement: x
+                    PsiElement(identifier)('x')
+                  PsiElement(.)('.')
+                  PsiElement(type)('type')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

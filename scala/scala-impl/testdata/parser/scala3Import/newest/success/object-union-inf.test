@@ -155,9 +155,10 @@ ScalaFile
                 PsiElement(identifier)('List')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -275,21 +276,22 @@ ScalaFile
                 PsiElement(identifier)('List')
             TypeArgumentsList
               PsiElement([)('[')
-              InfixType: ObjA.type | ObjB.type
-                SimpleType: ObjA.type
-                  CodeReferenceElement: ObjA
-                    PsiElement(identifier)('ObjA')
-                  PsiElement(.)('.')
-                  PsiElement(type)('type')
-                PsiWhiteSpace(' ')
-                CodeReferenceElement: |
-                  PsiElement(identifier)('|')
-                PsiWhiteSpace(' ')
-                SimpleType: ObjB.type
-                  CodeReferenceElement: ObjB
-                    PsiElement(identifier)('ObjB')
-                  PsiElement(.)('.')
-                  PsiElement(type)('type')
+              TypeArgument
+                InfixType: ObjA.type | ObjB.type
+                  SimpleType: ObjA.type
+                    CodeReferenceElement: ObjA
+                      PsiElement(identifier)('ObjA')
+                    PsiElement(.)('.')
+                    PsiElement(type)('type')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: |
+                    PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  SimpleType: ObjB.type
+                    CodeReferenceElement: ObjB
+                      PsiElement(identifier)('ObjB')
+                    PsiElement(.)('.')
+                    PsiElement(type)('type')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

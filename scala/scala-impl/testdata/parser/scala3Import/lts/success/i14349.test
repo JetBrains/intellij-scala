@@ -132,19 +132,22 @@ ScalaFile
                 PsiElement(identifier)('Expose')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: X
-                CodeReferenceElement: X
-                  PsiElement(identifier)('X')
+              TypeArgument
+                SimpleType: X
+                  CodeReferenceElement: X
+                    PsiElement(identifier)('X')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Y
-                CodeReferenceElement: Y
-                  PsiElement(identifier)('Y')
+              TypeArgument
+                SimpleType: Y
+                  CodeReferenceElement: Y
+                    PsiElement(identifier)('Y')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: M
-                CodeReferenceElement: M
-                  PsiElement(identifier)('M')
+              TypeArgument
+                SimpleType: M
+                  CodeReferenceElement: M
+                    PsiElement(identifier)('M')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScTrait: Expose
@@ -249,16 +252,18 @@ ScalaFile
                   PsiElement(identifier)('Seq')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: Option[Module]
-                  SimpleType: Option
-                    CodeReferenceElement: Option
-                      PsiElement(identifier)('Option')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: Module
-                      CodeReferenceElement: Module
-                        PsiElement(identifier)('Module')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: Option[Module]
+                    SimpleType: Option
+                      CodeReferenceElement: Option
+                        PsiElement(identifier)('Option')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: Module
+                          CodeReferenceElement: Module
+                            PsiElement(identifier)('Module')
+                      PsiElement(])(']')
                 PsiElement(])(']')
         PsiElement())(')')
     PsiElement(:)(':')
@@ -269,23 +274,27 @@ ScalaFile
           PsiElement(identifier)('Seq')
       TypeArgumentsList
         PsiElement([)('[')
-        ParametrizedType: Expose[_, _, _]
-          SimpleType: Expose
-            CodeReferenceElement: Expose
-              PsiElement(identifier)('Expose')
-          TypeArgumentsList
-            PsiElement([)('[')
-            WildcardType: _
-              PsiElement(_)('_')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            WildcardType: _
-              PsiElement(_)('_')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            WildcardType: _
-              PsiElement(_)('_')
-            PsiElement(])(']')
+        TypeArgument
+          ParametrizedType: Expose[_, _, _]
+            SimpleType: Expose
+              CodeReferenceElement: Expose
+                PsiElement(identifier)('Expose')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                WildcardType: _
+                  PsiElement(_)('_')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                WildcardType: _
+                  PsiElement(_)('_')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                WildcardType: _
+                  PsiElement(_)('_')
+              PsiElement(])(']')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')

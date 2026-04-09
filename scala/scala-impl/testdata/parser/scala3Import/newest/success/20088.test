@@ -92,7 +92,8 @@ ScalaFile
         PsiElement(identifier)('summon')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: Bar
-          CodeReferenceElement: Bar
-            PsiElement(identifier)('Bar')
+        TypeArgument
+          SimpleType: Bar
+            CodeReferenceElement: Bar
+              PsiElement(identifier)('Bar')
         PsiElement(])(']')

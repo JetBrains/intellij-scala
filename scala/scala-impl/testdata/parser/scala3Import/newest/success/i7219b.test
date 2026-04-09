@@ -190,12 +190,13 @@ ScalaFile
           PsiElement(identifier)('Seq')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: Bar.Blue
-          CodeReferenceElement: Bar.Blue
-            CodeReferenceElement: Bar
-              PsiElement(identifier)('Bar')
-            PsiElement(.)('.')
-            PsiElement(identifier)('Blue')
+        TypeArgument
+          SimpleType: Bar.Blue
+            CodeReferenceElement: Bar.Blue
+              CodeReferenceElement: Bar
+                PsiElement(identifier)('Bar')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Blue')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')

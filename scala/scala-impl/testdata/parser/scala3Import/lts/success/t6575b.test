@@ -58,14 +58,16 @@ ScalaFile
                 PsiElement(identifier)('Function1')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
+              TypeArgument
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
+              TypeArgument
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
               PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiElement(})('}')
@@ -265,14 +267,16 @@ ScalaFile
                 PsiElement(identifier)('Function1')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
+              TypeArgument
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
+              TypeArgument
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

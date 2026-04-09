@@ -339,16 +339,18 @@ ScalaFile
                   PsiElement(identifier)('summon')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  ParametrizedType: Ord[X]
-                    SimpleType: Ord
-                      CodeReferenceElement: Ord
-                        PsiElement(identifier)('Ord')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: X
-                        CodeReferenceElement: X
-                          PsiElement(identifier)('X')
-                      PsiElement(])(']')
+                  TypeArgument
+                    ParametrizedType: Ord[X]
+                      SimpleType: Ord
+                        CodeReferenceElement: Ord
+                          PsiElement(identifier)('Ord')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: X
+                            CodeReferenceElement: X
+                              PsiElement(identifier)('X')
+                        PsiElement(])(']')
                   PsiElement(])(']')
               PsiElement(.)('.')
               PsiElement(identifier)('compare')
@@ -402,9 +404,10 @@ ScalaFile
                 PsiElement(identifier)('Ord')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: X
-                CodeReferenceElement: X
-                  PsiElement(identifier)('X')
+              TypeArgument
+                SimpleType: X
+                  CodeReferenceElement: X
+                    PsiElement(identifier)('X')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(?=>)('?=>')
@@ -515,16 +518,18 @@ ScalaFile
                   PsiElement(identifier)('summon')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  ParametrizedType: Ord[X]
-                    SimpleType: Ord
-                      CodeReferenceElement: Ord
-                        PsiElement(identifier)('Ord')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: X
-                        CodeReferenceElement: X
-                          PsiElement(identifier)('X')
-                      PsiElement(])(']')
+                  TypeArgument
+                    ParametrizedType: Ord[X]
+                      SimpleType: Ord
+                        CodeReferenceElement: Ord
+                          PsiElement(identifier)('Ord')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: X
+                            CodeReferenceElement: X
+                              PsiElement(identifier)('X')
+                        PsiElement(])(']')
                   PsiElement(])(']')
               PsiElement(.)('.')
               PsiElement(identifier)('compare')
@@ -772,9 +777,10 @@ ScalaFile
             PsiElement(identifier)('Ord')
         TypeArgumentsList
           PsiElement([)('[')
-          SimpleType: Int
-            CodeReferenceElement: Int
-              PsiElement(identifier)('Int')
+          TypeArgument
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
           PsiElement(])(']')
       PsiWhiteSpace(' ')
       PsiElement(?=>)('?=>')
@@ -835,9 +841,10 @@ ScalaFile
                 PsiElement(identifier)('Ord')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: X
-                CodeReferenceElement: X
-                  PsiElement(identifier)('X')
+              TypeArgument
+                SimpleType: X
+                  CodeReferenceElement: X
+                    PsiElement(identifier)('X')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(?=>)('?=>')
@@ -1047,9 +1054,10 @@ ScalaFile
             PsiElement(identifier)('CmpRest')
         TypeArgumentsList
           PsiElement([)('[')
-          SimpleType: X
-            CodeReferenceElement: X
-              PsiElement(identifier)('X')
+          TypeArgument
+            SimpleType: X
+              CodeReferenceElement: X
+                PsiElement(identifier)('X')
           PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScTypeAliasDefinition: Cmp3
@@ -1091,9 +1099,10 @@ ScalaFile
               PsiElement(identifier)('CmpMid')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: X
-              CodeReferenceElement: X
-                PsiElement(identifier)('X')
+            TypeArgument
+              SimpleType: X
+                CodeReferenceElement: X
+                  PsiElement(identifier)('X')
             PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScPatternDefinition: lessCmp3
@@ -1191,16 +1200,18 @@ ScalaFile
                       PsiElement(identifier)('summon')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      ParametrizedType: Ord[X]
-                        SimpleType: Ord
-                          CodeReferenceElement: Ord
-                            PsiElement(identifier)('Ord')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: X
-                            CodeReferenceElement: X
-                              PsiElement(identifier)('X')
-                          PsiElement(])(']')
+                      TypeArgument
+                        ParametrizedType: Ord[X]
+                          SimpleType: Ord
+                            CodeReferenceElement: Ord
+                              PsiElement(identifier)('Ord')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: X
+                                CodeReferenceElement: X
+                                  PsiElement(identifier)('X')
+                            PsiElement(])(']')
                       PsiElement(])(']')
                   PsiElement(.)('.')
                   PsiElement(identifier)('compare')
@@ -1406,9 +1417,10 @@ ScalaFile
               PsiElement(identifier)('CmpWeak')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: X
-              CodeReferenceElement: X
-                PsiElement(identifier)('X')
+            TypeArgument
+              SimpleType: X
+                CodeReferenceElement: X
+                  PsiElement(identifier)('X')
             PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScPatternDefinition: less4_0
@@ -1517,16 +1529,18 @@ ScalaFile
                     PsiElement(identifier)('summon')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    ParametrizedType: Ord[X]
-                      SimpleType: Ord
-                        CodeReferenceElement: Ord
-                          PsiElement(identifier)('Ord')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        SimpleType: X
-                          CodeReferenceElement: X
-                            PsiElement(identifier)('X')
-                        PsiElement(])(']')
+                    TypeArgument
+                      ParametrizedType: Ord[X]
+                        SimpleType: Ord
+                          CodeReferenceElement: Ord
+                            PsiElement(identifier)('Ord')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: X
+                              CodeReferenceElement: X
+                                PsiElement(identifier)('X')
+                          PsiElement(])(']')
                     PsiElement(])(']')
                 PsiElement(.)('.')
                 PsiElement(identifier)('compare')
@@ -1623,16 +1637,18 @@ ScalaFile
                     PsiElement(identifier)('summon')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    ParametrizedType: Ord[X]
-                      SimpleType: Ord
-                        CodeReferenceElement: Ord
-                          PsiElement(identifier)('Ord')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        SimpleType: X
-                          CodeReferenceElement: X
-                            PsiElement(identifier)('X')
-                        PsiElement(])(']')
+                    TypeArgument
+                      ParametrizedType: Ord[X]
+                        SimpleType: Ord
+                          CodeReferenceElement: Ord
+                            PsiElement(identifier)('Ord')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: X
+                              CodeReferenceElement: X
+                                PsiElement(identifier)('X')
+                          PsiElement(])(']')
                     PsiElement(])(']')
                 PsiElement(.)('.')
                 PsiElement(identifier)('compare')
@@ -1688,9 +1704,10 @@ ScalaFile
                     PsiElement(identifier)('Ord')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: X
-                    CodeReferenceElement: X
-                      PsiElement(identifier)('X')
+                  TypeArgument
+                    SimpleType: X
+                      CodeReferenceElement: X
+                        PsiElement(identifier)('X')
                   PsiElement(])(']')
         PsiElement(])(']')
       PsiWhiteSpace(' ')
@@ -1734,16 +1751,18 @@ ScalaFile
                   PsiElement(identifier)('summon')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  ParametrizedType: Ord[X]
-                    SimpleType: Ord
-                      CodeReferenceElement: Ord
-                        PsiElement(identifier)('Ord')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: X
-                        CodeReferenceElement: X
-                          PsiElement(identifier)('X')
-                      PsiElement(])(']')
+                  TypeArgument
+                    ParametrizedType: Ord[X]
+                      SimpleType: Ord
+                        CodeReferenceElement: Ord
+                          PsiElement(identifier)('Ord')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: X
+                            CodeReferenceElement: X
+                              PsiElement(identifier)('X')
+                        PsiElement(])(']')
                   PsiElement(])(']')
               PsiElement(.)('.')
               PsiElement(identifier)('compare')
@@ -1798,9 +1817,10 @@ ScalaFile
                     PsiElement(identifier)('Ord')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: X
-                    CodeReferenceElement: X
-                      PsiElement(identifier)('X')
+                  TypeArgument
+                    SimpleType: X
+                      CodeReferenceElement: X
+                        PsiElement(identifier)('X')
                   PsiElement(])(']')
         PsiElement(])(']')
       PsiWhiteSpace(' ')
@@ -1851,9 +1871,10 @@ ScalaFile
                     PsiElement(identifier)('Ord')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: X
-                    CodeReferenceElement: X
-                      PsiElement(identifier)('X')
+                  TypeArgument
+                    SimpleType: X
+                      CodeReferenceElement: X
+                        PsiElement(identifier)('X')
                   PsiElement(])(']')
         PsiElement(])(']')
       PsiWhiteSpace(' ')
@@ -1897,16 +1918,18 @@ ScalaFile
                   PsiElement(identifier)('summon')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  ParametrizedType: Ord[X]
-                    SimpleType: Ord
-                      CodeReferenceElement: Ord
-                        PsiElement(identifier)('Ord')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: X
-                        CodeReferenceElement: X
-                          PsiElement(identifier)('X')
-                      PsiElement(])(']')
+                  TypeArgument
+                    ParametrizedType: Ord[X]
+                      SimpleType: Ord
+                        CodeReferenceElement: Ord
+                          PsiElement(identifier)('Ord')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: X
+                            CodeReferenceElement: X
+                              PsiElement(identifier)('X')
+                        PsiElement(])(']')
                   PsiElement(])(']')
               PsiElement(.)('.')
               PsiElement(identifier)('compare')
@@ -2000,16 +2023,18 @@ ScalaFile
                   PsiElement(identifier)('summon')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  ParametrizedType: Ord[X]
-                    SimpleType: Ord
-                      CodeReferenceElement: Ord
-                        PsiElement(identifier)('Ord')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: X
-                        CodeReferenceElement: X
-                          PsiElement(identifier)('X')
-                      PsiElement(])(']')
+                  TypeArgument
+                    ParametrizedType: Ord[X]
+                      SimpleType: Ord
+                        CodeReferenceElement: Ord
+                          PsiElement(identifier)('Ord')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: X
+                            CodeReferenceElement: X
+                              PsiElement(identifier)('X')
+                        PsiElement(])(']')
                   PsiElement(])(']')
               PsiElement(.)('.')
               PsiElement(identifier)('compare')
@@ -2147,16 +2172,18 @@ ScalaFile
                   PsiElement(identifier)('summon')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  ParametrizedType: Ord[X]
-                    SimpleType: Ord
-                      CodeReferenceElement: Ord
-                        PsiElement(identifier)('Ord')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: X
-                        CodeReferenceElement: X
-                          PsiElement(identifier)('X')
-                      PsiElement(])(']')
+                  TypeArgument
+                    ParametrizedType: Ord[X]
+                      SimpleType: Ord
+                        CodeReferenceElement: Ord
+                          PsiElement(identifier)('Ord')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: X
+                            CodeReferenceElement: X
+                              PsiElement(identifier)('X')
+                        PsiElement(])(']')
                   PsiElement(])(']')
               PsiElement(.)('.')
               PsiElement(identifier)('compare')
@@ -2488,16 +2515,18 @@ ScalaFile
                   PsiElement(identifier)('summon')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  ParametrizedType: Ord[X]
-                    SimpleType: Ord
-                      CodeReferenceElement: Ord
-                        PsiElement(identifier)('Ord')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: X
-                        CodeReferenceElement: X
-                          PsiElement(identifier)('X')
-                      PsiElement(])(']')
+                  TypeArgument
+                    ParametrizedType: Ord[X]
+                      SimpleType: Ord
+                        CodeReferenceElement: Ord
+                          PsiElement(identifier)('Ord')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: X
+                            CodeReferenceElement: X
+                              PsiElement(identifier)('X')
+                        PsiElement(])(']')
                   PsiElement(])(']')
               PsiElement(.)('.')
               PsiElement(identifier)('compare')
@@ -2643,16 +2672,18 @@ ScalaFile
                   PsiElement(identifier)('summon')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  ParametrizedType: Ord[X]
-                    SimpleType: Ord
-                      CodeReferenceElement: Ord
-                        PsiElement(identifier)('Ord')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: X
-                        CodeReferenceElement: X
-                          PsiElement(identifier)('X')
-                      PsiElement(])(']')
+                  TypeArgument
+                    ParametrizedType: Ord[X]
+                      SimpleType: Ord
+                        CodeReferenceElement: Ord
+                          PsiElement(identifier)('Ord')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: X
+                            CodeReferenceElement: X
+                              PsiElement(identifier)('X')
+                        PsiElement(])(']')
                   PsiElement(])(']')
               PsiElement(.)('.')
               PsiElement(identifier)('compare')
@@ -3126,9 +3157,10 @@ ScalaFile
                         PsiElement(identifier)('Ord')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: X
-                        CodeReferenceElement: X
-                          PsiElement(identifier)('X')
+                      TypeArgument
+                        SimpleType: X
+                          CodeReferenceElement: X
+                            PsiElement(identifier)('X')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiWhiteSpace(' ')
@@ -3178,9 +3210,10 @@ ScalaFile
                               PsiElement(identifier)('Ord')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: Y
-                              CodeReferenceElement: Y
-                                PsiElement(identifier)('Y')
+                            TypeArgument
+                              SimpleType: Y
+                                CodeReferenceElement: Y
+                                  PsiElement(identifier)('Y')
                             PsiElement(])(']')
                     PsiElement())(')')
                 PsiWhiteSpace(' ')
@@ -3271,9 +3304,10 @@ ScalaFile
                   PsiElement(identifier)('CmpAlias')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Y
-                  CodeReferenceElement: Y
-                    PsiElement(identifier)('Y')
+                TypeArgument
+                  SimpleType: Y
+                    CodeReferenceElement: Y
+                      PsiElement(identifier)('Y')
                 PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScPatternDefinition: less11
@@ -3437,9 +3471,10 @@ ScalaFile
                         PsiElement(identifier)('Ord')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: X
-                        CodeReferenceElement: X
-                          PsiElement(identifier)('X')
+                      TypeArgument
+                        SimpleType: X
+                          CodeReferenceElement: X
+                            PsiElement(identifier)('X')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiWhiteSpace(' ')
@@ -3599,9 +3634,10 @@ ScalaFile
                         PsiElement(identifier)('Ord')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: X
-                        CodeReferenceElement: X
-                          PsiElement(identifier)('X')
+                      TypeArgument
+                        SimpleType: X
+                          CodeReferenceElement: X
+                            PsiElement(identifier)('X')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiWhiteSpace(' ')
@@ -3651,9 +3687,10 @@ ScalaFile
                               PsiElement(identifier)('Ord')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: Y
-                              CodeReferenceElement: Y
-                                PsiElement(identifier)('Y')
+                            TypeArgument
+                              SimpleType: Y
+                                CodeReferenceElement: Y
+                                  PsiElement(identifier)('Y')
                             PsiElement(])(']')
                     PsiElement())(')')
                 PsiWhiteSpace(' ')

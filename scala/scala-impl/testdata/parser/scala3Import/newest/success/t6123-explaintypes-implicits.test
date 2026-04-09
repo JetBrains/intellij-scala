@@ -91,9 +91,10 @@ ScalaFile
                           PsiElement(identifier)('Exp')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: Elem
-                          CodeReferenceElement: Elem
-                            PsiElement(identifier)('Elem')
+                        TypeArgument
+                          SimpleType: Elem
+                            CodeReferenceElement: Elem
+                              PsiElement(identifier)('Elem')
                         PsiElement(])(']')
                     PsiWhiteSpace(' ')
                     PsiElement(=>)('=>')
@@ -128,9 +129,10 @@ ScalaFile
                     PsiElement(identifier)('Exp')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: T
-                    CodeReferenceElement: T
-                      PsiElement(identifier)('T')
+                  TypeArgument
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
                   PsiElement(])(']')
             PsiElement(])(']')
           PrimaryConstructor
@@ -152,16 +154,18 @@ ScalaFile
                       PsiElement(identifier)('Exp')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    ParametrizedType: Traversable[T]
-                      SimpleType: Traversable
-                        CodeReferenceElement: Traversable
-                          PsiElement(identifier)('Traversable')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        SimpleType: T
-                          CodeReferenceElement: T
-                            PsiElement(identifier)('T')
-                        PsiElement(])(']')
+                    TypeArgument
+                      ParametrizedType: Traversable[T]
+                        SimpleType: Traversable
+                          CodeReferenceElement: Traversable
+                            PsiElement(identifier)('Traversable')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: T
+                              CodeReferenceElement: T
+                                PsiElement(identifier)('T')
+                          PsiElement(])(']')
                     PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScFunctionDefinition: canBuildExp
@@ -188,21 +192,24 @@ ScalaFile
                 PsiElement(identifier)('CanBuildExp')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              ParametrizedType: Exp[T]
-                SimpleType: Exp
-                  CodeReferenceElement: Exp
-                    PsiElement(identifier)('Exp')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: T
-                    CodeReferenceElement: T
-                      PsiElement(identifier)('T')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Exp[T]
+                  SimpleType: Exp
+                    CodeReferenceElement: Exp
+                      PsiElement(identifier)('Exp')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                    PsiElement(])(']')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -236,9 +243,10 @@ ScalaFile
                     PsiElement(identifier)('Exp')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: T
-                    CodeReferenceElement: T
-                      PsiElement(identifier)('T')
+                  TypeArgument
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
                   PsiElement(])(']')
             PsiElement(])(']')
           Parameters
@@ -261,14 +269,16 @@ ScalaFile
                         PsiElement(identifier)('CanBuildExp')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: T
-                        CodeReferenceElement: T
-                          PsiElement(identifier)('T')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: ExpT
-                        CodeReferenceElement: ExpT
-                          PsiElement(identifier)('ExpT')
+                      TypeArgument
+                        SimpleType: ExpT
+                          CodeReferenceElement: ExpT
+                            PsiElement(identifier)('ExpT')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -279,33 +289,38 @@ ScalaFile
                 PsiElement(identifier)('CanBuildExp')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Traversable[T]
-                SimpleType: Traversable
-                  CodeReferenceElement: Traversable
-                    PsiElement(identifier)('Traversable')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: T
-                    CodeReferenceElement: T
-                      PsiElement(identifier)('T')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Traversable[T]
+                  SimpleType: Traversable
+                    CodeReferenceElement: Traversable
+                      PsiElement(identifier)('Traversable')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                    PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              ParametrizedType: TraversableExp[T, ExpT]
-                SimpleType: TraversableExp
-                  CodeReferenceElement: TraversableExp
-                    PsiElement(identifier)('TraversableExp')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: T
-                    CodeReferenceElement: T
-                      PsiElement(identifier)('T')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: ExpT
-                    CodeReferenceElement: ExpT
-                      PsiElement(identifier)('ExpT')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: TraversableExp[T, ExpT]
+                  SimpleType: TraversableExp
+                    CodeReferenceElement: TraversableExp
+                      PsiElement(identifier)('TraversableExp')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: ExpT
+                        CodeReferenceElement: ExpT
+                          PsiElement(identifier)('ExpT')
+                    PsiElement(])(']')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -365,14 +380,16 @@ ScalaFile
                         PsiElement(identifier)('CanBuildExp')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: T
-                        CodeReferenceElement: T
-                          PsiElement(identifier)('T')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: That
-                        CodeReferenceElement: That
-                          PsiElement(identifier)('That')
+                      TypeArgument
+                        SimpleType: That
+                          CodeReferenceElement: That
+                            PsiElement(identifier)('That')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')

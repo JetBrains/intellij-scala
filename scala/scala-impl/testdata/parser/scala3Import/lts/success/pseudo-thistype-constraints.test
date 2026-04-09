@@ -93,9 +93,10 @@ ScalaFile
                               PsiElement(identifier)('Expr')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: Boolean
-                              CodeReferenceElement: Boolean
-                                PsiElement(identifier)('Boolean')
+                            TypeArgument
+                              SimpleType: Boolean
+                                CodeReferenceElement: Boolean
+                                  PsiElement(identifier)('Boolean')
                             PsiElement(])(']')
               PsiWhiteSpace('\n    ')
               ScFunctionDefinition: eval
@@ -160,9 +161,10 @@ ScalaFile
                                     PsiElement(identifier)('Expr')
                                 TypeArgumentsList
                                   PsiElement([)('[')
-                                  SimpleType: TT
-                                    CodeReferenceElement: TT
-                                      PsiElement(identifier)('TT')
+                                  TypeArgument
+                                    SimpleType: TT
+                                      CodeReferenceElement: TT
+                                        PsiElement(identifier)('TT')
                                   PsiElement(])(']')
                         PsiElement())(')')
                     PsiElement(:)(':')

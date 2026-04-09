@@ -41,9 +41,10 @@ ScalaFile
                 PsiElement(identifier)('Stream')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
+              TypeArgument
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScTypeAliasDefinition: DocTree
@@ -63,9 +64,10 @@ ScalaFile
                 PsiElement(identifier)('Fix')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: StreamTree
-                CodeReferenceElement: StreamTree
-                  PsiElement(identifier)('StreamTree')
+              TypeArgument
+                SimpleType: StreamTree
+                  CodeReferenceElement: StreamTree
+                    PsiElement(identifier)('StreamTree')
               PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

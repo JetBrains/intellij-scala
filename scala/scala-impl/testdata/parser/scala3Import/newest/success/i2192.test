@@ -72,16 +72,17 @@ ScalaFile
                 PsiElement(identifier)('Option')
             TypeArgumentsList
               PsiElement([)('[')
-              FunctionalType: Int => Int
-                SimpleType: Int
-                  CodeReferenceElement: Int
-                    PsiElement(identifier)('Int')
-                PsiWhiteSpace(' ')
-                PsiElement(=>)('=>')
-                PsiWhiteSpace(' ')
-                SimpleType: Int
-                  CodeReferenceElement: Int
-                    PsiElement(identifier)('Int')
+              TypeArgument
+                FunctionalType: Int => Int
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
               PsiElement(])(']')
         PsiWhiteSpace('\n    ')
         PsiComment(comment)('// missing arguments for method foo')

@@ -69,9 +69,10 @@ ScalaFile
                         PsiElement(identifier)('Seq')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Char
-                        CodeReferenceElement: Char
-                          PsiElement(identifier)('Char')
+                      TypeArgument
+                        SimpleType: Char
+                          CodeReferenceElement: Char
+                            PsiElement(identifier)('Char')
                       PsiElement(])(']')
                 PsiElement())(')')
               PsiWhiteSpace(' ')

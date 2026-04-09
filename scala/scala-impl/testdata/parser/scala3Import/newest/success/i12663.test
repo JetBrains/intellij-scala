@@ -187,9 +187,10 @@ ScalaFile
                         PsiElement(identifier)('CtxFn')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -394,47 +395,53 @@ ScalaFile
             TypeArgumentsList
               PsiElement([)('[')
               PsiWhiteSpace('\n    ')
-              ParametrizedType: HookCtx.P1[String, Int]
-                SimpleType: HookCtx.P1
-                  CodeReferenceElement: HookCtx.P1
-                    CodeReferenceElement: HookCtx
-                      PsiElement(identifier)('HookCtx')
-                    PsiElement(.)('.')
-                    PsiElement(identifier)('P1')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: String
-                    CodeReferenceElement: String
-                      PsiElement(identifier)('String')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
-                  PsiElement(])(']')
-              PsiElement(,)(',')
-              PsiWhiteSpace('\n    ')
-              TypeProjection: HookCtxFn.P1[String, Int]#Fn
-                ParametrizedType: HookCtxFn.P1[String, Int]
-                  SimpleType: HookCtxFn.P1
-                    CodeReferenceElement: HookCtxFn.P1
-                      CodeReferenceElement: HookCtxFn
-                        PsiElement(identifier)('HookCtxFn')
+              TypeArgument
+                ParametrizedType: HookCtx.P1[String, Int]
+                  SimpleType: HookCtx.P1
+                    CodeReferenceElement: HookCtx.P1
+                      CodeReferenceElement: HookCtx
+                        PsiElement(identifier)('HookCtx')
                       PsiElement(.)('.')
                       PsiElement(identifier)('P1')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: String
-                      CodeReferenceElement: String
-                        PsiElement(identifier)('String')
+                    TypeArgument
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    SimpleType: Int
-                      CodeReferenceElement: Int
-                        PsiElement(identifier)('Int')
+                    TypeArgument
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
                     PsiElement(])(']')
-                PsiElement(#)('#')
-                PsiElement(identifier)('Fn')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              TypeArgument
+                TypeProjection: HookCtxFn.P1[String, Int]#Fn
+                  ParametrizedType: HookCtxFn.P1[String, Int]
+                    SimpleType: HookCtxFn.P1
+                      CodeReferenceElement: HookCtxFn.P1
+                        CodeReferenceElement: HookCtxFn
+                          PsiElement(identifier)('HookCtxFn')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('P1')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement(])(']')
+                  PsiElement(#)('#')
+                  PsiElement(identifier)('Fn')
               PsiWhiteSpace('\n  ')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
@@ -634,9 +641,10 @@ ScalaFile
                         PsiElement(identifier)('CtxFn')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -822,44 +830,50 @@ ScalaFile
             TypeArgumentsList
               PsiElement([)('[')
               PsiWhiteSpace('\n    ')
-              ParametrizedType: HookCtx2.P1[String, Int]
-                SimpleType: HookCtx2.P1
-                  CodeReferenceElement: HookCtx2.P1
-                    CodeReferenceElement: HookCtx2
-                      PsiElement(identifier)('HookCtx2')
-                    PsiElement(.)('.')
-                    PsiElement(identifier)('P1')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: String
-                    CodeReferenceElement: String
-                      PsiElement(identifier)('String')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: HookCtx2.P1[String, Int]
+                  SimpleType: HookCtx2.P1
+                    CodeReferenceElement: HookCtx2.P1
+                      CodeReferenceElement: HookCtx2
+                        PsiElement(identifier)('HookCtx2')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('P1')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                    PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace('\n    ')
-              ParametrizedType: HookCtxFn2.P1[String, Int]
-                SimpleType: HookCtxFn2.P1
-                  CodeReferenceElement: HookCtxFn2.P1
-                    CodeReferenceElement: HookCtxFn2
-                      PsiElement(identifier)('HookCtxFn2')
-                    PsiElement(.)('.')
-                    PsiElement(identifier)('P1')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: String
-                    CodeReferenceElement: String
-                      PsiElement(identifier)('String')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: HookCtxFn2.P1[String, Int]
+                  SimpleType: HookCtxFn2.P1
+                    CodeReferenceElement: HookCtxFn2.P1
+                      CodeReferenceElement: HookCtxFn2
+                        PsiElement(identifier)('HookCtxFn2')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('P1')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                    PsiElement(])(']')
               PsiWhiteSpace('\n  ')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
@@ -1055,9 +1069,10 @@ ScalaFile
                         PsiElement(identifier)('CtxFn')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -1104,34 +1119,35 @@ ScalaFile
                 PsiElement(identifier)('Builder')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeLambda: [Z] =>> (String, Int) => Z
-                TypeParameterClause
-                  PsiElement([)('[')
-                  TypeParameter: Z
-                    PsiElement(identifier)('Z')
-                  PsiElement(])(']')
-                PsiWhiteSpace(' ')
-                PsiElement(=>>)('=>>')
-                PsiWhiteSpace(' ')
-                FunctionalType: (String, Int) => Z
-                  TupleType: (String, Int)
-                    PsiElement(()('(')
-                    TypesList
-                      SimpleType: String
-                        CodeReferenceElement: String
-                          PsiElement(identifier)('String')
-                      PsiElement(,)(',')
-                      PsiWhiteSpace(' ')
-                      SimpleType: Int
-                        CodeReferenceElement: Int
-                          PsiElement(identifier)('Int')
-                    PsiElement())(')')
-                  PsiWhiteSpace(' ')
-                  PsiElement(=>)('=>')
-                  PsiWhiteSpace(' ')
-                  SimpleType: Z
-                    CodeReferenceElement: Z
+              TypeArgument
+                TypeLambda: [Z] =>> (String, Int) => Z
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: Z
                       PsiElement(identifier)('Z')
+                    PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>>)('=>>')
+                  PsiWhiteSpace(' ')
+                  FunctionalType: (String, Int) => Z
+                    TupleType: (String, Int)
+                      PsiElement(()('(')
+                      TypesList
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Z
+                      CodeReferenceElement: Z
+                        PsiElement(identifier)('Z')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -1243,12 +1259,13 @@ ScalaFile
                 PsiElement(identifier)('Builder')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeProjection: Scala2TL#F
-                SimpleType: Scala2TL
-                  CodeReferenceElement: Scala2TL
-                    PsiElement(identifier)('Scala2TL')
-                PsiElement(#)('#')
-                PsiElement(identifier)('F')
+              TypeArgument
+                TypeProjection: Scala2TL#F
+                  SimpleType: Scala2TL
+                    CodeReferenceElement: Scala2TL
+                      PsiElement(identifier)('Scala2TL')
+                  PsiElement(#)('#')
+                  PsiElement(identifier)('F')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -1348,9 +1365,10 @@ ScalaFile
                 PsiElement(identifier)('Builder')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Scala3TL
-                CodeReferenceElement: Scala3TL
-                  PsiElement(identifier)('Scala3TL')
+              TypeArgument
+                SimpleType: Scala3TL
+                  CodeReferenceElement: Scala3TL
+                    PsiElement(identifier)('Scala3TL')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -1410,53 +1428,54 @@ ScalaFile
                 PsiElement(identifier)('Builder')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeProjection: ({ type F[Z] = (String, Int) => Z })#F
-                TypeInParenthesis: ({ type F[Z] = (String, Int) => Z })
-                  PsiElement(()('(')
-                  CompoundType: { type F[Z] = (String, Int) => Z }
-                    Refinement
-                      PsiElement({)('{')
-                      PsiWhiteSpace(' ')
-                      ScTypeAliasDefinition: F
-                        AnnotationsList
-                          <empty list>
-                        Modifiers
-                          <empty list>
-                        PsiElement(type)('type')
+              TypeArgument
+                TypeProjection: ({ type F[Z] = (String, Int) => Z })#F
+                  TypeInParenthesis: ({ type F[Z] = (String, Int) => Z })
+                    PsiElement(()('(')
+                    CompoundType: { type F[Z] = (String, Int) => Z }
+                      Refinement
+                        PsiElement({)('{')
                         PsiWhiteSpace(' ')
-                        PsiElement(identifier)('F')
-                        TypeParameterClause
-                          PsiElement([)('[')
-                          TypeParameter: Z
-                            PsiElement(identifier)('Z')
-                          PsiElement(])(']')
-                        PsiWhiteSpace(' ')
-                        PsiElement(=)('=')
-                        PsiWhiteSpace(' ')
-                        FunctionalType: (String, Int) => Z
-                          TupleType: (String, Int)
-                            PsiElement(()('(')
-                            TypesList
-                              SimpleType: String
-                                CodeReferenceElement: String
-                                  PsiElement(identifier)('String')
-                              PsiElement(,)(',')
-                              PsiWhiteSpace(' ')
-                              SimpleType: Int
-                                CodeReferenceElement: Int
-                                  PsiElement(identifier)('Int')
-                            PsiElement())(')')
+                        ScTypeAliasDefinition: F
+                          AnnotationsList
+                            <empty list>
+                          Modifiers
+                            <empty list>
+                          PsiElement(type)('type')
                           PsiWhiteSpace(' ')
-                          PsiElement(=>)('=>')
-                          PsiWhiteSpace(' ')
-                          SimpleType: Z
-                            CodeReferenceElement: Z
+                          PsiElement(identifier)('F')
+                          TypeParameterClause
+                            PsiElement([)('[')
+                            TypeParameter: Z
                               PsiElement(identifier)('Z')
-                      PsiWhiteSpace(' ')
-                      PsiElement(})('}')
-                  PsiElement())(')')
-                PsiElement(#)('#')
-                PsiElement(identifier)('F')
+                            PsiElement(])(']')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=)('=')
+                          PsiWhiteSpace(' ')
+                          FunctionalType: (String, Int) => Z
+                            TupleType: (String, Int)
+                              PsiElement(()('(')
+                              TypesList
+                                SimpleType: String
+                                  CodeReferenceElement: String
+                                    PsiElement(identifier)('String')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                SimpleType: Int
+                                  CodeReferenceElement: Int
+                                    PsiElement(identifier)('Int')
+                              PsiElement())(')')
+                            PsiWhiteSpace(' ')
+                            PsiElement(=>)('=>')
+                            PsiWhiteSpace(' ')
+                            SimpleType: Z
+                              CodeReferenceElement: Z
+                                PsiElement(identifier)('Z')
+                        PsiWhiteSpace(' ')
+                        PsiElement(})('}')
+                    PsiElement())(')')
+                  PsiElement(#)('#')
+                  PsiElement(identifier)('F')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

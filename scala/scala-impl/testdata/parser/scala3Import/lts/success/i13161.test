@@ -56,9 +56,10 @@ ScalaFile
                     PsiElement(identifier)('Some')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    LiteralType: "foo"
-                      StringLiteral
-                        PsiElement(string content)('"foo"')
+                    TypeArgument
+                      LiteralType: "foo"
+                        StringLiteral
+                          PsiElement(string content)('"foo"')
                     PsiElement(])(']')
                 ArgumentList
                   PsiElement(()('(')

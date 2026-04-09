@@ -161,14 +161,16 @@ ScalaFile
                 PsiElement(identifier)('Using')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Path
-                CodeReferenceElement: Path
-                  PsiElement(identifier)('Path')
+              TypeArgument
+                SimpleType: Path
+                  CodeReferenceElement: Path
+                    PsiElement(identifier)('Path')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: InputStream
-                CodeReferenceElement: InputStream
-                  PsiElement(identifier)('InputStream')
+              TypeArgument
+                SimpleType: InputStream
+                  CodeReferenceElement: InputStream
+                    PsiElement(identifier)('InputStream')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

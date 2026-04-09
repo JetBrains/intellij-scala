@@ -119,9 +119,10 @@ ScalaFile
                   PsiElement(identifier)('Codec')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Int
-                  CodeReferenceElement: Int
-                    PsiElement(identifier)('Int')
+                TypeArgument
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(=)('=')
@@ -166,9 +167,10 @@ ScalaFile
                           PsiElement(identifier)('Codec')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: T
-                          CodeReferenceElement: T
-                            PsiElement(identifier)('T')
+                        TypeArgument
+                          SimpleType: T
+                            CodeReferenceElement: T
+                              PsiElement(identifier)('T')
                         PsiElement(])(']')
                 PsiElement())(')')
             PsiElement(:)(':')
@@ -179,16 +181,18 @@ ScalaFile
                   PsiElement(identifier)('Codec')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: Option[T]
-                  SimpleType: Option
-                    CodeReferenceElement: Option
-                      PsiElement(identifier)('Option')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: T
-                      CodeReferenceElement: T
-                        PsiElement(identifier)('T')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: Option[T]
+                    SimpleType: Option
+                      CodeReferenceElement: Option
+                        PsiElement(identifier)('Option')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
+                      PsiElement(])(']')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(=)('=')
@@ -226,9 +230,10 @@ ScalaFile
                                   PsiElement(identifier)('Option')
                               TypeArgumentsList
                                 PsiElement([)('[')
-                                SimpleType: T
-                                  CodeReferenceElement: T
-                                    PsiElement(identifier)('T')
+                                TypeArgument
+                                  SimpleType: T
+                                    CodeReferenceElement: T
+                                      PsiElement(identifier)('T')
                                 PsiElement(])(']')
                         PsiElement())(')')
                     PsiWhiteSpace(' ')
@@ -303,23 +308,26 @@ ScalaFile
                 PsiElement(identifier)('implicitly')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: Codec[Option[Int]]
-                  SimpleType: Codec
-                    CodeReferenceElement: Codec
-                      PsiElement(identifier)('Codec')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    ParametrizedType: Option[Int]
-                      SimpleType: Option
-                        CodeReferenceElement: Option
-                          PsiElement(identifier)('Option')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        SimpleType: Int
-                          CodeReferenceElement: Int
-                            PsiElement(identifier)('Int')
-                        PsiElement(])(']')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: Codec[Option[Int]]
+                    SimpleType: Codec
+                      CodeReferenceElement: Codec
+                        PsiElement(identifier)('Codec')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        ParametrizedType: Option[Int]
+                          SimpleType: Option
+                            CodeReferenceElement: Option
+                              PsiElement(identifier)('Option')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: Int
+                                CodeReferenceElement: Int
+                                  PsiElement(identifier)('Int')
+                            PsiElement(])(']')
+                      PsiElement(])(']')
                 PsiElement(])(']')
           PsiWhiteSpace('\n\n')
           MethodCall

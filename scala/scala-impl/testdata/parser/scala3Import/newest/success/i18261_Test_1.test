@@ -53,9 +53,10 @@ ScalaFile
                   PsiElement(identifier)('Candidate')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: L
-                  CodeReferenceElement: L
-                    PsiElement(identifier)('L')
+                TypeArgument
+                  SimpleType: L
+                    CodeReferenceElement: L
+                      PsiElement(identifier)('L')
                 PsiElement(])(']')
         PsiElement())(')')
     PsiElement(:)(':')
@@ -66,9 +67,10 @@ ScalaFile
           PsiElement(identifier)('DFBits')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: Int
-          CodeReferenceElement: Int
-            PsiElement(identifier)('Int')
+        TypeArgument
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -106,9 +108,10 @@ ScalaFile
                 PsiElement(identifier)('DFBits')
             TypeArgumentsList
               PsiElement([)('[')
-              LiteralType: 8
-                IntegerLiteral
-                  PsiElement(integer)('8')
+              TypeArgument
+                LiteralType: 8
+                  IntegerLiteral
+                    PsiElement(integer)('8')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -134,9 +137,10 @@ ScalaFile
                 PsiElement(identifier)('DFBits')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
+              TypeArgument
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -155,16 +159,18 @@ ScalaFile
             PsiElement(identifier)('summon')
           TypeArgumentsList
             PsiElement([)('[')
-            ParametrizedType: Candidate[z.type]
-              SimpleType: Candidate
-                CodeReferenceElement: Candidate
-                  PsiElement(identifier)('Candidate')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: z.type
-                  CodeReferenceElement: z
-                    PsiElement(identifier)('z')
-                  PsiElement(.)('.')
-                  PsiElement(type)('type')
-                PsiElement(])(']')
+            TypeArgument
+              ParametrizedType: Candidate[z.type]
+                SimpleType: Candidate
+                  CodeReferenceElement: Candidate
+                    PsiElement(identifier)('Candidate')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: z.type
+                      CodeReferenceElement: z
+                        PsiElement(identifier)('z')
+                      PsiElement(.)('.')
+                      PsiElement(type)('type')
+                  PsiElement(])(']')
             PsiElement(])(']')

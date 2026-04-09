@@ -125,9 +125,10 @@ ScalaFile
                 PsiElement(identifier)('EnumerateNames')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -159,9 +160,10 @@ ScalaFile
                               PsiElement(identifier)('Of')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: T
-                              CodeReferenceElement: T
-                                PsiElement(identifier)('T')
+                            TypeArgument
+                              SimpleType: T
+                                CodeReferenceElement: T
+                                  PsiElement(identifier)('T')
                             PsiElement(])(']')
                     PsiWhiteSpace(' ')
                     PsiElement(=>)('=>')
@@ -194,9 +196,10 @@ ScalaFile
                                       PsiElement(identifier)('ProductOf')
                                   TypeArgumentsList
                                     PsiElement([)('[')
-                                    SimpleType: T
-                                      CodeReferenceElement: T
-                                        PsiElement(identifier)('T')
+                                    TypeArgument
+                                      SimpleType: T
+                                        CodeReferenceElement: T
+                                          PsiElement(identifier)('T')
                                     PsiElement(])(']')
                             PsiWhiteSpace(' ')
                             PsiElement(=>)('=>')
@@ -223,9 +226,10 @@ ScalaFile
                                       PsiElement(identifier)('SumOf')
                                   TypeArgumentsList
                                     PsiElement([)('[')
-                                    SimpleType: T
-                                      CodeReferenceElement: T
-                                        PsiElement(identifier)('T')
+                                    TypeArgument
+                                      SimpleType: T
+                                        CodeReferenceElement: T
+                                          PsiElement(identifier)('T')
                                     PsiElement(])(']')
                             PsiWhiteSpace(' ')
                             PsiElement(=>)('=>')
@@ -239,12 +243,13 @@ ScalaFile
                                     PsiElement(identifier)('erasedValue')
                                   TypeArgumentsList
                                     PsiElement([)('[')
-                                    SimpleType: m.MirroredElemTypes
-                                      CodeReferenceElement: m.MirroredElemTypes
-                                        CodeReferenceElement: m
-                                          PsiElement(identifier)('m')
-                                        PsiElement(.)('.')
-                                        PsiElement(identifier)('MirroredElemTypes')
+                                    TypeArgument
+                                      SimpleType: m.MirroredElemTypes
+                                        CodeReferenceElement: m.MirroredElemTypes
+                                          CodeReferenceElement: m
+                                            PsiElement(identifier)('m')
+                                          PsiElement(.)('.')
+                                          PsiElement(identifier)('MirroredElemTypes')
                                     PsiElement(])(']')
                                 PsiWhiteSpace(' ')
                                 PsiElement(match)('match')
@@ -280,16 +285,18 @@ ScalaFile
                                           PsiElement(identifier)('summonInline')
                                         TypeArgumentsList
                                           PsiElement([)('[')
-                                          ParametrizedType: EnumerateNames[tpe]
-                                            SimpleType: EnumerateNames
-                                              CodeReferenceElement: EnumerateNames
-                                                PsiElement(identifier)('EnumerateNames')
-                                            TypeArgumentsList
-                                              PsiElement([)('[')
-                                              SimpleType: tpe
-                                                CodeReferenceElement: tpe
-                                                  PsiElement(identifier)('tpe')
-                                              PsiElement(])(']')
+                                          TypeArgument
+                                            ParametrizedType: EnumerateNames[tpe]
+                                              SimpleType: EnumerateNames
+                                                CodeReferenceElement: EnumerateNames
+                                                  PsiElement(identifier)('EnumerateNames')
+                                              TypeArgumentsList
+                                                PsiElement([)('[')
+                                                TypeArgument
+                                                  SimpleType: tpe
+                                                    CodeReferenceElement: tpe
+                                                      PsiElement(identifier)('tpe')
+                                                PsiElement(])(']')
                                           PsiElement(])(']')
                                   PsiWhiteSpace('\n              ')
                                   CaseClause
@@ -394,9 +401,10 @@ ScalaFile
                 PsiElement(identifier)('EnumerateNames')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -409,9 +417,10 @@ ScalaFile
               PsiElement(identifier)('derived')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScFunctionDefinition: shapeNames
@@ -432,9 +441,10 @@ ScalaFile
                 PsiElement(identifier)('EnumerateNames')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Shape
-                CodeReferenceElement: Shape
-                  PsiElement(identifier)('Shape')
+              TypeArgument
+                SimpleType: Shape
+                  CodeReferenceElement: Shape
+                    PsiElement(identifier)('Shape')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -447,9 +457,10 @@ ScalaFile
               PsiElement(identifier)('derived')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Shape
-                CodeReferenceElement: Shape
-                  PsiElement(identifier)('Shape')
+              TypeArgument
+                SimpleType: Shape
+                  CodeReferenceElement: Shape
+                    PsiElement(identifier)('Shape')
               PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

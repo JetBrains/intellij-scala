@@ -173,9 +173,10 @@ ScalaFile
                           PsiElement(identifier)('Two')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: Map
-                          CodeReferenceElement: Map
-                            PsiElement(identifier)('Map')
+                        TypeArgument
+                          SimpleType: Map
+                            CodeReferenceElement: Map
+                              PsiElement(identifier)('Map')
                         PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 ScTemplateBody
@@ -224,15 +225,16 @@ ScalaFile
                           PsiElement(identifier)('One')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: java.util.List
-                          CodeReferenceElement: java.util.List
-                            CodeReferenceElement: java.util
-                              CodeReferenceElement: java
-                                PsiElement(identifier)('java')
+                        TypeArgument
+                          SimpleType: java.util.List
+                            CodeReferenceElement: java.util.List
+                              CodeReferenceElement: java.util
+                                CodeReferenceElement: java
+                                  PsiElement(identifier)('java')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('util')
                               PsiElement(.)('.')
-                              PsiElement(identifier)('util')
-                            PsiElement(.)('.')
-                            PsiElement(identifier)('List')
+                              PsiElement(identifier)('List')
                         PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 ScTemplateBody
@@ -283,18 +285,19 @@ ScalaFile
                           PsiElement(identifier)('Two')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: java.util.concurrent.ConcurrentHashMap
-                          CodeReferenceElement: java.util.concurrent.ConcurrentHashMap
-                            CodeReferenceElement: java.util.concurrent
-                              CodeReferenceElement: java.util
-                                CodeReferenceElement: java
-                                  PsiElement(identifier)('java')
+                        TypeArgument
+                          SimpleType: java.util.concurrent.ConcurrentHashMap
+                            CodeReferenceElement: java.util.concurrent.ConcurrentHashMap
+                              CodeReferenceElement: java.util.concurrent
+                                CodeReferenceElement: java.util
+                                  CodeReferenceElement: java
+                                    PsiElement(identifier)('java')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('util')
                                 PsiElement(.)('.')
-                                PsiElement(identifier)('util')
+                                PsiElement(identifier)('concurrent')
                               PsiElement(.)('.')
-                              PsiElement(identifier)('concurrent')
-                            PsiElement(.)('.')
-                            PsiElement(identifier)('ConcurrentHashMap')
+                              PsiElement(identifier)('ConcurrentHashMap')
                         PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 ScTemplateBody

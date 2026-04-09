@@ -151,14 +151,15 @@ ScalaFile
                         PsiElement(identifier)('Set')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      WildcardType: ? <: TypeElement
-                        PsiElement(?)('?')
-                        PsiWhiteSpace(' ')
-                        PsiElement(<:)('<:')
-                        PsiWhiteSpace(' ')
-                        SimpleType: TypeElement
-                          CodeReferenceElement: TypeElement
-                            PsiElement(identifier)('TypeElement')
+                      TypeArgument
+                        WildcardType: ? <: TypeElement
+                          PsiElement(?)('?')
+                          PsiWhiteSpace(' ')
+                          PsiElement(<:)('<:')
+                          PsiWhiteSpace(' ')
+                          SimpleType: TypeElement
+                            CodeReferenceElement: TypeElement
+                              PsiElement(identifier)('TypeElement')
                       PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
@@ -294,9 +295,10 @@ ScalaFile
                       PsiElement(identifier)('asInstanceOf')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: PackageElement
-                        CodeReferenceElement: PackageElement
-                          PsiElement(identifier)('PackageElement')
+                      TypeArgument
+                        SimpleType: PackageElement
+                          CodeReferenceElement: PackageElement
+                            PsiElement(identifier)('PackageElement')
                       PsiElement(])(']')
                 PsiElement())(')')
             PsiWhiteSpace('\n    ')

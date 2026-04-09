@@ -57,14 +57,16 @@ ScalaFile
                     PsiElement(identifier)('RepoDefaults')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: EC
-                    CodeReferenceElement: EC
-                      PsiElement(identifier)('EC')
+                  TypeArgument
+                    SimpleType: EC
+                      CodeReferenceElement: EC
+                        PsiElement(identifier)('EC')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
-                  SimpleType: E
-                    CodeReferenceElement: E
-                      PsiElement(identifier)('E')
+                  TypeArgument
+                    SimpleType: E
+                      CodeReferenceElement: E
+                        PsiElement(identifier)('E')
                   PsiElement(])(']')
           PsiElement())(')')
     ExtendsBlock
@@ -139,14 +141,16 @@ ScalaFile
                 PsiElement(identifier)('RepoDefaults')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: E
-                CodeReferenceElement: E
-                  PsiElement(identifier)('E')
+              TypeArgument
+                SimpleType: E
+                  CodeReferenceElement: E
+                    PsiElement(identifier)('E')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: E
-                CodeReferenceElement: E
-                  PsiElement(identifier)('E')
+              TypeArgument
+                SimpleType: E
+                  CodeReferenceElement: E
+                    PsiElement(identifier)('E')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -194,14 +198,16 @@ ScalaFile
                 PsiElement(identifier)('RepoDefaults')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: EC
-                CodeReferenceElement: EC
-                  PsiElement(identifier)('EC')
+              TypeArgument
+                SimpleType: EC
+                  CodeReferenceElement: EC
+                    PsiElement(identifier)('EC')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: E
-                CodeReferenceElement: E
-                  PsiElement(identifier)('E')
+              TypeArgument
+                SimpleType: E
+                  CodeReferenceElement: E
+                    PsiElement(identifier)('E')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -313,9 +319,10 @@ ScalaFile
           PsiElement(identifier)('DbCodec')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: Person
-          CodeReferenceElement: Person
-            PsiElement(identifier)('Person')
+        TypeArgument
+          SimpleType: Person
+            CodeReferenceElement: Person
+              PsiElement(identifier)('Person')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -338,9 +345,10 @@ ScalaFile
           PsiElement(identifier)('DbCodec')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: PersonCreator
-          CodeReferenceElement: PersonCreator
-            PsiElement(identifier)('PersonCreator')
+        TypeArgument
+          SimpleType: PersonCreator
+            CodeReferenceElement: PersonCreator
+              PsiElement(identifier)('PersonCreator')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -387,12 +395,14 @@ ScalaFile
             PsiElement(identifier)('Repo')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: PersonCreator
-              CodeReferenceElement: PersonCreator
-                PsiElement(identifier)('PersonCreator')
+            TypeArgument
+              SimpleType: PersonCreator
+                CodeReferenceElement: PersonCreator
+                  PsiElement(identifier)('PersonCreator')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
-            SimpleType: Person
-              CodeReferenceElement: Person
-                PsiElement(identifier)('Person')
+            TypeArgument
+              SimpleType: Person
+                CodeReferenceElement: Person
+                  PsiElement(identifier)('Person')
             PsiElement(])(']')

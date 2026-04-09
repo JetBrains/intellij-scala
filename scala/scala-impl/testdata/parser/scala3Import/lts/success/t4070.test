@@ -86,8 +86,9 @@ ScalaFile
                           PsiElement(identifier)('Dingus')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        WildcardType: _
-                          PsiElement(_)('_')
+                        TypeArgument
+                          WildcardType: _
+                            PsiElement(_)('_')
                         PsiElement(])(']')
                 PsiElement())(')')
             PsiElement(:)(':')
@@ -122,8 +123,9 @@ ScalaFile
                             PsiElement(identifier)('Bippy')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          TypeVariable: tv
-                            PsiElement(identifier)('tv')
+                          TypeArgument
+                            TypeVariable: tv
+                              PsiElement(identifier)('tv')
                           PsiElement(])(']')
                   PsiWhiteSpace(' ')
                   PsiElement(=>)('=>')
@@ -184,9 +186,10 @@ ScalaFile
                       PsiElement(identifier)('Seq')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: X
-                      CodeReferenceElement: X
-                        PsiElement(identifier)('X')
+                    TypeArgument
+                      SimpleType: X
+                        CodeReferenceElement: X
+                          PsiElement(identifier)('X')
                     PsiElement(])(']')
               PsiElement(])(']')
             PrimaryConstructor
@@ -210,16 +213,18 @@ ScalaFile
                         PsiElement(identifier)('Dingus')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      ParametrizedType: CC[Int]
-                        SimpleType: CC
-                          CodeReferenceElement: CC
-                            PsiElement(identifier)('CC')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: Int
-                            CodeReferenceElement: Int
-                              PsiElement(identifier)('Int')
-                          PsiElement(])(']')
+                      TypeArgument
+                        ParametrizedType: CC[Int]
+                          SimpleType: CC
+                            CodeReferenceElement: CC
+                              PsiElement(identifier)('CC')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: Int
+                                CodeReferenceElement: Int
+                                  PsiElement(identifier)('Int')
+                            PsiElement(])(']')
                       PsiElement(])(']')
           PsiWhiteSpace('\n  ')
           PsiElement(})('}')
@@ -298,9 +303,10 @@ ScalaFile
                       PsiElement(identifier)('Seq')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: X
-                      CodeReferenceElement: X
-                        PsiElement(identifier)('X')
+                    TypeArgument
+                      SimpleType: X
+                        CodeReferenceElement: X
+                          PsiElement(identifier)('X')
                     PsiElement(])(']')
               PsiElement(])(']')
             PrimaryConstructor
@@ -324,16 +330,18 @@ ScalaFile
                         PsiElement(identifier)('Dingus')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      ParametrizedType: CC[Int]
-                        SimpleType: CC
-                          CodeReferenceElement: CC
-                            PsiElement(identifier)('CC')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: Int
-                            CodeReferenceElement: Int
-                              PsiElement(identifier)('Int')
-                          PsiElement(])(']')
+                      TypeArgument
+                        ParametrizedType: CC[Int]
+                          SimpleType: CC
+                            CodeReferenceElement: CC
+                              PsiElement(identifier)('CC')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: Int
+                                CodeReferenceElement: Int
+                                  PsiElement(identifier)('Int')
+                            PsiElement(])(']')
                       PsiElement(])(']')
           PsiWhiteSpace('\n\n    ')
           ScFunctionDefinition: crash
@@ -362,8 +370,9 @@ ScalaFile
                           PsiElement(identifier)('Dingus')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        WildcardType: _
-                          PsiElement(_)('_')
+                        TypeArgument
+                          WildcardType: _
+                            PsiElement(_)('_')
                         PsiElement(])(']')
                 PsiElement())(')')
             PsiElement(:)(':')
@@ -398,8 +407,9 @@ ScalaFile
                             PsiElement(identifier)('Bippy')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          TypeVariable: tv
-                            PsiElement(identifier)('tv')
+                          TypeArgument
+                            TypeVariable: tv
+                              PsiElement(identifier)('tv')
                           PsiElement(])(']')
                   PsiWhiteSpace(' ')
                   PsiElement(=>)('=>')

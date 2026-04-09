@@ -176,52 +176,54 @@ ScalaFile
                       PsiElement(identifier)('Composable')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    CompoundType: Arr1 {type Dom = A}
-                      SimpleType: Arr1
-                        CodeReferenceElement: Arr1
-                          PsiElement(identifier)('Arr1')
-                      PsiWhiteSpace(' ')
-                      Refinement
-                        PsiElement({)('{')
-                        ScTypeAliasDefinition: Dom
-                          AnnotationsList
-                            <empty list>
-                          Modifiers
-                            <empty list>
-                          PsiElement(type)('type')
-                          PsiWhiteSpace(' ')
-                          PsiElement(identifier)('Dom')
-                          PsiWhiteSpace(' ')
-                          PsiElement(=)('=')
-                          PsiWhiteSpace(' ')
-                          SimpleType: A
-                            CodeReferenceElement: A
-                              PsiElement(identifier)('A')
-                        PsiElement(})('}')
+                    TypeArgument
+                      CompoundType: Arr1 {type Dom = A}
+                        SimpleType: Arr1
+                          CodeReferenceElement: Arr1
+                            PsiElement(identifier)('Arr1')
+                        PsiWhiteSpace(' ')
+                        Refinement
+                          PsiElement({)('{')
+                          ScTypeAliasDefinition: Dom
+                            AnnotationsList
+                              <empty list>
+                            Modifiers
+                              <empty list>
+                            PsiElement(type)('type')
+                            PsiWhiteSpace(' ')
+                            PsiElement(identifier)('Dom')
+                            PsiWhiteSpace(' ')
+                            PsiElement(=)('=')
+                            PsiWhiteSpace(' ')
+                            SimpleType: A
+                              CodeReferenceElement: A
+                                PsiElement(identifier)('A')
+                          PsiElement(})('}')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    CompoundType: Arr2 {type Codom = A}
-                      SimpleType: Arr2
-                        CodeReferenceElement: Arr2
-                          PsiElement(identifier)('Arr2')
-                      PsiWhiteSpace(' ')
-                      Refinement
-                        PsiElement({)('{')
-                        ScTypeAliasDefinition: Codom
-                          AnnotationsList
-                            <empty list>
-                          Modifiers
-                            <empty list>
-                          PsiElement(type)('type')
-                          PsiWhiteSpace(' ')
-                          PsiElement(identifier)('Codom')
-                          PsiWhiteSpace(' ')
-                          PsiElement(=)('=')
-                          PsiWhiteSpace(' ')
-                          SimpleType: A
-                            CodeReferenceElement: A
-                              PsiElement(identifier)('A')
-                        PsiElement(})('}')
+                    TypeArgument
+                      CompoundType: Arr2 {type Codom = A}
+                        SimpleType: Arr2
+                          CodeReferenceElement: Arr2
+                            PsiElement(identifier)('Arr2')
+                        PsiWhiteSpace(' ')
+                        Refinement
+                          PsiElement({)('{')
+                          ScTypeAliasDefinition: Codom
+                            AnnotationsList
+                              <empty list>
+                            Modifiers
+                              <empty list>
+                            PsiElement(type)('type')
+                            PsiWhiteSpace(' ')
+                            PsiElement(identifier)('Codom')
+                            PsiWhiteSpace(' ')
+                            PsiElement(=)('=')
+                            PsiWhiteSpace(' ')
+                            SimpleType: A
+                              CodeReferenceElement: A
+                                PsiElement(identifier)('A')
+                          PsiElement(})('}')
                     PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(with)('with')
@@ -531,13 +533,15 @@ ScalaFile
                         PsiElement(identifier)('Composable')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                       PsiElement(,)(',')
-                      SimpleType: B
-                        CodeReferenceElement: B
-                          PsiElement(identifier)('B')
+                      TypeArgument
+                        SimpleType: B
+                          CodeReferenceElement: B
+                            PsiElement(identifier)('B')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiWhiteSpace(' ')

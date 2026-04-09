@@ -58,9 +58,10 @@ ScalaFile
                     PsiElement(identifier)('ValueOf')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: A
-                    CodeReferenceElement: A
-                      PsiElement(identifier)('A')
+                  TypeArgument
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
                   PsiElement(])(']')
           PsiElement())(')')
     ExtendsBlock
@@ -103,9 +104,10 @@ ScalaFile
                   PsiElement(identifier)('Wrapper')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: A
-                  CodeReferenceElement: A
-                    PsiElement(identifier)('A')
+                TypeArgument
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
                 PsiElement(])(']')
         PsiElement())(')')
     PsiElement(:)(':')

@@ -161,9 +161,10 @@ ScalaFile
                         PsiElement(identifier)('UnwrapTypes')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: x
-                        CodeReferenceElement: x
-                          PsiElement(identifier)('x')
+                      TypeArgument
+                        SimpleType: x
+                          CodeReferenceElement: x
+                            PsiElement(identifier)('x')
                       PsiElement(])(']')
                   PsiWhiteSpace(' ')
                   CodeReferenceElement: *:
@@ -175,9 +176,10 @@ ScalaFile
                         PsiElement(identifier)('UnwrapTypes')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: xs
-                        CodeReferenceElement: xs
-                          PsiElement(identifier)('xs')
+                      TypeArgument
+                        SimpleType: xs
+                          CodeReferenceElement: xs
+                            PsiElement(identifier)('xs')
                       PsiElement(])(']')
               PsiWhiteSpace('\n      ')
               ScMatchTypeCaseImpl(match type case)
@@ -192,8 +194,9 @@ ScalaFile
                     PsiElement(identifier)('Bar')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    TypeVariable: x
-                      PsiElement(identifier)('x')
+                    TypeArgument
+                      TypeVariable: x
+                        PsiElement(identifier)('x')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
@@ -204,9 +207,10 @@ ScalaFile
                       PsiElement(identifier)('UnwrapTypes')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: x
-                      CodeReferenceElement: x
-                        PsiElement(identifier)('x')
+                    TypeArgument
+                      SimpleType: x
+                        CodeReferenceElement: x
+                          PsiElement(identifier)('x')
                     PsiElement(])(']')
               PsiWhiteSpace('\n      ')
               ScMatchTypeCaseImpl(match type case)
@@ -265,19 +269,21 @@ ScalaFile
                   PsiElement(identifier)('UnwrapTypes')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: FooBar.Bar[Int]
-                  SimpleType: FooBar.Bar
-                    CodeReferenceElement: FooBar.Bar
-                      CodeReferenceElement: FooBar
-                        PsiElement(identifier)('FooBar')
-                      PsiElement(.)('.')
-                      PsiElement(identifier)('Bar')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: Int
-                      CodeReferenceElement: Int
-                        PsiElement(identifier)('Int')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: FooBar.Bar[Int]
+                    SimpleType: FooBar.Bar
+                      CodeReferenceElement: FooBar.Bar
+                        CodeReferenceElement: FooBar
+                          PsiElement(identifier)('FooBar')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('Bar')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement(])(']')
                 PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScPatternDefinition: tup
@@ -319,38 +325,41 @@ ScalaFile
                   PsiElement(identifier)('UnwrapTypes')
               TypeArgumentsList
                 PsiElement([)('[')
-                TupleType: (FooBar.Bar[Int], FooBar.Bar[String])
-                  PsiElement(()('(')
-                  TypesList
-                    ParametrizedType: FooBar.Bar[Int]
-                      SimpleType: FooBar.Bar
-                        CodeReferenceElement: FooBar.Bar
-                          CodeReferenceElement: FooBar
-                            PsiElement(identifier)('FooBar')
-                          PsiElement(.)('.')
-                          PsiElement(identifier)('Bar')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        SimpleType: Int
-                          CodeReferenceElement: Int
-                            PsiElement(identifier)('Int')
-                        PsiElement(])(']')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    ParametrizedType: FooBar.Bar[String]
-                      SimpleType: FooBar.Bar
-                        CodeReferenceElement: FooBar.Bar
-                          CodeReferenceElement: FooBar
-                            PsiElement(identifier)('FooBar')
-                          PsiElement(.)('.')
-                          PsiElement(identifier)('Bar')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        SimpleType: String
-                          CodeReferenceElement: String
-                            PsiElement(identifier)('String')
-                        PsiElement(])(']')
-                  PsiElement())(')')
+                TypeArgument
+                  TupleType: (FooBar.Bar[Int], FooBar.Bar[String])
+                    PsiElement(()('(')
+                    TypesList
+                      ParametrizedType: FooBar.Bar[Int]
+                        SimpleType: FooBar.Bar
+                          CodeReferenceElement: FooBar.Bar
+                            CodeReferenceElement: FooBar
+                              PsiElement(identifier)('FooBar')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('Bar')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: Int
+                              CodeReferenceElement: Int
+                                PsiElement(identifier)('Int')
+                          PsiElement(])(']')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      ParametrizedType: FooBar.Bar[String]
+                        SimpleType: FooBar.Bar
+                          CodeReferenceElement: FooBar.Bar
+                            CodeReferenceElement: FooBar
+                              PsiElement(identifier)('FooBar')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('Bar')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: String
+                              CodeReferenceElement: String
+                                PsiElement(identifier)('String')
+                          PsiElement(])(']')
+                    PsiElement())(')')
                 PsiElement(])(']')
         PsiWhiteSpace('\n')
         End: Test

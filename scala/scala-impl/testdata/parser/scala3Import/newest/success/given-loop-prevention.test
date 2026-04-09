@@ -95,9 +95,10 @@ ScalaFile
                 PsiElement(identifier)('List')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Foo
-                CodeReferenceElement: Foo
-                  PsiElement(identifier)('Foo')
+              TypeArgument
+                SimpleType: Foo
+                  CodeReferenceElement: Foo
+                    PsiElement(identifier)('Foo')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -112,9 +113,10 @@ ScalaFile
                   PsiElement(identifier)('summon')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: Foo
-                    CodeReferenceElement: Foo
-                      PsiElement(identifier)('Foo')
+                  TypeArgument
+                    SimpleType: Foo
+                      CodeReferenceElement: Foo
+                        PsiElement(identifier)('Foo')
                   PsiElement(])(']')
               PsiElement())(')')
         PsiWhiteSpace(' ')
@@ -160,9 +162,10 @@ ScalaFile
                 PsiElement(identifier)('List')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Foo
-                CodeReferenceElement: Foo
-                  PsiElement(identifier)('Foo')
+              TypeArgument
+                SimpleType: Foo
+                  CodeReferenceElement: Foo
+                    PsiElement(identifier)('Foo')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -177,9 +180,10 @@ ScalaFile
                   PsiElement(identifier)('summon')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: Foo
-                    CodeReferenceElement: Foo
-                      PsiElement(identifier)('Foo')
+                  TypeArgument
+                    SimpleType: Foo
+                      CodeReferenceElement: Foo
+                        PsiElement(identifier)('Foo')
                   PsiElement(])(']')
               PsiElement())(')')
         PsiWhiteSpace(' ')

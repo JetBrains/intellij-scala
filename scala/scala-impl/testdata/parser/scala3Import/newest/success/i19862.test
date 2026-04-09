@@ -105,19 +105,22 @@ ScalaFile
               PsiElement(identifier)('summon')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Function1[Int, Int]
-                SimpleType: Function1
-                  CodeReferenceElement: Function1
-                    PsiElement(identifier)('Function1')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Function1[Int, Int]
+                  SimpleType: Function1
+                    CodeReferenceElement: Function1
+                      PsiElement(identifier)('Function1')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                    PsiElement(])(']')
               PsiElement(])(']')

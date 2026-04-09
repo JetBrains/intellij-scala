@@ -53,14 +53,16 @@ ScalaFile
                         PsiElement(identifier)('PartialFunction')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Char
-                        CodeReferenceElement: Char
-                          PsiElement(identifier)('Char')
+                      TypeArgument
+                        SimpleType: Char
+                          CodeReferenceElement: Char
+                            PsiElement(identifier)('Char')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: Unit
-                        CodeReferenceElement: Unit
-                          PsiElement(identifier)('Unit')
+                      TypeArgument
+                        SimpleType: Unit
+                          CodeReferenceElement: Unit
+                            PsiElement(identifier)('Unit')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')

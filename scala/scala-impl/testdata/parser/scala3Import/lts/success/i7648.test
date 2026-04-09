@@ -113,9 +113,10 @@ ScalaFile
                   PsiElement(identifier)('Functor')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: F
-                  CodeReferenceElement: F
-                    PsiElement(identifier)('F')
+                TypeArgument
+                  SimpleType: F
+                    CodeReferenceElement: F
+                      PsiElement(identifier)('F')
                 PsiElement(])(']')
     PsiWhiteSpace('\n\n')
     ScClass: Stream
@@ -180,9 +181,10 @@ ScalaFile
                       PsiElement(identifier)('F')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: x
-                      CodeReferenceElement: x
-                        PsiElement(identifier)('x')
+                    TypeArgument
+                      SimpleType: x
+                        CodeReferenceElement: x
+                          PsiElement(identifier)('x')
                     PsiElement(])(']')
               PsiElement(])(']')
             Parameters
@@ -220,9 +222,10 @@ ScalaFile
                           PsiElement(identifier)('Functor')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: F1
-                          CodeReferenceElement: F1
-                            PsiElement(identifier)('F1')
+                        TypeArgument
+                          SimpleType: F1
+                            CodeReferenceElement: F1
+                              PsiElement(identifier)('F1')
                         PsiElement(])(']')
                 PsiElement())(')')
             PsiElement(:)(':')
@@ -233,14 +236,16 @@ ScalaFile
                   PsiElement(identifier)('Stream')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: F1
-                  CodeReferenceElement: F1
-                    PsiElement(identifier)('F1')
+                TypeArgument
+                  SimpleType: F1
+                    CodeReferenceElement: F1
+                      PsiElement(identifier)('F1')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: A
-                  CodeReferenceElement: A
-                    PsiElement(identifier)('A')
+                TypeArgument
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(=)('=')
@@ -286,9 +291,10 @@ ScalaFile
                   PsiElement(identifier)('Monad')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: IO
-                  CodeReferenceElement: IO
-                    PsiElement(identifier)('IO')
+                TypeArgument
+                  SimpleType: IO
+                    CodeReferenceElement: IO
+                      PsiElement(identifier)('IO')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(=)('=')
@@ -324,22 +330,25 @@ ScalaFile
                                 PsiElement(identifier)('Stream')
                             TypeArgumentsList
                               PsiElement([)('[')
-                              SimpleType: IO
-                                CodeReferenceElement: IO
-                                  PsiElement(identifier)('IO')
+                              TypeArgument
+                                SimpleType: IO
+                                  CodeReferenceElement: IO
+                                    PsiElement(identifier)('IO')
                               PsiElement(,)(',')
                               PsiWhiteSpace(' ')
-                              SimpleType: Int
-                                CodeReferenceElement: Int
-                                  PsiElement(identifier)('Int')
+                              TypeArgument
+                                SimpleType: Int
+                                  CodeReferenceElement: Int
+                                    PsiElement(identifier)('Int')
                               PsiElement(])(']')
                   PsiElement(.)('.')
                   PsiElement(identifier)('take')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: IO
-                    CodeReferenceElement: IO
-                      PsiElement(identifier)('IO')
+                  TypeArgument
+                    SimpleType: IO
+                      CodeReferenceElement: IO
+                        PsiElement(identifier)('IO')
                   PsiElement(])(']')
               ArgumentList
                 PsiElement(()('(')

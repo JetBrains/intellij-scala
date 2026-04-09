@@ -42,34 +42,38 @@ ScalaFile
               PsiElement(identifier)('AbstractShapeBuilder')
           TypeArgumentsList
             PsiElement([)('[')
-            WildcardType: ? <: AbstractShapeBuilder[?, ?]
-              PsiElement(?)('?')
-              PsiWhiteSpace(' ')
-              PsiElement(<:)('<:')
-              PsiWhiteSpace(' ')
-              ParametrizedType: AbstractShapeBuilder[?, ?]
-                SimpleType: AbstractShapeBuilder
-                  CodeReferenceElement: AbstractShapeBuilder
-                    PsiElement(identifier)('AbstractShapeBuilder')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  WildcardType: ?
-                    PsiElement(?)('?')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  WildcardType: ?
-                    PsiElement(?)('?')
-                  PsiElement(])(']')
+            TypeArgument
+              WildcardType: ? <: AbstractShapeBuilder[?, ?]
+                PsiElement(?)('?')
+                PsiWhiteSpace(' ')
+                PsiElement(<:)('<:')
+                PsiWhiteSpace(' ')
+                ParametrizedType: AbstractShapeBuilder[?, ?]
+                  SimpleType: AbstractShapeBuilder
+                    CodeReferenceElement: AbstractShapeBuilder
+                      PsiElement(identifier)('AbstractShapeBuilder')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      WildcardType: ?
+                        PsiElement(?)('?')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      WildcardType: ?
+                        PsiElement(?)('?')
+                    PsiElement(])(']')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
-            WildcardType: ? <: Shape
-              PsiElement(?)('?')
-              PsiWhiteSpace(' ')
-              PsiElement(<:)('<:')
-              PsiWhiteSpace(' ')
-              SimpleType: Shape
-                CodeReferenceElement: Shape
-                  PsiElement(identifier)('Shape')
+            TypeArgument
+              WildcardType: ? <: Shape
+                PsiElement(?)('?')
+                PsiWhiteSpace(' ')
+                PsiElement(<:)('<:')
+                PsiWhiteSpace(' ')
+                SimpleType: Shape
+                  CodeReferenceElement: Shape
+                    PsiElement(identifier)('Shape')
             PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiElement(=)('=')
@@ -87,9 +91,10 @@ ScalaFile
               PsiElement(identifier)('empty')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Trait
-                CodeReferenceElement: Trait
-                  PsiElement(identifier)('Trait')
+              TypeArgument
+                SimpleType: Trait
+                  CodeReferenceElement: Trait
+                    PsiElement(identifier)('Trait')
               PsiElement(])(']')
           PsiElement(.)('.')
           PsiElement(identifier)('foreach')

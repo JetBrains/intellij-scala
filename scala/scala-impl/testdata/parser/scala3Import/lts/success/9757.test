@@ -132,14 +132,16 @@ ScalaFile
             PsiElement(identifier)('RemoveFrom')
         TypeArgumentsList
           PsiElement([)('[')
-          SimpleType: R
-            CodeReferenceElement: R
-              PsiElement(identifier)('R')
+          TypeArgument
+            SimpleType: R
+              CodeReferenceElement: R
+                PsiElement(identifier)('R')
           PsiElement(,)(',')
           PsiWhiteSpace(' ')
-          SimpleType: PartR
-            CodeReferenceElement: PartR
-              PsiElement(identifier)('PartR')
+          TypeArgument
+            SimpleType: PartR
+              CodeReferenceElement: PartR
+                PsiElement(identifier)('PartR')
           PsiElement(])(']')
       PsiWhiteSpace(' ')
       PsiElement(=>)('=>')

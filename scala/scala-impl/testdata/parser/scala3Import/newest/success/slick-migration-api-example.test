@@ -149,19 +149,22 @@ ScalaFile
                               PsiElement(identifier)('CanConcatMigrations')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: M
-                              CodeReferenceElement: M
-                                PsiElement(identifier)('M')
+                            TypeArgument
+                              SimpleType: M
+                                CodeReferenceElement: M
+                                  PsiElement(identifier)('M')
                             PsiElement(,)(',')
                             PsiWhiteSpace(' ')
-                            SimpleType: N
-                              CodeReferenceElement: N
-                                PsiElement(identifier)('N')
+                            TypeArgument
+                              SimpleType: N
+                                CodeReferenceElement: N
+                                  PsiElement(identifier)('N')
                             PsiElement(,)(',')
                             PsiWhiteSpace(' ')
-                            SimpleType: O
-                              CodeReferenceElement: O
-                                PsiElement(identifier)('O')
+                            TypeArgument
+                              SimpleType: O
+                                CodeReferenceElement: O
+                                  PsiElement(identifier)('O')
                             PsiElement(])(']')
                     PsiElement())(')')
                 PsiElement(:)(':')
@@ -297,9 +300,10 @@ ScalaFile
                 PsiElement(identifier)('ToReversible')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: ReversibleMigration
-                CodeReferenceElement: ReversibleMigration
-                  PsiElement(identifier)('ReversibleMigration')
+              TypeArgument
+                SimpleType: ReversibleMigration
+                  CodeReferenceElement: ReversibleMigration
+                    PsiElement(identifier)('ReversibleMigration')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -393,19 +397,22 @@ ScalaFile
                 PsiElement(identifier)('CanConcatMigrations')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: B
-                CodeReferenceElement: B
-                  PsiElement(identifier)('B')
+              TypeArgument
+                SimpleType: B
+                  CodeReferenceElement: B
+                    PsiElement(identifier)('B')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: MigrationSeq
-                CodeReferenceElement: MigrationSeq
-                  PsiElement(identifier)('MigrationSeq')
+              TypeArgument
+                SimpleType: MigrationSeq
+                  CodeReferenceElement: MigrationSeq
+                    PsiElement(identifier)('MigrationSeq')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -483,9 +490,10 @@ ScalaFile
                         PsiElement(identifier)('ToReversible')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                       PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace('\n                                                          ')
@@ -504,9 +512,10 @@ ScalaFile
                         PsiElement(identifier)('ToReversible')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: B
-                        CodeReferenceElement: B
-                          PsiElement(identifier)('B')
+                      TypeArgument
+                        SimpleType: B
+                          CodeReferenceElement: B
+                            PsiElement(identifier)('B')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -517,19 +526,22 @@ ScalaFile
                 PsiElement(identifier)('CanConcatMigrations')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: B
-                CodeReferenceElement: B
-                  PsiElement(identifier)('B')
+              TypeArgument
+                SimpleType: B
+                  CodeReferenceElement: B
+                    PsiElement(identifier)('B')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: ReversibleMigrationSeq
-                CodeReferenceElement: ReversibleMigrationSeq
-                  PsiElement(identifier)('ReversibleMigrationSeq')
+              TypeArgument
+                SimpleType: ReversibleMigrationSeq
+                  CodeReferenceElement: ReversibleMigrationSeq
+                    PsiElement(identifier)('ReversibleMigrationSeq')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -614,19 +626,20 @@ ScalaFile
           PsiElement(identifier)('summon')
         TypeArgumentsList
           PsiElement([)('[')
-          InfixType: rms.type <:< ReversibleMigrationSeq
-            SimpleType: rms.type
-              CodeReferenceElement: rms
-                PsiElement(identifier)('rms')
-              PsiElement(.)('.')
-              PsiElement(type)('type')
-            PsiWhiteSpace(' ')
-            CodeReferenceElement: <:<
-              PsiElement(identifier)('<:<')
-            PsiWhiteSpace(' ')
-            SimpleType: ReversibleMigrationSeq
-              CodeReferenceElement: ReversibleMigrationSeq
-                PsiElement(identifier)('ReversibleMigrationSeq')
+          TypeArgument
+            InfixType: rms.type <:< ReversibleMigrationSeq
+              SimpleType: rms.type
+                CodeReferenceElement: rms
+                  PsiElement(identifier)('rms')
+                PsiElement(.)('.')
+                PsiElement(type)('type')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: <:<
+                PsiElement(identifier)('<:<')
+              PsiWhiteSpace(' ')
+              SimpleType: ReversibleMigrationSeq
+                CodeReferenceElement: ReversibleMigrationSeq
+                  PsiElement(identifier)('ReversibleMigrationSeq')
           PsiElement(])(']')
   PsiWhiteSpace(' ')
   PsiComment(comment)('// error Cannot prove that (rms : slick.migration.api.MigrationSeq) <:< slick.migration.api.ReversibleMigrationSeq.')

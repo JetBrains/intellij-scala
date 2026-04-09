@@ -180,9 +180,10 @@ ScalaFile
                 PsiElement(identifier)('One')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Foo
-                CodeReferenceElement: Foo
-                  PsiElement(identifier)('Foo')
+              TypeArgument
+                SimpleType: Foo
+                  CodeReferenceElement: Foo
+                    PsiElement(identifier)('Foo')
               PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiElement(with)('with')
@@ -194,9 +195,10 @@ ScalaFile
                 PsiElement(identifier)('Two')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Foo
-                CodeReferenceElement: Foo
-                  PsiElement(identifier)('Foo')
+              TypeArgument
+                SimpleType: Foo
+                  CodeReferenceElement: Foo
+                    PsiElement(identifier)('Foo')
               PsiElement(])(']')
       PsiWhiteSpace(' ')
       ScTemplateBody
@@ -208,9 +210,10 @@ ScalaFile
               PsiElement(identifier)('concat')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
+              TypeArgument
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
               PsiElement(])(']')
           ArgumentList
             PsiElement(()('(')
@@ -251,9 +254,10 @@ ScalaFile
                 PsiElement(identifier)('One')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: String
-                CodeReferenceElement: String
-                  PsiElement(identifier)('String')
+              TypeArgument
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
               PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiElement(with)('with')
@@ -265,9 +269,10 @@ ScalaFile
                 PsiElement(identifier)('Two')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Foo
-                CodeReferenceElement: Foo
-                  PsiElement(identifier)('Foo')
+              TypeArgument
+                SimpleType: Foo
+                  CodeReferenceElement: Foo
+                    PsiElement(identifier)('Foo')
               PsiElement(])(']')
       PsiWhiteSpace(' ')
       ScTemplateBody
@@ -319,9 +324,10 @@ ScalaFile
                 PsiElement(identifier)('concat')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Int
-                  CodeReferenceElement: Int
-                    PsiElement(identifier)('Int')
+                TypeArgument
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
                 PsiElement(])(']')
             ArgumentList
               PsiElement(()('(')

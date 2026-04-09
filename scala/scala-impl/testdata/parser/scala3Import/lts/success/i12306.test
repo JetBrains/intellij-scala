@@ -54,14 +54,16 @@ ScalaFile
                     PsiElement(identifier)('Map')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: String
-                    CodeReferenceElement: String
-                      PsiElement(identifier)('String')
+                  TypeArgument
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
-                  SimpleType: Any
-                    CodeReferenceElement: Any
-                      PsiElement(identifier)('Any')
+                  TypeArgument
+                    SimpleType: Any
+                      CodeReferenceElement: Any
+                        PsiElement(identifier)('Any')
                   PsiElement(])(']')
           PsiElement())(')')
     PsiWhiteSpace(' ')
@@ -174,14 +176,16 @@ ScalaFile
                         PsiElement(identifier)('Map')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: String
-                        CodeReferenceElement: String
-                          PsiElement(identifier)('String')
+                      TypeArgument
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: Any
-                        CodeReferenceElement: Any
-                          PsiElement(identifier)('Any')
+                      TypeArgument
+                        SimpleType: Any
+                          CodeReferenceElement: Any
+                            PsiElement(identifier)('Any')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -322,17 +326,18 @@ ScalaFile
               PsiElement(identifier)('asInstanceOf')
             TypeArgumentsList
               PsiElement([)('[')
-              InfixType: A & B
-                SimpleType: A
-                  CodeReferenceElement: A
-                    PsiElement(identifier)('A')
-                PsiWhiteSpace(' ')
-                CodeReferenceElement: &
-                  PsiElement(identifier)('&')
-                PsiWhiteSpace(' ')
-                SimpleType: B
-                  CodeReferenceElement: B
-                    PsiElement(identifier)('B')
+              TypeArgument
+                InfixType: A & B
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: &
+                    PsiElement(identifier)('&')
+                  PsiWhiteSpace(' ')
+                  SimpleType: B
+                    CodeReferenceElement: B
+                      PsiElement(identifier)('B')
               PsiElement(])(']')
           PsiWhiteSpace('\n  ')
           PsiElement(})('}')
@@ -575,9 +580,10 @@ ScalaFile
             PsiElement(identifier)('asInstanceOf')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: Person
-              CodeReferenceElement: Person
-                PsiElement(identifier)('Person')
+            TypeArgument
+              SimpleType: Person
+                CodeReferenceElement: Person
+                  PsiElement(identifier)('Person')
             PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       ScPatternDefinition: child
@@ -620,9 +626,10 @@ ScalaFile
             PsiElement(identifier)('asInstanceOf')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: Child
-              CodeReferenceElement: Child
-                PsiElement(identifier)('Child')
+            TypeArgument
+              SimpleType: Child
+                CodeReferenceElement: Child
+                  PsiElement(identifier)('Child')
             PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       ScPatternDefinition: personAndChild

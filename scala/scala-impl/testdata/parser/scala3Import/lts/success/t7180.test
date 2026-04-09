@@ -96,9 +96,10 @@ ScalaFile
                 PsiElement(identifier)('Higher')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Box
-                CodeReferenceElement: Box
-                  PsiElement(identifier)('Box')
+              TypeArgument
+                SimpleType: Box
+                  CodeReferenceElement: Box
+                    PsiElement(identifier)('Box')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -115,9 +116,10 @@ ScalaFile
                         PsiElement(identifier)('Higher')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Box
-                        CodeReferenceElement: Box
-                          PsiElement(identifier)('Box')
+                      TypeArgument
+                        SimpleType: Box
+                          CodeReferenceElement: Box
+                            PsiElement(identifier)('Box')
                       PsiElement(])(']')
               PsiWhiteSpace(' ')
               ScTemplateBody
@@ -157,16 +159,18 @@ ScalaFile
               PsiElement(identifier)('implicitly')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Higher[Box]
-                SimpleType: Higher
-                  CodeReferenceElement: Higher
-                    PsiElement(identifier)('Higher')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: Box
-                    CodeReferenceElement: Box
-                      PsiElement(identifier)('Box')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Higher[Box]
+                  SimpleType: Higher
+                    CodeReferenceElement: Higher
+                      PsiElement(identifier)('Higher')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Box
+                        CodeReferenceElement: Box
+                          PsiElement(identifier)('Box')
+                    PsiElement(])(']')
               PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiComment(comment)('// compiles fine !!!')
@@ -193,9 +197,10 @@ ScalaFile
                 PsiElement(identifier)('Box')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScPatternDefinition: bar
@@ -216,16 +221,18 @@ ScalaFile
               PsiElement(identifier)('implicitly')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Higher[Bar]
-                SimpleType: Higher
-                  CodeReferenceElement: Higher
-                    PsiElement(identifier)('Higher')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: Bar
-                    CodeReferenceElement: Bar
-                      PsiElement(identifier)('Bar')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Higher[Bar]
+                  SimpleType: Higher
+                    CodeReferenceElement: Higher
+                      PsiElement(identifier)('Higher')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Bar
+                        CodeReferenceElement: Bar
+                          PsiElement(identifier)('Bar')
+                    PsiElement(])(']')
               PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiComment(comment)('// <-- this doesn't compile in 2.10.1-RC1, but does in 2.10.0 !!!')

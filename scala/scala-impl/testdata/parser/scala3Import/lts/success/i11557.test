@@ -116,9 +116,10 @@ ScalaFile
           PsiElement(identifier)('summon')
         TypeArgumentsList
           PsiElement([)('[')
-          SimpleType: MyEncoder
-            CodeReferenceElement: MyEncoder
-              PsiElement(identifier)('MyEncoder')
+          TypeArgument
+            SimpleType: MyEncoder
+              CodeReferenceElement: MyEncoder
+                PsiElement(identifier)('MyEncoder')
           PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       MethodCall
@@ -157,7 +158,8 @@ ScalaFile
         PsiElement(identifier)('summonInline')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: MyEncoder
-          CodeReferenceElement: MyEncoder
-            PsiElement(identifier)('MyEncoder')
+        TypeArgument
+          SimpleType: MyEncoder
+            CodeReferenceElement: MyEncoder
+              PsiElement(identifier)('MyEncoder')
         PsiElement(])(']')

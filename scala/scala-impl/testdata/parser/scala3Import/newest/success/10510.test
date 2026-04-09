@@ -118,11 +118,12 @@ ScalaFile
                 PsiElement(identifier)('SBool')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: True.type
-                CodeReferenceElement: True
-                  PsiElement(identifier)('True')
-                PsiElement(.)('.')
-                PsiElement(type)('type')
+              TypeArgument
+                SimpleType: True.type
+                  CodeReferenceElement: True
+                    PsiElement(identifier)('True')
+                  PsiElement(.)('.')
+                  PsiElement(type)('type')
               PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScObject: SFalse
@@ -146,11 +147,12 @@ ScalaFile
                 PsiElement(identifier)('SBool')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: False.type
-                CodeReferenceElement: False
-                  PsiElement(identifier)('False')
-                PsiElement(.)('.')
-                PsiElement(type)('type')
+              TypeArgument
+                SimpleType: False.type
+                  CodeReferenceElement: False
+                    PsiElement(identifier)('False')
+                  PsiElement(.)('.')
+                  PsiElement(type)('type')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScTypeAliasDefinition: Not
@@ -267,9 +269,10 @@ ScalaFile
                   PsiElement(identifier)('SBool')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: B
-                  CodeReferenceElement: B
-                    PsiElement(identifier)('B')
+                TypeArgument
+                  SimpleType: B
+                    CodeReferenceElement: B
+                      PsiElement(identifier)('B')
                 PsiElement(])(']')
         PsiElement())(')')
     PsiElement(:)(':')
@@ -280,16 +283,18 @@ ScalaFile
           PsiElement(identifier)('SBool')
       TypeArgumentsList
         PsiElement([)('[')
-        ParametrizedType: Not[B]
-          SimpleType: Not
-            CodeReferenceElement: Not
-              PsiElement(identifier)('Not')
-          TypeArgumentsList
-            PsiElement([)('[')
-            SimpleType: B
-              CodeReferenceElement: B
-                PsiElement(identifier)('B')
-            PsiElement(])(']')
+        TypeArgument
+          ParametrizedType: Not[B]
+            SimpleType: Not
+              CodeReferenceElement: Not
+                PsiElement(identifier)('Not')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: B
+                  CodeReferenceElement: B
+                    PsiElement(identifier)('B')
+              PsiElement(])(']')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')

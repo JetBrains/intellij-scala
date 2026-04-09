@@ -90,11 +90,12 @@ ScalaFile
                 PsiElement(identifier)('Contra')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: task.type
-                CodeReferenceElement: task
-                  PsiElement(identifier)('task')
-                PsiElement(.)('.')
-                PsiElement(type)('type')
+              TypeArgument
+                SimpleType: task.type
+                  CodeReferenceElement: task
+                    PsiElement(identifier)('task')
+                  PsiElement(.)('.')
+                  PsiElement(type)('type')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -145,9 +146,10 @@ ScalaFile
                         PsiElement(identifier)('Contra')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Before
-                        CodeReferenceElement: Before
-                          PsiElement(identifier)('Before')
+                      TypeArgument
+                        SimpleType: Before
+                          CodeReferenceElement: Before
+                            PsiElement(identifier)('Before')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -158,9 +160,10 @@ ScalaFile
                 PsiElement(identifier)('Contra')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Before
-                CodeReferenceElement: Before
-                  PsiElement(identifier)('Before')
+              TypeArgument
+                SimpleType: Before
+                  CodeReferenceElement: Before
+                    PsiElement(identifier)('Before')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

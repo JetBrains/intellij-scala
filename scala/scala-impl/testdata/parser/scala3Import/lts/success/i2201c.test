@@ -127,14 +127,16 @@ ScalaFile
                         PsiElement(identifier)('M')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: T
-                        CodeReferenceElement: T
-                          PsiElement(identifier)('T')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: S
-                        CodeReferenceElement: S
-                          PsiElement(identifier)('S')
+                      TypeArgument
+                        SimpleType: S
+                          CodeReferenceElement: S
+                            PsiElement(identifier)('S')
                       PsiElement(])(']')
               PsiElement())(')')
             ParametersClause
@@ -178,14 +180,16 @@ ScalaFile
                 PsiElement(identifier)('Swap')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
+              TypeArgument
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: String
-                CodeReferenceElement: String
-                  PsiElement(identifier)('String')
+              TypeArgument
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

@@ -139,9 +139,10 @@ ScalaFile
           PsiElement(identifier)('List')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: Error
-          CodeReferenceElement: Error
-            PsiElement(identifier)('Error')
+        TypeArgument
+          SimpleType: Error
+            CodeReferenceElement: Error
+              PsiElement(identifier)('Error')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')

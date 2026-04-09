@@ -95,9 +95,10 @@ ScalaFile
                       PsiElement(identifier)('Exp')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: T
-                      CodeReferenceElement: T
-                        PsiElement(identifier)('T')
+                    TypeArgument
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
                     PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScFunctionDefinition: env
@@ -131,9 +132,10 @@ ScalaFile
                         PsiElement(identifier)('Var')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: T
-                        CodeReferenceElement: T
-                          PsiElement(identifier)('T')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -178,9 +180,10 @@ ScalaFile
                         PsiElement(identifier)('Exp')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: S
-                        CodeReferenceElement: S
-                          PsiElement(identifier)('S')
+                      TypeArgument
+                        SimpleType: S
+                          CodeReferenceElement: S
+                            PsiElement(identifier)('S')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiWhiteSpace(' ')
@@ -210,8 +213,9 @@ ScalaFile
                           PsiElement(identifier)('Var')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        TypeVariable: foo
-                          PsiElement(identifier)('foo')
+                        TypeArgument
+                          TypeVariable: foo
+                            PsiElement(identifier)('foo')
                         PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')

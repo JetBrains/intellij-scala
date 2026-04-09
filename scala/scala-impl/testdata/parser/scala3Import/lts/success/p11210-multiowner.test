@@ -181,16 +181,18 @@ ScalaFile
                 PsiElement(identifier)('Foo')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Seq[Double]
-                SimpleType: Seq
-                  CodeReferenceElement: Seq
-                    PsiElement(identifier)('Seq')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: Double
-                    CodeReferenceElement: Double
-                      PsiElement(identifier)('Double')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Seq[Double]
+                  SimpleType: Seq
+                    CodeReferenceElement: Seq
+                      PsiElement(identifier)('Seq')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Double
+                        CodeReferenceElement: Double
+                          PsiElement(identifier)('Double')
+                    PsiElement(])(']')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           CodeReferenceElement: &
@@ -202,16 +204,18 @@ ScalaFile
                 PsiElement(identifier)('Bar')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Seq[Double]
-                SimpleType: Seq
-                  CodeReferenceElement: Seq
-                    PsiElement(identifier)('Seq')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: Double
-                    CodeReferenceElement: Double
-                      PsiElement(identifier)('Double')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Seq[Double]
+                  SimpleType: Seq
+                    CodeReferenceElement: Seq
+                      PsiElement(identifier)('Seq')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Double
+                        CodeReferenceElement: Double
+                          PsiElement(identifier)('Double')
+                    PsiElement(])(']')
               PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiElement(=)('=')
@@ -240,9 +244,10 @@ ScalaFile
             PsiElement(identifier)('empty')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: Double
-              CodeReferenceElement: Double
-                PsiElement(identifier)('Double')
+            TypeArgument
+              SimpleType: Double
+                CodeReferenceElement: Double
+                  PsiElement(identifier)('Double')
             PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       MethodCall

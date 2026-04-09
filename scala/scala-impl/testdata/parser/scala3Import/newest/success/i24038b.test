@@ -111,9 +111,10 @@ ScalaFile
                   PsiElement(identifier)('M')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: t
-                  CodeReferenceElement: t
-                    PsiElement(identifier)('t')
+                TypeArgument
+                  SimpleType: t
+                    CodeReferenceElement: t
+                      PsiElement(identifier)('t')
                 PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScFunctionDefinition: appendBuffers
@@ -167,9 +168,10 @@ ScalaFile
                   PsiElement(identifier)('M')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: T
-                  CodeReferenceElement: T
-                    PsiElement(identifier)('T')
+                TypeArgument
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
                 PsiElement(])(']')
         PsiElement())(')')
     PsiElement(:)(':')
@@ -277,19 +279,20 @@ ScalaFile
                   PsiElement(identifier)('summon')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  InfixType: hh.type <:< h
-                    SimpleType: hh.type
-                      CodeReferenceElement: hh
-                        PsiElement(identifier)('hh')
-                      PsiElement(.)('.')
-                      PsiElement(type)('type')
-                    PsiWhiteSpace(' ')
-                    CodeReferenceElement: <:<
-                      PsiElement(identifier)('<:<')
-                    PsiWhiteSpace(' ')
-                    SimpleType: h
-                      CodeReferenceElement: h
-                        PsiElement(identifier)('h')
+                  TypeArgument
+                    InfixType: hh.type <:< h
+                      SimpleType: hh.type
+                        CodeReferenceElement: hh
+                          PsiElement(identifier)('hh')
+                        PsiElement(.)('.')
+                        PsiElement(type)('type')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: <:<
+                        PsiElement(identifier)('<:<')
+                      PsiWhiteSpace(' ')
+                      SimpleType: h
+                        CodeReferenceElement: h
+                          PsiElement(identifier)('h')
                   PsiElement(])(']')
       PsiWhiteSpace('\n')
       PsiElement(})('}')

@@ -73,9 +73,10 @@ ScalaFile
                     PsiElement(identifier)('Ordering')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: K
-                    CodeReferenceElement: K
-                      PsiElement(identifier)('K')
+                  TypeArgument
+                    SimpleType: K
+                      CodeReferenceElement: K
+                        PsiElement(identifier)('K')
                   PsiElement(])(']')
           PsiElement())(')')
     ExtendsBlock
@@ -103,14 +104,16 @@ ScalaFile
                 PsiElement(identifier)('TreeMap')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: K
-                CodeReferenceElement: K
-                  PsiElement(identifier)('K')
+              TypeArgument
+                SimpleType: K
+                  CodeReferenceElement: K
+                    PsiElement(identifier)('K')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: V
-                CodeReferenceElement: V
-                  PsiElement(identifier)('V')
+              TypeArgument
+                SimpleType: V
+                  CodeReferenceElement: V
+                    PsiElement(identifier)('V')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -127,14 +130,16 @@ ScalaFile
                 PsiElement(identifier)('empty')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: K
-                  CodeReferenceElement: K
-                    PsiElement(identifier)('K')
+                TypeArgument
+                  SimpleType: K
+                    CodeReferenceElement: K
+                      PsiElement(identifier)('K')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: V
-                  CodeReferenceElement: V
-                    PsiElement(identifier)('V')
+                TypeArgument
+                  SimpleType: V
+                    CodeReferenceElement: V
+                      PsiElement(identifier)('V')
                 PsiElement(])(']')
             ArgumentList
               PsiElement(()('(')

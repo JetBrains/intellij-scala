@@ -51,18 +51,19 @@ ScalaFile
                   PsiElement(identifier)('List')
               TypeArgumentsList
                 PsiElement([)('[')
-                TupleType: (Int, Int)
-                  PsiElement(()('(')
-                  TypesList
-                    SimpleType: Int
-                      CodeReferenceElement: Int
-                        PsiElement(identifier)('Int')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    SimpleType: Int
-                      CodeReferenceElement: Int
-                        PsiElement(identifier)('Int')
-                  PsiElement())(')')
+                TypeArgument
+                  TupleType: (Int, Int)
+                    PsiElement(()('(')
+                    TypesList
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                    PsiElement())(')')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(=)('=')

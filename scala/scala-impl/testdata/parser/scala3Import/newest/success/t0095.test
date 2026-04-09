@@ -87,9 +87,10 @@ ScalaFile
                 PsiElement(identifier)('ParseResult')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScClass: Nonterminal
@@ -135,14 +136,15 @@ ScalaFile
                 PsiElement(identifier)('Nonterminal')
             TypeArgumentsList
               PsiElement([)('[')
-              WildcardType: _ <: Output
-                PsiElement(_)('_')
-                PsiWhiteSpace(' ')
-                PsiElement(<:)('<:')
-                PsiWhiteSpace(' ')
-                SimpleType: Output
-                  CodeReferenceElement: Output
-                    PsiElement(identifier)('Output')
+              TypeArgument
+                WildcardType: _ <: Output
+                  PsiElement(_)('_')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<:)('<:')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Output
+                    CodeReferenceElement: Output
+                      PsiElement(identifier)('Output')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScFunctionDeclaration: parse
@@ -163,9 +165,10 @@ ScalaFile
                 PsiElement(identifier)('ParseResult')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Output
-                CodeReferenceElement: Output
-                  PsiElement(identifier)('Output')
+              TypeArgument
+                SimpleType: Output
+                  CodeReferenceElement: Output
+                    PsiElement(identifier)('Output')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScFunctionDefinition: parse1
@@ -194,9 +197,10 @@ ScalaFile
                         PsiElement(identifier)('List')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: SubNonterminal
-                        CodeReferenceElement: SubNonterminal
-                          PsiElement(identifier)('SubNonterminal')
+                      TypeArgument
+                        SimpleType: SubNonterminal
+                          CodeReferenceElement: SubNonterminal
+                            PsiElement(identifier)('SubNonterminal')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -207,9 +211,10 @@ ScalaFile
                 PsiElement(identifier)('ParseResult')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Output
-                CodeReferenceElement: Output
-                  PsiElement(identifier)('Output')
+              TypeArgument
+                SimpleType: Output
+                  CodeReferenceElement: Output
+                    PsiElement(identifier)('Output')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

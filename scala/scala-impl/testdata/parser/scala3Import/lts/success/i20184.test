@@ -145,12 +145,13 @@ ScalaFile
                     PsiElement(identifier)('Id')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: Inner.Rgb
-                    CodeReferenceElement: Inner.Rgb
-                      CodeReferenceElement: Inner
-                        PsiElement(identifier)('Inner')
-                      PsiElement(.)('.')
-                      PsiElement(identifier)('Rgb')
+                  TypeArgument
+                    SimpleType: Inner.Rgb
+                      CodeReferenceElement: Inner.Rgb
+                        CodeReferenceElement: Inner
+                          PsiElement(identifier)('Inner')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('Rgb')
                   PsiElement(])(']')
             PsiWhiteSpace('\n\n    ')
             ScPatternDefinition: ok
@@ -207,10 +208,11 @@ ScalaFile
                             PsiElement(identifier)('Id')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: Inner.Rgb
-                            CodeReferenceElement: Inner.Rgb
-                              CodeReferenceElement: Inner
-                                PsiElement(identifier)('Inner')
-                              PsiElement(.)('.')
-                              PsiElement(identifier)('Rgb')
+                          TypeArgument
+                            SimpleType: Inner.Rgb
+                              CodeReferenceElement: Inner.Rgb
+                                CodeReferenceElement: Inner
+                                  PsiElement(identifier)('Inner')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('Rgb')
                           PsiElement(])(']')

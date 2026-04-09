@@ -114,9 +114,10 @@ ScalaFile
             PsiElement(identifier)('Show')
         TypeArgumentsList
           PsiElement([)('[')
-          SimpleType: Types
-            CodeReferenceElement: Types
-              PsiElement(identifier)('Types')
+          TypeArgument
+            SimpleType: Types
+              CodeReferenceElement: Types
+                PsiElement(identifier)('Types')
           PsiElement(])(']')
       PsiWhiteSpace(' ')
       PsiElement(=)('=')
@@ -129,9 +130,10 @@ ScalaFile
             PsiElement(identifier)('erasedValue')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: Types
-              CodeReferenceElement: Types
-                PsiElement(identifier)('Types')
+            TypeArgument
+              SimpleType: Types
+                CodeReferenceElement: Types
+                  PsiElement(identifier)('Types')
             PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiElement(match)('match')
@@ -187,17 +189,18 @@ ScalaFile
                               PsiElement(identifier)('Show')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            InfixType: head *: tail
-                              SimpleType: head
-                                CodeReferenceElement: head
-                                  PsiElement(identifier)('head')
-                              PsiWhiteSpace(' ')
-                              CodeReferenceElement: *:
-                                PsiElement(identifier)('*:')
-                              PsiWhiteSpace(' ')
-                              SimpleType: tail
-                                CodeReferenceElement: tail
-                                  PsiElement(identifier)('tail')
+                            TypeArgument
+                              InfixType: head *: tail
+                                SimpleType: head
+                                  CodeReferenceElement: head
+                                    PsiElement(identifier)('head')
+                                PsiWhiteSpace(' ')
+                                CodeReferenceElement: *:
+                                  PsiElement(identifier)('*:')
+                                PsiWhiteSpace(' ')
+                                SimpleType: tail
+                                  CodeReferenceElement: tail
+                                    PsiElement(identifier)('tail')
                             PsiElement(])(']')
                     ScTemplateBody
                       PsiElement(:)(':')
@@ -253,16 +256,18 @@ ScalaFile
                   PsiElement(identifier)('asInstanceOf')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  ParametrizedType: Show[Types]
-                    SimpleType: Show
-                      CodeReferenceElement: Show
-                        PsiElement(identifier)('Show')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: Types
-                        CodeReferenceElement: Types
-                          PsiElement(identifier)('Types')
-                      PsiElement(])(']')
+                  TypeArgument
+                    ParametrizedType: Show[Types]
+                      SimpleType: Show
+                        CodeReferenceElement: Show
+                          PsiElement(identifier)('Show')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: Types
+                            CodeReferenceElement: Types
+                              PsiElement(identifier)('Types')
+                        PsiElement(])(']')
                   PsiElement(])(']')
     PsiWhiteSpace('\n\n')
     ScFunctionDefinition: run
@@ -292,16 +297,17 @@ ScalaFile
           PsiElement(identifier)('showTuple')
         TypeArgumentsList
           PsiElement([)('[')
-          TupleType: (Int, Int)
-            PsiElement(()('(')
-            TypesList
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
-              PsiElement(,)(',')
-              PsiWhiteSpace(' ')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
-            PsiElement())(')')
+          TypeArgument
+            TupleType: (Int, Int)
+              PsiElement(()('(')
+              TypesList
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+              PsiElement())(')')
           PsiElement(])(']')

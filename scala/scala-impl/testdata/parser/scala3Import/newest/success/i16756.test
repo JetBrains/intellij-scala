@@ -116,9 +116,10 @@ ScalaFile
                       PsiElement(identifier)('Col')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Int
-                      CodeReferenceElement: Int
-                        PsiElement(identifier)('Int')
+                    TypeArgument
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
                     PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScObject: Col2
@@ -141,9 +142,10 @@ ScalaFile
                       PsiElement(identifier)('Col')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Double
-                      CodeReferenceElement: Double
-                        PsiElement(identifier)('Double')
+                    TypeArgument
+                      SimpleType: Double
+                        CodeReferenceElement: Double
+                          PsiElement(identifier)('Double')
                     PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScPatternDefinition: polyFn
@@ -178,8 +180,9 @@ ScalaFile
                       PsiElement(identifier)('Col')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    WildcardType: ?
-                      PsiElement(?)('?')
+                    TypeArgument
+                      WildcardType: ?
+                        PsiElement(?)('?')
                     PsiElement(])(']')
               PsiElement(])(']')
             PsiWhiteSpace(' ')
@@ -223,8 +226,9 @@ ScalaFile
                       PsiElement(identifier)('Col')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    WildcardType: ?
-                      PsiElement(?)('?')
+                    TypeArgument
+                      WildcardType: ?
+                        PsiElement(?)('?')
                     PsiElement(])(']')
               PsiElement(])(']')
             PsiWhiteSpace(' ')

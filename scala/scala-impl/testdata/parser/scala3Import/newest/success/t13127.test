@@ -81,9 +81,10 @@ ScalaFile
                 PsiElement(identifier)('Comparator')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
       PsiWhiteSpace(' ')
       ScTemplateBody
@@ -381,9 +382,10 @@ ScalaFile
                 PsiElement(identifier)('Base')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
       PsiWhiteSpace(' ')
       ScTemplateBody
@@ -631,9 +633,10 @@ ScalaFile
                 PsiElement(identifier)('Ordering')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
       PsiWhiteSpace(' ')
       ScTemplateBody

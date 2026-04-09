@@ -75,31 +75,34 @@ ScalaFile
                         PsiElement(identifier)('Factory')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Int
-                        CodeReferenceElement: Int
-                          PsiElement(identifier)('Int')
+                      TypeArgument
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      ParametrizedType: Col[Int @uncheckedVariance]
-                        SimpleType: Col
-                          CodeReferenceElement: Col
-                            PsiElement(identifier)('Col')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          TypeWithAnnotation: Int @uncheckedVariance
-                            SimpleType: Int
-                              CodeReferenceElement: Int
-                                PsiElement(identifier)('Int')
-                            PsiWhiteSpace(' ')
-                            AnnotationsList
-                              Annotation
-                                PsiElement(@)('@')
-                                AnnotationExpression
-                                  ConstructorInvocation
-                                    SimpleType: uncheckedVariance
-                                      CodeReferenceElement: uncheckedVariance
-                                        PsiElement(identifier)('uncheckedVariance')
-                          PsiElement(])(']')
+                      TypeArgument
+                        ParametrizedType: Col[Int @uncheckedVariance]
+                          SimpleType: Col
+                            CodeReferenceElement: Col
+                              PsiElement(identifier)('Col')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              TypeWithAnnotation: Int @uncheckedVariance
+                                SimpleType: Int
+                                  CodeReferenceElement: Int
+                                    PsiElement(identifier)('Int')
+                                PsiWhiteSpace(' ')
+                                AnnotationsList
+                                  Annotation
+                                    PsiElement(@)('@')
+                                    AnnotationExpression
+                                      ConstructorInvocation
+                                        SimpleType: uncheckedVariance
+                                          CodeReferenceElement: uncheckedVariance
+                                            PsiElement(identifier)('uncheckedVariance')
+                            PsiElement(])(']')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiWhiteSpace(' ')

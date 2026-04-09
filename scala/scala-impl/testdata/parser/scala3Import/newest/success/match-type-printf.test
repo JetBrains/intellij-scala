@@ -160,14 +160,16 @@ ScalaFile
                   PsiElement(identifier)('CharAt')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: S
-                  CodeReferenceElement: S
-                    PsiElement(identifier)('S')
+                TypeArgument
+                  SimpleType: S
+                    CodeReferenceElement: S
+                      PsiElement(identifier)('S')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                LiteralType: 0
-                  IntegerLiteral
-                    PsiElement(integer)('0')
+                TypeArgument
+                  LiteralType: 0
+                    IntegerLiteral
+                      PsiElement(integer)('0')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(match)('match')
@@ -191,14 +193,16 @@ ScalaFile
                         PsiElement(identifier)('CharAt')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: S
-                        CodeReferenceElement: S
-                          PsiElement(identifier)('S')
+                      TypeArgument
+                        SimpleType: S
+                          CodeReferenceElement: S
+                            PsiElement(identifier)('S')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      LiteralType: 1
-                        IntegerLiteral
-                          PsiElement(integer)('1')
+                      TypeArgument
+                        LiteralType: 1
+                          IntegerLiteral
+                            PsiElement(integer)('1')
                       PsiElement(])(']')
                   PsiWhiteSpace(' ')
                   PsiElement(match)('match')
@@ -227,33 +231,38 @@ ScalaFile
                               PsiElement(identifier)('ArgTypes')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            ParametrizedType: Substring[S, 2, Length[S]]
-                              SimpleType: Substring
-                                CodeReferenceElement: Substring
-                                  PsiElement(identifier)('Substring')
-                              TypeArgumentsList
-                                PsiElement([)('[')
-                                SimpleType: S
-                                  CodeReferenceElement: S
-                                    PsiElement(identifier)('S')
-                                PsiElement(,)(',')
-                                PsiWhiteSpace(' ')
-                                LiteralType: 2
-                                  IntegerLiteral
-                                    PsiElement(integer)('2')
-                                PsiElement(,)(',')
-                                PsiWhiteSpace(' ')
-                                ParametrizedType: Length[S]
-                                  SimpleType: Length
-                                    CodeReferenceElement: Length
-                                      PsiElement(identifier)('Length')
-                                  TypeArgumentsList
-                                    PsiElement([)('[')
+                            TypeArgument
+                              ParametrizedType: Substring[S, 2, Length[S]]
+                                SimpleType: Substring
+                                  CodeReferenceElement: Substring
+                                    PsiElement(identifier)('Substring')
+                                TypeArgumentsList
+                                  PsiElement([)('[')
+                                  TypeArgument
                                     SimpleType: S
                                       CodeReferenceElement: S
                                         PsiElement(identifier)('S')
-                                    PsiElement(])(']')
-                                PsiElement(])(']')
+                                  PsiElement(,)(',')
+                                  PsiWhiteSpace(' ')
+                                  TypeArgument
+                                    LiteralType: 2
+                                      IntegerLiteral
+                                        PsiElement(integer)('2')
+                                  PsiElement(,)(',')
+                                  PsiWhiteSpace(' ')
+                                  TypeArgument
+                                    ParametrizedType: Length[S]
+                                      SimpleType: Length
+                                        CodeReferenceElement: Length
+                                          PsiElement(identifier)('Length')
+                                      TypeArgumentsList
+                                        PsiElement([)('[')
+                                        TypeArgument
+                                          SimpleType: S
+                                            CodeReferenceElement: S
+                                              PsiElement(identifier)('S')
+                                        PsiElement(])(']')
+                                  PsiElement(])(']')
                             PsiElement(])(']')
                     PsiWhiteSpace('\n          ')
                     ScMatchTypeCaseImpl(match type case)
@@ -279,33 +288,38 @@ ScalaFile
                               PsiElement(identifier)('ArgTypes')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            ParametrizedType: Substring[S, 2, Length[S]]
-                              SimpleType: Substring
-                                CodeReferenceElement: Substring
-                                  PsiElement(identifier)('Substring')
-                              TypeArgumentsList
-                                PsiElement([)('[')
-                                SimpleType: S
-                                  CodeReferenceElement: S
-                                    PsiElement(identifier)('S')
-                                PsiElement(,)(',')
-                                PsiWhiteSpace(' ')
-                                LiteralType: 2
-                                  IntegerLiteral
-                                    PsiElement(integer)('2')
-                                PsiElement(,)(',')
-                                PsiWhiteSpace(' ')
-                                ParametrizedType: Length[S]
-                                  SimpleType: Length
-                                    CodeReferenceElement: Length
-                                      PsiElement(identifier)('Length')
-                                  TypeArgumentsList
-                                    PsiElement([)('[')
+                            TypeArgument
+                              ParametrizedType: Substring[S, 2, Length[S]]
+                                SimpleType: Substring
+                                  CodeReferenceElement: Substring
+                                    PsiElement(identifier)('Substring')
+                                TypeArgumentsList
+                                  PsiElement([)('[')
+                                  TypeArgument
                                     SimpleType: S
                                       CodeReferenceElement: S
                                         PsiElement(identifier)('S')
-                                    PsiElement(])(']')
-                                PsiElement(])(']')
+                                  PsiElement(,)(',')
+                                  PsiWhiteSpace(' ')
+                                  TypeArgument
+                                    LiteralType: 2
+                                      IntegerLiteral
+                                        PsiElement(integer)('2')
+                                  PsiElement(,)(',')
+                                  PsiWhiteSpace(' ')
+                                  TypeArgument
+                                    ParametrizedType: Length[S]
+                                      SimpleType: Length
+                                        CodeReferenceElement: Length
+                                          PsiElement(identifier)('Length')
+                                      TypeArgumentsList
+                                        PsiElement([)('[')
+                                        TypeArgument
+                                          SimpleType: S
+                                            CodeReferenceElement: S
+                                              PsiElement(identifier)('S')
+                                        PsiElement(])(']')
+                                  PsiElement(])(']')
                             PsiElement(])(']')
               PsiWhiteSpace('\n      ')
               ScMatchTypeCaseImpl(match type case)
@@ -322,33 +336,38 @@ ScalaFile
                       PsiElement(identifier)('ArgTypes')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    ParametrizedType: Substring[S, 1, Length[S]]
-                      SimpleType: Substring
-                        CodeReferenceElement: Substring
-                          PsiElement(identifier)('Substring')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        SimpleType: S
-                          CodeReferenceElement: S
-                            PsiElement(identifier)('S')
-                        PsiElement(,)(',')
-                        PsiWhiteSpace(' ')
-                        LiteralType: 1
-                          IntegerLiteral
-                            PsiElement(integer)('1')
-                        PsiElement(,)(',')
-                        PsiWhiteSpace(' ')
-                        ParametrizedType: Length[S]
-                          SimpleType: Length
-                            CodeReferenceElement: Length
-                              PsiElement(identifier)('Length')
-                          TypeArgumentsList
-                            PsiElement([)('[')
+                    TypeArgument
+                      ParametrizedType: Substring[S, 1, Length[S]]
+                        SimpleType: Substring
+                          CodeReferenceElement: Substring
+                            PsiElement(identifier)('Substring')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
                             SimpleType: S
                               CodeReferenceElement: S
                                 PsiElement(identifier)('S')
-                            PsiElement(])(']')
-                        PsiElement(])(']')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            LiteralType: 1
+                              IntegerLiteral
+                                PsiElement(integer)('1')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            ParametrizedType: Length[S]
+                              SimpleType: Length
+                                CodeReferenceElement: Length
+                                  PsiElement(identifier)('Length')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                TypeArgument
+                                  SimpleType: S
+                                    CodeReferenceElement: S
+                                      PsiElement(identifier)('S')
+                                PsiElement(])(']')
+                          PsiElement(])(']')
                     PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScFunctionDefinition: printf
@@ -392,11 +411,12 @@ ScalaFile
                   PsiElement(identifier)('ArgTypes')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: s.type
-                  CodeReferenceElement: s
-                    PsiElement(identifier)('s')
-                  PsiElement(.)('.')
-                  PsiElement(type)('type')
+                TypeArgument
+                  SimpleType: s.type
+                    CodeReferenceElement: s
+                      PsiElement(identifier)('s')
+                    PsiElement(.)('.')
+                    PsiElement(type)('type')
                 PsiElement(])(']')
         PsiElement())(')')
     PsiElement(:)(':')

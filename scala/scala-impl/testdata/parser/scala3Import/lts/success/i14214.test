@@ -142,26 +142,7 @@ ScalaFile
             PsiElement(identifier)('summon')
           TypeArgumentsList
             PsiElement([)('[')
-            FunctionalType: Dummy ?=> Foo
-              SimpleType: Dummy
-                CodeReferenceElement: Dummy
-                  PsiElement(identifier)('Dummy')
-              PsiWhiteSpace(' ')
-              PsiElement(?=>)('?=>')
-              PsiWhiteSpace(' ')
-              SimpleType: Foo
-                CodeReferenceElement: Foo
-                  PsiElement(identifier)('Foo')
-            PsiElement(])(']')
-        PsiWhiteSpace(' ')
-        PsiComment(comment)('// was error')
-        PsiWhiteSpace('\n  ')
-        MethodCall
-          GenericCall
-            ReferenceExpression: summon
-              PsiElement(identifier)('summon')
-            TypeArgumentsList
-              PsiElement([)('[')
+            TypeArgument
               FunctionalType: Dummy ?=> Foo
                 SimpleType: Dummy
                   CodeReferenceElement: Dummy
@@ -172,6 +153,27 @@ ScalaFile
                 SimpleType: Foo
                   CodeReferenceElement: Foo
                     PsiElement(identifier)('Foo')
+            PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// was error')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          GenericCall
+            ReferenceExpression: summon
+              PsiElement(identifier)('summon')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                FunctionalType: Dummy ?=> Foo
+                  SimpleType: Dummy
+                    CodeReferenceElement: Dummy
+                      PsiElement(identifier)('Dummy')
+                  PsiWhiteSpace(' ')
+                  PsiElement(?=>)('?=>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Foo
+                    CodeReferenceElement: Foo
+                      PsiElement(identifier)('Foo')
               PsiElement(])(']')
           ArgumentList
             PsiElement(()('(')
@@ -189,16 +191,17 @@ ScalaFile
               PsiElement(identifier)('summon')
             TypeArgumentsList
               PsiElement([)('[')
-              FunctionalType: Dummy ?=> Foo
-                SimpleType: Dummy
-                  CodeReferenceElement: Dummy
-                    PsiElement(identifier)('Dummy')
-                PsiWhiteSpace(' ')
-                PsiElement(?=>)('?=>')
-                PsiWhiteSpace(' ')
-                SimpleType: Foo
-                  CodeReferenceElement: Foo
-                    PsiElement(identifier)('Foo')
+              TypeArgument
+                FunctionalType: Dummy ?=> Foo
+                  SimpleType: Dummy
+                    CodeReferenceElement: Dummy
+                      PsiElement(identifier)('Dummy')
+                  PsiWhiteSpace(' ')
+                  PsiElement(?=>)('?=>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Foo
+                    CodeReferenceElement: Foo
+                      PsiElement(identifier)('Foo')
               PsiElement(])(']')
           ArgumentList
             PsiElement(()('(')
@@ -233,24 +236,7 @@ ScalaFile
             PsiElement(identifier)('summon')
           TypeArgumentsList
             PsiElement([)('[')
-            FunctionalType: Dummy ?=> Bar
-              SimpleType: Dummy
-                CodeReferenceElement: Dummy
-                  PsiElement(identifier)('Dummy')
-              PsiWhiteSpace(' ')
-              PsiElement(?=>)('?=>')
-              PsiWhiteSpace(' ')
-              SimpleType: Bar
-                CodeReferenceElement: Bar
-                  PsiElement(identifier)('Bar')
-            PsiElement(])(']')
-        PsiWhiteSpace('\n  ')
-        MethodCall
-          GenericCall
-            ReferenceExpression: summon
-              PsiElement(identifier)('summon')
-            TypeArgumentsList
-              PsiElement([)('[')
+            TypeArgument
               FunctionalType: Dummy ?=> Bar
                 SimpleType: Dummy
                   CodeReferenceElement: Dummy
@@ -261,6 +247,25 @@ ScalaFile
                 SimpleType: Bar
                   CodeReferenceElement: Bar
                     PsiElement(identifier)('Bar')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          GenericCall
+            ReferenceExpression: summon
+              PsiElement(identifier)('summon')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                FunctionalType: Dummy ?=> Bar
+                  SimpleType: Dummy
+                    CodeReferenceElement: Dummy
+                      PsiElement(identifier)('Dummy')
+                  PsiWhiteSpace(' ')
+                  PsiElement(?=>)('?=>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Bar
+                    CodeReferenceElement: Bar
+                      PsiElement(identifier)('Bar')
               PsiElement(])(']')
           ArgumentList
             PsiElement(()('(')
@@ -278,16 +283,17 @@ ScalaFile
               PsiElement(identifier)('summon')
             TypeArgumentsList
               PsiElement([)('[')
-              FunctionalType: Dummy ?=> Bar
-                SimpleType: Dummy
-                  CodeReferenceElement: Dummy
-                    PsiElement(identifier)('Dummy')
-                PsiWhiteSpace(' ')
-                PsiElement(?=>)('?=>')
-                PsiWhiteSpace(' ')
-                SimpleType: Bar
-                  CodeReferenceElement: Bar
-                    PsiElement(identifier)('Bar')
+              TypeArgument
+                FunctionalType: Dummy ?=> Bar
+                  SimpleType: Dummy
+                    CodeReferenceElement: Dummy
+                      PsiElement(identifier)('Dummy')
+                  PsiWhiteSpace(' ')
+                  PsiElement(?=>)('?=>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Bar
+                    CodeReferenceElement: Bar
+                      PsiElement(identifier)('Bar')
               PsiElement(])(']')
           ArgumentList
             PsiElement(()('(')

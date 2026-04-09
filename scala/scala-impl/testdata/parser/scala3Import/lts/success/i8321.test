@@ -70,9 +70,10 @@ ScalaFile
                         PsiElement(identifier)('Option')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                       PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace('\n      ')
@@ -91,9 +92,10 @@ ScalaFile
                         PsiElement(identifier)('Option')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: B
-                        CodeReferenceElement: B
-                          PsiElement(identifier)('B')
+                      TypeArgument
+                        SimpleType: B
+                          CodeReferenceElement: B
+                            PsiElement(identifier)('B')
                       PsiElement(])(']')
               PsiWhiteSpace('\n  ')
               PsiElement())(')')
@@ -105,24 +107,27 @@ ScalaFile
                 PsiElement(identifier)('Option')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Tuple.Concat[A, B]
-                SimpleType: Tuple.Concat
-                  CodeReferenceElement: Tuple.Concat
-                    CodeReferenceElement: Tuple
-                      PsiElement(identifier)('Tuple')
-                    PsiElement(.)('.')
-                    PsiElement(identifier)('Concat')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: A
-                    CodeReferenceElement: A
-                      PsiElement(identifier)('A')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: B
-                    CodeReferenceElement: B
-                      PsiElement(identifier)('B')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Tuple.Concat[A, B]
+                  SimpleType: Tuple.Concat
+                    CodeReferenceElement: Tuple.Concat
+                      CodeReferenceElement: Tuple
+                        PsiElement(identifier)('Tuple')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Concat')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: B
+                        CodeReferenceElement: B
+                          PsiElement(identifier)('B')
+                    PsiElement(])(']')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

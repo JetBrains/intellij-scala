@@ -123,9 +123,10 @@ ScalaFile
                             PsiElement(identifier)('Expr')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: A
-                            CodeReferenceElement: A
-                              PsiElement(identifier)('A')
+                          TypeArgument
+                            SimpleType: A
+                              CodeReferenceElement: A
+                                PsiElement(identifier)('A')
                           PsiElement(])(']')
             PsiWhiteSpace('\n    ')
             ScEnumCases: TagB
@@ -158,9 +159,10 @@ ScalaFile
                             PsiElement(identifier)('Expr')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: B
-                            CodeReferenceElement: B
-                              PsiElement(identifier)('B')
+                          TypeArgument
+                            SimpleType: B
+                              CodeReferenceElement: B
+                                PsiElement(identifier)('B')
                           PsiElement(])(']')
       PsiWhiteSpace('\n\n  ')
       ScImportStatement
@@ -198,9 +200,10 @@ ScalaFile
                       PsiElement(identifier)('Expr')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: A
-                      CodeReferenceElement: A
-                        PsiElement(identifier)('A')
+                    TypeArgument
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
                     PsiElement(])(']')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
@@ -219,9 +222,10 @@ ScalaFile
                       PsiElement(identifier)('Expr')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: B
-                      CodeReferenceElement: B
-                        PsiElement(identifier)('B')
+                    TypeArgument
+                      SimpleType: B
+                        CodeReferenceElement: B
+                          PsiElement(identifier)('B')
                     PsiElement(])(']')
             PsiElement())(')')
         PsiWhiteSpace(' ')

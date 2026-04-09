@@ -99,9 +99,10 @@ ScalaFile
                 PsiElement(identifier)('Quantity')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(])(']')
         PsiElement(])(']')
       PrimaryConstructor
@@ -149,9 +150,10 @@ ScalaFile
                 PsiElement(identifier)('Quantity')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(])(']')
         PsiElement(])(']')
       PrimaryConstructor
@@ -176,8 +178,9 @@ ScalaFile
                   PsiElement(identifier)('Quantity')
               TypeArgumentsList
                 PsiElement([)('[')
-                WildcardType: _
-                  PsiElement(_)('_')
+                TypeArgument
+                  WildcardType: _
+                    PsiElement(_)('_')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(=>)('=>')

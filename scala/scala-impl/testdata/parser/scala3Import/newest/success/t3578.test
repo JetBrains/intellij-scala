@@ -895,9 +895,10 @@ ScalaFile
                           PsiElement(identifier)('List')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: JField
-                          CodeReferenceElement: JField
-                            PsiElement(identifier)('JField')
+                        TypeArgument
+                          SimpleType: JField
+                            CodeReferenceElement: JField
+                              PsiElement(identifier)('JField')
                         PsiElement(])(']')
                 PsiElement())(')')
           PsiWhiteSpace(' ')
@@ -942,9 +943,10 @@ ScalaFile
                           PsiElement(identifier)('List')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: JValue
-                          CodeReferenceElement: JValue
-                            PsiElement(identifier)('JValue')
+                        TypeArgument
+                          SimpleType: JValue
+                            CodeReferenceElement: JValue
+                              PsiElement(identifier)('JValue')
                         PsiElement(])(']')
                 PsiElement())(')')
           PsiWhiteSpace(' ')

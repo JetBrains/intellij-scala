@@ -45,24 +45,26 @@ ScalaFile
               PsiElement(identifier)('summon')
             TypeArgumentsList
               PsiElement([)('[')
-              InfixType: Bar[2] =:= "2"
-                ParametrizedType: Bar[2]
-                  SimpleType: Bar
-                    CodeReferenceElement: Bar
-                      PsiElement(identifier)('Bar')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    LiteralType: 2
-                      IntegerLiteral
-                        PsiElement(integer)('2')
-                    PsiElement(])(']')
-                PsiWhiteSpace(' ')
-                CodeReferenceElement: =:=
-                  PsiElement(identifier)('=:=')
-                PsiWhiteSpace(' ')
-                LiteralType: "2"
-                  StringLiteral
-                    PsiElement(string content)('"2"')
+              TypeArgument
+                InfixType: Bar[2] =:= "2"
+                  ParametrizedType: Bar[2]
+                    SimpleType: Bar
+                      CodeReferenceElement: Bar
+                        PsiElement(identifier)('Bar')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        LiteralType: 2
+                          IntegerLiteral
+                            PsiElement(integer)('2')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: =:=
+                    PsiElement(identifier)('=:=')
+                  PsiWhiteSpace(' ')
+                  LiteralType: "2"
+                    StringLiteral
+                      PsiElement(string content)('"2"')
               PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

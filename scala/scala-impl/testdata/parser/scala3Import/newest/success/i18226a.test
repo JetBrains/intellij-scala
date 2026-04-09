@@ -145,14 +145,16 @@ ScalaFile
                         PsiElement(identifier)('TestAspect')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: R1
-                        CodeReferenceElement: R1
-                          PsiElement(identifier)('R1')
+                      TypeArgument
+                        SimpleType: R1
+                          CodeReferenceElement: R1
+                            PsiElement(identifier)('R1')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: R1
-                        CodeReferenceElement: R1
-                          PsiElement(identifier)('R1')
+                      TypeArgument
+                        SimpleType: R1
+                          CodeReferenceElement: R1
+                            PsiElement(identifier)('R1')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -190,8 +192,9 @@ ScalaFile
               PsiElement(identifier)('Has')
           TypeArgumentsList
             PsiElement([)('[')
-            WildcardType: _
-              PsiElement(_)('_')
+            TypeArgument
+              WildcardType: _
+                PsiElement(_)('_')
             PsiElement(])(']')
       PsiElement(])(']')
     PrimaryConstructor
@@ -233,24 +236,26 @@ ScalaFile
                         PsiElement(identifier)('Spec')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      InfixType: R & Has[Foo]
-                        SimpleType: R
-                          CodeReferenceElement: R
-                            PsiElement(identifier)('R')
-                        PsiWhiteSpace(' ')
-                        CodeReferenceElement: &
-                          PsiElement(identifier)('&')
-                        PsiWhiteSpace(' ')
-                        ParametrizedType: Has[Foo]
-                          SimpleType: Has
-                            CodeReferenceElement: Has
-                              PsiElement(identifier)('Has')
-                          TypeArgumentsList
-                            PsiElement([)('[')
-                            SimpleType: Foo
-                              CodeReferenceElement: Foo
-                                PsiElement(identifier)('Foo')
-                            PsiElement(])(']')
+                      TypeArgument
+                        InfixType: R & Has[Foo]
+                          SimpleType: R
+                            CodeReferenceElement: R
+                              PsiElement(identifier)('R')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: &
+                            PsiElement(identifier)('&')
+                          PsiWhiteSpace(' ')
+                          ParametrizedType: Has[Foo]
+                            SimpleType: Has
+                              CodeReferenceElement: Has
+                                PsiElement(identifier)('Has')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: Foo
+                                  CodeReferenceElement: Foo
+                                    PsiElement(identifier)('Foo')
+                              PsiElement(])(']')
                       PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace('\n    ')
@@ -273,44 +278,48 @@ ScalaFile
                     TypeArgumentsList
                       PsiElement([)('[')
                       PsiWhiteSpace('\n      ')
-                      InfixType: R & Has[Foo]
-                        SimpleType: R
-                          CodeReferenceElement: R
-                            PsiElement(identifier)('R')
-                        PsiWhiteSpace(' ')
-                        CodeReferenceElement: &
-                          PsiElement(identifier)('&')
-                        PsiWhiteSpace(' ')
-                        ParametrizedType: Has[Foo]
-                          SimpleType: Has
-                            CodeReferenceElement: Has
-                              PsiElement(identifier)('Has')
-                          TypeArgumentsList
-                            PsiElement([)('[')
-                            SimpleType: Foo
-                              CodeReferenceElement: Foo
-                                PsiElement(identifier)('Foo')
-                            PsiElement(])(']')
+                      TypeArgument
+                        InfixType: R & Has[Foo]
+                          SimpleType: R
+                            CodeReferenceElement: R
+                              PsiElement(identifier)('R')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: &
+                            PsiElement(identifier)('&')
+                          PsiWhiteSpace(' ')
+                          ParametrizedType: Has[Foo]
+                            SimpleType: Has
+                              CodeReferenceElement: Has
+                                PsiElement(identifier)('Has')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: Foo
+                                  CodeReferenceElement: Foo
+                                    PsiElement(identifier)('Foo')
+                              PsiElement(])(']')
                       PsiElement(,)(',')
                       PsiWhiteSpace('\n      ')
-                      InfixType: R & Has[Foo]
-                        SimpleType: R
-                          CodeReferenceElement: R
-                            PsiElement(identifier)('R')
-                        PsiWhiteSpace(' ')
-                        CodeReferenceElement: &
-                          PsiElement(identifier)('&')
-                        PsiWhiteSpace(' ')
-                        ParametrizedType: Has[Foo]
-                          SimpleType: Has
-                            CodeReferenceElement: Has
-                              PsiElement(identifier)('Has')
-                          TypeArgumentsList
-                            PsiElement([)('[')
-                            SimpleType: Foo
-                              CodeReferenceElement: Foo
-                                PsiElement(identifier)('Foo')
-                            PsiElement(])(']')
+                      TypeArgument
+                        InfixType: R & Has[Foo]
+                          SimpleType: R
+                            CodeReferenceElement: R
+                              PsiElement(identifier)('R')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: &
+                            PsiElement(identifier)('&')
+                          PsiWhiteSpace(' ')
+                          ParametrizedType: Has[Foo]
+                            SimpleType: Has
+                              CodeReferenceElement: Has
+                                PsiElement(identifier)('Has')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: Foo
+                                  CodeReferenceElement: Foo
+                                    PsiElement(identifier)('Foo')
+                              PsiElement(])(']')
                       PsiWhiteSpace('\n    ')
                       PsiElement(])(']')
               PsiWhiteSpace('\n  ')

@@ -81,14 +81,15 @@ ScalaFile
                     PsiElement(identifier)('asInstanceOf')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: A.this.type
-                      ThisReference
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                    TypeArgument
+                      SimpleType: A.this.type
+                        ThisReference
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                          PsiElement(.)('.')
+                          PsiElement(this)('this')
                         PsiElement(.)('.')
-                        PsiElement(this)('this')
-                      PsiElement(.)('.')
-                      PsiElement(type)('type')
+                        PsiElement(type)('type')
                     PsiElement(])(']')
               PsiWhiteSpace('\n    ')
               ScFunctionDefinition: foo2
@@ -119,11 +120,12 @@ ScalaFile
                     PsiElement(identifier)('asInstanceOf')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: this.type
-                      ThisReference
-                        PsiElement(this)('this')
-                      PsiElement(.)('.')
-                      PsiElement(type)('type')
+                    TypeArgument
+                      SimpleType: this.type
+                        ThisReference
+                          PsiElement(this)('this')
+                        PsiElement(.)('.')
+                        PsiElement(type)('type')
                     PsiElement(])(']')
               PsiWhiteSpace('\n    ')
               ScFunctionDefinition: bar

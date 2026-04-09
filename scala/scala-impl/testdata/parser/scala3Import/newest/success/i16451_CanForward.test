@@ -348,9 +348,10 @@ ScalaFile
                         PsiElement(identifier)('List')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Mbr
-                        CodeReferenceElement: Mbr
-                          PsiElement(identifier)('Mbr')
+                      TypeArgument
+                        SimpleType: Mbr
+                          CodeReferenceElement: Mbr
+                            PsiElement(identifier)('Mbr')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiWhiteSpace(' ')
@@ -475,9 +476,10 @@ ScalaFile
                               PsiElement(identifier)('List')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: Mbr
-                              CodeReferenceElement: Mbr
-                                PsiElement(identifier)('Mbr')
+                            TypeArgument
+                              SimpleType: Mbr
+                                CodeReferenceElement: Mbr
+                                  PsiElement(identifier)('Mbr')
                             PsiElement(])(']')
                     PsiElement())(')')
                 PsiWhiteSpace(' ')
@@ -599,9 +601,10 @@ ScalaFile
                                   PsiElement(identifier)('List')
                               TypeArgumentsList
                                 PsiElement([)('[')
-                                SimpleType: Mbr
-                                  CodeReferenceElement: Mbr
-                                    PsiElement(identifier)('Mbr')
+                                TypeArgument
+                                  SimpleType: Mbr
+                                    CodeReferenceElement: Mbr
+                                      PsiElement(identifier)('Mbr')
                                 PsiElement(])(']')
                         PsiElement())(')')
                     PsiWhiteSpace(' ')

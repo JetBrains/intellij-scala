@@ -1170,9 +1170,10 @@ ScalaFile
                 PsiElement(identifier)('BaseNCP')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Boolean
-                CodeReferenceElement: Boolean
-                  PsiElement(identifier)('Boolean')
+              TypeArgument
+                SimpleType: Boolean
+                  CodeReferenceElement: Boolean
+                    PsiElement(identifier)('Boolean')
               PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScClass: NoClashPoly

@@ -192,9 +192,10 @@ ScalaFile
                 PsiElement(identifier)('Option')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Resizer
-                CodeReferenceElement: Resizer
-                  PsiElement(identifier)('Resizer')
+              TypeArgument
+                SimpleType: Resizer
+                  CodeReferenceElement: Resizer
+                    PsiElement(identifier)('Resizer')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -342,9 +343,10 @@ ScalaFile
                     PsiElement(identifier)('Option')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: Resizer
-                    CodeReferenceElement: Resizer
-                      PsiElement(identifier)('Resizer')
+                  TypeArgument
+                    SimpleType: Resizer
+                      CodeReferenceElement: Resizer
+                        PsiElement(identifier)('Resizer')
                   PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(=)('=')

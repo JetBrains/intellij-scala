@@ -32,13 +32,15 @@ ScalaFile
                 PsiElement(identifier)('PartialFunction')
             TypeArgumentsList
               PsiElement([)('[')
-              WildcardType: _
-                PsiElement(_)('_')
+              TypeArgument
+                WildcardType: _
+                  PsiElement(_)('_')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Any
-                CodeReferenceElement: Any
-                  PsiElement(identifier)('Any')
+              TypeArgument
+                SimpleType: Any
+                  CodeReferenceElement: Any
+                    PsiElement(identifier)('Any')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

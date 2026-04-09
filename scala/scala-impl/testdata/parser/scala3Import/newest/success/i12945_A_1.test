@@ -127,16 +127,18 @@ ScalaFile
                             PsiElement(identifier)('TC')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          ParametrizedType: Lie[W]
-                            SimpleType: Lie
-                              CodeReferenceElement: Lie
-                                PsiElement(identifier)('Lie')
-                            TypeArgumentsList
-                              PsiElement([)('[')
-                              SimpleType: W
-                                CodeReferenceElement: W
-                                  PsiElement(identifier)('W')
-                              PsiElement(])(']')
+                          TypeArgument
+                            ParametrizedType: Lie[W]
+                              SimpleType: Lie
+                                CodeReferenceElement: Lie
+                                  PsiElement(identifier)('Lie')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                TypeArgument
+                                  SimpleType: W
+                                    CodeReferenceElement: W
+                                      PsiElement(identifier)('W')
+                                PsiElement(])(']')
                           PsiElement(])(']')
                   ScTemplateBody
                     PsiElement(:)(':')
@@ -174,26 +176,29 @@ ScalaFile
         PsiElement(identifier)('summon')
       TypeArgumentsList
         PsiElement([)('[')
-        ParametrizedType: Lie.TC[Lie[7]]
-          SimpleType: Lie.TC
-            CodeReferenceElement: Lie.TC
-              CodeReferenceElement: Lie
-                PsiElement(identifier)('Lie')
-              PsiElement(.)('.')
-              PsiElement(identifier)('TC')
-          TypeArgumentsList
-            PsiElement([)('[')
-            ParametrizedType: Lie[7]
-              SimpleType: Lie
+        TypeArgument
+          ParametrizedType: Lie.TC[Lie[7]]
+            SimpleType: Lie.TC
+              CodeReferenceElement: Lie.TC
                 CodeReferenceElement: Lie
                   PsiElement(identifier)('Lie')
-              TypeArgumentsList
-                PsiElement([)('[')
-                LiteralType: 7
-                  IntegerLiteral
-                    PsiElement(integer)('7')
-                PsiElement(])(']')
-            PsiElement(])(']')
+                PsiElement(.)('.')
+                PsiElement(identifier)('TC')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                ParametrizedType: Lie[7]
+                  SimpleType: Lie
+                    CodeReferenceElement: Lie
+                      PsiElement(identifier)('Lie')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      LiteralType: 7
+                        IntegerLiteral
+                          PsiElement(integer)('7')
+                    PsiElement(])(']')
+              PsiElement(])(']')
         PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScPatternDefinition: works
@@ -214,18 +219,19 @@ ScalaFile
         PsiElement(identifier)('summon')
       TypeArgumentsList
         PsiElement([)('[')
-        InfixType: x.Out =:= 7
-          SimpleType: x.Out
-            CodeReferenceElement: x.Out
-              CodeReferenceElement: x
-                PsiElement(identifier)('x')
-              PsiElement(.)('.')
-              PsiElement(identifier)('Out')
-          PsiWhiteSpace(' ')
-          CodeReferenceElement: =:=
-            PsiElement(identifier)('=:=')
-          PsiWhiteSpace(' ')
-          LiteralType: 7
-            IntegerLiteral
-              PsiElement(integer)('7')
+        TypeArgument
+          InfixType: x.Out =:= 7
+            SimpleType: x.Out
+              CodeReferenceElement: x.Out
+                CodeReferenceElement: x
+                  PsiElement(identifier)('x')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Out')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: =:=
+              PsiElement(identifier)('=:=')
+            PsiWhiteSpace(' ')
+            LiteralType: 7
+              IntegerLiteral
+                PsiElement(integer)('7')
         PsiElement(])(']')

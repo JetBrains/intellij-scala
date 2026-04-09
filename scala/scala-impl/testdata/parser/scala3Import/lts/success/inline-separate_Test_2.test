@@ -128,9 +128,10 @@ ScalaFile
                         PsiElement(identifier)('summon')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: Foo
-                          CodeReferenceElement: Foo
-                            PsiElement(identifier)('Foo')
+                        TypeArgument
+                          SimpleType: Foo
+                            CodeReferenceElement: Foo
+                              PsiElement(identifier)('Foo')
                         PsiElement(])(']')
                     PsiElement())(')')
         PsiWhiteSpace('\n  ')

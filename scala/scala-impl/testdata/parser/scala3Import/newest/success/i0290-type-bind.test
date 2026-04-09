@@ -83,8 +83,9 @@ ScalaFile
                         PsiElement(identifier)('List')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      TypeVariable: tt
-                        PsiElement(identifier)('tt')
+                      TypeArgument
+                        TypeVariable: tt
+                          PsiElement(identifier)('tt')
                       PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(=>)('=>')
@@ -101,9 +102,10 @@ ScalaFile
                     PsiElement(identifier)('asInstanceOf')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: tt
-                      CodeReferenceElement: tt
-                        PsiElement(identifier)('tt')
+                    TypeArgument
+                      SimpleType: tt
+                        CodeReferenceElement: tt
+                          PsiElement(identifier)('tt')
                     PsiElement(])(']')
           PsiWhiteSpace('\n  ')
           PsiElement(})('}')
@@ -144,8 +146,9 @@ ScalaFile
                     PsiElement(identifier)('Seq')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  WildcardType: _
-                    PsiElement(_)('_')
+                  TypeArgument
+                    WildcardType: _
+                      PsiElement(_)('_')
                   PsiElement(])(']')
             PsiElement(])(']')
           PrimaryConstructor
@@ -210,8 +213,9 @@ ScalaFile
                         PsiElement(identifier)('C')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      TypeVariable: u
-                        PsiElement(identifier)('u')
+                      TypeArgument
+                        TypeVariable: u
+                          PsiElement(identifier)('u')
                       PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(=>)('=>')
@@ -256,8 +260,9 @@ ScalaFile
                         PsiElement(identifier)('Seq')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      WildcardType: _
-                        PsiElement(_)('_')
+                      TypeArgument
+                        WildcardType: _
+                          PsiElement(_)('_')
                       PsiElement(])(']')
                   PsiWhiteSpace(' ')
                   PsiElement(=)('=')

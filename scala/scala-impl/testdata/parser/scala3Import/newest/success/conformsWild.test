@@ -42,12 +42,14 @@ ScalaFile
                 PsiElement(identifier)('Function1')
             TypeArgumentsList
               PsiElement([)('[')
-              WildcardType: _
-                PsiElement(_)('_')
+              TypeArgument
+                WildcardType: _
+                  PsiElement(_)('_')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              WildcardType: _
-                PsiElement(_)('_')
+              TypeArgument
+                WildcardType: _
+                  PsiElement(_)('_')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -91,12 +93,14 @@ ScalaFile
                 PsiElement(identifier)('Function1')
             TypeArgumentsList
               PsiElement([)('[')
-              WildcardType: _
-                PsiElement(_)('_')
+              TypeArgument
+                WildcardType: _
+                  PsiElement(_)('_')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              WildcardType: _
-                PsiElement(_)('_')
+              TypeArgument
+                WildcardType: _
+                  PsiElement(_)('_')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -130,12 +134,14 @@ ScalaFile
                 PsiElement(identifier)('Function1')
             TypeArgumentsList
               PsiElement([)('[')
-              WildcardType: _
-                PsiElement(_)('_')
+              TypeArgument
+                WildcardType: _
+                  PsiElement(_)('_')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              WildcardType: _
-                PsiElement(_)('_')
+              TypeArgument
+                WildcardType: _
+                  PsiElement(_)('_')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -169,13 +175,15 @@ ScalaFile
                 PsiElement(identifier)('Function1')
             TypeArgumentsList
               PsiElement([)('[')
-              WildcardType: _
-                PsiElement(_)('_')
+              TypeArgument
+                WildcardType: _
+                  PsiElement(_)('_')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Nothing
-                CodeReferenceElement: Nothing
-                  PsiElement(identifier)('Nothing')
+              TypeArgument
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

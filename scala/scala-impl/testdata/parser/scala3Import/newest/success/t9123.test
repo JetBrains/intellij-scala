@@ -88,9 +88,10 @@ ScalaFile
                         PsiElement(identifier)('Some')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Setting
-                        CodeReferenceElement: Setting
-                          PsiElement(identifier)('Setting')
+                      TypeArgument
+                        SimpleType: Setting
+                          CodeReferenceElement: Setting
+                            PsiElement(identifier)('Setting')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiWhiteSpace(' ')

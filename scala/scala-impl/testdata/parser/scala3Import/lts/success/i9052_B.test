@@ -19,9 +19,10 @@ ScalaFile
           PsiElement(identifier)('UOption')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: Nothing
-          CodeReferenceElement: Nothing
-            PsiElement(identifier)('Nothing')
+        TypeArgument
+          SimpleType: Nothing
+            CodeReferenceElement: Nothing
+              PsiElement(identifier)('Nothing')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')

@@ -83,9 +83,10 @@ ScalaFile
           PsiElement(identifier)('From')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: Person
-          CodeReferenceElement: Person
-            PsiElement(identifier)('Person')
+        TypeArgument
+          SimpleType: Person
+            CodeReferenceElement: Person
+              PsiElement(identifier)('Person')
         PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScFunctionDefinition: foo
@@ -114,9 +115,10 @@ ScalaFile
           PsiElement(identifier)('From')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: T
-          CodeReferenceElement: T
-            PsiElement(identifier)('T')
+        TypeArgument
+          SimpleType: T
+            CodeReferenceElement: T
+              PsiElement(identifier)('T')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -205,9 +207,10 @@ ScalaFile
               PsiElement(identifier)('From')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: Person
-              CodeReferenceElement: Person
-                PsiElement(identifier)('Person')
+            TypeArgument
+              SimpleType: Person
+                CodeReferenceElement: Person
+                  PsiElement(identifier)('Person')
             PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiElement(=)('=')
@@ -272,9 +275,10 @@ ScalaFile
             PsiElement(identifier)('foo')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: Person
-              CodeReferenceElement: Person
-                PsiElement(identifier)('Person')
+            TypeArgument
+              SimpleType: Person
+                CodeReferenceElement: Person
+                  PsiElement(identifier)('Person')
             PsiElement(])(']')
   PsiWhiteSpace('\n  ')
   PsiComment(comment)('//x = foo[Anon] // error')

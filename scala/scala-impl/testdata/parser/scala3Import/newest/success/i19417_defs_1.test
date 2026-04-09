@@ -67,14 +67,16 @@ ScalaFile
                           PsiElement(identifier)('Either')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: Throwable
-                          CodeReferenceElement: Throwable
-                            PsiElement(identifier)('Throwable')
+                        TypeArgument
+                          SimpleType: Throwable
+                            CodeReferenceElement: Throwable
+                              PsiElement(identifier)('Throwable')
                         PsiElement(,)(',')
                         PsiWhiteSpace(' ')
-                        SimpleType: T
-                          CodeReferenceElement: T
-                            PsiElement(identifier)('T')
+                        TypeArgument
+                          SimpleType: T
+                            CodeReferenceElement: T
+                              PsiElement(identifier)('T')
                         PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -85,9 +87,10 @@ ScalaFile
                 PsiElement(identifier)('QueryParamDecoder')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScObject: QueryParamDecoder
@@ -135,9 +138,10 @@ ScalaFile
                         PsiElement(identifier)('QueryParamDecoder')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: T
-                        CodeReferenceElement: T
-                          PsiElement(identifier)('T')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -148,9 +152,10 @@ ScalaFile
                 PsiElement(identifier)('QueryParamDecoder')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -179,9 +184,10 @@ ScalaFile
                 PsiElement(identifier)('QueryParamDecoder')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: String
-                CodeReferenceElement: String
-                  PsiElement(identifier)('String')
+              TypeArgument
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

@@ -83,17 +83,19 @@ ScalaFile
                     PsiElement(identifier)('Const')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
+                  TypeArgument
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
                   PsiElement(])(']')
               PsiElement(#)('#')
               PsiElement(identifier)('L')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: a
-                CodeReferenceElement: a
-                  PsiElement(identifier)('a')
+              TypeArgument
+                SimpleType: a
+                  CodeReferenceElement: a
+                    PsiElement(identifier)('a')
               PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

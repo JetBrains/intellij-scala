@@ -48,18 +48,19 @@ ScalaFile
                         PsiElement(identifier)('Seq')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      TupleType: (String, Any)
-                        PsiElement(()('(')
-                        TypesList
-                          SimpleType: String
-                            CodeReferenceElement: String
-                              PsiElement(identifier)('String')
-                          PsiElement(,)(',')
-                          PsiWhiteSpace(' ')
-                          SimpleType: Any
-                            CodeReferenceElement: Any
-                              PsiElement(identifier)('Any')
-                        PsiElement())(')')
+                      TypeArgument
+                        TupleType: (String, Any)
+                          PsiElement(()('(')
+                          TypesList
+                            SimpleType: String
+                              CodeReferenceElement: String
+                                PsiElement(identifier)('String')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            SimpleType: Any
+                              CodeReferenceElement: Any
+                                PsiElement(identifier)('Any')
+                          PsiElement())(')')
                       PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')

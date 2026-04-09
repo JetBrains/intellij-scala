@@ -63,14 +63,16 @@ ScalaFile
               PsiElement(identifier)('Matrix')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: C
-              CodeReferenceElement: C
-                PsiElement(identifier)('C')
+            TypeArgument
+              SimpleType: C
+                CodeReferenceElement: C
+                  PsiElement(identifier)('C')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
-            SimpleType: Repr
-              CodeReferenceElement: Repr
-                PsiElement(identifier)('Repr')
+            TypeArgument
+              SimpleType: Repr
+                CodeReferenceElement: Repr
+                  PsiElement(identifier)('Repr')
             PsiElement(])(']')
       PsiElement(])(']')
     PrimaryConstructor
@@ -113,14 +115,16 @@ ScalaFile
                         PsiElement(identifier)('MatrixBuilder')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: Repr
-                        CodeReferenceElement: Repr
-                          PsiElement(identifier)('Repr')
+                      TypeArgument
+                        SimpleType: Repr
+                          CodeReferenceElement: Repr
+                            PsiElement(identifier)('Repr')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -131,9 +135,10 @@ ScalaFile
                 PsiElement(identifier)('Repr')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -192,14 +197,16 @@ ScalaFile
                 PsiElement(identifier)('Matrix')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: DenseMatrix
-                CodeReferenceElement: DenseMatrix
-                  PsiElement(identifier)('DenseMatrix')
+              TypeArgument
+                SimpleType: DenseMatrix
+                  CodeReferenceElement: DenseMatrix
+                    PsiElement(identifier)('DenseMatrix')
               PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScTrait: DenseMatrixFlt
@@ -222,9 +229,10 @@ ScalaFile
                 PsiElement(identifier)('DenseMatrix')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Float
-                CodeReferenceElement: Float
-                  PsiElement(identifier)('Float')
+              TypeArgument
+                SimpleType: Float
+                  CodeReferenceElement: Float
+                    PsiElement(identifier)('Float')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScTrait: MatrixBuilder
@@ -266,14 +274,16 @@ ScalaFile
               PsiElement(identifier)('Matrix')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: C
-              CodeReferenceElement: C
-                PsiElement(identifier)('C')
+            TypeArgument
+              SimpleType: C
+                CodeReferenceElement: C
+                  PsiElement(identifier)('C')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
-            SimpleType: Repr
-              CodeReferenceElement: Repr
-                PsiElement(identifier)('Repr')
+            TypeArgument
+              SimpleType: Repr
+                CodeReferenceElement: Repr
+                  PsiElement(identifier)('Repr')
             PsiElement(])(']')
       PsiElement(])(']')
     PrimaryConstructor
@@ -306,9 +316,10 @@ ScalaFile
                 PsiElement(identifier)('Repr')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
@@ -333,14 +344,16 @@ ScalaFile
                 PsiElement(identifier)('MatrixBuilder')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Float
-                CodeReferenceElement: Float
-                  PsiElement(identifier)('Float')
+              TypeArgument
+                SimpleType: Float
+                  CodeReferenceElement: Float
+                    PsiElement(identifier)('Float')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: DenseMatrix
-                CodeReferenceElement: DenseMatrix
-                  PsiElement(identifier)('DenseMatrix')
+              TypeArgument
+                SimpleType: DenseMatrix
+                  CodeReferenceElement: DenseMatrix
+                    PsiElement(identifier)('DenseMatrix')
               PsiElement(])(']')
       PsiWhiteSpace(' ')
       ScTemplateBody

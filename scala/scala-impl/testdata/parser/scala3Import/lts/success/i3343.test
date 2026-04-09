@@ -57,9 +57,10 @@ ScalaFile
                           PsiElement(identifier)('C')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: Char
-                          CodeReferenceElement: Char
-                            PsiElement(identifier)('Char')
+                        TypeArgument
+                          SimpleType: Char
+                            CodeReferenceElement: Char
+                              PsiElement(identifier)('Char')
                         PsiElement(])(']')
                     PsiWhiteSpace(' ')
                     PsiElement(=>)('=>')
@@ -70,9 +71,10 @@ ScalaFile
                           PsiElement(identifier)('Traversable')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: Char
-                          CodeReferenceElement: Char
-                            PsiElement(identifier)('Char')
+                        TypeArgument
+                          SimpleType: Char
+                            CodeReferenceElement: Char
+                              PsiElement(identifier)('Char')
                         PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -83,9 +85,10 @@ ScalaFile
                 PsiElement(identifier)('C')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Char
-                CodeReferenceElement: Char
-                  PsiElement(identifier)('Char')
+              TypeArgument
+                SimpleType: Char
+                  CodeReferenceElement: Char
+                    PsiElement(identifier)('Char')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -111,9 +114,10 @@ ScalaFile
                 PsiElement(identifier)('List')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Char
-                CodeReferenceElement: Char
-                  PsiElement(identifier)('Char')
+              TypeArgument
+                SimpleType: Char
+                  CodeReferenceElement: Char
+                    PsiElement(identifier)('Char')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

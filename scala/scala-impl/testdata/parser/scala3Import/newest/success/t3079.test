@@ -161,21 +161,24 @@ ScalaFile
                         PsiElement(identifier)('Coerce')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      ParametrizedType: Identity[B]
-                        SimpleType: Identity
-                          CodeReferenceElement: Identity
-                            PsiElement(identifier)('Identity')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: B
-                            CodeReferenceElement: B
-                              PsiElement(identifier)('B')
-                          PsiElement(])(']')
+                      TypeArgument
+                        ParametrizedType: Identity[B]
+                          SimpleType: Identity
+                            CodeReferenceElement: Identity
+                              PsiElement(identifier)('Identity')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: B
+                                CodeReferenceElement: B
+                                  PsiElement(identifier)('B')
+                            PsiElement(])(']')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: B
-                        CodeReferenceElement: B
-                          PsiElement(identifier)('B')
+                      TypeArgument
+                        SimpleType: B
+                          CodeReferenceElement: B
+                            PsiElement(identifier)('B')
                       PsiElement(])(']')
               PsiWhiteSpace(' ')
               ScTemplateBody

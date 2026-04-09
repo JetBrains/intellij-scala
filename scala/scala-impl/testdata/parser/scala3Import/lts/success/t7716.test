@@ -68,8 +68,9 @@ ScalaFile
                     PsiElement(identifier)('Enum')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  WildcardType: _
-                    PsiElement(_)('_')
+                  TypeArgument
+                    WildcardType: _
+                      PsiElement(_)('_')
                   PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(=)('=')
@@ -165,8 +166,9 @@ ScalaFile
                     PsiElement(identifier)('TA')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  WildcardType: _
-                    PsiElement(_)('_')
+                  TypeArgument
+                    WildcardType: _
+                      PsiElement(_)('_')
                   PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(=)('=')
@@ -183,9 +185,10 @@ ScalaFile
                             PsiElement(identifier)('TA')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: String
-                            CodeReferenceElement: String
-                              PsiElement(identifier)('String')
+                          TypeArgument
+                            SimpleType: String
+                              CodeReferenceElement: String
+                                PsiElement(identifier)('String')
                           PsiElement(])(']')
                   PsiWhiteSpace(' ')
                   ScTemplateBody
@@ -247,8 +250,9 @@ ScalaFile
                             PsiElement(identifier)('TA')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          WildcardType: _
-                            PsiElement(_)('_')
+                          TypeArgument
+                            WildcardType: _
+                              PsiElement(_)('_')
                           PsiElement(])(']')
                   PsiElement())(')')
               PsiWhiteSpace(' ')

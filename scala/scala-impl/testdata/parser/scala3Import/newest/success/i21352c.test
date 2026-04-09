@@ -102,9 +102,10 @@ ScalaFile
                 PsiElement(identifier)('Read')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Unit
-                CodeReferenceElement: Unit
-                  PsiElement(identifier)('Unit')
+              TypeArgument
+                SimpleType: Unit
+                  CodeReferenceElement: Unit
+                    PsiElement(identifier)('Unit')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -154,16 +155,18 @@ ScalaFile
                 PsiElement(identifier)('Read')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Option[EmptyTuple]
-                SimpleType: Option
-                  CodeReferenceElement: Option
-                    PsiElement(identifier)('Option')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: EmptyTuple
-                    CodeReferenceElement: EmptyTuple
-                      PsiElement(identifier)('EmptyTuple')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Option[EmptyTuple]
+                  SimpleType: Option
+                    CodeReferenceElement: Option
+                      PsiElement(identifier)('Option')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: EmptyTuple
+                        CodeReferenceElement: EmptyTuple
+                          PsiElement(identifier)('EmptyTuple')
+                    PsiElement(])(']')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -189,16 +192,18 @@ ScalaFile
                 PsiElement(identifier)('Read')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Option[Unit]
-                SimpleType: Option
-                  CodeReferenceElement: Option
-                    PsiElement(identifier)('Option')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: Unit
-                    CodeReferenceElement: Unit
-                      PsiElement(identifier)('Unit')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Option[Unit]
+                  SimpleType: Option
+                    CodeReferenceElement: Option
+                      PsiElement(identifier)('Option')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Unit
+                        CodeReferenceElement: Unit
+                          PsiElement(identifier)('Unit')
+                    PsiElement(])(']')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -245,16 +250,18 @@ ScalaFile
                         PsiElement(identifier)('Read')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      ParametrizedType: Option[H]
-                        SimpleType: Option
-                          CodeReferenceElement: Option
-                            PsiElement(identifier)('Option')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: H
-                            CodeReferenceElement: H
-                              PsiElement(identifier)('H')
-                          PsiElement(])(']')
+                      TypeArgument
+                        ParametrizedType: Option[H]
+                          SimpleType: Option
+                            CodeReferenceElement: Option
+                              PsiElement(identifier)('Option')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: H
+                                CodeReferenceElement: H
+                                  PsiElement(identifier)('H')
+                            PsiElement(])(']')
                       PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
@@ -266,16 +273,18 @@ ScalaFile
                         PsiElement(identifier)('Read')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      ParametrizedType: Option[T]
-                        SimpleType: Option
-                          CodeReferenceElement: Option
-                            PsiElement(identifier)('Option')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: T
-                            CodeReferenceElement: T
-                              PsiElement(identifier)('T')
-                          PsiElement(])(']')
+                      TypeArgument
+                        ParametrizedType: Option[T]
+                          SimpleType: Option
+                            CodeReferenceElement: Option
+                              PsiElement(identifier)('Option')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: T
+                                CodeReferenceElement: T
+                                  PsiElement(identifier)('T')
+                            PsiElement(])(']')
                       PsiElement(])(']')
               PsiElement())(')')
             PsiWhiteSpace(' ')
@@ -287,24 +296,26 @@ ScalaFile
                 PsiElement(identifier)('Read')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Option[H *: T]
-                SimpleType: Option
-                  CodeReferenceElement: Option
-                    PsiElement(identifier)('Option')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  InfixType: H *: T
-                    SimpleType: H
-                      CodeReferenceElement: H
-                        PsiElement(identifier)('H')
-                    PsiWhiteSpace(' ')
-                    CodeReferenceElement: *:
-                      PsiElement(identifier)('*:')
-                    PsiWhiteSpace(' ')
-                    SimpleType: T
-                      CodeReferenceElement: T
-                        PsiElement(identifier)('T')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Option[H *: T]
+                  SimpleType: Option
+                    CodeReferenceElement: Option
+                      PsiElement(identifier)('Option')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      InfixType: H *: T
+                        SimpleType: H
+                          CodeReferenceElement: H
+                            PsiElement(identifier)('H')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: *:
+                          PsiElement(identifier)('*:')
+                        PsiWhiteSpace(' ')
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
+                    PsiElement(])(']')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

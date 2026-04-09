@@ -352,9 +352,10 @@ ScalaFile
                       PsiElement(identifier)('List')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: gristType
-                      CodeReferenceElement: gristType
-                        PsiElement(identifier)('gristType')
+                    TypeArgument
+                      SimpleType: gristType
+                        CodeReferenceElement: gristType
+                          PsiElement(identifier)('gristType')
                     PsiElement(])(']')
               PsiWhiteSpace('\n    ')
               PsiElement(})('}')
@@ -483,31 +484,32 @@ ScalaFile
                       PsiElement(identifier)('List')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    CompoundType: Tool {type settingsType = self.settingsType}
-                      SimpleType: Tool
-                        CodeReferenceElement: Tool
-                          PsiElement(identifier)('Tool')
-                      PsiWhiteSpace(' ')
-                      Refinement
-                        PsiElement({)('{')
-                        ScTypeAliasDefinition: settingsType
-                          AnnotationsList
-                            <empty list>
-                          Modifiers
-                            <empty list>
-                          PsiElement(type)('type')
-                          PsiWhiteSpace(' ')
-                          PsiElement(identifier)('settingsType')
-                          PsiWhiteSpace(' ')
-                          PsiElement(=)('=')
-                          PsiWhiteSpace(' ')
-                          SimpleType: self.settingsType
-                            CodeReferenceElement: self.settingsType
-                              CodeReferenceElement: self
-                                PsiElement(identifier)('self')
-                              PsiElement(.)('.')
-                              PsiElement(identifier)('settingsType')
-                        PsiElement(})('}')
+                    TypeArgument
+                      CompoundType: Tool {type settingsType = self.settingsType}
+                        SimpleType: Tool
+                          CodeReferenceElement: Tool
+                            PsiElement(identifier)('Tool')
+                        PsiWhiteSpace(' ')
+                        Refinement
+                          PsiElement({)('{')
+                          ScTypeAliasDefinition: settingsType
+                            AnnotationsList
+                              <empty list>
+                            Modifiers
+                              <empty list>
+                            PsiElement(type)('type')
+                            PsiWhiteSpace(' ')
+                            PsiElement(identifier)('settingsType')
+                            PsiWhiteSpace(' ')
+                            PsiElement(=)('=')
+                            PsiWhiteSpace(' ')
+                            SimpleType: self.settingsType
+                              CodeReferenceElement: self.settingsType
+                                CodeReferenceElement: self
+                                  PsiElement(identifier)('self')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('settingsType')
+                          PsiElement(})('}')
                     PsiElement(])(']')
               PsiWhiteSpace('\n\n        ')
               ScFunctionDefinition: f
@@ -530,9 +532,10 @@ ScalaFile
                       PsiElement(identifier)('List')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: commonModuleType
-                      CodeReferenceElement: commonModuleType
-                        PsiElement(identifier)('commonModuleType')
+                    TypeArgument
+                      SimpleType: commonModuleType
+                        CodeReferenceElement: commonModuleType
+                          PsiElement(identifier)('commonModuleType')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')

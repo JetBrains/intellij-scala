@@ -114,9 +114,10 @@ ScalaFile
                           PsiElement(identifier)('UpdateType')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: A
-                          CodeReferenceElement: A
-                            PsiElement(identifier)('A')
+                        TypeArgument
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
                         PsiElement(])(']')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
@@ -158,9 +159,10 @@ ScalaFile
                       PsiElement(identifier)('UpdateType')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Integer
-                      CodeReferenceElement: Integer
-                        PsiElement(identifier)('Integer')
+                    TypeArgument
+                      SimpleType: Integer
+                        CodeReferenceElement: Integer
+                          PsiElement(identifier)('Integer')
                     PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScFunctionDefinition: crash
@@ -191,15 +193,17 @@ ScalaFile
                         PsiElement(identifier)('List')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      ParametrizedType: StateUpdate[_]
-                        SimpleType: StateUpdate
-                          CodeReferenceElement: StateUpdate
-                            PsiElement(identifier)('StateUpdate')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          WildcardType: _
-                            PsiElement(_)('_')
-                          PsiElement(])(']')
+                      TypeArgument
+                        ParametrizedType: StateUpdate[_]
+                          SimpleType: StateUpdate
+                            CodeReferenceElement: StateUpdate
+                              PsiElement(identifier)('StateUpdate')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              WildcardType: _
+                                PsiElement(_)('_')
+                            PsiElement(])(']')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')

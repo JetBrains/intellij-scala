@@ -255,31 +255,36 @@ ScalaFile
                 PsiElement(identifier)('Resource')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: F
-                CodeReferenceElement: F
-                  PsiElement(identifier)('F')
+              TypeArgument
+                SimpleType: F
+                  CodeReferenceElement: F
+                    PsiElement(identifier)('F')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              ParametrizedType: Cache[F, K, V]
-                SimpleType: Cache
-                  CodeReferenceElement: Cache
-                    PsiElement(identifier)('Cache')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: F
-                    CodeReferenceElement: F
-                      PsiElement(identifier)('F')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: K
-                    CodeReferenceElement: K
-                      PsiElement(identifier)('K')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: V
-                    CodeReferenceElement: V
-                      PsiElement(identifier)('V')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Cache[F, K, V]
+                  SimpleType: Cache
+                    CodeReferenceElement: Cache
+                      PsiElement(identifier)('Cache')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: F
+                        CodeReferenceElement: F
+                          PsiElement(identifier)('F')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: K
+                        CodeReferenceElement: K
+                          PsiElement(identifier)('K')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: V
+                        CodeReferenceElement: V
+                          PsiElement(identifier)('V')
+                    PsiElement(])(']')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -346,9 +351,10 @@ ScalaFile
                         PsiElement(identifier)('Option')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Int
-                        CodeReferenceElement: Int
-                          PsiElement(identifier)('Int')
+                      TypeArgument
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
                       PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')
@@ -365,31 +371,36 @@ ScalaFile
                 PsiElement(identifier)('Resource')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: F
-                CodeReferenceElement: F
-                  PsiElement(identifier)('F')
+              TypeArgument
+                SimpleType: F
+                  CodeReferenceElement: F
+                    PsiElement(identifier)('F')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              ParametrizedType: Cache[F, K, V]
-                SimpleType: Cache
-                  CodeReferenceElement: Cache
-                    PsiElement(identifier)('Cache')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: F
-                    CodeReferenceElement: F
-                      PsiElement(identifier)('F')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: K
-                    CodeReferenceElement: K
-                      PsiElement(identifier)('K')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: V
-                    CodeReferenceElement: V
-                      PsiElement(identifier)('V')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Cache[F, K, V]
+                  SimpleType: Cache
+                    CodeReferenceElement: Cache
+                      PsiElement(identifier)('Cache')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: F
+                        CodeReferenceElement: F
+                          PsiElement(identifier)('F')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: K
+                        CodeReferenceElement: K
+                          PsiElement(identifier)('K')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: V
+                        CodeReferenceElement: V
+                          PsiElement(identifier)('V')
+                    PsiElement(])(']')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -418,19 +429,22 @@ ScalaFile
                 PsiElement(identifier)('expiring')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: IO
-                  CodeReferenceElement: IO
-                    PsiElement(identifier)('IO')
+                TypeArgument
+                  SimpleType: IO
+                    CodeReferenceElement: IO
+                      PsiElement(identifier)('IO')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: Int
-                  CodeReferenceElement: Int
-                    PsiElement(identifier)('Int')
+                TypeArgument
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: Int
-                  CodeReferenceElement: Int
-                    PsiElement(identifier)('Int')
+                TypeArgument
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
                 PsiElement(])(']')
             ArgumentList
               PsiElement(()('(')
@@ -480,19 +494,22 @@ ScalaFile
                 PsiElement(identifier)('expiring')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: IO
-                  CodeReferenceElement: IO
-                    PsiElement(identifier)('IO')
+                TypeArgument
+                  SimpleType: IO
+                    CodeReferenceElement: IO
+                      PsiElement(identifier)('IO')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: Int
-                  CodeReferenceElement: Int
-                    PsiElement(identifier)('Int')
+                TypeArgument
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: Int
-                  CodeReferenceElement: Int
-                    PsiElement(identifier)('Int')
+                TypeArgument
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
                 PsiElement(])(']')
             ArgumentList
               PsiElement(()('(')

@@ -131,17 +131,18 @@ ScalaFile
                         PsiElement(identifier)('Fib')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      InfixType: N - 1
-                        SimpleType: N
-                          CodeReferenceElement: N
-                            PsiElement(identifier)('N')
-                        PsiWhiteSpace(' ')
-                        CodeReferenceElement: -
-                          PsiElement(identifier)('-')
-                        PsiWhiteSpace(' ')
-                        LiteralType: 1
-                          IntegerLiteral
-                            PsiElement(integer)('1')
+                      TypeArgument
+                        InfixType: N - 1
+                          SimpleType: N
+                            CodeReferenceElement: N
+                              PsiElement(identifier)('N')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: -
+                            PsiElement(identifier)('-')
+                          PsiWhiteSpace(' ')
+                          LiteralType: 1
+                            IntegerLiteral
+                              PsiElement(integer)('1')
                       PsiElement(])(']')
                   PsiWhiteSpace(' ')
                   CodeReferenceElement: +
@@ -153,17 +154,18 @@ ScalaFile
                         PsiElement(identifier)('Fib')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      InfixType: N - 2
-                        SimpleType: N
-                          CodeReferenceElement: N
-                            PsiElement(identifier)('N')
-                        PsiWhiteSpace(' ')
-                        CodeReferenceElement: -
-                          PsiElement(identifier)('-')
-                        PsiWhiteSpace(' ')
-                        LiteralType: 2
-                          IntegerLiteral
-                            PsiElement(integer)('2')
+                      TypeArgument
+                        InfixType: N - 2
+                          SimpleType: N
+                            CodeReferenceElement: N
+                              PsiElement(identifier)('N')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: -
+                            PsiElement(identifier)('-')
+                          PsiWhiteSpace(' ')
+                          LiteralType: 2
+                            IntegerLiteral
+                              PsiElement(integer)('2')
                       PsiElement(])(']')
             PsiWhiteSpace('\n  ')
             PsiElement(})('}')
@@ -186,9 +188,10 @@ ScalaFile
                 PsiElement(identifier)('Fib')
             TypeArgumentsList
               PsiElement([)('[')
-              LiteralType: 0
-                IntegerLiteral
-                  PsiElement(integer)('0')
+              TypeArgument
+                LiteralType: 0
+                  IntegerLiteral
+                    PsiElement(integer)('0')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -214,9 +217,10 @@ ScalaFile
                 PsiElement(identifier)('Fib')
             TypeArgumentsList
               PsiElement([)('[')
-              LiteralType: 1
-                IntegerLiteral
-                  PsiElement(integer)('1')
+              TypeArgument
+                LiteralType: 1
+                  IntegerLiteral
+                    PsiElement(integer)('1')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -242,9 +246,10 @@ ScalaFile
                 PsiElement(identifier)('Fib')
             TypeArgumentsList
               PsiElement([)('[')
-              LiteralType: 2
-                IntegerLiteral
-                  PsiElement(integer)('2')
+              TypeArgument
+                LiteralType: 2
+                  IntegerLiteral
+                    PsiElement(integer)('2')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -270,9 +275,10 @@ ScalaFile
                 PsiElement(identifier)('Fib')
             TypeArgumentsList
               PsiElement([)('[')
-              LiteralType: 3
-                IntegerLiteral
-                  PsiElement(integer)('3')
+              TypeArgument
+                LiteralType: 3
+                  IntegerLiteral
+                    PsiElement(integer)('3')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -298,9 +304,10 @@ ScalaFile
                 PsiElement(identifier)('Fib')
             TypeArgumentsList
               PsiElement([)('[')
-              LiteralType: 4
-                IntegerLiteral
-                  PsiElement(integer)('4')
+              TypeArgument
+                LiteralType: 4
+                  IntegerLiteral
+                    PsiElement(integer)('4')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -326,9 +333,10 @@ ScalaFile
                 PsiElement(identifier)('Fib')
             TypeArgumentsList
               PsiElement([)('[')
-              LiteralType: 5
-                IntegerLiteral
-                  PsiElement(integer)('5')
+              TypeArgument
+                LiteralType: 5
+                  IntegerLiteral
+                    PsiElement(integer)('5')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -354,9 +362,10 @@ ScalaFile
                 PsiElement(identifier)('Fib')
             TypeArgumentsList
               PsiElement([)('[')
-              LiteralType: 6
-                IntegerLiteral
-                  PsiElement(integer)('6')
+              TypeArgument
+                LiteralType: 6
+                  IntegerLiteral
+                    PsiElement(integer)('6')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

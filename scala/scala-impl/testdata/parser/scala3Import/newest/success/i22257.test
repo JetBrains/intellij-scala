@@ -120,9 +120,10 @@ ScalaFile
           PsiElement(identifier)('Fixed')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: Node1
-          CodeReferenceElement: Node1
-            PsiElement(identifier)('Node1')
+        TypeArgument
+          SimpleType: Node1
+            CodeReferenceElement: Node1
+              PsiElement(identifier)('Node1')
         PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScTypeAliasDefinition: Node1
@@ -180,9 +181,10 @@ ScalaFile
           PsiElement(identifier)('Fixed')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: Node2
-          CodeReferenceElement: Node2
-            PsiElement(identifier)('Node2')
+        TypeArgument
+          SimpleType: Node2
+            CodeReferenceElement: Node2
+              PsiElement(identifier)('Node2')
         PsiElement(])(']')
   PsiWhiteSpace('                    ')
   PsiComment(comment)('// was-error')
@@ -291,9 +293,10 @@ ScalaFile
           PsiElement(identifier)('Fixed')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: Node3
-          CodeReferenceElement: Node3
-            PsiElement(identifier)('Node3')
+        TypeArgument
+          SimpleType: Node3
+            CodeReferenceElement: Node3
+              PsiElement(identifier)('Node3')
         PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScTypeAliasDeclaration: Bound3
@@ -381,9 +384,10 @@ ScalaFile
           PsiElement(identifier)('Fixed')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: Node4
-          CodeReferenceElement: Node4
-            PsiElement(identifier)('Node4')
+        TypeArgument
+          SimpleType: Node4
+            CodeReferenceElement: Node4
+              PsiElement(identifier)('Node4')
         PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScTypeAliasDefinition: FP5
@@ -403,9 +407,10 @@ ScalaFile
           PsiElement(identifier)('Fixed')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: Node5
-          CodeReferenceElement: Node5
-            PsiElement(identifier)('Node5')
+        TypeArgument
+          SimpleType: Node5
+            CodeReferenceElement: Node5
+              PsiElement(identifier)('Node5')
         PsiElement(])(']')
   PsiWhiteSpace('                    ')
   PsiComment(comment)('// was-error')
@@ -529,9 +534,10 @@ ScalaFile
           PsiElement(identifier)('Fixed')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: Node6
-          CodeReferenceElement: Node6
-            PsiElement(identifier)('Node6')
+        TypeArgument
+          SimpleType: Node6
+            CodeReferenceElement: Node6
+              PsiElement(identifier)('Node6')
         PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   PsiComment(comment)('// type X^')

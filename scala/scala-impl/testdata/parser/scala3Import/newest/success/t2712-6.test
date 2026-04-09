@@ -112,14 +112,16 @@ ScalaFile
                   PsiElement(identifier)('Tagged')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: T
-                  CodeReferenceElement: T
-                    PsiElement(identifier)('T')
+                TypeArgument
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: Tag
-                  CodeReferenceElement: Tag
-                    PsiElement(identifier)('Tag')
+                TypeArgument
+                  SimpleType: Tag
+                    CodeReferenceElement: Tag
+                      PsiElement(identifier)('Tag')
                 PsiElement(])(']')
           PsiWhiteSpace('\n\n  ')
           ScTrait: Disjunction
@@ -173,9 +175,10 @@ ScalaFile
                           PsiElement(identifier)('M')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: A
-                          CodeReferenceElement: A
-                            PsiElement(identifier)('A')
+                        TypeArgument
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
                         PsiElement(])(']')
                 PsiElement())(')')
             PsiElement(:)(':')
@@ -186,9 +189,10 @@ ScalaFile
                   PsiElement(identifier)('M')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: A
-                  CodeReferenceElement: A
-                    PsiElement(identifier)('A')
+                TypeArgument
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(=)('=')

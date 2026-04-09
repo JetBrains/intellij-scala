@@ -84,9 +84,10 @@ ScalaFile
           PsiElement(identifier)('AtomicReference')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: AnyRef
-          CodeReferenceElement: AnyRef
-            PsiElement(identifier)('AnyRef')
+        TypeArgument
+          SimpleType: AnyRef
+            CodeReferenceElement: AnyRef
+              PsiElement(identifier)('AnyRef')
         PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScObject: Worm
@@ -159,9 +160,10 @@ ScalaFile
                         PsiElement(identifier)('Worm')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: V
-                        CodeReferenceElement: V
-                          PsiElement(identifier)('V')
+                      TypeArgument
+                        SimpleType: V
+                          CodeReferenceElement: V
+                            PsiElement(identifier)('V')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiWhiteSpace('\n    ')
@@ -185,9 +187,10 @@ ScalaFile
                     PsiElement(identifier)('AtomicReference')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: AnyRef
-                    CodeReferenceElement: AnyRef
-                      PsiElement(identifier)('AnyRef')
+                  TypeArgument
+                    SimpleType: AnyRef
+                      CodeReferenceElement: AnyRef
+                        PsiElement(identifier)('AnyRef')
                   PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(=)('=')
@@ -304,9 +307,10 @@ ScalaFile
                             PsiElement(identifier)('asInstanceOf')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: AnyRef
-                              CodeReferenceElement: AnyRef
-                                PsiElement(identifier)('AnyRef')
+                            TypeArgument
+                              SimpleType: AnyRef
+                                CodeReferenceElement: AnyRef
+                                  PsiElement(identifier)('AnyRef')
                             PsiElement(])(']')
                         PsiElement())(')')
                     PsiWhiteSpace('\n        ')
@@ -398,9 +402,10 @@ ScalaFile
                       PsiElement(identifier)('asInstanceOf')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: V
-                        CodeReferenceElement: V
-                          PsiElement(identifier)('V')
+                      TypeArgument
+                        SimpleType: V
+                          CodeReferenceElement: V
+                            PsiElement(identifier)('V')
                       PsiElement(])(']')
             PsiWhiteSpace('\n\n    ')
             ScFunctionDefinition: getOrSet
@@ -510,9 +515,10 @@ ScalaFile
                             PsiElement(identifier)('asInstanceOf')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: AnyRef
-                              CodeReferenceElement: AnyRef
-                                PsiElement(identifier)('AnyRef')
+                            TypeArgument
+                              SimpleType: AnyRef
+                                CodeReferenceElement: AnyRef
+                                  PsiElement(identifier)('AnyRef')
                             PsiElement(])(']')
                         PsiElement())(')')
                     PsiWhiteSpace('\n        ')
@@ -529,7 +535,8 @@ ScalaFile
                       PsiElement(identifier)('asInstanceOf')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: V
-                        CodeReferenceElement: V
-                          PsiElement(identifier)('V')
+                      TypeArgument
+                        SimpleType: V
+                          CodeReferenceElement: V
+                            PsiElement(identifier)('V')
                       PsiElement(])(']')

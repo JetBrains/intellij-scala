@@ -69,15 +69,17 @@ ScalaFile
                   PsiElement(identifier)('asInstanceOf')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  ParametrizedType: Array[_]
-                    SimpleType: Array
-                      CodeReferenceElement: Array
-                        PsiElement(identifier)('Array')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      WildcardType: _
-                        PsiElement(_)('_')
-                      PsiElement(])(']')
+                  TypeArgument
+                    ParametrizedType: Array[_]
+                      SimpleType: Array
+                        CodeReferenceElement: Array
+                          PsiElement(identifier)('Array')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          WildcardType: _
+                            PsiElement(_)('_')
+                        PsiElement(])(']')
                   PsiElement(])(']')
               PsiElement(.)('.')
               PsiElement(identifier)('iterator')

@@ -75,9 +75,10 @@ ScalaFile
                           PsiElement(identifier)('F')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: T
-                          CodeReferenceElement: T
-                            PsiElement(identifier)('T')
+                        TypeArgument
+                          SimpleType: T
+                            CodeReferenceElement: T
+                              PsiElement(identifier)('T')
                         PsiElement(])(']')
                   PsiElement(})('}')
               PsiElement())(')')
@@ -182,9 +183,10 @@ ScalaFile
                             PsiElement(identifier)('M')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: F
-                            CodeReferenceElement: F
-                              PsiElement(identifier)('F')
+                          TypeArgument
+                            SimpleType: F
+                              CodeReferenceElement: F
+                                PsiElement(identifier)('F')
                           PsiElement(])(']')
                       PsiWhiteSpace(' ')
                       PsiElement(?=>)('?=>')
@@ -195,9 +197,10 @@ ScalaFile
                             PsiElement(identifier)('F')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: T
-                            CodeReferenceElement: T
-                              PsiElement(identifier)('T')
+                          TypeArgument
+                            SimpleType: T
+                              CodeReferenceElement: T
+                                PsiElement(identifier)('T')
                           PsiElement(])(']')
                   PsiElement(})('}')
               PsiElement())(')')
@@ -230,14 +233,16 @@ ScalaFile
                         PsiElement(identifier)('of')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Monad
-                        CodeReferenceElement: Monad
-                          PsiElement(identifier)('Monad')
+                      TypeArgument
+                        SimpleType: Monad
+                          CodeReferenceElement: Monad
+                            PsiElement(identifier)('Monad')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: String
-                        CodeReferenceElement: String
-                          PsiElement(identifier)('String')
+                      TypeArgument
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiWhiteSpace(' ')

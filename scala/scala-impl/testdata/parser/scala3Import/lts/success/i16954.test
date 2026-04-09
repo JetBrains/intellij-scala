@@ -55,9 +55,10 @@ ScalaFile
               PsiElement(identifier)('classOf')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Test
-                CodeReferenceElement: Test
-                  PsiElement(identifier)('Test')
+              TypeArgument
+                SimpleType: Test
+                  CodeReferenceElement: Test
+                    PsiElement(identifier)('Test')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScFunctionDefinition: blck
@@ -110,9 +111,10 @@ ScalaFile
                   PsiElement(identifier)('classOf')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: Blck
-                    CodeReferenceElement: Blck
-                      PsiElement(identifier)('Blck')
+                  TypeArgument
+                    SimpleType: Blck
+                      CodeReferenceElement: Blck
+                        PsiElement(identifier)('Blck')
                   PsiElement(])(']')
             PsiWhiteSpace('\n    ')
             ReferenceExpression: cls
@@ -155,9 +157,10 @@ ScalaFile
                 PsiElement(identifier)('classOf')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Expr
-                  CodeReferenceElement: Expr
-                    PsiElement(identifier)('Expr')
+                TypeArgument
+                  SimpleType: Expr
+                    CodeReferenceElement: Expr
+                      PsiElement(identifier)('Expr')
                 PsiElement(])(']')
   PsiWhiteSpace(' ')
   PsiComment(comment)('// was: "assertion failed: leak: Expr in { [..] }" crash')
@@ -208,9 +211,10 @@ ScalaFile
                         PsiElement(identifier)('Array')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: String
-                        CodeReferenceElement: String
-                          PsiElement(identifier)('String')
+                      TypeArgument
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')

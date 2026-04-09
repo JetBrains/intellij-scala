@@ -157,18 +157,19 @@ ScalaFile
               PsiElement(identifier)('List')
             TypeArgumentsList
               PsiElement([)('[')
-              TupleType: (String, MonthNumber)
-                PsiElement(()('(')
-                TypesList
-                  SimpleType: String
-                    CodeReferenceElement: String
-                      PsiElement(identifier)('String')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: MonthNumber
-                    CodeReferenceElement: MonthNumber
-                      PsiElement(identifier)('MonthNumber')
-                PsiElement())(')')
+              TypeArgument
+                TupleType: (String, MonthNumber)
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: MonthNumber
+                      CodeReferenceElement: MonthNumber
+                        PsiElement(identifier)('MonthNumber')
+                  PsiElement())(')')
               PsiElement(])(']')
           ArgumentList
             PsiElement(()('(')
@@ -335,19 +336,20 @@ ScalaFile
                   PsiElement(identifier)('summon')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  InfixType: number.type <:< MonthNumber
-                    SimpleType: number.type
-                      CodeReferenceElement: number
-                        PsiElement(identifier)('number')
-                      PsiElement(.)('.')
-                      PsiElement(type)('type')
-                    PsiWhiteSpace(' ')
-                    CodeReferenceElement: <:<
-                      PsiElement(identifier)('<:<')
-                    PsiWhiteSpace(' ')
-                    SimpleType: MonthNumber
-                      CodeReferenceElement: MonthNumber
-                        PsiElement(identifier)('MonthNumber')
+                  TypeArgument
+                    InfixType: number.type <:< MonthNumber
+                      SimpleType: number.type
+                        CodeReferenceElement: number
+                          PsiElement(identifier)('number')
+                        PsiElement(.)('.')
+                        PsiElement(type)('type')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: <:<
+                        PsiElement(identifier)('<:<')
+                      PsiWhiteSpace(' ')
+                      SimpleType: MonthNumber
+                        CodeReferenceElement: MonthNumber
+                          PsiElement(identifier)('MonthNumber')
                   PsiElement(])(']')
           PsiWhiteSpace('\n    ')
           PsiElement(})('}')

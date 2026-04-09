@@ -66,14 +66,16 @@ ScalaFile
                   PsiElement(identifier)('KeyTag2')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: K
-                  CodeReferenceElement: K
-                    PsiElement(identifier)('K')
+                TypeArgument
+                  SimpleType: K
+                    CodeReferenceElement: K
+                      PsiElement(identifier)('K')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: V
-                  CodeReferenceElement: V
-                    PsiElement(identifier)('V')
+                TypeArgument
+                  SimpleType: V
+                    CodeReferenceElement: V
+                      PsiElement(identifier)('V')
                 PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScTrait: KeyTag2
@@ -148,9 +150,10 @@ ScalaFile
                 PsiElement(identifier)('Tuple1')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScTypeAliasDefinition: Extract
@@ -196,8 +199,9 @@ ScalaFile
                       PsiElement(identifier)('Wrap')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    TypeVariable: h
-                      PsiElement(identifier)('h')
+                    TypeArgument
+                      TypeVariable: h
+                        PsiElement(identifier)('h')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
@@ -213,55 +217,62 @@ ScalaFile
             PsiElement(identifier)('summon')
           TypeArgumentsList
             PsiElement([)('[')
-            InfixType: Extract[Wrap[FieldType2["foo", Int]]] =:= FieldType2["foo", Int]
-              ParametrizedType: Extract[Wrap[FieldType2["foo", Int]]]
-                SimpleType: Extract
-                  CodeReferenceElement: Extract
-                    PsiElement(identifier)('Extract')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  ParametrizedType: Wrap[FieldType2["foo", Int]]
-                    SimpleType: Wrap
-                      CodeReferenceElement: Wrap
-                        PsiElement(identifier)('Wrap')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      ParametrizedType: FieldType2["foo", Int]
-                        SimpleType: FieldType2
-                          CodeReferenceElement: FieldType2
-                            PsiElement(identifier)('FieldType2')
+            TypeArgument
+              InfixType: Extract[Wrap[FieldType2["foo", Int]]] =:= FieldType2["foo", Int]
+                ParametrizedType: Extract[Wrap[FieldType2["foo", Int]]]
+                  SimpleType: Extract
+                    CodeReferenceElement: Extract
+                      PsiElement(identifier)('Extract')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      ParametrizedType: Wrap[FieldType2["foo", Int]]
+                        SimpleType: Wrap
+                          CodeReferenceElement: Wrap
+                            PsiElement(identifier)('Wrap')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          LiteralType: "foo"
-                            StringLiteral
-                              PsiElement(string content)('"foo"')
-                          PsiElement(,)(',')
-                          PsiWhiteSpace(' ')
-                          SimpleType: Int
-                            CodeReferenceElement: Int
-                              PsiElement(identifier)('Int')
+                          TypeArgument
+                            ParametrizedType: FieldType2["foo", Int]
+                              SimpleType: FieldType2
+                                CodeReferenceElement: FieldType2
+                                  PsiElement(identifier)('FieldType2')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                TypeArgument
+                                  LiteralType: "foo"
+                                    StringLiteral
+                                      PsiElement(string content)('"foo"')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                TypeArgument
+                                  SimpleType: Int
+                                    CodeReferenceElement: Int
+                                      PsiElement(identifier)('Int')
+                                PsiElement(])(']')
                           PsiElement(])(']')
-                      PsiElement(])(']')
-                  PsiElement(])(']')
-              PsiWhiteSpace(' ')
-              CodeReferenceElement: =:=
-                PsiElement(identifier)('=:=')
-              PsiWhiteSpace(' ')
-              ParametrizedType: FieldType2["foo", Int]
-                SimpleType: FieldType2
-                  CodeReferenceElement: FieldType2
-                    PsiElement(identifier)('FieldType2')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  LiteralType: "foo"
-                    StringLiteral
-                      PsiElement(string content)('"foo"')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
-                  PsiElement(])(']')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: =:=
+                  PsiElement(identifier)('=:=')
+                PsiWhiteSpace(' ')
+                ParametrizedType: FieldType2["foo", Int]
+                  SimpleType: FieldType2
+                    CodeReferenceElement: FieldType2
+                      PsiElement(identifier)('FieldType2')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      LiteralType: "foo"
+                        StringLiteral
+                          PsiElement(string content)('"foo"')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                    PsiElement(])(']')
             PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         PsiComment(comment)('// This used to cause an error because `Tuple1[FieldType2["foo", Int]]` was')

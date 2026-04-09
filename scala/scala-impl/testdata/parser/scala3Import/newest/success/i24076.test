@@ -31,9 +31,10 @@ ScalaFile
                   PsiElement(identifier)('ValueOf')
               TypeArgumentsList
                 PsiElement([)('[')
-                LiteralType: 1
-                  IntegerLiteral
-                    PsiElement(integer)('1')
+                TypeArgument
+                  LiteralType: 1
+                    IntegerLiteral
+                      PsiElement(integer)('1')
                 PsiElement(])(']')
         PsiElement())(')')
     PsiElement(:)(':')

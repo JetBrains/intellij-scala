@@ -42,9 +42,10 @@ ScalaFile
                 PsiElement(identifier)('Amount_1')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Foo
-                CodeReferenceElement: Foo
-                  PsiElement(identifier)('Foo')
+              TypeArgument
+                SimpleType: Foo
+                  CodeReferenceElement: Foo
+                    PsiElement(identifier)('Foo')
               PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

@@ -142,9 +142,10 @@ ScalaFile
                         PsiElement(identifier)('Vector')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: b
-                        CodeReferenceElement: b
-                          PsiElement(identifier)('b')
+                      TypeArgument
+                        SimpleType: b
+                          CodeReferenceElement: b
+                            PsiElement(identifier)('b')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -155,9 +156,10 @@ ScalaFile
                 PsiElement(identifier)('Vector')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: b
-                CodeReferenceElement: b
-                  PsiElement(identifier)('b')
+              TypeArgument
+                SimpleType: b
+                  CodeReferenceElement: b
+                    PsiElement(identifier)('b')
               PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

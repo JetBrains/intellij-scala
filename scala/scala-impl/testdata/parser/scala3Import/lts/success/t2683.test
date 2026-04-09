@@ -81,14 +81,15 @@ ScalaFile
                 PsiElement(identifier)('Class')
             TypeArgumentsList
               PsiElement([)('[')
-              WildcardType: _ <: A
-                PsiElement(_)('_')
-                PsiWhiteSpace(' ')
-                PsiElement(<:)('<:')
-                PsiWhiteSpace(' ')
-                SimpleType: A
-                  CodeReferenceElement: A
-                    PsiElement(identifier)('A')
+              TypeArgument
+                WildcardType: _ <: A
+                  PsiElement(_)('_')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<:)('<:')
+                  PsiWhiteSpace(' ')
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -115,9 +116,10 @@ ScalaFile
                   PsiElement(identifier)('classOf')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: A
-                    CodeReferenceElement: A
-                      PsiElement(identifier)('A')
+                  TypeArgument
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
                   PsiElement(])(']')
               PsiElement())(')')
         PsiWhiteSpace('\n  ')
@@ -139,21 +141,23 @@ ScalaFile
                 PsiElement(identifier)('Option')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Class[_ <: A]
-                SimpleType: Class
-                  CodeReferenceElement: Class
-                    PsiElement(identifier)('Class')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  WildcardType: _ <: A
-                    PsiElement(_)('_')
-                    PsiWhiteSpace(' ')
-                    PsiElement(<:)('<:')
-                    PsiWhiteSpace(' ')
-                    SimpleType: A
-                      CodeReferenceElement: A
-                        PsiElement(identifier)('A')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Class[_ <: A]
+                  SimpleType: Class
+                    CodeReferenceElement: Class
+                      PsiElement(identifier)('Class')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      WildcardType: _ <: A
+                        PsiElement(_)('_')
+                        PsiWhiteSpace(' ')
+                        PsiElement(<:)('<:')
+                        PsiWhiteSpace(' ')
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                    PsiElement(])(']')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

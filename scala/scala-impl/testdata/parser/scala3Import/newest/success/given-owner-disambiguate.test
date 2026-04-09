@@ -180,9 +180,10 @@ ScalaFile
             PsiElement(identifier)('summon')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: General
-              CodeReferenceElement: General
-                PsiElement(identifier)('General')
+            TypeArgument
+              SimpleType: General
+                CodeReferenceElement: General
+                  PsiElement(identifier)('General')
             PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       ScPatternDefinition

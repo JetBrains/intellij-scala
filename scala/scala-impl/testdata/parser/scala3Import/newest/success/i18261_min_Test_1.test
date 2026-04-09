@@ -47,16 +47,18 @@ ScalaFile
                 PsiElement(identifier)('summon')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: Foo[Int]
-                  SimpleType: Foo
-                    CodeReferenceElement: Foo
-                      PsiElement(identifier)('Foo')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: Int
-                      CodeReferenceElement: Int
-                        PsiElement(identifier)('Int')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: Foo[Int]
+                    SimpleType: Foo
+                      CodeReferenceElement: Foo
+                        PsiElement(identifier)('Foo')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement(])(']')
                 PsiElement(])(']')
             PsiWhiteSpace('\n    ')
             GenericCall
@@ -64,14 +66,16 @@ ScalaFile
                 PsiElement(identifier)('summon')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: Foo[Long]
-                  SimpleType: Foo
-                    CodeReferenceElement: Foo
-                      PsiElement(identifier)('Foo')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: Long
-                      CodeReferenceElement: Long
-                        PsiElement(identifier)('Long')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: Foo[Long]
+                    SimpleType: Foo
+                      CodeReferenceElement: Foo
+                        PsiElement(identifier)('Foo')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: Long
+                          CodeReferenceElement: Long
+                            PsiElement(identifier)('Long')
+                      PsiElement(])(']')
                 PsiElement(])(']')

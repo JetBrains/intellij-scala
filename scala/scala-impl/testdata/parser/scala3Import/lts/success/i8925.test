@@ -218,17 +218,19 @@ ScalaFile
                         PsiElement(identifier)('parametersOf')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: Parent
-                          CodeReferenceElement: Parent
-                            PsiElement(identifier)('Parent')
+                        TypeArgument
+                          SimpleType: Parent
+                            CodeReferenceElement: Parent
+                              PsiElement(identifier)('Parent')
                         PsiElement(,)(',')
                         PsiWhiteSpace(' ')
-                        SimpleType: p.Child
-                          CodeReferenceElement: p.Child
-                            CodeReferenceElement: p
-                              PsiElement(identifier)('p')
-                            PsiElement(.)('.')
-                            PsiElement(identifier)('Child')
+                        TypeArgument
+                          SimpleType: p.Child
+                            CodeReferenceElement: p.Child
+                              CodeReferenceElement: p
+                                PsiElement(identifier)('p')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('Child')
                         PsiElement(])(']')
                     ArgumentList
                       PsiElement(()('(')

@@ -87,32 +87,34 @@ ScalaFile
                 PsiElement(identifier)('NamedTuple')
             TypeArgumentsList
               PsiElement([)('[')
-              TupleType: (S, "foo")
-                PsiElement(()('(')
-                TypesList
-                  SimpleType: S
-                    CodeReferenceElement: S
-                      PsiElement(identifier)('S')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  LiteralType: "foo"
-                    StringLiteral
-                      PsiElement(string content)('"foo"')
-                PsiElement())(')')
+              TypeArgument
+                TupleType: (S, "foo")
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: S
+                      CodeReferenceElement: S
+                        PsiElement(identifier)('S')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    LiteralType: "foo"
+                      StringLiteral
+                        PsiElement(string content)('"foo"')
+                  PsiElement())(')')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              TupleType: (Int, Long)
-                PsiElement(()('(')
-                TypesList
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: Long
-                    CodeReferenceElement: Long
-                      PsiElement(identifier)('Long')
-                PsiElement())(')')
+              TypeArgument
+                TupleType: (Int, Long)
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Long
+                      CodeReferenceElement: Long
+                        PsiElement(identifier)('Long')
+                  PsiElement())(')')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScFunctionDefinition: nt
@@ -171,32 +173,34 @@ ScalaFile
                 PsiElement(identifier)('NamedTuple')
             TypeArgumentsList
               PsiElement([)('[')
-              TupleType: (Name, "foo")
-                PsiElement(()('(')
-                TypesList
-                  SimpleType: Name
-                    CodeReferenceElement: Name
-                      PsiElement(identifier)('Name')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  LiteralType: "foo"
-                    StringLiteral
-                      PsiElement(string content)('"foo"')
-                PsiElement())(')')
+              TypeArgument
+                TupleType: (Name, "foo")
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: Name
+                      CodeReferenceElement: Name
+                        PsiElement(identifier)('Name')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    LiteralType: "foo"
+                      StringLiteral
+                        PsiElement(string content)('"foo"')
+                  PsiElement())(')')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              TupleType: (Int, Long)
-                PsiElement(()('(')
-                TypesList
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: Long
-                    CodeReferenceElement: Long
-                      PsiElement(identifier)('Long')
-                PsiElement())(')')
+              TypeArgument
+                TupleType: (Int, Long)
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Long
+                      CodeReferenceElement: Long
+                        PsiElement(identifier)('Long')
+                  PsiElement())(')')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScFunctionDefinition: nt2

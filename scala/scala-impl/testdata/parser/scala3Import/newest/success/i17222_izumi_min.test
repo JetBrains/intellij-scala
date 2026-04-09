@@ -139,10 +139,11 @@ ScalaFile
               PsiElement(identifier)('valueOf')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeProjection: Foo#False
-                SimpleType: Foo
-                  CodeReferenceElement: Foo
-                    PsiElement(identifier)('Foo')
-                PsiElement(#)('#')
-                PsiElement(identifier)('False')
+              TypeArgument
+                TypeProjection: Foo#False
+                  SimpleType: Foo
+                    CodeReferenceElement: Foo
+                      PsiElement(identifier)('Foo')
+                  PsiElement(#)('#')
+                  PsiElement(identifier)('False')
               PsiElement(])(']')

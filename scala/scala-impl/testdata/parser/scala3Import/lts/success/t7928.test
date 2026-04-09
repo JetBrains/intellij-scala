@@ -68,12 +68,13 @@ ScalaFile
                       PsiElement(identifier)('Iterable')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Inner.Element
-                      CodeReferenceElement: Inner.Element
-                        CodeReferenceElement: Inner
-                          PsiElement(identifier)('Inner')
-                        PsiElement(.)('.')
-                        PsiElement(identifier)('Element')
+                    TypeArgument
+                      SimpleType: Inner.Element
+                        CodeReferenceElement: Inner.Element
+                          CodeReferenceElement: Inner
+                            PsiElement(identifier)('Inner')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('Element')
                     PsiElement(])(']')
               PsiWhiteSpace('\n  ')
               PsiElement(})('}')
@@ -171,12 +172,13 @@ ScalaFile
                       PsiElement(identifier)('Seq')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Inner.Element
-                      CodeReferenceElement: Inner.Element
-                        CodeReferenceElement: Inner
-                          PsiElement(identifier)('Inner')
-                        PsiElement(.)('.')
-                        PsiElement(identifier)('Element')
+                    TypeArgument
+                      SimpleType: Inner.Element
+                        CodeReferenceElement: Inner.Element
+                          CodeReferenceElement: Inner
+                            PsiElement(identifier)('Inner')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('Element')
                     PsiElement(])(']')
               PsiWhiteSpace('\n  ')
               PsiElement(})('}')

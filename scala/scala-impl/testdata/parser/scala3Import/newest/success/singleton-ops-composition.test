@@ -314,58 +314,62 @@ ScalaFile
                 PsiElement(identifier)('BitwiseOr')
             TypeArgumentsList
               PsiElement([)('[')
-              InfixType: 100 << 2 >>> 2 >> 2 ^^ 3
-                InfixType: 100 << 2 >>> 2 >> 2
-                  InfixType: 100 << 2 >>> 2
-                    InfixType: 100 << 2
-                      LiteralType: 100
-                        IntegerLiteral
-                          PsiElement(integer)('100')
+              TypeArgument
+                InfixType: 100 << 2 >>> 2 >> 2 ^^ 3
+                  InfixType: 100 << 2 >>> 2 >> 2
+                    InfixType: 100 << 2 >>> 2
+                      InfixType: 100 << 2
+                        LiteralType: 100
+                          IntegerLiteral
+                            PsiElement(integer)('100')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: <<
+                          PsiElement(identifier)('<<')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 2
+                          IntegerLiteral
+                            PsiElement(integer)('2')
                       PsiWhiteSpace(' ')
-                      CodeReferenceElement: <<
-                        PsiElement(identifier)('<<')
+                      CodeReferenceElement: >>>
+                        PsiElement(identifier)('>>>')
                       PsiWhiteSpace(' ')
                       LiteralType: 2
                         IntegerLiteral
                           PsiElement(integer)('2')
                     PsiWhiteSpace(' ')
-                    CodeReferenceElement: >>>
-                      PsiElement(identifier)('>>>')
+                    CodeReferenceElement: >>
+                      PsiElement(identifier)('>>')
                     PsiWhiteSpace(' ')
                     LiteralType: 2
                       IntegerLiteral
                         PsiElement(integer)('2')
                   PsiWhiteSpace(' ')
-                  CodeReferenceElement: >>
-                    PsiElement(identifier)('>>')
+                  CodeReferenceElement: ^^
+                    PsiElement(identifier)('^^')
                   PsiWhiteSpace(' ')
-                  LiteralType: 2
+                  LiteralType: 3
                     IntegerLiteral
-                      PsiElement(integer)('2')
-                PsiWhiteSpace(' ')
-                CodeReferenceElement: ^^
-                  PsiElement(identifier)('^^')
-                PsiWhiteSpace(' ')
-                LiteralType: 3
-                  IntegerLiteral
-                    PsiElement(integer)('3')
+                      PsiElement(integer)('3')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              ParametrizedType: BitwiseAnd[7, 7]
-                SimpleType: BitwiseAnd
-                  CodeReferenceElement: BitwiseAnd
-                    PsiElement(identifier)('BitwiseAnd')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  LiteralType: 7
-                    IntegerLiteral
-                      PsiElement(integer)('7')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  LiteralType: 7
-                    IntegerLiteral
-                      PsiElement(integer)('7')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: BitwiseAnd[7, 7]
+                  SimpleType: BitwiseAnd
+                    CodeReferenceElement: BitwiseAnd
+                      PsiElement(identifier)('BitwiseAnd')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      LiteralType: 7
+                        IntegerLiteral
+                          PsiElement(integer)('7')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      LiteralType: 7
+                        IntegerLiteral
+                          PsiElement(integer)('7')
+                    PsiElement(])(']')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

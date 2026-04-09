@@ -167,14 +167,16 @@ ScalaFile
                         PsiElement(identifier)('CoContra')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Outer
-                        CodeReferenceElement: Outer
-                          PsiElement(identifier)('Outer')
+                      TypeArgument
+                        SimpleType: Outer
+                          CodeReferenceElement: Outer
+                            PsiElement(identifier)('Outer')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: Outer
-                        CodeReferenceElement: Outer
-                          PsiElement(identifier)('Outer')
+                      TypeArgument
+                        SimpleType: Outer
+                          CodeReferenceElement: Outer
+                            PsiElement(identifier)('Outer')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -228,28 +230,32 @@ ScalaFile
                 PsiElement(identifier)('CoContra')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Id[Inner]
-                SimpleType: Id
-                  CodeReferenceElement: Id
-                    PsiElement(identifier)('Id')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: Inner
-                    CodeReferenceElement: Inner
-                      PsiElement(identifier)('Inner')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Id[Inner]
+                  SimpleType: Id
+                    CodeReferenceElement: Id
+                      PsiElement(identifier)('Id')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Inner
+                        CodeReferenceElement: Inner
+                          PsiElement(identifier)('Inner')
+                    PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              ParametrizedType: Id[Inner]
-                SimpleType: Id
-                  CodeReferenceElement: Id
-                    PsiElement(identifier)('Id')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: Inner
-                    CodeReferenceElement: Inner
-                      PsiElement(identifier)('Inner')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Id[Inner]
+                  SimpleType: Id
+                    CodeReferenceElement: Id
+                      PsiElement(identifier)('Id')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Inner
+                        CodeReferenceElement: Inner
+                          PsiElement(identifier)('Inner')
+                    PsiElement(])(']')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

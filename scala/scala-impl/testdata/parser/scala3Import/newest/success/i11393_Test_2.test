@@ -54,17 +54,18 @@ ScalaFile
               PsiElement(identifier)('ToFormat')
           TypeArgumentsList
             PsiElement([)('[')
-            InfixType: 'a' *: EmptyTuple
-              LiteralType: 'a'
-                CharLiteral
-                  PsiElement(Character)(''a'')
-              PsiWhiteSpace(' ')
-              CodeReferenceElement: *:
-                PsiElement(identifier)('*:')
-              PsiWhiteSpace(' ')
-              SimpleType: EmptyTuple
-                CodeReferenceElement: EmptyTuple
-                  PsiElement(identifier)('EmptyTuple')
+            TypeArgument
+              InfixType: 'a' *: EmptyTuple
+                LiteralType: 'a'
+                  CharLiteral
+                    PsiElement(Character)(''a'')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: *:
+                  PsiElement(identifier)('*:')
+                PsiWhiteSpace(' ')
+                SimpleType: EmptyTuple
+                  CodeReferenceElement: EmptyTuple
+                    PsiElement(identifier)('EmptyTuple')
             PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiElement(=)('=')

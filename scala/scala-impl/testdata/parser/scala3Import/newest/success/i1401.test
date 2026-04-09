@@ -57,14 +57,16 @@ ScalaFile
                 PsiElement(identifier)('Subtractable')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: AS
-                CodeReferenceElement: AS
-                  PsiElement(identifier)('AS')
+              TypeArgument
+                SimpleType: AS
+                  CodeReferenceElement: AS
+                    PsiElement(identifier)('AS')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Repr
-                CodeReferenceElement: Repr
-                  PsiElement(identifier)('Repr')
+              TypeArgument
+                SimpleType: Repr
+                  CodeReferenceElement: Repr
+                    PsiElement(identifier)('Repr')
               PsiElement(])(']')
         PsiElement(])(']')
       PrimaryConstructor
@@ -138,14 +140,16 @@ ScalaFile
                   PsiElement(identifier)('BufferLike')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: BA
-                  CodeReferenceElement: BA
-                    PsiElement(identifier)('BA')
+                TypeArgument
+                  SimpleType: BA
+                    CodeReferenceElement: BA
+                      PsiElement(identifier)('BA')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: This
-                  CodeReferenceElement: This
-                    PsiElement(identifier)('This')
+                TypeArgument
+                  SimpleType: This
+                    CodeReferenceElement: This
+                      PsiElement(identifier)('This')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(with)('with')
@@ -156,9 +160,10 @@ ScalaFile
                   PsiElement(identifier)('Buffer')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: BA
-                  CodeReferenceElement: BA
-                    PsiElement(identifier)('BA')
+                TypeArgument
+                  SimpleType: BA
+                    CodeReferenceElement: BA
+                      PsiElement(identifier)('BA')
                 PsiElement(])(']')
         PsiElement(])(']')
       PrimaryConstructor
@@ -180,14 +185,16 @@ ScalaFile
                   PsiElement(identifier)('Subtractable')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: BA
-                  CodeReferenceElement: BA
-                    PsiElement(identifier)('BA')
+                TypeArgument
+                  SimpleType: BA
+                    CodeReferenceElement: BA
+                      PsiElement(identifier)('BA')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: This
-                  CodeReferenceElement: This
-                    PsiElement(identifier)('This')
+                TypeArgument
+                  SimpleType: This
+                    CodeReferenceElement: This
+                      PsiElement(identifier)('This')
                 PsiElement(])(']')
         PsiWhiteSpace('\n')
         ScTemplateBody
@@ -270,19 +277,22 @@ ScalaFile
                   PsiElement(identifier)('BufferLike')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: A
-                  CodeReferenceElement: A
-                    PsiElement(identifier)('A')
+                TypeArgument
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                ParametrizedType: Buffer[A]
-                  SimpleType: Buffer
-                    CodeReferenceElement: Buffer
-                      PsiElement(identifier)('Buffer')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: A
-                      CodeReferenceElement: A
-                        PsiElement(identifier)('A')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: Buffer[A]
+                    SimpleType: Buffer
+                      CodeReferenceElement: Buffer
+                        PsiElement(identifier)('Buffer')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                      PsiElement(])(']')
                 PsiElement(])(']')

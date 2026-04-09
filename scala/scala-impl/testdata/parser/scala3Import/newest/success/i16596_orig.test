@@ -141,29 +141,33 @@ ScalaFile
                   PsiElement(identifier)('Count0')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: int.-[N, 1]
-                  SimpleType: int.-
-                    CodeReferenceElement: int.-
-                      CodeReferenceElement: int
-                        PsiElement(identifier)('int')
-                      PsiElement(.)('.')
-                      PsiElement(identifier)('-')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: N
-                      CodeReferenceElement: N
-                        PsiElement(identifier)('N')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    LiteralType: 1
-                      IntegerLiteral
-                        PsiElement(integer)('1')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: int.-[N, 1]
+                    SimpleType: int.-
+                      CodeReferenceElement: int.-
+                        CodeReferenceElement: int
+                          PsiElement(identifier)('int')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('-')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: N
+                          CodeReferenceElement: N
+                            PsiElement(identifier)('N')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        LiteralType: 1
+                          IntegerLiteral
+                            PsiElement(integer)('1')
+                      PsiElement(])(']')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: String
-                  CodeReferenceElement: String
-                    PsiElement(identifier)('String')
+                TypeArgument
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
                 PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScMatchTypeCaseImpl(match type case)
@@ -197,29 +201,33 @@ ScalaFile
                   PsiElement(identifier)('Count0')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: int.-[N, 1]
-                  SimpleType: int.-
-                    CodeReferenceElement: int.-
-                      CodeReferenceElement: int
-                        PsiElement(identifier)('int')
-                      PsiElement(.)('.')
-                      PsiElement(identifier)('-')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: N
-                      CodeReferenceElement: N
-                        PsiElement(identifier)('N')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    LiteralType: 1
-                      IntegerLiteral
-                        PsiElement(integer)('1')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: int.-[N, 1]
+                    SimpleType: int.-
+                      CodeReferenceElement: int.-
+                        CodeReferenceElement: int
+                          PsiElement(identifier)('int')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('-')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: N
+                          CodeReferenceElement: N
+                            PsiElement(identifier)('N')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        LiteralType: 1
+                          IntegerLiteral
+                            PsiElement(integer)('1')
+                      PsiElement(])(']')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: Int
-                  CodeReferenceElement: Int
-                    PsiElement(identifier)('Int')
+                TypeArgument
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
                 PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScMatchTypeCaseImpl(match type case)
@@ -253,29 +261,33 @@ ScalaFile
                   PsiElement(identifier)('Count0')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: int.-[N, 1]
-                  SimpleType: int.-
-                    CodeReferenceElement: int.-
-                      CodeReferenceElement: int
-                        PsiElement(identifier)('int')
-                      PsiElement(.)('.')
-                      PsiElement(identifier)('-')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: N
-                      CodeReferenceElement: N
-                        PsiElement(identifier)('N')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    LiteralType: 1
-                      IntegerLiteral
-                        PsiElement(integer)('1')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: int.-[N, 1]
+                    SimpleType: int.-
+                      CodeReferenceElement: int.-
+                        CodeReferenceElement: int
+                          PsiElement(identifier)('int')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('-')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: N
+                          CodeReferenceElement: N
+                            PsiElement(identifier)('N')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        LiteralType: 1
+                          IntegerLiteral
+                            PsiElement(integer)('1')
+                      PsiElement(])(']')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: Float
-                  CodeReferenceElement: Float
-                    PsiElement(identifier)('Float')
+                TypeArgument
+                  SimpleType: Float
+                    CodeReferenceElement: Float
+                      PsiElement(identifier)('Float')
                 PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScMatchTypeCaseImpl(match type case)
@@ -309,29 +321,33 @@ ScalaFile
                   PsiElement(identifier)('Count0')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: int.-[N, 1]
-                  SimpleType: int.-
-                    CodeReferenceElement: int.-
-                      CodeReferenceElement: int
-                        PsiElement(identifier)('int')
-                      PsiElement(.)('.')
-                      PsiElement(identifier)('-')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: N
-                      CodeReferenceElement: N
-                        PsiElement(identifier)('N')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    LiteralType: 1
-                      IntegerLiteral
-                        PsiElement(integer)('1')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: int.-[N, 1]
+                    SimpleType: int.-
+                      CodeReferenceElement: int.-
+                        CodeReferenceElement: int
+                          PsiElement(identifier)('int')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('-')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: N
+                          CodeReferenceElement: N
+                            PsiElement(identifier)('N')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        LiteralType: 1
+                          IntegerLiteral
+                            PsiElement(integer)('1')
+                      PsiElement(])(']')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: Double
-                  CodeReferenceElement: Double
-                    PsiElement(identifier)('Double')
+                TypeArgument
+                  SimpleType: Double
+                    CodeReferenceElement: Double
+                      PsiElement(identifier)('Double')
                 PsiElement(])(']')
   PsiWhiteSpace('\n\n\n')
   ScTypeAliasDefinition: Count1
@@ -432,29 +448,33 @@ ScalaFile
                   PsiElement(identifier)('Count1')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: int.-[N, 1]
-                  SimpleType: int.-
-                    CodeReferenceElement: int.-
-                      CodeReferenceElement: int
-                        PsiElement(identifier)('int')
-                      PsiElement(.)('.')
-                      PsiElement(identifier)('-')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: N
-                      CodeReferenceElement: N
-                        PsiElement(identifier)('N')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    LiteralType: 1
-                      IntegerLiteral
-                        PsiElement(integer)('1')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: int.-[N, 1]
+                    SimpleType: int.-
+                      CodeReferenceElement: int.-
+                        CodeReferenceElement: int
+                          PsiElement(identifier)('int')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('-')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: N
+                          CodeReferenceElement: N
+                            PsiElement(identifier)('N')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        LiteralType: 1
+                          IntegerLiteral
+                            PsiElement(integer)('1')
+                      PsiElement(])(']')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: String
-                  CodeReferenceElement: String
-                    PsiElement(identifier)('String')
+                TypeArgument
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
                 PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScMatchTypeCaseImpl(match type case)
@@ -488,29 +508,33 @@ ScalaFile
                   PsiElement(identifier)('Count1')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: int.-[N, 1]
-                  SimpleType: int.-
-                    CodeReferenceElement: int.-
-                      CodeReferenceElement: int
-                        PsiElement(identifier)('int')
-                      PsiElement(.)('.')
-                      PsiElement(identifier)('-')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: N
-                      CodeReferenceElement: N
-                        PsiElement(identifier)('N')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    LiteralType: 1
-                      IntegerLiteral
-                        PsiElement(integer)('1')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: int.-[N, 1]
+                    SimpleType: int.-
+                      CodeReferenceElement: int.-
+                        CodeReferenceElement: int
+                          PsiElement(identifier)('int')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('-')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: N
+                          CodeReferenceElement: N
+                            PsiElement(identifier)('N')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        LiteralType: 1
+                          IntegerLiteral
+                            PsiElement(integer)('1')
+                      PsiElement(])(']')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: Int
-                  CodeReferenceElement: Int
-                    PsiElement(identifier)('Int')
+                TypeArgument
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
                 PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScMatchTypeCaseImpl(match type case)
@@ -544,29 +568,33 @@ ScalaFile
                   PsiElement(identifier)('Count1')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: int.-[N, 1]
-                  SimpleType: int.-
-                    CodeReferenceElement: int.-
-                      CodeReferenceElement: int
-                        PsiElement(identifier)('int')
-                      PsiElement(.)('.')
-                      PsiElement(identifier)('-')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: N
-                      CodeReferenceElement: N
-                        PsiElement(identifier)('N')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    LiteralType: 1
-                      IntegerLiteral
-                        PsiElement(integer)('1')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: int.-[N, 1]
+                    SimpleType: int.-
+                      CodeReferenceElement: int.-
+                        CodeReferenceElement: int
+                          PsiElement(identifier)('int')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('-')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: N
+                          CodeReferenceElement: N
+                            PsiElement(identifier)('N')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        LiteralType: 1
+                          IntegerLiteral
+                            PsiElement(integer)('1')
+                      PsiElement(])(']')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: Float
-                  CodeReferenceElement: Float
-                    PsiElement(identifier)('Float')
+                TypeArgument
+                  SimpleType: Float
+                    CodeReferenceElement: Float
+                      PsiElement(identifier)('Float')
                 PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScMatchTypeCaseImpl(match type case)
@@ -600,29 +628,33 @@ ScalaFile
                   PsiElement(identifier)('Count1')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: int.-[N, 1]
-                  SimpleType: int.-
-                    CodeReferenceElement: int.-
-                      CodeReferenceElement: int
-                        PsiElement(identifier)('int')
-                      PsiElement(.)('.')
-                      PsiElement(identifier)('-')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: N
-                      CodeReferenceElement: N
-                        PsiElement(identifier)('N')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    LiteralType: 1
-                      IntegerLiteral
-                        PsiElement(integer)('1')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: int.-[N, 1]
+                    SimpleType: int.-
+                      CodeReferenceElement: int.-
+                        CodeReferenceElement: int
+                          PsiElement(identifier)('int')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('-')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: N
+                          CodeReferenceElement: N
+                            PsiElement(identifier)('N')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        LiteralType: 1
+                          IntegerLiteral
+                            PsiElement(integer)('1')
+                      PsiElement(])(']')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: Double
-                  CodeReferenceElement: Double
-                    PsiElement(identifier)('Double')
+                TypeArgument
+                  SimpleType: Double
+                    CodeReferenceElement: Double
+                      PsiElement(identifier)('Double')
                 PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScFunctionDefinition: t01
@@ -643,37 +675,40 @@ ScalaFile
         PsiElement(identifier)('summon')
       TypeArgumentsList
         PsiElement([)('[')
-        InfixType: Count0[1, Int] =:= Int *: EmptyTuple
-          ParametrizedType: Count0[1, Int]
-            SimpleType: Count0
-              CodeReferenceElement: Count0
-                PsiElement(identifier)('Count0')
-            TypeArgumentsList
-              PsiElement([)('[')
-              LiteralType: 1
-                IntegerLiteral
-                  PsiElement(integer)('1')
-              PsiElement(,)(',')
-              PsiWhiteSpace(' ')
+        TypeArgument
+          InfixType: Count0[1, Int] =:= Int *: EmptyTuple
+            ParametrizedType: Count0[1, Int]
+              SimpleType: Count0
+                CodeReferenceElement: Count0
+                  PsiElement(identifier)('Count0')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  LiteralType: 1
+                    IntegerLiteral
+                      PsiElement(integer)('1')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeArgument
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: =:=
+              PsiElement(identifier)('=:=')
+            PsiWhiteSpace(' ')
+            InfixType: Int *: EmptyTuple
               SimpleType: Int
                 CodeReferenceElement: Int
                   PsiElement(identifier)('Int')
-              PsiElement(])(']')
-          PsiWhiteSpace(' ')
-          CodeReferenceElement: =:=
-            PsiElement(identifier)('=:=')
-          PsiWhiteSpace(' ')
-          InfixType: Int *: EmptyTuple
-            SimpleType: Int
-              CodeReferenceElement: Int
-                PsiElement(identifier)('Int')
-            PsiWhiteSpace(' ')
-            CodeReferenceElement: *:
-              PsiElement(identifier)('*:')
-            PsiWhiteSpace(' ')
-            SimpleType: EmptyTuple
-              CodeReferenceElement: EmptyTuple
-                PsiElement(identifier)('EmptyTuple')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: *:
+                PsiElement(identifier)('*:')
+              PsiWhiteSpace(' ')
+              SimpleType: EmptyTuple
+                CodeReferenceElement: EmptyTuple
+                  PsiElement(identifier)('EmptyTuple')
         PsiWhiteSpace(' ')
         PsiElement(])(']')
   PsiWhiteSpace('\n')
@@ -695,92 +730,28 @@ ScalaFile
         PsiElement(identifier)('summon')
       TypeArgumentsList
         PsiElement([)('[')
-        InfixType: Count0[2, Int] =:= Int *: Int *: EmptyTuple
-          ParametrizedType: Count0[2, Int]
-            SimpleType: Count0
-              CodeReferenceElement: Count0
-                PsiElement(identifier)('Count0')
-            TypeArgumentsList
-              PsiElement([)('[')
-              LiteralType: 2
-                IntegerLiteral
-                  PsiElement(integer)('2')
-              PsiElement(,)(',')
-              PsiWhiteSpace(' ')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
-              PsiElement(])(']')
-          PsiWhiteSpace(' ')
-          CodeReferenceElement: =:=
-            PsiElement(identifier)('=:=')
-          PsiWhiteSpace(' ')
-          InfixType: Int *: Int *: EmptyTuple
-            SimpleType: Int
-              CodeReferenceElement: Int
-                PsiElement(identifier)('Int')
+        TypeArgument
+          InfixType: Count0[2, Int] =:= Int *: Int *: EmptyTuple
+            ParametrizedType: Count0[2, Int]
+              SimpleType: Count0
+                CodeReferenceElement: Count0
+                  PsiElement(identifier)('Count0')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  LiteralType: 2
+                    IntegerLiteral
+                      PsiElement(integer)('2')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeArgument
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiElement(])(']')
             PsiWhiteSpace(' ')
-            CodeReferenceElement: *:
-              PsiElement(identifier)('*:')
-            PsiWhiteSpace(' ')
-            InfixType: Int *: EmptyTuple
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
-              PsiWhiteSpace(' ')
-              CodeReferenceElement: *:
-                PsiElement(identifier)('*:')
-              PsiWhiteSpace(' ')
-              SimpleType: EmptyTuple
-                CodeReferenceElement: EmptyTuple
-                  PsiElement(identifier)('EmptyTuple')
-        PsiElement(])(']')
-  PsiWhiteSpace('\n')
-  ScFunctionDefinition: t03
-    AnnotationsList
-      <empty list>
-    Modifiers
-      <empty list>
-    PsiElement(def)('def')
-    PsiWhiteSpace(' ')
-    PsiElement(identifier)('t03')
-    Parameters
-      <empty list>
-    PsiWhiteSpace(' ')
-    PsiElement(=)('=')
-    PsiWhiteSpace(' ')
-    GenericCall
-      ReferenceExpression: summon
-        PsiElement(identifier)('summon')
-      TypeArgumentsList
-        PsiElement([)('[')
-        InfixType: Count0[3, Int] =:= Int *: Int *: Int *: EmptyTuple
-          ParametrizedType: Count0[3, Int]
-            SimpleType: Count0
-              CodeReferenceElement: Count0
-                PsiElement(identifier)('Count0')
-            TypeArgumentsList
-              PsiElement([)('[')
-              LiteralType: 3
-                IntegerLiteral
-                  PsiElement(integer)('3')
-              PsiElement(,)(',')
-              PsiWhiteSpace(' ')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
-              PsiElement(])(']')
-          PsiWhiteSpace(' ')
-          CodeReferenceElement: =:=
-            PsiElement(identifier)('=:=')
-          PsiWhiteSpace(' ')
-          InfixType: Int *: Int *: Int *: EmptyTuple
-            SimpleType: Int
-              CodeReferenceElement: Int
-                PsiElement(identifier)('Int')
-            PsiWhiteSpace(' ')
-            CodeReferenceElement: *:
-              PsiElement(identifier)('*:')
+            CodeReferenceElement: =:=
+              PsiElement(identifier)('=:=')
             PsiWhiteSpace(' ')
             InfixType: Int *: Int *: EmptyTuple
               SimpleType: Int
@@ -803,14 +774,14 @@ ScalaFile
                     PsiElement(identifier)('EmptyTuple')
         PsiElement(])(']')
   PsiWhiteSpace('\n')
-  ScFunctionDefinition: t04
+  ScFunctionDefinition: t03
     AnnotationsList
       <empty list>
     Modifiers
       <empty list>
     PsiElement(def)('def')
     PsiWhiteSpace(' ')
-    PsiElement(identifier)('t04')
+    PsiElement(identifier)('t03')
     Parameters
       <empty list>
     PsiWhiteSpace(' ')
@@ -821,33 +792,28 @@ ScalaFile
         PsiElement(identifier)('summon')
       TypeArgumentsList
         PsiElement([)('[')
-        InfixType: Count0[4, Int] =:= Int *: Int *: Int *: Int *: EmptyTuple
-          ParametrizedType: Count0[4, Int]
-            SimpleType: Count0
-              CodeReferenceElement: Count0
-                PsiElement(identifier)('Count0')
-            TypeArgumentsList
-              PsiElement([)('[')
-              LiteralType: 4
-                IntegerLiteral
-                  PsiElement(integer)('4')
-              PsiElement(,)(',')
-              PsiWhiteSpace(' ')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
-              PsiElement(])(']')
-          PsiWhiteSpace(' ')
-          CodeReferenceElement: =:=
-            PsiElement(identifier)('=:=')
-          PsiWhiteSpace(' ')
-          InfixType: Int *: Int *: Int *: Int *: EmptyTuple
-            SimpleType: Int
-              CodeReferenceElement: Int
-                PsiElement(identifier)('Int')
+        TypeArgument
+          InfixType: Count0[3, Int] =:= Int *: Int *: Int *: EmptyTuple
+            ParametrizedType: Count0[3, Int]
+              SimpleType: Count0
+                CodeReferenceElement: Count0
+                  PsiElement(identifier)('Count0')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  LiteralType: 3
+                    IntegerLiteral
+                      PsiElement(integer)('3')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeArgument
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiElement(])(']')
             PsiWhiteSpace(' ')
-            CodeReferenceElement: *:
-              PsiElement(identifier)('*:')
+            CodeReferenceElement: =:=
+              PsiElement(identifier)('=:=')
             PsiWhiteSpace(' ')
             InfixType: Int *: Int *: Int *: EmptyTuple
               SimpleType: Int
@@ -878,14 +844,14 @@ ScalaFile
                       PsiElement(identifier)('EmptyTuple')
         PsiElement(])(']')
   PsiWhiteSpace('\n')
-  ScFunctionDefinition: t05
+  ScFunctionDefinition: t04
     AnnotationsList
       <empty list>
     Modifiers
       <empty list>
     PsiElement(def)('def')
     PsiWhiteSpace(' ')
-    PsiElement(identifier)('t05')
+    PsiElement(identifier)('t04')
     Parameters
       <empty list>
     PsiWhiteSpace(' ')
@@ -896,33 +862,28 @@ ScalaFile
         PsiElement(identifier)('summon')
       TypeArgumentsList
         PsiElement([)('[')
-        InfixType: Count0[5, Int] =:= Int *: Int *: Int *: Int *: Int *: EmptyTuple
-          ParametrizedType: Count0[5, Int]
-            SimpleType: Count0
-              CodeReferenceElement: Count0
-                PsiElement(identifier)('Count0')
-            TypeArgumentsList
-              PsiElement([)('[')
-              LiteralType: 5
-                IntegerLiteral
-                  PsiElement(integer)('5')
-              PsiElement(,)(',')
-              PsiWhiteSpace(' ')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
-              PsiElement(])(']')
-          PsiWhiteSpace(' ')
-          CodeReferenceElement: =:=
-            PsiElement(identifier)('=:=')
-          PsiWhiteSpace(' ')
-          InfixType: Int *: Int *: Int *: Int *: Int *: EmptyTuple
-            SimpleType: Int
-              CodeReferenceElement: Int
-                PsiElement(identifier)('Int')
+        TypeArgument
+          InfixType: Count0[4, Int] =:= Int *: Int *: Int *: Int *: EmptyTuple
+            ParametrizedType: Count0[4, Int]
+              SimpleType: Count0
+                CodeReferenceElement: Count0
+                  PsiElement(identifier)('Count0')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  LiteralType: 4
+                    IntegerLiteral
+                      PsiElement(integer)('4')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeArgument
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiElement(])(']')
             PsiWhiteSpace(' ')
-            CodeReferenceElement: *:
-              PsiElement(identifier)('*:')
+            CodeReferenceElement: =:=
+              PsiElement(identifier)('=:=')
             PsiWhiteSpace(' ')
             InfixType: Int *: Int *: Int *: Int *: EmptyTuple
               SimpleType: Int
@@ -960,6 +921,92 @@ ScalaFile
                       CodeReferenceElement: EmptyTuple
                         PsiElement(identifier)('EmptyTuple')
         PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: t05
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('t05')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: summon
+        PsiElement(identifier)('summon')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          InfixType: Count0[5, Int] =:= Int *: Int *: Int *: Int *: Int *: EmptyTuple
+            ParametrizedType: Count0[5, Int]
+              SimpleType: Count0
+                CodeReferenceElement: Count0
+                  PsiElement(identifier)('Count0')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  LiteralType: 5
+                    IntegerLiteral
+                      PsiElement(integer)('5')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeArgument
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: =:=
+              PsiElement(identifier)('=:=')
+            PsiWhiteSpace(' ')
+            InfixType: Int *: Int *: Int *: Int *: Int *: EmptyTuple
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: *:
+                PsiElement(identifier)('*:')
+              PsiWhiteSpace(' ')
+              InfixType: Int *: Int *: Int *: Int *: EmptyTuple
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: *:
+                  PsiElement(identifier)('*:')
+                PsiWhiteSpace(' ')
+                InfixType: Int *: Int *: Int *: EmptyTuple
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: *:
+                    PsiElement(identifier)('*:')
+                  PsiWhiteSpace(' ')
+                  InfixType: Int *: Int *: EmptyTuple
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: *:
+                      PsiElement(identifier)('*:')
+                    PsiWhiteSpace(' ')
+                    InfixType: Int *: EmptyTuple
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: *:
+                        PsiElement(identifier)('*:')
+                      PsiWhiteSpace(' ')
+                      SimpleType: EmptyTuple
+                        CodeReferenceElement: EmptyTuple
+                          PsiElement(identifier)('EmptyTuple')
+        PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScFunctionDefinition: t11
     AnnotationsList
@@ -979,37 +1026,40 @@ ScalaFile
         PsiElement(identifier)('summon')
       TypeArgumentsList
         PsiElement([)('[')
-        InfixType: Count1[1, Int] =:= Int *: EmptyTuple
-          ParametrizedType: Count1[1, Int]
-            SimpleType: Count1
-              CodeReferenceElement: Count1
-                PsiElement(identifier)('Count1')
-            TypeArgumentsList
-              PsiElement([)('[')
-              LiteralType: 1
-                IntegerLiteral
-                  PsiElement(integer)('1')
-              PsiElement(,)(',')
-              PsiWhiteSpace(' ')
+        TypeArgument
+          InfixType: Count1[1, Int] =:= Int *: EmptyTuple
+            ParametrizedType: Count1[1, Int]
+              SimpleType: Count1
+                CodeReferenceElement: Count1
+                  PsiElement(identifier)('Count1')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  LiteralType: 1
+                    IntegerLiteral
+                      PsiElement(integer)('1')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeArgument
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: =:=
+              PsiElement(identifier)('=:=')
+            PsiWhiteSpace(' ')
+            InfixType: Int *: EmptyTuple
               SimpleType: Int
                 CodeReferenceElement: Int
                   PsiElement(identifier)('Int')
-              PsiElement(])(']')
-          PsiWhiteSpace(' ')
-          CodeReferenceElement: =:=
-            PsiElement(identifier)('=:=')
-          PsiWhiteSpace(' ')
-          InfixType: Int *: EmptyTuple
-            SimpleType: Int
-              CodeReferenceElement: Int
-                PsiElement(identifier)('Int')
-            PsiWhiteSpace(' ')
-            CodeReferenceElement: *:
-              PsiElement(identifier)('*:')
-            PsiWhiteSpace(' ')
-            SimpleType: EmptyTuple
-              CodeReferenceElement: EmptyTuple
-                PsiElement(identifier)('EmptyTuple')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: *:
+                PsiElement(identifier)('*:')
+              PsiWhiteSpace(' ')
+              SimpleType: EmptyTuple
+                CodeReferenceElement: EmptyTuple
+                  PsiElement(identifier)('EmptyTuple')
         PsiWhiteSpace(' ')
         PsiElement(])(']')
   PsiWhiteSpace('\n')
@@ -1031,92 +1081,28 @@ ScalaFile
         PsiElement(identifier)('summon')
       TypeArgumentsList
         PsiElement([)('[')
-        InfixType: Count1[2, Int] =:= Int *: Int *: EmptyTuple
-          ParametrizedType: Count1[2, Int]
-            SimpleType: Count1
-              CodeReferenceElement: Count1
-                PsiElement(identifier)('Count1')
-            TypeArgumentsList
-              PsiElement([)('[')
-              LiteralType: 2
-                IntegerLiteral
-                  PsiElement(integer)('2')
-              PsiElement(,)(',')
-              PsiWhiteSpace(' ')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
-              PsiElement(])(']')
-          PsiWhiteSpace(' ')
-          CodeReferenceElement: =:=
-            PsiElement(identifier)('=:=')
-          PsiWhiteSpace(' ')
-          InfixType: Int *: Int *: EmptyTuple
-            SimpleType: Int
-              CodeReferenceElement: Int
-                PsiElement(identifier)('Int')
+        TypeArgument
+          InfixType: Count1[2, Int] =:= Int *: Int *: EmptyTuple
+            ParametrizedType: Count1[2, Int]
+              SimpleType: Count1
+                CodeReferenceElement: Count1
+                  PsiElement(identifier)('Count1')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  LiteralType: 2
+                    IntegerLiteral
+                      PsiElement(integer)('2')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeArgument
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiElement(])(']')
             PsiWhiteSpace(' ')
-            CodeReferenceElement: *:
-              PsiElement(identifier)('*:')
-            PsiWhiteSpace(' ')
-            InfixType: Int *: EmptyTuple
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
-              PsiWhiteSpace(' ')
-              CodeReferenceElement: *:
-                PsiElement(identifier)('*:')
-              PsiWhiteSpace(' ')
-              SimpleType: EmptyTuple
-                CodeReferenceElement: EmptyTuple
-                  PsiElement(identifier)('EmptyTuple')
-        PsiElement(])(']')
-  PsiWhiteSpace('\n')
-  ScFunctionDefinition: t13
-    AnnotationsList
-      <empty list>
-    Modifiers
-      <empty list>
-    PsiElement(def)('def')
-    PsiWhiteSpace(' ')
-    PsiElement(identifier)('t13')
-    Parameters
-      <empty list>
-    PsiWhiteSpace(' ')
-    PsiElement(=)('=')
-    PsiWhiteSpace(' ')
-    GenericCall
-      ReferenceExpression: summon
-        PsiElement(identifier)('summon')
-      TypeArgumentsList
-        PsiElement([)('[')
-        InfixType: Count1[3, Int] =:= Int *: Int *: Int *: EmptyTuple
-          ParametrizedType: Count1[3, Int]
-            SimpleType: Count1
-              CodeReferenceElement: Count1
-                PsiElement(identifier)('Count1')
-            TypeArgumentsList
-              PsiElement([)('[')
-              LiteralType: 3
-                IntegerLiteral
-                  PsiElement(integer)('3')
-              PsiElement(,)(',')
-              PsiWhiteSpace(' ')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
-              PsiElement(])(']')
-          PsiWhiteSpace(' ')
-          CodeReferenceElement: =:=
-            PsiElement(identifier)('=:=')
-          PsiWhiteSpace(' ')
-          InfixType: Int *: Int *: Int *: EmptyTuple
-            SimpleType: Int
-              CodeReferenceElement: Int
-                PsiElement(identifier)('Int')
-            PsiWhiteSpace(' ')
-            CodeReferenceElement: *:
-              PsiElement(identifier)('*:')
+            CodeReferenceElement: =:=
+              PsiElement(identifier)('=:=')
             PsiWhiteSpace(' ')
             InfixType: Int *: Int *: EmptyTuple
               SimpleType: Int
@@ -1137,6 +1123,76 @@ ScalaFile
                 SimpleType: EmptyTuple
                   CodeReferenceElement: EmptyTuple
                     PsiElement(identifier)('EmptyTuple')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: t13
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('t13')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: summon
+        PsiElement(identifier)('summon')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          InfixType: Count1[3, Int] =:= Int *: Int *: Int *: EmptyTuple
+            ParametrizedType: Count1[3, Int]
+              SimpleType: Count1
+                CodeReferenceElement: Count1
+                  PsiElement(identifier)('Count1')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  LiteralType: 3
+                    IntegerLiteral
+                      PsiElement(integer)('3')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeArgument
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: =:=
+              PsiElement(identifier)('=:=')
+            PsiWhiteSpace(' ')
+            InfixType: Int *: Int *: Int *: EmptyTuple
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: *:
+                PsiElement(identifier)('*:')
+              PsiWhiteSpace(' ')
+              InfixType: Int *: Int *: EmptyTuple
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: *:
+                  PsiElement(identifier)('*:')
+                PsiWhiteSpace(' ')
+                InfixType: Int *: EmptyTuple
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: *:
+                    PsiElement(identifier)('*:')
+                  PsiWhiteSpace(' ')
+                  SimpleType: EmptyTuple
+                    CodeReferenceElement: EmptyTuple
+                      PsiElement(identifier)('EmptyTuple')
         PsiElement(])(']')
   PsiWhiteSpace(' ')
   PsiComment(comment)('// was: Fail from here')
@@ -1159,108 +1215,28 @@ ScalaFile
         PsiElement(identifier)('summon')
       TypeArgumentsList
         PsiElement([)('[')
-        InfixType: Count1[4, Int] =:= Int *: Int *: Int *: Int *: EmptyTuple
-          ParametrizedType: Count1[4, Int]
-            SimpleType: Count1
-              CodeReferenceElement: Count1
-                PsiElement(identifier)('Count1')
-            TypeArgumentsList
-              PsiElement([)('[')
-              LiteralType: 4
-                IntegerLiteral
-                  PsiElement(integer)('4')
-              PsiElement(,)(',')
-              PsiWhiteSpace(' ')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
-              PsiElement(])(']')
-          PsiWhiteSpace(' ')
-          CodeReferenceElement: =:=
-            PsiElement(identifier)('=:=')
-          PsiWhiteSpace(' ')
-          InfixType: Int *: Int *: Int *: Int *: EmptyTuple
-            SimpleType: Int
-              CodeReferenceElement: Int
-                PsiElement(identifier)('Int')
-            PsiWhiteSpace(' ')
-            CodeReferenceElement: *:
-              PsiElement(identifier)('*:')
-            PsiWhiteSpace(' ')
-            InfixType: Int *: Int *: Int *: EmptyTuple
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
-              PsiWhiteSpace(' ')
-              CodeReferenceElement: *:
-                PsiElement(identifier)('*:')
-              PsiWhiteSpace(' ')
-              InfixType: Int *: Int *: EmptyTuple
-                SimpleType: Int
-                  CodeReferenceElement: Int
-                    PsiElement(identifier)('Int')
+        TypeArgument
+          InfixType: Count1[4, Int] =:= Int *: Int *: Int *: Int *: EmptyTuple
+            ParametrizedType: Count1[4, Int]
+              SimpleType: Count1
+                CodeReferenceElement: Count1
+                  PsiElement(identifier)('Count1')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  LiteralType: 4
+                    IntegerLiteral
+                      PsiElement(integer)('4')
+                PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                CodeReferenceElement: *:
-                  PsiElement(identifier)('*:')
-                PsiWhiteSpace(' ')
-                InfixType: Int *: EmptyTuple
+                TypeArgument
                   SimpleType: Int
                     CodeReferenceElement: Int
                       PsiElement(identifier)('Int')
-                  PsiWhiteSpace(' ')
-                  CodeReferenceElement: *:
-                    PsiElement(identifier)('*:')
-                  PsiWhiteSpace(' ')
-                  SimpleType: EmptyTuple
-                    CodeReferenceElement: EmptyTuple
-                      PsiElement(identifier)('EmptyTuple')
-        PsiElement(])(']')
-  PsiWhiteSpace('\n')
-  ScFunctionDefinition: t15
-    AnnotationsList
-      <empty list>
-    Modifiers
-      <empty list>
-    PsiElement(def)('def')
-    PsiWhiteSpace(' ')
-    PsiElement(identifier)('t15')
-    Parameters
-      <empty list>
-    PsiWhiteSpace(' ')
-    PsiElement(=)('=')
-    PsiWhiteSpace(' ')
-    GenericCall
-      ReferenceExpression: summon
-        PsiElement(identifier)('summon')
-      TypeArgumentsList
-        PsiElement([)('[')
-        InfixType: Count1[5, Int] =:= Int *: Int *: Int *: Int *: Int *: EmptyTuple
-          ParametrizedType: Count1[5, Int]
-            SimpleType: Count1
-              CodeReferenceElement: Count1
-                PsiElement(identifier)('Count1')
-            TypeArgumentsList
-              PsiElement([)('[')
-              LiteralType: 5
-                IntegerLiteral
-                  PsiElement(integer)('5')
-              PsiElement(,)(',')
-              PsiWhiteSpace(' ')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
-              PsiElement(])(']')
-          PsiWhiteSpace(' ')
-          CodeReferenceElement: =:=
-            PsiElement(identifier)('=:=')
-          PsiWhiteSpace(' ')
-          InfixType: Int *: Int *: Int *: Int *: Int *: EmptyTuple
-            SimpleType: Int
-              CodeReferenceElement: Int
-                PsiElement(identifier)('Int')
+                PsiElement(])(']')
             PsiWhiteSpace(' ')
-            CodeReferenceElement: *:
-              PsiElement(identifier)('*:')
+            CodeReferenceElement: =:=
+              PsiElement(identifier)('=:=')
             PsiWhiteSpace(' ')
             InfixType: Int *: Int *: Int *: Int *: EmptyTuple
               SimpleType: Int
@@ -1297,4 +1273,90 @@ ScalaFile
                     SimpleType: EmptyTuple
                       CodeReferenceElement: EmptyTuple
                         PsiElement(identifier)('EmptyTuple')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: t15
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('t15')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: summon
+        PsiElement(identifier)('summon')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          InfixType: Count1[5, Int] =:= Int *: Int *: Int *: Int *: Int *: EmptyTuple
+            ParametrizedType: Count1[5, Int]
+              SimpleType: Count1
+                CodeReferenceElement: Count1
+                  PsiElement(identifier)('Count1')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  LiteralType: 5
+                    IntegerLiteral
+                      PsiElement(integer)('5')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeArgument
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: =:=
+              PsiElement(identifier)('=:=')
+            PsiWhiteSpace(' ')
+            InfixType: Int *: Int *: Int *: Int *: Int *: EmptyTuple
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: *:
+                PsiElement(identifier)('*:')
+              PsiWhiteSpace(' ')
+              InfixType: Int *: Int *: Int *: Int *: EmptyTuple
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: *:
+                  PsiElement(identifier)('*:')
+                PsiWhiteSpace(' ')
+                InfixType: Int *: Int *: Int *: EmptyTuple
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: *:
+                    PsiElement(identifier)('*:')
+                  PsiWhiteSpace(' ')
+                  InfixType: Int *: Int *: EmptyTuple
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: *:
+                      PsiElement(identifier)('*:')
+                    PsiWhiteSpace(' ')
+                    InfixType: Int *: EmptyTuple
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: *:
+                        PsiElement(identifier)('*:')
+                      PsiWhiteSpace(' ')
+                      SimpleType: EmptyTuple
+                        CodeReferenceElement: EmptyTuple
+                          PsiElement(identifier)('EmptyTuple')
         PsiElement(])(']')

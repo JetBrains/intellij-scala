@@ -64,9 +64,10 @@ ScalaFile
                   PsiElement(identifier)('ExtractValue')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: E
-                  CodeReferenceElement: E
-                    PsiElement(identifier)('E')
+                TypeArgument
+                  SimpleType: E
+                    CodeReferenceElement: E
+                      PsiElement(identifier)('E')
                 PsiElement(])(']')
     PsiWhiteSpace('\n')
     ScClass: BIExpr
@@ -138,9 +139,10 @@ ScalaFile
                   PsiElement(identifier)('TC')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: BIExpr
-                  CodeReferenceElement: BIExpr
-                    PsiElement(identifier)('BIExpr')
+                TypeArgument
+                  SimpleType: BIExpr
+                    CodeReferenceElement: BIExpr
+                      PsiElement(identifier)('BIExpr')
                 PsiElement(])(']')
         ScTemplateBody
           PsiElement(:)(':')

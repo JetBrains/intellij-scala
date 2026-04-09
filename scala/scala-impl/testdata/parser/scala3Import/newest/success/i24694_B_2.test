@@ -31,16 +31,18 @@ ScalaFile
                   PsiElement(identifier)('Option')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: List[XmlEvent]
-                  SimpleType: List
-                    CodeReferenceElement: List
-                      PsiElement(identifier)('List')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: XmlEvent
-                      CodeReferenceElement: XmlEvent
-                        PsiElement(identifier)('XmlEvent')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: List[XmlEvent]
+                    SimpleType: List
+                      CodeReferenceElement: List
+                        PsiElement(identifier)('List')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: XmlEvent
+                          CodeReferenceElement: XmlEvent
+                            PsiElement(identifier)('XmlEvent')
+                      PsiElement(])(']')
                 PsiElement(])(']')
         PsiElement())(')')
     PsiWhiteSpace(' ')
@@ -76,9 +78,10 @@ ScalaFile
                 PsiElement(identifier)('empty')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: XmlEvent
-                  CodeReferenceElement: XmlEvent
-                    PsiElement(identifier)('XmlEvent')
+                TypeArgument
+                  SimpleType: XmlEvent
+                    CodeReferenceElement: XmlEvent
+                      PsiElement(identifier)('XmlEvent')
                 PsiElement(])(']')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
@@ -137,9 +140,10 @@ ScalaFile
                           PsiElement(identifier)('empty')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: XmlEvent
-                            CodeReferenceElement: XmlEvent
-                              PsiElement(identifier)('XmlEvent')
+                          TypeArgument
+                            SimpleType: XmlEvent
+                              CodeReferenceElement: XmlEvent
+                                PsiElement(identifier)('XmlEvent')
                           PsiElement(])(']')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')

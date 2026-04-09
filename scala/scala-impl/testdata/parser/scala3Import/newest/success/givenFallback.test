@@ -104,9 +104,10 @@ ScalaFile
                 PsiElement(identifier)('TC')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
       ScTemplateBody
         PsiElement(:)(':')
@@ -146,9 +147,10 @@ ScalaFile
                 PsiElement(identifier)('TC')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
+              TypeArgument
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
               PsiElement(])(']')
       ScTemplateBody
         PsiElement(:)(':')
@@ -234,16 +236,18 @@ ScalaFile
                 PsiElement(identifier)('summon')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: TC[Int]
-                  SimpleType: TC
-                    CodeReferenceElement: TC
-                      PsiElement(identifier)('TC')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: Int
-                      CodeReferenceElement: Int
-                        PsiElement(identifier)('Int')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: TC[Int]
+                    SimpleType: TC
+                      CodeReferenceElement: TC
+                        PsiElement(identifier)('TC')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement(])(']')
                 PsiElement(])(']')
             PsiElement(.)('.')
             PsiElement(identifier)('x')
@@ -272,16 +276,18 @@ ScalaFile
                 PsiElement(identifier)('summon')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: TC[Int]
-                  SimpleType: TC
-                    CodeReferenceElement: TC
-                      PsiElement(identifier)('TC')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: Int
-                      CodeReferenceElement: Int
-                        PsiElement(identifier)('Int')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: TC[Int]
+                    SimpleType: TC
+                      CodeReferenceElement: TC
+                        PsiElement(identifier)('TC')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement(])(']')
                 PsiElement(])(']')
             PsiElement(.)('.')
             PsiElement(identifier)('y')

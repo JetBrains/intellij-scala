@@ -131,35 +131,37 @@ ScalaFile
                       PsiElement(identifier)('Reader')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    CompoundType: A { type Q = X }
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
-                      PsiWhiteSpace(' ')
-                      Refinement
-                        PsiElement({)('{')
+                    TypeArgument
+                      CompoundType: A { type Q = X }
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                         PsiWhiteSpace(' ')
-                        ScTypeAliasDefinition: Q
-                          AnnotationsList
-                            <empty list>
-                          Modifiers
-                            <empty list>
-                          PsiElement(type)('type')
+                        Refinement
+                          PsiElement({)('{')
                           PsiWhiteSpace(' ')
-                          PsiElement(identifier)('Q')
+                          ScTypeAliasDefinition: Q
+                            AnnotationsList
+                              <empty list>
+                            Modifiers
+                              <empty list>
+                            PsiElement(type)('type')
+                            PsiWhiteSpace(' ')
+                            PsiElement(identifier)('Q')
+                            PsiWhiteSpace(' ')
+                            PsiElement(=)('=')
+                            PsiWhiteSpace(' ')
+                            SimpleType: X
+                              CodeReferenceElement: X
+                                PsiElement(identifier)('X')
                           PsiWhiteSpace(' ')
-                          PsiElement(=)('=')
-                          PsiWhiteSpace(' ')
-                          SimpleType: X
-                            CodeReferenceElement: X
-                              PsiElement(identifier)('X')
-                        PsiWhiteSpace(' ')
-                        PsiElement(})('}')
+                          PsiElement(})('}')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    SimpleType: X
-                      CodeReferenceElement: X
-                        PsiElement(identifier)('X')
+                    TypeArgument
+                      SimpleType: X
+                        CodeReferenceElement: X
+                          PsiElement(identifier)('X')
                     PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(with)('with')
@@ -259,21 +261,24 @@ ScalaFile
               PsiElement(identifier)('summonInline')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Reader[BC, Int]
-                SimpleType: Reader
-                  CodeReferenceElement: Reader
-                    PsiElement(identifier)('Reader')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: BC
-                    CodeReferenceElement: BC
-                      PsiElement(identifier)('BC')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Reader[BC, Int]
+                  SimpleType: Reader
+                    CodeReferenceElement: Reader
+                      PsiElement(identifier)('Reader')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: BC
+                        CodeReferenceElement: BC
+                          PsiElement(identifier)('BC')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                    PsiElement(])(']')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScFunctionDefinition: t1
@@ -301,21 +306,24 @@ ScalaFile
               PsiElement(identifier)('summonInline')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Reader[BC, Int]
-                SimpleType: Reader
-                  CodeReferenceElement: Reader
-                    PsiElement(identifier)('Reader')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: BC
-                    CodeReferenceElement: BC
-                      PsiElement(identifier)('BC')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Reader[BC, Int]
+                  SimpleType: Reader
+                    CodeReferenceElement: Reader
+                      PsiElement(identifier)('Reader')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: BC
+                        CodeReferenceElement: BC
+                          PsiElement(identifier)('BC')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                    PsiElement(])(']')
               PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiComment(comment)('// ok')

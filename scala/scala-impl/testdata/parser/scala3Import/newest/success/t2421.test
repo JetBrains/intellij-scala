@@ -170,9 +170,10 @@ ScalaFile
                     PsiElement(identifier)('Forcible')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
+                  TypeArgument
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
                   PsiElement(])(']')
             PsiElement())(')')
           PsiWhiteSpace(' ')
@@ -211,9 +212,10 @@ ScalaFile
                     PsiElement(identifier)('Forcible')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
+                  TypeArgument
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
                   PsiElement(])(']')
             PsiElement(])(']')
           Parameters

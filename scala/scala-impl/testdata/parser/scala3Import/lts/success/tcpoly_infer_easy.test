@@ -45,9 +45,10 @@ ScalaFile
                     PsiElement(identifier)('Iterable')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: X
-                    CodeReferenceElement: X
-                      PsiElement(identifier)('X')
+                  TypeArgument
+                    SimpleType: X
+                      CodeReferenceElement: X
+                        PsiElement(identifier)('X')
                   PsiElement(])(']')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
@@ -72,9 +73,10 @@ ScalaFile
                         PsiElement(identifier)('CC')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -85,9 +87,10 @@ ScalaFile
                 PsiElement(identifier)('CC')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -144,9 +147,10 @@ ScalaFile
                 PsiElement(identifier)('List')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
+              TypeArgument
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

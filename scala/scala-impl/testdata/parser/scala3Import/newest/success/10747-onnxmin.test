@@ -581,14 +581,16 @@ ScalaFile
                             PsiElement(identifier)('CContains')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: tail
-                            CodeReferenceElement: tail
-                              PsiElement(identifier)('tail')
+                          TypeArgument
+                            SimpleType: tail
+                              CodeReferenceElement: tail
+                                PsiElement(identifier)('tail')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
-                          SimpleType: Needle
-                            CodeReferenceElement: Needle
-                              PsiElement(identifier)('Needle')
+                          TypeArgument
+                            SimpleType: Needle
+                              CodeReferenceElement: Needle
+                                PsiElement(identifier)('Needle')
                           PsiElement(])(']')
                   PsiWhiteSpace('\n    ')
                   PsiElement(})('}')
@@ -714,14 +716,16 @@ ScalaFile
                         PsiElement(identifier)('CContains')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: AxisIndex
-                        CodeReferenceElement: AxisIndex
-                          PsiElement(identifier)('AxisIndex')
+                      TypeArgument
+                        SimpleType: AxisIndex
+                          CodeReferenceElement: AxisIndex
+                            PsiElement(identifier)('AxisIndex')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: I
-                        CodeReferenceElement: I
-                          PsiElement(identifier)('I')
+                      TypeArgument
+                        SimpleType: I
+                          CodeReferenceElement: I
+                            PsiElement(identifier)('I')
                       PsiElement(])(']')
                   PsiWhiteSpace(' ')
                   PsiElement(match)('match')
@@ -839,48 +843,52 @@ ScalaFile
                 PsiElement(identifier)('AddGivenAxisSizeLoop')
             TypeArgumentsList
               PsiElement([)('[')
-              InfixType: Dimension #: Shape
-                SimpleType: Dimension
-                  CodeReferenceElement: Dimension
-                    PsiElement(identifier)('Dimension')
-                PsiWhiteSpace(' ')
-                CodeReferenceElement: #:
-                  PsiElement(identifier)('#:')
-                PsiWhiteSpace(' ')
-                SimpleType: Shape
-                  CodeReferenceElement: Shape
-                    PsiElement(identifier)('Shape')
+              TypeArgument
+                InfixType: Dimension #: Shape
+                  SimpleType: Dimension
+                    CodeReferenceElement: Dimension
+                      PsiElement(identifier)('Dimension')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: #:
+                    PsiElement(identifier)('#:')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Shape
+                    CodeReferenceElement: Shape
+                      PsiElement(identifier)('Shape')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              InfixType: Dimension #: Shape
-                SimpleType: Dimension
-                  CodeReferenceElement: Dimension
-                    PsiElement(identifier)('Dimension')
-                PsiWhiteSpace(' ')
-                CodeReferenceElement: #:
-                  PsiElement(identifier)('#:')
-                PsiWhiteSpace(' ')
-                SimpleType: Shape
-                  CodeReferenceElement: Shape
-                    PsiElement(identifier)('Shape')
+              TypeArgument
+                InfixType: Dimension #: Shape
+                  SimpleType: Dimension
+                    CodeReferenceElement: Dimension
+                      PsiElement(identifier)('Dimension')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: #:
+                    PsiElement(identifier)('#:')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Shape
+                    CodeReferenceElement: Shape
+                      PsiElement(identifier)('Shape')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              InfixType: Index ::: INil
-                SimpleType: Index
-                  CodeReferenceElement: Index
-                    PsiElement(identifier)('Index')
-                PsiWhiteSpace(' ')
-                CodeReferenceElement: :::
-                  PsiElement(identifier)(':::')
-                PsiWhiteSpace(' ')
-                SimpleType: INil
-                  CodeReferenceElement: INil
-                    PsiElement(identifier)('INil')
+              TypeArgument
+                InfixType: Index ::: INil
+                  SimpleType: Index
+                    CodeReferenceElement: Index
+                      PsiElement(identifier)('Index')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: :::
+                    PsiElement(identifier)(':::')
+                  PsiWhiteSpace(' ')
+                  SimpleType: INil
+                    CodeReferenceElement: INil
+                      PsiElement(identifier)('INil')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              LiteralType: 0
-                IntegerLiteral
-                  PsiElement(integer)('0')
+              TypeArgument
+                LiteralType: 0
+                  IntegerLiteral
+                    PsiElement(integer)('0')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

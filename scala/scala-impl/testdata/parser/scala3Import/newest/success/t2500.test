@@ -75,14 +75,16 @@ ScalaFile
                         PsiElement(identifier)('Map')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Int
-                        CodeReferenceElement: Int
-                          PsiElement(identifier)('Int')
+                      TypeArgument
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: String
-                        CodeReferenceElement: String
-                          PsiElement(identifier)('String')
+                      TypeArgument
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
                       PsiElement(])(']')
                 PsiElement())(')')
               PsiWhiteSpace(' ')
@@ -94,18 +96,19 @@ ScalaFile
                   PsiElement(identifier)('identity')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  TupleType: (Int, String)
-                    PsiElement(()('(')
-                    TypesList
-                      SimpleType: Int
-                        CodeReferenceElement: Int
-                          PsiElement(identifier)('Int')
-                      PsiElement(,)(',')
-                      PsiWhiteSpace(' ')
-                      SimpleType: String
-                        CodeReferenceElement: String
-                          PsiElement(identifier)('String')
-                    PsiElement())(')')
+                  TypeArgument
+                    TupleType: (Int, String)
+                      PsiElement(()('(')
+                      TypesList
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                      PsiElement())(')')
                   PsiElement(])(']')
             PsiElement())(')')
           PsiWhiteSpace(' ')
@@ -123,13 +126,15 @@ ScalaFile
                 PsiElement(identifier)('Map')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
+              TypeArgument
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
               PsiElement(,)(',')
-              SimpleType: String
-                CodeReferenceElement: String
-                  PsiElement(identifier)('String')
+              TypeArgument
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
               PsiElement(])(']')
         PsiWhiteSpace('\n    ')
         TypedExpression
@@ -176,14 +181,16 @@ ScalaFile
                         PsiElement(identifier)('SortedMap')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Int
-                        CodeReferenceElement: Int
-                          PsiElement(identifier)('Int')
+                      TypeArgument
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: String
-                        CodeReferenceElement: String
-                          PsiElement(identifier)('String')
+                      TypeArgument
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
                       PsiElement(])(']')
                 PsiElement())(')')
               PsiWhiteSpace(' ')
@@ -195,18 +202,19 @@ ScalaFile
                   PsiElement(identifier)('identity')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  TupleType: (Int, String)
-                    PsiElement(()('(')
-                    TypesList
-                      SimpleType: Int
-                        CodeReferenceElement: Int
-                          PsiElement(identifier)('Int')
-                      PsiElement(,)(',')
-                      PsiWhiteSpace(' ')
-                      SimpleType: String
-                        CodeReferenceElement: String
-                          PsiElement(identifier)('String')
-                    PsiElement())(')')
+                  TypeArgument
+                    TupleType: (Int, String)
+                      PsiElement(()('(')
+                      TypesList
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                      PsiElement())(')')
                   PsiElement(])(']')
             PsiElement())(')')
           PsiElement(:)(':')
@@ -223,13 +231,15 @@ ScalaFile
                 PsiElement(identifier)('SortedMap')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
+              TypeArgument
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
               PsiElement(,)(',')
-              SimpleType: String
-                CodeReferenceElement: String
-                  PsiElement(identifier)('String')
+              TypeArgument
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
               PsiElement(])(']')
         PsiWhiteSpace('\n    ')
         TypedExpression
@@ -262,9 +272,10 @@ ScalaFile
                         PsiElement(identifier)('SortedSet')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Int
-                        CodeReferenceElement: Int
-                          PsiElement(identifier)('Int')
+                      TypeArgument
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
                       PsiElement(])(']')
                 PsiElement())(')')
               PsiWhiteSpace(' ')
@@ -276,9 +287,10 @@ ScalaFile
                   PsiElement(identifier)('identity')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
+                  TypeArgument
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
                   PsiElement(])(']')
             PsiElement())(')')
           PsiElement(:)(':')
@@ -295,9 +307,10 @@ ScalaFile
                 PsiElement(identifier)('SortedSet')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
+              TypeArgument
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
               PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

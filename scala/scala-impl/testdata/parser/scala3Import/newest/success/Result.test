@@ -125,14 +125,16 @@ ScalaFile
                               PsiElement(identifier)('Result')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: T
-                              CodeReferenceElement: T
-                                PsiElement(identifier)('T')
+                            TypeArgument
+                              SimpleType: T
+                                CodeReferenceElement: T
+                                  PsiElement(identifier)('T')
                             PsiElement(,)(',')
                             PsiWhiteSpace(' ')
-                            SimpleType: Nothing
-                              CodeReferenceElement: Nothing
-                                PsiElement(identifier)('Nothing')
+                            TypeArgument
+                              SimpleType: Nothing
+                                CodeReferenceElement: Nothing
+                                  PsiElement(identifier)('Nothing')
                             PsiElement(])(']')
               PsiWhiteSpace('\n    ')
               ScEnumCases: Err
@@ -182,14 +184,16 @@ ScalaFile
                               PsiElement(identifier)('Result')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: Nothing
-                              CodeReferenceElement: Nothing
-                                PsiElement(identifier)('Nothing')
+                            TypeArgument
+                              SimpleType: Nothing
+                                CodeReferenceElement: Nothing
+                                  PsiElement(identifier)('Nothing')
                             PsiElement(,)(',')
                             PsiWhiteSpace(' ')
-                            SimpleType: E
-                              CodeReferenceElement: E
-                                PsiElement(identifier)('E')
+                            TypeArgument
+                              SimpleType: E
+                                CodeReferenceElement: E
+                                  PsiElement(identifier)('E')
                             PsiElement(])(']')
               PsiWhiteSpace('\n  ')
               PsiElement(})('}')
@@ -216,14 +220,16 @@ ScalaFile
                 PsiElement(identifier)('Result')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Throwable
-                CodeReferenceElement: Throwable
-                  PsiElement(identifier)('Throwable')
+              TypeArgument
+                SimpleType: Throwable
+                  CodeReferenceElement: Throwable
+                    PsiElement(identifier)('Throwable')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScObject: Try
@@ -278,9 +284,10 @@ ScalaFile
                       PsiElement(identifier)('Try')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: T
-                      CodeReferenceElement: T
-                        PsiElement(identifier)('T')
+                    TypeArgument
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')

@@ -52,9 +52,10 @@ ScalaFile
                       PsiElement(identifier)('empty')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      LiteralType: "a"
-                        StringLiteral
-                          PsiElement(string content)('"a"')
+                      TypeArgument
+                        LiteralType: "a"
+                          StringLiteral
+                            PsiElement(string content)('"a"')
                       PsiElement(])(']')
                   PsiWhiteSpace(' ')
                   ReferenceExpression: +

@@ -32,14 +32,16 @@ ScalaFile
               PsiElement(identifier)('Extensible')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: A
-              CodeReferenceElement: A
-                PsiElement(identifier)('A')
+            TypeArgument
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
-            SimpleType: This
-              CodeReferenceElement: This
-                PsiElement(identifier)('This')
+            TypeArgument
+              SimpleType: This
+                CodeReferenceElement: This
+                  PsiElement(identifier)('This')
             PsiElement(])(']')
       PsiElement(])(']')
     PrimaryConstructor
@@ -189,9 +191,10 @@ ScalaFile
                     PsiElement(identifier)('Fixed')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: A
-                    CodeReferenceElement: A
-                      PsiElement(identifier)('A')
+                  TypeArgument
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
                   PsiElement(])(']')
           PsiElement())(')')
     PsiWhiteSpace(' ')
@@ -206,21 +209,24 @@ ScalaFile
                 PsiElement(identifier)('Extensible')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              ParametrizedType: Fixed[A]
-                SimpleType: Fixed
-                  CodeReferenceElement: Fixed
-                    PsiElement(identifier)('Fixed')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: A
-                    CodeReferenceElement: A
-                      PsiElement(identifier)('A')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Fixed[A]
+                  SimpleType: Fixed
+                    CodeReferenceElement: Fixed
+                      PsiElement(identifier)('Fixed')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
+                    PsiElement(])(']')
               PsiElement(])(']')
           ArgumentList
             PsiElement(()('(')
@@ -275,9 +281,10 @@ ScalaFile
                         PsiElement(identifier)('Fixed')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiWhiteSpace(' ')

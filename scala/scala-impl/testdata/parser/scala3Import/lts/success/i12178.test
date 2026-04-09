@@ -149,14 +149,16 @@ ScalaFile
                 PsiElement(identifier)('LabelTagged')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: TLabel
-                CodeReferenceElement: TLabel
-                  PsiElement(identifier)('TLabel')
+              TypeArgument
+                SimpleType: TLabel
+                  CodeReferenceElement: TLabel
+                    PsiElement(identifier)('TLabel')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: TValue
-                CodeReferenceElement: TValue
-                  PsiElement(identifier)('TValue')
+              TypeArgument
+                SimpleType: TValue
+                  CodeReferenceElement: TValue
+                    PsiElement(identifier)('TValue')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -208,14 +210,16 @@ ScalaFile
                   PsiElement(identifier)('LabelTagged')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: TLabel
-                  CodeReferenceElement: TLabel
-                    PsiElement(identifier)('TLabel')
+                TypeArgument
+                  SimpleType: TLabel
+                    CodeReferenceElement: TLabel
+                      PsiElement(identifier)('TLabel')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: TValue
-                  CodeReferenceElement: TValue
-                    PsiElement(identifier)('TValue')
+                TypeArgument
+                  SimpleType: TValue
+                    CodeReferenceElement: TValue
+                      PsiElement(identifier)('TValue')
                 PsiElement(])(']')
         PsiElement())(')')
     PsiWhiteSpace('\n  ')
@@ -271,9 +275,10 @@ ScalaFile
                       PsiElement(identifier)('ValueOf')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: TLabel
-                      CodeReferenceElement: TLabel
-                        PsiElement(identifier)('TLabel')
+                    TypeArgument
+                      SimpleType: TLabel
+                        CodeReferenceElement: TLabel
+                          PsiElement(identifier)('TLabel')
                     PsiElement(])(']')
             PsiElement())(')')
         PsiWhiteSpace('\n  ')
@@ -339,14 +344,16 @@ ScalaFile
               PsiElement(identifier)('LabelTagged')
           TypeArgumentsList
             PsiElement([)('[')
-            LiteralType: "foo"
-              StringLiteral
-                PsiElement(string content)('"foo"')
+            TypeArgument
+              LiteralType: "foo"
+                StringLiteral
+                  PsiElement(string content)('"foo"')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
-            SimpleType: Int
-              CodeReferenceElement: Int
-                PsiElement(identifier)('Int')
+            TypeArgument
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
             PsiElement(])(']')
         PsiWhiteSpace(' ')
         PsiElement(=)('=')

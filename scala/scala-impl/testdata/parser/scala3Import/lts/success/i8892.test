@@ -177,11 +177,12 @@ ScalaFile
                             PsiElement(identifier)('Succ')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleType: this.type
-                            ThisReference
-                              PsiElement(this)('this')
-                            PsiElement(.)('.')
-                            PsiElement(type)('type')
+                          TypeArgument
+                            SimpleType: this.type
+                              ThisReference
+                                PsiElement(this)('this')
+                              PsiElement(.)('.')
+                              PsiElement(type)('type')
                           PsiElement(])(']')
                       PsiWhiteSpace(' ')
                       PsiElement(=)('=')

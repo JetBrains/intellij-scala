@@ -139,9 +139,10 @@ ScalaFile
               PsiElement(identifier)('Succ')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: Nat
-              CodeReferenceElement: Nat
-                PsiElement(identifier)('Nat')
+            TypeArgument
+              SimpleType: Nat
+                CodeReferenceElement: Nat
+                  PsiElement(identifier)('Nat')
             PsiElement(])(']')
       PsiElement(])(']')
     PrimaryConstructor
@@ -208,8 +209,9 @@ ScalaFile
                 PsiElement(identifier)('Succ')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeVariable: y
-                PsiElement(identifier)('y')
+              TypeArgument
+                TypeVariable: y
+                  PsiElement(identifier)('y')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=>)('=>')
@@ -220,21 +222,24 @@ ScalaFile
                 PsiElement(identifier)('Sum')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Succ[X]
-                SimpleType: Succ
-                  CodeReferenceElement: Succ
-                    PsiElement(identifier)('Succ')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: X
-                    CodeReferenceElement: X
-                      PsiElement(identifier)('X')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Succ[X]
+                  SimpleType: Succ
+                    CodeReferenceElement: Succ
+                      PsiElement(identifier)('Succ')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: X
+                        CodeReferenceElement: X
+                          PsiElement(identifier)('X')
+                    PsiElement(])(']')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: y
-                CodeReferenceElement: y
-                  PsiElement(identifier)('y')
+              TypeArgument
+                SimpleType: y
+                  CodeReferenceElement: y
+                    PsiElement(identifier)('y')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScTypeAliasDefinition: IntSum
@@ -275,8 +280,9 @@ ScalaFile
                 PsiElement(identifier)('Neg')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeVariable: b
-                PsiElement(identifier)('b')
+              TypeArgument
+                TypeVariable: b
+                  PsiElement(identifier)('b')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=>)('=>')
@@ -287,14 +293,16 @@ ScalaFile
                 PsiElement(identifier)('IntSumNeg')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: b
-                CodeReferenceElement: b
-                  PsiElement(identifier)('b')
+              TypeArgument
+                SimpleType: b
+                  CodeReferenceElement: b
+                    PsiElement(identifier)('b')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScTypeAliasDefinition: IntSumNeg
@@ -335,8 +343,9 @@ ScalaFile
                 PsiElement(identifier)('Neg')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeVariable: a
-                PsiElement(identifier)('a')
+              TypeArgument
+                TypeVariable: a
+                  PsiElement(identifier)('a')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=>)('=>')
@@ -347,21 +356,24 @@ ScalaFile
                 PsiElement(identifier)('Neg')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Sum[a, B]
-                SimpleType: Sum
-                  CodeReferenceElement: Sum
-                    PsiElement(identifier)('Sum')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: a
-                    CodeReferenceElement: a
-                      PsiElement(identifier)('a')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: B
-                    CodeReferenceElement: B
-                      PsiElement(identifier)('B')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Sum[a, B]
+                  SimpleType: Sum
+                    CodeReferenceElement: Sum
+                      PsiElement(identifier)('Sum')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: a
+                        CodeReferenceElement: a
+                          PsiElement(identifier)('a')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: B
+                        CodeReferenceElement: B
+                          PsiElement(identifier)('B')
+                    PsiElement(])(']')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScTypeAliasDefinition: One
@@ -381,9 +393,10 @@ ScalaFile
           PsiElement(identifier)('Succ')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: Zero
-          CodeReferenceElement: Zero
-            PsiElement(identifier)('Zero')
+        TypeArgument
+          SimpleType: Zero
+            CodeReferenceElement: Zero
+              PsiElement(identifier)('Zero')
         PsiElement(])(']')
   PsiWhiteSpace('\n')
   ScTypeAliasDefinition: Two
@@ -403,9 +416,10 @@ ScalaFile
           PsiElement(identifier)('Succ')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: One
-          CodeReferenceElement: One
-            PsiElement(identifier)('One')
+        TypeArgument
+          SimpleType: One
+            CodeReferenceElement: One
+              PsiElement(identifier)('One')
         PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScClass: Test
@@ -447,48 +461,54 @@ ScalaFile
               PsiElement(identifier)('summon')
             TypeArgumentsList
               PsiElement([)('[')
-              InfixType: IntSum[Neg[One], Neg[One]] =:= Neg[Two]
-                ParametrizedType: IntSum[Neg[One], Neg[One]]
-                  SimpleType: IntSum
-                    CodeReferenceElement: IntSum
-                      PsiElement(identifier)('IntSum')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    ParametrizedType: Neg[One]
-                      SimpleType: Neg
-                        CodeReferenceElement: Neg
-                          PsiElement(identifier)('Neg')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        SimpleType: One
-                          CodeReferenceElement: One
-                            PsiElement(identifier)('One')
-                        PsiElement(])(']')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    ParametrizedType: Neg[One]
-                      SimpleType: Neg
-                        CodeReferenceElement: Neg
-                          PsiElement(identifier)('Neg')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        SimpleType: One
-                          CodeReferenceElement: One
-                            PsiElement(identifier)('One')
-                        PsiElement(])(']')
-                    PsiElement(])(']')
-                PsiWhiteSpace(' ')
-                CodeReferenceElement: =:=
-                  PsiElement(identifier)('=:=')
-                PsiWhiteSpace(' ')
-                ParametrizedType: Neg[Two]
-                  SimpleType: Neg
-                    CodeReferenceElement: Neg
-                      PsiElement(identifier)('Neg')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: Two
-                      CodeReferenceElement: Two
-                        PsiElement(identifier)('Two')
-                    PsiElement(])(']')
+              TypeArgument
+                InfixType: IntSum[Neg[One], Neg[One]] =:= Neg[Two]
+                  ParametrizedType: IntSum[Neg[One], Neg[One]]
+                    SimpleType: IntSum
+                      CodeReferenceElement: IntSum
+                        PsiElement(identifier)('IntSum')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        ParametrizedType: Neg[One]
+                          SimpleType: Neg
+                            CodeReferenceElement: Neg
+                              PsiElement(identifier)('Neg')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: One
+                                CodeReferenceElement: One
+                                  PsiElement(identifier)('One')
+                            PsiElement(])(']')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        ParametrizedType: Neg[One]
+                          SimpleType: Neg
+                            CodeReferenceElement: Neg
+                              PsiElement(identifier)('Neg')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: One
+                                CodeReferenceElement: One
+                                  PsiElement(identifier)('One')
+                            PsiElement(])(']')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: =:=
+                    PsiElement(identifier)('=:=')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: Neg[Two]
+                    SimpleType: Neg
+                      CodeReferenceElement: Neg
+                        PsiElement(identifier)('Neg')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: Two
+                          CodeReferenceElement: Two
+                            PsiElement(identifier)('Two')
+                      PsiElement(])(']')
               PsiElement(])(']')

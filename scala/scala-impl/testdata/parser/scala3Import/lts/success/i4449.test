@@ -257,9 +257,10 @@ ScalaFile
                 PsiElement(identifier)('ClassTag')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: X
-                CodeReferenceElement: X
-                  PsiElement(identifier)('X')
+              TypeArgument
+                SimpleType: X
+                  CodeReferenceElement: X
+                    PsiElement(identifier)('X')
               PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         ScFunctionDeclaration: yct
@@ -287,9 +288,10 @@ ScalaFile
                 PsiElement(identifier)('ClassTag')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Y
-                CodeReferenceElement: Y
-                  PsiElement(identifier)('Y')
+              TypeArgument
+                SimpleType: Y
+                  CodeReferenceElement: Y
+                    PsiElement(identifier)('Y')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScValueDeclaration: A

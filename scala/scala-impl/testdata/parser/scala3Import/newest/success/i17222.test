@@ -138,9 +138,10 @@ ScalaFile
                 PsiElement(identifier)('F')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScObject: Reader
@@ -180,35 +181,37 @@ ScalaFile
                       PsiElement(identifier)('Reader')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    CompoundType: A { type Q = X }
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
-                      PsiWhiteSpace(' ')
-                      Refinement
-                        PsiElement({)('{')
+                    TypeArgument
+                      CompoundType: A { type Q = X }
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                         PsiWhiteSpace(' ')
-                        ScTypeAliasDefinition: Q
-                          AnnotationsList
-                            <empty list>
-                          Modifiers
-                            <empty list>
-                          PsiElement(type)('type')
+                        Refinement
+                          PsiElement({)('{')
                           PsiWhiteSpace(' ')
-                          PsiElement(identifier)('Q')
+                          ScTypeAliasDefinition: Q
+                            AnnotationsList
+                              <empty list>
+                            Modifiers
+                              <empty list>
+                            PsiElement(type)('type')
+                            PsiWhiteSpace(' ')
+                            PsiElement(identifier)('Q')
+                            PsiWhiteSpace(' ')
+                            PsiElement(=)('=')
+                            PsiWhiteSpace(' ')
+                            SimpleType: X
+                              CodeReferenceElement: X
+                                PsiElement(identifier)('X')
                           PsiWhiteSpace(' ')
-                          PsiElement(=)('=')
-                          PsiWhiteSpace(' ')
-                          SimpleType: X
-                            CodeReferenceElement: X
-                              PsiElement(identifier)('X')
-                        PsiWhiteSpace(' ')
-                        PsiElement(})('}')
+                          PsiElement(})('}')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    SimpleType: X
-                      CodeReferenceElement: X
-                        PsiElement(identifier)('X')
+                    TypeArgument
+                      SimpleType: X
+                        CodeReferenceElement: X
+                          PsiElement(identifier)('X')
                     PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(with)('with')
@@ -324,14 +327,16 @@ ScalaFile
                         PsiElement(identifier)('F')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: h1
-                        CodeReferenceElement: h1
-                          PsiElement(identifier)('h1')
+                      TypeArgument
+                        SimpleType: h1
+                          CodeReferenceElement: h1
+                            PsiElement(identifier)('h1')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: h2
-                        CodeReferenceElement: h2
-                          PsiElement(identifier)('h2')
+                      TypeArgument
+                        SimpleType: h2
+                          CodeReferenceElement: h2
+                            PsiElement(identifier)('h2')
                       PsiElement(])(']')
                   PsiWhiteSpace(' ')
                   CodeReferenceElement: *:
@@ -343,19 +348,22 @@ ScalaFile
                         PsiElement(identifier)('Map2')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: t1
-                        CodeReferenceElement: t1
-                          PsiElement(identifier)('t1')
+                      TypeArgument
+                        SimpleType: t1
+                          CodeReferenceElement: t1
+                            PsiElement(identifier)('t1')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: t2
-                        CodeReferenceElement: t2
-                          PsiElement(identifier)('t2')
+                      TypeArgument
+                        SimpleType: t2
+                          CodeReferenceElement: t2
+                            PsiElement(identifier)('t2')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: F
-                        CodeReferenceElement: F
-                          PsiElement(identifier)('F')
+                      TypeArgument
+                        SimpleType: F
+                          CodeReferenceElement: F
+                            PsiElement(identifier)('F')
                       PsiElement(])(']')
               PsiWhiteSpace('\n    ')
               ScMatchTypeCaseImpl(match type case)
@@ -433,9 +441,10 @@ ScalaFile
                         PsiElement(identifier)('ProductOf')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: In
-                        CodeReferenceElement: In
-                          PsiElement(identifier)('In')
+                      TypeArgument
+                        SimpleType: In
+                          CodeReferenceElement: In
+                            PsiElement(identifier)('In')
                       PsiElement(])(']')
               PsiElement())(')')
             ParametersClause
@@ -460,9 +469,10 @@ ScalaFile
                         PsiElement(identifier)('ProductOf')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Out
-                        CodeReferenceElement: Out
-                          PsiElement(identifier)('Out')
+                      TypeArgument
+                        SimpleType: Out
+                          CodeReferenceElement: Out
+                            PsiElement(identifier)('Out')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -473,14 +483,16 @@ ScalaFile
                 PsiElement(identifier)('Reader')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: In
-                CodeReferenceElement: In
-                  PsiElement(identifier)('In')
+              TypeArgument
+                SimpleType: In
+                  CodeReferenceElement: In
+                    PsiElement(identifier)('In')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Out
-                CodeReferenceElement: Out
-                  PsiElement(identifier)('Out')
+              TypeArgument
+                SimpleType: Out
+                  CodeReferenceElement: Out
+                    PsiElement(identifier)('Out')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -491,32 +503,36 @@ ScalaFile
                 PsiElement(identifier)('summonAll')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: Map2[mi.MirroredElemTypes, mo.MirroredElemTypes, Reader]
-                  SimpleType: Map2
-                    CodeReferenceElement: Map2
-                      PsiElement(identifier)('Map2')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: mi.MirroredElemTypes
-                      CodeReferenceElement: mi.MirroredElemTypes
-                        CodeReferenceElement: mi
-                          PsiElement(identifier)('mi')
-                        PsiElement(.)('.')
-                        PsiElement(identifier)('MirroredElemTypes')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    SimpleType: mo.MirroredElemTypes
-                      CodeReferenceElement: mo.MirroredElemTypes
-                        CodeReferenceElement: mo
-                          PsiElement(identifier)('mo')
-                        PsiElement(.)('.')
-                        PsiElement(identifier)('MirroredElemTypes')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    SimpleType: Reader
-                      CodeReferenceElement: Reader
-                        PsiElement(identifier)('Reader')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: Map2[mi.MirroredElemTypes, mo.MirroredElemTypes, Reader]
+                    SimpleType: Map2
+                      CodeReferenceElement: Map2
+                        PsiElement(identifier)('Map2')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: mi.MirroredElemTypes
+                          CodeReferenceElement: mi.MirroredElemTypes
+                            CodeReferenceElement: mi
+                              PsiElement(identifier)('mi')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('MirroredElemTypes')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        SimpleType: mo.MirroredElemTypes
+                          CodeReferenceElement: mo.MirroredElemTypes
+                            CodeReferenceElement: mo
+                              PsiElement(identifier)('mo')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('MirroredElemTypes')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        SimpleType: Reader
+                          CodeReferenceElement: Reader
+                            PsiElement(identifier)('Reader')
+                      PsiElement(])(']')
                 PsiElement(])(']')
             PsiWhiteSpace('\n    ')
             ReferenceExpression: ???
@@ -646,9 +662,10 @@ ScalaFile
                         PsiElement(identifier)('B')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Int
-                        CodeReferenceElement: Int
-                          PsiElement(identifier)('Int')
+                      TypeArgument
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
                       PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(with)('with')
@@ -663,43 +680,46 @@ ScalaFile
             PsiElement(identifier)('summon')
           TypeArgumentsList
             PsiElement([)('[')
-            ParametrizedType: Reader[(bc.type, bc.type), (Int, Int)]
-              SimpleType: Reader
-                CodeReferenceElement: Reader
-                  PsiElement(identifier)('Reader')
-              TypeArgumentsList
-                PsiElement([)('[')
-                TupleType: (bc.type, bc.type)
-                  PsiElement(()('(')
-                  TypesList
-                    SimpleType: bc.type
-                      CodeReferenceElement: bc
-                        PsiElement(identifier)('bc')
-                      PsiElement(.)('.')
-                      PsiElement(type)('type')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    SimpleType: bc.type
-                      CodeReferenceElement: bc
-                        PsiElement(identifier)('bc')
-                      PsiElement(.)('.')
-                      PsiElement(type)('type')
-                  PsiElement())(')')
-                PsiElement(,)(',')
-                PsiWhiteSpace(' ')
-                TupleType: (Int, Int)
-                  PsiElement(()('(')
-                  TypesList
-                    SimpleType: Int
-                      CodeReferenceElement: Int
-                        PsiElement(identifier)('Int')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    SimpleType: Int
-                      CodeReferenceElement: Int
-                        PsiElement(identifier)('Int')
-                  PsiElement())(')')
-                PsiElement(])(']')
+            TypeArgument
+              ParametrizedType: Reader[(bc.type, bc.type), (Int, Int)]
+                SimpleType: Reader
+                  CodeReferenceElement: Reader
+                    PsiElement(identifier)('Reader')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    TupleType: (bc.type, bc.type)
+                      PsiElement(()('(')
+                      TypesList
+                        SimpleType: bc.type
+                          CodeReferenceElement: bc
+                            PsiElement(identifier)('bc')
+                          PsiElement(.)('.')
+                          PsiElement(type)('type')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: bc.type
+                          CodeReferenceElement: bc
+                            PsiElement(identifier)('bc')
+                          PsiElement(.)('.')
+                          PsiElement(type)('type')
+                      PsiElement())(')')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeArgument
+                    TupleType: (Int, Int)
+                      PsiElement(()('(')
+                      TypesList
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement())(')')
+                  PsiElement(])(']')
             PsiElement(])(']')
   PsiWhiteSpace('    ')
   PsiComment(comment)('// fails')

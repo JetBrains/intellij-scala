@@ -39,14 +39,16 @@ ScalaFile
                 PsiElement(identifier)('INodeBase_1')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: K
-                CodeReferenceElement: K
-                  PsiElement(identifier)('K')
+              TypeArgument
+                SimpleType: K
+                  CodeReferenceElement: K
+                    PsiElement(identifier)('K')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: V
-                CodeReferenceElement: V
-                  PsiElement(identifier)('V')
+              TypeArgument
+                SimpleType: V
+                  CodeReferenceElement: V
+                    PsiElement(identifier)('V')
               PsiElement(])(']')
       PsiWhiteSpace(' ')
       ScTemplateBody

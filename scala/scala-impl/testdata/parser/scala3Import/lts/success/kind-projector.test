@@ -410,21 +410,24 @@ ScalaFile
                   PsiElement(identifier)('Foo')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: Either[Int, *]
-                  SimpleType: Either
-                    CodeReferenceElement: Either
-                      PsiElement(identifier)('Either')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: Int
-                      CodeReferenceElement: Int
-                        PsiElement(identifier)('Int')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    SimpleType: *
-                      CodeReferenceElement: *
-                        PsiElement(identifier)('*')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: Either[Int, *]
+                    SimpleType: Either
+                      CodeReferenceElement: Either
+                        PsiElement(identifier)('Either')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        SimpleType: *
+                          CodeReferenceElement: *
+                            PsiElement(identifier)('*')
+                      PsiElement(])(']')
                 PsiElement(])(']')
     PsiWhiteSpace('\n')
     ScClass: Bar2
@@ -454,21 +457,24 @@ ScalaFile
                   PsiElement(identifier)('Foo')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: Either[*, Int]
-                  SimpleType: Either
-                    CodeReferenceElement: Either
-                      PsiElement(identifier)('Either')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: *
-                      CodeReferenceElement: *
-                        PsiElement(identifier)('*')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    SimpleType: Int
-                      CodeReferenceElement: Int
-                        PsiElement(identifier)('Int')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: Either[*, Int]
+                    SimpleType: Either
+                      CodeReferenceElement: Either
+                        PsiElement(identifier)('Either')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: *
+                          CodeReferenceElement: *
+                            PsiElement(identifier)('*')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement(])(']')
                 PsiElement(])(']')
     PsiWhiteSpace('\n')
     ScClass: Bar3
@@ -498,16 +504,17 @@ ScalaFile
                   PsiElement(identifier)('Foo')
               TypeArgumentsList
                 PsiElement([)('[')
-                FunctionalType: * => Int
-                  SimpleType: *
-                    CodeReferenceElement: *
-                      PsiElement(identifier)('*')
-                  PsiWhiteSpace(' ')
-                  PsiElement(=>)('=>')
-                  PsiWhiteSpace(' ')
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
+                TypeArgument
+                  FunctionalType: * => Int
+                    SimpleType: *
+                      CodeReferenceElement: *
+                        PsiElement(identifier)('*')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
                 PsiElement(])(']')
     PsiWhiteSpace('\n')
     ScClass: Bar4
@@ -537,16 +544,17 @@ ScalaFile
                   PsiElement(identifier)('Foo')
               TypeArgumentsList
                 PsiElement([)('[')
-                FunctionalType: Int => *
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
-                  PsiWhiteSpace(' ')
-                  PsiElement(=>)('=>')
-                  PsiWhiteSpace(' ')
-                  SimpleType: *
-                    CodeReferenceElement: *
-                      PsiElement(identifier)('*')
+                TypeArgument
+                  FunctionalType: Int => *
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    SimpleType: *
+                      CodeReferenceElement: *
+                        PsiElement(identifier)('*')
                 PsiElement(])(']')
     PsiWhiteSpace('\n')
     ScClass: Bar5
@@ -576,23 +584,24 @@ ScalaFile
                   PsiElement(identifier)('Foo')
               TypeArgumentsList
                 PsiElement([)('[')
-                TupleType: (Int, *, Int)
-                  PsiElement(()('(')
-                  TypesList
-                    SimpleType: Int
-                      CodeReferenceElement: Int
-                        PsiElement(identifier)('Int')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    SimpleType: *
-                      CodeReferenceElement: *
-                        PsiElement(identifier)('*')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    SimpleType: Int
-                      CodeReferenceElement: Int
-                        PsiElement(identifier)('Int')
-                  PsiElement())(')')
+                TypeArgument
+                  TupleType: (Int, *, Int)
+                    PsiElement(()('(')
+                    TypesList
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: *
+                        CodeReferenceElement: *
+                          PsiElement(identifier)('*')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                    PsiElement())(')')
                 PsiElement(])(']')
     PsiWhiteSpace('\n')
     ScClass: Bar6
@@ -622,35 +631,39 @@ ScalaFile
                   PsiElement(identifier)('Foo')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: λ[x => Either[Int, x]]
-                  SimpleType: λ
-                    CodeReferenceElement: λ
-                      PsiElement(identifier)('λ')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    FunctionalType: x => Either[Int, x]
-                      SimpleType: x
-                        CodeReferenceElement: x
-                          PsiElement(identifier)('x')
-                      PsiWhiteSpace(' ')
-                      PsiElement(=>)('=>')
-                      PsiWhiteSpace(' ')
-                      ParametrizedType: Either[Int, x]
-                        SimpleType: Either
-                          CodeReferenceElement: Either
-                            PsiElement(identifier)('Either')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: Int
-                            CodeReferenceElement: Int
-                              PsiElement(identifier)('Int')
-                          PsiElement(,)(',')
-                          PsiWhiteSpace(' ')
+                TypeArgument
+                  ParametrizedType: λ[x => Either[Int, x]]
+                    SimpleType: λ
+                      CodeReferenceElement: λ
+                        PsiElement(identifier)('λ')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        FunctionalType: x => Either[Int, x]
                           SimpleType: x
                             CodeReferenceElement: x
                               PsiElement(identifier)('x')
-                          PsiElement(])(']')
-                    PsiElement(])(']')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>)('=>')
+                          PsiWhiteSpace(' ')
+                          ParametrizedType: Either[Int, x]
+                            SimpleType: Either
+                              CodeReferenceElement: Either
+                                PsiElement(identifier)('Either')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: Int
+                                  CodeReferenceElement: Int
+                                    PsiElement(identifier)('Int')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              TypeArgument
+                                SimpleType: x
+                                  CodeReferenceElement: x
+                                    PsiElement(identifier)('x')
+                              PsiElement(])(']')
+                      PsiElement(])(']')
                 PsiElement(])(']')
     PsiWhiteSpace('\n')
     ScClass: Bar7
@@ -680,44 +693,48 @@ ScalaFile
                   PsiElement(identifier)('Qux')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: λ[(x, y) => Either[y, x]]
-                  SimpleType: λ
-                    CodeReferenceElement: λ
-                      PsiElement(identifier)('λ')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    FunctionalType: (x, y) => Either[y, x]
-                      TupleType: (x, y)
-                        PsiElement(()('(')
-                        TypesList
-                          SimpleType: x
-                            CodeReferenceElement: x
-                              PsiElement(identifier)('x')
-                          PsiElement(,)(',')
+                TypeArgument
+                  ParametrizedType: λ[(x, y) => Either[y, x]]
+                    SimpleType: λ
+                      CodeReferenceElement: λ
+                        PsiElement(identifier)('λ')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        FunctionalType: (x, y) => Either[y, x]
+                          TupleType: (x, y)
+                            PsiElement(()('(')
+                            TypesList
+                              SimpleType: x
+                                CodeReferenceElement: x
+                                  PsiElement(identifier)('x')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              SimpleType: y
+                                CodeReferenceElement: y
+                                  PsiElement(identifier)('y')
+                            PsiElement())(')')
                           PsiWhiteSpace(' ')
-                          SimpleType: y
-                            CodeReferenceElement: y
-                              PsiElement(identifier)('y')
-                        PsiElement())(')')
-                      PsiWhiteSpace(' ')
-                      PsiElement(=>)('=>')
-                      PsiWhiteSpace(' ')
-                      ParametrizedType: Either[y, x]
-                        SimpleType: Either
-                          CodeReferenceElement: Either
-                            PsiElement(identifier)('Either')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: y
-                            CodeReferenceElement: y
-                              PsiElement(identifier)('y')
-                          PsiElement(,)(',')
+                          PsiElement(=>)('=>')
                           PsiWhiteSpace(' ')
-                          SimpleType: x
-                            CodeReferenceElement: x
-                              PsiElement(identifier)('x')
-                          PsiElement(])(']')
-                    PsiElement(])(']')
+                          ParametrizedType: Either[y, x]
+                            SimpleType: Either
+                              CodeReferenceElement: Either
+                                PsiElement(identifier)('Either')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: y
+                                  CodeReferenceElement: y
+                                    PsiElement(identifier)('y')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              TypeArgument
+                                SimpleType: x
+                                  CodeReferenceElement: x
+                                    PsiElement(identifier)('x')
+                              PsiElement(])(']')
+                      PsiElement(])(']')
                 PsiElement(])(']')
     PsiWhiteSpace('\n')
     ScClass: Bar8
@@ -747,33 +764,37 @@ ScalaFile
                   PsiElement(identifier)('Foo')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: Baz[Int => *, *, Int]
-                  SimpleType: Baz
-                    CodeReferenceElement: Baz
-                      PsiElement(identifier)('Baz')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    FunctionalType: Int => *
-                      SimpleType: Int
-                        CodeReferenceElement: Int
-                          PsiElement(identifier)('Int')
+                TypeArgument
+                  ParametrizedType: Baz[Int => *, *, Int]
+                    SimpleType: Baz
+                      CodeReferenceElement: Baz
+                        PsiElement(identifier)('Baz')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        FunctionalType: Int => *
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>)('=>')
+                          PsiWhiteSpace(' ')
+                          SimpleType: *
+                            CodeReferenceElement: *
+                              PsiElement(identifier)('*')
+                      PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      PsiElement(=>)('=>')
+                      TypeArgument
+                        SimpleType: *
+                          CodeReferenceElement: *
+                            PsiElement(identifier)('*')
+                      PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: *
-                        CodeReferenceElement: *
-                          PsiElement(identifier)('*')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    SimpleType: *
-                      CodeReferenceElement: *
-                        PsiElement(identifier)('*')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    SimpleType: Int
-                      CodeReferenceElement: Int
-                        PsiElement(identifier)('Int')
-                    PsiElement(])(']')
+                      TypeArgument
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement(])(']')
                 PsiElement(])(']')
     PsiWhiteSpace('\n')
     ScClass: Bar9
@@ -803,47 +824,52 @@ ScalaFile
                   PsiElement(identifier)('Foo')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: λ[x => Baz[x => *, Int, x]]
-                  SimpleType: λ
-                    CodeReferenceElement: λ
-                      PsiElement(identifier)('λ')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    FunctionalType: x => Baz[x => *, Int, x]
-                      SimpleType: x
-                        CodeReferenceElement: x
-                          PsiElement(identifier)('x')
-                      PsiWhiteSpace(' ')
-                      PsiElement(=>)('=>')
-                      PsiWhiteSpace(' ')
-                      ParametrizedType: Baz[x => *, Int, x]
-                        SimpleType: Baz
-                          CodeReferenceElement: Baz
-                            PsiElement(identifier)('Baz')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          FunctionalType: x => *
-                            SimpleType: x
-                              CodeReferenceElement: x
-                                PsiElement(identifier)('x')
-                            PsiWhiteSpace(' ')
-                            PsiElement(=>)('=>')
-                            PsiWhiteSpace(' ')
-                            SimpleType: *
-                              CodeReferenceElement: *
-                                PsiElement(identifier)('*')
-                          PsiElement(,)(',')
-                          PsiWhiteSpace(' ')
-                          SimpleType: Int
-                            CodeReferenceElement: Int
-                              PsiElement(identifier)('Int')
-                          PsiElement(,)(',')
-                          PsiWhiteSpace(' ')
+                TypeArgument
+                  ParametrizedType: λ[x => Baz[x => *, Int, x]]
+                    SimpleType: λ
+                      CodeReferenceElement: λ
+                        PsiElement(identifier)('λ')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        FunctionalType: x => Baz[x => *, Int, x]
                           SimpleType: x
                             CodeReferenceElement: x
                               PsiElement(identifier)('x')
-                          PsiElement(])(']')
-                    PsiElement(])(']')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>)('=>')
+                          PsiWhiteSpace(' ')
+                          ParametrizedType: Baz[x => *, Int, x]
+                            SimpleType: Baz
+                              CodeReferenceElement: Baz
+                                PsiElement(identifier)('Baz')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                FunctionalType: x => *
+                                  SimpleType: x
+                                    CodeReferenceElement: x
+                                      PsiElement(identifier)('x')
+                                  PsiWhiteSpace(' ')
+                                  PsiElement(=>)('=>')
+                                  PsiWhiteSpace(' ')
+                                  SimpleType: *
+                                    CodeReferenceElement: *
+                                      PsiElement(identifier)('*')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              TypeArgument
+                                SimpleType: Int
+                                  CodeReferenceElement: Int
+                                    PsiElement(identifier)('Int')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              TypeArgument
+                                SimpleType: x
+                                  CodeReferenceElement: x
+                                    PsiElement(identifier)('x')
+                              PsiElement(])(']')
+                      PsiElement(])(']')
                 PsiElement(])(']')
     PsiWhiteSpace('\n\n')
     ScClass: BarPlus1
@@ -873,21 +899,24 @@ ScalaFile
                   PsiElement(identifier)('FooPlus')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: Either[Int, +*]
-                  SimpleType: Either
-                    CodeReferenceElement: Either
-                      PsiElement(identifier)('Either')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: Int
-                      CodeReferenceElement: Int
-                        PsiElement(identifier)('Int')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    SimpleType: +*
-                      CodeReferenceElement: +*
-                        PsiElement(identifier)('+*')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: Either[Int, +*]
+                    SimpleType: Either
+                      CodeReferenceElement: Either
+                        PsiElement(identifier)('Either')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        SimpleType: +*
+                          CodeReferenceElement: +*
+                            PsiElement(identifier)('+*')
+                      PsiElement(])(']')
                 PsiElement(])(']')
     PsiWhiteSpace('\n')
     ScClass: BarPlus2
@@ -917,21 +946,24 @@ ScalaFile
                   PsiElement(identifier)('FooPlus')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: Either[+*, Int]
-                  SimpleType: Either
-                    CodeReferenceElement: Either
-                      PsiElement(identifier)('Either')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: +*
-                      CodeReferenceElement: +*
-                        PsiElement(identifier)('+*')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    SimpleType: Int
-                      CodeReferenceElement: Int
-                        PsiElement(identifier)('Int')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: Either[+*, Int]
+                    SimpleType: Either
+                      CodeReferenceElement: Either
+                        PsiElement(identifier)('Either')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: +*
+                          CodeReferenceElement: +*
+                            PsiElement(identifier)('+*')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement(])(']')
                 PsiElement(])(']')
     PsiWhiteSpace('\n')
     ScClass: BarPlus3
@@ -961,16 +993,17 @@ ScalaFile
                   PsiElement(identifier)('FooPlus')
               TypeArgumentsList
                 PsiElement([)('[')
-                FunctionalType: Int => +*
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
-                  PsiWhiteSpace(' ')
-                  PsiElement(=>)('=>')
-                  PsiWhiteSpace(' ')
-                  SimpleType: +*
-                    CodeReferenceElement: +*
-                      PsiElement(identifier)('+*')
+                TypeArgument
+                  FunctionalType: Int => +*
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    SimpleType: +*
+                      CodeReferenceElement: +*
+                        PsiElement(identifier)('+*')
                 PsiElement(])(']')
     PsiWhiteSpace('\n')
     ScClass: BarPlus4
@@ -1000,23 +1033,24 @@ ScalaFile
                   PsiElement(identifier)('FooPlus')
               TypeArgumentsList
                 PsiElement([)('[')
-                TupleType: (Int, +*, Int)
-                  PsiElement(()('(')
-                  TypesList
-                    SimpleType: Int
-                      CodeReferenceElement: Int
-                        PsiElement(identifier)('Int')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    SimpleType: +*
-                      CodeReferenceElement: +*
-                        PsiElement(identifier)('+*')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    SimpleType: Int
-                      CodeReferenceElement: Int
-                        PsiElement(identifier)('Int')
-                  PsiElement())(')')
+                TypeArgument
+                  TupleType: (Int, +*, Int)
+                    PsiElement(()('(')
+                    TypesList
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: +*
+                        CodeReferenceElement: +*
+                          PsiElement(identifier)('+*')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                    PsiElement())(')')
                 PsiElement(])(']')
     PsiWhiteSpace('\n')
     ScClass: BarPlus5
@@ -1046,35 +1080,39 @@ ScalaFile
                   PsiElement(identifier)('FooPlus')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: λ[`+x` => Either[Int, x]]
-                  SimpleType: λ
-                    CodeReferenceElement: λ
-                      PsiElement(identifier)('λ')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    FunctionalType: `+x` => Either[Int, x]
-                      SimpleType: `+x`
-                        CodeReferenceElement: `+x`
-                          PsiElement(identifier)('`+x`')
-                      PsiWhiteSpace(' ')
-                      PsiElement(=>)('=>')
-                      PsiWhiteSpace(' ')
-                      ParametrizedType: Either[Int, x]
-                        SimpleType: Either
-                          CodeReferenceElement: Either
-                            PsiElement(identifier)('Either')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: Int
-                            CodeReferenceElement: Int
-                              PsiElement(identifier)('Int')
-                          PsiElement(,)(',')
+                TypeArgument
+                  ParametrizedType: λ[`+x` => Either[Int, x]]
+                    SimpleType: λ
+                      CodeReferenceElement: λ
+                        PsiElement(identifier)('λ')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        FunctionalType: `+x` => Either[Int, x]
+                          SimpleType: `+x`
+                            CodeReferenceElement: `+x`
+                              PsiElement(identifier)('`+x`')
                           PsiWhiteSpace(' ')
-                          SimpleType: x
-                            CodeReferenceElement: x
-                              PsiElement(identifier)('x')
-                          PsiElement(])(']')
-                    PsiElement(])(']')
+                          PsiElement(=>)('=>')
+                          PsiWhiteSpace(' ')
+                          ParametrizedType: Either[Int, x]
+                            SimpleType: Either
+                              CodeReferenceElement: Either
+                                PsiElement(identifier)('Either')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: Int
+                                  CodeReferenceElement: Int
+                                    PsiElement(identifier)('Int')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              TypeArgument
+                                SimpleType: x
+                                  CodeReferenceElement: x
+                                    PsiElement(identifier)('x')
+                              PsiElement(])(']')
+                      PsiElement(])(']')
                 PsiElement(])(']')
     PsiWhiteSpace('\n')
     ScClass: BarPlus6
@@ -1104,44 +1142,48 @@ ScalaFile
                   PsiElement(identifier)('QuxPlus')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: λ[(`+x`, `+y`) => Either[y, x]]
-                  SimpleType: λ
-                    CodeReferenceElement: λ
-                      PsiElement(identifier)('λ')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    FunctionalType: (`+x`, `+y`) => Either[y, x]
-                      TupleType: (`+x`, `+y`)
-                        PsiElement(()('(')
-                        TypesList
-                          SimpleType: `+x`
-                            CodeReferenceElement: `+x`
-                              PsiElement(identifier)('`+x`')
-                          PsiElement(,)(',')
+                TypeArgument
+                  ParametrizedType: λ[(`+x`, `+y`) => Either[y, x]]
+                    SimpleType: λ
+                      CodeReferenceElement: λ
+                        PsiElement(identifier)('λ')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        FunctionalType: (`+x`, `+y`) => Either[y, x]
+                          TupleType: (`+x`, `+y`)
+                            PsiElement(()('(')
+                            TypesList
+                              SimpleType: `+x`
+                                CodeReferenceElement: `+x`
+                                  PsiElement(identifier)('`+x`')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              SimpleType: `+y`
+                                CodeReferenceElement: `+y`
+                                  PsiElement(identifier)('`+y`')
+                            PsiElement())(')')
                           PsiWhiteSpace(' ')
-                          SimpleType: `+y`
-                            CodeReferenceElement: `+y`
-                              PsiElement(identifier)('`+y`')
-                        PsiElement())(')')
-                      PsiWhiteSpace(' ')
-                      PsiElement(=>)('=>')
-                      PsiWhiteSpace(' ')
-                      ParametrizedType: Either[y, x]
-                        SimpleType: Either
-                          CodeReferenceElement: Either
-                            PsiElement(identifier)('Either')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: y
-                            CodeReferenceElement: y
-                              PsiElement(identifier)('y')
-                          PsiElement(,)(',')
+                          PsiElement(=>)('=>')
                           PsiWhiteSpace(' ')
-                          SimpleType: x
-                            CodeReferenceElement: x
-                              PsiElement(identifier)('x')
-                          PsiElement(])(']')
-                    PsiElement(])(']')
+                          ParametrizedType: Either[y, x]
+                            SimpleType: Either
+                              CodeReferenceElement: Either
+                                PsiElement(identifier)('Either')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: y
+                                  CodeReferenceElement: y
+                                    PsiElement(identifier)('y')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              TypeArgument
+                                SimpleType: x
+                                  CodeReferenceElement: x
+                                    PsiElement(identifier)('x')
+                              PsiElement(])(']')
+                      PsiElement(])(']')
                 PsiElement(])(']')
     PsiWhiteSpace('\n')
     ScClass: BarPlus7
@@ -1171,33 +1213,37 @@ ScalaFile
                   PsiElement(identifier)('FooPlus')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: BazPlus[Int => +*, +*, Int]
-                  SimpleType: BazPlus
-                    CodeReferenceElement: BazPlus
-                      PsiElement(identifier)('BazPlus')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    FunctionalType: Int => +*
-                      SimpleType: Int
-                        CodeReferenceElement: Int
-                          PsiElement(identifier)('Int')
+                TypeArgument
+                  ParametrizedType: BazPlus[Int => +*, +*, Int]
+                    SimpleType: BazPlus
+                      CodeReferenceElement: BazPlus
+                        PsiElement(identifier)('BazPlus')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        FunctionalType: Int => +*
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>)('=>')
+                          PsiWhiteSpace(' ')
+                          SimpleType: +*
+                            CodeReferenceElement: +*
+                              PsiElement(identifier)('+*')
+                      PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      PsiElement(=>)('=>')
+                      TypeArgument
+                        SimpleType: +*
+                          CodeReferenceElement: +*
+                            PsiElement(identifier)('+*')
+                      PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: +*
-                        CodeReferenceElement: +*
-                          PsiElement(identifier)('+*')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    SimpleType: +*
-                      CodeReferenceElement: +*
-                        PsiElement(identifier)('+*')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    SimpleType: Int
-                      CodeReferenceElement: Int
-                        PsiElement(identifier)('Int')
-                    PsiElement(])(']')
+                      TypeArgument
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement(])(']')
                 PsiElement(])(']')
     PsiWhiteSpace('\n\n')
     ScClass: BarMinus1
@@ -1227,16 +1273,17 @@ ScalaFile
                   PsiElement(identifier)('FooMinus')
               TypeArgumentsList
                 PsiElement([)('[')
-                FunctionalType: -* => Int
-                  SimpleType: -*
-                    CodeReferenceElement: -*
-                      PsiElement(identifier)('-*')
-                  PsiWhiteSpace(' ')
-                  PsiElement(=>)('=>')
-                  PsiWhiteSpace(' ')
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
+                TypeArgument
+                  FunctionalType: -* => Int
+                    SimpleType: -*
+                      CodeReferenceElement: -*
+                        PsiElement(identifier)('-*')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
                 PsiElement(])(']')
     PsiWhiteSpace('\n\n')
     ScClass: VarianceAnnotationIsActuallyIgnored1
@@ -1266,21 +1313,24 @@ ScalaFile
                   PsiElement(identifier)('FooPlus')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: Either[Int, -*]
-                  SimpleType: Either
-                    CodeReferenceElement: Either
-                      PsiElement(identifier)('Either')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: Int
-                      CodeReferenceElement: Int
-                        PsiElement(identifier)('Int')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    SimpleType: -*
-                      CodeReferenceElement: -*
-                        PsiElement(identifier)('-*')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: Either[Int, -*]
+                    SimpleType: Either
+                      CodeReferenceElement: Either
+                        PsiElement(identifier)('Either')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        SimpleType: -*
+                          CodeReferenceElement: -*
+                            PsiElement(identifier)('-*')
+                      PsiElement(])(']')
                 PsiElement(])(']')
     PsiWhiteSpace('\n')
     ScClass: VarianceAnnotationIsActuallyIgnored2
@@ -1310,21 +1360,24 @@ ScalaFile
                   PsiElement(identifier)('FooPlus')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: Either[-*, Int]
-                  SimpleType: Either
-                    CodeReferenceElement: Either
-                      PsiElement(identifier)('Either')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: -*
-                      CodeReferenceElement: -*
-                        PsiElement(identifier)('-*')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    SimpleType: Int
-                      CodeReferenceElement: Int
-                        PsiElement(identifier)('Int')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: Either[-*, Int]
+                    SimpleType: Either
+                      CodeReferenceElement: Either
+                        PsiElement(identifier)('Either')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: -*
+                          CodeReferenceElement: -*
+                            PsiElement(identifier)('-*')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement(])(']')
                 PsiElement(])(']')
     PsiWhiteSpace('\n')
     ScClass: VarianceAnnotationIsActuallyIgnored3
@@ -1354,16 +1407,17 @@ ScalaFile
                   PsiElement(identifier)('FooMinus')
               TypeArgumentsList
                 PsiElement([)('[')
-                FunctionalType: +* => Int
-                  SimpleType: +*
-                    CodeReferenceElement: +*
-                      PsiElement(identifier)('+*')
-                  PsiWhiteSpace(' ')
-                  PsiElement(=>)('=>')
-                  PsiWhiteSpace(' ')
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
+                TypeArgument
+                  FunctionalType: +* => Int
+                    SimpleType: +*
+                      CodeReferenceElement: +*
+                        PsiElement(identifier)('+*')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
                 PsiElement(])(']')
     PsiWhiteSpace('\n')
     ScClass: VarianceAnnotationIsActuallyIgnored4
@@ -1393,16 +1447,17 @@ ScalaFile
                   PsiElement(identifier)('FooPlus')
               TypeArgumentsList
                 PsiElement([)('[')
-                FunctionalType: Int => -*
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
-                  PsiWhiteSpace(' ')
-                  PsiElement(=>)('=>')
-                  PsiWhiteSpace(' ')
-                  SimpleType: -*
-                    CodeReferenceElement: -*
-                      PsiElement(identifier)('-*')
+                TypeArgument
+                  FunctionalType: Int => -*
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    SimpleType: -*
+                      CodeReferenceElement: -*
+                        PsiElement(identifier)('-*')
                 PsiElement(])(']')
     PsiWhiteSpace('\n')
     ScClass: VarianceAnnotationIsActuallyIgnored5
@@ -1432,23 +1487,24 @@ ScalaFile
                   PsiElement(identifier)('FooPlus')
               TypeArgumentsList
                 PsiElement([)('[')
-                TupleType: (Int, -*, Int)
-                  PsiElement(()('(')
-                  TypesList
-                    SimpleType: Int
-                      CodeReferenceElement: Int
-                        PsiElement(identifier)('Int')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    SimpleType: -*
-                      CodeReferenceElement: -*
-                        PsiElement(identifier)('-*')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    SimpleType: Int
-                      CodeReferenceElement: Int
-                        PsiElement(identifier)('Int')
-                  PsiElement())(')')
+                TypeArgument
+                  TupleType: (Int, -*, Int)
+                    PsiElement(()('(')
+                    TypesList
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: -*
+                        CodeReferenceElement: -*
+                          PsiElement(identifier)('-*')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                    PsiElement())(')')
                 PsiElement(])(']')
     PsiWhiteSpace('\n')
     ScClass: VarianceAnnotationIsActuallyIgnored6
@@ -1478,35 +1534,39 @@ ScalaFile
                   PsiElement(identifier)('FooPlus')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: λ[`-x` => Either[Int, x]]
-                  SimpleType: λ
-                    CodeReferenceElement: λ
-                      PsiElement(identifier)('λ')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    FunctionalType: `-x` => Either[Int, x]
-                      SimpleType: `-x`
-                        CodeReferenceElement: `-x`
-                          PsiElement(identifier)('`-x`')
-                      PsiWhiteSpace(' ')
-                      PsiElement(=>)('=>')
-                      PsiWhiteSpace(' ')
-                      ParametrizedType: Either[Int, x]
-                        SimpleType: Either
-                          CodeReferenceElement: Either
-                            PsiElement(identifier)('Either')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: Int
-                            CodeReferenceElement: Int
-                              PsiElement(identifier)('Int')
-                          PsiElement(,)(',')
+                TypeArgument
+                  ParametrizedType: λ[`-x` => Either[Int, x]]
+                    SimpleType: λ
+                      CodeReferenceElement: λ
+                        PsiElement(identifier)('λ')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        FunctionalType: `-x` => Either[Int, x]
+                          SimpleType: `-x`
+                            CodeReferenceElement: `-x`
+                              PsiElement(identifier)('`-x`')
                           PsiWhiteSpace(' ')
-                          SimpleType: x
-                            CodeReferenceElement: x
-                              PsiElement(identifier)('x')
-                          PsiElement(])(']')
-                    PsiElement(])(']')
+                          PsiElement(=>)('=>')
+                          PsiWhiteSpace(' ')
+                          ParametrizedType: Either[Int, x]
+                            SimpleType: Either
+                              CodeReferenceElement: Either
+                                PsiElement(identifier)('Either')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: Int
+                                  CodeReferenceElement: Int
+                                    PsiElement(identifier)('Int')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              TypeArgument
+                                SimpleType: x
+                                  CodeReferenceElement: x
+                                    PsiElement(identifier)('x')
+                              PsiElement(])(']')
+                      PsiElement(])(']')
                 PsiElement(])(']')
     PsiWhiteSpace('\n')
     ScClass: VarianceAnnotationIsActuallyIgnored7
@@ -1536,44 +1596,48 @@ ScalaFile
                   PsiElement(identifier)('QuxPlus')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: λ[(`-x`, `-y`) => Either[y, x]]
-                  SimpleType: λ
-                    CodeReferenceElement: λ
-                      PsiElement(identifier)('λ')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    FunctionalType: (`-x`, `-y`) => Either[y, x]
-                      TupleType: (`-x`, `-y`)
-                        PsiElement(()('(')
-                        TypesList
-                          SimpleType: `-x`
-                            CodeReferenceElement: `-x`
-                              PsiElement(identifier)('`-x`')
-                          PsiElement(,)(',')
+                TypeArgument
+                  ParametrizedType: λ[(`-x`, `-y`) => Either[y, x]]
+                    SimpleType: λ
+                      CodeReferenceElement: λ
+                        PsiElement(identifier)('λ')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        FunctionalType: (`-x`, `-y`) => Either[y, x]
+                          TupleType: (`-x`, `-y`)
+                            PsiElement(()('(')
+                            TypesList
+                              SimpleType: `-x`
+                                CodeReferenceElement: `-x`
+                                  PsiElement(identifier)('`-x`')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              SimpleType: `-y`
+                                CodeReferenceElement: `-y`
+                                  PsiElement(identifier)('`-y`')
+                            PsiElement())(')')
                           PsiWhiteSpace(' ')
-                          SimpleType: `-y`
-                            CodeReferenceElement: `-y`
-                              PsiElement(identifier)('`-y`')
-                        PsiElement())(')')
-                      PsiWhiteSpace(' ')
-                      PsiElement(=>)('=>')
-                      PsiWhiteSpace(' ')
-                      ParametrizedType: Either[y, x]
-                        SimpleType: Either
-                          CodeReferenceElement: Either
-                            PsiElement(identifier)('Either')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: y
-                            CodeReferenceElement: y
-                              PsiElement(identifier)('y')
-                          PsiElement(,)(',')
+                          PsiElement(=>)('=>')
                           PsiWhiteSpace(' ')
-                          SimpleType: x
-                            CodeReferenceElement: x
-                              PsiElement(identifier)('x')
-                          PsiElement(])(']')
-                    PsiElement(])(']')
+                          ParametrizedType: Either[y, x]
+                            SimpleType: Either
+                              CodeReferenceElement: Either
+                                PsiElement(identifier)('Either')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: y
+                                  CodeReferenceElement: y
+                                    PsiElement(identifier)('y')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              TypeArgument
+                                SimpleType: x
+                                  CodeReferenceElement: x
+                                    PsiElement(identifier)('x')
+                              PsiElement(])(']')
+                      PsiElement(])(']')
                 PsiElement(])(']')
     PsiWhiteSpace('\n')
     ScClass: VarianceAnnotationIsActuallyIgnored8
@@ -1603,33 +1667,37 @@ ScalaFile
                   PsiElement(identifier)('FooPlus')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: BazPlus[Int => -*, -*, Int]
-                  SimpleType: BazPlus
-                    CodeReferenceElement: BazPlus
-                      PsiElement(identifier)('BazPlus')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    FunctionalType: Int => -*
-                      SimpleType: Int
-                        CodeReferenceElement: Int
-                          PsiElement(identifier)('Int')
+                TypeArgument
+                  ParametrizedType: BazPlus[Int => -*, -*, Int]
+                    SimpleType: BazPlus
+                      CodeReferenceElement: BazPlus
+                        PsiElement(identifier)('BazPlus')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        FunctionalType: Int => -*
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>)('=>')
+                          PsiWhiteSpace(' ')
+                          SimpleType: -*
+                            CodeReferenceElement: -*
+                              PsiElement(identifier)('-*')
+                      PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      PsiElement(=>)('=>')
+                      TypeArgument
+                        SimpleType: -*
+                          CodeReferenceElement: -*
+                            PsiElement(identifier)('-*')
+                      PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: -*
-                        CodeReferenceElement: -*
-                          PsiElement(identifier)('-*')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    SimpleType: -*
-                      CodeReferenceElement: -*
-                        PsiElement(identifier)('-*')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    SimpleType: Int
-                      CodeReferenceElement: Int
-                        PsiElement(identifier)('Int')
-                    PsiElement(])(']')
+                      TypeArgument
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement(])(']')
                 PsiElement(])(']')
     PsiWhiteSpace('\n')
     ScClass: VarianceAnnotationIsActuallyIgnored9
@@ -1659,47 +1727,52 @@ ScalaFile
                   PsiElement(identifier)('Foo')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: λ[`-x` => BazPlus[x => -*, Int, x]]
-                  SimpleType: λ
-                    CodeReferenceElement: λ
-                      PsiElement(identifier)('λ')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    FunctionalType: `-x` => BazPlus[x => -*, Int, x]
-                      SimpleType: `-x`
-                        CodeReferenceElement: `-x`
-                          PsiElement(identifier)('`-x`')
-                      PsiWhiteSpace(' ')
-                      PsiElement(=>)('=>')
-                      PsiWhiteSpace(' ')
-                      ParametrizedType: BazPlus[x => -*, Int, x]
-                        SimpleType: BazPlus
-                          CodeReferenceElement: BazPlus
-                            PsiElement(identifier)('BazPlus')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          FunctionalType: x => -*
-                            SimpleType: x
-                              CodeReferenceElement: x
-                                PsiElement(identifier)('x')
-                            PsiWhiteSpace(' ')
-                            PsiElement(=>)('=>')
-                            PsiWhiteSpace(' ')
-                            SimpleType: -*
-                              CodeReferenceElement: -*
-                                PsiElement(identifier)('-*')
-                          PsiElement(,)(',')
+                TypeArgument
+                  ParametrizedType: λ[`-x` => BazPlus[x => -*, Int, x]]
+                    SimpleType: λ
+                      CodeReferenceElement: λ
+                        PsiElement(identifier)('λ')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        FunctionalType: `-x` => BazPlus[x => -*, Int, x]
+                          SimpleType: `-x`
+                            CodeReferenceElement: `-x`
+                              PsiElement(identifier)('`-x`')
                           PsiWhiteSpace(' ')
-                          SimpleType: Int
-                            CodeReferenceElement: Int
-                              PsiElement(identifier)('Int')
-                          PsiElement(,)(',')
+                          PsiElement(=>)('=>')
                           PsiWhiteSpace(' ')
-                          SimpleType: x
-                            CodeReferenceElement: x
-                              PsiElement(identifier)('x')
-                          PsiElement(])(']')
-                    PsiElement(])(']')
+                          ParametrizedType: BazPlus[x => -*, Int, x]
+                            SimpleType: BazPlus
+                              CodeReferenceElement: BazPlus
+                                PsiElement(identifier)('BazPlus')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                FunctionalType: x => -*
+                                  SimpleType: x
+                                    CodeReferenceElement: x
+                                      PsiElement(identifier)('x')
+                                  PsiWhiteSpace(' ')
+                                  PsiElement(=>)('=>')
+                                  PsiWhiteSpace(' ')
+                                  SimpleType: -*
+                                    CodeReferenceElement: -*
+                                      PsiElement(identifier)('-*')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              TypeArgument
+                                SimpleType: Int
+                                  CodeReferenceElement: Int
+                                    PsiElement(identifier)('Int')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              TypeArgument
+                                SimpleType: x
+                                  CodeReferenceElement: x
+                                    PsiElement(identifier)('x')
+                              PsiElement(])(']')
+                      PsiElement(])(']')
                 PsiElement(])(']')
     PsiWhiteSpace('\n\n')
     ScClass: BackticksAreFine1
@@ -1729,21 +1802,24 @@ ScalaFile
                   PsiElement(identifier)('FooPlus')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: Either[Int, `-*`]
-                  SimpleType: Either
-                    CodeReferenceElement: Either
-                      PsiElement(identifier)('Either')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: Int
-                      CodeReferenceElement: Int
-                        PsiElement(identifier)('Int')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    SimpleType: `-*`
-                      CodeReferenceElement: `-*`
-                        PsiElement(identifier)('`-*`')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: Either[Int, `-*`]
+                    SimpleType: Either
+                      CodeReferenceElement: Either
+                        PsiElement(identifier)('Either')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        SimpleType: `-*`
+                          CodeReferenceElement: `-*`
+                            PsiElement(identifier)('`-*`')
+                      PsiElement(])(']')
                 PsiElement(])(']')
     PsiWhiteSpace('\n')
     ScClass: BackticksAreFine2
@@ -1773,21 +1849,24 @@ ScalaFile
                   PsiElement(identifier)('FooPlus')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: Either[`-*`, Int]
-                  SimpleType: Either
-                    CodeReferenceElement: Either
-                      PsiElement(identifier)('Either')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: `-*`
-                      CodeReferenceElement: `-*`
-                        PsiElement(identifier)('`-*`')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    SimpleType: Int
-                      CodeReferenceElement: Int
-                        PsiElement(identifier)('Int')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: Either[`-*`, Int]
+                    SimpleType: Either
+                      CodeReferenceElement: Either
+                        PsiElement(identifier)('Either')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: `-*`
+                          CodeReferenceElement: `-*`
+                            PsiElement(identifier)('`-*`')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement(])(']')
                 PsiElement(])(']')
     PsiWhiteSpace('\n')
     ScClass: BackticksAreFine3
@@ -1817,16 +1896,17 @@ ScalaFile
                   PsiElement(identifier)('FooMinus')
               TypeArgumentsList
                 PsiElement([)('[')
-                FunctionalType: `+*` => Int
-                  SimpleType: `+*`
-                    CodeReferenceElement: `+*`
-                      PsiElement(identifier)('`+*`')
-                  PsiWhiteSpace(' ')
-                  PsiElement(=>)('=>')
-                  PsiWhiteSpace(' ')
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
+                TypeArgument
+                  FunctionalType: `+*` => Int
+                    SimpleType: `+*`
+                      CodeReferenceElement: `+*`
+                        PsiElement(identifier)('`+*`')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
                 PsiElement(])(']')
     PsiWhiteSpace('\n')
     ScClass: BackticksAreFine4
@@ -1856,16 +1936,17 @@ ScalaFile
                   PsiElement(identifier)('FooPlus')
               TypeArgumentsList
                 PsiElement([)('[')
-                FunctionalType: Int => `-*`
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
-                  PsiWhiteSpace(' ')
-                  PsiElement(=>)('=>')
-                  PsiWhiteSpace(' ')
-                  SimpleType: `-*`
-                    CodeReferenceElement: `-*`
-                      PsiElement(identifier)('`-*`')
+                TypeArgument
+                  FunctionalType: Int => `-*`
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    SimpleType: `-*`
+                      CodeReferenceElement: `-*`
+                        PsiElement(identifier)('`-*`')
                 PsiElement(])(']')
     PsiWhiteSpace('\n')
     ScClass: BackticksAreFine5
@@ -1895,23 +1976,24 @@ ScalaFile
                   PsiElement(identifier)('FooPlus')
               TypeArgumentsList
                 PsiElement([)('[')
-                TupleType: (Int, `-*`, Int)
-                  PsiElement(()('(')
-                  TypesList
-                    SimpleType: Int
-                      CodeReferenceElement: Int
-                        PsiElement(identifier)('Int')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    SimpleType: `-*`
-                      CodeReferenceElement: `-*`
-                        PsiElement(identifier)('`-*`')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    SimpleType: Int
-                      CodeReferenceElement: Int
-                        PsiElement(identifier)('Int')
-                  PsiElement())(')')
+                TypeArgument
+                  TupleType: (Int, `-*`, Int)
+                    PsiElement(()('(')
+                    TypesList
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: `-*`
+                        CodeReferenceElement: `-*`
+                          PsiElement(identifier)('`-*`')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                    PsiElement())(')')
                 PsiElement(])(']')
     PsiWhiteSpace('\n')
     ScClass: BackticksAreFine6
@@ -1941,33 +2023,37 @@ ScalaFile
                   PsiElement(identifier)('FooPlus')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: BazPlus[Int => `-*`, `-*`, Int]
-                  SimpleType: BazPlus
-                    CodeReferenceElement: BazPlus
-                      PsiElement(identifier)('BazPlus')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    FunctionalType: Int => `-*`
-                      SimpleType: Int
-                        CodeReferenceElement: Int
-                          PsiElement(identifier)('Int')
+                TypeArgument
+                  ParametrizedType: BazPlus[Int => `-*`, `-*`, Int]
+                    SimpleType: BazPlus
+                      CodeReferenceElement: BazPlus
+                        PsiElement(identifier)('BazPlus')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        FunctionalType: Int => `-*`
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>)('=>')
+                          PsiWhiteSpace(' ')
+                          SimpleType: `-*`
+                            CodeReferenceElement: `-*`
+                              PsiElement(identifier)('`-*`')
+                      PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      PsiElement(=>)('=>')
+                      TypeArgument
+                        SimpleType: `-*`
+                          CodeReferenceElement: `-*`
+                            PsiElement(identifier)('`-*`')
+                      PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      SimpleType: `-*`
-                        CodeReferenceElement: `-*`
-                          PsiElement(identifier)('`-*`')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    SimpleType: `-*`
-                      CodeReferenceElement: `-*`
-                        PsiElement(identifier)('`-*`')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace(' ')
-                    SimpleType: Int
-                      CodeReferenceElement: Int
-                        PsiElement(identifier)('Int')
-                    PsiElement(])(']')
+                      TypeArgument
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement(])(']')
                 PsiElement(])(']')
     PsiWhiteSpace('\n')
     ScClass: BackticksAreFine7
@@ -1997,47 +2083,52 @@ ScalaFile
                   PsiElement(identifier)('Foo')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: λ[`-x` => BazPlus[x => `-*`, Int, x]]
-                  SimpleType: λ
-                    CodeReferenceElement: λ
-                      PsiElement(identifier)('λ')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    FunctionalType: `-x` => BazPlus[x => `-*`, Int, x]
-                      SimpleType: `-x`
-                        CodeReferenceElement: `-x`
-                          PsiElement(identifier)('`-x`')
-                      PsiWhiteSpace(' ')
-                      PsiElement(=>)('=>')
-                      PsiWhiteSpace(' ')
-                      ParametrizedType: BazPlus[x => `-*`, Int, x]
-                        SimpleType: BazPlus
-                          CodeReferenceElement: BazPlus
-                            PsiElement(identifier)('BazPlus')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          FunctionalType: x => `-*`
-                            SimpleType: x
-                              CodeReferenceElement: x
-                                PsiElement(identifier)('x')
-                            PsiWhiteSpace(' ')
-                            PsiElement(=>)('=>')
-                            PsiWhiteSpace(' ')
-                            SimpleType: `-*`
-                              CodeReferenceElement: `-*`
-                                PsiElement(identifier)('`-*`')
-                          PsiElement(,)(',')
+                TypeArgument
+                  ParametrizedType: λ[`-x` => BazPlus[x => `-*`, Int, x]]
+                    SimpleType: λ
+                      CodeReferenceElement: λ
+                        PsiElement(identifier)('λ')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        FunctionalType: `-x` => BazPlus[x => `-*`, Int, x]
+                          SimpleType: `-x`
+                            CodeReferenceElement: `-x`
+                              PsiElement(identifier)('`-x`')
                           PsiWhiteSpace(' ')
-                          SimpleType: Int
-                            CodeReferenceElement: Int
-                              PsiElement(identifier)('Int')
-                          PsiElement(,)(',')
+                          PsiElement(=>)('=>')
                           PsiWhiteSpace(' ')
-                          SimpleType: x
-                            CodeReferenceElement: x
-                              PsiElement(identifier)('x')
-                          PsiElement(])(']')
-                    PsiElement(])(']')
+                          ParametrizedType: BazPlus[x => `-*`, Int, x]
+                            SimpleType: BazPlus
+                              CodeReferenceElement: BazPlus
+                                PsiElement(identifier)('BazPlus')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                FunctionalType: x => `-*`
+                                  SimpleType: x
+                                    CodeReferenceElement: x
+                                      PsiElement(identifier)('x')
+                                  PsiWhiteSpace(' ')
+                                  PsiElement(=>)('=>')
+                                  PsiWhiteSpace(' ')
+                                  SimpleType: `-*`
+                                    CodeReferenceElement: `-*`
+                                      PsiElement(identifier)('`-*`')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              TypeArgument
+                                SimpleType: Int
+                                  CodeReferenceElement: Int
+                                    PsiElement(identifier)('Int')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              TypeArgument
+                                SimpleType: x
+                                  CodeReferenceElement: x
+                                    PsiElement(identifier)('x')
+                              PsiElement(])(']')
+                      PsiElement(])(']')
                 PsiElement(])(']')
     PsiWhiteSpace('\n')
     ScClass: BackticksAreFine8
@@ -2067,47 +2158,52 @@ ScalaFile
                   PsiElement(identifier)('Foo')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: λ[`x` => BazPlus[x => `*`, Int, x]]
-                  SimpleType: λ
-                    CodeReferenceElement: λ
-                      PsiElement(identifier)('λ')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    FunctionalType: `x` => BazPlus[x => `*`, Int, x]
-                      SimpleType: `x`
-                        CodeReferenceElement: `x`
-                          PsiElement(identifier)('`x`')
-                      PsiWhiteSpace(' ')
-                      PsiElement(=>)('=>')
-                      PsiWhiteSpace(' ')
-                      ParametrizedType: BazPlus[x => `*`, Int, x]
-                        SimpleType: BazPlus
-                          CodeReferenceElement: BazPlus
-                            PsiElement(identifier)('BazPlus')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          FunctionalType: x => `*`
-                            SimpleType: x
-                              CodeReferenceElement: x
-                                PsiElement(identifier)('x')
-                            PsiWhiteSpace(' ')
-                            PsiElement(=>)('=>')
-                            PsiWhiteSpace(' ')
-                            SimpleType: `*`
-                              CodeReferenceElement: `*`
-                                PsiElement(identifier)('`*`')
-                          PsiElement(,)(',')
+                TypeArgument
+                  ParametrizedType: λ[`x` => BazPlus[x => `*`, Int, x]]
+                    SimpleType: λ
+                      CodeReferenceElement: λ
+                        PsiElement(identifier)('λ')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        FunctionalType: `x` => BazPlus[x => `*`, Int, x]
+                          SimpleType: `x`
+                            CodeReferenceElement: `x`
+                              PsiElement(identifier)('`x`')
                           PsiWhiteSpace(' ')
-                          SimpleType: Int
-                            CodeReferenceElement: Int
-                              PsiElement(identifier)('Int')
-                          PsiElement(,)(',')
+                          PsiElement(=>)('=>')
                           PsiWhiteSpace(' ')
-                          SimpleType: x
-                            CodeReferenceElement: x
-                              PsiElement(identifier)('x')
-                          PsiElement(])(']')
-                    PsiElement(])(']')
+                          ParametrizedType: BazPlus[x => `*`, Int, x]
+                            SimpleType: BazPlus
+                              CodeReferenceElement: BazPlus
+                                PsiElement(identifier)('BazPlus')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                FunctionalType: x => `*`
+                                  SimpleType: x
+                                    CodeReferenceElement: x
+                                      PsiElement(identifier)('x')
+                                  PsiWhiteSpace(' ')
+                                  PsiElement(=>)('=>')
+                                  PsiWhiteSpace(' ')
+                                  SimpleType: `*`
+                                    CodeReferenceElement: `*`
+                                      PsiElement(identifier)('`*`')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              TypeArgument
+                                SimpleType: Int
+                                  CodeReferenceElement: Int
+                                    PsiElement(identifier)('Int')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              TypeArgument
+                                SimpleType: x
+                                  CodeReferenceElement: x
+                                    PsiElement(identifier)('x')
+                              PsiElement(])(']')
+                      PsiElement(])(']')
                 PsiElement(])(']')
     PsiWhiteSpace('\n\n')
     ScObject: A

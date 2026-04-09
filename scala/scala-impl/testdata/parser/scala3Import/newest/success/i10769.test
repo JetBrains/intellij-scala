@@ -141,9 +141,10 @@ ScalaFile
                         PsiElement(identifier)('Txn')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                       PsiElement(])(']')
                   PsiWhiteSpace(' ')
                   PsiElement(=)('=')
@@ -214,9 +215,10 @@ ScalaFile
                               PsiElement(identifier)('Txn')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: Nothing
-                              CodeReferenceElement: Nothing
-                                PsiElement(identifier)('Nothing')
+                            TypeArgument
+                              SimpleType: Nothing
+                                CodeReferenceElement: Nothing
+                                  PsiElement(identifier)('Nothing')
                             PsiElement(])(']')
                 PsiWhiteSpace('\n    ')
                 ScObject: Noop
@@ -240,9 +242,10 @@ ScalaFile
                               PsiElement(identifier)('Txn')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: Nothing
-                              CodeReferenceElement: Nothing
-                                PsiElement(identifier)('Nothing')
+                            TypeArgument
+                              SimpleType: Nothing
+                                CodeReferenceElement: Nothing
+                                  PsiElement(identifier)('Nothing')
                             PsiElement(])(']')
                 PsiWhiteSpace('\n  ')
                 PsiElement(})('}')

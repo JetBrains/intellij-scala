@@ -105,9 +105,10 @@ ScalaFile
             PsiElement(identifier)('asInstanceOf')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: M
-              CodeReferenceElement: M
-                PsiElement(identifier)('M')
+            TypeArgument
+              SimpleType: M
+                CodeReferenceElement: M
+                  PsiElement(identifier)('M')
             PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       TypedExpression

@@ -134,9 +134,10 @@ ScalaFile
                 PsiElement(identifier)('Set')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: State
-                CodeReferenceElement: State
-                  PsiElement(identifier)('State')
+              TypeArgument
+                SimpleType: State
+                  CodeReferenceElement: State
+                    PsiElement(identifier)('State')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -317,9 +318,10 @@ ScalaFile
                 PsiElement(identifier)('Set')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T2
-                CodeReferenceElement: T2
-                  PsiElement(identifier)('T2')
+              TypeArgument
+                SimpleType: T2
+                  CodeReferenceElement: T2
+                    PsiElement(identifier)('T2')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScFunctionDefinition: f

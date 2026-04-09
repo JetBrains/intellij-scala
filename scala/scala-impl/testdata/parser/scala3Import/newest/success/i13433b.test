@@ -145,16 +145,18 @@ ScalaFile
                   PsiElement(identifier)('ClassTag')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: Matcher[A]
-                  SimpleType: Matcher
-                    CodeReferenceElement: Matcher
-                      PsiElement(identifier)('Matcher')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: A
-                      CodeReferenceElement: A
-                        PsiElement(identifier)('A')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: Matcher[A]
+                    SimpleType: Matcher
+                      CodeReferenceElement: Matcher
+                        PsiElement(identifier)('Matcher')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                      PsiElement(])(']')
                 PsiElement(])(']')
         PsiElement())(')')
     PsiElement(:)(':')
@@ -165,16 +167,18 @@ ScalaFile
           PsiElement(identifier)('Option')
       TypeArgumentsList
         PsiElement([)('[')
-        ParametrizedType: Matcher[A]
-          SimpleType: Matcher
-            CodeReferenceElement: Matcher
-              PsiElement(identifier)('Matcher')
-          TypeArgumentsList
-            PsiElement([)('[')
-            SimpleType: A
-              CodeReferenceElement: A
-                PsiElement(identifier)('A')
-            PsiElement(])(']')
+        TypeArgument
+          ParametrizedType: Matcher[A]
+            SimpleType: Matcher
+              CodeReferenceElement: Matcher
+                PsiElement(identifier)('Matcher')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
+              PsiElement(])(']')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -208,9 +212,10 @@ ScalaFile
                       PsiElement(identifier)('Matcher')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: A
-                      CodeReferenceElement: A
-                        PsiElement(identifier)('A')
+                    TypeArgument
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
                     PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(=>)('=>')
@@ -289,16 +294,18 @@ ScalaFile
                   PsiElement(identifier)('ClassTag')
               TypeArgumentsList
                 PsiElement([)('[')
-                ParametrizedType: Matcher[A]
-                  SimpleType: Matcher
-                    CodeReferenceElement: Matcher
-                      PsiElement(identifier)('Matcher')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: A
-                      CodeReferenceElement: A
-                        PsiElement(identifier)('A')
-                    PsiElement(])(']')
+                TypeArgument
+                  ParametrizedType: Matcher[A]
+                    SimpleType: Matcher
+                      CodeReferenceElement: Matcher
+                        PsiElement(identifier)('Matcher')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                      PsiElement(])(']')
                 PsiElement(])(']')
         PsiElement())(')')
     PsiElement(:)(':')
@@ -309,16 +316,18 @@ ScalaFile
           PsiElement(identifier)('Option')
       TypeArgumentsList
         PsiElement([)('[')
-        ParametrizedType: Matcher[A]
-          SimpleType: Matcher
-            CodeReferenceElement: Matcher
-              PsiElement(identifier)('Matcher')
-          TypeArgumentsList
-            PsiElement([)('[')
-            SimpleType: A
-              CodeReferenceElement: A
-                PsiElement(identifier)('A')
-            PsiElement(])(']')
+        TypeArgument
+          ParametrizedType: Matcher[A]
+            SimpleType: Matcher
+              CodeReferenceElement: Matcher
+                PsiElement(identifier)('Matcher')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
+              PsiElement(])(']')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -343,9 +352,10 @@ ScalaFile
               PsiElement(identifier)('Matcher')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: A
-              CodeReferenceElement: A
-                PsiElement(identifier)('A')
+            TypeArgument
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
             PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       MatchStatement
@@ -432,9 +442,10 @@ ScalaFile
                 PsiElement(identifier)('patternMatch')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: String
-                  CodeReferenceElement: String
-                    PsiElement(identifier)('String')
+                TypeArgument
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
                 PsiElement(])(']')
             ArgumentList
               PsiElement(()('(')
@@ -454,9 +465,10 @@ ScalaFile
                 PsiElement(identifier)('patternMatchWithAlias')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: String
-                  CodeReferenceElement: String
-                    PsiElement(identifier)('String')
+                TypeArgument
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
                 PsiElement(])(']')
             ArgumentList
               PsiElement(()('(')
@@ -476,9 +488,10 @@ ScalaFile
                 PsiElement(identifier)('patternMatch')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: String
-                  CodeReferenceElement: String
-                    PsiElement(identifier)('String')
+                TypeArgument
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
                 PsiElement(])(']')
             ArgumentList
               PsiElement(()('(')
@@ -498,9 +511,10 @@ ScalaFile
                 PsiElement(identifier)('patternMatchWithAlias')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: String
-                  CodeReferenceElement: String
-                    PsiElement(identifier)('String')
+                TypeArgument
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
                 PsiElement(])(']')
             ArgumentList
               PsiElement(()('(')

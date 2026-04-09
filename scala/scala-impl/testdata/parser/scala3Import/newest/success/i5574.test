@@ -101,9 +101,10 @@ ScalaFile
                 PsiElement(identifier)('erasedValue')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: T
-                  CodeReferenceElement: T
-                    PsiElement(identifier)('T')
+                TypeArgument
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(match)('match')
@@ -126,8 +127,9 @@ ScalaFile
                           PsiElement(identifier)('Box')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        TypeVariable: f
-                          PsiElement(identifier)('f')
+                        TypeArgument
+                          TypeVariable: f
+                            PsiElement(identifier)('f')
                         PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
@@ -155,9 +157,10 @@ ScalaFile
                           PsiElement(identifier)('f')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: X
-                          CodeReferenceElement: X
-                            PsiElement(identifier)('X')
+                        TypeArgument
+                          SimpleType: X
+                            CodeReferenceElement: X
+                              PsiElement(identifier)('X')
                         PsiElement(])(']')
                   PsiWhiteSpace('\n        ')
                   IntegerLiteral
@@ -170,16 +173,18 @@ ScalaFile
             PsiElement(identifier)('foo')
           TypeArgumentsList
             PsiElement([)('[')
-            ParametrizedType: Box[List]
-              SimpleType: Box
-                CodeReferenceElement: Box
-                  PsiElement(identifier)('Box')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: List
-                  CodeReferenceElement: List
-                    PsiElement(identifier)('List')
-                PsiElement(])(']')
+            TypeArgument
+              ParametrizedType: Box[List]
+                SimpleType: Box
+                  CodeReferenceElement: Box
+                    PsiElement(identifier)('Box')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: List
+                      CodeReferenceElement: List
+                        PsiElement(identifier)('List')
+                  PsiElement(])(']')
             PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

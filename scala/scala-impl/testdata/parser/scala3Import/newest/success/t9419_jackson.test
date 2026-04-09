@@ -99,15 +99,17 @@ ScalaFile
                 PsiElement(identifier)('EnrichedType')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Class[_]
-                SimpleType: Class
-                  CodeReferenceElement: Class
-                    PsiElement(identifier)('Class')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  WildcardType: _
-                    PsiElement(_)('_')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Class[_]
+                  SimpleType: Class
+                    CodeReferenceElement: Class
+                      PsiElement(identifier)('Class')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      WildcardType: _
+                        PsiElement(_)('_')
+                    PsiElement(])(']')
               PsiElement(])(']')
       ScTemplateBody
         PsiElement(:)(':')
@@ -176,8 +178,9 @@ ScalaFile
                         PsiElement(identifier)('Class')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      WildcardType: _
-                        PsiElement(_)('_')
+                      TypeArgument
+                        WildcardType: _
+                          PsiElement(_)('_')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -243,8 +246,9 @@ ScalaFile
                         PsiElement(identifier)('Class')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      WildcardType: _
-                        PsiElement(_)('_')
+                      TypeArgument
+                        WildcardType: _
+                          PsiElement(_)('_')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiWhiteSpace(' ')
@@ -284,8 +288,9 @@ ScalaFile
                         PsiElement(identifier)('Class')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      WildcardType: _
-                        PsiElement(_)('_')
+                      TypeArgument
+                        WildcardType: _
+                          PsiElement(_)('_')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiWhiteSpace(' ')

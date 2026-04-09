@@ -56,9 +56,10 @@ ScalaFile
               PsiElement(identifier)('SQLSyntaxSupport')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: A
-              CodeReferenceElement: A
-                PsiElement(identifier)('A')
+            TypeArgument
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
             PsiElement(])(']')
       PsiElement(,)(',')
       PsiWhiteSpace(' ')
@@ -96,9 +97,10 @@ ScalaFile
               PsiElement(identifier)('SQLSyntaxSupport')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: A
-              CodeReferenceElement: A
-                PsiElement(identifier)('A')
+            TypeArgument
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
             PsiElement(])(']')
       PsiElement(,)(',')
       PsiWhiteSpace(' ')
@@ -134,14 +136,16 @@ ScalaFile
                 PsiElement(identifier)('ResultNameSQLSyntaxProvider')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: S
-                CodeReferenceElement: S
-                  PsiElement(identifier)('S')
+              TypeArgument
+                SimpleType: S
+                  CodeReferenceElement: S
+                    PsiElement(identifier)('S')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -177,12 +181,14 @@ ScalaFile
                   PsiElement(identifier)('QuerySQLSyntaxProvider')
               TypeArgumentsList
                 PsiElement([)('[')
-                WildcardType: _
-                  PsiElement(_)('_')
+                TypeArgument
+                  WildcardType: _
+                    PsiElement(_)('_')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                WildcardType: _
-                  PsiElement(_)('_')
+                TypeArgument
+                  WildcardType: _
+                    PsiElement(_)('_')
                 PsiElement(])(']')
             PsiElement(identifier)('*')
         PsiElement())(')')
@@ -247,12 +253,14 @@ ScalaFile
                   PsiElement(identifier)('ResultNameSQLSyntaxProvider')
               TypeArgumentsList
                 PsiElement([)('[')
-                WildcardType: _
-                  PsiElement(_)('_')
+                TypeArgument
+                  WildcardType: _
+                    PsiElement(_)('_')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                WildcardType: _
-                  PsiElement(_)('_')
+                TypeArgument
+                  WildcardType: _
+                    PsiElement(_)('_')
                 PsiElement(])(']')
             PsiElement(identifier)('*')
         PsiElement())(')')

@@ -89,9 +89,10 @@ ScalaFile
                       PsiElement(identifier)('TypeRep')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Int
-                      CodeReferenceElement: Int
-                        PsiElement(identifier)('Int')
+                    TypeArgument
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
                     PsiElement(])(']')
             PsiWhiteSpace(' ')
             ScTemplateBody
@@ -137,9 +138,10 @@ ScalaFile
                       PsiElement(identifier)('TypeRep')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: Boolean
-                      CodeReferenceElement: Boolean
-                        PsiElement(identifier)('Boolean')
+                    TypeArgument
+                      SimpleType: Boolean
+                        CodeReferenceElement: Boolean
+                          PsiElement(identifier)('Boolean')
                     PsiElement(])(']')
             PsiWhiteSpace(' ')
             ScTemplateBody
@@ -201,9 +203,10 @@ ScalaFile
                           PsiElement(identifier)('TypeRep')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: T
-                          CodeReferenceElement: T
-                            PsiElement(identifier)('T')
+                        TypeArgument
+                          SimpleType: T
+                            CodeReferenceElement: T
+                              PsiElement(identifier)('T')
                         PsiElement(])(']')
                 PsiElement())(')')
           PsiWhiteSpace(' ')
@@ -218,16 +221,18 @@ ScalaFile
                       PsiElement(identifier)('TypeRep')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    ParametrizedType: List[T]
-                      SimpleType: List
-                        CodeReferenceElement: List
-                          PsiElement(identifier)('List')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        SimpleType: T
-                          CodeReferenceElement: T
-                            PsiElement(identifier)('T')
-                        PsiElement(])(']')
+                    TypeArgument
+                      ParametrizedType: List[T]
+                        SimpleType: List
+                          CodeReferenceElement: List
+                            PsiElement(identifier)('List')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: T
+                              CodeReferenceElement: T
+                                PsiElement(identifier)('T')
+                          PsiElement(])(']')
                     PsiElement(])(']')
             PsiWhiteSpace(' ')
             ScTemplateBody
@@ -271,9 +276,10 @@ ScalaFile
                 PsiElement(identifier)('TypeRep')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
+              TypeArgument
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -300,9 +306,10 @@ ScalaFile
                 PsiElement(identifier)('TypeRep')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Boolean
-                CodeReferenceElement: Boolean
-                  PsiElement(identifier)('Boolean')
+              TypeArgument
+                SimpleType: Boolean
+                  CodeReferenceElement: Boolean
+                    PsiElement(identifier)('Boolean')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -344,9 +351,10 @@ ScalaFile
                         PsiElement(identifier)('TypeRep')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: T
-                        CodeReferenceElement: T
-                          PsiElement(identifier)('T')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -357,16 +365,18 @@ ScalaFile
                 PsiElement(identifier)('TypeRep')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: List[T]
-                SimpleType: List
-                  CodeReferenceElement: List
-                    PsiElement(identifier)('List')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: T
-                    CodeReferenceElement: T
-                      PsiElement(identifier)('T')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: List[T]
+                  SimpleType: List
+                    CodeReferenceElement: List
+                      PsiElement(identifier)('List')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                    PsiElement(])(']')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -428,9 +438,10 @@ ScalaFile
                         PsiElement(identifier)('TypeRep')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: T
-                        CodeReferenceElement: T
-                          PsiElement(identifier)('T')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -441,9 +452,10 @@ ScalaFile
                 PsiElement(identifier)('TypeRep')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

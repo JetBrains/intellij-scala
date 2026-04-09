@@ -103,9 +103,10 @@ ScalaFile
           PsiElement(identifier)('Semigroup')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: Int
-          CodeReferenceElement: Int
-            PsiElement(identifier)('Int')
+        TypeArgument
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
         PsiElement(])(']')
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
@@ -142,9 +143,10 @@ ScalaFile
                   PsiElement(identifier)('Semigroup')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: A
-                  CodeReferenceElement: A
-                    PsiElement(identifier)('A')
+                TypeArgument
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
                 PsiElement(])(']')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
@@ -156,9 +158,10 @@ ScalaFile
                   PsiElement(identifier)('Semigroup')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: B
-                  CodeReferenceElement: B
-                    PsiElement(identifier)('B')
+                TypeArgument
+                  SimpleType: B
+                    CodeReferenceElement: B
+                      PsiElement(identifier)('B')
                 PsiElement(])(']')
         PsiElement())(')')
     PsiElement(:)(':')
@@ -169,18 +172,19 @@ ScalaFile
           PsiElement(identifier)('Semigroup')
       TypeArgumentsList
         PsiElement([)('[')
-        TupleType: (A, B)
-          PsiElement(()('(')
-          TypesList
-            SimpleType: A
-              CodeReferenceElement: A
-                PsiElement(identifier)('A')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            SimpleType: B
-              CodeReferenceElement: B
-                PsiElement(identifier)('B')
-          PsiElement())(')')
+        TypeArgument
+          TupleType: (A, B)
+            PsiElement(()('(')
+            TypesList
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: B
+                CodeReferenceElement: B
+                  PsiElement(identifier)('B')
+            PsiElement())(')')
         PsiElement(])(']')
     PsiWhiteSpace('  ')
     PsiElement(=)('=')

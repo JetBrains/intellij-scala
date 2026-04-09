@@ -238,9 +238,10 @@ ScalaFile
                               PsiElement(identifier)('List')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: Tree
-                              CodeReferenceElement: Tree
-                                PsiElement(identifier)('Tree')
+                            TypeArgument
+                              SimpleType: Tree
+                                CodeReferenceElement: Tree
+                                  PsiElement(identifier)('Tree')
                             PsiElement(])(']')
                     PsiElement())(')')
                 PsiElement(:)(':')
@@ -279,16 +280,18 @@ ScalaFile
                         PsiElement(identifier)('TreeAccumulator')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      ParametrizedType: List[Symbol]
-                        SimpleType: List
-                          CodeReferenceElement: List
-                            PsiElement(identifier)('List')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: Symbol
-                            CodeReferenceElement: Symbol
-                              PsiElement(identifier)('Symbol')
-                          PsiElement(])(']')
+                      TypeArgument
+                        ParametrizedType: List[Symbol]
+                          SimpleType: List
+                            CodeReferenceElement: List
+                              PsiElement(identifier)('List')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: Symbol
+                                CodeReferenceElement: Symbol
+                                  PsiElement(identifier)('Symbol')
+                            PsiElement(])(']')
                       PsiElement(])(']')
               ScTemplateBody
                 PsiElement(:)(':')
@@ -319,9 +322,10 @@ ScalaFile
                                 PsiElement(identifier)('List')
                             TypeArgumentsList
                               PsiElement([)('[')
-                              SimpleType: Symbol
-                                CodeReferenceElement: Symbol
-                                  PsiElement(identifier)('Symbol')
+                              TypeArgument
+                                SimpleType: Symbol
+                                  CodeReferenceElement: Symbol
+                                    PsiElement(identifier)('Symbol')
                               PsiElement(])(']')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
@@ -523,9 +527,10 @@ ScalaFile
                               PsiElement(identifier)('List')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: Tree
-                              CodeReferenceElement: Tree
-                                PsiElement(identifier)('Tree')
+                            TypeArgument
+                              SimpleType: Tree
+                                CodeReferenceElement: Tree
+                                  PsiElement(identifier)('Tree')
                             PsiElement(])(']')
                     PsiElement())(')')
                 PsiElement(:)(':')
@@ -564,16 +569,18 @@ ScalaFile
                         PsiElement(identifier)('TreeAccumulator')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      ParametrizedType: List[Symbol]
-                        SimpleType: List
-                          CodeReferenceElement: List
-                            PsiElement(identifier)('List')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: Symbol
-                            CodeReferenceElement: Symbol
-                              PsiElement(identifier)('Symbol')
-                          PsiElement(])(']')
+                      TypeArgument
+                        ParametrizedType: List[Symbol]
+                          SimpleType: List
+                            CodeReferenceElement: List
+                              PsiElement(identifier)('List')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: Symbol
+                                CodeReferenceElement: Symbol
+                                  PsiElement(identifier)('Symbol')
+                            PsiElement(])(']')
                       PsiElement(])(']')
               ScTemplateBody
                 PsiElement(:)(':')
@@ -616,9 +623,10 @@ ScalaFile
                                 PsiElement(identifier)('List')
                             TypeArgumentsList
                               PsiElement([)('[')
-                              SimpleType: Symbol
-                                CodeReferenceElement: Symbol
-                                  PsiElement(identifier)('Symbol')
+                              TypeArgument
+                                SimpleType: Symbol
+                                  CodeReferenceElement: Symbol
+                                    PsiElement(identifier)('Symbol')
                               PsiElement(])(']')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')

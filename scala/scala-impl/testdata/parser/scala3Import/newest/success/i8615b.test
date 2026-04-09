@@ -58,16 +58,18 @@ ScalaFile
                 PsiElement(identifier)('Comparable')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Array[N]
-                SimpleType: Array
-                  CodeReferenceElement: Array
-                    PsiElement(identifier)('Array')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: N
-                    CodeReferenceElement: N
-                      PsiElement(identifier)('N')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Array[N]
+                  SimpleType: Array
+                    CodeReferenceElement: Array
+                      PsiElement(identifier)('Array')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: N
+                        CodeReferenceElement: N
+                          PsiElement(identifier)('N')
+                    PsiElement(])(']')
               PsiElement(])(']')
       PsiWhiteSpace(' ')
       ScTemplateBody
@@ -100,9 +102,10 @@ ScalaFile
                         PsiElement(identifier)('Array')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: N
-                        CodeReferenceElement: N
-                          PsiElement(identifier)('N')
+                      TypeArgument
+                        SimpleType: N
+                          CodeReferenceElement: N
+                            PsiElement(identifier)('N')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -154,16 +157,18 @@ ScalaFile
                 PsiElement(identifier)('Comparable')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Array[Int]
-                SimpleType: Array
-                  CodeReferenceElement: Array
-                    PsiElement(identifier)('Array')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Array[Int]
+                  SimpleType: Array
+                    CodeReferenceElement: Array
+                      PsiElement(identifier)('Array')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                    PsiElement(])(']')
               PsiElement(])(']')
       PsiWhiteSpace(' ')
       ScTemplateBody
@@ -196,9 +201,10 @@ ScalaFile
                         PsiElement(identifier)('Array')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Int
-                        CodeReferenceElement: Int
-                          PsiElement(identifier)('Int')
+                      TypeArgument
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -255,16 +261,18 @@ ScalaFile
                 PsiElement(identifier)('Comparable')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Array[N]
-                SimpleType: Array
-                  CodeReferenceElement: Array
-                    PsiElement(identifier)('Array')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: N
-                    CodeReferenceElement: N
-                      PsiElement(identifier)('N')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Array[N]
+                  SimpleType: Array
+                    CodeReferenceElement: Array
+                      PsiElement(identifier)('Array')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: N
+                        CodeReferenceElement: N
+                          PsiElement(identifier)('N')
+                    PsiElement(])(']')
               PsiElement(])(']')
       PsiWhiteSpace(' ')
       ScTemplateBody
@@ -307,9 +315,10 @@ ScalaFile
                         PsiElement(identifier)('Array')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: N
-                        CodeReferenceElement: N
-                          PsiElement(identifier)('N')
+                      TypeArgument
+                        SimpleType: N
+                          CodeReferenceElement: N
+                            PsiElement(identifier)('N')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -361,16 +370,18 @@ ScalaFile
                 PsiElement(identifier)('Comparable')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: Array[Int]
-                SimpleType: Array
-                  CodeReferenceElement: Array
-                    PsiElement(identifier)('Array')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: Int
-                    CodeReferenceElement: Int
-                      PsiElement(identifier)('Int')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: Array[Int]
+                  SimpleType: Array
+                    CodeReferenceElement: Array
+                      PsiElement(identifier)('Array')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                    PsiElement(])(']')
               PsiElement(])(']')
       PsiWhiteSpace(' ')
       ScTemplateBody
@@ -413,9 +424,10 @@ ScalaFile
                         PsiElement(identifier)('Array')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: Int
-                        CodeReferenceElement: Int
-                          PsiElement(identifier)('Int')
+                      TypeArgument
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')

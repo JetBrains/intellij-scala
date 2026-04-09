@@ -32,39 +32,40 @@ ScalaFile
           PsiElement(identifier)('implicitly')
         TypeArgumentsList
           PsiElement([)('[')
-          InfixType: ("k" | "v") <:< ("k" | "v")
-            TypeInParenthesis: ("k" | "v")
-              PsiElement(()('(')
-              InfixType: "k" | "v"
-                LiteralType: "k"
-                  StringLiteral
-                    PsiElement(string content)('"k"')
-                PsiWhiteSpace(' ')
-                CodeReferenceElement: |
-                  PsiElement(identifier)('|')
-                PsiWhiteSpace(' ')
-                LiteralType: "v"
-                  StringLiteral
-                    PsiElement(string content)('"v"')
-              PsiElement())(')')
-            PsiWhiteSpace(' ')
-            CodeReferenceElement: <:<
-              PsiElement(identifier)('<:<')
-            PsiWhiteSpace(' ')
-            TypeInParenthesis: ("k" | "v")
-              PsiElement(()('(')
-              InfixType: "k" | "v"
-                LiteralType: "k"
-                  StringLiteral
-                    PsiElement(string content)('"k"')
-                PsiWhiteSpace(' ')
-                CodeReferenceElement: |
-                  PsiElement(identifier)('|')
-                PsiWhiteSpace(' ')
-                LiteralType: "v"
-                  StringLiteral
-                    PsiElement(string content)('"v"')
-              PsiElement())(')')
+          TypeArgument
+            InfixType: ("k" | "v") <:< ("k" | "v")
+              TypeInParenthesis: ("k" | "v")
+                PsiElement(()('(')
+                InfixType: "k" | "v"
+                  LiteralType: "k"
+                    StringLiteral
+                      PsiElement(string content)('"k"')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: |
+                    PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralType: "v"
+                    StringLiteral
+                      PsiElement(string content)('"v"')
+                PsiElement())(')')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: <:<
+                PsiElement(identifier)('<:<')
+              PsiWhiteSpace(' ')
+              TypeInParenthesis: ("k" | "v")
+                PsiElement(()('(')
+                InfixType: "k" | "v"
+                  LiteralType: "k"
+                    StringLiteral
+                      PsiElement(string content)('"k"')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: |
+                    PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralType: "v"
+                    StringLiteral
+                      PsiElement(string content)('"v"')
+                PsiElement())(')')
           PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       GenericCall
@@ -72,39 +73,40 @@ ScalaFile
           PsiElement(identifier)('implicitly')
         TypeArgumentsList
           PsiElement([)('[')
-          InfixType: ("k" | "v") =:= ("k" | "v")
-            TypeInParenthesis: ("k" | "v")
-              PsiElement(()('(')
-              InfixType: "k" | "v"
-                LiteralType: "k"
-                  StringLiteral
-                    PsiElement(string content)('"k"')
-                PsiWhiteSpace(' ')
-                CodeReferenceElement: |
-                  PsiElement(identifier)('|')
-                PsiWhiteSpace(' ')
-                LiteralType: "v"
-                  StringLiteral
-                    PsiElement(string content)('"v"')
-              PsiElement())(')')
-            PsiWhiteSpace(' ')
-            CodeReferenceElement: =:=
-              PsiElement(identifier)('=:=')
-            PsiWhiteSpace(' ')
-            TypeInParenthesis: ("k" | "v")
-              PsiElement(()('(')
-              InfixType: "k" | "v"
-                LiteralType: "k"
-                  StringLiteral
-                    PsiElement(string content)('"k"')
-                PsiWhiteSpace(' ')
-                CodeReferenceElement: |
-                  PsiElement(identifier)('|')
-                PsiWhiteSpace(' ')
-                LiteralType: "v"
-                  StringLiteral
-                    PsiElement(string content)('"v"')
-              PsiElement())(')')
+          TypeArgument
+            InfixType: ("k" | "v") =:= ("k" | "v")
+              TypeInParenthesis: ("k" | "v")
+                PsiElement(()('(')
+                InfixType: "k" | "v"
+                  LiteralType: "k"
+                    StringLiteral
+                      PsiElement(string content)('"k"')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: |
+                    PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralType: "v"
+                    StringLiteral
+                      PsiElement(string content)('"v"')
+                PsiElement())(')')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              TypeInParenthesis: ("k" | "v")
+                PsiElement(()('(')
+                InfixType: "k" | "v"
+                  LiteralType: "k"
+                    StringLiteral
+                      PsiElement(string content)('"k"')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: |
+                    PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  LiteralType: "v"
+                    StringLiteral
+                      PsiElement(string content)('"v"')
+                PsiElement())(')')
           PsiElement(])(']')
       PsiWhiteSpace('\n')
       PsiElement(})('}')

@@ -73,9 +73,10 @@ ScalaFile
                 PsiElement(identifier)('ForcedRecompilationToken')
             TypeArgumentsList
               PsiElement([)('[')
-              LiteralType: "abc"
-                StringLiteral
-                  PsiElement(string content)('"abc"')
+              TypeArgument
+                LiteralType: "abc"
+                  StringLiteral
+                    PsiElement(string content)('"abc"')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -123,9 +124,10 @@ ScalaFile
                     PsiElement(identifier)('ForcedRecompilationToken')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: T
-                    CodeReferenceElement: T
-                      PsiElement(identifier)('T')
+                  TypeArgument
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
                   PsiElement(])(']')
           PsiElement())(')')
     ExtendsBlock
@@ -153,9 +155,10 @@ ScalaFile
           PsiElement(identifier)('GoodNoParens')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleType: T
-          CodeReferenceElement: T
-            PsiElement(identifier)('T')
+        TypeArgument
+          SimpleType: T
+            CodeReferenceElement: T
+              PsiElement(identifier)('T')
         PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScObject: A

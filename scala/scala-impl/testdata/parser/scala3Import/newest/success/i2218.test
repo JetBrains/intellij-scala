@@ -96,9 +96,10 @@ ScalaFile
                 PsiElement(identifier)('Rule')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: In
-                CodeReferenceElement: In
-                  PsiElement(identifier)('In')
+              TypeArgument
+                SimpleType: In
+                  CodeReferenceElement: In
+                    PsiElement(identifier)('In')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -180,9 +181,10 @@ ScalaFile
                       PsiElement(identifier)('Rule')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: In
-                      CodeReferenceElement: In
-                        PsiElement(identifier)('In')
+                    TypeArgument
+                      SimpleType: In
+                        CodeReferenceElement: In
+                          PsiElement(identifier)('In')
                     PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

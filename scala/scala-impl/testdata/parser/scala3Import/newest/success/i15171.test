@@ -136,16 +136,18 @@ ScalaFile
                         PsiElement(identifier)('Expr')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      ParametrizedType: SelectLoop[F]
-                        SimpleType: SelectLoop
-                          CodeReferenceElement: SelectLoop
-                            PsiElement(identifier)('SelectLoop')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: F
-                            CodeReferenceElement: F
-                              PsiElement(identifier)('F')
-                          PsiElement(])(']')
+                      TypeArgument
+                        ParametrizedType: SelectLoop[F]
+                          SimpleType: SelectLoop
+                            CodeReferenceElement: SelectLoop
+                              PsiElement(identifier)('SelectLoop')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: F
+                                CodeReferenceElement: F
+                                  PsiElement(identifier)('F')
+                            PsiElement(])(']')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -156,16 +158,18 @@ ScalaFile
                 PsiElement(identifier)('Expr')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: SelectLoop[F]
-                SimpleType: SelectLoop
-                  CodeReferenceElement: SelectLoop
-                    PsiElement(identifier)('SelectLoop')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: F
-                    CodeReferenceElement: F
-                      PsiElement(identifier)('F')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: SelectLoop[F]
+                  SimpleType: SelectLoop
+                    CodeReferenceElement: SelectLoop
+                      PsiElement(identifier)('SelectLoop')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: F
+                        CodeReferenceElement: F
+                          PsiElement(identifier)('F')
+                    PsiElement(])(']')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n ')
   ScClass: SelectLoop
@@ -206,9 +210,10 @@ ScalaFile
                     PsiElement(identifier)('Ctx')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: F
-                    CodeReferenceElement: F
-                      PsiElement(identifier)('F')
+                  TypeArgument
+                    SimpleType: F
+                      CodeReferenceElement: F
+                        PsiElement(identifier)('F')
                   PsiElement(])(']')
           PsiElement())(')')
     ExtendsBlock
@@ -262,9 +267,10 @@ ScalaFile
                         PsiElement(identifier)('Ctx')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: F
-                        CodeReferenceElement: F
-                          PsiElement(identifier)('F')
+                      TypeArgument
+                        SimpleType: F
+                          CodeReferenceElement: F
+                            PsiElement(identifier)('F')
                       PsiElement(])(']')
               PsiElement())(')')
             ParametersClause
@@ -284,16 +290,18 @@ ScalaFile
                         PsiElement(identifier)('List')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      ParametrizedType: Selector[F]
-                        SimpleType: Selector
-                          CodeReferenceElement: Selector
-                            PsiElement(identifier)('Selector')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: F
-                            CodeReferenceElement: F
-                              PsiElement(identifier)('F')
-                          PsiElement(])(']')
+                      TypeArgument
+                        ParametrizedType: Selector[F]
+                          SimpleType: Selector
+                            CodeReferenceElement: Selector
+                              PsiElement(identifier)('Selector')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: F
+                                CodeReferenceElement: F
+                                  PsiElement(identifier)('F')
+                            PsiElement(])(']')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -304,9 +312,10 @@ ScalaFile
                 PsiElement(identifier)('Expr')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Unit
-                CodeReferenceElement: Unit
-                  PsiElement(identifier)('Unit')
+              TypeArgument
+                SimpleType: Unit
+                  CodeReferenceElement: Unit
+                    PsiElement(identifier)('Unit')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -344,9 +353,10 @@ ScalaFile
                                 PsiElement(identifier)('SelectLoop')
                             TypeArgumentsList
                               PsiElement([)('[')
-                              SimpleType: F
-                                CodeReferenceElement: F
-                                  PsiElement(identifier)('F')
+                              TypeArgument
+                                SimpleType: F
+                                  CodeReferenceElement: F
+                                    PsiElement(identifier)('F')
                               PsiElement(])(']')
                           ArgumentList
                             PsiElement(()('(')

@@ -136,9 +136,10 @@ ScalaFile
                   PsiElement(identifier)('Expr')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Trait
-                  CodeReferenceElement: Trait
-                    PsiElement(identifier)('Trait')
+                TypeArgument
+                  SimpleType: Trait
+                    CodeReferenceElement: Trait
+                      PsiElement(identifier)('Trait')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(=)('=')

@@ -50,26 +50,30 @@ ScalaFile
                   PsiElement(identifier)('SeqOps')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: A
-                  CodeReferenceElement: A
-                    PsiElement(identifier)('A')
+                TypeArgument
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: Seq
-                  CodeReferenceElement: Seq
-                    PsiElement(identifier)('Seq')
-                PsiElement(,)(',')
-                PsiWhiteSpace(' ')
-                ParametrizedType: Seq[A]
+                TypeArgument
                   SimpleType: Seq
                     CodeReferenceElement: Seq
                       PsiElement(identifier)('Seq')
-                  TypeArgumentsList
-                    PsiElement([)('[')
-                    SimpleType: A
-                      CodeReferenceElement: A
-                        PsiElement(identifier)('A')
-                    PsiElement(])(']')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeArgument
+                  ParametrizedType: Seq[A]
+                    SimpleType: Seq
+                      CodeReferenceElement: Seq
+                        PsiElement(identifier)('Seq')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                      PsiElement(])(']')
                 PsiElement(])(']')
     PsiWhiteSpace('\n')
     ScTrait: SeqOps
@@ -162,9 +166,10 @@ ScalaFile
                     PsiElement(identifier)('Seq')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: A
-                    CodeReferenceElement: A
-                      PsiElement(identifier)('A')
+                  TypeArgument
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
                   PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(with)('with')
@@ -176,26 +181,30 @@ ScalaFile
                     PsiElement(identifier)('SeqOps')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: A
-                    CodeReferenceElement: A
-                      PsiElement(identifier)('A')
+                  TypeArgument
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
-                  SimpleType: Seq
-                    CodeReferenceElement: Seq
-                      PsiElement(identifier)('Seq')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  ParametrizedType: Seq[A]
+                  TypeArgument
                     SimpleType: Seq
                       CodeReferenceElement: Seq
                         PsiElement(identifier)('Seq')
-                    TypeArgumentsList
-                      PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
-                      PsiElement(])(']')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeArgument
+                    ParametrizedType: Seq[A]
+                      SimpleType: Seq
+                        CodeReferenceElement: Seq
+                          PsiElement(identifier)('Seq')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
+                        PsiElement(])(']')
                   PsiElement(])(']')
       PsiWhiteSpace('\n  ')
       ScTrait: SeqOps
@@ -249,19 +258,22 @@ ScalaFile
                     PsiElement(identifier)('SeqOps')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: A
-                    CodeReferenceElement: A
-                      PsiElement(identifier)('A')
+                  TypeArgument
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
-                  SimpleType: CC
-                    CodeReferenceElement: CC
-                      PsiElement(identifier)('CC')
+                  TypeArgument
+                    SimpleType: CC
+                      CodeReferenceElement: CC
+                        PsiElement(identifier)('CC')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
-                  SimpleType: C
-                    CodeReferenceElement: C
-                      PsiElement(identifier)('C')
+                  TypeArgument
+                    SimpleType: C
+                      CodeReferenceElement: C
+                        PsiElement(identifier)('C')
                   PsiElement(])(']')
       PsiWhiteSpace('\n')
       PsiElement(})('}')
@@ -296,20 +308,23 @@ ScalaFile
                   PsiElement(identifier)('SeqOps')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Char
-                  CodeReferenceElement: Char
-                    PsiElement(identifier)('Char')
+                TypeArgument
+                  SimpleType: Char
+                    CodeReferenceElement: Char
+                      PsiElement(identifier)('Char')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: immutable.Seq
-                  CodeReferenceElement: immutable.Seq
-                    CodeReferenceElement: immutable
-                      PsiElement(identifier)('immutable')
-                    PsiElement(.)('.')
-                    PsiElement(identifier)('Seq')
+                TypeArgument
+                  SimpleType: immutable.Seq
+                    CodeReferenceElement: immutable.Seq
+                      CodeReferenceElement: immutable
+                        PsiElement(identifier)('immutable')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Seq')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: String
-                  CodeReferenceElement: String
-                    PsiElement(identifier)('String')
+                TypeArgument
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
                 PsiElement(])(']')

@@ -220,11 +220,12 @@ ScalaFile
                         PsiElement(identifier)('BTypesFromSymbols')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: int.type
-                        CodeReferenceElement: int
-                          PsiElement(identifier)('int')
-                        PsiElement(.)('.')
-                        PsiElement(type)('type')
+                      TypeArgument
+                        SimpleType: int.type
+                          CodeReferenceElement: int
+                            PsiElement(identifier)('int')
+                          PsiElement(.)('.')
+                          PsiElement(type)('type')
                       PsiElement(])(']')
                   ArgumentList
                     PsiElement(()('(')
@@ -291,11 +292,12 @@ ScalaFile
                 PsiElement(identifier)('BTypesFromSymbols')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: int.type
-                CodeReferenceElement: int
-                  PsiElement(identifier)('int')
-                PsiElement(.)('.')
-                PsiElement(type)('type')
+              TypeArgument
+                SimpleType: int.type
+                  CodeReferenceElement: int
+                    PsiElement(identifier)('int')
+                  PsiElement(.)('.')
+                  PsiElement(type)('type')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

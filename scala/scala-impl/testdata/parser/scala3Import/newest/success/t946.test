@@ -79,9 +79,10 @@ ScalaFile
                           PsiElement(identifier)('Foo')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: Bar
-                          CodeReferenceElement: Bar
-                            PsiElement(identifier)('Bar')
+                        TypeArgument
+                          SimpleType: Bar
+                            CodeReferenceElement: Bar
+                              PsiElement(identifier)('Bar')
                         PsiElement(])(']')
             PsiElement())(')')
           PsiWhiteSpace(' ')
@@ -106,8 +107,9 @@ ScalaFile
                         PsiElement(identifier)('Foo')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      TypeVariable: x
-                        PsiElement(identifier)('x')
+                      TypeArgument
+                        TypeVariable: x
+                          PsiElement(identifier)('x')
                       PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(=>)('=>')

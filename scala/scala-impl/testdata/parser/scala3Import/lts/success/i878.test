@@ -145,9 +145,10 @@ ScalaFile
                         PsiElement(identifier)('Seg')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: B
-                        CodeReferenceElement: B
-                          PsiElement(identifier)('B')
+                      TypeArgument
+                        SimpleType: B
+                          CodeReferenceElement: B
+                            PsiElement(identifier)('B')
                       PsiElement(])(']')
               PsiElement())(')')
             ParametersClause
@@ -169,9 +170,10 @@ ScalaFile
                         PsiElement(identifier)('Message')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: B
-                        CodeReferenceElement: B
-                          PsiElement(identifier)('B')
+                      TypeArgument
+                        SimpleType: B
+                          CodeReferenceElement: B
+                            PsiElement(identifier)('B')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -182,9 +184,10 @@ ScalaFile
                 PsiElement(identifier)('IChan')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: B
-                CodeReferenceElement: B
-                  PsiElement(identifier)('B')
+              TypeArgument
+                SimpleType: B
+                  CodeReferenceElement: B
+                    PsiElement(identifier)('B')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -254,9 +257,10 @@ ScalaFile
                     PsiElement(identifier)('Message')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: X
-                    CodeReferenceElement: X
-                      PsiElement(identifier)('X')
+                  TypeArgument
+                    SimpleType: X
+                      CodeReferenceElement: X
+                        PsiElement(identifier)('X')
                   PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(=)('=')
@@ -282,9 +286,10 @@ ScalaFile
                     PsiElement(identifier)('IChan')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: X
-                    CodeReferenceElement: X
-                      PsiElement(identifier)('X')
+                  TypeArgument
+                    SimpleType: X
+                      CodeReferenceElement: X
+                        PsiElement(identifier)('X')
                   PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(=)('=')
@@ -310,9 +315,10 @@ ScalaFile
                     PsiElement(identifier)('Seg')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: X
-                    CodeReferenceElement: X
-                      PsiElement(identifier)('X')
+                  TypeArgument
+                    SimpleType: X
+                      CodeReferenceElement: X
+                        PsiElement(identifier)('X')
                   PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(=)('=')

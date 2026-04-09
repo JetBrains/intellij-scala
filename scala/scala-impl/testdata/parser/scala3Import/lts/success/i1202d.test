@@ -42,8 +42,9 @@ ScalaFile
                 PsiElement(identifier)('Class')
             TypeArgumentsList
               PsiElement([)('[')
-              WildcardType: _
-                PsiElement(_)('_')
+              TypeArgument
+                WildcardType: _
+                  PsiElement(_)('_')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

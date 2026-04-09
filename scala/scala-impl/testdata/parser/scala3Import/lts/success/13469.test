@@ -128,8 +128,9 @@ ScalaFile
                       PsiElement(identifier)('Tuple1')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    TypeVariable: t
-                      PsiElement(identifier)('t')
+                    TypeArgument
+                      TypeVariable: t
+                        PsiElement(identifier)('t')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
@@ -323,14 +324,16 @@ ScalaFile
                       PsiElement(identifier)('Contains')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: r
-                      CodeReferenceElement: r
-                        PsiElement(identifier)('r')
+                    TypeArgument
+                      SimpleType: r
+                        CodeReferenceElement: r
+                          PsiElement(identifier)('r')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    SimpleType: X
-                      CodeReferenceElement: X
-                        PsiElement(identifier)('X')
+                    TypeArgument
+                      SimpleType: X
+                        CodeReferenceElement: X
+                          PsiElement(identifier)('X')
                     PsiElement(])(']')
               PsiWhiteSpace('\n    ')
               ScMatchTypeCaseImpl(match type case)
@@ -448,14 +451,16 @@ ScalaFile
                               PsiElement(identifier)('RemoveStrict')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: tail
-                              CodeReferenceElement: tail
-                                PsiElement(identifier)('tail')
+                            TypeArgument
+                              SimpleType: tail
+                                CodeReferenceElement: tail
+                                  PsiElement(identifier)('tail')
                             PsiElement(,)(',')
                             PsiWhiteSpace(' ')
-                            SimpleType: X
-                              CodeReferenceElement: X
-                                PsiElement(identifier)('X')
+                            TypeArgument
+                              SimpleType: X
+                                CodeReferenceElement: X
+                                  PsiElement(identifier)('X')
                             PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScTypeAliasDefinition: WithoutStrict
@@ -527,26 +532,30 @@ ScalaFile
                       PsiElement(identifier)('WithoutStrict')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    ParametrizedType: RemoveStrict[T, head]
-                      SimpleType: RemoveStrict
-                        CodeReferenceElement: RemoveStrict
-                          PsiElement(identifier)('RemoveStrict')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        SimpleType: T
-                          CodeReferenceElement: T
-                            PsiElement(identifier)('T')
-                        PsiElement(,)(',')
-                        PsiWhiteSpace(' ')
-                        SimpleType: head
-                          CodeReferenceElement: head
-                            PsiElement(identifier)('head')
-                        PsiElement(])(']')
+                    TypeArgument
+                      ParametrizedType: RemoveStrict[T, head]
+                        SimpleType: RemoveStrict
+                          CodeReferenceElement: RemoveStrict
+                            PsiElement(identifier)('RemoveStrict')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: T
+                              CodeReferenceElement: T
+                                PsiElement(identifier)('T')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            SimpleType: head
+                              CodeReferenceElement: head
+                                PsiElement(identifier)('head')
+                          PsiElement(])(']')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    SimpleType: tail
-                      CodeReferenceElement: tail
-                        PsiElement(identifier)('tail')
+                    TypeArgument
+                      SimpleType: tail
+                        CodeReferenceElement: tail
+                          PsiElement(identifier)('tail')
                     PsiElement(])(']')
               PsiWhiteSpace('\n    ')
               ScMatchTypeCaseImpl(match type case)
@@ -648,88 +657,100 @@ ScalaFile
                       PsiElement(identifier)('If')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    ParametrizedType: Contains[ToReplace, head]
-                      SimpleType: Contains
-                        CodeReferenceElement: Contains
-                          PsiElement(identifier)('Contains')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        SimpleType: ToReplace
-                          CodeReferenceElement: ToReplace
-                            PsiElement(identifier)('ToReplace')
-                        PsiElement(,)(',')
+                    TypeArgument
+                      ParametrizedType: Contains[ToReplace, head]
+                        SimpleType: Contains
+                          CodeReferenceElement: Contains
+                            PsiElement(identifier)('Contains')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: ToReplace
+                              CodeReferenceElement: ToReplace
+                                PsiElement(identifier)('ToReplace')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            SimpleType: head
+                              CodeReferenceElement: head
+                                PsiElement(identifier)('head')
+                          PsiElement(])(']')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace('\n          ')
+                    TypeArgument
+                      InfixType: Replacement *: WithoutStrict[tail, RemoveStrict[ToReplace, head]]
+                        SimpleType: Replacement
+                          CodeReferenceElement: Replacement
+                            PsiElement(identifier)('Replacement')
                         PsiWhiteSpace(' ')
+                        CodeReferenceElement: *:
+                          PsiElement(identifier)('*:')
+                        PsiWhiteSpace(' ')
+                        ParametrizedType: WithoutStrict[tail, RemoveStrict[ToReplace, head]]
+                          SimpleType: WithoutStrict
+                            CodeReferenceElement: WithoutStrict
+                              PsiElement(identifier)('WithoutStrict')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: tail
+                                CodeReferenceElement: tail
+                                  PsiElement(identifier)('tail')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            TypeArgument
+                              ParametrizedType: RemoveStrict[ToReplace, head]
+                                SimpleType: RemoveStrict
+                                  CodeReferenceElement: RemoveStrict
+                                    PsiElement(identifier)('RemoveStrict')
+                                TypeArgumentsList
+                                  PsiElement([)('[')
+                                  TypeArgument
+                                    SimpleType: ToReplace
+                                      CodeReferenceElement: ToReplace
+                                        PsiElement(identifier)('ToReplace')
+                                  PsiElement(,)(',')
+                                  PsiWhiteSpace(' ')
+                                  TypeArgument
+                                    SimpleType: head
+                                      CodeReferenceElement: head
+                                        PsiElement(identifier)('head')
+                                  PsiElement(])(']')
+                            PsiElement(])(']')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace('\n          ')
+                    TypeArgument
+                      InfixType: head *: ReplaceAllStrict[tail, ToReplace, Replacement]
                         SimpleType: head
                           CodeReferenceElement: head
                             PsiElement(identifier)('head')
-                        PsiElement(])(']')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace('\n          ')
-                    InfixType: Replacement *: WithoutStrict[tail, RemoveStrict[ToReplace, head]]
-                      SimpleType: Replacement
-                        CodeReferenceElement: Replacement
-                          PsiElement(identifier)('Replacement')
-                      PsiWhiteSpace(' ')
-                      CodeReferenceElement: *:
-                        PsiElement(identifier)('*:')
-                      PsiWhiteSpace(' ')
-                      ParametrizedType: WithoutStrict[tail, RemoveStrict[ToReplace, head]]
-                        SimpleType: WithoutStrict
-                          CodeReferenceElement: WithoutStrict
-                            PsiElement(identifier)('WithoutStrict')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: tail
-                            CodeReferenceElement: tail
-                              PsiElement(identifier)('tail')
-                          PsiElement(,)(',')
-                          PsiWhiteSpace(' ')
-                          ParametrizedType: RemoveStrict[ToReplace, head]
-                            SimpleType: RemoveStrict
-                              CodeReferenceElement: RemoveStrict
-                                PsiElement(identifier)('RemoveStrict')
-                            TypeArgumentsList
-                              PsiElement([)('[')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: *:
+                          PsiElement(identifier)('*:')
+                        PsiWhiteSpace(' ')
+                        ParametrizedType: ReplaceAllStrict[tail, ToReplace, Replacement]
+                          SimpleType: ReplaceAllStrict
+                            CodeReferenceElement: ReplaceAllStrict
+                              PsiElement(identifier)('ReplaceAllStrict')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: tail
+                                CodeReferenceElement: tail
+                                  PsiElement(identifier)('tail')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            TypeArgument
                               SimpleType: ToReplace
                                 CodeReferenceElement: ToReplace
                                   PsiElement(identifier)('ToReplace')
-                              PsiElement(,)(',')
-                              PsiWhiteSpace(' ')
-                              SimpleType: head
-                                CodeReferenceElement: head
-                                  PsiElement(identifier)('head')
-                              PsiElement(])(']')
-                          PsiElement(])(']')
-                    PsiElement(,)(',')
-                    PsiWhiteSpace('\n          ')
-                    InfixType: head *: ReplaceAllStrict[tail, ToReplace, Replacement]
-                      SimpleType: head
-                        CodeReferenceElement: head
-                          PsiElement(identifier)('head')
-                      PsiWhiteSpace(' ')
-                      CodeReferenceElement: *:
-                        PsiElement(identifier)('*:')
-                      PsiWhiteSpace(' ')
-                      ParametrizedType: ReplaceAllStrict[tail, ToReplace, Replacement]
-                        SimpleType: ReplaceAllStrict
-                          CodeReferenceElement: ReplaceAllStrict
-                            PsiElement(identifier)('ReplaceAllStrict')
-                        TypeArgumentsList
-                          PsiElement([)('[')
-                          SimpleType: tail
-                            CodeReferenceElement: tail
-                              PsiElement(identifier)('tail')
-                          PsiElement(,)(',')
-                          PsiWhiteSpace(' ')
-                          SimpleType: ToReplace
-                            CodeReferenceElement: ToReplace
-                              PsiElement(identifier)('ToReplace')
-                          PsiElement(,)(',')
-                          PsiWhiteSpace(' ')
-                          SimpleType: Replacement
-                            CodeReferenceElement: Replacement
-                              PsiElement(identifier)('Replacement')
-                          PsiElement(])(']')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            TypeArgument
+                              SimpleType: Replacement
+                                CodeReferenceElement: Replacement
+                                  PsiElement(identifier)('Replacement')
+                            PsiElement(])(']')
                     PsiElement(])(']')
               PsiWhiteSpace('\n    ')
               ScMatchTypeCaseImpl(match type case)
@@ -793,26 +814,30 @@ ScalaFile
                 PsiElement(identifier)('Demote')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: ReplaceAllStrict[S, ToReplace, Replacement]
-                SimpleType: ReplaceAllStrict
-                  CodeReferenceElement: ReplaceAllStrict
-                    PsiElement(identifier)('ReplaceAllStrict')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: S
-                    CodeReferenceElement: S
-                      PsiElement(identifier)('S')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: ToReplace
-                    CodeReferenceElement: ToReplace
-                      PsiElement(identifier)('ToReplace')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: Replacement
-                    CodeReferenceElement: Replacement
-                      PsiElement(identifier)('Replacement')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: ReplaceAllStrict[S, ToReplace, Replacement]
+                  SimpleType: ReplaceAllStrict
+                    CodeReferenceElement: ReplaceAllStrict
+                      PsiElement(identifier)('ReplaceAllStrict')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: S
+                        CodeReferenceElement: S
+                          PsiElement(identifier)('S')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: ToReplace
+                        CodeReferenceElement: ToReplace
+                          PsiElement(identifier)('ToReplace')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: Replacement
+                        CodeReferenceElement: Replacement
+                          PsiElement(identifier)('Replacement')
+                    PsiElement(])(']')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScObject: Foo
@@ -854,35 +879,38 @@ ScalaFile
                 PsiElement(identifier)('Sub')
             TypeArgumentsList
               PsiElement([)('[')
-              InfixType: "batch" *: EmptyTuple
+              TypeArgument
+                InfixType: "batch" *: EmptyTuple
+                  LiteralType: "batch"
+                    StringLiteral
+                      PsiElement(string content)('"batch"')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: *:
+                    PsiElement(identifier)('*:')
+                  PsiWhiteSpace(' ')
+                  SimpleType: EmptyTuple
+                    CodeReferenceElement: EmptyTuple
+                      PsiElement(identifier)('EmptyTuple')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                InfixType: Int *: EmptyTuple
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: *:
+                    PsiElement(identifier)('*:')
+                  PsiWhiteSpace(' ')
+                  SimpleType: EmptyTuple
+                    CodeReferenceElement: EmptyTuple
+                      PsiElement(identifier)('EmptyTuple')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
                 LiteralType: "batch"
                   StringLiteral
                     PsiElement(string content)('"batch"')
-                PsiWhiteSpace(' ')
-                CodeReferenceElement: *:
-                  PsiElement(identifier)('*:')
-                PsiWhiteSpace(' ')
-                SimpleType: EmptyTuple
-                  CodeReferenceElement: EmptyTuple
-                    PsiElement(identifier)('EmptyTuple')
-              PsiElement(,)(',')
-              PsiWhiteSpace(' ')
-              InfixType: Int *: EmptyTuple
-                SimpleType: Int
-                  CodeReferenceElement: Int
-                    PsiElement(identifier)('Int')
-                PsiWhiteSpace(' ')
-                CodeReferenceElement: *:
-                  PsiElement(identifier)('*:')
-                PsiWhiteSpace(' ')
-                SimpleType: EmptyTuple
-                  CodeReferenceElement: EmptyTuple
-                    PsiElement(identifier)('EmptyTuple')
-              PsiElement(,)(',')
-              PsiWhiteSpace(' ')
-              LiteralType: "batch"
-                StringLiteral
-                  PsiElement(string content)('"batch"')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -908,37 +936,40 @@ ScalaFile
                 PsiElement(identifier)('Sub')
             TypeArgumentsList
               PsiElement([)('[')
-              TupleType: ("batch", "len")
-                PsiElement(()('(')
-                TypesList
-                  LiteralType: "batch"
-                    StringLiteral
-                      PsiElement(string content)('"batch"')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  LiteralType: "len"
-                    StringLiteral
-                      PsiElement(string content)('"len"')
-                PsiElement())(')')
+              TypeArgument
+                TupleType: ("batch", "len")
+                  PsiElement(()('(')
+                  TypesList
+                    LiteralType: "batch"
+                      StringLiteral
+                        PsiElement(string content)('"batch"')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    LiteralType: "len"
+                      StringLiteral
+                        PsiElement(string content)('"len"')
+                  PsiElement())(')')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              TupleType: ("batch", "len")
-                PsiElement(()('(')
-                TypesList
-                  LiteralType: "batch"
-                    StringLiteral
-                      PsiElement(string content)('"batch"')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  LiteralType: "len"
-                    StringLiteral
-                      PsiElement(string content)('"len"')
-                PsiElement())(')')
+              TypeArgument
+                TupleType: ("batch", "len")
+                  PsiElement(()('(')
+                  TypesList
+                    LiteralType: "batch"
+                      StringLiteral
+                        PsiElement(string content)('"batch"')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    LiteralType: "len"
+                      StringLiteral
+                        PsiElement(string content)('"len"')
+                  PsiElement())(')')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              LiteralType: "batch"
-                StringLiteral
-                  PsiElement(string content)('"batch"')
+              TypeArgument
+                LiteralType: "batch"
+                  StringLiteral
+                    PsiElement(string content)('"batch"')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -964,41 +995,44 @@ ScalaFile
                 PsiElement(identifier)('ReplaceAllStrict')
             TypeArgumentsList
               PsiElement([)('[')
-              TupleType: ("batch", "len", "embed")
-                PsiElement(()('(')
-                TypesList
+              TypeArgument
+                TupleType: ("batch", "len", "embed")
+                  PsiElement(()('(')
+                  TypesList
+                    LiteralType: "batch"
+                      StringLiteral
+                        PsiElement(string content)('"batch"')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    LiteralType: "len"
+                      StringLiteral
+                        PsiElement(string content)('"len"')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    LiteralType: "embed"
+                      StringLiteral
+                        PsiElement(string content)('"embed"')
+                  PsiElement())(')')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                InfixType: "batch" *: EmptyTuple
                   LiteralType: "batch"
                     StringLiteral
                       PsiElement(string content)('"batch"')
-                  PsiElement(,)(',')
                   PsiWhiteSpace(' ')
-                  LiteralType: "len"
-                    StringLiteral
-                      PsiElement(string content)('"len"')
-                  PsiElement(,)(',')
+                  CodeReferenceElement: *:
+                    PsiElement(identifier)('*:')
                   PsiWhiteSpace(' ')
-                  LiteralType: "embed"
-                    StringLiteral
-                      PsiElement(string content)('"embed"')
-                PsiElement())(')')
+                  SimpleType: EmptyTuple
+                    CodeReferenceElement: EmptyTuple
+                      PsiElement(identifier)('EmptyTuple')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              InfixType: "batch" *: EmptyTuple
-                LiteralType: "batch"
+              TypeArgument
+                LiteralType: "b"
                   StringLiteral
-                    PsiElement(string content)('"batch"')
-                PsiWhiteSpace(' ')
-                CodeReferenceElement: *:
-                  PsiElement(identifier)('*:')
-                PsiWhiteSpace(' ')
-                SimpleType: EmptyTuple
-                  CodeReferenceElement: EmptyTuple
-                    PsiElement(identifier)('EmptyTuple')
-              PsiElement(,)(',')
-              PsiWhiteSpace(' ')
-              LiteralType: "b"
-                StringLiteral
-                  PsiElement(string content)('"b"')
+                    PsiElement(string content)('"b"')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -1097,19 +1131,22 @@ ScalaFile
                 PsiElement(identifier)('ReplaceAllStrict')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: S
-                CodeReferenceElement: S
-                  PsiElement(identifier)('S')
+              TypeArgument
+                SimpleType: S
+                  CodeReferenceElement: S
+                    PsiElement(identifier)('S')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: ToReplace
-                CodeReferenceElement: ToReplace
-                  PsiElement(identifier)('ToReplace')
+              TypeArgument
+                SimpleType: ToReplace
+                  CodeReferenceElement: ToReplace
+                    PsiElement(identifier)('ToReplace')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Replacement
-                CodeReferenceElement: Replacement
-                  PsiElement(identifier)('Replacement')
+              TypeArgument
+                SimpleType: Replacement
+                  CodeReferenceElement: Replacement
+                    PsiElement(identifier)('Replacement')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -1144,26 +1181,30 @@ ScalaFile
                 PsiElement(identifier)('Demote')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: ReplaceAllStrict[S, ToReplace, Replacement]
-                SimpleType: ReplaceAllStrict
-                  CodeReferenceElement: ReplaceAllStrict
-                    PsiElement(identifier)('ReplaceAllStrict')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: S
-                    CodeReferenceElement: S
-                      PsiElement(identifier)('S')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: ToReplace
-                    CodeReferenceElement: ToReplace
-                      PsiElement(identifier)('ToReplace')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: Replacement
-                    CodeReferenceElement: Replacement
-                      PsiElement(identifier)('Replacement')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: ReplaceAllStrict[S, ToReplace, Replacement]
+                  SimpleType: ReplaceAllStrict
+                    CodeReferenceElement: ReplaceAllStrict
+                      PsiElement(identifier)('ReplaceAllStrict')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: S
+                        CodeReferenceElement: S
+                          PsiElement(identifier)('S')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: ToReplace
+                        CodeReferenceElement: ToReplace
+                          PsiElement(identifier)('ToReplace')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: Replacement
+                        CodeReferenceElement: Replacement
+                          PsiElement(identifier)('Replacement')
+                    PsiElement(])(']')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -1198,19 +1239,22 @@ ScalaFile
                 PsiElement(identifier)('Sub')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: S
-                CodeReferenceElement: S
-                  PsiElement(identifier)('S')
+              TypeArgument
+                SimpleType: S
+                  CodeReferenceElement: S
+                    PsiElement(identifier)('S')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: ToReplace
-                CodeReferenceElement: ToReplace
-                  PsiElement(identifier)('ToReplace')
+              TypeArgument
+                SimpleType: ToReplace
+                  CodeReferenceElement: ToReplace
+                    PsiElement(identifier)('ToReplace')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Replacement
-                CodeReferenceElement: Replacement
-                  PsiElement(identifier)('Replacement')
+              TypeArgument
+                SimpleType: Replacement
+                  CodeReferenceElement: Replacement
+                    PsiElement(identifier)('Replacement')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

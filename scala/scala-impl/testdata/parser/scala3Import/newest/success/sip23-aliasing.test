@@ -155,9 +155,10 @@ ScalaFile
                               PsiElement(identifier)('ValueOf')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: T
-                              CodeReferenceElement: T
-                                PsiElement(identifier)('T')
+                            TypeArgument
+                              SimpleType: T
+                                CodeReferenceElement: T
+                                  PsiElement(identifier)('T')
                             PsiElement(])(']')
                     PsiElement())(')')
                 PsiElement(:)(':')
@@ -168,9 +169,10 @@ ScalaFile
                       PsiElement(identifier)('Aux')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: T
-                      CodeReferenceElement: T
-                        PsiElement(identifier)('T')
+                    TypeArgument
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')
@@ -269,9 +271,10 @@ ScalaFile
             PsiElement(identifier)('Foo')
           TypeArgumentsList
             PsiElement([)('[')
-            LiteralType: 5
-              IntegerLiteral
-                PsiElement(integer)('5')
+            TypeArgument
+              LiteralType: 5
+                IntegerLiteral
+                  PsiElement(integer)('5')
             PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         GenericCall
@@ -279,36 +282,40 @@ ScalaFile
             PsiElement(identifier)('implicitly')
           TypeArgumentsList
             PsiElement([)('[')
-            ParametrizedType: Foo.Aux[5]
-              SimpleType: Foo.Aux
-                CodeReferenceElement: Foo.Aux
+            TypeArgument
+              ParametrizedType: Foo.Aux[5]
+                SimpleType: Foo.Aux
+                  CodeReferenceElement: Foo.Aux
+                    CodeReferenceElement: Foo
+                      PsiElement(identifier)('Foo')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Aux')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    LiteralType: 5
+                      IntegerLiteral
+                        PsiElement(integer)('5')
+                  PsiElement(])(']')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        GenericCall
+          ReferenceExpression: implicitly
+            PsiElement(identifier)('implicitly')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              ParametrizedType: Foo[5]
+                SimpleType: Foo
                   CodeReferenceElement: Foo
                     PsiElement(identifier)('Foo')
-                  PsiElement(.)('.')
-                  PsiElement(identifier)('Aux')
-              TypeArgumentsList
-                PsiElement([)('[')
-                LiteralType: 5
-                  IntegerLiteral
-                    PsiElement(integer)('5')
-                PsiElement(])(']')
-            PsiElement(])(']')
-        PsiWhiteSpace('\n  ')
-        GenericCall
-          ReferenceExpression: implicitly
-            PsiElement(identifier)('implicitly')
-          TypeArgumentsList
-            PsiElement([)('[')
-            ParametrizedType: Foo[5]
-              SimpleType: Foo
-                CodeReferenceElement: Foo
-                  PsiElement(identifier)('Foo')
-              TypeArgumentsList
-                PsiElement([)('[')
-                LiteralType: 5
-                  IntegerLiteral
-                    PsiElement(integer)('5')
-                PsiElement(])(']')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    LiteralType: 5
+                      IntegerLiteral
+                        PsiElement(integer)('5')
+                  PsiElement(])(']')
             PsiElement(])(']')
         PsiWhiteSpace('\n\n\n  ')
         ScPatternDefinition: three
@@ -354,9 +361,10 @@ ScalaFile
             PsiElement(identifier)('Foo')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: Three
-              CodeReferenceElement: Three
-                PsiElement(identifier)('Three')
+            TypeArgument
+              SimpleType: Three
+                CodeReferenceElement: Three
+                  PsiElement(identifier)('Three')
             PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         GenericCall
@@ -364,36 +372,40 @@ ScalaFile
             PsiElement(identifier)('implicitly')
           TypeArgumentsList
             PsiElement([)('[')
-            ParametrizedType: Foo.Aux[Three]
-              SimpleType: Foo.Aux
-                CodeReferenceElement: Foo.Aux
+            TypeArgument
+              ParametrizedType: Foo.Aux[Three]
+                SimpleType: Foo.Aux
+                  CodeReferenceElement: Foo.Aux
+                    CodeReferenceElement: Foo
+                      PsiElement(identifier)('Foo')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Aux')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: Three
+                      CodeReferenceElement: Three
+                        PsiElement(identifier)('Three')
+                  PsiElement(])(']')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        GenericCall
+          ReferenceExpression: implicitly
+            PsiElement(identifier)('implicitly')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              ParametrizedType: Foo[Three]
+                SimpleType: Foo
                   CodeReferenceElement: Foo
                     PsiElement(identifier)('Foo')
-                  PsiElement(.)('.')
-                  PsiElement(identifier)('Aux')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: Three
-                  CodeReferenceElement: Three
-                    PsiElement(identifier)('Three')
-                PsiElement(])(']')
-            PsiElement(])(']')
-        PsiWhiteSpace('\n  ')
-        GenericCall
-          ReferenceExpression: implicitly
-            PsiElement(identifier)('implicitly')
-          TypeArgumentsList
-            PsiElement([)('[')
-            ParametrizedType: Foo[Three]
-              SimpleType: Foo
-                CodeReferenceElement: Foo
-                  PsiElement(identifier)('Foo')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: Three
-                  CodeReferenceElement: Three
-                    PsiElement(identifier)('Three')
-                PsiElement(])(']')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: Three
+                      CodeReferenceElement: Three
+                        PsiElement(identifier)('Three')
+                  PsiElement(])(']')
             PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScObject: bar
@@ -430,9 +442,10 @@ ScalaFile
             PsiElement(identifier)('Foo')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: Bar
-              CodeReferenceElement: Bar
-                PsiElement(identifier)('Bar')
+            TypeArgument
+              SimpleType: Bar
+                CodeReferenceElement: Bar
+                  PsiElement(identifier)('Bar')
             PsiElement(])(']')
         PsiWhiteSpace('\n  ')
         GenericCall
@@ -440,36 +453,40 @@ ScalaFile
             PsiElement(identifier)('implicitly')
           TypeArgumentsList
             PsiElement([)('[')
-            ParametrizedType: Foo.Aux[Bar]
-              SimpleType: Foo.Aux
-                CodeReferenceElement: Foo.Aux
+            TypeArgument
+              ParametrizedType: Foo.Aux[Bar]
+                SimpleType: Foo.Aux
+                  CodeReferenceElement: Foo.Aux
+                    CodeReferenceElement: Foo
+                      PsiElement(identifier)('Foo')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Aux')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: Bar
+                      CodeReferenceElement: Bar
+                        PsiElement(identifier)('Bar')
+                  PsiElement(])(']')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        GenericCall
+          ReferenceExpression: implicitly
+            PsiElement(identifier)('implicitly')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              ParametrizedType: Foo[Bar]
+                SimpleType: Foo
                   CodeReferenceElement: Foo
                     PsiElement(identifier)('Foo')
-                  PsiElement(.)('.')
-                  PsiElement(identifier)('Aux')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: Bar
-                  CodeReferenceElement: Bar
-                    PsiElement(identifier)('Bar')
-                PsiElement(])(']')
-            PsiElement(])(']')
-        PsiWhiteSpace('\n  ')
-        GenericCall
-          ReferenceExpression: implicitly
-            PsiElement(identifier)('implicitly')
-          TypeArgumentsList
-            PsiElement([)('[')
-            ParametrizedType: Foo[Bar]
-              SimpleType: Foo
-                CodeReferenceElement: Foo
-                  PsiElement(identifier)('Foo')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: Bar
-                  CodeReferenceElement: Bar
-                    PsiElement(identifier)('Bar')
-                PsiElement(])(']')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: Bar
+                      CodeReferenceElement: Bar
+                        PsiElement(identifier)('Bar')
+                  PsiElement(])(']')
             PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

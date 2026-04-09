@@ -85,16 +85,18 @@ ScalaFile
                 PsiElement(identifier)('ErasedProductInstances')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: F[T]
-                SimpleType: F
-                  CodeReferenceElement: F
-                    PsiElement(identifier)('F')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: T
-                    CodeReferenceElement: T
-                      PsiElement(identifier)('T')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: F[T]
+                  SimpleType: F
+                    CodeReferenceElement: F
+                      PsiElement(identifier)('F')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                    PsiElement(])(']')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScFunctionDefinition: summonAsArray
@@ -130,9 +132,10 @@ ScalaFile
                 PsiElement(identifier)('Array')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Any
-                CodeReferenceElement: Any
-                  PsiElement(identifier)('Any')
+              TypeArgument
+                SimpleType: Any
+                  CodeReferenceElement: Any
+                    PsiElement(identifier)('Any')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -173,14 +176,16 @@ ScalaFile
                 PsiElement(identifier)('ProductInstances')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: F
-                CodeReferenceElement: F
-                  PsiElement(identifier)('F')
+              TypeArgument
+                SimpleType: F
+                  CodeReferenceElement: F
+                    PsiElement(identifier)('F')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -203,35 +208,40 @@ ScalaFile
                             PsiElement(identifier)('summonAsArray')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: F
-                              CodeReferenceElement: F
-                                PsiElement(identifier)('F')
+                            TypeArgument
+                              SimpleType: F
+                                CodeReferenceElement: F
+                                  PsiElement(identifier)('F')
                             PsiElement(,)(',')
                             PsiWhiteSpace(' ')
-                            SimpleType: T
-                              CodeReferenceElement: T
-                                PsiElement(identifier)('T')
+                            TypeArgument
+                              SimpleType: T
+                                CodeReferenceElement: T
+                                  PsiElement(identifier)('T')
                             PsiElement(])(']')
                         PsiElement())(')')
               PsiElement(.)('.')
               PsiElement(identifier)('asInstanceOf')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: ProductInstances[F, T]
-                SimpleType: ProductInstances
-                  CodeReferenceElement: ProductInstances
-                    PsiElement(identifier)('ProductInstances')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: F
-                    CodeReferenceElement: F
-                      PsiElement(identifier)('F')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: T
-                    CodeReferenceElement: T
-                      PsiElement(identifier)('T')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: ProductInstances[F, T]
+                  SimpleType: ProductInstances
+                    CodeReferenceElement: ProductInstances
+                      PsiElement(identifier)('ProductInstances')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: F
+                        CodeReferenceElement: F
+                          PsiElement(identifier)('F')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                    PsiElement(])(']')
               PsiElement(])(']')
         PsiWhiteSpace('\n\n  ')
         ScPatternDefinition: x
@@ -296,9 +306,10 @@ ScalaFile
               PsiElement(identifier)('asInstanceOf')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
@@ -342,9 +353,10 @@ ScalaFile
                     PsiElement(identifier)('Array')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: Any
-                    CodeReferenceElement: Any
-                      PsiElement(identifier)('Any')
+                  TypeArgument
+                    SimpleType: Any
+                      CodeReferenceElement: Any
+                        PsiElement(identifier)('Any')
                   PsiElement(])(']')
           PsiElement())(')')
     ExtendsBlock
@@ -442,14 +454,16 @@ ScalaFile
             PsiElement(identifier)('mkProductInstances')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleType: Monoid
-              CodeReferenceElement: Monoid
-                PsiElement(identifier)('Monoid')
+            TypeArgument
+              SimpleType: Monoid
+                CodeReferenceElement: Monoid
+                  PsiElement(identifier)('Monoid')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
-            SimpleType: ISB
-              CodeReferenceElement: ISB
-                PsiElement(identifier)('ISB')
+            TypeArgument
+              SimpleType: ISB
+                CodeReferenceElement: ISB
+                  PsiElement(identifier)('ISB')
             PsiElement(])(']')
         PsiWhiteSpace('\n\n')
         PsiElement(})('}')

@@ -157,9 +157,10 @@ ScalaFile
                         PsiElement(identifier)('Deletable')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: t
-                        CodeReferenceElement: t
-                          PsiElement(identifier)('t')
+                      TypeArgument
+                        SimpleType: t
+                          CodeReferenceElement: t
+                            PsiElement(identifier)('t')
                       PsiElement(])(']')
               PsiWhiteSpace('\n    ')
               ScMatchTypeCaseImpl(match type case)
@@ -418,25 +419,26 @@ ScalaFile
                 PsiElement(identifier)('Deletable')
             TypeArgumentsList
               PsiElement([)('[')
-              InfixType: A &: B &: CNil
-                SimpleType: A
-                  CodeReferenceElement: A
-                    PsiElement(identifier)('A')
-                PsiWhiteSpace(' ')
-                CodeReferenceElement: &:
-                  PsiElement(identifier)('&:')
-                PsiWhiteSpace(' ')
-                InfixType: B &: CNil
-                  SimpleType: B
-                    CodeReferenceElement: B
-                      PsiElement(identifier)('B')
+              TypeArgument
+                InfixType: A &: B &: CNil
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
                   PsiWhiteSpace(' ')
                   CodeReferenceElement: &:
                     PsiElement(identifier)('&:')
                   PsiWhiteSpace(' ')
-                  SimpleType: CNil
-                    CodeReferenceElement: CNil
-                      PsiElement(identifier)('CNil')
+                  InfixType: B &: CNil
+                    SimpleType: B
+                      CodeReferenceElement: B
+                        PsiElement(identifier)('B')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: &:
+                      PsiElement(identifier)('&:')
+                    PsiWhiteSpace(' ')
+                    SimpleType: CNil
+                      CodeReferenceElement: CNil
+                        PsiElement(identifier)('CNil')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')

@@ -107,9 +107,10 @@ ScalaFile
                 PsiElement(identifier)('TestInferrence')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Int
-                CodeReferenceElement: Int
-                  PsiElement(identifier)('Int')
+              TypeArgument
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
               PsiElement(])(']')
       PsiWhiteSpace(' ')
       ScTemplateBody
@@ -193,9 +194,10 @@ ScalaFile
                         PsiElement(identifier)('TestInferrence')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: T
-                        CodeReferenceElement: T
-                          PsiElement(identifier)('T')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
                       PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')
@@ -219,21 +221,23 @@ ScalaFile
                         PsiElement(identifier)('Map')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: String
-                        CodeReferenceElement: String
-                          PsiElement(identifier)('String')
+                      TypeArgument
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
                       PsiElement(,)(',')
                       PsiWhiteSpace(' ')
-                      FunctionalType: T => Unit
-                        SimpleType: T
-                          CodeReferenceElement: T
-                            PsiElement(identifier)('T')
-                        PsiWhiteSpace(' ')
-                        PsiElement(=>)('=>')
-                        PsiWhiteSpace(' ')
-                        SimpleType: Unit
-                          CodeReferenceElement: Unit
-                            PsiElement(identifier)('Unit')
+                      TypeArgument
+                        FunctionalType: T => Unit
+                          SimpleType: T
+                            CodeReferenceElement: T
+                              PsiElement(identifier)('T')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>)('=>')
+                          PsiWhiteSpace(' ')
+                          SimpleType: Unit
+                            CodeReferenceElement: Unit
+                              PsiElement(identifier)('Unit')
                       PsiElement(])(']')
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')

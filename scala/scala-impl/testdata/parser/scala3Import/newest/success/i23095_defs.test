@@ -92,9 +92,10 @@ ScalaFile
                         PsiElement(identifier)('Seq')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: String
-                        CodeReferenceElement: String
-                          PsiElement(identifier)('String')
+                      TypeArgument
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -105,14 +106,16 @@ ScalaFile
                 PsiElement(identifier)('Either')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Any
-                CodeReferenceElement: Any
-                  PsiElement(identifier)('Any')
+              TypeArgument
+                SimpleType: Any
+                  CodeReferenceElement: Any
+                    PsiElement(identifier)('Any')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScTrait: UrlForm
@@ -199,9 +202,10 @@ ScalaFile
                         PsiElement(identifier)('ProductOf')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: A
-                        CodeReferenceElement: A
-                          PsiElement(identifier)('A')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -212,9 +216,10 @@ ScalaFile
                 PsiElement(identifier)('FormCodec')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -239,27 +244,30 @@ ScalaFile
                     PsiElement(identifier)('summonAll')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    ParametrizedType: Tuple.Map[p.MirroredElemTypes, SeqStringCodec]
-                      SimpleType: Tuple.Map
-                        CodeReferenceElement: Tuple.Map
-                          CodeReferenceElement: Tuple
-                            PsiElement(identifier)('Tuple')
-                          PsiElement(.)('.')
-                          PsiElement(identifier)('Map')
-                      TypeArgumentsList
-                        PsiElement([)('[')
-                        SimpleType: p.MirroredElemTypes
-                          CodeReferenceElement: p.MirroredElemTypes
-                            CodeReferenceElement: p
-                              PsiElement(identifier)('p')
+                    TypeArgument
+                      ParametrizedType: Tuple.Map[p.MirroredElemTypes, SeqStringCodec]
+                        SimpleType: Tuple.Map
+                          CodeReferenceElement: Tuple.Map
+                            CodeReferenceElement: Tuple
+                              PsiElement(identifier)('Tuple')
                             PsiElement(.)('.')
-                            PsiElement(identifier)('MirroredElemTypes')
-                        PsiElement(,)(',')
-                        PsiWhiteSpace(' ')
-                        SimpleType: SeqStringCodec
-                          CodeReferenceElement: SeqStringCodec
-                            PsiElement(identifier)('SeqStringCodec')
-                        PsiElement(])(']')
+                            PsiElement(identifier)('Map')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: p.MirroredElemTypes
+                              CodeReferenceElement: p.MirroredElemTypes
+                                CodeReferenceElement: p
+                                  PsiElement(identifier)('p')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('MirroredElemTypes')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            SimpleType: SeqStringCodec
+                              CodeReferenceElement: SeqStringCodec
+                                PsiElement(identifier)('SeqStringCodec')
+                          PsiElement(])(']')
                     PsiElement(])(']')
                 PsiElement(.)('.')
                 PsiElement(identifier)('toArray')
@@ -299,15 +307,17 @@ ScalaFile
                             PsiElement(identifier)('asInstanceOf')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            ParametrizedType: SeqStringCodec[?]
-                              SimpleType: SeqStringCodec
-                                CodeReferenceElement: SeqStringCodec
-                                  PsiElement(identifier)('SeqStringCodec')
-                              TypeArgumentsList
-                                PsiElement([)('[')
-                                WildcardType: ?
-                                  PsiElement(?)('?')
-                                PsiElement(])(']')
+                            TypeArgument
+                              ParametrizedType: SeqStringCodec[?]
+                                SimpleType: SeqStringCodec
+                                  CodeReferenceElement: SeqStringCodec
+                                    PsiElement(identifier)('SeqStringCodec')
+                                TypeArgumentsList
+                                  PsiElement([)('[')
+                                  TypeArgument
+                                    WildcardType: ?
+                                      PsiElement(?)('?')
+                                  PsiElement(])(']')
                             PsiElement(])(']')
                         PsiWhiteSpace('\n        ')
                         PsiElement(.)('.')
@@ -322,9 +332,10 @@ ScalaFile
                             PsiElement(identifier)('empty')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: String
-                              CodeReferenceElement: String
-                                PsiElement(identifier)('String')
+                            TypeArgument
+                              SimpleType: String
+                                CodeReferenceElement: String
+                                  PsiElement(identifier)('String')
                             PsiElement(])(']')
                         PsiElement())(')')
                     PsiWhiteSpace('\n    ')

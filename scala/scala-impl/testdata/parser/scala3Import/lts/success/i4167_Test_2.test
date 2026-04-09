@@ -63,18 +63,21 @@ ScalaFile
                   PsiElement(identifier)('SeqOps')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Char
-                  CodeReferenceElement: Char
-                    PsiElement(identifier)('Char')
+                TypeArgument
+                  SimpleType: Char
+                    CodeReferenceElement: Char
+                      PsiElement(identifier)('Char')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: AnyConstr
-                  CodeReferenceElement: AnyConstr
-                    PsiElement(identifier)('AnyConstr')
+                TypeArgument
+                  SimpleType: AnyConstr
+                    CodeReferenceElement: AnyConstr
+                      PsiElement(identifier)('AnyConstr')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                WildcardType: _
-                  PsiElement(_)('_')
+                TypeArgument
+                  WildcardType: _
+                    PsiElement(_)('_')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(=)('=')
@@ -87,9 +90,10 @@ ScalaFile
                 PsiElement(identifier)('asInstanceOf')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: StringOps
-                  CodeReferenceElement: StringOps
-                    PsiElement(identifier)('StringOps')
+                TypeArgument
+                  SimpleType: StringOps
+                    CodeReferenceElement: StringOps
+                      PsiElement(identifier)('StringOps')
                 PsiElement(])(']')
           PsiWhiteSpace('\n')
           PsiElement(})('}')

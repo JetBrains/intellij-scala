@@ -51,9 +51,10 @@ ScalaFile
                     PsiElement(identifier)('Seq')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: Double
-                    CodeReferenceElement: Double
-                      PsiElement(identifier)('Double')
+                  TypeArgument
+                    SimpleType: Double
+                      CodeReferenceElement: Double
+                        PsiElement(identifier)('Double')
                   PsiElement(])(']')
           PsiElement())(')')
     ExtendsBlock

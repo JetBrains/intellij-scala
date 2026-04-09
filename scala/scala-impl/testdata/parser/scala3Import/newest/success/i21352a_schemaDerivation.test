@@ -125,14 +125,16 @@ ScalaFile
                 PsiElement(identifier)('Param')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: Typeclass
-                CodeReferenceElement: Typeclass
-                  PsiElement(identifier)('Typeclass')
+              TypeArgument
+                SimpleType: Typeclass
+                  CodeReferenceElement: Typeclass
+                    PsiElement(identifier)('Typeclass')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: Type
-                CodeReferenceElement: Type
-                  PsiElement(identifier)('Type')
+              TypeArgument
+                SimpleType: Type
+                  CodeReferenceElement: Type
+                    PsiElement(identifier)('Type')
               PsiElement(])(']')
   PsiWhiteSpace('\n\n')
   ScObject: CaseClass
@@ -207,9 +209,10 @@ ScalaFile
                       PsiElement(identifier)('Typeclass')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleType: PType
-                      CodeReferenceElement: PType
-                        PsiElement(identifier)('PType')
+                    TypeArgument
+                      SimpleType: PType
+                        CodeReferenceElement: PType
+                          PsiElement(identifier)('PType')
                     PsiElement(])(']')
   PsiWhiteSpace('\n\n\n')
   ScTrait: IsUnionOf
@@ -285,14 +288,16 @@ ScalaFile
                 PsiElement(identifier)('IsUnionOf')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -306,14 +311,16 @@ ScalaFile
                 PsiElement(identifier)('deriveImpl')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: T
-                  CodeReferenceElement: T
-                    PsiElement(identifier)('T')
+                TypeArgument
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: A
-                  CodeReferenceElement: A
-                    PsiElement(identifier)('A')
+                TypeArgument
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
             PsiElement(})('}')
@@ -363,21 +370,24 @@ ScalaFile
                 PsiElement(identifier)('Expr')
             TypeArgumentsList
               PsiElement([)('[')
-              ParametrizedType: IsUnionOf[T, A]
-                SimpleType: IsUnionOf
-                  CodeReferenceElement: IsUnionOf
-                    PsiElement(identifier)('IsUnionOf')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: T
-                    CodeReferenceElement: T
-                      PsiElement(identifier)('T')
-                  PsiElement(,)(',')
-                  PsiWhiteSpace(' ')
-                  SimpleType: A
-                    CodeReferenceElement: A
-                      PsiElement(identifier)('A')
-                  PsiElement(])(']')
+              TypeArgument
+                ParametrizedType: IsUnionOf[T, A]
+                  SimpleType: IsUnionOf
+                    CodeReferenceElement: IsUnionOf
+                      PsiElement(identifier)('IsUnionOf')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
+                    PsiElement(])(']')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -436,9 +446,10 @@ ScalaFile
                         PsiElement(identifier)('Of')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleType: T
-                        CodeReferenceElement: T
-                          PsiElement(identifier)('T')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
@@ -449,9 +460,10 @@ ScalaFile
                 PsiElement(identifier)('Schema')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: T
-                CodeReferenceElement: T
-                  PsiElement(identifier)('T')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
@@ -475,14 +487,16 @@ ScalaFile
                     PsiElement(identifier)('CaseClass')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleType: Schema
-                    CodeReferenceElement: Schema
-                      PsiElement(identifier)('Schema')
+                  TypeArgument
+                    SimpleType: Schema
+                      CodeReferenceElement: Schema
+                        PsiElement(identifier)('Schema')
                   PsiElement(,)(',')
                   PsiWhiteSpace(' ')
-                  SimpleType: T
-                    CodeReferenceElement: T
-                      PsiElement(identifier)('T')
+                  TypeArgument
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
                   PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(=)('=')

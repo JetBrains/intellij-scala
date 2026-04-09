@@ -495,8 +495,9 @@ ScalaFile
                     PsiElement(identifier)('Foo')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  WildcardType: _
-                    PsiElement(_)('_')
+                  TypeArgument
+                    WildcardType: _
+                      PsiElement(_)('_')
                   PsiElement(])(']')
               PsiWhiteSpace(' ')
               PsiElement(=)('=')
@@ -536,9 +537,10 @@ ScalaFile
                               PsiElement(identifier)('Foo')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleType: B11
-                              CodeReferenceElement: B11
-                                PsiElement(identifier)('B11')
+                            TypeArgument
+                              SimpleType: B11
+                                CodeReferenceElement: B11
+                                  PsiElement(identifier)('B11')
                             PsiElement(])(']')
                 PsiWhiteSpace('\n      ')
                 TypedExpression
@@ -554,9 +556,10 @@ ScalaFile
                                 PsiElement(identifier)('Bar')
                             TypeArgumentsList
                               PsiElement([)('[')
-                              SimpleType: Int
-                                CodeReferenceElement: Int
-                                  PsiElement(identifier)('Int')
+                              TypeArgument
+                                SimpleType: Int
+                                  CodeReferenceElement: Int
+                                    PsiElement(identifier)('Int')
                               PsiElement(])(']')
                   PsiElement(:)(':')
                   PsiWhiteSpace(' ')
@@ -566,14 +569,15 @@ ScalaFile
                         PsiElement(identifier)('Bar')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      WildcardType: _ <: Int
-                        PsiElement(_)('_')
-                        PsiWhiteSpace(' ')
-                        PsiElement(<:)('<:')
-                        PsiWhiteSpace(' ')
-                        SimpleType: Int
-                          CodeReferenceElement: Int
-                            PsiElement(identifier)('Int')
+                      TypeArgument
+                        WildcardType: _ <: Int
+                          PsiElement(_)('_')
+                          PsiWhiteSpace(' ')
+                          PsiElement(<:)('<:')
+                          PsiWhiteSpace(' ')
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
                       PsiElement(])(']')
                 PsiWhiteSpace('\n    ')
                 PsiElement(})('}')

@@ -106,8 +106,9 @@ ScalaFile
                 PsiElement(identifier)('EnumValueAux')
             TypeArgumentsList
               PsiElement([)('[')
-              TypeVariable: t
-                PsiElement(identifier)('t')
+              TypeArgument
+                TypeVariable: t
+                  PsiElement(identifier)('t')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
           PsiElement(=>)('=>')
@@ -185,29 +186,31 @@ ScalaFile
             PsiElement(identifier)('summon')
           TypeArgumentsList
             PsiElement([)('[')
-            InfixType: Suit.Value =:= EnumValue[Suit.type]
-              SimpleType: Suit.Value
-                CodeReferenceElement: Suit.Value
-                  CodeReferenceElement: Suit
-                    PsiElement(identifier)('Suit')
-                  PsiElement(.)('.')
-                  PsiElement(identifier)('Value')
-              PsiWhiteSpace(' ')
-              CodeReferenceElement: =:=
-                PsiElement(identifier)('=:=')
-              PsiWhiteSpace(' ')
-              ParametrizedType: EnumValue[Suit.type]
-                SimpleType: EnumValue
-                  CodeReferenceElement: EnumValue
-                    PsiElement(identifier)('EnumValue')
-                TypeArgumentsList
-                  PsiElement([)('[')
-                  SimpleType: Suit.type
+            TypeArgument
+              InfixType: Suit.Value =:= EnumValue[Suit.type]
+                SimpleType: Suit.Value
+                  CodeReferenceElement: Suit.Value
                     CodeReferenceElement: Suit
                       PsiElement(identifier)('Suit')
                     PsiElement(.)('.')
-                    PsiElement(type)('type')
-                  PsiElement(])(']')
+                    PsiElement(identifier)('Value')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: =:=
+                  PsiElement(identifier)('=:=')
+                PsiWhiteSpace(' ')
+                ParametrizedType: EnumValue[Suit.type]
+                  SimpleType: EnumValue
+                    CodeReferenceElement: EnumValue
+                      PsiElement(identifier)('EnumValue')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Suit.type
+                        CodeReferenceElement: Suit
+                          PsiElement(identifier)('Suit')
+                        PsiElement(.)('.')
+                        PsiElement(type)('type')
+                    PsiElement(])(']')
             PsiElement(])(']')
         PsiWhiteSpace('\n')
         End: Test

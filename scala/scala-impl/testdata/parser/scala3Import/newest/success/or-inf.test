@@ -54,9 +54,10 @@ ScalaFile
                           PsiElement(identifier)('Set')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: Int
-                          CodeReferenceElement: Int
-                            PsiElement(identifier)('Int')
+                        TypeArgument
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
                         PsiElement(])(']')
                     PsiWhiteSpace(' ')
                     CodeReferenceElement: |
@@ -68,9 +69,10 @@ ScalaFile
                           PsiElement(identifier)('Set')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: String
-                          CodeReferenceElement: String
-                            PsiElement(identifier)('String')
+                        TypeArgument
+                          SimpleType: String
+                            CodeReferenceElement: String
+                              PsiElement(identifier)('String')
                         PsiElement(])(']')
               PsiElement())(')')
           PsiWhiteSpace(' ')
@@ -136,31 +138,34 @@ ScalaFile
                         PsiElement(identifier)('List')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      InfixType: Set[Int] | Set[String]
-                        ParametrizedType: Set[Int]
-                          SimpleType: Set
-                            CodeReferenceElement: Set
-                              PsiElement(identifier)('Set')
-                          TypeArgumentsList
-                            PsiElement([)('[')
-                            SimpleType: Int
-                              CodeReferenceElement: Int
-                                PsiElement(identifier)('Int')
-                            PsiElement(])(']')
-                        PsiWhiteSpace(' ')
-                        CodeReferenceElement: |
-                          PsiElement(identifier)('|')
-                        PsiWhiteSpace(' ')
-                        ParametrizedType: Set[String]
-                          SimpleType: Set
-                            CodeReferenceElement: Set
-                              PsiElement(identifier)('Set')
-                          TypeArgumentsList
-                            PsiElement([)('[')
-                            SimpleType: String
-                              CodeReferenceElement: String
-                                PsiElement(identifier)('String')
-                            PsiElement(])(']')
+                      TypeArgument
+                        InfixType: Set[Int] | Set[String]
+                          ParametrizedType: Set[Int]
+                            SimpleType: Set
+                              CodeReferenceElement: Set
+                                PsiElement(identifier)('Set')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: Int
+                                  CodeReferenceElement: Int
+                                    PsiElement(identifier)('Int')
+                              PsiElement(])(']')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: |
+                            PsiElement(identifier)('|')
+                          PsiWhiteSpace(' ')
+                          ParametrizedType: Set[String]
+                            SimpleType: Set
+                              CodeReferenceElement: Set
+                                PsiElement(identifier)('Set')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: String
+                                  CodeReferenceElement: String
+                                    PsiElement(identifier)('String')
+                              PsiElement(])(']')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiWhiteSpace(' ')
@@ -239,9 +244,10 @@ ScalaFile
                           PsiElement(identifier)('Set')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: Any
-                          CodeReferenceElement: Any
-                            PsiElement(identifier)('Any')
+                        TypeArgument
+                          SimpleType: Any
+                            CodeReferenceElement: Any
+                              PsiElement(identifier)('Any')
                         PsiElement(])(']')
                     PsiWhiteSpace(' ')
                     CodeReferenceElement: |
@@ -253,9 +259,10 @@ ScalaFile
                           PsiElement(identifier)('Array')
                       TypeArgumentsList
                         PsiElement([)('[')
-                        SimpleType: Any
-                          CodeReferenceElement: Any
-                            PsiElement(identifier)('Any')
+                        TypeArgument
+                          SimpleType: Any
+                            CodeReferenceElement: Any
+                              PsiElement(identifier)('Any')
                         PsiElement(])(']')
               PsiElement())(')')
           PsiWhiteSpace(' ')

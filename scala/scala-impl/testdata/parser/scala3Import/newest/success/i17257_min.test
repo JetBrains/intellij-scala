@@ -96,9 +96,10 @@ ScalaFile
                 PsiElement(identifier)('IsMappedBy')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: C
-                CodeReferenceElement: C
-                  PsiElement(identifier)('C')
+              TypeArgument
+                SimpleType: C
+                  CodeReferenceElement: C
+                    PsiElement(identifier)('C')
               PsiElement(])(']')
       PsiElement(])(']')
     Parameters
@@ -132,289 +133,313 @@ ScalaFile
         PsiElement(identifier)('foo')
       TypeArgumentsList
         PsiElement([)('[')
-        TupleType: (
+        TypeArgument
+          TupleType: (
   C[X], C[X], C[X], C[X], C[X], C[X], C[X], C[X], C[X], C[X],
   C[X], C[X], C[X], C[X], C[X], C[X], C[X], C[X], C[X], C[X],
   C[X], C[X], C[X],
 )
-          PsiElement(()('(')
-          PsiWhiteSpace('\n  ')
-          TypesList
-            ParametrizedType: C[X]
-              SimpleType: C
-                CodeReferenceElement: C
-                  PsiElement(identifier)('C')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: X
-                  CodeReferenceElement: X
-                    PsiElement(identifier)('X')
-                PsiElement(])(']')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            ParametrizedType: C[X]
-              SimpleType: C
-                CodeReferenceElement: C
-                  PsiElement(identifier)('C')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: X
-                  CodeReferenceElement: X
-                    PsiElement(identifier)('X')
-                PsiElement(])(']')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            ParametrizedType: C[X]
-              SimpleType: C
-                CodeReferenceElement: C
-                  PsiElement(identifier)('C')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: X
-                  CodeReferenceElement: X
-                    PsiElement(identifier)('X')
-                PsiElement(])(']')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            ParametrizedType: C[X]
-              SimpleType: C
-                CodeReferenceElement: C
-                  PsiElement(identifier)('C')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: X
-                  CodeReferenceElement: X
-                    PsiElement(identifier)('X')
-                PsiElement(])(']')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            ParametrizedType: C[X]
-              SimpleType: C
-                CodeReferenceElement: C
-                  PsiElement(identifier)('C')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: X
-                  CodeReferenceElement: X
-                    PsiElement(identifier)('X')
-                PsiElement(])(']')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            ParametrizedType: C[X]
-              SimpleType: C
-                CodeReferenceElement: C
-                  PsiElement(identifier)('C')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: X
-                  CodeReferenceElement: X
-                    PsiElement(identifier)('X')
-                PsiElement(])(']')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            ParametrizedType: C[X]
-              SimpleType: C
-                CodeReferenceElement: C
-                  PsiElement(identifier)('C')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: X
-                  CodeReferenceElement: X
-                    PsiElement(identifier)('X')
-                PsiElement(])(']')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            ParametrizedType: C[X]
-              SimpleType: C
-                CodeReferenceElement: C
-                  PsiElement(identifier)('C')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: X
-                  CodeReferenceElement: X
-                    PsiElement(identifier)('X')
-                PsiElement(])(']')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            ParametrizedType: C[X]
-              SimpleType: C
-                CodeReferenceElement: C
-                  PsiElement(identifier)('C')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: X
-                  CodeReferenceElement: X
-                    PsiElement(identifier)('X')
-                PsiElement(])(']')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            ParametrizedType: C[X]
-              SimpleType: C
-                CodeReferenceElement: C
-                  PsiElement(identifier)('C')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: X
-                  CodeReferenceElement: X
-                    PsiElement(identifier)('X')
-                PsiElement(])(']')
-            PsiElement(,)(',')
+            PsiElement(()('(')
             PsiWhiteSpace('\n  ')
-            ParametrizedType: C[X]
-              SimpleType: C
-                CodeReferenceElement: C
-                  PsiElement(identifier)('C')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: X
-                  CodeReferenceElement: X
-                    PsiElement(identifier)('X')
-                PsiElement(])(']')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            ParametrizedType: C[X]
-              SimpleType: C
-                CodeReferenceElement: C
-                  PsiElement(identifier)('C')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: X
-                  CodeReferenceElement: X
-                    PsiElement(identifier)('X')
-                PsiElement(])(']')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            ParametrizedType: C[X]
-              SimpleType: C
-                CodeReferenceElement: C
-                  PsiElement(identifier)('C')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: X
-                  CodeReferenceElement: X
-                    PsiElement(identifier)('X')
-                PsiElement(])(']')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            ParametrizedType: C[X]
-              SimpleType: C
-                CodeReferenceElement: C
-                  PsiElement(identifier)('C')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: X
-                  CodeReferenceElement: X
-                    PsiElement(identifier)('X')
-                PsiElement(])(']')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            ParametrizedType: C[X]
-              SimpleType: C
-                CodeReferenceElement: C
-                  PsiElement(identifier)('C')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: X
-                  CodeReferenceElement: X
-                    PsiElement(identifier)('X')
-                PsiElement(])(']')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            ParametrizedType: C[X]
-              SimpleType: C
-                CodeReferenceElement: C
-                  PsiElement(identifier)('C')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: X
-                  CodeReferenceElement: X
-                    PsiElement(identifier)('X')
-                PsiElement(])(']')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            ParametrizedType: C[X]
-              SimpleType: C
-                CodeReferenceElement: C
-                  PsiElement(identifier)('C')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: X
-                  CodeReferenceElement: X
-                    PsiElement(identifier)('X')
-                PsiElement(])(']')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            ParametrizedType: C[X]
-              SimpleType: C
-                CodeReferenceElement: C
-                  PsiElement(identifier)('C')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: X
-                  CodeReferenceElement: X
-                    PsiElement(identifier)('X')
-                PsiElement(])(']')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            ParametrizedType: C[X]
-              SimpleType: C
-                CodeReferenceElement: C
-                  PsiElement(identifier)('C')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: X
-                  CodeReferenceElement: X
-                    PsiElement(identifier)('X')
-                PsiElement(])(']')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            ParametrizedType: C[X]
-              SimpleType: C
-                CodeReferenceElement: C
-                  PsiElement(identifier)('C')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: X
-                  CodeReferenceElement: X
-                    PsiElement(identifier)('X')
-                PsiElement(])(']')
-            PsiElement(,)(',')
-            PsiWhiteSpace('\n  ')
-            ParametrizedType: C[X]
-              SimpleType: C
-                CodeReferenceElement: C
-                  PsiElement(identifier)('C')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: X
-                  CodeReferenceElement: X
-                    PsiElement(identifier)('X')
-                PsiElement(])(']')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            ParametrizedType: C[X]
-              SimpleType: C
-                CodeReferenceElement: C
-                  PsiElement(identifier)('C')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: X
-                  CodeReferenceElement: X
-                    PsiElement(identifier)('X')
-                PsiElement(])(']')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            ParametrizedType: C[X]
-              SimpleType: C
-                CodeReferenceElement: C
-                  PsiElement(identifier)('C')
-              TypeArgumentsList
-                PsiElement([)('[')
-                SimpleType: X
-                  CodeReferenceElement: X
-                    PsiElement(identifier)('X')
-                PsiElement(])(']')
-            PsiElement(,)(',')
-          PsiWhiteSpace('\n')
-          PsiElement())(')')
+            TypesList
+              ParametrizedType: C[X]
+                SimpleType: C
+                  CodeReferenceElement: C
+                    PsiElement(identifier)('C')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: X
+                      CodeReferenceElement: X
+                        PsiElement(identifier)('X')
+                  PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ParametrizedType: C[X]
+                SimpleType: C
+                  CodeReferenceElement: C
+                    PsiElement(identifier)('C')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: X
+                      CodeReferenceElement: X
+                        PsiElement(identifier)('X')
+                  PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ParametrizedType: C[X]
+                SimpleType: C
+                  CodeReferenceElement: C
+                    PsiElement(identifier)('C')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: X
+                      CodeReferenceElement: X
+                        PsiElement(identifier)('X')
+                  PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ParametrizedType: C[X]
+                SimpleType: C
+                  CodeReferenceElement: C
+                    PsiElement(identifier)('C')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: X
+                      CodeReferenceElement: X
+                        PsiElement(identifier)('X')
+                  PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ParametrizedType: C[X]
+                SimpleType: C
+                  CodeReferenceElement: C
+                    PsiElement(identifier)('C')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: X
+                      CodeReferenceElement: X
+                        PsiElement(identifier)('X')
+                  PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ParametrizedType: C[X]
+                SimpleType: C
+                  CodeReferenceElement: C
+                    PsiElement(identifier)('C')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: X
+                      CodeReferenceElement: X
+                        PsiElement(identifier)('X')
+                  PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ParametrizedType: C[X]
+                SimpleType: C
+                  CodeReferenceElement: C
+                    PsiElement(identifier)('C')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: X
+                      CodeReferenceElement: X
+                        PsiElement(identifier)('X')
+                  PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ParametrizedType: C[X]
+                SimpleType: C
+                  CodeReferenceElement: C
+                    PsiElement(identifier)('C')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: X
+                      CodeReferenceElement: X
+                        PsiElement(identifier)('X')
+                  PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ParametrizedType: C[X]
+                SimpleType: C
+                  CodeReferenceElement: C
+                    PsiElement(identifier)('C')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: X
+                      CodeReferenceElement: X
+                        PsiElement(identifier)('X')
+                  PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ParametrizedType: C[X]
+                SimpleType: C
+                  CodeReferenceElement: C
+                    PsiElement(identifier)('C')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: X
+                      CodeReferenceElement: X
+                        PsiElement(identifier)('X')
+                  PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n  ')
+              ParametrizedType: C[X]
+                SimpleType: C
+                  CodeReferenceElement: C
+                    PsiElement(identifier)('C')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: X
+                      CodeReferenceElement: X
+                        PsiElement(identifier)('X')
+                  PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ParametrizedType: C[X]
+                SimpleType: C
+                  CodeReferenceElement: C
+                    PsiElement(identifier)('C')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: X
+                      CodeReferenceElement: X
+                        PsiElement(identifier)('X')
+                  PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ParametrizedType: C[X]
+                SimpleType: C
+                  CodeReferenceElement: C
+                    PsiElement(identifier)('C')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: X
+                      CodeReferenceElement: X
+                        PsiElement(identifier)('X')
+                  PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ParametrizedType: C[X]
+                SimpleType: C
+                  CodeReferenceElement: C
+                    PsiElement(identifier)('C')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: X
+                      CodeReferenceElement: X
+                        PsiElement(identifier)('X')
+                  PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ParametrizedType: C[X]
+                SimpleType: C
+                  CodeReferenceElement: C
+                    PsiElement(identifier)('C')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: X
+                      CodeReferenceElement: X
+                        PsiElement(identifier)('X')
+                  PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ParametrizedType: C[X]
+                SimpleType: C
+                  CodeReferenceElement: C
+                    PsiElement(identifier)('C')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: X
+                      CodeReferenceElement: X
+                        PsiElement(identifier)('X')
+                  PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ParametrizedType: C[X]
+                SimpleType: C
+                  CodeReferenceElement: C
+                    PsiElement(identifier)('C')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: X
+                      CodeReferenceElement: X
+                        PsiElement(identifier)('X')
+                  PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ParametrizedType: C[X]
+                SimpleType: C
+                  CodeReferenceElement: C
+                    PsiElement(identifier)('C')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: X
+                      CodeReferenceElement: X
+                        PsiElement(identifier)('X')
+                  PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ParametrizedType: C[X]
+                SimpleType: C
+                  CodeReferenceElement: C
+                    PsiElement(identifier)('C')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: X
+                      CodeReferenceElement: X
+                        PsiElement(identifier)('X')
+                  PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ParametrizedType: C[X]
+                SimpleType: C
+                  CodeReferenceElement: C
+                    PsiElement(identifier)('C')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: X
+                      CodeReferenceElement: X
+                        PsiElement(identifier)('X')
+                  PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n  ')
+              ParametrizedType: C[X]
+                SimpleType: C
+                  CodeReferenceElement: C
+                    PsiElement(identifier)('C')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: X
+                      CodeReferenceElement: X
+                        PsiElement(identifier)('X')
+                  PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ParametrizedType: C[X]
+                SimpleType: C
+                  CodeReferenceElement: C
+                    PsiElement(identifier)('C')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: X
+                      CodeReferenceElement: X
+                        PsiElement(identifier)('X')
+                  PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ParametrizedType: C[X]
+                SimpleType: C
+                  CodeReferenceElement: C
+                    PsiElement(identifier)('C')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: X
+                      CodeReferenceElement: X
+                        PsiElement(identifier)('X')
+                  PsiElement(])(']')
+              PsiElement(,)(',')
+            PsiWhiteSpace('\n')
+            PsiElement())(')')
         PsiElement(])(']')

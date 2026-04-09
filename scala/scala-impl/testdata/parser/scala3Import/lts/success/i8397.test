@@ -161,14 +161,16 @@ ScalaFile
                 PsiElement(identifier)('Lub2')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleType: B
-                CodeReferenceElement: B
-                  PsiElement(identifier)('B')
+              TypeArgument
+                SimpleType: B
+                  CodeReferenceElement: B
+                    PsiElement(identifier)('B')
               PsiElement(])(']')
       PsiWhiteSpace(' ')
       PsiElement(with)('with')
@@ -247,9 +249,10 @@ ScalaFile
                 PsiElement(identifier)('Lub')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleType: A
-                CodeReferenceElement: A
-                  PsiElement(identifier)('A')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
               PsiElement(])(']')
       PsiWhiteSpace(' ')
       PsiElement(with)('with')
@@ -307,9 +310,10 @@ ScalaFile
                   PsiElement(identifier)('Lub')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Right
-                  CodeReferenceElement: Right
-                    PsiElement(identifier)('Right')
+                TypeArgument
+                  SimpleType: Right
+                    CodeReferenceElement: Right
+                      PsiElement(identifier)('Right')
                 PsiElement(])(']')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
@@ -328,9 +332,10 @@ ScalaFile
                   PsiElement(identifier)('Lub')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: Right
-                  CodeReferenceElement: Right
-                    PsiElement(identifier)('Right')
+                TypeArgument
+                  SimpleType: Right
+                    CodeReferenceElement: Right
+                      PsiElement(identifier)('Right')
                 PsiElement(])(']')
         PsiElement())(')')
       ParametersClause
@@ -353,20 +358,22 @@ ScalaFile
                   PsiElement(identifier)('Lub2')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleType: lubLeft.Output
-                  CodeReferenceElement: lubLeft.Output
-                    CodeReferenceElement: lubLeft
-                      PsiElement(identifier)('lubLeft')
-                    PsiElement(.)('.')
-                    PsiElement(identifier)('Output')
+                TypeArgument
+                  SimpleType: lubLeft.Output
+                    CodeReferenceElement: lubLeft.Output
+                      CodeReferenceElement: lubLeft
+                        PsiElement(identifier)('lubLeft')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Output')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleType: lubRight.Output
-                  CodeReferenceElement: lubRight.Output
-                    CodeReferenceElement: lubRight
-                      PsiElement(identifier)('lubRight')
-                    PsiElement(.)('.')
-                    PsiElement(identifier)('Output')
+                TypeArgument
+                  SimpleType: lubRight.Output
+                    CodeReferenceElement: lubRight.Output
+                      CodeReferenceElement: lubRight
+                        PsiElement(identifier)('lubRight')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Output')
                 PsiElement(])(']')
         PsiElement())(')')
     PsiWhiteSpace('\n  ')
@@ -381,17 +388,18 @@ ScalaFile
                 PsiElement(identifier)('Lub')
             TypeArgumentsList
               PsiElement([)('[')
-              InfixType: Left | Right
-                SimpleType: Left
-                  CodeReferenceElement: Left
-                    PsiElement(identifier)('Left')
-                PsiWhiteSpace(' ')
-                CodeReferenceElement: |
-                  PsiElement(identifier)('|')
-                PsiWhiteSpace(' ')
-                SimpleType: Right
-                  CodeReferenceElement: Right
-                    PsiElement(identifier)('Right')
+              TypeArgument
+                InfixType: Left | Right
+                  SimpleType: Left
+                    CodeReferenceElement: Left
+                      PsiElement(identifier)('Left')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: |
+                    PsiElement(identifier)('|')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Right
+                    CodeReferenceElement: Right
+                      PsiElement(identifier)('Right')
               PsiElement(])(']')
       PsiWhiteSpace(' ')
       PsiElement(with)('with')
