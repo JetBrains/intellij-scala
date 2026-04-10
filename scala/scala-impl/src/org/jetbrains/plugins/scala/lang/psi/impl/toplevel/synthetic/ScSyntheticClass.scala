@@ -13,6 +13,7 @@ import com.intellij.psi._
 import com.intellij.psi.impl.light.LightElement
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.IncorrectOperationException
+import com.intellij.util.concurrency.annotations.RequiresReadLock
 import com.intellij.util.containers.MultiMap
 import org.intellij.lang.annotations.Language
 import org.jetbrains.annotations.TestOnly
@@ -42,6 +43,7 @@ import org.jetbrains.plugins.scala.{NlsString, ScalaBundle, ScalaFileType, Scala
 
 import javax.swing.Icon
 import scala.collection.mutable
+import scala.util.Using
 
 abstract sealed class SyntheticNamedElement(name: String)
                                            (implicit projectContext: ProjectContext)
@@ -241,7 +243,7 @@ sealed class ScSyntheticFunction(
   typeParameterNames: Seq[String]
 )(implicit projectContext: ProjectContext)
   extends SyntheticNamedElement(name)
-  with ScTypeParametersOwner {
+    with ScTypeParametersOwner {
 
   private var containingSyntheticClass: Option[ScSyntheticClass] = None
 
@@ -337,6 +339,10 @@ final class SyntheticClasses(project: Project) {
   private[synthetic]
   var file : PsiFile = _
 
+  /**
+   * @note read lock is required under the hood in tons of places when parsing files, marking elements as generated, traversing, etc...
+   */
+  @RequiresReadLock
   def registerClasses(): Unit = {
     val stdTypes = ctx.stdTypes
     import stdTypes._
@@ -422,24 +428,32 @@ final class SyntheticClasses(project: Project) {
     def registerAnyValClasses(): Unit = {
       val classLoader = this.getClass.getClassLoader
 
-      stdTypes.allAnyValTypes.foreach { typ =>
+      def readAnyValSource(typ: StdType): Option[(StdType, String)] = {
         val resourcePath = s"scalaLibraryAnyValTypesSources/${typ.name}.scala"
-        Option(classLoader.getResourceAsStream(resourcePath)).foreach { stream =>
-          val fileText = scala.io.Source.fromInputStream(stream).mkString
-          val dummyFile = createDummyFile(typ.name.toLowerCase, fileText)
-
-          val classes = dummyFile.typeDefinitions.filterByType[ScClass]
-          val objects = dummyFile.typeDefinitions.filterByType[ScObject]
-
-          val syntheticClasses: Seq[ScSyntheticClass] = classes.map(convertToSyntheticClass(_, typ))
-          syntheticClasses.foreach { cls =>
-            sharedClasses.put(cls.name, cls)
-          }
-          objects.foreach { obj =>
-            anyValCompanionObjects.put(obj.qualifiedName, obj)
-          }
+        Option(classLoader.getResourceAsStream(resourcePath)).map { stream =>
+          val fileText = Using.resource(scala.io.Source.fromInputStream(stream))(_.mkString)
+          (typ, fileText)
         }
       }
+
+      def registerAnyValSource(anyValSource: (StdType, String)): Unit = {
+        val (typ, fileText) = anyValSource
+        val dummyFile = createDummyFile(typ.name.toLowerCase, fileText)
+
+        val classes = dummyFile.typeDefinitions.filterByType[ScClass]
+        val objects = dummyFile.typeDefinitions.filterByType[ScObject]
+
+        val syntheticClasses: Seq[ScSyntheticClass] = classes.map(convertToSyntheticClass(_, typ))
+        syntheticClasses.foreach { cls =>
+          sharedClasses.put(cls.name, cls)
+        }
+        objects.foreach { obj =>
+          anyValCompanionObjects.put(obj.qualifiedName, obj)
+        }
+      }
+
+      val anyValSources: Seq[(StdType, String)] = stdTypes.allAnyValTypes.flatMap(readAnyValSource)
+      anyValSources.foreach(registerAnyValSource)
     }
 
     registerAnyValClasses()
