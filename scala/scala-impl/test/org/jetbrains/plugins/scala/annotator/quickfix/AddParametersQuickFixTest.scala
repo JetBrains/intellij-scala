@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.codeInspection.ScalaAnnotatorQuickFixTestBase
 
 class AddParametersQuickFixTest extends ScalaAnnotatorQuickFixTestBase {
 
-  override protected def description: String = ???
+  override protected def description: String = ""
 
   override protected def descriptionMatches(s: String): Boolean = s.startsWith("Too many arguments")
 
