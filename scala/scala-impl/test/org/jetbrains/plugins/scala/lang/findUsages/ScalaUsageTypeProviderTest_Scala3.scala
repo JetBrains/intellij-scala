@@ -265,4 +265,59 @@ class ScalaUsageTypeProviderTest_Scala3 extends ScalaUsageTypeProviderTest_Scala
         |""".stripMargin
     )
   }
+
+  def testNamedTypeArgumentUsageType(): Unit = {
+    doTest(
+      """import scala.language.experimental.namedTypeArguments
+        |
+        |object Usage {
+        |  def foo[A, B](a: A, b: B): Unit = ()
+        |  foo[A = Int, B = String](1, "")
+        |}
+        |""".stripMargin,
+      """scala.FILE
+        |  ScImportStatement
+        |    import expression -> Usage in import
+        |      reference[namedTypeArguments] -> Usage in import
+        |        reference[experimental] -> Usage in import
+        |          reference[language] -> Usage in import
+        |            reference[scala] -> Usage in import
+        |  ScObject[Usage]
+        |    extends block
+        |      template body
+        |        function definition[foo] -> Value read
+        |          type parameter clause
+        |            type parameter[A] -> Value read
+        |            type parameter[B] -> Value read
+        |          parameter clauses
+        |            parameter clause
+        |              parameter[a] -> Method parameter declaration
+        |                parameter type -> Method parameter declaration
+        |                  simple type -> Method parameter declaration
+        |                    reference[A] -> Method parameter declaration
+        |              parameter[b] -> Method parameter declaration
+        |                parameter type -> Method parameter declaration
+        |                  simple type -> Method parameter declaration
+        |                    reference[B] -> Method parameter declaration
+        |          simple type -> Method return type
+        |            reference[Unit] -> Method return type
+        |          unit expression -> Value read
+        |        Method call -> Value read
+        |          Generified call -> Value read
+        |            Reference expression[foo] -> Value read
+        |            type arguments -> Type parameter
+        |              type argument -> Type parameter
+        |                reference[A] -> Named type argument
+        |                simple type -> Type parameter
+        |                  reference[Int] -> Type parameter
+        |              type argument -> Type parameter
+        |                reference[B] -> Named type argument
+        |                simple type -> Type parameter
+        |                  reference[String] -> Type parameter
+        |          arguments of function
+        |            IntegerLiteral
+        |            StringLiteral
+        |""".stripMargin
+    )
+  }
 }
