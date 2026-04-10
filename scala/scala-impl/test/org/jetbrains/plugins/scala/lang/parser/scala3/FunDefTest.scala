@@ -725,4 +725,16 @@ class FunDefTest extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  def test_back_to_back_type_param_clauses_after_leading_clause_are_disallowed(): Unit = checkParseErrors(
+    s"""def foo[T]${err("Parameter clause expected")}[U](x: U): U = ???"""
+  )
+
+  def test_back_to_back_interleaved_type_param_clauses_are_disallowed(): Unit = checkParseErrors(
+    s"""def foo[T](x: T)[U]${err("Parameter clause expected")}[V](u: U, v: V): U = u"""
+  )
+
+  def test_interleaved_type_param_clauses_with_value_separator_are_allowed(): Unit = checkParseErrors(
+    """def foo[T](x: T)[U](u: U): U = u"""
+  )
 }
