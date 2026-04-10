@@ -9,7 +9,7 @@ import com.intellij.openapi.projectRoots.JavaSdkVersion
 import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.openapi.ui.validation.RequestorsKt
 import com.intellij.ui.components.JBCheckBox
-import com.intellij.ui.dsl.builder.{Panel, Row, RowLayout}
+import com.intellij.ui.dsl.builder.{ComboBoxKt, Panel, Row, RowLayout}
 import com.intellij.util.lang.JavaVersion
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.sbt.project.template.wizard.kotlin_interop.KotlinInteropUtils
@@ -23,6 +23,7 @@ import org.jetbrains.sbt.project.template.wizard.ScalaVersionStepLike.ScalaJdkVa
 import org.jetbrains.sbt.project.template.{SComboBox, ScalaModuleBuilderSelections}
 
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.Unit.INSTANCE as KUnit
 import scala.collection.immutable.ListSet
 
 trait ScalaVersionStepLike extends IndentationSyntaxStepLike with AsynchronousVersionsDownloading { self: NewProjectWizardStep =>
@@ -80,6 +81,11 @@ trait ScalaVersionStepLike extends IndentationSyntaxStepLike with AsynchronousVe
       row.layout(RowLayout.PARENT_GRID)
       val scalaVersionComboBoxCell = row.cell(scalaVersionComboBox)
       KotlinInteropUtils.bindItem(scalaVersionComboBoxCell, scalaVersionProperty)
+
+      ComboBoxKt.whenItemChangedFromUi(scalaVersionComboBoxCell, null, value => {
+        isScalaVersionManuallySelected.set(true)
+        KUnit
+      })
 
       if (downloadSourcesCheckbox) {
         val downloadSourcesCell = row.cell(downloadScalaSourcesCheckbox)
@@ -155,7 +161,6 @@ trait ScalaVersionStepLike extends IndentationSyntaxStepLike with AsynchronousVe
    */
   private def initUiElementsListeners(): Unit = {
     scalaVersionComboBox.addActionListener { _ =>
-      isScalaVersionManuallySelected.set(true)
       selections.scalaVersion = scalaVersionComboBox.getSelectedItemTyped
     }
 
