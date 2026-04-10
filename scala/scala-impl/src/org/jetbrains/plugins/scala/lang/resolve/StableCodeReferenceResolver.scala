@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
-import com.intellij.psi.PsiNamedElement
+import com.intellij.psi.{PsiNamedElement, PsiTypeParameterListOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScExtractorPattern
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeArgument
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeArgument}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScGenericCall
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 
@@ -16,14 +16,16 @@ class StableCodeReferenceResolver(
   noConstructorResolve:  Boolean
 ) {
 
-  private def processMethodTypeParameters(
+  private def processTypeParameters(
     elem: PsiNamedElement,
     name: String
   ): Option[ScalaResolveResult] =
     elem match {
-      case fn: ScFunction =>
-        val typeParams      = fn.typeParameters
-        val targetTypeParam = typeParams.find(_.name == name)
+      case owner: ScTypeParametersOwner =>
+        val targetTypeParam = owner.typeParameters.find(_.name == name)
+        targetTypeParam.map(new ScalaResolveResult(_))
+      case owner: PsiTypeParameterListOwner =>
+        val targetTypeParam = owner.getTypeParameters.find(_.getName == name)
         targetTypeParam.map(new ScalaResolveResult(_))
       case _ => None
     }
@@ -37,18 +39,30 @@ class StableCodeReferenceResolver(
 
         resolveResults match {
           case Array(srr) =>
-            val targetTypeParam = processMethodTypeParameters(srr.element, name)
+            val targetTypeParam = processTypeParameters(srr.element, name)
             targetTypeParam match {
               case Some(typeParam) => Array(typeParam)
               case None => //Check type parameters of apply method candidate (if present)
                 val applyMethodTypeParam =
                   srr.innerResolveResult.flatMap(
                     innerSrr =>
-                      processMethodTypeParameters(innerSrr.element, name)
+                      processTypeParameters(innerSrr.element, name)
                   )
 
                 applyMethodTypeParam.toArray
             }
+          case _ => ScalaResolveResult.EMPTY_ARRAY
+        }
+      case pte: ScParameterizedTypeElement =>
+        pte.typeElement match {
+          case ste: ScSimpleTypeElement =>
+            ste.reference
+              .flatMap(_.bind())
+              .flatMap { srr =>
+                processTypeParameters(srr.element, name)
+                  .orElse(srr.innerResolveResult.flatMap(innerSrr => processTypeParameters(innerSrr.element, name)))
+              }
+              .toArray
           case _ => ScalaResolveResult.EMPTY_ARRAY
         }
       case _ => ScalaResolveResult.EMPTY_ARRAY

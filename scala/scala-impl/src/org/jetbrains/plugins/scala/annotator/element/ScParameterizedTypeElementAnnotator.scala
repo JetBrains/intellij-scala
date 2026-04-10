@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameter}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, Stop}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
@@ -134,17 +135,34 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
       }
     }
 
+    val argsWithParams: Seq[(T, TypeParameter)] =
+      if (!hasNamedTypeArgs) args.zip(params)
+      else args.flatMap {
+        case targ: ScTypeArgument =>
+          for {
+            argName <- targ.name
+            param <- params.find(p => ScalaNamesUtil.equivalent(p.name, argName))
+          } yield targ.asInstanceOf[T] -> param
+        case _ => None
+      }
+
     val substitute: ScSubstitutor = {
       val (ps, as) = (
         for {
-          (param, arg) <- params.zip(args)
+          (arg, param) <- argsWithParams
           argTy        <- getType(arg).toOption
         } yield (param, argTy)
       ).unzip
       contextSubstitutor.followed(ScSubstitutor.bind(ps, as))
     }
 
-    def argIsDesignatedToTypeVariable(arg: T): Boolean = arg match {
+    def typeElementOf(arg: T): Option[ScTypeElement] = arg match {
+      case te: ScTypeElement   => Some(te)
+      case targ: ScTypeArgument => targ.typeElement
+      case _                    => None
+    }
+
+    def argIsDesignatedToTypeVariable(arg: T): Boolean = typeElementOf(arg).exists {
       case _: ScTypeVariableTypeElement => true
       case ste: ScSimpleTypeElement =>
         ste.reference.flatMap(_.bind()).exists(_.element.is[ScTypeVariableTypeElement])
@@ -153,7 +171,7 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
 
     for {
       // the zip will cut away missing or excessive arguments
-      (arg, param) <- args.zip(params)
+      (arg, param) <- argsWithParams
       argTy        <- getType(arg).toOption
       range        = if (isForContextBound) annotationRange else arg.getTextRange
       if !argTy.is[ScExistentialArgument, ScExistentialType] &&

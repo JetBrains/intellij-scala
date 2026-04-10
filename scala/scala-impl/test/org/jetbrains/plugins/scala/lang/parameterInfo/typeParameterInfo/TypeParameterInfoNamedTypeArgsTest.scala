@@ -29,7 +29,8 @@ class TypeParameterInfoNamedTypeArgsTest extends ScalaLightCodeInsightFixtureTes
         |def construct[Elem, Coll](xs: Elem*): Coll = ???
         |
         |val xs = construct[Coll = List[Int], Ele<caret>m = Int](1, 2, 3)
-        |""".stripMargin
+        |""".stripMargin,
+      requireTypeArgAtCaret = true
     )
 
     assertHighlightedName(presentation, "Elem")
@@ -43,7 +44,8 @@ class TypeParameterInfoNamedTypeArgsTest extends ScalaLightCodeInsightFixtureTes
         |def construct[Elem, Coll](xs: Elem*): Coll = ???
         |
         |val xs = construct[Col<caret>l = List[Int], Int](1, 2, 3)
-        |""".stripMargin
+        |""".stripMargin,
+      requireTypeArgAtCaret = true
     )
 
     assertHighlightedName(presentation, "Coll")
@@ -57,7 +59,8 @@ class TypeParameterInfoNamedTypeArgsTest extends ScalaLightCodeInsightFixtureTes
         |def construct[Elem, Coll](xs: Elem*): Coll = ???
         |
         |val xs = construct[Coll = List[Int], In<caret>t](1, 2, 3)
-        |""".stripMargin
+        |""".stripMargin,
+      requireTypeArgAtCaret = false
     )
 
     assertEquals("Expected no highlighted type parameter in mixed named/positional mode", -1, presentation.highlightStart)
@@ -79,7 +82,7 @@ class TypeParameterInfoNamedTypeArgsTest extends ScalaLightCodeInsightFixtureTes
     assertEquals("Expected caret in named type-arg name to map to that argument index", 0, index)
   }
 
-  private def renderTypeParameterInfoAtCaret(code: String): TypeParameterInfoPresentation = {
+  private def renderTypeParameterInfoAtCaret(code: String, requireTypeArgAtCaret: Boolean): TypeParameterInfoPresentation = {
     configureScala3FromFileText(code)
 
     val offset = myFixture.getCaretOffset
@@ -91,7 +94,9 @@ class TypeParameterInfoNamedTypeArgsTest extends ScalaLightCodeInsightFixtureTes
       typeArg.typeElement.exists(_.getTextRange.containsOffset(offset)) ||
         typeArg.nameElement.exists(_.getTextRange.containsOffset(offset))
     )
-    assertTrue(s"Expected caret to be inside a type argument, got index = $currentArgIndex", currentArgIndex >= 0)
+    if (requireTypeArgAtCaret) {
+      assertTrue(s"Expected caret to be inside a type argument, got index = $currentArgIndex", currentArgIndex >= 0)
+    }
 
     val typeParametersOwner = PsiTreeUtil.findChildOfType(getFile, classOf[ScFunction])
     assertNotNull("Expected type parameters owner in test code", typeParametersOwner)

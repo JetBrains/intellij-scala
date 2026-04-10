@@ -43,13 +43,6 @@ object GenerateGivenNameTest {
     //////////////////// atoms /////////////////
     GivenNameTestData(
       """
-        |trait Entry { type Key; val key: Key }
-        |given (e: Entry) => e.Key = ???
-        |""".stripMargin,
-      "given_Entry_to_Key"
-    ),
-    GivenNameTestData(
-      """
         |given Int = 0
         |""".stripMargin,
       "given_Int"

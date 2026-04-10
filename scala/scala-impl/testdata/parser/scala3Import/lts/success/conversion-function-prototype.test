@@ -441,7 +441,7 @@ ScalaFile
           BlockExpression
             PsiElement({)('{')
             PsiWhiteSpace('\n    ')
-            ScGivenAliasDefinition: given_ConversionFunction_
+            ScGivenAliasDefinition: given_ConversionFunction_X_to_T
               AnnotationsList
                 <empty list>
               Modifiers
@@ -581,7 +581,7 @@ ScalaFile
           BlockExpression
             PsiElement({)('{')
             PsiWhiteSpace('\n    ')
-            ScGivenAliasDefinition: given_ConversionFunction_
+            ScGivenAliasDefinition: given_ConversionFunction_X_to_T
               AnnotationsList
                 <empty list>
               Modifiers

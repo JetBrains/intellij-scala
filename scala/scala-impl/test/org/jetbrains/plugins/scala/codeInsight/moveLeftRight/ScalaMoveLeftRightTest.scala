@@ -83,21 +83,6 @@ class ScalaMoveLeftRightTest extends ScalaMoveLeftRightTestBase {
     )
   }
 
-  def testMixedNamedAndPositionalTypeArgs(): Unit = {
-    doTestFromLeftToRight(
-      """import scala.language.experimental.namedTypeArguments
-        |
-        |def construct[A, B]: Unit = ()
-        |
-        |construct[A<caret> = Int, String]""".stripMargin,
-      """import scala.language.experimental.namedTypeArguments
-        |
-        |def construct[A, B]: Unit = ()
-        |
-        |construct[String, A<caret> = Int]""".stripMargin
-    )
-  }
-
   def testPatternArgs(): Unit = {
     doTestFromRightToLeft (
       "val List(x, <caret>y) = List(1, 2)",

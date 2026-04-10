@@ -52,41 +52,43 @@ class TypeParserTest extends SimpleScala3ParserTestBase {
       |          PsiElement(identifier)('HKT')
       |      TypeArgumentsList
       |        PsiElement([)('[')
-      |        TypeProjection: { type l[a] = Option[a] }#l
-      |          CompoundType: { type l[a] = Option[a] }
-      |            Refinement
-      |              PsiElement({)('{')
-      |              PsiWhiteSpace(' ')
-      |              ScTypeAliasDefinition: l
-      |                AnnotationsList
-      |                  <empty list>
-      |                Modifiers
-      |                  <empty list>
-      |                PsiElement(type)('type')
+      |        TypeArgument
+      |          TypeProjection: { type l[a] = Option[a] }#l
+      |            CompoundType: { type l[a] = Option[a] }
+      |              Refinement
+      |                PsiElement({)('{')
       |                PsiWhiteSpace(' ')
-      |                PsiElement(identifier)('l')
-      |                TypeParameterClause
-      |                  PsiElement([)('[')
-      |                  TypeParameter: a
-      |                    PsiElement(identifier)('a')
-      |                  PsiElement(])(']')
-      |                PsiWhiteSpace(' ')
-      |                PsiElement(=)('=')
-      |                PsiWhiteSpace(' ')
-      |                ParametrizedType: Option[a]
-      |                  SimpleType: Option
-      |                    CodeReferenceElement: Option
-      |                      PsiElement(identifier)('Option')
-      |                  TypeArgumentsList
+      |                ScTypeAliasDefinition: l
+      |                  AnnotationsList
+      |                    <empty list>
+      |                  Modifiers
+      |                    <empty list>
+      |                  PsiElement(type)('type')
+      |                  PsiWhiteSpace(' ')
+      |                  PsiElement(identifier)('l')
+      |                  TypeParameterClause
       |                    PsiElement([)('[')
-      |                    SimpleType: a
-      |                      CodeReferenceElement: a
-      |                        PsiElement(identifier)('a')
+      |                    TypeParameter: a
+      |                      PsiElement(identifier)('a')
       |                    PsiElement(])(']')
-      |              PsiWhiteSpace(' ')
-      |              PsiElement(})('}')
-      |          PsiElement(#)('#')
-      |          PsiElement(identifier)('l')
+      |                  PsiWhiteSpace(' ')
+      |                  PsiElement(=)('=')
+      |                  PsiWhiteSpace(' ')
+      |                  ParametrizedType: Option[a]
+      |                    SimpleType: Option
+      |                      CodeReferenceElement: Option
+      |                        PsiElement(identifier)('Option')
+      |                    TypeArgumentsList
+      |                      PsiElement([)('[')
+      |                      TypeArgument
+      |                        SimpleType: a
+      |                          CodeReferenceElement: a
+      |                            PsiElement(identifier)('a')
+      |                      PsiElement(])(']')
+      |                PsiWhiteSpace(' ')
+      |                PsiElement(})('}')
+      |            PsiElement(#)('#')
+      |            PsiElement(identifier)('l')
       |        PsiElement(])(']')
       |  PsiWhiteSpace('\n')
       |""".stripMargin

@@ -108,7 +108,7 @@ trait TypeAdapter {
     psiElementTypeChache.getOrElseUpdate(elem, {
       elem match {
         case targ: ScTypeArgument =>
-          toType(targ.typeElement.map(_.calcType).getOrElse(Any(elem)))
+          targ.typeElement.map(toType).getOrElse(toType(Any(elem)))
         case t: typedef.ScTemplateDefinition if dumbMode =>
           m.Type.Name(t.name)
         case t: typedef.ScTemplateDefinition =>
