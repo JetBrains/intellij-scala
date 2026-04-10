@@ -54,7 +54,9 @@ class MavenProjectWithPureJavaModuleTest(jdkVersion: TestJdkVersion) extends Mav
         |        <module>module1</module>
         |        <module>module2</module>
         |    </modules>
-        |""".stripMargin)
+        |""".stripMargin,
+      false,
+    )
     createModulePom("module1",
       """    <!-- parent pom -->
         |    <parent>
@@ -80,7 +82,9 @@ class MavenProjectWithPureJavaModuleTest(jdkVersion: TestJdkVersion) extends Mav
         |                <version>3.11.0</version>
         |            </plugin>
         |        </plugins>
-        |    </build>""".stripMargin)
+        |    </build>""".stripMargin,
+      false,
+    )
     createModulePom("module2",
       """<!-- parent pom -->
         |    <parent>
@@ -131,7 +135,9 @@ class MavenProjectWithPureJavaModuleTest(jdkVersion: TestJdkVersion) extends Mav
         |            <artifactId>module1</artifactId>
         |            <version>1.0-SNAPSHOT</version>
         |        </dependency>
-        |    </dependencies>""".stripMargin)
+        |    </dependencies>""".stripMargin,
+      false,
+    )
     createProjectSubFile("module1/src/main/java/Greeter.java",
       """interface Greeter {
         |  String greeting();
