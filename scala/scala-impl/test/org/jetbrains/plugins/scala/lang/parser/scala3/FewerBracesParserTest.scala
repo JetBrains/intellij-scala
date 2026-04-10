@@ -2140,9 +2140,10 @@ class FewerBracesParserTest extends SimpleScala3ParserTestBase {
       |          PsiElement(identifier)('empty')
       |        TypeArgumentsList
       |          PsiElement([)('[')
-      |          SimpleType: Int
-      |            CodeReferenceElement: Int
-      |              PsiElement(identifier)('Int')
+      |          TypeArgument
+      |            SimpleType: Int
+      |              CodeReferenceElement: Int
+      |                PsiElement(identifier)('Int')
       |          PsiElement(])(']')
       |      PsiErrorElement:Unexpected token
       |        <empty list>

@@ -53,6 +53,7 @@ class Scala3NamedTypeArgumentsAnnotatorTest extends ScalaHighlightingTestBase {
       |
       |val xs = construct[Unknown = Int](1)
       |""".stripMargin,
-    Error("Unknown", "Cannot resolve symbol Unknown")
+    Error("Unknown", "Cannot resolve symbol Unknown"),
+    Error("1", "Type mismatch, expected: Elem, actual: Int")
   )
 }

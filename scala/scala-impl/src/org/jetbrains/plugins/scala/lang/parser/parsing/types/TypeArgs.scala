@@ -102,8 +102,11 @@ trait TypeArgs {
               if (parseNamedArgs) parseNamedTypeArg()
               else if (builder.isScala3 && !isPattern && builder.lookAhead(ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tASSIGN)) {
                 // In positional mode we still consume the named argument for better recovery.
-                builder error mixedTypeArgsError
-                parseNamedTypeArg()
+                val mixedArgMarker = builder.mark()
+                val parsedNamedTypeArg = parseNamedTypeArg()
+                if (parsedNamedTypeArg) mixedArgMarker.error(mixedTypeArgsError)
+                else mixedArgMarker.drop()
+                parsedNamedTypeArg
               } else parsePositionalTypeArg()
 
             if (!parsedType) builder error ScalaBundle.message("wrong.type")

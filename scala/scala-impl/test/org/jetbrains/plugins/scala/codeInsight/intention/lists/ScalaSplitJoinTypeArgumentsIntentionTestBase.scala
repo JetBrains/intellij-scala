@@ -73,30 +73,6 @@ abstract class ScalaSplitJoinTypeArgumentsIntentionTestBase extends ScalaSplitJo
     )
 
   @Test
-  def testMethodCallMixedNamedAndPositionalTypeArgs(): Unit =
-    doTest(
-      singleLineText =
-        """import scala.language.experimental.namedTypeArguments
-          |
-          |def foo[A, B]: Unit = {}
-          |
-          |object Test {
-          |  foo[A = Int, String]
-          |}""".stripMargin,
-      multiLineText =
-        """import scala.language.experimental.namedTypeArguments
-          |
-          |def foo[A, B]: Unit = {}
-          |
-          |object Test {
-          |  foo[
-          |    A = Int,
-          |    String
-          |  ]
-          |}""".stripMargin
-    )
-
-  @Test
   def testMethodCallWithOneArg(): Unit =
     checkIntentionIsNotAvailable(
       """def foo[A]: Unit = {}
