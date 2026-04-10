@@ -68,7 +68,7 @@ class SbtRunConfiguration(
   override def getValidModules: util.Collection[Module] = new java.util.ArrayList
 
   override def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState =
-    new SbtCommandLineState(preprocessTasks(), this, env)
+    new SbtCommandLineState(tasks, this, env)
 
   override def getConfigurationEditor: SettingsEditor[? <: RunConfiguration] = new SbtRunConfigurationEditor(project, this)
 
@@ -101,9 +101,6 @@ class SbtRunConfiguration(
     envFilePaths.addAll(params.getEnvFilePaths)
     useSbtShell = params.isUseSbtShell
   }
-
-  protected def preprocessTasks(): String =
-    StringUtil.unquoteString(tasks.trim)
 }
 
 class SbtCommandLineState(
